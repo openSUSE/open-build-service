@@ -248,8 +248,8 @@ RSpec.describe Backend::File, vcr: true do
   end
 
   describe '.query_from_list' do
-    let(:hash) { {a: 1, b: 2} }
-    let(:hash_with_nil_values) { {a: 1, b: 2, c: nil, d: 6} }
+    let(:hash) { { a: 1, b: 2 } }
+    let(:hash_with_nil_values) { { a: 1, b: 2, c: nil, d: 6 } }
     let(:key_list) { [:a] }
 
     it { expect(Backend::File.query_from_list({})).to be_empty }

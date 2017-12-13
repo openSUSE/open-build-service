@@ -96,13 +96,13 @@ class ValidatorTest < ActiveSupport::TestCase
     assert_xml_tag xml, tag: "services", children: { count: 3, only: { tag: "service" } }
     assert_xml_tag xml, tag: "service", attributes: { name: "download_files" }
     assert_xml_tag xml, parent: { tag: "service", attributes: { name: "download_url" } },
-                        tag: "param", attributes: { name: "host"},
+                        tag: "param", attributes: { name: "host" },
                         content: "blahfasel"
     assert_xml_tag xml, parent: { tag: "service", attributes: { name: "set_version" } },
-                        tag: "param", attributes: { name: "version"},
+                        tag: "param", attributes: { name: "version" },
                         content: "0815"
     assert_no_xml_tag xml, parent: { tag: "service", attributes: { name: "set_version" } },
-                           tag: "param", attributes: { name: "version"},
+                           tag: "param", attributes: { name: "version" },
                            content: "0816"
     assert_xml_tag xml, child: { tag: "param" }, attributes: { name: "download_url" }
 
@@ -125,6 +125,6 @@ class ValidatorTest < ActiveSupport::TestCase
         </watchlist>
       </person>
     EOS
-    assert_no_xml_tag xml, {tag: "person", child: {tag: "globalrole", content: "Admin"}}
+    assert_no_xml_tag xml, { tag: "person", child: { tag: "globalrole", content: "Admin" } }
   end
 end

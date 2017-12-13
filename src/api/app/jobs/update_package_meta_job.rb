@@ -23,7 +23,7 @@ class UpdatePackageMetaJob < ApplicationJob
     scan_links
 
     # delete all BackendPackages of patchinfo Packages that are not links
-    BackendPackage.not_links.joins(package: :package_kinds).where(package_kinds: {kind: :patchinfo}).delete_all
+    BackendPackage.not_links.joins(package: :package_kinds).where(package_kinds: { kind: :patchinfo }).delete_all
 
     BackendPackage.refresh_dirty
   end

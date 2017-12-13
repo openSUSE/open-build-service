@@ -943,7 +943,7 @@ RSpec.describe Webui::PackageController, vcr: true do
           { project:    source_project,
             package:    "#{source_package}:multibuild-package",
             repository: repo_leap_42_2.name,
-            arch:       architecture.name}
+            arch:       architecture.name }
         }
         let(:starttime) { 1.hour.ago.to_i }
 
@@ -1011,7 +1011,7 @@ RSpec.describe Webui::PackageController, vcr: true do
           { project:    source_project,
             package:    "#{source_package}:multibuild-package",
             repository: repo_leap_42_2.name,
-            arch:       architecture.name}
+            arch:       architecture.name }
         }
 
         before do

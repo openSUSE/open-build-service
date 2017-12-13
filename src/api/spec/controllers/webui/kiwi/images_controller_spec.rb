@@ -215,7 +215,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
               prefer_license: 0,
               imageinclude:   0,
               replaceable:    0
-            }}, use_project_repositories: '0' }
+            } }, use_project_repositories: '0' }
           }
         end
 
@@ -242,7 +242,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
               prefer_license: 0,
               imageinclude:   0,
               replaceable:    0
-            }}, use_project_repositories: '1' }
+            } }, use_project_repositories: '1' }
           }
         end
 

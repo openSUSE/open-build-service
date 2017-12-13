@@ -179,7 +179,7 @@ class BsRequest < ApplicationRecord
 
       request.priority = hashed.delete('priority') || 'moderate'
 
-      state = hashed.delete('state') || Xmlhash::XMLHash.new({'name' => 'new'})
+      state = hashed.delete('state') || Xmlhash::XMLHash.new({ 'name' => 'new' })
       request.state = state.delete('name') || 'new'
       request.state = :declined if request.state.to_s == 'rejected'
       request.state = :accepted if request.state.to_s == 'accept'
@@ -317,11 +317,11 @@ class BsRequest < ApplicationRecord
   def to_axml(opts = {})
     if opts[:withfullhistory]
       Rails.cache.fetch("xml_bs_request_fullhistory_#{cache_key}") do
-        render_xml({withfullhistory: 1})
+        render_xml({ withfullhistory: 1 })
       end
     elsif opts[:withhistory]
       Rails.cache.fetch("xml_bs_request_history_#{cache_key}") do
-        render_xml({withhistory: 1})
+        render_xml({ withhistory: 1 })
       end
     else
       Rails.cache.fetch("xml_bs_request_#{cache_key}") do
@@ -345,7 +345,7 @@ class BsRequest < ApplicationRecord
       bs_request_actions.each do |action|
         action.render_xml(r)
       end
-      attributes = {name: state, who: commenter, when: updated_when.strftime('%Y-%m-%dT%H:%M:%S')}
+      attributes = { name: state, who: commenter, when: updated_when.strftime('%Y-%m-%dT%H:%M:%S') }
       attributes[:superseded_by] = superseded_by if superseded_by
 
       r.priority priority unless priority == "moderate"
@@ -361,7 +361,7 @@ class BsRequest < ApplicationRecord
       end
 
       if opts[:withfullhistory] || opts[:withhistory]
-        attributes = {who: creator, when: created_at.strftime('%Y-%m-%dT%H:%M:%S')}
+        attributes = { who: creator, when: created_at.strftime('%Y-%m-%dT%H:%M:%S') }
         builder.history(attributes) do
           # request description is on purpose the comment in history:
           builder.description! "Request created"
@@ -449,7 +449,7 @@ class BsRequest < ApplicationRecord
     self.state = :new
     save
 
-    p = {request: self, comment: "Reopened by removing from group #{group.bs_request.number}", user_id: User.current.id}
+    p = { request: self, comment: "Reopened by removing from group #{group.bs_request.number}", user_id: User.current.id }
     HistoryElement::RequestReopened.create(p)
   end
 
@@ -459,7 +459,7 @@ class BsRequest < ApplicationRecord
   end
 
   def permission_check_setincident!(incident)
-    checker = BsRequestPermissionCheck.new(self, {incident: incident})
+    checker = BsRequestPermissionCheck.new(self, { incident: incident })
     checker.cmd_setincident_permissions
   end
 
@@ -593,7 +593,7 @@ class BsRequest < ApplicationRecord
       end
       save!
 
-      params = {request: self, comment: opts[:comment], user_id: User.current.id}
+      params = { request: self, comment: opts[:comment], user_id: User.current.id }
       case opts[:newstate]
       when "accepted" then
         history = HistoryElement::RequestAccepted
@@ -706,7 +706,7 @@ class BsRequest < ApplicationRecord
       end
       raise Review::NotFoundError unless found
       history = nil
-      p = {request: self, comment: opts[:comment], user_id: User.current.id}
+      p = { request: self, comment: opts[:comment], user_id: User.current.id }
       if new_review_state == :superseded
         self.state = :superseded
         self.superseded_by = opts[:superseded_by]
@@ -795,7 +795,7 @@ class BsRequest < ApplicationRecord
       raise SaveError, "Illegal priority '#{opts[:priority]}'"
     end
 
-    p = {request: self, user_id: User.current.id, description_extension: "#{priority} => #{opts[:priority]}"}
+    p = { request: self, user_id: User.current.id, description_extension: "#{priority} => #{opts[:priority]}" }
     p[:comment] = opts[:comment] if opts[:comment]
 
     self.priority = opts[:priority]
@@ -810,7 +810,7 @@ class BsRequest < ApplicationRecord
 
     touched = false
     # all maintenance_incident actions go into the same incident project
-    p = {request: self, user_id: User.current.id}
+    p = { request: self, user_id: User.current.id }
     bs_request_actions.where(type: 'maintenance_incident').each do |action|
       tprj = Project.get_by_name action.target_project
 
@@ -921,13 +921,13 @@ class BsRequest < ApplicationRecord
       User.current ||= User.find_by_login creator
 
       begin
-        change_state({newstate: 'accepted', comment: 'Auto accept'})
+        change_state({ newstate: 'accepted', comment: 'Auto accept' })
       rescue BsRequestPermissionCheck::NotExistingTarget
-        change_state({newstate: 'revoked', comment: 'Target disappeared'})
+        change_state({ newstate: 'revoked', comment: 'Target disappeared' })
       rescue PostRequestNoPermission
-        change_state({newstate: 'revoked', comment: 'Permission problem'})
+        change_state({ newstate: 'revoked', comment: 'Permission problem' })
       rescue APIException
-        change_state({newstate: 'declined', comment: 'Unhandled error during accept'})
+        change_state({ newstate: 'declined', comment: 'Unhandled error during accept' })
       end
     end
   end
@@ -976,7 +976,7 @@ class BsRequest < ApplicationRecord
 
     # Autoapproval? Is the creator allowed to accept it?
     if accept_at
-      permission_check_change_state!({newstate: 'accepted'})
+      permission_check_change_state!({ newstate: 'accepted' })
     end
 
     apply_default_reviewers
@@ -984,7 +984,7 @@ class BsRequest < ApplicationRecord
 
   def set_accept_at!(time = nil)
     # Approve a request to be accepted when the reviews finished
-    permission_check_change_state!({newstate: 'accepted'})
+    permission_check_change_state!({ newstate: 'accepted' })
 
     self.accept_at = time || Time.now
     save!
@@ -1040,7 +1040,7 @@ class BsRequest < ApplicationRecord
     # TODO: Fix!
     actions = []
     bs_request_actions.each do |xml|
-      action = {type: xml.action_type}
+      action = { type: xml.action_type }
 
       if xml.source_project
         action[:sprj] = xml.source_project
@@ -1068,7 +1068,7 @@ class BsRequest < ApplicationRecord
           linkinfo = target_package.linkinfo
           target_package.developed_packages.each do |dev_pkg|
             action[:forward] ||= []
-            action[:forward] << {project: dev_pkg.project.name, package: dev_pkg.name, type: 'devel' }
+            action[:forward] << { project: dev_pkg.project.name, package: dev_pkg.name, type: 'devel' }
           end
           if linkinfo
             lprj, lpkg = linkinfo['project'], linkinfo['package']
@@ -1083,7 +1083,7 @@ class BsRequest < ApplicationRecord
             end
             unless link_is_already_devel
               action[:forward] ||= []
-              action[:forward] << {project: linkinfo['project'], package: linkinfo['package'], type: 'link'}
+              action[:forward] << { project: linkinfo['project'], package: linkinfo['package'], type: 'link' }
             end
           end
         end

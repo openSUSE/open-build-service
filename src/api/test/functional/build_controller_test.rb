@@ -246,7 +246,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
   def test_multibuild_routes
     get "/build/BaseDistro3/BaseDistro3_repo/i586/pack2:package_multibuild"
     assert_response :success
-    assert_xml_tag( tag: "binary", parent: {tag: "binarylist"} )
+    assert_xml_tag( tag: "binary", parent: { tag: "binarylist" } )
     get "/build/BaseDistro3/BaseDistro3_repo/i586/pack2:package_multibuild/_log"
     assert_response :success
     get "/build/BaseDistro3/BaseDistro3_repo/i586/pack2:package_multibuild/package-1.0-1.src.rpm"

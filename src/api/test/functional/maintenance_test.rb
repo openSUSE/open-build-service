@@ -29,19 +29,19 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post '/source/home:tom:BaseDistro:SP1/pack1', params: { cmd: 'branch', target_project: 'home:tom:Branch', missingok: 1 }
     assert_response 400
     # osc catches this error code and is fallingback to newinstance=1
-    assert_xml_tag tag: 'status', attributes: {code: "not_missing"}
+    assert_xml_tag tag: 'status', attributes: { code: "not_missing" }
 
     post '/source/home:tom:BaseDistro:SP1/pack1', params: { cmd: 'branch', target_project: 'home:tom:Branch', newinstance: 1, extend_package_names: 1 }
     assert_response :success
-    assert_xml_tag tag: 'data', attributes: {name: "sourceproject"}, content: "home:tom:BaseDistro:SP1"
+    assert_xml_tag tag: 'data', attributes: { name: "sourceproject" }, content: "home:tom:BaseDistro:SP1"
 
     get "/source/home:tom:Branch/pack1.home_tom_BaseDistro_SP1/_link"
     assert_response :success
-    assert_xml_tag tag: 'link', attributes: {project: "home:tom:BaseDistro:SP1"}
+    assert_xml_tag tag: 'link', attributes: { project: "home:tom:BaseDistro:SP1" }
 
     post '/source/BaseDistro:Update/pack1', params: { cmd: 'branch', target_project: 'home:tom:Branch', missingok: 1, extend_package_names: 1 }
     assert_response 400
-    assert_xml_tag tag: 'status', attributes: {code: "not_missing"}
+    assert_xml_tag tag: 'status', attributes: { code: "not_missing" }
 
     delete "/source/home:tom:Branch"
     assert_response :success
@@ -475,8 +475,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    <state name='new' />
                                  </request>"
     assert_response :success
-    assert_xml_tag tag: "target", attributes: {project: "ServicePack:Update", package: "pack2.100"}
-    assert_xml_tag tag: "target", attributes: {project: "ServicePack:Update", package: "pack2.linked.100"}
+    assert_xml_tag tag: "target", attributes: { project: "ServicePack:Update", package: "pack2.100" }
+    assert_xml_tag tag: "target", attributes: { project: "ServicePack:Update", package: "pack2.linked.100" }
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     reqid = node.value(:id)
@@ -979,7 +979,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_match(/DUMMY bnc#1042/, @response.body)
     get "/source/#{incident_project}/pack2.BaseDistro2.0_LinkedUpdateProject?view=issues"
     assert_response :success
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: "added"} },
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: "added" } },
                    tag: 'name', content: '1042'
 
     # add a new package with defined link target
@@ -1019,7 +1019,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     pi.find_first('description').text = 'if you are bored and really want fixes'
     pi.find_first('rating').text = 'important'
     pi.add_element('name').text = 'oldname'
-    pi.add_element 'issue', { 'id' => '0815', 'tracker' => 'bnc'}
+    pi.add_element 'issue', { 'id' => '0815', 'tracker' => 'bnc' }
     pi.add_element 'releasetarget', { project: 'BaseDistro2.0:LinkedUpdateProject' }
     pi.add_element 'releasetarget', { project: 'BaseDistro3' }
     Timecop.freeze(1)
@@ -1032,7 +1032,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response 404
     assert_xml_tag tag: 'status', attributes: { code: 'releasetarget_not_found' }
     # add broken tracker
-    pi.add_element 'issue', { 'id' => '0815', 'tracker' => 'INVALID'} # invalid tracker
+    pi.add_element 'issue', { 'id' => '0815', 'tracker' => 'INVALID' } # invalid tracker
     put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.dump_xml
     assert_response 404
     assert_xml_tag tag: 'status', attributes: { code: 'tracker_not_found' }
@@ -1258,10 +1258,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # A new branch would fetch sources from us already
     post '/source', params: { cmd: 'branch', dryrun: 1, package: "pack2" }
     assert_response :success
-    assert_xml_tag( parent: { tag: "package", attributes: {project: "BaseDistro2.0:LinkedUpdateProject", package: "pack2"} },
+    assert_xml_tag( parent: { tag: "package", attributes: { project: "BaseDistro2.0:LinkedUpdateProject", package: "pack2" } },
                     tag: 'devel',
                     attributes: { project: incident_project, package: "pack2.BaseDistro2.0_LinkedUpdateProject" } )
-    assert_xml_tag( parent: { tag: "package", attributes: {project: "BaseDistro3", package: "pack2"} },
+    assert_xml_tag( parent: { tag: "package", attributes: { project: "BaseDistro3", package: "pack2" } },
                     tag: 'devel',
                     attributes: { project: incident_project, package: "pack2.BaseDistro3" } )
 
@@ -1630,8 +1630,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # no bugowner for this
     assert_xml_tag tag: 'missing_owner', attributes: { rootproject: "BaseDistro2.0:LinkedUpdateProject", project: "BaseDistro2.0:LinkedUpdateProject", package: "pack2" }
     # but do not list all the incident containers here, the main package is enough
-    assert_no_xml_tag tag: 'missing_owner', attributes: {package: "pack2.0" }
-    assert_no_xml_tag tag: 'missing_owner', attributes: {package: "patchinfo.0" }
+    assert_no_xml_tag tag: 'missing_owner', attributes: { package: "pack2.0" }
+    assert_no_xml_tag tag: 'missing_owner', attributes: { package: "patchinfo.0" }
 
     # revoke a release update
     delete '/source/BaseDistro2.0:LinkedUpdateProject/pack2'

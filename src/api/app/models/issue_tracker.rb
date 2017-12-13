@@ -195,7 +195,7 @@ class IssueTracker < ApplicationRecord
     limit_per_slice = 256
     while !ids.blank?
       begin
-        result = bugzilla_server.get({ids: ids[0..limit_per_slice], permissive: 1})
+        result = bugzilla_server.get({ ids: ids[0..limit_per_slice], permissive: 1 })
       rescue XMLRPC::FaultException => e
         logger.error "Error: #{e.faultCode} #{e.faultString}"
         return false

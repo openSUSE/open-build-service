@@ -124,10 +124,10 @@ class Webui::RequestController < Webui::WebuiController
 
   def sourcediff
     check_ajax
-    render partial: 'shared/editor', locals: {text: params[:text],
-                                                    mode: 'diff', style: {read_only: true},
+    render partial: 'shared/editor', locals: { text: params[:text],
+                                                    mode: 'diff', style: { read_only: true },
                                                     height: 'auto', width: '750px',
-                                                    no_border: true, uid: params[:uid]}
+                                                    no_border: true, uid: params[:uid] }
   end
 
   def changerequest
@@ -174,7 +174,7 @@ class Webui::RequestController < Webui::WebuiController
     required_parameters :project # the minimum
     redirect_to(user_show_path(User.current)) && return unless request.xhr? # non ajax request
     requests = BsRequest.list(params)
-    render partial: 'requests_small', locals: {requests: requests}
+    render partial: 'requests_small', locals: { requests: requests }
   end
 
   def delete_request_dialog
@@ -192,7 +192,7 @@ class Webui::RequestController < Webui::WebuiController
         req.state = "new"
         req.description = params[:description]
 
-        opts = {target_project: params[:project]}
+        opts = { target_project: params[:project] }
         opts[:target_package] = params[:package] if params[:package]
         opts[:target_repository] = params[:repository] if params[:repository]
         action = BsRequestActionDelete.new(opts)
@@ -263,7 +263,7 @@ class Webui::RequestController < Webui::WebuiController
         req.state = "new"
         req.description = params[:description]
 
-        opts = {target_project: params[:project]}
+        opts = { target_project: params[:project] }
         opts[:target_package] = params[:package] if params[:package]
         opts[:person_name] = params[:user] if params[:user]
         opts[:group_name] = params[:group] if params[:group]

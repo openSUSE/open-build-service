@@ -402,7 +402,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(controller: :source, action: :update_package_meta, project: "HiddenProject", package: "temporary"),
         params: '<package project="HiddenProject" name="temporary"> <title/> <description/> </package>'
     assert_response 200
-    assert_xml_tag( tag: "status", attributes: { code: "ok"} )
+    assert_xml_tag( tag: "status", attributes: { code: "ok" } )
 
     url = "/source/HiddenProject/temporary/_link"
 
@@ -423,7 +423,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(controller: :source, action: :update_package_meta, project: "kde4", package: "temporary2"),
         params: '<package project="kde4" name="temporary2"> <title/> <description/> </package>'
     assert_response 200
-    assert_xml_tag( tag: "status", attributes: { code: "ok"} )
+    assert_xml_tag( tag: "status", attributes: { code: "ok" } )
 
     url = "/source/kde4/temporary2/_link"
 
@@ -441,7 +441,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(controller: :source, action: :update_package_meta, project: "HiddenProject", package: "temporary4"),
         params: '<package project="HiddenProject" name="temporary4"> <title/> <description/> </package>'
     assert_response 200
-    assert_xml_tag( tag: "status", attributes: { code: "ok"} )
+    assert_xml_tag( tag: "status", attributes: { code: "ok" } )
 
     url = "/source/HiddenProject/temporary4/_link"
 
@@ -456,7 +456,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(controller: :source, action: :update_package_meta, project: "kde4", package: "temporary3"),
         params: '<package project="kde4" name="temporary3"> <title/> <description/> </package>'
     assert_response 200
-    assert_xml_tag( tag: "status", attributes: { code: "ok"} )
+    assert_xml_tag( tag: "status", attributes: { code: "ok" } )
 
     url = "/source/kde4/temporary3/_link"
 

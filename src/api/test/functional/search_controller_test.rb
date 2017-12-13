@@ -27,7 +27,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/attribute?namespace=OBS&name=Maintained"
     assert_response :success
     assert_xml_tag tag: 'attribute', attributes: { name: "Maintained", namespace: "OBS" }, children: { count: 1 }
-    assert_xml_tag child: { tag: 'project', attributes: { name: "Apache"}, children: { count: 1 } }
+    assert_xml_tag child: { tag: 'project', attributes: { name: "Apache" }, children: { count: 1 } }
     assert_xml_tag child: { child: { tag: 'package', attributes: { name: "apache2" }, children: { count: 0 } } }
   end
 
@@ -60,13 +60,13 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/package", params: { match: '[@name="apache2"]' }
     assert_response :success
     assert_xml_tag tag: 'collection', children: { count: 1 }
-    assert_xml_tag child: { tag: 'package', attributes: { name: 'apache2', project: "Apache"} }
+    assert_xml_tag child: { tag: 'package', attributes: { name: 'apache2', project: "Apache" } }
 
     get "/search/package/id", params: { match: '[contains(@name,"Test")]' }
     assert_response :success
-    assert_xml_tag child: { tag: 'package', attributes: { name: 'TestPack', project: "home:Iggy"} }
-    assert_xml_tag child: { tag: 'package', attributes: { name: 'ToBeDeletedTestPack', project: "home:Iggy"} }
-    assert_xml_tag child: { tag: 'package', attributes: { name: 'test', project: "CopyTest"} }
+    assert_xml_tag child: { tag: 'package', attributes: { name: 'TestPack', project: "home:Iggy" } }
+    assert_xml_tag child: { tag: 'package', attributes: { name: 'ToBeDeletedTestPack', project: "home:Iggy" } }
+    assert_xml_tag child: { tag: 'package', attributes: { name: 'test', project: "CopyTest" } }
     assert_xml_tag tag: 'collection', children: { count: 3 }
   end
 
@@ -75,7 +75,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/package", params: { match: '[attribute/@name="OBS:Maintained"]' }
     assert_response :success
     assert_xml_tag tag: 'collection', children: { count: 1 }
-    assert_xml_tag child: { tag: 'package', attributes: { name: 'apache2', project: "Apache"} }
+    assert_xml_tag child: { tag: 'package', attributes: { name: 'apache2', project: "Apache" } }
   end
 
   def test_xpath_3
@@ -83,11 +83,11 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/package", params: { match: '[attribute/@name="OBS:Maintained" and @name="apache2"]' }
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { matches: 1 }
-    assert_xml_tag child: { tag: 'package', attributes: { name: 'apache2', project: "Apache"} }
+    assert_xml_tag child: { tag: 'package', attributes: { name: 'apache2', project: "Apache" } }
     get "/search/package/id", params: { match: '[attribute/@name="OBS:Maintained" and @name="apache2"]' }
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { matches: 1 }
-    assert_xml_tag child: { tag: 'package', attributes: { name: 'apache2', project: "Apache"} }
+    assert_xml_tag child: { tag: 'package', attributes: { name: 'apache2', project: "Apache" } }
   end
 
   def test_xpath_4
@@ -202,7 +202,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/package_id", params: { match: '[attribute/@name="OBS:Maintained" and @name="apache2"]' }
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { matches: 1 }
-    assert_xml_tag child: { tag: 'package', attributes: { name: 'apache2', project: "Apache"} }
+    assert_xml_tag child: { tag: 'package', attributes: { name: 'apache2', project: "Apache" } }
     get "/search/project_id", params: { match: '[@name="kde"]' }
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { matches: 1 }
@@ -217,7 +217,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'collection', children: { count: 1 }
     # <project name="HiddenProject">
-    assert_xml_tag child: { tag: 'project', attributes: { name: 'HiddenProject'} }
+    assert_xml_tag child: { tag: 'project', attributes: { name: 'HiddenProject' } }
   end
 
   def test_search_hidden_project_with_invalid_user
@@ -236,7 +236,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/package", params: { match: '[@name="pack" and @project="HiddenProject"]' }
     assert_response :success
     assert_xml_tag tag: 'collection', children: { count: 1 }
-    assert_xml_tag child: { tag: 'package', attributes: { name: 'pack', project: "HiddenProject"} }
+    assert_xml_tag child: { tag: 'package', attributes: { name: 'pack', project: "HiddenProject" } }
   end
 
   def test_search_package_in_hidden_project_as_non_maintainer
@@ -266,20 +266,20 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     get "/search/issue", params: { match: '[@name="123456"]' }
     assert_response :success
-    assert_xml_tag parent: { tag: 'issue'}, tag: 'name', content: "123456"
-    assert_xml_tag parent: { tag: 'issue'}, tag: 'tracker', content: "bnc"
-    assert_xml_tag parent: { tag: 'issue'}, tag: 'label', content: "bnc#123456"
-    assert_xml_tag parent: { tag: 'issue'}, tag: 'state', content: "CLOSED"
-    assert_xml_tag parent: { tag: 'owner'}, tag: 'login', content: "fred"
+    assert_xml_tag parent: { tag: 'issue' }, tag: 'name', content: "123456"
+    assert_xml_tag parent: { tag: 'issue' }, tag: 'tracker', content: "bnc"
+    assert_xml_tag parent: { tag: 'issue' }, tag: 'label', content: "bnc#123456"
+    assert_xml_tag parent: { tag: 'issue' }, tag: 'state', content: "CLOSED"
+    assert_xml_tag parent: { tag: 'owner' }, tag: 'login', content: "fred"
 
     get "/search/issue", params: { match: '[@name="123456" and @tracker="bnc"]' }
     assert_response :success
-    assert_xml_tag parent: { tag: 'issue'}, tag: 'label', content: "bnc#123456"
+    assert_xml_tag parent: { tag: 'issue' }, tag: 'label', content: "bnc#123456"
 
     # opposite order to test database joins
     get "/search/issue", params: { match: '[@tracker="bnc" and @name="123456"]' }
     assert_response :success
-    assert_xml_tag parent: { tag: 'issue'}, tag: 'label', content: "bnc#123456"
+    assert_xml_tag parent: { tag: 'issue' }, tag: 'label', content: "bnc#123456"
 
     get "/search/issue", params: { match: '[@name="0123456" and @tracker="bnc"]' }
     assert_response :success
@@ -295,11 +295,11 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     get "/search/issue", params: { match: '[owner/@login="fred"]' }
     assert_response :success
-    assert_xml_tag parent: { tag: 'issue'}, tag: 'label', content: "bnc#123456"
+    assert_xml_tag parent: { tag: 'issue' }, tag: 'label', content: "bnc#123456"
 
     get "/search/issue", params: { match: '[owner/@email="fred@feuerstein.de"]' }
     assert_response :success
-    assert_xml_tag parent: { tag: 'issue'}, tag: 'label', content: "bnc#123456"
+    assert_xml_tag parent: { tag: 'issue' }, tag: 'label', content: "bnc#123456"
   end
 
   def test_search_repository
@@ -369,7 +369,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/request", params: { match: "(action/target/@project='Apache' and action/@type='submit' and state/@name='review' ) or (action/target/@project='Apache' and action/@type='maintenance_release' and state/@name='review' )" }
     assert_response :success
     assert_xml_tag tag: "collection", attributes: { "matches"=> "1" }
-    assert_xml_tag tag: "request", children: { count: 3, only: { tag: "review"} }
+    assert_xml_tag tag: "request", children: { count: 3, only: { tag: "review" } }
 
     get "/search/request", params: { match: "[@id=1]" }
     assert_response :success
@@ -507,22 +507,22 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'collection', children: { count: 1 }
     assert_xml_tag parent: { tag: 'owner', children: { count: 2 },
-                                attributes: { rootproject: "", project: "home:Iggy" }},
+                                attributes: { rootproject: "", project: "home:Iggy" } },
                    tag: 'person', attributes: { name: "Iggy", role: "maintainer" }
 
     get "/search/owner?project=home:Iggy&package=TestPack"
     assert_xml_tag tag: 'collection', children: { count: 2 }
     assert_xml_tag parent: { tag: 'owner', children: { count: 4 },
-                                attributes: { project: "home:Iggy", package: "TestPack" }},
+                                attributes: { project: "home:Iggy", package: "TestPack" } },
                    tag: 'person', attributes: { name: "fred", role: "maintainer" }
     assert_xml_tag parent: { tag: 'owner', children: { count: 4 },
-                                attributes: { project: "home:Iggy", package: "TestPack" }},
+                                attributes: { project: "home:Iggy", package: "TestPack" } },
                    tag: 'person', attributes: { name: "Iggy", role: "bugowner" }
     assert_xml_tag parent: { tag: 'owner', children: { count: 4 },
-                                attributes: { project: "home:Iggy", package: "TestPack" }},
+                                attributes: { project: "home:Iggy", package: "TestPack" } },
                    tag: 'person', attributes: { name: "Iggy", role: "maintainer" }
     assert_xml_tag parent: { tag: 'owner', children: { count: 4 },
-                                attributes: { project: "home:Iggy", package: "TestPack" }},
+                                attributes: { project: "home:Iggy", package: "TestPack" } },
                    tag: 'group', attributes: { name: "test_group_b", role: "maintainer" }
     assert_xml_tag parent: { tag: 'owner', children: { count: 2 },
                                 attributes: { project: "home:Iggy" } },
@@ -532,7 +532,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     # no bugowner defined for the project => no owner node for the project
     assert_xml_tag tag: 'collection', children: { count: 1 }
     assert_xml_tag parent: { tag: 'owner', children: { count: 1 },
-                                attributes: { project: "home:Iggy", package: "TestPack" }},
+                                attributes: { project: "home:Iggy", package: "TestPack" } },
                    tag: 'person', attributes: { name: "Iggy", role: "bugowner" }
 
     get "/search/owner?project=home:coolo:test"
@@ -835,29 +835,29 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     get '/search/request/id', params: { match: '@id>1' }
     assert_response :success
-    assert_xml_tag tag: 'request', attributes: { id: '2'}
-    assert_no_xml_tag tag: 'request', attributes: { id: '1'}
+    assert_xml_tag tag: 'request', attributes: { id: '2' }
+    assert_no_xml_tag tag: 'request', attributes: { id: '1' }
 
     get '/search/request/id', params: { match: '@id>=2' }
     assert_response :success
-    assert_xml_tag tag: 'request', attributes: { id: '2'}
-    assert_no_xml_tag tag: 'request', attributes: { id: '1'}
+    assert_xml_tag tag: 'request', attributes: { id: '2' }
+    assert_no_xml_tag tag: 'request', attributes: { id: '1' }
 
     get '/search/request/id', params: { match: '@id<2' }
     assert_response :success
-    assert_no_xml_tag tag: 'request', attributes: { id: '2'}
-    assert_xml_tag tag: 'request', attributes: { id: '1'}
+    assert_no_xml_tag tag: 'request', attributes: { id: '2' }
+    assert_xml_tag tag: 'request', attributes: { id: '1' }
 
     get '/search/request/id', params: { match: '@id<=2' }
     assert_response :success
-    assert_no_xml_tag tag: 'request', attributes: { id: '3'}
-    assert_xml_tag tag: 'request', attributes: { id: '2'}
+    assert_no_xml_tag tag: 'request', attributes: { id: '3' }
+    assert_xml_tag tag: 'request', attributes: { id: '2' }
 
     # verify it also works with dates
     get '/search/request/id', params: { match: 'state/@when>="2012-09-02"' }
     assert_response :success
-    assert_xml_tag tag: 'request', attributes: { id: '2'}
-    assert_no_xml_tag tag: 'request', attributes: { id: '1'}
+    assert_xml_tag tag: 'request', attributes: { id: '2' }
+    assert_no_xml_tag tag: 'request', attributes: { id: '1' }
   end
 
   def test_xpath_with_two_relationships
@@ -879,6 +879,6 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get '/search/project', params: { match: 'starts-with(remoteurl, "http")' }
     assert_response :success
     assert_xml_tag tag: 'collection', children: { count: 2 }
-    assert_xml_tag child: { tag: 'project', attributes: { name: 'RemoteInstance'} }
+    assert_xml_tag child: { tag: 'project', attributes: { name: 'RemoteInstance' } }
   end
 end

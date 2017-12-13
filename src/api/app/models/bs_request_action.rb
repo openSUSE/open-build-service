@@ -901,7 +901,7 @@ class BsRequestAction < ApplicationRecord
         per_package_locking = true if action_type == :maintenance_release
       end
 
-      return create_expand_package(packages, {ignore_build_state: ignore_build_state}),
+      return create_expand_package(packages, { ignore_build_state: ignore_build_state }),
              per_package_locking
     end
 

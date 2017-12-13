@@ -39,11 +39,11 @@ xml.project(project_attributes) do
     params[:linkedbuild] = repo.linkedbuild if repo.linkedbuild
     xml.repository(params) do |xml_repository|
       repo.download_repositories.each do |download_repository|
-        params = {arch: download_repository.arch, url: download_repository.url, repotype: download_repository.repotype}
+        params = { arch: download_repository.arch, url: download_repository.url, repotype: download_repository.repotype }
         xml_repository.download(params) do |xml_download|
           xml_download.archfilter download_repository.archfilter unless download_repository.archfilter.blank?
           unless download_repository.masterurl.blank?
-            params = {url: download_repository.masterurl}
+            params = { url: download_repository.masterurl }
             params[:sslfingerprint] = download_repository.mastersslfingerprint
             xml_download.master(params)
           end

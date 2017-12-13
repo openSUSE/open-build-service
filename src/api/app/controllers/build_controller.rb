@@ -169,7 +169,7 @@ class BuildController < ApplicationController
     required_parameters :package, :pathproject
 
     pkg = Package.get_by_project_and_name(params[:project], params[:package],
-                                          {use_source: false, follow_project_links: true, follow_multibuild: true})
+                                          { use_source: false, follow_project_links: true, follow_multibuild: true })
     raise RemoteProjectError, 'The package lifes in a remote project, this is not supported atm' unless pkg
 
     tprj = Project.get_by_name params[:pathproject]

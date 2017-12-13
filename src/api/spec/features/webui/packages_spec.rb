@@ -196,9 +196,9 @@ RSpec.feature "Packages", type: :feature, js: true do
       stub_request(:get, result_path + "arch=i586&package=#{package}&repository=#{repository.name}&view=status")
         .and_return(body: result)
       stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/#{package}/_log?view=entry")
-        .and_return(headers: {'Content-Type'=> 'text/plain'}, body: '<directory><entry size="1"/></directory>')
+        .and_return(headers: { 'Content-Type'=> 'text/plain' }, body: '<directory><entry size="1"/></directory>')
       stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/#{package}/_log")
-        .and_return(headers: {'Content-Type'=> 'text/plain'}, body: '[1] this is my dummy logfile -> ümlaut')
+        .and_return(headers: { 'Content-Type'=> 'text/plain' }, body: '[1] this is my dummy logfile -> ümlaut')
       path = "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/_builddepinfo?package=#{package}&view=revpkgnames"
       stub_request(:get, path).and_return(body: '<builddepinfo />')
     end

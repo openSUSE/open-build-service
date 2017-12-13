@@ -42,10 +42,10 @@ RSpec.shared_context 'a user and subscriptions with defaults' do
 
   let(:subscription_params) do
     {
-      '0' => { channel: 'disabled', eventtype: 'Event::RequestStatechange', receiver_role: 'source_maintainer'},
-      '1' => { channel: 'disabled', eventtype: 'Event::RequestStatechange', receiver_role: 'target_maintainer'},
-      '2' => { channel: 'instant_email', eventtype: 'Event::RequestStatechange', receiver_role: 'creator'},
-      '3' => { channel: 'instant_email', eventtype: 'Event::RequestStatechange', receiver_role: 'reviewer'}
+      '0' => { channel: 'disabled', eventtype: 'Event::RequestStatechange', receiver_role: 'source_maintainer' },
+      '1' => { channel: 'disabled', eventtype: 'Event::RequestStatechange', receiver_role: 'target_maintainer' },
+      '2' => { channel: 'instant_email', eventtype: 'Event::RequestStatechange', receiver_role: 'creator' },
+      '3' => { channel: 'instant_email', eventtype: 'Event::RequestStatechange', receiver_role: 'reviewer' }
     }
   end
 end

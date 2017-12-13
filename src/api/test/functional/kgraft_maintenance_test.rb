@@ -178,11 +178,11 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # validate sources
     get "/source/" + incident_project
     assert_response :success
-    assert_xml_tag tag: "directory", attributes: {count: 4}
-    assert_xml_tag tag: "entry", attributes: {name: "BaseDistro2.Channel"}
-    assert_xml_tag tag: "entry", attributes: {name: "kgraft-GA.BaseDistro2.0"}
-    assert_xml_tag tag: "entry", attributes: {name: "kgraft-incident-0.My_Maintenance_0"}
-    assert_xml_tag tag: "entry", attributes: {name: "patchinfo"}
+    assert_xml_tag tag: "directory", attributes: { count: 4 }
+    assert_xml_tag tag: "entry", attributes: { name: "BaseDistro2.Channel" }
+    assert_xml_tag tag: "entry", attributes: { name: "kgraft-GA.BaseDistro2.0" }
+    assert_xml_tag tag: "entry", attributes: { name: "kgraft-incident-0.My_Maintenance_0" }
+    assert_xml_tag tag: "entry", attributes: { name: "patchinfo" }
     get "/source/" + incident_project + "/kgraft-incident-0.My_Maintenance_0/_link"
     assert_response :success
     get "/source/" + incident_project + "/kgraft-incident-0.My_Maintenance_0/_meta"
@@ -302,10 +302,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/build/#{incident_project}/BaseDistro2Channel/i586/patchinfo/"
     assert_response :success
 
-    assert_xml_tag tag: 'binary', attributes: {filename: "updateinfo.xml"}
-    assert_xml_tag tag: 'binary', attributes: {filename: "package-1.0-1.src.rpm"}
-    assert_xml_tag tag: 'binary', attributes: {filename: "package-1.0-1.i586.rpm"}
-    assert_xml_tag tag: 'binary', attributes: {filename: "package_newweaktags-1.0-1.x86_64.rpm"}
+    assert_xml_tag tag: 'binary', attributes: { filename: "updateinfo.xml" }
+    assert_xml_tag tag: 'binary', attributes: { filename: "package-1.0-1.src.rpm" }
+    assert_xml_tag tag: 'binary', attributes: { filename: "package-1.0-1.i586.rpm" }
+    assert_xml_tag tag: 'binary', attributes: { filename: "package_newweaktags-1.0-1.x86_64.rpm" }
 
     #
     # create release request

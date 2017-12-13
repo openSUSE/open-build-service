@@ -17,7 +17,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     put url_for(controller: :source, action: :update_package_meta, project: "HiddenProject", package: "test_latest_added"),
         params: '<package project="HiddenProject" name="test_latest_added"> <title/> <description/> </package>'
     assert_response 200
-    assert_xml_tag( tag: "status", attributes: { code: "ok"} )
+    assert_xml_tag( tag: "status", attributes: { code: "ok" } )
 
     get url_for(controller: :statistics, action: :latest_added)
     assert_response :success
@@ -38,7 +38,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     put url_for(controller: :source, action: :update_package_meta, project: "kde4", package: "test_latest_added1"),
         params: '<package project="kde4" name="test_latest_added1"> <title/> <description/> </package>'
     assert_response 200
-    assert_xml_tag( tag: "status", attributes: { code: "ok"} )
+    assert_xml_tag( tag: "status", attributes: { code: "ok" } )
 
     get url_for(controller: :statistics, action: :latest_added)
     assert_response :success
@@ -59,7 +59,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     put url_for(controller: :source, action: :update_package_meta, project: "HiddenProject", package: "test_latest_added"),
         params: '<package project="HiddenProject" name="test_latest_added"> <title/> <description/> </package>'
     assert_response 200
-    assert_xml_tag( tag: "status", attributes: { code: "ok"} )
+    assert_xml_tag( tag: "status", attributes: { code: "ok" } )
 
     get url_for(controller: :statistics, action: :latest_updated)
     assert_response :success
@@ -80,7 +80,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     put url_for(controller: :source, action: :update_package_meta, project: "kde4", package: "test_latest_added1"),
         params: '<package project="kde4" name="test_latest_added1"> <title/> <description/> </package>'
     assert_response 200
-    assert_xml_tag( tag: "status", attributes: { code: "ok"} )
+    assert_xml_tag( tag: "status", attributes: { code: "ok" } )
 
     get url_for(controller: :statistics, action: :latest_updated)
     assert_response :success

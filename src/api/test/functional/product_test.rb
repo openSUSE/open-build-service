@@ -167,11 +167,11 @@ class ProductTests < ActionDispatch::IntegrationTest
     run_scheduler('local')
     get "/build/home:Iggy/_result"
     assert_response :success
-    assert_xml_tag parent: {tag: "result", attributes: {project: "home:Iggy", repository: "10.2", arch: "i586"} },
+    assert_xml_tag parent: { tag: "result", attributes: { project: "home:Iggy", repository: "10.2", arch: "i586" } },
                    tag: "status", attributes: { package: 'TestPack', code: 'scheduled' }
     get "/build/home:tom:temporary/_result"
     assert_response :success
-    assert_xml_tag parent: {tag: "result", attributes: {project: "home:tom:temporary", repository: "images", arch: "local"} },
+    assert_xml_tag parent: { tag: "result", attributes: { project: "home:tom:temporary", repository: "images", arch: "local" } },
                    tag: "status", attributes: { package: '_product:simple-cd-cd-i586_x86_64', code: 'blocked' }
 
     login_king
@@ -180,20 +180,20 @@ class ProductTests < ActionDispatch::IntegrationTest
     run_scheduler('local') # run first, so the waiting_for are still there
     get "/build/home:tom:temporary/_result"
     assert_response :success
-    assert_xml_tag parent: {tag: "result", attributes: {project: "home:tom:temporary", repository: "images", arch: "local"} },
+    assert_xml_tag parent: { tag: "result", attributes: { project: "home:tom:temporary", repository: "images", arch: "local" } },
                    tag: "status", attributes: { package: '_product:simple-cd-cd-i586_x86_64', code: 'blocked' }
     run_scheduler('i586')  # but they get removed now ...
     run_scheduler('x86_64')
     run_scheduler('local') # check that i586 & x86_64 schedulers removed waiting_for
     get "/build/home:Iggy/_result"
     assert_response :success
-    assert_xml_tag parent: {tag: "result", attributes: {project: "home:Iggy", repository: "10.2", arch: "i586"} },
+    assert_xml_tag parent: { tag: "result", attributes: { project: "home:Iggy", repository: "10.2", arch: "i586" } },
                    tag: "status", attributes: { package: 'TestPack', code: 'succeeded' }
-    assert_xml_tag parent: {tag: "result", attributes: {project: "home:Iggy", repository: "10.2", arch: "x86_64"} },
+    assert_xml_tag parent: { tag: "result", attributes: { project: "home:Iggy", repository: "10.2", arch: "x86_64" } },
                    tag: "status", attributes: { package: 'TestPack', code: 'succeeded' }
     get "/build/home:tom:temporary/_result"
     assert_response :success
-    assert_xml_tag parent: {tag: "result", attributes: {project: "home:tom:temporary", repository: "images", arch: "local"} },
+    assert_xml_tag parent: { tag: "result", attributes: { project: "home:tom:temporary", repository: "images", arch: "local" } },
                    tag: "status", attributes: { package: '_product:simple-cd-cd-i586_x86_64', code: 'scheduled' }
 
     delete "/source/home:Iggy/TestPack/DUMMY_CHANGE"

@@ -13,7 +13,7 @@ module Event
       # we're the one they mean
       base.delete('In-Reply-To')
       base.delete('References')
-      base.merge({'Message-ID' => my_message_number})
+      base.merge({ 'Message-ID' => my_message_number })
     end
 
     def subject

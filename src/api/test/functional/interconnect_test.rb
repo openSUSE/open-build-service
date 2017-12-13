@@ -12,19 +12,19 @@ class InterConnectTests < ActionDispatch::IntegrationTest
   def test_anonymous_access
     get '/public/lastevents' # OBS 2.1
     assert_response :success
-    assert_xml_tag tag: 'events', attributes: {sync: 'lost' }
+    assert_xml_tag tag: 'events', attributes: { sync: 'lost' }
     post '/public/lastevents?start=1'
     assert_response :success
-    assert_xml_tag tag: 'event', attributes: {type: 'project' }
-    assert_no_xml_tag tag: 'events', attributes: {sync: 'lost' }
+    assert_xml_tag tag: 'event', attributes: { type: 'project' }
+    assert_no_xml_tag tag: 'events', attributes: { sync: 'lost' }
 
     post '/public/lastevents' # OBS 2.3 and later
     assert_response :success
-    assert_xml_tag tag: 'events', attributes: {sync: 'lost' }
+    assert_xml_tag tag: 'events', attributes: { sync: 'lost' }
     post '/public/lastevents', params: { start: '1' }
     assert_response :success
-    assert_xml_tag tag: 'event', attributes: {type: 'project' }
-    assert_no_xml_tag tag: 'events', attributes: {sync: 'lost' }
+    assert_xml_tag tag: 'event', attributes: { type: 'project' }
+    assert_no_xml_tag tag: 'events', attributes: { sync: 'lost' }
 
     # direct access
     get '/public/source/BaseDistro'

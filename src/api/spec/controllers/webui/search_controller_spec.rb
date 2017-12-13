@@ -24,15 +24,15 @@ RSpec.describe Webui::SearchController, vcr: true do
 
     it 'assigns results' do
       get :owner, params: { search_text: 'package', owner: 1 }
-      expect(assigns(:results)[0].users).to eq({"maintainer"=>["Iggy"]})
+      expect(assigns(:results)[0].users).to eq({ "maintainer"=>["Iggy"] })
     end
 
     it 'assigns results for devel package' do
       package.update_attributes(develpackage: develpackage)
 
       get :owner, params: { search_text: 'package', owner: 1, devel: 'on' }
-      expect(assigns(:results)[0].users).to eq({"maintainer"=>["DevelIggy"]})
-      expect(assigns(:results)[0].users).not_to eq({"maintainer"=>["Iggy"]})
+      expect(assigns(:results)[0].users).to eq({ "maintainer"=>["DevelIggy"] })
+      expect(assigns(:results)[0].users).not_to eq({ "maintainer"=>["Iggy"] })
     end
   end
 

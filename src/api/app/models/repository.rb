@@ -28,7 +28,7 @@ class Repository < ApplicationRecord
   # Note that remote repositories have to be unique among their remote project (remote_project_name)
   # and the associated db_project.
   validates :name, uniqueness: { scope:   [:db_project_id, :remote_project_name],
-                                 message: "%{value} is already used by a repository of this project"}
+                                 message: "%{value} is already used by a repository of this project" }
 
   validates :db_project_id, presence: true
   # NOTE: remote_project_name cannot be NULL because mysql UNIQUE KEY constraint does considers
@@ -45,7 +45,7 @@ class Repository < ApplicationRecord
 
   # FIXME: Don't lie, it's find_or_create_by_project_and_name_if_project_is_remote
   def self.find_by_project_and_name( project, repo )
-    result = not_remote.joins(:project).find_by(projects: {name: project}, name: repo)
+    result = not_remote.joins(:project).find_by(projects: { name: project }, name: repo)
     return result unless result.nil?
 
     # no local repository found, check if remote repo possible
@@ -59,7 +59,7 @@ class Repository < ApplicationRecord
   end
 
   def self.find_by_project_and_path( project, path )
-    not_remote.joins(:path_elements).where(project: project, path_elements: {link: path})
+    not_remote.joins(:path_elements).where(project: project, path_elements: { link: path })
   end
 
   def self.deleted_instance
@@ -84,7 +84,7 @@ class Repository < ApplicationRecord
           pe.save
         end
       end
-      lrep.project.store({lowprio: true})
+      lrep.project.store({ lowprio: true })
     end
     # target repos
     logger.debug "remove target repositories from repository #{project.name}/#{name}"
@@ -101,7 +101,7 @@ class Repository < ApplicationRecord
           rt.target_repository = Repository.deleted_instance
           rt.save
         end
-        repo.project.store({lowprio: true})
+        repo.project.store({ lowprio: true })
       end
     end
   end

@@ -37,7 +37,7 @@ class UserTest < ActiveSupport::TestCase
                         owner: user)
 
     axml = robot.render_axml
-    assert_xml_tag axml, tag: :owner, attributes: {userid: "adrian"}
+    assert_xml_tag axml, tag: :owner, attributes: { userid: "adrian" }
     assert robot.is_active?
 
     # alias follows the user on disable

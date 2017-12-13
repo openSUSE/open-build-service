@@ -87,11 +87,11 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
 
     get "/person/tom"
     # should see his watchlist
-    assert_xml_tag tag: 'person', child: {tag: 'watchlist'}
+    assert_xml_tag tag: 'person', child: { tag: 'watchlist' }
 
     get "/person/fred"
     # should not see that watchlist
-    assert_no_xml_tag tag: 'person', child: {tag: 'watchlist'}
+    assert_no_xml_tag tag: 'person', child: { tag: 'watchlist' }
   end
 
   def test_watchlist_with_admin_user
@@ -276,13 +276,13 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     # check global role
     get "/person/king"
     assert_response :success
-    assert_xml_tag tag: 'person', child: {tag: 'globalrole', content: "Admin"}
+    assert_xml_tag tag: 'person', child: { tag: 'globalrole', content: "Admin" }
 
     # refetch the user info if the name has really change
     prepare_request_valid_user
     get "/person/tom"
-    assert_xml_tag tag: 'person', child: {tag: 'realname', content: new_name}
-    assert_no_xml_tag tag: 'person', child: {tag: 'globalrole', content: "Admin"}
+    assert_xml_tag tag: 'person', child: { tag: 'realname', content: new_name }
+    assert_no_xml_tag tag: 'person', child: { tag: 'globalrole', content: "Admin" }
   end
 
   def test_create_subaccount
@@ -386,7 +386,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
            '
     post "/person?cmd=register", params: data
     assert_response 400
-    assert_xml_tag tag: 'status', attributes: {code: "err_register_save"}
+    assert_xml_tag tag: 'status', attributes: { code: "err_register_save" }
     assert_xml_tag tag: 'summary', content: "Sorry, sign up is disabled"
   end
 
@@ -404,7 +404,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
            '
     post "/person?cmd=register", params: data
     assert_response 400
-    assert_xml_tag tag: 'status', attributes: {code: "err_register_save"}
+    assert_xml_tag tag: 'status', attributes: { code: "err_register_save" }
     assert_xml_tag tag: 'summary', content: "Thank you for signing up! An admin has to confirm your account now. Please be patient."
 
     # we tried to register as confirmed up there, ensure that we are not...

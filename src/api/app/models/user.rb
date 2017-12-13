@@ -98,7 +98,7 @@ class User < ApplicationRecord
       # make the user maintainer
       project.relationships.create(user: self,
                                    role: Role.find_by_title('maintainer'))
-      project.store({login: login})
+      project.store({ login: login })
       @home_project = project
     end
     true
@@ -620,7 +620,7 @@ class User < ApplicationRecord
 
     # wipe also all home projects
     Project.where("name like ?", "#{home_project_name}%").each do |prj|
-      prj.commit_opts = { comment: "User account got deleted"}
+      prj.commit_opts = { comment: "User account got deleted" }
       prj.destroy
     end
   end
@@ -720,7 +720,7 @@ class User < ApplicationRecord
     ids = PackageIssue.open_issues_of_owner(id).with_patchinfo.distinct.pluck(:package_id)
 
     Package.where(id: ids).each do |p|
-      hash = {package: {project: p.project.name, name: p.name}}
+      hash = { package: { project: p.project.name, name: p.name } }
       issues = Array.new
 
       p.issues.each do |is|

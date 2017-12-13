@@ -18,7 +18,7 @@ class Webui::ApidocsController < Webui::WebuiController
       send_file( file, type: "text/xml", disposition: "inline" )
     else
       flash[:error] = "File not found: #{params[:filename]}"
-      redirect_back(fallback_location: {controller: 'apidocs', action: 'index'})
+      redirect_back(fallback_location: { controller: 'apidocs', action: 'index' })
     end
     return
   end

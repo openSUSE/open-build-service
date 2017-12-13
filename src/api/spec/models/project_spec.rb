@@ -47,7 +47,7 @@ RSpec.describe Project, vcr: true do
 
     context "with commit_opts parameter" do
       it "does overwrite the commit_opts" do
-        project.store({ comment: 'a new comment'})
+        project.store({ comment: 'a new comment' })
         expect(project.commit_opts).to eq({ comment: 'a new comment' })
       end
     end

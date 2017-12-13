@@ -28,7 +28,7 @@ module ActiveXML
         rescue TypeError
           Rails.logger.error "Couldn't parse error xml: #{message[0..120]}"
         end
-        @xml ||= {'summary' => message[0..120], 'code' => '500'}
+        @xml ||= { 'summary' => message[0..120], 'code' => '500' }
       end
 
       def api_exception
@@ -81,7 +81,7 @@ module ActiveXML
       replace_server_if_needed( uri )
       # logger.debug "setting up transport for model #{model}: #{uri} opts: #{opt}"
       raise "overwriting #{model}" if @mapping.has_key? model
-      @mapping[model] = {target_uri: uri, opt: opt}
+      @mapping[model] = { target_uri: uri, opt: opt }
     end
 
     def replace_server_if_needed( uri )
@@ -105,7 +105,7 @@ module ActiveXML
       @host = host
       @port = port
       @default_servers ||= Hash.new
-      @http_header = {"Content-Type" => "text/plain", 'Accept-Encoding' => 'identity'}
+      @http_header = { "Content-Type" => "text/plain", 'Accept-Encoding' => 'identity' }
       # stores mapping information
       # key: symbolified model name
       # value: hash with keys :target_uri and :opt (arguments to connect method)
@@ -210,7 +210,7 @@ module ActiveXML
 
     # TODO: get rid of this very thin wrapper
     def direct_http( url, opt = {} )
-      defaults = {method: "GET"}
+      defaults = { method: "GET" }
       opt = defaults.merge opt
 
       logger.debug "--> direct_http url: #{url}"
@@ -279,7 +279,7 @@ module ActiveXML
     end
 
     def http_do( method, url, opt = {} )
-      defaults = {timeout: 60}
+      defaults = { timeout: 60 }
       opt = defaults.merge opt
 
       if url.kind_of? String

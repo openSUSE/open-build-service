@@ -109,7 +109,7 @@ RSpec.describe Webui::GroupsController do
 
     context 'as a normal user' do
       it 'does not allow to create a group' do
-        post :create, params: { group: { title: group.title, members: users_to_add.map(&:login).join(',') }}
+        post :create, params: { group: { title: group.title, members: users_to_add.map(&:login).join(',') } }
 
         expect(flash[:error]).to eq("Sorry, you are not authorized to create this Class.")
       end
@@ -122,7 +122,7 @@ RSpec.describe Webui::GroupsController do
 
       context 'creating a new group' do
         it 'creates a group with members' do
-          post :create, params: { group: { title: 'my_group', members: users_to_add.map(&:login).join(',')}}
+          post :create, params: { group: { title: 'my_group', members: users_to_add.map(&:login).join(',') } }
 
           expect(response).to redirect_to(groups_path)
           expect(flash[:success]).to eq("Group 'my_group' successfully updated.")
@@ -132,7 +132,7 @@ RSpec.describe Webui::GroupsController do
 
       context 'creating a group with invalid data' do
         it 'shows a flash message with the validation error' do
-          post :create, params: { group: { title: 'my group', members: users_to_add.map(&:login).join(',') }}
+          post :create, params: { group: { title: 'my group', members: users_to_add.map(&:login).join(',') } }
 
           expect(flash[:error]).to eq("Group can't be saved: Title must not contain invalid characters")
           expect(Group.where(title: "my group")).not_to exist

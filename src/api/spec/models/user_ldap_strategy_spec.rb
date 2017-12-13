@@ -234,7 +234,7 @@ RSpec.describe UserLdapStrategy do
         include_context 'an ldap connection'
 
         before do
-          stub_const('CONFIG', CONFIG.merge({'ldap_user_filter' => nil }))
+          stub_const('CONFIG', CONFIG.merge({ 'ldap_user_filter' => nil }))
 
           allow(ldap_mock).to receive(:search)
         end

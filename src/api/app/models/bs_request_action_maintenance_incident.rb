@@ -89,13 +89,13 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       package_name = source_package
       package_name = linkinfo['package'] if linkinfo
 
-      branch_params = {target_project: incident_project.name,
+      branch_params = { target_project: incident_project.name,
                        olinkrev: 'base',
                        requestid: bs_request.number,
                        maintenance: 1,
                        force: 1,
                        comment: 'Initial new branch from specified release project',
-                       project: target_releaseproject, package: package_name}
+                       project: target_releaseproject, package: package_name }
       # accept branching from former update incidents or GM (for kgraft case)
       linkprj = Project.find_by_name(linkinfo['project']) if linkinfo
       if defined?(linkprj) && linkprj
@@ -117,13 +117,13 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       linked_project = linkinfo['project']
       linked_package = linkinfo['package']
 
-      branch_params = {target_project: incident_project.name,
+      branch_params = { target_project: incident_project.name,
                        olinkrev: 'base',
                        requestid: bs_request.number,
                        maintenance: 1,
                        force: 1,
                        comment: 'Initial new branch',
-                       project: linked_project, package: linked_package}
+                       project: linked_project, package: linked_package }
       ret = BranchPackage.new(branch_params).branch
       new_pkg = Package.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
     elsif linkinfo && linkinfo['package'] # a new package for all targets

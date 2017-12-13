@@ -198,7 +198,7 @@ RSpec.describe Webui::WebuiHelper do
 
       context 'and a fallback option is given' do
         before do
-          @html_options = { class: 'list', fallback: "<p><i>fallback</i></p>"}
+          @html_options = { class: 'list', fallback: "<p><i>fallback</i></p>" }
         end
 
         it { expect(possibly_empty_ul(@html_options, &@cont)).to eq('<p><i>fallback</i></p>') }

@@ -1,15 +1,15 @@
 class AttributeController < ApplicationController
   include ValidationHelper
 
-  validate_action index: {method: :get, response: :directory}
-  validate_action namespace_definition: {method: :get, response: :attribute_namespace_meta}
-  validate_action namespace_definition: {method: :delete, response: :status}
-  validate_action namespace_definition: {method: :put, request: :attribute_namespace_meta, response: :status}
-  validate_action namespace_definition: {method: :post, request: :attribute_namespace_meta, response: :status}
-  validate_action attribute_definition: {method: :get, response: :attrib_type}
-  validate_action attribute_definition: {method: :delete, response: :status}
-  validate_action attribute_definition: {method: :put, request: :attrib_type, response: :status}
-  validate_action attribute_definition: {method: :post, request: :attrib_type, response: :status}
+  validate_action index: { method: :get, response: :directory }
+  validate_action namespace_definition: { method: :get, response: :attribute_namespace_meta }
+  validate_action namespace_definition: { method: :delete, response: :status }
+  validate_action namespace_definition: { method: :put, request: :attribute_namespace_meta, response: :status }
+  validate_action namespace_definition: { method: :post, request: :attribute_namespace_meta, response: :status }
+  validate_action attribute_definition: { method: :get, response: :attrib_type }
+  validate_action attribute_definition: { method: :delete, response: :status }
+  validate_action attribute_definition: { method: :put, request: :attrib_type, response: :status }
+  validate_action attribute_definition: { method: :post, request: :attrib_type, response: :status }
 
   def index
     if params[:namespace]

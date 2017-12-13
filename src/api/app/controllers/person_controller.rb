@@ -1,11 +1,11 @@
 require 'xmlhash'
 
 class PersonController < ApplicationController
-  validate_action userinfo: {method: :get, response: :user}
-  validate_action userinfo: {method: :put, request: :user, response: :status}
-  validate_action grouplist: {method: :get, response: :directory}
-  validate_action register: {method: :put, response: :status}
-  validate_action register: {method: :post, response: :status}
+  validate_action userinfo: { method: :get, response: :user }
+  validate_action userinfo: { method: :put, request: :user, response: :status }
+  validate_action grouplist: { method: :get, response: :directory }
+  validate_action register: { method: :put, response: :status }
+  validate_action register: { method: :post, response: :status }
 
   skip_before_action :extract_user, only: [:command, :register]
   skip_before_action :require_login, only: [:command, :register]

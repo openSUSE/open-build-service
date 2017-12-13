@@ -68,7 +68,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
 
     context 'updating the repository with architectures' do
       before do
-        post :update, params: { project: user.home_project, repo: repo_for_user_home.name, arch: {'i586' => true, 'x86_64' => true} }
+        post :update, params: { project: user.home_project, repo: repo_for_user_home.name, arch: { 'i586' => true, 'x86_64' => true } }
       end
 
       it 'each repository has a different position' do

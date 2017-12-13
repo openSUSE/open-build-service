@@ -79,7 +79,7 @@ class PackageBuildStatus
       gather_current_buildcode(srep, arch)
     end
 
-    @result[srep['name']][arch] = {result: @buildcode}
+    @result[srep['name']][arch] = { result: @buildcode }
     @result[srep['name']][arch][:missing] = missingdeps.uniq
   end
 

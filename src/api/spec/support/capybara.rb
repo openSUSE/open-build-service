@@ -8,7 +8,7 @@ Capybara.register_driver :poltergeist do |app|
 end
 
 Capybara.register_driver :rack_test do |app|
-  Capybara::RackTest::Driver.new(app, headers: {'HTTP_ACCEPT' => 'text/html'})
+  Capybara::RackTest::Driver.new(app, headers: { 'HTTP_ACCEPT' => 'text/html' })
 end
 
 Capybara.javascript_driver = :poltergeist

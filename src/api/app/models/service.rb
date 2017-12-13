@@ -40,20 +40,20 @@ class Service < ActiveXML::Node
 
     # default for download_url and download_src_package
     service_content = [
-      {name: "host", value: uri.host},
-      {name: "protocol", value: uri.scheme},
-      {name: "path", value: uri.path}
+      { name: "host", value: uri.host },
+      { name: "protocol", value: uri.scheme },
+      { name: "path", value: uri.path }
     ]
     unless (uri.scheme == "http" && uri.port == 80) ||
            (uri.scheme == "https" && uri.port == 443) ||
            (uri.scheme == "ftp" && uri.port == 21)
-      service_content << {name: "port", value: uri.port} # be nice and skip it for simpler _service file
+      service_content << { name: "port", value: uri.port } # be nice and skip it for simpler _service file
     end
 
     if uri.path =~ /.src.rpm$/ || uri.path =~ /.spm$/ # download and extract source package
       addService("download_src_package", service_content)
     else # just download
-      service_content << {name: "filename", value: filename} unless filename.blank?
+      service_content << { name: "filename", value: filename } unless filename.blank?
       addService("download_url", service_content)
     end
     true
@@ -113,9 +113,9 @@ class Service < ActiveXML::Node
   private
 
   def add_scm_service(url)
-    addService('obs_scm', [{name: 'scm', value: 'git'}, {name: 'url', value: url}])
+    addService('obs_scm', [{ name: 'scm', value: 'git' }, { name: 'url', value: url }])
     addService('tar', [], 'buildtime')
-    addService('recompress', [{name: 'compression', value: 'xz'}, {name: 'file', value: '*.tar'}], 'buildtime')
+    addService('recompress', [{ name: 'compression', value: 'xz' }, { name: 'file', value: '*.tar' }], 'buildtime')
     addService('set_version', [], 'buildtime')
 
     return true

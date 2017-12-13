@@ -474,7 +474,7 @@ class Package < ApplicationRecord
     # to call update_activity before filter
     # NOTE: We need `Time.now`, otherwise the old tests suite doesn't work,
     # remove it when removing the tests
-    update({updated_at: Time.now})
+    update({ updated_at: Time.now })
 
     # mark the backend infos "dirty"
     BackendPackage.where(package_id: id).delete_all
@@ -1222,7 +1222,7 @@ class Package < ApplicationRecord
       request.bs_request_actions.each do |action|
         if action.source_project == project.name && action.source_package == name
           begin
-            request.change_state({newstate: 'revoked', comment: "The source package '#{name}' has been removed"})
+            request.change_state({ newstate: 'revoked', comment: "The source package '#{name}' has been removed" })
           rescue PostRequestNoPermission
             logger.debug "#{User.current.login} tried to revoke request #{id} but had no permissions"
           end
@@ -1230,7 +1230,7 @@ class Package < ApplicationRecord
         end
         if action.target_project == project.name && action.target_package == name
           begin
-            request.change_state({newstate: 'declined', comment: "The target package '#{name}' has been removed"})
+            request.change_state({ newstate: 'declined', comment: "The target package '#{name}' has been removed" })
           rescue PostRequestNoPermission
             logger.debug "#{User.current.login} tried to decline request #{id} but had no permissions"
           end

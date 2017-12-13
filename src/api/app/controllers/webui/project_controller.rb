@@ -132,7 +132,7 @@ class Webui::ProjectController < Webui::WebuiController
         req = BsRequest.new
         req.description = params[:description]
 
-        action = BsRequestActionMaintenanceIncident.new({source_project: params[:project]})
+        action = BsRequestActionMaintenanceIncident.new({ source_project: params[:project] })
         req.bs_request_actions << action
         action.bs_request = req
 
@@ -163,7 +163,7 @@ class Webui::ProjectController < Webui::WebuiController
           req = BsRequest.new
           req.description = params[:description]
 
-          action = BsRequestActionMaintenanceRelease.new({source_project: params[:project]})
+          action = BsRequestActionMaintenanceRelease.new({ source_project: params[:project] })
           req.bs_request_actions << action
           action.bs_request = req
 
@@ -375,7 +375,7 @@ class Webui::ProjectController < Webui::WebuiController
         req = BsRequest.new
         req.description = params[:description]
 
-        opts = {target_project: params[:project]}
+        opts = { target_project: params[:project] }
         opts[:target_repository] = params[:repository] if params[:repository]
         action = BsRequestActionDelete.new(opts)
         req.bs_request_actions << action
@@ -425,7 +425,7 @@ class Webui::ProjectController < Webui::WebuiController
     end
 
     @project.store
-    redirect_to({ action: :index, controller: :repositories, project: @project}, notice: "Path moved #{params[:direction]} successfully")
+    redirect_to({ action: :index, controller: :repositories, project: @project }, notice: "Path moved #{params[:direction]} successfully")
   end
 
   def monitor
@@ -695,7 +695,7 @@ class Webui::ProjectController < Webui::WebuiController
     if maintained_project
       @project.maintained_projects.create!(project: maintained_project)
       @project.store
-      redirect_to({action: 'maintained_projects', project: @project}, notice: "Added #{params[:maintained_project]} to maintenance")
+      redirect_to({ action: 'maintained_projects', project: @project }, notice: "Added #{params[:maintained_project]} to maintenance")
     else
       # TODO: Better redirect to the project (maintained project tab), where the user actually came from
       redirect_back(fallback_location: root_path, error: "Failed to add #{params[:maintained_project]} to maintenance")
@@ -707,7 +707,7 @@ class Webui::ProjectController < Webui::WebuiController
     maintained_project = MaintainedProject.find_by(project: @maintained_project)
     if maintained_project && @project.maintained_projects.destroy(maintained_project)
       @project.store
-      redirect_to({action: 'maintained_projects', project: @project}, notice: "Removed #{@maintained_project} from maintenance")
+      redirect_to({ action: 'maintained_projects', project: @project }, notice: "Removed #{@maintained_project} from maintenance")
     else
       redirect_back(fallback_location: root_path, error: "Failed to remove #{@maintained_project} from maintenance")
     end
@@ -944,7 +944,7 @@ class Webui::ProjectController < Webui::WebuiController
       status_check_package(p)
     end
 
-    {packages: @packages, projects: @develprojects.keys}
+    { packages: @packages, projects: @develprojects.keys }
   end
 
   def status_check_package(p)
@@ -1070,9 +1070,9 @@ class Webui::ProjectController < Webui::WebuiController
     # we do not filter requests for project because we need devel projects too later on and as long as the
     # number of open requests is limited this is the easiest solution
     raw_requests = BsRequest.order(:number).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
-        where(bs_request_actions: {type: 'submit'}).pluck('bs_requests.number', 'bs_requests.state',
-                                                          'bs_request_actions.target_project',
-                                                          'bs_request_actions.target_package')
+        where(bs_request_actions: { type: 'submit' }).pluck('bs_requests.number', 'bs_requests.state',
+                                                            'bs_request_actions.target_project',
+                                                            'bs_request_actions.target_package')
 
     @declined_requests = {}
     @submits = Hash.new

@@ -745,9 +745,9 @@ class ProjectTest < ActiveSupport::TestCase
     ))
 
     xml = prj.to_axml
-    assert_xml_tag xml, tag: :download, attributes: {arch: "i586", url: "http://me.org", repotype: "rpmmd"}
+    assert_xml_tag xml, tag: :download, attributes: { arch: "i586", url: "http://me.org", repotype: "rpmmd" }
     assert_xml_tag xml, tag: :archfilter, content: "i686,i586,noarch"
-    assert_xml_tag xml, tag: :master, attributes: {url: "http://download.opensuse.org", sslfingerprint: "0815"}
+    assert_xml_tag xml, tag: :master, attributes: { url: "http://download.opensuse.org", sslfingerprint: "0815" }
     assert_xml_tag xml, tag: :pubkey, content: "grfzl"
   end
 
@@ -860,21 +860,21 @@ class ProjectTest < ActiveSupport::TestCase
     # be extended with later calls, we need to sync this always after finishing a
     # a setup of new branched packages with this sync function:
     xml = prj.to_axml
-    assert_xml_tag xml, tag: :repository, attributes: {name: "my_branch_sp1_update"},
+    assert_xml_tag xml, tag: :repository, attributes: { name: "my_branch_sp1_update" },
                         children: { count: 1, only: { tag: :path } }
 
     assert_no_xml_tag xml, tag: :path, attributes: { project: "My:Branch", repository: "my_branch_sp0_update" }
     prj.reload
     prj.sync_repository_pathes
     xml = prj.to_axml
-    assert_xml_tag xml, tag: :repository, attributes: {name: "my_branch_sp1_update"},
+    assert_xml_tag xml, tag: :repository, attributes: { name: "my_branch_sp1_update" },
                         children: { count: 2, only: { tag: :path } }
     assert_xml_tag xml, tag: :path, attributes: { project: "My:Branch", repository: "my_branch_sp0_update" }
     # untouched
-    assert_xml_tag xml, tag: :repository, attributes: {name: "my_branch_sp0_update"},
+    assert_xml_tag xml, tag: :repository, attributes: { name: "my_branch_sp0_update" },
                         children: { count: 1, only: { tag: :path } }
-    assert_xml_tag xml, parent: { tag: :repository, attributes: {name: "Channel_Server"} },
-                        tag: :path, attributes: {project: "Enterprise-SP1:Channel:Server", repository: "channel"}
+    assert_xml_tag xml, parent: { tag: :repository, attributes: { name: "Channel_Server" } },
+                        tag: :path, attributes: { project: "Enterprise-SP1:Channel:Server", repository: "channel" }
 
     # must not change again anything
     prj.sync_repository_pathes
@@ -1070,7 +1070,7 @@ class ProjectTest < ActiveSupport::TestCase
     XML
 
     actual = Project.validate_repository_xml_attribute(Xmlhash.parse(xml), 'home:Iggy')
-    expected = { }
+    expected = {}
     assert_equal actual, expected
   end
 
@@ -1325,7 +1325,7 @@ class ProjectTest < ActiveSupport::TestCase
     new_project_config = File.read("test/fixtures/files/new_home_iggy_project_config.txt")
 
     User.current = users(:Iggy)
-    query_params = {user: User.current.login, comment: "Updated by test"}
+    query_params = { user: User.current.login, comment: "Updated by test" }
     assert @project.config.save(query_params, new_project_config)
     assert_equal @project.config.to_s, new_project_config
 

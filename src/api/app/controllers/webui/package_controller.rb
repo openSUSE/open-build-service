@@ -74,7 +74,7 @@ class Webui::PackageController < Webui::WebuiController
       end
     elsif @revision_parameter
       flash[:error] = "No such revision: #{@revision_parameter}"
-      redirect_back(fallback_location: {controller: :package, action: :show, project: @project, package: @package})
+      redirect_back(fallback_location: { controller: :package, action: :show, project: @project, package: @package })
       return
     end
 
@@ -209,7 +209,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def commit
     required_parameters :revision
-    render partial: 'commit_item', locals: {rev: params[:revision] }
+    render partial: 'commit_item', locals: { rev: params[:revision] }
   end
 
   def revisions
@@ -953,7 +953,7 @@ class Webui::PackageController < Webui::WebuiController
     if @repo_list.empty?
       render partial: 'no_repositories'
     else
-      render partial: 'rpmlint_result', locals: {index: params[:index]}
+      render partial: 'rpmlint_result', locals: { index: params[:index] }
     end
   end
 
