@@ -42,7 +42,7 @@ RSpec.describe BsRequest do
   describe '#assignreview' do
     context 'from group to user' do
       let(:reviewer) { create(:confirmed_user) }
-      let(:group) { create(:group)}
+      let(:group) { create(:group) }
       let(:review) { create(:review, by_group: group.title) }
       let!(:request) { create(:bs_request, creator: reviewer.login, reviews: [review] ) }
 
@@ -72,7 +72,7 @@ RSpec.describe BsRequest do
 
   describe '#addreview' do
     let(:reviewer) { create(:confirmed_user) }
-    let(:group) { create(:group)}
+    let(:group) { create(:group) }
     let!(:request) { create(:bs_request, creator: reviewer.login) }
 
     before do
@@ -91,8 +91,8 @@ RSpec.describe BsRequest do
     it { expect(history_element.request).to eq(request) }
     it { expect(history_element.user).to eq(reviewer) }
 
-    it { expect(request.state).to eq(:review)}
-    it { expect(request.commenter).to eq(reviewer.login)}
+    it { expect(request.state).to eq(:review) }
+    it { expect(request.commenter).to eq(reviewer.login) }
   end
 
   describe '#changestate' do

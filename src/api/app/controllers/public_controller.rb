@@ -155,7 +155,7 @@ class PublicController < ApplicationController
         unless binary_map[repo.name].blank?
           dist_id = dist.id
           @binary_links[dist_id] ||= {}
-          binary = binary_map[repo.name].select {|bin| bin.value(:name) == @pkg.name}.first
+          binary = binary_map[repo.name].select { |bin| bin.value(:name) == @pkg.name }.first
           if binary && dist.vendor == 'openSUSE'
             @binary_links[dist_id][:ymp] = { url: ymp_url(File.join(@pkg.project.name, repo.name, @pkg.name + '.ymp') ) }
           end

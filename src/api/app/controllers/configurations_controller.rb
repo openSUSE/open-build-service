@@ -30,8 +30,8 @@ class ConfigurationsController < ApplicationController
     attribs = {}
     # scheduler architecture list
     archs = nil
-    archs = Hash[xml["schedulers"]["arch"].map {|a| [a, 1]}] if xml["schedulers"] && xml["schedulers"]["arch"].class == Array
-    archs = Hash[params["arch"].map {|a| [a, 1]}] if params["arch"].class == Array
+    archs = Hash[xml["schedulers"]["arch"].map { |a| [a, 1] }] if xml["schedulers"] && xml["schedulers"]["arch"].class == Array
+    archs = Hash[params["arch"].map { |a| [a, 1] }] if params["arch"].class == Array
     if archs
       Architecture.all.each do |arch|
         if arch.available != (archs[arch.name] == 1)

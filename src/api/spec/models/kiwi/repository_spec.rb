@@ -103,7 +103,7 @@ RSpec.describe Kiwi::Repository, type: :model do
       context 'when source_path starts with obs://' do
         it { expect(obs_kiwi_repository).to allow_value("rpm-md").for(:repo_type) }
 
-        Kiwi::Repository::REPO_TYPES.reject {|repo| repo == 'rpm-md' }.each do |type|
+        Kiwi::Repository::REPO_TYPES.reject { |repo| repo == 'rpm-md' }.each do |type|
           it { expect(obs_kiwi_repository).not_to allow_value(type).for(:repo_type) }
         end
       end

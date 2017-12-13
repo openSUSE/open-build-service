@@ -382,7 +382,7 @@ RSpec.describe Package, vcr: true do
   end
 
   describe '.what_depends_on' do
-    let(:repository) { 'openSUSE_Leap_42.1'}
+    let(:repository) { 'openSUSE_Leap_42.1' }
     let(:architecture) { 'x86_64' }
     let(:parameter) { "package=#{package.name}&view=revpkgnames" }
     let(:url) { "#{CONFIG['source_url']}/build/#{package.project}/#{repository}/#{architecture}/_builddepinfo?#{parameter}" }
@@ -681,7 +681,7 @@ Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
     let(:package) { create(:package_with_changes_file, project: project, name: 'package_with_changes_file') }
 
     context 'with a diff to the target package changes file' do
-      let(:target_project)  { create(:project, name: 'Apache')}
+      let(:target_project)  { create(:project, name: 'Apache') }
       let!(:target_package) {
         create(:package_with_changes_file, project: target_project, name: 'package_with_changes_file', changes_file_content: changes_file)
       }

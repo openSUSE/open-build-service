@@ -77,8 +77,8 @@ class Webui::RepositoriesController < Webui::WebuiController
     # Merge project repo's arch list with currently available arches from API. This needed as you want
     # to keep currently non-working arches in the project meta.
     @repository_arch_hash = Hash.new
-    Architecture.available.each {|arch| @repository_arch_hash[arch.name] = false }
-    repo.architectures.each {|arch| @repository_arch_hash[arch.name] = true }
+    Architecture.available.each { |arch| @repository_arch_hash[arch.name] = false }
+    repo.architectures.each { |arch| @repository_arch_hash[arch.name] = true }
     redirect_to({ action: :index }, notice: 'Successfully updated repository' )
   end
 

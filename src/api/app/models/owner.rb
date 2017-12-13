@@ -243,7 +243,7 @@ class Owner
   def self.find_maintainers(container, filter)
     maintainers = []
     sql = _build_rolefilter_sql(filter)
-    add_owners = Proc.new {|cont|
+    add_owners = Proc.new { |cont|
       m = Owner.new
       m.rootproject = ''
       if cont.is_a? Package

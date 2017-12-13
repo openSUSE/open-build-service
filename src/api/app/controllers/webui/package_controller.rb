@@ -1030,7 +1030,7 @@ class Webui::PackageController < Webui::WebuiController
     @serviceinfo = dir.find_first(:serviceinfo)
     files = []
     dir.each(:entry) do |entry|
-      file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.value(x.to_s)]}.flatten]
+      file = Hash[*[:name, :size, :mtime, :md5].map { |x| [x, entry.value(x.to_s)] }.flatten]
       file[:viewable] = !Package.is_binary_file?(file[:name]) && file[:size].to_i < 2**20 # max. 1 MB
       file[:editable] = file[:viewable] && !file[:name].match?(/^_service[_:]/)
       file[:srcmd5] = dir.value(:srcmd5)

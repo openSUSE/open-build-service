@@ -183,7 +183,7 @@ RSpec.describe Webui::AttributeController do
     it 'deletes the attrib' do
       expect {
         delete :destroy, params: { id: attrib.id }
-      }.to change {Attrib.count}.by(-1)
+      }.to change { Attrib.count }.by(-1)
       expect(response).to redirect_to(root_path)
       expect(flash[:notice]).to eq 'Attribute sucessfully deleted!'
     end

@@ -1594,7 +1594,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
       hashed = Xmlhash.parse(io.read)
     end
     # STDERR.puts JSON.pretty_generate(hashed)
-    assert hashed['package'].map {|f| f['file']}.include? '/my_packaged_file'
+    assert hashed['package'].map { |f| f['file'] }.include? '/my_packaged_file'
     # master tags
     IO.popen("cat #{ENV['OBS_BACKEND_TEMP']}/data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/repomd.xml") do |io|
       hashed = Xmlhash.parse(io.read)

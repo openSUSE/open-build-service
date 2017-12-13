@@ -142,7 +142,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
 
     context 'with a subprojects' do
-      let!(:apache_subproject) { create(:project, name: "Apache:subproject")}
+      let!(:apache_subproject) { create(:project, name: "Apache:subproject") }
 
       context 'and searching for parent project' do
         before do
@@ -420,7 +420,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       login user
       @remote_projects_created = create_list(:remote_project, 3)
       get :new_package_branch, params: { project: apache_project }
-      expect(assigns(:remote_projects)).to match_array(@remote_projects_created.map {|r| [r.id, r.name, r.title]})
+      expect(assigns(:remote_projects)).to match_array(@remote_projects_created.map { |r| [r.id, r.name, r.title] })
     end
   end
 
@@ -824,7 +824,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       it { expect(flash[:success]).to eq("Successfully removed path") }
       it { is_expected.to redirect_to(action: :index, project: user.home_project, controller: :repositories) }
-      it { expect(repo_for_user_home.path_elements.count).to eq(0)}
+      it { expect(repo_for_user_home.path_elements.count).to eq(0) }
     end
 
     context "with a target repository but letting the project invalid" do
@@ -837,7 +837,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       it { expect(flash[:error]).to eq("Can not remove path: ") }
       it { is_expected.to redirect_to(root_url) }
-      it { expect(assigns(:project).repositories.count).to eq(1)}
+      it { expect(assigns(:project).repositories.count).to eq(1) }
     end
   end
 
@@ -1295,7 +1295,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       context 'only one path_element' do
-        let(:position) { path_element.position}
+        let(:position) { path_element.position }
 
         context 'direction up' do
           before do
@@ -1616,7 +1616,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
             }
           }}
         end
-        let(:package) { create(:package, name: 'obs-server', project: user.home_project )}
+        let(:package) { create(:package, name: 'obs-server', project: user.home_project ) }
 
         before do
           allow(Buildresult).to receive(:find_hashed).and_return(fake_buildresult)

@@ -97,7 +97,7 @@ RSpec.describe Webui::SearchController, vcr: true do
 
       it { expect(flash[:notice]).to eq('Your search did not return any results.') }
       it { expect(response).to have_http_status(:success) }
-      it { expect(assigns(:results)).to be_empty}
+      it { expect(assigns(:results)).to be_empty }
     end
 
     context 'with proper parameters and some results' do
@@ -107,7 +107,7 @@ RSpec.describe Webui::SearchController, vcr: true do
       end
 
       it { expect(response).to have_http_status(:success) }
-      it { expect(assigns(:results)).not_to be_empty}
+      it { expect(assigns(:results)).not_to be_empty }
     end
   end
 end

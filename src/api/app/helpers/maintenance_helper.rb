@@ -264,8 +264,8 @@ module MaintenanceHelper
     cts = ChannelTarget.find_by_repo(target_repo, [source_package.project])
     cts = ChannelTarget.find_by_repo(target_repo, project_filter) unless cts.any?
     first_ct = cts.first
-    unless cts.all? {|c| c.id_template == first_ct.id_template}
-      msg = cts.map {|cti| "#{cti.channel.package.project.name}/#{cti.channel.package.name}"}.join(", ")
+    unless cts.all? { |c| c.id_template == first_ct.id_template }
+      msg = cts.map { |cti| "#{cti.channel.package.project.name}/#{cti.channel.package.name}" }.join(", ")
       raise MultipleUpdateInfoTemplate, "Multiple channel targets found in #{msg} for repository #{target_repo.project.name}/#{target_repo.name}"
     end
     id_template = cts.first.id_template if cts.first && cts.first.id_template

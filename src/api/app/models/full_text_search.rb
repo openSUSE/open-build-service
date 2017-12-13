@@ -51,7 +51,7 @@ class FullTextSearch
       args[:with][:attrib_type_ids] = attrib_type_id.to_i unless attrib_type_id.nil?
     end
     if classes
-      args[:classes] = classes.map {|i| i.to_s.classify.constantize }
+      args[:classes] = classes.map { |i| i.to_s.classify.constantize }
     end
 
     @result = ThinkingSphinx.search search_str, args

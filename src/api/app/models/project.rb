@@ -1282,9 +1282,9 @@ class Project < ApplicationRecord
   # updates packages automatically generated in the backend after submitting a product file
   def update_product_autopackages
     backend_pkgs = Collection.find :id, what: 'package', match: "@project='#{name}' and starts-with(@name,'_product:')"
-    b_pkg_index = backend_pkgs.each(:package).each_with_object(Hash.new) {|elem, hash| hash[elem.value(:name)] = elem; hash}
+    b_pkg_index = backend_pkgs.each(:package).each_with_object(Hash.new) { |elem, hash| hash[elem.value(:name)] = elem; hash }
     frontend_pkgs = packages.where("`packages`.name LIKE '_product:%'")
-    f_pkg_index = frontend_pkgs.each_with_object(Hash.new) {|elem, hash| hash[elem.name] = elem; hash}
+    f_pkg_index = frontend_pkgs.each_with_object(Hash.new) { |elem, hash| hash[elem.name] = elem; hash }
 
     all_pkgs = [b_pkg_index.keys, f_pkg_index.keys].flatten.uniq
 

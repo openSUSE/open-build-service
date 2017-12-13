@@ -352,7 +352,7 @@ RSpec.describe Review do
     end
 
     context 'by_package with a direct relationship' do
-      let(:relationship_package_user) { create(:relationship_package_user)}
+      let(:relationship_package_user) { create(:relationship_package_user) }
       let(:package) { relationship_package_user.package }
       let!(:review) { create(:review, by_package: package, by_project: package.project) }
       subject { relationship_package_user.user }
@@ -361,10 +361,10 @@ RSpec.describe Review do
     end
 
     context 'by_package with a group relationship' do
-      let(:relationship_package_group) { create(:relationship_package_group)}
+      let(:relationship_package_group) { create(:relationship_package_group) }
       let(:package) { relationship_package_group.package }
       let(:group) { relationship_package_group.group }
-      let(:groups_user) { create(:groups_user, group: group)}
+      let(:groups_user) { create(:groups_user, group: group) }
       let!(:user) { groups_user.user }
       let!(:review) { create(:review, by_package: package, by_project: package.project) }
 
@@ -377,7 +377,7 @@ RSpec.describe Review do
     end
 
     context 'by_project with a direct relationship' do
-      let(:relationship_project_user) { create(:relationship_project_user)}
+      let(:relationship_project_user) { create(:relationship_project_user) }
       let(:project) { relationship_project_user.project }
       let!(:review) { create(:review, by_project: project) }
       subject { relationship_project_user.user }
@@ -386,10 +386,10 @@ RSpec.describe Review do
     end
 
     context 'by_project with a group relationship' do
-      let(:relationship_project_group) { create(:relationship_project_group)}
+      let(:relationship_project_group) { create(:relationship_project_group) }
       let(:project) { relationship_project_group.project }
       let(:group) { relationship_project_group.group }
-      let(:groups_user) { create(:groups_user, group: group)}
+      let(:groups_user) { create(:groups_user, group: group) }
       let!(:user) { groups_user.user }
       let!(:review) { create(:review, by_project: project) }
 

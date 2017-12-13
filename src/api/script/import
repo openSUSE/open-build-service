@@ -70,7 +70,7 @@ def store_packages_for( p )
       STDERR.print "     #{entry.name} => "
       xpack = Xpackage.find entry.name, project: p.name
       # remove devel entries
-      xpack.data.each_element('devel') {|e| xpack.data.delete_element e}
+      xpack.data.each_element('devel') { |e| xpack.data.delete_element e }
       pack = Package.new( xpack.dump_xml, project: p.name )
 
       create_missing_users_for xpack

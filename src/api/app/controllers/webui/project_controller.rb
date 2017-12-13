@@ -196,7 +196,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     # An incident has a patchinfo if there is a package 'patchinfo' with file '_patchinfo', try to find that:
     @has_patchinfo = false
-    if @packages.map {|p| p[0]}.include? 'patchinfo'
+    if @packages.map { |p| p[0] }.include? 'patchinfo'
       Directory.hashed(project: @project.name, package: 'patchinfo').elements('entry') do |e|
         @has_patchinfo = true if e['name'] == '_patchinfo'
       end
@@ -470,7 +470,7 @@ class Webui::ProjectController < Webui::WebuiController
     @packagenames = @packagenames.flatten.uniq.sort
 
     ## Filter for PackageNames ####
-    @packagenames.reject! {|name| !filter_matches?(name, @name_filter) } if @name_filter.present?
+    @packagenames.reject! { |name| !filter_matches?(name, @name_filter) } if @name_filter.present?
 
     packagename_hash = Hash.new
     @packagenames.each { |p| packagename_hash[p.to_s] = 1 }
@@ -763,7 +763,7 @@ class Webui::ProjectController < Webui::WebuiController
     @project.packages.order_by_name.pluck(:name, :updated_at).each do |p|
       @packages << [p[0], p[1].to_i.to_s] # convert Time to epoch ts and then to string
     end
-    @ipackages = @project.expand_all_packages.find_all { |ip| !@packages.map {|p| p[0]}.include?(ip[0]) }
+    @ipackages = @project.expand_all_packages.find_all { |ip| !@packages.map { |p| p[0] }.include?(ip[0]) }
     @linking_projects = @project.linked_by_projects.pluck(:name)
 
     reqs = @project.open_requests

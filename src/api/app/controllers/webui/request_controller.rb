@@ -102,7 +102,7 @@ class Webui::RequestController < Webui::WebuiController
 
     # search for a project, where the user is not a package maintainer but a project maintainer and show
     # a hint if that package has some package maintainers (issue#1970)
-    projects = @actions.map {|action| action[:tprj]}.uniq
+    projects = @actions.map { |action| action[:tprj] }.uniq
     maintainer_role = Role.find_by_title("maintainer")
 
     @show_project_maintainer_hint = (!@package_maintainers.empty? && !@package_maintainers.include?(User.current) &&

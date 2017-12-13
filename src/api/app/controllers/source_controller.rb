@@ -1059,7 +1059,7 @@ class SourceController < ApplicationController
       project.name = params[:project]
       project.store(commit)
       # update meta data in all packages, they contain the project name as well
-      project.packages.each {|package| package.store(commit)}
+      project.packages.each { |package| package.store(commit) }
     rescue
       render_error status: 400, errorcode: 'move_failed',
         message: 'Move operation failed'
