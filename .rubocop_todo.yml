@@ -110,12 +110,6 @@ Lint/UnderscorePrefixedVariableName:
     - 'src/api/app/models/event/base.rb'
     - 'src/api/lib/api_exception.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Lint/UnneededDisable:
-  Exclude:
-    - 'src/api/test/unit/schema_test.rb'
-
 # Offense count: 50
 Lint/UriEscapeUnescape:
   Enabled: false
