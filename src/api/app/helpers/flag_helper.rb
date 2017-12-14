@@ -75,9 +75,9 @@ module FlagHelper
 
     flags_to_remove = Array.new
     flaglist.each do |f|
-      next if !repository.blank? && f.repo != repository
-      next if repository.blank? && !f.repo.blank?
-      next if !arch.blank? && f.architecture != arch
+      next if repository.present? && f.repo != repository
+      next if repository.blank? && f.repo.present?
+      next if arch.present? && f.architecture != arch
       next if arch.blank? && !f.architecture.nil?
       flags_to_remove << f
     end

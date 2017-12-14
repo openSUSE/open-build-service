@@ -445,7 +445,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     find_opt = { project: @project, view: 'status', code: @status_filter,
       arch: @arch_filter, repo: @repo_filter }
-    find_opt[:lastbuild] = 1 unless @lastbuild_switch.blank?
+    find_opt[:lastbuild] = 1 if @lastbuild_switch.present?
 
     @buildresult = Buildresult.find(find_opt)
     unless @buildresult
@@ -959,7 +959,7 @@ class Webui::ProjectController < Webui::WebuiController
     end
 
     currentpack['name'] = pname
-    currentpack['failedcomment'] = p.failed_comment unless p.failed_comment.blank?
+    currentpack['failedcomment'] = p.failed_comment if p.failed_comment.present?
 
     newest = 0
 
@@ -1037,7 +1037,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def status_filter_packages
-    filter_for_user = User.find_by_login!(@filter_for_user) unless @filter_for_user.blank?
+    filter_for_user = User.find_by_login!(@filter_for_user) if @filter_for_user.present?
     current_develproject = @filter || @all_projects
     @develprojects = Hash.new
     packages_to_filter_for = nil

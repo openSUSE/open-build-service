@@ -142,8 +142,8 @@ class RequestController < ApplicationController
     xml = nil
     BsRequest.transaction do
       @req = BsRequest.new_from_xml(request.raw_post.to_s)
-      @req.set_add_revision       unless params[:addrevision].blank?
-      @req.set_ignore_build_state unless params[:ignore_build_state].blank?
+      @req.set_add_revision       if params[:addrevision].present?
+      @req.set_ignore_build_state if params[:ignore_build_state].present?
       @req.save!
 
       xml = @req.render_xml
@@ -213,7 +213,7 @@ class RequestController < ApplicationController
   end
 
   def request_command_setacceptat
-    time = DateTime.parse(params[:time]) unless params[:time].blank?
+    time = DateTime.parse(params[:time]) if params[:time].present?
     @req.set_accept_at!(time)
     render_ok
   end

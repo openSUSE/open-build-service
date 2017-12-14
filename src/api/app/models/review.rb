@@ -155,7 +155,7 @@ class Review < ApplicationRecord
       # no valid time -> ignore
     end
 
-    raise ArgumentError, "too much information #{hash.inspect}" unless hash.blank?
+    raise ArgumentError, "too much information #{hash.inspect}" if hash.present?
     r
   end
 

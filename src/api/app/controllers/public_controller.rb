@@ -152,7 +152,7 @@ class PublicController < ApplicationController
         #       do not support it (exception zypp via ymp files)
         dist = Distribution.find_by_project_and_repository(pe.link.project.name, pe.link.name)
         next unless dist
-        unless binary_map[repo.name].blank?
+        if binary_map[repo.name].present?
           dist_id = dist.id
           @binary_links[dist_id] ||= {}
           binary = binary_map[repo.name].select { |bin| bin.value(:name) == @pkg.name }.first

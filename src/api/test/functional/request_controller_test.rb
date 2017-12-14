@@ -158,7 +158,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     node = Xmlhash.parse(@response.body)
     id = node['id']
-    assert !id.blank?
+    assert id.present?
 
     post '/request?cmd=create', params: '<request>
                                    <action type="submit">
@@ -170,7 +170,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     node = Xmlhash.parse(@response.body)
     id2 = node['id']
-    assert !id2.blank?
+    assert id2.present?
 
     post "/request/#{id}?cmd=changestate&newstate=accepted&comment=approved&force=1"
     assert_response :success
@@ -232,7 +232,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     node = Xmlhash.parse(@response.body)
     id = node['id']
-    assert !id.blank?
+    assert id.present?
     create_time = node['state']['when']
     assert_equal '2010-07-12T00:00:00', create_time
 
@@ -1786,7 +1786,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     node = Xmlhash.parse(@response.body)
     id = node['id']
-    assert !id.blank?
+    assert id.present?
     # no write permission
     post "/request/#{id}?cmd=changestate&newstate=accepted&comment=But+I+want+it"
     assert_response 403
@@ -3463,7 +3463,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     node = Xmlhash.parse(@response.body)
     default = node['id']
-    assert !default.blank?
+    assert default.present?
     Timecop.freeze(1)
     # a second default
     post '/request?cmd=create', params: '<request>
@@ -3477,7 +3477,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     node = Xmlhash.parse(@response.body)
     moderate = node['id']
-    assert !moderate.blank?
+    assert moderate.present?
     Timecop.freeze(1)
     post '/request?cmd=create', params: '<request>
                                    <action type="submit">
@@ -3490,7 +3490,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     node = Xmlhash.parse(@response.body)
     low = node['id']
-    assert !low.blank?
+    assert low.present?
     Timecop.freeze(1)
     post '/request?cmd=create', params: '<request>
                                    <action type="submit">
@@ -3503,7 +3503,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     node = Xmlhash.parse(@response.body)
     critical = node['id']
-    assert !critical.blank?
+    assert critical.present?
     post '/request?cmd=create', params: '<request>
                                    <action type="submit">
                                      <source project="BaseDistro2.0" package="pack2"/>
@@ -3515,7 +3515,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     node = Xmlhash.parse(@response.body)
     important = node['id']
-    assert !important.blank?
+    assert important.present?
     Timecop.freeze(1)
 
     get '/search/request', params: { match: "target/@project = 'home:Iggy'" }

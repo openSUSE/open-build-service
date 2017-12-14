@@ -18,7 +18,7 @@ class Webui::FeedsController < Webui::WebuiController
       redirect_to '/403.html', status: :forbidden
       return
     end
-    unless params[:starting_at].blank?
+    if params[:starting_at].present?
       @start = (begin
                   Time.zone.parse(params[:starting_at])
                 rescue
@@ -27,7 +27,7 @@ class Webui::FeedsController < Webui::WebuiController
     end
     @start ||= 7.days.ago
     @finish = nil
-    unless params[:ending_at].blank?
+    if params[:ending_at].present?
       @finish = (begin
                    Time.zone.parse(params[:ending_at])
                  rescue

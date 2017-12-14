@@ -202,7 +202,7 @@ module MaintenanceHelper
                                   multibuild_container, setrelease)
     u_id = get_updateinfo_id(source_package, target_repo)
     source_package_name = source_package.name
-    unless multibuild_container.blank?
+    if multibuild_container.present?
       source_package_name << ":" << multibuild_container
       target_package_name = target_package_name.gsub(/:.*/, '') << ":" << multibuild_container
     end

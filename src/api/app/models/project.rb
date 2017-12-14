@@ -612,7 +612,7 @@ class Project < ApplicationRecord
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       login = @commit_opts[:login] || User.current.login
       query = { user: login }
-      query[:comment] = @commit_opts[:comment] unless @commit_opts[:comment].blank?
+      query[:comment] = @commit_opts[:comment] if @commit_opts[:comment].present?
       # api request number is requestid in backend
       query[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
       query[:lowprio] = '1' if @commit_opts[:lowprio]
@@ -1517,8 +1517,8 @@ class Project < ApplicationRecord
 
   def self.source_path(project, file = nil, opts = {})
     path = "/source/#{URI.escape(project)}"
-    path += "/#{URI.escape(file)}" unless file.blank?
-    path += '?' + opts.to_query unless opts.blank?
+    path += "/#{URI.escape(file)}" if file.present?
+    path += '?' + opts.to_query if opts.present?
     path
   end
 

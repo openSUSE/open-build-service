@@ -15,7 +15,7 @@ class Channel < ApplicationRecord
     }
     xmlhash.elements('binaries').each { |p|
       project = p['project']
-      unless project.blank?
+      if project.present?
         prj = Project.get_by_name(p['project'])
         prj.repositories.find_by_name!(p['repository']) if p['repository']
       end
@@ -65,7 +65,7 @@ class Channel < ApplicationRecord
     xmlhash.elements('binaries').each { |p|
       repository = nil
       project = p['project']
-      unless project.blank?
+      if project.present?
         project = Project.find_by_name(project)
         next unless project
         repository = project.repositories.find_by_name(p['repository']) if p['repository']

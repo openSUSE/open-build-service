@@ -205,8 +205,8 @@ class BsRequest < ApplicationRecord
       str = state.delete('when')
       request.updated_when = Time.zone.parse(str) if str
       str = state.delete('superseded_by') || ''
-      request.superseded_by = Integer(str) unless str.blank?
-      raise ArgumentError, "too much information #{state.inspect}" unless state.blank?
+      request.superseded_by = Integer(str) if str.present?
+      raise ArgumentError, "too much information #{state.inspect}" if state.present?
 
       request.description = hashed.value('description')
       hashed.delete('description')
@@ -229,7 +229,7 @@ class BsRequest < ApplicationRecord
         request.reviews << Review.new_from_xml_hash(r)
       end if reviews
 
-      raise ArgumentError, "too much information #{hashed.inspect}" unless hashed.blank?
+      raise ArgumentError, "too much information #{hashed.inspect}" if hashed.present?
 
       request.updated_at ||= Time.now
     end
@@ -365,7 +365,7 @@ class BsRequest < ApplicationRecord
         builder.history(attributes) do
           # request description is on purpose the comment in history:
           builder.description! "Request created"
-          builder.comment! description unless description.blank?
+          builder.comment! description if description.present?
         end
       end
       if opts[:withfullhistory]

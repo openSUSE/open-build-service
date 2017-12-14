@@ -20,7 +20,7 @@ xml.feed(feed_opts) do |feed|
       url = ''
 
       title = "In #{package}"
-      title += " (request #{reqid})" unless reqid.blank?
+      title += " (request #{reqid})" if reqid.present?
       entry.title(title)
       entry.content type: 'xhtml' do |xhtml|
         xhtml.div do |div|

@@ -21,7 +21,7 @@ class BsRequest
 
           # include all groups of user
           usergroups = user.groups.map { |group| "'#{group.title}'" }
-          or_in_and << "reviews.by_group in (#{usergroups.join(',')})" unless usergroups.blank?
+          or_in_and << "reviews.by_group in (#{usergroups.join(',')})" if usergroups.present?
 
           @relation, inner_or = extend_query_for_involved_reviews(user, or_in_and, @relation, review_states, inner_or)
         end

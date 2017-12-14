@@ -178,7 +178,7 @@ class Webui::RepositoriesController < Webui::WebuiController
 
     @flag = @main_object.flags.new(status: params[:status], flag: params[:flag])
     @flag.architecture = Architecture.find_by_name(params[:architecture])
-    @flag.repo = params[:repository] unless params[:repository].blank?
+    @flag.repo = params[:repository] if params[:repository].present?
 
     respond_to do |format|
       if @flag.save

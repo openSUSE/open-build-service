@@ -104,7 +104,7 @@ namespace :db do
 
       bigint_lines = %x{grep "bigint" #{Rails.root}/db/structure.sql}
 
-      unless bigint_lines.blank?
+      if bigint_lines.present?
         abort <<-STR
           Please do not use bigint column type in db/structure.sql.
           You may need to call create_table with `id: :integer` to avoid the id column using bigint.

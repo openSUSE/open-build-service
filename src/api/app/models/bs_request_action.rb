@@ -97,7 +97,7 @@ class BsRequestAction < ApplicationRecord
     a = classname.new
     # now remove things from hash
     a.store_from_xml(hash)
-    raise ArgumentError, "too much information #{hash.inspect}" unless hash.blank?
+    raise ArgumentError, "too much information #{hash.inspect}" if hash.present?
     a
   end
 
@@ -162,7 +162,7 @@ class BsRequestAction < ApplicationRecord
       self.source_project = source.delete('project')
       self.source_rev = source.delete('rev')
 
-      raise ArgumentError, "too much information #{source.inspect}" unless source.blank?
+      raise ArgumentError, "too much information #{source.inspect}" if source.present?
     end
 
     target = hash.delete('target')
@@ -172,7 +172,7 @@ class BsRequestAction < ApplicationRecord
       self.target_releaseproject = target.delete('releaseproject')
       self.target_repository = target.delete('repository')
 
-      raise ArgumentError, "too much information #{target.inspect}" unless target.blank?
+      raise ArgumentError, "too much information #{target.inspect}" if target.present?
     end
 
     ai = hash.delete('acceptinfo')
@@ -184,7 +184,7 @@ class BsRequestAction < ApplicationRecord
       bs_request_action_accept_info.xsrcmd5 = ai.delete('xsrcmd5')
       bs_request_action_accept_info.oxsrcmd5 = ai.delete('oxsrcmd5')
 
-      raise ArgumentError, "too much information #{ai.inspect}" unless ai.blank?
+      raise ArgumentError, "too much information #{ai.inspect}" if ai.present?
     end
 
     o = hash.delete('options')
@@ -197,14 +197,14 @@ class BsRequestAction < ApplicationRecord
 
       self.updatelink = true if o.delete('updatelink') == 'true'
       self.makeoriginolder = o.delete('makeoriginolder')
-      raise ArgumentError, "too much information #{s.inspect}" unless o.blank?
+      raise ArgumentError, "too much information #{s.inspect}" if o.present?
     end
 
     p = hash.delete('person')
     if p
       self.person_name = p.delete('name') { raise ArgumentError, 'a person without name' }
       self.role = p.delete('role')
-      raise ArgumentError, "too much information #{p.inspect}" unless p.blank?
+      raise ArgumentError, "too much information #{p.inspect}" if p.present?
     end
 
     g = hash.delete('group')
@@ -213,27 +213,27 @@ class BsRequestAction < ApplicationRecord
     self.group_name = g.delete('name') { raise ArgumentError, 'a group without name' }
     raise ArgumentError, 'role already taken' if role
     self.role = g.delete('role')
-    raise ArgumentError, "too much information #{g.inspect}" unless g.blank?
+    raise ArgumentError, "too much information #{g.inspect}" if g.present?
   end
 
   def xml_package_attributes(source_or_target)
     attributes = {}
     value = send "#{source_or_target}_project"
-    attributes[:project] = value unless value.blank?
+    attributes[:project] = value if value.present?
     value = send "#{source_or_target}_package"
-    attributes[:package] = value unless value.blank?
+    attributes[:package] = value if value.present?
     attributes
   end
 
   def render_xml_source(node)
     attributes = xml_package_attributes('source')
-    attributes[:rev] = source_rev unless source_rev.blank?
+    attributes[:rev] = source_rev if source_rev.present?
     node.source attributes
   end
 
   def render_xml_target(node)
     attributes = xml_package_attributes('target')
-    attributes[:releaseproject] = target_releaseproject unless target_releaseproject.blank?
+    attributes[:releaseproject] = target_releaseproject if target_releaseproject.present?
     node.target attributes
   end
 
@@ -290,7 +290,7 @@ class BsRequestAction < ApplicationRecord
 
   def contains_change?
     begin
-      return !sourcediff.blank?
+      return sourcediff.present?
     rescue BsRequestAction::DiffError
       # if the diff can'be created we can't say
       # but let's assume the reason for the problem lies in the change
@@ -704,7 +704,7 @@ class BsRequestAction < ApplicationRecord
         release_targets = Patchinfo.new.fetch_release_targets(pkg)
       end
       new_targets.each do |p|
-        unless release_targets.blank?
+        if release_targets.present?
           found = false
           release_targets.each do |rt|
             if rt['project'] == p

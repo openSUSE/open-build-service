@@ -36,7 +36,7 @@ class BsRequestActionDelete < BsRequestAction
 
   def render_xml_attributes(node)
     attributes = xml_package_attributes('target')
-    attributes[:repository] = target_repository unless target_repository.blank?
+    attributes[:repository] = target_repository if target_repository.present?
     node.target attributes
   end
 

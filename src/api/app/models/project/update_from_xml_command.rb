@@ -36,7 +36,7 @@ class Project
       project.url = xmlhash.value('url')
       project.remoteurl = xmlhash.value('remoteurl')
       project.remoteproject = xmlhash.value('remoteproject')
-      project.kind = xmlhash.value('kind') unless xmlhash.value('kind').blank?
+      project.kind = xmlhash.value('kind') if xmlhash.value('kind').present?
       project.save!
 
       update_linked_projects(xmlhash)

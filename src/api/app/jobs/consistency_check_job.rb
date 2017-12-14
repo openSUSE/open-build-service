@@ -20,7 +20,7 @@ class ConsistencyCheckJob < ApplicationJob
       @errors << package_existence_consistency_check(project, fix)
       @errors << project_meta_check(project, fix)
     end
-    unless @errors.blank?
+    if @errors.present?
       @errors = "FIXING the following errors:\n" << @errors if fix
       Rails.logger.error("Detected problems during consistency check")
       Rails.logger.error(@errors)
@@ -49,7 +49,7 @@ class ConsistencyCheckJob < ApplicationJob
     rescue Project::UnknownObjectError
       # specified but does not exist in api. does it also not exist in backend?
       answer = import_project_from_backend(ENV['project'])
-      unless answer.blank?
+      if answer.present?
         @errors << answer
         return
       end
@@ -64,7 +64,7 @@ class ConsistencyCheckJob < ApplicationJob
       project.destroy if fix
     end
     @errors << package_existence_consistency_check(project, fix)
-    puts @errors unless @errors.blank?
+    puts @errors if @errors.present?
   end
 
   private

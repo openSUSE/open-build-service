@@ -8,8 +8,8 @@ xml.distributions do
       xml.link(d["link"])
       d["icons"].each do |i|
         attr = { url: i["url"] }
-        attr[:width] = i["width"] unless i["width"].blank?
-        attr[:height] = i["height"] unless i["height"].blank?
+        attr[:width] = i["width"] if i["width"].present?
+        attr[:height] = i["height"] if i["height"].present?
         xml.icon(attr)
       end
       d["architectures"].each do |a|

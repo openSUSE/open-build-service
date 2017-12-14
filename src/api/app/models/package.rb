@@ -502,8 +502,8 @@ class Package < ApplicationRecord
 
   def self.source_path(project, package, file = nil, opts = {})
     path = "/source/#{URI.escape(project)}/#{URI.escape(package)}"
-    path += "/#{URI.escape(file)}" unless file.blank?
-    path += '?' + opts.to_query unless opts.blank?
+    path += "/#{URI.escape(file)}" if file.present?
+    path += '?' + opts.to_query if opts.present?
     path
   end
 
@@ -814,7 +814,7 @@ class Package < ApplicationRecord
     #--- write through to backend ---#
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       query = { user: User.current_login }
-      query[:comment] = @commit_opts[:comment] unless @commit_opts[:comment].blank?
+      query[:comment] = @commit_opts[:comment] if @commit_opts[:comment].present?
       # the request number is the requestid parameter in the backend api
       query[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
       Backend::Connection.put(source_path('_meta', query), to_axml)
