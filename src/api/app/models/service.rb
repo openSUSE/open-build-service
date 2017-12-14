@@ -77,10 +77,10 @@ class Service < ActiveXML::Node
   end
 
   def fill_params(element, parameters)
-    parameters.each { |parameter|
+    parameters.each do |parameter|
       param = element.add_element('param', name: parameter[:name])
       param.text = parameter[:value]
-    }
+    end
     true
   end
 

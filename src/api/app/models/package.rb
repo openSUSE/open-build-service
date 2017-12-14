@@ -103,9 +103,9 @@ class Package < ApplicationRecord
   # which would produce a query like
   # WHERE (packages.project_id not in (0))
   # because we assumes that there are more allowed projects than forbidden ones.
-  default_scope {
+  default_scope do
     where.not(id: Package.where(project_id: Relationship.forbidden_project_ids))
-  }
+  end
 
   scope :order_by_name, -> { order('LOWER(name)') }
 

@@ -7,20 +7,20 @@ class Channel < ApplicationRecord
 
   def self.verify_xml!(xmlhash)
     xmlhash = Xmlhash.parse(xmlhash) if xmlhash.is_a? String
-    xmlhash.elements('target') { |p|
+    xmlhash.elements('target') do |p|
       prj = Project.get_by_name(p['project'])
       unless prj.repositories.find_by_name(p['repository'])
         raise UnknownRepository, "Repository does not exist #{prj.name}/#{p['repository']}"
       end
-    }
-    xmlhash.elements('binaries').each { |p|
+    end
+    xmlhash.elements('binaries').each do |p|
       project = p['project']
       if project.present?
         prj = Project.get_by_name(p['project'])
         prj.repositories.find_by_name!(p['repository']) if p['repository']
       end
       Architecture.find_by_name!(p['arch']) if p['arch']
-      p.elements('binary') { |b|
+      p.elements('binary') do |b|
         Architecture.find_by_name!(b['arch']) if b['arch']
         project = b['project']
         if project
@@ -33,8 +33,8 @@ class Channel < ApplicationRecord
             raise UnknownRepository, "Repository does not exist #{prj.name}/#{b['repository']}"
           end
         end
-      }
-    }
+      end
+    end
   end
 
   def name
@@ -46,7 +46,7 @@ class Channel < ApplicationRecord
   def _update_from_xml_targets(xmlhash)
     # sync channel targets
     hasharray = []
-    xmlhash.elements('target').each { |p|
+    xmlhash.elements('target').each do |p|
       prj = Project.find_by_name(p['project'])
       next unless prj
       r = prj.repositories.find_by_name(p['repository'])
@@ -55,14 +55,14 @@ class Channel < ApplicationRecord
                      repository: r, id_template: p['id_template'],
                      requires_issue: p['requires_issue'],
                      disabled: (p.has_key? 'disabled') }
-    }
+    end
     sync_hash_with_model(ChannelTarget, channel_targets, hasharray)
   end
 
   def _update_from_xml_binary_lists(xmlhash)
     # sync binary lists
     hasharray = []
-    xmlhash.elements('binaries').each { |p|
+    xmlhash.elements('binaries').each do |p|
       repository = nil
       project = p['project']
       if project.present?
@@ -75,7 +75,7 @@ class Channel < ApplicationRecord
       arch = Architecture.find_by_name!(p['arch']) if p['arch']
       hasharray << { project: project, architecture: arch,
                      repository: repository }
-    }
+    end
     sync_hash_with_model(ChannelBinaryList, channel_binary_lists, hasharray)
   end
 
@@ -110,7 +110,7 @@ class Channel < ApplicationRecord
     end
 
     # sync binaries for all lists
-    channel_binary_lists.each { |cbl|
+    channel_binary_lists.each do |cbl|
       hasharray = Array.new
       # search the right xml binaries group for this cbl
       xmlhash.elements('binaries') do |b|
@@ -127,7 +127,7 @@ class Channel < ApplicationRecord
       raise "Unable to find binary list #{cbl.project.name} #{cbl.repository.name} #{cbl.architecture.name}" if hasharray.empty?
       # update...
       _update_from_xml_binaries(cbl, hasharray)
-    }
+    end
     save
   end
 

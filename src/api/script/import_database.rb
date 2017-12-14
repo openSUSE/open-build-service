@@ -92,9 +92,9 @@ def import_dump
   filename = @params[:path] || options['backup_filename']
 
   cmds = ["bzcat #{File.join(@data_path, filename)}"]
-  cmds << TABLES_TO_REMOVE.map { |table|
+  cmds << TABLES_TO_REMOVE.map do |table|
     "sed '/-- Dumping data for table `#{table}`/,/-- Table structure for table/{//!d}'"
-  }.join(' | ') unless TABLES_TO_REMOVE.empty?
+  end.join(' | ') unless TABLES_TO_REMOVE.empty?
   cmds << "#{File.exist?(@vagrant_path) ? 'vagrant exec' : ''} mysql -u#{username} -p#{password} #{database}"
 
   puts "Extracting and importing data from #{filename}..."

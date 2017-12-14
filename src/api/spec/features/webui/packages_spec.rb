@@ -8,10 +8,10 @@ require "webmock/rspec"
 
 RSpec.feature "Packages", type: :feature, js: true do
   it_behaves_like 'user tab' do
-    let(:package) {
+    let(:package) do
       create(:package, name: "group_test_package",
         project_id: user_tab_user.home_project.id)
-    }
+    end
     let!(:maintainer_user_role) { create(:relationship, package: package, user: user_tab_user) }
     let(:project_path) { package_show_path(project: user_tab_user.home_project, package: package) }
   end
@@ -141,16 +141,16 @@ RSpec.feature "Packages", type: :feature, js: true do
 
   context "triggering package rebuild" do
     let(:repository) { create(:repository, name: 'package_test_repository', project: user.home_project, architectures: ["x86_64"]) }
-    let(:rebuild_url) {
+    let(:rebuild_url) do
       "#{CONFIG['source_url']}/build/#{user.home_project.name}?cmd=rebuild&arch=x86_64&package=#{package.name}&repository=#{repository.name}"
-    }
-    let(:fake_buildresult) {
+    end
+    let(:fake_buildresult) do
       "<resultlist state='123'>
          <result project='#{user.home_project.name}' repository='#{repository.name}' arch='x86_64'>
            <binarylist/>
          </result>
        </resultlist>"
-    }
+    end
 
     before do
       login(user)

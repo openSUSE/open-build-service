@@ -17,15 +17,15 @@ RSpec.describe Webui::MainController do
     it "requires message and severity parameters" do
       login(admin_user)
 
-      expect {
+      expect do
         post :add_news, params: { message: "Some message" }
-      }.to_not change(StatusMessage, :count)
+      end.to_not change(StatusMessage, :count)
       expect(response).to redirect_to(root_path)
       expect(flash[:error]).to eq("Please provide a message and severity")
 
-      expect {
+      expect do
         post :add_news, params: { severity: "Green" }
-      }.to_not change(StatusMessage, :count)
+      end.to_not change(StatusMessage, :count)
       expect(response).to redirect_to(root_path)
       expect(flash[:error]).to eq("Please provide a message and severity")
     end

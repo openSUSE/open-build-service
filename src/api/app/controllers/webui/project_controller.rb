@@ -673,9 +673,9 @@ class Webui::ProjectController < Webui::WebuiController
     @develprojects.insert(1, no_project)
 
     respond_to do |format|
-      format.json {
+      format.json do
         render json: Yajl::Encoder.encode(@packages)
-      }
+      end
       format.html
     end
   end
@@ -868,7 +868,7 @@ class Webui::ProjectController < Webui::WebuiController
     @avail_status_values = Buildresult.avail_status_values
     @filter_out = %w(disabled excluded unknown)
     @status_filter = []
-    @avail_status_values.each { |s|
+    @avail_status_values.each do |s|
       id = s.delete(' ')
       if params.has_key?(id)
         next unless (begin
@@ -881,46 +881,46 @@ class Webui::ProjectController < Webui::WebuiController
       end
       next if defaults && @filter_out.include?(s)
       @status_filter << s
-    }
+    end
 
     @avail_arch_values = []
     @avail_repo_values = []
 
-    @project.api_obj.repositories.each { |r|
+    @project.api_obj.repositories.each do |r|
       @avail_repo_values << r.name
       @avail_arch_values << r.architectures.pluck(:name)
-    }
+    end
     @avail_arch_values = @avail_arch_values.flatten.uniq.sort
     @avail_repo_values = @avail_repo_values.flatten.uniq.sort
 
     @arch_filter = []
-    @avail_arch_values.each { |s|
+    @avail_arch_values.each do |s|
       archid = valid_xml_id('arch_' + s)
       if defaults || (params.has_key?(archid) && params[archid])
         @arch_filter << s
       end
-    }
+    end
 
     @repo_filter = []
-    @avail_repo_values.each { |s|
+    @avail_repo_values.each do |s|
       repoid = valid_xml_id('repo_' + s)
       if defaults || (params.has_key?(repoid) && params[repoid])
         @repo_filter << s
       end
-    }
+    end
   end
 
   def filter_matches?(input, filter_string)
     result = false
     filter_string.gsub!(/\s*/, '')
-    filter_string.split(',').each { |filter|
+    filter_string.split(',').each do |filter|
       no_invert = filter.match(/(^!?)(.+)/)
       if no_invert[1] == '!'
         result = input.include?(no_invert[2]) ? result : true
       else
         result = input.include?(no_invert[2]) ? true : result
       end
-    }
+    end
     result
   end
 

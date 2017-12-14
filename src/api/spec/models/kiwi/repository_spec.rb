@@ -33,27 +33,27 @@ RSpec.describe Kiwi::Repository, type: :model do
 
       ['dir', 'iso', 'smb', 'this'].each do |protocol|
         it "valid" do
-          property_of {
+          property_of do
             protocol + '://' + sized(range(1, 199)) { string(/./) }
-          }.check(3) { |string|
+          end.check(3) do |string|
             is_expected.to allow_value(string).for(:source_path)
-          }
+          end
         end
       end
 
       ['ftp', 'http', 'https', 'plain'].each do |protocol|
         it "valid" do
-          property_of {
+          property_of do
             # TODO: improve regular expression to generate the URI
             protocol + '://' + sized(range(1, 199)) { string(/[\w]/) }
-          }.check(3) { |string|
+          end.check(3) do |string|
             is_expected.to allow_value(string).for(:source_path)
-          }
+          end
         end
       end
 
       it "obs:// is valid" do
-        property_of {
+        property_of do
           project = []
           range(1, 3).times do
             project << string(/[a-zA-Z1-9]/) + sized(range(0, 20)) { string(/[-+\w\.]/) }
@@ -64,9 +64,9 @@ RSpec.describe Kiwi::Repository, type: :model do
           end
           path = "obs://#{project.join(':')}/#{repository.join(':')}"
           path
-        }.check(3) { |string|
+        end.check(3) do |string|
           is_expected.to allow_value(string).for(:source_path)
-        }
+        end
       end
 
       [nil, 3].each do |format|
@@ -74,29 +74,29 @@ RSpec.describe Kiwi::Repository, type: :model do
       end
 
       it "not valid when protocol is not valid" do
-        property_of {
+        property_of do
           string = sized(range(3, 199)) { string(/[\w]/) }
           index = range(0, (string.length - 4))
           string[index] = ':'
           string[index + 1] = string[index + 2] = '/'
           guard !%w(ftp http https plain dir iso smb this obs).include?(string[0..index - 1])
           string
-        }.check(3) { |string|
+        end.check(3) do |string|
           is_expected.not_to allow_value(string).for(:source_path)
-        }
+        end
       end
 
       ['ftp', 'http', 'https', 'plain', 'obs'].each do |protocol|
         it "not valid when has `{`" do
-          property_of {
+          property_of do
             string = sized(range(1, 199)) { string(/[\w]/) }
             index = range(0, (string.length - 2))
             uri_character = sized(1) { string(/[{]/) }
             string[index] = uri_character
             protocol + '://' + string
-          }.check(3) { |string|
+          end.check(3) do |string|
             is_expected.not_to allow_value(string).for(:source_path)
-          }
+          end
         end
       end
 

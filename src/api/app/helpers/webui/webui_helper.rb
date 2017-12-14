@@ -383,13 +383,13 @@ module Webui::WebuiHelper
   def escape_nested_list(list)
     # The input list is not html_safe because it's
     # user input which we should never trust!!!
-    list.map { |item|
+    list.map do |item|
       "['".html_safe +
         escape_javascript(item[0]) +
         "', '".html_safe +
         escape_javascript(item[1]) +
         "']".html_safe
-    }.join(",\n").html_safe
+    end.join(",\n").html_safe
   end
 
   def replace_jquery_meta_characters(input)

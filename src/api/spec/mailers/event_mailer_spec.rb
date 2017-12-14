@@ -18,19 +18,19 @@ RSpec.describe EventMailer, vcr: true do
       let(:source_package) { create(:package_with_file, name: 'source_package', project: source_project) }
       let(:target_project) { create(:project, name: 'target_project', maintainer: receiver) }
       let(:target_package) { create(:package_with_revisions, name: 'target_package', project: target_project) }
-      let(:bs_request_action_submit) {
+      let(:bs_request_action_submit) do
         create(:bs_request_action_submit,
                source_package: source_package.name,
                source_project: source_project.name,
                target_project: target_project.name,
                target_package: target_package.name
               )
-      }
+      end
       # It is not possible to use the bs_request_action_submit factory as it creates the bs_request_action
       # in an after create hook which creates a wrong Event::RequestCreate object
-      let!(:bs_request) {
+      let!(:bs_request) do
         create(:bs_request, bs_request_actions: [bs_request_action_submit])
-      }
+      end
       let(:event) { Event::RequestCreate.first }
       let(:originator) { event.originator }
       let!(:subscription) { create(:event_subscription_request_created, user: receiver) }

@@ -71,11 +71,11 @@ RSpec.describe Webui::PackageHelper, type: :helper do
   describe '#guess_code_class' do
     RSpec.shared_examples "file with extension" do |extension, extension_class|
       it "returns correct extension" do
-        property_of {
+        property_of do
           sized(1) { string(/[\w+\-:]/) } + sized(range(0, 190)) { string(/[\w+\-:\.]/) } + '.' + extension
-        }.check(3) { |filename|
+        end.check(3) do |filename|
           expect(guess_code_class(filename)).to eq(extension_class)
-        }
+        end
       end
     end
     context "is xml" do
@@ -85,11 +85,11 @@ RSpec.describe Webui::PackageHelper, type: :helper do
       it { expect(guess_code_class('_service')).to eq('xml') }
 
       it "when it ends by .service" do
-        property_of {
+        property_of do
           sized(range(1, 191)) { string(/./) } + '.service'
-        }.check(3) { |filename|
+        end.check(3) do |filename|
           expect(guess_code_class(filename)).to eq('xml')
-        }
+        end
       end
 
       it_should_behave_like "file with extension", 'group', 'xml'
@@ -100,21 +100,21 @@ RSpec.describe Webui::PackageHelper, type: :helper do
 
     context "is shell" do
       it "with rc-scripts" do
-        property_of {
+        property_of do
           'rc' + sized(range(1, 197)) { string(/[\w-]/) }
-        }.check(3) { |filename|
+        end.check(3) do |filename|
           expect(guess_code_class(filename)).to eq('shell')
-        }
+        end
       end
     end
 
     context "is python" do
       it "when it ends in rpmlintrc" do
-        property_of {
+        property_of do
           sized(range(0, 190)) { string(/./) } + 'rpmlintrc'
-        }.check(3) { |filename|
+        end.check(3) do |filename|
           expect(guess_code_class(filename)).to eq('python')
-        }
+        end
       end
     end
 
@@ -128,11 +128,11 @@ RSpec.describe Webui::PackageHelper, type: :helper do
 
     context "is spec" do
       it "when it starts with macros." do
-        property_of {
+        property_of do
           'macros.' + sized(range(1, 192)) { string(/\w/) }
-        }.check(3) { |filename|
+        end.check(3) do |filename|
           expect(guess_code_class(filename)).to eq('spec')
-        }
+        end
       end
     end
 
@@ -186,11 +186,11 @@ RSpec.describe Webui::PackageHelper, type: :helper do
 
     context "is dockerfile" do
       it "when it starts with Dockerfile." do
-        property_of {
+        property_of do
           'Dockerfile.' + sized(range(1, 192)) { string(/\w/) }
-        }.check(3) { |filename|
+        end.check(3) do |filename|
           expect(guess_code_class(filename)).to eq('dockerfile')
-        }
+        end
       end
 
       it { expect(guess_code_class('Dockerfile')).to eq('dockerfile') }
@@ -212,7 +212,7 @@ RSpec.describe Webui::PackageHelper, type: :helper do
 
   describe '#binaries?' do
     context 'with a buildresult with one result' do
-      let(:subject) {
+      let(:subject) do
         {
           result: {
             binarylist: {
@@ -222,7 +222,7 @@ RSpec.describe Webui::PackageHelper, type: :helper do
             }
           }
         }.with_indifferent_access
-      }
+      end
 
       it 'returns true' do
         expect(binaries?(subject)).to eq(true)
@@ -230,7 +230,7 @@ RSpec.describe Webui::PackageHelper, type: :helper do
     end
 
     context 'with a buildresult with more than one result' do
-      let(:subject) {
+      let(:subject) do
         {
           result: [
             {
@@ -249,7 +249,7 @@ RSpec.describe Webui::PackageHelper, type: :helper do
             }
           ]
         }.with_indifferent_access
-      }
+      end
 
       it 'returns true' do
         expect(binaries?(subject)).to eq(true)

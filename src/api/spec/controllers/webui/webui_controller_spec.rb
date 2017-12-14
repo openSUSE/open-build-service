@@ -120,9 +120,9 @@ RSpec.describe Webui::WebuiController do
   describe '#set_project before filter' do
     context 'with invalid project parameter' do
       it 'raises an ActiveRecord::RecordNotFound exception' do
-        expect {
+        expect do
           get :edit, params: { id: 1, project: 'invalid' }
-        }.to raise_error(ActiveRecord::RecordNotFound)
+        end.to raise_error(ActiveRecord::RecordNotFound)
       end
     end
 
