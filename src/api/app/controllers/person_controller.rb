@@ -144,7 +144,7 @@ class PersonController < ApplicationController
   end
 
   def register
-    # FIXME 3.0, to be removed
+    # FIXME: 3.0, to be removed
     internal_register
   end
 

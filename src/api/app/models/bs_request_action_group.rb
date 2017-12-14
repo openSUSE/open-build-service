@@ -123,7 +123,7 @@ class BsRequestActionGroup < BsRequestAction
     bs_request.state = :new
     bs_requests.each do |req|
       next unless req.state == :review
-      # TODO add history
+      # TODO: add history
       req.state = :new
       req.save
     end
@@ -134,7 +134,7 @@ class BsRequestActionGroup < BsRequestAction
     bs_request.state = :review
     bs_requests.each do |req|
       next if req.state == :review
-      # TODO add history
+      # TODO: add history
       req.state = :review
       req.save
     end

@@ -365,7 +365,7 @@ class Webui::PackageController < Webui::WebuiController
 
       @files = package_files(@srcmd5 || @revision, @expand)
     rescue ActiveXML::Transport::Error => e
-      # TODO crudest hack ever!
+      # TODO: crudest hack ever!
       if e.summary == 'service in progress' && @expand == 1
         @expand = 0
         @service_running = true

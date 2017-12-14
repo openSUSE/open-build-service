@@ -344,7 +344,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
 
     get '/build/home:Iggy/10.2/i586/TestPack/package-1.0-1.i586.rpm?view=fileinfo'
     assert_response :success
-    # FIXME validate xml content
+    # FIXME: validate xml content
   end
 
   def test_read_access_hidden_binary_view

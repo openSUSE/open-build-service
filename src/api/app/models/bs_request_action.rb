@@ -127,7 +127,7 @@ class BsRequestAction < ApplicationRecord
     errors.add(:target_project, 'is invalid project name') if target_project && !Project.valid_name?(target_project)
     errors.add(:source_project, 'is invalid project name') if source_project && !Project.valid_name?(source_project)
 
-    # TODO to be continued
+    # TODO: to be continued
   end
 
   def action_type
@@ -945,7 +945,7 @@ class BsRequestAction < ApplicationRecord
       query = {}
       query[:expand] = '1' unless updatelink
       query[:rev] = source_rev if source_rev
-      # FIXME we have a Directory model
+      # FIXME: we have a Directory model
       url = Package.source_path(source_project, source_package, nil, query)
       c = Backend::Connection.get(url).body
       if add_revision && !source_rev

@@ -1230,7 +1230,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(tag: 'collection', child: { tag: 'request' })
     if @ENABLE_BROKEN_TEST
-      # FIXME there is no code in this test creating request from HiddenProject
+      # FIXME: there is no code in this test creating request from HiddenProject
 
       assert_xml_tag(tag: 'source', attributes: { project: 'HiddenProject', package: 'pack' })
     end
@@ -2876,7 +2876,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   ## create request from hidden package to open place - valid user  - fail ! ?
   def test_create_request_from_hidden_package_to_open_place_valid_user
     request_hidden('adrian', 'buildservice', 'request/from_hidden_to_open_valid')
-    # FIXME !!
+    # FIXME: !!
     # should we really allow this - might be a mistake. qualified procedure could be:
     # sr from hidden to hidden and then make new location visible
     assert_response :success

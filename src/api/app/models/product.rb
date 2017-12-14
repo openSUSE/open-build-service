@@ -32,7 +32,7 @@ class Product < ApplicationRecord
   end
 
   def set_CPE(sw_class, vendor, pversion = nil)
-    # hack for old SLE 11 definitions
+    # HACK: for old SLE 11 definitions
     vendor = 'suse' if vendor.start_with?('SUSE LINUX')
     self.cpe = "cpe:/#{sw_class}:#{vendor.downcase}:#{name.downcase}"
     self.cpe += ":#{pversion}" if pversion.present?
