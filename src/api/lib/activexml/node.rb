@@ -40,10 +40,7 @@ module ActiveXML
         @@xml_time = 0
       end
 
-      # transport object, gets defined according to configuration when Base is subclassed
-      attr_reader :transport
-
-      def inherited( subclass )
+      def inherited(subclass)
         # called when a subclass is defined
         # Rails.logger.debug "Initializing ActiveXML model #{subclass}"
         subclass.instance_variable_set '@default_find_parameter', @default_find_parameter
