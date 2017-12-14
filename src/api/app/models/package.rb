@@ -390,9 +390,9 @@ class Package < ApplicationRecord
     user.can_modify_package? master_product_object, ignore_lock
   end
 
-  def check_write_access!(ignoreLock = nil)
+  def check_write_access!(ignore_lock = nil)
     return if Rails.env.test? && User.current.nil? # for unit tests
-    return if can_be_modified_by?(User.current, ignoreLock)
+    return if can_be_modified_by?(User.current, ignore_lock)
 
     raise WritePermissionError, "No permission to modify package '#{name}' for user '#{User.current.login}'"
   end
@@ -752,8 +752,8 @@ class Package < ApplicationRecord
     pkg
   end
 
-  def update_from_xml(xmlhash, ignoreLock = nil)
-    check_write_access!(ignoreLock)
+  def update_from_xml(xmlhash, ignore_lock = nil)
+    check_write_access!(ignore_lock)
 
     Package.transaction do
       self.title = xmlhash.value('title')
