@@ -228,7 +228,7 @@ class IssueTracker < ApplicationRecord
     if user
       issue.owner_id = user.id
     else
-      logger.info "Bugzilla user #{bugzilla_response["assigned_to"]} is not found in OBS user database"
+      logger.info "Bugzilla user #{bugzilla_response['assigned_to']} is not found in OBS user database"
     end
 
     if bugzilla_response["creation_time"].present?

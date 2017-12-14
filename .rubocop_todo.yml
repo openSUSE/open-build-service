@@ -907,20 +907,6 @@ Style/StderrPuts:
 Style/StringLiterals:
   Enabled: false
 
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiteralsInInterpolation:
-  Exclude:
-    - 'src/api/app/models/full_text_search.rb'
-    - 'src/api/app/models/issue_tracker.rb'
-    - 'src/api/app/views/webui/feeds/commits.atom.builder'
-    - 'src/api/db/checker.rb'
-    - 'src/api/lib/activexml/transport.rb'
-    - 'src/api/lib/tasks/cleanup_sessions.rake'
-    - 'src/api/lib/tasks/databases.rake'
-
 # Offense count: 272
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, MinSize, SupportedStyles.
@@ -943,21 +929,3 @@ Style/TrivialAccessors:
 # SupportedStyles: percent, brackets
 Style/WordArray:
   Enabled: false
-
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: all_comparison_operators, equality_operators_only
-Style/YodaCondition:
-  Exclude:
-    - 'src/api/app/mixins/request_source_diff.rb'
-    - 'src/api/app/models/bs_request.rb'
-    - 'src/api/app/models/bs_request_permission_check.rb'
-
-# Offense count: 5
-# Cop supports --auto-correct.
-Style/ZeroLengthPredicate:
-  Exclude:
-    - 'src/api/app/views/attribute/attribute_definition.xml.builder'
-    - 'src/api/app/views/attribute/namespace_definition.xml.builder'
-    - 'src/api/app/views/webui/feeds/commits.atom.builder'

@@ -103,7 +103,7 @@ module RequestSourceDiff
     def check_for_local_linked_packages(spkg)
       # the target is by default the _link target
       # maintenance_release creates new packages instance, but are changing the source only according to the link
-      return if action.target_package && :maintenance_incident == action.action_type
+      return if action.target_package && action.action_type == :maintenance_incident
       begin
         data = Xmlhash.parse(Backend::Api::Sources::Package.files(action.source_project, spkg))
       rescue ActiveXML::Transport::Error

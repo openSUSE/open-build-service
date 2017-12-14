@@ -5,11 +5,11 @@ schema_date = "2013-11-22"
 obs_host = URI.parse(::Configuration.obs_url).host
 
 xml.feed(feed_opts) do |feed|
-  feed.id "tag:#{request.host},#{schema_date}:#{request.fullpath.split(".")[0]}"
+  feed.id "tag:#{request.host},#{schema_date}:#{request.fullpath.split('.')[0]}"
   feed.link rel: 'self', type: 'application/atom+xml', href: request.url
   title = "Commits for #{@project.name}"
   feed.title(title)
-  feed.updated(@commits.first.datetime.iso8601) if @commits.length > 0
+  feed.updated(@commits.first.datetime.iso8601) if @commits.present?
 
   @commits.each do |commit|
     feed.entry do |entry|
