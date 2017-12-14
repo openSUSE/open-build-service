@@ -270,19 +270,6 @@ Rails/ApplicationRecord:
     - 'src/api/db/migrate/20161123124803_image_templates_attribute.rb'
     - 'src/api/db/migrate/20161128115942_add_when_attribute_to_bs_request.rb'
 
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: NilOrEmpty, NotPresent, UnlessPresent.
-Rails/Blank:
-  Exclude:
-    - 'src/api/app/controllers/search_controller.rb'
-    - 'src/api/app/helpers/webui/search_helper.rb'
-    - 'src/api/app/models/full_text_search.rb'
-    - 'src/api/app/models/package.rb'
-    - 'src/api/app/models/project.rb'
-    - 'src/api/app/models/project/key_info.rb'
-    - 'src/api/app/models/user_ldap_strategy.rb'
-
 # Offense count: 538
 # Cop supports --auto-correct.
 # Configuration parameters: Whitelist.

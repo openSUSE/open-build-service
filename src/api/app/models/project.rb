@@ -1623,7 +1623,7 @@ class Project < ApplicationRecord
     result = []
     removed.each do |name|
       repository = repositories.find_by(name: name)
-      result << repository unless repository.remote_project_name.present?
+      result << repository if repository.remote_project_name.blank?
     end
     result
   end

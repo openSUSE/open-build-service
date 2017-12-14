@@ -99,7 +99,7 @@ class SearchController < ApplicationController
            else
              p
     end
-    pred = "*" if pred.nil? || pred.empty?
+    pred = "*" if pred.blank?
     pred
   end
 
