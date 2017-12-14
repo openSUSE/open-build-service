@@ -19,7 +19,7 @@ module Webui::BuildresultHelper
       else
         concat link_to(code.gsub(/\s/, '&nbsp;'),
                        package_live_build_log_path(project: @project.to_s, package: package_name, repository: repo, arch: arch),
-                       { title: link_title, rel: 'nofollow' })
+                       title: link_title, rel: 'nofollow')
       end
 
       if enable_help && status['code']

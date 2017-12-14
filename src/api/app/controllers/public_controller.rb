@@ -146,7 +146,7 @@ class PublicController < ApplicationController
     end
 
     @binary_links = {}
-    @pkg.project.repositories.includes({ path_elements: { link: :project } }).each do |repo|
+    @pkg.project.repositories.includes(path_elements: { link: :project }).each do |repo|
       repo.path_elements.each do |pe|
         # NOTE: we do not follow indirect path elements here, since most installation handlers
         #       do not support it (exception zypp via ymp files)

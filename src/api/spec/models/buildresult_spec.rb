@@ -39,6 +39,6 @@ RSpec.describe Buildresult, vcr: true do
 
     it { expect(subject).to have_key('openSUSE') }
     it { expect(local_build_result).to have_attributes(result) }
-    it { expect(status_count).to have_attributes({ code: 'succeeded', count: '5' }) }
+    it { expect(status_count).to have_attributes(code: 'succeeded', count: '5') }
   end
 end

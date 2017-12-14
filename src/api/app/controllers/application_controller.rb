@@ -170,7 +170,7 @@ class ApplicationController < ActionController::Base
     when :post
       # for form data we don't need to download anything
       if request.form_data?
-        response = Backend::Connection.post(path, '', { 'Content-Type' => 'application/x-www-form-urlencoded' })
+        response = Backend::Connection.post(path, '', 'Content-Type' => 'application/x-www-form-urlencoded')
       else
         file = download_request
         response = Backend::Connection.post(path, file)

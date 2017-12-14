@@ -221,7 +221,7 @@ module Webui::WebuiHelper
   end
 
   def codemirror_style(opts = {})
-    opts.reverse_merge!({ read_only: false, no_border: false, width: 'auto', height: 'auto' })
+    opts.reverse_merge!(read_only: false, no_border: false, width: 'auto', height: 'auto')
 
     style = ".CodeMirror {\n"
     if opts[:no_border] || opts[:read_only]
@@ -291,13 +291,13 @@ module Webui::WebuiHelper
            link_to_if(pkg, opts[:package_text],
                       { controller: '/webui/package', action: 'show',
                         project: opts[:project],
-                        package: opts[:package] }, { class: 'package', title: opts[:package] })
+                        package: opts[:package] }, class: 'package', title: opts[:package])
     if opts[:rev] && pkg
       out += ' ('.html_safe +
              link_to("revision #{elide(opts[:rev], 10)}",
                      { controller: '/webui/package', action: 'show',
                        project: opts[:project], package: opts[:package], rev: opts[:rev] },
-                     { class: 'package', title: opts[:rev] }) + ')'.html_safe
+                     class: 'package', title: opts[:rev]) + ')'.html_safe
     end
     out
   end
@@ -312,7 +312,7 @@ module Webui::WebuiHelper
     project_text = opts[:trim_to].nil? ? opts[:project_text] : elide(opts[:project_text], opts[:trim_to])
     out + link_to_if(prj, project_text,
                      { controller: '/webui/project', action: 'show', project: opts[:project] },
-                     { class: 'project', title: opts[:project] })
+                     class: 'project', title: opts[:project])
   end
 
   def project_or_package_link(opts)

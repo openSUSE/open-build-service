@@ -1005,7 +1005,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/' + incident_project + '/_meta'
     assert_response :success
     meta = ActiveXML::Node.new(@response.body)
-    meta.add_element 'person', { userid: 'adrian', role: 'reader' }
+    meta.add_element 'person', userid: 'adrian', role: 'reader'
     Timecop.freeze(1)
     put '/source/' + incident_project + '/_meta', params: meta.dump_xml
     assert_response :success
@@ -1019,20 +1019,20 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     pi.find_first('description').text = 'if you are bored and really want fixes'
     pi.find_first('rating').text = 'important'
     pi.add_element('name').text = 'oldname'
-    pi.add_element 'issue', { 'id' => '0815', 'tracker' => 'bnc' }
-    pi.add_element 'releasetarget', { project: 'BaseDistro2.0:LinkedUpdateProject' }
-    pi.add_element 'releasetarget', { project: 'BaseDistro3' }
+    pi.add_element 'issue', 'id' => '0815', 'tracker' => 'bnc'
+    pi.add_element 'releasetarget', project: 'BaseDistro2.0:LinkedUpdateProject'
+    pi.add_element 'releasetarget', project: 'BaseDistro3'
     Timecop.freeze(1)
     put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.dump_xml
     assert_response :success
     # add broken releasetarget
-    pi.add_element 'releasetarget', { project: 'home:tom' } # invalid target
+    pi.add_element 'releasetarget', project: 'home:tom' # invalid target
     Timecop.freeze(1)
     put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.dump_xml
     assert_response 404
     assert_xml_tag tag: 'status', attributes: { code: 'releasetarget_not_found' }
     # add broken tracker
-    pi.add_element 'issue', { 'id' => '0815', 'tracker' => 'INVALID' } # invalid tracker
+    pi.add_element 'issue', 'id' => '0815', 'tracker' => 'INVALID' # invalid tracker
     put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.dump_xml
     assert_response 404
     assert_xml_tag tag: 'status', attributes: { code: 'tracker_not_found' }
@@ -2031,7 +2031,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/BaseDistro:Update/_meta'
     assert_response :success
     meta = originmeta = ActiveXML::Node.new(@response.body)
-    meta.add_element 'person', { userid: 'adrian', role: 'reviewer' }
+    meta.add_element 'person', userid: 'adrian', role: 'reviewer'
     put '/source/BaseDistro:Update/_meta', params: meta.dump_xml
     assert_response :success
 

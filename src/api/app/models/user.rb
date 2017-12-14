@@ -98,7 +98,7 @@ class User < ApplicationRecord
       # make the user maintainer
       project.relationships.create(user: self,
                                    role: Role.find_by_title('maintainer'))
-      project.store({ login: login })
+      project.store(login: login)
       @home_project = project
     end
     true

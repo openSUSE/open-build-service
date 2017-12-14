@@ -38,12 +38,12 @@ RSpec.describe Configuration do
     let(:config) { Configuration.first }
 
     it 'returns true if config option `ldap_mode` is set to :on' do
-      stub_const('CONFIG', CONFIG.merge({ 'ldap_mode' => :on }))
+      stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
       expect(config.ldap_enabled?).to eq(true)
     end
 
     it 'returns false if config option `ldap_mode` is not set to :on' do
-      stub_const('CONFIG', CONFIG.merge({ 'ldap_mode' => :off }))
+      stub_const('CONFIG', CONFIG.merge('ldap_mode' => :off))
       expect(config.ldap_enabled?).to eq(false)
     end
   end
@@ -58,12 +58,12 @@ RSpec.describe Configuration do
 
     context 'external authentication services' do
       it 'returns false if config option `proxy_auth_mode` is set to :on' do
-        stub_const('CONFIG', CONFIG.merge({ 'proxy_auth_mode' => :on }))
+        stub_const('CONFIG', CONFIG.merge('proxy_auth_mode' => :on))
         expect(config.passwords_changable?).to eq(false)
       end
 
       it 'returns false if config option `ldap_mode` is set to :on' do
-        stub_const('CONFIG', CONFIG.merge({ 'ldap_mode' => :on }))
+        stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
         expect(config.passwords_changable?).to eq(false)
       end
     end
@@ -80,7 +80,7 @@ RSpec.describe Configuration do
 
     context 'proxy_auth_mode is enabled' do
       before do
-        stub_const('CONFIG', CONFIG.merge({ 'proxy_auth_mode' => :on }))
+        stub_const('CONFIG', CONFIG.merge('proxy_auth_mode' => :on))
       end
 
       it 'returns false if proxy_auth_account_page is not present' do
@@ -88,14 +88,14 @@ RSpec.describe Configuration do
       end
 
       it 'returns true if proxy_auth_account_page is present' do
-        stub_const('CONFIG', CONFIG.merge({ 'proxy_auth_account_page' => 'https://opensuse.org' }))
+        stub_const('CONFIG', CONFIG.merge('proxy_auth_account_page' => 'https://opensuse.org'))
         expect(config.accounts_editable?).to eq(true)
       end
     end
 
     context 'ldap_mode is enabled' do
       before do
-        stub_const('CONFIG', CONFIG.merge({ 'ldap_mode' => :on }))
+        stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
       end
 
       it 'returns false' do

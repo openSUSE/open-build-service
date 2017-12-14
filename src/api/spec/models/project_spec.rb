@@ -41,14 +41,14 @@ RSpec.describe Project, vcr: true do
     context 'without commit_opts parameter' do
       it 'does not overwrite the commit_opts' do
         project.store
-        expect(project.commit_opts).to eq({ comment: 'the comment' })
+        expect(project.commit_opts).to eq(comment: 'the comment')
       end
     end
 
     context 'with commit_opts parameter' do
       it 'does overwrite the commit_opts' do
-        project.store({ comment: 'a new comment' })
-        expect(project.commit_opts).to eq({ comment: 'a new comment' })
+        project.store(comment: 'a new comment')
+        expect(project.commit_opts).to eq(comment: 'a new comment')
       end
     end
   end
@@ -399,16 +399,12 @@ RSpec.describe Project, vcr: true do
   describe '.restore' do
     let(:admin_user) { create(:admin_user, login: 'Admin') }
     let(:deleted_project) do
-      create(
-        :project_with_packages,
-        {
-          name:                'project_used_for_restoration',
-          title:               'restoration_project_title',
-          package_title:       'restoration_title',
-          package_description: 'restoration_desc',
-          package_name:        'restoration_package'
-        }
-      )
+      create(:project_with_packages,
+             name:                'project_used_for_restoration',
+             title:               'restoration_project_title',
+             package_title:       'restoration_title',
+             package_description: 'restoration_desc',
+             package_name:        'restoration_package')
     end
 
     before do

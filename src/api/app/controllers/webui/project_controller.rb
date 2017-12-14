@@ -132,7 +132,7 @@ class Webui::ProjectController < Webui::WebuiController
         req = BsRequest.new
         req.description = params[:description]
 
-        action = BsRequestActionMaintenanceIncident.new({ source_project: params[:project] })
+        action = BsRequestActionMaintenanceIncident.new(source_project: params[:project])
         req.bs_request_actions << action
         action.bs_request = req
 
@@ -163,7 +163,7 @@ class Webui::ProjectController < Webui::WebuiController
           req = BsRequest.new
           req.description = params[:description]
 
-          action = BsRequestActionMaintenanceRelease.new({ source_project: params[:project] })
+          action = BsRequestActionMaintenanceRelease.new(source_project: params[:project])
           req.bs_request_actions << action
           action.bs_request = req
 
@@ -240,7 +240,7 @@ class Webui::ProjectController < Webui::WebuiController
       if parent
         redirect_to project_show_path(parent)
       else
-        redirect_to({ action: :index })
+        redirect_to(action: :index)
       end
     else
       redirect_to project_show_path(@project), notice: "Project can't be removed: #{@project.errors.full_messages.to_sentence}"

@@ -18,9 +18,9 @@ class EventTest < ActionDispatch::IntegrationTest
 
   test 'find event' do
     e = Event::Factory.new_from_type('SRCSRV_CREATE_PACKAGE',
-                                     { 'project' => 'kde4',
-                                       'package' => 'kdelibs',
-                                       'sender'  => 'tom' })
+                                     'project' => 'kde4',
+                                     'package' => 'kdelibs',
+                                     'sender'  => 'tom')
     assert_equal 'Event::CreatePackage', e.class.name
     assert_equal 'kdelibs', e.payload['package']
     assert_equal [], e.receiver_roles

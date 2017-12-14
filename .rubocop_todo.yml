@@ -305,13 +305,6 @@ Rails/SkipsModelValidations:
 Rails/TimeZone:
   Enabled: false
 
-# Offense count: 200
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: braces, no_braces, context_dependent
-Style/BracesAroundHashParameters:
-  Enabled: false
-
 # Offense count: 67
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 # SupportedStyles: nested, compact

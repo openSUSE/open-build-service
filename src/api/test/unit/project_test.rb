@@ -351,7 +351,7 @@ class ProjectTest < ActiveSupport::TestCase
     package = subproject.packages.create(name: 'test2')
     package.flags.create(flag: :build, status: 'enable', repo: 'repo_1')
 
-    Patchinfo.new.create_patchinfo('ABC:D', '_patchinfo', { comment:  'patchinfo summary' })
+    Patchinfo.new.create_patchinfo('ABC:D', '_patchinfo', comment: 'patchinfo summary')
 
     result = subproject.reload.release_targets_ng
     assert_equal ['ABC:D'], result.keys
@@ -1335,9 +1335,9 @@ class ProjectTest < ActiveSupport::TestCase
 
   def test_open_requests
     apache = projects(:Apache)
-    assert_equal apache.open_requests, { reviews: [1000, 10, 4], targets: [5], incidents: [], maintenance_release: [] }
+    assert_equal apache.open_requests, reviews: [1000, 10, 4], targets: [5], incidents: [], maintenance_release: []
 
     maintenance = projects(:My_Maintenance)
-    assert_equal maintenance.open_requests, { reviews: [], targets: [6], incidents: [6], maintenance_release: [7] }
+    assert_equal maintenance.open_requests, reviews: [], targets: [6], incidents: [6], maintenance_release: [7]
   end
 end

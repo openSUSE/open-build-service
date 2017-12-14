@@ -49,10 +49,10 @@ class Webui::RepositoriesController < Webui::WebuiController
     end
 
     if repository.save
-      @project.store({ comment: "Added #{repository.name} repository" })
+      @project.store(comment: "Added #{repository.name} repository")
       flash[:success] = "Successfully added repository '#{repository.name}'"
       respond_to do |format|
-        format.html { redirect_to({ action: :index, project: @project }) }
+        format.html { redirect_to(action: :index, project: @project) }
         format.js
       end
     else
@@ -72,7 +72,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     archs = params[:arch].keys.map { |arch| Architecture.find_by_name(arch) } if params[:arch]
     repo.architectures = archs
     repo.save
-    @project.store({ comment: "Modified #{repo.name} repository" })
+    @project.store(comment: "Modified #{repo.name} repository")
 
     # Merge project repo's arch list with currently available arches from API. This needed as you want
     # to keep currently non-working arches in the project meta.
@@ -88,10 +88,10 @@ class Webui::RepositoriesController < Webui::WebuiController
     repository = @project.repositories.find_by(name: params[:target])
     result = repository && @project.repositories.delete(repository)
     if @project.valid? && result
-      @project.store({ comment: "Removed #{repository.name} repository" })
+      @project.store(comment: "Removed #{repository.name} repository")
       respond_to do |format|
         flash[:success] = "Successfully removed repository '#{repository.name}'"
-        format.html { redirect_to({ action: :index, project: @project }) }
+        format.html { redirect_to(action: :index, project: @project) }
         format.js
       end
     else
@@ -160,7 +160,7 @@ class Webui::RepositoriesController < Webui::WebuiController
 
       flash[:success] = 'Successfully added image repository'
       respond_to do |format|
-        format.html { redirect_to({ action: :index, project: @project }) }
+        format.html { redirect_to(action: :index, project: @project) }
         format.js { render 'create' }
       end
     else
@@ -184,7 +184,7 @@ class Webui::RepositoriesController < Webui::WebuiController
       if @flag.save
         # FIXME: This should happen in Flag or even better in Project
         @main_object.store
-        format.html { redirect_to({ action: :index, controller: :repositories, project: params[:project], package: params[:package] }) }
+        format.html { redirect_to(action: :index, controller: :repositories, project: params[:project], package: params[:package]) }
         format.js { render 'change_flag' }
       else
         format.json { render json: @flag.errors, status: :unprocessable_entity }
@@ -203,7 +203,7 @@ class Webui::RepositoriesController < Webui::WebuiController
       if @flag.save
         # FIXME: This should happen in Flag or even better in Project
         @main_object.store
-        format.html { redirect_to({ action: :index, project: params[:project], package: params[:package] }) }
+        format.html { redirect_to(action: :index, project: params[:project], package: params[:package]) }
         format.js { render 'change_flag' }
       else
         format.json { render json: @flag.errors, status: :unprocessable_entity }
@@ -223,7 +223,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     respond_to do |format|
       # FIXME: This should happen in Flag or even better in Project
       @main_object.store
-      format.html { redirect_to({ action: :index, project: params[:project], package: params[:package] }) }
+      format.html { redirect_to(action: :index, project: params[:project], package: params[:package]) }
       format.js { render 'change_flag' }
     end
   end

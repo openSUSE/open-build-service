@@ -259,7 +259,7 @@ class Webui::WebuiController < ActionController::Base
     if params[:package].present?
       begin
         @package = Package.get_by_project_and_name(@project.to_param, params[:package],
-                                                   { use_source: false, follow_project_links: true, follow_multibuild: true })
+                                                   use_source: false, follow_project_links: true, follow_multibuild: true)
       rescue APIException # why it's not found is of no concern :)
       end
     end

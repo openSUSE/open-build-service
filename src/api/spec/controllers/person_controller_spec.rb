@@ -45,7 +45,7 @@ RSpec.describe PersonController, vcr: false do
 
     context 'when in LDAP mode' do
       before do
-        stub_const('CONFIG', CONFIG.merge({ 'ldap_mode' => :on }))
+        stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
         post :post_userinfo, params: { login: user.login, cmd: 'change_password', format: :xml }
       end
 
@@ -67,7 +67,7 @@ RSpec.describe PersonController, vcr: false do
 
     context 'when in LDAP mode' do
       before do
-        stub_const('CONFIG', CONFIG.merge({ 'ldap_mode' => :on }))
+        stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
         request.env['RAW_POST_DATA'] = xml
       end
 
@@ -94,7 +94,7 @@ RSpec.describe PersonController, vcr: false do
   describe 'POST #register' do
     context 'when in LDAP mode' do
       before do
-        stub_const('CONFIG', CONFIG.merge({ 'ldap_mode' => :on }))
+        stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
       end
 
       subject! { post :register }
@@ -109,7 +109,7 @@ RSpec.describe PersonController, vcr: false do
     context 'with param cmd = register' do
       context 'when in LDAP mode' do
         before do
-          stub_const('CONFIG', CONFIG.merge({ 'ldap_mode' => :on }))
+          stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
         end
 
         subject! { post :command, params: { cmd: 'register' } }

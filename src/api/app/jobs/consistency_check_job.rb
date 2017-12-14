@@ -100,7 +100,7 @@ class ConsistencyCheckJob < ApplicationJob
       errors << "Project meta is different in backend for #{project.name}\n#{diff}\n"
       if fix
         # Assume that api is right
-        project.store({ login: 'Admin', comment: 'out-of-sync fix' })
+        project.store(login: 'Admin', comment: 'out-of-sync fix')
       end
     end
 

@@ -873,7 +873,7 @@ class BsRequestAction < ApplicationRecord
 
     if action_type.in?([:submit, :maintenance_incident])
       if target_package &&
-         Package.exists_by_project_and_name(target_project, target_package, { follow_project_links: false })
+         Package.exists_by_project_and_name(target_project, target_package, follow_project_links: false)
         raise MissingAction unless contains_change?
         return
       end
@@ -901,7 +901,7 @@ class BsRequestAction < ApplicationRecord
         per_package_locking = true if action_type == :maintenance_release
       end
 
-      return create_expand_package(packages, { ignore_build_state: ignore_build_state }),
+      return create_expand_package(packages, ignore_build_state: ignore_build_state),
              per_package_locking
     end
 

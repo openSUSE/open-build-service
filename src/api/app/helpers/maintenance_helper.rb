@@ -77,7 +77,7 @@ module MaintenanceHelper
     if f
       unless target_project.flags.find_by_flag_and_status('access', 'disable')
         source_package.project.flags.delete(f)
-        source_package.project.store({ comment: 'project becomes public on release action' })
+        source_package.project.store(comment: 'project becomes public on release action')
         # patchinfos stay unpublished, it is anyway too late to test them now ...
       end
     end
@@ -297,10 +297,8 @@ module MaintenanceHelper
     channel = REXML::Document.new(channel)
 
     if target_repo
-      channel.elements['/channel'].add_element 'target', {
-        'project'    => target_repo.project.name,
+      channel.elements['/channel'].add_element 'target', 'project' => target_repo.project.name,
         'repository' => target_repo.name
-      }
     end
 
     # replace all project definitions with update projects, if they are defined
