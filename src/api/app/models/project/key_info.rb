@@ -18,7 +18,7 @@ class Project
 
       parsed_response = Xmlhash.parse(response)
 
-      return unless parsed_response['pubkey'].present?
+      return if parsed_response['pubkey'].blank?
 
       key_info_params = {
         origin:      parsed_response['project'],
