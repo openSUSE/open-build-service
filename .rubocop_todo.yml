@@ -98,12 +98,6 @@ Lint/RescueWithoutErrorClass:
   Enabled: false
 
 # Offense count: 1
-# Cop supports --auto-correct.
-Lint/ScriptPermission:
-  Exclude:
-    - 'src/api/Rakefile'
-
-# Offense count: 1
 Lint/ShadowedException:
   Exclude:
     - 'src/api/lib/activexml/transport.rb'
