@@ -1,7 +1,7 @@
 module Event
   class ServiceSuccess < Base
     self.description = 'Package source service has succeeded'
-    payload_keys :project, :package, :sender, :project, :rev, :user, :requestid
+    payload_keys :project, :package, :sender, :comment, :rev, :user, :requestid
     receiver_roles :maintainer, :bugowner
     create_jobs :update_backend_infos_job
     after_create_commit :send_to_bus
