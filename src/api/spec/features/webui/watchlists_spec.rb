@@ -3,12 +3,12 @@ require "browser_helper"
 RSpec.feature "Watchlists", type: :feature, js: true do
   let(:user) { create(:confirmed_user, login: "kody") }
   let(:project) { create(:project, name: "watchlist_test_project") }
-  let(:user_with_watched_project) {
+  let(:user_with_watched_project) do
     other_user = create(:confirmed_user, login: "brian")
     other_user.watched_projects << create(:watched_project,
                                           project: create(:project, name: "#{other_user.login}_s_watched_project"))
     other_user
-  }
+  end
 
   scenario "add projects to watchlist" do
     login user

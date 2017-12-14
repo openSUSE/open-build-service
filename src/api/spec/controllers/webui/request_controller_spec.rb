@@ -243,12 +243,13 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       it 'forwards' do
         login(receiver)
-        expect {
+        expect do
           post :changerequest, params: {
               number: bs_request.number, accepted: 'accepted',
               forward_devel_0: "#{devel_package.project}_#_#{devel_package}",
               description: 'blah blah blah'
-            }}.to change { BsRequest.count }.by(1)
+            }
+        end.to change { BsRequest.count }.by(1)
         expect(BsRequest.last.bs_request_actions).to eq(devel_package.project.target_of_bs_request_actions)
       end
     end
@@ -271,12 +272,13 @@ RSpec.describe Webui::RequestController, vcr: true do
       end
 
       it 'accepts the parent request and reports an error for the forwarded request' do
-        expect {
+        expect do
           post :changerequest, params: {
               number: bs_request.number, accepted: 'accepted',
               forward_devel_0: "#{devel_package.project}_#_#{devel_package}",
               description: 'blah blah blah'
-            }}.not_to change(BsRequest, :count)
+            }
+        end.not_to change(BsRequest, :count)
         expect(bs_request.reload.state).to eq(:accepted)
         expect(flash[:notice]).to match("Request \\d accepted")
         expect(flash[:error]).to eq('Unable to forward submit request: some error')

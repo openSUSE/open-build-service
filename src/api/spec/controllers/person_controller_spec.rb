@@ -56,14 +56,14 @@ RSpec.describe PersonController, vcr: false do
   end
 
   describe 'PUT #put_userinfo' do
-    let(:xml) {
+    let(:xml) do
       <<-XML_DATA
         <userinfo>
           <realname>test name</realname>
           <email>test@test.de</email>
         </userinfo>
       XML_DATA
-    }
+    end
 
     context 'when in LDAP mode' do
       before do

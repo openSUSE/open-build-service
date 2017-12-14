@@ -1013,9 +1013,9 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       # raise the exception in the before_action set_maintained_project
       it "#remove_maintained_project raise excepction with invalid maintained project" do
-        expect {
+        expect do
           post :remove_maintained_project, params: { project: user.home_project, maintained_project: "invalid" }
-        }.to raise_exception ActiveRecord::RecordNotFound
+        end.to raise_exception ActiveRecord::RecordNotFound
       end
     end
 
@@ -1324,9 +1324,9 @@ RSpec.describe Webui::ProjectController, vcr: true do
         let(:path_elements) { [path_element, path_element_2, path_element_3] }
 
         context 'direction up' do
-          let(:move) {
+          let(:move) do
             post :move_path, params: { project: apache_project, repository: repository.id, direction: 'up', path: path_elements[1] }
-          }
+          end
 
           context 'response' do
             before do
@@ -1345,9 +1345,9 @@ RSpec.describe Webui::ProjectController, vcr: true do
         end
 
         context 'direction down' do
-          let(:move) {
+          let(:move) do
             post :move_path, params: { project: apache_project, repository: repository.id, direction: 'down', path: path_elements[1] }
-          }
+          end
 
           context 'response' do
             before do

@@ -244,7 +244,7 @@ class Owner
   def self.find_maintainers(container, filter)
     maintainers = []
     sql = _build_rolefilter_sql(filter)
-    add_owners = Proc.new { |cont|
+    add_owners = Proc.new do |cont|
       m = Owner.new
       m.rootproject = ''
       if cont.is_a? Package
@@ -256,7 +256,7 @@ class Owner
       m.filter = filter
       _extract_from_container(m, cont.relationships, sql, nil)
       maintainers << m unless m.users.nil? && m.groups.nil?
-    }
+    end
     project = container
     if container.is_a? Package
       add_owners.call container

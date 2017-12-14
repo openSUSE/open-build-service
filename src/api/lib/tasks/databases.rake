@@ -39,11 +39,11 @@ namespace :db do
 
         sql = "SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'"
 
-        structure = con.select_all(sql, 'SCHEMA').map { |table|
+        structure = con.select_all(sql, 'SCHEMA').map do |table|
           table.delete('Table_type')
           sql = "SHOW CREATE TABLE #{con.quote_table_name(table.to_a.first.last)}"
           con.exec_query(sql, 'SCHEMA').first['Create Table'] + ";\n\n"
-        }.join
+        end.join
       else
         raise "Task not supported by '#{abcs[Rails.env]['adapter']}'"
       end
