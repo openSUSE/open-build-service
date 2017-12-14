@@ -549,6 +549,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/lib/obs/server/bs_worker
 /usr/lib/obs/server/bs_signer
 /usr/lib/obs/server/bs_warden
+/usr/lib/obs/server/bs_clouduploadserver
 /usr/lib/obs/server/worker
 /usr/lib/obs/server/worker-deltagen.spec
 %config(noreplace) /usr/lib/obs/server/BSConfig.pm
