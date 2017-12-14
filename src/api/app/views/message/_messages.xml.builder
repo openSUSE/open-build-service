@@ -22,4 +22,3 @@ xml.messages(root_attrs) do
     )
   end
 end
-

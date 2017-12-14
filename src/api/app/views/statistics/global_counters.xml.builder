@@ -5,4 +5,3 @@ xml.global_counters do
   xml.users(@users)
   xml.repos(@repos)
 end
-

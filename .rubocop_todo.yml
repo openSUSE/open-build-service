@@ -52,45 +52,8 @@ Layout/MultilineMethodCallIndentation:
 Layout/MultilineOperationIndentation:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: IndentationWidth.
-Layout/Tab:
-  Exclude:
-    - 'src/api/app/views/webui/feeds/commits.atom.builder'
-
-# Offense count: 24
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: final_newline, final_blank_line
-Layout/TrailingBlankLines:
-  Enabled: false
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Layout/TrailingWhitespace:
-  Exclude:
-    - 'src/api/app/views/source/productlist.xml.builder'
-
-# Offense count: 3
-Lint/AmbiguousBlockAssociation:
-  Exclude:
     - 'src/api/spec/controllers/webui/project_controller_spec.rb'
     - 'src/api/spec/models/comment_spec.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleAlignWith, SupportedStylesAlignWith.
-# SupportedStylesAlignWith: either, start_of_block, start_of_line
-Lint/BlockAlignment:
-  Exclude:
-    - 'src/api/app/views/public/binary_packages.xml.builder'
-
-# Offense count: 2
-Lint/BooleanSymbol:
-  Exclude:
-    - 'src/api/spec/features/webui/projects_spec.rb'
-    - 'src/api/spec/spec_helper.rb'
 
 # Offense count: 3
 Lint/DuplicateMethods:
@@ -135,12 +98,6 @@ Lint/RescueWithoutErrorClass:
   Enabled: false
 
 # Offense count: 1
-# Cop supports --auto-correct.
-Lint/ScriptPermission:
-  Exclude:
-    - 'src/api/Rakefile'
-
-# Offense count: 1
 Lint/ShadowedException:
   Exclude:
     - 'src/api/lib/activexml/transport.rb'
@@ -152,12 +109,6 @@ Lint/UnderscorePrefixedVariableName:
     - 'src/api/app/models/bs_request_permission_check.rb'
     - 'src/api/app/models/event/base.rb'
     - 'src/api/lib/api_exception.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Lint/UnneededDisable:
-  Exclude:
-    - 'src/api/test/unit/schema_test.rb'
 
 # Offense count: 50
 Lint/UriEscapeUnescape:
@@ -304,15 +255,6 @@ Naming/VariableNumber:
   Exclude:
     - 'src/api/spec/features/webui/projects_spec.rb'
     - 'src/api/test/unit/project_test.rb'
-
-# Offense count: 5
-# Cop supports --auto-correct.
-Performance/CompareWithBlock:
-  Exclude:
-    - 'src/api/app/controllers/webui/monitor_controller.rb'
-    - 'src/api/app/controllers/webui/project_controller.rb'
-    - 'src/api/app/models/buildresult.rb'
-    - 'src/api/app/models/package.rb'
 
 # Offense count: 24
 # Cop supports --auto-correct.

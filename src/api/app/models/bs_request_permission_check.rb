@@ -83,7 +83,7 @@ class BsRequestPermissionCheck
     return if User.current.can_modify_package?(originpkg, true)
 
     raise PostRequestNoPermission, "Package target can not get initialized using makeoriginolder." +
-                                      "No permission in project #{originpkg.project.name}"
+                                   "No permission in project #{originpkg.project.name}"
   end
 
   def check_delete_accept(action)
@@ -107,7 +107,7 @@ class BsRequestPermissionCheck
       data = REXML::Document.new(c)
       unless action.source_rev == data.elements['directory'].attributes['srcmd5']
         raise SourceChanged, "The current source revision in #{action.source_project}/#{action.source_package}" +
-                                "are not on revision #{action.source_rev} anymore."
+                             "are not on revision #{action.source_rev} anymore."
       end
     end
 
@@ -195,7 +195,7 @@ class BsRequestPermissionCheck
 
     # general source write permission check (for revoke)
     if (@source_package && User.current.can_modify_package?(@source_package, true)) ||
-        (!@source_package && @source_project && User.current.can_modify_project?(@source_project, true))
+       (!@source_package && @source_project && User.current.can_modify_project?(@source_project, true))
       @write_permission_in_source = true
     end
 
@@ -203,7 +203,7 @@ class BsRequestPermissionCheck
     @write_permission_in_this_action = false
     # meta data change shall also be allowed after freezing a project using force:
     ignore_lock = (new_state == "declined") || \
-                 (opts[:force] && action.action_type == :set_bugowner)
+                  (opts[:force] && action.action_type == :set_bugowner)
     if @target_package
       if User.current.can_modify_package?(@target_package, ignore_lock)
         @write_permission_in_target = true
@@ -293,7 +293,7 @@ class BsRequestPermissionCheck
     end
     if by_package && !User.current.can_modify_package?(by_package, true)
       raise ReviewChangeStateNoPermission, "review state change for package #{opts[:by_project]}/#{opts[:by_package]} " +
-                                              "is not permitted for #{User.current.login}"
+                                           "is not permitted for #{User.current.login}"
     end
 
     return unless by_project && !User.current.can_modify_project?(by_project, true)
@@ -404,7 +404,7 @@ class BsRequestPermissionCheck
         end
       when 'new'
         if (req.state == :revoked && !@write_permission_in_source) ||
-            (req.state == :declined && !@write_permission_in_target)
+           (req.state == :declined && !@write_permission_in_target)
           "No permission to reopen request #{req.number}"
         end
       when 'declined'

@@ -18,4 +18,3 @@ xml.highest_rated do
     end
   end
 end
-

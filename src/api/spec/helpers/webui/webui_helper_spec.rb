@@ -105,7 +105,7 @@ RSpec.describe Webui::WebuiHelper do
 
     it 'returns link to a prefilled bugzilla enter bug form' do
       expected_url = "https://bugzilla.example.org/enter_bug.cgi?" +
-                       @expected_attributes.map { |key, value| "#{key}=#{value}" }.join('&')
+                     @expected_attributes.map { |key, value| "#{key}=#{value}" }.join('&')
       expect(bugzilla_url).to eq(expected_url)
     end
 
@@ -115,7 +115,7 @@ RSpec.describe Webui::WebuiHelper do
       expected_attributes[:assigned_to] = 'assignee@example.org'
 
       expected_url = "https://bugzilla.example.org/enter_bug.cgi?" +
-                       expected_attributes.map { |key, value| "#{key}=#{value}" }.join('&')
+                     expected_attributes.map { |key, value| "#{key}=#{value}" }.join('&')
       expect(bugzilla_url(['assignee@example.org'], 'some_description')).to eq(expected_url)
     end
   end

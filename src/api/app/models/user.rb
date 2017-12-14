@@ -773,8 +773,8 @@ class User < ApplicationRecord
   def tasks
     Rails.cache.fetch("requests_for_#{cache_key}") do
       declined_requests.count +
-      incoming_requests.count +
-      involved_reviews.count
+        incoming_requests.count +
+        involved_reviews.count
     end
   end
 

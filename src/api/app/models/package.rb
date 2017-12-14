@@ -876,8 +876,8 @@ class Package < ApplicationRecord
     # NOTE: We use Time.now.to_i instead of UNIX_TIMESTAMP() so we can test with frozen ruby time in the old tests suite,
     # change it when removing the tests
     '( packages.activity_index * ' +
-        "POWER( 2.3276, (UNIX_TIMESTAMP(packages.updated_at) - #{Time.now.to_i})/10000000 ) " +
-        ') as activity_value'
+      "POWER( 2.3276, (UNIX_TIMESTAMP(packages.updated_at) - #{Time.now.to_i})/10000000 ) " +
+      ') as activity_value'
   end
 
   before_validation(on: :create) do
@@ -942,7 +942,7 @@ class Package < ApplicationRecord
     results = Buildresult.find_hashed(project: prj, package: name, view: 'status', multibuild: '1', locallink: '1')
 
     local_build_results = {}
-    results.elements('result').sort { |a, b| a['repository'] <=> b['repository'] }.each do |result|
+    results.elements('result').sort_by { |a| a['repository'] }.each do |result|
       result.elements('status').each do |status|
         local_build_results[status['package']] ||= []
         local_build_results[status['package']] << LocalBuildResult.new(repository: result['repository'],

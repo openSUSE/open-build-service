@@ -86,7 +86,7 @@ class ChannelBinary < ApplicationRecord
     end
 
     builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                 Nokogiri::XML::Node::SaveOptions::FORMAT
+                              Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
   def create_channel_node_element(channel_node, channel_target)

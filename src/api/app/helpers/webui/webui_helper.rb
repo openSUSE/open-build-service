@@ -288,16 +288,16 @@ module Webui::WebuiHelper
 
     opts[:short] = true # for project
     out += link_to_project(prj, opts) + ' / ' +
-        link_to_if(pkg, opts[:package_text],
-                   { controller: '/webui/package', action: 'show',
-                     project: opts[:project],
-                     package: opts[:package] }, { class: 'package', title: opts[:package] })
+           link_to_if(pkg, opts[:package_text],
+                      { controller: '/webui/package', action: 'show',
+                        project: opts[:project],
+                        package: opts[:package] }, { class: 'package', title: opts[:package] })
     if opts[:rev] && pkg
       out += ' ('.html_safe +
-          link_to("revision #{elide(opts[:rev], 10)}",
-                  { controller: '/webui/package', action: 'show',
-                    project: opts[:project], package: opts[:package], rev: opts[:rev] },
-                  { class: 'package', title: opts[:rev] }) + ')'.html_safe
+             link_to("revision #{elide(opts[:rev], 10)}",
+                     { controller: '/webui/package', action: 'show',
+                       project: opts[:project], package: opts[:package], rev: opts[:rev] },
+                     { class: 'package', title: opts[:rev] }) + ')'.html_safe
     end
     out
   end
@@ -385,10 +385,10 @@ module Webui::WebuiHelper
     # user input which we should never trust!!!
     list.map { |item|
       "['".html_safe +
-      escape_javascript(item[0]) +
-      "', '".html_safe +
-      escape_javascript(item[1]) +
-      "']".html_safe
+        escape_javascript(item[0]) +
+        "', '".html_safe +
+        escape_javascript(item[1]) +
+        "']".html_safe
     }.join(",\n").html_safe
   end
 
@@ -408,11 +408,11 @@ module Webui::WebuiHelper
     javascript_toggle_code = "$(\"[data-toggle-id='".html_safe + id + "']\").toggle();".html_safe
     short = content_tag(:span, 'data-toggle-id' => id) do
       content_tag(:span, text.slice(0, slice_length) + ' ') +
-      link_to('[+]', 'javascript:void(0)', onclick: javascript_toggle_code)
+        link_to('[+]', 'javascript:void(0)', onclick: javascript_toggle_code)
     end
     long = content_tag(:span, 'data-toggle-id' => id, :style => 'display: none;') do
       content_tag(:span, text + ' ') +
-      link_to('[-]', 'javascript:void(0)', onclick: javascript_toggle_code)
+        link_to('[-]', 'javascript:void(0)', onclick: javascript_toggle_code)
     end
     short + long
   end

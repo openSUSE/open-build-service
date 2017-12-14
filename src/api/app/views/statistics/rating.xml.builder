@@ -12,4 +12,3 @@ elsif @project
 else
   xml.rating
 end
-

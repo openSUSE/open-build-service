@@ -63,7 +63,7 @@ class MessageController < ApplicationController
 
   def check_permissions
     if (@package && !permissions.package_change?(@package.name, @project.name)) ||
-        (@project && !permissions.project_change?(@project.name))
+       (@project && !permissions.project_change?(@project.name))
       render_error status: 403, errorcode: 'permission denied',
                    message: 'message cannot be created, insufficient permissions'
       return

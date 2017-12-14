@@ -16,4 +16,3 @@ xml.configuration do
     end
   end
 end
-

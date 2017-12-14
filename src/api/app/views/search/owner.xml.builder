@@ -25,4 +25,3 @@ xml.collection do
     end
   end
 end
-

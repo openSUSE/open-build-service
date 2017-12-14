@@ -17,4 +17,3 @@ xml.latest_updated do
 
   end
 end
-

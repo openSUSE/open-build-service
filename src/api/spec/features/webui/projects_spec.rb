@@ -385,7 +385,7 @@ RSpec.feature "Projects", type: :feature, js: true do
       fill_in("Name of original project:", with: other_user.home_project_name)
       fill_in("Name of package in original project:", with: package_of_another_project.name)
 
-      find("input[id='current_revision']").set(:true)
+      find("input[id='current_revision']").set(true)
 
       # This needs global write through
       click_button("Create Branch")

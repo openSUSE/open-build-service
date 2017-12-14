@@ -8,4 +8,3 @@ xml.directory(count: @list.length) do |dir|
     dir.entry(p)
   end
 end
-

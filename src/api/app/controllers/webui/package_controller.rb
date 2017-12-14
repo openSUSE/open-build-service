@@ -940,7 +940,7 @@ class Webui::PackageController < Webui::WebuiController
     repos = [] # Temp var
     @buildresult.elements('result') do |result|
       if result.value('repository') != 'images' &&
-          (result.value('status') && result.value('status').value('code') != 'excluded')
+         (result.value('status') && result.value('status').value('code') != 'excluded')
         hash_key = valid_xml_id(elide(result.value('repository'), 30))
         @repo_arch_hash[hash_key] ||= []
         @repo_arch_hash[hash_key] << result['arch']
