@@ -349,7 +349,7 @@ class Project < ApplicationRecord
   def cleanup_linking_projects
     # replace links to this project with links to the "deleted" project
     LinkedProject.transaction do
-      LinkedProject.where(linked_db_project: self).each do |lp|
+      LinkedProject.where(linked_db_project: self).find_each do |lp|
         id = lp.db_project_id
         lp.destroy
         Rails.cache.delete("xml_project_#{id}")
@@ -423,7 +423,7 @@ class Project < ApplicationRecord
       raise UnknownObjectError, name
     end
     if opts[:includeallpackages]
-      Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").each do |pkg|
+      Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").find_each do |pkg|
         raise ReadAccessError, name unless Package.check_access? pkg
       end
     end
@@ -1099,7 +1099,7 @@ class Project < ApplicationRecord
           next unless path.link.project.kind == ipe.link.project.kind
           # is this path pointing to some repository which is used in another
           # of my repositories?
-          repositories.joins(:path_elements).where("path_elements.repository_id = ?", ipe.link).each do |my_repo|
+          repositories.joins(:path_elements).where("path_elements.repository_id = ?", ipe.link).find_each do |my_repo|
             next if my_repo == repo # do not add my self
             next if repo.path_elements.where(link: my_repo).count > 0
             elements = repo.path_elements.where(position: ipe.position)
@@ -1731,7 +1731,7 @@ class Project < ApplicationRecord
       target_mapping[rt_value[:reponame]] = rt_key
     end
 
-    package.flags.where(flag: :build, status: 'enable').each do |flag|
+    package.flags.where(flag: :build, status: 'enable').find_each do |flag|
       rt_key = target_mapping[flag.repo]
       return rt_key if rt_key
     end

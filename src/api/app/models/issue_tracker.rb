@@ -182,7 +182,7 @@ class IssueTracker < ApplicationRecord
   end
 
   def self.update_all_issues
-    IssueTracker.all.each do |t|
+    IssueTracker.all.find_each do |t|
       next unless t.enable_fetch
       IssueTrackerUpdateIssuesJob.perform_later(t.id)
     end

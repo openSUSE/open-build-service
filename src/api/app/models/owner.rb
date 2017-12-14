@@ -160,13 +160,14 @@ class Owner
                                                                                          roles, maintained_groups]).pluck(:name)
     # relationship in project object by user
     Project.joins(relationships: :user).where("projects.id in (?) AND role_id in (?) AND users.state = 'confirmed'",
-                                              projects, roles).each do |prj|
+                                              projects, roles).find_each do |prj|
       defined_packages += prj.packages.pluck(:name)
     end
     # relationship in project object by group
-    Project.joins(:relationships).where("projects.id in (?) AND role_id in (?) AND group_id IN (?)", projects, roles, maintained_groups).each do |prj|
-      defined_packages += prj.packages.pluck(:name)
-    end
+    Project.joins(:relationships).
+      where("projects.id in (?) AND role_id in (?) AND group_id IN (?)", projects, roles, maintained_groups).find_each do |prj|
+        defined_packages += prj.packages.pluck(:name)
+      end
     # accept all incident containers in release projects. the main package (link) is enough here
     defined_packages += Package.where(project_id: projects).
         joins("LEFT JOIN projects ON packages.project_id=projects.id LEFT JOIN package_kinds ON packages.id=package_kinds.package_id").
@@ -233,7 +234,7 @@ class Owner
     Project.where(id: found_projects).pluck(:name).each do |prj|
       maintainers << Owner.new(rootproject: rootproject.name, project: prj)
     end
-    Package.where(id: found_packages).each do |pkg|
+    Package.where(id: found_packages).find_each do |pkg|
       maintainers << Owner.new(rootproject: rootproject.name, project: pkg.project.name, package: pkg.name)
     end
 
@@ -331,14 +332,14 @@ class Owner
     usersql  = sql << " AND user_id = " << objfilter.id.to_s  if objfilter.class == User
     groupsql = sql << " AND group_id = " << objfilter.id.to_s if objfilter.class == Group
 
-    r.users.where(usersql).each do |p|
+    r.users.where(usersql).find_each do |p|
       next unless p.user.state == "confirmed"
       m.users ||= {}
       m.users[p.role.title] ||= []
       m.users[p.role.title] << p.user.login
     end unless objfilter.class == Group
 
-    r.groups.where(groupsql).each do |p|
+    r.groups.where(groupsql).find_each do |p|
       next if p.group.users.where(state: "confirmed").empty?
       m.groups ||= {}
       m.groups[p.role.title] ||= []

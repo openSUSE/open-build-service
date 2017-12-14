@@ -546,7 +546,7 @@ class BsRequest < ApplicationRecord
   end
 
   def changestate_revoked
-    bs_request_actions.where(type: 'maintenance_release').each do |action|
+    bs_request_actions.where(type: 'maintenance_release').find_each do |action|
       # unlock incident project in the soft way
       prj = Project.get_by_name(action.source_project)
       if prj.is_locked?
@@ -811,7 +811,7 @@ class BsRequest < ApplicationRecord
     touched = false
     # all maintenance_incident actions go into the same incident project
     p = { request: self, user_id: User.current.id }
-    bs_request_actions.where(type: 'maintenance_incident').each do |action|
+    bs_request_actions.where(type: 'maintenance_incident').find_each do |action|
       tprj = Project.get_by_name action.target_project
 
       # use an existing incident
@@ -880,7 +880,7 @@ class BsRequest < ApplicationRecord
 
   def reviews_for_user_and_others(user)
     user_reviews, other_open_reviews = [], []
-    reviews.where(state: 'new').each do |review|
+    reviews.where(state: 'new').find_each do |review|
       if review_matches_user?(review, user)
         user_reviews << review.webui_infos
       else

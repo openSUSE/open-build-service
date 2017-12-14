@@ -1203,7 +1203,7 @@ class Package < ApplicationRecord
   end
 
   def remove_devel_packages
-    Package.where(develpackage: self).each do |devel_package|
+    Package.where(develpackage: self).find_each do |devel_package|
       devel_package.develpackage = nil
       devel_package.store
       devel_package.reset_cache

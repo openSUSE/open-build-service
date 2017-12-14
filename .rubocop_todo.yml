@@ -275,20 +275,6 @@ Rails/DynamicFindBy:
 Rails/FilePath:
   Enabled: false
 
-# Offense count: 18
-# Cop supports --auto-correct.
-# Configuration parameters: Include.
-# Include: app/models/**/*.rb
-Rails/FindEach:
-  Exclude:
-    - 'src/api/app/models/bs_request.rb'
-    - 'src/api/app/models/bs_request_action_set_bugowner.rb'
-    - 'src/api/app/models/issue_tracker.rb'
-    - 'src/api/app/models/owner.rb'
-    - 'src/api/app/models/package.rb'
-    - 'src/api/app/models/project.rb'
-    - 'src/api/app/models/user.rb'
-
 # Offense count: 12
 # Configuration parameters: Include.
 # Include: app/models/**/*.rb
