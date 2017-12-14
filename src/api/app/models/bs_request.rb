@@ -301,7 +301,7 @@ class BsRequest < ApplicationRecord
   end
 
   def state
-    read_attribute(:state).to_sym
+    self[:state].to_sym
   end
 
   after_rollback :reset_cache

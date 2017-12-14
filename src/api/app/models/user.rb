@@ -283,7 +283,7 @@ class User < ApplicationRecord
   # the database.
   def state=(value)
     @old_state = state if @old_state.nil?
-    write_attribute(:state, value)
+    self[:state] = value
   end
 
   # This method checks whether the given value equals the password when
@@ -759,7 +759,7 @@ class User < ApplicationRecord
   def state
     return owner.state if owner
 
-    read_attribute(:state)
+    self[:state]
   end
 
   def to_s
