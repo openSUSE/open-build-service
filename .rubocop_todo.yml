@@ -382,12 +382,6 @@ Style/DateTime:
     - 'src/api/spec/features/webui/requests_spec.rb'
     - 'src/api/test/functional/maintenance_test.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/Dir:
-  Exclude:
-    - 'src/api/script/start_test_backend'
-
 # Offense count: 631
 Style/Documentation:
   Enabled: false
