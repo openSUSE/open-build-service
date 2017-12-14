@@ -5,6 +5,5 @@ class DropObsoleteTable < ActiveRecord::Migration[4.2]
     # just drop in case it exists, it is not used since two years
   end
 
-  def down
-  end
+  def down; end
 end

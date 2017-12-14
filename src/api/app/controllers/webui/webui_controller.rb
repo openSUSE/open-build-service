@@ -309,8 +309,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   # After filter to clean up caches
-  def clean_cache
-  end
+  def clean_cache; end
 
   def setup_view_path
     return unless CONFIG['theme']

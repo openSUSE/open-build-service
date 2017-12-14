@@ -21,8 +21,7 @@ class Webui::MonitorController < Webui::WebuiController
     end
   end
 
-  def old
-  end
+  def old; end
 
   def index
     @default_architecture = 'x86_64'

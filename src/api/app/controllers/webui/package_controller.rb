@@ -393,11 +393,9 @@ class Webui::PackageController < Webui::WebuiController
   end
   private :set_file_details
 
-  def add_person
-  end
+  def add_person; end
 
-  def add_group
-  end
+  def add_group; end
 
   def find_last_req
     if @oproject && @opackage
@@ -1017,8 +1015,7 @@ class Webui::PackageController < Webui::WebuiController
     end
   end
 
-  def edit
-  end
+  def edit; end
 
   private
 

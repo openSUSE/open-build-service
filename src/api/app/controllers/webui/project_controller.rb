@@ -113,8 +113,7 @@ class Webui::ProjectController < Webui::WebuiController
     end
   end
 
-  def new_package
-  end
+  def new_package; end
 
   def new_package_branch
     @remote_projects = Project.where.not(remoteurl: nil).pluck(:id, :name, :title)

@@ -330,21 +330,6 @@ Style/DateTime:
 Style/Documentation:
   Enabled: false
 
-# Offense count: 12
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: compact, expanded
-Style/EmptyMethod:
-  Exclude:
-    - 'src/api/app/controllers/webui/monitor_controller.rb'
-    - 'src/api/app/controllers/webui/package_controller.rb'
-    - 'src/api/app/controllers/webui/project_controller.rb'
-    - 'src/api/app/controllers/webui/user_controller.rb'
-    - 'src/api/app/controllers/webui/webui_controller.rb'
-    - 'src/api/db/migrate/20150623063641_reindex_sphinx_db.rb'
-    - 'src/api/db/migrate/20161124135426_drop_obsolete_table.rb'
-    - 'src/api/lib/engines/base.rb'
-
 # Offense count: 15
 # Cop supports --auto-correct.
 Style/Encoding:
