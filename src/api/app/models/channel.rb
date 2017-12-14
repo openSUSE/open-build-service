@@ -111,7 +111,7 @@ class Channel < ApplicationRecord
 
     # sync binaries for all lists
     channel_binary_lists.each do |cbl|
-      hasharray = Array.new
+      hasharray = []
       # search the right xml binaries group for this cbl
       xmlhash.elements('binaries') do |b|
         next if cbl.project      && b['project'] != cbl.project.name

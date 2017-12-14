@@ -51,7 +51,7 @@ class Webui::PatchinfoController < Webui::WebuiController
   end
 
   def read_patchinfo
-    @binaries = Array.new
+    @binaries = []
     @file.each(:binary) do |binaries|
       @binaries << binaries.text
     end

@@ -659,7 +659,7 @@ class BsRequest < ApplicationRecord
       go_new_state = new_review_state if new_review_state.in?([:declined, :superseded])
       found = false
 
-      reviews_seen = Hash.new
+      reviews_seen = {}
       reviews.reverse_each do |review|
         matching = true
         matching = false if review.by_user && review.by_user != opts[:by_user]
@@ -889,7 +889,7 @@ class BsRequest < ApplicationRecord
 
   def webui_infos(opts = {})
     opts.reverse_merge!(diffs: true)
-    result = Hash.new
+    result = {}
     result['id'] = id
     result['number'] = number
 

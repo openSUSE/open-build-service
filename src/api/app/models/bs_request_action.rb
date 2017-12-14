@@ -498,7 +498,7 @@ class BsRequestAction < ApplicationRecord
   # rubocop:disable Metrics/CyclomaticComplexity
   # rubocop:disable Metrics/PerceivedComplexity
   def create_expand_package(packages, opts = {})
-    newactions = Array.new
+    newactions = []
     incident_suffix = ''
     if is_maintenance_release?
       # The maintenance ID is always the sub project name of the maintenance project
@@ -506,8 +506,8 @@ class BsRequestAction < ApplicationRecord
     end
 
     found_patchinfo = false
-    new_packages = Array.new
-    new_targets = Array.new
+    new_packages = []
+    new_targets = []
 
     packages.each do |pkg|
       unless pkg.is_a? Package
@@ -894,7 +894,7 @@ class BsRequestAction < ApplicationRecord
     end
 
     if action_type.in?([:submit, :maintenance_release, :maintenance_incident])
-      packages = Array.new
+      packages = []
       per_package_locking = false
       if source_package
         packages << Package.get_by_project_and_name(source_project, source_package)

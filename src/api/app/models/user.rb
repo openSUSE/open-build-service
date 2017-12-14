@@ -716,13 +716,13 @@ class User < ApplicationRecord
 
   # lists running maintenance updates where this user is involved in
   def involved_patchinfos
-    array = Array.new
+    array = []
 
     ids = PackageIssue.open_issues_of_owner(id).with_patchinfo.distinct.pluck(:package_id)
 
     Package.where(id: ids).find_each do |p|
       hash = { package: { project: p.project.name, name: p.name } }
-      issues = Array.new
+      issues = []
 
       p.issues.each do |is|
         i = {}

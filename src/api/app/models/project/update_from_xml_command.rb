@@ -178,7 +178,7 @@ class Project
     end
 
     def fill_repo_cache
-      @repocache = Hash.new
+      @repocache = {}
       project.repositories.each do |repo|
         @repocache[repo.name] = repo if repo.remote_project_name.blank?
       end

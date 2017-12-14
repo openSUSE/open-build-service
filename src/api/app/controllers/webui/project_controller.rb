@@ -267,9 +267,9 @@ class Webui::ProjectController < Webui::WebuiController
       return
     end
     longest = call_diststats(bdep, jobs)
-    @longestpaths = Array.new
+    @longestpaths = []
     longest['longestpath'].elements('path') do |path|
-      currentpath = Array.new
+      currentpath = []
       path.elements('package') do |p|
         currentpath << p
       end
@@ -277,7 +277,7 @@ class Webui::ProjectController < Webui::WebuiController
     end if longest
     # we append 4 empty paths, so there are always at least 4 in the array
     # to simplify the view code
-    4.times { @longestpaths << Array.new }
+    4.times { @longestpaths << [] }
   end
 
   def rebuild_time_png
@@ -472,7 +472,7 @@ class Webui::ProjectController < Webui::WebuiController
     ## Filter for PackageNames ####
     @packagenames.reject! { |name| !filter_matches?(name, @name_filter) } if @name_filter.present?
 
-    packagename_hash = Hash.new
+    packagename_hash = {}
     @packagenames.each { |p| packagename_hash[p.to_s] = 1 }
 
     # filter out repos without current packages
@@ -499,19 +499,19 @@ class Webui::ProjectController < Webui::WebuiController
       @buildresult = Buildresult.find_hashed(project: params[:project], package: params[:package], view: 'status', lastbuild: 1)
     rescue ActiveXML::Transport::Error # wild work around for backend bug (sends 400 for 'not found')
     end
-    @repohash = Hash.new
-    @statushash = Hash.new
+    @repohash = {}
+    @statushash = {}
 
     @buildresult.elements('result') do |result|
       repo = result['repository']
       arch = result['arch']
 
-      @repohash[repo] ||= Array.new
+      @repohash[repo] ||= []
       @repohash[repo] << arch
 
       # package status cache
-      @statushash[repo] ||= Hash.new
-      @statushash[repo][arch] = Hash.new
+      @statushash[repo] ||= {}
+      @statushash[repo][arch] = {}
 
       stathash = @statushash[repo][arch]
       result.elements('status') do |status|
@@ -664,7 +664,7 @@ class Webui::ProjectController < Webui::WebuiController
     @include_versions = !(!params[:include_versions].nil? && params[:include_versions] == 'false')
     @filter_for_user = params[:filter_for_user]
 
-    @develprojects = Hash.new
+    @develprojects = {}
     ps = calc_status(params[:project])
 
     @packages = ps[:packages]
@@ -759,7 +759,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   def load_project_info
     find_maintenance_infos
-    @packages = Array.new
+    @packages = []
     @project.packages.order_by_name.pluck(:name, :updated_at).each do |p|
       @packages << [p[0], p[1].to_i.to_s] # convert Time to epoch ts and then to string
     end
@@ -815,7 +815,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def call_diststats(bdep, jobs)
-    @timings = Hash.new
+    @timings = {}
     @pngkey = Digest::MD5.hexdigest(params.to_s)
     @rebuildtime = 0
 
@@ -926,10 +926,10 @@ class Webui::ProjectController < Webui::WebuiController
 
   def calc_status(project_name)
     @api_obj = ::Project.where(name: project_name).includes(:packages).first
-    @status = Hash.new
+    @status = {}
 
     # needed to map requests to package id
-    @name2id = Hash.new
+    @name2id = {}
 
     @prj_status = Rails.cache.fetch("prj_status-#{@api_obj}", expires_in: 5.minutes) do
       ProjectStatus::Calculator.new(@api_obj).calc_status(pure_project: true)
@@ -939,7 +939,7 @@ class Webui::ProjectController < Webui::WebuiController
     status_gather_attributes
     status_gather_requests
 
-    @packages = Array.new
+    @packages = []
     @status.each_value do |p|
       status_check_package(p)
     end
@@ -948,10 +948,10 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def status_check_package(p)
-    currentpack = Hash.new
+    currentpack = {}
     pname = p.name
 
-    currentpack['requests_from'] = Array.new
+    currentpack['requests_from'] = []
     key = @api_obj.name + '/' + pname
     if @submits.has_key? key
       return if @ignore_pending
@@ -973,8 +973,8 @@ class Webui::ProjectController < Webui::WebuiController
     end
     return if !currentpack['firstfail'] && @limit_to_fails
 
-    currentpack['problems'] = Array.new
-    currentpack['requests_to'] = Array.new
+    currentpack['problems'] = []
+    currentpack['requests_to'] = []
 
     currentpack['md5'] = p.verifymd5
 
@@ -1039,7 +1039,7 @@ class Webui::ProjectController < Webui::WebuiController
   def status_filter_packages
     filter_for_user = User.find_by_login!(@filter_for_user) if @filter_for_user.present?
     current_develproject = @filter || @all_projects
-    @develprojects = Hash.new
+    @develprojects = {}
     packages_to_filter_for = nil
     if filter_for_user
       packages_to_filter_for = filter_for_user.user_relevant_packages_for_status
@@ -1075,7 +1075,7 @@ class Webui::ProjectController < Webui::WebuiController
                                                             'bs_request_actions.target_package')
 
     @declined_requests = {}
-    @submits = Hash.new
+    @submits = {}
     raw_requests.each do |number, state, tproject, tpackage|
       if state == 'declined'
         next if tproject != @api_obj.name || !@name2id.has_key?(tpackage)
@@ -1083,7 +1083,7 @@ class Webui::ProjectController < Webui::WebuiController
         @declined_requests[number] = nil
       else
         key = "#{tproject}/#{tpackage}"
-        @submits[key] ||= Array.new
+        @submits[key] ||= []
         @submits[key] << number
       end
     end
@@ -1108,7 +1108,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def project_status_attributes(packages, namespace, name)
-    ret = Hash.new
+    ret = {}
     at = AttribType.find_by_namespace_and_name(namespace, name)
     return unless at
     attribs = at.attribs.where(package_id: packages)

@@ -76,7 +76,7 @@ module ActiveXML
           args.insert(0, hash)
         end
         if args[0].is_a? Hash
-          hash = Hash.new
+          hash = {}
           args[0].each do |key, value|
             if key.nil? || value.nil?
               Rails.logger.debug "nil value given #{args.inspect}"
@@ -244,7 +244,7 @@ module ActiveXML
     end
 
     def each(symbol = nil)
-      result = Array.new
+      result = []
       each_with_index(symbol) do |node, _|
         result << node
         yield node if block_given?

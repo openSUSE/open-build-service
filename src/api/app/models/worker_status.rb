@@ -2,11 +2,11 @@ class WorkerStatus
   def self.hidden
     mydata = Rails.cache.read('workerstatus')
     ws = ActiveXML::Node.new(mydata || Backend::Api::BuildResults::Worker.status)
-    prjs = Hash.new
+    prjs = {}
     ws.each('building') do |b|
       prjs[b.value(:project)] = 1
     end
-    names = Hash.new
+    names = {}
     # now try to find those we have a match for (the rest are hidden from you
     Project.where(name: prjs.keys).pluck(:name).each do |n|
       names[n] = 1
@@ -28,7 +28,7 @@ class WorkerStatus
     ret = Backend::Api::BuildResults::Worker.status
     wdata = Xmlhash.parse(ret)
     @mytime = Time.now.to_i
-    @squeues = Hash.new
+    @squeues = {}
     Rails.cache.write('workerstatus', ret, expires_in: 3.minutes)
     StatusHistory.transaction do
       wdata.elements('blocked') do |e|
@@ -73,8 +73,8 @@ class WorkerStatus
   end
 
   def parse_worker_infos(wdata)
-    allworkers = Hash.new
-    workers = Hash.new
+    allworkers = {}
+    workers = {}
     %w(building idle dead down away).each do |state|
       wdata.elements(state) do |e|
         id = e['workerid']

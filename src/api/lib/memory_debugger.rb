@@ -5,7 +5,7 @@ class MemoryDebugger
     attr_accessor :line, :lines, :parent
     def initialize(line)
       self.line = line
-      self.lines = Array.new
+      self.lines = []
     end
 
     def add(line)
@@ -48,7 +48,7 @@ class MemoryDebugger
     after = %x(ps -orss= -p#{$$}).to_i
     logger.debug "memory diff #{after - before} from #{before} to #{after}"
     file = File.new("/tmp/memprof-#{$$}.log", 'r')
-    ids = Hash.new
+    ids = {}
     file.each_line do |line|
       d = JSON.parse(line)
       ids[d['_id']] = Line.new(d)

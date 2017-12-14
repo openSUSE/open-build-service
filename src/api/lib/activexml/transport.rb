@@ -104,23 +104,23 @@ module ActiveXML
       @schema = schema
       @host = host
       @port = port
-      @default_servers ||= Hash.new
+      @default_servers ||= {}
       @http_header = { 'Content-Type' => 'text/plain', 'Accept-Encoding' => 'identity' }
       # stores mapping information
       # key: symbolified model name
       # value: hash with keys :target_uri and :opt (arguments to connect method)
-      @mapping = Hash.new
+      @mapping = {}
     end
 
     def login(user, password)
-      @http_header ||= Hash.new
+      @http_header ||= {}
       @http_header['Authorization'] = 'Basic ' + Base64.encode64("#{user}:#{password}")
     end
 
     # returns object
     def find(model, *args)
       logger.debug "[REST] find( #{model.inspect}, #{args.inspect} )"
-      params = Hash.new
+      params = {}
       data = nil
       own_mimetype = nil
       symbolified_model = model.name.downcase.split('::').last.to_sym

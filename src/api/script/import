@@ -108,7 +108,7 @@ def create_missing_users_for(meta)
   end
 end
 
-filter = Array.new
+filter = []
 # filter = ["Fedora:Core6", "Fedory:Extras6"];
 # filter = ['Apache:Modules', 'Apache', 'Fedora:Core5', 'Mandriva:2006', 'openSUSE:10.2', 'SUSE:SLES-9', 'SUSE:SLE-10:SDK',
 #  'Java:Sun-Java-1.5', 'SUSE:SL-10.1', 'SUSE:SL-10.0', 'SUSE:SL-9.3', 'SUSE:SLE-10', 'openSUSE:Factory'
@@ -118,7 +118,7 @@ filter = Array.new
 projects = Xproject.find(:all)
 
 # maps project name to an array: [project_object, {packagename => package_object, ...}]
-cache = Hash.new
+cache = {}
 
 STDERR.puts '--> storing projects'
 projects.each_entry do |entry|

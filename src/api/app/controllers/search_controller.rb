@@ -114,7 +114,7 @@ class SearchController < ApplicationController
     rescue
       @limit = items.size
     end
-    nitems = Array.new
+    nitems = []
     items.each do |item|
       if @offset > 0
         @offset -= 1
@@ -132,7 +132,7 @@ class SearchController < ApplicationController
   # unfortunately read_multi hangs with just too many items
   # so maximize the keys to query
   def read_multi_workaround(keys)
-    ret = Hash.new
+    ret = {}
     while !keys.empty?
       slice = keys.slice!(0, 300)
       ret.merge!(Rails.cache.read_multi(*slice))
@@ -142,10 +142,10 @@ class SearchController < ApplicationController
 
   def filter_items_from_cache(items, xml, key_template)
     # ignore everything that is already in the memcache
-    id2cache_key = Hash.new
+    id2cache_key = {}
     items.each { |i| id2cache_key[i] = key_template % i }
     cached = read_multi_workaround(id2cache_key.values)
-    search_items = Array.new
+    search_items = []
     items.each do |i|
       key = id2cache_key[i]
       if cached.has_key? key
@@ -184,7 +184,7 @@ class SearchController < ApplicationController
 
     output = "<collection matches=\"#{matches}\">\n"
 
-    xml = Hash.new # filled by filter
+    xml = {} # filled by filter
     if render_all
       key_template = "xml_#{what}_%d"
     else
@@ -281,14 +281,14 @@ class SearchController < ApplicationController
     # get the values associated with the attributes and store them
     attribs = attribs.pluck(:id, :package_id)
     values = AttribValue.where('attrib_id IN (?)', attribs.collect { |a| a[0] })
-    attrib_values = Hash.new
+    attrib_values = {}
     values.each do |v|
-      attrib_values[v.attrib_id] ||= Array.new
+      attrib_values[v.attrib_id] ||= []
       attrib_values[v.attrib_id] << v
     end
     # retrieve the package name and project for the attributes
     packages = Package.where('packages.id IN (?)', attribs.collect { |a| a[1] }).pluck(:id, :name, :project_id)
-    pack2attrib = Hash.new
+    pack2attrib = {}
     attribs.each do |attrib_id, pkg|
       pack2attrib[pkg] = attrib_id
     end

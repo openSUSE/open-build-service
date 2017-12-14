@@ -417,7 +417,7 @@ class XpathEngine
 
   def evaluate_expr(expr, root, escape = false)
     table = @base_table
-    a = Array.new
+    a = []
     while !expr.empty?
       token = expr.shift
       case token

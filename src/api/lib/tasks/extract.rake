@@ -13,7 +13,7 @@ def local_to_yaml(hash, file)
 end
 
 def force_hash(record)
-  ret = Hash.new
+  ret = {}
   record.each do |key, value|
     key = key.dup.force_encoding('UTF-8')
     if value

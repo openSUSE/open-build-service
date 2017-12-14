@@ -73,7 +73,7 @@ module FlagHelper
     flaglist = flags.of_type(flag)
     arch = Architecture.find_by_name(arch) if arch
 
-    flags_to_remove = Array.new
+    flags_to_remove = []
     flaglist.each do |f|
       next if repository.present? && f.repo != repository
       next if repository.blank? && f.repo.present?

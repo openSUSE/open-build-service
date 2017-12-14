@@ -2,7 +2,7 @@ module StatusHelper
   def self.resample(values, samples = 400)
     values.sort! { |a, b| a[0] <=> b[0] }
 
-    result = Array.new
+    result = []
     return result if values.empty?
 
     lastvalue = 0

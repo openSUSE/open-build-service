@@ -51,7 +51,7 @@ class SourceController < ApplicationController
     # list all projects (visible to user)
     output = Rails.cache.fetch(['projectlist', Project.maximum(:updated_at), Relationship.forbidden_project_ids]) do
       dir = Project.pluck(:name).sort
-      output = String.new
+      output = ''
       output << "<?xml version='1.0' encoding='UTF-8'?>\n"
       output << "<directory>\n"
       output << dir.map { |item| "  <entry name=\"#{::Builder::XChar.encode(item)}\"/>\n" }.join
@@ -120,7 +120,7 @@ class SourceController < ApplicationController
     else
       packages = @project.packages.pluck(:name)
     end
-    output = String.new
+    output = ''
     output << "<directory count='#{packages.length}'>\n"
     if params.has_key? :expand
       output << packages.map { |p| "  <entry name=\"#{p[0]}\" originproject=\"#{p[1]}\"/>\n" }.join

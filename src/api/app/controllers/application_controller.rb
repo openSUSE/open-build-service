@@ -140,7 +140,7 @@ class ApplicationController < ActionController::Base
   def download_request
     file = Tempfile.new('volley', "#{Rails.root}/tmp", encoding: 'ascii-8bit')
     b = request.body
-    buffer = String.new
+    buffer = ''
     file.write(buffer) while b.read(40960, buffer)
     file.close
     file.open

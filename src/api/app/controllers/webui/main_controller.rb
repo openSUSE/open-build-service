@@ -36,7 +36,7 @@ class Webui::MainController < Webui::WebuiController
       gather_busy
     end
     @sysstats = Rails.cache.fetch('sysstats_hash', expires_in: 30.minutes) do
-      sysstats = Hash.new
+      sysstats = {}
       sysstats[:projects] = Project.count
       sysstats[:packages] = Package.count
       sysstats[:repos] = Repository.count
@@ -76,7 +76,7 @@ class Webui::MainController < Webui::WebuiController
       projects[id] = name
     end
     result = Package.where(project_id: projects.keys).pluck(:project_id, :name)
-    @packages = Array.new
+    @packages = []
     result.each do |pid, name|
       @packages << [projects[pid], name]
     end

@@ -254,7 +254,7 @@ class Project < ApplicationRecord
 
   def siblingprojects
     parent_name = parent.try(:name)
-    siblings = Array.new
+    siblings = []
     if parent_name
       Project.where('name like (?) and name != (?)', "#{parent_name}:%", name).order(:name).each do |sib|
         sib_parent = sib.possible_ancestor_names.first
@@ -717,7 +717,7 @@ class Project < ApplicationRecord
     ret = default
     expl = false
 
-    flags = Array.new
+    flags = []
     prj_flags.each do |f|
       flags << f if f.is_relevant_for?(repo, arch)
     end if prj_flags
@@ -729,7 +729,7 @@ class Project < ApplicationRecord
       expl = f.is_explicit_for?(repo, arch)
     end
 
-    flags = Array.new
+    flags = []
     if pkg_flags
       pkg_flags.each do |f|
         flags << f if f.is_relevant_for?(repo, arch)
@@ -743,7 +743,7 @@ class Project < ApplicationRecord
       expl = f.is_explicit_for?(repo, arch)
     end
 
-    opts = Hash.new
+    opts = {}
     opts[:repository] = repo if repo
     opts[:arch] = arch if arch
     opts[:explicit] = '1' if expl
@@ -755,7 +755,7 @@ class Project < ApplicationRecord
 
   # give out the XML for all repos/arch combos
   def expand_flags(pkg = nil)
-    ret = Hash.new
+    ret = {}
 
     repos = repositories.not_remote
 
@@ -764,8 +764,8 @@ class Project < ApplicationRecord
       flaglist = flags.of_type(flag_name)
       pkg_flags = pkg.flags.of_type(flag_name) if pkg
       flag_default = FlagHelper.default_for(flag_name)
-      archs = Array.new
-      flagret = Array.new
+      archs = []
+      flagret = []
       unless flag_name.in?(['lock', 'access', 'sourceaccess'])
         repos.each do |repo|
           flagret << flag_status(flag_default, repo.name, nil, flaglist, pkg_flags)
@@ -925,7 +925,7 @@ class Project < ApplicationRecord
   # return array of [:name, :package_id] tuples for all products
   # this function is making the products uniq
   def expand_all_products
-    p_map = Hash.new
+    p_map = {}
     products = Product.all_products(self).to_a
     products.each { |p| p_map[p.cpe] = 1 } # existing packages map
     # second path, all packages from indirect linked projects
@@ -1162,7 +1162,7 @@ class Project < ApplicationRecord
   # list only the repositories that have a target project in the build path
   # the function uses the backend for informations (TODO)
   def repositories_linking_project(tproj)
-    tocheck_repos = Array.new
+    tocheck_repos = []
 
     targets = bsrequest_repos_map(tproj.name)
     sources = bsrequest_repos_map(name)
@@ -1244,7 +1244,7 @@ class Project < ApplicationRecord
 
   def bsrequest_repos_map(project)
     Rails.cache.fetch("bsrequest_repos_map-#{project}", expires_in: 2.hours) do
-      ret = Hash.new
+      ret = {}
       uri = "/getprojpack?project=#{CGI.escape(project.to_s)}&nopackages&withrepos&expandedrepos"
       begin
         body = Backend::Connection.get(uri).body
@@ -1255,7 +1255,7 @@ class Project < ApplicationRecord
 
       xml.get('project').elements('repository') do |repo|
         repo.elements('path') do |path|
-          ret[path['project']] ||= Array.new
+          ret[path['project']] ||= []
           ret[path['project']] << repo
         end
       end
@@ -1282,9 +1282,9 @@ class Project < ApplicationRecord
   # updates packages automatically generated in the backend after submitting a product file
   def update_product_autopackages
     backend_pkgs = Collection.find :id, what: 'package', match: "@project='#{name}' and starts-with(@name,'_product:')"
-    b_pkg_index = backend_pkgs.each(:package).each_with_object(Hash.new) { |elem, hash| hash[elem.value(:name)] = elem; hash }
+    b_pkg_index = backend_pkgs.each(:package).each_with_object({}) { |elem, hash| hash[elem.value(:name)] = elem; hash }
     frontend_pkgs = packages.where("`packages`.name LIKE '_product:%'")
-    f_pkg_index = frontend_pkgs.each_with_object(Hash.new) { |elem, hash| hash[elem.name] = elem; hash }
+    f_pkg_index = frontend_pkgs.each_with_object({}) { |elem, hash| hash[elem.name] = elem; hash }
 
     all_pkgs = [b_pkg_index.keys, f_pkg_index.keys].flatten.uniq
 

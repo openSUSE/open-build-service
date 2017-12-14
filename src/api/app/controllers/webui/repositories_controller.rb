@@ -76,7 +76,7 @@ class Webui::RepositoriesController < Webui::WebuiController
 
     # Merge project repo's arch list with currently available arches from API. This needed as you want
     # to keep currently non-working arches in the project meta.
-    @repository_arch_hash = Hash.new
+    @repository_arch_hash = {}
     Architecture.available.each { |arch| @repository_arch_hash[arch.name] = false }
     repo.architectures.each { |arch| @repository_arch_hash[arch.name] = true }
     redirect_to({ action: :index }, notice: 'Successfully updated repository')
@@ -232,14 +232,14 @@ class Webui::RepositoriesController < Webui::WebuiController
 
   # TODO: Move to model
   def calculate_repo_cycle(arch)
-    cycles = Array.new
+    cycles = []
     # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
     deps = BuilddepInfo.find(project: @project.name, package: '-', repository: @repository.name, arch: arch)
     nr_cycles = 0
     if deps && deps.has_element?(:cycle)
-      packages = Hash.new
+      packages = {}
       deps.each(:cycle) do |cycle|
-        current_cycles = Array.new
+        current_cycles = []
         cycle.each(:package) do |p|
           p = p.text
           if packages.has_key? p
@@ -260,9 +260,9 @@ class Webui::RepositoriesController < Webui::WebuiController
         end
       end
     end
-    cycles = Array.new
+    cycles = []
     1.upto(nr_cycles) do |i|
-      list = Array.new
+      list = []
       packages.each do |package, cycle|
         list.push(package) if cycle == i
       end

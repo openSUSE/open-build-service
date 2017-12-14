@@ -659,7 +659,7 @@ class Package < ApplicationRecord
     end
 
     # hash existing entries
-    old = Hash.new
+    old = {}
     products.each { |p| old[p.name] = p }
 
     Product.transaction do
@@ -1257,7 +1257,7 @@ class Package < ApplicationRecord
   end
 
   def delete_file(name, opt = {})
-    delete_opt = Hash.new
+    delete_opt = {}
     delete_opt[:keeplink] = 1 if opt[:expand]
     delete_opt[:user] = User.current.login
     delete_opt[:comment] = opt[:comment] if opt[:comment]

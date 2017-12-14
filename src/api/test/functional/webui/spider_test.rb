@@ -146,7 +146,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
   def test_spider_anonymously
     visit root_path
     @pages_to_visit = { page.current_url => [nil, nil] }
-    @pages_visited = Hash.new
+    @pages_visited = {}
 
     crawl
     ActiveRecord::Base.clear_active_connections!
@@ -157,7 +157,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
   def test_spider_as_admin
     login_king to: root_path
     @pages_to_visit = { page.current_url => [nil, nil] }
-    @pages_visited = Hash.new
+    @pages_visited = {}
 
     crawl
     ActiveRecord::Base.clear_active_connections!

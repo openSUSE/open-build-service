@@ -9,7 +9,9 @@ begin
   CONFIG = YAML.load_file(path)
 rescue Exception
   puts "Error while parsing config file #{path}"
-  CONFIG = Hash.new
+  # rubocop:disable Style/MutableConstant
+  CONFIG = {}
+  # rubocop:enable Style/MutableConstant
 end
 
 CONFIG['schema_location'] ||= File.expand_path('public/schema') + '/'

@@ -168,10 +168,10 @@ module HasRelationships
 
   def update_generic_relationships(xmlhash)
     # we remember the current relationships in a hash
-    cache = Hash.new
+    cache = {}
     relationships.each do |purr|
       next if @updater.ignore?(purr)
-      h = cache[@updater.name_for_relationship(purr)] ||= Hash.new
+      h = cache[@updater.name_for_relationship(purr)] ||= {}
       h[purr.role.title] = purr
     end
 

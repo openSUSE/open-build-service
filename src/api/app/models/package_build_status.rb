@@ -50,8 +50,8 @@ class PackageBuildStatus
   end
 
   def gather_target_packages(trepo)
-    @tpackages = Hash.new
-    vprojects = Hash.new
+    @tpackages = {}
+    vprojects = {}
     trepo.each do |p, _|
       next if vprojects.has_key? p
       prj = Project.find_by_name(p)

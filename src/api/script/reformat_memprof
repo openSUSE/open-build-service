@@ -7,7 +7,7 @@ class Line
   attr_accessor :line, :lines, :parent
   def initialize(line)
     self.line = line
-    self.lines = Array.new
+    self.lines = []
   end
 
   def add(line)
@@ -34,7 +34,7 @@ end
 
 filename = ARGV[0]
 file = File.new(filename, 'r')
-ids = Hash.new
+ids = {}
 file.each_line do |line|
   d = JSON.parse(line)
   ids[d['_id']] = Line.new(d)
