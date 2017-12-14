@@ -1,5 +1,5 @@
 class ConvertRequestHistory < ActiveRecord::Migration[4.2]
-  class OldHistory < ActiveRecord::Base
+  class OldHistory < ApplicationRecord
     self.table_name = 'bs_request_histories'
     belongs_to :bs_request
   end

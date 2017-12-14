@@ -1,4 +1,4 @@
-class BsRequestCounter < ActiveRecord::Base
+class BsRequestCounter < ApplicationRecord
   # FIXME: This class should be a singleton
   # FIXME: Please stick to Rails Convention Over Configuration paradigm
   # and use plural table names

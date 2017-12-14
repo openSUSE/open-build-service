@@ -246,24 +246,6 @@ Naming/VariableNumber:
     - 'src/api/spec/features/webui/projects_spec.rb'
     - 'src/api/test/unit/project_test.rb'
 
-# Offense count: 15
-# Cop supports --auto-correct.
-Rails/ApplicationRecord:
-  Exclude:
-    - 'docs/dev/model_template_example.rb'
-    - 'src/api/app/models/bs_request_counter.rb'
-    - 'src/api/db/migrate/20140908125426_convert_request_history.rb'
-    - 'src/api/db/migrate/20140908135426_incident_priority_attribute.rb'
-    - 'src/api/db/migrate/20140916135426_project_maintains.rb'
-    - 'src/api/db/migrate/20141107135426_embargo_attribute.rb'
-    - 'src/api/db/migrate/20141201135426_make_origin_older_attribute.rb'
-    - 'src/api/db/migrate/20150227063641_add_obs_branch_skip_repositories_attribute.rb'
-    - 'src/api/db/migrate/20150625105426_multiple_incident_counters.rb'
-    - 'src/api/db/migrate/20150716124906_add_type_to_project.rb'
-    - 'src/api/db/migrate/20160824132643_fix_bs_request_counter.rb'
-    - 'src/api/db/migrate/20161123124803_image_templates_attribute.rb'
-    - 'src/api/db/migrate/20161128115942_add_when_attribute_to_bs_request.rb'
-
 # Offense count: 538
 # Cop supports --auto-correct.
 # Configuration parameters: Whitelist.
