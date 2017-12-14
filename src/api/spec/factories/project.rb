@@ -20,9 +20,9 @@ FactoryBot.define do
       if evaluator.maintainer
         maintainers = [*evaluator.maintainer]
         maintainers.each do |maintainer|
-          if maintainer.kind_of? User
+          if maintainer.is_a? User
             create(:relationship_project_user, project: project, user: maintainer)
-          elsif maintainer.kind_of? Group
+          elsif maintainer.is_a? Group
             create(:relationship_project_group, project: project, group: maintainer)
           end
         end

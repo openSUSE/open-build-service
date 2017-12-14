@@ -507,7 +507,7 @@ class BsRequestAction < ApplicationRecord
     new_targets = Array.new
 
     packages.each do |pkg|
-      unless pkg.kind_of? Package
+      unless pkg.is_a? Package
         raise RemoteSource, 'No support for auto expanding from remote instance. You need to submit a full specified request in that case.'
       end
       # find target via linkinfo or submit to all.
@@ -812,7 +812,7 @@ class BsRequestAction < ApplicationRecord
           end
         end
       end
-      if action_type == :submit && tprj.kind_of?(Project)
+      if action_type == :submit && tprj.is_a?(Project)
         at = AttribType.find_by_namespace_and_name!('OBS', 'MakeOriginOlder')
         self.makeoriginolder = true if tprj.attribs.find_by(attrib_type: at)
       end
@@ -952,8 +952,8 @@ class BsRequestAction < ApplicationRecord
         dir = Xmlhash.parse(c)
         if action_type == :maintenance_release && dir['entry']
           # patchinfos in release requests get not frozen to allow to modify meta data
-          return if dir['entry'].kind_of?(Array) && dir['entry'].map { |e| e['name'] }.include?('_patchinfo')
-          return if dir['entry'].kind_of?(Hash) && dir['entry']['name'] == '_patchinfo'
+          return if dir['entry'].is_a?(Array) && dir['entry'].map { |e| e['name'] }.include?('_patchinfo')
+          return if dir['entry'].is_a?(Hash) && dir['entry']['name'] == '_patchinfo'
         end
         self.source_rev = dir['srcmd5']
       end

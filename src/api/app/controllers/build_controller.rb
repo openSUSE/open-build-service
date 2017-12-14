@@ -56,7 +56,7 @@ class BuildController < ApplicationController
 
       if !allowed && !params[:package].nil?
         package_names = nil
-        if params[:package].kind_of? Array
+        if params[:package].is_a? Array
           package_names = params[:package]
         else
           package_names = [params[:package]]

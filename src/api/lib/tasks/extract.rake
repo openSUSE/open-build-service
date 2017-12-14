@@ -17,7 +17,7 @@ def force_hash(record)
   record.each do |key, value|
     key = key.dup.force_encoding('UTF-8')
     if value
-      value = value.dup.force_encoding('UTF-8') if value.kind_of? String
+      value = value.dup.force_encoding('UTF-8') if value.is_a? String
       ret[key] = value
     end
   end

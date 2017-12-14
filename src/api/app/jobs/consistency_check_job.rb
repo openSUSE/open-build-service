@@ -247,11 +247,11 @@ class ConsistencyCheckJob < ApplicationJob
       # we need to ignore the ordering in some cases
       # old xml generator wrote them in a different order
       # but in other cases the order of elements matters
-      if k == 'person' && a_.kind_of?(Array)
+      if k == 'person' && a_.is_a?(Array)
         a_ = a_.map { |i| "#{i['userid']}/#{i['role']}" }.sort
         b_ = b_.map { |i| "#{i['userid']}/#{i['role']}" }.sort
       end
-      if k == 'group' && a_.kind_of?(Array)
+      if k == 'group' && a_.is_a?(Array)
         a_ = a_.map { |i| "#{i['groupid']}/#{i['role']}" }.sort
         b_ = b_.map { |i| "#{i['groupid']}/#{i['role']}" }.sort
       end

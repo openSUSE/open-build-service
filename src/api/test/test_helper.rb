@@ -444,7 +444,7 @@ module ActionDispatch
 
     # useful to fix our test cases
     def url_for(hash)
-      raise ArgumentError, 'we need a hash here' unless hash.kind_of? Hash
+      raise ArgumentError, 'we need a hash here' unless hash.is_a? Hash
       raise ArgumentError, 'we need a :controller' unless hash.has_key?(:controller)
       raise ArgumentError, 'we need a :action' unless hash.has_key?(:action)
       super(hash)

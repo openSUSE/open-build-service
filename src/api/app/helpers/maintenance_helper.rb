@@ -43,7 +43,7 @@ module MaintenanceHelper
   def release_package(source_package, target, target_package_name,
                       filter_source_repository = nil, multibuild_container = nil, action = nil,
                       setrelease = nil, manual = nil)
-    if target.kind_of? Repository
+    if target.is_a? Repository
       target_project = target.project
     else
       # project
@@ -61,7 +61,7 @@ module MaintenanceHelper
     end
 
     # copy binaries
-    if target.kind_of? Repository
+    if target.is_a? Repository
       u_ids = copy_binaries_to_repository(filter_source_repository, source_package, target, target_package_name, multibuild_container, setrelease)
     else
       u_ids = copy_binaries(filter_source_repository, source_package, target_package_name, target_project, multibuild_container, setrelease)

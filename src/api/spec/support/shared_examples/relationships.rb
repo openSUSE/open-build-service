@@ -3,7 +3,7 @@ RSpec.shared_examples 'makes a user a maintainer of the subject' do
   let(:maintainer_role) { Role.where(title: 'maintainer') }
 
   before do
-    object = (subject.kind_of?(Project) ? subject : subject.project)
+    object = (subject.is_a?(Project) ? subject : subject.project)
     login(object.relationships.maintainers.first.user)
 
     subject.add_maintainer(other_user)

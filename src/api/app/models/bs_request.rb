@@ -173,7 +173,7 @@ class BsRequest < ApplicationRecord
       request.number = theid if theid
 
       actions = hashed.delete('action')
-      if actions.kind_of? Hash
+      if actions.is_a? Hash
         actions = [actions]
       end
 
@@ -222,7 +222,7 @@ class BsRequest < ApplicationRecord
       hashed.delete('history')
 
       reviews = hashed.delete('review')
-      if reviews.kind_of? Hash
+      if reviews.is_a? Hash
         reviews = [reviews]
       end
       reviews.each do |r|
@@ -496,7 +496,7 @@ class BsRequest < ApplicationRecord
     bs_request_actions.each do |action|
       source_project = Project.find_by_name(action.source_project)
       if action.source_project && action.is_maintenance_release?
-        if source_project.kind_of?(Project)
+        if source_project.is_a?(Project)
           at = AttribType.find_by_namespace_and_name!('OBS', 'EmbargoDate')
           attrib = source_project.attribs.find_by(attrib_type: at)
           v = attrib.values.first if attrib

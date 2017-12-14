@@ -89,7 +89,7 @@ class ApplicationController < ActionController::Base
     params.each do |key, value|
       next if value.nil?
       next if key == 'xmlhash' # perfectly fine
-      unless value.kind_of? String
+      unless value.is_a? String
         raise InvalidParameterError, "Parameter #{key} has non String class #{value.class}"
       end
     end

@@ -136,7 +136,7 @@ class SourceController < ApplicationController
     project = Project.get_by_name(params[:project])
 
     # checks
-    unless project.kind_of?(Project) && User.current.can_modify_project?(project)
+    unless project.is_a?(Project) && User.current.can_modify_project?(project)
       logger.debug "No permission to delete project #{project}"
       render_error status: 403, errorcode: 'delete_project_no_permission',
                    message: "Permission denied (delete project #{project})"
@@ -690,7 +690,7 @@ class SourceController < ApplicationController
       end
     else
       prj = Project.get_by_name(@project_name)
-      unless prj.kind_of?(Project) && User.current.can_create_package_in?(prj)
+      unless prj.is_a?(Project) && User.current.can_create_package_in?(prj)
         render_error status: 403, errorcode: 'create_package_no_permission',
                      message: "no permission to create a package in project '#{@project_name}'"
         return
@@ -1286,7 +1286,7 @@ class SourceController < ApplicationController
       raise PackageExists, "the package exists already #{@target_project_name} #{@target_package_name}"
     end
     tprj = Project.get_by_name(@target_project_name)
-    unless tprj.kind_of?(Project) && User.current.can_create_package_in?(tprj)
+    unless tprj.is_a?(Project) && User.current.can_create_package_in?(tprj)
       raise CmdExecutionNoPermission, "no permission to create package in project #{@target_project_name}"
     end
 
@@ -1553,7 +1553,7 @@ class SourceController < ApplicationController
 
     if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false)
       verify_can_modify_target_package!
-    elsif !@project.kind_of?(Project) || !User.current.can_create_package_in?(@project)
+    elsif !@project.is_a?(Project) || !User.current.can_create_package_in?(@project)
       raise CmdExecutionNoPermission, "no permission to create package in project #{@target_project_name}"
     end
   end

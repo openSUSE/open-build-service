@@ -1091,7 +1091,7 @@ class Package < ApplicationRecord
   end
 
   def self.valid_name?(name, allow_multibuild = false)
-    return false unless name.kind_of? String
+    return false unless name.is_a? String
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200
     return false if name == '0'
@@ -1333,7 +1333,7 @@ class Package < ApplicationRecord
 
     # file is an ActionDispatch::Http::UploadedFile and Suse::Validator.validate
     # will call to_s therefore we have to read the content first
-    content = File.open(content.path).read if content.kind_of?(ActionDispatch::Http::UploadedFile)
+    content = File.open(content.path).read if content.is_a?(ActionDispatch::Http::UploadedFile)
 
     # schema validation, if possible
     %w{aggregate constraints link service patchinfo channel}.each do |schema|

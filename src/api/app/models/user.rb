@@ -419,7 +419,7 @@ class User < ApplicationRecord
 
   # project is instance of Project
   def can_modify_project?(project, ignore_lock = nil)
-    unless project.kind_of? Project
+    unless project.is_a? Project
       raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
     end
 
@@ -434,7 +434,7 @@ class User < ApplicationRecord
   # package is instance of Package
   def can_modify_package?(package, ignore_lock = nil)
     return false if package.nil? # happens with remote packages easily
-    unless package.kind_of? Package
+    unless package.is_a? Package
       raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}"
     end
     return false if !ignore_lock && package.is_locked?
@@ -446,7 +446,7 @@ class User < ApplicationRecord
 
   # project is instance of Project
   def can_create_package_in?(project, ignore_lock = nil)
-    unless project.kind_of? Project
+    unless project.is_a? Project
       raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end
 
@@ -475,10 +475,10 @@ class User < ApplicationRecord
   end
 
   def can_create_attribute_definition?(object)
-    if object.kind_of? AttribType
+    if object.is_a? AttribType
       object = object.attrib_namespace
     end
-    unless object.kind_of? AttribNamespace
+    unless object.is_a? AttribNamespace
       raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}"
     end
 
@@ -496,7 +496,7 @@ class User < ApplicationRecord
 
   # rubocop:disable Style/GuardClause
   def can_create_attribute_in?(object, opts)
-    if !object.kind_of?(Project) && !object.kind_of?(Package)
+    if !object.is_a?(Project) && !object.is_a?(Package)
       raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}"
     end
     unless opts[:namespace]
@@ -515,7 +515,7 @@ class User < ApplicationRecord
     abies = atype.attrib_type_modifiable_bies.includes([:user, :group, :role])
     if abies.empty?
       # no rules set for attribute, just check package maintainer rules
-      if object.kind_of? Project
+      if object.is_a? Project
         return can_modify_project?(object)
       else
         return can_modify_package?(object)

@@ -274,7 +274,7 @@ class BranchPackage
   end
 
   def lookup_incident_pkg(p)
-    return unless p[:package].kind_of? Package
+    return unless p[:package].is_a? Package
     @obs_maintenanceproject ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
     @maintenance_projects ||= Project.find_by_attribute_type(@obs_maintenanceproject)
     incident_pkg = nil
@@ -314,7 +314,7 @@ class BranchPackage
       p[:target_package] += ".#{p[:link_target_project].name}" if @extend_names
     end
     if @extend_names
-      p[:release_name] = p[:package].kind_of?(String) ? p[:package] : p[:package].name
+      p[:release_name] = p[:package].is_a?(String) ? p[:package] : p[:package].name
     end
 
     # validate and resolve devel package or devel project definitions

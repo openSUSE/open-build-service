@@ -51,7 +51,7 @@ module HasRelationships
   def remove_role(what, role)
     check_write_access!
 
-    if what.kind_of? Group
+    if what.is_a? Group
       rel = relationships.where(group_id: what.id)
     else
       rel = relationships.where(user_id: what.id)
@@ -67,7 +67,7 @@ module HasRelationships
     check_write_access!
 
     transaction do
-      if what.kind_of? Group
+      if what.is_a? Group
         relationships.create!(role: role, group: what)
       else
         relationships.create!(role: role, user: what)
