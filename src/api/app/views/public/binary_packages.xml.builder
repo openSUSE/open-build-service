@@ -1,9 +1,9 @@
-xml.package :project => @pkg.project.name, :package => @pkg.name do
+xml.package project: @pkg.project.name, package: @pkg.name do
   xml.title @pkg.title
   xml.description @pkg.description
   xml.binaries do
     @binary_links.each do |repo, arr|
-      xml.list(:distribution => repo) do
+      xml.list(distribution: repo) do
         xml.ymp arr[:ymp] if arr[:ymp]
         xml.repository arr[:repository] if arr[:repository]
         if arr[:binary]

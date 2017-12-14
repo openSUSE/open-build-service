@@ -1,6 +1,6 @@
 abies = @an.attrib_namespace_modifiable_bies.includes([:user, :group])
 if abies.present?
-  xml.namespace(:name => @an.name) do |an|
+  xml.namespace(name: @an.name) do |an|
     abies.each do |mod_rule|
       p = {}
       p[:user] = mod_rule.user.login if mod_rule.user
@@ -9,5 +9,5 @@ if abies.present?
     end
   end
 else
-  xml.namespace(:name => @an.name)
+  xml.namespace(name: @an.name)
 end

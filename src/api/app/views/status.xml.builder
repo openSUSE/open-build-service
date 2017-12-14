@@ -13,7 +13,7 @@ xml.status('code' => @errorcode) do
   end
   if @data
     @data.each do |name, value|
-      xml.data(value, :name => name)
+      xml.data(value, name: name)
     end
   end
 end

@@ -17,7 +17,7 @@ xml.person do
   if watchlist
     xml.watchlist do
       my_model.watched_projects.each do |wp|
-        xml.project(:name => wp.project.name)
+        xml.project(name: wp.project.name)
       end
     end
   end

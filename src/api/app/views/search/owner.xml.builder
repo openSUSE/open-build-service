@@ -13,12 +13,12 @@ xml.collection do
       roles.each do |role|
         if o[:users] && o[:users][role]
           o[:users][role].each do |user|
-            xml.person(:name => user, :role => role)
+            xml.person(name: user, role: role)
           end
         end
         if o[:groups] && o[:groups][role]
           o[:groups][role].each do |group|
-            xml.group(:name => group, :role => role)
+            xml.group(name: group, role: role)
           end
         end
       end

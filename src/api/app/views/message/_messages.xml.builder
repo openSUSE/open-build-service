@@ -17,8 +17,8 @@ xml.messages(root_attrs) do
     xml.message(
       msg.text,
       attrs,
-      :msg_id => msg.id,
-      :created_at => msg.created_at.xmlschema
+      msg_id: msg.id,
+      created_at: msg.created_at.xmlschema
     )
   end
 end

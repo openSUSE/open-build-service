@@ -6,7 +6,7 @@ xml.person do
   if @render_user.watched_projects.count > 0
     xml.watchlist do
       @render_user.watched_projects.each do |wp|
-        xml.project :name => wp.name
+        xml.project name: wp.name
       end
     end
   end
