@@ -256,15 +256,6 @@ Naming/VariableNumber:
     - 'src/api/spec/features/webui/projects_spec.rb'
     - 'src/api/test/unit/project_test.rb'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-Performance/CompareWithBlock:
-  Exclude:
-    - 'src/api/app/controllers/webui/monitor_controller.rb'
-    - 'src/api/app/controllers/webui/project_controller.rb'
-    - 'src/api/app/models/buildresult.rb'
-    - 'src/api/app/models/package.rb'
-
 # Offense count: 24
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect.

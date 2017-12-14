@@ -51,7 +51,7 @@ class Webui::MonitorController < Webui::WebuiController
         workers[hostname][subid] = id
       end
       @workers_sorted = {}
-      @workers_sorted = workers.sort { |a, b| a[0] <=> b[0] } if workers
+      @workers_sorted = workers.sort_by { |a| a[0] } if workers
       @available_arch_list = Architecture.available.pluck(:name).sort
     end
   end
@@ -90,7 +90,7 @@ class Webui::MonitorController < Webui::WebuiController
     Rails.cache.delete(cachekey, shared: true) unless cache
     Rails.cache.fetch(cachekey, expires_in: (range.to_i * 3600) / 150, shared: true) do
       hash = StatusHistory.history_by_key_and_hours(key, range)
-      hash.sort { |a, b| a[0] <=> b[0] }
+      hash.sort_by { |a| a[0] }
     end
   end
 

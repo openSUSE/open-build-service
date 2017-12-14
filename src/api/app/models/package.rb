@@ -942,7 +942,7 @@ class Package < ApplicationRecord
     results = Buildresult.find_hashed(project: prj, package: name, view: 'status', multibuild: '1', locallink: '1')
 
     local_build_results = {}
-    results.elements('result').sort { |a, b| a['repository'] <=> b['repository'] }.each do |result|
+    results.elements('result').sort_by { |a| a['repository'] }.each do |result|
       result.elements('status').each do |status|
         local_build_results[status['package']] ||= []
         local_build_results[status['package']] << LocalBuildResult.new(repository: result['repository'],

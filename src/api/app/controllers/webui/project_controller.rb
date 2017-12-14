@@ -668,7 +668,7 @@ class Webui::ProjectController < Webui::WebuiController
     ps = calc_status(params[:project])
 
     @packages = ps[:packages]
-    @develprojects = ps[:projects].sort { |x, y| x.downcase <=> y.downcase }
+    @develprojects = ps[:projects].sort_by(&:downcase)
     @develprojects.insert(0, all_packages)
     @develprojects.insert(1, no_project)
 
