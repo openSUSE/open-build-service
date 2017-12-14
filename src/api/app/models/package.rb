@@ -872,12 +872,15 @@ class Package < ApplicationRecord
   end
 
   def self.activity_algorithm
+    "#{Package._activity_algorithm} as activity_value"
+  end
+
+  def self._activity_algorithm
     # this is the algorithm (sql) we use for calculating activity of packages
     # NOTE: We use Time.now.to_i instead of UNIX_TIMESTAMP() so we can test with frozen ruby time in the old tests suite,
     # change it when removing the tests
     '( packages.activity_index * ' +
-        "POWER( 2.3276, (UNIX_TIMESTAMP(packages.updated_at) - #{Time.now.to_i})/10000000 ) " +
-        ') as activity_value'
+        "POWER( 2.3276, (UNIX_TIMESTAMP(packages.updated_at) - #{Time.now.to_i})/10000000 ) )"
   end
 
   before_validation(on: :create) do
@@ -1516,10 +1519,10 @@ class Package < ApplicationRecord
     # the value we add to the activity, when the object gets updated
     addon = 10 * (Time.now.to_f - updated_at_was.to_f) / 86400
     addon = 10 if addon > 10
-    new_activity = activity + addon
-    new_activity > 100 ? 100 : new_activity
 
-    self.activity_index = new_activity
+    # atomar update to avoid dead locks
+    sql = ApplicationRecord.connection
+    sql.execute("UPDATE packages SET activity_index = LEAST(100, #{Package._activity_algorithm} + #{addon})  WHERE id=#{id}")
   end
 end
 
