@@ -33,7 +33,7 @@ class HistoryElement::Request < ::HistoryElement::Base
     attributes = { who: user.login, when: created_at.strftime('%Y-%m-%dT%H:%M:%S') }
     builder.history(attributes) do
       builder.description! description
-      builder.comment! comment unless comment.blank?
+      builder.comment! comment if comment.present?
     end
   end
 end
@@ -161,7 +161,7 @@ class HistoryElement::Review < ::HistoryElement::Base
     attributes = { who: user.login, when: created_at.strftime('%Y-%m-%dT%H:%M:%S') }
     builder.history(attributes) do
       builder.description! description
-      builder.comment! comment unless comment.blank?
+      builder.comment! comment if comment.present?
     end
   end
 end

@@ -7,7 +7,7 @@ module Webui::BuildresultHelper
       code = status['code']
       theclass = 'status_' + code.gsub(/[- ]/, '_')
       # special case for scheduled jobs with constraints limiting the workers a lot
-      theclass = "status_scheduled_warning" if code == "scheduled" && !link_title.blank?
+      theclass = "status_scheduled_warning" if code == "scheduled" && link_title.present?
     else
       code = ''
       theclass = ' '

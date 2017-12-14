@@ -139,7 +139,7 @@ class Webui::PackageController < Webui::WebuiController
     rescue ActiveXML::Transport::ForbiddenError
     end
 
-    return unless @statistics.blank?
+    return if @statistics.present?
     flash[:error] = "No statistics of a successful build could be found in #{@repository}/#{@arch}"
     redirect_to controller: 'package', action: :binaries, project: @project,
                 package: @package, repository: @repository, nextstatus: 404
@@ -453,7 +453,7 @@ class Webui::PackageController < Webui::WebuiController
 
     options = {}
     [:orev, :opackage, :oproject, :linkrev, :olinkrev].each do |k|
-      options[k] = params[k] unless params[k].blank?
+      options[k] = params[k] if params[k].present?
     end
     options[:rev] = @rev if @rev
     return unless get_diff(@project.name, @package.name, options)
@@ -755,12 +755,12 @@ class Webui::PackageController < Webui::WebuiController
 
     begin
       jobstatus = get_job_status(@project, @package, @repo, @arch)
-      unless jobstatus.blank?
+      if jobstatus.present?
         js = Xmlhash.parse(jobstatus)
         @workerid = js.get('workerid')
         @buildtime = Time.now.to_i - js.get('starttime').to_i
         ld = js.get('lastduration')
-        @percent = (@buildtime * 100) / ld.to_i unless ld.blank?
+        @percent = (@buildtime * 100) / ld.to_i if ld.present?
       end
     rescue
       @workerid = nil

@@ -1054,7 +1054,7 @@ class SourceController < ApplicationController
       commit = { login:   User.current.login,
                  lowprio: 1,
                  comment: "Project move from #{params[:oproject]} to #{params[:project]}" }
-      commit[:comment] = params[:comment] unless params[:comment].blank?
+      commit[:comment] = params[:comment] if params[:comment].present?
       Backend::Api::Sources::Project.move(params[:oproject], params[:project])
       project.name = params[:project]
       project.store(commit)

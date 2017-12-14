@@ -75,9 +75,9 @@ class SearchController < ApplicationController
     Backend::Test.start if Rails.env.test?
 
     obj = nil
-    obj = params[:binary] unless params[:binary].blank?
-    obj = User.find_by_login!(params[:user]) unless params[:user].blank?
-    obj = Group.find_by_title!(params[:group]) unless params[:group].blank?
+    obj = params[:binary] if params[:binary].present?
+    obj = User.find_by_login!(params[:user]) if params[:user].present?
+    obj = Group.find_by_title!(params[:group]) if params[:group].present?
     obj = Package.get_by_project_and_name(params[:project], params[:package]) unless params[:project].blank? || params[:package].blank?
     obj = Project.get_by_name(params[:project]) if obj.nil? && params[:project].present?
 

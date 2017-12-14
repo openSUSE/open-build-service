@@ -213,7 +213,7 @@ class Repository < ApplicationRecord
       xml = Xmlhash.parse(Backend::Api::Published.download_url_for_repository(project.name, name))
       xml.elements('url').last.to_s
     end
-    url + "/" + file unless file.blank?
+    url + "/" + file if file.present?
   end
 
   def download_url_for_file(package, architecture, filename)

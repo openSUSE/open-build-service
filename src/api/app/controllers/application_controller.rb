@@ -152,10 +152,10 @@ class ApplicationController < ActionController::Base
     query_string = request.query_string
     if request.form_data?
       # it's uncommon, but possible that we have both
-      query_string += "&" unless query_string.blank?
+      query_string += "&" if query_string.present?
       query_string += request.raw_post
     end
-    query_string = "?" + query_string unless query_string.blank?
+    query_string = "?" + query_string if query_string.present?
     path + query_string
   end
 

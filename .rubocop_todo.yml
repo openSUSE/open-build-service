@@ -318,12 +318,6 @@ Rails/OutputSafety:
     - 'src/api/app/helpers/webui/request_helper.rb'
     - 'src/api/app/helpers/webui/webui_helper.rb'
 
-# Offense count: 131
-# Cop supports --auto-correct.
-# Configuration parameters: NotNilAndNotEmpty, NotBlank, UnlessBlank.
-Rails/Present:
-  Enabled: false
-
 # Offense count: 11
 # Cop supports --auto-correct.
 # Configuration parameters: Include.

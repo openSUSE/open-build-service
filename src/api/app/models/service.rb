@@ -53,7 +53,7 @@ class Service < ActiveXML::Node
     if uri.path =~ /.src.rpm$/ || uri.path =~ /.spm$/ # download and extract source package
       addService("download_src_package", service_content)
     else # just download
-      service_content << { name: "filename", value: filename } unless filename.blank?
+      service_content << { name: "filename", value: filename } if filename.present?
       addService("download_url", service_content)
     end
     true

@@ -9,7 +9,7 @@ module Event
     end
 
     def set_payload(attribs, keys)
-      attribs['comment'] = attribs['comment'][0..800] unless attribs['comment'].blank?
+      attribs['comment'] = attribs['comment'][0..800] if attribs['comment'].present?
       super(attribs, keys)
     end
   end
