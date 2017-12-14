@@ -91,7 +91,7 @@ module ProjectStatus
         projects[project_id] = project_name
       end
 
-      projects.each do |id, _|
+      projects.each_key do |id|
         if !opts[:pure_project] || id == @dbproj.id
           update_jobhistory(Project.find(id), mypackages)
         end

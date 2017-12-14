@@ -816,7 +816,7 @@ class Project < ApplicationRecord
     # cycle check in linked projects
     if processed[self]
       str = name
-      processed.keys.each do |key|
+      processed.each_key do |key|
         str = str + ' -- ' + key.name
       end
       raise CycleError, "There is a cycle in project link defintion at #{str}"
@@ -1166,7 +1166,7 @@ class Project < ApplicationRecord
 
     targets = bsrequest_repos_map(tproj.name)
     sources = bsrequest_repos_map(name)
-    sources.each do |key, _|
+    sources.each_key do |key|
       if targets.has_key?(key)
         tocheck_repos << sources[key]
       end
@@ -1446,12 +1446,12 @@ class Project < ApplicationRecord
     end
     if repository && repository_states.has_key?(repository)
       return false if repository_states[repository].empty? # No buildresult is bad
-      repository_states[repository].each do |state, _|
+      repository_states[repository].each_key do |state|
         return false if state.in?(["broken", "failed", "unresolvable"])
       end
     else
       return false unless states.empty? # No buildresult is bad
-      states.each do |state, _|
+      states.each_key do |state|
         return false if state.in?(["broken", "failed", "unresolvable"])
       end
     end

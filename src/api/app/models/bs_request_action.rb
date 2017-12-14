@@ -282,7 +282,7 @@ class BsRequestAction < ApplicationRecord
       ret[:targetpackage] ||= source_package
     end
 
-    ret.keys.each do |k|
+    ret.each_key do |k|
       ret.delete(k) if ret[k].nil?
     end
     ret

@@ -136,7 +136,7 @@ module Event
       return if attribs.empty?
 
       na = []
-      attribs.keys.each { |k| na << k.to_s }
+      attribs.each_key { |k| na << k.to_s }
       logger.debug "LEFT #{self.class.name} payload_keys :#{na.sort.join(', :')}"
       raise "LEFT #{self.class.name} payload_keys :#{na.sort.join(', :')} # #{attribs.inspect}"
     end

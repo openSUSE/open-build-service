@@ -134,7 +134,7 @@ module HasAttributes
         end
       end
     else
-      attr.values.each do |val|
+      attr.each_value do |val|
         builder.value(val.value)
       end
     end

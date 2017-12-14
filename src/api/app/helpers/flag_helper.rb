@@ -42,7 +42,7 @@ module FlagHelper
 
     # select each build flag from xml
     xmlhash.elements(flagtype.to_s) do |xmlflags|
-      xmlflags.keys.each do |status|
+      xmlflags.each_key do |status|
         fs = xmlflags.elements(status)
         if fs.empty? # make sure we treat empty too
           fs << {}
@@ -162,7 +162,7 @@ module FlagHelper
     Rails.logger.debug "xml_disabled? #{xmlhash.inspect}"
     disabled = false
     xmlhash.elements(flagtype.to_s) do |xmlflags|
-      xmlflags.keys.each do |status|
+      xmlflags.each_key do |status|
         disabled = true if status == 'disable'
         return false if status == 'enable'
       end

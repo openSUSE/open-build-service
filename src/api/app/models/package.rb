@@ -616,11 +616,11 @@ class Package < ApplicationRecord
         issue_change[issue.issue_tracker.name].delete(issue.name)
       end
 
-      issue_change.keys.each do |tracker|
+      issue_change.each_key do |tracker|
         t = IssueTracker.find_by_name tracker
 
         # create new issues
-        issue_change[tracker].keys.each do |name|
+        issue_change[tracker].each_key do |name|
           issue = t.issues.find_by_name(name) || t.issues.create(name: name)
           state = issue_change[tracker][name]
           myissues[state] ||= []
@@ -724,7 +724,7 @@ class Package < ApplicationRecord
       # cycle detection
       str = prj_name + '/' + pkg.name
       if processed[str]
-        processed.keys.each do |key|
+        processed.each_key do |key|
           str = str + ' -- ' + key
         end
         raise CycleError, "There is a cycle in devel definition at #{str}"

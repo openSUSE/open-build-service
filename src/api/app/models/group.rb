@@ -56,7 +56,7 @@ class Group < ApplicationRecord
         GroupMaintainer.create(user: user, group: self).save
       end
     end
-    cache.each do |login_id, _|
+    cache.each_key do |login_id|
       GroupMaintainer.where('user_id = ? AND group_id = ?', login_id, id).delete_all
     end
 
@@ -78,7 +78,7 @@ class Group < ApplicationRecord
     end
 
     # delete all users which were not listed
-    cache.each do |login_id, _gu|
+    cache.each_key do |login_id|
       GroupsUser.where('user_id = ? AND group_id = ?', login_id, id).delete_all
     end
   end
