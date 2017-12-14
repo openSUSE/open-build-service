@@ -1,7 +1,7 @@
 require_relative '../attribute_descriptions'
 
 class AddObsBranchSkipRepositoriesAttribute < ActiveRecord::Migration[4.2]
-  class AttribTypeModifiableBy < ActiveRecord::Base; end
+  class AttribTypeModifiableBy < ApplicationRecord; end
 
   def self.up
     role = Role.find_by_title("maintainer")

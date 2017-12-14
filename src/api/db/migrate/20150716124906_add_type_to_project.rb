@@ -1,9 +1,9 @@
 class AddTypeToProject < ActiveRecord::Migration[4.2]
-  class TmpProject < ActiveRecord::Base
+  class TmpProject < ApplicationRecord
     self.table_name = 'projects'
   end
 
-  class TmpDbProjectType < ActiveRecord::Base
+  class TmpDbProjectType < ApplicationRecord
     self.table_name = 'db_project_types'
   end
 
