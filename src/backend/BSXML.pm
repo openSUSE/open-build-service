@@ -1862,4 +1862,28 @@ our $availablebinaries = [
     ]],
 ];
 
+our $clouduploadjob = [
+    'clouduploadjob' =>
+	'name',
+	[],
+	'state',		# created, receiving, scheduled, uploading, succeeded, waiting, failed
+	'details',		# error messages
+	'progress',		# percentage completed
+	'try',		# retry count
+	'created',		# when was this job created
+
+	'user',		# who did this
+	'target',		# where to upload to
+
+	'project',
+	'repository',
+	'package',
+	'arch',
+	'filename',		# what to upload
+	'size',
+
+	'pid',		# internal
+	'targetdata',	# internal
+];
+
 1;

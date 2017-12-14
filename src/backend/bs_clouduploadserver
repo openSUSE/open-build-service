@@ -1,0 +1,195 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2017 SUSE Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# Cloud upload server. Creates jobs and returns their status.
+#
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd";
+}
+
+use XML::Structured ':bytes';
+use Data::Dumper;
+use POSIX;
+use Fcntl qw(:DEFAULT :flock);
+
+use BSServer;
+use BSStdServer;
+use BSConfiguration;
+use BSUtil;
+use BSXML;
+use BSHTTP;
+
+use strict;
+
+$BSConfig::bsuser = $BSConfig::bsserviceuser;
+$BSConfig::bsgroup = $BSConfig::bsservicegroup;
+
+BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
+
+
+my $port = 5452;
+$port = $1 if $BSConfig::clouduploadserver =~ /:(\d+)$/;
+
+my $jobdir = "$BSConfig::bsdir/cloudupload";
+
+my $maxchild = $BSConfig::cloudupload_maxchild || $BSConfig::cloudupload_maxchild || 5;
+
+sub usage {
+  my ($ret) = @_;
+
+print <<EOF;
+Usage: $0 [OPTION]
+
+       --port      : Port to listen for connections
+
+       --help      : this message
+
+EOF
+  exit($ret || 0);
+}
+
+my @argv = @ARGV;	# need to make copy for restart feature
+while (@argv) {
+  usage(0) if $argv[0] eq '--help';
+  exit 0 if $argv[0] eq '--test'; # just for self-startup test
+  if ($argv[0] eq '--port') {
+    shift @argv;
+    $port = shift @argv;
+    next;
+  }
+  last;
+}
+
+sub initjobid {
+  local *F;
+  mkdir_p($jobdir);
+  my $job = BSUtil::lockopenxml(\*F, '<', "$jobdir/next", $BSXML::clouduploadjob, 1) || {};
+  $job->{'name'} ||= 1;
+  die("weird next content\n") unless keys(%$job) == 1;
+  for my $id (ls($jobdir)) {
+    next unless $id =~ /^(\d+)$/;
+    $job->{'name'} = $id + 1 if $job->{'name'} <= $id;
+  }
+  for my $id (ls("$jobdir/done")) {
+    next unless $id =~ /^(\d+)$/;
+    $job->{'name'} = $id + 1 if $job->{'name'} <= $id;
+  }
+  writexml("$jobdir/.next$$", "$jobdir/next", $job, $BSXML::clouduploadjob);
+  close F;
+}
+
+sub nextjobid {
+  local *F;
+  my $job = BSUtil::lockopenxml(\*F, '<', "$jobdir/next", $BSXML::clouduploadjob);
+  die unless keys(%$job) == 1;
+  my $jobid = $job->{'name'};
+  die unless $jobid;
+  $job->{'name'} = $jobid + 1;
+  writexml("$jobdir/.next$$", "$jobdir/next", $job, $BSXML::clouduploadjob);
+  close F;
+  return $jobid;
+}
+
+sub cloudupload_create {
+  my ($cgi) = @_;
+  my $jobskelxml = BSServer::read_data(10000000);
+  my $jobskel = BSUtil::fromxml($jobskelxml, $BSXML::clouduploadjob);
+  my $job = {};
+  for (qw{user target project repository package arch filename size}) {
+    die("$_ is missing from job skeleton\n") unless defined $jobskel->{$_};
+    $job->{$_} = $jobskel->{$_};
+  }
+  my $targetdata = delete $jobskel->{'targetdata'};
+  $targetdata = '' unless defined $targetdata;
+  my $jobid = nextjobid();
+  $job->{'name'} = $jobid;
+  $job->{'state'} = 'created';
+  $job->{'details'} = 'waiting to receive image';
+  $job->{'created'} = time();
+  mkdir_p($jobdir);
+  writexml("$jobdir/.$jobid$$", "$jobdir/$jobid", $job, $BSXML::clouduploadjob);
+  writestr("$jobdir/.$jobid.data$$", "$jobdir/$jobid.data", $targetdata);
+  return ($job, $BSXML::clouduploadjob);
+}
+
+sub cloudupload_upload {
+  my ($cgi, $jobid) = @_;
+  local *F;
+  my $job = BSUtil::lockopenxml(\*F, '<', "$jobdir/$jobid", $BSXML::clouduploadjob);
+  die("job is not in created state\n") unless $job->{'state'} eq 'created';
+  $job->{'state'} = 'receiving';
+  $job->{'pid'} = $$;
+  writexml("$jobdir/.$jobid$$", "$jobdir/$jobid", $job, $BSXML::clouduploadjob);
+  close F;
+  my $uploaded = BSServer::read_file("$jobdir/.$jobid.file$$");
+  die unless $uploaded;
+  $job = BSUtil::lockopenxml(\*F, '<', "$jobdir/$jobid", $BSXML::clouduploadjob);
+  die("job is not in receiving state\n") unless $job->{'state'} eq 'receiving';
+  delete $job->{'pid'};
+  if ($uploaded->{'size'} != $job->{'size'}) {
+    $job->{'state'} = 'failed';
+    $job->{'details'} = "size mismatch: $uploaded->{'size'} != $job->{'size'}";
+    writexml("$jobdir/.$jobid$$", "$jobdir/$jobid", $job, $BSXML::clouduploadjob);
+    close F;
+    die("$job->{'details'}\n");
+  }
+  rename("$jobdir/.$jobid.file$$", "$jobdir/$jobid.file") || die("rename $jobdir/.$jobid.file$$ $jobdir/$jobid.file: $!\n");
+  $job->{'state'} = 'scheduled';
+  writexml("$jobdir/.$jobid$$", "$jobdir/$jobid", $job, $BSXML::clouduploadjob);
+  close F;
+  return $BSStdServer::return_ok;
+}
+
+sub hello {
+  my ($cgi) = @_;
+  return "<hello name=\"Cloud Upload Server\" />\n";
+}
+
+sub run {
+  initjobid();
+  BSServer::server(@_);
+}
+
+# define server
+my $dispatches = [
+  '/' => \&hello,
+
+  '!rw :' => undef,
+  '!- GET:' => undef,
+  '!- HEAD:' => undef,
+
+  '/serverstatus' => \&BSStdServer::serverstatus,
+  '!- POST:/cloudupload' => \&cloudupload_create,
+  '!- PUT:/cloudupload/$job' => \&cloudupload_upload,
+];
+
+my $conf = {
+  'port' => $port,
+  'dispatches' => $dispatches,
+  'setkeepalive' => 1,
+  'maxchild' => $maxchild,
+  'run' => \&run,
+};
+
+BSStdServer::server('bs_clouduploadserver', \@ARGV, $conf);
+

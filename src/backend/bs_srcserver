@@ -6050,6 +6050,87 @@ sub getavailablebinaries {
 
 ####################################################################
 
+
+sub cloudupload_create_receiver {
+  my ($req, $param) = @_;
+  my $hdr = $req->{'headers'};
+  die("cannot do chunked uploads\n") if $hdr->{'transfer-encoding'} && lc($hdr->{'transfer-encoding'}) eq 'chunked';
+  my $cl = $hdr->{'content-length'};
+  die("need a content length\n") unless defined $cl;
+  die("upload image is empty\n") unless $cl;
+
+  local *S = $req->{'__socket'};	# XXX: fix BSRPC
+  $req->{'__socket'} = \*S;
+
+  # create a job
+  $param->{'uploadjob'}->{'size'} = $cl;	# we now know the size
+  my $createparam = {
+    'uri' => "$BSConfig::clouduploadserver/cloudupload",
+    'request' => 'POST',
+    'timeout' => 60,
+    'data' => BSUtil::toxml($param->{'uploadjob'}, $BSXML::clouduploadjob),
+  };
+  my $job = BSWatcher::rpc($createparam, $BSXML::clouduploadjob);
+
+  # reply the job right away
+  BSStdServer::stdreply($job, $BSXML::clouduploadjob);
+  BSServer::done(1);
+
+  # do the upload in the background
+  my $uploadparam = {
+    'uri' => "$BSConfig::clouduploadserver/cloudupload/$job->{'name'}",
+    'request' => 'PUT',
+    'timeout' => 600,
+    'headers' => [ "Content-Length: $cl" ],
+    'data' => \&BSHTTP::reply_sender,
+    'reply_req' => $req,
+  };
+  BSWatcher::rpc($uploadparam);
+
+  # nothing else to reply
+  return undef;
+}
+
+sub cloudupload_create {
+  my ($cgi, $projid, $repoid, $arch, $packid, $filename) = @_;
+  die("no cloud upload server configurated\n") unless $BSConfig::clouduploadserver;
+  my $targetdata;
+  $targetdata = BSServer::read_data(10000000) if BSServer::have_content();
+  $targetdata = '' unless defined $targetdata;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
+  my $uploadjob = {
+    'project' => $projid,
+    'repository' => $repoid,
+    'arch' => $arch,
+    'package' => $packid,
+    'filename' => $filename,
+    'user' => $cgi->{'user'},
+    'target' => $cgi->{'target'},
+    'targetdata' => $targetdata,
+  };
+  my $param = {
+    'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid/$filename",
+    'receiver' => \&cloudupload_create_receiver,
+    'timeout' => 600,
+    'uploadjob' => $uploadjob,
+  };
+  return BSWatcher::rpc($param, undef);
+}
+
+sub cloudupload_status {
+  my ($cgi, $job) = @_;
+  die("no cloud upload server configurated\n") unless $BSConfig::clouduploadserver;
+  my $param = {
+    'uri' => "$BSConfig::clouduploadserver/cloudupload/$job",
+    'ignorestatus' => 1,
+    'receiver' => \&BSServer::reply_receiver,
+  };
+  BSWatcher::rpc($param, undef);
+  return undef;
+}
+
+####################################################################
+
 my $dispatches = [
   '/' => \&hello,
 
@@ -6215,6 +6296,10 @@ my $dispatches = [
   'POST:/notify/$_type: *:?' => \&external_notification,
   # called from the API to notify hermes/rabbitmq
   'POST:/notify_plugins/$_type:' => \&notify_plugins,
+
+  # cloud upload calls
+  'POST:/cloudupload $project $repository $arch $package $filename user: target:' => \&cloudupload_create,
+  '/cloudupload/$job' => \&cloudupload_status,
 
   '/ajaxstatus' => \&getajaxstatus,
   '/serverstatus' => \&BSStdServer::serverstatus,
