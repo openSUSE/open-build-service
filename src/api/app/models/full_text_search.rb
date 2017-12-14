@@ -35,7 +35,7 @@ class FullTextSearch
              field_weights: FullTextSearch.field_weights,
              page:          options[:page],
              per_page:      options[:per_page] || FullTextSearch.per_page,
-             without:       {project_id: Relationship.forbidden_project_ids} }
+             without:       { project_id: Relationship.forbidden_project_ids } }
 
     args[:select] = "*, (weight() + "\
                     "#{FullTextSearch.linked_count_weight} * linked_count + "\
@@ -51,7 +51,7 @@ class FullTextSearch
       args[:with][:attrib_type_ids] = attrib_type_id.to_i unless attrib_type_id.nil?
     end
     if classes
-      args[:classes] = classes.map {|i| i.to_s.classify.constantize }
+      args[:classes] = classes.map { |i| i.to_s.classify.constantize }
     end
 
     @result = ThinkingSphinx.search search_str, args

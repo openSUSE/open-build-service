@@ -73,11 +73,11 @@ class IssueTest < ActiveSupport::TestCase
     cve.issues.create name: "CVE-1999-0001"
 
     stub_request(:head, "http://cve.mitre.org/data/downloads/allitems.xml.gz").
-        to_return(status: 200, headers: {'Last-Modified' => 2.days.ago})
+        to_return(status: 200, headers: { 'Last-Modified' => 2.days.ago })
 
     stub_request(:get, "http://cve.mitre.org/data/downloads/allitems.xml.gz").
         to_return(status: 200, body: load_backend_file("allitems.xml.gz"),
-                  headers: {'Last-Modified' => 2.days.ago})
+                  headers: { 'Last-Modified' => 2.days.ago })
 
     IssueTracker.update_all_issues
   end

@@ -43,7 +43,7 @@ class BsRequestActionDelete < BsRequestAction
   def sourcediff(opts = {})
     if target_package
       path = Package.source_path target_project, target_package
-      query = {'cmd' => 'diff', :expand => 1, :filelimit => 0, :rev => 0}
+      query = { 'cmd' => 'diff', :expand => 1, :filelimit => 0, :rev => 0 }
       query[:view] = 'xml' if opts[:view] == 'xml' # Request unified diff in full XML view
       return BsRequestAction.get_package_diff(path, query)
     elsif target_repository

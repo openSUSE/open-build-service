@@ -50,11 +50,11 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
 
     get "/public/request/1000"
     assert_response :success
-    assert_xml_tag tag: 'request', attributes: {id: "1000"}
+    assert_xml_tag tag: 'request', attributes: { id: "1000" }
 
     get "/public/request/98766123"
     assert_response 404
-    assert_xml_tag tag: 'status', attributes: {code: "not_found"}
+    assert_xml_tag tag: 'status', attributes: { code: "not_found" }
 
     # remote interconnect from scheduler for product building
     get "/public/build/home:Iggy/10.2/i586"

@@ -24,15 +24,15 @@ RSpec.describe Webui::SearchController, vcr: true do
 
     it 'assigns results' do
       get :owner, params: { search_text: 'package', owner: 1 }
-      expect(assigns(:results)[0].users).to eq({"maintainer"=>["Iggy"]})
+      expect(assigns(:results)[0].users).to eq({ "maintainer"=>["Iggy"] })
     end
 
     it 'assigns results for devel package' do
       package.update_attributes(develpackage: develpackage)
 
       get :owner, params: { search_text: 'package', owner: 1, devel: 'on' }
-      expect(assigns(:results)[0].users).to eq({"maintainer"=>["DevelIggy"]})
-      expect(assigns(:results)[0].users).not_to eq({"maintainer"=>["Iggy"]})
+      expect(assigns(:results)[0].users).to eq({ "maintainer"=>["DevelIggy"] })
+      expect(assigns(:results)[0].users).not_to eq({ "maintainer"=>["Iggy"] })
     end
   end
 
@@ -97,7 +97,7 @@ RSpec.describe Webui::SearchController, vcr: true do
 
       it { expect(flash[:notice]).to eq('Your search did not return any results.') }
       it { expect(response).to have_http_status(:success) }
-      it { expect(assigns(:results)).to be_empty}
+      it { expect(assigns(:results)).to be_empty }
     end
 
     context 'with proper parameters and some results' do
@@ -107,7 +107,7 @@ RSpec.describe Webui::SearchController, vcr: true do
       end
 
       it { expect(response).to have_http_status(:success) }
-      it { expect(assigns(:results)).not_to be_empty}
+      it { expect(assigns(:results)).not_to be_empty }
     end
   end
 end

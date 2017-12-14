@@ -372,17 +372,19 @@ RSpec.describe Package, vcr: true do
   context '#source_path' do
     it { expect(package_with_file.source_path).to eq('/source/home:tom/package_with_files') }
     it { expect(package_with_file.source_path('icon')).to eq('/source/home:tom/package_with_files/icon') }
-    it { expect(package_with_file.source_path('icon', { format: :html})).to eq('/source/home:tom/package_with_files/icon?format=html') }
+    it { expect(package_with_file.source_path('icon', { format: :html })).to eq('/source/home:tom/package_with_files/icon?format=html') }
   end
 
   context '#public_source_path' do
     it { expect(package_with_file.public_source_path).to eq('/public/source/home:tom/package_with_files') }
     it { expect(package_with_file.public_source_path('icon')).to eq('/public/source/home:tom/package_with_files/icon') }
-    it { expect(package_with_file.public_source_path('icon', { format: :html})).to eq('/public/source/home:tom/package_with_files/icon?format=html') }
+    it 'adds the format parameter to the url that was given to the method' do
+      expect(package_with_file.public_source_path('icon', { format: :html })).to eq('/public/source/home:tom/package_with_files/icon?format=html')
+    end
   end
 
   describe '.what_depends_on' do
-    let(:repository) { 'openSUSE_Leap_42.1'}
+    let(:repository) { 'openSUSE_Leap_42.1' }
     let(:architecture) { 'x86_64' }
     let(:parameter) { "package=#{package.name}&view=revpkgnames" }
     let(:url) { "#{CONFIG['source_url']}/build/#{package.project}/#{repository}/#{architecture}/_builddepinfo?#{parameter}" }
@@ -477,7 +479,7 @@ RSpec.describe Package, vcr: true do
 
       it 'has errors' do
         subject
-        expect(package.errors.details).to eq({:base => [{:error => "Exception from WebMock"}]})
+        expect(package.errors.details).to eq({ :base => [{ :error => "Exception from WebMock" }] })
       end
     end
 
@@ -497,7 +499,7 @@ RSpec.describe Package, vcr: true do
 
       it 'has errors' do
         subject
-        expect(package.errors.details).to eq({:base=>[{:error=>"No permission to modify project '#{other_project}' for user '#{user}'"}]})
+        expect(package.errors.details).to eq({ :base=>[{ :error=>"No permission to modify project '#{other_project}' for user '#{user}'" }] })
       end
     end
   end
@@ -681,7 +683,7 @@ Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
     let(:package) { create(:package_with_changes_file, project: project, name: 'package_with_changes_file') }
 
     context 'with a diff to the target package changes file' do
-      let(:target_project)  { create(:project, name: 'Apache')}
+      let(:target_project)  { create(:project, name: 'Apache') }
       let!(:target_package) {
         create(:package_with_changes_file, project: target_project, name: 'package_with_changes_file', changes_file_content: changes_file)
       }

@@ -28,7 +28,7 @@ class Attrib < ApplicationRecord
   validates :attrib_type, presence: true
   # Either we belong to a project or to a package
   validates :package, presence: true, if: proc { |attrib| attrib.project_id.nil? }
-  validates :package_id, absence: {message: "can't also be present"}, if: proc { |attrib| attrib.project_id.present? }
+  validates :package_id, absence: { message: "can't also be present" }, if: proc { |attrib| attrib.project_id.present? }
   validates :project, presence: true, if: proc { |attrib| attrib.package_id.nil? }
 
   validate :validate_value_count,
@@ -36,7 +36,7 @@ class Attrib < ApplicationRecord
            :validate_allowed_values_for_attrib_type
 
   #### Class methods using self. (public and then private)
-  def self.find_by_container_and_fullname( container, fullname )
+  def self.find_by_container_and_fullname(container, fullname)
     container.attribs.find_by(attrib_type: AttribType.find_by_name!(fullname))
   end
 

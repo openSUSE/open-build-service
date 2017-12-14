@@ -7,7 +7,7 @@ xml.distributions do
       xml.repository(d["repository"])
       xml.link(d["link"])
       d["icons"].each do |i|
-        attr = {url: i["url"]}
+        attr = { url: i["url"] }
         attr[:width] = i["width"] unless i["width"].blank?
         attr[:height] = i["height"] unless i["height"].blank?
         xml.icon(attr)

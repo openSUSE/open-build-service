@@ -23,7 +23,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     # real move
     post "/source/TEMP:BaseDistro", params: { cmd: :move, oproject: "BaseDistro" }
     assert_response :success
-    assert_xml_tag( tag: "status", attributes: { code: "ok"} )
+    assert_xml_tag(tag: "status", attributes: { code: "ok" })
     get "/source/TEMP:BaseDistro"
     assert_response :success
     get "/source/TEMP:BaseDistro/_project"
@@ -48,7 +48,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     # move back
     post "/source/BaseDistro", params: { cmd: :move, oproject: "TEMP:BaseDistro" }
     assert_response :success
-    assert_xml_tag( tag: "status", attributes: { code: "ok"} )
+    assert_xml_tag(tag: "status", attributes: { code: "ok" })
     get "/source/BaseDistro/pack2/_meta"
     assert_response :success
     assert_xml_tag tag: "package", attributes: { project: "BaseDistro" }
@@ -71,7 +71,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     # inject a job for copy any entire project ... gets copied in testsuite but appears to be delayed
     post "/source/home:tom:BaseDistro", params: { cmd: :copy, oproject: "BaseDistro" }
     assert_response :success
-    assert_xml_tag( tag: "status", attributes: { code: "invoked"} )
+    assert_xml_tag(tag: "status", attributes: { code: "invoked" })
 
     # cleanup
     delete "/source/home:tom:BaseDistro"
@@ -80,7 +80,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     # copy any entire project NOW
     post "/source/home:tom:BaseDistro", params: { cmd: :copy, oproject: "BaseDistro", nodelay: 1 }
     assert_response :success
-    assert_xml_tag( tag: "status", attributes: { code: "ok"} )
+    assert_xml_tag(tag: "status", attributes: { code: "ok" })
 
     # try a split
     post "/source/home:tom:BaseDistro", params: { cmd: :copy, oproject: "BaseDistro", makeolder: 1 }
@@ -162,8 +162,8 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     assert_response :success
     run_scheduler('i586')
     run_scheduler('x86_64')
-    inject_build_job( 'home:Iggy', 'TestPack', '10.2', 'i586')
-    inject_build_job( 'home:Iggy', 'TestPack', '10.2', 'x86_64')
+    inject_build_job('home:Iggy', 'TestPack', '10.2', 'i586')
+    inject_build_job('home:Iggy', 'TestPack', '10.2', 'x86_64')
     run_scheduler('i586')
     run_scheduler('x86_64')
     run_publisher
@@ -181,7 +181,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
                                            repository: '10.2',
                                            arch:       'i586',
                                            code:       'published',
-                                           state:      'published' }},
+                                           state:      'published' } },
       tag: 'status',
       attributes: { package: 'TestPack',
                     code:    'succeeded' }

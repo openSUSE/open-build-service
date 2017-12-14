@@ -26,7 +26,7 @@ class Webui::AttributeController < Webui::WebuiController
 
     authorize @attribute
 
-    return unless @attribute.attrib_type.value_count && ( @attribute.attrib_type.value_count > @attribute.values.length )
+    return unless @attribute.attrib_type.value_count && (@attribute.attrib_type.value_count > @attribute.values.length)
     (@attribute.attrib_type.value_count - @attribute.values.length).times { @attribute.values.build(attrib: @attribute) }
   end
 
@@ -63,7 +63,7 @@ class Webui::AttributeController < Webui::WebuiController
       redirect_to edit_attribs_path(project: @attribute.project.to_s, package: @attribute.package.to_s, attribute: @attribute.fullname),
                   notice: 'Attribute was successfully updated.'
     else
-      redirect_back(fallback_location: root_path, error: "Updating attribute failed: #{@attribute.errors.full_messages.join(', ')}" )
+      redirect_back(fallback_location: root_path, error: "Updating attribute failed: #{@attribute.errors.full_messages.join(', ')}")
     end
   end
 

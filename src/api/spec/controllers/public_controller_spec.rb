@@ -168,7 +168,7 @@ RSpec.describe PublicController, vcr: true do
     end
 
     it { is_expected.to respond_with(:success) }
-    it { expect(response.body).to eq(request.render_xml)}
+    it { expect(response.body).to eq(request.render_xml) }
   end
 
   describe "GET #binary_packages" do

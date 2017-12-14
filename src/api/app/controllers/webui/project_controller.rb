@@ -132,7 +132,7 @@ class Webui::ProjectController < Webui::WebuiController
         req = BsRequest.new
         req.description = params[:description]
 
-        action = BsRequestActionMaintenanceIncident.new({source_project: params[:project]})
+        action = BsRequestActionMaintenanceIncident.new({ source_project: params[:project] })
         req.bs_request_actions << action
         action.bs_request = req
 
@@ -163,7 +163,7 @@ class Webui::ProjectController < Webui::WebuiController
           req = BsRequest.new
           req.description = params[:description]
 
-          action = BsRequestActionMaintenanceRelease.new({source_project: params[:project]})
+          action = BsRequestActionMaintenanceRelease.new({ source_project: params[:project] })
           req.bs_request_actions << action
           action.bs_request = req
 
@@ -196,7 +196,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     # An incident has a patchinfo if there is a package 'patchinfo' with file '_patchinfo', try to find that:
     @has_patchinfo = false
-    if @packages.map {|p| p[0]}.include? 'patchinfo'
+    if @packages.map { |p| p[0] }.include? 'patchinfo'
       Directory.hashed(project: @project.name, package: 'patchinfo').elements('entry') do |e|
         @has_patchinfo = true if e['name'] == '_patchinfo'
       end
@@ -356,7 +356,7 @@ class Webui::ProjectController < Webui::WebuiController
     authorize @project, :update?
     respond_to do |format|
       if @project.update(project_params)
-        format.html { redirect_to( project_show_path(@project), notice: 'Project was successfully updated.') }
+        format.html { redirect_to(project_show_path(@project), notice: 'Project was successfully updated.') }
       else
         flash[:error] = "Failed to update project"
         format.html { render :edit }
@@ -375,7 +375,7 @@ class Webui::ProjectController < Webui::WebuiController
         req = BsRequest.new
         req.description = params[:description]
 
-        opts = {target_project: params[:project]}
+        opts = { target_project: params[:project] }
         opts[:target_repository] = params[:repository] if params[:repository]
         action = BsRequestActionDelete.new(opts)
         req.bs_request_actions << action
@@ -425,7 +425,7 @@ class Webui::ProjectController < Webui::WebuiController
     end
 
     @project.store
-    redirect_to({ action: :index, controller: :repositories, project: @project}, notice: "Path moved #{params[:direction]} successfully")
+    redirect_to({ action: :index, controller: :repositories, project: @project }, notice: "Path moved #{params[:direction]} successfully")
   end
 
   def monitor
@@ -447,7 +447,7 @@ class Webui::ProjectController < Webui::WebuiController
       arch: @arch_filter, repo: @repo_filter }
     find_opt[:lastbuild] = 1 unless @lastbuild_switch.blank?
 
-    @buildresult = Buildresult.find( find_opt )
+    @buildresult = Buildresult.find(find_opt)
     unless @buildresult
       flash[:warning] = "No build results for project '#{@project}'"
       redirect_to action: :show, project: params[:project]
@@ -470,7 +470,7 @@ class Webui::ProjectController < Webui::WebuiController
     @packagenames = @packagenames.flatten.uniq.sort
 
     ## Filter for PackageNames ####
-    @packagenames.reject! {|name| !filter_matches?(name, @name_filter) } if @name_filter.present?
+    @packagenames.reject! { |name| !filter_matches?(name, @name_filter) } if @name_filter.present?
 
     packagename_hash = Hash.new
     @packagenames.each { |p| packagename_hash[p.to_s] = 1 }
@@ -695,7 +695,7 @@ class Webui::ProjectController < Webui::WebuiController
     if maintained_project
       @project.maintained_projects.create!(project: maintained_project)
       @project.store
-      redirect_to({action: 'maintained_projects', project: @project}, notice: "Added #{params[:maintained_project]} to maintenance")
+      redirect_to({ action: 'maintained_projects', project: @project }, notice: "Added #{params[:maintained_project]} to maintenance")
     else
       # TODO: Better redirect to the project (maintained project tab), where the user actually came from
       redirect_back(fallback_location: root_path, error: "Failed to add #{params[:maintained_project]} to maintenance")
@@ -707,7 +707,7 @@ class Webui::ProjectController < Webui::WebuiController
     maintained_project = MaintainedProject.find_by(project: @maintained_project)
     if maintained_project && @project.maintained_projects.destroy(maintained_project)
       @project.store
-      redirect_to({action: 'maintained_projects', project: @project}, notice: "Removed #{@maintained_project} from maintenance")
+      redirect_to({ action: 'maintained_projects', project: @project }, notice: "Removed #{@maintained_project} from maintenance")
     else
       redirect_back(fallback_location: root_path, error: "Failed to remove #{@maintained_project} from maintenance")
     end
@@ -763,7 +763,7 @@ class Webui::ProjectController < Webui::WebuiController
     @project.packages.order_by_name.pluck(:name, :updated_at).each do |p|
       @packages << [p[0], p[1].to_i.to_s] # convert Time to epoch ts and then to string
     end
-    @ipackages = @project.expand_all_packages.find_all { |ip| !@packages.map {|p| p[0]}.include?(ip[0]) }
+    @ipackages = @project.expand_all_packages.find_all { |ip| !@packages.map { |p| p[0] }.include?(ip[0]) }
     @linking_projects = @project.linked_by_projects.pluck(:name)
 
     reqs = @project.open_requests
@@ -944,7 +944,7 @@ class Webui::ProjectController < Webui::WebuiController
       status_check_package(p)
     end
 
-    {packages: @packages, projects: @develprojects.keys}
+    { packages: @packages, projects: @develprojects.keys }
   end
 
   def status_check_package(p)
@@ -1070,9 +1070,9 @@ class Webui::ProjectController < Webui::WebuiController
     # we do not filter requests for project because we need devel projects too later on and as long as the
     # number of open requests is limited this is the easiest solution
     raw_requests = BsRequest.order(:number).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
-        where(bs_request_actions: {type: 'submit'}).pluck('bs_requests.number', 'bs_requests.state',
-                                                          'bs_request_actions.target_project',
-                                                          'bs_request_actions.target_package')
+        where(bs_request_actions: { type: 'submit' }).pluck('bs_requests.number', 'bs_requests.state',
+                                                            'bs_request_actions.target_project',
+                                                            'bs_request_actions.target_package')
 
     @declined_requests = {}
     @submits = Hash.new
@@ -1137,7 +1137,7 @@ class Webui::ProjectController < Webui::WebuiController
     ret
   end
 
-  def filter_packages( project, filterstring )
+  def filter_packages(project, filterstring)
     result = Collection.find :id, what: 'package',
       predicate: "@project='#{project}' and contains(@name,'#{filterstring}')"
     result.each.map(&:name)

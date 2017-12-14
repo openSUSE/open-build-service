@@ -159,7 +159,7 @@ class ApplicationController < ActionController::Base
     path + query_string
   end
 
-  def pass_to_backend( path = nil )
+  def pass_to_backend(path = nil)
     path ||= get_request_path
 
     if request.get? || request.head?
@@ -170,23 +170,23 @@ class ApplicationController < ActionController::Base
     when :post
       # for form data we don't need to download anything
       if request.form_data?
-        response = Backend::Connection.post( path, '', { 'Content-Type' => 'application/x-www-form-urlencoded' } )
+        response = Backend::Connection.post(path, '', { 'Content-Type' => 'application/x-www-form-urlencoded' })
       else
         file = download_request
-        response = Backend::Connection.post( path, file )
+        response = Backend::Connection.post(path, file)
         file.close!
       end
     when :put
       file = download_request
-      response = Backend::Connection.put( path, file )
+      response = Backend::Connection.put(path, file)
       file.close!
     when :delete
-      response = Backend::Connection.delete( path )
+      response = Backend::Connection.delete(path)
     end
 
     text = response.body
-    send_data( text, type: response.fetch( "content-type" ),
-      disposition: "inline" )
+    send_data(text, type: response.fetch("content-type"),
+      disposition: "inline")
     text
   end
   public :pass_to_backend
@@ -221,7 +221,7 @@ class ApplicationController < ActionController::Base
     text = exception.message
     http_status = 500
     begin
-      xml = ActiveXML::Node.new( text )
+      xml = ActiveXML::Node.new(text)
       http_status = xml.value('code')
       unless xml.has_attribute? 'origin'
         xml.set_attribute "origin", "backend"
@@ -320,7 +320,7 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def render_error( opt = {} )
+  def render_error(opt = {})
     # avoid double render error
     self.response_body = nil
     gather_exception_defaults(opt)

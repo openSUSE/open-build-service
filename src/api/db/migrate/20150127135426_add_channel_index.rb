@@ -9,7 +9,7 @@ class AddChannelIndex < ActiveRecord::Migration[4.2]
     add_index :channels, [:package_id], unique: true, name: "index_unique"
 
     # trigger reparsing of all channels in delayed job
-    PackageKind.all.where(kind: "channel").each {|pk| BackendPackage.where(package_id: pk.package).delete_all}
+    PackageKind.all.where(kind: "channel").each { |pk| BackendPackage.where(package_id: pk.package).delete_all }
     Delayed::Job.enqueue UpdatePackageMetaJob.new
   end
 

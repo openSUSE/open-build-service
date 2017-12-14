@@ -12,7 +12,7 @@ RSpec.feature "ImageTemplates", type: :feature, js: true do
     let!(:package2) { create(:package_with_file, project: project, name: "second_package", title: "c") }
     let!(:package3) { create(:package_with_file, project: project, name: "third_package",  title: "b") }
     let!(:kiwi_image) { create(:kiwi_image_with_package, with_kiwi_file: true, project: project) }
-    let(:kiwi_package) { kiwi_image.package}
+    let(:kiwi_package) { kiwi_image.package }
     let!(:attrib) { create(:template_attrib, project: project) }
 
     scenario "branch image template" do

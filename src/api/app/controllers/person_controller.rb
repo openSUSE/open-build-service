@@ -1,11 +1,11 @@
 require 'xmlhash'
 
 class PersonController < ApplicationController
-  validate_action userinfo: {method: :get, response: :user}
-  validate_action userinfo: {method: :put, request: :user, response: :status}
-  validate_action grouplist: {method: :get, response: :directory}
-  validate_action register: {method: :put, response: :status}
-  validate_action register: {method: :post, response: :status}
+  validate_action userinfo: { method: :get, response: :user }
+  validate_action userinfo: { method: :put, request: :user, response: :status }
+  validate_action grouplist: { method: :get, response: :directory }
+  validate_action register: { method: :put, response: :status }
+  validate_action register: { method: :post, response: :status }
 
   skip_before_action :extract_user, only: [:command, :register]
   skip_before_action :require_login, only: [:command, :register]
@@ -164,9 +164,9 @@ class PersonController < ApplicationController
       return
     end
 
-    xml = REXML::Document.new( request.raw_post )
+    xml = REXML::Document.new(request.raw_post)
 
-    logger.debug( "register XML: #{request.raw_post}" )
+    logger.debug("register XML: #{request.raw_post}")
 
     login = xml.elements["/unregisteredperson/login"].text
     realname = xml.elements["/unregisteredperson/realname"].text
@@ -196,7 +196,7 @@ class PersonController < ApplicationController
     raise e
   end
 
-  def update_watchlist( user, xml )
+  def update_watchlist(user, xml)
     new_watchlist = []
     xml.get('watchlist').elements("project") do |e|
       new_watchlist << e['name']
@@ -210,7 +210,7 @@ class PersonController < ApplicationController
   end
   private :update_watchlist
 
-  def update_globalroles( user, xml )
+  def update_globalroles(user, xml)
     new_globalroles = []
     xml.elements("globalrole") do |e|
       new_globalroles << e.to_s
@@ -223,9 +223,9 @@ class PersonController < ApplicationController
 
   def change_my_password
     # FIXME3.0: remove this function
-    xml = REXML::Document.new( request.raw_post )
+    xml = REXML::Document.new(request.raw_post)
 
-    logger.debug( "changepasswd XML: #{request.raw_post}" )
+    logger.debug("changepasswd XML: #{request.raw_post}")
 
     login = xml.elements["/userchangepasswd/login"].text
     password = xml.elements["/userchangepasswd/password"].text
@@ -278,9 +278,9 @@ class PersonController < ApplicationController
     end
     pkg = nil
     if params[:project] || params[:package]
-      pkg = Package.get_by_project_and_name( params[:project], params[:package] )
+      pkg = Package.get_by_project_and_name(params[:project], params[:package])
     end
-    @token = Token::Service.create( user: user, package: pkg )
+    @token = Token::Service.create(user: user, package: pkg)
   end
 
   class TokenNotFound < APIException
@@ -291,7 +291,7 @@ class PersonController < ApplicationController
   def delete_token
     user = User.get_by_login(params[:login])
 
-    token = Token::Service.where( user_id: user.id, id: params[:id] ).first
+    token = Token::Service.where(user_id: user.id, id: params[:id]).first
     raise TokenNotFound, "Specified token \"#{params[:id]}\" got not found" unless token
     token.destroy
     render_ok

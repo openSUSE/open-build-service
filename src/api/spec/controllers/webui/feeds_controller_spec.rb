@@ -67,10 +67,10 @@ RSpec.describe Webui::FeedsController do
     let(:user) { create(:confirmed_user) }
     let(:payload) {
       { author: "heino", description: "I want this role", number: 1899,
-        actions: [{action_id: 2004, type: "add_role", person: "heino", role: "maintainer", targetproject: user.home_project.to_param}],
+        actions: [{ action_id: 2004, type: "add_role", person: "heino", role: "maintainer", targetproject: user.home_project.to_param }],
         state: "new",
         when: "2017-06-27T10:34:30",
-        who: "heino"}
+        who: "heino" }
     }
     let!(:rss_notification) { create(:rss_notification, event_payload: payload, subscriber: user, event_type: 'Event::RequestCreate') }
 

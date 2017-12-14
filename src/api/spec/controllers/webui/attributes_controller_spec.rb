@@ -158,7 +158,7 @@ RSpec.describe Webui::AttributeController do
         attrib.reload
       end
 
-      it { expect(response).to redirect_to( edit_attribs_path(attribute: attrib.fullname, project: user.home_project.to_s, package: '') ) }
+      it { expect(response).to redirect_to(edit_attribs_path(attribute: attrib.fullname, project: user.home_project.to_s, package: '')) }
       it { expect(flash[:notice]).to eq 'Attribute was successfully updated.' }
       it { expect(attrib.attrib_type_id).to eq new_attrib_type.id }
     end
@@ -183,7 +183,7 @@ RSpec.describe Webui::AttributeController do
     it 'deletes the attrib' do
       expect {
         delete :destroy, params: { id: attrib.id }
-      }.to change {Attrib.count}.by(-1)
+      }.to change { Attrib.count }.by(-1)
       expect(response).to redirect_to(root_path)
       expect(flash[:notice]).to eq 'Attribute sucessfully deleted!'
     end

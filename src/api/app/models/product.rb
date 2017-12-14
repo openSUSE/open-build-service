@@ -5,23 +5,23 @@ class Product < ApplicationRecord
 
   include CanRenderModel
 
-  def self.find_or_create_by_name_and_package( name, package )
+  def self.find_or_create_by_name_and_package(name, package)
     raise Product::NotFoundError, "Error: Package not valid." unless package.class == Package
     product = find_by_name_and_package name, package
 
-    product = create( name: name, package: package ) if product.empty?
+    product = create(name: name, package: package) if product.empty?
 
     product
   end
 
-  def self.find_by_name_and_package( name, package )
+  def self.find_by_name_and_package(name, package)
     where(name: name, package: package).load
   end
 
-  def self.all_products( project, expand = nil )
+  def self.all_products(project, expand = nil)
     return project.expand_all_products if expand
 
-    joins(package: :package_kinds).where(packages: {project: project}, package_kinds: {kind: 'product'})
+    joins(package: :package_kinds).where(packages: { project: project }, package_kinds: { kind: 'product' })
   end
 
   def to_axml(_opts = {})
@@ -109,7 +109,7 @@ class Product < ApplicationRecord
         key.downcase!
         unless medium[key]
           # new
-          p = {product: self, repository: pool_repo, name: name}
+          p = { product: self, repository: pool_repo, name: name }
           unless arch.blank?
             arch_filter = Architecture.find_by_name(arch)
             if arch_filter
@@ -140,7 +140,7 @@ class Product < ApplicationRecord
         next unless update_repo # it might be a remote repo, which will not become indexed
         arch = repo.get('arch')
         key = update_repo.id.to_s
-        p = {product: self, repository: update_repo}
+        p = { product: self, repository: update_repo }
         unless arch.blank?
           key += "/#{arch}"
           arch_filter = Architecture.find_by_name(arch)

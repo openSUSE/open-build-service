@@ -19,7 +19,7 @@ RSpec.describe UpdatePackageMetaJob, type: :job, vcr: true do
   end
 
   describe '#perform' do
-    let!(:backend_package) { BackendPackage.create(package_id: package2.id)}
+    let!(:backend_package) { BackendPackage.create(package_id: package2.id) }
     let!(:kind_patchinfo) { PackageKind.create(package_id: package2.id, kind: 'patchinfo') }
 
     before do

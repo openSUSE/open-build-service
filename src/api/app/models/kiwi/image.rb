@@ -98,8 +98,8 @@ module Kiwi
           Backend::Api::BuildResults::Binaries.available_in_project(project)
         else
           return [] if repositories.blank?
-          obs_repository_paths = repositories.select { |url| url.starts_with?("obs://")}.map {|url| url[6..-1] }
-          non_obs_repository_urls = repositories.reject { |url| url.starts_with?("obs://")}
+          obs_repository_paths = repositories.select { |url| url.starts_with?("obs://") }.map { |url| url[6..-1] }
+          non_obs_repository_urls = repositories.reject { |url| url.starts_with?("obs://") }
           Backend::Api::BuildResults::Binaries.available_in_repositories(project, non_obs_repository_urls, obs_repository_paths)
         end
       end
@@ -119,7 +119,7 @@ module Kiwi
       results = ::Buildresult.find_hashed(project: package.project, package: package.name, view: 'status', multibuild: '1', locallink: '1')
 
       local_build_results = {}
-      results.elements('result').select {|x| x['repository'] == 'images'}.each do |result|
+      results.elements('result').select { |x| x['repository'] == 'images' }.each do |result|
         result.elements('status').each do |status|
           local_build_results[status['package']] ||= []
           local_build_results[status['package']] << ::LocalBuildResult.new(repository: result['repository'],

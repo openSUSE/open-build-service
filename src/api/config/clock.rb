@@ -42,7 +42,7 @@ module Clockwork
     CleanupNotifications.perform_later
   end
 
-  every(1.day, 'optimize history', thread: true, at: '05:00' ) do
+  every(1.day, 'optimize history', thread: true, at: '05:00') do
     ActiveRecord::Base.connection_pool.with_connection do |sql|
       sql.execute 'optimize table status_histories;'
     end
@@ -57,7 +57,7 @@ module Clockwork
     CleanupEvents.perform_later
   end
 
-  every(1.day, 'create cleanup requests', at: '06:00' ) do
+  every(1.day, 'create cleanup requests', at: '06:00') do
     User.current = User.get_default_admin
     ProjectCreateAutoCleanupRequests.perform_later
   end

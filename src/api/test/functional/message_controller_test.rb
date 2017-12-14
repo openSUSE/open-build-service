@@ -19,7 +19,7 @@ class MessageControllerTest < ActionDispatch::IntegrationTest
 
     get '/message?project=home:Iggy&package=TestPack'
     assert_response :success
-    assert_xml_tag( tag: 'messages')
+    assert_xml_tag(tag: 'messages')
 
     post '/message/1', params: '<hallo/>'
     assert_response 404

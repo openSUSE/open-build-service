@@ -1,5 +1,5 @@
 class TriggerController < ApplicationController
-  validate_action runservice: {method: :post, response: :status}
+  validate_action runservice: { method: :post, response: :status }
 
   #
   # This controller is checking permission always only on the base of tokens

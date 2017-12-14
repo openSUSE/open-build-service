@@ -14,17 +14,17 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     prepare_request_valid_user
     get "/group"
     assert_response :success
-    assert_xml_tag tag: 'directory', child: {tag: 'entry'}
-    assert_xml_tag tag: 'entry', attributes: {name: 'test_group'}
-    assert_xml_tag tag: 'entry', attributes: {name: 'test_group_b'}
+    assert_xml_tag tag: 'directory', child: { tag: 'entry' }
+    assert_xml_tag tag: 'entry', attributes: { name: 'test_group' }
+    assert_xml_tag tag: 'entry', attributes: { name: 'test_group_b' }
 
     get "/group?login=adrian"
     assert_response :success
-    assert_xml_tag tag: 'entry', attributes: {name: 'test_group'}
+    assert_xml_tag tag: 'entry', attributes: { name: 'test_group' }
 
     get "/group?prefix=test"
     assert_response :success
-    assert_xml_tag tag: 'entry', attributes: {name: 'test_group'}
+    assert_xml_tag tag: 'entry', attributes: { name: 'test_group' }
   end
 
   def test_get_group
@@ -35,8 +35,8 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     get "/group/test_group"
     assert_response :success
     assert_xml_tag parent: { tag: 'group' }, tag: 'title', content: "test_group"
-    assert_xml_tag tag: 'person', attributes: {userid: 'adrian'}
-    assert_xml_tag parent: { tag: 'person' }, tag: 'person', attributes: {userid: 'adrian'}
+    assert_xml_tag tag: 'person', attributes: { userid: 'adrian' }
+    assert_xml_tag parent: { tag: 'person' }, tag: 'person', attributes: { userid: 'adrian' }
 
     get "/group/does_not_exist"
     assert_response 404
@@ -62,11 +62,11 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     put "/group/test_group", params: xml
     assert_response 400
-    assert_xml_tag tag: 'status', attributes: {code: "invalid_parameter"}
+    assert_xml_tag tag: 'status', attributes: { code: "invalid_parameter" }
     assert_xml_tag tag: 'summary', content: "group name from path and xml mismatch"
     put "/group/NOT_EXISTING_group", params: xml
     assert_response 400
-    assert_xml_tag tag: 'status', attributes: {code: "invalid_parameter"}
+    assert_xml_tag tag: 'status', attributes: { code: "invalid_parameter" }
     assert_xml_tag tag: 'summary', content: "group name from path and xml mismatch"
     put "/group/new_group", params: xml
     assert_response :success
@@ -95,8 +95,8 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/group/new_group"
     assert_response :success
-    assert_xml_tag tag: 'person', attributes: {userid: 'fred'}
-    assert_xml_tag tag: 'maintainer', attributes: {userid: 'Iggy'}
+    assert_xml_tag tag: 'person', attributes: { userid: 'fred' }
+    assert_xml_tag tag: 'maintainer', attributes: { userid: 'Iggy' }
     assert_no_xml_tag tag: 'email'
 
     # check permissions
@@ -112,7 +112,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/group/new_group"
     assert_response :success
-    assert_no_xml_tag tag: 'person', attributes: {userid: 'fred'}
+    assert_no_xml_tag tag: 'person', attributes: { userid: 'fred' }
 
     # remove group
     login_king
@@ -132,7 +132,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
     get "/group/test_group"
     assert_response :success
-    assert_no_xml_tag tag: 'person', attributes: {userid: 'Iggy'}
+    assert_no_xml_tag tag: 'person', attributes: { userid: 'Iggy' }
 
     # as admin
     login_king
@@ -145,7 +145,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/group/test_group"
     assert_response :success
-    assert_xml_tag tag: 'person', attributes: {userid: 'Iggy'}
+    assert_xml_tag tag: 'person', attributes: { userid: 'Iggy' }
     assert_xml_tag tag: 'email', content: "email@me"
     post "/group/test_group", params: { cmd: "remove_user", userid: "Iggy" }
     assert_response :success
@@ -153,7 +153,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/group/test_group"
     assert_response :success
-    assert_no_xml_tag tag: 'person', attributes: {userid: 'Iggy'}
+    assert_no_xml_tag tag: 'person', attributes: { userid: 'Iggy' }
     assert_no_xml_tag tag: 'email'
 
     # done, back at old state
@@ -168,8 +168,8 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     get "/group/test_group"
     assert_response :success
-    assert_xml_tag tag: 'group', child: {tag: 'title'}, content: "test_group"
-    assert_xml_tag tag: 'person', attributes: {userid: 'adrian'}
+    assert_xml_tag tag: 'group', child: { tag: 'title' }, content: "test_group"
+    assert_xml_tag tag: 'person', attributes: { userid: 'adrian' }
   end
 
   def test_groups_of_user
@@ -180,15 +180,15 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     # old way, obsolete with OBS 3
     get "/person/adrian/group"
     assert_response :success
-    assert_xml_tag tag: 'directory', child: {tag: 'entry'}
-    assert_xml_tag tag: 'entry', attributes: {name: 'test_group'}
-    assert_no_xml_tag tag: 'entry', attributes: {name: 'test_group_b'}
+    assert_xml_tag tag: 'directory', child: { tag: 'entry' }
+    assert_xml_tag tag: 'entry', attributes: { name: 'test_group' }
+    assert_no_xml_tag tag: 'entry', attributes: { name: 'test_group_b' }
 
     # new way, standard since OBS 2.3
     get "/group?login=adrian"
     assert_response :success
-    assert_xml_tag tag: 'directory', child: {tag: 'entry'}
-    assert_xml_tag tag: 'entry', attributes: {name: 'test_group'}
-    assert_no_xml_tag tag: 'entry', attributes: {name: 'test_group_b'}
+    assert_xml_tag tag: 'directory', child: { tag: 'entry' }
+    assert_xml_tag tag: 'entry', attributes: { name: 'test_group' }
+    assert_no_xml_tag tag: 'entry', attributes: { name: 'test_group_b' }
   end
 end

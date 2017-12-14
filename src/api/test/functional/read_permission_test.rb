@@ -28,16 +28,16 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
     get "/public/build/SourceprotectedProject/repo/i586/pack"
     assert_response :success
-    assert_xml_tag( tag: "binarylist" )
-    assert_xml_tag( tag: "binary", attributes: { filename: "package-1.0-1.i586.rpm" } )
-    assert_no_xml_tag( tag: "binary", attributes: { filename: srcrpm } )
+    assert_xml_tag(tag: "binarylist")
+    assert_xml_tag(tag: "binary", attributes: { filename: "package-1.0-1.i586.rpm" })
+    assert_no_xml_tag(tag: "binary", attributes: { filename: srcrpm })
 
     # test aggregated package
     get "/public/build/home:adrian:ProtectionTest/repo/i586/aggregate"
     assert_response :success
-    assert_xml_tag( tag: "binarylist" )
-    assert_xml_tag( tag: "binary", attributes: { filename: "package-1.0-1.i586.rpm" } )
-    assert_no_xml_tag( tag: "binary", attributes: { filename: srcrpm } )
+    assert_xml_tag(tag: "binarylist")
+    assert_xml_tag(tag: "binary", attributes: { filename: "package-1.0-1.i586.rpm" })
+    assert_no_xml_tag(tag: "binary", attributes: { filename: srcrpm })
   end
 
   def test_basic_read_tests
@@ -92,9 +92,9 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     get "/source/SourceprotectedProject/_meta"
     get "/build/SourceprotectedProject/repo/i586/pack"
     assert_response :success
-    assert_xml_tag( tag: "binarylist" )
-    assert_xml_tag( tag: "binary", attributes: { filename: "package-1.0-1.i586.rpm" } )
-    assert_no_xml_tag( tag: "binary", attributes: { filename: srcrpm } )
+    assert_xml_tag(tag: "binarylist")
+    assert_xml_tag(tag: "binary", attributes: { filename: "package-1.0-1.i586.rpm" })
+    assert_no_xml_tag(tag: "binary", attributes: { filename: srcrpm })
 
     get "/build/SourceprotectedProject/repo/i586/pack/#{srcrpm}"
     assert_response 404
@@ -102,22 +102,22 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     # test aggregated package
     get "/build/home:adrian:ProtectionTest/repo/i586/aggregate"
     assert_response :success
-    assert_xml_tag( tag: "binarylist" )
-    assert_xml_tag( tag: "binary", attributes: { filename: "package-1.0-1.i586.rpm" } )
-    assert_no_xml_tag( tag: "binary", attributes: { filename: srcrpm } )
+    assert_xml_tag(tag: "binarylist")
+    assert_xml_tag(tag: "binary", attributes: { filename: "package-1.0-1.i586.rpm" })
+    assert_no_xml_tag(tag: "binary", attributes: { filename: srcrpm })
   end
 
   def test_deleted_projectlist
     prepare_request_valid_user
     get "/source?deleted"
     assert_response 403
-    assert_match(/only admins can see deleted projects/, @response.body )
+    assert_match(/only admins can see deleted projects/, @response.body)
 
     login_king
     get "/source?deleted"
     assert_response :success
     # can't do any check on the list without also deleting projects, which is too much for this test
-    assert_xml_tag( tag: "directory" )
+    assert_xml_tag(tag: "directory")
   end
 
   def do_read_access_all_pathes(user, response)
@@ -137,22 +137,22 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
   def test_read_hidden_prj_maintainer
     # Access as a maintainer to a hidden project
-    do_read_access_all_pathes( "adrian", :success )
+    do_read_access_all_pathes("adrian", :success)
   end
 
   def test_read_hidden_prj_reader
     # Hidden project is visible to all involved users
-    do_read_access_all_pathes( "adrian_reader", :success )
+    do_read_access_all_pathes("adrian_reader", :success)
   end
 
   def test_read_hidden_prj_downloader
     # Visible to all involved users
-    do_read_access_all_pathes( "adrian_downloader", :success )
+    do_read_access_all_pathes("adrian_downloader", :success)
   end
 
   def test_read_hidden_prj_nobody
     # Hidden project not visible to external user
-    do_read_access_all_pathes( "adrian_nobody", 404 )
+    do_read_access_all_pathes("adrian_nobody", 404)
   end
 
   def test_branch_package_hidden_project_new
@@ -402,7 +402,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(controller: :source, action: :update_package_meta, project: "HiddenProject", package: "temporary"),
         params: '<package project="HiddenProject" name="temporary"> <title/> <description/> </package>'
     assert_response 200
-    assert_xml_tag( tag: "status", attributes: { code: "ok"} )
+    assert_xml_tag(tag: "status", attributes: { code: "ok" })
 
     url = "/source/HiddenProject/temporary/_link"
 
@@ -423,7 +423,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(controller: :source, action: :update_package_meta, project: "kde4", package: "temporary2"),
         params: '<package project="kde4" name="temporary2"> <title/> <description/> </package>'
     assert_response 200
-    assert_xml_tag( tag: "status", attributes: { code: "ok"} )
+    assert_xml_tag(tag: "status", attributes: { code: "ok" })
 
     url = "/source/kde4/temporary2/_link"
 
@@ -441,7 +441,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(controller: :source, action: :update_package_meta, project: "HiddenProject", package: "temporary4"),
         params: '<package project="HiddenProject" name="temporary4"> <title/> <description/> </package>'
     assert_response 200
-    assert_xml_tag( tag: "status", attributes: { code: "ok"} )
+    assert_xml_tag(tag: "status", attributes: { code: "ok" })
 
     url = "/source/HiddenProject/temporary4/_link"
 
@@ -456,7 +456,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(controller: :source, action: :update_package_meta, project: "kde4", package: "temporary3"),
         params: '<package project="kde4" name="temporary3"> <title/> <description/> </package>'
     assert_response 200
-    assert_xml_tag( tag: "status", attributes: { code: "ok"} )
+    assert_xml_tag(tag: "status", attributes: { code: "ok" })
 
     url = "/source/kde4/temporary3/_link"
 
@@ -592,8 +592,8 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/home:adrian:PublicProject?deleted=1"
     assert_response :success
-    assert_xml_tag( tag: "directory" )
-    assert_xml_tag( tag: "entry", attributes: { name: "ProtectedPackage" } )
+    assert_xml_tag(tag: "directory")
+    assert_xml_tag(tag: "entry", attributes: { name: "ProtectedPackage" })
     # regression in 2.1
     #    get "/source/home:adrian:PublicProject/ProtectedPackage/dummy_file?deleted=1"
     #    assert_response :success
@@ -886,7 +886,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/CopyOfProject/_meta"
     assert_response :success
-    assert_xml_tag( tag: "disable", parent: { tag: "access" } )
+    assert_xml_tag(tag: "disable", parent: { tag: "access" })
 
     delete "/source/CopyOfProject"
     assert_response :success
@@ -898,7 +898,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/CopyOfProject/_meta"
     assert_response :success
-    assert_xml_tag( tag: "disable", parent: { tag: "sourceaccess" } )
+    assert_xml_tag(tag: "disable", parent: { tag: "sourceaccess" })
 
     delete "/source/CopyOfProject"
     assert_response :success
@@ -914,11 +914,11 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/CopyOfProject/_meta"
     assert_response :success
-    assert_no_xml_tag( tag: "disable", parent: { tag: "access" } )
-    assert_no_xml_tag( tag: "disable", parent: { tag: "sourceaccess" } )
+    assert_no_xml_tag(tag: "disable", parent: { tag: "access" })
+    assert_no_xml_tag(tag: "disable", parent: { tag: "sourceaccess" })
     get "/source/CopyOfProject/ProtectedPackage/_meta"
     assert_response :success
-    assert_xml_tag( tag: "disable", parent: { tag: "sourceaccess" } )
+    assert_xml_tag(tag: "disable", parent: { tag: "sourceaccess" })
 
     delete "/source/CopyOfProject"
     assert_response :success
@@ -930,15 +930,15 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     login_king
     get "/source/BaseDistro/_meta"
     assert_response :success
-    assert_no_xml_tag( tag: "disable", parent: { tag: "access" } )
+    assert_no_xml_tag(tag: "disable", parent: { tag: "access" })
 
     # as admin
     post "/source/home:Iggy/TestPack", params: { cmd: "branch", noaccess: "1" }
     assert_response :success
-    assert_no_xml_tag( tag: "disable", parent: { tag: "access" } )
+    assert_no_xml_tag(tag: "disable", parent: { tag: "access" })
     get "/source/home:king:branches:home:Iggy/_meta"
     assert_response :success
-    assert_xml_tag( tag: "disable", parent: { tag: "access" } )
+    assert_xml_tag(tag: "disable", parent: { tag: "access" })
     delete "/source/home:king:branches:home:Iggy"
     assert_response :success
 
@@ -948,7 +948,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/home:tom:branches:home:Iggy/_meta"
     assert_response :success
-    assert_xml_tag( tag: "disable", parent: { tag: "access" } )
+    assert_xml_tag(tag: "disable", parent: { tag: "access" })
 
     delete "/source/home:tom:branches:home:Iggy"
     assert_response :success
@@ -962,7 +962,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/home:adrian:Project/_meta"
     assert_response :success
-    assert_no_xml_tag( tag: "disable", parent: { tag: "access" } )
+    assert_no_xml_tag(tag: "disable", parent: { tag: "access" })
     delete "/source/home:adrian:Project"
     assert_response :success
 
@@ -976,7 +976,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/home:adrian:Project/_meta"
     assert_response :success
-    assert_xml_tag( tag: "disable", parent: { tag: "access" } )
+    assert_xml_tag(tag: "disable", parent: { tag: "access" })
     # enabling access is not allowed in this mode
     put url_for(controller: :source, action: :update_project_meta, project: "home:adrian:Project"),
         params: '<project name="home:adrian:Project"> <title/> <description/> </project>'

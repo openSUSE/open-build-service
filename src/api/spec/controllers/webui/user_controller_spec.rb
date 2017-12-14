@@ -134,7 +134,7 @@ RSpec.describe Webui::UserController do
       context "with valid data" do
         before do
           login user
-          post :save, params: { user: { login: user.login, realname: 'another real name', email: 'new_valid@email.es', state: 'locked' }}
+          post :save, params: { user: { login: user.login, realname: 'another real name', email: 'new_valid@email.es', state: 'locked' } }
           user.reload
         end
 
@@ -148,7 +148,7 @@ RSpec.describe Webui::UserController do
       context "with invalid data" do
         before do
           login user
-          post :save, params: { user: { login: user.login, realname: "another real name", email: "invalid" }}
+          post :save, params: { user: { login: user.login, realname: "another real name", email: "invalid" } }
           user.reload
         end
 
@@ -163,7 +163,7 @@ RSpec.describe Webui::UserController do
     context "when user is trying to update another user's profile" do
       before do
         login user
-        post :save, params: { user: { login: non_admin_user.login, realname: 'another real name', email: 'new_valid@email.es' }}
+        post :save, params: { user: { login: non_admin_user.login, realname: 'another real name', email: 'new_valid@email.es' } }
         non_admin_user.reload
       end
 
@@ -214,7 +214,7 @@ RSpec.describe Webui::UserController do
 
         login admin_user
         # Rails form helper sends an empty string in an array if no checkbox was marked
-        post :save, params: { user: { login: user.login, email: 'new_valid@email.es', role_ids: [""] }}
+        post :save, params: { user: { login: user.login, email: 'new_valid@email.es', role_ids: [""] } }
         user.reload
       end
 
@@ -230,7 +230,7 @@ RSpec.describe Webui::UserController do
         user.roles << old_global_role
 
         login admin_user
-        post :save, params: { user: { login: user.login, email: 'new_valid@email.es' }}
+        post :save, params: { user: { login: user.login, email: 'new_valid@email.es' } }
         user.reload
       end
 

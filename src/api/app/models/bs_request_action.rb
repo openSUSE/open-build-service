@@ -901,7 +901,7 @@ class BsRequestAction < ApplicationRecord
         per_package_locking = true if action_type == :maintenance_release
       end
 
-      return create_expand_package(packages, {ignore_build_state: ignore_build_state}),
+      return create_expand_package(packages, { ignore_build_state: ignore_build_state }),
              per_package_locking
     end
 
@@ -952,7 +952,7 @@ class BsRequestAction < ApplicationRecord
         dir = Xmlhash.parse(c)
         if action_type == :maintenance_release && dir['entry']
           # patchinfos in release requests get not frozen to allow to modify meta data
-          return if dir['entry'].kind_of?(Array) && dir['entry'].map {|e| e['name']}.include?('_patchinfo')
+          return if dir['entry'].kind_of?(Array) && dir['entry'].map { |e| e['name'] }.include?('_patchinfo')
           return if dir['entry'].kind_of?(Hash) && dir['entry']['name'] == '_patchinfo'
         end
         self.source_rev = dir['srcmd5']

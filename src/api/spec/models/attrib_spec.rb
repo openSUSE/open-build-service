@@ -85,7 +85,7 @@ RSpec.describe Attrib, :type => :model do
         let(:issue_tracker) { create(:issue_tracker) }
         let(:issue) { create(:issue, issue_tracker_id: issue_tracker.id) }
         let(:attrib_type_issue) { create(:attrib_type, issue_list: true) }
-        let(:attribute_with_type_issue) { create(:attrib, project: project, attrib_type: attrib_type_issue ) }
+        let(:attribute_with_type_issue) { create(:attrib, project: project, attrib_type: attrib_type_issue) }
 
         subject { attribute_with_type_issue.update_with_associations([], [issue]) }
 

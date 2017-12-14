@@ -93,7 +93,7 @@ class Project < ApplicationRecord
   has_many :target_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'target_project_id'
   has_many :target_of_bs_requests, through: :target_of_bs_request_actions, source: :bs_request
 
-  default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids ) }
+  default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids) }
 
   scope :maintenance, -> { where("kind = 'maintenance'") }
   scope :not_maintenance_incident, -> { where("kind <> 'maintenance_incident'") }
@@ -304,7 +304,7 @@ class Project < ApplicationRecord
       request.bs_request_actions.each do |action|
         if action.source_project == name
           begin
-            request.change_state({newstate: 'revoked', comment: "The source project '#{name}' has been removed"})
+            request.change_state({ newstate: 'revoked', comment: "The source project '#{name}' has been removed" })
           rescue PostRequestNoPermission
             logger.debug "#{User.current.login} tried to revoke request #{request.number} but had no permissions"
           end
@@ -312,7 +312,7 @@ class Project < ApplicationRecord
         end
         if action.target_project == name
           begin
-            request.change_state({newstate: 'declined', comment: "The target project '#{name}' has been removed"})
+            request.change_state({ newstate: 'declined', comment: "The target project '#{name}' has been removed" })
           rescue PostRequestNoPermission
             logger.debug "#{User.current.login} tried to decline request #{request.number} but had no permissions"
           end
@@ -464,7 +464,7 @@ class Project < ApplicationRecord
     dbp
   end
 
-  def self.find_by_attribute_type( attrib_type )
+  def self.find_by_attribute_type(attrib_type)
     Project.joins(:attribs).where(attribs: { attrib_type_id: attrib_type.id })
   end
 
@@ -574,7 +574,7 @@ class Project < ApplicationRecord
   def can_be_unlocked?(with_exception = true)
     if is_maintenance_incident?
       requests = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
-      maintenance_release_requests = requests.where(bs_request_actions: { type: 'maintenance_release', source_project: name})
+      maintenance_release_requests = requests.where(bs_request_actions: { type: 'maintenance_release', source_project: name })
       if maintenance_release_requests.exists?
         if with_exception
           raise OpenReleaseRequest, "Unlock of maintenance incident #{name} is not possible," +
@@ -600,7 +600,7 @@ class Project < ApplicationRecord
 
   def update_from_xml(xmlhash, force = nil)
     update_from_xml!(xmlhash, force)
-    { }
+    {}
   rescue APIException, ActiveRecord::RecordInvalid => e
     { error: e.message }
   end
@@ -631,7 +631,7 @@ class Project < ApplicationRecord
   def delete_on_backend
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       path = source_path
-      h = {user: User.current.login, comment: @commit_opts[:comment]}
+      h = { user: User.current.login, comment: @commit_opts[:comment] }
       h[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
       path << Backend::Connection.build_query_from_hash(h, [:user, :comment, :requestid])
       begin
@@ -926,7 +926,7 @@ class Project < ApplicationRecord
   # this function is making the products uniq
   def expand_all_products
     p_map = Hash.new
-    products = Product.all_products( self ).to_a
+    products = Product.all_products(self).to_a
     products.each { |p| p_map[p.cpe] = 1 } # existing packages map
     # second path, all packages from indirect linked projects
     linking_to.each do |lp|
@@ -1107,7 +1107,7 @@ class Project < ApplicationRecord
               new_path = repo.path_elements.create(link: my_repo, position: ipe.position)
               cycle_detection[new_path.id]
             else
-              PathElement.update(elements.first.id, {position: ipe.position, link: my_repo})
+              PathElement.update(elements.first.id, { position: ipe.position, link: my_repo })
             end
             cycle_detection[elements.first.id] = true
             if elements.count > 1
@@ -1142,7 +1142,7 @@ class Project < ApplicationRecord
 
     return unless disable_publish_for_branches
 
-    flags.create(status: 'disable', flag: 'publish') unless flags.find_by_flag_and_status( 'publish', 'disable' )
+    flags.create(status: 'disable', flag: 'publish') unless flags.find_by_flag_and_status('publish', 'disable')
   end
 
   def open_requests_with_project_as_source_or_target
@@ -1177,7 +1177,7 @@ class Project < ApplicationRecord
   end
 
   # called either directly or from delayed job
-  def do_project_copy( params )
+  def do_project_copy(params)
     # set user if nil, needed for delayed job in Package model
     User.current ||= User.find_by_login(params[:user])
 
@@ -1219,7 +1219,7 @@ class Project < ApplicationRecord
   end
 
   # called either directly or from delayed job
-  def do_project_release( params )
+  def do_project_release(params)
     User.current ||= User.find_by_login(params[:user])
 
     packages.each do |pkg|
@@ -1282,9 +1282,9 @@ class Project < ApplicationRecord
   # updates packages automatically generated in the backend after submitting a product file
   def update_product_autopackages
     backend_pkgs = Collection.find :id, what: 'package', match: "@project='#{name}' and starts-with(@name,'_product:')"
-    b_pkg_index = backend_pkgs.each(:package).each_with_object(Hash.new) {|elem, hash| hash[elem.value(:name)] = elem; hash}
+    b_pkg_index = backend_pkgs.each(:package).each_with_object(Hash.new) { |elem, hash| hash[elem.value(:name)] = elem; hash }
     frontend_pkgs = packages.where("`packages`.name LIKE '_product:%'")
-    f_pkg_index = frontend_pkgs.each_with_object(Hash.new) {|elem, hash| hash[elem.name] = elem; hash}
+    f_pkg_index = frontend_pkgs.each_with_object(Hash.new) { |elem, hash| hash[elem.name] = elem; hash }
 
     all_pkgs = [b_pkg_index.keys, f_pkg_index.keys].flatten.uniq
 
@@ -1359,7 +1359,7 @@ class Project < ApplicationRecord
       f = flags.find_by_flag_and_status('lock', 'disable')
       flags.delete(f) if f
       flags.create(status: 'enable', flag: 'lock')
-      store({comment: comment})
+      store({ comment: comment })
     end
   end
 
@@ -1545,7 +1545,7 @@ class Project < ApplicationRecord
     if request_data.has_key?('remoteurl') ||
          request_data.has_key?('remoteproject') ||
          has_dod_elements?(request_data['repository'])
-      return {error: 'Admin rights are required to change projects using remote resources'}
+      return { error: 'Admin rights are required to change projects using remote resources' }
     end
     {}
   end
@@ -1602,10 +1602,10 @@ class Project < ApplicationRecord
             target_project = Project.get_by_name(target_project_name)
             # user can access tprj, but backend would refuse to take binaries from there
             if target_project.class == Project && target_project.disabled_for?('access', nil, nil)
-              return { error: "The current backend implementation is not using binaries from read access protected projects #{target_project_name}"}
+              return { error: "The current backend implementation is not using binaries from read access protected projects #{target_project_name}" }
             end
           rescue UnknownObjectError
-            return { error: "A project with the name #{target_project_name} does not exist. Please update the repository path elements."}
+            return { error: "A project with the name #{target_project_name} does not exist. Please update the repository path elements." }
           end
         end
         logger.debug "Project #{project_name} repository path checked against #{target_project_name} projects permission"
@@ -1639,12 +1639,12 @@ class Project < ApplicationRecord
 
     unless linking_repositories.empty?
       str = linking_repositories.map { |l| l.project.name + '/' + l.name }.join "\n"
-      return { error: "Unable to delete repository; following repositories depend on this project:\n#{str}"}
+      return { error: "Unable to delete repository; following repositories depend on this project:\n#{str}" }
     end
 
     unless linking_target_repositories.empty?
       str = linking_target_repositories.map { |l| l.project.name + '/' + l.name }.join "\n"
-      return { error: "Unable to delete repository; following target repositories depend on this project:\n#{str}"}
+      return { error: "Unable to delete repository; following target repositories depend on this project:\n#{str}" }
     end
     {}
   end
@@ -1664,7 +1664,7 @@ class Project < ApplicationRecord
           # FIXME: we would actually need to check for :no_write_to_backend here as well
           #        but the calling code is currently broken and would need the starting
           #        project different
-          Project.remove_repositories(linking_repositories, {recursive_remove: true})
+          Project.remove_repositories(linking_repositories, { recursive_remove: true })
         end
 
         # try to remove the repository

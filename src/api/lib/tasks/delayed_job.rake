@@ -9,7 +9,7 @@ task(importrequests: :environment) do
   lastrq = Backend::Connection.get("/request/_lastid").body.to_i
   while lastrq > 0
     begin
-      xml = Backend::Connection.get( "/request/#{lastrq}" ).body
+      xml = Backend::Connection.get("/request/#{lastrq}").body
     rescue ActiveXML::Transport::Error
       lastrq -= 1
       next

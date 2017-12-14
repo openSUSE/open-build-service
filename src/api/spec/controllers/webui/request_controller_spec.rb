@@ -5,9 +5,9 @@ require 'rails_helper'
 # CONFIG['global_write_through'] = true
 
 RSpec.describe Webui::RequestController, vcr: true do
-  let(:submitter) { create(:confirmed_user, login: 'kugelblitz' ) }
-  let(:receiver) { create(:confirmed_user, login: 'titan' ) }
-  let(:reviewer) { create(:confirmed_user, login: 'klasnic' ) }
+  let(:submitter) { create(:confirmed_user, login: 'kugelblitz') }
+  let(:receiver) { create(:confirmed_user, login: 'titan') }
+  let(:reviewer) { create(:confirmed_user, login: 'klasnic') }
   let(:target_project) { receiver.home_project }
   let(:target_package) { create(:package, name: 'goal', project_id: target_project.id) }
   let(:source_project) { submitter.home_project }
@@ -164,7 +164,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         post :modify_review, params: { review_comment_0:        "yeah",
                                        review_request_number_0: 1899,
                                        review_by_user_0:        reviewer,
-                                       accepted:                "Approve"}
+                                       accepted:                "Approve" }
         expect(flash[:error]).to eq('Unable to load request')
         expect(request_with_review.reload.reviews.last.state).to eq(:new)
         expect(request_with_review.reload.state).to eq(:review)
@@ -173,7 +173,7 @@ RSpec.describe Webui::RequestController, vcr: true do
       it 'without state' do
         post :modify_review, params: { review_comment_0:        "yeah",
                                        review_request_number_0: request_with_review.number,
-                                       review_by_user_0:        reviewer}
+                                       review_by_user_0:        reviewer }
         expect(flash[:error]).to eq('Unknown state to set')
         expect(request_with_review.reload.reviews.last.state).to eq(:new)
         expect(request_with_review.reload.state).to eq(:review)

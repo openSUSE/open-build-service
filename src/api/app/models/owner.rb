@@ -107,7 +107,7 @@ class Owner
       data.elements("binary").each do |b| # no order
         next unless b["project"] == prj.name
 
-        pkg = prj.packages.find_by_name( b["package"] )
+        pkg = prj.packages.find_by_name(b["package"])
         next if pkg.nil?
 
         # the "" means any matching relationships will get taken
@@ -243,7 +243,7 @@ class Owner
   def self.find_maintainers(container, filter)
     maintainers = []
     sql = _build_rolefilter_sql(filter)
-    add_owners = Proc.new {|cont|
+    add_owners = Proc.new { |cont|
       m = Owner.new
       m.rootproject = ''
       if cont.is_a? Package
@@ -284,7 +284,7 @@ class Owner
 
     # no match, loop about projects below with this package container name
     pkg.project.expand_all_projects(allow_remote_projects: false).each do |prj|
-      p = prj.packages.find_by_name(pkg.name )
+      p = prj.packages.find_by_name(pkg.name)
       next if p.nil? || already_checked[p.id]
 
       already_checked[p.id] = 1

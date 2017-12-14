@@ -35,7 +35,7 @@ class BsRequestActionSubmit < BsRequestAction
     relink_source = false
     unless target_package
       # check for target project attributes
-      initialize_devel_package = target_project.find_attribute( "OBS", "InitializeDevelPackage" )
+      initialize_devel_package = target_project.find_attribute("OBS", "InitializeDevelPackage")
       # create package in database
       linked_package = target_project.find_package(self.target_package)
       if linked_package
@@ -55,7 +55,7 @@ class BsRequestActionSubmit < BsRequestAction
         target_package.remove_all_persons
         target_package.remove_all_groups
         if initialize_devel_package
-          target_package.develpackage = Package.find_by_project_and_name( source_project, source_package )
+          target_package.develpackage = Package.find_by_project_and_name(source_project, source_package)
           relink_source = true
         end
         target_package.store(comment: "submit request #{bs_request.number}", request: bs_request)

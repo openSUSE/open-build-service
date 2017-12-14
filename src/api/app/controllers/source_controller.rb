@@ -8,15 +8,15 @@ class SourceController < ApplicationController
     setup 404, 'Illegal request'
   end
 
-  validate_action index: {method: :get, response: :directory}
-  validate_action projectlist: {method: :get, response: :directory}
-  validate_action packagelist: {method: :get, response: :directory}
-  validate_action filelist: {method: :get, response: :directory}
-  validate_action show_project_meta: {response: :project}
-  validate_action package_meta: {method: :get, response: :package}
+  validate_action index: { method: :get, response: :directory }
+  validate_action projectlist: { method: :get, response: :directory }
+  validate_action packagelist: { method: :get, response: :directory }
+  validate_action filelist: { method: :get, response: :directory }
+  validate_action show_project_meta: { response: :project }
+  validate_action package_meta: { method: :get, response: :package }
 
-  validate_action update_project_meta: { request: :project, response: :status}
-  validate_action update_package_meta: { request: :package, response: :status}
+  validate_action update_project_meta: { request: :project, response: :status }
+  validate_action update_package_meta: { request: :package, response: :status }
 
   skip_before_action :extract_user, only: [:lastevents_public, :global_command_orderkiwirepos]
   skip_before_action :require_login, only: [:lastevents_public, :global_command_orderkiwirepos]
@@ -360,9 +360,9 @@ class SourceController < ApplicationController
       # even when we can create the package, an existing instance must be checked if permissions are right
       @project = Project.get_by_name @target_project_name
       # rubocop:disable Metrics/LineLength
-      if !PACKAGE_CREATING_COMMANDS.include?(@command) || Package.exists_by_project_and_name( @target_project_name,
-                                                                                              @target_package_name,
-                                                                                              follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(@command) )
+      if !PACKAGE_CREATING_COMMANDS.include?(@command) || Package.exists_by_project_and_name(@target_project_name,
+                                                                                             @target_package_name,
+                                                                                             follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(@command))
         validate_target_for_package_command_exists!
       end
       # rubocop:enable Metrics/LineLength
@@ -512,7 +512,7 @@ class SourceController < ApplicationController
         # FIXME3.0: don't modify send data
         project.relationships.build(user: User.current, role: Role.find_by_title!('maintainer'))
       end
-      project.store({comment: params[:comment]})
+      project.store({ comment: params[:comment] })
     end
     render_ok
   end
@@ -781,7 +781,7 @@ class SourceController < ApplicationController
     # _pattern was not a real package in former OBS 2.0 and before, so we need to create the
     # package here implicit to stay api compatible.
     # FIXME3.0: to be revisited
-    if @package_name == '_pattern' && !Package.exists_by_project_and_name( @project_name, @package_name, follow_project_links: false )
+    if @package_name == '_pattern' && !Package.exists_by_project_and_name(@project_name, @package_name, follow_project_links: false)
       @pack = Package.new(name: '_pattern', title: 'Patterns', description: 'Package Patterns')
       @prj.packages << @pack
       @pack.save
@@ -885,7 +885,7 @@ class SourceController < ApplicationController
   # create a id collection of all projects doing a project link to this one
   # POST /source/<project>?cmd=showlinked
   def project_command_showlinked
-    builder = Builder::XmlMarkup.new( indent: 2 )
+    builder = Builder::XmlMarkup.new(indent: 2)
     xml = builder.collection do |c|
       @project.linked_by_projects.each do |l|
         p = {}
@@ -951,7 +951,7 @@ class SourceController < ApplicationController
     @project.packages.each do |pkg|
       pkg.modify_channel(mode)
     end
-    @project.store({user: User.current.login})
+    @project.store({ user: User.current.login })
 
     render_ok
   end
@@ -993,7 +993,7 @@ class SourceController < ApplicationController
   def project_command_release
     params[:user] = User.current.login
 
-    @project = Project.get_by_name params[:project], {includeallpackages: 1}
+    @project = Project.get_by_name params[:project], { includeallpackages: 1 }
     verify_repos_match!(@project)
 
     if @project.is_a? String # remote project
@@ -1059,7 +1059,7 @@ class SourceController < ApplicationController
       project.name = params[:project]
       project.store(commit)
       # update meta data in all packages, they contain the project name as well
-      project.packages.each {|package| package.store(commit)}
+      project.packages.each { |package| package.store(commit) }
     rescue
       render_error status: 400, errorcode: 'move_failed',
         message: 'Move operation failed'
@@ -1080,7 +1080,7 @@ class SourceController < ApplicationController
     unless (@project && User.current.can_modify_project?(@project)) || User.current.can_create_project?(project_name)
       raise CmdExecutionNoPermission, "no permission to execute command 'copy'"
     end
-    oprj = Project.get_by_name(params[:oproject], {includeallpackages: 1})
+    oprj = Project.get_by_name(params[:oproject], { includeallpackages: 1 })
     if params.has_key?(:makeolder) || params.has_key?(:makeoriginolder)
       unless User.current.can_modify_project?(oprj)
         raise CmdExecutionNoPermission, "no permission to execute command 'copy', requires modification permission in origin project"
@@ -1203,7 +1203,7 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=enablechannel
   def package_command_enablechannel
     @package.modify_channel(:enable_all)
-    @package.project.store({user: User.current.login})
+    @package.project.store({ user: User.current.login })
 
     render_ok
   end
@@ -1232,7 +1232,7 @@ class SourceController < ApplicationController
       return
     end
 
-    builder = Builder::XmlMarkup.new( indent: 2 )
+    builder = Builder::XmlMarkup.new(indent: 2)
     xml = builder.collection do |c|
       @package.find_linking_packages.each do |l|
         p = {}
@@ -1258,7 +1258,7 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=instantiate
   def package_command_instantiate
     project = Project.get_by_name(params[:project])
-    opackage = Package.get_by_project_and_name(project.name, params[:package], {check_update_project: true})
+    opackage = Package.get_by_project_and_name(project.name, params[:package], { check_update_project: true })
     unless opackage
       raise RemoteProjectError, "Instantiation from remote project is not supported"
     end

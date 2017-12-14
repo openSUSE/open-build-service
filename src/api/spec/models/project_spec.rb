@@ -47,7 +47,7 @@ RSpec.describe Project, vcr: true do
 
     context "with commit_opts parameter" do
       it "does overwrite the commit_opts" do
-        project.store({ comment: 'a new comment'})
+        project.store({ comment: 'a new comment' })
         expect(project.commit_opts).to eq({ comment: 'a new comment' })
       end
     end
@@ -58,7 +58,7 @@ RSpec.describe Project, vcr: true do
       let(:remote_distribution) { create(:repository, name: "snapshot", remote_project_name: "openSUSE:Factory", project: remote_project) }
       let(:other_remote_distribution) { create(:repository, name: "standard", remote_project_name: "openSUSE:Leap:42.1", project: remote_project) }
       let(:repository) { create(:repository, name: "openSUSE_Tumbleweed", project: project) }
-      let!(:path_element) { create(:path_element, parent_id: repository.id, repository_id: remote_distribution.id, position: 1)}
+      let!(:path_element) { create(:path_element, parent_id: repository.id, repository_id: remote_distribution.id, position: 1) }
 
       it { expect(project.has_distribution("openSUSE.org:openSUSE:Factory", "snapshot")).to be(true) }
       it { expect(project.has_distribution("openSUSE.org:openSUSE:Leap:42.1", "standard")).to be(false) }
@@ -69,7 +69,7 @@ RSpec.describe Project, vcr: true do
         let(:distribution) { create(:project, name: "BaseDistro2.0") }
         let(:distribution_repository) { create(:repository, name: "BaseDistro2_repo", project: distribution) }
         let(:repository) { create(:repository, name: "Base_repo2", project: project) }
-        let!(:path_element) { create(:path_element, parent_id: repository.id, repository_id: distribution_repository.id, position: 1)}
+        let!(:path_element) { create(:path_element, parent_id: repository.id, repository_id: distribution_repository.id, position: 1) }
 
         it { expect(project.has_distribution("BaseDistro2.0", "BaseDistro2_repo")).to be(true) }
       end
@@ -85,7 +85,7 @@ RSpec.describe Project, vcr: true do
         let(:other_distribution) { create(:project, name: "BaseDistro3.0") }
         let!(:other_distribution_repository) { create(:repository, name: "BaseDistro3_repo", project: other_distribution) }
         let(:other_repository) { create(:repository, name: "Base_repo3", project: project) }
-        let!(:path_element) { create(:path_element, parent_id: other_repository.id, repository_id: other_distribution_repository.id, position: 1)}
+        let!(:path_element) { create(:path_element, parent_id: other_repository.id, repository_id: other_distribution_repository.id, position: 1) }
         it { expect(project.has_distribution("BaseDistro3.0", "standard")).to be(false) }
         it { expect(project.has_distribution("BaseDistro4.0", "BaseDistro3_repo")).to be(false) }
       end
@@ -350,7 +350,7 @@ RSpec.describe Project, vcr: true do
     context 'without a maintenance project' do
       it_behaves_like 'with_open_requests' do
         let(:project) { create(:project, name: 'sandman') }
-        let(:subproject) { create(:project, name: 'sandman:dreams')}
+        let(:subproject) { create(:project, name: 'sandman:dreams') }
 
         it 'does not include maintenance_release' do
           expect(subject[:maintenance_release]).to eq([])
@@ -360,8 +360,8 @@ RSpec.describe Project, vcr: true do
 
     context 'with a maintenance project' do
       it_behaves_like 'with_open_requests' do
-        let(:project) { create(:project, name: 'battlestar', kind: 'maintenance')}
-        let(:subproject) { create(:project, name: 'battlestar:ebony')}
+        let(:project) { create(:project, name: 'battlestar', kind: 'maintenance') }
+        let(:subproject) { create(:project, name: 'battlestar:ebony') }
 
         it 'does include maintenance_release' do
           expect(subject[:maintenance_release]).to eq([other_release.number, release.number])
@@ -459,7 +459,7 @@ RSpec.describe Project, vcr: true do
       let(:admin_user) { create(:admin_user, login: 'Admin') }
       let(:images_repository) { create(:repository, name: "images", project: project) }
       let(:apache_repository) { create(:repository, name: "Apache", project: project) }
-      let!(:path_element) { create(:path_element, parent_id: images_repository.id, repository_id: apache_repository.id, position: 1)}
+      let!(:path_element) { create(:path_element, parent_id: images_repository.id, repository_id: apache_repository.id, position: 1) }
 
       before do
         login admin_user

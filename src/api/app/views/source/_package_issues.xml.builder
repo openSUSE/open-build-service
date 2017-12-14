@@ -1,4 +1,4 @@
-xml.package( project: @tpkg.project.name, name: @tpkg.name ) do
+xml.package(project: @tpkg.project.name, name: @tpkg.name) do
   @tpkg.package_kinds.each do |k|
     xml.kind(k.kind)
   end

@@ -4,7 +4,7 @@ class AttributeTest < ActiveSupport::TestCase
   fixtures :all
 
   setup do
-    @attrib_ns = AttribNamespace.find_by_name( "OBS" )
+    @attrib_ns = AttribNamespace.find_by_name("OBS")
   end
 
   def test_namespace
@@ -16,9 +16,9 @@ class AttributeTest < ActiveSupport::TestCase
                <modifiable_by user='fred' group='test_group' />
             </namespace>"
 
-    xml = Xmlhash.parse( axml )
+    xml = Xmlhash.parse(axml)
     assert_equal true, AttribNamespace.create(name: "NewNamespace").update_from_xml(xml)
-    @ans = AttribNamespace.find_by_name( "NewNamespace" )
+    @ans = AttribNamespace.find_by_name("NewNamespace")
 
     # check results
     assert_not_nil @ans
@@ -26,7 +26,7 @@ class AttributeTest < ActiveSupport::TestCase
 
     # Update a namespace with same content
     assert_equal true, @ans.update_from_xml(xml)
-    @newans = AttribNamespace.find_by_name( "NewNamespace" )
+    @newans = AttribNamespace.find_by_name("NewNamespace")
     assert_equal @newans, @ans
 
     # Update a namespace with different content
@@ -35,10 +35,10 @@ class AttributeTest < ActiveSupport::TestCase
                <modifiable_by user='fredlibs' group='test_group' />
             </namespace>"
 
-    xml = Xmlhash.parse( axml )
+    xml = Xmlhash.parse(axml)
 
     assert @ans.update_from_xml(xml)
-    @newans = AttribNamespace.find_by_name( "NewNamespace" )
+    @newans = AttribNamespace.find_by_name("NewNamespace")
     assert_equal "NewNamespace", @newans.name
   end
 
@@ -51,12 +51,12 @@ class AttributeTest < ActiveSupport::TestCase
                <modifiable_by user='fred' group='test_group' role='maintainer' />
             </attribute>"
 
-    xml = Xmlhash.parse( axml )
+    xml = Xmlhash.parse(axml)
     assert AttribType.create(name: "NewAttribute", attrib_namespace: @attrib_ns).update_from_xml(xml)
 
     @atro = @attrib_ns.attrib_types.where(name: "NewAttribute").first
     assert_not_nil @atro
-    @at = AttribType.find_by_id( @atro.id ) # make readwritable
+    @at = AttribType.find_by_id(@atro.id) # make readwritable
 
     # check results
     assert_not_nil @at
@@ -78,7 +78,7 @@ class AttributeTest < ActiveSupport::TestCase
                </allowed>
             </attribute>"
 
-    xml = Xmlhash.parse( axml )
+    xml = Xmlhash.parse(axml)
 
     assert @at.update_from_xml(xml)
     assert_equal "NewAttribute", @at.name
@@ -99,7 +99,7 @@ class AttributeTest < ActiveSupport::TestCase
                </allowed>
             </attribute>"
 
-    xml = Xmlhash.parse( axml )
+    xml = Xmlhash.parse(axml)
     assert @at.update_from_xml(xml)
     assert_equal "NewAttribute", @at.name
     assert_equal "OBS", @at.attrib_namespace.name
@@ -109,7 +109,7 @@ class AttributeTest < ActiveSupport::TestCase
     assert_equal 1, @at.attrib_type_modifiable_bies.length
     # with empty content
     axml = "<attribute namespace='OBS' name='NewAttribute' />"
-    xml = Xmlhash.parse( axml )
+    xml = Xmlhash.parse(axml)
     assert @at.update_from_xml(xml)
     assert_equal "NewAttribute", @at.name
     assert_equal "OBS", @at.attrib_namespace.name
@@ -166,13 +166,13 @@ class AttributeTest < ActiveSupport::TestCase
     xml = ActiveXML::Node.new(axml)
 
     # store in a project
-    @project = Project.find_by_name( "GNOME18" )
+    @project = Project.find_by_name("GNOME18")
     assert_not_nil @project
     assert_raise ActiveRecord::RecordInvalid do
       @project.store_attribute_axml(xml)
     end
     # store in a package
-    @package = Package.find_by_project_and_name( "GNOME18", "kdebase" )
+    @package = Package.find_by_project_and_name("GNOME18", "kdebase")
     assert_not_nil @package
     e = assert_raise(ActiveRecord::RecordInvalid) do
       @package.store_attribute_axml(xml)

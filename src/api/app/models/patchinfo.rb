@@ -36,7 +36,7 @@ class Patchinfo < ActiveXML::Node
   # '' is a valid category
   CATEGORIES = (CATEGORY_COLORS.keys << "").freeze
 
-  def self.make_stub( _opt )
+  def self.make_stub(_opt)
     '<patchinfo/>'
   end
 

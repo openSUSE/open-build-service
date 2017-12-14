@@ -146,7 +146,7 @@ class PublicController < ApplicationController
     end
 
     @binary_links = {}
-    @pkg.project.repositories.includes({path_elements: {link: :project}}).each do |repo|
+    @pkg.project.repositories.includes({ path_elements: { link: :project } }).each do |repo|
       repo.path_elements.each do |pe|
         # NOTE: we do not follow indirect path elements here, since most installation handlers
         #       do not support it (exception zypp via ymp files)
@@ -155,9 +155,9 @@ class PublicController < ApplicationController
         unless binary_map[repo.name].blank?
           dist_id = dist.id
           @binary_links[dist_id] ||= {}
-          binary = binary_map[repo.name].select {|bin| bin.value(:name) == @pkg.name}.first
+          binary = binary_map[repo.name].select { |bin| bin.value(:name) == @pkg.name }.first
           if binary && dist.vendor == 'openSUSE'
-            @binary_links[dist_id][:ymp] = { url: ymp_url(File.join(@pkg.project.name, repo.name, @pkg.name + '.ymp') ) }
+            @binary_links[dist_id][:ymp] = { url: ymp_url(File.join(@pkg.project.name, repo.name, @pkg.name + '.ymp')) }
           end
 
           @binary_links[dist_id][:binary] ||= []
@@ -170,7 +170,7 @@ class PublicController < ApplicationController
             filepath.gsub!(/:\//, ":")
             filepath.gsub!(/^[^\/]*\/[^\/]*\//, '')
 
-            @binary_links[dist_id][:binary] << {type: binary_type, arch: b.value(:arch), url: repo.download_url(filepath)}
+            @binary_links[dist_id][:binary] << { type: binary_type, arch: b.value(:arch), url: repo.download_url(filepath) }
             if @binary_links[dist_id][:repository].blank?
               repo_filename = binary_type == 'rpm' ? "#{@pkg.project.name}.repo" : ''
               @binary_links[dist_id][:repository] ||= { url: repo.download_url(repo_filename) }

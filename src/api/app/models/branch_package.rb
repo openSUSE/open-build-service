@@ -166,7 +166,7 @@ class BranchPackage
             msg = "fetch updates from devel package #{p[:copy_from_devel].project.name}/#{p[:copy_from_devel].name}"
           end
           Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name,  p[:copy_from_devel].project.name, p[:copy_from_devel].name,
-                                              User.current.login, { comment: msg, keeplink: 1, expand: 1})
+                                              User.current.login, { comment: msg, keeplink: 1, expand: 1 })
         end
       end
       tpkg.sources_changed
@@ -505,7 +505,7 @@ class BranchPackage
           raise NotMissingError, "Branch call with missingok parameter but branched source (#{params[:project]}/#{params[:package]}) exists."
         end
       else
-        pkg = Package.get_by_project_and_name params[:project], params[:package], {check_update_project: true}
+        pkg = Package.get_by_project_and_name params[:project], params[:package], { check_update_project: true }
         if prj.is_a?(Project) && prj.find_attribute('OBS', 'BranchTarget')
           @copy_from_devel = true
         elsif pkg

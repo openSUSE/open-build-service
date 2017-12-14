@@ -122,7 +122,7 @@ RSpec.describe Webui::WebuiController do
       it 'raises an ActiveRecord::RecordNotFound exception' do
         expect {
           get :edit, params: { id: 1, project: 'invalid' }
-        }.to raise_error(ActiveRecord::RecordNotFound )
+        }.to raise_error(ActiveRecord::RecordNotFound)
       end
     end
 

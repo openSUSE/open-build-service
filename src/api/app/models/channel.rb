@@ -16,17 +16,17 @@ class Channel < ApplicationRecord
     xmlhash.elements('binaries').each { |p|
       project = p['project']
       unless project.blank?
-        prj = Project.get_by_name( p['project'] )
-        prj.repositories.find_by_name!( p['repository'] ) if p['repository']
+        prj = Project.get_by_name(p['project'])
+        prj.repositories.find_by_name!(p['repository']) if p['repository']
       end
-      Architecture.find_by_name!( p['arch'] ) if p['arch']
+      Architecture.find_by_name!(p['arch']) if p['arch']
       p.elements('binary') { |b|
-        Architecture.find_by_name!( b['arch'] ) if b['arch']
+        Architecture.find_by_name!(b['arch']) if b['arch']
         project = b['project']
         if project
-          prj = Project.get_by_name( project )
+          prj = Project.get_by_name(project)
           if b['package']
-            pkg = prj.find_package(b['package'] )
+            pkg = prj.find_package(b['package'])
             raise UnknownPackage, "Package does not exist #{prj.name}/#{p['package']}" unless pkg
           end
           if b['repository'] && !prj.repositories.find_by_name(b['repository'])
@@ -135,7 +135,7 @@ class Channel < ApplicationRecord
     # create a package container
     target_package = Package.new(name: name, title: package.title, description: package.description)
     project.packages << target_package
-    target_package.store({comment: comment})
+    target_package.store({ comment: comment })
 
     # branch sources
     target_package.branch_from(package.project.name, package.name, nil, nil, comment)
@@ -154,7 +154,7 @@ class Channel < ApplicationRecord
   def add_channel_repos_to_project(target_package, mode = nil)
     if channel_targets.empty?
       # not defined in channel, so take all from project
-      target_package.project.branch_to_repositories_from(package.project, package, {extend_names: true})
+      target_package.project.branch_to_repositories_from(package.project, package, { extend_names: true })
       return
     end
 

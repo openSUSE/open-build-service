@@ -128,7 +128,7 @@ class Project
     def update_maintained_prjs_from_xml(xmlhash)
       # First check all current maintained project relations
       olds = {}
-      project.maintained_projects.each {|mp| olds[mp.project.name] = mp}
+      project.maintained_projects.each { |mp| olds[mp.project.name] = mp }
 
       # Set this project as the maintenance project for all maintained projects found in the XML
       xmlhash.get('maintenance').elements('maintains') do |maintains|

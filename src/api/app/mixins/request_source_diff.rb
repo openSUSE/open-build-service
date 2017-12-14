@@ -29,7 +29,7 @@ module RequestSourceDiff
     def diff_for_source(spkg, options = {})
       @target_project = action.target_project
       @target_package = action.target_package
-      query = {'cmd' => 'diff'}
+      query = { 'cmd' => 'diff' }
       ai = action.bs_request_action_accept_info
 
       if ai

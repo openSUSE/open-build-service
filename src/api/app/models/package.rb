@@ -474,7 +474,7 @@ class Package < ApplicationRecord
     # to call update_activity before filter
     # NOTE: We need `Time.now`, otherwise the old tests suite doesn't work,
     # remove it when removing the tests
-    update({updated_at: Time.now})
+    update({ updated_at: Time.now })
 
     # mark the backend infos "dirty"
     BackendPackage.where(package_id: id).delete_all
@@ -942,7 +942,7 @@ class Package < ApplicationRecord
     results = Buildresult.find_hashed(project: prj, package: name, view: 'status', multibuild: '1', locallink: '1')
 
     local_build_results = {}
-    results.elements('result').sort {|a, b| a['repository'] <=> b['repository']}.each do |result|
+    results.elements('result').sort { |a, b| a['repository'] <=> b['repository'] }.each do |result|
       result.elements('status').each do |status|
         local_build_results[status['package']] ||= []
         local_build_results[status['package']] << LocalBuildResult.new(repository: result['repository'],
@@ -1222,7 +1222,7 @@ class Package < ApplicationRecord
       request.bs_request_actions.each do |action|
         if action.source_project == project.name && action.source_package == name
           begin
-            request.change_state({newstate: 'revoked', comment: "The source package '#{name}' has been removed"})
+            request.change_state({ newstate: 'revoked', comment: "The source package '#{name}' has been removed" })
           rescue PostRequestNoPermission
             logger.debug "#{User.current.login} tried to revoke request #{id} but had no permissions"
           end
@@ -1230,7 +1230,7 @@ class Package < ApplicationRecord
         end
         if action.target_project == project.name && action.target_package == name
           begin
-            request.change_state({newstate: 'declined', comment: "The target package '#{name}' has been removed"})
+            request.change_state({ newstate: 'declined', comment: "The target package '#{name}' has been removed" })
           rescue PostRequestNoPermission
             logger.debug "#{User.current.login} tried to decline request #{id} but had no permissions"
           end
@@ -1272,14 +1272,14 @@ class Package < ApplicationRecord
 
   def enable_for_repository(repo_name)
     update_needed = nil
-    if project.flags.find_by_flag_and_status( 'build', 'disable' )
+    if project.flags.find_by_flag_and_status('build', 'disable')
       # enable package builds if project default is disabled
-      flags.create( position: 1, flag: 'build', status: 'enable', repo: repo_name )
+      flags.create(position: 1, flag: 'build', status: 'enable', repo: repo_name)
       update_needed = true
     end
-    if project.flags.find_by_flag_and_status( 'debuginfo', 'disable' )
+    if project.flags.find_by_flag_and_status('debuginfo', 'disable')
       # take over debuginfo config from origin project
-      flags.create( position: 1, flag: 'debuginfo', status: 'enable', repo: repo_name )
+      flags.create(position: 1, flag: 'debuginfo', status: 'enable', repo: repo_name)
       update_needed = true
     end
     store if update_needed
@@ -1292,7 +1292,7 @@ class Package < ApplicationRecord
   def serviceinfo
     unless @serviceinfo
       begin
-        dir = Directory.find( project: project.name, package: name)
+        dir = Directory.find(project: project.name, package: name)
         @serviceinfo = dir.find_first(:serviceinfo) if dir
       rescue ActiveXML::Transport::NotFoundError
       end
@@ -1309,7 +1309,7 @@ class Package < ApplicationRecord
     end
   end
 
-  def commit( rev = nil )
+  def commit(rev = nil)
     if rev && rev.to_i < 0
       # going backward from not yet known current revision, find out ...
       r = self.rev.to_i + rev.to_i + 1

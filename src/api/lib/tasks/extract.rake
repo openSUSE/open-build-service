@@ -8,7 +8,7 @@ def local_to_yaml(hash, file)
     if k.is_a?(Integer)
       k = "record_#{index}"
     end
-    file.write({k => v}.to_yaml(SortKeys: true, ExplicitTypes: true).gsub(%r{^---\s*}, ''))
+    file.write({ k => v }.to_yaml(SortKeys: true, ExplicitTypes: true).gsub(%r{^---\s*}, ''))
   end
 end
 

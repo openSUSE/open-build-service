@@ -81,7 +81,7 @@ class Webui::MainController < Webui::WebuiController
       @packages << [projects[pid], name]
     end
     render template: 'webui/main/sitemap_packages',
-           layout: false, locals: {action: params[:listaction]},
+           layout: false, locals: { action: params[:listaction] },
            content_type: 'application/xml'
   end
 

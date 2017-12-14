@@ -45,7 +45,7 @@ RSpec.describe 'Kerberos login', vcr: false, type: :request do
         end
 
         it { expect(response).to have_http_status(:unauthorized) }
-        it { expect(response.body).to match('Received invalid GSSAPI context')}
+        it { expect(response.body).to match('Received invalid GSSAPI context') }
       end
     end
   end

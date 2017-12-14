@@ -12,7 +12,7 @@ class ConsistencyCheckJob < ApplicationJob
         @errors << "Invalid project name #{project.name}\n"
         if fix
           # just remove it, the backend won't accept it anyway
-          project.commit_opts = {no_backend_write: 1}
+          project.commit_opts = { no_backend_write: 1 }
           project.destroy
         end
         next
@@ -60,7 +60,7 @@ class ConsistencyCheckJob < ApplicationJob
       Backend::Connection.get("/source/#{project.name}")
     rescue ActiveXML::Transport::NotFoundError
       @errors << "Project #{project.name} lost on backend"
-      project.commit_opts = {no_backend_write: 1}
+      project.commit_opts = { no_backend_write: 1 }
       project.destroy if fix
     end
     @errors << package_existence_consistency_check(project, fix)
@@ -100,7 +100,7 @@ class ConsistencyCheckJob < ApplicationJob
       errors << "Project meta is different in backend for #{project.name}\n#{diff}\n"
       if fix
         # Assume that api is right
-        project.store({login: "Admin", comment: "out-of-sync fix"})
+        project.store({ login: "Admin", comment: "out-of-sync fix" })
       end
     end
 
@@ -147,7 +147,7 @@ class ConsistencyCheckJob < ApplicationJob
   def import_project_from_backend(project)
     meta = Backend::Connection.get("/source/#{project}/_meta").body
     project = Project.new(name: project)
-    project.commit_opts = {no_backend_write: 1}
+    project.commit_opts = { no_backend_write: 1 }
     project.update_from_xml!(Xmlhash.parse(meta))
     project.save!
     return ""
@@ -177,7 +177,7 @@ class ConsistencyCheckJob < ApplicationJob
         if fix
           # just remove it, the backend won't accept it anyway
           pkg = project.packages.find_by(name: name)
-          pkg.commit_opts = {no_backend_write: 1}
+          pkg.commit_opts = { no_backend_write: 1 }
           pkg.destroy
           next
         end
@@ -217,7 +217,7 @@ class ConsistencyCheckJob < ApplicationJob
           begin
             meta = Backend::Connection.get("/source/#{project.name}/#{package}/_meta").body
             pkg = project.packages.new(name: package)
-            pkg.commit_opts = {no_backend_write: 1}
+            pkg.commit_opts = { no_backend_write: 1 }
             pkg.update_from_xml(Xmlhash.parse(meta), true) # ignore locked project
             pkg.save!
           rescue ActiveRecord::RecordInvalid,

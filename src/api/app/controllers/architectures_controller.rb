@@ -1,8 +1,8 @@
 require 'opensuse/validator'
 
 class ArchitecturesController < ApplicationController
-  validate_action index: {method: :get, response: :directory}
-  validate_action show: {method: :get, response: :architecture}
+  validate_action index: { method: :get, response: :directory }
+  validate_action show: { method: :get, response: :architecture }
 
   # GET /architecture
   # GET /architecture.xml

@@ -61,14 +61,14 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
       end
 
       it { expect(repo_for_user_home.architectures.pluck(:name)).to be_empty }
-      it { expect(assigns(:repository_arch_hash).to_a).to match_array([["armv7l", false], ['i586', false], ['x86_64', false]])}
+      it { expect(assigns(:repository_arch_hash).to_a).to match_array([["armv7l", false], ['i586', false], ['x86_64', false]]) }
       it { is_expected.to redirect_to(action: :index) }
       it { expect(flash[:notice]).to eq("Successfully updated repository") }
     end
 
     context 'updating the repository with architectures' do
       before do
-        post :update, params: { project: user.home_project, repo: repo_for_user_home.name, arch: {'i586' => true, 'x86_64' => true} }
+        post :update, params: { project: user.home_project, repo: repo_for_user_home.name, arch: { 'i586' => true, 'x86_64' => true } }
       end
 
       it 'each repository has a different position' do
@@ -79,7 +79,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
 
       it { expect(repo_for_user_home.architectures.pluck(:name)).to match_array(['i586', 'x86_64']) }
       it { expect(Architecture.available.pluck(:name)).to match_array(["armv7l", "i586", "x86_64"]) }
-      it { expect(assigns(:repository_arch_hash).to_a).to match_array([["armv7l", false], ['i586', true], ['x86_64', true]])}
+      it { expect(assigns(:repository_arch_hash).to_a).to match_array([["armv7l", false], ['i586', true], ['x86_64', true]]) }
       it { is_expected.to redirect_to(action: :index) }
       it { expect(flash[:notice]).to eq("Successfully updated repository") }
     end

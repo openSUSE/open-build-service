@@ -4,7 +4,7 @@ class BsRequestTest < ActiveSupport::TestCase
   fixtures :all
 
   def setup
-    User.current = users( :Iggy )
+    User.current = users(:Iggy)
   end
 
   test "if create works" do
@@ -20,7 +20,7 @@ class BsRequestTest < ActiveSupport::TestCase
     assert_equal 1, req.bs_request_actions.length
     req.save!
 
-    User.current = users( :_nobody_ )
+    User.current = users(:_nobody_)
     req = BsRequest.new_from_xml(xml)
     assert req.number.nil?
     exception = assert_raise ActiveRecord::RecordInvalid do
@@ -66,7 +66,7 @@ class BsRequestTest < ActiveSupport::TestCase
     assert_equal wia[:role], 'reviewer'
     assert_equal wia[:user], 'Iggy'
 
-    User.current = users( :fred )
+    User.current = users(:fred)
 
     wi = req.webui_infos(diffs: false)
     assert_equal wi['id'], req.id

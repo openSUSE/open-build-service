@@ -8,7 +8,7 @@ RSpec.describe Webui::Groups::BsRequestsController do
     let!(:relationship_project_group) { create(:relationship_project_group, group: group, project: target_project) }
     let!(:relationship_project_group2) { create(:relationship_project_group, group: group, project: target_project2) }
     let(:base_params) { { title: group.title, format: :json, dataTableId: 'requests_in_table' } }
-    let(:context_params) { { } }
+    let(:context_params) { {} }
     let(:params) { base_params.merge(context_params) }
 
     # this is for overwritting request3 because we set the relationship between group and target_project and target_project2

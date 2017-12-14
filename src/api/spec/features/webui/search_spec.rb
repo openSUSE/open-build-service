@@ -3,7 +3,7 @@ require "sphinx_helper"
 
 RSpec.feature "Search", type: :feature, js: true do
   let(:admin_user) { create(:admin_user) }
-  let(:user) { create(:confirmed_user, login: 'titan' ) }
+  let(:user) { create(:confirmed_user, login: 'titan') }
 
   let(:package) { create(:package, name: 'goal', title: 'First goal', project_id: user.home_project.id) }
   let(:another_package) { create(:package, name: 'goal2', title: 'Second goal', project_id: user.home_project.id) }

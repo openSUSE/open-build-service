@@ -110,7 +110,7 @@ module Build
         'Content-Length' => fsize
       )
 
-      render status: 200, text: proc {|_, output|
+      render status: 200, text: proc { |_, output|
         backend_request = Net::HTTP::Get.new(path)
         Net::HTTP.start(CONFIG['source_host'], CONFIG['source_port']) do |http|
           http.request(backend_request) do |response|

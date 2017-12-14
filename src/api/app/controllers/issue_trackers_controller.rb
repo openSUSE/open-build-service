@@ -1,10 +1,10 @@
 class IssueTrackersController < ApplicationController
   before_action :require_admin, only: [:create, :update, :destroy]
 
-  validate_action index: {method: :get, response: :issue_trackers}
-  validate_action show: {method: :get, response: :issue_tracker}
-  validate_action create: {method: :post, request: :issue_tracker, response: :issue_tracker}
-  validate_action update: {method: :put, request: :issue_tracker}
+  validate_action index: { method: :get, response: :issue_trackers }
+  validate_action show: { method: :get, response: :issue_tracker }
+  validate_action create: { method: :post, request: :issue_tracker, response: :issue_tracker }
+  validate_action update: { method: :put, request: :issue_tracker }
 
   # GET /issue_trackers
   # GET /issue_trackers.json

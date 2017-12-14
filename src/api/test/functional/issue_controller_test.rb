@@ -149,37 +149,37 @@ Aha bnc#123456\n
     assert_response :success
     get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues"
     assert_response :success
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'kept'}}, tag: 'name', content: "13"
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'deleted'}}, tag: 'name', content: "14"
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'changed'}}, tag: 'name', content: "15"
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'added'}}, tag: 'name', content: "123456"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'kept' } }, tag: 'name', content: "13"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'deleted' } }, tag: 'name', content: "14"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'changed' } }, tag: 'name', content: "15"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'added' } }, tag: 'name', content: "123456"
     assert_xml_tag parent: { tag: 'issue' }, tag: 'name', content: "987"
     assert_xml_tag parent: { tag: 'issue' }, tag: 'name', content: "654"
 
     get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues&changes=added"
     assert_response :success
-    assert_no_xml_tag parent: { tag: 'issue', attributes: {change: 'kept'}}, tag: 'name', content: "13"
-    assert_no_xml_tag parent: { tag: 'issue', attributes: {change: 'deleted'}}, tag: 'name', content: "14"
-    assert_no_xml_tag parent: { tag: 'issue', attributes: {change: 'changed'}}, tag: 'name', content: "15"
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'added'}}, tag: 'name', content: "123456"
+    assert_no_xml_tag parent: { tag: 'issue', attributes: { change: 'kept' } }, tag: 'name', content: "13"
+    assert_no_xml_tag parent: { tag: 'issue', attributes: { change: 'deleted' } }, tag: 'name', content: "14"
+    assert_no_xml_tag parent: { tag: 'issue', attributes: { change: 'changed' } }, tag: 'name', content: "15"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'added' } }, tag: 'name', content: "123456"
     assert_no_xml_tag parent: { tag: 'issue' }, tag: 'name', content: "987"
     assert_no_xml_tag parent: { tag: 'issue' }, tag: 'name', content: "654"
 
     get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues&changes=kept,deleted"
     assert_response :success
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'kept'}}, tag: 'name', content: "13"
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'deleted'}}, tag: 'name', content: "14"
-    assert_no_xml_tag parent: { tag: 'issue', attributes: {change: 'changed'}}, tag: 'name', content: "15"
-    assert_no_xml_tag parent: { tag: 'issue', attributes: {change: 'added'}}, tag: 'name', content: "123456"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'kept' } }, tag: 'name', content: "13"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'deleted' } }, tag: 'name', content: "14"
+    assert_no_xml_tag parent: { tag: 'issue', attributes: { change: 'changed' } }, tag: 'name', content: "15"
+    assert_no_xml_tag parent: { tag: 'issue', attributes: { change: 'added' } }, tag: 'name', content: "123456"
     assert_no_xml_tag parent: { tag: 'issue' }, tag: 'name', content: "987"
     assert_no_xml_tag parent: { tag: 'issue' }, tag: 'name', content: "654"
 
     get "/source/home:Iggy:branches:BaseDistro?view=issues&changes=kept,deleted"
     assert_response :success
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'kept'}}, tag: 'name', content: "13"
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'deleted'}}, tag: 'name', content: "14"
-    assert_no_xml_tag parent: { tag: 'issue', attributes: {change: 'changed'}}, tag: 'name', content: "15"
-    assert_no_xml_tag parent: { tag: 'issue', attributes: {change: 'added'}}, tag: 'name', content: "123456"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'kept' } }, tag: 'name', content: "13"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'deleted' } }, tag: 'name', content: "14"
+    assert_no_xml_tag parent: { tag: 'issue', attributes: { change: 'changed' } }, tag: 'name', content: "15"
+    assert_no_xml_tag parent: { tag: 'issue', attributes: { change: 'added' } }, tag: 'name', content: "123456"
     assert_no_xml_tag parent: { tag: 'issue' }, tag: 'name', content: "987"
     assert_no_xml_tag parent: { tag: 'issue' }, tag: 'name', content: "654"
 
@@ -192,10 +192,10 @@ Aha bnc#123456\n
 
     get "/source/home:Iggy:branches:BaseDistro?view=issues&login=fred"
     assert_response :success
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'added'}}, tag: 'name', content: "123456"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'added' } }, tag: 'name', content: "123456"
     get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues&login=fred"
     assert_response :success
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'added'}}, tag: 'name', content: "123456"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'added' } }, tag: 'name', content: "123456"
 
     get "/source/home:Iggy:branches:BaseDistro?view=issues&states=FANTASY"
     assert_response :success
@@ -206,10 +206,10 @@ Aha bnc#123456\n
 
     get "/source/home:Iggy:branches:BaseDistro?view=issues&states=OPEN,CLOSED"
     assert_response :success
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'added'}}, tag: 'name', content: "123456"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'added' } }, tag: 'name', content: "123456"
     get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues&states=OPEN,CLOSED"
     assert_response :success
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'added'}}, tag: 'name', content: "123456"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'added' } }, tag: 'name', content: "123456"
 
     get "/search/package/id", params: { match: '[issue/[@name="123456" and @tracker="bnc" and @change="added"]]' }
     assert_response :success
@@ -269,10 +269,10 @@ Aha bnc#123456\n
     assert_response :success
     get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues"
     assert_response :success
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'kept'}}, tag: 'name', content: "13"
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'deleted'}}, tag: 'name', content: "14"
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'changed'}}, tag: 'name', content: "15"
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'added'}}, tag: 'name', content: "123456"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'kept' } }, tag: 'name', content: "13"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'deleted' } }, tag: 'name', content: "14"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'changed' } }, tag: 'name', content: "15"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'added' } }, tag: 'name', content: "123456"
 
     # cleanup
     delete "/source/home:Iggy:branches:BaseDistro"
@@ -301,9 +301,9 @@ Blubber bnc#15\n
 
     get "/source/home:Iggy:branches:BaseDistro/new_package?view=issues"
     assert_response :success
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'added'}}, tag: 'name', content: "13"
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'added'}}, tag: 'name', content: "14"
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'added'}}, tag: 'name', content: "15"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'added' } }, tag: 'name', content: "13"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'added' } }, tag: 'name', content: "14"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'added' } }, tag: 'name', content: "15"
 
     # cleanup
     delete "/source/home:Iggy:branches:BaseDistro"
@@ -325,8 +325,8 @@ Blubber Fate#15\n
     get "/source/home:Iggy/TestPack?view=issues"
     assert_response :success
 
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'kept'}}, tag: 'name', content: "13"
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'kept'}}, tag: 'name', content: "14"
-    assert_xml_tag parent: { tag: 'issue', attributes: {change: 'kept'}}, tag: 'name', content: "15"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'kept' } }, tag: 'name', content: "13"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'kept' } }, tag: 'name', content: "14"
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'kept' } }, tag: 'name', content: "15"
   end
 end

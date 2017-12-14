@@ -3,7 +3,7 @@ require "rexml/streamlistener"
 require 'statistics_calculations'
 
 class StatisticsController < ApplicationController
-  validate_action redirect_stats: {method: :get, response: :redirect_stats}
+  validate_action redirect_stats: { method: :get, response: :redirect_stats }
 
   before_action :get_limit, only: [
     :highest_rated, :most_active_packages, :most_active_projects, :latest_added, :latest_updated,
@@ -93,7 +93,7 @@ class StatisticsController < ApplicationController
     projects = {}
     @packages.each do |package|
       pro = package.project.name
-      projects[pro] ||= {count: 0, activity: 0}
+      projects[pro] ||= { count: 0, activity: 0 }
       projects[pro][:count] += 1
       av = package.activity_value.to_f
       projects[pro][:activity] = av if av > projects[pro][:activity]

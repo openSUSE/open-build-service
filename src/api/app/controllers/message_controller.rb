@@ -1,7 +1,7 @@
 class MessageController < ApplicationController
-  validate_action show: {response: :messages}
-  validate_action list: {response: :messages}
-  validate_action update: {request: :message, response: :status}
+  validate_action show: { response: :messages }
+  validate_action list: { response: :messages }
+  validate_action update: { request: :message, response: :status }
 
   before_action :check_project_and_package
   before_action :check_permissions, only: [:delete, :update]

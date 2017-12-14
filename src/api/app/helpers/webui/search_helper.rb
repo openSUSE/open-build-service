@@ -8,9 +8,9 @@ module Webui::SearchHelper
     output = []
     names.each do |role, list|
       if type == :group
-        output += list.map {|name| "#{name} as #{role}" }
+        output += list.map { |name| "#{name} as #{role}" }
       else
-        output += list.map {|user| user_and_role(user, role)}
+        output += list.map { |user| user_and_role(user, role) }
       end
     end
     output

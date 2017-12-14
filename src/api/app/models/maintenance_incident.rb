@@ -34,7 +34,7 @@ class MaintenanceIncident < ApplicationRecord
       # set default bugowner if missing
       bugowner = Role.hashed['bugowner']
       unless target_project.relationships.users.where('role_id = ?', bugowner.id).exists?
-        target_project.add_user( User.current, bugowner )
+        target_project.add_user(User.current, bugowner)
       end
 
       # and write it
@@ -72,7 +72,7 @@ class MaintenanceIncident < ApplicationRecord
     IncidentUpdateinfoCounterValue.find_or_create(time, uc, project)
   end
 
-  def getUpdateinfoId( id_template, patch_name )
+  def getUpdateinfoId(id_template, patch_name)
     # this is not used anymore, but we need to keep it for released incidents base on old (OBS 2.5) code
     return updateinfo_id if updateinfo_id
 
@@ -82,13 +82,13 @@ class MaintenanceIncident < ApplicationRecord
     my_id = id_template
 
     # replace place holders
-    my_id.gsub!( /%C/, counter.value.to_s )
-    my_id.gsub!( /%Y/, counter.released_at.year.to_s )
-    my_id.gsub!( /%M/, counter.released_at.month.to_s )
-    my_id.gsub!( /%D/, counter.released_at.day.to_s )
-    my_id.gsub!( /%N/, patch_name || "" )
-    my_id.gsub!( /%i/, incident_id.to_s )
-    my_id.gsub!( /%g/, id.to_s )
+    my_id.gsub!(/%C/, counter.value.to_s)
+    my_id.gsub!(/%Y/, counter.released_at.year.to_s)
+    my_id.gsub!(/%M/, counter.released_at.month.to_s)
+    my_id.gsub!(/%D/, counter.released_at.day.to_s)
+    my_id.gsub!(/%N/, patch_name || "")
+    my_id.gsub!(/%i/, incident_id.to_s)
+    my_id.gsub!(/%g/, id.to_s)
 
     my_id
   end

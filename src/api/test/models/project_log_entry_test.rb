@@ -13,7 +13,7 @@ class ProjectLogEntryTest < ActiveSupport::TestCase
     assert_nil entry.user_name
     assert_equal packages(:BaseDistro_pack1), entry.package
     assert_equal Date.parse("2013-08-31"), entry.datetime.to_date
-    assert_equal({"files" => "Added:\n  my_file\n\n", "rev" => "1"}, entry.additional_info)
+    assert_equal({ "files" => "Added:\n  my_file\n\n", "rev" => "1" }, entry.additional_info)
   end
 
   test "create from commit for a deleted package" do
@@ -44,7 +44,7 @@ class ProjectLogEntryTest < ActiveSupport::TestCase
     assert_nil entry.user
     assert_equal "no_longer_there", entry.user_name
     assert_nil entry.bs_request
-    assert_equal({"repository" => "10.2", "arch" => "i586", "rev" => "5"}, entry.additional_info)
+    assert_equal({ "repository" => "10.2", "arch" => "i586", "rev" => "5" }, entry.additional_info)
   end
 
   test "#clean_older_than" do

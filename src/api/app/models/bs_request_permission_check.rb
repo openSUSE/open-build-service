@@ -46,7 +46,7 @@ class BsRequestPermissionCheck
 
     # validate that specified sources do not have conflicts on accepting request
     if action.action_type.in?([:submit, :maintenance_incident])
-      query = {expand: 1}
+      query = { expand: 1 }
       query[:rev] = action.source_rev if action.source_rev
       begin
         Backend::Api::Sources::Package.files(action.source_project, action.source_package, query)

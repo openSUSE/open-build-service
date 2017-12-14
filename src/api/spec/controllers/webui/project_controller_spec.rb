@@ -42,7 +42,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         allow(::Configuration).to receive(:unlisted_projects_filter) { "^home:.*" }
         home_moi_project
         another_project
-        get :index, params: { show_all: true}
+        get :index, params: { show_all: true }
       end
 
       it { expect(assigns(:projects).length).to eq(2) }
@@ -55,7 +55,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         allow(::Configuration).to receive(:unlisted_projects_filter) { "^home:.*" }
         home_moi_project
         another_project
-        get :index, params: { show_all: false}
+        get :index, params: { show_all: false }
       end
 
       it { expect(assigns(:projects).length).to eq(1) }
@@ -84,7 +84,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         project.reload
       end
 
-      it { expect(response).to redirect_to( project_show_path(project)) }
+      it { expect(response).to redirect_to(project_show_path(project)) }
       it { expect(flash[:notice]).to eq "Project was successfully updated." }
       it { expect(project.title).to eq "My projects title" }
       it { expect(project.description).to eq "My projects description" }
@@ -142,7 +142,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
 
     context 'with a subprojects' do
-      let!(:apache_subproject) { create(:project, name: "Apache:subproject")}
+      let!(:apache_subproject) { create(:project, name: "Apache:subproject") }
 
       context 'and searching for parent project' do
         before do
@@ -377,7 +377,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       before do
         login admin_user
         # Avoid fetching from backend directly
-        allow(Directory).to receive(:hashed).and_return(Xmlhash::XMLHash.new('entry' => {'name' => '_patchinfo'}))
+        allow(Directory).to receive(:hashed).and_return(Xmlhash::XMLHash.new('entry' => { 'name' => '_patchinfo' }))
         # Avoid writing to the backend
         allow_any_instance_of(Package).to receive(:sources_changed)
         Patchinfo.new.create_patchinfo(apache_project.name, nil, comment: 'Fake comment', force: false)
@@ -420,7 +420,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       login user
       @remote_projects_created = create_list(:remote_project, 3)
       get :new_package_branch, params: { project: apache_project }
-      expect(assigns(:remote_projects)).to match_array(@remote_projects_created.map {|r| [r.id, r.name, r.title]})
+      expect(assigns(:remote_projects)).to match_array(@remote_projects_created.map { |r| [r.id, r.name, r.title] })
     end
   end
 
@@ -480,9 +480,9 @@ RSpec.describe Webui::ProjectController, vcr: true do
   end
 
   describe 'GET #buildresult' do
-    let(:summary) { Xmlhash::XMLHash.new({'statuscount' => {'code' => 'succeeded', 'count' => '1'} }) }
+    let(:summary) { Xmlhash::XMLHash.new({ 'statuscount' => { 'code' => 'succeeded', 'count' => '1' } }) }
     let(:build_result) do
-      { 'result' => Xmlhash::XMLHash.new({'repository' => 'openSUSE',
+      { 'result' => Xmlhash::XMLHash.new({ 'repository' => 'openSUSE',
                                           'arch' => 'x86_64', 'code' => 'published', 'state' => 'published', 'summary' => summary }) }
     end
 
@@ -630,8 +630,8 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       context 'with diststats generated' do
         before do
-          path = Xmlhash::XMLHash.new({'package' => 'package_name' })
-          longestpaths_xml = Xmlhash::XMLHash.new({ 'longestpath' => Xmlhash::XMLHash.new({'path' => path }) })
+          path = Xmlhash::XMLHash.new({ 'package' => 'package_name' })
+          longestpaths_xml = Xmlhash::XMLHash.new({ 'longestpath' => Xmlhash::XMLHash.new({ 'path' => path }) })
           allow_any_instance_of(Webui::ProjectController).to receive(:call_diststats).and_return(longestpaths_xml)
           get :rebuild_time, params: { project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
         end
@@ -824,7 +824,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       it { expect(flash[:success]).to eq("Successfully removed path") }
       it { is_expected.to redirect_to(action: :index, project: user.home_project, controller: :repositories) }
-      it { expect(repo_for_user_home.path_elements.count).to eq(0)}
+      it { expect(repo_for_user_home.path_elements.count).to eq(0) }
     end
 
     context "with a target repository but letting the project invalid" do
@@ -837,7 +837,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       it { expect(flash[:error]).to eq("Can not remove path: ") }
       it { is_expected.to redirect_to(root_url) }
-      it { expect(assigns(:project).repositories.count).to eq(1)}
+      it { expect(assigns(:project).repositories.count).to eq(1) }
     end
   end
 
@@ -1295,7 +1295,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       context 'only one path_element' do
-        let(:position) { path_element.position}
+        let(:position) { path_element.position }
 
         context 'direction up' do
           before do
@@ -1382,7 +1382,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       context 'without buildresult' do
         before do
           allow(Buildresult).to receive(:find).and_return(nil)
-          get :monitor, params: { project: user.home_project, defaults: '1'}
+          get :monitor, params: { project: user.home_project, defaults: '1' }
         end
 
         it { expect(flash[:warning]).not_to be_nil }
@@ -1392,7 +1392,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       context 'without buildresult and with failed param set to an integer' do
         before do
           allow(Buildresult).to receive(:find).and_return(nil)
-          get :monitor, params: { project: user.home_project, defaults: '1', failed: '2'}
+          get :monitor, params: { project: user.home_project, defaults: '1', failed: '2' }
         end
 
         it { expect(response).to redirect_to(project_show_path(user.home_project)) }
@@ -1401,7 +1401,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       context 'without buildresult and with failed param set to a string' do
         before do
           allow(Buildresult).to receive(:find).and_return(nil)
-          get :monitor, params: { project: user.home_project, defaults: '1', failed: 'abc'}
+          get :monitor, params: { project: user.home_project, defaults: '1', failed: 'abc' }
         end
 
         it { expect(response).to redirect_to(project_show_path(user.home_project)) }
@@ -1452,7 +1452,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
                   "c++"   => { "package" => "c++",   "code" => "succeeded" },
                   "redis" => { "package" => "redis", "code" => "succeeded" }
                 }
-            }}
+            } }
           end
 
           before do
@@ -1466,7 +1466,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           it { expect(assigns(:repohash)).to eq({ "openSUSE_Tumbleweed" => ["i586", "x86_64"], "openSUSE_42.2" => ["s390x"] }) }
           it {
             expect(assigns(:repostatushash)).to eq({ "openSUSE_Tumbleweed" => { "i586" => "published", "x86_64" => "building" },
-                                                     "openSUSE_42.2"       => { "s390x" => "outdated_published" }})
+                                                     "openSUSE_42.2"       => { "s390x" => "outdated_published" } })
           }
           it {
             expect(assigns(:repostatusdetailshash)).to eq({ "openSUSE_Tumbleweed" => { "x86_64" => "This repo is broken" },
@@ -1487,7 +1487,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       context 'without buildresult and defaults set to a non-integer' do
         before do
           allow(Buildresult).to receive(:find).and_return(nil)
-          post :monitor, params: { project: user.home_project, defaults: 'abc'}
+          post :monitor, params: { project: user.home_project, defaults: 'abc' }
         end
 
         it { expect(flash[:warning]).not_to be_nil }
@@ -1575,7 +1575,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
               "apache"     => { "package" => "apache", "code" => "succeeded" },
               "obs-server" => { "package" => "obs-server", "code" => "succeeded" }
             }
-          }}
+          } }
         end
         before do
           allow(Buildresult).to receive(:find_hashed).and_return(fake_buildresult)
@@ -1614,9 +1614,9 @@ RSpec.describe Webui::ProjectController, vcr: true do
             "x86_64" => {
               "obs-server" => { "package" => "obs-server", "code" => "succeeded" }
             }
-          }}
+          } }
         end
-        let(:package) { create(:package, name: 'obs-server', project: user.home_project )}
+        let(:package) { create(:package, name: 'obs-server', project: user.home_project) }
 
         before do
           allow(Buildresult).to receive(:find_hashed).and_return(fake_buildresult)

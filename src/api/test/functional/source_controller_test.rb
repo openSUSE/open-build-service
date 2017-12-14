@@ -335,11 +335,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # package exists
     get '/source/BaseDistro2.0/pack2/_meta'
     assert_response :success
-    assert_xml_tag tag: 'package', attributes: {project: 'BaseDistro2.0'}
+    assert_xml_tag tag: 'package', attributes: { project: 'BaseDistro2.0' }
     # ... via project link only
     get '/source/BaseDistro2.0:LinkedUpdateProject/pack2/_meta'
     assert_response :success
-    assert_xml_tag tag: 'package', attributes: {project: 'BaseDistro2.0'}
+    assert_xml_tag tag: 'package', attributes: { project: 'BaseDistro2.0' }
 
     # so branching fails
     post '/source/BaseDistro2.0/pack2', params: { cmd: :branch, missingok: 'true' }
@@ -2446,9 +2446,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
     assert_response :success
-    assert_xml_tag(tag: 'repository', attributes: {name: "repo1", rebuild: "local", block: "never"})
-    assert_xml_tag(tag: 'repository', attributes: {name: "repo2", rebuild: "local", block: "never"})
-    assert_xml_tag(tag: 'repository', attributes: {name: "repo3", rebuild: "local", block: "never"})
+    assert_xml_tag(tag: 'repository', attributes: { name: "repo1", rebuild: "local", block: "never" })
+    assert_xml_tag(tag: 'repository', attributes: { name: "repo2", rebuild: "local", block: "never" })
+    assert_xml_tag(tag: 'repository', attributes: { name: "repo3", rebuild: "local", block: "never" })
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
 
@@ -2457,9 +2457,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
     assert_response :success
-    assert_xml_tag(tag: 'repository', attributes: {name: "repo1", rebuild: "local"})
-    assert_xml_tag(tag: 'repository', attributes: {name: "repo2", rebuild: "transitive"})
-    assert_xml_tag(tag: 'repository', attributes: {name: "repo3"})
+    assert_xml_tag(tag: 'repository', attributes: { name: "repo1", rebuild: "local" })
+    assert_xml_tag(tag: 'repository', attributes: { name: "repo2", rebuild: "transitive" })
+    assert_xml_tag(tag: 'repository', attributes: { name: "repo3" })
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
 
@@ -2496,9 +2496,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
     assert_response :success
-    assert_xml_tag(tag: 'repository', attributes: {name: "repo1"})
-    assert_xml_tag(tag: 'repository', attributes: {name: "repo2"})
-    assert_xml_tag(tag: 'repository', attributes: {name: "repo3"})
+    assert_xml_tag(tag: 'repository', attributes: { name: "repo1" })
+    assert_xml_tag(tag: 'repository', attributes: { name: "repo2" })
+    assert_xml_tag(tag: 'repository', attributes: { name: "repo3" })
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
 
@@ -2514,10 +2514,10 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
     assert_response :success
-    assert_xml_tag(tag: 'repository', attributes: {name: "BaseDistro_repo"})
-    assert_no_xml_tag(tag: 'repository', attributes: {name: "repo1"})
-    assert_no_xml_tag(tag: 'repository', attributes: {name: "repo2"})
-    assert_no_xml_tag(tag: 'repository', attributes: {name: "repo3"})
+    assert_xml_tag(tag: 'repository', attributes: { name: "BaseDistro_repo" })
+    assert_no_xml_tag(tag: 'repository', attributes: { name: "repo1" })
+    assert_no_xml_tag(tag: 'repository', attributes: { name: "repo2" })
+    assert_no_xml_tag(tag: 'repository', attributes: { name: "repo3" })
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
     delete "/source/home:adrian:TEMP/_attribute/OBS:BranchRepositoriesFromProject"
@@ -2535,9 +2535,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
     assert_response :success
-    assert_no_xml_tag(tag: 'repository', attributes: {name: "repo1"})
-    assert_xml_tag(tag: 'repository', attributes: {name: "repo2"})
-    assert_no_xml_tag(tag: 'repository', attributes: {name: "repo3"})
+    assert_no_xml_tag(tag: 'repository', attributes: { name: "repo1" })
+    assert_xml_tag(tag: 'repository', attributes: { name: "repo2" })
+    assert_no_xml_tag(tag: 'repository', attributes: { name: "repo3" })
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
     # again as maintenance branch
@@ -2545,9 +2545,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
     assert_response :success
-    assert_no_xml_tag(tag: 'repository', attributes: {name: "home_adrian_TEMP_repo1"})
-    assert_xml_tag(tag: 'repository', attributes: {name: "home_adrian_TEMP_repo2"})
-    assert_no_xml_tag(tag: 'repository', attributes: {name: "home_adrian_TEMP_repo3"})
+    assert_no_xml_tag(tag: 'repository', attributes: { name: "home_adrian_TEMP_repo1" })
+    assert_xml_tag(tag: 'repository', attributes: { name: "home_adrian_TEMP_repo2" })
+    assert_no_xml_tag(tag: 'repository', attributes: { name: "home_adrian_TEMP_repo3" })
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
 
@@ -2577,7 +2577,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:adrian:branches:home:adrian:IMAGES/_meta'
     assert_response :success
     assert_xml_tag(tag: 'repository', attributes: { name: 'images' })
-    assert_xml_tag(tag: 'path', attributes: {project: "BaseDistro", repository: "BaseDistro_repo"})
+    assert_xml_tag(tag: 'path', attributes: { project: "BaseDistro", repository: "BaseDistro_repo" })
 
     get '/source/home:adrian:branches:home:adrian:IMAGES/_config'
     assert_response :success
@@ -3376,27 +3376,27 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # check search interface
     get '/search/channel/binary?match=@project="home:Iggy"+and+@name="glibc-devel"'
     assert_response :success
-    assert_xml_tag tag: "collection", attributes: {matches: "1"}
-    assert_xml_tag parent: {tag: "channel", attributes: {project: "home:Iggy", package: "TestChannel"}},
-                   tag: "binary", attributes: {package: "pack1", name: "glibc-devel", binaryarch: "noarch"}
-    assert_xml_tag parent: {tag: "channel", attributes: {project: "home:Iggy", package: "TestChannel"}},
-                   tag: "target", attributes: {project: "BaseDistro", repository: "BaseDistro_repo"}
+    assert_xml_tag tag: "collection", attributes: { matches: "1" }
+    assert_xml_tag parent: { tag: "channel", attributes: { project: "home:Iggy", package: "TestChannel" } },
+                   tag: "binary", attributes: { package: "pack1", name: "glibc-devel", binaryarch: "noarch" }
+    assert_xml_tag parent: { tag: "channel", attributes: { project: "home:Iggy", package: "TestChannel" } },
+                   tag: "target", attributes: { project: "BaseDistro", repository: "BaseDistro_repo" }
     get '/search/channel/binary?match=@package="pack1"'
     assert_response :success
-    assert_xml_tag tag: "collection", attributes: {matches: "1"}
+    assert_xml_tag tag: "collection", attributes: { matches: "1" }
     get '/search/channel/binary?match=@binaryarch="noarch"'
     assert_response :success
-    assert_xml_tag tag: "collection", attributes: {matches: "1"}
+    assert_xml_tag tag: "collection", attributes: { matches: "1" }
     # no product, but no crash either. More checks are in channel_maintenance test case
     get '/search/channel/binary?match=updatefor/[@project="not_defined"+and+@product="missing"]'
     assert_response :success
-    assert_xml_tag tag: "collection", attributes: {matches: "0"}
+    assert_xml_tag tag: "collection", attributes: { matches: "0" }
     # simple short form test
     get '/search/channel/binary/id?match=@name="glibc-devel"'
     assert_response :success
-    assert_xml_tag tag: "collection", attributes: {matches: "1"}
-    assert_xml_tag tag: "channel", attributes: {project: "home:Iggy", package: "TestChannel"}
-    assert_xml_tag tag: "binary", attributes: {package: "pack1", name: "glibc-devel", binaryarch: "noarch"}
+    assert_xml_tag tag: "collection", attributes: { matches: "1" }
+    assert_xml_tag tag: "channel", attributes: { project: "home:Iggy", package: "TestChannel" }
+    assert_xml_tag tag: "binary", attributes: { package: "pack1", name: "glibc-devel", binaryarch: "noarch" }
     assert_no_xml_tag tag: "target"
 
     # cleanup
@@ -3590,7 +3590,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # auto delete attribute got created
     get '/source/home:fredlibs:branches:home:Iggy/_attribute'
     assert_response :success
-    assert_xml_tag tag: "value", parent: { tag: "attribute", attributes: { name: "AutoCleanup", namespace: "OBS"} }
+    assert_xml_tag tag: "value", parent: { tag: "attribute", attributes: { name: "AutoCleanup", namespace: "OBS" } }
 
     # in future
     Timecop.freeze(10.days) do
@@ -3676,7 +3676,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     get '/source/home:tom:branches:home:Iggy/_meta'
-    assert_equal({'name' => '10.2', 'path' => {'project' => 'home:Iggy', 'repository' => '10.2'}, 'arch' => %w(i586 x86_64)}, Xmlhash.parse(@response.body)['repository'])
+    assert_equal({ 'name' => '10.2', 'path' => { 'project' => 'home:Iggy', 'repository' => '10.2' }, 'arch' => %w(i586 x86_64) }, Xmlhash.parse(@response.body)['repository'])
 
     # check source link
     get '/source/home:tom:branches:home:Iggy/TestPack/_link'
@@ -3842,15 +3842,15 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:Iggy/_meta'
     assert_equal({ 'disable' => [{ 'arch' => 'i586', 'repository' => '10.2' },
                                  { 'arch' => 'x86_64', 'repository' => '10.2' }],
-                   'enable'  => [{ 'arch' => 'i586', 'repository' => '10.7' }, {}]},
+                   'enable'  => [{ 'arch' => 'i586', 'repository' => '10.7' }, {}] },
                  Xmlhash.parse(@response.body)['build'])
 
-    assert_equal([['enable', {repository: '10.2' }],
-                  ['disable', {repository: '10.2', arch: 'i586', explicit: '1' }],
-                  ['disable', {repository: '10.2', arch: 'x86_64', explicit: '1' }],
-                  ['enable', {arch: 'i586' }],
-                  ['enable', {arch: 'x86_64' }],
-                  ['enable', {explicit: "1" }]],
+    assert_equal([['enable', { repository: '10.2' }],
+                  ['disable', { repository: '10.2', arch: 'i586', explicit: '1' }],
+                  ['disable', { repository: '10.2', arch: 'x86_64', explicit: '1' }],
+                  ['enable', { arch: 'i586' }],
+                  ['enable', { arch: 'x86_64' }],
+                  ['enable', { explicit: "1" }]],
                  projects(:home_Iggy).reload.expand_flags['build'])
   end
 
@@ -4035,7 +4035,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                      { 'userid' => 'tom', 'role' => 'bugowner' },
                      { 'userid' => 'Iggy', 'role' => 'maintainer' },
                      { 'userid' => 'tom', 'role' => 'maintainer' }
-                   ]}, ret)
+                   ] }, ret)
 
     ret = duplicated_user_test('package', 'group', '/source/home:Iggy/TestPack/_meta')
     assert_equal({ 'name'        => 'TestPack',
@@ -4046,7 +4046,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                    'group'       => [
                      { 'groupid' => 'test_group', 'role' => 'bugowner' },
                      { 'groupid' => 'test_group', 'role' => 'maintainer' }
-                   ]}, ret)
+                   ] }, ret)
 
     ret = duplicated_user_test('project', 'user', '/source/home:Iggy/_meta')
     assert_equal({ 'name'        => 'home:Iggy',
@@ -4056,7 +4056,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                      { 'userid' => 'tom', 'role' => 'bugowner' },
                      { 'userid' => 'Iggy', 'role' => 'maintainer' },
                      { 'userid' => 'tom', 'role' => 'maintainer' }
-                   ]}, ret)
+                   ] }, ret)
 
     ret = duplicated_user_test('project', 'group', '/source/home:Iggy/_meta')
     assert_equal({ 'name'        => 'home:Iggy',
@@ -4066,7 +4066,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                    'group'       => [
                      { 'groupid' => 'test_group', 'role' => 'bugowner' },
                      { 'groupid' => 'test_group', 'role' => 'maintainer' }
-                   ]}, ret)
+                   ] }, ret)
 
     # restore (esp in backend)
     login_king
@@ -4171,11 +4171,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:tom:threeatatime/_meta'
     assert_response :success
-    assert_xml_tag tag: "path", attributes: { project: "home:tom:threeatatime", repository: "standard"},
+    assert_xml_tag tag: "path", attributes: { project: "home:tom:threeatatime", repository: "standard" },
                    parent: { tag: "repository", attributes: { name: "images" } }
-    assert_xml_tag tag: "path", attributes: { project: "home:tom:threeatatime", repository: "standard2"},
+    assert_xml_tag tag: "path", attributes: { project: "home:tom:threeatatime", repository: "standard2" },
                    parent: { tag: "repository", attributes: { name: "standard" } }
-    assert_xml_tag tag: "repository", attributes: {name: "standard2"}
+    assert_xml_tag tag: "repository", attributes: { name: "standard2" }
 
     raw_put('/source/home:tom:threeatatime/dummy/_meta', '<package name="dummy" project="home:tom:threeatatime"><title/><description/></package>')
     assert_response :success
@@ -4184,13 +4184,13 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     get '/source/home:tom:branches:home:tom:threeatatime/_meta'
     assert_response :success
-    assert_xml_tag tag: "path", attributes: { project: "home:tom:branches:home:tom:threeatatime", repository: "standard"},
+    assert_xml_tag tag: "path", attributes: { project: "home:tom:branches:home:tom:threeatatime", repository: "standard" },
                    parent: { tag: "repository", attributes: { name: "images" } }
-    assert_xml_tag tag: "path", attributes: { project: "home:tom:branches:home:tom:threeatatime", repository: "standard2"},
+    assert_xml_tag tag: "path", attributes: { project: "home:tom:branches:home:tom:threeatatime", repository: "standard2" },
                    parent: { tag: "repository", attributes: { name: "standard" } }
-    assert_xml_tag tag: "path", attributes: { project: "home:tom:threeatatime", repository: "standard2"},
+    assert_xml_tag tag: "path", attributes: { project: "home:tom:threeatatime", repository: "standard2" },
                    parent: { tag: "repository", attributes: { name: "standard2" } }
-    assert_xml_tag tag: "repository", attributes: {name: "standard2"}
+    assert_xml_tag tag: "repository", attributes: { name: "standard2" }
 
     delete "/source/home:tom:branches:home:tom:threeatatime?force=1"
     assert_response :success

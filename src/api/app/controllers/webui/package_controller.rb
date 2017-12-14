@@ -74,7 +74,7 @@ class Webui::PackageController < Webui::WebuiController
       end
     elsif @revision_parameter
       flash[:error] = "No such revision: #{@revision_parameter}"
-      redirect_back(fallback_location: {controller: :package, action: :show, project: @project, package: @package})
+      redirect_back(fallback_location: { controller: :package, action: :show, project: @project, package: @package })
       return
     end
 
@@ -135,7 +135,7 @@ class Webui::PackageController < Webui::WebuiController
     @repository = params[:repository]
     @statistics = nil
     begin
-      @statistics = Statistic.find_hashed( project: @project, package: @package, repository: @repository, arch: @arch )
+      @statistics = Statistic.find_hashed(project: @project, package: @package, repository: @repository, arch: @arch)
     rescue ActiveXML::Transport::ForbiddenError
     end
 
@@ -170,7 +170,7 @@ class Webui::PackageController < Webui::WebuiController
     @durl = nil if @durl && !file_available?(@durl) # ignore files not available
     unless User.current.is_nobody? || @durl
       # only use API for logged in users if the mirror is not available
-      @durl = rpm_url( @project, @package, @repository, @arch, @filename )
+      @durl = rpm_url(@project, @package, @repository, @arch, @filename)
     end
     logger.debug "accepting #{request.accepts.join(',')} format:#{request.format}"
     # little trick to give users eager to download binaries a single click
@@ -209,7 +209,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def commit
     required_parameters :revision
-    render partial: 'commit_item', locals: {rev: params[:revision] }
+    render partial: 'commit_item', locals: { rev: params[:revision] }
   end
 
   def revisions
@@ -471,7 +471,7 @@ class Webui::PackageController < Webui::WebuiController
 
     return unless check_package_name_for_new
 
-    @package = @project.packages.build( name: @package_name )
+    @package = @project.packages.build(name: @package_name)
     @package.title = params[:title]
     @package.description = params[:description]
     if params[:source_protection]
@@ -953,7 +953,7 @@ class Webui::PackageController < Webui::WebuiController
     if @repo_list.empty?
       render partial: 'no_repositories'
     else
-      render partial: 'rpmlint_result', locals: {index: params[:index]}
+      render partial: 'rpmlint_result', locals: { index: params[:index] }
     end
   end
 
@@ -1030,7 +1030,7 @@ class Webui::PackageController < Webui::WebuiController
     @serviceinfo = dir.find_first(:serviceinfo)
     files = []
     dir.each(:entry) do |entry|
-      file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.value(x.to_s)]}.flatten]
+      file = Hash[*[:name, :size, :mtime, :md5].map { |x| [x, entry.value(x.to_s)] }.flatten]
       file[:viewable] = !Package.is_binary_file?(file[:name]) && file[:size].to_i < 2**20 # max. 1 MB
       file[:editable] = file[:viewable] && !file[:name].match?(/^_service[_:]/)
       file[:srcmd5] = dir.value(:srcmd5)
@@ -1042,7 +1042,7 @@ class Webui::PackageController < Webui::WebuiController
   def file_available?(url, max_redirects = 5)
     begin
       logger.debug "Checking url: #{url}"
-      uri = URI.parse( url )
+      uri = URI.parse(url)
       http = Net::HTTP.new(uri.host, uri.port)
       http.open_timeout = 15
       http.read_timeout = 15
