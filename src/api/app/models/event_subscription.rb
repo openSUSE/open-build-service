@@ -67,7 +67,7 @@ class EventSubscription < ApplicationRecord
   end
 
   def receiver_role
-    read_attribute(:receiver_role).to_sym
+    self[:receiver_role].to_sym
   end
 
   def enabled?

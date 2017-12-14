@@ -156,7 +156,7 @@ module Event
     end
 
     def payload
-      @payload ||= Yajl::Parser.parse(read_attribute(:payload))
+      @payload ||= Yajl::Parser.parse(self[:payload])
     end
 
     def create_project_log_entry_job
@@ -287,7 +287,7 @@ module Event
     end
 
     def send_to_bus
-      RabbitmqBus.publish(self.class.message_bus_routing_key, read_attribute(:payload))
+      RabbitmqBus.publish(self.class.message_bus_routing_key, self[:payload])
     rescue Bunny::Exception => e
       logger.error "Publishing to RabbitMQ failed: #{e.message}"
     end

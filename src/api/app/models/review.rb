@@ -46,7 +46,7 @@ class Review < ApplicationRecord
   scope :bs_request_ids_of_involved_users, ->(user_ids) { where(user_id: user_ids).select(:bs_request_id) }
 
   before_validation(on: :create) do
-    if read_attribute(:state).nil?
+    if self[:state].nil?
       self.state = :new
     end
   end
@@ -69,7 +69,7 @@ class Review < ApplicationRecord
   end
 
   def state
-    read_attribute(:state).to_sym
+    self[:state].to_sym
   end
 
   def accepted_at
