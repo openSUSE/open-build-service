@@ -238,16 +238,6 @@ Naming/PredicateName:
     - 'src/api/app/models/user_ldap_strategy.rb'
     - 'src/api/lib/activexml/node.rb'
 
-# Offense count: 7
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: snake_case, camelCase
-Naming/VariableName:
-  Exclude:
-    - 'src/api/app/mixins/has_relationships.rb'
-    - 'src/api/app/models/channel_target.rb'
-    - 'src/api/app/models/package.rb'
-    - 'src/api/app/models/relationship.rb'
-
 # Offense count: 3
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 # SupportedStyles: snake_case, normalcase, non_integer
