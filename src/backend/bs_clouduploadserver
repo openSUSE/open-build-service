@@ -50,6 +50,7 @@ BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BS
 my $port = 5452;
 $port = $1 if $BSConfig::clouduploadserver =~ /:(\d+)$/;
 
+my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $jobdir = "$BSConfig::bsdir/cloudupload";
 
 my $maxchild = $BSConfig::cloudupload_maxchild || $BSConfig::cloudupload_maxchild || 5;
@@ -160,6 +161,38 @@ sub cloudupload_upload {
   return $BSStdServer::return_ok;
 }
 
+sub workerstatus {
+  my ($cgi) = @_;
+  my @daemonarchs = qw{clouduploadserver clouduploadworker};
+  @daemonarchs = (@{$cgi->{'arch'}}) if $cgi->{'arch'};
+  my @daemons;
+  for my $arch (@daemonarchs) {
+    my $lock;
+    my $daemondata = {'state' => 'dead'};
+    if ($arch eq 'clouduploadserver') {
+      my $req = $BSServer::request;
+      $daemondata->{'type'} = 'clouduploadserver';
+      $daemondata->{'starttime'} = $req->{'server'}->{'starttime'} if $req && $req->{'server'};
+      $daemondata->{'state'} = 'running';
+    } elsif ($arch eq 'clouduploadworker') {
+      $lock = "$rundir/bs_clouduploadworker.lock";
+      $daemondata->{'type'} = 'clouduploadworker';
+    }
+    if ($lock && open(F, '<', $lock)) {
+      if (!flock(F, LOCK_EX | LOCK_NB)) {
+	my @s = stat(F);
+	$daemondata->{'state'} = 'running';
+	$daemondata->{'starttime'} ||= $s[9] if @s;
+      }
+      close F;
+    }
+    push @daemons, $daemondata;
+  }
+  my $partition = { 'daemon' => \@daemons };
+  my $ret = {'partition' => [ $partition ]};
+  return ($ret, $BSXML::workerstatus);
+}
+
 sub hello {
   my ($cgi) = @_;
   return "<hello name=\"Cloud Upload Server\" />\n";
@@ -179,6 +212,7 @@ my $dispatches = [
   '!- HEAD:' => undef,
 
   '/serverstatus' => \&BSStdServer::serverstatus,
+  '/workerstatus arch*' => \&workerstatus,
   '!- POST:/cloudupload' => \&cloudupload_create,
   '!- PUT:/cloudupload/$job' => \&cloudupload_upload,
 ];

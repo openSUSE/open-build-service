@@ -4354,6 +4354,27 @@ sub add_serviceserverstatus {
   return add_daemondata($ws, $daemondata);
 }
 
+sub add_clouduploadserverstatus {
+  my ($cgi, $ws) = @_;
+  return $ws unless $BSConfig::clouduploadserver;
+  return $ws if $cgi->{'type'} && !grep {$_ eq 'clouduploadserver' || $_ eq 'clouduploadworker'} @{$cgi->{'type'}};
+  return $ws if $cgi->{'arch'} && !grep {$_ eq 'clouduploadserver' || $_ eq 'clouduploadworker'} @{$cgi->{'arch'}};
+  my $daemondatas = [ {'state' => 'dead', 'type' => 'clouduploadserver'} ];
+  my $param = {
+    'uri' => "$BSConfig::clouduploadserver/workerstatus",
+    'timeout' => 60,
+  };
+  eval {
+    my $sws = BSWatcher::rpc($param, $BSXML::workerstatus);
+    $daemondatas = $sws->{'partition'}->[0]->{'daemon'}
+  };
+  warn($@) if $@;
+  for my $daemondata (reverse(@$daemondatas)) {
+    $ws = add_daemondata($ws, $daemondata);
+  }
+  return $ws;
+}
+
 sub getworkerstatus {
   my ($cgi) = @_;
   # compat
@@ -4375,6 +4396,7 @@ sub getworkerstatus {
     warn($@) if $@;
     delete $_->{'uri'} for @{$ws->{'idle'} || []};
     delete $_->{'uri'} for @{$ws->{'building'} || []};
+    add_clouduploadserverstatus($cgi, $ws);
     add_serviceserverstatus($cgi, $ws);
     add_localworkerstatus($cgi, $ws, 'deltastore', "$rundir/bs_deltastore.lock");
     add_localworkerstatus($cgi, $ws, 'servicedispatch', "$rundir/bs_servicedispatch.lock");
@@ -4459,6 +4481,7 @@ sub getworkerstatus {
     $cws->{'buildavg'} = [ sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b}  @{$cws->{'buildavg'}} ];
   }
   
+  add_clouduploadserverstatus($cgi, $cws);
   add_serviceserverstatus($cgi, $cws);
   add_localworkerstatus($cgi, $cws, 'deltastore', "$rundir/bs_deltastore.lock");
   add_localworkerstatus($cgi, $cws, 'servicedispatch', "$rundir/bs_servicedispatch.lock");
