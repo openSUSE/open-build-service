@@ -1,5 +1,5 @@
 puts "-----------EVENT-STATS------------"
-Event::PROJECT_CLASSES | Event::PACKAGE_CLASSES
+event_types = Event::PROJECT_CLASSES | Event::PACKAGE_CLASSES
 oldest_date = 10.days.ago
 project_logged = Event::Base.where(project_logged: false, eventtype: event_types).where(["created_at > ?", oldest_date]).count
 mails_sent = Event::Base.where(mails_sent: false).count
