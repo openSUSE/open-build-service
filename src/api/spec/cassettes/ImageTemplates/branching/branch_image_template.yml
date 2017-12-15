@@ -2433,4 +2433,179 @@ http_interactions:
         </status>
     http_version: 
   recorded_at: Wed, 03 Jan 2018 14:29:21 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/my_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'my_project' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'my_project' does not exist</summary>
+          <details>404 project 'my_project' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Fri, 15 Dec 2017 13:30:12 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/my_project/first_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'my_project' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'my_project' does not exist</summary>
+          <details>404 project 'my_project' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Fri, 15 Dec 2017 13:30:13 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/my_project/second_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'my_project' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'my_project' does not exist</summary>
+          <details>404 project 'my_project' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Fri, 15 Dec 2017 13:30:13 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/my_project/third_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'my_project' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'my_project' does not exist</summary>
+          <details>404 project 'my_project' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Fri, 15 Dec 2017 13:30:13 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/my_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'my_project' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'my_project' does not exist</summary>
+          <details>404 project 'my_project' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Fri, 15 Dec 2017 13:30:13 GMT
 recorded_with: VCR 4.0.0

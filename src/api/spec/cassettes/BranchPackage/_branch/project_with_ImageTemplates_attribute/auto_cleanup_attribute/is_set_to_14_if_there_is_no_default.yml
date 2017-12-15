@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="BaseDistro">
-          <title>Blood's a Rover</title>
+          <title>Ah, Wilderness!</title>
           <description/>
         </project>
     headers:
@@ -34,18 +34,19 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="BaseDistro">
-          <title>Blood's a Rover</title>
+          <title>Ah, Wilderness!</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:39 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:06 GMT
 - request:
     method: put
     uri: http://backend:5352/source/BaseDistro/_config
     body:
       encoding: UTF-8
-      string: Dignissimos quo omnis porro quae tempora. Quas maiores nisi aut in ratione.
-        Atque rerum iusto aut. Ut consequatur ipsam dolorem eos incidunt numquam.
+      string: Aut quibusdam quis eaque in. Rerum quo necessitatibus et ut eum iusto.
+        Provident optio ab adipisci et enim iure. Optio temporibus dignissimos aut
+        odio ipsam sed.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -72,16 +73,16 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:39 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:06 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/BaseDistro/test_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/BaseDistro/test_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="BaseDistro">
-          <title/>
-          <description/>
+          <title>A Darkling Plain</title>
+          <description>Illo in corporis deleniti fugiat.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -102,16 +103,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '110'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="BaseDistro">
-          <title></title>
-          <description></description>
+          <title>A Darkling Plain</title>
+          <description>Illo in corporis deleniti fugiat.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:39 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:06 GMT
 - request:
     method: put
     uri: http://backend:5352/source/BaseDistro/test_package/_meta
@@ -119,8 +120,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="BaseDistro">
-          <title/>
-          <description/>
+          <title>A Darkling Plain</title>
+          <description>Illo in corporis deleniti fugiat.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -141,16 +142,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '110'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="BaseDistro">
-          <title></title>
-          <description></description>
+          <title>A Darkling Plain</title>
+          <description>Illo in corporis deleniti fugiat.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:39 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:06 GMT
 - request:
     method: put
     uri: http://backend:5352/source/BaseDistro:Update/_meta
@@ -158,7 +159,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="BaseDistro:Update">
-          <title>The Moon by Night</title>
+          <title>Alone on a Wide, Wide Sea</title>
           <description/>
         </project>
     headers:
@@ -180,23 +181,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '111'
+      - '119'
     body:
       encoding: UTF-8
       string: |
         <project name="BaseDistro:Update">
-          <title>The Moon by Night</title>
+          <title>Alone on a Wide, Wide Sea</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:39 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:06 GMT
 - request:
     method: put
     uri: http://backend:5352/source/BaseDistro:Update/_config
     body:
       encoding: UTF-8
-      string: Quasi non voluptatem voluptates. Nulla officia omnis quia. Voluptatem
-        rem incidunt modi consequatur est. Ex hic amet est ut quo.
+      string: Reprehenderit nesciunt a expedita ad harum eligendi nam. Et necessitatibus
+        impedit mollitia tempora hic. Molestiae temporibus ut et rem perferendis et.
+        Optio aut soluta in ea nemo. Qui harum mollitia modi qui omnis corrupti placeat.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -223,7 +225,81 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:39 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_4/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_4">
+          <title>Oh! To be in England</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '106'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_4">
+          <title>Oh! To be in England</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Fri, 15 Dec 2017 13:12:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_4/_config
+    body:
+      encoding: UTF-8
+      string: Assumenda officia eum aspernatur qui. Qui voluptatem eum sit modi eius.
+        Dicta nulla autem deserunt aut ut vel. Consequuntur deleniti id qui enim doloremque
+        voluptas atque. Id eaque quo tenetur quis quo.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Fri, 15 Dec 2017 13:12:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
@@ -264,7 +340,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:40 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE_Leap/_meta
@@ -272,7 +348,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE_Leap">
-          <title>Surprised by Joy</title>
+          <title>Recalled to Life</title>
           <description/>
         </project>
     headers:
@@ -299,20 +375,18 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE_Leap">
-          <title>Surprised by Joy</title>
+          <title>Recalled to Life</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:40 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE_Leap/_config
     body:
       encoding: UTF-8
-      string: Quidem velit laborum quia repellendus quas officiis porro. Officiis
-        reprehenderit aspernatur eveniet autem velit dignissimos. Expedita quidem
-        praesentium rerum perferendis dolorum qui id. Repellat aut in aut ab. Officiis
-        veritatis aut eos ad repudiandae in.
+      string: Qui quidem sit voluptas at. Nobis est earum quidem. A molestiae nam
+        numquam. Nemo omnis ea placeat fugit tempore.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -339,7 +413,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:40 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE_Leap/apache2/_meta?user=tom
@@ -347,8 +421,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="apache2" project="openSUSE_Leap">
-          <title/>
-          <description/>
+          <title>The Grapes of Wrath</title>
+          <description>Molestias omnis eos molestiae velit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -369,16 +443,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '108'
+      - '163'
     body:
       encoding: UTF-8
       string: |
         <package name="apache2" project="openSUSE_Leap">
-          <title></title>
-          <description></description>
+          <title>The Grapes of Wrath</title>
+          <description>Molestias omnis eos molestiae velit.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:40 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE_Leap/apache2/_meta
@@ -386,8 +460,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="apache2" project="openSUSE_Leap">
-          <title/>
-          <description/>
+          <title>The Grapes of Wrath</title>
+          <description>Molestias omnis eos molestiae velit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -408,16 +482,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '108'
+      - '163'
     body:
       encoding: UTF-8
       string: |
         <package name="apache2" project="openSUSE_Leap">
-          <title></title>
-          <description></description>
+          <title>The Grapes of Wrath</title>
+          <description>Molestias omnis eos molestiae velit.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:40 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:07 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22apache2%22%20and%20linkinfo/@project=%22openSUSE_Leap%22%20and%20@project=%22openSUSE_Leap%22)
@@ -452,7 +526,7 @@ http_interactions:
         <collection>
         </collection>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:40 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/_meta?user=tom
@@ -493,7 +567,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:40 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2/_meta?user=tom
@@ -501,8 +575,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="apache2" project="home:tom:branches:openSUSE_Leap">
-          <title/>
-          <description/>
+          <title>The Grapes of Wrath</title>
+          <description>Molestias omnis eos molestiae velit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -523,58 +597,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '126'
+      - '181'
     body:
       encoding: UTF-8
       string: |
         <package name="apache2" project="home:tom:branches:openSUSE_Leap">
-          <title></title>
-          <description></description>
+          <title>The Grapes of Wrath</title>
+          <description>Molestias omnis eos molestiae velit.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:40 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="apache2" project="home:tom:branches:openSUSE_Leap">
-          <title/>
-          <description/>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '126'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="apache2" project="home:tom:branches:openSUSE_Leap">
-          <title></title>
-          <description></description>
-        </package>
-    http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:40 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:07 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2?cmd=branch&opackage=apache2&oproject=openSUSE_Leap&user=tom
+    uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2?cmd=branch&noservice=1&opackage=apache2&oproject=openSUSE_Leap&user=tom
     body:
       encoding: UTF-8
       string: ''
@@ -606,13 +641,52 @@ http_interactions:
         <revision rev="1" vrev="1">
           <srcmd5>f2b6eaf02987245b9003bcf47e0222dc</srcmd5>
           <version>unknown</version>
-          <time>1479312640</time>
+          <time>1513343527</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:40 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="home:tom:branches:openSUSE_Leap">
+          <title>The Grapes of Wrath</title>
+          <description>Molestias omnis eos molestiae velit.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '181'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="home:tom:branches:openSUSE_Leap">
+          <title>The Grapes of Wrath</title>
+          <description>Molestias omnis eos molestiae velit.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 15 Dec 2017 13:12:07 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2
@@ -644,10 +718,10 @@ http_interactions:
       string: |
         <directory name="apache2" rev="1" vrev="1" srcmd5="f2b6eaf02987245b9003bcf47e0222dc">
           <linkinfo project="openSUSE_Leap" package="apache2" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="2fbc15ae60271e3fe13b837e014a17ea" lsrcmd5="f2b6eaf02987245b9003bcf47e0222dc" />
-          <entry name="_link" md5="42ab2fdb360424b79deaaaec3dcd12ff" size="121" mtime="1479304500" />
+          <entry name="_link" md5="42ab2fdb360424b79deaaaec3dcd12ff" size="121" mtime="1513343013" />
         </directory>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:40 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:07 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2?nofilename=1&view=info&withchangesmd5=1
@@ -679,10 +753,10 @@ http_interactions:
       string: |
         <sourceinfo package="apache2" rev="1" vrev="1" srcmd5="2fbc15ae60271e3fe13b837e014a17ea" lsrcmd5="f2b6eaf02987245b9003bcf47e0222dc" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
           <linked project="openSUSE_Leap" package="apache2" />
-          <revtime>1479312640</revtime>
+          <revtime>1513343527</revtime>
         </sourceinfo>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:40 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:07 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2
@@ -714,10 +788,10 @@ http_interactions:
       string: |
         <directory name="apache2" rev="1" vrev="1" srcmd5="f2b6eaf02987245b9003bcf47e0222dc">
           <linkinfo project="openSUSE_Leap" package="apache2" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="2fbc15ae60271e3fe13b837e014a17ea" lsrcmd5="f2b6eaf02987245b9003bcf47e0222dc" />
-          <entry name="_link" md5="42ab2fdb360424b79deaaaec3dcd12ff" size="121" mtime="1479304500" />
+          <entry name="_link" md5="42ab2fdb360424b79deaaaec3dcd12ff" size="121" mtime="1513343013" />
         </directory>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:40 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:07 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -749,7 +823,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="b4eb9aa75778707a23b6f6a8cfd9aced">
+        <sourcediff key="6b52695450ecc45fc1d605938d0aff06">
           <old project="home:tom:branches:openSUSE_Leap" package="apache2" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
           <new project="home:tom:branches:openSUSE_Leap" package="apache2" rev="1" srcmd5="f2b6eaf02987245b9003bcf47e0222dc" />
           <files />
@@ -757,7 +831,7 @@ http_interactions:
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:41 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:07 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -789,13 +863,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="1c6621e539f5863fcf3a10f8baf9b790">
+        <sourcediff key="5d4e5de10a7da9b9f966d8bec322637f">
           <old project="openSUSE_Leap" package="apache2" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
           <new project="home:tom:branches:openSUSE_Leap" package="apache2" rev="2fbc15ae60271e3fe13b837e014a17ea" srcmd5="2fbc15ae60271e3fe13b837e014a17ea" />
           <files />
         </sourcediff>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:41 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/_meta?user=tom
@@ -842,7 +916,7 @@ http_interactions:
           </publish>
         </project>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:41 GMT
+  recorded_at: Fri, 15 Dec 2017 13:12:07 GMT
 - request:
     method: delete
     uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap?comment&user=tom
@@ -873,44 +947,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:41 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/BaseDistro/test_package/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test_package" project="BaseDistro">
-          <title/>
-          <description/>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '110'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test_package" project="BaseDistro">
-          <title></title>
-          <description></description>
-        </package>
-    http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:11:18 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Fri, 15 Dec 2017 13:12:07 GMT
+recorded_with: VCR 4.0.0
