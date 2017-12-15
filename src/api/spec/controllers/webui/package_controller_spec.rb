@@ -659,9 +659,9 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       context "with 21 revisions" do
-        let(:package_with_more_commits) {
+        let(:package_with_more_commits) do
           create(:package_with_revisions, name: 'package_with_21_revisions', revision_count: 21, project: source_project)
-        }
+        end
 
         before do
           get :revisions, params: { project: source_project, package: package_with_more_commits }
@@ -939,12 +939,12 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       context "with a multibuild package" do
-        let(:params) {
+        let(:params) do
           { project:    source_project,
             package:    "#{source_package}:multibuild-package",
             repository: repo_leap_42_2.name,
             arch:       architecture.name }
-        }
+        end
         let(:starttime) { 1.hour.ago.to_i }
 
         before do
@@ -1007,12 +1007,12 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       context 'for multibuild package' do
-        let(:params) {
+        let(:params) do
           { project:    source_project,
             package:    "#{source_package}:multibuild-package",
             repository: repo_leap_42_2.name,
             arch:       architecture.name }
-        }
+        end
 
         before do
           path = "#{CONFIG['source_url']}/build/#{source_project}/#{repo_leap_42_2}/i586/#{source_package}:multibuild-package/_log?view=entry"
@@ -1182,7 +1182,7 @@ RSpec.describe Webui::PackageController, vcr: true do
   end
 
   describe '#rpmlint_result' do
-    let(:fake_build_result) {
+    let(:fake_build_result) do
       Buildresult.new(
         '
         <resultlist state="eb0459ee3b000176bb3944a67b7c44fa">
@@ -1199,7 +1199,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         </resultlist>
         '
       )
-    }
+    end
 
     before do
       allow(Buildresult).to receive(:find).and_return(fake_build_result)

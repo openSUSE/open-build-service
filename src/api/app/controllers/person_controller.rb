@@ -180,8 +180,8 @@ class PersonController < ApplicationController
         raise ErrRegisterSave, "Missing iChain header"
       end
       login = request.env['HTTP_X_USERNAME']
-      email = request.env['HTTP_X_EMAIL'] unless request.env['HTTP_X_EMAIL'].blank?
-      realname = request.env['HTTP_X_FIRSTNAME'] + " " + request.env['HTTP_X_LASTNAME'] unless request.env['HTTP_X_LASTNAME'].blank?
+      email = request.env['HTTP_X_EMAIL'] if request.env['HTTP_X_EMAIL'].present?
+      realname = request.env['HTTP_X_FIRSTNAME'] + " " + request.env['HTTP_X_LASTNAME'] if request.env['HTTP_X_LASTNAME'].present?
     end
 
     UnregisteredUser.register(login: login, realname: realname, email:

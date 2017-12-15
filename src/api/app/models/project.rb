@@ -349,7 +349,7 @@ class Project < ApplicationRecord
   def cleanup_linking_projects
     # replace links to this project with links to the "deleted" project
     LinkedProject.transaction do
-      LinkedProject.where(linked_db_project: self).each do |lp|
+      LinkedProject.where(linked_db_project: self).find_each do |lp|
         id = lp.db_project_id
         lp.destroy
         Rails.cache.delete("xml_project_#{id}")
@@ -423,7 +423,7 @@ class Project < ApplicationRecord
       raise UnknownObjectError, name
     end
     if opts[:includeallpackages]
-      Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").each do |pkg|
+      Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").find_each do |pkg|
         raise ReadAccessError, name unless Package.check_access? pkg
       end
     end
@@ -612,7 +612,7 @@ class Project < ApplicationRecord
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       login = @commit_opts[:login] || User.current.login
       query = { user: login }
-      query[:comment] = @commit_opts[:comment] unless @commit_opts[:comment].blank?
+      query[:comment] = @commit_opts[:comment] if @commit_opts[:comment].present?
       # api request number is requestid in backend
       query[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
       query[:lowprio] = '1' if @commit_opts[:lowprio]
@@ -816,7 +816,7 @@ class Project < ApplicationRecord
     # cycle check in linked projects
     if processed[self]
       str = name
-      processed.keys.each do |key|
+      processed.each_key do |key|
         str = str + ' -- ' + key.name
       end
       raise CycleError, "There is a cycle in project link defintion at #{str}"
@@ -1099,7 +1099,7 @@ class Project < ApplicationRecord
           next unless path.link.project.kind == ipe.link.project.kind
           # is this path pointing to some repository which is used in another
           # of my repositories?
-          repositories.joins(:path_elements).where("path_elements.repository_id = ?", ipe.link).each do |my_repo|
+          repositories.joins(:path_elements).where("path_elements.repository_id = ?", ipe.link).find_each do |my_repo|
             next if my_repo == repo # do not add my self
             next if repo.path_elements.where(link: my_repo).count > 0
             elements = repo.path_elements.where(position: ipe.position)
@@ -1166,7 +1166,7 @@ class Project < ApplicationRecord
 
     targets = bsrequest_repos_map(tproj.name)
     sources = bsrequest_repos_map(name)
-    sources.each do |key, _|
+    sources.each_key do |key|
       if targets.has_key?(key)
         tocheck_repos << sources[key]
       end
@@ -1446,12 +1446,12 @@ class Project < ApplicationRecord
     end
     if repository && repository_states.has_key?(repository)
       return false if repository_states[repository].empty? # No buildresult is bad
-      repository_states[repository].each do |state, _|
+      repository_states[repository].each_key do |state|
         return false if state.in?(["broken", "failed", "unresolvable"])
       end
     else
       return false unless states.empty? # No buildresult is bad
-      states.each do |state, _|
+      states.each_key do |state|
         return false if state.in?(["broken", "failed", "unresolvable"])
       end
     end
@@ -1517,8 +1517,8 @@ class Project < ApplicationRecord
 
   def self.source_path(project, file = nil, opts = {})
     path = "/source/#{URI.escape(project)}"
-    path += "/#{URI.escape(file)}" unless file.blank?
-    path += '?' + opts.to_query unless opts.blank?
+    path += "/#{URI.escape(file)}" if file.present?
+    path += '?' + opts.to_query if opts.present?
     path
   end
 
@@ -1623,7 +1623,7 @@ class Project < ApplicationRecord
     result = []
     removed.each do |name|
       repository = repositories.find_by(name: name)
-      result << repository unless repository.remote_project_name.present?
+      result << repository if repository.remote_project_name.blank?
     end
     result
   end
@@ -1731,7 +1731,7 @@ class Project < ApplicationRecord
       target_mapping[rt_value[:reponame]] = rt_key
     end
 
-    package.flags.where(flag: :build, status: 'enable').each do |flag|
+    package.flags.where(flag: :build, status: 'enable').find_each do |flag|
       rt_key = target_mapping[flag.repo]
       return rt_key if rt_key
     end

@@ -283,7 +283,7 @@ class User < ApplicationRecord
   # the database.
   def state=(value)
     @old_state = state if @old_state.nil?
-    write_attribute(:state, value)
+    self[:state] = value
   end
 
   # This method checks whether the given value equals the password when
@@ -608,7 +608,7 @@ class User < ApplicationRecord
     save!
 
     # lock also all home projects to avoid unneccessary builds
-    Project.where("name like ?", "#{home_project_name}%").each do |prj|
+    Project.where("name like ?", "#{home_project_name}%").find_each do |prj|
       next if prj.is_locked?
       prj.lock("User account got locked")
     end
@@ -619,7 +619,7 @@ class User < ApplicationRecord
     save!
 
     # wipe also all home projects
-    Project.where("name like ?", "#{home_project_name}%").each do |prj|
+    Project.where("name like ?", "#{home_project_name}%").find_each do |prj|
       prj.commit_opts = { comment: "User account got deleted" }
       prj.destroy
     end
@@ -719,7 +719,7 @@ class User < ApplicationRecord
 
     ids = PackageIssue.open_issues_of_owner(id).with_patchinfo.distinct.pluck(:package_id)
 
-    Package.where(id: ids).each do |p|
+    Package.where(id: ids).find_each do |p|
       hash = { package: { project: p.project.name, name: p.name } }
       issues = Array.new
 
@@ -759,7 +759,7 @@ class User < ApplicationRecord
   def state
     return owner.state if owner
 
-    read_attribute(:state)
+    self[:state]
   end
 
   def to_s

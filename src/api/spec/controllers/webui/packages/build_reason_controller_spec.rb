@@ -16,14 +16,14 @@ RSpec.describe Webui::Packages::BuildReasonController, type: :controller, vcr: t
       repo
     end
 
-    let(:valid_request_params) {
+    let(:valid_request_params) do
       {
         package_name: package.name,
         project:      source_project.name,
         repository:   repo_for_source_project.name,
         arch:         repo_for_source_project.architectures.first.name
       }
-    }
+    end
 
     context 'without a valid respository' do
       before do

@@ -6,14 +6,14 @@ RSpec.describe BsRequest do
     let(:user) { create(:user) }
     let(:target) { create(:package) }
     let(:source) { create(:package) }
-    let(:input) {
+    let(:input) do
       create(:review_bs_request,
              reviewer: user.login,
              target_project: target.project.name,
              target_package: target.name,
              source_project: source.project.name,
              source_package: source.name)
-    }
+    end
     let(:doc) { Nokogiri::XML(input.to_axml) }
 
     context "'when' attribute provided" do

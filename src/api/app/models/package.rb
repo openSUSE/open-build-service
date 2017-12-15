@@ -103,9 +103,9 @@ class Package < ApplicationRecord
   # which would produce a query like
   # WHERE (packages.project_id not in (0))
   # because we assumes that there are more allowed projects than forbidden ones.
-  default_scope {
+  default_scope do
     where.not(id: Package.where(project_id: Relationship.forbidden_project_ids))
-  }
+  end
 
   scope :order_by_name, -> { order('LOWER(name)') }
 
@@ -390,9 +390,9 @@ class Package < ApplicationRecord
     user.can_modify_package? master_product_object, ignore_lock
   end
 
-  def check_write_access!(ignoreLock = nil)
+  def check_write_access!(ignore_lock = nil)
     return if Rails.env.test? && User.current.nil? # for unit tests
-    return if can_be_modified_by?(User.current, ignoreLock)
+    return if can_be_modified_by?(User.current, ignore_lock)
 
     raise WritePermissionError, "No permission to modify package '#{name}' for user '#{User.current.login}'"
   end
@@ -502,8 +502,8 @@ class Package < ApplicationRecord
 
   def self.source_path(project, package, file = nil, opts = {})
     path = "/source/#{URI.escape(project)}/#{URI.escape(package)}"
-    path += "/#{URI.escape(file)}" unless file.blank?
-    path += '?' + opts.to_query unless opts.blank?
+    path += "/#{URI.escape(file)}" if file.present?
+    path += '?' + opts.to_query if opts.present?
     path
   end
 
@@ -616,11 +616,11 @@ class Package < ApplicationRecord
         issue_change[issue.issue_tracker.name].delete(issue.name)
       end
 
-      issue_change.keys.each do |tracker|
+      issue_change.each_key do |tracker|
         t = IssueTracker.find_by_name tracker
 
         # create new issues
-        issue_change[tracker].keys.each do |name|
+        issue_change[tracker].each_key do |name|
           issue = t.issues.find_by_name(name) || t.issues.create(name: name)
           state = issue_change[tracker][name]
           myissues[state] ||= []
@@ -724,7 +724,7 @@ class Package < ApplicationRecord
       # cycle detection
       str = prj_name + '/' + pkg.name
       if processed[str]
-        processed.keys.each do |key|
+        processed.each_key do |key|
           str = str + ' -- ' + key
         end
         raise CycleError, "There is a cycle in devel definition at #{str}"
@@ -752,8 +752,8 @@ class Package < ApplicationRecord
     pkg
   end
 
-  def update_from_xml(xmlhash, ignoreLock = nil)
-    check_write_access!(ignoreLock)
+  def update_from_xml(xmlhash, ignore_lock = nil)
+    check_write_access!(ignore_lock)
 
     Package.transaction do
       self.title = xmlhash.value('title')
@@ -814,7 +814,7 @@ class Package < ApplicationRecord
     #--- write through to backend ---#
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       query = { user: User.current_login }
-      query[:comment] = @commit_opts[:comment] unless @commit_opts[:comment].blank?
+      query[:comment] = @commit_opts[:comment] if @commit_opts[:comment].present?
       # the request number is the requestid parameter in the backend api
       query[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
       Backend::Connection.put(source_path('_meta', query), to_axml)
@@ -1203,7 +1203,7 @@ class Package < ApplicationRecord
   end
 
   def remove_devel_packages
-    Package.where(develpackage: self).each do |devel_package|
+    Package.where(develpackage: self).find_each do |devel_package|
       devel_package.develpackage = nil
       devel_package.store
       devel_package.reset_cache
@@ -1329,7 +1329,7 @@ class Package < ApplicationRecord
 
   def self.verify_file!(pkg, name, content)
     # Prohibit dotfiles (files with leading .) and files with a / character in the name
-    raise IllegalFileName, "'#{name}' is not a valid filename" if (!name.present? || !(name =~ /^[^\.\/][^\/]+$/))
+    raise IllegalFileName, "'#{name}' is not a valid filename" if (name.blank? || !(name =~ /^[^\.\/][^\/]+$/))
 
     # file is an ActionDispatch::Http::UploadedFile and Suse::Validator.validate
     # will call to_s therefore we have to read the content first

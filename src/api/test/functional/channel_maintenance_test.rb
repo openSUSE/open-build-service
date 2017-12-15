@@ -903,7 +903,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     node = Xmlhash.parse(@response.body)
     id = node['id']
-    assert !id.blank?
+    assert id.present?
     post "/request/#{id}?cmd=changestate&newstate=accepted&comment=approved"
     assert_response :success
     get '/source/TEST'

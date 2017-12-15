@@ -7,22 +7,22 @@ RSpec.shared_examples 'user tab' do
   let!(:project) { nil }
 
   describe "user roles" do
-    let!(:bugowner_user_role) {
+    let!(:bugowner_user_role) do
       create(:relationship,
              project: project,
              package: package,
              user:    user_tab_user,
              role:    Role.find_by_title('bugowner')
             )
-    }
-    let!(:reader_user_role) {
+    end
+    let!(:reader_user_role) do
       create(:relationship,
              project: project,
              package: package,
              user:    reader,
              role:    Role.find_by_title('reader')
             )
-    }
+    end
 
     before do
       login user_tab_user
@@ -95,14 +95,14 @@ RSpec.shared_examples 'user tab' do
     let!(:group) { create(:group, title: "existing_group") }
     let!(:other_group) { create(:group, title: "other_group") }
     let!(:maintainer_group_role) { create(:relationship, project: project, package: package, group: group) }
-    let!(:bugowner_group_role) {
+    let!(:bugowner_group_role) do
       create(:relationship,
              project: project,
              package: package,
              group:   group,
              role:    Role.find_by_title('bugowner')
             )
-    }
+    end
 
     before do
       login user_tab_user

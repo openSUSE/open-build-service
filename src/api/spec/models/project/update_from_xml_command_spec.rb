@@ -46,9 +46,9 @@ RSpec.describe Project::UpdateFromXmlCommand do
       let!(:target_project) { create(:project, name: "target_project") }
       let!(:target_repository) { create(:repository, name: 'target_repo', project: target_project) }
       let!(:remote_project) { create(:project, name: "remote_project", remoteurl: "http://myOBS.org") }
-      let!(:remote_repository) {
+      let!(:remote_repository) do
         create(:repository, name: 'remote_repo', remote_project_name: "remote_project", project: remote_project)
-      }
+      end
       let!(:release_target) { create(:release_target, repository: repository_1) }
 
       it "updates release targets" do

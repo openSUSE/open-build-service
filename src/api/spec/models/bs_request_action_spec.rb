@@ -3,14 +3,14 @@ require 'rails_helper'
 RSpec.describe BsRequestAction do
   context 'uniqueness validation of type' do
     let(:bs_request) { create(:bs_request) }
-    let(:action_attributes) {
+    let(:action_attributes) do
       {
         bs_request:     bs_request,
         type:           'submit',
         target_project: 'target_prj',
         target_package: 'target_pkg'
       }
-    }
+    end
     let!(:bs_request_action) { create(:bs_request_action, action_attributes) }
 
     it { expect(bs_request_action).to be_valid }

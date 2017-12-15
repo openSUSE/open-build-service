@@ -52,7 +52,7 @@ class PackageBuildStatus
   def gather_target_packages(trepo)
     @tpackages = Hash.new
     vprojects = Hash.new
-    trepo.each do |p, _|
+    trepo.each_key do |p|
       next if vprojects.has_key? p
       prj = Project.find_by_name(p)
       next unless prj # in case of remote projects

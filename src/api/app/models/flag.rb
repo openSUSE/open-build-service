@@ -162,8 +162,8 @@ class Flag < ApplicationRecord
 
   def fullname
     ret = flag
-    ret += "_#{repo}" unless repo.blank?
-    ret += "_#{architecture.name}" unless architecture_id.blank?
+    ret += "_#{repo}" if repo.present?
+    ret += "_#{architecture.name}" if architecture_id.present?
     ret
   end
 

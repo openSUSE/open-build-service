@@ -53,7 +53,7 @@ class Service < ActiveXML::Node
     if uri.path =~ /.src.rpm$/ || uri.path =~ /.spm$/ # download and extract source package
       addService("download_src_package", service_content)
     else # just download
-      service_content << { name: "filename", value: filename } unless filename.blank?
+      service_content << { name: "filename", value: filename } if filename.present?
       addService("download_url", service_content)
     end
     true
@@ -77,10 +77,10 @@ class Service < ActiveXML::Node
   end
 
   def fill_params(element, parameters)
-    parameters.each { |parameter|
+    parameters.each do |parameter|
       param = element.add_element('param', name: parameter[:name])
       param.text = parameter[:value]
-    }
+    end
     true
   end
 

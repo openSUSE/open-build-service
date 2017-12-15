@@ -72,7 +72,7 @@ module ActiveXML
     end
 
     def connect(model, target, opt = {})
-      opt.keys.each do |key|
+      opt.each_key do |key|
         opt[key] = URI(opt[key])
         replace_server_if_needed(opt[key])
       end
@@ -383,9 +383,9 @@ module ActiveXML
       http = nil
       content = nil
       proxyuri = ENV['http_proxy']
-      proxyuri = CONFIG['http_proxy'] unless CONFIG['http_proxy'].blank?
+      proxyuri = CONFIG['http_proxy'] if CONFIG['http_proxy'].present?
       noproxy = ENV['no_proxy']
-      noproxy = CONFIG['no_proxy'] unless CONFIG['no_proxy'].blank?
+      noproxy = CONFIG['no_proxy'] if CONFIG['no_proxy'].present?
 
       noproxy_applies = false
       if noproxy

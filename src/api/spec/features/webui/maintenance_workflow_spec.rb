@@ -11,14 +11,14 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
   let(:project) { create(:project_with_repository, name: 'ProjectWithRepo') }
   let(:package) { create(:package_with_file, project: project, name: 'ProjectWithRepo_package') }
   let(:update_project) { create(:update_project, target_project: project, name: "#{project.name}:Update") }
-  let(:maintenance_project) {
+  let(:maintenance_project) do
     create(:maintenance_project,
            name: 'MaintenanceProject',
            title: 'official maintenance space',
            target_project: update_project,
            create_patchinfo: true,
            maintainer: maintenance_coord_user)
-  }
+  end
 
   before do
     User.current = admin_user

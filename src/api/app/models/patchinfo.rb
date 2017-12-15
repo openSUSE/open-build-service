@@ -108,7 +108,7 @@ class Patchinfo < ActiveXML::Node
 
     # update informations of empty issues
     patchinfo.each('issue') do |i|
-      next if !i.text.blank? || i.value(:name).blank?
+      next if i.text.present? || i.value(:name).blank?
       issue = Issue.find_or_create_by_name_and_tracker(i.value(:name), i.value(:tracker))
       next unless issue
       # enforce update from issue server

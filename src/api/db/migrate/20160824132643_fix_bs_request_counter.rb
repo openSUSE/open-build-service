@@ -1,9 +1,9 @@
 class FixBsRequestCounter < ActiveRecord::Migration[4.2]
-  class TempBsRequest < ActiveRecord::Base
+  class TempBsRequest < ApplicationRecord
     self.table_name = 'bs_requests'
   end
 
-  class TempBsRequestCounter < ActiveRecord::Base
+  class TempBsRequestCounter < ApplicationRecord
     self.table_name = 'bs_request_counter'
   end
 

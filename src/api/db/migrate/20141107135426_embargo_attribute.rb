@@ -1,7 +1,7 @@
 require_relative '../attribute_descriptions'
 
 class EmbargoAttribute < ActiveRecord::Migration[4.2]
-  class AttribTypeModifiableBy < ActiveRecord::Base; end
+  class AttribTypeModifiableBy < ApplicationRecord; end
 
   def self.up
     ans = AttribNamespace.find_by_name "OBS"

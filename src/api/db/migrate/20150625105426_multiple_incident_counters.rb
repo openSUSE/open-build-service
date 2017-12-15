@@ -1,5 +1,5 @@
 
-class TempMI < ActiveRecord::Base
+class TempMI < ApplicationRecord
   self.table_name = 'maintenance_incidents'
 end
 

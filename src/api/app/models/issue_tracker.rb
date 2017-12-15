@@ -182,7 +182,7 @@ class IssueTracker < ApplicationRecord
   end
 
   def self.update_all_issues
-    IssueTracker.all.each do |t|
+    IssueTracker.all.find_each do |t|
       next unless t.enable_fetch
       IssueTrackerUpdateIssuesJob.perform_later(t.id)
     end
@@ -193,7 +193,7 @@ class IssueTracker < ApplicationRecord
   def fetch_bugzilla_issues(ids)
     # limit to 256 ids to avoid too much load and timeouts on bugzilla side
     limit_per_slice = 256
-    while !ids.blank?
+    while ids.present?
       begin
         result = bugzilla_server.get({ ids: ids[0..limit_per_slice], permissive: 1 })
       rescue XMLRPC::FaultException => e
@@ -380,7 +380,7 @@ class CVEparser < Nokogiri::XML::SAX::Document
 
   def end_element(name)
     return unless name == "item"
-    unless @@my_summary.blank?
+    if @@my_summary.present?
       @@my_issue.summary = @@my_summary[0..254]
       @@my_issue.save
     end

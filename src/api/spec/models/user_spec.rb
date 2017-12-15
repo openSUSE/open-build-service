@@ -185,22 +185,22 @@ RSpec.describe User do
     let(:source_package) { create(:package) }
     let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
     let!(:new_bs_request) { create(:bs_request, creator: confirmed_user) }
-    let!(:declined_bs_request) {
+    let!(:declined_bs_request) do
       create(:declined_bs_request,
              target_project: target_package.project,
              target_package: target_package,
              source_project: source_package.project,
              source_package: source_package,
              creator: confirmed_user)
-    }
-    let!(:admin_bs_request) {
+    end
+    let!(:admin_bs_request) do
       create(:declined_bs_request,
              target_project: target_package.project,
              target_package: target_package,
              source_project: source_package.project,
              source_package: source_package,
              creator: admin_user)
-    }
+    end
 
     subject { confirmed_user.declined_requests }
 
@@ -230,7 +230,7 @@ RSpec.describe User do
     let(:source_package) { create(:package) }
     let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
     let!(:new_bs_request) { create(:bs_request, creator: confirmed_user) }
-    let!(:review_bs_request) {
+    let!(:review_bs_request) do
       create(:review_bs_request,
              target_project: target_package.project,
              target_package: target_package,
@@ -238,23 +238,23 @@ RSpec.describe User do
              source_package: source_package,
              creator: confirmed_user,
              reviewer: admin_user)
-    }
-    let!(:declined_bs_request) {
+    end
+    let!(:declined_bs_request) do
       create(:declined_bs_request,
              target_project: target_package.project,
              target_package: target_package,
              source_project: source_package.project,
              source_package: source_package,
              creator: confirmed_user)
-    }
-    let!(:admin_bs_request) {
+    end
+    let!(:admin_bs_request) do
       create(:bs_request,
              target_project: target_package.project,
              target_package: target_package,
              source_project: source_package.project,
              source_package: source_package,
              creator: admin_user)
-    }
+    end
 
     subject { confirmed_user.outgoing_requests }
 
@@ -289,7 +289,7 @@ RSpec.describe User do
     shared_examples 'incoming_requests' do
       let(:source_package) { create(:package) }
 
-      let!(:maintained_request) {
+      let!(:maintained_request) do
         create(:bs_request_with_submit_action,
                target_project: target_package.project,
                target_package: target_package,
@@ -297,9 +297,9 @@ RSpec.describe User do
                source_package: source_package,
                creator: admin_user.login
               )
-      }
+      end
 
-      let!(:not_maintained_request) {
+      let!(:not_maintained_request) do
         create(:bs_request_with_submit_action,
                target_project: not_maintained_target_package.project,
                target_package: not_maintained_target_package,
@@ -307,7 +307,7 @@ RSpec.describe User do
                source_package: source_package,
                creator: admin_user.login
               )
-      }
+      end
 
       subject { confirmed_user.incoming_requests }
 
@@ -429,9 +429,9 @@ RSpec.describe User do
         let!(:subject_review) { create(:review, by_user: confirmed_user.login, bs_request: subject_request) }
 
         let(:request_with_same_creator_and_reviewer) { create(:bs_request, creator: confirmed_user.login) }
-        let!(:review_with_same_creator_and_reviewer) {
+        let!(:review_with_same_creator_and_reviewer) do
           create(:review, by_user: confirmed_user.login, bs_request: request_with_same_creator_and_reviewer)
-        }
+        end
 
         let(:other_project) { create(:project) }
         let(:request_of_another_subject) { create(:bs_request, creator: confirmed_user.login) }
@@ -482,15 +482,15 @@ RSpec.describe User do
         let!(:subject_review) { create(:review, by_project: package.project.name, by_package: package.name, bs_request: subject_request) }
 
         let(:request_with_same_creator_and_reviewer) { create(:bs_request, creator: confirmed_user.login) }
-        let!(:review_with_same_creator_and_reviewer) {
+        let!(:review_with_same_creator_and_reviewer) do
           create(:review, by_project: package.project.name, by_package: package.name, bs_request: request_with_same_creator_and_reviewer)
-        }
+        end
 
         let(:other_package) { create(:package) }
         let(:request_of_another_subject) { create(:bs_request, creator: admin_user.login) }
-        let!(:review_of_another_subject) {
+        let!(:review_of_another_subject) do
           create(:review, by_project: other_package.project.name, by_package: other_package.name, bs_request: request_of_another_subject)
-        }
+        end
 
         let!(:relationship_project_user) { create(:relationship_project_user, user: admin_user, project: package.project) }
         it 'show the reviews for project maintainer' do
@@ -524,7 +524,7 @@ RSpec.describe User do
     shared_examples 'all_my_requests' do
       let(:source_package) { create(:package) }
 
-      let!(:maintained_request) {
+      let!(:maintained_request) do
         create(:bs_request_with_submit_action,
                target_project: target_package.project,
                target_package: target_package,
@@ -532,9 +532,9 @@ RSpec.describe User do
                source_package: source_package,
                creator: admin_user.login
               )
-      }
+      end
 
-      let!(:not_maintained_request) {
+      let!(:not_maintained_request) do
         create(:bs_request_with_submit_action,
                target_project: not_maintained_target_package.project,
                target_package: not_maintained_target_package,
@@ -542,7 +542,7 @@ RSpec.describe User do
                source_package: source_package,
                creator: admin_user.login
               )
-      }
+      end
       let(:target_package) { create(:package) }
       let!(:relationship_project_user) { create(:relationship_project_user, user: confirmed_user, project: target_package.project) }
       let!(:relationship_package_user) { create(:relationship_package_user, user: confirmed_user, package: target_package) }
@@ -604,9 +604,9 @@ RSpec.describe User do
         let!(:subject_review) { create(:review, by_user: confirmed_user.login, bs_request: subject_request) }
 
         let(:request_with_same_creator_and_reviewer) { create(:bs_request, creator: confirmed_user.login) }
-        let!(:review_with_same_creator_and_reviewer) {
+        let!(:review_with_same_creator_and_reviewer) do
           create(:review, by_user: confirmed_user.login, bs_request: request_with_same_creator_and_reviewer)
-        }
+        end
 
         let(:other_project) { create(:project) }
         let(:request_of_another_subject) { create(:bs_request, creator: confirmed_user.login) }
@@ -669,15 +669,15 @@ RSpec.describe User do
         let!(:subject_review) { create(:review, by_project: package.project.name, by_package: package.name, bs_request: subject_request) }
 
         let(:request_with_same_creator_and_reviewer) { create(:bs_request, creator: confirmed_user.login) }
-        let!(:review_with_same_creator_and_reviewer) {
+        let!(:review_with_same_creator_and_reviewer) do
           create(:review, by_project: package.project.name, by_package: package.name, bs_request: request_with_same_creator_and_reviewer)
-        }
+        end
 
         let(:other_package) { create(:package) }
         let(:request_of_another_subject) { create(:bs_request, creator: admin_user.login) }
-        let!(:review_of_another_subject) {
+        let!(:review_of_another_subject) do
           create(:review, by_project: other_package.project.name, by_package: other_package.name, bs_request: request_of_another_subject)
-        }
+        end
 
         it 'not include reviews where the user is the creator of the request' do
           expect(subject).to_not include(request_of_another_subject)
@@ -836,9 +836,9 @@ RSpec.describe User do
         let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John@obs.de', 'John', 'Smith'] }) }
       end
 
-      let(:user) {
+      let(:user) do
         create(:user, login: 'tux', realname: 'penguin', login_failure_count: 7, last_logged_in_at: 3.hours.ago, email: 'tux@suse.de')
-      }
+      end
 
       before do
         stub_const('CONFIG', CONFIG.merge({

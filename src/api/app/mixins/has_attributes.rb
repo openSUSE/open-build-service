@@ -116,7 +116,7 @@ module HasAttributes
       p[:namespace] = attr.attrib_type.attrib_namespace.name
       p[:binary] = attr.binary if attr.binary
       builder.attribute(p) do
-        unless attr.issues.blank?
+        if attr.issues.present?
           attr.issues.each do |ai|
             builder.issue(name: ai.name, tracker: ai.issue_tracker.name)
           end
@@ -134,7 +134,7 @@ module HasAttributes
         end
       end
     else
-      attr.values.each do |val|
+      attr.each_value do |val|
         builder.value(val.value)
       end
     end

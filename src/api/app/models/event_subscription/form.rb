@@ -11,7 +11,7 @@ class EventSubscription
     end
 
     def update!(subscriptions_params)
-      subscriptions_params.each do |_i, subscription_params|
+      subscriptions_params.each_value do |subscription_params|
         subscription = find_or_initialize_subscription(
           subscription_params[:eventtype],
           subscription_params[:receiver_role]

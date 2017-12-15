@@ -3,12 +3,12 @@ module HasRelationships
   class SaveError < APIException
   end
 
-  def add_user(user, role, ignoreLock = nil)
-    Relationship.add_user(self, user, role, ignoreLock)
+  def add_user(user, role, ignore_lock = nil)
+    Relationship.add_user(self, user, role, ignore_lock)
   end
 
-  def add_group(group, role, ignoreLock = nil)
-    Relationship.add_group(self, group, role, ignoreLock)
+  def add_group(group, role, ignore_lock = nil)
+    Relationship.add_group(self, group, role, ignore_lock)
   end
 
   # webui code is a huge table - TODO to optimize
@@ -95,8 +95,8 @@ module HasRelationships
 
   def remove_all_old_relationships(cache)
     # delete all roles that weren't found in the uploaded xml
-    cache.each do |_, roles|
-      roles.each do |_, object|
+    cache.each_value do |roles|
+      roles.each_value do |object|
         next if [:keep, :new].include? object
         object.destroy
       end

@@ -246,9 +246,9 @@ RSpec.describe Webui::UserController do
     context "when LDAP mode is enabled" do
       let!(:old_realname) { user.realname }
       let!(:old_email) { user.email }
-      let(:http_request) {
+      let(:http_request) do
         post :save, params: { user: { login: user.login, realname: 'another real name', email: 'new_valid@email.es' } }
-      }
+      end
 
       before do
         stub_const('CONFIG', CONFIG.merge({ 'ldap_mode' => :on }))

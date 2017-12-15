@@ -59,8 +59,8 @@ class Relationship < ApplicationRecord
   after_rollback :discard_cache
   after_destroy :discard_cache
 
-  def self.add_user(obj, user, role, ignoreLock = nil, check = nil)
-    obj.check_write_access!(ignoreLock)
+  def self.add_user(obj, user, role, ignore_lock = nil, check = nil)
+    obj.check_write_access!(ignore_lock)
     unless role.kind_of? Role
       role = Role.find_by_title!(role)
     end
@@ -86,8 +86,8 @@ class Relationship < ApplicationRecord
     r.delete
   end
 
-  def self.add_group(obj, group, role, ignoreLock = nil, check = nil)
-    obj.check_write_access!(ignoreLock)
+  def self.add_group(obj, group, role, ignore_lock = nil, check = nil)
+    obj.check_write_access!(ignore_lock)
 
     unless role.kind_of? Role
       role = Role.find_by_title!(role)

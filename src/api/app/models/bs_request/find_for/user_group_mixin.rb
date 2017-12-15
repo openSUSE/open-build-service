@@ -19,7 +19,7 @@ class BsRequest
         review_states.each do |review_state|
           # find requests where obj is maintainer in target project
           projects = obj.involved_projects.pluck('projects.name').map { |project| quote(project) }
-          or_in_and << "reviews.by_project in (#{projects.join(',')})" unless projects.blank?
+          or_in_and << "reviews.by_project in (#{projects.join(',')})" if projects.present?
 
           ## find request where user is maintainer in target package, except we have to project already
           obj.involved_packages.includes(:project).pluck('packages.name, projects.name').each do |ip|
