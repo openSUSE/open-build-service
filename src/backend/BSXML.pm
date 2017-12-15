@@ -1883,7 +1883,6 @@ our $clouduploadjob = [
 	'size',
 
 	'pid',		# internal
-	'targetdata',	# internal
 ];
 
 1;

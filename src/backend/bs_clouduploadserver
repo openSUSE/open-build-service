@@ -120,8 +120,9 @@ sub cloudupload_create {
     die("$_ is missing from job skeleton\n") unless defined $jobskel->{$_};
     $job->{$_} = $jobskel->{$_};
   }
-  my $targetdata = delete $jobskel->{'targetdata'};
+  my $targetdata = delete $jobskel->{'details'};
   $targetdata = '' unless defined $targetdata;
+  $targetdata = pack('H*', $targetdata);
   my $jobid = nextjobid();
   $job->{'name'} = $jobid;
   $job->{'state'} = 'created';

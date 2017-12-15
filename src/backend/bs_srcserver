@@ -6129,7 +6129,7 @@ sub cloudupload_create {
     'filename' => $filename,
     'user' => $cgi->{'user'},
     'target' => $cgi->{'target'},
-    'targetdata' => $targetdata,
+    'details' => unpack('H*', $targetdata),
   };
   my $param = {
     'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid/$filename",
