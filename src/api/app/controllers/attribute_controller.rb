@@ -235,7 +235,8 @@ class AttributeController < ApplicationController
     # init
     req = ActiveXML::Node.new(request.raw_post)
 
-    # checks
+    # This is necessary for checking the authorization and do not create the attribute
+    # The attribute creation will happen in @attribute_container.store_attribute_axml
     req.each('attribute') do |attr|
       attrib_type = AttribType.find_by_namespace_and_name!(attr.value("namespace"), attr.value("name"))
       attrib = Attrib.new(attrib_type: attrib_type)
