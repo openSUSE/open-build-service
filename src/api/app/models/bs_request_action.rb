@@ -302,9 +302,12 @@ class BsRequestAction < ApplicationRecord
     ''
   end
 
-  def webui_infos
+  def webui_infos(opts = {})
     begin
-      sd = sourcediff(view: 'xml', withissues: true)
+      opts[:view] = 'xml'
+      opts[:withissues] = true
+
+      sd = sourcediff(opts)
     rescue DiffError, Project::UnknownObjectError, Package::UnknownObjectError => e
       return [{ error: e.message }]
     end

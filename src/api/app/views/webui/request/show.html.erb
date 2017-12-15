@@ -72,6 +72,12 @@
   </div>
 </div>
 
+<% if @not_full_diff %>
+  <div class="grid_16 alpha omega box-invisible">
+    <%= render partial: 'webui/shared/truncated_diff_hint', locals: { type: :request } %>
+  </div>
+<% end %>
+
 <div class="grid_16 alpha omega box box-shadow">
 
   <div class="box-header header-tabs">

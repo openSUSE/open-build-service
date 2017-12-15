@@ -905,7 +905,7 @@ class BsRequest < ApplicationRecord
 
     result['my_open_reviews'], result['other_open_reviews'] = reviews_for_user_and_others(User.current)
 
-    result['actions'] = webui_actions(opts[:diffs])
+    result['actions'] = webui_actions(opts)
     result
   end
 
@@ -1033,9 +1033,10 @@ class BsRequest < ApplicationRecord
     end
   end
 
-  def webui_actions(with_diff = true)
+  def webui_actions(opts = {})
     # TODO: Fix!
     actions = []
+    with_diff = opts.delete(:diffs)
     bs_request_actions.each do |xml|
       action = { type: xml.action_type }
 
@@ -1056,7 +1057,7 @@ class BsRequest < ApplicationRecord
       case xml.action_type # All further stuff depends on action type...
       when :submit then
         action[:name] = "Submit #{action[:spkg]}"
-        action[:sourcediff] = xml.webui_infos if with_diff
+        action[:sourcediff] = xml.webui_infos(opts) if with_diff
         creator = User.find_by_login(self.creator)
         target_package = Package.find_by_project_and_name(action[:tprj], action[:tpkg])
         action[:creator_is_target_maintainer] = true if creator.has_local_role?(Role.hashed['maintainer'], target_package)
@@ -1158,6 +1159,17 @@ class BsRequest < ApplicationRecord
     ).update_all(updated_at: Time.now)
     User.where(id: user_ids).update_all(updated_at: Time.now)
     # rubocop:enable Rails/SkipsModelValidations
+  end
+
+  def self.truncated_diffs?(request)
+    request['actions'].select { |action| action[:type] == :submit && action[:sourcediff] }.each do |action|
+      action[:sourcediff].each do |sourcediff|
+        # the 'shown' attribute is only set if the backend truncated the diff
+        return true if sourcediff['files'].any? { |file| file[1]['diff']['shown'] }
+      end
+    end
+
+    false
   end
 
   private

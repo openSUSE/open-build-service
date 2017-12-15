@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
+  recorded_at: Wed, 20 Dec 2017 16:41:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=_nobody_
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>A Time to Kill</title>
-          <description>Id ullam ut blanditiis quidem ea.</description>
+          <title>Dance Dance Dance</title>
+          <description>Quisquam rem est unde at.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>A Time to Kill</title>
-          <description>Id ullam ut blanditiis quidem ea.</description>
+          <title>Dance Dance Dance</title>
+          <description>Quisquam rem est unde at.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
+  recorded_at: Wed, 20 Dec 2017 16:41:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>A Time to Kill</title>
-          <description>Id ullam ut blanditiis quidem ea.</description>
+          <title>Dance Dance Dance</title>
+          <description>Quisquam rem est unde at.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,24 +109,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>A Time to Kill</title>
-          <description>Id ullam ut blanditiis quidem ea.</description>
+          <title>Dance Dance Dance</title>
+          <description>Quisquam rem est unde at.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
+  recorded_at: Wed, 20 Dec 2017 16:41:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Atque optio odio ex. Est incidunt earum accusantium consequatur qui
-        quis. Consequatur cum corporis deleniti consequatur. Accusantium nam porro
-        illo magnam dignissimos aliquid rem. Nemo veniam sint.
+      string: Ullam saepe quia doloremque esse et pariatur qui. Amet voluptate est.
+        At est enim laboriosam eligendi. Commodi distinctio quidem sit sunt quia mollitia
+        nam.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -146,28 +146,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="7" vrev="7">
-          <srcmd5>79efa0048e7b8b566f0777cc915d4f72</srcmd5>
+        <revision rev="17" vrev="17">
+          <srcmd5>060ed20087200c37b4fa60cbe152ce79</srcmd5>
           <version>unknown</version>
-          <time>1493194714</time>
+          <time>1513788107</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
+  recorded_at: Wed, 20 Dec 2017 16:41:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Aut quis itaque quod autem sapiente ipsam ut. Nostrum sequi assumenda
-        nisi est ducimus ut. Necessitatibus non qui dolor ducimus aut. Dolor optio
-        quasi.
+      string: Repellendus quia qui beatae blanditiis. Ratione eos neque libero facere
+        eius. Quo libero minima corrupti vel impedit et nihil. Optio eaque quis quidem
+        ut.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -187,20 +187,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="8" vrev="8">
-          <srcmd5>99d4748017567e51e78388e2e16e781f</srcmd5>
+        <revision rev="18" vrev="18">
+          <srcmd5>060ed20087200c37b4fa60cbe152ce79</srcmd5>
           <version>unknown</version>
-          <time>1493194714</time>
+          <time>1513788107</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
+  recorded_at: Wed, 20 Dec 2017 16:41:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file
@@ -226,16 +226,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '306'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="8" vrev="8" srcmd5="99d4748017567e51e78388e2e16e781f">
-          <entry name="_config" md5="a85aaa8cc07633b795aa08eeaab10abf" size="197" mtime="1493194714" />
-          <entry name="somefile.txt" md5="6a64848542a48ebeda0bb4e5ad8abb24" size="151" mtime="1493194714" />
+        <directory name="package_with_file" rev="18" vrev="18" srcmd5="060ed20087200c37b4fa60cbe152ce79">
+          <entry name="_config" md5="0d80b0dcf33dc836bfd045e8e25d9d99" size="156" mtime="1513788107" />
+          <entry name="somefile.txt" md5="d168c91e90f7f157964af1fd9e3af70c" size="154" mtime="1513788106" />
         </directory>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
+  recorded_at: Wed, 20 Dec 2017 16:41:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file
@@ -261,16 +261,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '306'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="8" vrev="8" srcmd5="99d4748017567e51e78388e2e16e781f">
-          <entry name="_config" md5="a85aaa8cc07633b795aa08eeaab10abf" size="197" mtime="1493194714" />
-          <entry name="somefile.txt" md5="6a64848542a48ebeda0bb4e5ad8abb24" size="151" mtime="1493194714" />
+        <directory name="package_with_file" rev="18" vrev="18" srcmd5="060ed20087200c37b4fa60cbe152ce79">
+          <entry name="_config" md5="0d80b0dcf33dc836bfd045e8e25d9d99" size="156" mtime="1513788107" />
+          <entry name="somefile.txt" md5="d168c91e90f7f157964af1fd9e3af70c" size="154" mtime="1513788106" />
         </directory>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
+  recorded_at: Wed, 20 Dec 2017 16:41:47 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=1&rev=&view=xml&withissues=1
@@ -279,11 +279,9 @@ http_interactions:
       string: ''
     headers:
       Content-Type:
-      - text/plain
+      - application/octet-stream
       Accept-Encoding:
-      - identity
-      Content-Length:
-      - '0'
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -308,7 +306,7 @@ http_interactions:
           <summary>revision is empty</summary>
         </status>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
+  recorded_at: Wed, 20 Dec 2017 16:41:47 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=0&rev=&view=xml&withissues=1
@@ -317,11 +315,9 @@ http_interactions:
       string: ''
     headers:
       Content-Type:
-      - text/plain
+      - application/octet-stream
       Accept-Encoding:
-      - identity
-      Content-Length:
-      - '0'
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -346,5 +342,5 @@ http_interactions:
           <summary>revision is empty</summary>
         </status>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Wed, 20 Dec 2017 16:41:47 GMT
+recorded_with: VCR 4.0.0

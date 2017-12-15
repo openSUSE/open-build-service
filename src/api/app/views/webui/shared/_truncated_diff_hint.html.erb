@@ -1,0 +1,11 @@
+<div id="truncated_diff_hint" class="ui-state-info ui-corner-all ui-widget-shadow padding-10pt">
+  <span class="ui-icon ui-icon-info">
+    We truncated the diff of some files because they were too big. If you want to see the full diff for
+    every file,
+    <% if type == :request %>
+      <%= link_to 'click here', request_show_path(number: @number, full_diff: true) %>.
+    <% elsif type == :package %>
+      <%= link_to 'click here', package_rdiff_path(project: @project, package: @package, linkrev: @linkrev, rev: @rev, full_diff: true) %>.
+    <% end %>
+  </span>
+</div>

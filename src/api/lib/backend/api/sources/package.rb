@@ -115,7 +115,7 @@ module Backend
         # @return [String]
         def self.source_diff(project_name, package_name, options = {})
           post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :diff, view: :xml, withissues: 1 },
-               params: options, accepted: [:rev, :orev, :opackage, :oproject, :linkrev, :olinkrev, :expand, :filelimit])
+               params: options, accepted: [:rev, :orev, :opackage, :oproject, :linkrev, :olinkrev, :expand, :filelimit, :tarlimit])
         end
 
         # Runs the command rebuild for that package
