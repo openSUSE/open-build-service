@@ -1,5 +1,7 @@
 require 'rails_helper'
 
+CONFIG['global_write_through'] = true
+
 RSpec.describe BranchPackage, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:home_project) { user.home_project }
@@ -57,6 +59,7 @@ RSpec.describe BranchPackage, vcr: true do
     context 'project without ImageTemplates attribute' do
       context 'auto cleanup attribute' do
         it 'is set to the default' do
+          leap_project
           allow(Configuration).to receive(:cleanup_after_days).and_return(42)
           branch_apache_package.branch
           project = Project.find_by_name(user.branch_project_name('openSUSE_Leap'))
