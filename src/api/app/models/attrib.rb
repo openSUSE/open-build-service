@@ -117,14 +117,14 @@ class Attrib < ApplicationRecord
 
   private
 
-  def validate_value_count
-    return unless attrib_type && attrib_type.allowed_values.any?
+  def validate_allowed_values_for_attrib_type
+    return unless attrib_type.allowed_values.any?
 
     values.map(&:value).each do |value|
       allowed_values = attrib_type.allowed_values.map(&:value)
       unless allowed_values.include?(value)
         errors[:values] <<
-          "Value '#{value}' is not allowed. Please use one of: #{allowed_values.join(', ')}"
+          "Value '#{value.inspect}' is not allowed. Please use one of: #{allowed_values.join(', ')}"
       end
     end
   end
@@ -133,7 +133,7 @@ class Attrib < ApplicationRecord
     errors[:issues] << "can't have issues" if attrib_type && !attrib_type.issue_list && issues.any?
   end
 
-  def validate_allowed_values_for_attrib_type
+  def validate_value_count
     value_count = attrib_type.try(:value_count)
     errors[:values] << "has #{values.length} values, but only #{value_count} are allowed" if value_count && value_count != values.length
   end
