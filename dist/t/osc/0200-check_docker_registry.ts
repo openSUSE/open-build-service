@@ -9,7 +9,7 @@ use Test::More tests => 2;
 # skipable
 
 SKIP: {
-  skip "tests disabled by default. To enable set ENABLE_DOCKER_REGISTRY_TESTS=1", 1 unless $ENV{ENABLE_DOCKER_REGISTRY_TESTS};
+  skip "tests disabled by default. To enable set ENABLE_DOCKER_REGISTRY_TESTS=1", 2 unless $ENV{ENABLE_DOCKER_REGISTRY_TESTS};
   `osc rdelete -m "testing deleted it" -rf BaseContainer 2>&1`;
   `rm -rf /tmp/BaseContainer`;
   `osc branch openSUSE.org:openSUSE:Templates:Images:42.3:Base  openSUSE-Leap-Container-Base BaseContainer`;
