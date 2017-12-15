@@ -52,7 +52,7 @@ module HasAttributes
       a.package = self if is_a? Package
       if a.attrib_type.value_count
         a.attrib_type.value_count.times do |i|
-          a.values.build(position: i, value: "")
+          a.values.build(position: i, value: values[i])
         end
       end
       raise AttributeSaveError, a.errors.full_messages.join(", ") unless a.save
