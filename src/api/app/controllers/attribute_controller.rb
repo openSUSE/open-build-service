@@ -238,8 +238,10 @@ class AttributeController < ApplicationController
     # checks
     req.each('attribute') do |attr|
       attrib_type = AttribType.find_by_namespace_and_name!(attr.value("namespace"), attr.value("name"))
-      attrib = Attrib.new(attrib_type: attrib_type)
+      attrib = @attribute_container.attribs.find_by(attrib_type: attrib_type)
+      attrib ||= Attrib.new(attrib_type: attrib_type)
 
+      attrib.values.delete_all
       attr.each("value") do |value|
         attrib.values.new(value: value.text)
       end

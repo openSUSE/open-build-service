@@ -127,6 +127,31 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/attribute/TEST/Dummy/_meta"
     assert_response :success
+    # use it
+    attrib_data = "<attributes>
+                     <attribute namespace='TEST' name='Dummy' >
+                       <value>M</value>
+                       <value>A</value>
+                     </attribute>
+                   </attributes>"
+    post "/source/home:adrian/_attribute", params: attrib_data
+    assert_response 400
+    assert_match(/Values Value '\"M\"' is not allowed./, @response.body)
+    get "/source/home:adrian/_attribute"
+    assert_response :success
+    attrib_data = "<attributes>
+                     <attribute namespace='TEST' name='Dummy' >
+                       <value>A</value>
+                       <value>B</value>
+                     </attribute>
+                   </attributes>"
+    post "/source/home:adrian/_attribute", params: attrib_data
+    assert_response :success
+    get "/source/home:adrian/_attribute"
+    assert_response :success
+    assert_xml_tag tag: 'value', content: "A" }
+    assert_xml_tag tag: 'value', content: "B" }
+    # cleanup
     login_Iggy
     delete "/attribute/TEST/Dummy/_meta"
     assert_response 403
