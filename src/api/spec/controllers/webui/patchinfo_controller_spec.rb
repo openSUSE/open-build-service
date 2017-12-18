@@ -15,10 +15,10 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
 
   def do_proper_post_save
     post :save, params: {
-        project: user.home_project_name, package: patchinfo_package.name, summary: 'long enough summary is ok',
+      project: user.home_project_name, package: patchinfo_package.name, summary: 'long enough summary is ok',
         description: 'long enough description is also ok' * 5, issueid: [769484], issuetracker: ['bgo'], issuesum: [nil],
         issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484'], category: 'recommended', rating: 'low', packager: user.login
-      }
+    }
   end
 
   let(:fake_build_results) do
@@ -156,8 +156,8 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     context 'with a short summary' do
       before do
         post :save, params: {
-            project: user.home_project_name, package: patchinfo_package.name, summary: 'short', description: 'long description ' * 10
-          }
+          project: user.home_project_name, package: patchinfo_package.name, summary: 'short', description: 'long description ' * 10
+        }
       end
 
       it { expect(flash[:error]).to eq("|| Summary is too short (should have more than 10 signs)") }
@@ -168,8 +168,8 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     context 'with a short description' do
       before do
         post :save, params: {
-            project: user.home_project_name, package: patchinfo_package.name, summary: 'long enough summary is ok', description: 'short'
-          }
+          project: user.home_project_name, package: patchinfo_package.name, summary: 'long enough summary is ok', description: 'short'
+        }
       end
 
       it { expect(flash[:error]).to eq(" || Description is too short (should have more than 50 signs and longer than summary)") }
@@ -179,10 +179,10 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     context 'with an unknown issue tracker' do
       before do
         post :save, params: {
-            project: user.home_project_name, package: patchinfo_package.name, summary: 'long enough summary is ok',
+          project: user.home_project_name, package: patchinfo_package.name, summary: 'long enough summary is ok',
             description: 'long enough description is also ok' * 5, issueid: [769484], issuetracker: ['NonExistingTracker'], issuesum: [nil],
             issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484']
-          }
+        }
       end
 
       it { expect(flash[:error]).to eq("Unknown Issue tracker NonExistingTracker") }
@@ -192,10 +192,10 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     context "when the patchinfo's xml is invalid" do
       before do
         post :save, params: {
-            project: user.home_project_name, package: patchinfo_package.name,
+          project: user.home_project_name, package: patchinfo_package.name,
             summary: 'long enough summary is ok', description: 'long enough description is also ok' * 5,
             issueid: [769484], issuetracker: ['bgo'], issuesum: [nil], issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484']
-          }
+        }
       end
 
       it { expect(flash[:error]).to start_with("patchinfo is invalid: ") }

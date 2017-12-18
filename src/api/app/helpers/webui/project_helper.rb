@@ -104,9 +104,9 @@ module Webui::ProjectHelper
   end
 
   STATE_ICONS = {
-      'new'      => 'flag_green',
-      'review'   => 'flag_yellow',
-      'declined' => 'flag_red'
+    'new'      => 'flag_green',
+    'review'   => 'flag_yellow',
+    'declined' => 'flag_red'
   }.freeze
 
   def map_request_state_to_flag(state)

@@ -244,11 +244,9 @@ RSpec.describe Webui::RequestController, vcr: true do
       it 'forwards' do
         login(receiver)
         expect do
-          post :changerequest, params: {
-              number: bs_request.number, accepted: 'accepted',
-              forward_devel_0: "#{devel_package.project}_#_#{devel_package}",
-              description: 'blah blah blah'
-            }
+          post :changerequest, params: { number: bs_request.number, accepted: 'accepted',
+                                         forward_devel_0: "#{devel_package.project}_#_#{devel_package}",
+                                         description: 'blah blah blah' }
         end.to change { BsRequest.count }.by(1)
         expect(BsRequest.last.bs_request_actions).to eq(devel_package.project.target_of_bs_request_actions)
       end
@@ -273,11 +271,9 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       it 'accepts the parent request and reports an error for the forwarded request' do
         expect do
-          post :changerequest, params: {
-              number: bs_request.number, accepted: 'accepted',
-              forward_devel_0: "#{devel_package.project}_#_#{devel_package}",
-              description: 'blah blah blah'
-            }
+          post :changerequest, params: { number: bs_request.number, accepted: 'accepted',
+                                         forward_devel_0: "#{devel_package.project}_#_#{devel_package}",
+                                         description: 'blah blah blah' }
         end.not_to change(BsRequest, :count)
         expect(bs_request.reload.state).to eq(:accepted)
         expect(flash[:notice]).to match("Request \\d accepted")
@@ -291,9 +287,9 @@ RSpec.describe Webui::RequestController, vcr: true do
       before do
         login(submitter)
         post :change_devel_request, params: {
-            project: target_project.name, package: target_package.name,
+          project: target_project.name, package: target_package.name,
             devel_project: source_project.name, devel_package: source_package.name, description: "change it!"
-          }
+        }
         @bs_request = BsRequest.where(description: "change it!", creator: submitter.login, state: "new").first
       end
 
@@ -318,9 +314,9 @@ RSpec.describe Webui::RequestController, vcr: true do
       before do
         login(submitter)
         post :change_devel_request, params: {
-            project: target_project.name, package: target_package.name,
+          project: target_project.name, package: target_package.name,
             devel_project: source_project.name, devel_package: "non-existant", description: "change it!"
-          }
+        }
         @bs_request = BsRequest.where(description: "change it!", creator: submitter.login, state: "new").first
       end
 

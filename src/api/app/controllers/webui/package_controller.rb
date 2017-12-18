@@ -529,8 +529,8 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     branch_params = {
-        project: source_project_name,
-        package: source_package_name
+      project: source_project_name,
+      package: source_package_name
     }
 
     # Set the branch to the current revision if revision is present

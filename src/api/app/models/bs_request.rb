@@ -1002,8 +1002,8 @@ class BsRequest < ApplicationRecord
       reviewers += action.default_reviewers
 
       action.create_post_permissions_hook({
-         per_package_locking: @per_package_locking
-      })
+                                            per_package_locking: @per_package_locking
+                                          })
     end
 
     # apply reviewers
@@ -1187,12 +1187,12 @@ class BsRequest < ApplicationRecord
     return unless persisted? && priority_changed?
 
     HistoryElement::RequestPriorityChange.create({
-      request:               self,
-      # We need to have a user here
-      user:                  User.find_nobody!,
-      description_extension: "#{priority_was} => #{priority}",
-      comment:               "Automatic priority bump: Priority of related action increased."
-    })
+                                                   request:               self,
+                                                   # We need to have a user here
+                                                   user:                  User.find_nobody!,
+                                                   description_extension: "#{priority_was} => #{priority}",
+                                                   comment:               "Automatic priority bump: Priority of related action increased."
+                                                 })
   end
 
   def _assignreview_update_reviews(reviewer, opts, new_review = nil)

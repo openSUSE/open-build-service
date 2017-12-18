@@ -177,7 +177,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
                 id:          kiwi_repository.id,
                 repo_type:   'apt2-deb',
                 source_path: 'htt://example.com'
-                }
+              }
             }
           }
         }

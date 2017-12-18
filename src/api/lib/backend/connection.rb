@@ -37,7 +37,7 @@ module Backend
 
     def self.post(path, data = nil, in_headers = {})
       in_headers = {
-          'Content-Type' => 'application/octet-stream'
+        'Content-Type' => 'application/octet-stream'
       }.merge in_headers
       put_or_post("POST", path, data, in_headers)
     end

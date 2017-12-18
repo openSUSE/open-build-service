@@ -7,10 +7,10 @@ RSpec.describe 'Kerberos login', vcr: false, type: :request do
 
     before do
       stub_const('CONFIG', CONFIG.merge({
-        'kerberos_service_principal' => 'HTTP/obs.test.com@test_realm.com',
-        'kerberos_realm'             => 'test_realm.com',
-        'kerberos_mode'              => true
-      }))
+                                          'kerberos_service_principal' => 'HTTP/obs.test.com@test_realm.com',
+                                          'kerberos_realm'             => 'test_realm.com',
+                                          'kerberos_mode'              => true
+                                        }))
     end
 
     context "calling a controller with 'extract_user' before filter" do

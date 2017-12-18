@@ -97,10 +97,10 @@ RSpec.feature "Login", type: :feature, js: true do
   context 'in kerberos mode' do
     before do
       stub_const('CONFIG', CONFIG.merge({
-        'kerberos_service_principal' => 'HTTP/obs.test.com@test_realm.com',
-        'kerberos_realm'             => 'test_realm.com',
-        'kerberos_mode'              => true
-      }))
+                                          'kerberos_service_principal' => 'HTTP/obs.test.com@test_realm.com',
+                                          'kerberos_realm'             => 'test_realm.com',
+                                          'kerberos_mode'              => true
+                                        }))
     end
 
     context 'for a request that requires authentication' do
@@ -172,12 +172,12 @@ RSpec.feature "Login", type: :feature, js: true do
 
     before do
       stub_const('CONFIG', CONFIG.merge({
-        'ldap_mode'         => :on,
-        'ldap_search_user'  => 'tux',
-        'ldap_search_auth'  => 'tux_password',
-        'ldap_ssl'          => :off,
-        'ldap_authenticate' => :ldap
-      }))
+                                          'ldap_mode'         => :on,
+                                          'ldap_search_user'  => 'tux',
+                                          'ldap_search_auth'  => 'tux_password',
+                                          'ldap_ssl'          => :off,
+                                          'ldap_authenticate' => :ldap
+                                        }))
 
       allow(ldap_mock).to receive(:search).and_yield(ldap_user)
       allow(ldap_mock).to receive(:unbind)

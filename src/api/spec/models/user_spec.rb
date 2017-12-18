@@ -842,10 +842,10 @@ RSpec.describe User do
 
       before do
         stub_const('CONFIG', CONFIG.merge({
-          'ldap_mode'        => :on,
-          'ldap_search_user' => 'tux',
-          'ldap_search_auth' => 'tux_password'
-        }))
+                                            'ldap_mode'        => :on,
+                                            'ldap_search_user' => 'tux',
+                                            'ldap_search_auth' => 'tux_password'
+                                          }))
       end
 
       context 'and user is already known by OBS' do

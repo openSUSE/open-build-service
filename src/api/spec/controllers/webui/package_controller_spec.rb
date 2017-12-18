@@ -190,8 +190,8 @@ RSpec.describe Webui::PackageController, vcr: true do
     context 'valid data' do
       before do
         post :save, params: {
-            project: source_project, package: source_package, title: 'New title for package', description: 'New description for package'
-          }
+          project: source_project, package: source_package, title: 'New title for package', description: 'New description for package'
+        }
       end
 
       it { expect(flash[:notice]).to eq("Package data for '#{source_package.name}' was saved successfully") }
@@ -203,8 +203,8 @@ RSpec.describe Webui::PackageController, vcr: true do
     context 'invalid data' do
       before do
         post :save, params: {
-            project: source_project, package: source_package, title: 'New title for package', description: SecureRandom.hex(32768) # = 65536 chars
-          }
+          project: source_project, package: source_package, title: 'New title for package', description: SecureRandom.hex(32768) # = 65536 chars
+        }
       end
 
       it { expect(controller).to set_flash[:error] }

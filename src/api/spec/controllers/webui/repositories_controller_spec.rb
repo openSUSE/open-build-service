@@ -159,9 +159,9 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
       before do
         target_repo = create(:repository, project: another_project)
         post :create, params: {
-            project: user.home_project, repository: 'valid_name',
+          project: user.home_project, repository: 'valid_name',
             target_project: another_project, target_repo: target_repo.name, architectures: ['i586']
-          }
+        }
       end
 
       it { expect(flash[:success]).to eq("Successfully added repository 'valid_name'") }
