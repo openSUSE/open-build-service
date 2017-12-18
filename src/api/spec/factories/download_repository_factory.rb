@@ -13,7 +13,7 @@ FactoryBot.define do
       # We need to find and create in two separate steps because for finding the position irrelevant but not for creating
       # We set the position explicit in the repository_architecture factory
       unless repo_arch
-        create(:repository_architecture, repository:   download_repository.repository,
+        create(:repository_architecture, repository: download_repository.repository,
                architecture: Architecture.find_or_create_by!(name: download_repository.arch))
       end
     end

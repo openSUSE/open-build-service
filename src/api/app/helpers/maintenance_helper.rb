@@ -297,8 +297,7 @@ module MaintenanceHelper
     channel = REXML::Document.new(channel)
 
     if target_repo
-      channel.elements['/channel'].add_element 'target', 'project' => target_repo.project.name,
-        'repository' => target_repo.name
+      channel.elements['/channel'].add_element 'target', 'project' => target_repo.project.name, 'repository' => target_repo.name
     end
 
     # replace all project definitions with update projects, if they are defined

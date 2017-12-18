@@ -466,10 +466,10 @@ class BranchPackage
         logger.debug "found local linked package in project #{p[:package].project.name}/#{ap.name}, " +
                      "adding it as well, pointing it to #{p[:package].name} for #{target_package}"
         @packages.push(base_project: p[:base_project],
-                         link_target_project: p[:link_target_project],
-                         link_target_package: p[:package].name,
-                         package: ap, target_package: target_package,
-                         release_name: release_name, local_link: 1)
+                       link_target_project: p[:link_target_project],
+                       link_target_package: p[:package].name,
+                       package: ap, target_package: target_package,
+                       release_name: release_name, local_link: 1)
       end
     end
   end
@@ -521,8 +521,8 @@ class BranchPackage
       else
         # remote or not existing package
         @packages.push(base_project: prj,
-                         link_target_project: (prj || params[:project]),
-                         package: params[:package], rev: params[:rev], target_package: tpkg_name)
+                       link_target_project: (prj || params[:project]),
+                       package: params[:package], rev: params[:rev], target_package: tpkg_name)
       end
     else
       @extend_names = true
@@ -556,7 +556,7 @@ class BranchPackage
               ltprj = pkg2.project
             end
             @packages.push(base_project: pkg2.project, link_target_project: ltprj,
-                             package: pkg2, target_package: "#{pkg2.name}.#{pkg2.project.name}")
+                           package: pkg2, target_package: "#{pkg2.name}.#{pkg2.project.name}")
           end
         end
       end

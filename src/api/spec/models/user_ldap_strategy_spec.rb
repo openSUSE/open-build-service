@@ -31,10 +31,8 @@ RSpec.describe UserLdapStrategy do
   describe '.authenticate_with_local' do
     context "with ldap auth method ':cleartext'" do
       before do
-        stub_const('CONFIG', CONFIG.merge(
-                               'ldap_auth_mech' => :cleartext,
-                               'ldap_auth_attr' => 'CLR_userPassword'
-        ))
+        stub_const('CONFIG', CONFIG.merge('ldap_auth_mech' => :cleartext,
+                                          'ldap_auth_attr' => 'CLR_userPassword'))
       end
 
       it 'validates a correct password' do
@@ -50,10 +48,8 @@ RSpec.describe UserLdapStrategy do
 
     context "with ldap auth method ':md5'" do
       before do
-        stub_const('CONFIG', CONFIG.merge(
-                               'ldap_auth_mech' => :md5,
-                               'ldap_auth_attr' => 'MD5_userPassword'
-        ))
+        stub_const('CONFIG', CONFIG.merge('ldap_auth_mech' => :md5,
+                                          'ldap_auth_attr' => 'MD5_userPassword'))
       end
 
       it 'validates a correct password' do
@@ -137,11 +133,9 @@ RSpec.describe UserLdapStrategy do
       include_context 'setup ldap mock', for_ssl: true
 
       before do
-        stub_const('CONFIG', CONFIG.merge(
-                               'ldap_search_user'      => 'tux',
-                               'ldap_search_auth'      => 'tux_password',
-                               'ldap_group_title_attr' => 'ldap_group'
-        ))
+        stub_const('CONFIG', CONFIG.merge('ldap_search_user'      => 'tux',
+                                          'ldap_search_auth'      => 'tux_password',
+                                          'ldap_group_title_attr' => 'ldap_group'))
 
         allow(ldap_mock).to receive(:bind).with('tux', 'tux_password')
         allow(ldap_mock).to receive(:bound?).and_return(true)
@@ -189,12 +183,10 @@ RSpec.describe UserLdapStrategy do
 
   describe '#find_with_ldap' do
     before do
-      stub_const('CONFIG', CONFIG.merge(
-                             'ldap_search_user'  => 'tux',
-                             'ldap_search_auth'  => 'tux_password',
-                             'ldap_ssl'          => :off,
-                             'ldap_authenticate' => :ldap
-      ))
+      stub_const('CONFIG', CONFIG.merge('ldap_search_user'  => 'tux',
+                                        'ldap_search_auth'  => 'tux_password',
+                                        'ldap_ssl'          => :off,
+                                        'ldap_authenticate' => :ldap))
     end
 
     context 'ldap doesnt connect' do
@@ -232,9 +224,7 @@ RSpec.describe UserLdapStrategy do
         include_context 'an ldap connection'
 
         before do
-          stub_const('CONFIG', CONFIG.merge(
-                                 'ldap_user_filter' => nil
-          ))
+          stub_const('CONFIG', CONFIG.merge('ldap_user_filter' => nil))
 
           allow(ldap_mock).to receive(:search)
         end

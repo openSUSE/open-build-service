@@ -40,12 +40,10 @@ RSpec.describe Authenticator do
       let(:request_mock) { double(:request, env: { 'Authorization' => 'Negotiate' }) }
 
       before do
-        stub_const('CONFIG', CONFIG.merge(
-                               'kerberos_service_principal' => 'HTTP/obs.test.com@test_realm.com',
-                               'kerberos_realm'             => 'test_realm.com',
-                               'kerberos_mode'              => true,
-                               'kerberos_keytab'            => '/etc/krb5.keytab'
-        ))
+        stub_const('CONFIG', CONFIG.merge('kerberos_service_principal' => 'HTTP/obs.test.com@test_realm.com',
+                                          'kerberos_realm'             => 'test_realm.com',
+                                          'kerberos_mode'              => true,
+                                          'kerberos_keytab'            => '/etc/krb5.keytab'))
       end
 
       context 'with an invalid ticket' do
