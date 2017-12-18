@@ -495,7 +495,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 %dir /etc/slp.reg.d
 %dir /usr/lib/obs
 %dir /usr/lib/obs/server
-/etc/logrotate.d/obs-server
+%config(noreplace) /etc/logrotate.d/obs-server
 /etc/init.d/obsdispatcher
 /etc/init.d/obspublisher
 /etc/init.d/obsrepserver
@@ -560,7 +560,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
 # formerly obs-source_service
 /etc/init.d/obsservice
-/etc/logrotate.d/obs-source_service
+%config(noreplace) /etc/logrotate.d/obs-source_service
 /etc/cron.d/cleanup_scm_cache
 /usr/sbin/rcobsservice
 /usr/lib/obs/server/bs_service
@@ -609,7 +609,7 @@ usermod -a -G docker obsservicerun
 /srv/www/obs/api/config.ru
 /srv/www/obs/api/config/application.rb
 /srv/www/obs/api/config/clock.rb
-/etc/logrotate.d/obs-api
+%config(noreplace) /etc/logrotate.d/obs-api
 /etc/init.d/obsapidelayed
 /etc/init.d/obsapisetup
 /usr/sbin/rcobsapisetup
