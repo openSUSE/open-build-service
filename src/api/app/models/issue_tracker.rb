@@ -357,9 +357,7 @@ class CVEparser < Nokogiri::XML::SAX::Document
     if name == 'item'
       cve = nil
       attrs.each_index do |i|
-        if attrs[i][0] == 'name'
-          cve = attrs[i][1]
-        end
+        cve = attrs[i][1] if attrs[i][0] == 'name'
       end
 
       @@my_issue = Issue.find_or_create_by_name_and_tracker(cve.gsub(/^CVE-/, ''), @@my_tracker.name)

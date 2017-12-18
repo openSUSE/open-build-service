@@ -128,9 +128,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
         end
       end
       body.css('h2').each do |h|
-        if h.content == 'XML errors'
-          raiseit('XML errors', theone)
-        end
+        raiseit('XML errors', theone) if h.content == 'XML errors'
       end
       body.css('#exception-error').each do |e|
         raiseit("error '#{e.content}'", theone)

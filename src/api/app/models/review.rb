@@ -46,9 +46,7 @@ class Review < ApplicationRecord
   scope :bs_request_ids_of_involved_users, ->(user_ids) { where(user_id: user_ids).select(:bs_request_id) }
 
   before_validation(on: :create) do
-    if self[:state].nil?
-      self.state = :new
-    end
+    self.state = :new if self[:state].nil?
   end
 
   before_validation :set_reviewable_association
@@ -113,13 +111,9 @@ class Review < ApplicationRecord
       errors.add(:base, 'it is not allowed to have more than one reviewer entity: by_user, by_group, by_project, by_package')
     end
 
-    if by_user && !user
-      errors.add(:by_user, "#{by_user} not found")
-    end
+    errors.add(:by_user, "#{by_user} not found") if by_user && !user
 
-    if by_group && !group
-      errors.add(:by_group, "#{by_group} not found")
-    end
+    errors.add(:by_group, "#{by_group} not found") if by_group && !group
 
     if by_project && !project
       # must be a local project or we can't ask
@@ -196,12 +190,8 @@ class Review < ApplicationRecord
   end
 
   def users_and_groups_for_review
-    if by_user
-      return [User.find_by_login!(by_user)]
-    end
-    if by_group
-      return [Group.find_by_title!(by_group)]
-    end
+    return [User.find_by_login!(by_user)] if by_user
+    return [Group.find_by_title!(by_group)] if by_group
     if by_package
       obj = Package.find_by_project_and_name(by_project, by_package)
       return [] unless obj

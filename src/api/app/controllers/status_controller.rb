@@ -107,9 +107,7 @@ class StatusController < ApplicationController
     package_hash = {}
     packages.each_value do |p|
       package_hash[p.package_id] = p
-      if p.develpack
-        package_hash[p.develpack.package_id] = p.develpack
-      end
+      package_hash[p.develpack.package_id] = p.develpack if p.develpack
     end
     @rolecache = {}
     @usercache = {}

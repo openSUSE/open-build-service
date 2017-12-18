@@ -86,9 +86,7 @@ class MemoryDebugger
         end if d.line['ivars']
       end
       %w(n1 n2 n3 block scope shared).each do |key|
-        if d.line.has_key?(key)
-          d.add(ids[d.line[key]])
-        end
+        d.add(ids[d.line[key]]) if d.line.has_key?(key)
       end
     end
     ids.each_value do |d|

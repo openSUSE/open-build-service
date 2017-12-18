@@ -15,9 +15,7 @@ task(importrequests: :environment) do
       next
     end
     r = BsRequest.new_from_xml xml
-    unless r.save
-      puts "Request ##{lastrq}:", r.errors.full_messages.join("\n")
-    end
+    puts "Request ##{lastrq}:", r.errors.full_messages.join("\n") unless r.save
     lastrq -= 1
   end
 end

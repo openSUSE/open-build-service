@@ -28,9 +28,7 @@ class BsRequestActionSetBugowner < BsRequestAction
   def execute_accept(_opts)
     object = Project.find_by_name!(target_project)
     bugowner = Role.find_by_title!('bugowner')
-    if target_package
-      object = object.packages.find_by_name!(target_package)
-    end
+    object = object.packages.find_by_name!(target_package) if target_package
     object.relationships.where('role_id = ?', bugowner).find_each(&:destroy)
     object.add_user(person_name, bugowner, true) if person_name # runs with ignoreLock
     object.add_group(group_name, bugowner, true) if group_name  # runs with ignoreLock

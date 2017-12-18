@@ -33,9 +33,7 @@ class BsRequestActionGroup < BsRequestAction
 
     # Creators can group their own creations
     creator = User.current
-    if bs_request # bootstrap?
-      creator = bs_request.creator
-    end
+    creator = bs_request.creator if bs_request # bootstrap?
     return if creator == req.creator
 
     # a single request is always fine

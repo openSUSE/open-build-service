@@ -225,9 +225,7 @@ class SourceController < ApplicationController
       @tpkg = Package.get_by_project_and_name(@target_project_name, @target_package_name, use_source: true, follow_project_links: true)
     end
 
-    if params[:view] == 'issues'
-      show_package_issues && return
-    end
+    show_package_issues && return if params[:view] == 'issues'
 
     # exec
     path = request.path_info
@@ -337,9 +335,7 @@ class SourceController < ApplicationController
       valid_package_name! origin_package_name
     end
 
-    if origin_package_name
-      required_parameters :oproject
-    end
+    required_parameters :oproject if origin_package_name
 
     valid_project_name! params[:target_project] if params[:target_project]
     valid_package_name! params[:target_package] if params[:target_package]
@@ -480,19 +476,13 @@ class SourceController < ApplicationController
     end
 
     result = Project.validate_link_xml_attribute(request_data, project_name)
-    if result[:error]
-      raise ProjectReadAccessFailure, result[:error]
-    end
+    raise ProjectReadAccessFailure, result[:error] if result[:error]
 
     result = Project.validate_maintenance_xml_attribute(request_data)
-    if result[:error]
-      raise ModifyProjectNoPermission, result[:error]
-    end
+    raise ModifyProjectNoPermission, result[:error] if result[:error]
 
     result = Project.validate_repository_xml_attribute(request_data, project_name)
-    if result[:error]
-      raise RepositoryAccessFailure, result[:error]
-    end
+    raise RepositoryAccessFailure, result[:error] if result[:error]
 
     if project
       remove_repositories = project.get_removed_repositories(request_data)
@@ -1577,9 +1567,7 @@ class SourceController < ApplicationController
     # find out about source and target dependening on command   - FIXME: ugly! sync calls
 
     # The branch command may be used just for simulation
-    if !params[:dryrun] && @target_project_name
-      verify_can_modify_target!
-    end
+    verify_can_modify_target! if !params[:dryrun] && @target_project_name
 
     private_branch_command
   end

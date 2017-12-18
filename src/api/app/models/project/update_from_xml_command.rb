@@ -77,9 +77,7 @@ class Project
             raise SaveError, "unable to link against project '#{l['project']}'"
           end
         else
-          if link == project
-            raise SaveError, 'unable to link against myself'
-          end
+          raise SaveError, 'unable to link against myself' if link == project
           project.linking_to.create!(project: project,
                                       linked_db_project: link,
                                       position: position)

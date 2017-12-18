@@ -70,14 +70,10 @@ class PackageBuildStatus
     # if the package does not appear in build history, check flags
     unless @everbuilt
       buildflag = @pkg.find_flag_state('build', srep['name'], arch)
-      if buildflag == 'disable'
-        @buildcode = 'disabled'
-      end
+      @buildcode = 'disabled' if buildflag == 'disable'
     end
 
-    unless @buildcode
-      gather_current_buildcode(srep, arch)
-    end
+    gather_current_buildcode(srep, arch) unless @buildcode
 
     @result[srep['name']][arch] = { result: @buildcode }
     @result[srep['name']][arch][:missing] = missingdeps.uniq
@@ -106,9 +102,7 @@ class PackageBuildStatus
     if currentcode.in?(['building', 'scheduled', 'finished', 'signing', 'blocked'])
       @buildcode = 'building'
     end
-    if currentcode == 'excluded'
-      @buildcode = 'excluded'
-    end
+    @buildcode = 'excluded' if currentcode == 'excluded'
     # if it's currently succeeded but !@everbuilt, it's different sources
     return unless currentcode == 'succeeded'
 
@@ -132,9 +126,7 @@ class PackageBuildStatus
       end
 
       buildinfo.get('package').elements('pkgdep') do |b|
-        unless @tpackages.has_key? b
-          missingdeps << b
-        end
+        missingdeps << b unless @tpackages.has_key? b
       end
 
     end

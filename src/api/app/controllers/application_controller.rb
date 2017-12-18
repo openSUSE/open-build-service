@@ -223,9 +223,7 @@ class ApplicationController < ActionController::Base
     begin
       xml = ActiveXML::Node.new(text)
       http_status = xml.value('code')
-      unless xml.has_attribute? 'origin'
-        xml.set_attribute 'origin', 'backend'
-      end
+      xml.set_attribute('origin', 'backend') unless xml.has_attribute?('origin')
       text = xml.dump_xml
     rescue ActiveXML::ParseError
     end

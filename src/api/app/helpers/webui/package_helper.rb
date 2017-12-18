@@ -1,9 +1,7 @@
 module Webui::PackageHelper
   def file_url(project, package, filename, revision = nil)
     opts = {}
-    if revision
-      opts[:rev] = revision
-    end
+    opts[:rev] = revision if revision
     Package.source_path(project, package, filename, opts)
   end
 

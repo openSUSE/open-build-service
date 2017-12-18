@@ -419,9 +419,7 @@ class Webui::RequestController < Webui::WebuiController
                    source_rev:     rev,
                    target_project: tgt_prj,
                    target_package: tgt_pkg }
-          if params[:sourceupdate]
-            opts[:sourceupdate] = params[:sourceupdate]
-          end
+          opts[:sourceupdate] = params[:sourceupdate] if params[:sourceupdate]
           action = BsRequestActionSubmit.new(opts)
           req.bs_request_actions << action
           action.bs_request = req

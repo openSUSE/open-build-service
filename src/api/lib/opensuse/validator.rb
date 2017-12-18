@@ -90,9 +90,7 @@ module Suse
           return true
         end
 
-        if content.nil?
-          raise "illegal option; need content for #{schema_file}"
-        end
+        raise "illegal option; need content for #{schema_file}" if content.nil?
         content = content.to_s
         if content.empty?
           logger.debug "no content, skipping validation for #{schema_file}"

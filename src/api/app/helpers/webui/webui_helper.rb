@@ -61,11 +61,9 @@ module Webui::WebuiHelper
       if login && splitted[1] == login
         prjname = '~'
       else
-        prjname = '~' + splitted[1]
+        prjname = "~#{splitted[1]}"
       end
-      if splitted.length > 2
-        prjname += ':' + splitted[-1]
-      end
+      prjname += ":#{splitted[-1]}" if splitted.length > 2
     end
     prjname
   end
@@ -224,9 +222,7 @@ module Webui::WebuiHelper
     opts.reverse_merge!(read_only: false, no_border: false, width: 'auto', height: 'auto')
 
     style = ".CodeMirror {\n"
-    if opts[:no_border] || opts[:read_only]
-      style += "border-width: 0 0 0 0;\n"
-    end
+    style += "border-width: 0 0 0 0;\n" if opts[:no_border] || opts[:read_only]
     style += "height: #{opts[:height]};\n" unless opts[:height] == 'auto'
     style += "width: #{opts[:width]}; \n" unless opts[:width] == 'auto'
     style + "}\n"

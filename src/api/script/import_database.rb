@@ -51,9 +51,7 @@ def init
   end
 
   # There is only the filename given
-  if @params.count == 1
-    abort('No parameters, use --help')
-  end
+  abort('No parameters, use --help') if @params.count == 1
 
   if @params[:all] && (@params[:import] || @params[:load] || @params[:path])
     abort('The --all parameter is not valid in combination with --import, --load or --filename')

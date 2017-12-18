@@ -69,18 +69,14 @@ module Event
 
       def create_jobs(*keys)
         # this function serves both for reading and setting
-        if keys.empty?
-          return @create_jobs || []
-        end
+        return @create_jobs || [] if keys.empty?
         @create_jobs ||= []
         @create_jobs += keys
       end
 
       def receiver_roles(*keys)
         # this function serves both for reading and setting
-        if keys.empty?
-          return @receiver_roles || []
-        end
+        return @receiver_roles || [] if keys.empty?
         @receiver_roles ||= []
         @receiver_roles += keys
       end
@@ -219,9 +215,7 @@ module Event
     end
 
     def payload_address(field)
-      if payload[field]
-        return User.find_by_login(payload[field])
-      end
+      return User.find_by_login(payload[field]) if payload[field]
       nil
     end
 

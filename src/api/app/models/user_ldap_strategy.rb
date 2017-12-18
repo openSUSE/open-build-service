@@ -99,12 +99,8 @@ class UserLdapStrategy
     group_dn = ''
     group_member_attr = ''
     grouplist.each do |eachgroup|
-      if eachgroup.is_a? String
-        group = eachgroup
-      end
-      if eachgroup.is_a? Group
-        group = eachgroup.title
-      end
+      group = eachgroup if eachgroup.is_a? String
+      group = eachgroup.title if eachgroup.is_a? Group
 
       unless group.is_a? String
         raise ArgumentError, "illegal parameter type to UserLdapStrategy#render_grouplist_ldap?: #{eachgroup.class.name}"

@@ -8,9 +8,7 @@ module StatusHelper
     lastvalue = 0
     now = values[0][0].to_f
     samplerate = (values[-1][0] - now) / samples
-    if samples < values.length
-      now -= samplerate / 2
-    end
+    now -= samplerate / 2 if samples < values.length
 
     index = 0
 

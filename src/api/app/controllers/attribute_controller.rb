@@ -279,9 +279,7 @@ class AttributeController < ApplicationController
       @attribute_container = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
     else
       # project
-      if Project.is_remote_project?(params[:project])
-        raise RemoteProject
-      end
+      raise RemoteProject if Project.is_remote_project?(params[:project])
       @attribute_container = Project.get_by_name(params[:project])
     end
 

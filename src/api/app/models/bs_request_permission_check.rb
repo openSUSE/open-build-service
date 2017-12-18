@@ -72,9 +72,7 @@ class BsRequestPermissionCheck
       end
     end
 
-    if action.action_type == :delete
-      check_delete_accept(action)
-    end
+    check_delete_accept(action) if action.action_type == :delete
 
     return unless action.makeoriginolder && Package.exists_by_project_and_name(action.target_project, action.target_package)
 
@@ -257,9 +255,7 @@ class BsRequestPermissionCheck
         raise TargetNotMaintenance, "The target project is not of type maintenance but #{@target_project.kind}"
       end
       tip = Project.get_by_name(action.target_project + ':' + opts[:incident])
-      if tip && tip.is_locked?
-        raise ProjectLocked
-      end
+      raise ProjectLocked if tip && tip.is_locked?
     end
 
     require_permissions_in_target_or_source

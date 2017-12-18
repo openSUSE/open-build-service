@@ -64,12 +64,8 @@ module HasAttributes
 
   def find_attribute(namespace, name, binary = nil)
     logger.debug "find_attribute for #{namespace}:#{name}"
-    if namespace.nil?
-      raise AttributeFindError, 'Namespace must be given'
-    end
-    if name.nil?
-      raise AttributeFindError, 'Name must be given'
-    end
+    raise AttributeFindError, 'Namespace must be given' if namespace.nil?
+    raise AttributeFindError, 'Name must be given' if name.nil?
     if binary
       if is_a? Project
         raise AttributeFindError, 'binary packages are not allowed in project attributes'
@@ -80,9 +76,7 @@ module HasAttributes
       a = attribs.nobinary.joins(attrib_type: :attrib_namespace).where('attrib_types.name = ? and attrib_namespaces.name = ?', name, namespace).first
       # rubocop:enable Metrics/LineLength
     end
-    if a && a.readonly? # FIXME: joins make things read only
-      a = attribs.find a.id
-    end
+    a = attribs.find(a.id) if a && a.readonly? # FIXME: joins make things read only
     a
   end
 
@@ -93,9 +87,7 @@ module HasAttributes
       render_main_attributes(xml, params)
 
       # show project values as fallback ?
-      if params[:with_project]
-        project.render_main_attributes(xml, params)
-      end
+      project.render_main_attributes(xml, params) if params[:with_project]
     end
     builder.doc.to_xml indent: 2, encoding: 'UTF-8',
                               save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |

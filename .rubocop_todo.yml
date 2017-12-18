@@ -357,12 +357,6 @@ Style/IdenticalConditionalBranches:
     - 'src/api/app/controllers/webui/package_controller.rb'
     - 'src/api/app/controllers/webui/search_controller.rb'
 
-# Offense count: 149
-# Cop supports --auto-correct.
-# Configuration parameters: MaxLineLength.
-Style/IfUnlessModifier:
-  Enabled: false
-
 # Offense count: 12
 # Cop supports --auto-correct.
 # Configuration parameters: InverseMethods, InverseBlocks.

@@ -23,15 +23,9 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     download_url = set_version = download_files = nil
     services = ActiveXML::Node.new(@response.body)
     services.each(:service) do |s|
-      if s.value(:name) == 'download_url'
-        download_url = 1
-      end
-      if s.value(:name) == 'download_files'
-        download_files = 1
-      end
-      if s.value(:name) == 'set_version'
-        set_version = 1
-      end
+      download_url = 1 if s.value(:name) == 'download_url'
+      download_files = 1 if s.value(:name) == 'download_files'
+      set_version = 1 if s.value(:name) == 'set_version'
     end
     assert_xml_tag tag: 'service', attributes: { name: 'set_version' }
     assert_xml_tag tag: 'service', attributes: { name: 'download_url' }

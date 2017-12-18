@@ -5,9 +5,7 @@ def local_to_yaml(hash, file)
   keys = hash.keys.sort
   keys.each_with_index do |k, index| # <-- here's my addition (the 'sort')
     v = hash[k]
-    if k.is_a?(Integer)
-      k = "record_#{index}"
-    end
+    k = "record_#{index}" if k.is_a?(Integer)
     file.write({ k => v }.to_yaml(SortKeys: true, ExplicitTypes: true).gsub(%r{^---\s*}, ''))
   end
 end
@@ -54,13 +52,9 @@ namespace :db do
         end
       end
 
-      if table_name == 'events'
-        classname = Event::Base
-      end
+      classname = Event::Base if table_name == 'events'
 
-      if table_name == 'history_elements'
-        classname = HistoryElement::Base
-      end
+      classname = HistoryElement::Base if table_name == 'history_elements'
 
       next if %(architectures_distributions roles_static_permissions).include? table_name
 
@@ -84,9 +78,7 @@ namespace :db do
           else
             primary = 'id'
           end
-          if record.has_key? primary
-            id = Integer(record[primary])
-          end
+          id = Integer(record[primary]) if record.has_key? primary
           if record.has_key?('user_id')
             user = User.find(record.delete('user_id'))
             record['user'] = user.login
@@ -162,9 +154,7 @@ namespace :db do
           if %w(static_permissions packages).include? table_name
             key = classname.find(record.delete(primary)).fixtures_name
           end
-          if table_name == 'backend_packages'
-            defaultkey = record['package']
-          end
+          defaultkey = record['package'] if table_name == 'backend_packages'
           if %w(event_subscriptions ratings package_kinds package_issues
                 linked_db_projects relationships watched_projects path_elements groups_users
                 flags taggings bs_request_histories bs_request_actions project_log_entries).include? table_name

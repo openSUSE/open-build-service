@@ -44,9 +44,7 @@ module FlagHelper
     xmlhash.elements(flagtype.to_s) do |xmlflags|
       xmlflags.keys.each do |status|
         fs = xmlflags.elements(status)
-        if fs.empty? # make sure we treat empty too
-          fs << {}
-        end
+        fs << {} if fs.empty? # make sure we treat empty too
         fs.each do |xmlflag|
           # get the selected architecture from data base
           arch = xmlflag['arch']

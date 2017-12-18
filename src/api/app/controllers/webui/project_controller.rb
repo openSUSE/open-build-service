@@ -484,9 +484,7 @@ class Webui::ProjectController < Webui::WebuiController
             break
           end
         end
-        unless has_packages
-          @repohash[repo].delete arch
-        end
+        @repohash[repo].delete(arch) unless has_packages
       end
     end
   end
@@ -1003,16 +1001,12 @@ class Webui::ProjectController < Webui::WebuiController
     currentpack['develproject'] = dproject
     currentpack['develpackage'] = dp.name
     key = "#{dproject}/#{dp.name}"
-    if @submits.has_key? key
-      currentpack['requests_to'].concat(@submits[key])
-    end
+    currentpack['requests_to'].concat(@submits[key]) if @submits.key?(key)
 
     currentpack['develmd5'] = dp.verifymd5
     currentpack['develmtime'] = dp.maxmtime
 
-    if dp.error
-      currentpack['problems'] << 'error-' + dp.error
-    end
+    currentpack['problems'] << "error-#{dp.error}" if dp.error
 
     return unless currentpack['md5'] && currentpack['develmd5'] && currentpack['md5'] != currentpack['develmd5']
 

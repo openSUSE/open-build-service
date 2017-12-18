@@ -1,7 +1,5 @@
 require_dependency 'opensuse/permission'
-if CONFIG['kerberos_service_principal']
-  require_dependency 'gssapi'
-end
+require_dependency 'gssapi' if CONFIG['kerberos_service_principal']
 
 class Authenticator
   class AuthenticationRequiredError < APIException
@@ -92,9 +90,7 @@ class Authenticator
     # 2. for Apache/mod_fastcgi with -pass-header Authorization
     # 3. regular location
     %w(X-HTTP_AUTHORIZATION Authorization HTTP_AUTHORIZATION).each do |header|
-      if request.env.has_key? header
-        return request.env[header].to_s.split
-      end
+      return request.env[header].to_s.split if request.env.has_key? header
     end
     return
   end

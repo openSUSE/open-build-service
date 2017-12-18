@@ -431,9 +431,7 @@ class XpathEngine
         a << '@' + expr.shift
       when :literal
         value = (escape ? escape_for_like(expr.shift) : expr.shift)
-        if @last_key && @attribs[table][@last_key][:empty]
-          return ''
-        end
+        return '' if @last_key && @attribs[table][@last_key][:empty]
         if @last_key && @attribs[table][@last_key][:split]
           tvalues = value.split(@attribs[table][@last_key][:split])
           if tvalues.size != 2
@@ -457,15 +455,9 @@ class XpathEngine
     @last_key = key
     raise IllegalXpathError, "unable to evaluate '#{key}' for '#{table}'" unless @attribs[table] && @attribs[table].has_key?(key)
     # logger.debug "-- found key: #{key} --"
-    if @attribs[table][key][:empty]
-      return
-    end
-    if @attribs[table][key][:joins]
-      @joins << @attribs[table][key][:joins]
-    end
-    if @attribs[table][key][:split]
-      @split = @attribs[table][key][:split]
-    end
+    return if @attribs[table][key][:empty]
+    @joins << @attribs[table][key][:joins] if @attribs[table][key][:joins]
+    @split = @attribs[table][key][:split] if @attribs[table][key][:split]
     @attribs[table][key][:cpart]
   end
 

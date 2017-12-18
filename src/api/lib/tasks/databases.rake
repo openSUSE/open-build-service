@@ -72,9 +72,7 @@ namespace :db do
           if constraints.count > 0
             constraints.sort!
             new_structure += constraints.join
-            if added_comma
-              new_structure = new_structure[0..-3] + "\n"
-            end
+            new_structure = new_structure[0..-3] + "\n" if added_comma
             constraints = []
           end
           added_comma = false

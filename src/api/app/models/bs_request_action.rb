@@ -278,9 +278,7 @@ class BsRequestAction < ApplicationRecord
     ret[:sourceupdate] = sourceupdate
     ret[:makeoriginolder] = makeoriginolder
 
-    if action_type == :change_devel
-      ret[:targetpackage] ||= source_package
-    end
+    ret[:targetpackage] ||= source_package if action_type == :change_devel
 
     ret.keys.each do |k|
       ret.delete(k) if ret[k].nil?
@@ -376,9 +374,7 @@ class BsRequestAction < ApplicationRecord
           sprj = Project.find_by_name source_project
           if sprj && !User.current.can_modify_project?(sprj) && !sprj.find_attribute('OBS', 'ApprovedRequestSource')
             if action_type == :submit
-              if sourceupdate || updatelink
-                raise LackingMaintainership
-              end
+              raise LackingMaintainership if sourceupdate || updatelink
             end
             reviews.push(sprj) unless sprj.find_attribute('OBS', 'ApprovedRequestSource')
           end
@@ -387,13 +383,9 @@ class BsRequestAction < ApplicationRecord
     end
 
     # find reviewers in target package
-    if tpkg
-      reviews += find_reviewers(tpkg)
-    end
+    reviews += find_reviewers(tpkg) if tpkg
     # project reviewers get added additionaly - might be dups
-    if tprj
-      reviews += find_reviewers(tprj)
-    end
+    reviews += find_reviewers(tprj) if tprj
 
     reviews.uniq
   end
@@ -742,9 +734,7 @@ class BsRequestAction < ApplicationRecord
     return unless source_project
 
     sprj = Project.get_by_name source_project
-    unless sprj
-      raise UnknownProject, "Unknown source project #{source_project}"
-    end
+    raise UnknownProject, "Unknown source project #{source_project}" unless sprj
     unless sprj.class == Project || action_type.in?([:submit, :maintenance_incident])
       raise NotSupported, "Source project #{source_project} is not a local project. This is not supported yet."
     end
@@ -779,13 +769,9 @@ class BsRequestAction < ApplicationRecord
     # Type specific checks
     if action_type == :delete || action_type == :add_role || action_type == :set_bugowner
       # check existence of target
-      unless tprj
-        raise UnknownProject, 'No target project specified'
-      end
+      raise UnknownProject, 'No target project specified' unless tprj
       if action_type == :add_role
-        unless role
-          raise UnknownRole, 'No role specified'
-        end
+        raise UnknownRole, 'No role specified' unless role
       end
     elsif action_type.in?([:submit, :change_devel, :maintenance_release, :maintenance_incident])
       # check existence of source

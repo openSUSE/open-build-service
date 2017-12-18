@@ -115,9 +115,7 @@ class BuildController < ApplicationController
     end
 
     path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_buildinfo"
-    unless request.query_string.empty?
-      path += '?' + request.query_string
-    end
+    path += "?#{request.query_string}" unless request.query_string.empty?
 
     pass_to_backend path
   end
@@ -130,9 +128,7 @@ class BuildController < ApplicationController
     Project.get_by_name params[:project]
 
     path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/_builddepinfo"
-    unless request.query_string.empty?
-      path += '?' + request.query_string
-    end
+    path += "?#{request.query_string}" unless request.query_string.empty?
 
     pass_to_backend path
   end
@@ -155,9 +151,7 @@ class BuildController < ApplicationController
     required_parameters :project
 
     # this route is mainly for checking submissions to a target project
-    if params.has_key? :lastsuccess
-      return result_lastsuccess
-    end
+    return result_lastsuccess if params.key?(:lastsuccess)
 
     # for permission check
     Project.get_by_name params[:project]

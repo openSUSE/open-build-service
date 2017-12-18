@@ -428,9 +428,7 @@ class Project < ApplicationRecord
       end
     end
 
-    unless check_access?(dbp)
-      raise ReadAccessError, name
-    end
+    raise ReadAccessError, name unless check_access?(dbp)
     dbp
   end
 
@@ -873,9 +871,7 @@ class Project < ApplicationRecord
     # add all linked and indirect linked projects
     linking_to.each do |lp|
       if lp.linked_db_project.nil?
-        if allow_remote_projects
-          projects << lp.linked_remote_project_name
-        end
+        projects << lp.linked_remote_project_name if allow_remote_projects
       else
         lp.linked_db_project.expand_all_projects(project_map: project_map, allow_remote_projects: allow_remote_projects).each do |p|
           projects << p
@@ -1167,9 +1163,7 @@ class Project < ApplicationRecord
     targets = bsrequest_repos_map(tproj.name)
     sources = bsrequest_repos_map(name)
     sources.each do |key, _|
-      if targets.has_key?(key)
-        tocheck_repos << sources[key]
-      end
+      tocheck_repos << sources[key] if targets.has_key?(key)
     end
 
     tocheck_repos.flatten!
