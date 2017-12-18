@@ -50,6 +50,8 @@ my $eventdir = "$BSConfig::bsdir/events";
 
 my $maxchild = $BSConfig::cloudupload_maxchild || $BSConfig::cloudupload_maxchild || 5;
 
+my $jobdonedir = "$jobdir/done";
+
 sub usage {
   my ($ret) = @_;
 
@@ -138,21 +140,31 @@ sub cloudupload_upload {
   $job->{'pid'} = $$;
   writexml("$jobdir/.$jobid$$", "$jobdir/$jobid", $job, $BSXML::clouduploadjob);
   close F;
-  my $uploaded = BSServer::read_file("$jobdir/.$jobid.file$$");
-  die unless $uploaded;
+  my $uploaded;
+  eval {
+    $uploaded = BSServer::read_file("$jobdir/.$jobid.file$$");
+    die unless $uploaded;
+  };
+  my $error = $@;
   $job = BSUtil::lockopenxml(\*F, '<', "$jobdir/$jobid", $BSXML::clouduploadjob);
   die("job is not in receiving state\n") unless $job->{'state'} eq 'receiving';
   delete $job->{'pid'};
-  if ($uploaded->{'size'} != $job->{'size'}) {
+  delete $job->{'details'};
+  $error = "size mismatch: $uploaded->{'size'} != $job->{'size'}" if !$error && $uploaded->{'size'} != $job->{'size'};
+  if ($error) {
+    unlink("$jobdir/.$jobid.file$$");
+    chomp $error;
     $job->{'state'} = 'failed';
-    $job->{'details'} = "size mismatch: $uploaded->{'size'} != $job->{'size'}";
-    writexml("$jobdir/.$jobid$$", "$jobdir/$jobid", $job, $BSXML::clouduploadjob);
+    $job->{'details'} = $error;
+    mkdir_p($jobdonedir);
+    writexml("$jobdonedir/.$jobid$$", "$jobdonedir/$jobid", $job, $BSXML::clouduploadjob);
+    unlink("$jobdir/$jobid.data");
+    unlink("$jobdir/$jobid");
     close F;
-    die("$job->{'details'}\n");
+    die("$error\n");
   }
   rename("$jobdir/.$jobid.file$$", "$jobdir/$jobid.file") || die("rename $jobdir/.$jobid.file$$ $jobdir/$jobid.file: $!\n");
   $job->{'state'} = 'scheduled';
-  delete $job->{'details'};
   writexml("$jobdir/.$jobid$$", "$jobdir/$jobid", $job, $BSXML::clouduploadjob);
   close F;
   BSUtil::ping("$eventdir/clouduploadworker/.ping");
@@ -161,7 +173,7 @@ sub cloudupload_upload {
 
 sub cloudupload_status {
   my ($cgi, $jobid) = @_;
-  my ($job) = readxml("$jobdir/$jobid", $BSXML::clouduploadjob, 1) || readxml("$jobdir/done/$jobid", $BSXML::clouduploadjob, 1);
+  my ($job) = readxml("$jobdir/$jobid", $BSXML::clouduploadjob, 1) || readxml("$jobdonedir/$jobid", $BSXML::clouduploadjob, 1);
   die("404 no such job\n") unless $job;
   return ($job, $BSXML::clouduploadjob);
 }

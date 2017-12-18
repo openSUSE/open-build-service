@@ -84,7 +84,7 @@ sub startupload {
   unlink("$jobdir/$jobid.file");
   unlink("$jobdir/$jobid");
   close JOBLOCK;
-  BSUtil::ping($conf->{'ping'});
+  BSUtil::ping($conf->{'ping'});	# trigger process reap
   exit(0);
 }
 
