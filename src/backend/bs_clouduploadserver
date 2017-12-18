@@ -46,6 +46,7 @@ $port = $1 if $BSConfig::clouduploadserver =~ /:(\d+)$/;
 
 my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $jobdir = "$BSConfig::bsdir/cloudupload";
+my $eventdir = "$BSConfig::bsdir/events";
 
 my $maxchild = $BSConfig::cloudupload_maxchild || $BSConfig::cloudupload_maxchild || 5;
 
@@ -154,6 +155,7 @@ sub cloudupload_upload {
   delete $job->{'details'};
   writexml("$jobdir/.$jobid$$", "$jobdir/$jobid", $job, $BSXML::clouduploadjob);
   close F;
+  BSUtil::ping("$eventdir/clouduploadworker/.ping");
   return $BSStdServer::return_ok;
 }
 

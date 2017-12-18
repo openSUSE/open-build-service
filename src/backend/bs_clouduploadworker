@@ -30,7 +30,7 @@ my $maxchild = 4;
 $maxchild = $BSConfig::clouduploadworker_maxchild if defined $BSConfig::clouduploadworker_maxchild;
 
 my $myeventdir = "$eventdir/clouduploadworker";
-my $jobdonedir = "$jobdir/cloudupload/done";
+my $jobdonedir = "$jobdir/done";
 
 sub lsjobs {
   return sort {$a <=> $b} grep {/^\d+$/} ls($jobdir);
@@ -54,18 +54,23 @@ sub startupload {
     exec("upload", $job->{'user'}, $job->{'target'}, "$jobdir/$jobid.file", "$jobdir/$jobid.data", "$jobdir/$jobid.log");
     die("upload: $!\n");
   }
+  my $ex;
   while (1) {
-    if (!waitpid($pid, 0)) {
-      next if $! == POSIX::EINTR;
+    if (waitpid($pid, 0)) {
+      $ex = $?;
+      last;
+    }
+    if ($! != POSIX::EINTR) {
+      $ex = 1;	# hmm
       last;
     }
   }
-  my $ex = $?;
   local *JOBLOCK;
   $job = BSUtil::lockopenxml(\*JOBLOCK, '<', "$jobdir/$jobid", $BSXML::clouduploadjob);
   if ($job->{'state'} eq 'uploading') {
     if ($ex) {
       $job->{'state'} = 'failed';
+      $job->{'details'} = "exit status ".($ex >> 8);
     } else {
       $job->{'state'} = 'succeeded';
     }
@@ -182,6 +187,7 @@ my $conf = {
   'eventdir' => $myeventdir,
   'dispatches' => [],
   'maxchild' => $maxchild,
+  'maxchild_user' => 2,
   'run' => \&run,
 };
 
