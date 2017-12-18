@@ -4,7 +4,7 @@ module Webui::SearchHelper
   # @param [Symbol] type :user if the names are logins, :group if they are
   #         group names
   def search_owners_list(names, type = :user)
-    return [] if names.nil? || names.empty?
+    return [] if names.blank?
     output = []
     names.each do |role, list|
       if type == :group

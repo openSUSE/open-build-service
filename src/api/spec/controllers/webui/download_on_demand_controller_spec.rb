@@ -5,7 +5,7 @@ RSpec.describe Webui::DownloadOnDemandController do
   let(:repository) { create(:repository) }
   let(:project)    { create(:project) }
 
-  let(:dod_parameters) {
+  let(:dod_parameters) do
     {
       project:             project.name,
       download_repository: {
@@ -19,7 +19,7 @@ RSpec.describe Webui::DownloadOnDemandController do
         repository_id:        repository.id
       }
     }
-  }
+  end
 
   before do
     project.repositories << repository

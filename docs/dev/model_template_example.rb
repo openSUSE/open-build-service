@@ -1,6 +1,6 @@
 # This is a model class to represent dogs and is an example of how they have to
 # be structured for a better comprehension
-class Dog < ActiveRecord::Base
+class Dog < ApplicationRecord
   #### Includes and extends
   include AnimalSystems
   include ActiveModel::AttributeMethods

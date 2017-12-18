@@ -1,5 +1,5 @@
 class ImageTemplatesAttribute < ActiveRecord::Migration[5.0]
-  class AttribTypeModifiableBy < ActiveRecord::Base; end
+  class AttribTypeModifiableBy < ApplicationRecord; end
 
   def self.up
     ans = AttribNamespace.find_by_name "OBS"

@@ -126,11 +126,11 @@ class Webui::PatchinfoController < Webui::WebuiController
         }
         xml = node.patchinfo(attrs) do
           params[:selected_binaries].to_a.each do |binary|
-            unless binary.blank?
+            if binary.present?
               node.binary(binary)
             end
           end
-          node.name params[:name] unless params[:name].blank?
+          node.name params[:name] if params[:name].present?
           node.packager params[:packager]
           issues.to_a.each do |issue|
             unless IssueTracker.find_by_name(issue[1])
@@ -312,7 +312,7 @@ class Webui::PatchinfoController < Webui::WebuiController
   end
 
   def require_exists
-    unless params[:package].blank?
+    if params[:package].present?
       begin
         @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
       rescue Package::UnknownObjectError

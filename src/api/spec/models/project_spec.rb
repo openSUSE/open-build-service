@@ -110,7 +110,7 @@ RSpec.describe Project, vcr: true do
 
     context "normal project" do
       let!(:repository) { create(:repository, name: 'xUbuntu_14.04', project: project) }
-      let(:remote_meta_xml) {
+      let(:remote_meta_xml) do
         <<-XML_DATA
           <project name="home:mschnitzer">
             <title>Cool Title</title>
@@ -127,8 +127,8 @@ RSpec.describe Project, vcr: true do
             </repository>
           </project>
         XML_DATA
-      }
-      let(:local_xml_meta) {
+      end
+      let(:local_xml_meta) do
         <<-XML_DATA
           <project name="#{project}">
             <title>#{project.title}</title>
@@ -141,7 +141,7 @@ RSpec.describe Project, vcr: true do
             </repository>
           </project>
         XML_DATA
-      }
+      end
       let(:expected_xml) { Nokogiri::XML(local_xml_meta) }
 
       before do
@@ -171,7 +171,7 @@ RSpec.describe Project, vcr: true do
     end
 
     context "kiwi project" do
-      let(:remote_meta_xml) {
+      let(:remote_meta_xml) do
         <<-XML_DATA
         <project name="home:cbruckmayer:fosdem">
           <title>FOSDEM 2017</title>
@@ -187,8 +187,8 @@ RSpec.describe Project, vcr: true do
           </repository>
         </project>
         XML_DATA
-      }
-      let(:local_xml_meta) {
+      end
+      let(:local_xml_meta) do
         <<-XML_DATA
         <project name="#{project}">
           <title>#{project.title}</title>
@@ -204,7 +204,7 @@ RSpec.describe Project, vcr: true do
           </repository>
         </project>
       XML_DATA
-      }
+      end
       let(:expected_xml) { Nokogiri::XML(local_xml_meta) }
 
       before do
@@ -233,44 +233,44 @@ RSpec.describe Project, vcr: true do
       it { expect(Project.valid_name?(10)).to be(false) }
 
       it "has ::" do
-        property_of {
+        property_of do
           string = sized(1) { string(/[a-zA-Z0-9]/) } + sized(range(1, 199)) { string(/[-+\w\.]/) }
           index = range(0, (string.length - 2))
           string[index] = string[index + 1] = ':'
           string
-        }.check { |string|
+        end.check do |string|
           expect(Project.valid_name?(string)).to be(false)
-        }
+        end
       end
 
       it "end with :" do
-        property_of {
+        property_of do
           string = sized(1) { string(/[a-zA-Z0-9]/) } + sized(range(0, 198)) { string(/[-+\w\.:]/) } + ':'
           guard string !~ /::/
           string
-        }.check { |string|
+        end.check do |string|
           expect(Project.valid_name?(string)).to be(false)
-        }
+        end
       end
 
       it "has an invalid character in first position" do
-        property_of {
+        property_of do
           string = sized(1) { string(/[-+\.:_]/) } + sized(range(0, 199)) { string(/[-+\w\.:]/) }
           guard !(string[-1] == ':' && string.length > 1) && string !~ /::/
           string
-        }.check { |string|
+        end.check do |string|
           expect(Project.valid_name?(string)).to be(false)
-        }
+        end
       end
 
       it "has more than 200 characters" do
-        property_of {
+        property_of do
           string = sized(1) { string(/[a-zA-Z0-9]/) } + sized(200) { string(/[-+\w\.:]/) }
           guard string[-1] != ':' && string !~ /::/
           string
-        }.check(3) { |string|
+        end.check(3) do |string|
           expect(Project.valid_name?(string)).to be(false)
-        }
+        end
       end
 
       it { expect(Project.valid_name?('0')).to be(false) }
@@ -278,13 +278,13 @@ RSpec.describe Project, vcr: true do
     end
 
     it "valid" do
-      property_of {
+      property_of do
         string = sized(1) { string(/[a-zA-Z0-9]/) } + sized(range(0, 199)) { string(/[-+\w\.:]/) }
         guard string != '0' && string[-1] != ':' && !(/::/ =~ string)
         string
-      }.check { |string|
+      end.check do |string|
         expect(Project.valid_name?(string)).to be(true)
-      }
+      end
     end
   end
 
@@ -398,7 +398,7 @@ RSpec.describe Project, vcr: true do
 
   describe '.restore' do
     let(:admin_user) { create(:admin_user, login: 'Admin') }
-    let(:deleted_project) {
+    let(:deleted_project) do
       create(
         :project_with_packages,
         {
@@ -409,7 +409,7 @@ RSpec.describe Project, vcr: true do
           package_name:        'restoration_package'
         }
       )
-    }
+    end
 
     before do
       login admin_user

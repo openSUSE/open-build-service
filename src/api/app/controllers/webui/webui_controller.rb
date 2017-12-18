@@ -256,7 +256,7 @@ class Webui::WebuiController < ActionController::Base
     required_parameters :package
     params[:rev], params[:package] = params[:pkgrev].split('-', 2) if params[:pkgrev]
     @project ||= params[:project]
-    unless params[:package].blank?
+    if params[:package].present?
       begin
         @package = Package.get_by_project_and_name(@project.to_param, params[:package],
                                                    { use_source: false, follow_project_links: true, follow_multibuild: true })

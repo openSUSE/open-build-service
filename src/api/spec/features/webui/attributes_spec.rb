@@ -83,9 +83,9 @@ RSpec.feature "Attributes", type: :feature, js: true do
   end
 
   describe "for a project with a package" do
-    let!(:package) {
+    let!(:package) do
       create(:package, project_id: user.home_project.id)
-    }
+    end
 
     scenario "add attribute with values" do
       login user

@@ -4,9 +4,9 @@ module RequestSourceDiff
     attr_accessor :action
 
     def perform(opts)
-      gather_source_packages.map { |spkg|
+      gather_source_packages.map do |spkg|
         diff_for_source(spkg, opts)
-      }.join
+      end.join
     end
 
     def gather_source_packages
@@ -19,10 +19,10 @@ module RequestSourceDiff
         prj = Project.find_by_name(action.source_project)
         return [] unless prj
 
-        return prj.packages.map { |p|
+        return prj.packages.map do |p|
           p.check_source_access!
           p.name
-        }
+        end
       end
     end
 

@@ -98,16 +98,16 @@ class Webui::SearchController < Webui::WebuiController
   #
   def set_parameters
     @search_attrib_type_id = nil
-    @search_attrib_type_id = params[:attrib_type_id] unless params[:attrib_type_id].blank?
+    @search_attrib_type_id = params[:attrib_type_id] if params[:attrib_type_id].present?
 
     @search_issue = nil
-    @search_issue = params[:issue].strip unless params[:issue].blank?
+    @search_issue = params[:issue].strip if params[:issue].present?
 
     @search_tracker = nil
-    @search_tracker = params[:issue_tracker] unless params[:issue_tracker].blank?
+    @search_tracker = params[:issue_tracker] if params[:issue_tracker].present?
 
     @search_text = ""
-    @search_text = params[:search_text].strip unless params[:search_text].blank?
+    @search_text = params[:search_text].strip if params[:search_text].present?
     @search_text = @search_text.delete("'[]\n")
 
     @search_what = []

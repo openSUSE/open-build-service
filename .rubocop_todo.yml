@@ -238,16 +238,6 @@ Naming/PredicateName:
     - 'src/api/app/models/user_ldap_strategy.rb'
     - 'src/api/lib/activexml/node.rb'
 
-# Offense count: 7
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: snake_case, camelCase
-Naming/VariableName:
-  Exclude:
-    - 'src/api/app/mixins/has_relationships.rb'
-    - 'src/api/app/models/channel_target.rb'
-    - 'src/api/app/models/package.rb'
-    - 'src/api/app/models/relationship.rb'
-
 # Offense count: 3
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 # SupportedStyles: snake_case, normalcase, non_integer
@@ -262,37 +252,6 @@ Naming/VariableNumber:
 Performance/HashEachMethods:
   Enabled: false
 
-# Offense count: 15
-# Cop supports --auto-correct.
-Rails/ApplicationRecord:
-  Exclude:
-    - 'docs/dev/model_template_example.rb'
-    - 'src/api/app/models/bs_request_counter.rb'
-    - 'src/api/db/migrate/20140908125426_convert_request_history.rb'
-    - 'src/api/db/migrate/20140908135426_incident_priority_attribute.rb'
-    - 'src/api/db/migrate/20140916135426_project_maintains.rb'
-    - 'src/api/db/migrate/20141107135426_embargo_attribute.rb'
-    - 'src/api/db/migrate/20141201135426_make_origin_older_attribute.rb'
-    - 'src/api/db/migrate/20150227063641_add_obs_branch_skip_repositories_attribute.rb'
-    - 'src/api/db/migrate/20150625105426_multiple_incident_counters.rb'
-    - 'src/api/db/migrate/20150716124906_add_type_to_project.rb'
-    - 'src/api/db/migrate/20160824132643_fix_bs_request_counter.rb'
-    - 'src/api/db/migrate/20161123124803_image_templates_attribute.rb'
-    - 'src/api/db/migrate/20161128115942_add_when_attribute_to_bs_request.rb'
-
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: NilOrEmpty, NotPresent, UnlessPresent.
-Rails/Blank:
-  Exclude:
-    - 'src/api/app/controllers/search_controller.rb'
-    - 'src/api/app/helpers/webui/search_helper.rb'
-    - 'src/api/app/models/full_text_search.rb'
-    - 'src/api/app/models/package.rb'
-    - 'src/api/app/models/project.rb'
-    - 'src/api/app/models/project/key_info.rb'
-    - 'src/api/app/models/user_ldap_strategy.rb'
-
 # Offense count: 538
 # Cop supports --auto-correct.
 # Configuration parameters: Whitelist.
@@ -303,20 +262,6 @@ Rails/DynamicFindBy:
 # Offense count: 83
 Rails/FilePath:
   Enabled: false
-
-# Offense count: 18
-# Cop supports --auto-correct.
-# Configuration parameters: Include.
-# Include: app/models/**/*.rb
-Rails/FindEach:
-  Exclude:
-    - 'src/api/app/models/bs_request.rb'
-    - 'src/api/app/models/bs_request_action_set_bugowner.rb'
-    - 'src/api/app/models/issue_tracker.rb'
-    - 'src/api/app/models/owner.rb'
-    - 'src/api/app/models/package.rb'
-    - 'src/api/app/models/project.rb'
-    - 'src/api/app/models/user.rb'
 
 # Offense count: 12
 # Configuration parameters: Include.
@@ -355,25 +300,6 @@ Rails/OutputSafety:
     - 'src/api/app/helpers/webui/request_helper.rb'
     - 'src/api/app/helpers/webui/webui_helper.rb'
 
-# Offense count: 131
-# Cop supports --auto-correct.
-# Configuration parameters: NotNilAndNotEmpty, NotBlank, UnlessBlank.
-Rails/Present:
-  Enabled: false
-
-# Offense count: 11
-# Cop supports --auto-correct.
-# Configuration parameters: Include.
-# Include: app/models/**/*.rb
-Rails/ReadWriteAttribute:
-  Exclude:
-    - 'src/api/app/models/bs_request.rb'
-    - 'src/api/app/models/event/base.rb'
-    - 'src/api/app/models/event_subscription.rb'
-    - 'src/api/app/models/project_log_entry.rb'
-    - 'src/api/app/models/review.rb'
-    - 'src/api/app/models/user.rb'
-
 # Offense count: 8
 # Configuration parameters: Include.
 # Include: db/migrate/*.rb
@@ -401,24 +327,6 @@ Rails/SkipsModelValidations:
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 # SupportedStyles: strict, flexible
 Rails/TimeZone:
-  Enabled: false
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: always, conditionals
-Style/AndOr:
-  Exclude:
-    - 'src/api/app/views/message/_messages.xml.builder'
-
-# Offense count: 130
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, ProceduralMethods, FunctionalMethods, IgnoredMethods.
-# SupportedStyles: line_count_based, semantic, braces_for_chaining
-# ProceduralMethods: benchmark, bm, bmbm, create, each_with_object, measure, new, realtime, tap, with_object
-# FunctionalMethods: let, let!, subject, watch
-# IgnoredMethods: lambda, proc, it
-Style/BlockDelimiters:
   Enabled: false
 
 # Offense count: 200

@@ -7,13 +7,13 @@ class ChannelTarget < ApplicationRecord
     [:project, :repository]
   end
 
-  def self.find_by_repo(repo, projectFilter = nil)
-    if projectFilter.nil?
+  def self.find_by_repo(repo, project_filter = nil)
+    if project_filter.nil?
       ChannelTarget.distinct.where(repository: repo)
     else
       ChannelTarget.joins(channel: :package).
         distinct.
-        where("repository_id = ? AND project_id IN (?)", repo, projectFilter.map(&:id))
+        where("repository_id = ? AND project_id IN (?)", repo, project_filter.map(&:id))
     end
   end
 end

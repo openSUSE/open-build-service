@@ -15,8 +15,8 @@ module Event
     end
 
     def set_payload(attribs, keys)
-      attribs['comment'] = attribs['comment'][0..800] unless attribs['comment'].blank?
-      attribs['files'] = attribs['files'][0..800] unless attribs['files'].blank?
+      attribs['comment'] = attribs['comment'][0..800] if attribs['comment'].present?
+      attribs['files'] = attribs['files'][0..800] if attribs['files'].present?
       super(attribs, keys)
     end
   end

@@ -35,7 +35,7 @@ class Product < ApplicationRecord
     # hack for old SLE 11 definitions
     vendor = "suse" if vendor.start_with?("SUSE LINUX")
     self.cpe = "cpe:/#{sw_class}:#{vendor.downcase}:#{name.downcase}"
-    self.cpe += ":#{pversion}" unless pversion.blank?
+    self.cpe += ":#{pversion}" if pversion.present?
   end
 
   def extend_id_hash(h)
@@ -105,12 +105,12 @@ class Product < ApplicationRecord
         name = repo.get('medium')
         arch = repo.get('arch')
         key = "#{pool_repo.id}/#{name}"
-        key += "/#{arch}" unless arch.blank?
+        key += "/#{arch}" if arch.present?
         key.downcase!
         unless medium[key]
           # new
           p = { product: self, repository: pool_repo, name: name }
-          unless arch.blank?
+          if arch.present?
             arch_filter = Architecture.find_by_name(arch)
             if arch_filter
               p[:arch_filter_id] = arch_filter.id
@@ -141,7 +141,7 @@ class Product < ApplicationRecord
         arch = repo.get('arch')
         key = update_repo.id.to_s
         p = { product: self, repository: update_repo }
-        unless arch.blank?
+        if arch.present?
           key += "/#{arch}"
           arch_filter = Architecture.find_by_name(arch)
           if arch_filter

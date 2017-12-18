@@ -33,18 +33,18 @@ namespace :jobs do
   task(issuetrackers: :environment) { IssueTracker.first.try(:save!) }
 
   desc 'Update all changed issues from remote IssueTrackers now'
-  task(updateissues: :environment) {
+  task(updateissues: :environment) do
     IssueTracker.all.each do |t|
       next unless t.enable_fetch
       t.update_issues
     end
-  }
+  end
 
   desc 'Import all issues from remote IssueTrackers now'
-  task(enforceissuesupdate: :environment) {
+  task(enforceissuesupdate: :environment) do
     IssueTracker.all.each do |t|
       next unless t.enable_fetch
       t.enforced_update_all_issues
     end
-  }
+  end
 end

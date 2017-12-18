@@ -50,14 +50,14 @@ class ProjectLogEntry < ApplicationRecord
   # FIXME: We shouldn't slice the input here, this should either fit or never
   # reach us through Event...
   def additional_info=(obj)
-    write_attribute(:additional_info, YAML.dump(obj)[0..65534])
+    self[:additional_info] = YAML.dump(obj)[0..65534]
   rescue
-    write_attribute(:additional_info, nil)
+    self[:additional_info] = nil
   end
 
   # Almost equivalent to the ApplicationRecord.serialize mechanism
   def additional_info
-    a = read_attribute(:additional_info)
+    a = self[:additional_info]
     a ? YAML.safe_load(a) : {}
   end
 

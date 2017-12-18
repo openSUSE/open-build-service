@@ -97,9 +97,9 @@ RSpec.describe Package, vcr: true do
         end
 
         it 'deletes file' do
-          expect {
+          expect do
             package_with_file.source_file('somefile.txt')
-          }.to raise_error(ActiveXML::Transport::NotFoundError)
+          end.to raise_error(ActiveXML::Transport::NotFoundError)
         end
 
         it 'sets options correct' do
@@ -124,23 +124,23 @@ RSpec.describe Package, vcr: true do
       end
 
       it 'raises DeleteFileNoPermission exception' do
-        expect {
+        expect do
           package_with_file.delete_file('somefile.txt')
-        }.to raise_error(DeleteFileNoPermission)
+        end.to raise_error(DeleteFileNoPermission)
       end
 
       it 'does not delete file' do
-        expect {
+        expect do
           package_with_file.source_file('somefile.txt')
-        }.to_not raise_error
+        end.to_not raise_error
       end
     end
 
     context 'file not found' do
       it 'raises NotFoundError' do
-        expect {
+        expect do
           package_with_file.source_file('not_existent.txt')
-        }.to raise_error(ActiveXML::Transport::NotFoundError)
+        end.to raise_error(ActiveXML::Transport::NotFoundError)
       end
     end
   end
@@ -249,21 +249,21 @@ RSpec.describe Package, vcr: true do
       it { expect(Package.valid_name?(10)).to be(false) }
 
       it "has an invalid character in first position" do
-        property_of {
+        property_of do
           string = sized(1) { string(/[-+_\.]/) } + sized(range(0, 199)) { string(/[-+\w\.]/) }
           guard string !~ /^(_product|_product:\w|_patchinfo|_patchinfo:\w|_pattern|_project)/
           string
-        }.check { |string|
+        end.check do |string|
           expect(Package.valid_name?(string)).to be(false)
-        }
+        end
       end
 
       it "has more than 200 characters" do
-        property_of {
+        property_of do
           sized(1) { string(/[a-zA-Z0-9]/) } + sized(200) { string(/[-+\w\.:]/) }
-        }.check(3) { |string|
+        end.check(3) do |string|
           expect(Package.valid_name?(string)).to be(false)
-        }
+        end
       end
 
       it { expect(Package.valid_name?('0')).to be(false) }
@@ -272,33 +272,33 @@ RSpec.describe Package, vcr: true do
 
     context "valid" do
       it "general case" do
-        property_of {
+        property_of do
           string = sized(1) { string(/[a-zA-Z0-9]/) } + sized(range(0, 199)) { string(/[-+\w\.]/) }
           guard string != '0'
           string
-        }.check { |string|
+        end.check do |string|
           expect(Package.valid_name?(string)).to be(true)
-        }
+        end
       end
 
       it "starts with '_product:'" do
-        property_of {
+        property_of do
           string = '_product:' + sized(1) { string(/[a-zA-Z0-9]/) } + sized(range(0, 190)) { string(/[-+\w\.]/) }
           guard string != '0'
           string
-        }.check(3) { |string|
+        end.check(3) do |string|
           expect(Package.valid_name?(string)).to be(true)
-        }
+        end
       end
 
       it "starts with '_patchinfo:'" do
-        property_of {
+        property_of do
           string = '_patchinfo:' + sized(1) { string(/[a-zA-Z0-9]/) } + sized(range(0, 188)) { string(/[-+\w\.]/) }
           guard string != '0'
           string
-        }.check(3) { |string|
+        end.check(3) do |string|
           expect(Package.valid_name?(string)).to be(true)
-        }
+        end
       end
 
       it { expect(Package.valid_name?('_product')).to be(true) }
@@ -672,21 +672,21 @@ RSpec.describe Package, vcr: true do
   end
 
   describe '#commit_message' do
-    let(:changes_file) {
+    let(:changes_file) do
       '-------------------------------------------------------------------
 Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
 
 - Temporary hack'
-    }
+    end
 
     let(:project) { create(:project, name: 'home:foo:Apache') }
     let(:package) { create(:package_with_changes_file, project: project, name: 'package_with_changes_file') }
 
     context 'with a diff to the target package changes file' do
       let(:target_project)  { create(:project, name: 'Apache') }
-      let!(:target_package) {
+      let!(:target_package) do
         create(:package_with_changes_file, project: target_project, name: 'package_with_changes_file', changes_file_content: changes_file)
-      }
+      end
       subject { package.commit_message(target_project, target_package) }
 
       it { expect(subject).to include('- Testing the submit diff') }
