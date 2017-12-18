@@ -1157,7 +1157,8 @@ class BsRequest < ApplicationRecord
     # Skipping Model validations in this case is fine as we only want to touch
     # the associated user models to invalidate the cache keys
     Group.joins(:relationships).where(relationships: { package_id: target_package_ids }).or(
-      Group.joins(:relationships).where(relationships: { project_id: target_project_ids })).update_all(updated_at: Time.now)
+      Group.joins(:relationships).where(relationships: { project_id: target_project_ids })
+    ).update_all(updated_at: Time.now)
     User.where(id: user_ids).update_all(updated_at: Time.now)
     # rubocop:enable Rails/SkipsModelValidations
   end

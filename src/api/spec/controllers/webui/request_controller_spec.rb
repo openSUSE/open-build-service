@@ -101,8 +101,7 @@ RSpec.describe Webui::RequestController, vcr: true do
       subject do
         BsRequest.joins(:bs_request_actions).
           where("bs_request_actions.target_project=? AND bs_request_actions.target_package=? AND type=?",
-                target_project.to_s, target_package.to_s, "delete"
-               ).first
+                target_project.to_s, target_package.to_s, "delete").first
       end
 
       it { expect(response).to redirect_to(request_show_path(number: subject)) }

@@ -1434,7 +1434,8 @@ RSpec.describe Webui::ProjectController, vcr: true do
                   <status package="c++" code="succeeded" />
                   <status package="redis" code="succeeded" />
                 </result>
-              </resultlist>')
+              </resultlist>'
+            )
           end
           let(:statushash) do
             { "openSUSE_Tumbleweed" => {

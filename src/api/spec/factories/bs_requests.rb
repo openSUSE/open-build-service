@@ -37,7 +37,8 @@ FactoryBot.define do
           target_project: evaluator.target_project,
           target_package: evaluator.target_package,
           source_project: evaluator.source_project,
-          source_package: evaluator.source_package)
+          source_package: evaluator.source_package
+        )
       end
     end
 
@@ -49,7 +50,8 @@ FactoryBot.define do
           target_project: evaluator.target_project,
           target_package: evaluator.target_package,
           source_project: evaluator.source_project,
-          source_package: evaluator.source_package)
+          source_package: evaluator.source_package
+        )
         request.state = 'declined'
         request.save!
       end
@@ -63,7 +65,8 @@ FactoryBot.define do
           target_project: evaluator.target_project,
           target_package: evaluator.target_package,
           source_project: evaluator.source_project,
-          source_package: evaluator.source_package)
+          source_package: evaluator.source_package
+        )
         request.reviews << Review.new(by_user: evaluator.reviewer)
         request.state = 'review'
         request.save!
@@ -78,7 +81,8 @@ FactoryBot.define do
           target_project: evaluator.target_project,
           target_package: evaluator.target_package,
           source_project: evaluator.source_project,
-          source_package: evaluator.source_package)
+          source_package: evaluator.source_package
+        )
       end
     end
 
@@ -90,7 +94,8 @@ FactoryBot.define do
           target_project: evaluator.target_project,
           target_package: evaluator.target_package,
           source_project: evaluator.source_project,
-          source_package: evaluator.source_package)
+          source_package: evaluator.source_package
+        )
       end
     end
   end

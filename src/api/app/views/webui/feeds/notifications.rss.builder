@@ -15,7 +15,8 @@ xml.rss version: '2.0' do
           template: "event_mailer/#{notification.event.template_name}",
           layout: false,
           formats: :text,
-          locals: { event: notification.event.expanded_payload })
+          locals: { event: notification.event.expanded_payload }
+        )
         xml.category "#{notification.event_type}/#{notification.subscription_receiver_role}"
         xml.pubDate notification.created_at
         xml.author @configuration['title']

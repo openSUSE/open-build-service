@@ -19,8 +19,7 @@ module OBSApi
       # sanitize the HTML we get
       Sanitize.fragment(fulldoc, Sanitize::Config.merge(Sanitize::Config::RESTRICTED,
                                                         elements: Sanitize::Config::RESTRICTED[:elements] + ['pre'],
-                                                        remove_contents: true
-                                                       ))
+                                                        remove_contents: true))
     end
   end
 end

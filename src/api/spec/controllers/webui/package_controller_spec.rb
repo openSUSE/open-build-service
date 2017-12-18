@@ -20,26 +20,24 @@ RSpec.describe Webui::PackageController, vcr: true do
     repo
   end
   let(:fake_build_results) do
-    Buildresult.new(
-      '<resultlist state="2b71f05ecb8742e3cd7f6066a5097c72">
-        <result project="home:tom" repository="fake_repo_name" arch="i586" code="unknown" state="unknown" dirty="true">
-         <binarylist>
-            <binary filename="fake_binary_001"/>
-            <binary filename="fake_binary_002"/>
-            <binary filename="updateinfo.xml"/>
-            <binary filename="rpmlint.log"/>
-          </binarylist>
-        </result>
-      </resultlist>')
+    Buildresult.new('<resultlist state="2b71f05ecb8742e3cd7f6066a5097c72">
+                      <result project="home:tom" repository="fake_repo_name" arch="i586" code="unknown" state="unknown" dirty="true">
+                       <binarylist>
+                          <binary filename="fake_binary_001"/>
+                          <binary filename="fake_binary_002"/>
+                          <binary filename="updateinfo.xml"/>
+                          <binary filename="rpmlint.log"/>
+                        </binarylist>
+                      </result>
+                    </resultlist>')
   end
   let(:fake_build_results_without_binaries) do
-    Buildresult.new(
-      '<resultlist state="2b71f05ecb8742e3cd7f6066a5097c72">
-        <result project="home:tom" repository="fake_repo_name" arch="i586" code="unknown" state="unknown" dirty="true">
-         <binarylist>
-          </binarylist>
-        </result>
-      </resultlist>')
+    Buildresult.new('<resultlist state="2b71f05ecb8742e3cd7f6066a5097c72">
+                      <result project="home:tom" repository="fake_repo_name" arch="i586" code="unknown" state="unknown" dirty="true">
+                       <binarylist>
+                        </binarylist>
+                      </result>
+                    </resultlist>')
   end
 
   describe "POST #submit_request" do
@@ -405,13 +403,11 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       context "adding a file that doesn't exist yet" do
         before do
-          do_request(
-            project:   source_project,
-            package:   source_package,
-            filename:  "newly_created_file",
-            file_type: "local",
-            file: "some_content"
-          )
+          do_request(project:   source_project,
+                     package:   source_package,
+                     filename:  "newly_created_file",
+                     file_type: "local",
+                     file: "some_content")
         end
 
         it { expect(response).to have_http_status(expected_success_status) }
@@ -436,10 +432,8 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       context "uploading a file from remote URL" do
         before do
-          do_request(
-            project: source_project, package: source_package, filename: "remote_file",
-            file_url: "https://raw.github.com/openSUSE/open-build-service/master/.gitignore"
-          )
+          do_request(project: source_project, package: source_package, filename: "remote_file",
+                     file_url: "https://raw.github.com/openSUSE/open-build-service/master/.gitignore")
         end
 
         after do
@@ -1044,12 +1038,10 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it 'redirects to the package binaries path' do
-        expect(response).to redirect_to(
-          controller: :package,
-          action: :binaries,
-          project: source_project,
-          package: source_package
-        )
+        expect(response).to redirect_to(controller: :package,
+                                        action: :binaries,
+                                        project: source_project,
+                                        package: source_package)
       end
     end
 
@@ -1111,8 +1103,9 @@ RSpec.describe Webui::PackageController, vcr: true do
         expect(flash[:error]).to match("no repository defined")
       end
       it {
-        expect(response).to redirect_to(package_live_build_log_path(
-                                          project: source_project, package: source_package, repository: 'foo', arch: 'bar'))
+        expect(response).to redirect_to(package_live_build_log_path(project: source_project,
+                                                                    package: source_package,
+                                                                    repository: 'foo', arch: 'bar'))
       }
     end
 
@@ -1159,8 +1152,8 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       it { expect(flash[:error]).to eq("No statistics of a successful build could be found in #{repository}/i586") }
       it {
-        expect(response).to redirect_to(package_binaries_path(
-                                          project: source_project, package: source_package, repository: repository.name, nextstatus: 404))
+        expect(response).to redirect_to(package_binaries_path(project: source_project, package: source_package,
+                                                              repository: repository.name, nextstatus: 404))
       }
     end
 
@@ -1175,8 +1168,8 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       it { expect(flash[:error]).to eq("No statistics of a successful build could be found in #{repository}/i586") }
       it {
-        expect(response).to redirect_to(package_binaries_path(
-                                          project: source_project, package: source_package, repository: repository.name, nextstatus: 404))
+        expect(response).to redirect_to(package_binaries_path(project: source_project, package: source_package,
+                                                              repository: repository.name, nextstatus: 404))
       }
     end
   end

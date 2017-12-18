@@ -13,8 +13,7 @@ RSpec.describe Webui::RequestHelper do
                target_project: target_project,
                target_package: 'does-not-exist-yet',
                source_project: source_project,
-               source_package: source_package
-              )
+               source_package: source_package)
       end
       let(:row) { BsRequest::DataTable::Row .new(bs_request_with_submit_action) }
 
@@ -28,8 +27,7 @@ RSpec.describe Webui::RequestHelper do
                target_project: target_project,
                target_package: target_package,
                source_project: source_project,
-               source_package: source_package
-              )
+               source_package: source_package)
       end
       let(:row) { BsRequest::DataTable::Row .new(bs_request_with_maintenance_release_action) }
 
@@ -42,8 +40,7 @@ RSpec.describe Webui::RequestHelper do
                target_project: target_project,
                target_package: target_package,
                source_project: source_project,
-               source_package: source_package
-              )
+               source_package: source_package)
       end
       let(:row) { BsRequest::DataTable::Row .new(bs_request_with_submit_action) }
 

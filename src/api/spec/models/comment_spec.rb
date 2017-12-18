@@ -23,7 +23,8 @@ RSpec.describe Comment do
     it { is_expected.to validate_presence_of(:user) }
     it {
       expect { create(:comment_package, parent: comment_package) }.to raise_error(
-        ActiveRecord::RecordInvalid, "Validation failed: Parent belongs to different object")
+        ActiveRecord::RecordInvalid, "Validation failed: Parent belongs to different object"
+      )
     }
   end
 

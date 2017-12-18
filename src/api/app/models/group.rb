@@ -163,7 +163,8 @@ class Group < ApplicationRecord
       roles: [:reviewer],
       review_states: [:new],
       states: [:review],
-      search: search)
+      search: search
+    )
   end
 
   def incoming_requests(search = nil)

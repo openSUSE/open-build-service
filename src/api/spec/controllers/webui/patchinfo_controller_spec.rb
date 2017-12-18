@@ -32,7 +32,8 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
             <binary filename="rpmlint.log"/>
           </binarylist>
         </result>
-      </resultlist>')
+      </resultlist>'
+    )
   end
 
   let(:fake_patchinfo_with_binaries) do
@@ -44,7 +45,8 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
         <summary/>
         <description/>
         <binary>fake_binary_001</binary>
-      </patchinfo>')
+      </patchinfo>'
+    )
   end
 
   after do

@@ -49,8 +49,7 @@ RSpec.describe Statistics::MaintenanceStatisticsController, type: :controller do
         subject! { get :index, params: { format: :xml, project: "#{remote}:my_project" } }
 
         it 'forwards the request to the remote instance' do
-          expect(a_request(:get, maintenance_statistics_url(host: remote.remoteurl, project: 'my_project')
-                          )).to have_been_made.once
+          expect(a_request(:get, maintenance_statistics_url(host: remote.remoteurl, project: 'my_project'))).to have_been_made.once
         end
 
         it 'responds with the xml received from the remote instance' do

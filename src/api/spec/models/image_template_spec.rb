@@ -16,8 +16,7 @@ RSpec.describe Project do
                                 </image_template_package>
                               </image_template_project>
                           </image_template_projects>
-                         )
-                   )
+                         ))
       @images = Project.remote_image_templates
     end
 
@@ -49,8 +48,7 @@ RSpec.describe Project do
                                 </image_template_package>
                               </image_template_project>
                           </image_template_projects>
-                         )
-                       )
+                         ))
           @images = Project.remote_image_templates
         end
 
@@ -76,8 +74,7 @@ RSpec.describe Project do
                                 </image_template_package>
                               </image_template_project>
                           </image_template_projects>
-                         )
-                       )
+                         ))
           @images = Project.remote_image_templates
         end
 

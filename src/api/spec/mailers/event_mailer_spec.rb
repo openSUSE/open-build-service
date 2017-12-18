@@ -23,8 +23,7 @@ RSpec.describe EventMailer, vcr: true do
                source_package: source_package.name,
                source_project: source_project.name,
                target_project: target_project.name,
-               target_package: target_package.name
-              )
+               target_package: target_package.name)
       end
       # It is not possible to use the bs_request_action_submit factory as it creates the bs_request_action
       # in an after create hook which creates a wrong Event::RequestCreate object
