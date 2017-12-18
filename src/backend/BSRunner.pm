@@ -37,31 +37,6 @@ sub reap {
   }
 }
 
-sub drainping {
-  my ($ping) = @_;
-  my $dummy;
-  fcntl($ping, F_SETFL, POSIX::O_NONBLOCK);
-  1 while (sysread($ping, $dummy, 1024, 0) || 0) > 0;
-  fcntl($ping, F_SETFL, 0);
-}
-
-sub waitping {
-  my ($ping, $timeout) = @_;
-
-  my $dummy;
-  if (!defined($timeout)) {
-    sysread($ping, $dummy, 1, 0);
-    return;
-  }
-  fcntl($ping, F_SETFL, POSIX::O_NONBLOCK);
-  while ($timeout > 0) {
-    last if (sysread($ping, $dummy, 1024, 0) || 0) > 0;
-    sleep(1);
-    $timeout -= 1;
-  }
-  fcntl($ping, F_SETFL, 0);
-}
-
 sub run {
   my ($conf) = @_;
 
@@ -76,7 +51,7 @@ sub run {
   my $server = { 'starttime' => time() };
 
   while(1) {
-    drainping($ping);
+    BSUtil::drainping($ping);
 
     my @events = $conf->{'lsevents'}->($conf);
     my $havedelayed;
@@ -133,14 +108,14 @@ sub run {
     }
 
     if ($havedelayed) {
-      waitping($ping, 10);
+      BSUtil::waitping($ping, 10);
     } else {
       if ($conf->{'testmode'}) {
 	print "test mode, all events processed, exiting...\n";
 	last;
       }
       print "waiting for an event...\n";
-      waitping($ping);
+      BSUtil::waitping($ping);
     }
   }
 }

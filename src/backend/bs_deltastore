@@ -146,10 +146,7 @@ sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!"
 
 while(1) {
   # drain ping pipe
-  my $dummy;
-  fcntl(PING,F_SETFL,POSIX::O_NONBLOCK);
-  1 while (sysread(PING, $dummy, 1024, 0) || 0) > 0;
-  fcntl(PING,F_SETFL,0);
+  BSUtil::drainping(\*PING);
 
   # check for events
   my @events = ls($myeventdir);
@@ -197,6 +194,6 @@ while(1) {
     die("$0: $!\n");
   }
   BSUtil::printlog("waiting for an event...");
-  sysread(PING, $dummy, 1, 0);
+  BSUtil::waitping(\*PING);
 }
 

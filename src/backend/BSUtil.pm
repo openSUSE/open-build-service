@@ -222,7 +222,7 @@ sub drop_privs_to {
   my ($user, $group) = @_;
 
   if (defined($group)) {
-    BSUtil::printlog("Drop privileges to group '$group'", 1);
+    printlog("Drop privileges to group '$group'", 1);
     $group = getgrnam($group) unless $group =~ /^\d+$/;
     die("unknown group\n") unless defined $group;
     if ($) != $group || $( != $group) {
@@ -231,7 +231,7 @@ sub drop_privs_to {
     }
   }
   if (defined($user)) {
-    BSUtil::printlog("Drop privileges to user '$user'", 1);
+    printlog("Drop privileges to user '$user'", 1);
     $user = getpwnam($user) unless $user =~ /^\d+$/;
     die("unknown user\n") unless defined $user;
     if ($> != $user || $< != $user) {
@@ -601,6 +601,31 @@ sub ping {
   }
 }
 
+sub drainping {
+  my ($ping) = @_; 
+  my $dummy;
+  fcntl($ping, F_SETFL, POSIX::O_NONBLOCK);
+  1 while (sysread($ping, $dummy, 1024, 0) || 0) > 0;
+  fcntl($ping, F_SETFL, 0); 
+}
+
+sub waitping {
+  my ($ping, $timeout) = @_; 
+
+  my $dummy;
+  if (!defined($timeout)) {
+    sysread($ping, $dummy, 1, 0); 
+    return;
+  }
+  fcntl($ping, F_SETFL, POSIX::O_NONBLOCK);
+  while ($timeout > 0) {
+    last if (sysread($ping, $dummy, 1024, 0) || 0) > 0;
+    sleep(1);
+    $timeout -= 1;
+  }
+  fcntl($ping, F_SETFL, 0); 
+}
+
 sub restartexit {
   my ($arg, $name, $runfile, $pingfile) = @_;
   return unless $arg;
@@ -616,17 +641,17 @@ sub restartexit {
       exit 0;
     }    
     print "exiting $name...\n";
-    BSUtil::touch("$runfile.exit");
+    touch("$runfile.exit");
     ping($pingfile) if $pingfile;
-    BSUtil::waituntilgone("$runfile.exit");
+    waituntilgone("$runfile.exit");
     exit(0);
   }
   if ($arg eq '--restart') {
-    die("$name not running.\n") if !(-e "$runfile.lock") || BSUtil::lockcheck('>>', "$runfile.lock");
+    die("$name not running.\n") if !(-e "$runfile.lock") || lockcheck('>>', "$runfile.lock");
     print "restarting $name...\n";
-    BSUtil::touch("$runfile.restart");
+    touch("$runfile.restart");
     ping($pingfile) if $pingfile;
-    BSUtil::waituntilgone("$runfile.restart");
+    waituntilgone("$runfile.restart");
     exit(0);
   }
 }

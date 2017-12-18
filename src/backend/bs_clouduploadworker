@@ -106,7 +106,7 @@ sub run {
   my %chld_user;
   my $pid;
   while(1) {
-    BSRunner::drainping($ping);
+    BSUtil::drainping($ping);
     reap(\%chld, \%chld_user) if %chld;
 
     my @jobs = lsjobs();
@@ -171,14 +171,14 @@ sub run {
     }
 
     if ($havedelayed) {
-      BSRunner::waitping($ping, 10);
+      BSUtil::waitping($ping, 10);
     } else {
       if ($conf->{'testmode'} && !%chld) {
         print "test mode, all jobs processed, exiting...\n";
         last;
       }
       print "waiting for an event...\n";
-      BSRunner::waitping($ping);
+      BSUtil::waitping($ping);
     }
   }
 }
