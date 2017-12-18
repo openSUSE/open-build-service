@@ -1,0 +1,93 @@
+#! /bin/sh
+# Copyright (c) 2007, Novell Inc.
+#
+# Author: adrian@suse.de
+#
+# /etc/init.d/obsclouduploadworker
+#   and its symbolic  link
+# /usr/sbin/rcobsclouduploadworker
+#
+### BEGIN INIT INFO
+# Provides:          obsclouduploadworker
+# Required-Start:    $time $syslog
+# Required-Stop:     $null
+# Should-Start:      $none
+# Should-Stop:       $none
+# Default-Start:     3 5
+# Default-Stop:      0 1 2 4 6
+# Description:       open build service cloup upload worker
+### END INIT INFO
+
+. /etc/rc.status
+
+. /etc/sysconfig/obs-server
+
+# Determine the base and follow a runlevel link name.
+base=${0##*/}
+link=${base#*[SK][0-9][0-9]}
+
+if [ -z "$OBS_RUN_DIR" ]; then
+        OBS_RUN_DIR="/srv/obs/run"
+fi
+
+if [ -z "$OBS_LOG_DIR" ]; then
+        OBS_LOG_DIR="/srv/obs/log"
+fi
+
+if [ -n "$OBS_BACKENDCODE_DIR" ]; then
+	obsdir="$OBS_BACKENDCODE_DIR"
+else
+	obsdir=/usr/lib/obs/server
+fi
+rundir="$OBS_RUN_DIR"
+logdir="$OBS_LOG_DIR"
+
+rundir_perm() {
+	# make sure rundir is group writable
+	test "$(stat -c "%A" "$rundir" | cut -c6)" = "-" && chmod 0775 "$rundir"
+}
+
+rc_reset
+case "$1" in
+	start)
+		echo -n "Initializing obsclouduploadworker"
+		mkdir -p "$rundir" "$logdir"
+		rundir_perm
+		chown obsrun:obsrun "$logdir" "$rundir"
+		startproc -f -l "$logdir"/clouduploadworker.log "$obsdir"/bs_clouduploadworker
+		rc_status -v
+	;;
+	stop)
+		echo -n "Shutting down obsclouduploadworker"
+		"$obsdir"/bs_clouduploadworker --stop
+		rc_status -v
+	;;
+	restart)
+		## If first returns OK call the second, if first or
+		## second command fails, set echo return value.
+		rundir_perm
+		"$obsdir"/bs_clouduploadworker --restart
+		rc_status
+	;;
+	try-restart|reload)
+		$0 status
+		if test $? = 0; then
+			rundir_perm
+			"$obsdir"/bs_clouduploadworker --restart
+		else
+			rc_reset        # Not running is not a failure.
+		fi
+		# Remember status and be quiet
+		rc_status
+	;;
+	status)
+		echo -n "Checking for obsclouduploadworker and running processes: "
+		checkproc "$obsdir"/bs_clouduploadworker
+		rc_status -v
+	;;
+	*)
+		echo "Usage: $0 {start|stop|status|try-restart|restart|reload}"
+		exit 1
+	;;
+esac
+rc_exit

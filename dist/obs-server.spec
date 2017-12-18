@@ -409,7 +409,7 @@ getent passwd obsrun >/dev/null || \
 exit 0
 
 %preun
-%stop_on_removal obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice
+%stop_on_removal obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice obsclouduploadworker obsclouduploadserver
 
 %service_del_preun obsdeltastore
 
@@ -418,9 +418,9 @@ exit 0
 
 %post
 %if 0%{?suse_version} >= 1315
-%reload_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice
+%reload_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice obsclouduploadworker obsclouduploadserver
 %else
-%restart_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice
+%restart_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice obsclouduploadworker obsclouduploadserver
 %endif
 # systemd kills the init script executing the reload first on reload....
 %restart_on_update obsscheduler
@@ -506,6 +506,8 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 %{_unitdir}/obsdeltastore.service
 /etc/init.d/obsservicedispatch
 /etc/init.d/obssigner
+/etc/init.d/obsclouduploadworker
+/etc/init.d/obsclouduploadserver
 /usr/sbin/obs_admin
 /usr/sbin/obs_serverstatus
 /usr/sbin/rcobsdispatcher
@@ -518,6 +520,8 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/sbin/rcobsdeltastore
 /usr/sbin/rcobsservicedispatch
 /usr/sbin/rcobssigner
+/usr/sbin/rcobsclouduploadworker
+/usr/sbin/rcobsclouduploadserver
 /usr/lib/obs/server/plugins
 /usr/lib/obs/server/BSDispatcher
 /usr/lib/obs/server/BSRepServer
@@ -550,6 +554,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/lib/obs/server/bs_signer
 /usr/lib/obs/server/bs_warden
 /usr/lib/obs/server/bs_clouduploadserver
+/usr/lib/obs/server/bs_clouduploadworker
 /usr/lib/obs/server/worker
 /usr/lib/obs/server/worker-deltagen.spec
 %config(noreplace) /usr/lib/obs/server/BSConfig.pm

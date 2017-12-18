@@ -41,12 +41,6 @@ use BSHTTP;
 
 use strict;
 
-$BSConfig::bsuser = $BSConfig::bsserviceuser;
-$BSConfig::bsgroup = $BSConfig::bsservicegroup;
-
-BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
-
-
 my $port = 5452;
 $port = $1 if $BSConfig::clouduploadserver =~ /:(\d+)$/;
 
@@ -157,9 +151,17 @@ sub cloudupload_upload {
   }
   rename("$jobdir/.$jobid.file$$", "$jobdir/$jobid.file") || die("rename $jobdir/.$jobid.file$$ $jobdir/$jobid.file: $!\n");
   $job->{'state'} = 'scheduled';
+  delete $job->{'details'};
   writexml("$jobdir/.$jobid$$", "$jobdir/$jobid", $job, $BSXML::clouduploadjob);
   close F;
   return $BSStdServer::return_ok;
+}
+
+sub cloudupload_status {
+  my ($cgi, $jobid) = @_;
+  my ($job) = readxml("$jobdir/$jobid", $BSXML::clouduploadjob, 1) || readxml("$jobdir/done/$jobid", $BSXML::clouduploadjob, 1);
+  die("404 no such job\n") unless $job;
+  return ($job, $BSXML::clouduploadjob);
 }
 
 sub workerstatus {
@@ -212,10 +214,12 @@ my $dispatches = [
   '!- GET:' => undef,
   '!- HEAD:' => undef,
 
-  '/serverstatus' => \&BSStdServer::serverstatus,
-  '/workerstatus arch*' => \&workerstatus,
   '!- POST:/cloudupload' => \&cloudupload_create,
   '!- PUT:/cloudupload/$job' => \&cloudupload_upload,
+  '/cloudupload/$job' => \&cloudupload_status,
+
+  '/serverstatus' => \&BSStdServer::serverstatus,
+  '/workerstatus arch*' => \&workerstatus,
 ];
 
 my $conf = {
