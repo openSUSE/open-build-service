@@ -116,7 +116,7 @@ class BsRequest < ApplicationRecord
     end
     # Do not allow a full collection to avoid server load
     if [:project, :user, :package].all? { |filter| opts[filter].blank? }
-      raise RuntimeError, 'This call requires at least one filter, either by user, project or package'
+      raise 'This call requires at least one filter, either by user, project or package'
     end
     roles = opts[:roles] || []
     states = opts[:states] || []
@@ -620,7 +620,7 @@ class BsRequest < ApplicationRecord
       when 'deleted' then
         history = HistoryElement::RequestDeleted
       else
-        raise RuntimeError, "Unhandled state #{opts[:newstate]} for history"
+        raise "Unhandled state #{opts[:newstate]} for history"
       end
       history.create(params)
     end
@@ -740,7 +740,7 @@ class BsRequest < ApplicationRecord
         elsif go_new_state == :declined
           history = HistoryElement::RequestDeclined
         else
-          raise RuntimeError, "Unhandled state #{go_new_state} for history"
+          raise "Unhandled state #{go_new_state} for history"
         end
         self.state = go_new_state if go_new_state
 

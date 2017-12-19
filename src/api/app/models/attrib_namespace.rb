@@ -24,7 +24,7 @@ class AttribNamespace < ApplicationRecord
 
   def create_one_rule(node)
     if !node['user'] && !node['group']
-      raise RuntimeError, "attribute type '#{node.name}' modifiable_by element has no valid rules set"
+      raise "attribute type '#{node.name}' modifiable_by element has no valid rules set"
     end
     new_rule = {}
     new_rule[:user] = User.find_by_login!(node['user']) if node['user']

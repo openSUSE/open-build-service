@@ -357,17 +357,6 @@ Style/MultipleComparison:
     - 'src/api/lib/tasks/extract.rake'
     - 'src/api/script/reformat_memprof'
 
-# Offense count: 10
-# Cop supports --auto-correct.
-Style/RedundantException:
-  Exclude:
-    - 'src/api/app/models/attrib_namespace.rb'
-    - 'src/api/app/models/attrib_type.rb'
-    - 'src/api/app/models/bs_request.rb'
-    - 'src/api/app/models/flag.rb'
-    - 'src/api/lib/activexml/transport.rb'
-    - 'src/api/lib/opensuse/permission.rb'
-
 # Offense count: 6
 # Cop supports --auto-correct.
 Style/RedundantParentheses:

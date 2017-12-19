@@ -161,13 +161,13 @@ module ActiveXML
       if data.nil?
         # logger.debug"[REST] Transport.find using GET-method"
         objdata = http_do('get', url, timeout: 300)
-        raise RuntimeError, "GET to #{url} returned no data" if objdata.empty?
+        raise "GET to #{url} returned no data" if objdata.empty?
       else
         # use post-method
         logger.debug '[REST] Transport.find using POST-method'
         # logger.debug"[REST] POST-data as xml: #{data.to_s}"
         objdata = http_do('post', url, data: data.to_s, content_type: own_mimetype)
-        raise RuntimeError, "POST to #{url} returned no data" if objdata.empty?
+        raise "POST to #{url} returned no data" if objdata.empty?
       end
       objdata = objdata.force_encoding('UTF-8')
       [objdata, params]
@@ -254,7 +254,7 @@ module ActiveXML
               new_pairs << Regexp.last_match(1) + '=' + CGI.escape(sub_val.to_s)
             end
           else
-            raise RuntimeError, "illegal url query pair: #{pair.inspect}"
+            raise "illegal url query pair: #{pair.inspect}"
           end
         end
         u.query = new_pairs.join('&')
