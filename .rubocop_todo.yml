@@ -357,14 +357,6 @@ Style/MultipleComparison:
     - 'src/api/lib/tasks/extract.rake'
     - 'src/api/script/reformat_memprof'
 
-# Offense count: 6
-# Cop supports --auto-correct.
-Style/RedundantParentheses:
-  Exclude:
-    - 'src/api/app/models/owner.rb'
-    - 'src/api/lib/xpath_engine.rb'
-    - 'src/api/test/functional/source_controller_test.rb'
-
 # Offense count: 88
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, AllowInnerSlashes.

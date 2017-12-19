@@ -87,7 +87,7 @@ class Owner
     maintainers = []
     pkg = nil
 
-    match_all = (limit.zero?)
+    match_all = limit.zero?
     deepest = (limit < 0)
 
     # binary search via all projects
