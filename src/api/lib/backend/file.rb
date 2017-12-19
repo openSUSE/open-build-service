@@ -30,7 +30,7 @@ module Backend
     # Sets the content File object from a path
     def file_from_path(path)
       @file = ::File.open(path)
-      @response = { type: MIME::Types.type_for(::File.basename(@file.path)).first.try(:content_type), status: 200, size: @file.size }
+      @response = { type: MiniMime.lookup_by_filename(@file.path).try(:content_type), status: 200, size: @file.size }
       @file.close
     end
 
