@@ -86,9 +86,11 @@ def import_dump
   filename = @params[:path] || options['backup_filename']
 
   cmds = ["bzcat #{File.join(@data_path, filename)}"]
-  cmds << TABLES_TO_REMOVE.map do |table|
-    "sed '/-- Dumping data for table `#{table}`/,/-- Table structure for table/{//!d}'"
-  end.join(' | ') unless TABLES_TO_REMOVE.empty?
+  unless TABLES_TO_REMOVE.empty?
+    cmds << TABLES_TO_REMOVE.map do |table|
+      "sed '/-- Dumping data for table `#{table}`/,/-- Table structure for table/{//!d}'"
+    end.join(' | ')
+  end
   cmds << "mysql -u#{username} -p#{password} -h#{host} #{database}"
 
   puts "Extracting and importing data from #{filename}..."

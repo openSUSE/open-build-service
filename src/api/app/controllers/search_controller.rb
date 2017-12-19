@@ -234,11 +234,13 @@ class SearchController < ApplicationController
 
     # TODO: support sort_by and order parameters?
 
-    relation.each do |item|
-      next if xml[item.id]
-      xml[item.id] = render_all ? item.to_axml(opts) : item.to_axml_id
-      xml[item.id].gsub!(/(..*)/, '  \\1') # indent it by two spaces, if line is not empty
-    end unless items.empty?
+    unless items.empty?
+      relation.each do |item|
+        next if xml[item.id]
+        xml[item.id] = render_all ? item.to_axml(opts) : item.to_axml_id
+        xml[item.id].gsub!(/(..*)/, '  \\1') # indent it by two spaces, if line is not empty
+      end
+    end
 
     items.each do |i|
       output << xml[i]

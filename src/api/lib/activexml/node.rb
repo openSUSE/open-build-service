@@ -330,9 +330,11 @@ module ActiveXML
       raise 'First argument must be an element name' if element.nil?
       el = _data.document.create_element(element)
       _data.add_child(el)
-      attrs.each do |key, value|
-        el[key.to_s] = value.to_s
-      end if attrs.is_a? Hash
+      if attrs.is_a? Hash
+        attrs.each do |key, value|
+          el[key.to_s] = value.to_s
+        end
+      end
       # you never know
       cleanup_cache
       Node.new(el)

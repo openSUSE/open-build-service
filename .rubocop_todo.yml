@@ -348,11 +348,6 @@ Style/MixinUsage:
     - 'src/api/app/controllers/source_controller.rb'
     - 'src/api/app/helpers/maintenance_helper.rb'
 
-# Offense count: 31
-# Cop supports --auto-correct.
-Style/MultilineIfModifier:
-  Enabled: false
-
 # Offense count: 5
 Style/MultipleComparison:
   Exclude:

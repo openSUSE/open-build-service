@@ -267,13 +267,15 @@ class Webui::ProjectController < Webui::WebuiController
     end
     longest = call_diststats(bdep, jobs)
     @longestpaths = []
-    longest['longestpath'].elements('path') do |path|
-      currentpath = []
-      path.elements('package') do |p|
-        currentpath << p
+    if longest
+      longest['longestpath'].elements('path') do |path|
+        currentpath = []
+        path.elements('package') do |p|
+          currentpath << p
+        end
+        @longestpaths << currentpath
       end
-      @longestpaths << currentpath
-    end if longest
+    end
     # we append 4 empty paths, so there are always at least 4 in the array
     # to simplify the view code
     4.times { @longestpaths << [] }
@@ -499,22 +501,24 @@ class Webui::ProjectController < Webui::WebuiController
     @repohash = {}
     @statushash = {}
 
-    @buildresult.elements('result') do |result|
-      repo = result['repository']
-      arch = result['arch']
+    if @buildresult
+      @buildresult.elements('result') do |result|
+        repo = result['repository']
+        arch = result['arch']
 
-      @repohash[repo] ||= []
-      @repohash[repo] << arch
+        @repohash[repo] ||= []
+        @repohash[repo] << arch
 
-      # package status cache
-      @statushash[repo] ||= {}
-      @statushash[repo][arch] = {}
+        # package status cache
+        @statushash[repo] ||= {}
+        @statushash[repo][arch] = {}
 
-      stathash = @statushash[repo][arch]
-      result.elements('status') do |status|
-        stathash[status['package']] = status
+        stathash = @statushash[repo][arch]
+        result.elements('status') do |status|
+          stathash[status['package']] = status
+        end
       end
-    end if @buildresult
+    end
     render layout: false
   end
 

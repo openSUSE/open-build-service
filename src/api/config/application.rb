@@ -128,8 +128,10 @@ module OBSApi
       g.test_framework :rspec
     end
 
-    config.after_initialize do
-      # See Rails::Configuration for more options
-    end unless Rails.env.test?
+    unless Rails.env.test?
+      config.after_initialize do
+        # See Rails::Configuration for more options
+      end
+    end
   end
 end

@@ -194,11 +194,13 @@ class BsRequest < ApplicationRecord
       # to be overwritten if we find history
       request.creator = request.commenter
 
-      actions.each do |ac|
-        a = BsRequestAction.new_from_xml_hash(ac)
-        request.bs_request_actions << a
-        a.bs_request = request
-      end if actions
+      if actions
+        actions.each do |ac|
+          a = BsRequestAction.new_from_xml_hash(ac)
+          request.bs_request_actions << a
+          a.bs_request = request
+        end
+      end
 
       str = state.delete('when')
       request.updated_when = Time.zone.parse(str) if str
@@ -221,9 +223,11 @@ class BsRequest < ApplicationRecord
 
       reviews = hashed.delete('review')
       reviews = [reviews] if reviews.is_a?(Hash)
-      reviews.each do |r|
-        request.reviews << Review.new_from_xml_hash(r)
-      end if reviews
+      if reviews
+        reviews.each do |r|
+          request.reviews << Review.new_from_xml_hash(r)
+        end
+      end
 
       raise ArgumentError, "too much information #{hashed.inspect}" if hashed.present?
 

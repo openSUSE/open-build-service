@@ -716,9 +716,11 @@ class Project < ApplicationRecord
     expl = false
 
     flags = []
-    prj_flags.each do |f|
-      flags << f if f.is_relevant_for?(repo, arch)
-    end if prj_flags
+    if prj_flags
+      prj_flags.each do |f|
+        flags << f if f.is_relevant_for?(repo, arch)
+      end
+    end
 
     flags.sort! { |a, b| a.specifics <=> b.specifics }
 

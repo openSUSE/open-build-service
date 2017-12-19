@@ -302,8 +302,10 @@ class SourceController < ApplicationController
   def verify_can_modify_target_package!
     return if User.current.can_modify_package?(@package)
 
-    raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " +
-                                    'for unspecified package' unless @package.class == Package
+    unless @package.class == Package
+      raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " +
+                                      'for unspecified package'
+    end
     raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " +
                                     "for package #{@package.name} in project #{@package.project.name}"
   end
@@ -1095,30 +1097,32 @@ class SourceController < ApplicationController
     end
 
     # create new project object based on oproject
-    Project.transaction do
-      if oprj.is_a? String # remote project
-        rdata = Xmlhash.parse(Backend::Api::Sources::Project.meta(oprj))
-        @project = Project.new name: project_name, title: rdata['title'], description: rdata['description']
-      else # local project
-        @project = Project.new name: project_name, title: oprj.title, description: oprj.description
-        @project.save
-        oprj.flags.each do |f|
-          @project.flags.create(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo) unless f.flag == 'lock'
-        end
-        oprj.repositories.each do |repo|
-          r = @project.repositories.create name: repo.name
-          repo.repository_architectures.each do |ra|
-            r.repository_architectures.create! architecture: ra.architecture, position: ra.position
+    unless @project
+      Project.transaction do
+        if oprj.is_a? String # remote project
+          rdata = Xmlhash.parse(Backend::Api::Sources::Project.meta(oprj))
+          @project = Project.new name: project_name, title: rdata['title'], description: rdata['description']
+        else # local project
+          @project = Project.new name: project_name, title: oprj.title, description: oprj.description
+          @project.save
+          oprj.flags.each do |f|
+            @project.flags.create(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo) unless f.flag == 'lock'
           end
-          position = 0
-          repo.path_elements.each do |pe|
-            position += 1
-            r.path_elements << PathElement.new(link: pe.link, position: position)
+          oprj.repositories.each do |repo|
+            r = @project.repositories.create name: repo.name
+            repo.repository_architectures.each do |ra|
+              r.repository_architectures.create! architecture: ra.architecture, position: ra.position
+            end
+            position = 0
+            repo.path_elements.each do |pe|
+              position += 1
+              r.path_elements << PathElement.new(link: pe.link, position: position)
+            end
           end
         end
+        @project.store
       end
-      @project.store
-    end unless @project
+    end
 
     if params.has_key? :nodelay
       @project.do_project_copy(params)

@@ -327,19 +327,23 @@ class Owner
     usersql  = sql << ' AND user_id = ' << objfilter.id.to_s  if objfilter.class == User
     groupsql = sql << ' AND group_id = ' << objfilter.id.to_s if objfilter.class == Group
 
-    r.users.where(usersql).find_each do |p|
-      next unless p.user.state == 'confirmed'
-      m.users ||= {}
-      m.users[p.role.title] ||= []
-      m.users[p.role.title] << p.user.login
-    end unless objfilter.class == Group
+    unless objfilter.class == Group
+      r.users.where(usersql).find_each do |p|
+        next unless p.user.state == 'confirmed'
+        m.users ||= {}
+        m.users[p.role.title] ||= []
+        m.users[p.role.title] << p.user.login
+      end
+    end
 
-    r.groups.where(groupsql).find_each do |p|
-      next if p.group.users.where(state: 'confirmed').empty?
-      m.groups ||= {}
-      m.groups[p.role.title] ||= []
-      m.groups[p.role.title] << p.group.title
-    end unless objfilter.class == User
+    unless objfilter.class == User
+      r.groups.where(groupsql).find_each do |p|
+        next if p.group.users.where(state: 'confirmed').empty?
+        m.groups ||= {}
+        m.groups[p.role.title] ||= []
+        m.groups[p.role.title] << p.group.title
+      end
+    end
     m
   end
 

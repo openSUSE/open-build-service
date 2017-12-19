@@ -939,15 +939,17 @@ class Webui::PackageController < Webui::WebuiController
     @repo_list, @repo_arch_hash = [], {}
     @buildresult = Buildresult.find_hashed(project: @project.to_param, package: @package.to_param, view: 'status')
     repos = [] # Temp var
-    @buildresult.elements('result') do |result|
-      if result.value('repository') != 'images' &&
-         (result.value('status') && result.value('status').value('code') != 'excluded')
-        hash_key = valid_xml_id(elide(result.value('repository'), 30))
-        @repo_arch_hash[hash_key] ||= []
-        @repo_arch_hash[hash_key] << result['arch']
-        repos << result.value('repository')
+    if @buildresult
+      @buildresult.elements('result') do |result|
+        if result.value('repository') != 'images' &&
+           (result.value('status') && result.value('status').value('code') != 'excluded')
+          hash_key = valid_xml_id(elide(result.value('repository'), 30))
+          @repo_arch_hash[hash_key] ||= []
+          @repo_arch_hash[hash_key] << result['arch']
+          repos << result.value('repository')
+        end
       end
-    end if @buildresult
+    end
     repos.uniq.each do |repo_name|
       @repo_list << [repo_name, valid_xml_id(elide(repo_name, 30))]
     end

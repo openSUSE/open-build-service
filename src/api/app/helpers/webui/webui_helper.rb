@@ -273,8 +273,10 @@ module Webui::WebuiHelper
     opts[:project_text] ||= opts[:project]
     opts[:package_text] ||= opts[:package]
 
-    opts[:project_text], opts[:package_text] =
-      elide_two(opts[:project_text], opts[:package_text], opts[:trim_to]) unless opts[:trim_to].nil?
+    unless opts[:trim_to].nil?
+      opts[:project_text], opts[:package_text] =
+        elide_two(opts[:project_text], opts[:package_text], opts[:trim_to])
+    end
 
     if opts[:short]
       out = ''.html_safe

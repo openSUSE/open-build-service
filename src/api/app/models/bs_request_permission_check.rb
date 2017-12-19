@@ -353,8 +353,10 @@ class BsRequestPermissionCheck
       # abort immediatly if we want to write and can't
       if opts[:newstate] == 'accepted' && !@write_permission_in_this_action
         msg = ''
-        msg = 'No permission to modify target of request ' +
-              "#{action.bs_request.number} (type #{action.action_type}): project #{action.target_project}" unless action.bs_request.new_record?
+        unless action.bs_request.new_record?
+          msg = 'No permission to modify target of request ' +
+                "#{action.bs_request.number} (type #{action.action_type}): project #{action.target_project}"
+        end
         msg += ", package #{action.target_package}" if action.target_package
         raise PostRequestNoPermission, msg
       end
