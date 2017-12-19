@@ -57,7 +57,7 @@ class ConsistencyCheckJob < ApplicationJob
     end
     # check backend side
     begin
-      Backend::Connection.get("/source/#{project.name}")
+      Backend::Api::Sources::Project.packages(project.name)
     rescue ActiveXML::Transport::NotFoundError
       @errors << "Project #{project.name} lost on backend"
       project.commit_opts = { no_backend_write: 1 }
@@ -83,7 +83,7 @@ class ConsistencyCheckJob < ApplicationJob
     # WARNING: this is using the memcache content. should maybe dropped before
     api_meta = project.to_axml
     begin
-      backend_meta = Backend::Connection.get("/source/#{project.name}/_meta").body
+      backend_meta = Backend::Api::Sources::Project.meta(project.name)
     rescue ActiveXML::Transport::NotFoundError
       # project disappeared ... may happen in running system
       return ""
@@ -112,7 +112,7 @@ class ConsistencyCheckJob < ApplicationJob
     # compare projects
     project_list_api = Project.all.pluck(:name).sort
     begin
-      project_list_backend = dir_to_array(Xmlhash.parse(Backend::Connection.get("/source").body))
+      project_list_backend = dir_to_array(Xmlhash.parse(Backend::Api::Sources::Project.list))
     rescue ActiveXML::Transport::NotFoundError
       # project disappeared ... may happen in running system
       return ""
@@ -145,7 +145,7 @@ class ConsistencyCheckJob < ApplicationJob
   end
 
   def import_project_from_backend(project)
-    meta = Backend::Connection.get("/source/#{project}/_meta").body
+    meta = Backend::Api::Sources::Project.meta(project)
     project = Project.new(name: project)
     project.commit_opts = { no_backend_write: 1 }
     project.update_from_xml!(Xmlhash.parse(meta))
@@ -154,7 +154,7 @@ class ConsistencyCheckJob < ApplicationJob
   rescue APIException => e
     return "Invalid project meta data hosted in src server for project #{project}: #{e}"
   rescue ActiveRecord::RecordInvalid
-    Backend::Connection.delete("/source/#{project}")
+    Backend::Api::Sources::Project.delete(project)
     return "DELETED #{project} on backend due to invalid data\n"
   rescue ActiveXML::Transport::NotFoundError
     return "specified #{project} does not exist on backend\n"
@@ -187,7 +187,7 @@ class ConsistencyCheckJob < ApplicationJob
     # compare all packages
     package_list_api = project.packages.pluck(:name)
     begin
-      plb = dir_to_array(Xmlhash.parse(Backend::Connection.get("/source/#{project.name}").body))
+      plb = dir_to_array(Xmlhash.parse(Backend::Api::Sources::Project.packages(project.name)))
     rescue ActiveXML::Transport::NotFoundError
       # project disappeared ... may happen in running system
       return ""
@@ -215,14 +215,14 @@ class ConsistencyCheckJob < ApplicationJob
         # restore from backend
         diff.each do |package|
           begin
-            meta = Backend::Connection.get("/source/#{project.name}/#{package}/_meta").body
+            meta = Backend::Api::Sources::Project.meta(project.name, package)
             pkg = project.packages.new(name: package)
             pkg.commit_opts = { no_backend_write: 1 }
             pkg.update_from_xml(Xmlhash.parse(meta), true) # ignore locked project
             pkg.save!
           rescue ActiveRecord::RecordInvalid,
                  ActiveXML::Transport::NotFoundError
-            Backend::Connection.delete("/source/#{project.name}/#{package}")
+            Backend::Api::Sources::Package.delete(project.name, package)
             errors << "DELETED in backend due to invalid data #{project.name}/#{package}\n"
           end
         end

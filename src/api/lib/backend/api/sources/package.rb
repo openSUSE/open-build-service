@@ -136,6 +136,11 @@ module Backend
         def self.write_file(project_name, package_name, file_name, content = '')
           put(["/source/:project/:package/:filename", project_name, package_name, file_name], data: content)
         end
+
+        # Deletes the package and all the source files inside
+        def self.delete(project_name, package_name)
+          delete(["/source/:project/:package", project_name, package_name])
+        end
       end
     end
   end
