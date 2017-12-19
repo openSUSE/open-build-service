@@ -364,12 +364,6 @@ Style/MultipleComparison:
 Style/RegexpLiteral:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/StderrPuts:
-  Exclude:
-    - 'src/api/test/functional/webui/spider_test.rb'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 # Configuration parameters: ExactNameMatch, AllowPredicates, AllowDSLWriters, IgnoreClassMethods, Whitelist.
