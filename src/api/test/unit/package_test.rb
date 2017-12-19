@@ -143,7 +143,8 @@ class PackageTest < ActiveSupport::TestCase
                                    <title>My Test package</title>
                                    <description></description>
                                    <devel project='Notexistant'/>
-                                 </package>"))
+                                 </package>"
+      ))
     end
     assert_raise Package::SaveError do
       @package.update_from_xml(Xmlhash.parse(
@@ -151,7 +152,8 @@ class PackageTest < ActiveSupport::TestCase
                                    <title>My Test package</title>
                                    <description></description>
                                    <devel project='home:Iggy' package='nothing'/>
-                                 </package>"))
+                                 </package>"
+      ))
     end
 
     assert_raise NotFoundError do
@@ -160,7 +162,8 @@ class PackageTest < ActiveSupport::TestCase
                                    <title>My Test package</title>
                                    <description></description>
                                    <person userid='alice' role='maintainer'/>
-                                 </package>"))
+                                 </package>"
+      ))
     end
 
     assert_raise HasRelationships::SaveError do
@@ -169,7 +172,8 @@ class PackageTest < ActiveSupport::TestCase
                                    <title>My Test package</title>
                                    <description></description>
                                    <person userid='tom' role='coolman'/>
-                                 </package>"))
+                                 </package>"
+      ))
     end
 
     assert_equal orig, Xmlhash.parse(@package.to_axml)
@@ -179,7 +183,8 @@ class PackageTest < ActiveSupport::TestCase
                                         <description></description>
                                         <person userid='fred' role='bugowner'/>
                                         <person userid='Iggy' role='maintainer'/>
-                                      </package>"))
+                                      </package>"
+    ))
   end
 
   def test_add_user

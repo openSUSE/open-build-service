@@ -304,12 +304,12 @@ class Project
 
       dod_repositories = xml_hash.elements("download").map do |dod|
         dod_attributes = {
-           repository: current_repo,
-           arch:       dod["arch"],
-           url:        dod["url"],
-           repotype:   dod["repotype"],
-           archfilter: dod["archfilter"],
-           pubkey:     dod["pubkey"]
+          repository: current_repo,
+          arch:       dod["arch"],
+          url:        dod["url"],
+          repotype:   dod["repotype"],
+          archfilter: dod["archfilter"],
+          pubkey:     dod["pubkey"]
         }
         if dod["master"]
           dod_attributes[:masterurl]            = dod["master"]["url"]

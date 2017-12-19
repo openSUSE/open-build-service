@@ -180,7 +180,7 @@ class XpathEngine
         '@email'    => { cpart: 'users.email' },
         '@realname' => { cpart: 'users.realname' },
         '@state'    => { cpart: 'users.state' }
-       },
+      },
       'issues'            => {
         '@name'        => { cpart: 'issues.name' },
         '@state'       => { cpart: 'issues.state' },

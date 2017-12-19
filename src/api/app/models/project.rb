@@ -1583,7 +1583,7 @@ class Project < ApplicationRecord
          target_project.disabled_for?('access', nil, nil) &&
          !FlagHelper.xml_disabled_for?(request_data, 'access')
         return {
-            error: "Project links work only when both projects have same read access protection level: #{project_name} -> #{target_project_name}"
+          error: "Project links work only when both projects have same read access protection level: #{project_name} -> #{target_project_name}"
         }
       end
       logger.debug "Project #{project_name} link checked against #{target_project_name} projects permission"

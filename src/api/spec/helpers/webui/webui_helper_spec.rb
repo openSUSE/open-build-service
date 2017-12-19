@@ -155,18 +155,22 @@ RSpec.describe Webui::WebuiHelper do
   describe '#remove_dialog_tag' do
     it "generates a link element and uses it's parameter as text field" do
       expect(remove_dialog_tag('Some text')).to eq(
-        '<a title="Close" id="remove_dialog" class="close-dialog" href="#">Some text</a>')
+        '<a title="Close" id="remove_dialog" class="close-dialog" href="#">Some text</a>'
+      )
       expect(remove_dialog_tag('Some other text')).to eq(
-        '<a title="Close" id="remove_dialog" class="close-dialog" href="#">Some other text</a>')
+        '<a title="Close" id="remove_dialog" class="close-dialog" href="#">Some other text</a>'
+      )
     end
   end
 
   describe '#remove_dialog_tag' do
     it "generates a 'pre' element and uses it's parameter as text field" do
       expect(description_wrapper('some description')).to eq(
-        '<pre id="description-text" class="plain">some description</pre>')
+        '<pre id="description-text" class="plain">some description</pre>'
+      )
       expect(description_wrapper('some other description')).to eq(
-        '<pre id="description-text" class="plain">some other description</pre>')
+        '<pre id="description-text" class="plain">some other description</pre>'
+      )
     end
   end
 
@@ -349,7 +353,8 @@ RSpec.describe Webui::WebuiHelper do
 
       it 'appends a role name' do
         expect(user_and_role(user.login, 'test')).to include(
-          link_to("#{user.realname} (#{user.login}) as test", user_show_path(user: user)))
+          link_to("#{user.realname} (#{user.login}) as test", user_show_path(user: user))
+        )
       end
     end
 

@@ -1198,7 +1198,7 @@ class ProjectTest < ActiveSupport::TestCase
 
     actual = Project.check_repositories(@project.repositories)
     expected = {
-        error: "Unable to delete repository; following repositories depend on this project:\nhome:tom/home_coolo_standard"
+      error: "Unable to delete repository; following repositories depend on this project:\nhome:tom/home_coolo_standard"
     }
 
     assert_equal actual, expected
@@ -1213,7 +1213,7 @@ class ProjectTest < ActiveSupport::TestCase
 
     actual = Project.check_repositories(@project.repositories)
     expected = {
-        error: "Unable to delete repository; following target repositories depend on this project:\nhome:Iggy/10.2"
+      error: "Unable to delete repository; following target repositories depend on this project:\nhome:Iggy/10.2"
     }
 
     assert_equal actual, expected

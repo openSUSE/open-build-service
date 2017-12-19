@@ -12,16 +12,14 @@ RSpec.shared_examples 'user tab' do
              project: project,
              package: package,
              user:    user_tab_user,
-             role:    Role.find_by_title('bugowner')
-            )
+             role:    Role.find_by_title('bugowner'))
     end
     let!(:reader_user_role) do
       create(:relationship,
              project: project,
              package: package,
              user:    reader,
-             role:    Role.find_by_title('reader')
-            )
+             role:    Role.find_by_title('reader'))
     end
 
     before do
@@ -100,8 +98,7 @@ RSpec.shared_examples 'user tab' do
              project: project,
              package: package,
              group:   group,
-             role:    Role.find_by_title('bugowner')
-            )
+             role:    Role.find_by_title('bugowner'))
     end
 
     before do

@@ -1002,8 +1002,8 @@ class BsRequest < ApplicationRecord
       reviewers += action.default_reviewers
 
       action.create_post_permissions_hook({
-         per_package_locking: @per_package_locking
-      })
+                                            per_package_locking: @per_package_locking
+                                          })
     end
 
     # apply reviewers
@@ -1157,7 +1157,8 @@ class BsRequest < ApplicationRecord
     # Skipping Model validations in this case is fine as we only want to touch
     # the associated user models to invalidate the cache keys
     Group.joins(:relationships).where(relationships: { package_id: target_package_ids }).or(
-      Group.joins(:relationships).where(relationships: { project_id: target_project_ids })).update_all(updated_at: Time.now)
+      Group.joins(:relationships).where(relationships: { project_id: target_project_ids })
+    ).update_all(updated_at: Time.now)
     User.where(id: user_ids).update_all(updated_at: Time.now)
     # rubocop:enable Rails/SkipsModelValidations
   end
@@ -1187,12 +1188,12 @@ class BsRequest < ApplicationRecord
     return unless persisted? && priority_changed?
 
     HistoryElement::RequestPriorityChange.create({
-      request:               self,
-      # We need to have a user here
-      user:                  User.find_nobody!,
-      description_extension: "#{priority_was} => #{priority}",
-      comment:               "Automatic priority bump: Priority of related action increased."
-    })
+                                                   request:               self,
+                                                   # We need to have a user here
+                                                   user:                  User.find_nobody!,
+                                                   description_extension: "#{priority_was} => #{priority}",
+                                                   comment:               "Automatic priority bump: Priority of related action increased."
+                                                 })
   end
 
   def _assignreview_update_reviews(reviewer, opts, new_review = nil)

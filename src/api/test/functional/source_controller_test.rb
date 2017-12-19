@@ -4216,9 +4216,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
 
     put '/source/home:Iggy/_config?' + {
-        project: 'home:Iggy',
-        comment: 'Updated by test'
-      }.to_query, params: new_project_config
+      project: 'home:Iggy',
+      comment: 'Updated by test'
+    }.to_query, params: new_project_config
     assert_response :success
 
     get '/source/home:Iggy/_config'
@@ -4227,9 +4227,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # Leave the backend file as it was
     put '/source/home:Iggy/_config?' + {
-        project: 'home:Iggy',
-        comment: 'Updated by test'
-      }.to_query, params: project_config
+      project: 'home:Iggy',
+      comment: 'Updated by test'
+    }.to_query, params: project_config
     assert_response :success
   end
 end

@@ -14,9 +14,9 @@ FactoryBot.define do
       # We set the position explicit in the repository_architecture factory
       unless repo_arch
         create(:repository_architecture, {
-          repository:   download_repository.repository,
-          architecture: Architecture.find_or_create_by!(name: download_repository.arch)
-      })
+                 repository:   download_repository.repository,
+                 architecture: Architecture.find_or_create_by!(name: download_repository.arch)
+               })
       end
     end
   end

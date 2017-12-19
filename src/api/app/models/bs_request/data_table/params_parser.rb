@@ -42,12 +42,12 @@ class BsRequest
       def sort_columns
         # defaults to :created_at
         {
-            0 => %w(bs_requests.created_at),
-            1 => %w(bs_request_actions.source_project bs_request_actions.source_package),
-            2 => %w(bs_request_actions.target_project bs_request_actions.target_package),
-            3 => %w(bs_requests.creator),
-            4 => %w(bs_request_actions.type),
-            5 => %w(bs_requests.priority)
+          0 => %w(bs_requests.created_at),
+          1 => %w(bs_request_actions.source_project bs_request_actions.source_package),
+          2 => %w(bs_request_actions.target_project bs_request_actions.target_package),
+          3 => %w(bs_requests.creator),
+          4 => %w(bs_request_actions.type),
+          5 => %w(bs_requests.priority)
         }[order_params.fetch(:column, nil).to_i]
       end
 

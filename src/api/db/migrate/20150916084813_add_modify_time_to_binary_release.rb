@@ -10,8 +10,7 @@ class AddModifyTimeToBinaryRelease < ActiveRecord::Migration[4.2]
                                   binary_release: br.binary_release,
                                   binary_epoch: br.binary_epoch,
                                   binary_arch: br.binary_arch,
-                                  medium: br.medium
-                                 )
+                                  medium: br.medium)
       unless added.length == 1
         Rails.logger.error "ERROR: Unique added entry belonging to modified entry not found: #{br.id}"
         next
@@ -31,8 +30,7 @@ class AddModifyTimeToBinaryRelease < ActiveRecord::Migration[4.2]
                                   binary_release: br.binary_release,
                                   binary_epoch: br.binary_epoch,
                                   binary_arch: br.binary_arch,
-                                  medium: br.medium
-                                 )
+                                  medium: br.medium)
       unless added.length == 1
         Rails.logger.error "ERROR: Unique added entry belonging to modified entry not found: #{br.id}"
         next

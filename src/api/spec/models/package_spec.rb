@@ -58,7 +58,8 @@ RSpec.describe Package, vcr: true do
 </details>
           </status>
         </result>
-      </resultlist>')
+      </resultlist>'
+    )
   end
 
   before do

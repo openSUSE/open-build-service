@@ -77,7 +77,8 @@ RSpec.feature "Packages", type: :feature, js: true do
 
       expect(page).to have_text("Successfully branched package")
       expect(page.current_path).to eq(
-        package_show_path(project: user.branch_project_name(other_user.home_project_name), package: other_users_package))
+        package_show_path(project: user.branch_project_name(other_user.home_project_name), package: other_users_package)
+      )
     end
   end
 

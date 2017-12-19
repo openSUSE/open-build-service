@@ -213,7 +213,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                      project:    "BaseDistro2.0:LinkedUpdateProject",
                      repository: "BaseDistro2LinkedUpdateProject_repo",
                      trigger:    "maintenance"
-                    }
+                   }
     assert_xml_tag parent: { tag: "repository", attributes: { name: "My_Maintenance_0" } },
                    tag: "path", attributes: { project: "My:Maintenance:0", repository: "BaseDistro2.0_LinkedUpdateProject" }
     assert_xml_tag parent: { tag: "repository", attributes: { name: "BaseDistro2.0" } },

@@ -38,8 +38,7 @@ class ChannelBinary < ApplicationRecord
     channel = channel_binary_list.channel
     package_exists = Package.exists_by_project_and_name(project.name, channel.name,
                                                         follow_project_links: false,
-                                                        allow_remote_packages: false
-                                                       )
+                                                        allow_remote_packages: false)
     # does it exist already? then just skip it
     # create a channel package beside my package and return that
     channel.branch_channel_package_into_project(project, comment) unless package_exists

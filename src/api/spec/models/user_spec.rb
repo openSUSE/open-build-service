@@ -295,8 +295,7 @@ RSpec.describe User do
                target_package: target_package,
                source_project: source_package.project,
                source_package: source_package,
-               creator: admin_user.login
-              )
+               creator: admin_user.login)
       end
 
       let!(:not_maintained_request) do
@@ -305,8 +304,7 @@ RSpec.describe User do
                target_package: not_maintained_target_package,
                source_project: source_package.project,
                source_package: source_package,
-               creator: admin_user.login
-              )
+               creator: admin_user.login)
       end
 
       subject { confirmed_user.incoming_requests }
@@ -530,8 +528,7 @@ RSpec.describe User do
                target_package: target_package,
                source_project: source_package.project,
                source_package: source_package,
-               creator: admin_user.login
-              )
+               creator: admin_user.login)
       end
 
       let!(:not_maintained_request) do
@@ -540,9 +537,9 @@ RSpec.describe User do
                target_package: not_maintained_target_package,
                source_project: source_package.project,
                source_package: source_package,
-               creator: admin_user.login
-              )
+               creator: admin_user.login)
       end
+
       let(:target_package) { create(:package) }
       let!(:relationship_project_user) { create(:relationship_project_user, user: confirmed_user, project: target_package.project) }
       let!(:relationship_package_user) { create(:relationship_package_user, user: confirmed_user, package: target_package) }
@@ -842,10 +839,10 @@ RSpec.describe User do
 
       before do
         stub_const('CONFIG', CONFIG.merge({
-          'ldap_mode'        => :on,
-          'ldap_search_user' => 'tux',
-          'ldap_search_auth' => 'tux_password'
-        }))
+                                            'ldap_mode'        => :on,
+                                            'ldap_search_user' => 'tux',
+                                            'ldap_search_auth' => 'tux_password'
+                                          }))
       end
 
       context 'and user is already known by OBS' do

@@ -188,8 +188,7 @@ RSpec.describe BsRequest::FindFor::User do
             create(:review,
                    by_project: another_target_project.name,
                    by_package: another_target_package.name,
-                   bs_request: another_request
-                  )
+                   bs_request: another_request)
           end
         end
       end
