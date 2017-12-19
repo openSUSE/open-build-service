@@ -290,7 +290,7 @@ module Event
     def calculate_payload(values)
       return values if shortenable_key.nil? # If no shortenable_key is set then we cannot shorten the payload
 
-      overflow_bytes = ActiveSupport::JSON.encode(values).bytesize - 65535
+      overflow_bytes = ActiveSupport::JSON.encode(values).bytesize - 65_535
 
       return values if overflow_bytes <= 0
 

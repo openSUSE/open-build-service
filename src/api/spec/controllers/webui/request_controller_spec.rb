@@ -88,10 +88,10 @@ RSpec.describe Webui::RequestController, vcr: true do
     end
 
     let(:diff_header_size) { 4 }
-    let(:ascii_file_size) { 11000 }
+    let(:ascii_file_size) { 11_000 }
     # Taken from package_with_binary_diff factory files (bigfile_archive.tar.gz and bigfile_archive_2.tar.gz)
-    let(:binary_file_size) { 30000 }
-    let(:binary_file_changed_size) { 13000 }
+    let(:binary_file_size) { 30_000 }
+    let(:binary_file_changed_size) { 13_000 }
     # TODO: check if this value, the default diff size, is correct
     let(:default_diff_size) { 9999 }
 

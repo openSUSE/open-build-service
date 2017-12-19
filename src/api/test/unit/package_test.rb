@@ -290,27 +290,27 @@ class PackageTest < ActiveSupport::TestCase
       assert_in_delta(25.1, newyear.activity, 0.2)
 
       # and commit every day?
-      Timecop.freeze(90000)
+      Timecop.freeze(90_000)
       newyear.title = 'Just a silly update 5'
       newyear.save
       assert_in_delta(34.9, newyear.activity, 0.2)
 
-      Timecop.freeze(90000)
+      Timecop.freeze(90_000)
       newyear.title = 'Just a silly update 6'
       newyear.save
       assert_in_delta(44.6, newyear.activity, 0.2)
 
-      Timecop.freeze(90000)
+      Timecop.freeze(90_000)
       newyear.title = 'Just a silly update 7'
       newyear.save
       assert_in_delta(54.2, newyear.activity, 0.2)
 
-      Timecop.freeze(90000)
+      Timecop.freeze(90_000)
       newyear.title = 'Just a silly update 8'
       newyear.save
       assert_in_delta(63.8, newyear.activity, 0.2)
 
-      Timecop.freeze(90000)
+      Timecop.freeze(90_000)
       newyear.title = 'Just a silly update 8'
       newyear.save
       assert_in_delta(72.7, newyear.activity, 0.2)

@@ -23,13 +23,13 @@ RSpec.describe BuildLogSupport do
     end
 
     describe '#raw_log_chunk' do
-      subject { instance_with_build_log_support.raw_log_chunk('project_1', 'package_1', 'repository_1', 'architecture_1', 0, 65536) }
+      subject { instance_with_build_log_support.raw_log_chunk('project_1', 'package_1', 'repository_1', 'architecture_1', 0, 65_536) }
 
       it { is_expected.to eq(build_log) }
     end
 
     describe '#get_log_chunk' do
-      subject { instance_with_build_log_support.get_log_chunk('project_1', 'package_1', 'repository_1', 'architecture_1', 0, 65536) }
+      subject { instance_with_build_log_support.get_log_chunk('project_1', 'package_1', 'repository_1', 'architecture_1', 0, 65_536) }
 
       context 'without special characters' do
         it { is_expected.to eq(build_log) }

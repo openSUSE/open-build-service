@@ -96,7 +96,7 @@ module Backend
       response = Net::HTTP.start(host, port) do |http|
         if method == 'POST'
           # POST requests can be quite complicate and take some time ..
-          http.read_timeout = timeout || 100000
+          http.read_timeout = timeout || 100_000
         else
           http.read_timeout = timeout || 1000
         end

@@ -202,7 +202,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     context 'invalid data' do
       before do
         post :save, params: {
-          project: source_project, package: source_package, title: 'New title for package', description: SecureRandom.hex(32768) # = 65536 chars
+          project: source_project, package: source_package, title: 'New title for package', description: SecureRandom.hex(32_768) # = 65536 chars
         }
       end
 
@@ -811,10 +811,10 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'with diff truncation' do
       let(:diff_header_size) { 4 }
-      let(:ascii_file_size) { 11000 }
+      let(:ascii_file_size) { 11_000 }
       # Taken from package_with_binary_diff factory files (bigfile_archive.tar.gz and bigfile_archive_2.tar.gz)
-      let(:binary_file_size) { 30000 }
-      let(:binary_file_changed_size) { 13000 }
+      let(:binary_file_size) { 30_000 }
+      let(:binary_file_changed_size) { 13_000 }
       # TODO: check if this value, the default diff size, is correct
       let(:default_diff_size) { 199 }
       let(:package_ascii_file) do

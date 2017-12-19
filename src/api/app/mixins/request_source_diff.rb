@@ -71,8 +71,8 @@ module RequestSourceDiff
         end
 
         path = Package.source_path(action.source_project, spkg)
-        query[:filelimit] = options[:filelimit] ? options[:filelimit].to_i : 10000
-        query[:tarlimit] = options[:tarlimit] ? options[:tarlimit].to_i : 10000
+        query[:filelimit] = options[:filelimit] ? options[:filelimit].to_i : 10_000
+        query[:tarlimit] = options[:tarlimit] ? options[:tarlimit].to_i : 10_000
 
         if !provided_in_other_action && !action.updatelink
           # do show the same diff multiple times, so just diff unexpanded so we see possible link changes instead

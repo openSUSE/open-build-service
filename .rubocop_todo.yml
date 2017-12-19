@@ -357,12 +357,6 @@ Style/MultipleComparison:
     - 'src/api/lib/tasks/extract.rake'
     - 'src/api/script/reformat_memprof'
 
-# Offense count: 57
-# Cop supports --auto-correct.
-# Configuration parameters: Strict.
-Style/NumericLiterals:
-  MinDigits: 7
-
 # Offense count: 15
 # Cop supports --auto-correct.
 Style/OrAssignment:

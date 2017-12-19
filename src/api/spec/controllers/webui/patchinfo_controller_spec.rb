@@ -16,8 +16,8 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
   def do_proper_post_save
     post :save, params: {
       project: user.home_project_name, package: patchinfo_package.name, summary: 'long enough summary is ok',
-        description: 'long enough description is also ok' * 5, issueid: [769484], issuetracker: ['bgo'], issuesum: [nil],
-        issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484'], category: 'recommended', rating: 'low', packager: user.login
+      description: 'long enough description is also ok' * 5, issueid: [769_484], issuetracker: ['bgo'], issuesum: [nil],
+      issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484'], category: 'recommended', rating: 'low', packager: user.login
     }
   end
 
@@ -182,8 +182,8 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       before do
         post :save, params: {
           project: user.home_project_name, package: patchinfo_package.name, summary: 'long enough summary is ok',
-            description: 'long enough description is also ok' * 5, issueid: [769484], issuetracker: ['NonExistingTracker'], issuesum: [nil],
-            issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484']
+          description: 'long enough description is also ok' * 5, issueid: [769_484], issuetracker: ['NonExistingTracker'], issuesum: [nil],
+          issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484']
         }
       end
 
@@ -195,8 +195,8 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       before do
         post :save, params: {
           project: user.home_project_name, package: patchinfo_package.name,
-            summary: 'long enough summary is ok', description: 'long enough description is also ok' * 5,
-            issueid: [769484], issuetracker: ['bgo'], issuesum: [nil], issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484']
+          summary: 'long enough summary is ok', description: 'long enough description is also ok' * 5,
+          issueid: [769_484], issuetracker: ['bgo'], issuesum: [nil], issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484']
         }
       end
 

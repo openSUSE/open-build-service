@@ -117,7 +117,7 @@ class Package < ApplicationRecord
   validates :name, presence: true, length: { maximum: 200 }
   validates :releasename, length: { maximum: 200 }
   validates :title, length: { maximum: 250 }
-  validates :description, length: { maximum: 65535 }
+  validates :description, length: { maximum: 65_535 }
   validate :valid_name
 
   has_one :backend_package, foreign_key: :package_id, dependent: :destroy, inverse_of: :package
@@ -1493,7 +1493,7 @@ class Package < ApplicationRecord
   # is called before_update
   def update_activity
     # the value we add to the activity, when the object gets updated
-    addon = 10 * (Time.now.to_f - updated_at_was.to_f) / 86400
+    addon = 10 * (Time.now.to_f - updated_at_was.to_f) / 86_400
     addon = 10 if addon > 10
     new_activity = activity + addon
     new_activity > 100 ? 100 : new_activity

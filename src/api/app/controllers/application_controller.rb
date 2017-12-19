@@ -141,7 +141,7 @@ class ApplicationController < ActionController::Base
     file = Tempfile.new('volley', "#{Rails.root}/tmp", encoding: 'ascii-8bit')
     b = request.body
     buffer = ''
-    file.write(buffer) while b.read(40960, buffer)
+    file.write(buffer) while b.read(40_960, buffer)
     file.close
     file.open
     file
