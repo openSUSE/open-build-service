@@ -359,16 +359,6 @@ Style/MultipleComparison:
 
 # Offense count: 8
 # Cop supports --auto-correct.
-Style/ParallelAssignment:
-  Exclude:
-    - 'src/api/app/controllers/webui/package_controller.rb'
-    - 'src/api/app/mixins/parse_package_diff.rb'
-    - 'src/api/app/models/bs_request.rb'
-    - 'src/api/config/initializers/logging.rb'
-    - 'src/api/lib/activexml/transport.rb'
-
-# Offense count: 8
-# Cop supports --auto-correct.
 # Configuration parameters: AllowSafeAssignment.
 Style/ParenthesesAroundCondition:
   Exclude:

@@ -84,7 +84,9 @@ module ActiveXML
 
     def replace_server_if_needed(uri)
       return if uri.host
-      uri.scheme, uri.host, uri.port = @schema, @host, @port
+      uri.scheme = @schema
+      uri.host = @host
+      uri.port = @port
     end
 
     def target_for(model)
@@ -279,7 +281,10 @@ module ActiveXML
       url = URI(url) if url.is_a? String
 
       # set default host if not set in uri
-      url.scheme, url.host = @schema, @host unless url.host
+      unless url.host
+        url.scheme = @schema
+        url.host = @host
+      end
       url.port ||= @port
 
       method = method.downcase.to_sym

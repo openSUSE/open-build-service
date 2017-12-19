@@ -880,7 +880,8 @@ class BsRequest < ApplicationRecord
   end
 
   def reviews_for_user_and_others(user)
-    user_reviews, other_open_reviews = [], []
+    user_reviews = []
+    other_open_reviews = []
     reviews.where(state: 'new').find_each do |review|
       if review_matches_user?(review, user)
         user_reviews << review.webui_infos
@@ -935,7 +936,8 @@ class BsRequest < ApplicationRecord
 
   # Check if 'user' is maintainer in _all_ request targets:
   def is_target_maintainer?(user = User.current)
-    has_target, is_target_maintainer = false, true
+    has_target = false
+    is_target_maintainer = true
     bs_request_actions.each do |a|
       next unless a.target_project
       if a.target_package
@@ -1069,7 +1071,8 @@ class BsRequest < ApplicationRecord
             action[:forward] << { project: dev_pkg.project.name, package: dev_pkg.name, type: 'devel' }
           end
           if linkinfo
-            lprj, lpkg = linkinfo['project'], linkinfo['package']
+            lprj = linkinfo['project']
+            lpkg = linkinfo['package']
             link_is_already_devel = false
             if action[:forward]
               action[:forward].each do |forward|

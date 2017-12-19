@@ -935,7 +935,8 @@ class Webui::PackageController < Webui::WebuiController
 
   def rpmlint_result
     check_ajax
-    @repo_list, @repo_arch_hash = [], {}
+    @repo_list = []
+    @repo_arch_hash = {}
     @buildresult = Buildresult.find_hashed(project: @project.to_param, package: @package.to_param, view: 'status')
     repos = [] # Temp var
     if @buildresult
