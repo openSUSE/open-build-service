@@ -1,46 +1,45 @@
-#kiwi-preferences
-  .nested-fields
-    %h2#image-name
-      Preferences
-    %ul.inline
+.nested-fields
+  %h2#image-name
+    Preferences
+  %ul.inline
+    %li
+      %strong Image type:
+      %span.fill{ data: { tag: 'type_image' }}= @image.preference.type_image
+    %li
+      %strong Version:
+      %span.fill{ data: { tag: 'version' }}= @image.preference.version
+    - if @image.preference.containerconfig_fields_editable?
       %li
-        %strong Image type:
-        %span.fill{ data: { tag: 'type_image' }}= @image.preference.type_image
+        %strong Container config name:
+        %span.fill{ data: { tag: 'type_containerconfig_name' }}= @image.preference.type_containerconfig_name
       %li
-        %strong Version:
-        %span.fill{ data: { tag: 'version' }}= @image.preference.version
-      - if @image.preference.containerconfig_fields_editable?
-        %li
-          %strong Container config name:
-          %span.fill{ data: { tag: 'type_containerconfig_name' }}= @image.preference.type_containerconfig_name
-        %li
-          %strong Container config tag:
-          %span.fill{ data: { tag: 'type_containerconfig_tag' }}= @image.preference.type_containerconfig_tag
-    %p
-      = link_to sprited_text('package_edit', 'Edit preferences'), '#', class: 'preferences_edit'
+        %strong Container config tag:
+        %span.fill{ data: { tag: 'type_containerconfig_tag' }}= @image.preference.type_containerconfig_tag
+  %p
+    = link_to sprited_text('package_edit', 'Edit preferences'), '#', class: 'preferences_edit'
 
-    .dialog.darkgrey_box.hidden{ style: "width: 500px; left: 45%;" }
-      .box.box-shadow
-        %h2.box-header Edit Kiwi Preferences
+  .dialog.darkgrey_box.hidden{ style: "width: 500px; left: 45%;" }
+    .box.box-shadow
+      %h2.box-header Edit Kiwi Preferences
 
-        .dialog-content
-          %p
-            = f.fields_for :preference, f.object.preference do |preference_fields|
+      .dialog-content
+        %p
+          = f.fields_for :preference, f.object.preference do |preference_fields|
+            %p
+              = preference_fields.label :version, 'Version (must be in form Major.Minor.Release)'
+              = preference_fields.text_field :version, data: { default: preference_fields.object.version }
+            - if @image.preference.containerconfig_fields_editable?
               %p
-                = preference_fields.label :version, 'Version (must be in form Major.Minor.Release)'
-                = preference_fields.text_field :version, data: { default: preference_fields.object.version }
-              - if @image.preference.containerconfig_fields_editable?
-                %p
-                  = preference_fields.label :type_containerconfig_name, 'Container Config Name'
-                  = preference_fields.text_field :type_containerconfig_name, data: { default: preference_fields.object.type_containerconfig_name }
-                %p
-                  = preference_fields.label :type_containerconfig_tag, 'Container Config Tag'
-                  = preference_fields.text_field :type_containerconfig_tag, data: { default: preference_fields.object.type_containerconfig_tag }
+                = preference_fields.label :type_containerconfig_name, 'Container Config Name'
+                = preference_fields.text_field :type_containerconfig_name, data: { default: preference_fields.object.type_containerconfig_name }
+              %p
+                = preference_fields.label :type_containerconfig_tag, 'Container Config Tag'
+                = preference_fields.text_field :type_containerconfig_tag, data: { default: preference_fields.object.type_containerconfig_tag }
 
-        %p#flash-messages
-          %p.ui-state-error.ui-widget-shadow.hidden
-            Kiwi Image name can not be empty!
+      %p#flash-messages
+        %p.ui-state-error.ui-widget-shadow.hidden
+          Kiwi Image name can not be empty!
 
-        .dialog-buttons
-          = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog')
-          = link_to('Continue', '#', title: 'Continue', class: 'close-preferences-dialog')
+      .dialog-buttons
+        = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog')
+        = link_to('Continue', '#', title: 'Continue', class: 'close-preferences-dialog')
