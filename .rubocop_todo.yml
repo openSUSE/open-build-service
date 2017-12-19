@@ -357,15 +357,6 @@ Style/MultipleComparison:
     - 'src/api/lib/tasks/extract.rake'
     - 'src/api/script/reformat_memprof'
 
-# Offense count: 6
-# Cop supports --auto-correct.
-Style/NegatedWhile:
-  Exclude:
-    - 'src/api/app/controllers/search_controller.rb'
-    - 'src/api/app/jobs/update_package_meta_job.rb'
-    - 'src/api/app/models/issue_tracker.rb'
-    - 'src/api/lib/xpath_engine.rb'
-
 # Offense count: 30
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, MinBodyLength, SupportedStyles.

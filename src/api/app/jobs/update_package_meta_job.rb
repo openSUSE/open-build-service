@@ -6,7 +6,7 @@ class UpdatePackageMetaJob < ApplicationJob
   # On first glance this looks like BackendPackage.links. Is it?
   def scan_links
     names = Package.distinct.order(:name).pluck(:name)
-    while !names.empty?
+    until names.empty?
       answer = Xmlhash.parse(Backend::Api::Search.packages_with_link(names.slice!(0, 30)))
       answer.elements('package') do |p|
         pkg = Package.find_by_project_and_name(p['project'], p['name'])

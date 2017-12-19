@@ -133,7 +133,7 @@ class SearchController < ApplicationController
   # so maximize the keys to query
   def read_multi_workaround(keys)
     ret = {}
-    while !keys.empty?
+    until keys.empty?
       slice = keys.slice!(0, 300)
       ret.merge!(Rails.cache.read_multi(*slice))
     end
