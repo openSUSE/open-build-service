@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'json'
 # require '/usr/lib64/ruby/gems/1.9.1/gems/perftools.rb-2.0.0/lib/perftools.so'

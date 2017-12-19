@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 require 'nyan_cat_formatter'
 
 # Overwritting nyan-cat-formatter class to remove warning '::Fixnum is deprecated'

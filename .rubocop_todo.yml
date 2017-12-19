@@ -330,26 +330,6 @@ Style/DateTime:
 Style/Documentation:
   Enabled: false
 
-# Offense count: 15
-# Cop supports --auto-correct.
-Style/Encoding:
-  Exclude:
-    - 'src/api/app/models/owner.rb'
-    - 'src/api/app/models/package.rb'
-    - 'src/api/spec/nyan_unicorn_formatter.rb'
-    - 'src/api/test/functional/attributes_test.rb'
-    - 'src/api/test/functional/branch_publish_flag_test.rb'
-    - 'src/api/test/functional/build_controller_test.rb'
-    - 'src/api/test/functional/cross_build_test.rb'
-    - 'src/api/test/functional/group_request_test.rb'
-    - 'src/api/test/functional/person_controller_test.rb'
-    - 'src/api/test/functional/read_permission_test.rb'
-    - 'src/api/test/functional/request_controller_test.rb'
-    - 'src/api/test/functional/request_events_test.rb'
-    - 'src/api/test/functional/source_controller_test.rb'
-    - 'src/api/test/functional/statistics_controller_test.rb'
-    - 'src/api/test/unit/project_test.rb'
-
 # Offense count: 11
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 # SupportedStyles: for, each
