@@ -45,7 +45,7 @@ namespace :db do
       end
       idtokey = {}
       force_hash(oldhash).each do |key, record|
-        next unless record.has_key? 'id'
+        next unless record.key? 'id'
         key = key.dup.force_encoding('UTF-8')
         id = Integer(record['id'])
         idtokey[id] = key
@@ -77,44 +77,44 @@ namespace :db do
           else
             primary = 'id'
           end
-          id = Integer(record[primary]) if record.has_key? primary
-          if record.has_key?('user_id')
+          id = Integer(record[primary]) if record.key? primary
+          if record.key?('user_id')
             user = User.find(record.delete('user_id'))
             record['user'] = user.login
           end
-          if record.has_key?('owner_id')
+          if record.key?('owner_id')
             user = User.find(record.delete('owner_id'))
             record['owner'] = user.login
           end
-          if record.has_key?('role_id')
+          if record.key?('role_id')
             role = Role.find(record.delete('role_id'))
             record['role'] = role.title
           end
-          if record.has_key?('group_id')
+          if record.key?('group_id')
             group = Group.find(record.delete('group_id'))
             record['group'] = group.title
           end
-          if record.has_key?('architecture_id')
+          if record.key?('architecture_id')
             arch = Architecture.find(record.delete('architecture_id'))
             record['architecture'] = arch.name
           end
-          if record.has_key?('static_permission_id')
+          if record.key?('static_permission_id')
             perm = StaticPermission.find(record.delete('static_permission_id'))
             record['static_permission'] = perm.title
           end
           %w[db_project project develproject maintenance_project].each do |prefix|
-            next unless record.has_key?(prefix + '_id')
+            next unless record.key?(prefix + '_id')
             p = Project.find(record.delete(prefix + '_id'))
             prefix = 'project' if prefix == 'db_project'
             record[prefix] = p.name.tr(':', '_')
           end
           %w[package develpackage links_to].each do |prefix|
-            if record.has_key?(prefix + '_id')
+            if record.key?(prefix + '_id')
               p = Package.find(record.delete(prefix + '_id'))
               record[prefix] = p.fixtures_name
             end
           end
-          if record.has_key?('linked_db_project_id')
+          if record.key?('linked_db_project_id')
             pid = record.delete('linked_db_project_id')
             if pid > 0
               p = Project.find(pid)
@@ -177,7 +177,7 @@ namespace :db do
           end
           # puts "#{table_name} #{record.inspect} -#{key}-"
           key ||= defaultkey
-          raise "duplicated record #{table_name}:#{key}" if hash.has_key? key
+          raise "duplicated record #{table_name}:#{key}" if hash.key? key
           hash[key] = record
         end
         local_to_yaml(hash, file)

@@ -262,7 +262,7 @@ class Project
     end
 
     def update_hostsystem(current_repo, xml_hash)
-      if xml_hash.has_key?('hostsystem')
+      if xml_hash.key?('hostsystem')
         target_project = Project.get_by_name(xml_hash['hostsystem']['project'])
         target_repo = target_project.repositories.find_by_name(xml_hash['hostsystem']['repository'])
         if xml_hash['hostsystem']['project'] == project.name && xml_hash['hostsystem']['repository'] == xml_hash['name']
@@ -286,7 +286,7 @@ class Project
 
       position = 1
       xml_hash.elements('arch') do |arch|
-        unless Architecture.archcache.has_key?(arch)
+        unless Architecture.archcache.key?(arch)
           raise SaveError, "unknown architecture: '#{arch}'"
         end
         if current_repo.repository_architectures.where(architecture: Architecture.archcache[arch]).exists?

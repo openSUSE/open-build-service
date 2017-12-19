@@ -49,7 +49,7 @@ class Group < ApplicationRecord
     xmlhash.elements('maintainer') do |maintainer|
       next unless maintainer['userid']
       user = User.find_by_login!(maintainer['userid'])
-      if cache.has_key? user.id
+      if cache.key? user.id
         # user has already a role in this package
         cache.delete(user.id)
       else
@@ -68,7 +68,7 @@ class Group < ApplicationRecord
       persons.elements('person') do |person|
         next unless person['userid']
         user = User.find_by_login!(person['userid'])
-        if cache.has_key? user.id
+        if cache.key? user.id
           # user has already a role in this package
           cache.delete(user.id)
         else

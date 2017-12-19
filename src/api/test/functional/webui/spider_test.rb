@@ -44,7 +44,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
       next if link =~ %r{/live_build_log/home:Iggy/ToBeDeletedTestPack}
       next if link =~ %r{/live_build_log}
       next if tag.content == 'show latest'
-      unless @pages_visited.has_key? link
+      unless @pages_visited.key? link
         @pages_to_visit[link] ||= [baseuri.to_s, tag.content]
       end
     end
@@ -78,7 +78,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
 
     $stderr.puts "Found #{message} on #{url}, crawling path"
     indent = ' '
-    while @pages_visited.has_key? url
+    while @pages_visited.key? url
       url, text = @pages_visited[url]
       break if url.blank?
       $stderr.puts "#{indent}#{url} ('#{text}')"

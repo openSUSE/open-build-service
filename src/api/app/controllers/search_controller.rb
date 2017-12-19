@@ -148,7 +148,7 @@ class SearchController < ApplicationController
     search_items = []
     items.each do |i|
       key = id2cache_key[i]
-      if cached.has_key? key
+      if cached.key? key
         xml[i] = cached[key]
       else
         search_items << i

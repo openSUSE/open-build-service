@@ -59,7 +59,7 @@ module Backend
     def self.build_query_from_hash(hash, key_list = nil)
       key_list ||= hash.keys
       query = key_list.map do |key|
-        next unless hash.has_key?(key)
+        next unless hash.key?(key)
         str = hash[key].to_s
         str.toutf8
 

@@ -683,7 +683,7 @@ class BsRequest < ApplicationRecord
 
         # This is needed for MeeGo BOSS, which adds multiple reviews b
         # FIXME3.0: think about review ordering and make reviews addressable
-        if matching && !(reviews_seen.has_key?(rkey) && review.state == :accepted)
+        if matching && !(reviews_seen.key?(rkey) && review.state == :accepted)
           reviews_seen[rkey] = 1
           found = true
           comment = opts[:comment] || ''

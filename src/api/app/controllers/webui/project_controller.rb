@@ -456,7 +456,7 @@ class Webui::ProjectController < Webui::WebuiController
     end
 
     @buildresult = @buildresult.to_hash
-    unless @buildresult.has_key? 'result'
+    unless @buildresult.key? 'result'
       @buildresult_unavailable = true
       return
     end
@@ -481,7 +481,7 @@ class Webui::ProjectController < Webui::WebuiController
       hash.each do |arch, packages|
         has_packages = false
         packages.each do |p, _|
-          if packagename_hash.has_key? p
+          if packagename_hash.key? p
             has_packages = true
             break
           end
@@ -871,7 +871,7 @@ class Webui::ProjectController < Webui::WebuiController
     @status_filter = []
     @avail_status_values.each do |s|
       id = s.delete(' ')
-      if params.has_key?(id)
+      if params.key?(id)
         next unless (begin
                        Integer(params[id])
                      rescue ArgumentError
@@ -897,17 +897,13 @@ class Webui::ProjectController < Webui::WebuiController
     @arch_filter = []
     @avail_arch_values.each do |s|
       archid = valid_xml_id('arch_' + s)
-      if defaults || (params.has_key?(archid) && params[archid])
-        @arch_filter << s
-      end
+      @arch_filter << s if defaults || (params.key?(archid) && params[archid])
     end
 
     @repo_filter = []
     @avail_repo_values.each do |s|
       repoid = valid_xml_id('repo_' + s)
-      if defaults || (params.has_key?(repoid) && params[repoid])
-        @repo_filter << s
-      end
+      @repo_filter << s if defaults || (params.key?(repoid) && params[repoid])
     end
   end
 
@@ -954,7 +950,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     currentpack['requests_from'] = []
     key = @api_obj.name + '/' + pname
-    if @submits.has_key? key
+    if @submits.key? key
       return if @ignore_pending
       currentpack['requests_from'].concat(@submits[key])
     end
@@ -1075,7 +1071,7 @@ class Webui::ProjectController < Webui::WebuiController
     @submits = {}
     raw_requests.each do |number, state, tproject, tpackage|
       if state == 'declined'
-        next if tproject != @api_obj.name || !@name2id.has_key?(tpackage)
+        next if tproject != @api_obj.name || !@name2id.key?(tpackage)
         @status[@name2id[tpackage]].declined_request = number
         @declined_requests[number] = nil
       else

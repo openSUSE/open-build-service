@@ -192,12 +192,12 @@ module Webui::WebuiHelper
   end
 
   def sprite_tag(icon, opts = {})
-    if opts.has_key? :class
+    if opts.key? :class
       opts[:class] += " icons-#{icon}"
     else
       opts[:class] = "icons-#{icon}"
     end
-    unless opts.has_key? :alt
+    unless opts.key? :alt
       alt = icon
       if opts[:title]
         alt = opts[:title]

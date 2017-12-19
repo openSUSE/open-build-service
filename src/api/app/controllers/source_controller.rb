@@ -39,7 +39,7 @@ class SourceController < ApplicationController
     # access checks
     #--------------
 
-    if params.has_key? :deleted
+    if params.key? :deleted
       raise NoPermissionForDeleted unless admin_user
       pass_to_backend
     else
@@ -75,7 +75,7 @@ class SourceController < ApplicationController
   # GET /source/:project
   def show_project
     project_name = params[:project]
-    if params.has_key? :deleted
+    if params.key? :deleted
       unless Project.find_by_name project_name
         # project is deleted or not accessable
         validate_visibility_of_deleted_project(project_name)
@@ -93,7 +93,7 @@ class SourceController < ApplicationController
     @project = Project.find_by_name(project_name)
     raise Project::UnknownObjectError, project_name unless @project
     # we let the backend list the packages after we verified the project is visible
-    if params.has_key? :view
+    if params.key? :view
       if params[:view] == 'verboseproductlist'
         @products = Product.all_products(@project, params[:expand])
         render 'source/verboseproductlist'
@@ -115,14 +115,14 @@ class SourceController < ApplicationController
 
   def render_project_packages
     packages = nil
-    if params.has_key? :expand
+    if params.key? :expand
       packages = @project.expand_all_packages
     else
       packages = @project.packages.pluck(:name)
     end
     output = ''
     output << "<directory count='#{packages.length}'>\n"
-    if params.has_key? :expand
+    if params.key? :expand
       output << packages.map { |p| "  <entry name=\"#{p[0]}\" originproject=\"#{p[1]}\"/>\n" }.join
     else
       output << packages.map { |p| "  <entry name=\"#{p}\"/>\n" }.join
@@ -282,7 +282,7 @@ class SourceController < ApplicationController
     # init and validation
     #--------------------
     # admin_user = User.current.is_admin?
-    @deleted_package = params.has_key? :deleted
+    @deleted_package = params.key? :deleted
 
     # FIXME: for OBS 3, api of branch and copy calls have target and source in the opossite place
     if params[:cmd].in?(['branch', 'release'])
@@ -634,7 +634,7 @@ class SourceController < ApplicationController
 
     pack = Package.get_by_project_and_name(@project_name, @package_name, use_source: false)
 
-    if params.has_key?(:meta) || params.has_key?(:rev) || params.has_key?(:view) || pack.nil?
+    if params.key?(:meta) || params.key?(:rev) || params.key?(:view) || pack.nil?
       # check if this comes from a remote project, also true for _project package
       # or if meta is specified we need to fetch the meta from the backend
       path = request.path_info
@@ -701,7 +701,7 @@ class SourceController < ApplicationController
     package_name = params[:package] || '_project'
     file = params[:filename]
 
-    if params.has_key?(:deleted)
+    if params.key?(:deleted)
       if package_name == '_project'
         validate_visibility_of_deleted_project(project_name)
         pass_to_backend
@@ -994,7 +994,7 @@ class SourceController < ApplicationController
       return
     end
 
-    if params.has_key? :nodelay
+    if params.key? :nodelay
       @project.do_project_release(params)
       render_ok
     else
@@ -1073,7 +1073,7 @@ class SourceController < ApplicationController
       raise CmdExecutionNoPermission, "no permission to execute command 'copy'"
     end
     oprj = Project.get_by_name(params[:oproject], includeallpackages: 1)
-    if params.has_key?(:makeolder) || params.has_key?(:makeoriginolder)
+    if params.key?(:makeolder) || params.key?(:makeoriginolder)
       unless User.current.can_modify_project?(oprj)
         raise CmdExecutionNoPermission, "no permission to execute command 'copy', requires modification permission in origin project"
       end
@@ -1124,7 +1124,7 @@ class SourceController < ApplicationController
       end
     end
 
-    if params.has_key? :nodelay
+    if params.key? :nodelay
       @project.do_project_copy(params)
       render_ok
     else

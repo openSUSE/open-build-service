@@ -453,7 +453,7 @@ class XpathEngine
     # this is a wild hack - we need to save the key, so we can possibly split the next
     # literal. The real fix is to translate the xpath into SQL directly
     @last_key = key
-    raise IllegalXpathError, "unable to evaluate '#{key}' for '#{table}'" unless @attribs[table] && @attribs[table].has_key?(key)
+    raise IllegalXpathError, "unable to evaluate '#{key}' for '#{table}'" unless @attribs[table] && @attribs[table].key?(key)
     # logger.debug "-- found key: #{key} --"
     return if @attribs[table][key][:empty]
     @joins << @attribs[table][key][:joins] if @attribs[table][key][:joins]

@@ -162,7 +162,7 @@ module ActionDispatch
     class Session
       def add_auth(headers)
         headers = {} if headers.nil?
-        if !headers.has_key?('HTTP_AUTHORIZATION') && IntegrationTest.basic_auth
+        if !headers.key?('HTTP_AUTHORIZATION') && IntegrationTest.basic_auth
           headers['HTTP_AUTHORIZATION'] = IntegrationTest.basic_auth
         end
 
@@ -441,8 +441,8 @@ module ActionDispatch
     # useful to fix our test cases
     def url_for(hash)
       raise ArgumentError, 'we need a hash here' unless hash.is_a? Hash
-      raise ArgumentError, 'we need a :controller' unless hash.has_key?(:controller)
-      raise ArgumentError, 'we need a :action' unless hash.has_key?(:action)
+      raise ArgumentError, 'we need a :controller' unless hash.key?(:controller)
+      raise ArgumentError, 'we need a :action' unless hash.key?(:action)
       super(hash)
     end
 

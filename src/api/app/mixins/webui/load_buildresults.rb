@@ -35,13 +35,13 @@ module Webui::LoadBuildresults
       @repostatushash[repo] ||= {}
       @repostatusdetailshash[repo] ||= {}
 
-      if result.has_key? 'state'
-        if result.has_key? 'dirty'
+      if result.key? 'state'
+        if result.key? 'dirty'
           @repostatushash[repo][arch] = 'outdated_' + result['state']
         else
           @repostatushash[repo][arch] = result['state']
         end
-        if result.has_key? 'details'
+        if result.key? 'details'
           @repostatusdetailshash[repo][arch] = result['details']
         end
       end

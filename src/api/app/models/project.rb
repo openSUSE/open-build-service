@@ -1164,7 +1164,7 @@ class Project < ApplicationRecord
     targets = bsrequest_repos_map(tproj.name)
     sources = bsrequest_repos_map(name)
     sources.each do |key, _|
-      tocheck_repos << sources[key] if targets.has_key?(key)
+      tocheck_repos << sources[key] if targets.key?(key)
     end
 
     tocheck_repos.flatten!
@@ -1284,12 +1284,12 @@ class Project < ApplicationRecord
     all_pkgs = [b_pkg_index.keys, f_pkg_index.keys].flatten.uniq
 
     all_pkgs.each do |pkg|
-      if b_pkg_index.has_key?(pkg) && !f_pkg_index.has_key?(pkg)
+      if b_pkg_index.key?(pkg) && !f_pkg_index.key?(pkg)
         # new autopackage, import in database
         p = packages.new(name: pkg)
         p.update_from_xml(Xmlhash.parse(b_pkg_index[pkg].dump_xml))
         p.store
-      elsif f_pkg_index.has_key?(pkg) && !b_pkg_index.has_key?(pkg)
+      elsif f_pkg_index.key?(pkg) && !b_pkg_index.key?(pkg)
         # autopackage was removed, remove from database
         f_pkg_index[pkg].destroy
       end
@@ -1439,7 +1439,7 @@ class Project < ApplicationRecord
         end
       end
     end
-    if repository && repository_states.has_key?(repository)
+    if repository && repository_states.key?(repository)
       return false if repository_states[repository].empty? # No buildresult is bad
       repository_states[repository].each do |state, _|
         return false if state.in?(['broken', 'failed', 'unresolvable'])
@@ -1536,8 +1536,8 @@ class Project < ApplicationRecord
     return {} if User.current.is_admin?
 
     # either OBS interconnect or repository "download on demand" feature used
-    if request_data.has_key?('remoteurl') ||
-       request_data.has_key?('remoteproject') ||
+    if request_data.key?('remoteurl') ||
+       request_data.key?('remoteproject') ||
        has_dod_elements?(request_data['repository'])
       return { error: 'Admin rights are required to change projects using remote resources' }
     end

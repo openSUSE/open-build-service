@@ -147,7 +147,7 @@ until cache.empty?
   tmp.each do |p|
     p.each_repository do |repo|
       repo.each_path do |path|
-        unless cache.has_key?(path.project.to_s) || Project.find_by_name(path.project.to_s)
+        unless cache.key?(path.project.to_s) || Project.find_by_name(path.project.to_s)
           STDERR.puts "fetching dependency #{path.project}"
           cache[path.project.to_s] = Project.new(Xproject.find(path.project.to_s).dump_xml)
         end

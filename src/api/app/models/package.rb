@@ -682,7 +682,7 @@ class Package < ApplicationRecord
   end
 
   def self.detect_package_kinds(directory)
-    raise ArgumentError, 'neh!' if directory.has_key? 'time'
+    raise ArgumentError, 'neh!' if directory.key? 'time'
     ret = []
     directory.elements('entry') do |e|
       %w[patchinfo aggregate link channel].each do |kind|
@@ -1441,7 +1441,7 @@ class Package < ApplicationRecord
   end
 
   def file_exists?(filename)
-    dir_hash.has_key?('entry') && [dir_hash['entry']].flatten.any? { |item| item['name'] == filename }
+    dir_hash.key?('entry') && [dir_hash['entry']].flatten.any? { |item| item['name'] == filename }
   end
 
   def has_icon?

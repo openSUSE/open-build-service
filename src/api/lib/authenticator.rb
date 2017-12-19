@@ -90,7 +90,7 @@ class Authenticator
     # 2. for Apache/mod_fastcgi with -pass-header Authorization
     # 3. regular location
     %w[X-HTTP_AUTHORIZATION Authorization HTTP_AUTHORIZATION].each do |header|
-      return request.env[header].to_s.split if request.env.has_key? header
+      return request.env[header].to_s.split if request.env.key? header
     end
     return
   end

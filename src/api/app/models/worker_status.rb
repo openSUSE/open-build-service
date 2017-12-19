@@ -13,7 +13,7 @@ class WorkerStatus
     end
     ws.each('building') do |b|
       # no prj -> we are not allowed
-      next if names.has_key? b.value(:project)
+      next if names.key? b.value(:project)
       Rails.logger.debug "workerstatus2clean: hiding #{b.value(:project)} for user #{User.current.login}"
       b.set_attribute('project', '---')
       b.set_attribute('repository', '---')
@@ -77,7 +77,7 @@ class WorkerStatus
     %w[building idle dead down away].each do |state|
       wdata.elements(state) do |e|
         id = e['workerid']
-        if workers.has_key? id
+        if workers.key? id
           Rails.logger.debug 'building+idle worker'
           next
         end
