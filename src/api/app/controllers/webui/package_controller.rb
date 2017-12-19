@@ -106,13 +106,12 @@ class Webui::PackageController < Webui::WebuiController
     end
     project_repositories = Project.find_by_name(params[:dproject]).repositories.pluck(:name)
     [:repository, :drepository].each do |repo_key|
-      unless project_repositories.include?(params[repo_key])
-        flash[:error] = "Repository '#{params[repo_key]}' is invalid."
-        redirect_back(fallback_location: project_show_path(project: params[:dproject]))
-        # rubocop:disable Lint/NonLocalExitFromIterator
-        return
-        # rubocop:enable Lint/NonLocalExitFromIterator
-      end
+      next if project_repositories.include?(params[repo_key])
+      flash[:error] = "Repository '#{params[repo_key]}' is invalid."
+      redirect_back(fallback_location: project_show_path(project: params[:dproject]))
+      # rubocop:disable Lint/NonLocalExitFromIterator
+      return
+      # rubocop:enable Lint/NonLocalExitFromIterator
     end
 
     @arch = params[:arch]

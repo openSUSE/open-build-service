@@ -458,15 +458,14 @@ class BranchPackage
       @packages.each do |ep|
         found = true if ep[:package] == ap
       end
-      unless found
-        logger.debug "found local linked package in project #{p[:package].project.name}/#{ap.name}, " +
-                     "adding it as well, pointing it to #{p[:package].name} for #{target_package}"
-        @packages.push(base_project: p[:base_project],
-                       link_target_project: p[:link_target_project],
-                       link_target_package: p[:package].name,
-                       package: ap, target_package: target_package,
-                       release_name: release_name, local_link: 1)
-      end
+      next if found
+      logger.debug "found local linked package in project #{p[:package].project.name}/#{ap.name}, " +
+                   "adding it as well, pointing it to #{p[:package].name} for #{target_package}"
+      @packages.push(base_project: p[:base_project],
+                     link_target_project: p[:link_target_project],
+                     link_target_package: p[:package].name,
+                     package: ap, target_package: target_package,
+                     release_name: release_name, local_link: 1)
     end
   end
 
@@ -545,15 +544,14 @@ class BranchPackage
           # FIXME: this will not find packages on linked remote projects
           ltprj = lprj
           pkg2 = lprj.find_package(params[:package])
-          unless pkg2.nil? || @packages.map { |p| p[:package] }.include?(pkg2) # avoid double instances
-            logger.info "Found package instance via project link in #{pkg2.project.name}/#{pkg2.name}" +
-                        "for attribute #{at.name} and given package name #{params[:package]}"
-            if ltprj.find_attribute('OBS', 'BranchTarget').nil?
-              ltprj = pkg2.project
-            end
-            @packages.push(base_project: pkg2.project, link_target_project: ltprj,
-                           package: pkg2, target_package: "#{pkg2.name}.#{pkg2.project.name}")
+          next if pkg2.nil? || @packages.map { |p| p[:package] }.include?(pkg2) # avoid double instances
+          logger.info "Found package instance via project link in #{pkg2.project.name}/#{pkg2.name}" +
+                      "for attribute #{at.name} and given package name #{params[:package]}"
+          if ltprj.find_attribute('OBS', 'BranchTarget').nil?
+            ltprj = pkg2.project
           end
+          @packages.push(base_project: pkg2.project, link_target_project: ltprj,
+                         package: pkg2, target_package: "#{pkg2.name}.#{pkg2.project.name}")
         end
       end
     end

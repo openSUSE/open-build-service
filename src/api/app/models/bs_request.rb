@@ -426,21 +426,21 @@ class BsRequest < ApplicationRecord
   def obsolete_reviews(opts)
     return false unless opts[:by_user] || opts[:by_group] || opts[:by_project] || opts[:by_package]
     reviews.each do |review|
-      if review.reviewable_by?(opts)
-        logger.debug "Obsoleting review #{review.id}"
-        review.state = :obsoleted
-        review.save
-        history = HistoryElement::ReviewObsoleted
-        history.create(review: review, comment: 'reviewer got removed', user_id: User.current.id)
+      next unless review.reviewable_by?(opts)
 
-        # Maybe this will turn the request into an approved state?
-        if state == :review && reviews.where(state: 'new').none?
-          self.state = :new
-          save
-          history = HistoryElement::RequestAllReviewsApproved
-          history.create(request: self, comment: opts[:comment], user_id: User.current.id)
-        end
-      end
+      logger.debug "Obsoleting review #{review.id}"
+      review.state = :obsoleted
+      review.save
+      history = HistoryElement::ReviewObsoleted
+      history.create(review: review, comment: 'reviewer got removed', user_id: User.current.id)
+
+      # Maybe this will turn the request into an approved state?
+      next unless state == :review && reviews.where(state: 'new').none?
+
+      self.state = :new
+      save
+      history = HistoryElement::RequestAllReviewsApproved
+      history.create(request: self, comment: opts[:comment], user_id: User.current.id)
     end
   end
 
@@ -532,17 +532,16 @@ class BsRequest < ApplicationRecord
 
       target_project = Project.get_by_name action.target_project
       # create a new incident if needed
-      if target_project.is_maintenance?
-        # create incident if it is a maintenance project
-        incident_project ||= MaintenanceIncident.build_maintenance_incident(target_project, source_project.nil?, self).project
-        opts[:check_for_patchinfo] = true
+      next unless target_project.is_maintenance?
+      # create incident if it is a maintenance project
+      incident_project ||= MaintenanceIncident.build_maintenance_incident(target_project, source_project.nil?, self).project
+      opts[:check_for_patchinfo] = true
 
-        unless incident_project.name.start_with?(target_project.name)
-          raise MultipleMaintenanceIncidents, 'This request handles different maintenance incidents, this is not allowed !'
-        end
-        action.target_project = incident_project.name
-        action.save!
+      unless incident_project.name.start_with?(target_project.name)
+        raise MultipleMaintenanceIncidents, 'This request handles different maintenance incidents, this is not allowed !'
       end
+      action.target_project = incident_project.name
+      action.save!
     end
 
     # We have permission to change all requests inside, now execute
@@ -594,12 +593,11 @@ class BsRequest < ApplicationRecord
       # check for not accepted reviews on re-open
       if state == :new || state == :review
         reviews.each do |review|
-          if review.state != :accepted
-            # FIXME3.0 review history?
-            review.state = :new
-            review.save!
-            self.state = :review
-          end
+          next unless review.state != :accepted
+          # FIXME3.0 review history?
+          review.state = :new
+          review.save!
+          self.state = :review
         end
       end
       save!

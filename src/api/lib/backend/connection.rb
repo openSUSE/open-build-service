@@ -59,16 +59,15 @@ module Backend
     def self.build_query_from_hash(hash, key_list = nil)
       key_list ||= hash.keys
       query = key_list.map do |key|
-        if hash.has_key?(key)
-          str = hash[key].to_s
-          str.toutf8
+        next unless hash.has_key?(key)
+        str = hash[key].to_s
+        str.toutf8
 
-          if hash[key].nil?
-            # just a boolean argument ?
-            [hash[key]].flat_map { key }.join('&')
-          else
-            [hash[key]].flat_map { "#{key}=#{CGI.escape(hash[key].to_s)}" }.join('&')
-          end
+        if hash[key].nil?
+          # just a boolean argument ?
+          [hash[key]].flat_map { key }.join('&')
+        else
+          [hash[key]].flat_map { "#{key}=#{CGI.escape(hash[key].to_s)}" }.join('&')
         end
       end
       query.empty? ? '' : "?#{query.compact.join('&')}"

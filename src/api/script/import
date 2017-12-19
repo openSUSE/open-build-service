@@ -100,11 +100,10 @@ def create_missing_users_for(meta)
   return unless CREATE_MISSING_USERS
   meta.each_person do |person|
     u = User.find_by_login person.userid.to_s
-    unless u
-      attribs = { login: person.userid.to_s }.merge DUMMY_USER_ATTR
-      u = User.create attribs
-      u.save
-    end
+    next if u
+    attribs = { login: person.userid.to_s }.merge DUMMY_USER_ATTR
+    u = User.create attribs
+    u.save
   end
 end
 

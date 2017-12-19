@@ -1216,14 +1216,13 @@ class Package < ApplicationRecord
           end
           break
         end
-        if action.target_project == project.name && action.target_package == name
-          begin
-            request.change_state(newstate: 'declined', comment: "The target package '#{name}' has been removed")
-          rescue PostRequestNoPermission
-            logger.debug "#{User.current.login} tried to decline request #{id} but had no permissions"
-          end
-          break
+        next unless action.target_project == project.name && action.target_package == name
+        begin
+          request.change_state(newstate: 'declined', comment: "The target package '#{name}' has been removed")
+        rescue PostRequestNoPermission
+          logger.debug "#{User.current.login} tried to decline request #{id} but had no permissions"
         end
+        break
       end
     end
     # Find open requests which have a review involving this package and remove those reviews

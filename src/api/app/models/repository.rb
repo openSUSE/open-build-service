@@ -184,11 +184,10 @@ class Repository < ApplicationRecord
       # don't link to the original external repo, but use the repo from this project
       # pointing to this external repo.
       source_repository.path_elements.each do |spe|
-        if spe.link.project == source_repository.project
-          local_repository = project.repositories.find_by_name(spe.link.name)
-          path_elements.create(link: local_repository, position: position)
-          position += 1
-        end
+        next unless spe.link.project == source_repository.project
+        local_repository = project.repositories.find_by_name(spe.link.name)
+        path_elements.create(link: local_repository, position: position)
+        position += 1
       end
     elsif source_repository.is_kiwi_type?
       # kiwi builds need to copy path elements

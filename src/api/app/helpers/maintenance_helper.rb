@@ -188,11 +188,10 @@ module MaintenanceHelper
           update_ids << u_id if u_id
         end
         # remove maintenance release trigger in source
-        if releasetarget.trigger == 'maintenance'
-          releasetarget.trigger = nil
-          releasetarget.save!
-          source_repo.project.store
-        end
+        next unless releasetarget.trigger == 'maintenance'
+        releasetarget.trigger = nil
+        releasetarget.save!
+        source_repo.project.store
       end
     end
     update_ids

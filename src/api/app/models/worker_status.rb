@@ -13,12 +13,11 @@ class WorkerStatus
     end
     ws.each('building') do |b|
       # no prj -> we are not allowed
-      unless names.has_key? b.value(:project)
-        Rails.logger.debug "workerstatus2clean: hiding #{b.value(:project)} for user #{User.current.login}"
-        b.set_attribute('project', '---')
-        b.set_attribute('repository', '---')
-        b.set_attribute('package', '---')
-      end
+      next if names.has_key? b.value(:project)
+      Rails.logger.debug "workerstatus2clean: hiding #{b.value(:project)} for user #{User.current.login}"
+      b.set_attribute('project', '---')
+      b.set_attribute('repository', '---')
+      b.set_attribute('package', '---')
     end
     ws
   end

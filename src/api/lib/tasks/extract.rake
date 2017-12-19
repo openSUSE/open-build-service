@@ -45,11 +45,10 @@ namespace :db do
       end
       idtokey = {}
       force_hash(oldhash).each do |key, record|
-        if record.has_key? 'id'
-          key = key.dup.force_encoding('UTF-8')
-          id = Integer(record['id'])
-          idtokey[id] = key
-        end
+        next unless record.has_key? 'id'
+        key = key.dup.force_encoding('UTF-8')
+        id = Integer(record['id'])
+        idtokey[id] = key
       end
 
       classname = Event::Base if table_name == 'events'
@@ -104,11 +103,10 @@ namespace :db do
             record['static_permission'] = perm.title
           end
           %w(db_project project develproject maintenance_project).each do |prefix|
-            if record.has_key?(prefix + '_id')
-              p = Project.find(record.delete(prefix + '_id'))
-              prefix = 'project' if prefix == 'db_project'
-              record[prefix] = p.name.tr(':', '_')
-            end
+            next unless record.has_key?(prefix + '_id')
+            p = Project.find(record.delete(prefix + '_id'))
+            prefix = 'project' if prefix == 'db_project'
+            record[prefix] = p.name.tr(':', '_')
           end
           %w(package develpackage links_to).each do |prefix|
             if record.has_key?(prefix + '_id')

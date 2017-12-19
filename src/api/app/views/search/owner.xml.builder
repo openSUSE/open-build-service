@@ -16,10 +16,9 @@ xml.collection do
             xml.person(name: user, role: role)
           end
         end
-        if o[:groups] && o[:groups][role]
-          o[:groups][role].each do |group|
-            xml.group(name: group, role: role)
-          end
+        next unless o[:groups] && o[:groups][role]
+        o[:groups][role].each do |group|
+          xml.group(name: group, role: role)
         end
       end
     end

@@ -310,14 +310,13 @@ class Project < ApplicationRecord
           end
           break
         end
-        if action.target_project == name
-          begin
-            request.change_state(newstate: 'declined', comment: "The target project '#{name}' has been removed")
-          rescue PostRequestNoPermission
-            logger.debug "#{User.current.login} tried to decline request #{request.number} but had no permissions"
-          end
-          break
+        next unless action.target_project == name
+        begin
+          request.change_state(newstate: 'declined', comment: "The target project '#{name}' has been removed")
+        rescue PostRequestNoPermission
+          logger.debug "#{User.current.login} tried to decline request #{request.number} but had no permissions"
         end
+        break
       end
     end
 
@@ -1501,11 +1500,10 @@ class Project < ApplicationRecord
       rt_name = guess_release_target_from_package(pkg, release_targets_ng)
 
       # Build-disabled packages can't be matched to release targets....
-      if rt_name
-        # Let's silently hope that an incident newer introduces new (sub-)packages....
-        release_targets_ng[rt_name][:packages] << pkg
-        package_count += 1
-      end
+      next unless rt_name
+      # Let's silently hope that an incident newer introduces new (sub-)packages....
+      release_targets_ng[rt_name][:packages] << pkg
+      package_count += 1
     end
 
     release_targets_ng
@@ -1675,11 +1673,10 @@ class Project < ApplicationRecord
 
       # remove this repository, but be careful, because we may have done it already.
       repository = project.repositories.find(repo.id)
-      if Repository.exists?(repo.id) && repository
-        logger.info "destroy repo #{repository.name} in '#{project.name}'"
-        repository.destroy
-        project.store(lowprio: true) unless opts[:no_write_to_backend]
-      end
+      next unless Repository.exists?(repo.id) && repository
+      logger.info "destroy repo #{repository.name} in '#{project.name}'"
+      repository.destroy
+      project.store(lowprio: true) unless opts[:no_write_to_backend]
     end
     {}
   end

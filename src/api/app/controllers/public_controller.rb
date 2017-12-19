@@ -152,32 +152,31 @@ class PublicController < ApplicationController
         #       do not support it (exception zypp via ymp files)
         dist = Distribution.find_by_project_and_repository(pe.link.project.name, pe.link.name)
         next unless dist
-        if binary_map[repo.name].present?
-          dist_id = dist.id
-          @binary_links[dist_id] ||= {}
-          binary = binary_map[repo.name].select { |bin| bin.value(:name) == @pkg.name }.first
-          if binary && dist.vendor == 'openSUSE'
-            @binary_links[dist_id][:ymp] = { url: ymp_url(File.join(@pkg.project.name, repo.name, @pkg.name + '.ymp')) }
-          end
-
-          @binary_links[dist_id][:binary] ||= []
-          binary_map[repo.name].each do |b|
-            binary_type = b.value(:type)
-            # filepath is historic and contains unfortunatly the old repo mapping already.
-            # So we have to revert this here...
-            filepath = b.value(:filepath)
-            # having both gsub! in one line can crash with some ruby builds
-            filepath.gsub!(/:\//, ':')
-            filepath.gsub!(/^[^\/]*\/[^\/]*\//, '')
-
-            @binary_links[dist_id][:binary] << { type: binary_type, arch: b.value(:arch), url: repo.download_url(filepath) }
-            if @binary_links[dist_id][:repository].blank?
-              repo_filename = binary_type == 'rpm' ? "#{@pkg.project.name}.repo" : ''
-              @binary_links[dist_id][:repository] ||= { url: repo.download_url(repo_filename) }
-            end
-          end
-          #
+        next if binary_map[repo.name].blank?
+        dist_id = dist.id
+        @binary_links[dist_id] ||= {}
+        binary = binary_map[repo.name].select { |bin| bin.value(:name) == @pkg.name }.first
+        if binary && dist.vendor == 'openSUSE'
+          @binary_links[dist_id][:ymp] = { url: ymp_url(File.join(@pkg.project.name, repo.name, @pkg.name + '.ymp')) }
         end
+
+        @binary_links[dist_id][:binary] ||= []
+        binary_map[repo.name].each do |b|
+          binary_type = b.value(:type)
+          # filepath is historic and contains unfortunatly the old repo mapping already.
+          # So we have to revert this here...
+          filepath = b.value(:filepath)
+          # having both gsub! in one line can crash with some ruby builds
+          filepath.gsub!(/:\//, ':')
+          filepath.gsub!(/^[^\/]*\/[^\/]*\//, '')
+
+          @binary_links[dist_id][:binary] << { type: binary_type, arch: b.value(:arch), url: repo.download_url(filepath) }
+          if @binary_links[dist_id][:repository].blank?
+            repo_filename = binary_type == 'rpm' ? "#{@pkg.project.name}.repo" : ''
+            @binary_links[dist_id][:repository] ||= { url: repo.download_url(repo_filename) }
+          end
+        end
+        #
       end
     end
   end
