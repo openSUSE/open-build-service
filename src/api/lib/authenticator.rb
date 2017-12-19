@@ -89,7 +89,7 @@ class Authenticator
     # 1. try to get it where mod_rewrite might have put it
     # 2. for Apache/mod_fastcgi with -pass-header Authorization
     # 3. regular location
-    %w(X-HTTP_AUTHORIZATION Authorization HTTP_AUTHORIZATION).each do |header|
+    %w[X-HTTP_AUTHORIZATION Authorization HTTP_AUTHORIZATION].each do |header|
       return request.env[header].to_s.split if request.env.has_key? header
     end
     return

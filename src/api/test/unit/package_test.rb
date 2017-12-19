@@ -61,7 +61,7 @@ class PackageTest < ActiveSupport::TestCase
     )
 
     position = 1
-    %w(build publish debuginfo).each do |flagtype|
+    %w[build publish debuginfo].each do |flagtype|
       position = @package.update_flags(axml, flagtype, position)
     end
 
@@ -327,7 +327,7 @@ class PackageTest < ActiveSupport::TestCase
     filename = ''
 
     # binary files
-    generate_suffixes(%w{exe bin bz bz2 gem gif jpg jpeg ttf zip gz png}).each do |suffix|
+    generate_suffixes(%w[exe bin bz bz2 gem gif jpg jpeg ttf zip gz png]).each do |suffix|
       file_paths.each do |file_path|
         filename = file_path + '.' + suffix
         assert Package.is_binary_file?(filename), "File #{filename} should be treated as binary"
@@ -335,7 +335,7 @@ class PackageTest < ActiveSupport::TestCase
     end
 
     # these aren't binary
-    generate_suffixes(%w{diff txt csv pm c rb h}).each do |suffix|
+    generate_suffixes(%w[diff txt csv pm c rb h]).each do |suffix|
       file_paths.each do |file_path|
         filename = file_path + '.' + suffix
         assert !Package.is_binary_file?(filename), "File #{filename} should not be treated as binary"

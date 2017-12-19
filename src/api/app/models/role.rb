@@ -54,11 +54,11 @@ class Role < ApplicationRecord
   end
 
   def self.local_roles
-    %w(maintainer bugowner reviewer downloader reader).map { |r| Role.hashed[r] }
+    %w[maintainer bugowner reviewer downloader reader].map { |r| Role.hashed[r] }
   end
 
   def self.global_roles
-    %w(Admin User)
+    %w[Admin User]
   end
 
   def self.ids_with_permission(perm_string)

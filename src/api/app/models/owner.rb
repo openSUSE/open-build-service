@@ -51,16 +51,16 @@ class Owner
     owners = []
     projects.each do |project|
       attrib = project.attribs.find_by(attrib_type: at)
-      filter = %w(maintainer bugowner)
+      filter = %w[maintainer bugowner]
       devel  = true
       if params[:filter]
         filter = params[:filter].split(',')
       else
         v = attrib.values.where(value: 'BugownerOnly').exists? if attrib
-        filter = %w(bugowner) if attrib && v
+        filter = %w[bugowner] if attrib && v
       end
       if params[:devel]
-        devel = false if %w(0 false).include? params[:devel]
+        devel = false if %w[0 false].include? params[:devel]
       else
         v = attrib.values.where(value: 'DisableDevel').exists? if attrib
         devel = false if attrib && v
@@ -81,7 +81,7 @@ class Owner
     owners
   end
 
-  def self.find_assignees(rootproject, binary_name, limit = 1, devel = true, filter = %w(maintainer bugowner), webui_mode = false)
+  def self.find_assignees(rootproject, binary_name, limit = 1, devel = true, filter = %w[maintainer bugowner], webui_mode = false)
     projects = rootproject.expand_all_projects(allow_remote_projects: false)
     instances_without_definition = []
     maintainers = []
@@ -134,7 +134,7 @@ class Owner
     maintainers
   end
 
-  def self.find_containers_without_definition(rootproject, devel = true, filter = %w(maintainer bugowner))
+  def self.find_containers_without_definition(rootproject, devel = true, filter = %w[maintainer bugowner])
     projects = rootproject.expand_all_projects(allow_remote_projects: false)
     roles = []
     filter.each do |f|
@@ -194,7 +194,7 @@ class Owner
     maintainers
   end
 
-  def self.find_containers(rootproject, owner, devel = true, filter = %w(maintainer bugowner))
+  def self.find_containers(rootproject, owner, devel = true, filter = %w[maintainer bugowner])
     projects = rootproject.expand_all_projects(allow_remote_projects: false)
 
     roles = []

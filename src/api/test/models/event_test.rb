@@ -45,16 +45,16 @@ class EventTest < ActionDispatch::IntegrationTest
     e = Event::CommentForProject.create(commenter: users(:Iggy).id, comment_body: 'hello world', project: 'kde4')
 
     # fred, fredlibs and king are maintainer, adrian is in test_group
-    assert_equal %w(fred fredlibs king), users_for_event(e)
-    assert_equal %w(test_group), groups_for_event(e)
+    assert_equal %w[fred fredlibs king], users_for_event(e)
+    assert_equal %w[test_group], groups_for_event(e)
 
     # now fred configures it off
     EventSubscription.create eventtype: 'Event::CommentForProject',
                              user: users(:fred), receiver_role: :maintainer, channel: :disabled
 
     # fred, fredlibs and king are maintainer, adrian is in test_group - fred disabled it
-    assert_equal %w(fredlibs king), users_for_event(e)
-    assert_equal %w(test_group), groups_for_event(e)
+    assert_equal %w[fredlibs king], users_for_event(e)
+    assert_equal %w[test_group], groups_for_event(e)
 
     # now the global default is turned off again
     all_get_events.delete
@@ -65,7 +65,7 @@ class EventTest < ActionDispatch::IntegrationTest
                              user: users(:fredlibs),
                              receiver_role: :maintainer, channel: :instant_email
 
-    assert_equal %w(fredlibs), users_for_event(e)
+    assert_equal %w[fredlibs], users_for_event(e)
   end
 
   test 'create request' do
@@ -80,7 +80,7 @@ class EventTest < ActionDispatch::IntegrationTest
     email = ActionMailer::Base.deliveries.last
 
     assert_equal "Request #{myid} requires review (submit Apache/BranchPack)", email.subject
-    assert_equal %w(tschmidt@example.com), email.to
+    assert_equal %w[tschmidt@example.com], email.to
     should = load_fixture('event_mailer/review_wanted').gsub('REQUESTID', myid.to_s).chomp
     if ENV['TRAVIS']
       # travis is not using libxdiff and I am too lazy to package it for ubuntu
@@ -107,7 +107,7 @@ class EventTest < ActionDispatch::IntegrationTest
     # just one subsciption
     EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :maintainer, user: users(:Iggy), channel: :instant_email
 
-    assert_equal %w(Iggy), users_for_event(events(:build_failure_for_iggy))
+    assert_equal %w[Iggy], users_for_event(events(:build_failure_for_iggy))
   end
 
   test 'reader mails for build failure' do
@@ -117,7 +117,7 @@ class EventTest < ActionDispatch::IntegrationTest
     # just one subsciption
     EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :reader, user: users(:fred), channel: :instant_email
 
-    assert_equal %w(fred), users_for_event(events(:build_failure_for_reader))
+    assert_equal %w[fred], users_for_event(events(:build_failure_for_reader))
   end
 
   test 'maintainer mails for source service fail' do
@@ -127,7 +127,7 @@ class EventTest < ActionDispatch::IntegrationTest
     # just one subsciption
     EventSubscription.create eventtype: 'Event::ServiceFail', receiver_role: :maintainer, user: users(:Iggy), channel: :instant_email
 
-    assert_equal %w(Iggy), users_for_event(events(:service_failure_for_iggy))
+    assert_equal %w[Iggy], users_for_event(events(:service_failure_for_iggy))
   end
 
   test 'package maintainer mail' do
@@ -145,7 +145,7 @@ class EventTest < ActionDispatch::IntegrationTest
     assert_equal "Request #{myid} requires review (submit Apache/BranchPack)", email.subject
     # fred is maintainer of the package, hidden_homer of the project, Iggy triggers the event, so doesn't get email
     # adrian is a member of test_group_b which is a maintainer of the package
-    assert_equal %w(adrian@example.com fred@feuerstein.de homer@nospam.net), email.to.sort
+    assert_equal %w[adrian@example.com fred@feuerstein.de homer@nospam.net], email.to.sort
 
     # now verify another review sends other emails
     ActionMailer::Base.deliveries.clear
@@ -157,6 +157,6 @@ class EventTest < ActionDispatch::IntegrationTest
 
     assert_equal "Request #{myid} requires review (submit Apache/BranchPack)", email.subject
     # fred and fredlibs are project maintainers, apache2 has no package maintainer - and they share the email address (DUDE!)
-    assert_equal %w(fred@feuerstein.de fred@feuerstein.de), email.to
+    assert_equal %w[fred@feuerstein.de fred@feuerstein.de], email.to
   end
 end

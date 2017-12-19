@@ -181,7 +181,7 @@ class Webui::PackageController < Webui::WebuiController
     @repository = params[:repository]
     begin
       @buildresult = Buildresult.find_hashed(project: @project, package: @package,
-        repository: @repository, view: %w(binarylist status))
+        repository: @repository, view: %w[binarylist status])
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.message
       redirect_back(fallback_location: { controller: :package, action: :show, project: @project, package: @package })
@@ -201,7 +201,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def requests
     @default_request_type = params[:type] if params[:type]
-    @available_types = %w(all submit delete add_role change_devel maintenance_incident maintenance_release)
+    @available_types = %w[all submit delete add_role change_devel maintenance_incident maintenance_release]
     @default_request_state = params[:state] if params[:state]
     @available_states = ['new or review', 'new', 'review', 'accepted', 'declined', 'revoked', 'superseded']
   end

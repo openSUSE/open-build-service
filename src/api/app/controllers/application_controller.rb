@@ -129,7 +129,7 @@ class ApplicationController < ActionController::Base
       end
     end
     opts[:length] = @volleyfile.length
-    opts[:disposition] = 'inline' if %w(text/plain text/xml).include?(opts[:type])
+    opts[:disposition] = 'inline' if %w[text/plain text/xml].include?(opts[:type])
     # streaming makes it very hard for test cases to verify output
     opts[:stream] = false if Rails.env.test?
     send_file(@volleyfile.path, opts)

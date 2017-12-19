@@ -29,7 +29,7 @@ module Event
       @shortenable_key = nil
 
       def notification_events
-        %w(
+        %w[
           Event::BuildFail
           Event::ServiceFail
           Event::ReviewWanted
@@ -38,7 +38,7 @@ module Event
           Event::CommentForProject
           Event::CommentForPackage
           Event::CommentForRequest
-        ).map(&:constantize)
+        ].map(&:constantize)
       end
 
       def classnames

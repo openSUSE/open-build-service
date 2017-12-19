@@ -95,7 +95,7 @@ class MemoryDebugger
           end
         end
       end
-      %w(n1 n2 n3 block scope shared).each do |key|
+      %w[n1 n2 n3 block scope shared].each do |key|
         d.add(ids[d.line[key]]) if d.line.has_key?(key)
       end
     end

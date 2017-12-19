@@ -10,7 +10,7 @@ class IssueTracker < ApplicationRecord
 
   validates :name, :regex, :url, :kind, presence: true
   validates :name, :regex, uniqueness: true
-  validates :kind, inclusion: { in: %w(other bugzilla cve fate trac launchpad sourceforge github) }
+  validates :kind, inclusion: { in: %w[other bugzilla cve fate trac launchpad sourceforge github] }
 
   if CONFIG['global_write_through']
     after_save :delayed_write_to_backend

@@ -14,7 +14,7 @@ puts '-----------Jobs by type-----------'
   puts "#{dj_name.to_s.ljust(30)} #{job_count}" if job_count > 0
 end
 puts '-----------Jobs by queue----------'
-queues = %w(quick releasetracking issuetracking mailers default project_log_rotate)
+queues = %w[quick releasetracking issuetracking mailers default project_log_rotate]
 queues.each do |dj_queue|
   job_count = Delayed::Job.where(queue: dj_queue).count
   puts "#{dj_queue.to_s.ljust(30)} #{job_count}" if job_count > 0
