@@ -3,7 +3,9 @@ class CreateProjectLogEntryJob < ApplicationJob
 
   def perform(event_id)
     event = Event::Base.find(event_id)
-    entry = ProjectLogEntry.create_from(event)
-    event.update_attributes(project_logged: true) if entry.persisted?
+    # If the ProjectLogEntry was invalid then we still mark the event as logged
+    event.update_attributes(project_logged: true)
+
+    ProjectLogEntry.create_from(event)
   end
 end
