@@ -32,7 +32,7 @@ module Suse
       # [user][edit-put-request] = user
       # [user][edit-put-response] = status
       def add_schema_mapping(controller, action, opt)
-        unless (opt.has_key?(:request) || opt.has_key?(:response))
+        unless opt.has_key?(:request) || opt.has_key?(:response)
           raise "missing (or wrong) parameters, #{opt.inspect}"
         end
         # logger.debug "add validation mapping: #{controller.inspect}, #{action.inspect} => #{opt.inspect}"

@@ -998,7 +998,7 @@ class Project < ApplicationRecord
       repo_name = opts[:extend_names] ? repo.extended_name : repo.name
       next if skip_repos.include? repo.name
       # copy target repository when operating on a channel
-      targets = repo.release_targets if (pkg_to_enable && pkg_to_enable.is_channel?)
+      targets = repo.release_targets if pkg_to_enable && pkg_to_enable.is_channel?
       # base is a maintenance incident, take its target instead (kgraft case)
       targets = repo.release_targets if repo.project.is_maintenance_incident?
 

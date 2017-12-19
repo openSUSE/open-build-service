@@ -990,8 +990,8 @@ class Webui::ProjectController < Webui::WebuiController
       end
     end
 
-    return unless (currentpack['firstfail'] || currentpack['failedcomment'] || currentpack['upstream_version'] ||
-        !currentpack['problems'].empty? || !currentpack['requests_from'].empty? || !currentpack['requests_to'].empty?)
+    return unless currentpack['firstfail'] || currentpack['failedcomment'] || currentpack['upstream_version'] ||
+                  !currentpack['problems'].empty? || !currentpack['requests_from'].empty? || !currentpack['requests_to'].empty?
     if @limit_to_old
       return unless currentpack['upstream_version']
     end

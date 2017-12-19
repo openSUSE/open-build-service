@@ -72,7 +72,7 @@ class Webui::MonitorController < Webui::WebuiController
       delta = 5 if delta < 5
       delta = max_time if delta > max_time
       delta = (100 * Math.sin(Math.acos(1 - (Float(delta) / max_time)))).round
-      delta = 100 if (delta > 100)
+      delta = 100 if delta > 100
       workers[id] = { 'delta' => delta, 'project' => b['project'], 'repository' => b['repository'],
                       'package' => b['package'], 'arch' => b['arch'], 'starttime' => b['starttime'] }
     end

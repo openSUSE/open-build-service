@@ -357,19 +357,6 @@ Style/MultipleComparison:
     - 'src/api/lib/tasks/extract.rake'
     - 'src/api/script/reformat_memprof'
 
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: AllowSafeAssignment.
-Style/ParenthesesAroundCondition:
-  Exclude:
-    - 'src/api/app/controllers/webui/monitor_controller.rb'
-    - 'src/api/app/controllers/webui/project_controller.rb'
-    - 'src/api/app/models/flag.rb'
-    - 'src/api/app/models/package.rb'
-    - 'src/api/app/models/project.rb'
-    - 'src/api/app/views/result/packageresult.xml.builder'
-    - 'src/api/lib/opensuse/validator.rb'
-
 # Offense count: 136
 # Cop supports --auto-correct.
 # Configuration parameters: PreferredDelimiters.

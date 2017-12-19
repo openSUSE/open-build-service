@@ -710,7 +710,7 @@ class Package < ApplicationRecord
     if pkg == pkg.develpackage
       raise CycleError, 'Package defines itself as devel package'
     end
-    while (pkg.develpackage || pkg.project.develproject)
+    while pkg.develpackage || pkg.project.develproject
       # logger.debug "resolve_devel_package #{pkg.inspect}"
 
       # cycle detection
@@ -1316,7 +1316,7 @@ class Package < ApplicationRecord
 
   def self.verify_file!(pkg, name, content)
     # Prohibit dotfiles (files with leading .) and files with a / character in the name
-    raise IllegalFileName, "'#{name}' is not a valid filename" if (name.blank? || !(name =~ /^[^\.\/][^\/]+$/))
+    raise IllegalFileName, "'#{name}' is not a valid filename" if name.blank? || !(name =~ /^[^\.\/][^\/]+$/)
 
     # file is an ActionDispatch::Http::UploadedFile and Suse::Validator.validate
     # will call to_s therefore we have to read the content first
