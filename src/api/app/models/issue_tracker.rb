@@ -60,11 +60,11 @@ class IssueTracker < ApplicationRecord
 
   # expands all matches with defined urls
   def get_html(text)
-    text.gsub(Regexp.new(regex)) { show_url_for($1, true) }
+    text.gsub(Regexp.new(regex)) { show_url_for(Regexp.last_match(1), true) }
   end
 
   def get_markdown(text)
-    text.gsub(Regexp.new(regex)) { "[#{$&}](#{show_url_for($1, false)})" }
+    text.gsub(Regexp.new(regex)) { "[#{$&}](#{show_url_for(Regexp.last_match(1), false)})" }
   end
 
   def update_issues_bugzilla

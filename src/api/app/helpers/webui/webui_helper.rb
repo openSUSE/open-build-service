@@ -169,10 +169,10 @@ module Webui::WebuiHelper
     end
     # Ged rid of stuff that shouldn't be part of PCDATA:
     text.gsub(/([^a-zA-Z0-9&;<>\/\n \t()])/) do
-      if $1[0].getbyte(0) < 32
+      if Regexp.last_match(1)[0].getbyte(0) < 32
         ''
       else
-        $1
+        Regexp.last_match(1)
       end
     end
   end

@@ -184,7 +184,7 @@ class PublicController < ApplicationController
 
   # removes /private prefix from path
   def unshift_public(path)
-    path =~ %r{/public(.*)} ? $1 : path
+    path =~ %r{/public(.*)} ? Regexp.last_match(1) : path
   end
 
   def check_package_access(project, package, use_source = true)

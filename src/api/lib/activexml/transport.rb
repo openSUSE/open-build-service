@@ -222,15 +222,15 @@ module ActiveXML
 
       u = uri.clone
       u.scheme = uri.scheme
-      u.path = URI.escape(uri.path.split(/\//).map { |x| x =~ /^:(\w+)/ ? params[$1.to_sym] : x }.join('/'))
+      u.path = URI.escape(uri.path.split(/\//).map { |x| x =~ /^:(\w+)/ ? params[Regexp.last_match(1).to_sym] : x }.join('/'))
       if uri.query
         new_pairs = []
         pairs = u.query.split(/&/).map { |x| x.split(/=/, 2) }
         pairs.each do |pair|
           if pair.length == 2
             if pair[1] =~ /:(\w+)/
-              next if !params.has_key?($1.to_sym) || params[$1.to_sym].nil?
-              pair[1] = CGI.escape(params[$1.to_sym])
+              next if !params.has_key?(Regexp.last_match(1).to_sym) || params[Regexp.last_match(1).to_sym].nil?
+              pair[1] = CGI.escape(params[Regexp.last_match(1).to_sym])
             end
             new_pairs << pair.join('=')
           elsif pair.length == 1
@@ -240,18 +240,18 @@ module ActiveXML
             # when param is array, put multiple params in url
             # when param is a hash, put key=value params in url
             # any other case, stringify param and put it in url
-            next if !params.has_key?($1.to_sym) || params[$1.to_sym].nil?
-            sub_val = params[$1.to_sym]
+            next if !params.has_key?(Regexp.last_match(1).to_sym) || params[Regexp.last_match(1).to_sym].nil?
+            sub_val = params[Regexp.last_match(1).to_sym]
             if sub_val.is_a? Array
               sub_val.each do |val|
-                new_pairs << $1 + '=' + CGI.escape(val)
+                new_pairs << Regexp.last_match(1) + '=' + CGI.escape(val)
               end
             elsif sub_val.is_a? Hash
               sub_val.each_key do |key|
                 new_pairs << CGI.escape(key) + '=' + CGI.escape(sub_val[key])
               end
             else
-              new_pairs << $1 + '=' + CGI.escape(sub_val.to_s)
+              new_pairs << Regexp.last_match(1) + '=' + CGI.escape(sub_val.to_s)
             end
           else
             raise RuntimeError, "illegal url query pair: #{pair.inspect}"
