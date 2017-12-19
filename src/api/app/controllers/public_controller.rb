@@ -176,7 +176,6 @@ class PublicController < ApplicationController
             @binary_links[dist_id][:repository] ||= { url: repo.download_url(repo_filename) }
           end
         end
-        #
       end
     end
   end
