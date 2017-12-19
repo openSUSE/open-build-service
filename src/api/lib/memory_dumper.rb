@@ -22,7 +22,7 @@ class MemoryDumper
         exit!
       end
       # in case it did not work
-      Process.kill('USR1', $$)
+      Process.kill('USR1', $PROCESS_ID)
       @toexit = 0
     end
     ret

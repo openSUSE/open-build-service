@@ -364,16 +364,6 @@ Style/MultipleComparison:
 Style/RegexpLiteral:
   Enabled: false
 
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: use_perl_names, use_english_names
-Style/SpecialGlobalVars:
-  Exclude:
-    - 'src/api/lib/memory_debugger.rb'
-    - 'src/api/lib/memory_dumper.rb'
-    - 'src/api/test/unit/schema_test.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 Style/StderrPuts:

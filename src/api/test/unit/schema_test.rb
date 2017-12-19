@@ -19,7 +19,7 @@ class SchemaTest < ActiveSupport::TestCase
       next unless io
       testresult = io.read
       io.close
-      assert $? == 0, "#{testfile} does not validate against #{f} -> #{testresult}"
+      assert $CHILD_STATUS == 0, "#{testfile} does not validate against #{f} -> #{testresult}"
       # rubocop:enable Style/NumericPredicate
     end
   end
