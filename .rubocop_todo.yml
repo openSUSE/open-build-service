@@ -357,12 +357,6 @@ Style/MultipleComparison:
     - 'src/api/lib/tasks/extract.rake'
     - 'src/api/script/reformat_memprof'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/Proc:
-  Exclude:
-    - 'src/api/app/models/owner.rb'
-
 # Offense count: 12
 # Cop supports --auto-correct.
 Style/RedundantBegin:
