@@ -171,10 +171,7 @@ class IssueTracker < ApplicationRecord
   end
 
   def fetch_issues(issues = nil)
-    unless issues
-      # find all new issues for myself
-      issues = self.issues.stateless
-    end
+    issues ||= self.issues.stateless
 
     ids = issues.map { |x| x.name.to_s }
 

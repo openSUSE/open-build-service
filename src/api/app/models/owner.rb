@@ -271,7 +271,7 @@ class Owner
     # optional check for devel package instance first
     m = nil
     m = extract_maintainer(rootproject, pkg.resolve_devel_package, filter, owner) if devel == true
-    m = extract_maintainer(rootproject, pkg, filter, owner) unless m
+    m ||= extract_maintainer(rootproject, pkg, filter, owner)
 
     already_checked[pkg.id] = 1
 
@@ -286,7 +286,7 @@ class Owner
       already_checked[p.id] = 1
 
       m = extract_maintainer(rootproject, p.resolve_devel_package, filter, owner) if devel == true
-      m = extract_maintainer(rootproject, p, filter, owner) unless m
+      m ||= extract_maintainer(rootproject, p, filter, owner)
 
       break if m && !deepest
     end

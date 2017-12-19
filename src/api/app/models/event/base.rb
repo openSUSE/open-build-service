@@ -142,7 +142,7 @@ module Event
         # for internal events it's a symbol, for external ones a string, so try both
         v = attribs.delete k
         k = k.to_s
-        v = attribs.delete k unless v
+        v ||= attribs.delete k
         values[k] = v unless v.nil?
       end
       self.payload = ActiveSupport::JSON.encode(calculate_payload(values))

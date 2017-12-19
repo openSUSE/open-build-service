@@ -122,7 +122,7 @@ module ActiveXML
           else
             objdata, params = transport.find(self, *args)
           end
-          obj = new(objdata) unless obj
+          obj ||= new(objdata)
           obj.instance_variable_set('@cache_key', cache_key) if cache_key
           obj.instance_variable_set('@init_options', params)
           obj.instance_variable_set('@hash_cache', objhash) if objhash

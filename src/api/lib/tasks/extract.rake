@@ -36,7 +36,7 @@ namespace :db do
       i = '000'
       begin
         oldhash = YAML.load_file("#{Rails.root}/test/fixtures/#{table_name}.yml")
-        oldhash = {} unless oldhash
+        oldhash ||= {}
       rescue Errno::ENOENT, TypeError
         oldhash = {}
       rescue => e
@@ -58,7 +58,7 @@ namespace :db do
       next if %(architectures_distributions roles_static_permissions).include? table_name
 
       begin
-        classname = table_name.classify.constantize unless classname
+        classname ||= table_name.classify.constantize
       rescue NameError
         # habtm table
         classname = nil

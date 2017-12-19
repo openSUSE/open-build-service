@@ -357,20 +357,6 @@ Style/MultipleComparison:
     - 'src/api/lib/tasks/extract.rake'
     - 'src/api/script/reformat_memprof'
 
-# Offense count: 15
-# Cop supports --auto-correct.
-Style/OrAssignment:
-  Exclude:
-    - 'src/api/app/helpers/webui/monitor_helper.rb'
-    - 'src/api/app/models/branch_package.rb'
-    - 'src/api/app/models/event/base.rb'
-    - 'src/api/app/models/flag.rb'
-    - 'src/api/app/models/issue_tracker.rb'
-    - 'src/api/app/models/kiwi/image/xml_builder.rb'
-    - 'src/api/app/models/owner.rb'
-    - 'src/api/lib/activexml/node.rb'
-    - 'src/api/lib/tasks/extract.rake'
-
 # Offense count: 8
 # Cop supports --auto-correct.
 Style/ParallelAssignment:

@@ -508,7 +508,7 @@ class BranchPackage
         end
       end
       tpkg_name = params[:target_package]
-      tpkg_name = params[:package] unless tpkg_name
+      tpkg_name ||= params[:package]
       tpkg_name += ".#{prj.name}" if @extend_names
       if pkg
         # local package
