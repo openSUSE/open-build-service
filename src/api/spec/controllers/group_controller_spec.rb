@@ -18,7 +18,7 @@ RSpec.describe GroupController, vcr: false do
 
     shared_examples 'successful group deletion' do
       it 'responds with 200 OK' do
-        expect(response.code).to eq("200")
+        expect(response.code).to eq('200')
       end
 
       it 'deletes the record' do

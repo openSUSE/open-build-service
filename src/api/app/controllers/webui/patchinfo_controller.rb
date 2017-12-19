@@ -105,7 +105,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       # Note: At this point a patchinfo already got created by
       #       Patchinfo.new.create_patchinfo in the new_patchinfo action
       unless valid_summary? params[:summary]
-        flash[:error] = "|| Summary is too short (should have more than 10 signs)"
+        flash[:error] = '|| Summary is too short (should have more than 10 signs)'
       end
       unless valid_description? params[:description]
         flash[:error] = "#{flash[:error]} || Description is too short (should have more than 50 signs and longer than summary)"
@@ -139,7 +139,7 @@ class Webui::PatchinfoController < Webui::WebuiController
               return
             end
             # people tend to enter entire cve strings instead of just the name
-            issue[0].gsub!(/^(CVE|cve)-/, '') if issue[1] == "cve"
+            issue[0].gsub!(/^(CVE|cve)-/, '') if issue[1] == 'cve'
             node.issue(issue[2], tracker: issue[1], id: issue[0])
           end
           node.category params[:category]
@@ -210,7 +210,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     authorize @package, :destroy?
 
     if @package.check_weak_dependencies? && @package.destroy
-      redirect_to(project_show_path(@project), notice: "Patchinfo was successfully removed.")
+      redirect_to(project_show_path(@project), notice: 'Patchinfo was successfully removed.')
     else
       redirect_to(patchinfo_show_path(package: @package, project: @project),
                   notice: "Patchinfo can't be removed: #{@package.errors.full_messages.to_sentence}")
@@ -270,7 +270,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     end
     unless invalid_format.empty?
       error += "#{invalid_format} has no valid format. (Correct formats are e.g. " +
-               "boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)"
+               'boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)'
     end
     render json: { error: error, issues: issue_collection }
   end
@@ -303,7 +303,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     binary_list.to_hash.elements('result') do |result|
       result.elements('binarylist') do |list|
         list.elements('binary') do |bin|
-          next if ["rpmlint.log", "updateinfo.xml"].include?(bin["filename"])
+          next if ['rpmlint.log', 'updateinfo.xml'].include?(bin['filename'])
           @binarylist << bin['filename'].sub(/-[^-]*-[^-]*.rpm$/, '')
         end
       end

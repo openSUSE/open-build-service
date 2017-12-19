@@ -30,8 +30,8 @@ class BranchPackage
     @extend_names = params[:extend_package_names]
     @rebuild_policy = params[:add_repositories_rebuild]
     @block_policy = params[:add_repositories_block]
-    raise InvalidArgument unless [nil, "all", "local", "never"].include? @block_policy
-    raise InvalidArgument unless [nil, "transitive", "direct", "local", "copy"].include? @rebuild_policy
+    raise InvalidArgument unless [nil, 'all', 'local', 'never'].include? @block_policy
+    raise InvalidArgument unless [nil, 'transitive', 'direct', 'local', 'copy'].include? @rebuild_policy
     # copy from devel package instead branching ?
     @copy_from_devel = false
     @copy_from_devel = true if params[:newinstance]
@@ -289,7 +289,7 @@ class BranchPackage
       data.elements.each('collection/package') do |e|
         ipkg = Package.find_by_project_and_name(e.attributes['project'], e.attributes['name'])
         if ipkg.nil?
-          logger.error "read permission or data inconsistency, backend delivered package " +
+          logger.error 'read permission or data inconsistency, backend delivered package ' +
                        "as linked package where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
         elsif ipkg.project.is_maintenance_incident? && ipkg.project.is_unreleased? # is incident ?
           # is a newer incident ?

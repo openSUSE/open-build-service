@@ -1,7 +1,7 @@
-require "sphinx_helper"
+require 'sphinx_helper'
 # For expecting the load of the page to finish we use have_current_path (https://github.com/jnicklas/capybara/blob/master/README.md#navigating)
 
-RSpec.feature "Search", type: :feature, js: true do
+RSpec.feature 'Search', type: :feature, js: true do
   let(:admin_user) { create(:admin_user) }
   let(:user) { create(:confirmed_user, login: 'titan') }
 
@@ -19,12 +19,12 @@ RSpec.feature "Search", type: :feature, js: true do
   let(:hidden_project) { create(:forbidden_project, name: 'SecretProject', title: 'Fake description') }
   let(:hidden_package) { create(:package, name: 'hidden_package', title: 'Hidden package rocks!', project_id: hidden_project.id) }
 
-  scenario "basic search functionality" do
+  scenario 'basic search functionality' do
     package
     reindex_for_search
 
     visit search_path
-    page.evaluate_script("$.fx.off = true;") # Needed to disable javascript animations that can end in not checking the checkboxes properly
+    page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
     fill_in 'search_input', with: package.name
     click_button 'search_button'
@@ -35,12 +35,12 @@ RSpec.feature "Search", type: :feature, js: true do
     end
   end
 
-  scenario "search for projects and subprojects" do
+  scenario 'search for projects and subprojects' do
     apache2_subproject
     reindex_for_search
 
     visit search_path
-    page.evaluate_script("$.fx.off = true;") # Needed to disable javascript animations that can end in not checking the checkboxes properly
+    page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
     fill_in 'search_input', with: apache2.name
     click_button 'Advanced'
@@ -55,13 +55,13 @@ RSpec.feature "Search", type: :feature, js: true do
     end
   end
 
-  scenario "search for packages only" do
+  scenario 'search for packages only' do
     package
     another_package
     reindex_for_search
 
     visit search_path
-    page.evaluate_script("$.fx.off = true;") # Needed to disable javascript animations that can end in not checking the checkboxes properly
+    page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
     fill_in 'search_input', with: 'goal'
     click_button 'Advanced'
@@ -78,12 +78,12 @@ RSpec.feature "Search", type: :feature, js: true do
     end
   end
 
-  scenario "search by title only" do
+  scenario 'search by title only' do
     apache2
     reindex_for_search
 
     visit search_path
-    page.evaluate_script("$.fx.off = true;") # Needed to disable javascript animations that can end in not checking the checkboxes properly
+    page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
     fill_in 'search_input', with: 'awesome'
     click_button 'Advanced'
@@ -99,12 +99,12 @@ RSpec.feature "Search", type: :feature, js: true do
     end
   end
 
-  scenario "search by description only" do
+  scenario 'search by description only' do
     apache2
     reindex_for_search
 
     visit search_path
-    page.evaluate_script("$.fx.off = true;") # Needed to disable javascript animations that can end in not checking the checkboxes properly
+    page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
     fill_in 'search_input', with: 'awesome'
     click_button 'Advanced'
@@ -120,26 +120,26 @@ RSpec.feature "Search", type: :feature, js: true do
     end
   end
 
-  scenario "search for non existent things" do
+  scenario 'search for non existent things' do
     apache2
     reindex_for_search
 
     visit search_path
-    page.evaluate_script("$.fx.off = true;") # Needed to disable javascript animations that can end in not checking the checkboxes properly
+    page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
     fill_in 'search_input', with: 'fooo'
     click_button 'search_button'
 
-    expect(find('#flash-messages')).to have_text("Your search did not return any results.")
+    expect(find('#flash-messages')).to have_text('Your search did not return any results.')
     expect(page).to have_selector('#search-results', count: 0)
   end
 
-  scenario "search in no types" do
+  scenario 'search in no types' do
     apache2
     reindex_for_search
 
     visit search_path
-    page.evaluate_script("$.fx.off = true;") # Needed to disable javascript animations that can end in not checking the checkboxes properly
+    page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
     fill_in 'search_input', with: 'awesome'
     click_button 'Advanced'
@@ -147,16 +147,16 @@ RSpec.feature "Search", type: :feature, js: true do
     uncheck 'package'
     click_button 'search_button'
 
-    expect(find('#flash-messages')).to have_text("Your search did not return any results.")
+    expect(find('#flash-messages')).to have_text('Your search did not return any results.')
     expect(page).to have_selector('#search-results', count: 0)
   end
 
-  scenario "search in no fields" do
+  scenario 'search in no fields' do
     apache2
     reindex_for_search
 
     visit search_path
-    page.evaluate_script("$.fx.off = true;") # Needed to disable javascript animations that can end in not checking the checkboxes properly
+    page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
     fill_in 'search_input', with: 'awesome'
     click_button 'Advanced'
@@ -165,16 +165,16 @@ RSpec.feature "Search", type: :feature, js: true do
     uncheck 'description'
     click_button 'search_button'
 
-    expect(find('#flash-messages')).to have_text("You have to search for awesome in something. Click the advanced button...")
+    expect(find('#flash-messages')).to have_text('You have to search for awesome in something. Click the advanced button...')
     expect(page).to have_selector('#search-results', count: 0)
   end
 
-  scenario "search Russian project in UTF-8" do
+  scenario 'search Russian project in UTF-8' do
     russian_project
     reindex_for_search
 
     visit search_path
-    page.evaluate_script("$.fx.off = true;") # Needed to disable javascript animations that can end in not checking the checkboxes properly
+    page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
     fill_in 'search_input', with: 'вокябюч'
     click_button 'Advanced'
@@ -188,25 +188,25 @@ RSpec.feature "Search", type: :feature, js: true do
     end
   end
 
-  describe "search for hidden project" do
-    scenario "as anonymous user" do
+  describe 'search for hidden project' do
+    scenario 'as anonymous user' do
       hidden_package
       create(:relationship_project_user, project: hidden_project, user: user)
       reindex_for_search
 
       visit search_path
-      page.evaluate_script("$.fx.off = true;") # Needed to disable javascript animations that can end in not checking the checkboxes properly
+      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
       fill_in 'search_input', with: 'hidden'
       click_button 'Advanced'
       check 'title'
       click_button 'search_button'
 
-      expect(find('#flash-messages')).to have_text("Your search did not return any results.")
+      expect(find('#flash-messages')).to have_text('Your search did not return any results.')
       expect(page).to have_selector('#search-results', count: 0)
     end
 
-    scenario "as admin user" do
+    scenario 'as admin user' do
       hidden_package
       create(:relationship_project_user, project: hidden_project, user: user)
       reindex_for_search
@@ -214,7 +214,7 @@ RSpec.feature "Search", type: :feature, js: true do
       login admin_user
 
       visit search_path
-      page.evaluate_script("$.fx.off = true;") # Needed to disable javascript animations that can end in not checking the checkboxes properly
+      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
       fill_in 'search_input', with: 'hidden'
       click_button 'Advanced'

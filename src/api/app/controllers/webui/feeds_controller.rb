@@ -34,9 +34,9 @@ class Webui::FeedsController < Webui::WebuiController
                    nil
                  end)
     end
-    @commits = @project.project_log_entries.where(event_type: 'commit').where(["datetime >= ?", @start])
-    @commits = @commits.where(["datetime <= ?", @finish]) unless @finish.nil?
-    @commits = @commits.order("datetime desc")
+    @commits = @project.project_log_entries.where(event_type: 'commit').where(['datetime >= ?', @start])
+    @commits = @commits.where(['datetime <= ?', @finish]) unless @finish.nil?
+    @commits = @commits.order('datetime desc')
   end
 
   def notifications
@@ -47,7 +47,7 @@ class Webui::FeedsController < Webui::WebuiController
       @notifications = token.user.combined_rss_feed_items
       @host = ::Configuration.obs_url
     else
-      flash[:error] = "Unknown Token for RSS feed"
+      flash[:error] = 'Unknown Token for RSS feed'
       redirect_back(fallback_location: root_path)
     end
   end

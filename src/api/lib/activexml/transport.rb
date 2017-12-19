@@ -105,7 +105,7 @@ module ActiveXML
       @host = host
       @port = port
       @default_servers ||= Hash.new
-      @http_header = { "Content-Type" => "text/plain", 'Accept-Encoding' => 'identity' }
+      @http_header = { 'Content-Type' => 'text/plain', 'Accept-Encoding' => 'identity' }
       # stores mapping information
       # key: symbolified model name
       # value: hash with keys :target_uri and :opt (arguments to connect method)
@@ -144,11 +144,11 @@ module ActiveXML
       when Hash
         # logger.debug "Transport.find: using hash"
         if args[0].has_key?(:predicate) && args[0].has_key?(:what)
-          own_mimetype = "application/x-www-form-urlencoded"
+          own_mimetype = 'application/x-www-form-urlencoded'
         end
         params = args[0]
       else
-        raise "Illegal first parameter, must be Symbol/String/Hash"
+        raise 'Illegal first parameter, must be Symbol/String/Hash'
       end
 
       logger.debug "params #{params.inspect}"
@@ -166,12 +166,12 @@ module ActiveXML
         raise RuntimeError, "GET to #{url} returned no data" if objdata.empty?
       else
         # use post-method
-        logger.debug "[REST] Transport.find using POST-method"
+        logger.debug '[REST] Transport.find using POST-method'
         # logger.debug"[REST] POST-data as xml: #{data.to_s}"
         objdata = http_do('post', url, data: data.to_s, content_type: own_mimetype)
         raise RuntimeError, "POST to #{url} returned no data" if objdata.empty?
       end
-      objdata = objdata.force_encoding("UTF-8")
+      objdata = objdata.force_encoding('UTF-8')
       [objdata, params]
     end
 
@@ -210,7 +210,7 @@ module ActiveXML
 
     # TODO: get rid of this very thin wrapper
     def direct_http(url, opt = {})
-      defaults = { method: "GET" }
+      defaults = { method: 'GET' }
       opt = defaults.merge opt
 
       logger.debug "--> direct_http url: #{url}"
@@ -226,7 +226,7 @@ module ActiveXML
 
       u = uri.clone
       u.scheme = uri.scheme
-      u.path = URI.escape(uri.path.split(/\//).map { |x| x =~ /^:(\w+)/ ? params[$1.to_sym] : x }.join("/"))
+      u.path = URI.escape(uri.path.split(/\//).map { |x| x =~ /^:(\w+)/ ? params[$1.to_sym] : x }.join('/'))
       if uri.query
         new_pairs = []
         pairs = u.query.split(/&/).map { |x| x.split(/=/, 2) }
@@ -236,7 +236,7 @@ module ActiveXML
               next if !params.has_key?($1.to_sym) || params[$1.to_sym].nil?
               pair[1] = CGI.escape(params[$1.to_sym])
             end
-            new_pairs << pair.join("=")
+            new_pairs << pair.join('=')
           elsif pair.length == 1
             pair[0] =~ /:(\w+)/
             # new substitution rules:
@@ -248,20 +248,20 @@ module ActiveXML
             sub_val = params[$1.to_sym]
             if sub_val.kind_of? Array
               sub_val.each do |val|
-                new_pairs << $1 + "=" + CGI.escape(val)
+                new_pairs << $1 + '=' + CGI.escape(val)
               end
             elsif sub_val.kind_of? Hash
               sub_val.each_key do |key|
-                new_pairs << CGI.escape(key) + "=" + CGI.escape(sub_val[key])
+                new_pairs << CGI.escape(key) + '=' + CGI.escape(sub_val[key])
               end
             else
-              new_pairs << $1 + "=" + CGI.escape(sub_val.to_s)
+              new_pairs << $1 + '=' + CGI.escape(sub_val.to_s)
             end
           else
             raise RuntimeError, "illegal url query pair: #{pair.inspect}"
           end
         end
-        u.query = new_pairs.join("&")
+        u.query = new_pairs.join('&')
       end
       u.path.gsub!(/\/+/, '/')
       u
@@ -275,7 +275,7 @@ module ActiveXML
       else
         uri = target_for(symbolified_model)
       end
-      substitute_uri(uri, object.instance_variable_get("@init_options").merge(opt))
+      substitute_uri(uri, object.instance_variable_get('@init_options').merge(opt))
     end
 
     def http_do(method, url, opt = {})
@@ -305,28 +305,28 @@ module ActiveXML
       begin
         unless @http
           @http = Net::HTTP.new(url.host, url.port)
-          @http.use_ssl = true if url.scheme == "https"
+          @http.use_ssl = true if url.scheme == 'https'
           # esp. for the appliance we trust the localhost or we have problems anyway
-          @http.verify_mode = OpenSSL::SSL::VERIFY_NONE if url.host == "localhost"
+          @http.verify_mode = OpenSSL::SSL::VERIFY_NONE if url.host == 'localhost'
           @http.start
         end
         @http.read_timeout = opt[:timeout]
 
-        raise "url.path.nil" if url.path.nil?
+        raise 'url.path.nil' if url.path.nil?
         path = url.path
-        path += "?" + url.query if url.query
+        path += '?' + url.query if url.query
         logger.debug "http_do: method: #{method} url: " +
                      "http#{'s' if @http.use_ssl?}://#{url.host}:#{url.port}#{path}"
 
-        clength = { "Content-Length" => "0" }
+        clength = { 'Content-Length' => '0' }
         if opt[:data].respond_to?(:read)
           # TODO: streaming doesn't work - move to rest-client and be done
           opt[:data] = opt[:data].read
         end
         if opt[:data].respond_to?(:length)
-          clength["Content-Length"] = opt[:data].length.to_s
+          clength['Content-Length'] = opt[:data].length.to_s
         end
-        clength["Content-Type"] = opt[:content_type] unless opt[:content_type].nil?
+        clength['Content-Type'] = opt[:content_type] unless opt[:content_type].nil?
 
         case method
         when :get
@@ -347,7 +347,7 @@ module ActiveXML
           raise "unknown HTTP method: #{method.inspect}"
         end
       rescue Timeout::Error, Errno::ETIMEDOUT, EOFError
-        logger.error "--> caught timeout, closing HTTP"
+        logger.error '--> caught timeout, closing HTTP'
         keepalive = false
         raise Timeout::Error
       rescue SocketError, Errno::EINTR, Errno::EPIPE, Net::HTTPBadResponse, IOError => err
@@ -358,8 +358,8 @@ module ActiveXML
         raise ConnectionError, "Failed to establish connection for #{url}: " + err.message
       ensure
         if details && details.respond_to?('add') && http_response
-          runtime = http_response["X-Runtime"]
-          payload = http_response["X-Opensuse-Runtimes"]
+          runtime = http_response['X-Runtime']
+          payload = http_response['X-Opensuse-Runtimes']
           payload = JSON.parse(payload) if payload
           payload ||= {}
           if runtime
@@ -389,7 +389,7 @@ module ActiveXML
 
       noproxy_applies = false
       if noproxy
-        np_split = noproxy.split(",")
+        np_split = noproxy.split(',')
         noproxy_applies = np_split.any? { |np| uri.host.end_with?(np.strip) }
       end
 
@@ -418,7 +418,7 @@ module ActiveXML
 
     # small helper function to avoid having to hardcode the content_type all around
     def http_json(method, uri, data = nil)
-      opts = { content_type: "application/json" }
+      opts = { content_type: 'application/json' }
       if data
         opts[:data] = data.to_json
       end
@@ -435,13 +435,13 @@ module ActiveXML
       when Net::HTTPSuccess, Net::HTTPRedirection
         body = http_response.read_body
         @last_body_length = body.length
-        return body.force_encoding("UTF-8")
+        return body.force_encoding('UTF-8')
       when Net::HTTPNotFound
-        raise NotFoundError, http_response.read_body.force_encoding("UTF-8")
+        raise NotFoundError, http_response.read_body.force_encoding('UTF-8')
       when Net::HTTPUnauthorized
-        raise UnauthorizedError, http_response.read_body.force_encoding("UTF-8")
+        raise UnauthorizedError, http_response.read_body.force_encoding('UTF-8')
       when Net::HTTPForbidden
-        raise ForbiddenError, http_response.read_body.force_encoding("UTF-8")
+        raise ForbiddenError, http_response.read_body.force_encoding('UTF-8')
       when Net::HTTPGatewayTimeOut, Net::HTTPRequestTimeOut
         raise Timeout::Error
       when Net::HTTPBadGateway
@@ -449,7 +449,7 @@ module ActiveXML
       end
       message = http_response.read_body
       message = http_response.to_s if message.blank?
-      raise Error, message.force_encoding("UTF-8")
+      raise Error, message.force_encoding('UTF-8')
     end
   end
 end

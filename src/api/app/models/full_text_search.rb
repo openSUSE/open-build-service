@@ -31,18 +31,18 @@ class FullTextSearch
     args = { ranker:        FullTextSearch.ranker,
              star:          FullTextSearch.star,
              max_matches:   FullTextSearch.max_matches,
-             order:         "adjusted_weight DESC",
+             order:         'adjusted_weight DESC',
              field_weights: FullTextSearch.field_weights,
              page:          options[:page],
              per_page:      options[:per_page] || FullTextSearch.per_page,
              without:       { project_id: Relationship.forbidden_project_ids } }
 
-    args[:select] = "*, (weight() + "\
+    args[:select] = '*, (weight() + '\
                     "#{FullTextSearch.linked_count_weight} * linked_count + "\
                     "#{FullTextSearch.links_to_other_weight} * links_to_other + "\
                     "#{FullTextSearch.is_devel_weight} * is_devel + "\
                     "#{FullTextSearch.activity_index_weight} * (activity_index * POW( 2.3276, (updated_at - #{Time.now.to_i}) / 10000000))) "\
-                    "as adjusted_weight"
+                    'as adjusted_weight'
 
     issue_id = find_issue_id
     if issue_id || attrib_type_id
@@ -80,8 +80,8 @@ class FullTextSearch
     return unless issue_tracker_name && issue_name
 
     # compat code for handling all writings of CVE id's
-    issue_name.gsub!(/^CVE-/i, '') if issue_tracker_name == "cve"
+    issue_name.gsub!(/^CVE-/i, '') if issue_tracker_name == 'cve'
     # Return 0 if the issue does not exist in order to force an empty result
-    Issue.joins(:issue_tracker).where("issue_trackers.name" => issue_tracker_name, :name => issue_name).pluck(:id).first || 0
+    Issue.joins(:issue_tracker).where('issue_trackers.name' => issue_tracker_name, :name => issue_name).pluck(:id).first || 0
   end
 end

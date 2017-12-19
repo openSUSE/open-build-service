@@ -9,7 +9,7 @@ class StatusHistoryTest < ActiveSupport::TestCase
     Timecop.return
   end
 
-  test "history_by_key_and_hours" do
+  test 'history_by_key_and_hours' do
     Timecop.freeze(2010, 7, 12) do
       day_before_yesterday = Time.now.to_i - 2.days
       yesterday = Time.now.to_i - 1.day

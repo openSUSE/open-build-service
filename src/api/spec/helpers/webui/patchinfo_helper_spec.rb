@@ -9,14 +9,14 @@ RSpec.describe Webui::PatchinfoHelper, type: :helper do
       @package = project.packages.first.name
     end
 
-    it "creates a list of project_bread_crumb links, link to the patchinfo package" do
+    it 'creates a list of project_bread_crumb links, link to the patchinfo package' do
       expect(patchinfo_bread_crumb).to eq([
         project_bread_crumb,
         link_to(@package, package_show_path(project: @project, package: @package))
       ].flatten)
     end
 
-    it "the parameter content to the list" do
+    it 'the parameter content to the list' do
       expect(patchinfo_bread_crumb('Text')).to eq([
         project_bread_crumb,
         link_to(@package, package_show_path(project: @project, package: @package)),

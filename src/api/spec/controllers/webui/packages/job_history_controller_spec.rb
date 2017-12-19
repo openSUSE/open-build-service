@@ -9,7 +9,7 @@ RSpec.describe Webui::Packages::JobHistoryController, type: :controller, vcr: tr
   describe 'GET #index' do
     let(:user) { create(:confirmed_user, login: 'tom') }
     let(:source_project) { user.home_project }
-    let(:package) { create(:package, name: "package", project: source_project) }
+    let(:package) { create(:package, name: 'package', project: source_project) }
     let(:repo_for_source_project) do
       repo = create(:repository, project: source_project, architectures: ['i586'])
       source_project.store

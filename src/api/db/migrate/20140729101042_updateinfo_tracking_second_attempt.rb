@@ -17,8 +17,8 @@ class UpdateinfoTrackingSecondAttempt < ActiveRecord::Migration[4.2]
 
     add_index :updateinfos, :identifier
     add_index :updateinfos, [:repository_id, :package_id]
-    execute("alter table updateinfos add FOREIGN KEY (repository_id) references repositories(id)")
-    execute("alter table updateinfos add FOREIGN KEY (package_id) references packages(id)")
+    execute('alter table updateinfos add FOREIGN KEY (repository_id) references repositories(id)')
+    execute('alter table updateinfos add FOREIGN KEY (package_id) references packages(id)')
 
     remove_column :binary_releases, :binary_updateinfo
     remove_column :binary_releases, :binary_updateinfo_version

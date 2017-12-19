@@ -115,7 +115,7 @@ module Webui::WebuiHelper
 
     description = REPO_STATUS_DESCRIPTIONS[status] || 'Unknown state of repository'
     description = 'State needs recalculations, former state was: ' + description if outdated
-    description += " (" + details + ")" if details
+    description += ' (' + details + ')' if details
 
     sprite_tag icon, title: description
   end
@@ -190,7 +190,7 @@ module Webui::WebuiHelper
   end
 
   def is_advanced_tab?
-    @current_action.to_s.in?(["prjconf", "index", "meta", "status"])
+    @current_action.to_s.in?(['prjconf', 'index', 'meta', 'status'])
   end
 
   def sprite_tag(icon, opts = {})
@@ -233,7 +233,7 @@ module Webui::WebuiHelper
   end
 
   def remove_dialog_tag(text)
-    link_to(text, '#', title: 'Close', id: 'remove_dialog', class: "close-dialog")
+    link_to(text, '#', title: 'Close', id: 'remove_dialog', class: 'close-dialog')
   end
 
   # @param [String] user login of the user
@@ -398,9 +398,9 @@ module Webui::WebuiHelper
   end
 
   def word_break(string, length = 80)
-    return "" unless string
+    return '' unless string
     # adds a <wbr> tag after an amount of given characters
-    safe_join(string.scan(/.{1,#{length}}/), "<wbr>".html_safe)
+    safe_join(string.scan(/.{1,#{length}}/), '<wbr>'.html_safe)
   end
 
   def toggle_sliced_text(text, slice_length = 50, id = "toggle_sliced_text_#{Time.now.to_f.to_s.delete('.')}")

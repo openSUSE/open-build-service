@@ -31,20 +31,20 @@ class Webui::WebuiController < ActionController::Base
 
   rescue_from Pundit::NotAuthorizedError do |exception|
     pundit_action = case exception.try(:query).to_s
-                    when "index?" then "list"
-                    when "show?" then "view"
-                    when "create?" then "create"
-                    when "new?" then "create"
-                    when "update?" then "update"
-                    when "edit?" then "edit"
-                    when "destroy?" then "delete"
-                    when "branch?" then "branch"
+                    when 'index?' then 'list'
+                    when 'show?' then 'view'
+                    when 'create?' then 'create'
+                    when 'new?' then 'create'
+                    when 'update?' then 'update'
+                    when 'edit?' then 'edit'
+                    when 'destroy?' then 'delete'
+                    when 'branch?' then 'branch'
                     else exception.try(:query)
     end
     if pundit_action && exception.record
       message = "Sorry, you are not authorized to #{pundit_action} this #{exception.record.class}."
     else
-      message = "Sorry, you are not authorized to perform this action."
+      message = 'Sorry, you are not authorized to perform this action.'
     end
     if request.xhr?
       render json: { error: message }, status: 400
@@ -60,11 +60,11 @@ class Webui::WebuiController < ActionController::Base
   # here so the exception handler catches it but what the heck...
   rescue_from ActiveXML::Transport::ForbiddenError do |exception|
     case exception.code
-    when "unregistered_ichain_user"
-      render template: "user/request_ichain"
-    when "unregistered_user"
+    when 'unregistered_ichain_user'
+      render template: 'user/request_ichain'
+    when 'unregistered_user'
       render file: Rails.root.join('public/403'), formats: [:html], status: 402, layout: false
-    when "unconfirmed_user"
+    when 'unconfirmed_user'
       render file: Rails.root.join('public/402'), formats: [:html], status: 402, layout: false
     else
       if User.current.is_nobody?
@@ -166,9 +166,9 @@ class Webui::WebuiController < ActionController::Base
     return true unless CONFIG['kerberos_mode'] && (User.current.nil? || User.current.is_nobody?)
 
     authorization = authenticator.authorization_infos || []
-    if authorization[0].to_s != "Negotiate"
+    if authorization[0].to_s != 'Negotiate'
       # Demand kerberos negotiation
-      response.headers["WWW-Authenticate"] = 'Negotiate'
+      response.headers['WWW-Authenticate'] = 'Negotiate'
       render :login, status: 401
       return
     else
@@ -193,7 +193,7 @@ class Webui::WebuiController < ActionController::Base
     check_spiders
     User.current = nil # reset old users hanging around
     if CONFIG['proxy_auth_mode'] == :on
-      logger.debug "Authenticating with proxy auth mode"
+      logger.debug 'Authenticating with proxy auth mode'
       user_login = request.env['HTTP_X_USERNAME']
       if user_login.blank?
         User.current = User.find_nobody!
@@ -214,7 +214,7 @@ class Webui::WebuiController < ActionController::Base
       unless User.current.is_active?
         session[:login] = nil
         User.current = User.find_nobody!
-        redirect_to(CONFIG['proxy_auth_logout_page'], error: "Your account is disabled. Please contact the administrator for details.")
+        redirect_to(CONFIG['proxy_auth_logout_page'], error: 'Your account is disabled. Please contact the administrator for details.')
         return
       end
       User.current.update_user_info_from_proxy_env(request.env)
@@ -300,7 +300,7 @@ class Webui::WebuiController < ActionController::Base
   def check_anonymous
     if User.current && User.current.is_nobody?
       unless ::Configuration.anonymous
-        flash[:error] = "No anonymous access. Please log in!"
+        flash[:error] = 'No anonymous access. Please log in!'
         redirect_back(fallback_location: root_path)
       end
     else

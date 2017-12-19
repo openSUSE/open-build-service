@@ -15,7 +15,7 @@ class RemoveDuplicateIndexes < ActiveRecord::Migration[5.0]
     #	  `user_id` int(11) default null
     #	  `group_id` int(11) default null
     # To remove this duplicate index, execute:
-    execute "ALTER TABLE `attrib_namespace_modifiable_bies` DROP INDEX `index_attrib_namespace_modifiable_bies_on_attrib_namespace_id`;"
+    execute 'ALTER TABLE `attrib_namespace_modifiable_bies` DROP INDEX `index_attrib_namespace_modifiable_bies_on_attrib_namespace_id`;'
 
     # ########################################################################
     # obs.attrib_types
@@ -29,7 +29,7 @@ class RemoveDuplicateIndexes < ActiveRecord::Migration[5.0]
     #	  `attrib_namespace_id` int(11) not null
     #	  `name` varchar(255) character set utf8 not null
     # To remove this duplicate index, execute:
-    execute "ALTER TABLE `attrib_types` DROP INDEX `attrib_namespace_id`;"
+    execute 'ALTER TABLE `attrib_types` DROP INDEX `attrib_namespace_id`;'
 
     # ########################################################################
     # obs.binary_releases
@@ -46,7 +46,7 @@ class RemoveDuplicateIndexes < ActiveRecord::Migration[5.0]
     #	  `binary_release` varchar(64) collate utf8_unicode_ci not null
     #	  `binary_arch` varchar(64) collate utf8_unicode_ci not null
     # To remove this duplicate index, execute:
-    execute "ALTER TABLE `binary_releases` DROP INDEX `index_binary_releases_on_binary_name`;"
+    execute 'ALTER TABLE `binary_releases` DROP INDEX `index_binary_releases_on_binary_name`;'
 
     # ########################################################################
     # obs.bs_request_actions
@@ -60,7 +60,7 @@ class RemoveDuplicateIndexes < ActiveRecord::Migration[5.0]
     #	  `target_project` varchar(255) character set utf8 collate utf8_unicode_ci default null
     #	  `source_project` varchar(255) character set utf8 collate utf8_unicode_ci default null
     # To remove this duplicate index, execute:
-    execute "ALTER TABLE `bs_request_actions` DROP INDEX `index_bs_request_actions_on_target_project_and_source_project`;"
+    execute 'ALTER TABLE `bs_request_actions` DROP INDEX `index_bs_request_actions_on_target_project_and_source_project`;'
 
     # ########################################################################
     # obs.cache_lines
@@ -74,7 +74,7 @@ class RemoveDuplicateIndexes < ActiveRecord::Migration[5.0]
     #	  `project` varchar(255) collate utf8_unicode_ci default null
     #	  `package` varchar(255) collate utf8_unicode_ci default null
     # To remove this duplicate index, execute:
-    execute "ALTER TABLE `cache_lines` DROP INDEX `index_cache_lines_on_project`;"
+    execute 'ALTER TABLE `cache_lines` DROP INDEX `index_cache_lines_on_project`;'
 
     # ########################################################################
     # obs.channels
@@ -87,7 +87,7 @@ class RemoveDuplicateIndexes < ActiveRecord::Migration[5.0]
     # Column types:
     #	  `package_id` int(11) not null
     # To remove this duplicate index, execute:
-    execute "ALTER TABLE `channels` DROP INDEX `package_id`;"
+    execute 'ALTER TABLE `channels` DROP INDEX `package_id`;'
 
     # ########################################################################
     # obs.history_elements
@@ -101,7 +101,7 @@ class RemoveDuplicateIndexes < ActiveRecord::Migration[5.0]
     #	  `op_object_id` int(11) not null
     #	  `type` varchar(255) collate utf8_unicode_ci not null
     # To remove this duplicate index, execute:
-    execute "ALTER TABLE `history_elements` DROP INDEX `index_history_elements_on_op_object_id`;"
+    execute 'ALTER TABLE `history_elements` DROP INDEX `index_history_elements_on_op_object_id`;'
 
     # ########################################################################
     # obs.package_issues
@@ -115,7 +115,7 @@ class RemoveDuplicateIndexes < ActiveRecord::Migration[5.0]
     #	  `package_id` int(11) not null
     #	  `issue_id` int(11) not null
     # To remove this duplicate index, execute:
-    execute "ALTER TABLE `package_issues` DROP INDEX `index_package_issues_on_package_id`;"
+    execute 'ALTER TABLE `package_issues` DROP INDEX `index_package_issues_on_package_id`;'
 
     # ########################################################################
     # obs.packages
@@ -129,7 +129,7 @@ class RemoveDuplicateIndexes < ActiveRecord::Migration[5.0]
     #	  `project_id` int(11) not null
     #	  `name` varchar(200) collate utf8_bin not null
     # To remove this duplicate index, execute:
-    execute "ALTER TABLE `packages` DROP INDEX `index_packages_on_project_id`;"
+    execute 'ALTER TABLE `packages` DROP INDEX `index_packages_on_project_id`;'
 
     # ########################################################################
     # obs.reviews
@@ -143,23 +143,23 @@ class RemoveDuplicateIndexes < ActiveRecord::Migration[5.0]
     #	  `state` varchar(255) collate utf8_unicode_ci default null
     #	  `by_user` varchar(255) collate utf8_unicode_ci default null
     # To remove this duplicate index, execute:
-    execute "ALTER TABLE `reviews` DROP INDEX `index_reviews_on_state`;"
+    execute 'ALTER TABLE `reviews` DROP INDEX `index_reviews_on_state`;'
   end
 
   def self.down
     # rubocop:disable Metrics/LineLength
     # re-add duplicate indexes.
     # generated based the output of pt-duplicate-key-checker and the index definitions as of 7669128
-    execute "ALTER TABLE `attrib_namespace_modifiable_bies` ADD INDEX `index_attrib_namespace_modifiable_bies_on_attrib_namespace_id` (`attrib_namespace_id`);"
-    execute "ALTER TABLE `attrib_types` ADD INDEX `attrib_namespace_id` (`attrib_namespace_id`);"
-    execute "ALTER TABLE `binary_releases` ADD INDEX `index_binary_releases_on_binary_name` (`binary_name`);"
-    execute "ALTER TABLE `bs_request_actions` ADD INDEX `index_bs_request_actions_on_target_project_and_source_project` (`target_project`, `source_project`);"
-    execute "ALTER TABLE `cache_lines` ADD INDEX `index_cache_lines_on_project` (`project`);"
-    execute "ALTER TABLE `channels` ADD INDEX `package_id` (`package_id`);"
-    execute "ALTER TABLE `history_elements` ADD INDEX `index_history_elements_on_op_object_id` (`op_object_id`);"
-    execute "ALTER TABLE `package_issues` ADD INDEX `index_package_issues_on_package_id` (`package_id`);"
-    execute "ALTER TABLE `packages` ADD INDEX `index_packages_on_project_id` (`project_id`);"
-    execute "ALTER TABLE `reviews` ADD INDEX `index_reviews_on_state` (`state`);"
+    execute 'ALTER TABLE `attrib_namespace_modifiable_bies` ADD INDEX `index_attrib_namespace_modifiable_bies_on_attrib_namespace_id` (`attrib_namespace_id`);'
+    execute 'ALTER TABLE `attrib_types` ADD INDEX `attrib_namespace_id` (`attrib_namespace_id`);'
+    execute 'ALTER TABLE `binary_releases` ADD INDEX `index_binary_releases_on_binary_name` (`binary_name`);'
+    execute 'ALTER TABLE `bs_request_actions` ADD INDEX `index_bs_request_actions_on_target_project_and_source_project` (`target_project`, `source_project`);'
+    execute 'ALTER TABLE `cache_lines` ADD INDEX `index_cache_lines_on_project` (`project`);'
+    execute 'ALTER TABLE `channels` ADD INDEX `package_id` (`package_id`);'
+    execute 'ALTER TABLE `history_elements` ADD INDEX `index_history_elements_on_op_object_id` (`op_object_id`);'
+    execute 'ALTER TABLE `package_issues` ADD INDEX `index_package_issues_on_package_id` (`package_id`);'
+    execute 'ALTER TABLE `packages` ADD INDEX `index_packages_on_project_id` (`project_id`);'
+    execute 'ALTER TABLE `reviews` ADD INDEX `index_reviews_on_state` (`state`);'
     # rubocop:enable Metrics/LineLength
   end
 end

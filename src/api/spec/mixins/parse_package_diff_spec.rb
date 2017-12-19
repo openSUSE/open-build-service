@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe ParsePackageDiff do
   let(:instance_with_parse_package_diff_support) do
-    fake_instance = double("Fake Instance with ParsePackageDiff")
+    fake_instance = double('Fake Instance with ParsePackageDiff')
     fake_instance.extend(ParsePackageDiff)
     fake_instance
   end
@@ -29,20 +29,20 @@ RSpec.describe ParsePackageDiff do
       subject { instance_with_parse_package_diff_support.sorted_filenames_from_sourcediff(package_diff).first }
 
       it 'contains the old filename' do
-        result = { "project" => "home:Admin", "package" => "test", "rev" => "4", "srcmd5" => "61c8de91f59df43c9ffd1fa9b4a3f055" }
+        result = { 'project' => 'home:Admin', 'package' => 'test', 'rev' => '4', 'srcmd5' => '61c8de91f59df43c9ffd1fa9b4a3f055' }
         expect(subject['old']).to eq(result)
       end
 
       it 'contains the new filename' do
-        result = { "project" => "home:Admin", "package" => "test", "rev" => "5", "srcmd5" => "ca37dc90f6fd88f63db2ac9f1fc5c41c" }
+        result = { 'project' => 'home:Admin', 'package' => 'test', 'rev' => '5', 'srcmd5' => 'ca37dc90f6fd88f63db2ac9f1fc5c41c' }
         expect(subject['new']).to eq(result)
       end
 
       it { expect(subject['filenames']).to eq([filename]) }
       it { expect(subject['files'][filename]['state']).to eq('changed') }
-      it { expect(subject['files'][filename]['old']).to eq({ "name" => filename, "md5" => "f00a43bbe6d74b350577e5bce2ea5ff7", "size" => "42" }) }
-      it { expect(subject['files'][filename]['new']).to eq({ "name" => filename, "md5" => "3fd7513ed78f95e2be1bb211369bbea3", "size" => "10" }) }
-      it { expect(subject['files'][filename]['diff']).to eq({ "lines" => "1", "_content" => "# the diff" }) }
+      it { expect(subject['files'][filename]['old']).to eq({ 'name' => filename, 'md5' => 'f00a43bbe6d74b350577e5bce2ea5ff7', 'size' => '42' }) }
+      it { expect(subject['files'][filename]['new']).to eq({ 'name' => filename, 'md5' => '3fd7513ed78f95e2be1bb211369bbea3', 'size' => '10' }) }
+      it { expect(subject['files'][filename]['diff']).to eq({ 'lines' => '1', '_content' => '# the diff' }) }
     end
 
     context 'with more than one file' do

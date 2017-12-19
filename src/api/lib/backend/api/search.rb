@@ -13,7 +13,7 @@ module Backend
 
       # Performs a search of packages with a link
       def self.packages_with_link(package_names)
-        packages_list = package_names.map { |name| "linkinfo/@package='#{CGI.escape(name)}'" }.join("+or+")
+        packages_list = package_names.map { |name| "linkinfo/@package='#{CGI.escape(name)}'" }.join('+or+')
         get("/search/package/id?match=(#{packages_list})")
       end
 

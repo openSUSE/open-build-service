@@ -35,7 +35,7 @@ class BsRequestActionSubmit < BsRequestAction
     relink_source = false
     unless target_package
       # check for target project attributes
-      initialize_devel_package = target_project.find_attribute("OBS", "InitializeDevelPackage")
+      initialize_devel_package = target_project.find_attribute('OBS', 'InitializeDevelPackage')
       # create package in database
       linked_package = target_project.find_package(self.target_package)
       if linked_package
@@ -69,7 +69,7 @@ class BsRequestActionSubmit < BsRequestAction
       withacceptinfo: 1
     }
     cp_params[:orev] = source_rev if source_rev
-    cp_params[:dontupdatesource] = 1 if sourceupdate == "noupdate"
+    cp_params[:dontupdatesource] = 1 if sourceupdate == 'noupdate'
     unless updatelink
       cp_params[:expand] = 1
       cp_params[:keeplink] = 1
@@ -78,22 +78,22 @@ class BsRequestActionSubmit < BsRequestAction
                                                    source_project, source_package, User.current.login, cp_params)
     result = Xmlhash.parse(response)
 
-    set_acceptinfo(result["acceptinfo"])
+    set_acceptinfo(result['acceptinfo'])
 
     target_package.sources_changed
 
     # cleanup source project
-    if relink_source && !(sourceupdate == "noupdate")
+    if relink_source && !(sourceupdate == 'noupdate')
       # source package got used as devel package, link it to the target
       # re-create it via branch , but keep current content...
       options = { comment: "initialized devel package after accepting #{bs_request.number}",
         requestid: bs_request.number, keepcontent: 1, noservice: 1 }
       Backend::Api::Sources::Package.branch(self.target_project, self.target_package, source_project, source_package, User.current.login, options)
-    elsif sourceupdate == "cleanup"
+    elsif sourceupdate == 'cleanup'
       source_cleanup
     end
 
-    return unless self.target_package == "_product"
+    return unless self.target_package == '_product'
 
     Project.find_by_name!(self.target_project).update_product_autopackages
   end

@@ -1,17 +1,17 @@
-require "browser_helper"
+require 'browser_helper'
 # WARNING: If you change tests make sure you uncomment this line
 # and start a test backend. Some of the BsRequestAction methods
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
 
-RSpec.feature "Requests", type: :feature, js: true do
+RSpec.feature 'Requests', type: :feature, js: true do
   let(:submitter) { create(:confirmed_user, login: 'kugelblitz') }
   let(:receiver) { create(:confirmed_user, login: 'titan') }
   let(:target_project) { receiver.home_project }
   let(:target_package) { create(:package, name: 'goal', project_id: target_project.id) }
   let(:source_project) { submitter.home_project }
   let(:source_package) { create(:package, name: 'ball', project_id: source_project.id) }
-  let(:bs_request) { create(:bs_request, description: "a long text - " * 200, creator: submitter.login) }
+  let(:bs_request) { create(:bs_request, description: 'a long text - ' * 200, creator: submitter.login) }
   let(:create_submit_request) do
     bs_request.bs_request_actions.delete_all
     create(:bs_request_action_submit, target_project: target_project.name,
@@ -21,36 +21,36 @@ RSpec.feature "Requests", type: :feature, js: true do
                                       bs_request_id: bs_request.id)
   end
 
-  RSpec.shared_examples "expandable element" do
-    scenario "expanding a text field" do
+  RSpec.shared_examples 'expandable element' do
+    scenario 'expanding a text field' do
       invalid_word_count = valid_word_count + 1
 
       visit request_show_path(bs_request)
       within(element) do
-        expect(page).to have_text("a long text - " * valid_word_count)
-        expect(page).not_to have_text("a long text - " * invalid_word_count)
+        expect(page).to have_text('a long text - ' * valid_word_count)
+        expect(page).not_to have_text('a long text - ' * invalid_word_count)
 
-        click_link("[+]")
-        expect(page).to have_text("a long text - " * 200)
+        click_link('[+]')
+        expect(page).to have_text('a long text - ' * 200)
 
-        click_link("[-]")
-        expect(page).to have_text("a long text - " * valid_word_count)
-        expect(page).not_to have_text("a long text - " * invalid_word_count)
+        click_link('[-]')
+        expect(page).to have_text('a long text - ' * valid_word_count)
+        expect(page).not_to have_text('a long text - ' * invalid_word_count)
       end
     end
   end
 
-  context "request show page" do
-    describe "request description field" do
-      it_behaves_like "expandable element" do
-        let(:element) { "pre#description-text" }
+  context 'request show page' do
+    describe 'request description field' do
+      it_behaves_like 'expandable element' do
+        let(:element) { 'pre#description-text' }
         let(:valid_word_count) { 21 }
       end
     end
 
-    describe "request history entries" do
-      it_behaves_like "expandable element" do
-        let(:element) { ".expandable_event_comment" }
+    describe 'request history entries' do
+      it_behaves_like 'expandable element' do
+        let(:element) { '.expandable_event_comment' }
         let(:valid_word_count) { 3 }
       end
     end
@@ -67,7 +67,7 @@ RSpec.feature "Requests", type: :feature, js: true do
 
         expect { click_button 'Ok' }.to change { BsRequest.count }.by 1
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants the role bugowner for project #{target_project}")
-        expect(page).to have_css("#description-text", text: "I can fix bugs too.")
+        expect(page).to have_css('#description-text', text: 'I can fix bugs too.')
         expect(page).to have_text('In state new')
       end
 
@@ -96,7 +96,7 @@ RSpec.feature "Requests", type: :feature, js: true do
         expect { click_button 'Ok' }.to change { BsRequest.count }.by 1
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants the role maintainer \
                                    for package #{target_project} / #{target_package}")
-        expect(page).to have_css("#description-text", text: "I can produce bugs too.")
+        expect(page).to have_css('#description-text', text: 'I can produce bugs too.')
         expect(page).to have_text('In state new')
       end
 
@@ -128,7 +128,7 @@ RSpec.feature "Requests", type: :feature, js: true do
         fill_in 'review_user', with: reviewer.login
         click_button 'Ok'
         expect(page).to have_text("Open review for #{reviewer.login}")
-        expect(page).to have_text("Request 1 (review)")
+        expect(page).to have_text('Request 1 (review)')
         expect(Review.all.count).to eq(1)
         logout
 
@@ -190,7 +190,7 @@ RSpec.feature "Requests", type: :feature, js: true do
         find(:id, 'review_type').select('Project')
         fill_in 'review_project', with: 'INVALID/PROJECT'
         click_button 'Ok'
-        expect(page).to have_css("#flash-messages", text: "Unable add review to")
+        expect(page).to have_css('#flash-messages', text: 'Unable add review to')
       end
     end
   end

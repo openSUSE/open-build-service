@@ -253,10 +253,10 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/build/RemoteInstance:BaseDistro/_result?package=pack1&lastbuild=1' # for licensedigger
     assert_response :success
-    assert_xml_tag(tag: 'result', attributes: { project: "BaseDistro", repository: 'BaseDistro_repo', arch: 'i586' })
-    get "/build/RemoteInstance:BaseDistro/_result?view=summary"
+    assert_xml_tag(tag: 'result', attributes: { project: 'BaseDistro', repository: 'BaseDistro_repo', arch: 'i586' })
+    get '/build/RemoteInstance:BaseDistro/_result?view=summary'
     assert_response :success
-    assert_xml_tag(tag: 'result', attributes: { project: "BaseDistro", repository: 'BaseDistro_repo', arch: 'i586' })
+    assert_xml_tag(tag: 'result', attributes: { project: 'BaseDistro', repository: 'BaseDistro_repo', arch: 'i586' })
     assert_xml_tag(tag: 'summary')
 
     # direct access to remote instance, not existing project/package

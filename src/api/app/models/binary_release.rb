@@ -7,7 +7,7 @@ class BinaryRelease < ApplicationRecord
   #### Attributes
   #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :repository
-  belongs_to :release_package, class_name: "Package", foreign_key: "release_package_id" # optional
+  belongs_to :release_package, class_name: 'Package', foreign_key: 'release_package_id' # optional
 
   #### Callbacks macros: before_save, after_save, etc.
   before_create :set_release_time
@@ -38,12 +38,12 @@ class BinaryRelease < ApplicationRecord
     BinaryRelease.transaction do
       json.each do |binary|
         # identifier
-        hash = { binary_name:    binary["name"],
-                 binary_version: binary["version"],
-                 binary_release: binary["release"],
-                 binary_epoch:   binary["epoch"],
-                 binary_arch:    binary["binaryarch"],
-                 medium:         binary["medium"],
+        hash = { binary_name:    binary['name'],
+                 binary_version: binary['version'],
+                 binary_release: binary['release'],
+                 binary_epoch:   binary['epoch'],
+                 binary_arch:    binary['binaryarch'],
+                 medium:         binary['medium'],
                  obsolete_time:  nil,
                  modify_time:    nil }
         # check for existing entry
@@ -55,9 +55,9 @@ class BinaryRelease < ApplicationRecord
         # compare with existing entry
         if existing.count == 1
           entry = existing.first
-          if entry.binary_disturl                   == binary["disturl"] &&
-             entry.binary_supportstatus             == binary["supportstatus"] &&
-             entry.binary_buildtime.to_datetime.utc == ::Time.at(binary["buildtime"].to_i).to_datetime.utc
+          if entry.binary_disturl                   == binary['disturl'] &&
+             entry.binary_supportstatus             == binary['supportstatus'] &&
+             entry.binary_buildtime.to_datetime.utc == ::Time.at(binary['buildtime'].to_i).to_datetime.utc
             # same binary, don't touch
             processed_item[entry.id] = true
             next
@@ -66,26 +66,26 @@ class BinaryRelease < ApplicationRecord
           entry.modify_time = time
           entry.save!
           processed_item[entry.id] = true
-          hash[:operation] = "modified" # new entry will get "modified" instead of "added"
+          hash[:operation] = 'modified' # new entry will get "modified" instead of "added"
         end
 
         # complete hash for new entry
         hash[:binary_releasetime] = time
         hash[:binary_buildtime] = nil
-        hash[:binary_buildtime] = ::Time.at(binary["buildtime"].to_i).to_datetime if binary["buildtime"].to_i > 0
-        hash[:binary_disturl] = binary["disturl"]
-        hash[:binary_supportstatus] = binary["supportstatus"]
-        if binary["updateinfoid"]
-          hash[:binary_updateinfo] = binary["updateinfoid"]
-          hash[:binary_updateinfo_version] = binary["updateinfoversion"]
+        hash[:binary_buildtime] = ::Time.at(binary['buildtime'].to_i).to_datetime if binary['buildtime'].to_i > 0
+        hash[:binary_disturl] = binary['disturl']
+        hash[:binary_supportstatus] = binary['supportstatus']
+        if binary['updateinfoid']
+          hash[:binary_updateinfo] = binary['updateinfoid']
+          hash[:binary_updateinfo_version] = binary['updateinfoversion']
         end
-        rp = Package.find_by_project_and_name(binary["project"], binary["package"])
-        if binary["project"] && rp
+        rp = Package.find_by_project_and_name(binary['project'], binary['package'])
+        if binary['project'] && rp
           hash[:release_package_id] = rp.id
         end
-        if binary["patchinforef"]
+        if binary['patchinforef']
           begin
-            patchinfo = Patchinfo.new(Backend::Api::Sources::Project.patchinfo(binary["patchinforef"]))
+            patchinfo = Patchinfo.new(Backend::Api::Sources::Project.patchinfo(binary['patchinforef']))
           rescue ActiveXML::Transport::NotFoundError
             # patchinfo disappeared meanwhile
           end

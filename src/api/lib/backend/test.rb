@@ -8,7 +8,7 @@ module Backend
       return unless Rails.env.test?
       return if @backend
       return if ENV['BACKEND_STARTED']
-      print "Starting test backend..."
+      print 'Starting test backend...'
       @backend = IO.popen("#{Rails.root}/script/start_test_backend")
       Rails.logger.debug "Test backend started with pid: #{@backend.pid}"
       loop do
@@ -17,13 +17,13 @@ module Backend
         break if line =~ /DONE NOW/
         Rails.logger.debug line.strip
       end
-      puts "done"
+      puts 'done'
       CONFIG['global_write_through'] = true
       WebMock.disable_net_connect!(allow_localhost: true)
       ENV['BACKEND_STARTED'] = '1'
       at_exit do
-        puts "Killing test backend"
-        Process.kill "INT", @backend.pid
+        puts 'Killing test backend'
+        Process.kill 'INT', @backend.pid
         @backend = nil
       end
 

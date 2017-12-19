@@ -2,13 +2,13 @@ require 'api_exception'
 
 class Issue < ApplicationRecord
   class NotFoundError < APIException
-    setup "issue_not_found", 404, "Issue not found"
+    setup 'issue_not_found', 404, 'Issue not found'
   end
 
   has_many :package_issues, foreign_key: 'issue_id', dependent: :delete_all
 
   belongs_to :issue_tracker
-  belongs_to :owner, class_name: "User"
+  belongs_to :owner, class_name: 'User'
 
   scope :stateless, -> { where(state: nil) }
 
@@ -40,12 +40,12 @@ class Issue < ApplicationRecord
 
   def self.bugzilla_state(string)
     case string
-    when "NEW", "NEEDINFO", "REOPENED", "ASSIGNED"
-      "OPEN"
-    when "RESOLVED", "CLOSED", "VERIFIED"
-      "CLOSED"
+    when 'NEW', 'NEEDINFO', 'REOPENED', 'ASSIGNED'
+      'OPEN'
+    when 'RESOLVED', 'CLOSED', 'VERIFIED'
+      'CLOSED'
     else
-      "UNKNOWN"
+      'UNKNOWN'
     end
   end
 

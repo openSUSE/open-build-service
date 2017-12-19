@@ -19,8 +19,8 @@ module Build
       else
         unless User.current.is_admin?
           # this route can be used publish binaries without history changes in sources
-          render_error status: 403, errorcode: "upload_binary_no_permission",
-            message: "No permission to upload binaries."
+          render_error status: 403, errorcode: 'upload_binary_no_permission',
+            message: 'No permission to upload binaries.'
           return
         end
 
@@ -31,16 +31,16 @@ module Build
     # DELETE /build/:project/:repository/:arch/:package/:filename
     def destroy
       unless permissions.project_change? params[:project]
-        render_error status: 403, errorcode: "delete_binary_no_permission",
+        render_error status: 403, errorcode: 'delete_binary_no_permission',
           message: "No permission to delete binaries from project #{params[:project]}"
         return
       end
 
-      if params[:package] == "_repository"
+      if params[:package] == '_repository'
         pass_to_backend
       else
-        render_error status: 400, errorcode: "invalid_operation",
-          message: "Delete operation of build results is not allowed"
+        render_error status: 400, errorcode: 'invalid_operation',
+          message: 'Delete operation of build results is not allowed'
       end
 
       return
@@ -54,7 +54,7 @@ module Build
 
     def project
       @project ||=
-        if params[:package] == "_repository"
+        if params[:package] == '_repository'
           Project.get_by_name params[:project]
         else
           package = Package.get_by_project_and_name(
@@ -74,13 +74,13 @@ module Build
 
       return if user_has_permission
 
-      render_error status: 403, errorcode: "download_binary_no_permission",
+      render_error status: 403, errorcode: 'download_binary_no_permission',
         message: "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
       return
     end
 
     def path
-      @path ||= request.path_info + "?" + request.query_string
+      @path ||= request.path_info + '?' + request.query_string
     end
 
     def regexp
@@ -97,10 +97,10 @@ module Build
 
       c_type =
         case params[:filename].split(/\./)[-1]
-        when "rpm" then "application/x-rpm"
-        when "deb" then "application/x-deb"
-        when "iso" then "application/x-cd-image"
-        else "application/octet-stream"
+        when 'rpm' then 'application/x-rpm'
+        when 'deb' then 'application/x-deb'
+        when 'iso' then 'application/x-cd-image'
+        else 'application/octet-stream'
         end
 
       headers.update(

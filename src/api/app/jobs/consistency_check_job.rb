@@ -22,7 +22,7 @@ class ConsistencyCheckJob < ApplicationJob
     end
     if @errors.present?
       @errors = "FIXING the following errors:\n" << @errors if fix
-      Rails.logger.error("Detected problems during consistency check")
+      Rails.logger.error('Detected problems during consistency check')
       Rails.logger.error(@errors)
 
       AdminMailer.error(@errors).deliver_now
@@ -75,18 +75,18 @@ class ConsistencyCheckJob < ApplicationJob
 
   def init
     User.current ||= User.get_default_admin
-    @errors = ""
+    @errors = ''
   end
 
   def project_meta_check(project, fix = nil)
-    errors = ""
+    errors = ''
     # WARNING: this is using the memcache content. should maybe dropped before
     api_meta = project.to_axml
     begin
       backend_meta = Backend::Api::Sources::Project.meta(project.name)
     rescue ActiveXML::Transport::NotFoundError
       # project disappeared ... may happen in running system
-      return ""
+      return ''
     end
 
     backend_hash = Xmlhash.parse(backend_meta)
@@ -100,7 +100,7 @@ class ConsistencyCheckJob < ApplicationJob
       errors << "Project meta is different in backend for #{project.name}\n#{diff}\n"
       if fix
         # Assume that api is right
-        project.store({ login: "Admin", comment: "out-of-sync fix" })
+        project.store({ login: 'Admin', comment: 'out-of-sync fix' })
       end
     end
 
@@ -108,14 +108,14 @@ class ConsistencyCheckJob < ApplicationJob
   end
 
   def project_existence_consistency_check(fix = nil)
-    errors = ""
+    errors = ''
     # compare projects
     project_list_api = Project.all.pluck(:name).sort
     begin
       project_list_backend = dir_to_array(Xmlhash.parse(Backend::Api::Sources::Project.list))
     rescue ActiveXML::Transport::NotFoundError
       # project disappeared ... may happen in running system
-      return ""
+      return ''
     end
 
     diff = project_list_api - project_list_backend
@@ -150,7 +150,7 @@ class ConsistencyCheckJob < ApplicationJob
     project.commit_opts = { no_backend_write: 1 }
     project.update_from_xml!(Xmlhash.parse(meta))
     project.save!
-    return ""
+    return ''
   rescue APIException => e
     return "Invalid project meta data hosted in src server for project #{project}: #{e}"
   rescue ActiveRecord::RecordInvalid
@@ -161,12 +161,12 @@ class ConsistencyCheckJob < ApplicationJob
   end
 
   def package_existence_consistency_check(project, fix = nil)
-    errors = ""
+    errors = ''
     begin
       project.reload
     rescue ActiveRecord::RecordNotFound
       # project disappeared ... may happen in running system
-      return ""
+      return ''
     end
 
     # valid package names?
@@ -190,7 +190,7 @@ class ConsistencyCheckJob < ApplicationJob
       plb = dir_to_array(Xmlhash.parse(Backend::Api::Sources::Project.packages(project.name)))
     rescue ActiveXML::Transport::NotFoundError
       # project disappeared ... may happen in running system
-      return ""
+      return ''
     end
     # filter multibuild source container
     package_list_backend = plb.map { |e| e.start_with?('_patchinfo:', '_product:') ? e : e.gsub(/:.*$/, '') }
@@ -247,11 +247,11 @@ class ConsistencyCheckJob < ApplicationJob
       # we need to ignore the ordering in some cases
       # old xml generator wrote them in a different order
       # but in other cases the order of elements matters
-      if k == "person" && a_.kind_of?(Array)
+      if k == 'person' && a_.kind_of?(Array)
         a_ = a_.map { |i| "#{i['userid']}/#{i['role']}" }.sort
         b_ = b_.map { |i| "#{i['userid']}/#{i['role']}" }.sort
       end
-      if k == "group" && a_.kind_of?(Array)
+      if k == 'group' && a_.kind_of?(Array)
         a_ = a_.map { |i| "#{i['groupid']}/#{i['role']}" }.sort
         b_ = b_.map { |i| "#{i['groupid']}/#{i['role']}" }.sort
       end

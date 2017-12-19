@@ -24,7 +24,7 @@ class IssueTrackersController < ApplicationController
   def show
     @issue_tracker = IssueTracker.find_by_name(params[:id])
     unless @issue_tracker
-      render_error(status: 404, errorcode: "not_found", message: "Unable to find issue tracker '#{params[:id]}'") && return
+      render_error(status: 404, errorcode: 'not_found', message: "Unable to find issue tracker '#{params[:id]}'") && return
     end
 
     respond_to do |format|
@@ -70,7 +70,7 @@ class IssueTrackersController < ApplicationController
   def update
     @issue_tracker = IssueTracker.find_by_name(params[:id])
     unless @issue_tracker
-      render_error(status: 404, errorcode: "not_found", message: "Unable to find issue tracker '#{params[:id]}'") && return
+      render_error(status: 404, errorcode: 'not_found', message: "Unable to find issue tracker '#{params[:id]}'") && return
     end
 
     respond_to do |format|
@@ -108,7 +108,7 @@ class IssueTrackersController < ApplicationController
   def destroy
     @issue_tracker = IssueTracker.find_by_name(params[:id])
     unless @issue_tracker
-      render_error(status: 404, errorcode: "not_found", message: "Unable to find issue tracker '#{params[:id]}'") && return
+      render_error(status: 404, errorcode: 'not_found', message: "Unable to find issue tracker '#{params[:id]}'") && return
     end
     @issue_tracker.destroy
 

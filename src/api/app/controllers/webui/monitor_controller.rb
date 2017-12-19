@@ -25,7 +25,7 @@ class Webui::MonitorController < Webui::WebuiController
   end
 
   def index
-    @default_architecture = "x86_64"
+    @default_architecture = 'x86_64'
 
     if request.post? && !params[:project].nil? && valid_project_name?(params[:project])
       redirect_to project: params[:project]

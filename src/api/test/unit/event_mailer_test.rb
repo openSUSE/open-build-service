@@ -12,10 +12,10 @@ class EventMailerTest < ActionMailer::TestCase
     assert_equal should, email.encoded.lines.map(&:chomp).select { |l| l !~ %r{^Date:} }.join("\n")
   end
 
-  test "commit event" do
+  test 'commit event' do
     mail = EventMailer.event([users(:adrian)], events(:pack1_commit))
-    assert_equal "BaseDistro/pack1 r1 commited", mail.subject
-    assert_equal ["adrian@example.com"], mail.to
+    assert_equal 'BaseDistro/pack1 r1 commited', mail.subject
+    assert_equal ['adrian@example.com'], mail.to
     assert_equal read_fixture('commit_event').join, mail.body.to_s
   end
 

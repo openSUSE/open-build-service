@@ -1,5 +1,5 @@
 require 'rexml/document'
-require "rexml/streamlistener"
+require 'rexml/streamlistener'
 require 'statistics_calculations'
 
 class StatisticsController < ApplicationController
@@ -11,11 +11,11 @@ class StatisticsController < ApplicationController
   ]
 
   def index
-    render plain: "This is the statistics controller.<br/>See the api documentation for details."
+    render plain: 'This is the statistics controller.<br/>See the api documentation for details.'
   end
 
   def min_votes_for_rating
-    CONFIG["min_votes_for_rating"]
+    CONFIG['min_votes_for_rating']
   end
 
   def highest_rated
@@ -63,8 +63,8 @@ class StatisticsController < ApplicationController
           rating.user_id = User.current.id
           rating.save
         rescue
-          render_error status: 400, errorcode: "error setting rating",
-                       message: "rating not saved"
+          render_error status: 400, errorcode: 'error setting rating',
+                       message: 'rating not saved'
           return
         end
       end
@@ -72,17 +72,17 @@ class StatisticsController < ApplicationController
       return
     end
 
-    render_error status: 400, errorcode: "invalid_method",
-                 message: "only GET or PUT method allowed for this action"
+    render_error status: 400, errorcode: 'invalid_method',
+                 message: 'only GET or PUT method allowed for this action'
   end
 
   def download_counter
     # FIXME: download stats are currently not supported and needs a re-implementation
-    render_error status: 400, errorcode: "not_supported", message: "download stats need a re-implementation"
+    render_error status: 400, errorcode: 'not_supported', message: 'download stats need a re-implementation'
   end
 
   def newest_stats
-    render_error status: 400, errorcode: "not_supported", message: "download stats need a re-implementation"
+    render_error status: 400, errorcode: 'not_supported', message: 'download stats need a re-implementation'
   end
 
   def most_active_projects
@@ -144,13 +144,13 @@ class StatisticsController < ApplicationController
 
   def latest_updated
     if params[:prjfilter].nil?
-      prj_filter = ".*"
+      prj_filter = '.*'
     else
       prj_filter = params[:prjfilter]
     end
 
     if params[:pkgfilter].nil?
-      pkg_filter = ".*"
+      pkg_filter = '.*'
     else
       pkg_filter = params[:pkgfilter]
     end
@@ -190,19 +190,19 @@ class StatisticsController < ApplicationController
     @project = Project.find_by_name!(params[:project])
 
     # get devel projects
-    ids = Package.joins("left outer join packages d on d.develpackage_id = packages.id").
-        where("d.project_id = ?", @project.id).pluck('packages.project_id').sort.uniq
+    ids = Package.joins('left outer join packages d on d.develpackage_id = packages.id').
+        where('d.project_id = ?', @project.id).pluck('packages.project_id').sort.uniq
     ids << @project.id
-    projects = Project.where("id in (?)", ids).select(:name).map(&:name)
+    projects = Project.where('id in (?)', ids).select(:name).map(&:name)
 
     # get all requests to it
     reqs = BsRequestAction.where(target_project: projects).select(:bs_request_id).map(&:bs_request_id).uniq.sort
-    reqs = BsRequest.where("id in (?)", reqs).select([:id, :created_at, :creator])
+    reqs = BsRequest.where('id in (?)', reqs).select([:id, :created_at, :creator])
     if params[:raw] == '1'
       render json: reqs
       return
     end
-    reqs = reqs.group_by { |r| r.created_at.strftime("%Y-%m") }
+    reqs = reqs.group_by { |r| r.created_at.strftime('%Y-%m') }
     @stats = []
     reqs.sort.each do |month, requests|
       monstats = []

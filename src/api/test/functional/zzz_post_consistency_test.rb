@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_consistency_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_consistency_helper'
 
 class ZZZPostConsistency < ActionDispatch::IntegrationTest
   require 'source_controller'
@@ -22,13 +22,13 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
 
   def test_check_maintenance_project
     login_king
-    get "/source/My:Maintenance/_meta"
+    get '/source/My:Maintenance/_meta'
     assert_response :success
 
-    get "/search/project", params: { match: '[maintenance/maintains/@project="BaseDistro2.0:LinkedUpdateProject"]' }
+    get '/search/project', params: { match: '[maintenance/maintains/@project="BaseDistro2.0:LinkedUpdateProject"]' }
     assert_response :success
     assert_xml_tag tag: 'collection', children: { count: 1 }
-    assert_xml_tag tag: 'project', attributes: { name: "My:Maintenance" }
+    assert_xml_tag tag: 'project', attributes: { name: 'My:Maintenance' }
   end
 
   def test_fsck_backend
@@ -43,11 +43,11 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
         next if line.blank?
 
         # catch progress lines
-        if line.starts_with? "PROGRESS:"
+        if line.starts_with? 'PROGRESS:'
           progress = line
           next
         end
-        next if line.starts_with? "DBPROGRESS:"
+        next if line.starts_with? 'DBPROGRESS:'
 
         # acceptable during test suite run
         next if line =~ /jobs.dispatchprios missing/;

@@ -1,93 +1,93 @@
-require "rails_helper"
+require 'rails_helper'
 require 'rantly/rspec_extensions'
 # WARNING: If you need to make a Backend call uncomment the following line
 # CONFIG['global_write_through'] = true
 
 RSpec.describe Project, vcr: true do
   let!(:project) { create(:project, name: 'openSUSE_41') }
-  let(:remote_project) { create(:remote_project, name: "openSUSE.org") }
+  let(:remote_project) { create(:remote_project, name: 'openSUSE.org') }
   let(:package) { create(:package, project: project) }
   let(:leap_project) { create(:project, name: 'openSUSE_Leap') }
   let(:attribute_type) { AttribType.find_by_namespace_and_name!('OBS', 'ImageTemplates') }
 
-  describe "validations" do
+  describe 'validations' do
     it {
       is_expected.to validate_inclusion_of(:kind).
-        in_array(["standard", "maintenance", "maintenance_incident", "maintenance_release"])
+        in_array(['standard', 'maintenance', 'maintenance_incident', 'maintenance_release'])
     }
     it { is_expected.to validate_length_of(:name).is_at_most(200) }
     it { is_expected.to validate_length_of(:title).is_at_most(250) }
     it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_uniqueness_of(:name) }
-    it { should_not allow_value("_foo").for(:name) }
-    it { should_not allow_value("foo::bar").for(:name) }
-    it { should_not allow_value("ends_with_:").for(:name) }
-    it { should allow_value("fOO:+-").for(:name) }
+    it { should_not allow_value('_foo').for(:name) }
+    it { should_not allow_value('foo::bar').for(:name) }
+    it { should_not allow_value('ends_with_:').for(:name) }
+    it { should allow_value('fOO:+-').for(:name) }
   end
 
-  describe ".image_templates" do
+  describe '.image_templates' do
     let!(:attrib) { create(:attrib, attrib_type: attribute_type, project: leap_project) }
 
     it { expect(Project.image_templates).to eq([leap_project]) }
   end
 
-  describe "#store" do
+  describe '#store' do
     before do
       allow(project).to receive(:save!).and_return(true)
       allow(project).to receive(:write_to_backend).and_return(true)
       project.commit_opts = { comment: 'the comment' }
     end
 
-    context "without commit_opts parameter" do
-      it "does not overwrite the commit_opts" do
+    context 'without commit_opts parameter' do
+      it 'does not overwrite the commit_opts' do
         project.store
         expect(project.commit_opts).to eq({ comment: 'the comment' })
       end
     end
 
-    context "with commit_opts parameter" do
-      it "does overwrite the commit_opts" do
+    context 'with commit_opts parameter' do
+      it 'does overwrite the commit_opts' do
         project.store({ comment: 'a new comment' })
         expect(project.commit_opts).to eq({ comment: 'a new comment' })
       end
     end
   end
 
-  describe "#has_distribution" do
-    context "remote distribution" do
-      let(:remote_distribution) { create(:repository, name: "snapshot", remote_project_name: "openSUSE:Factory", project: remote_project) }
-      let(:other_remote_distribution) { create(:repository, name: "standard", remote_project_name: "openSUSE:Leap:42.1", project: remote_project) }
-      let(:repository) { create(:repository, name: "openSUSE_Tumbleweed", project: project) }
+  describe '#has_distribution' do
+    context 'remote distribution' do
+      let(:remote_distribution) { create(:repository, name: 'snapshot', remote_project_name: 'openSUSE:Factory', project: remote_project) }
+      let(:other_remote_distribution) { create(:repository, name: 'standard', remote_project_name: 'openSUSE:Leap:42.1', project: remote_project) }
+      let(:repository) { create(:repository, name: 'openSUSE_Tumbleweed', project: project) }
       let!(:path_element) { create(:path_element, parent_id: repository.id, repository_id: remote_distribution.id, position: 1) }
 
-      it { expect(project.has_distribution("openSUSE.org:openSUSE:Factory", "snapshot")).to be(true) }
-      it { expect(project.has_distribution("openSUSE.org:openSUSE:Leap:42.1", "standard")).to be(false) }
+      it { expect(project.has_distribution('openSUSE.org:openSUSE:Factory', 'snapshot')).to be(true) }
+      it { expect(project.has_distribution('openSUSE.org:openSUSE:Leap:42.1', 'standard')).to be(false) }
     end
 
-    context "local distribution" do
-      context "with linked distribution" do
-        let(:distribution) { create(:project, name: "BaseDistro2.0") }
-        let(:distribution_repository) { create(:repository, name: "BaseDistro2_repo", project: distribution) }
-        let(:repository) { create(:repository, name: "Base_repo2", project: project) }
+    context 'local distribution' do
+      context 'with linked distribution' do
+        let(:distribution) { create(:project, name: 'BaseDistro2.0') }
+        let(:distribution_repository) { create(:repository, name: 'BaseDistro2_repo', project: distribution) }
+        let(:repository) { create(:repository, name: 'Base_repo2', project: project) }
         let!(:path_element) { create(:path_element, parent_id: repository.id, repository_id: distribution_repository.id, position: 1) }
 
-        it { expect(project.has_distribution("BaseDistro2.0", "BaseDistro2_repo")).to be(true) }
+        it { expect(project.has_distribution('BaseDistro2.0', 'BaseDistro2_repo')).to be(true) }
       end
 
-      context "with not linked distribution" do
-        let(:not_linked_distribution) { create(:project, name: "BaseDistro") }
-        let!(:not_linked_distribution_repository) { create(:repository, name: "BaseDistro_repo", project: not_linked_distribution) }
+      context 'with not linked distribution' do
+        let(:not_linked_distribution) { create(:project, name: 'BaseDistro') }
+        let!(:not_linked_distribution_repository) { create(:repository, name: 'BaseDistro_repo', project: not_linked_distribution) }
 
-        it { expect(project.has_distribution("BaseDistro", "BaseDistro_repo")).to be(false) }
+        it { expect(project.has_distribution('BaseDistro', 'BaseDistro_repo')).to be(false) }
       end
 
-      context "with linked distribution but wrong query" do
-        let(:other_distribution) { create(:project, name: "BaseDistro3.0") }
-        let!(:other_distribution_repository) { create(:repository, name: "BaseDistro3_repo", project: other_distribution) }
-        let(:other_repository) { create(:repository, name: "Base_repo3", project: project) }
+      context 'with linked distribution but wrong query' do
+        let(:other_distribution) { create(:project, name: 'BaseDistro3.0') }
+        let!(:other_distribution_repository) { create(:repository, name: 'BaseDistro3_repo', project: other_distribution) }
+        let(:other_repository) { create(:repository, name: 'Base_repo3', project: project) }
         let!(:path_element) { create(:path_element, parent_id: other_repository.id, repository_id: other_distribution_repository.id, position: 1) }
-        it { expect(project.has_distribution("BaseDistro3.0", "standard")).to be(false) }
-        it { expect(project.has_distribution("BaseDistro4.0", "BaseDistro3_repo")).to be(false) }
+        it { expect(project.has_distribution('BaseDistro3.0', 'standard')).to be(false) }
+        it { expect(project.has_distribution('BaseDistro4.0', 'BaseDistro3_repo')).to be(false) }
       end
     end
   end
@@ -108,7 +108,7 @@ RSpec.describe Project, vcr: true do
       allow(ProjectMetaFile).to receive(:new).and_return(remote_meta_xml)
     end
 
-    context "normal project" do
+    context 'normal project' do
       let!(:repository) { create(:repository, name: 'xUbuntu_14.04', project: project) }
       let(:remote_meta_xml) do
         <<-XML_DATA
@@ -161,16 +161,16 @@ RSpec.describe Project, vcr: true do
         let(:new_repository) { project.repositories.second }
         let(:path_element) { new_repository.path_elements.first.link }
 
-        it { expect(new_repository.name).to eq("openSUSE_42.2") }
-        it { expect(new_repository.architectures.first.name).to eq("x86_64") }
+        it { expect(new_repository.name).to eq('openSUSE_42.2') }
+        it { expect(new_repository.architectures.first.name).to eq('x86_64') }
         it 'with correct path link' do
-          expect(path_element.name).to eq("openSUSE_42.2")
+          expect(path_element.name).to eq('openSUSE_42.2')
           expect(path_element.remote_project_name).to eq(project.name)
         end
       end
     end
 
-    context "kiwi project" do
+    context 'kiwi project' do
       let(:remote_meta_xml) do
         <<-XML_DATA
         <project name="home:cbruckmayer:fosdem">
@@ -216,23 +216,23 @@ RSpec.describe Project, vcr: true do
       let(:path_elements) { new_repository.path_elements.first.link }
       let(:path_elements2) { new_repository.path_elements.second.link }
 
-      it { expect(new_repository.name).to eq("images") }
-      it { expect(new_repository.architectures.first.name).to eq("x86_64") }
+      it { expect(new_repository.name).to eq('images') }
+      it { expect(new_repository.architectures.first.name).to eq('x86_64') }
       it 'with correct path links' do
         expect(new_repository.path_elements.count).to eq(2)
-        expect(path_elements.name).to eq("standard")
-        expect(path_elements.remote_project_name).to eq("openSUSE:Leap:42.1:Images")
-        expect(path_elements2.name).to eq("standard")
-        expect(path_elements2.remote_project_name).to eq("openSUSE:Leap:42.1:Update")
+        expect(path_elements.name).to eq('standard')
+        expect(path_elements.remote_project_name).to eq('openSUSE:Leap:42.1:Images')
+        expect(path_elements2.name).to eq('standard')
+        expect(path_elements2.remote_project_name).to eq('openSUSE:Leap:42.1:Update')
       end
     end
   end
 
   describe '#self.valid_name?' do
-    context "invalid" do
+    context 'invalid' do
       it { expect(Project.valid_name?(10)).to be(false) }
 
-      it "has ::" do
+      it 'has ::' do
         property_of do
           string = sized(1) { string(/[a-zA-Z0-9]/) } + sized(range(1, 199)) { string(/[-+\w\.]/) }
           index = range(0, (string.length - 2))
@@ -243,7 +243,7 @@ RSpec.describe Project, vcr: true do
         end
       end
 
-      it "end with :" do
+      it 'end with :' do
         property_of do
           string = sized(1) { string(/[a-zA-Z0-9]/) } + sized(range(0, 198)) { string(/[-+\w\.:]/) } + ':'
           guard string !~ /::/
@@ -253,7 +253,7 @@ RSpec.describe Project, vcr: true do
         end
       end
 
-      it "has an invalid character in first position" do
+      it 'has an invalid character in first position' do
         property_of do
           string = sized(1) { string(/[-+\.:_]/) } + sized(range(0, 199)) { string(/[-+\w\.:]/) }
           guard !(string[-1] == ':' && string.length > 1) && string !~ /::/
@@ -263,7 +263,7 @@ RSpec.describe Project, vcr: true do
         end
       end
 
-      it "has more than 200 characters" do
+      it 'has more than 200 characters' do
         property_of do
           string = sized(1) { string(/[a-zA-Z0-9]/) } + sized(200) { string(/[-+\w\.:]/) }
           guard string[-1] != ':' && string !~ /::/
@@ -277,7 +277,7 @@ RSpec.describe Project, vcr: true do
       it { expect(Project.valid_name?('')).to be(false) }
     end
 
-    it "valid" do
+    it 'valid' do
       property_of do
         string = sized(1) { string(/[a-zA-Z0-9]/) } + sized(range(0, 199)) { string(/[-+\w\.:]/) }
         guard string != '0' && string[-1] != ':' && !(/::/ =~ string)
@@ -454,11 +454,11 @@ RSpec.describe Project, vcr: true do
     end
   end
 
-  describe "#destroy" do
+  describe '#destroy' do
     context 'avoid regressions of the issue #3665' do
       let(:admin_user) { create(:admin_user, login: 'Admin') }
-      let(:images_repository) { create(:repository, name: "images", project: project) }
-      let(:apache_repository) { create(:repository, name: "Apache", project: project) }
+      let(:images_repository) { create(:repository, name: 'images', project: project) }
+      let(:apache_repository) { create(:repository, name: 'Apache', project: project) }
       let!(:path_element) { create(:path_element, parent_id: images_repository.id, repository_id: apache_repository.id, position: 1) }
 
       before do
@@ -534,6 +534,6 @@ RSpec.describe Project, vcr: true do
   describe '#add_maintainer' do
     subject { create(:user).home_project }
 
-    it_behaves_like "makes a user a maintainer of the subject"
+    it_behaves_like 'makes a user a maintainer of the subject'
   end
 end

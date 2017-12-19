@@ -271,7 +271,7 @@ class Webui::PackageController < Webui::WebuiController
     req = nil
     begin
       BsRequest.transaction do
-        req = BsRequest.new(state: "new")
+        req = BsRequest.new(state: 'new')
         req.description = params[:description]
 
         opts = { source_project: project_name,
@@ -294,7 +294,7 @@ class Webui::PackageController < Webui::WebuiController
     rescue BsRequestAction::DiffError => e
       flash[:error] = "Unable to diff sources: #{e.message}"
     rescue BsRequestAction::MissingAction => e
-      flash[:error] = "Unable to submit, sources are unchanged"
+      flash[:error] = 'Unable to submit, sources are unchanged'
     rescue Project::UnknownObjectError,
            BsRequestAction::UnknownProject,
            BsRequestAction::UnknownTargetPackage => e
@@ -322,7 +322,7 @@ class Webui::PackageController < Webui::WebuiController
         begin
           r = BsRequest.find_by_number! request_number
           opts = {
-            newstate:      "superseded",
+            newstate:      'superseded',
             reason:        "Superseded by request #{req.number}",
             superseded_by: req.number
           }
@@ -334,7 +334,7 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     if supersede_errors.any?
-      supersede_notice = "Superseding failed: "
+      supersede_notice = 'Superseding failed: '
       supersede_notice += supersede_errors.join('. ')
     end
     flash[:notice] = "Created <a href='#{request_show_path(req.number)}'>submit request #{req.number}</a>\
@@ -559,7 +559,7 @@ class Webui::PackageController < Webui::WebuiController
 
     branched_package_object = Package.find_by_project_and_name(created_project_name, created_package_name)
 
-    if request.env["HTTP_REFERER"] == image_templates_url && branched_package_object.kiwi_image?
+    if request.env['HTTP_REFERER'] == image_templates_url && branched_package_object.kiwi_image?
       redirect_to(import_kiwi_image_path(branched_package_object.id))
     else
       flash[:notice] = 'Successfully branched package'
@@ -611,7 +611,7 @@ class Webui::PackageController < Webui::WebuiController
     end
     if @package.errors.empty?
       @package.destroy
-      redirect_to(project_show_path(@project), notice: "Package was successfully removed.")
+      redirect_to(project_show_path(@project), notice: 'Package was successfully removed.')
     else
       redirect_to(package_show_path(project: @project, package: @package),
                   notice: "Package can't be removed: #{@package.errors.full_messages.to_sentence}")
@@ -989,7 +989,7 @@ class Webui::PackageController < Webui::WebuiController
         end
 
         if meta_xml['project'] && meta_xml['project'] != @project.name
-          errors << "project name in xml data does not match resource path component"
+          errors << 'project name in xml data does not match resource path component'
         end
 
         if meta_xml['name'] && meta_xml['name'] != @package.name
@@ -1004,7 +1004,7 @@ class Webui::PackageController < Webui::WebuiController
 
     if errors.empty?
       @package.update_from_xml(meta_xml)
-      flash.now[:success] = "The Meta file has been successfully saved."
+      flash.now[:success] = 'The Meta file has been successfully saved.'
       render layout: false, partial: 'layouts/webui/flash', object: flash
     else
       flash.now[:error] = "Error while saving the Meta file: #{errors.compact.join("\n")}."
@@ -1097,7 +1097,7 @@ class Webui::PackageController < Webui::WebuiController
     # package is nil for remote projects
     if @package && !@package.check_source_access?
       redirect_to package_show_path(project: @project.name, package: @package.name),
-                  error: "Could not access build log"
+                  error: 'Could not access build log'
       return false
     end
 

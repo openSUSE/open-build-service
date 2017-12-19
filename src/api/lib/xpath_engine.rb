@@ -3,7 +3,7 @@ class XpathEngine
   require 'rexml/parsers/xpathparser'
 
   class IllegalXpathError < APIException
-    setup "illegal_xpath_error", 400
+    setup 'illegal_xpath_error', 400
   end
 
   def initialize
@@ -195,27 +195,27 @@ class XpathEngine
         'state/@who'             => { cpart: 'bs_requests.commenter' },
         'state/@when'            => { cpart: 'bs_requests.updated_at' },
         'action/@type'           => { cpart: 'a.type',
-                                      joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
+                                      joins: 'LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id' },
         'action/grouped/@id'     => { cpart: 'gr.number',
-                                      joins: ["LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id",
-                                              "LEFT JOIN group_request_requests g on g.bs_request_action_group_id = a.id",
-                                              "LEFT JOIN bs_requests gr on gr.id = g.bs_request_id"] },
-        'action/target/@project' => { cpart: 'a.target_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
-        'action/target/@package' => { cpart: 'a.target_package', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
-        'action/source/@project' => { cpart: 'a.source_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
-        'action/source/@package' => { cpart: 'a.source_package', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
+                                      joins: ['LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id',
+                                              'LEFT JOIN group_request_requests g on g.bs_request_action_group_id = a.id',
+                                              'LEFT JOIN bs_requests gr on gr.id = g.bs_request_id'] },
+        'action/target/@project' => { cpart: 'a.target_project', joins: 'LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id' },
+        'action/target/@package' => { cpart: 'a.target_package', joins: 'LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id' },
+        'action/source/@project' => { cpart: 'a.source_project', joins: 'LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id' },
+        'action/source/@package' => { cpart: 'a.source_package', joins: 'LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id' },
         # osc is doing these 4 kinds of searches during submit
-        'target/@project'        => { cpart: 'a.target_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
-        'target/@package'        => { cpart: 'a.target_package', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
-        'source/@project'        => { cpart: 'a.source_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
-        'source/@package'        => { cpart: 'a.source_package', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
-        'review/@by_user'        => { cpart: 'r.by_user', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
-        'review/@by_group'       => { cpart: 'r.by_group', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
-        'review/@by_project'     => { cpart: 'r.by_project', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
-        'review/@by_package'     => { cpart: 'r.by_package', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
-        'review/@state'          => { cpart: 'r.state', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
+        'target/@project'        => { cpart: 'a.target_project', joins: 'LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id' },
+        'target/@package'        => { cpart: 'a.target_package', joins: 'LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id' },
+        'source/@project'        => { cpart: 'a.source_project', joins: 'LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id' },
+        'source/@package'        => { cpart: 'a.source_package', joins: 'LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id' },
+        'review/@by_user'        => { cpart: 'r.by_user', joins: 'LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id' },
+        'review/@by_group'       => { cpart: 'r.by_group', joins: 'LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id' },
+        'review/@by_project'     => { cpart: 'r.by_project', joins: 'LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id' },
+        'review/@by_package'     => { cpart: 'r.by_package', joins: 'LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id' },
+        'review/@state'          => { cpart: 'r.state', joins: 'LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id' },
         'history/@who'           => { cpart: 'husers.login', joins: ["LEFT JOIN history_elements he ON (he.op_object_id = bs_requests.id AND he.type IN (\"#{HistoryElement::Request.descendants.join('","')}\") )",
-                                                                     "LEFT JOIN users husers ON he.user_id = husers.id"] },
+                                                                     'LEFT JOIN users husers ON he.user_id = husers.id'] },
 
         'submit/target/@project' => { empty: true },
         'submit/target/@package' => { empty: true },
@@ -226,7 +226,7 @@ class XpathEngine
 
     @operators = [:eq, :and, :or, :neq, :gt, :lt, :gteq, :lteq]
 
-    @base_table = ""
+    @base_table = ''
     @conditions = []
     @condition_values = []
     @condition_values_needed = 1 # see xpath_func_not
@@ -251,11 +251,11 @@ class XpathEngine
     # logger.debug "starting stack: #{@stack.inspect}"
 
     if @stack.shift != :document
-      raise IllegalXpathError, "xpath expression has to begin with root node"
+      raise IllegalXpathError, 'xpath expression has to begin with root node'
     end
 
     if @stack.shift != :child
-      raise IllegalXpathError, "xpath expression has to begin with root node"
+      raise IllegalXpathError, 'xpath expression has to begin with root node'
     end
 
     @stack.shift
@@ -315,7 +315,7 @@ class XpathEngine
       @joins = ['LEFT JOIN relationships user_relation ON projects.id = user_relation.project_id',
                 'LEFT JOIN relationships group_relation ON projects.id = group_relation.project_id'] << @joins
     when 'repositories'
-      relation = Repository.where("repositories.db_project_id not in (?)", Relationship.forbidden_project_ids)
+      relation = Repository.where('repositories.db_project_id not in (?)', Relationship.forbidden_project_ids)
       @joins = ['LEFT join path_elements path_element on path_element.parent_id=repositories.id',
                 'LEFT join repositories path_repo on path_element.repository_id=path_repo.id',
                 'LEFT join release_targets release_target on release_target.repository_id=repositories.id',
@@ -325,11 +325,11 @@ class XpathEngine
       relation = BsRequest.all
       attrib = AttribType.find_by_namespace_and_name('OBS', 'IncidentPriority')
       # this join is only for ordering by the OBS:IncidentPriority attribute, possibly existing in source project
-      @joins = ["LEFT JOIN bs_request_actions req_order_action ON req_order_action.bs_request_id = bs_requests.id",
-                "LEFT JOIN projects req_order_project ON req_order_action.source_project = req_order_project.name",
+      @joins = ['LEFT JOIN bs_request_actions req_order_action ON req_order_action.bs_request_id = bs_requests.id',
+                'LEFT JOIN projects req_order_project ON req_order_action.source_project = req_order_project.name',
                 "LEFT JOIN attribs req_order_attrib ON (req_order_attrib.attrib_type_id = '#{attrib.id}' AND req_order_attrib.project_id = req_order_project.id)",
-                "LEFT JOIN attrib_values req_order_attrib_value ON req_order_attrib.id = req_order_attrib_value.attrib_id"] << @joins
-      order = ["req_order_attrib_value.value DESC", :priority, :created_at]
+                'LEFT JOIN attrib_values req_order_attrib_value ON req_order_attrib.id = req_order_attrib_value.attrib_id'] << @joins
+      order = ['req_order_attrib_value.value DESC', :priority, :created_at]
     when 'users'
       relation = User.all
     when 'issues'
@@ -359,12 +359,12 @@ class XpathEngine
     end
     cond_ary = nil
     if @conditions.count > 0
-      cond_ary = [@conditions.flatten.uniq.join(" AND "), @condition_values].flatten
+      cond_ary = [@conditions.flatten.uniq.join(' AND '), @condition_values].flatten
     end
 
     logger.debug("#{relation.to_sql}.find #{{ joins:      @joins.flatten.uniq.join(' '),
                                               conditions: cond_ary }.inspect}")
-    relation = relation.joins(@joins.flatten.uniq.join(" ")).where(cond_ary).order(order)
+    relation = relation.joins(@joins.flatten.uniq.join(' ')).where(cond_ary).order(order)
     # .distinct is critical for perfomance here...
     relation.distinct.pluck(:id)
   end
@@ -373,14 +373,14 @@ class XpathEngine
     # logger.debug "------------------ predicate ---------------"
     # logger.debug "-- pred_array: #{stack.inspect} --"
 
-    raise IllegalXpathError, "invalid predicate" if stack.nil?
+    raise IllegalXpathError, 'invalid predicate' if stack.nil?
 
     while !stack.empty?
       token = stack.shift
       case token
       when :function
         fname = stack.shift
-        fname_int = "xpath_func_" + fname.tr('-', "_")
+        fname_int = 'xpath_func_' + fname.tr('-', '_')
         unless respond_to? fname_int
           raise IllegalXpathError, "unknown xpath function '#{fname}'"
         end
@@ -408,7 +408,7 @@ class XpathEngine
         end
       when *@operators
         opname = token.to_s
-        opname_int = "xpath_op_" + opname
+        opname_int = 'xpath_op_' + opname
         unless respond_to? opname_int
           raise IllegalXpathError, "unhandled xpath operator '#{opname}'"
         end
@@ -435,16 +435,16 @@ class XpathEngine
       when :attribute
         expr.shift #:qname token
         expr.shift # namespace
-        a << "@" + expr.shift
+        a << '@' + expr.shift
       when :literal
         value = (escape ? escape_for_like(expr.shift) : expr.shift)
         if @last_key && @attribs[table][@last_key][:empty]
-          return ""
+          return ''
         end
         if @last_key && @attribs[table][@last_key][:split]
           tvalues = value.split(@attribs[table][@last_key][:split])
           if tvalues.size != 2
-            raise XpathEngine::IllegalXpathError, "attributes must be $NAMESPACE:$NAME"
+            raise XpathEngine::IllegalXpathError, 'attributes must be $NAMESPACE:$NAME'
           end
           @condition_values_needed.times { @condition_values << tvalues }
         elsif @last_key && @attribs[table][@last_key][:double]
@@ -453,12 +453,12 @@ class XpathEngine
           @condition_values_needed.times { @condition_values << value }
         end
         @last_key = nil
-        return "?"
+        return '?'
       else
         raise IllegalXpathError, "illegal token: '#{token.inspect}'"
       end
     end
-    key = (root + a).join "/"
+    key = (root + a).join '/'
     # this is a wild hack - we need to save the key, so we can possibly split the next
     # literal. The real fix is to translate the xpath into SQL directly
     @last_key = key

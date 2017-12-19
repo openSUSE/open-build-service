@@ -62,13 +62,13 @@ xml.project(project_attributes) do
       end
       repo.path_elements.includes(:link).each do |pe|
         if pe.link.remote_project_name.present?
-          project_name = pe.link.project.name + ":" + pe.link.remote_project_name
+          project_name = pe.link.project.name + ':' + pe.link.remote_project_name
         else
           project_name = pe.link.project.name
         end
         xml_repository.path(:project => project_name, :repository => pe.link.name)
       end
-      repo.repository_architectures.joins(:architecture).pluck("architectures.name").each do |arch|
+      repo.repository_architectures.joins(:architecture).pluck('architectures.name').each do |arch|
         xml_repository.arch arch
       end
     end

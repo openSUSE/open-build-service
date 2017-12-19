@@ -79,5 +79,5 @@ end
 CONFIG['extended_backend_log'] = true
 CONFIG['response_schema_validation'] = true
 
-CONFIG['frontend_host'] = "localhost"
-CONFIG['frontend_protocol'] = "http"
+CONFIG['frontend_host'] = 'localhost'
+CONFIG['frontend_protocol'] = 'http'

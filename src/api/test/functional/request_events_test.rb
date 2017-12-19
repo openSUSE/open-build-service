@@ -52,7 +52,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
       actions.times do
         body += "<action type='add_role'><target project='home:tom'/><person name='Iggy' role='reviewer'/></action>\n"
       end
-      body += "</request>"
+      body += '</request>'
       post '/request?cmd=create', params: body
       assert_response :success
       req = Xmlhash.parse(@response.body)
@@ -118,7 +118,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post '/request?cmd=create',
            params: "<request><action type='add_role'><target project='kde4' package='kdelibs'/><person name='Iggy' role='reviewer'/></action>"\
-                   "</request>"
+                   '</request>'
       assert_response :success
       myid = Xmlhash.parse(@response.body)['id']
       SendEventEmailsJob.new.perform

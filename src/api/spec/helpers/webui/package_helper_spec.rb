@@ -4,7 +4,7 @@ require 'rantly/rspec_extensions'
 RSpec.describe Webui::PackageHelper, type: :helper do
   describe '#nbsp' do
     it 'produces a SafeBuffer' do
-      sanitized_string = nbsp("a")
+      sanitized_string = nbsp('a')
       expect(sanitized_string).to be_a(ActiveSupport::SafeBuffer)
     end
 
@@ -14,14 +14,14 @@ RSpec.describe Webui::PackageHelper, type: :helper do
     end
 
     it 'converts space to nbsp' do
-      sanitized_string = nbsp("my file")
+      sanitized_string = nbsp('my file')
       expect(sanitized_string).to eq('my&nbsp;file')
     end
 
     it 'breaks up long strings' do
-      long_string = "a" * 50 + "b" * 50 + "c" * 10
+      long_string = 'a' * 50 + 'b' * 50 + 'c' * 10
       sanitized_string = nbsp(long_string)
-      expect(long_string.scan(/.{1,50}/).join("<wbr>")).to eq(sanitized_string)
+      expect(long_string.scan(/.{1,50}/).join('<wbr>')).to eq(sanitized_string)
     end
   end
 
@@ -69,8 +69,8 @@ RSpec.describe Webui::PackageHelper, type: :helper do
   end
 
   describe '#guess_code_class' do
-    RSpec.shared_examples "file with extension" do |extension, extension_class|
-      it "returns correct extension" do
+    RSpec.shared_examples 'file with extension' do |extension, extension_class|
+      it 'returns correct extension' do
         property_of do
           sized(1) { string(/[\w+\-:]/) } + sized(range(0, 190)) { string(/[\w+\-:\.]/) } + '.' + extension
         end.check(3) do |filename|
@@ -78,13 +78,13 @@ RSpec.describe Webui::PackageHelper, type: :helper do
         end
       end
     end
-    context "is xml" do
+    context 'is xml' do
       it { expect(guess_code_class('_aggregate')).to eq('xml') }
       it { expect(guess_code_class('_link')).to eq('xml') }
       it { expect(guess_code_class('_patchinfo')).to eq('xml') }
       it { expect(guess_code_class('_service')).to eq('xml') }
 
-      it "when it ends by .service" do
+      it 'when it ends by .service' do
         property_of do
           sized(range(1, 191)) { string(/./) } + '.service'
         end.check(3) do |filename|
@@ -92,14 +92,14 @@ RSpec.describe Webui::PackageHelper, type: :helper do
         end
       end
 
-      it_should_behave_like "file with extension", 'group', 'xml'
-      it_should_behave_like "file with extension", 'kiwi', 'xml'
-      it_should_behave_like "file with extension", 'product', 'xml'
-      it_should_behave_like "file with extension", 'xml', 'xml'
+      it_should_behave_like 'file with extension', 'group', 'xml'
+      it_should_behave_like 'file with extension', 'kiwi', 'xml'
+      it_should_behave_like 'file with extension', 'product', 'xml'
+      it_should_behave_like 'file with extension', 'xml', 'xml'
     end
 
-    context "is shell" do
-      it "with rc-scripts" do
+    context 'is shell' do
+      it 'with rc-scripts' do
         property_of do
           'rc' + sized(range(1, 197)) { string(/[\w-]/) }
         end.check(3) do |filename|
@@ -108,8 +108,8 @@ RSpec.describe Webui::PackageHelper, type: :helper do
       end
     end
 
-    context "is python" do
-      it "when it ends in rpmlintrc" do
+    context 'is python' do
+      it 'when it ends in rpmlintrc' do
         property_of do
           sized(range(0, 190)) { string(/./) } + 'rpmlintrc'
         end.check(3) do |filename|
@@ -118,16 +118,16 @@ RSpec.describe Webui::PackageHelper, type: :helper do
       end
     end
 
-    context "is makefile" do
-      it { expect(guess_code_class("debian.rules")).to eq 'makefile' }
+    context 'is makefile' do
+      it { expect(guess_code_class('debian.rules')).to eq 'makefile' }
     end
 
-    context "is baselibs" do
-      it { expect(guess_code_class("baselibs.conf")).to eq 'baselibs' }
+    context 'is baselibs' do
+      it { expect(guess_code_class('baselibs.conf')).to eq 'baselibs' }
     end
 
-    context "is spec" do
-      it "when it starts with macros." do
+    context 'is spec' do
+      it 'when it starts with macros.' do
         property_of do
           'macros.' + sized(range(1, 192)) { string(/\w/) }
         end.check(3) do |filename|
@@ -136,56 +136,56 @@ RSpec.describe Webui::PackageHelper, type: :helper do
       end
     end
 
-    context "is diff" do
-      it_should_behave_like "file with extension", 'patch', 'diff'
-      it_should_behave_like "file with extension", 'dif', 'diff'
-      it_should_behave_like "file with extension", 'diff', 'diff'
+    context 'is diff' do
+      it_should_behave_like 'file with extension', 'patch', 'diff'
+      it_should_behave_like 'file with extension', 'dif', 'diff'
+      it_should_behave_like 'file with extension', 'diff', 'diff'
     end
 
-    context "is perl" do
-      it_should_behave_like "file with extension", 'pl', 'perl'
-      it_should_behave_like "file with extension", 'pm', 'perl'
-      it_should_behave_like "file with extension", 'perl', 'perl'
+    context 'is perl' do
+      it_should_behave_like 'file with extension', 'pl', 'perl'
+      it_should_behave_like 'file with extension', 'pm', 'perl'
+      it_should_behave_like 'file with extension', 'perl', 'perl'
     end
 
-    context "is python" do
-      it_should_behave_like "file with extension", 'py', 'python'
+    context 'is python' do
+      it_should_behave_like 'file with extension', 'py', 'python'
     end
 
-    context "is ruby" do
-      it_should_behave_like "file with extension", 'rb', 'ruby'
+    context 'is ruby' do
+      it_should_behave_like 'file with extension', 'rb', 'ruby'
     end
 
-    context "is latex" do
-      it_should_behave_like "file with extension", 'tex', 'latex'
+    context 'is latex' do
+      it_should_behave_like 'file with extension', 'tex', 'latex'
     end
 
-    context "is javascript" do
-      it_should_behave_like "file with extension", 'js', 'javascript'
+    context 'is javascript' do
+      it_should_behave_like 'file with extension', 'js', 'javascript'
     end
 
-    context "is shell" do
-      it_should_behave_like "file with extension", 'sh', 'shell'
+    context 'is shell' do
+      it_should_behave_like 'file with extension', 'sh', 'shell'
     end
 
-    context "is rpm-spec" do
-      it_should_behave_like "file with extension", 'spec', 'rpm-spec'
+    context 'is rpm-spec' do
+      it_should_behave_like 'file with extension', 'spec', 'rpm-spec'
     end
 
-    context "is rpm-changes" do
-      it_should_behave_like "file with extension", 'changes', 'rpm-changes'
+    context 'is rpm-changes' do
+      it_should_behave_like 'file with extension', 'changes', 'rpm-changes'
     end
 
-    context "is php" do
-      it_should_behave_like "file with extension", 'php', 'php'
+    context 'is php' do
+      it_should_behave_like 'file with extension', 'php', 'php'
     end
 
-    context "is html" do
-      it_should_behave_like "file with extension", 'html', 'html'
+    context 'is html' do
+      it_should_behave_like 'file with extension', 'html', 'html'
     end
 
-    context "is dockerfile" do
-      it "when it starts with Dockerfile." do
+    context 'is dockerfile' do
+      it 'when it starts with Dockerfile.' do
         property_of do
           'Dockerfile.' + sized(range(1, 192)) { string(/\w/) }
         end.check(3) do |filename|
@@ -197,12 +197,12 @@ RSpec.describe Webui::PackageHelper, type: :helper do
       it { expect(guess_code_class('dockerfile')).to eq('dockerfile') }
     end
 
-    context "css" do
-      it_should_behave_like "file with extension", 'css', 'css'
+    context 'css' do
+      it_should_behave_like 'file with extension', 'css', 'css'
     end
 
-    context "other" do
-      it { expect(guess_code_class("other")).to eq '' }
+    context 'other' do
+      it { expect(guess_code_class('other')).to eq '' }
     end
   end
 

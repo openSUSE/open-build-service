@@ -28,8 +28,8 @@ module Kiwi
     # TODO: repo_type value depends on packagemanager element
     # https://doc.opensuse.org/projects/kiwi/doc/#sec.description.repository
     validates :repo_type, inclusion: { in: REPO_TYPES, message: "'%{value}' is not included in the list" }
-    validates :replaceable, inclusion: { in: [true, false], message: "has to be a boolean" }
-    validates :imageinclude, :prefer_license, inclusion: { in: [true, false], message: "has to be a boolean" }, allow_nil: true
+    validates :replaceable, inclusion: { in: [true, false], message: 'has to be a boolean' }
+    validates :imageinclude, :prefer_license, inclusion: { in: [true, false], message: 'has to be a boolean' }, allow_nil: true
     validates_associated :image, on: :update
 
     #### Class methods using self. (public and then private)
@@ -52,7 +52,7 @@ module Kiwi
         errors.add(:repo_type, "should be 'rpm-md' for obs:// repositories")
       end
       return if source_path_for_opensuse_repository?
-      errors.add(:source_path, "has an invalid format")
+      errors.add(:source_path, 'has an invalid format')
     end
 
     def to_xml

@@ -15,7 +15,7 @@ class PackageIssue < ApplicationRecord
         issues.map { |h| allissues += h.last }
 
         # drop not anymore existing relations
-        PackageIssue.where("package_id = ? AND NOT issue_id IN (?)", package, allissues).lock(true).delete_all
+        PackageIssue.where('package_id = ? AND NOT issue_id IN (?)', package, allissues).lock(true).delete_all
 
         # create missing in an efficient way
         sql = ApplicationRecord.connection

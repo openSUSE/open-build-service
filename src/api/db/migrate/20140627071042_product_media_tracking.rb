@@ -6,8 +6,8 @@ class ProductMediaTracking < ActiveRecord::Migration[4.2]
       t.string :medium
     end
 
-    execute("alter table product_media add foreign key (product_id) references products(id)")
-    execute("alter table product_media add foreign key (repository_id) references repositories(id)")
+    execute('alter table product_media add foreign key (product_id) references products(id)')
+    execute('alter table product_media add foreign key (repository_id) references repositories(id)')
   end
 
   def down

@@ -17,7 +17,7 @@ class UnregisteredUser < User
     if CONFIG['proxy_auth_mode'] == :on || CONFIG['ichain_mode'] == :on
       logger.debug 'Someone tried to register with "proxy_auth_mode" turned on'
       if CONFIG['proxy_auth_register_page'].blank?
-        err_msg = "Sorry, please sign up using the authentification proxy"
+        err_msg = 'Sorry, please sign up using the authentification proxy'
       else
         err_msg = "Sorry, please sign up using #{CONFIG['proxy_auth_register_page']}"
       end
@@ -32,7 +32,7 @@ class UnregisteredUser < User
     end
 
     # Turn on registration if it's enabled
-    if ["allow", "confirmation"].include?(::Configuration.registration)
+    if ['allow', 'confirmation'].include?(::Configuration.registration)
       return true
     end
 
@@ -45,7 +45,7 @@ class UnregisteredUser < User
     can_register?
 
     opts[:note] = nil unless User.current && User.current.is_admin?
-    state = ::Configuration.registration == 'allow' ? "confirmed" : "unconfirmed"
+    state = ::Configuration.registration == 'allow' ? 'confirmed' : 'unconfirmed'
 
     newuser = User.create(
       login:                 opts[:login],
@@ -53,7 +53,7 @@ class UnregisteredUser < User
       email:                 opts[:email]
     )
 
-    newuser.realname = opts[:realname] || ""
+    newuser.realname = opts[:realname] || ''
     newuser.state = state
     newuser.adminnote = opts[:note]
     logger.debug("Saving new user #{newuser.login}")
@@ -63,9 +63,9 @@ class UnregisteredUser < User
       raise ErrRegisterSave, "Could not save the registration, details: #{newuser.errors.full_messages.to_sentence}"
     end
 
-    return unless newuser.state == "unconfirmed"
+    return unless newuser.state == 'unconfirmed'
 
-    raise ErrRegisterSave, "Thank you for signing up! An admin has to confirm your account now. Please be patient."
+    raise ErrRegisterSave, 'Thank you for signing up! An admin has to confirm your account now. Please be patient.'
   end
 end
 

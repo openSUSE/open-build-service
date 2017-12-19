@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 
 SimpleCov.command_name 'test:api'
 
@@ -26,14 +26,14 @@ class PackageTest < ActiveSupport::TestCase
 
     # check the results
     xml = REXML::Document.new(xml_string)
-    assert_equal 1, xml.root.get_elements("/package/build").size
-    assert_equal 2, xml.root.get_elements("/package/build/*").size
+    assert_equal 1, xml.root.get_elements('/package/build').size
+    assert_equal 2, xml.root.get_elements('/package/build/*').size
 
-    assert_equal 1, xml.root.get_elements("/package/publish").size
-    assert_equal 1, xml.root.get_elements("/package/publish/*").size
+    assert_equal 1, xml.root.get_elements('/package/publish').size
+    assert_equal 1, xml.root.get_elements('/package/publish/*').size
 
-    assert_equal 1, xml.root.get_elements("/package/debuginfo").size
-    assert_equal 1, xml.root.get_elements("/package/debuginfo/*").size
+    assert_equal 1, xml.root.get_elements('/package/debuginfo').size
+    assert_equal 1, xml.root.get_elements('/package/debuginfo/*').size
   end
 
   def test_add_new_flags_from_xml
@@ -122,12 +122,12 @@ class PackageTest < ActiveSupport::TestCase
 
   def test_render
     xml = packages(:kde4_kdelibs).render_xml
-    assert_equal Xmlhash.parse(xml), { "name" => "kdelibs",
-                                      "project" => "kde4", "title" => "blub", "description" => "blub",
-                                      "devel" => { "project" => "home:coolo:test", "package" => "kdelibs_DEVEL_package" },
-                                      "person" => [{ "userid" => "fredlibs", "role" => "maintainer" },
-                                                   { "userid" => "adrian", "role" => "reviewer" }],
-                                      "group" => { "groupid" => "test_group", "role" => "maintainer" } }
+    assert_equal Xmlhash.parse(xml), { 'name' => 'kdelibs',
+                                      'project' => 'kde4', 'title' => 'blub', 'description' => 'blub',
+                                      'devel' => { 'project' => 'home:coolo:test', 'package' => 'kdelibs_DEVEL_package' },
+                                      'person' => [{ 'userid' => 'fredlibs', 'role' => 'maintainer' },
+                                                   { 'userid' => 'adrian', 'role' => 'reviewer' }],
+                                      'group' => { 'groupid' => 'test_group', 'role' => 'maintainer' } }
   end
 
   def test_can_be_deleted
@@ -210,7 +210,7 @@ class PackageTest < ActiveSupport::TestCase
     end
   end
 
-  test "invalid names are catched" do
+  test 'invalid names are catched' do
     @package.name = '_coolproject'
     assert !@package.save
     assert_raise(ActiveRecord::RecordInvalid) do
@@ -229,7 +229,7 @@ class PackageTest < ActiveSupport::TestCase
     assert @package.valid?
   end
 
-  test "utf8 input" do
+  test 'utf8 input' do
     xml = '<package name="libconfig" project="home:coolo">
   <title>libconfig &#8211; C/C++ Configuration File Library</title>
   <description>Libconfig is a simple library for processing structured configuration files,
@@ -265,7 +265,7 @@ class PackageTest < ActiveSupport::TestCase
       Timecop.freeze(2010, 3, 1)
       assert_in_delta(12.9, newyear.activity, 0.2)
 
-      newyear.title = "Just a silly update"
+      newyear.title = 'Just a silly update'
       newyear.save
       assert_in_delta(22.9, newyear.activity, 0.2)
 
@@ -275,43 +275,43 @@ class PackageTest < ActiveSupport::TestCase
       Timecop.freeze(2010, 5, 1)
       assert_in_delta(14.7, newyear.activity, 0.2)
 
-      newyear.title = "Just a silly update 2"
+      newyear.title = 'Just a silly update 2'
       newyear.save
       assert_in_delta(24.7, newyear.activity, 0.2)
-      newyear.title = "Just a silly update 3"
+      newyear.title = 'Just a silly update 3'
       newyear.save
       # activity stays the same  now
       assert_in_delta(24.7, newyear.activity, 0.2)
 
       # an hour later perhaps?
       Timecop.freeze(3600)
-      newyear.title = "Just a silly update 4"
+      newyear.title = 'Just a silly update 4'
       newyear.save
       assert_in_delta(25.1, newyear.activity, 0.2)
 
       # and commit every day?
       Timecop.freeze(90000)
-      newyear.title = "Just a silly update 5"
+      newyear.title = 'Just a silly update 5'
       newyear.save
       assert_in_delta(34.9, newyear.activity, 0.2)
 
       Timecop.freeze(90000)
-      newyear.title = "Just a silly update 6"
+      newyear.title = 'Just a silly update 6'
       newyear.save
       assert_in_delta(44.6, newyear.activity, 0.2)
 
       Timecop.freeze(90000)
-      newyear.title = "Just a silly update 7"
+      newyear.title = 'Just a silly update 7'
       newyear.save
       assert_in_delta(54.2, newyear.activity, 0.2)
 
       Timecop.freeze(90000)
-      newyear.title = "Just a silly update 8"
+      newyear.title = 'Just a silly update 8'
       newyear.save
       assert_in_delta(63.8, newyear.activity, 0.2)
 
       Timecop.freeze(90000)
-      newyear.title = "Just a silly update 8"
+      newyear.title = 'Just a silly update 8'
       newyear.save
       assert_in_delta(72.7, newyear.activity, 0.2)
     end

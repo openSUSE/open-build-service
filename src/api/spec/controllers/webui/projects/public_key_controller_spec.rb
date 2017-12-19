@@ -3,7 +3,7 @@ require 'webmock/rspec'
 
 RSpec.describe Webui::Projects::PublicKeyController, type: :controller do
   describe 'GET #show' do
-    let(:project) { create(:project, name: "test_project", title: "Test Project") }
+    let(:project) { create(:project, name: 'test_project', title: 'Test Project') }
 
     before do
       Rails.cache.clear

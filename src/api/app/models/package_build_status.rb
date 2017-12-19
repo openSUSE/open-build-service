@@ -1,6 +1,6 @@
 class PackageBuildStatus
   class NoRepositoriesFound < APIException
-    setup 404, "No repositories build against target"
+    setup 404, 'No repositories build against target'
   end
 
   class FailedToRetrieveBuildInfo < APIException
@@ -40,7 +40,7 @@ class PackageBuildStatus
       end
     end
     archs.uniq!
-    raise NoRepositoriesFound, "Can not find repository building against target" unless trepo
+    raise NoRepositoriesFound, 'Can not find repository building against target' unless trepo
 
     gather_target_packages(trepo)
 
@@ -69,7 +69,7 @@ class PackageBuildStatus
 
     # if the package does not appear in build history, check flags
     unless @everbuilt
-      buildflag = @pkg.find_flag_state("build", srep['name'], arch)
+      buildflag = @pkg.find_flag_state('build', srep['name'], arch)
       if buildflag == 'disable'
         @buildcode = 'disabled'
       end
@@ -89,7 +89,7 @@ class PackageBuildStatus
   end
 
   def gather_current_buildcode(srep, arch)
-    @buildcode = "unknown"
+    @buildcode = 'unknown'
     begin
       package = CGI.escape(@multibuild_pkg || @pkg.name)
       resultlist = Xmlhash.parse(Backend::Api::BuildResults::Status.build_result(@pkg.project.name, package, srep['name'], arch))
@@ -100,10 +100,10 @@ class PackageBuildStatus
     rescue ActiveXML::Transport::Error
       currentcode = nil
     end
-    if currentcode.in?(["unresolvable", "failed", "broken"])
+    if currentcode.in?(['unresolvable', 'failed', 'broken'])
       @buildcode = 'failed'
     end
-    if currentcode.in?(["building", "scheduled", "finished", "signing", "blocked"])
+    if currentcode.in?(['building', 'scheduled', 'finished', 'signing', 'blocked'])
       @buildcode = 'building'
     end
     if currentcode == 'excluded'
@@ -131,7 +131,7 @@ class PackageBuildStatus
         raise FailedToRetrieveBuildInfo, "Can't get buildinfo: #{e.summary}"
       end
 
-      buildinfo.get("package").elements("pkgdep") do |b|
+      buildinfo.get('package').elements('pkgdep') do |b|
         unless @tpackages.has_key? b
           missingdeps << b
         end

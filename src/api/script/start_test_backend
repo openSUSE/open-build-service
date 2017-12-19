@@ -10,12 +10,12 @@ include Backend::Test::Tasks
 port_src_server = 3200
 port_rep_server = 3201
 port_service_server = 3202
-backend_dir_suffix = ""
+backend_dir_suffix = ''
 if ENV['origin_RAILS_ENV'] == 'development'
   port_src_server = 6200
   port_rep_server = 6201
   port_service_server = 6202
-  backend_dir_suffix = "_development"
+  backend_dir_suffix = '_development'
 end
 
 backendtempdir = ENV['OBS_BACKEND_TEMP'] || "#{Rails.root}/tmp"
@@ -229,7 +229,7 @@ Project.all.each do |p|
   Backend::Connection.put("/source/#{CGI.escape(p.name)}/_meta?user=king&comment=fixtures", p.to_axml)
 end
 Package.all.each do |p|
-  next if p.name.starts_with? "_product:"
+  next if p.name.starts_with? '_product:'
   Backend::Connection.put("/source/#{CGI.escape(p.project.name)}/#{CGI.escape(p.name)}/_meta?user=king&comment=fixtures", p.to_axml)
 end
 Backend::Connection.put('/issue_trackers', IssueTracker.all.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS))
@@ -241,23 +241,23 @@ Backend::Connection.put('/source/BaseDistro/Pack3/my_file?user=king', 'just a fi
 Backend::Connection.put('/source/BaseDistro/_product/fixed.product?user=king',
                         File.open("#{Rails.root}/test/fixtures/backend/source/fixed_product/fixed.product").read)
 Backend::Connection.put('/source/BaseDistro/patchinfo/_patchinfo?user=king', File.open("#{Rails.root}/test/fixtures/backend/source/_patchinfo").read)
-Backend::Connection.put('/source/BaseDistro2.0/_config?user=king', "Type: spec")
+Backend::Connection.put('/source/BaseDistro2.0/_config?user=king', 'Type: spec')
 # set vrev like it get created with makeolder=1
 Backend::Connection.post('/source/BaseDistro2.0/pack2?cmd=commitfilelist&vrev=2.3&version=1.0&user=king', '<directory/>')
 Backend::Connection.put('/source/BaseDistro2.0/pack2/myfile?user=king', 'DummyContent of BaseDistro2.0/pack2')
 Backend::Connection.put('/source/BaseDistro2.0/pack2/package.spec?user=king',
                         File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
 Backend::Connection.put('/source/BaseDistro2.0/pack2.linked/_link?user=king', "<link package=\"pack2\" cicount='copy' />")
-Backend::Connection.put('/source/BaseDistro2.0:LinkedUpdateProject/_config?user=king', "cicntstart: 42.1")
+Backend::Connection.put('/source/BaseDistro2.0:LinkedUpdateProject/_config?user=king', 'cicntstart: 42.1')
 Backend::Connection.put('/source/BaseDistro3/_config?user=king', "Type: spec\nRepotype: rpm-md suse")
 Backend::Connection.put('/source/BaseDistro3/pack2/pack2.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
 Backend::Connection.put('/source/BaseDistro3/pack2/_multibuild?user=king', '<multibuild><package>package_multibuild</package></multibuild>')
 Backend::Connection.put('/source/BaseDistro3/pack2/package_multibuild.spec?user=king',
                         File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
-Backend::Connection.put('/source/BaseDistro:Update/pack2/_link?user=king', "<link project=\"BaseDistro\" package=\"pack2\" />")
-Backend::Connection.put('/source/Devel:BaseDistro:Update/pack2/_link?user=king', "<link project=\"BaseDistro:Update\" package=\"pack2\" />")
+Backend::Connection.put('/source/BaseDistro:Update/pack2/_link?user=king', '<link project="BaseDistro" package="pack2" />')
+Backend::Connection.put('/source/Devel:BaseDistro:Update/pack2/_link?user=king', '<link project="BaseDistro:Update" package="pack2" />')
 Backend::Connection.put('/source/Devel:BaseDistro:Update/pack2/from_devel_project?user=king', 'no content')
-Backend::Connection.put('/source/Devel:BaseDistro:Update/Pack3/_link?user=king', "<link project=\"BaseDistro:Update\" package=\"Pack3\" />")
+Backend::Connection.put('/source/Devel:BaseDistro:Update/Pack3/_link?user=king', '<link project="BaseDistro:Update" package="Pack3" />')
 Backend::Connection.put('/source/Devel:BaseDistro:Update/Pack3/from_devel_project?user=king', 'no content')
 # HiddenProject (access flag)
 Backend::Connection.put('/source/HiddenProject/_config?user=king', 'Type: spec')
@@ -284,7 +284,7 @@ Backend::Connection.put('/source/CopyTest/test/package.spec?user=king', File.ope
 Backend::Connection.put('/source/Apache/apache2/my_file?user=king', 'just a file')
 Backend::Connection.put('/source/Apache/libapr-util1/onefile?user=king', 'just another file')
 
-Backend::Connection.put('/source/LocalProject/remotepackage/_link?user=king', "<link project=\"RemoteInstance:BaseDistro\" package=\"pack1\" />")
+Backend::Connection.put('/source/LocalProject/remotepackage/_link?user=king', '<link project="RemoteInstance:BaseDistro" package="pack1" />')
 Backend::Connection.put('/source/home:adrian:ProtectionTest/_config?user=king', 'Type: spec')
 Backend::Connection.put('/source/home:adrian:ProtectionTest/aggregate/_aggregate?user=king',
                         '<aggregatelist><aggregate project="SourceprotectedProject"><package>pack</package></aggregate></aggregatelist>')
@@ -320,10 +320,10 @@ FileUtils.mkdir "#{backend_data}/workers/idle"
 FileUtils.cp("#{Rails.root}/test/fixtures/backend/x86_64:build33:1", "#{backend_data}/workers/idle/")
 
 # fix port number in remote projects
-ri = Project.find_by_name "RemoteInstance"
+ri = Project.find_by_name 'RemoteInstance'
 ri.remoteurl = "http://localhost:#{port_src_server}"
 ri.store
-hri = Project.find_by_name "HiddenRemoteInstance"
+hri = Project.find_by_name 'HiddenRemoteInstance'
 hri.remoteurl = "http://localhost:#{port_src_server}"
 hri.store
 
@@ -388,7 +388,7 @@ scheduler_thread = Thread.new do
   inject_build_job('SourceprotectedProject', 'pack', 'repo', 'i586')
   inject_build_job('BrokenPublishing', 'pack_broken_publish', 'BrokenPublishing_repo', 'i586')
   inject_build_job('BaseDistro3', 'pack2:package_multibuild', 'BaseDistro3_repo', 'i586')
-  inject_build_job('BaseDistro3', 'pack2', 'BaseDistro3_repo', 'i586', "package_newweaktags-1.0-1.x86_64.rpm")
+  inject_build_job('BaseDistro3', 'pack2', 'BaseDistro3_repo', 'i586', 'package_newweaktags-1.0-1.x86_64.rpm')
 
   # upload a binary file to repository directly
   Backend::Connection.put('/build/home:Iggy/10.2/i586/_repository/delete_me.rpm?wipe=1',

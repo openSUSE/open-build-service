@@ -57,8 +57,8 @@ class Project < ApplicationRecord
   has_many :repositories, dependent: :destroy, foreign_key: :db_project_id
   has_many :path_elements, through: :repositories
   has_many :linked_repositories, through: :path_elements, source: :link, foreign_key: :repository_id
-  has_many :repository_architectures, -> { order("position") }, through: :repositories
-  has_many :architectures, -> { order("position").distinct }, through: :repository_architectures
+  has_many :repository_architectures, -> { order('position') }, through: :repositories
+  has_many :architectures, -> { order('position').distinct }, through: :repository_architectures
 
   has_many :messages, as: :db_object, dependent: :delete_all
   has_many :watched_projects, dependent: :destroy, inverse_of: :project
@@ -102,11 +102,11 @@ class Project < ApplicationRecord
   scope :home, -> { where("name like 'home:%'") }
   scope :not_home, -> { where.not("name like 'home:%'") }
   scope :filtered_for_list, lambda {
-    where.not("name rlike ?", ::Configuration.unlisted_projects_filter) if ::Configuration.unlisted_projects_filter.present?
+    where.not('name rlike ?', ::Configuration.unlisted_projects_filter) if ::Configuration.unlisted_projects_filter.present?
   }
   scope :remote, -> { where('NOT ISNULL(projects.remoteurl)') }
   scope :autocomplete, lambda { |search|
-    where("lower(name) like lower(?)", "#{search}%").where.not("lower(name) like lower(?)", "#{search}%:%")
+    where('lower(name) like lower(?)', "#{search}%").where.not('lower(name) like lower(?)', "#{search}%:%")
   }
 
   # will return all projects with attribute 'OBS:ImageTemplates'
@@ -249,14 +249,14 @@ class Project < ApplicationRecord
   end
 
   def subprojects
-    Project.where("name like ?", "#{name}:%")
+    Project.where('name like ?', "#{name}:%")
   end
 
   def siblingprojects
     parent_name = parent.try(:name)
     siblings = Array.new
     if parent_name
-      Project.where("name like (?) and name != (?)", "#{parent_name}:%", name).order(:name).each do |sib|
+      Project.where('name like (?) and name != (?)', "#{parent_name}:%", name).order(:name).each do |sib|
         sib_parent = sib.possible_ancestor_names.first
         siblings << sib if sib_parent == parent_name
       end
@@ -265,7 +265,7 @@ class Project < ApplicationRecord
   end
 
   def maintained_project_names
-    maintained_projects.includes(:project).pluck("projects.name")
+    maintained_projects.includes(:project).pluck('projects.name')
   end
 
   def add_maintainer(user)
@@ -511,7 +511,7 @@ class Project < ApplicationRecord
     # returns true if NONE of the defined release targets are used
     repositories.includes(:release_targets).each do |repo|
       repo.release_targets.each do |rt|
-        return false unless rt.trigger == "maintenance"
+        return false unless rt.trigger == 'maintenance'
       end
     end
     true
@@ -766,7 +766,7 @@ class Project < ApplicationRecord
       flag_default = FlagHelper.default_for(flag_name)
       archs = Array.new
       flagret = Array.new
-      unless flag_name.in?(["lock", "access", "sourceaccess"])
+      unless flag_name.in?(['lock', 'access', 'sourceaccess'])
         repos.each do |repo|
           flagret << flag_status(flag_default, repo.name, nil, flaglist, pkg_flags)
           repo.architectures.each do |arch|
@@ -904,7 +904,7 @@ class Project < ApplicationRecord
     return [] if project_map[self]
     project_map[self] = 1
 
-    self.packages.joins(:project).pluck(:name, "projects.name").each do |name, prj_name|
+    self.packages.joins(:project).pluck(:name, 'projects.name').each do |name, prj_name|
       next if package_map[name]
       packages << [name, prj_name]
       package_map[name] = 1
@@ -948,7 +948,7 @@ class Project < ApplicationRecord
   def add_repository_targets(trepo, source_repo, add_target_repos = [], opts = {})
     trepo.clone_repository_from(source_repo)
     trepo.rebuild = opts[:rebuild] if opts[:rebuild]
-    trepo.rebuild = source_repo.rebuild if opts[:rebuild] == "copy"
+    trepo.rebuild = source_repo.rebuild if opts[:rebuild] == 'copy'
     trepo.block   = opts[:block] if opts[:block]
     trepo.save
 
@@ -1044,11 +1044,11 @@ class Project < ApplicationRecord
     remote_repositories -= repositories.where(name: remote_repositories).pluck(:name)
 
     remote_repositories.each do |repository|
-      repository_node = local_project_meta.create_element("repository")
-      repository_node["name"] = repository
+      repository_node = local_project_meta.create_element('repository')
+      repository_node['name'] = repository
 
       # if it is kiwi type
-      if repository == "images"
+      if repository == 'images'
         path_elements = remote_project_meta.xpath("//repository[@name='images']/path")
 
         prjconf = source_file('_config')
@@ -1057,9 +1057,9 @@ class Project < ApplicationRecord
           Backend::Connection.put(source_path('_config'), prjconf)
         end
       else
-        path_elements = local_project_meta.create_element("path")
-        path_elements["project"] = project
-        path_elements["repository"] = repository
+        path_elements = local_project_meta.create_element('path')
+        path_elements['project'] = project
+        path_elements['repository'] = repository
       end
       repository_node.add_child(path_elements)
 
@@ -1099,7 +1099,7 @@ class Project < ApplicationRecord
           next unless path.link.project.kind == ipe.link.project.kind
           # is this path pointing to some repository which is used in another
           # of my repositories?
-          repositories.joins(:path_elements).where("path_elements.repository_id = ?", ipe.link).find_each do |my_repo|
+          repositories.joins(:path_elements).where('path_elements.repository_id = ?', ipe.link).find_each do |my_repo|
             next if my_repo == repo # do not add my self
             next if repo.path_elements.where(link: my_repo).count > 0
             elements = repo.path_elements.where(position: ipe.position)
@@ -1112,7 +1112,7 @@ class Project < ApplicationRecord
             cycle_detection[elements.first.id] = true
             if elements.count > 1
               # note: we don't enforce a unique entry by position atm....
-              repo.path_elements.where("position = ipe.position AND NOT id = ?", elements.first.id).delete_all
+              repo.path_elements.where('position = ipe.position AND NOT id = ?', elements.first.id).delete_all
             end
           end
         end
@@ -1131,7 +1131,7 @@ class Project < ApplicationRecord
     # - omit 'lock' or we cannot create packages
     disable_publish_for_branches = ::Configuration.disable_publish_for_branches || project.image_template?
     project.flags.each do |f|
-      next if f.flag.in?(["build", "lock"])
+      next if f.flag.in?(['build', 'lock'])
       next if f.flag == 'publish' && disable_publish_for_branches
       # NOTE: it does not matter if that flag is set to enable or disable, so we do not check fro
       #       for same flag status here explizit
@@ -1223,7 +1223,7 @@ class Project < ApplicationRecord
     User.current ||= User.find_by_login(params[:user])
 
     packages.each do |pkg|
-      next if pkg.name == "_product" # will be handled via _product:*
+      next if pkg.name == '_product' # will be handled via _product:*
       pkg.project.repositories.each do |repo|
         next if params[:repository] && params[:repository] != repo.name
         repo.release_targets.each do |releasetarget|
@@ -1268,7 +1268,7 @@ class Project < ApplicationRecord
 
   def self.valid_name?(name)
     return false unless name.kind_of? String
-    return false if name == "0";
+    return false if name == '0';
     return false if name =~ /::/
     return false if name.end_with?(':')
     return true if name =~ /\A[a-zA-Z0-9][-+\w\.:]{0,199}\z/
@@ -1392,7 +1392,7 @@ class Project < ApplicationRecord
     f = flags.find_by_flag_and_status('lock', 'enable')
     return unless f
     flags.delete(f)
-    store(comment: "Request got revoked", request: request, lowprio: 1)
+    store(comment: 'Request got revoked', request: request, lowprio: 1)
   end
 
   # lock the project for the scheduler for atomic change when using multiple operations
@@ -1447,12 +1447,12 @@ class Project < ApplicationRecord
     if repository && repository_states.has_key?(repository)
       return false if repository_states[repository].empty? # No buildresult is bad
       repository_states[repository].each do |state, _|
-        return false if state.in?(["broken", "failed", "unresolvable"])
+        return false if state.in?(['broken', 'failed', 'unresolvable'])
       end
     else
       return false unless states.empty? # No buildresult is bad
       states.each do |state, _|
-        return false if state.in?(["broken", "failed", "unresolvable"])
+        return false if state.in?(['broken', 'failed', 'unresolvable'])
       end
     end
     true
@@ -1746,9 +1746,9 @@ class Project < ApplicationRecord
   def collect_patchinfo_data(patchinfo)
     if patchinfo
       {
-        summary:  patchinfo.value("summary"),
-        category: patchinfo.value("category"),
-        stopped:  patchinfo.value("stopped")
+        summary:  patchinfo.value('summary'),
+        category: patchinfo.value('category'),
+        stopped:  patchinfo.value('stopped')
       }
     else
       {}

@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 
 class LastEventsTest < ActionDispatch::IntegrationTest
   def setup
@@ -8,7 +8,7 @@ class LastEventsTest < ActionDispatch::IntegrationTest
     Backend::Test.start(wait_for_scheduler: true)
   end
 
-  test "update lastevents" do
+  test 'update lastevents' do
     UpdatePackageMetaJob.new.perform
     # at least 3 links found
     assert_operator BackendPackage.links.count, :>=, 3
@@ -22,7 +22,7 @@ class LastEventsTest < ActionDispatch::IntegrationTest
     # now create a link
     login_king
     count_before = BackendPackage.links.count
-    delete "/source/BaseDistro2.0/pack2.linked/_link"
+    delete '/source/BaseDistro2.0/pack2.linked/_link'
     assert_response :success
 
     # the link should disappear in database

@@ -18,10 +18,10 @@ class AdminMailer < ActionMailer::Base
   end
 
   def error(message)
-    warning(message, "ERROR")
+    warning(message, 'ERROR')
   end
 
-  def warning(message, level = "Warning")
+  def warning(message, level = 'Warning')
     set_headers
 
     # FIXME/to be implemented:
@@ -33,7 +33,7 @@ class AdminMailer < ActionMailer::Base
     # the problems should get updated or removed when we detect changes.
 
     # find all admins. No opt-out atm
-    r = Role.find_by_title("Admin")
+    r = Role.find_by_title('Admin')
     admins = RolesUser.where(role: r).map { |ru| ru.user.email }
 
     mail(to: admins,

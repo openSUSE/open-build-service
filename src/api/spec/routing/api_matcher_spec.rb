@@ -1,15 +1,15 @@
 require 'rails_helper'
 
 RSpec.describe 'APIMatcher' do
-  it { expect(get("/distributions?format=xml")).to route_to(controller: 'distributions', action: 'index', format: 'xml') }
+  it { expect(get('/distributions?format=xml')).to route_to(controller: 'distributions', action: 'index', format: 'xml') }
 
   context '/public and /about path use API routes with html format' do
-    it { expect(get("/distributions?format=html")).to_not route_to(controller: 'distributions', action: 'index', format: 'html') }
-    it { expect(get("/distributions/about?format=html")).to_not route_to(controller: 'distributions', action: 'show', id: 'about', format: 'html') }
-    it { expect(get("/distributions/public?format=html")).to_not route_to(controller: 'distributions', action: 'show', id: 'public', format: 'html') }
+    it { expect(get('/distributions?format=html')).to_not route_to(controller: 'distributions', action: 'index', format: 'html') }
+    it { expect(get('/distributions/about?format=html')).to_not route_to(controller: 'distributions', action: 'show', id: 'about', format: 'html') }
+    it { expect(get('/distributions/public?format=html')).to_not route_to(controller: 'distributions', action: 'show', id: 'public', format: 'html') }
   end
 
-  RSpec.shared_examples "/public routes to PublicController independent of format" do |format|
+  RSpec.shared_examples '/public routes to PublicController independent of format' do |format|
     it { expect(get("/public?format=#{format}")).to route_to(controller: 'public', action: 'index', format: format) }
     it { expect(get("/about?format=#{format}")).to route_to(controller: 'about', action: 'index', format: format) }
     it { expect(get("/public/distributions?format=#{format}")).to route_to(controller: 'public', action: 'distributions', format: format) }
@@ -57,8 +57,8 @@ RSpec.describe 'APIMatcher' do
     }
   end
 
-  include_examples "/public routes to PublicController independent of format", "html"
-  include_examples "/public routes to PublicController independent of format", "xml"
+  include_examples '/public routes to PublicController independent of format', 'html'
+  include_examples '/public routes to PublicController independent of format', 'xml'
 
   it 'routes requests to global_command_* correctly' do
     expect(post('/source?cmd=orderkiwirepos')).to route_to(

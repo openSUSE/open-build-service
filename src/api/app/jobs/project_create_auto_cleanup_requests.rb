@@ -11,8 +11,8 @@ Such requests get not created for projects with open requests or if you remove t
     return unless cleanup_days && cleanup_days > 0
 
     # defaults
-    User.current ||= User.find_by_login "Admin"
-    @cleanup_attribute = AttribType.find_by_namespace_and_name!("OBS", "AutoCleanup")
+    User.current ||= User.find_by_login 'Admin'
+    @cleanup_attribute = AttribType.find_by_namespace_and_name!('OBS', 'AutoCleanup')
     @cleanup_time = DateTime.now + cleanup_days.days
 
     Project.find_by_attribute_type(@cleanup_attribute).each do |prj|
@@ -27,7 +27,7 @@ Such requests get not created for projects with open requests or if you remove t
     # open requests do block the cleanup
     open_requests_count = BsRequest.in_states([:new, :review, :declined]).
       joins(:bs_request_actions).
-      where("bs_request_actions.target_project = ? OR bs_request_actions.source_project = ?", prj.name, prj.name).
+      where('bs_request_actions.target_project = ? OR bs_request_actions.source_project = ?', prj.name, prj.name).
       count
     return if open_requests_count > 0
 

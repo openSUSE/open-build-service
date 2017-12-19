@@ -4,7 +4,7 @@ class Service < ActiveXML::Node
 
   #### Class methods using self. (public and then private)
   def self.make_stub(_opt)
-    "<services/>"
+    '<services/>'
   end
 
   def self.valid_name?(name)
@@ -40,21 +40,21 @@ class Service < ActiveXML::Node
 
     # default for download_url and download_src_package
     service_content = [
-      { name: "host", value: uri.host },
-      { name: "protocol", value: uri.scheme },
-      { name: "path", value: uri.path }
+      { name: 'host', value: uri.host },
+      { name: 'protocol', value: uri.scheme },
+      { name: 'path', value: uri.path }
     ]
-    unless (uri.scheme == "http" && uri.port == 80) ||
-           (uri.scheme == "https" && uri.port == 443) ||
-           (uri.scheme == "ftp" && uri.port == 21)
-      service_content << { name: "port", value: uri.port } # be nice and skip it for simpler _service file
+    unless (uri.scheme == 'http' && uri.port == 80) ||
+           (uri.scheme == 'https' && uri.port == 443) ||
+           (uri.scheme == 'ftp' && uri.port == 21)
+      service_content << { name: 'port', value: uri.port } # be nice and skip it for simpler _service file
     end
 
     if uri.path =~ /.src.rpm$/ || uri.path =~ /.spm$/ # download and extract source package
-      addService("download_src_package", service_content)
+      addService('download_src_package', service_content)
     else # just download
-      service_content << { name: "filename", value: filename } if filename.present?
-      addService("download_url", service_content)
+      service_content << { name: 'filename', value: filename } if filename.present?
+      addService('download_url', service_content)
     end
     true
   end

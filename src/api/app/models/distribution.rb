@@ -25,8 +25,8 @@ class Distribution < ApplicationRecord
 
   def to_hash
     res = attributes
-    res["architectures"] = architectures.map(&:name)
-    res["icons"] = icons.map(&:attributes)
+    res['architectures'] = architectures.map(&:name)
+    res['icons'] = icons.map(&:attributes)
     res
   end
 
@@ -41,7 +41,7 @@ class Distribution < ApplicationRecord
     Project.remote.each do |prj|
       body = Rails.cache.fetch("remote_distribution_#{prj.id}", expires_in: 1.hour) do
         begin
-          ActiveXML.backend.load_external_url(prj.remoteurl + "/distributions.xml")
+          ActiveXML.backend.load_external_url(prj.remoteurl + '/distributions.xml')
         rescue OpenSSL::SSL::SSLError
           # skip, but do not die if remote instance have invalid SSL
           Rails.logger.error "Remote instance #{prj.remoteurl} has no valid SSL certificate"
@@ -59,11 +59,11 @@ class Distribution < ApplicationRecord
           architecturelist << a.to_s
         end
         d.elements('icon') do |i|
-          iconlist << { "width" => i['width'], "height" => i['height'], "url" => i['url'] }
+          iconlist << { 'width' => i['width'], 'height' => i['height'], 'url' => i['url'] }
         end
-        list << { "vendor" => d['vendor'], "version" => d['version'], "name" => d['name'],
-          "project" => prj.name + ":" + d['project'], "architectures" => architecturelist, "icons" => iconlist,
-          "reponame" => d['reponame'], "repository" => d['repository'], "link" => d['link'] }
+        list << { 'vendor' => d['vendor'], 'version' => d['version'], 'name' => d['name'],
+          'project' => prj.name + ':' + d['project'], 'architectures' => architecturelist, 'icons' => iconlist,
+          'reponame' => d['reponame'], 'repository' => d['repository'], 'link' => d['link'] }
       end
     end
     list

@@ -104,7 +104,7 @@ class ApplicationController < ActionController::Base
   end
 
   def add_api_version
-    response.headers["X-Opensuse-APIVersion"] = (CONFIG['version']).to_s
+    response.headers['X-Opensuse-APIVersion'] = (CONFIG['version']).to_s
   end
 
   def volley_backend_path(path)
@@ -152,10 +152,10 @@ class ApplicationController < ActionController::Base
     query_string = request.query_string
     if request.form_data?
       # it's uncommon, but possible that we have both
-      query_string += "&" if query_string.present?
+      query_string += '&' if query_string.present?
       query_string += request.raw_post
     end
-    query_string = "?" + query_string if query_string.present?
+    query_string = '?' + query_string if query_string.present?
     path + query_string
   end
 
@@ -185,26 +185,26 @@ class ApplicationController < ActionController::Base
     end
 
     text = response.body
-    send_data(text, type: response.fetch("content-type"),
-      disposition: "inline")
+    send_data(text, type: response.fetch('content-type'),
+      disposition: 'inline')
     text
   end
   public :pass_to_backend
 
   rescue_from ActiveRecord::RecordInvalid do |exception|
-    render_error status: 400, errorcode: "invalid_record", message: exception.record.errors.full_messages.join('\n')
+    render_error status: 400, errorcode: 'invalid_record', message: exception.record.errors.full_messages.join('\n')
   end
 
   rescue_from ActiveXML::Transport::Error do |exception|
-    render_error status: exception.code, errorcode: "uncaught_exception", message: exception.summary
+    render_error status: exception.code, errorcode: 'uncaught_exception', message: exception.summary
   end
 
   rescue_from Timeout::Error do |exception|
-    render_error status: 408, errorcode: "timeout_error", message: exception.message
+    render_error status: 408, errorcode: 'timeout_error', message: exception.message
   end
 
   rescue_from ActiveXML::ParseError do
-    render_error status: 400, errorcode: 'invalid_xml', message: "Invalid XML"
+    render_error status: 400, errorcode: 'invalid_xml', message: 'Invalid XML'
   end
 
   rescue_from APIException do |exception|
@@ -224,7 +224,7 @@ class ApplicationController < ActionController::Base
       xml = ActiveXML::Node.new(text)
       http_status = xml.value('code')
       unless xml.has_attribute? 'origin'
-        xml.set_attribute "origin", "backend"
+        xml.set_attribute 'origin', 'backend'
       end
       text = xml.dump_xml
     rescue ActiveXML::ParseError
@@ -233,11 +233,11 @@ class ApplicationController < ActionController::Base
   end
 
   rescue_from Project::WritePermissionError do |exception|
-    render_error status: 403, errorcode: "modify_project_no_permission", message: exception.message
+    render_error status: 403, errorcode: 'modify_project_no_permission', message: exception.message
   end
 
   rescue_from Package::WritePermissionError do |exception|
-    render_error status: 403, errorcode: "modify_package_no_permission", message: exception.message
+    render_error status: 403, errorcode: 'modify_package_no_permission', message: exception.message
   end
 
   rescue_from ActiveXML::Transport::NotFoundError, ActiveRecord::RecordNotFound do |exception|
@@ -249,18 +249,18 @@ class ApplicationController < ActionController::Base
   end
 
   rescue_from Pundit::NotAuthorizedError do |exception|
-    message = "You are not authorized to perform this action."
+    message = 'You are not authorized to perform this action.'
 
     pundit_action =
       case exception.try(:query).to_s
-      when "index?" then "list"
-      when "show?" then "view"
-      when "create?" then "create"
-      when "new?" then "create"
-      when "update?" then "update"
-      when "edit?" then "edit"
-      when "destroy?" then "delete"
-      when "branch?" then "branch"
+      when 'index?' then 'list'
+      when 'show?' then 'view'
+      when 'create?' then 'create'
+      when 'new?' then 'create'
+      when 'update?' then 'update'
+      when 'edit?' then 'edit'
+      when 'destroy?' then 'delete'
+      when 'branch?' then 'branch'
       else exception.try(:query)
       end
 
@@ -298,20 +298,20 @@ class ApplicationController < ActionController::Base
     end
 
     if @status == 401
-      unless response.headers["WWW-Authenticate"]
+      unless response.headers['WWW-Authenticate']
         if CONFIG['kerberos_mode']
-          response.headers["WWW-Authenticate"] = 'Negotiate'
+          response.headers['WWW-Authenticate'] = 'Negotiate'
         else
-          response.headers["WWW-Authenticate"] = 'basic realm="API login"'
+          response.headers['WWW-Authenticate'] = 'basic realm="API login"'
         end
       end
     end
     if @status == 404
-      @summary ||= "Not found"
-      @errorcode ||= "not_found"
+      @summary ||= 'Not found'
+      @errorcode ||= 'not_found'
     end
 
-    @summary ||= "Internal Server Error"
+    @summary ||= 'Internal Server Error'
 
     if @exception
       @errorcode ||= 'uncaught_exception'
@@ -340,15 +340,15 @@ class ApplicationController < ActionController::Base
 
   def render_ok(opt = {})
     # keep compatible to old call style
-    @errorcode = "ok"
-    @summary = "Ok"
+    @errorcode = 'ok'
+    @summary = 'Ok'
     @data = opt[:data] if opt[:data]
     render template: 'status', status: 200
   end
 
   def render_invoked(opt = {})
-    @errorcode = "invoked"
-    @summary = "Job invoked"
+    @errorcode = 'invoked'
+    @summary = 'Job invoked'
     @data = opt[:data] if opt[:data]
     render template: 'status', status: 200
   end
@@ -423,7 +423,7 @@ class ApplicationController < ActionController::Base
 
   def forward_from_backend(path)
     # apache & mod_xforward case
-    if CONFIG['use_xforward'] && CONFIG['use_xforward'] != "false"
+    if CONFIG['use_xforward'] && CONFIG['use_xforward'] != 'false'
       logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
       headers['X-Forward'] = "http://#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
       headers['Cache-Control'] = 'no-transform' # avoid compression

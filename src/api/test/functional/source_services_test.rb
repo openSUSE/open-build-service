@@ -81,7 +81,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
 
     put '/source/home:tom/service/_service', params: '<services> <service name="not_existing" /> </services>'
     assert_response :success
-    assert_nil Package.find_by_project_and_name("home:tom", "service").backend_package.error
+    assert_nil Package.find_by_project_and_name('home:tom', 'service').backend_package.error
     post '/source/home:tom/service?cmd=runservice'
     assert_response :success
     post '/source/home:tom/service?cmd=waitservice'
@@ -140,14 +140,14 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     # branch and submit requsts
     post '/source/home:tom/service', params: { cmd: 'branch' }
     assert_response :success
-    assert_nil Package.find_by_project_and_name("home:tom:branches:home:tom", "service").backend_package.error
+    assert_nil Package.find_by_project_and_name('home:tom:branches:home:tom', 'service').backend_package.error
     put '/source/home:tom:branches:home:tom/service/new_file', params: 'content'
     assert_response :success
-    assert_nil Package.find_by_project_and_name("home:tom:branches:home:tom", "service").backend_package.error
+    assert_nil Package.find_by_project_and_name('home:tom:branches:home:tom', 'service').backend_package.error
     post '/source/home:tom:branches:home:tom/service?cmd=waitservice'
     assert_response :success
     UpdateNotificationEvents.new.perform
-    assert_nil Package.find_by_project_and_name("home:tom:branches:home:tom", "service").backend_package.error
+    assert_nil Package.find_by_project_and_name('home:tom:branches:home:tom', 'service').backend_package.error
     get '/source/home:tom:branches:home:tom/service/_service:download_url:file?expand=1'
     assert_response :success
     post '/request?cmd=create', params: '<request>
@@ -179,7 +179,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:tom/copied_service?expand=1'
     assert_response :success
-    assert_xml_tag tag: "entry", attributes: { name: "_service:download_url:file" }
+    assert_xml_tag tag: 'entry', attributes: { name: '_service:download_url:file' }
     get '/source/home:tom/copied_service/_service:download_url:file?expand=1'
     assert_response :success
     assert_equal(@response.body, original_file)
@@ -187,7 +187,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:tom/copied_service?expand=1'
     assert_response :success
-    assert_xml_tag tag: "entry", attributes: { name: "_service:download_url:file" }
+    assert_xml_tag tag: 'entry', attributes: { name: '_service:download_url:file' }
     get '/source/home:tom/copied_service/_service:download_url:file?expand=1'
     assert_response :success
     delete '/source/home:tom/copied_service'
@@ -199,7 +199,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:tom:COPY/service?expand=1'
     assert_response :success
-    assert_xml_tag tag: "entry", attributes: { name: "_service:download_url:file" }
+    assert_xml_tag tag: 'entry', attributes: { name: '_service:download_url:file' }
     get '/source/home:tom:COPY/service/_service:download_url:file?expand=1'
     assert_response :success
     assert_equal(@response.body, original_file)
@@ -207,7 +207,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:tom:COPY/service?expand=1'
     assert_response :success
-    assert_xml_tag tag: "entry", attributes: { name: "_service:download_url:file" }
+    assert_xml_tag tag: 'entry', attributes: { name: '_service:download_url:file' }
     get '/source/home:tom:COPY/service/_service:download_url:file?expand=1'
     assert_response :success
     assert_not_equal(@response.body, original_file)
@@ -256,7 +256,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
 
     put '/source/home:tom/service/_service', params: '<services> <service name="not_existing" /> </services>'
     assert_response :success
-    assert_nil Package.find_by_project_and_name("home:tom", "service").backend_package.error
+    assert_nil Package.find_by_project_and_name('home:tom', 'service').backend_package.error
     post '/source/home:tom/service?cmd=runservice'
     assert_response :success
     post '/source/home:tom/service?cmd=waitservice'
@@ -333,17 +333,17 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     run_scheduler('i586')
     get '/build/home:Iggy/_result'
     assert_response :success
-    assert_xml_tag tag: "details", content: "nothing provides obs-service-set_version"
+    assert_xml_tag tag: 'details', content: 'nothing provides obs-service-set_version'
 
     # osc local package build call
-    get "/build/home:Iggy/10.2/i586/service/_buildinfo"
+    get '/build/home:Iggy/10.2/i586/service/_buildinfo'
     assert_response :success
-    assert_xml_tag tag: "error", content: "unresolvable: nothing provides obs-service-set_version"
+    assert_xml_tag tag: 'error', content: 'unresolvable: nothing provides obs-service-set_version'
     # osc local package build call sending own spec and _service file
     cpio = IO.popen("cd #{Rails.root}/test/fixtures/backend/source/buildtime_service_source/; exec ls -1 | cpio -H newc -o 2>/dev/null")
-    raw_post "/build/home:Iggy/10.2/i586/service/_buildinfo", cpio.read
+    raw_post '/build/home:Iggy/10.2/i586/service/_buildinfo', cpio.read
     assert_response :success
-    assert_xml_tag tag: "error", content: "unresolvable: nothing provides obs-service-recompresserator"
+    assert_xml_tag tag: 'error', content: 'unresolvable: nothing provides obs-service-recompresserator'
 
     delete '/source/home:Iggy/service'
     assert_response :success
@@ -534,22 +534,22 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_match(/no source service defined/, @response.body)
 
     # Locking user blocks the trigger
-    tom = User.find_by_login("tom")
-    tom.state = "locked"
+    tom = User.find_by_login('tom')
+    tom.state = 'locked'
     tom.save!
     # with right token
     post '/trigger/runservice', headers: { 'Authorization' => "Token #{token}" }
     # success, but no source service configured :)
     assert_response 403
-    assert_xml_tag tag: "status", attributes: { code: "no_permission" }
+    assert_xml_tag tag: 'status', attributes: { code: 'no_permission' }
     # with global token
     post '/trigger/runservice?project=home:tom&package=service', headers: { 'Authorization' => "Token #{alltoken}" }
     # success, but no source service configured :)
     assert_response 403
-    assert_xml_tag tag: "status", attributes: { code: "no_permission" }
+    assert_xml_tag tag: 'status', attributes: { code: 'no_permission' }
 
     # reset and drop stuff as tom
-    tom.state = "confirmed"
+    tom.state = 'confirmed'
     tom.save!
     login_tom
     get '/person/tom/token'

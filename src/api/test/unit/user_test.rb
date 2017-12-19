@@ -20,28 +20,28 @@ class UserTest < ActiveSupport::TestCase
   end
 
   def test_can_modify_project
-    user = User.find_by(login: "adrian")
-    project = Project.find_by(name: "home:adrian")
+    user = User.find_by(login: 'adrian')
+    project = Project.find_by(name: 'home:adrian')
 
     assert user.can_modify_project?(project)
 
-    assert_raise ArgumentError, "illegal parameter type to User#can_modify_project?: Package" do
+    assert_raise ArgumentError, 'illegal parameter type to User#can_modify_project?: Package' do
       user.can_modify_project?(Package.last)
     end
   end
 
   def test_subaccount_permission
-    user = User.find_by(login: "adrian")
+    user = User.find_by(login: 'adrian')
 
     robot = User.create(login: 'robot_man', email: 'scorpions@hannover.de', password: 'dummy',
                         owner: user)
 
     axml = robot.render_axml
-    assert_xml_tag axml, tag: :owner, attributes: { userid: "adrian" }
+    assert_xml_tag axml, tag: :owner, attributes: { userid: 'adrian' }
     assert robot.is_active?
 
     # alias follows the user on disable
-    user.state = "locked"
+    user.state = 'locked'
     user.save!
     assert_equal false, robot.is_active?
   end
@@ -118,19 +118,19 @@ class UserTest < ActiveSupport::TestCase
   end
 
   def test_update_globalroles
-    user = User.find_by(login: "tom")
-    user.roles << Role.create(title: "local_role", global: false)
-    user.roles << Role.create(title: "global_role_1", global: true)
-    global_role2 = Role.create(title: "global_role_2", global: true)
+    user = User.find_by(login: 'tom')
+    user.roles << Role.create(title: 'local_role', global: false)
+    user.roles << Role.create(title: 'global_role_1', global: true)
+    global_role2 = Role.create(title: 'global_role_2', global: true)
     user.roles << global_role2
 
     user.update_globalroles([global_role2, Role.global.where(title: 'Admin').first])
 
     updated_roles = user.reload.roles.map(&:title)
-    assert updated_roles.include?("global_role_2")
-    assert updated_roles.include?("Admin")
-    assert updated_roles.include?("local_role"), "Should keep local roles"
-    assert_equal 3, user.roles.count, "Should remove all additional global roles"
+    assert updated_roles.include?('global_role_2')
+    assert updated_roles.include?('Admin')
+    assert updated_roles.include?('local_role'), 'Should keep local roles'
+    assert_equal 3, user.roles.count, 'Should remove all additional global roles'
     assert_equal 3, user.roles_users.count
   end
 

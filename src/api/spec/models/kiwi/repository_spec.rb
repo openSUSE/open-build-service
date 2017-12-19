@@ -27,12 +27,12 @@ RSpec.describe Kiwi::Repository, type: :model do
     context 'for source_path' do
       it { is_expected.to validate_presence_of(:source_path).with_message(/can't be nil/) }
 
-      it "obsrepositories should be valid" do
+      it 'obsrepositories should be valid' do
         is_expected.to allow_value('obsrepositories:/').for(:source_path)
       end
 
       ['dir', 'iso', 'smb', 'this'].each do |protocol|
-        it "valid" do
+        it 'valid' do
           property_of do
             protocol + '://' + sized(range(1, 199)) { string(/./) }
           end.check(3) do |string|
@@ -42,7 +42,7 @@ RSpec.describe Kiwi::Repository, type: :model do
       end
 
       ['ftp', 'http', 'https', 'plain'].each do |protocol|
-        it "valid" do
+        it 'valid' do
           property_of do
             # TODO: improve regular expression to generate the URI
             protocol + '://' + sized(range(1, 199)) { string(/[\w]/) }
@@ -52,7 +52,7 @@ RSpec.describe Kiwi::Repository, type: :model do
         end
       end
 
-      it "obs:// is valid" do
+      it 'obs:// is valid' do
         property_of do
           project = []
           range(1, 3).times do
@@ -73,7 +73,7 @@ RSpec.describe Kiwi::Repository, type: :model do
         it { is_expected.not_to allow_value(format).for(:source_path) }
       end
 
-      it "not valid when protocol is not valid" do
+      it 'not valid when protocol is not valid' do
         property_of do
           string = sized(range(3, 199)) { string(/[\w]/) }
           index = range(0, (string.length - 4))
@@ -87,7 +87,7 @@ RSpec.describe Kiwi::Repository, type: :model do
       end
 
       ['ftp', 'http', 'https', 'plain', 'obs'].each do |protocol|
-        it "not valid when has `{`" do
+        it 'not valid when has `{`' do
           property_of do
             string = sized(range(1, 199)) { string(/[\w]/) }
             index = range(0, (string.length - 2))
@@ -101,7 +101,7 @@ RSpec.describe Kiwi::Repository, type: :model do
       end
 
       context 'when source_path starts with obs://' do
-        it { expect(obs_kiwi_repository).to allow_value("rpm-md").for(:repo_type) }
+        it { expect(obs_kiwi_repository).to allow_value('rpm-md').for(:repo_type) }
 
         Kiwi::Repository::REPO_TYPES.reject { |repo| repo == 'rpm-md' }.each do |type|
           it { expect(obs_kiwi_repository).not_to allow_value(type).for(:repo_type) }

@@ -172,17 +172,17 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
     SendEventEmailsJob.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      post create_package_comment_path(project: 'kde4', package: 'kdebase'), params: "Hola, estoy aprendiendo español"
+      post create_package_comment_path(project: 'kde4', package: 'kdebase'), params: 'Hola, estoy aprendiendo español'
       assert_response :success
       SendEventEmailsJob.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
     assert_equal 'New comment in package kde4/kdebase by tom', email.subject
-    assert_equal ["fred@feuerstein.de", "king@all-the-kings.org", "fred@feuerstein.de", "test_group@testsuite.org"].sort, email.to.sort
+    assert_equal ['fred@feuerstein.de', 'king@all-the-kings.org', 'fred@feuerstein.de', 'test_group@testsuite.org'].sort, email.to.sort
 
     get comments_package_path(project: 'kde4', package: 'kdebase')
-    assert_xml_tag tag: 'comment', attributes: { who: 'tom' }, content: "Hola, estoy aprendiendo español"
+    assert_xml_tag tag: 'comment', attributes: { who: 'tom' }, content: 'Hola, estoy aprendiendo español'
   end
 
   def test_create_a_comment_that_only_mentioned_people_will_notice
@@ -207,7 +207,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
   def test_upload_mail_reply
     # to be implemented, just for setting up the infrastructure for now
     reset_auth
-    put "/mail_handler"
+    put '/mail_handler'
     assert_response :success
   end
 end

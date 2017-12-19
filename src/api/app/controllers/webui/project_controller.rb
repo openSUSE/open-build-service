@@ -42,7 +42,7 @@ class Webui::ProjectController < Webui::WebuiController
   after_action :verify_authorized, only: [:save_new, :new_incident, :save_meta]
 
   def index
-    @show_all = (params[:show_all].to_s == "true")
+    @show_all = (params[:show_all].to_s == 'true')
     projects = Project.all
     projects = projects.filtered_for_list unless @show_all
     @projects = projects.pluck(:name, :title)
@@ -169,7 +169,7 @@ class Webui::ProjectController < Webui::WebuiController
 
           req.save!
         end
-        flash[:success] = "Created maintenance release request " +
+        flash[:success] = 'Created maintenance release request ' +
                           "<a href='#{url_for(controller: 'request', action: 'show', number: req.number)}'>#{req.number}</a>"
       rescue Patchinfo::IncompletePatchinfo,
              BsRequestActionMaintenanceRelease::ArchitectureOrderMissmatch,
@@ -236,7 +236,7 @@ class Webui::ProjectController < Webui::WebuiController
     if @project.check_weak_dependencies?
       parent = @project.parent
       @project.destroy
-      flash[:notice] = "Project was successfully removed."
+      flash[:notice] = 'Project was successfully removed.'
       if parent
         redirect_to project_show_path(parent)
       else
@@ -347,7 +347,7 @@ class Webui::ProjectController < Webui::WebuiController
       flash[:notice] = "Project '#{project}' was restored successfully"
       redirect_to action: 'show', project: project.name
     else
-      flash[:error] = "Project was never deleted."
+      flash[:error] = 'Project was never deleted.'
       redirect_back(fallback_location: root_path)
     end
   end
@@ -358,7 +358,7 @@ class Webui::ProjectController < Webui::WebuiController
       if @project.update(project_params)
         format.html { redirect_to(project_show_path(@project), notice: 'Project was successfully updated.') }
       else
-        flash[:error] = "Failed to update project"
+        flash[:error] = 'Failed to update project'
         format.html { render :edit }
       end
     end
@@ -402,7 +402,7 @@ class Webui::ProjectController < Webui::WebuiController
     path_element.destroy
     if @project.valid?
       @project.store
-      redirect_to({ action: :index, controller: :repositories, project: @project }, success: "Successfully removed path")
+      redirect_to({ action: :index, controller: :repositories, project: @project }, success: 'Successfully removed path')
     else
       redirect_back(fallback_location: root_path, error: "Can not remove path: #{@project.errors.full_messages.to_sentence}")
     end

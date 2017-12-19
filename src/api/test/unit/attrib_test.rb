@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 
 class AttribTest < ActiveSupport::TestCase
   fixtures :all
@@ -42,7 +42,7 @@ class AttribTest < ActiveSupport::TestCase
     attrib_type.value_count = 0
     attrib.values << attrib_value
     assert_not attrib.valid?
-    assert_equal ["has 1 values, but only 0 are allowed"], attrib.errors.messages[:values]
+    assert_equal ['has 1 values, but only 0 are allowed'], attrib.errors.messages[:values]
   end
 
   test 'should have one value' do
@@ -56,10 +56,10 @@ class AttribTest < ActiveSupport::TestCase
     assert attrib.valid?, "attrib should be valid: #{attrib.errors.messages}"
     attrib.values << attrib_value_second
     assert_not attrib.valid?
-    assert_equal ["has 2 values, but only 1 are allowed"], attrib.errors.messages[:values]
+    assert_equal ['has 2 values, but only 1 are allowed'], attrib.errors.messages[:values]
     attrib.values.delete_all
     assert_not attrib.valid?
-    assert_equal ["has 0 values, but only 1 are allowed"], attrib.errors.messages[:values]
+    assert_equal ['has 0 values, but only 1 are allowed'], attrib.errors.messages[:values]
   end
 
   test 'can have any number of values' do
@@ -145,7 +145,7 @@ class AttribTest < ActiveSupport::TestCase
     attrib_type = AttribType.new(attrib_namespace: @namespace, name: 'AttribFullname')
     attrib = Attrib.new(attrib_type: attrib_type, project: Project.first)
 
-    assert_equal "OBS:AttribFullname", attrib.fullname
+    assert_equal 'OBS:AttribFullname', attrib.fullname
   end
 
   test 'should return container' do

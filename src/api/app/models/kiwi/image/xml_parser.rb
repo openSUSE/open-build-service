@@ -31,7 +31,7 @@ module Kiwi
       end
 
       def repositories_from_xml
-        @repositories_from_xml ||= [xml_hash["repository"]].flatten.compact
+        @repositories_from_xml ||= [xml_hash['repository']].flatten.compact
       end
 
       def use_project_repositories?
@@ -64,7 +64,7 @@ module Kiwi
       def package_groups
         package_groups = []
 
-        [xml_hash["packages"]].flatten.compact.each do |package_group_xml|
+        [xml_hash['packages']].flatten.compact.each do |package_group_xml|
           package_group = Kiwi::PackageGroup.new(
             kiwi_type:    package_group_xml['type'],
             profiles:     package_group_xml['profiles '],
@@ -91,9 +91,9 @@ module Kiwi
 
       # Return an instance of Kiwi::Description model from the parsed xml
       def description
-        return if xml_hash["description"].blank?
+        return if xml_hash['description'].blank?
 
-        attributes = [xml_hash["description"]].flatten.find do |description|
+        attributes = [xml_hash['description']].flatten.find do |description|
           description['type'] == 'system'
         end
 

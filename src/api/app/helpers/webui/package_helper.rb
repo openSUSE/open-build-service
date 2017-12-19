@@ -21,7 +21,7 @@ module Webui::PackageHelper
   end
 
   def guess_code_class(filename)
-    return 'xml' if filename.in?(["_aggregate", "_link", "_patchinfo", "_service"]) || filename =~ /.*\.service/
+    return 'xml' if filename.in?(['_aggregate', '_link', '_patchinfo', '_service']) || filename =~ /.*\.service/
     return 'shell' if filename =~ /^rc[\w-]+$/ # rc-scripts are shell
     return 'python' if filename =~ /^.*rpmlintrc$/
     return 'makefile' if filename == 'debian.rules'
@@ -56,16 +56,16 @@ module Webui::PackageHelper
   end
 
   def nbsp(text)
-    result = "".html_safe
-    text.split(" ").each do |text_chunk|
+    result = ''.html_safe
+    text.split(' ').each do |text_chunk|
       result << text_chunk
-      result << "&nbsp;".html_safe
+      result << '&nbsp;'.html_safe
     end
-    result.chomp!("&nbsp;")
+    result.chomp!('&nbsp;')
 
     if result.length >= 50
       # Allow break line for very long file names
-      result = result.scan(/.{1,50}/).join("<wbr>")
+      result = result.scan(/.{1,50}/).join('<wbr>')
     end
     # We just need to make it a SafeBuffer object again, after calling chomp and join.
     # But at this point we know it truly is html safe

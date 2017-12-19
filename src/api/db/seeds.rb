@@ -1,6 +1,6 @@
 require_relative 'attribute_descriptions'
 
-puts "Seeding architectures table..."
+puts 'Seeding architectures table...'
 # NOTE: armvXel is actually obsolete (because it never exist as official platform),
 # but kept for compatibility reasons. armv7hl is in for compatibility (soft/hard).
 %w(aarch64 aarch64_ilp32 armv4l armv5l armv6l armv7l armv5el armv6el armv7el armv7hl armv8el
@@ -16,7 +16,7 @@ end
 end
 
 # set default configuration settings if no settings exist
-Configuration.first_or_create(name: "private", title: "Open Build Service") do |conf|
+Configuration.first_or_create(name: 'private', title: 'Open Build Service') do |conf|
   conf.description = <<-EOT
   <p class="description">
     The <a href="http://openbuildservice.org">Open Build Service (OBS)</a>
@@ -39,27 +39,27 @@ Configuration.first_or_create(name: "private", title: "Open Build Service") do |
 EOT
 end
 
-puts "Seeding roles table..."
-admin_role      = Role.where(title: "Admin").first_or_create global: true
-maintainer_role = Role.where(title: "maintainer").first_or_create
-bugowner_role   = Role.where(title: "bugowner").first_or_create
-reviewer_role   = Role.where(title: "reviewer").first_or_create
+puts 'Seeding roles table...'
+admin_role      = Role.where(title: 'Admin').first_or_create global: true
+maintainer_role = Role.where(title: 'maintainer').first_or_create
+bugowner_role   = Role.where(title: 'bugowner').first_or_create
+reviewer_role   = Role.where(title: 'reviewer').first_or_create
 downloader_role = Role.where(title: 'downloader').first_or_create
 reader_role     = Role.where(title: 'reader').first_or_create
-Role.where(title: "Staff").first_or_create global: true
+Role.where(title: 'Staff').first_or_create global: true
 
-puts "Seeding users table..."
-admin = User.where(login: 'Admin').first_or_create(login: 'Admin', email: "root@localhost",
-                                                    realname: "OBS Instance Superuser", state: "2",
-                                                    password: "opensuse")
-User.where(login: '_nobody_').first_or_create(login: "_nobody_", email: "nobody@localhost",
-                                              realname: "Anonymous User", state: "3",
-                                              password: "123456")
+puts 'Seeding users table...'
+admin = User.where(login: 'Admin').first_or_create(login: 'Admin', email: 'root@localhost',
+                                                    realname: 'OBS Instance Superuser', state: '2',
+                                                    password: 'opensuse')
+User.where(login: '_nobody_').first_or_create(login: '_nobody_', email: 'nobody@localhost',
+                                              realname: 'Anonymous User', state: '3',
+                                              password: '123456')
 
-puts "Seeding roles_users table..."
+puts 'Seeding roles_users table...'
 RolesUser.where(user_id: admin.id, role_id: admin_role.id).first_or_create
 
-puts "Seeding static_permissions table..."
+puts 'Seeding static_permissions table...'
 %w(status_message_create set_download_counters download_binaries
    source_access access global_change_project global_create_project
    global_change_package global_create_package change_project
@@ -67,95 +67,95 @@ puts "Seeding static_permissions table..."
   StaticPermission.where(title: sp_title).first_or_create
 end
 
-puts "Seeding static permissions for admin role in roles_static_permissions table..."
+puts 'Seeding static permissions for admin role in roles_static_permissions table...'
 StaticPermission.all.each do |sp|
   admin_role.static_permissions << sp unless admin_role.static_permissions.find_by_id(sp.id)
 end
 
-puts "Seeding static permissions for maintainer role in roles_static_permissions table..."
+puts 'Seeding static permissions for maintainer role in roles_static_permissions table...'
 %w(change_project create_project change_package create_package).each do |sp_title|
   sp = StaticPermission.find_by_title(sp_title)
   maintainer_role.static_permissions << sp unless maintainer_role.static_permissions.find_by_id(sp.id)
 end
 
-puts "Seeding static permissions for reader role in roles_static_permissions table..."
+puts 'Seeding static permissions for reader role in roles_static_permissions table...'
 %w(access source_access).each do |sp_title|
   sp = StaticPermission.find_by_title(sp_title)
   reader_role.static_permissions << sp unless reader_role.static_permissions.find_by_id(sp.id)
 end
 
-puts "Seeding static permissions for downloader role in roles_static_permissions table..."
+puts 'Seeding static permissions for downloader role in roles_static_permissions table...'
 %w(download_binaries).each do |sp_title|
   sp = StaticPermission.find_by_title(sp_title)
   downloader_role.static_permissions << sp unless downloader_role.static_permissions.find_by_id(sp.id)
 end
 
-puts "Seeding attrib_namespaces table..."
-ans = AttribNamespace.first_or_create name: "OBS"
+puts 'Seeding attrib_namespaces table...'
+ans = AttribNamespace.first_or_create name: 'OBS'
 ans.attrib_namespace_modifiable_bies.first_or_create(user_id: admin.id)
 
-puts "Seeding attrib_types table..."
-at = ans.attrib_types.where(name: "VeryImportantProject").first_or_create(value_count: 0)
+puts 'Seeding attrib_types table...'
+at = ans.attrib_types.where(name: 'VeryImportantProject').first_or_create(value_count: 0)
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
-at = ans.attrib_types.where(name: "ApprovedRequestSource").first_or_create(value_count: 0)
+at = ans.attrib_types.where(name: 'ApprovedRequestSource').first_or_create(value_count: 0)
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
-at = ans.attrib_types.where(name: "Maintained").first_or_create(value_count: 0)
+at = ans.attrib_types.where(name: 'Maintained').first_or_create(value_count: 0)
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
-at = ans.attrib_types.where(name: "MaintenanceProject").first_or_create(value_count: 0)
+at = ans.attrib_types.where(name: 'MaintenanceProject').first_or_create(value_count: 0)
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
-at = ans.attrib_types.where(name: "InitializeDevelPackage").first_or_create(value_count: 0)
+at = ans.attrib_types.where(name: 'InitializeDevelPackage').first_or_create(value_count: 0)
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
-at = ans.attrib_types.where(name: "BranchTarget").first_or_create(value_count: 0)
+at = ans.attrib_types.where(name: 'BranchTarget').first_or_create(value_count: 0)
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
-at = ans.attrib_types.where(name: "MakeOriginOlder").first_or_create(value_count: 0)
+at = ans.attrib_types.where(name: 'MakeOriginOlder').first_or_create(value_count: 0)
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
-at = ans.attrib_types.where(name: "Issues").first_or_create(value_count: 0, issue_list: true)
+at = ans.attrib_types.where(name: 'Issues').first_or_create(value_count: 0, issue_list: true)
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 at.attrib_type_modifiable_bies.where(role_id: bugowner_role.id).first_or_create
 at.attrib_type_modifiable_bies.where(role_id: reviewer_role.id).first_or_create
 
-at = ans.attrib_types.where(name: "UpdateProject").first_or_create(value_count: 1)
+at = ans.attrib_types.where(name: 'UpdateProject').first_or_create(value_count: 1)
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
-at = ans.attrib_types.where(name: "RequestCloned").first_or_create(value_count: 1)
+at = ans.attrib_types.where(name: 'RequestCloned').first_or_create(value_count: 1)
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
-at = ans.attrib_types.where(name: "ProjectStatusPackageFailComment").first_or_create(value_count: 1)
+at = ans.attrib_types.where(name: 'ProjectStatusPackageFailComment').first_or_create(value_count: 1)
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
-at = ans.attrib_types.where(name: "BranchRepositoriesFromProject").first_or_create(value_count: 1)
+at = ans.attrib_types.where(name: 'BranchRepositoriesFromProject').first_or_create(value_count: 1)
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
-at = ans.attrib_types.where(name: "AutoCleanup").first_or_create(value_count: 1)
+at = ans.attrib_types.where(name: 'AutoCleanup').first_or_create(value_count: 1)
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 
-at = ans.attrib_types.where(name: "QualityCategory").first_or_create(value_count: 1)
+at = ans.attrib_types.where(name: 'QualityCategory').first_or_create(value_count: 1)
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
-at.allowed_values << AttribAllowedValue.new(value: "Stable")
-at.allowed_values << AttribAllowedValue.new(value: "Testing")
-at.allowed_values << AttribAllowedValue.new(value: "Development")
-at.allowed_values << AttribAllowedValue.new(value: "Private")
+at.allowed_values << AttribAllowedValue.new(value: 'Stable')
+at.allowed_values << AttribAllowedValue.new(value: 'Testing')
+at.allowed_values << AttribAllowedValue.new(value: 'Development')
+at.allowed_values << AttribAllowedValue.new(value: 'Private')
 at.default_values.where(value: 'Development', position: 1).first_or_create
 
-at = ans.attrib_types.where(name: "MaintenanceIdTemplate").first_or_create(value_count: 1)
+at = ans.attrib_types.where(name: 'MaintenanceIdTemplate').first_or_create(value_count: 1)
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 at.default_values.where(value: '%Y-%C', position: 1).first_or_create
 
-at = ans.attrib_types.where(name: "RejectRequests").first_or_create
+at = ans.attrib_types.where(name: 'RejectRequests').first_or_create
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
-at = ans.attrib_types.where(name: "ScreenShots").first_or_create
+at = ans.attrib_types.where(name: 'ScreenShots').first_or_create
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
-at = ans.attrib_types.where(name: "ImageTemplates").first_or_create
+at = ans.attrib_types.where(name: 'ImageTemplates').first_or_create
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
-at = ans.attrib_types.where(name: "IncidentPriority").first_or_create(value_count: 1)
+at = ans.attrib_types.where(name: 'IncidentPriority').first_or_create(value_count: 1)
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
-at = ans.attrib_types.where(name: "EmbargoDate").first_or_create(value_count: 1)
+at = ans.attrib_types.where(name: 'EmbargoDate').first_or_create(value_count: 1)
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 
-at = ans.attrib_types.where(name: "OwnerRootProject").first_or_create
+at = ans.attrib_types.where(name: 'OwnerRootProject').first_or_create
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
-at.allowed_values << AttribAllowedValue.new(value: "DisableDevel")
-at.allowed_values << AttribAllowedValue.new(value: "BugownerOnly")
+at.allowed_values << AttribAllowedValue.new(value: 'DisableDevel')
+at.allowed_values << AttribAllowedValue.new(value: 'BugownerOnly')
 
 update_all_attrib_type_descriptions
 
-puts "Seeding issue trackers ..."
+puts 'Seeding issue trackers ...'
 IssueTracker.where(name: 'boost').first_or_create(description: 'Boost Trac',
                                                   kind: 'trac',
                                                   regex: 'boost#(\d+)',

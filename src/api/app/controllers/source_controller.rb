@@ -179,7 +179,7 @@ class SourceController < ApplicationController
     project_name = params[:project]
     params[:user] = User.current.login
 
-    if command.in?(["undelete", "release", "copy", "move"])
+    if command.in?(['undelete', 'release', 'copy', 'move'])
       return dispatch_command(:project_command, command)
     end
 
@@ -305,7 +305,7 @@ class SourceController < ApplicationController
     return if User.current.can_modify_package?(@package)
 
     raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " +
-                                    "for unspecified package" unless @package.class == Package
+                                    'for unspecified package' unless @package.class == Package
     raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " +
                                     "for package #{@package.name} in project #{@package.project.name}"
   end
@@ -347,7 +347,7 @@ class SourceController < ApplicationController
     # Check for existence/access of origin package when specified
     @spkg = nil
     Project.get_by_name origin_project_name if origin_project_name
-    if origin_package_name && !origin_package_name.in?(["_project", "_pattern"]) && !(params[:missingok] && @command.in?(['branch', 'release']))
+    if origin_package_name && !origin_package_name.in?(['_project', '_pattern']) && !(params[:missingok] && @command.in?(['branch', 'release']))
       @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name)
     end
     unless PACKAGE_CREATING_COMMANDS.include?(@command) && !Project.exists_by_name(@target_project_name)
@@ -384,7 +384,7 @@ class SourceController < ApplicationController
 
     follow_project_links = SOURCE_UNTOUCHED_COMMANDS.include?(@command)
 
-    unless @target_package_name.in?(["_project", "_pattern"])
+    unless @target_package_name.in?(['_project', '_pattern'])
       use_source = true
       use_source = false if @command == 'showlinked'
       @package = Package.get_by_project_and_name(@target_project_name, @target_package_name,
@@ -623,7 +623,7 @@ class SourceController < ApplicationController
       pass_to_backend path
     else
       raise DeleteProjectPubkeyNoPermission, "No permission to delete public key for project '#{params[:project]}'. " +
-                                             "Either maintainer permissions by upper project or admin permissions is needed."
+                                             'Either maintainer permissions by upper project or admin permissions is needed.'
     end
   end
 
@@ -706,7 +706,7 @@ class SourceController < ApplicationController
   # GET /source/:project/:package/:filename
   def get_file
     project_name = params[:project]
-    package_name = params[:package] || "_project"
+    package_name = params[:package] || '_project'
     file = params[:filename]
 
     if params.has_key?(:deleted)
@@ -793,8 +793,8 @@ class SourceController < ApplicationController
     pass_to_backend @path
 
     # update package timestamp and reindex sources
-    return if params[:rev] == 'repository' || @package_name.in?(["_project", "_pattern"])
-    special_file = params[:filename].in?(["_aggregate", "_constraints", "_link", "_service", "_patchinfo", "_channel"])
+    return if params[:rev] == 'repository' || @package_name.in?(['_project', '_pattern'])
+    special_file = params[:filename].in?(['_aggregate', '_constraints', '_link', '_service', '_patchinfo', '_channel'])
     @pack.sources_changed(wait_for_update: special_file) # wait for indexing for special files
   end
 
@@ -926,9 +926,9 @@ class SourceController < ApplicationController
   # POST /source/<project>?cmd=addchannels
   def project_command_addchannels
     mode = case params[:mode]
-           when "skip_disabled"
+           when 'skip_disabled'
              :skip_disabled
-           when "enable_all"
+           when 'enable_all'
              :enable_all
            else
              :add_disabled
@@ -945,8 +945,8 @@ class SourceController < ApplicationController
   # POST /source/<project>?cmd=modifychannels
   def project_command_modifychannels
     mode = nil
-    mode = :add_disabled  if params[:mode] == "add_disabled"
-    mode = :enable_all    if params[:mode] == "enable_all"
+    mode = :add_disabled  if params[:mode] == 'add_disabled'
+    mode = :enable_all    if params[:mode] == 'enable_all'
 
     @project.packages.each do |pkg|
       pkg.modify_channel(mode)
@@ -1024,7 +1024,7 @@ class SourceController < ApplicationController
           raise CmdExecutionNoPermission, "no permission to write in project #{releasetarget.target_repository.project.name}"
         end
         unless releasetarget.trigger == 'manual'
-          raise CmdExecutionNoPermission, "Trigger is not set to manual in repository" +
+          raise CmdExecutionNoPermission, 'Trigger is not set to manual in repository' +
                                           " #{releasetarget.repository.project.name}/#{releasetarget.repository.name}"
         end
         repo_matches = true
@@ -1043,10 +1043,10 @@ class SourceController < ApplicationController
   # POST /source/<project>?cmd=move&oproject=<project>
   def project_command_move
     unless User.current.is_admin?
-      raise CmdExecutionNoPermission, "Admin permissions required. STOP SCHEDULER BEFORE."
+      raise CmdExecutionNoPermission, 'Admin permissions required. STOP SCHEDULER BEFORE.'
     end
     if Project.exists_by_name(params[:project])
-      raise ProjectExists, "Target project exists already."
+      raise ProjectExists, 'Target project exists already.'
     end
 
     begin
@@ -1191,8 +1191,8 @@ class SourceController < ApplicationController
   # POST /source/<project>?cmd=addchannels
   def package_command_addchannels
     mode = :add_disabled
-    mode = :skip_disabled if params[:mode] == "skip_disabled"
-    mode = :enable_all    if params[:mode] == "enable_all"
+    mode = :skip_disabled if params[:mode] == 'skip_disabled'
+    mode = :enable_all    if params[:mode] == 'enable_all'
 
     @package.add_channels(mode)
 
@@ -1260,20 +1260,20 @@ class SourceController < ApplicationController
     project = Project.get_by_name(params[:project])
     opackage = Package.get_by_project_and_name(project.name, params[:package], { check_update_project: true })
     unless opackage
-      raise RemoteProjectError, "Instantiation from remote project is not supported"
+      raise RemoteProjectError, 'Instantiation from remote project is not supported'
     end
     if project == opackage.project
-      raise CmdExecutionNoPermission, "package is already intialized here"
+      raise CmdExecutionNoPermission, 'package is already intialized here'
     end
     unless User.current.can_modify_project?(project)
       raise CmdExecutionNoPermission, "no permission to execute command 'copy'"
     end
     unless User.current.can_modify_package?(opackage, true) # ignore_lock option
-      raise CmdExecutionNoPermission, "no permission to modify source package"
+      raise CmdExecutionNoPermission, 'no permission to modify source package'
     end
 
     opts = {}
-    at = AttribType.find_by_namespace_and_name!("OBS", "MakeOriginOlder")
+    at = AttribType.find_by_namespace_and_name!('OBS', 'MakeOriginOlder')
     opts[:makeoriginolder] = true if project.attribs.find_by(attrib_type: at) # object or nil
     opts[:makeoriginolder] = true if params[:makeoriginolder]
     instantiate_container(project, opackage.update_instance, opts)
@@ -1292,7 +1292,7 @@ class SourceController < ApplicationController
 
     path = request.path_info
     unless User.current.is_admin? || params[:time].blank?
-      raise CmdExecutionNoPermission, "Only administrators are allowed to set the time"
+      raise CmdExecutionNoPermission, 'Only administrators are allowed to set the time'
     end
     path += build_query_from_hash(params, [:cmd, :user, :comment, :time])
     pass_to_backend path
@@ -1445,7 +1445,7 @@ class SourceController < ApplicationController
   def package_command_release
     pkg = Package.get_by_project_and_name params[:project], params[:package], use_source: true, follow_project_links: false, follow_multibuild: true
     multibuild_container = nil
-    if params[:package].include?(":") && !params[:package].starts_with?('_product:')
+    if params[:package].include?(':') && !params[:package].starts_with?('_product:')
       multibuild_container = params[:package].gsub(/^.*:/, '')
     end
 

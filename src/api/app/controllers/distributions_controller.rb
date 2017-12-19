@@ -24,7 +24,7 @@ class DistributionsController < ApplicationController
     @distributions = Distribution.all_including_remotes
 
     respond_to do |format|
-      format.xml { render "index" }
+      format.xml { render 'index' }
       format.json { render json: @distributions }
     end
   end
@@ -45,8 +45,8 @@ class DistributionsController < ApplicationController
     raise 'routes broken' unless request.put?
     req = Xmlhash.parse(request.body.read)
     unless req
-      render_error message: "Invalid XML",
-                   status: 400, errorcode: "invalid_xml"
+      render_error message: 'Invalid XML',
+                   status: 400, errorcode: 'invalid_xml'
       return
     end
     @distributions = Distribution.parse(req)

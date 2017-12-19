@@ -12,7 +12,7 @@ module ModelHelper
     entries = {}
 
     dblist.each do |e|
-      key = ""
+      key = ''
       keys.each { |k| key << "#{e.send(k)}::" }
       entries[key] = e
     end
@@ -20,7 +20,7 @@ module ModelHelper
 
     entry_class.transaction do
       inhasharray.each do |hash|
-        key = ""
+        key = ''
         keys.each do |k|
           raise 'MissingKey', k unless hash.has_key? k
           key << "#{hash[k]}::"

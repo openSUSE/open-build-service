@@ -9,7 +9,7 @@ class RoleTest < ActiveSupport::TestCase
   end
 
   def test_role
-    r = Role.create title: "maintainer"
+    r = Role.create title: 'maintainer'
     assert !r.valid?
   end
 end

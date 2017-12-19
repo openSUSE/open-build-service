@@ -102,7 +102,7 @@ RSpec.describe BsRequest do
     context 'to delete state' do
       before do
         User.current = admin
-        request.change_state({ newstate: "deleted" })
+        request.change_state({ newstate: 'deleted' })
       end
 
       it 'changes state to deleted' do
@@ -110,7 +110,7 @@ RSpec.describe BsRequest do
       end
 
       it 'creates a HistoryElement::RequestDeleted' do
-        expect(request.history_elements.first.type).to eq("HistoryElement::RequestDeleted")
+        expect(request.history_elements.first.type).to eq('HistoryElement::RequestDeleted')
       end
     end
   end
@@ -292,8 +292,8 @@ RSpec.describe BsRequest do
 
       it 'creates a history element for the priority raise' do
         history_element = HistoryElement::RequestPriorityChange.where(
-          comment:               "Automatic priority bump: Priority of related action increased.",
-          description_extension: "moderate => critical"
+          comment:               'Automatic priority bump: Priority of related action increased.',
+          description_extension: 'moderate => critical'
         )
         expect(history_element).to exist
       end

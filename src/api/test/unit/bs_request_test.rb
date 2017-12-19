@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 
 class BsRequestTest < ActiveSupport::TestCase
   fixtures :all
@@ -7,7 +7,7 @@ class BsRequestTest < ActiveSupport::TestCase
     User.current = users(:Iggy)
   end
 
-  test "if create works" do
+  test 'if create works' do
     xml = '<request>
               <action type="submit">
                 <source project="BaseDistro" package="pack2" rev="1"/>
@@ -60,7 +60,7 @@ class BsRequestTest < ActiveSupport::TestCase
     assert_equal wi['is_target_maintainer'], false
     assert_equal wi['my_open_reviews'], []
 
-    wia = wi["actions"][0]
+    wia = wi['actions'][0]
     assert_equal wia[:type], :add_role
     assert_equal wia[:tprj], 'kde4'
     assert_equal wia[:role], 'reviewer'
@@ -80,7 +80,7 @@ class BsRequestTest < ActiveSupport::TestCase
     req.destroy
   end
 
-  test "change_review" do
+  test 'change_review' do
     req = BsRequest.new_from_xml(load_backend_file('request/add_role'))
     req.save!
     req.addreview(by_user: 'tom', comment: 'does it look ok?')
@@ -132,12 +132,12 @@ class BsRequestTest < ActiveSupport::TestCase
     assert_equal false, wi['is_target_maintainer']
     assert_equal wi['actions'][0], {
       type: :submit,
-      sprj: "home:Iggy",
-      spkg: "TestPack",
-      srev: "1",
-      tprj: "kde4",
-      tpkg: "mypackage",
-      name: "Submit TestPack"
+      sprj: 'home:Iggy',
+      spkg: 'TestPack',
+      srev: '1',
+      tprj: 'kde4',
+      tpkg: 'mypackage',
+      name: 'Submit TestPack'
     }
   end
 
@@ -152,7 +152,7 @@ class BsRequestTest < ActiveSupport::TestCase
     end
   end
 
-  test "request ownership" do
+  test 'request ownership' do
     check_user_targets(:Iggy, 10)
     check_user_targets(:adrian, 1, 1000)
   end

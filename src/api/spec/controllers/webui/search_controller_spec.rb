@@ -9,9 +9,9 @@ RSpec.describe Webui::SearchController, vcr: true do
   let!(:develuser) { create(:confirmed_user, login: 'DevelIggy') }
   let!(:package) { create(:package, name: 'TestPack', project: Project.find_by(name: 'home:Iggy')) }
   let!(:develpackage) { create(:package, name: 'DevelPack', project: Project.find_by(name: 'home:DevelIggy')) }
-  let!(:owner_attrib) { create(:attrib, attrib_type: AttribType.where(name: "OwnerRootProject").first, project: Project.find_by(name: 'home:Iggy')) }
+  let!(:owner_attrib) { create(:attrib, attrib_type: AttribType.where(name: 'OwnerRootProject').first, project: Project.find_by(name: 'home:Iggy')) }
 
-  describe "GET #owner" do
+  describe 'GET #owner' do
     it 'just returns with blank search text' do
       get :owner, params: { search_text: '', owner: 1 }
       expect(response).to have_http_status(:success)
@@ -19,24 +19,24 @@ RSpec.describe Webui::SearchController, vcr: true do
 
     it 'warns about short search text' do
       get :owner, params: { search_text: 'a', owner: 1 }
-      expect(controller).to set_flash[:error].to("Search string must contain at least two characters.")
+      expect(controller).to set_flash[:error].to('Search string must contain at least two characters.')
     end
 
     it 'assigns results' do
       get :owner, params: { search_text: 'package', owner: 1 }
-      expect(assigns(:results)[0].users).to eq({ "maintainer"=>["Iggy"] })
+      expect(assigns(:results)[0].users).to eq({ 'maintainer'=>['Iggy'] })
     end
 
     it 'assigns results for devel package' do
       package.update_attributes(develpackage: develpackage)
 
       get :owner, params: { search_text: 'package', owner: 1, devel: 'on' }
-      expect(assigns(:results)[0].users).to eq({ "maintainer"=>["DevelIggy"] })
-      expect(assigns(:results)[0].users).not_to eq({ "maintainer"=>["Iggy"] })
+      expect(assigns(:results)[0].users).to eq({ 'maintainer'=>['DevelIggy'] })
+      expect(assigns(:results)[0].users).not_to eq({ 'maintainer'=>['Iggy'] })
     end
   end
 
-  describe "GET #search" do
+  describe 'GET #search' do
     it 'just returns without search text' do
       get :index
       expect(response).to have_http_status(:success)
@@ -71,7 +71,7 @@ RSpec.describe Webui::SearchController, vcr: true do
 
       context 'and a non existent package' do
         before do
-          request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+          request.env['HTTP_REFERER'] = root_url # Needed for the redirect_to :back
           get :index, params: { search_text: "obs://build.opensuse.org/#{user.home_project.name}/i586/1-non_existent_package" }
         end
 
@@ -85,7 +85,7 @@ RSpec.describe Webui::SearchController, vcr: true do
         get :index, params: { search_text: 'whatever', name: '0' }
       end
 
-      it { expect(flash[:error]).to eq("You have to search for whatever in something. Click the advanced button...") }
+      it { expect(flash[:error]).to eq('You have to search for whatever in something. Click the advanced button...') }
       it { expect(response).to have_http_status(:success) }
     end
 

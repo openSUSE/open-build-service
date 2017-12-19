@@ -1,5 +1,5 @@
 class DownloadRepository < ApplicationRecord
-  REPOTYPES = ["rpmmd", "susetags", "deb", "arch", "mdk"].freeze
+  REPOTYPES = ['rpmmd', 'susetags', 'deb', 'arch', 'mdk'].freeze
 
   belongs_to :repository
 
@@ -16,7 +16,7 @@ class DownloadRepository < ApplicationRecord
     # Workaround for rspec validation test (validate_presence_of(:repository_id))
     return unless repository
     return if repository.architectures.pluck(:name).include?(arch)
-    errors.add(:base, "Architecture has to be available via repository association")
+    errors.add(:base, 'Architecture has to be available via repository association')
   end
 end
 

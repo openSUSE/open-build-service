@@ -1,4 +1,4 @@
-require "rails_helper"
+require 'rails_helper'
 
 RSpec.describe Notification do
   let(:payload) { { comment: 'SuperFakeComment', requestid: 1 } }

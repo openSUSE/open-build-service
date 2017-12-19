@@ -38,7 +38,7 @@ class Channel < ApplicationRecord
   end
 
   def name
-    project_name = package.project.name.tr(":", "_")
+    project_name = package.project.name.tr(':', '_')
 
     "#{package.name}.#{project_name}"
   end

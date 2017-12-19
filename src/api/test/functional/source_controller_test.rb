@@ -75,13 +75,13 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
       </image>
     EOF
 
-    post '/source?cmd=orderkiwirepos', params: kiwi_config_http, headers: { "Content-Type" => "text/xml" }
+    post '/source?cmd=orderkiwirepos', params: kiwi_config_http, headers: { 'Content-Type' => 'text/xml' }
     assert_response 200
     converted_xml = Xmlhash.parse(response.body)
-    first  = converted_xml["repository"].first
-    second = converted_xml["repository"].second
-    assert_equal first["source"]["path"], "http://example.com/download/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo"
-    assert_equal second["source"]["path"], "http://example.com/download/BaseDistro2.0/BaseDistro2_repo"
+    first  = converted_xml['repository'].first
+    second = converted_xml['repository'].second
+    assert_equal first['source']['path'], 'http://example.com/download/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo'
+    assert_equal second['source']['path'], 'http://example.com/download/BaseDistro2.0/BaseDistro2_repo'
 
     # urls with obs protocol
     kiwi_config_obs = <<-EOF.strip_heredoc
@@ -96,13 +96,13 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
       </image>
     EOF
 
-    post '/source?cmd=orderkiwirepos', params: kiwi_config_obs, headers: { "Content-Type" => "text/xml" }
+    post '/source?cmd=orderkiwirepos', params: kiwi_config_obs, headers: { 'Content-Type' => 'text/xml' }
     assert_response 200
     converted_xml = Xmlhash.parse(response.body)
-    first  = converted_xml["repository"].first
-    second = converted_xml["repository"].second
-    assert_equal first["source"]["path"], "obs://BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo"
-    assert_equal second["source"]["path"], "obs://BaseDistro2.0/BaseDistro2_repo"
+    first  = converted_xml['repository'].first
+    second = converted_xml['repository'].second
+    assert_equal first['source']['path'], 'obs://BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo'
+    assert_equal second['source']['path'], 'obs://BaseDistro2.0/BaseDistro2_repo'
   end
 
   def test_anonymous_access_for_global_commands # spec/controllers/source_controller_spec.rb
@@ -327,7 +327,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_branch_using_olinkrev_parameter
-    skip("IMPLEMENT ME: test that branching from a package with merge conflicts is working using olinkrev=base")
+    skip('IMPLEMENT ME: test that branching from a package with merge conflicts is working using olinkrev=base')
   end
 
   def test_branch_use_missingok_to_existing_package_fails
@@ -415,8 +415,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_match(/admin rights are required to change projects using remote resources/, @response.body)
     # DoD remote repository
     doc = ActiveXML::Node.new(xml)
-    r = doc.add_element 'repository', { name: "download_on_demand" }
-    r.add_element 'download', { arch: "i586", url: "http://somewhere", repotype: "rpmmd" }
+    r = doc.add_element 'repository', { name: 'download_on_demand' }
+    r.add_element 'download', { arch: 'i586', url: 'http://somewhere', repotype: 'rpmmd' }
     put url_for(controller: :source, action: :update_project_meta, project: 'kde4'), params: doc.dump_xml
     assert_response 403
     assert_match(/admin rights are required to change projects using remote resources/, @response.body)
@@ -497,9 +497,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'status', attributes: { code: 'project_name_mismatch' }
 
     # and it does not exist indeed ...
-    get "/source/kde4_subproject"
+    get '/source/kde4_subproject'
     assert_response 404
-    get "/source/kde4:subproject"
+    get '/source/kde4:subproject'
     assert_response 404
   end
 
@@ -781,9 +781,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
     put '/source/home:Iggy/TestLinkPack/_link', params: ''
     assert_response 403
-    post "/build/home:Iggy?cmd=wipe"
+    post '/build/home:Iggy?cmd=wipe'
     assert_response 403
-    post "/build/home:Iggy/TestLinkPack?cmd=wipe"
+    post '/build/home:Iggy/TestLinkPack?cmd=wipe'
     assert_response 403
 
     # check branching from a locked project
@@ -794,15 +794,15 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag tag: 'lock'
 
     # unlock will fail on unlocked project
-    post '/source/home:Iggy:branches:home:Iggy', params: { cmd: "unlock", comment: "dummy" }
+    post '/source/home:Iggy:branches:home:Iggy', params: { cmd: 'unlock', comment: 'dummy' }
     assert_response 400
-    assert_select "status", code: "not_locked"
+    assert_select 'status', code: 'not_locked'
     # lock via command
     post '/source/home:Iggy:branches:home:Iggy?cmd=lock'
     assert_response :success
     get '/source/home:Iggy:branches:home:Iggy/_meta'
     assert_response :success
-    assert_select "project" do
+    assert_select 'project' do
       assert_select 'lock' do
         assert_select 'enable'
       end
@@ -846,14 +846,14 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:Iggy:TEST/_meta'
     assert_response :success
-    assert_xml_tag tag: "lock"
+    assert_xml_tag tag: 'lock'
 
     # unlock command
     post '/source/home:Iggy:TEST?cmd=unlock&comment=doit'
     assert_response :success
     get '/source/home:Iggy:TEST/_meta'
     assert_response :success
-    assert_no_xml_tag tag: "lock"
+    assert_no_xml_tag tag: 'lock'
 
     delete '/source/home:Iggy:TEST'
     assert_response :success
@@ -950,7 +950,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
 
     # Write changed data back
-    put url_for(controller: :source, action: :update_package_meta, project: 'HiddenProject', package: 'pack'), params: "<package name=\"pack\"><title></title><description></description></package>"
+    put url_for(controller: :source, action: :update_package_meta, project: 'HiddenProject', package: 'pack'), params: '<package name="pack"><title></title><description></description></package>'
     assert_response 404
   end
 
@@ -1097,7 +1097,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # cleanup
     login_king
-    delete "/source/kde4/kdelibs2"
+    delete '/source/kde4/kdelibs2'
     assert_response :success
   end
 
@@ -1279,11 +1279,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # delete a package which is used as devel package
     get '/source/home:tom:project/B/_meta'
     assert_response :success
-    assert_xml_tag tag: "devel"
+    assert_xml_tag tag: 'devel'
     delete '/source/home:tom:project/A'
     assert_response 400
-    assert_select "status", code: "delete_error" do
-      assert_select "summary", "Package is used by following packages as devel package: BaseDistro/pack2, home:tom:project/B"
+    assert_select 'status', code: 'delete_error' do
+      assert_select 'summary', 'Package is used by following packages as devel package: BaseDistro/pack2, home:tom:project/B'
     end
     delete '/source/home:tom:project/A?force=1'
     assert_response :success
@@ -1291,7 +1291,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     get '/source/home:tom:project/B/_meta'
     assert_response :success
-    assert_no_xml_tag tag: "devel"
+    assert_no_xml_tag tag: 'devel'
     # delete the project including the packages
     delete '/source/home:tom:project'
     assert_response :success
@@ -1451,7 +1451,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # write to illegal location:
     put url_for(controller: :source, action: :update_package_meta, project: 'kde4', package: '.'), params: doc.to_s
     assert_response 400
-    assert_xml_tag tag: 'status', attributes: { code: "invalid_package_name" }
+    assert_xml_tag tag: 'status', attributes: { code: 'invalid_package_name' }
 
     # must not create a package with different pathname and name in _meta.xml:
     put url_for(controller: :source, action: :update_package_meta, project: 'kde4', package: 'kdelibs2000'), params: doc.to_s
@@ -1732,7 +1732,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/kde4/kdelibs/_history?meta=1'
     assert_response :success
     assert_xml_tag(tag: 'revisionlist')
-    assert_xml_tag(tag: 'comment', content: "empty change")
+    assert_xml_tag(tag: 'comment', content: 'empty change')
   end
 
   def test_get_project_meta_history
@@ -1754,15 +1754,15 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/kde4/_project/_history?meta=1'
     assert_response :success
     assert_xml_tag(tag: 'revisionlist')
-    assert_xml_tag(tag: 'comment', content: "title change")
+    assert_xml_tag(tag: 'comment', content: 'title change')
     # compare to database version
     get '/source/kde4/_project/_meta'
     assert_response :success
-    assert_xml_tag(tag: 'title', content: "new title string")
+    assert_xml_tag(tag: 'title', content: 'new title string')
     # compare to backend version
     get '/source/kde4/_project/_meta?meta=1&rev=latest'
     assert_response :success
-    assert_xml_tag(tag: 'title', content: "new title string")
+    assert_xml_tag(tag: 'title', content: 'new title string')
 
     # check old revision
     get '/source/kde4/_project/_meta?meta=1'
@@ -1771,7 +1771,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/kde4/_project/_meta?meta=1&rev=1'
     assert_response :success
     assert_xml_tag(tag: 'project')
-    assert_xml_tag(tag: 'title', content: "blub") # fixture string
+    assert_xml_tag(tag: 'title', content: 'blub') # fixture string
 
     # restore
     raw_put '/source/kde4/_meta?comment=title+change', oldmeta
@@ -1793,18 +1793,18 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/kde4/kdelibs/_meta'
     assert_response :success
     assert_xml_tag(tag: 'package')
-    assert_xml_tag(tag: 'title', content: "new package title string")
+    assert_xml_tag(tag: 'title', content: 'new package title string')
     # compare to backend version
     get '/source/kde4/kdelibs/_meta?meta=1&rev=latest'
     assert_response :success
     assert_xml_tag(tag: 'package')
-    assert_xml_tag(tag: 'title', content: "new package title string")
+    assert_xml_tag(tag: 'title', content: 'new package title string')
 
     # old revision
     get '/source/kde4/kdelibs/_meta?meta=1&rev=1'
     assert_response :success
     assert_xml_tag(tag: 'package')
-    assert_xml_tag(tag: 'title', content: "blub") # fixture string
+    assert_xml_tag(tag: 'title', content: 'blub') # fixture string
 
     # restore
     raw_put '/source/kde4/kdelibs/_meta', oldmeta
@@ -1933,7 +1933,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/kde4/kdelibs/_history'
     assert_response :success
-    assert_no_xml_tag(tag: "time", content: "99")
+    assert_no_xml_tag(tag: 'time', content: '99')
     get '/source/kde4/kdelibs/_meta'
     assert_response :success
 
@@ -1950,7 +1950,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/kde4/kdelibs/_history'
     assert_response :success
-    assert_xml_tag(tag: "time", content: mytime)
+    assert_xml_tag(tag: 'time', content: mytime)
 
     # delete entire project
     prepare_request_with_user 'fredlibs', 'buildservice'
@@ -2446,9 +2446,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
     assert_response :success
-    assert_xml_tag(tag: 'repository', attributes: { name: "repo1", rebuild: "local", block: "never" })
-    assert_xml_tag(tag: 'repository', attributes: { name: "repo2", rebuild: "local", block: "never" })
-    assert_xml_tag(tag: 'repository', attributes: { name: "repo3", rebuild: "local", block: "never" })
+    assert_xml_tag(tag: 'repository', attributes: { name: 'repo1', rebuild: 'local', block: 'never' })
+    assert_xml_tag(tag: 'repository', attributes: { name: 'repo2', rebuild: 'local', block: 'never' })
+    assert_xml_tag(tag: 'repository', attributes: { name: 'repo3', rebuild: 'local', block: 'never' })
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
 
@@ -2457,9 +2457,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
     assert_response :success
-    assert_xml_tag(tag: 'repository', attributes: { name: "repo1", rebuild: "local" })
-    assert_xml_tag(tag: 'repository', attributes: { name: "repo2", rebuild: "transitive" })
-    assert_xml_tag(tag: 'repository', attributes: { name: "repo3" })
+    assert_xml_tag(tag: 'repository', attributes: { name: 'repo1', rebuild: 'local' })
+    assert_xml_tag(tag: 'repository', attributes: { name: 'repo2', rebuild: 'transitive' })
+    assert_xml_tag(tag: 'repository', attributes: { name: 'repo3' })
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
 
@@ -2496,15 +2496,15 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
     assert_response :success
-    assert_xml_tag(tag: 'repository', attributes: { name: "repo1" })
-    assert_xml_tag(tag: 'repository', attributes: { name: "repo2" })
-    assert_xml_tag(tag: 'repository', attributes: { name: "repo3" })
+    assert_xml_tag(tag: 'repository', attributes: { name: 'repo1' })
+    assert_xml_tag(tag: 'repository', attributes: { name: 'repo2' })
+    assert_xml_tag(tag: 'repository', attributes: { name: 'repo3' })
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
 
     # use repos from other project
     login_king
-    post "/source/home:adrian:TEMP/_attribute", params: "
+    post '/source/home:adrian:TEMP/_attribute', params: "
         <attributes><attribute namespace='OBS' name='BranchRepositoriesFromProject'>
           <value>BaseDistro</value>
         </attribute></attributes>"
@@ -2514,18 +2514,18 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
     assert_response :success
-    assert_xml_tag(tag: 'repository', attributes: { name: "BaseDistro_repo" })
-    assert_no_xml_tag(tag: 'repository', attributes: { name: "repo1" })
-    assert_no_xml_tag(tag: 'repository', attributes: { name: "repo2" })
-    assert_no_xml_tag(tag: 'repository', attributes: { name: "repo3" })
+    assert_xml_tag(tag: 'repository', attributes: { name: 'BaseDistro_repo' })
+    assert_no_xml_tag(tag: 'repository', attributes: { name: 'repo1' })
+    assert_no_xml_tag(tag: 'repository', attributes: { name: 'repo2' })
+    assert_no_xml_tag(tag: 'repository', attributes: { name: 'repo3' })
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
-    delete "/source/home:adrian:TEMP/_attribute/OBS:BranchRepositoriesFromProject"
+    delete '/source/home:adrian:TEMP/_attribute/OBS:BranchRepositoriesFromProject'
     assert_response :success
 
     # use just some repositories
     login_king
-    post "/source/home:adrian:TEMP/_attribute", params: "
+    post '/source/home:adrian:TEMP/_attribute', params: "
         <attributes><attribute namespace='OBS' name='BranchSkipRepositories'>
           <value>repo1</value><value>repo3</value>
         </attribute></attributes>"
@@ -2535,9 +2535,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
     assert_response :success
-    assert_no_xml_tag(tag: 'repository', attributes: { name: "repo1" })
-    assert_xml_tag(tag: 'repository', attributes: { name: "repo2" })
-    assert_no_xml_tag(tag: 'repository', attributes: { name: "repo3" })
+    assert_no_xml_tag(tag: 'repository', attributes: { name: 'repo1' })
+    assert_xml_tag(tag: 'repository', attributes: { name: 'repo2' })
+    assert_no_xml_tag(tag: 'repository', attributes: { name: 'repo3' })
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
     # again as maintenance branch
@@ -2545,14 +2545,14 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
     assert_response :success
-    assert_no_xml_tag(tag: 'repository', attributes: { name: "home_adrian_TEMP_repo1" })
-    assert_xml_tag(tag: 'repository', attributes: { name: "home_adrian_TEMP_repo2" })
-    assert_no_xml_tag(tag: 'repository', attributes: { name: "home_adrian_TEMP_repo3" })
+    assert_no_xml_tag(tag: 'repository', attributes: { name: 'home_adrian_TEMP_repo1' })
+    assert_xml_tag(tag: 'repository', attributes: { name: 'home_adrian_TEMP_repo2' })
+    assert_no_xml_tag(tag: 'repository', attributes: { name: 'home_adrian_TEMP_repo3' })
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
 
     # cleanup
-    delete "/source/home:adrian:TEMP/_attribute/OBS:BranchSkipRepositories"
+    delete '/source/home:adrian:TEMP/_attribute/OBS:BranchSkipRepositories'
     assert_response :success
     delete '/source/home:adrian:TEMP'
     assert_response :success
@@ -2577,7 +2577,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:adrian:branches:home:adrian:IMAGES/_meta'
     assert_response :success
     assert_xml_tag(tag: 'repository', attributes: { name: 'images' })
-    assert_xml_tag(tag: 'path', attributes: { project: "BaseDistro", repository: "BaseDistro_repo" })
+    assert_xml_tag(tag: 'path', attributes: { project: 'BaseDistro', repository: 'BaseDistro_repo' })
 
     get '/source/home:adrian:branches:home:adrian:IMAGES/_config'
     assert_response :success
@@ -2647,7 +2647,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     assert_xml_tag tag: 'status', attributes: { code: 'unknown_project' }
     # create project
-    doc.root.attributes['name'] = "home:Iggy:TEST"
+    doc.root.attributes['name'] = 'home:Iggy:TEST'
     put '/source/home:Iggy:TEST/_meta', params: doc.to_s
     assert_response :success
     # but now it works for real
@@ -2944,27 +2944,27 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     post '/source/home:Iggy/TestPackBranch?cmd=collectbuildenv'
     assert_response 400
-    assert_xml_tag tag: 'status', attributes: { code: "missing_parameter" }
+    assert_xml_tag tag: 'status', attributes: { code: 'missing_parameter' }
 
     post '/source/home:Iggy/TestPackBranch?cmd=collectbuildenv&oproject=home:Iggy&opackage=TestPack&comment=my+collectbuildenv'
     assert_response :success
 
     get '/source/home:Iggy/TestPackBranch/_history'
     assert_response :success
-    assert_xml_tag tag: 'comment', content: "my collectbuildenv"
+    assert_xml_tag tag: 'comment', content: 'my collectbuildenv'
 
     # global fallback _buildenv, contains always an error
     get '/source/home:Iggy/TestPackBranch/_buildenv'
     assert_response :success
-    assert_xml_tag tag: 'error', content: "no buildenv for this repo/arch"
+    assert_xml_tag tag: 'error', content: 'no buildenv for this repo/arch'
 
     # specialized buildenv, does not exist in source
     get '/source/home:Iggy/TestPackBranch/_buildenv.10.2.i586'
     assert_response :success
-    assert_xml_tag tag: 'error', content: "_buildenv missing in home:Iggy/10.2"
+    assert_xml_tag tag: 'error', content: '_buildenv missing in home:Iggy/10.2'
     get '/source/home:Iggy/TestPackBranch/_buildenv.10.2.x86_64'
     assert_response :success
-    assert_xml_tag tag: 'error', content: "_buildenv missing in home:Iggy/10.2"
+    assert_xml_tag tag: 'error', content: '_buildenv missing in home:Iggy/10.2'
 
     # from BaseDistro project, we build against
     post '/source/home:Iggy/TestPackBranch?cmd=collectbuildenv&oproject=BaseDistro&opackage=pack1&comment=my+collectbuildenv'
@@ -2972,12 +2972,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # global fallback _buildenv, contains always an error
     get '/source/home:Iggy/TestPackBranch/_buildenv'
     assert_response :success
-    assert_xml_tag tag: 'error', content: "no buildenv for this repo/arch"
+    assert_xml_tag tag: 'error', content: 'no buildenv for this repo/arch'
 
     # specialized buildenv, contains the right repo name
     get '/source/home:Iggy/TestPackBranch/_buildenv.10.2.i586'
     assert_response :success
-    assert_xml_tag tag: 'error', content: "_buildenv missing in BaseDistro/BaseDistro_repo"
+    assert_xml_tag tag: 'error', content: '_buildenv missing in BaseDistro/BaseDistro_repo'
 
     # cleanup
     delete '/source/home:Iggy/TestPackBranch'
@@ -3158,12 +3158,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     post '/source/kde4/kdelibs?cmd=branch&target_project=home:Iggy&target_package=kdelibs_upstream'
     assert_response :success
-    put "/source/home:Iggy/kdelibs_upstream/kdelibs.changes", params: File.open("#{Rails.root}/test/fixtures/backend/source/kde4/kdelibs/kdelibs.changes").read
+    put '/source/home:Iggy/kdelibs_upstream/kdelibs.changes', params: File.open("#{Rails.root}/test/fixtures/backend/source/kde4/kdelibs/kdelibs.changes").read
     post '/source/home:Iggy/kdelibs_upstream?cmd=branch&target_project=home:Iggy&target_package=kdelibs_branch'
     assert_response :success
     # apply conflicting changes for diff3 ... but not for our changes merge tool
-    put "/source/home:Iggy/kdelibs_branch/kdelibs.changes", params: File.open("#{Rails.root}/test/fixtures/backend/source/kde4/kdelibs/kdelibs.changes.branch").read
-    put "/source/home:Iggy/kdelibs_upstream/kdelibs.changes", params: File.open("#{Rails.root}/test/fixtures/backend/source/kde4/kdelibs/kdelibs.changes.new").read
+    put '/source/home:Iggy/kdelibs_branch/kdelibs.changes', params: File.open("#{Rails.root}/test/fixtures/backend/source/kde4/kdelibs/kdelibs.changes.branch").read
+    put '/source/home:Iggy/kdelibs_upstream/kdelibs.changes', params: File.open("#{Rails.root}/test/fixtures/backend/source/kde4/kdelibs/kdelibs.changes.new").read
 
     # merge is working?
     get '/source/home:Iggy/kdelibs_branch?expand=1'
@@ -3376,28 +3376,28 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # check search interface
     get '/search/channel/binary?match=@project="home:Iggy"+and+@name="glibc-devel"'
     assert_response :success
-    assert_xml_tag tag: "collection", attributes: { matches: "1" }
-    assert_xml_tag parent: { tag: "channel", attributes: { project: "home:Iggy", package: "TestChannel" } },
-                   tag: "binary", attributes: { package: "pack1", name: "glibc-devel", binaryarch: "noarch" }
-    assert_xml_tag parent: { tag: "channel", attributes: { project: "home:Iggy", package: "TestChannel" } },
-                   tag: "target", attributes: { project: "BaseDistro", repository: "BaseDistro_repo" }
+    assert_xml_tag tag: 'collection', attributes: { matches: '1' }
+    assert_xml_tag parent: { tag: 'channel', attributes: { project: 'home:Iggy', package: 'TestChannel' } },
+                   tag: 'binary', attributes: { package: 'pack1', name: 'glibc-devel', binaryarch: 'noarch' }
+    assert_xml_tag parent: { tag: 'channel', attributes: { project: 'home:Iggy', package: 'TestChannel' } },
+                   tag: 'target', attributes: { project: 'BaseDistro', repository: 'BaseDistro_repo' }
     get '/search/channel/binary?match=@package="pack1"'
     assert_response :success
-    assert_xml_tag tag: "collection", attributes: { matches: "1" }
+    assert_xml_tag tag: 'collection', attributes: { matches: '1' }
     get '/search/channel/binary?match=@binaryarch="noarch"'
     assert_response :success
-    assert_xml_tag tag: "collection", attributes: { matches: "1" }
+    assert_xml_tag tag: 'collection', attributes: { matches: '1' }
     # no product, but no crash either. More checks are in channel_maintenance test case
     get '/search/channel/binary?match=updatefor/[@project="not_defined"+and+@product="missing"]'
     assert_response :success
-    assert_xml_tag tag: "collection", attributes: { matches: "0" }
+    assert_xml_tag tag: 'collection', attributes: { matches: '0' }
     # simple short form test
     get '/search/channel/binary/id?match=@name="glibc-devel"'
     assert_response :success
-    assert_xml_tag tag: "collection", attributes: { matches: "1" }
-    assert_xml_tag tag: "channel", attributes: { project: "home:Iggy", package: "TestChannel" }
-    assert_xml_tag tag: "binary", attributes: { package: "pack1", name: "glibc-devel", binaryarch: "noarch" }
-    assert_no_xml_tag tag: "target"
+    assert_xml_tag tag: 'collection', attributes: { matches: '1' }
+    assert_xml_tag tag: 'channel', attributes: { project: 'home:Iggy', package: 'TestChannel' }
+    assert_xml_tag tag: 'binary', attributes: { package: 'pack1', name: 'glibc-devel', binaryarch: 'noarch' }
+    assert_no_xml_tag tag: 'target'
 
     # cleanup
     delete '/source/home:Iggy/TestChannel'
@@ -3489,30 +3489,30 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_tom
 
     # create a project link
-    raw_put "/source/home:tom:LINK_TEST/_meta",
+    raw_put '/source/home:tom:LINK_TEST/_meta',
             '<project name="home:tom:LINK_TEST"><title/><description/><link project="BaseDistro2.0:LinkedUpdateProject"/></project>'
     assert_response :success
 
     login_Iggy
-    post "/source/home:tom:LINK_TEST?cmd=freezelink"
+    post '/source/home:tom:LINK_TEST?cmd=freezelink'
     assert_response 403
 
     login_tom
-    get "/source/home:tom:LINK_TEST/_project/_frozenlinks?meta=1"
+    get '/source/home:tom:LINK_TEST/_project/_frozenlinks?meta=1'
     assert_response 404
 
-    post "/source/home:tom:LINK_TEST?cmd=freezelink"
+    post '/source/home:tom:LINK_TEST?cmd=freezelink'
     assert_response :success
 
-    get "/source/home:tom:LINK_TEST/_project/_frozenlinks?meta=1"
+    get '/source/home:tom:LINK_TEST/_project/_frozenlinks?meta=1'
     assert_response :success
-    assert_xml_tag tag: "frozenlink", attributes: { project: "BaseDistro2.0:LinkedUpdateProject" }
-    assert_xml_tag tag: "package", attributes: { name: "pack2" }
-    assert_xml_tag tag: "package", attributes: { name: "pack2.linked" }
-    assert_xml_tag tag: "package", attributes: { name: "pack_local" }
+    assert_xml_tag tag: 'frozenlink', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject' }
+    assert_xml_tag tag: 'package', attributes: { name: 'pack2' }
+    assert_xml_tag tag: 'package', attributes: { name: 'pack2.linked' }
+    assert_xml_tag tag: 'package', attributes: { name: 'pack_local' }
 
     # cleanup
-    delete "/source/home:tom:LINK_TEST"
+    delete '/source/home:tom:LINK_TEST'
     assert_response :success
   end
 
@@ -3558,12 +3558,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_branch_creating_project
     post '/source/home:Iggy/TestPack', params: { cmd: :branch }
     assert_response 401
-    assert_xml_tag tag: "status", attributes: { code: "authentication_required" }
+    assert_xml_tag tag: 'status', attributes: { code: 'authentication_required' }
     Configuration.stubs(:anonymous).returns(false)
     # still 401 and not 403 (or it breaks osc login)
     post '/source/home:Iggy/TestPack', params: { cmd: :branch }
     assert_response 401
-    assert_xml_tag tag: "status", attributes: { code: "authentication_required" }
+    assert_xml_tag tag: 'status', attributes: { code: 'authentication_required' }
 
     prepare_request_with_user 'fredlibs', 'buildservice'
     # ensure he has no home project
@@ -3590,7 +3590,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # auto delete attribute got created
     get '/source/home:fredlibs:branches:home:Iggy/_attribute'
     assert_response :success
-    assert_xml_tag tag: "value", parent: { tag: "attribute", attributes: { name: "AutoCleanup", namespace: "OBS" } }
+    assert_xml_tag tag: 'value', parent: { tag: 'attribute', attributes: { name: 'AutoCleanup', namespace: 'OBS' } }
 
     # in future
     Timecop.freeze(10.days) do
@@ -3599,8 +3599,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # validate request
     br = BsRequest.all.last
     assert_equal br.state, :new
-    assert_equal br.bs_request_actions.first.type, "delete"
-    assert_equal br.bs_request_actions.first.target_project, "home:fredlibs:branches:home:Iggy"
+    assert_equal br.bs_request_actions.first.type, 'delete'
+    assert_equal br.bs_request_actions.first.target_project, 'home:fredlibs:branches:home:Iggy'
     assert_not_nil br.accept_at
     # second run shall not open another request
     # in future
@@ -3850,7 +3850,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                   ['disable', { repository: '10.2', arch: 'x86_64', explicit: '1' }],
                   ['enable', { arch: 'i586' }],
                   ['enable', { arch: 'x86_64' }],
-                  ['enable', { explicit: "1" }]],
+                  ['enable', { explicit: '1' }]],
                  projects(:home_Iggy).reload.expand_flags['build'])
   end
 
@@ -4103,9 +4103,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   # _attribute is a "file", but can only be written by API->backend not directly
   def test_puting__attribute_to_backend
     login_tom
-    put "/source/home:tom/_project/_attribute?meta=1", params: ''
+    put '/source/home:tom/_project/_attribute?meta=1', params: ''
     assert_response 400
-    assert_select 'status[code] > summary', "Attributes need to be changed through /source/home:tom/_attribute"
+    assert_select 'status[code] > summary', 'Attributes need to be changed through /source/home:tom/_attribute'
   end
 
   def test_obscpio_deltastore
@@ -4171,11 +4171,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:tom:threeatatime/_meta'
     assert_response :success
-    assert_xml_tag tag: "path", attributes: { project: "home:tom:threeatatime", repository: "standard" },
-                   parent: { tag: "repository", attributes: { name: "images" } }
-    assert_xml_tag tag: "path", attributes: { project: "home:tom:threeatatime", repository: "standard2" },
-                   parent: { tag: "repository", attributes: { name: "standard" } }
-    assert_xml_tag tag: "repository", attributes: { name: "standard2" }
+    assert_xml_tag tag: 'path', attributes: { project: 'home:tom:threeatatime', repository: 'standard' },
+                   parent: { tag: 'repository', attributes: { name: 'images' } }
+    assert_xml_tag tag: 'path', attributes: { project: 'home:tom:threeatatime', repository: 'standard2' },
+                   parent: { tag: 'repository', attributes: { name: 'standard' } }
+    assert_xml_tag tag: 'repository', attributes: { name: 'standard2' }
 
     raw_put('/source/home:tom:threeatatime/dummy/_meta', '<package name="dummy" project="home:tom:threeatatime"><title/><description/></package>')
     assert_response :success
@@ -4184,17 +4184,17 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     get '/source/home:tom:branches:home:tom:threeatatime/_meta'
     assert_response :success
-    assert_xml_tag tag: "path", attributes: { project: "home:tom:branches:home:tom:threeatatime", repository: "standard" },
-                   parent: { tag: "repository", attributes: { name: "images" } }
-    assert_xml_tag tag: "path", attributes: { project: "home:tom:branches:home:tom:threeatatime", repository: "standard2" },
-                   parent: { tag: "repository", attributes: { name: "standard" } }
-    assert_xml_tag tag: "path", attributes: { project: "home:tom:threeatatime", repository: "standard2" },
-                   parent: { tag: "repository", attributes: { name: "standard2" } }
-    assert_xml_tag tag: "repository", attributes: { name: "standard2" }
+    assert_xml_tag tag: 'path', attributes: { project: 'home:tom:branches:home:tom:threeatatime', repository: 'standard' },
+                   parent: { tag: 'repository', attributes: { name: 'images' } }
+    assert_xml_tag tag: 'path', attributes: { project: 'home:tom:branches:home:tom:threeatatime', repository: 'standard2' },
+                   parent: { tag: 'repository', attributes: { name: 'standard' } }
+    assert_xml_tag tag: 'path', attributes: { project: 'home:tom:threeatatime', repository: 'standard2' },
+                   parent: { tag: 'repository', attributes: { name: 'standard2' } }
+    assert_xml_tag tag: 'repository', attributes: { name: 'standard2' }
 
-    delete "/source/home:tom:branches:home:tom:threeatatime?force=1"
+    delete '/source/home:tom:branches:home:tom:threeatatime?force=1'
     assert_response :success
-    delete "/source/home:tom:threeatatime?force=1"
+    delete '/source/home:tom:threeatatime?force=1'
     assert_response :success
 
     get '/source/home:tom:threeatatime'
@@ -4206,12 +4206,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     get '/source/home:Iggy/_config'
     assert_response :success
-    assert_equal @response.body.strip, File.read("test/fixtures/files/home_iggy_project_config.txt").strip
+    assert_equal @response.body.strip, File.read('test/fixtures/files/home_iggy_project_config.txt').strip
   end
 
   def test_updating_config_file
-    project_config = File.read("test/fixtures/files/home_iggy_project_config.txt")
-    new_project_config = File.read("test/fixtures/files/new_home_iggy_project_config.txt")
+    project_config = File.read('test/fixtures/files/home_iggy_project_config.txt')
+    new_project_config = File.read('test/fixtures/files/new_home_iggy_project_config.txt')
 
     login_Iggy
 

@@ -14,7 +14,7 @@ namespace :statistics do
       date += 1.day
       old_users = num_users
     end
-    out_file = File.new("number_users.txt", "w")
+    out_file = File.new('number_users.txt', 'w')
     out_file.puts(information)
     out_file.close
   end

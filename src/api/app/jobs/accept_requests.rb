@@ -3,7 +3,7 @@ class AcceptRequestsJob < ApplicationJob
     User.current = User.find_by_login('Admin')
     BsRequest.to_accept.each do |r|
       begin
-        r.change_state('accepted', comment: "Auto accept")
+        r.change_state('accepted', comment: 'Auto accept')
       rescue BsRequestAction::UnknownProject,
              Package::UnknownObjectError,
              Package::ReadAccessError,

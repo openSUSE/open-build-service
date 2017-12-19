@@ -4,9 +4,9 @@ task(writeconfiguration: :environment) { ::Configuration.first.write_to_backend 
 desc 'Update all package meta now'
 task(updatepackagemeta: :environment) { UpdatePackageMetaJob.new.perform }
 
-desc "Import all requests from the backend now"
+desc 'Import all requests from the backend now'
 task(importrequests: :environment) do
-  lastrq = Backend::Connection.get("/request/_lastid").body.to_i
+  lastrq = Backend::Connection.get('/request/_lastid').body.to_i
   while lastrq > 0
     begin
       xml = Backend::Connection.get("/request/#{lastrq}").body
@@ -29,7 +29,7 @@ desc 'Fix inconsitent projects now, specify project with: project=MyProject'
 task(fix_project: :environment) { ConsistencyCheckJob.new.fix_project }
 
 namespace :jobs do
-  desc "Inject a job to write issue tracker information to backend"
+  desc 'Inject a job to write issue tracker information to backend'
   task(issuetrackers: :environment) { IssueTracker.first.try(:save!) }
 
   desc 'Update all changed issues from remote IssueTrackers now'

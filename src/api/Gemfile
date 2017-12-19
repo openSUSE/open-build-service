@@ -35,7 +35,7 @@ gem 'escape_utils'
 # to sanitize HTML/CSS
 gem 'sanitize'
 # as authorization system
-gem "pundit"
+gem 'pundit'
 # for password hashing
 gem 'bcrypt'
 #
@@ -65,7 +65,7 @@ gem 'peek'
 gem 'peek-dalli'
 gem 'peek-mysql2'
 # for kerberos authentication
-gem "gssapi", require: false
+gem 'gssapi', require: false
 # for sending events to rabbitmq
 gem 'bunny'
 # for making changes to existing data

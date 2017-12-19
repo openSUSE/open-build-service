@@ -16,7 +16,7 @@ class SimplifyUserStates < ActiveRecord::Migration[4.2]
 
   def self.down
     # new state enum
-    execute "ALTER TABLE users add column old_state int;"
+    execute 'ALTER TABLE users add column old_state int;'
 
     execute "UPDATE users SET old_state = 1 where state = 'unconfirmed';"
     execute "UPDATE users SET old_state = 2 where state = 'confirmed';"

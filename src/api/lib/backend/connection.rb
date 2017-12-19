@@ -27,19 +27,19 @@ module Backend
         end
       end
 
-      Backend::Logger.info("GET", host, port, path, response, start_time)
+      Backend::Logger.info('GET', host, port, path, response, start_time)
       handle_response(response)
     end
 
     def self.put(path, data, in_headers = {})
-      put_or_post("PUT", path, data, in_headers)
+      put_or_post('PUT', path, data, in_headers)
     end
 
     def self.post(path, data = nil, in_headers = {})
       in_headers = {
         'Content-Type' => 'application/octet-stream'
       }.merge in_headers
-      put_or_post("POST", path, data, in_headers)
+      put_or_post('POST', path, data, in_headers)
     end
 
     def self.delete(path, in_headers = {})
@@ -52,7 +52,7 @@ module Backend
         http.read_timeout = timeout
         http.request(backend_request)
       end
-      Backend::Logger.info("DELETE", host, port, path, response, start_time)
+      Backend::Logger.info('DELETE', host, port, path, response, start_time)
       handle_response(response)
     end
 
@@ -65,13 +65,13 @@ module Backend
 
           if hash[key].nil?
             # just a boolean argument ?
-            [hash[key]].flat_map { key }.join("&")
+            [hash[key]].flat_map { key }.join('&')
           else
-            [hash[key]].flat_map { "#{key}=#{CGI.escape(hash[key].to_s)}" }.join("&")
+            [hash[key]].flat_map { "#{key}=#{CGI.escape(hash[key].to_s)}" }.join('&')
           end
         end
       end
-      query.empty? ? "" : "?#{query.compact.join('&')}"
+      query.empty? ? '' : "?#{query.compact.join('&')}"
     end
 
     #### To define class methods as private use private_class_method
@@ -82,7 +82,7 @@ module Backend
       start_time = Time.now
       Rails.logger.debug "[backend] #{method}: #{path}"
       timeout = in_headers.delete('Timeout')
-      if method == "PUT"
+      if method == 'PUT'
         backend_request = Net::HTTP::Put.new(path, in_headers)
       else
         backend_request = Net::HTTP::Post.new(path, in_headers)
@@ -95,7 +95,7 @@ module Backend
       end
 
       response = Net::HTTP.start(host, port) do |http|
-        if method == "POST"
+        if method == 'POST'
           # POST requests can be quite complicate and take some time ..
           http.read_timeout = timeout || 100000
         else
@@ -120,11 +120,11 @@ module Backend
       when Net::HTTPSuccess, Net::HTTPRedirection, Net::HTTPOK
         return response
       when Net::HTTPNotFound
-        raise ActiveXML::Transport::NotFoundError, response.read_body.force_encoding("UTF-8")
+        raise ActiveXML::Transport::NotFoundError, response.read_body.force_encoding('UTF-8')
       else
         message = response.read_body
         message = response.to_s if message.blank?
-        raise ActiveXML::Transport::Error, message.force_encoding("UTF-8")
+        raise ActiveXML::Transport::Error, message.force_encoding('UTF-8')
       end
     end
 

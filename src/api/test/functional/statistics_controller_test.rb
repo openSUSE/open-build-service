@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'time'
 
 class StatisticsControllerTest < ActionDispatch::IntegrationTest
@@ -12,160 +12,160 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
   def test_latest_added
     login_adrian
-    get url_for(controller: :source, action: :show_package_meta, project: "HiddenProject", package: "test_latest_added")
+    get url_for(controller: :source, action: :show_package_meta, project: 'HiddenProject', package: 'test_latest_added')
     assert_response 404
-    put url_for(controller: :source, action: :update_package_meta, project: "HiddenProject", package: "test_latest_added"),
+    put url_for(controller: :source, action: :update_package_meta, project: 'HiddenProject', package: 'test_latest_added'),
         params: '<package project="HiddenProject" name="test_latest_added"> <title/> <description/> </package>'
     assert_response 200
-    assert_xml_tag(tag: "status", attributes: { code: "ok" })
+    assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
 
     get url_for(controller: :statistics, action: :latest_added)
     assert_response :success
     assert_xml_tag tag: 'latest_added', child: { tag: 'package' }
-    assert_xml_tag tag: 'package', attributes: { name: "test_latest_added" }
+    assert_xml_tag tag: 'package', attributes: { name: 'test_latest_added' }
 
     login_tom
     get url_for(controller: :statistics, action: :latest_added)
     assert_response :success
     assert_xml_tag tag: 'latest_added', child: { tag: 'project' }
     assert_xml_tag tag: 'project', attributes: {
-      name: "home:adrian"
+      name: 'home:adrian'
     }
 
     login_fred
-    get url_for(controller: :source, action: :show_package_meta, project: "kde4", package: "test_latest_added1")
+    get url_for(controller: :source, action: :show_package_meta, project: 'kde4', package: 'test_latest_added1')
     assert_response 404
-    put url_for(controller: :source, action: :update_package_meta, project: "kde4", package: "test_latest_added1"),
+    put url_for(controller: :source, action: :update_package_meta, project: 'kde4', package: 'test_latest_added1'),
         params: '<package project="kde4" name="test_latest_added1"> <title/> <description/> </package>'
     assert_response 200
-    assert_xml_tag(tag: "status", attributes: { code: "ok" })
+    assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
 
     get url_for(controller: :statistics, action: :latest_added)
     assert_response :success
     assert_xml_tag tag: 'latest_added', child: { tag: 'package' }
-    assert_xml_tag tag: 'package', attributes: { name: "test_latest_added1" }
+    assert_xml_tag tag: 'package', attributes: { name: 'test_latest_added1' }
 
     login_king
-    delete "/source/kde4/test_latest_added1"
+    delete '/source/kde4/test_latest_added1'
     assert_response :success
-    delete "/source/HiddenProject/test_latest_added"
+    delete '/source/HiddenProject/test_latest_added'
     assert_response :success
   end
 
   def test_latest_updated
     login_adrian
-    get url_for(controller: :source, action: :show_package_meta, project: "HiddenProject", package: "test_latest_added")
+    get url_for(controller: :source, action: :show_package_meta, project: 'HiddenProject', package: 'test_latest_added')
     assert_response 404
-    put url_for(controller: :source, action: :update_package_meta, project: "HiddenProject", package: "test_latest_added"),
+    put url_for(controller: :source, action: :update_package_meta, project: 'HiddenProject', package: 'test_latest_added'),
         params: '<package project="HiddenProject" name="test_latest_added"> <title/> <description/> </package>'
     assert_response 200
-    assert_xml_tag(tag: "status", attributes: { code: "ok" })
+    assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
 
     get url_for(controller: :statistics, action: :latest_updated)
     assert_response :success
     assert_xml_tag tag: 'latest_updated', child: { tag: 'package' }
-    assert_xml_tag tag: 'package', attributes: { name: "test_latest_added" }
+    assert_xml_tag tag: 'package', attributes: { name: 'test_latest_added' }
 
     login_tom
     get url_for(controller: :statistics, action: :latest_updated)
     assert_response :success
     assert_xml_tag tag: 'latest_updated', child: { tag: 'package' }
     assert_xml_tag tag: 'package', attributes: {
-      name: "Pack3"
+      name: 'Pack3'
     }
 
     login_fred
-    get url_for(controller: :source, action: :show_package_meta, project: "kde4", package: "test_latest_added1")
+    get url_for(controller: :source, action: :show_package_meta, project: 'kde4', package: 'test_latest_added1')
     assert_response 404
-    put url_for(controller: :source, action: :update_package_meta, project: "kde4", package: "test_latest_added1"),
+    put url_for(controller: :source, action: :update_package_meta, project: 'kde4', package: 'test_latest_added1'),
         params: '<package project="kde4" name="test_latest_added1"> <title/> <description/> </package>'
     assert_response 200
-    assert_xml_tag(tag: "status", attributes: { code: "ok" })
+    assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
 
     get url_for(controller: :statistics, action: :latest_updated)
     assert_response :success
     assert_xml_tag tag: 'latest_updated', child: { tag: 'package' }
-    assert_xml_tag tag: 'package', attributes: { name: "test_latest_added1" }
+    assert_xml_tag tag: 'package', attributes: { name: 'test_latest_added1' }
 
     login_king
-    delete "/source/kde4/test_latest_added1"
+    delete '/source/kde4/test_latest_added1'
     assert_response :success
-    delete "/source/HiddenProject/test_latest_added"
+    delete '/source/HiddenProject/test_latest_added'
     assert_response :success
   end
 
   def test_timestamp_calls
     login_adrian
-    get url_for(controller: :statistics, action: :added_timestamp, project: "HiddenProject", package: "pack")
+    get url_for(controller: :statistics, action: :added_timestamp, project: 'HiddenProject', package: 'pack')
     assert_response 200
 
-    get url_for(controller: :statistics, action: :updated_timestamp, project: "HiddenProject", package: "pack")
+    get url_for(controller: :statistics, action: :updated_timestamp, project: 'HiddenProject', package: 'pack')
     assert_response 200
 
-    get url_for(controller: :statistics, action: :added_timestamp, project: "kde4", package: "kdelibs")
+    get url_for(controller: :statistics, action: :added_timestamp, project: 'kde4', package: 'kdelibs')
     assert_response 200
 
-    get url_for(controller: :statistics, action: :updated_timestamp, project: "kde4", package: "kdelibs")
+    get url_for(controller: :statistics, action: :updated_timestamp, project: 'kde4', package: 'kdelibs')
     assert_response 200
 
     login_fred
-    get url_for(controller: :statistics, action: :added_timestamp, project: "kde4", package: "kdelibs")
+    get url_for(controller: :statistics, action: :added_timestamp, project: 'kde4', package: 'kdelibs')
     assert_response 200
 
-    get url_for(controller: :statistics, action: :updated_timestamp, project: "kde4", package: "kdelibs")
+    get url_for(controller: :statistics, action: :updated_timestamp, project: 'kde4', package: 'kdelibs')
     assert_response 200
 
-    get url_for(controller: :statistics, action: :added_timestamp, project: "HiddenProject", package: "not_existing")
+    get url_for(controller: :statistics, action: :added_timestamp, project: 'HiddenProject', package: 'not_existing')
     assert_response 404
 
-    get url_for(controller: :statistics, action: :updated_timestamp, project: "HiddenProject", package: "not_existing")
+    get url_for(controller: :statistics, action: :updated_timestamp, project: 'HiddenProject', package: 'not_existing')
     assert_response 404
 
-    get url_for(controller: :statistics, action: :added_timestamp, project: "HiddenProject")
+    get url_for(controller: :statistics, action: :added_timestamp, project: 'HiddenProject')
     assert_response 404
 
-    get url_for(controller: :statistics, action: :updated_timestamp, project: "HiddenProject")
+    get url_for(controller: :statistics, action: :updated_timestamp, project: 'HiddenProject')
     assert_response 404
   end
 
   def test_rating_and_activity
     login_adrian
-    get url_for(controller: :statistics, action: :rating, project: "kde4", package: "kdelibs")
+    get url_for(controller: :statistics, action: :rating, project: 'kde4', package: 'kdelibs')
     assert_response :success
 
-    get url_for(controller: :statistics, action: :rating, project: "kde4")
+    get url_for(controller: :statistics, action: :rating, project: 'kde4')
     assert_response :success
 
-    get url_for(controller: :statistics, action: :rating, project: "HiddenProject", package: "NOT_EXISTING")
+    get url_for(controller: :statistics, action: :rating, project: 'HiddenProject', package: 'NOT_EXISTING')
     assert_response 404
 
-    get url_for(controller: :statistics, action: :rating, project: "HiddenProject", package: nil)
+    get url_for(controller: :statistics, action: :rating, project: 'HiddenProject', package: nil)
     assert_response :success
 
-    get url_for(controller: :statistics, action: :activity, project: "kde4", package: "kdelibs")
+    get url_for(controller: :statistics, action: :activity, project: 'kde4', package: 'kdelibs')
     assert_response :success
 
-    get url_for(controller: :statistics, action: :activity, project: "kde4", package: nil)
+    get url_for(controller: :statistics, action: :activity, project: 'kde4', package: nil)
     assert_response :success
 
-    get url_for(controller: :statistics, action: :activity, project: "HiddenProject", package: "pack")
+    get url_for(controller: :statistics, action: :activity, project: 'HiddenProject', package: 'pack')
     assert_response :success
 
-    get url_for(controller: :statistics, action: :activity, project: "HiddenProject", package: nil)
+    get url_for(controller: :statistics, action: :activity, project: 'HiddenProject', package: nil)
     assert_response :success
 
     # no access to HiddenProject
     login_fred
-    get url_for(controller: :statistics, action: :rating, project: "kde4", package: "kdelibs")
+    get url_for(controller: :statistics, action: :rating, project: 'kde4', package: 'kdelibs')
     assert_response :success
 
-    get url_for(controller: :statistics, action: :rating, project: "HiddenProject", package: nil)
+    get url_for(controller: :statistics, action: :rating, project: 'HiddenProject', package: nil)
     assert_response 404
 
-    get url_for(controller: :statistics, action: :rating, project: "HiddenProject", package: "NOT_EXISTING")
+    get url_for(controller: :statistics, action: :rating, project: 'HiddenProject', package: 'NOT_EXISTING')
     assert_response 404
 
-    get url_for(controller: :statistics, action: :activity, project: "kde4", package: "kdelibs")
+    get url_for(controller: :statistics, action: :activity, project: 'kde4', package: 'kdelibs')
     assert_response :success
   end
 
@@ -177,20 +177,20 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
     assert_xml_tag tag: 'most_active', child: { tag: 'package' }
     assert_xml_tag tag: 'package', attributes: {
-      name:    "kdelibs",
-      project: "kde4"
+      name:    'kdelibs',
+      project: 'kde4'
     }
-    assert_no_xml_tag tag: 'package', attributes: { project: "HiddenProject" }
+    assert_no_xml_tag tag: 'package', attributes: { project: 'HiddenProject' }
 
     # get most active projects
     get url_for(controller: :statistics, action: :most_active_projects, limit: 0)
     assert_response :success
     assert_xml_tag tag: 'most_active', child: { tag: 'project' }
     assert_xml_tag tag: 'project', attributes: {
-      name:     "kde4",
+      name:     'kde4',
       packages: 2
     }
-    assert_no_xml_tag tag: 'project', attributes: { name: "HiddenProject" }
+    assert_no_xml_tag tag: 'project', attributes: { name: 'HiddenProject' }
 
     # redo as user, seeing the hidden project
     prepare_request_with_user 'hidden_homer', 'buildservice'
@@ -199,13 +199,13 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     assert_xml_tag tag: 'most_active', child: { tag: 'package' }
-    assert_xml_tag tag: 'package', attributes: { project: "HiddenProject" }
+    assert_xml_tag tag: 'package', attributes: { project: 'HiddenProject' }
 
     # get most active projects
     get url_for(controller: :statistics, action: :most_active_projects, limit: 0)
     assert_response :success
     assert_xml_tag tag: 'most_active', child: { tag: 'project' }
-    assert_xml_tag tag: 'project', attributes: { name: "HiddenProject" }
+    assert_xml_tag tag: 'project', attributes: { name: 'HiddenProject' }
   end
 
   # FIXME: works, but does not do anything usefull since 2.0 anymore

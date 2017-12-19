@@ -6,7 +6,7 @@ class Product < ApplicationRecord
   include CanRenderModel
 
   def self.find_or_create_by_name_and_package(name, package)
-    raise Product::NotFoundError, "Error: Package not valid." unless package.class == Package
+    raise Product::NotFoundError, 'Error: Package not valid.' unless package.class == Package
     product = find_by_name_and_package name, package
 
     product = create(name: name, package: package) if product.empty?
@@ -33,7 +33,7 @@ class Product < ApplicationRecord
 
   def set_CPE(sw_class, vendor, pversion = nil)
     # hack for old SLE 11 definitions
-    vendor = "suse" if vendor.start_with?("SUSE LINUX")
+    vendor = 'suse' if vendor.start_with?('SUSE LINUX')
     self.cpe = "cpe:/#{sw_class}:#{vendor.downcase}:#{name.downcase}"
     self.cpe += ":#{pversion}" if pversion.present?
   end
@@ -54,11 +54,11 @@ class Product < ApplicationRecord
     transaction do
       xml.elements('productdefinition') do |pd|
         # we are either an operating system or an application for CPE
-        sw_class = "o"
-        pd.elements("mediasets") do |ms|
-          ms.elements("media") do |m|
+        sw_class = 'o'
+        pd.elements('mediasets') do |ms|
+          ms.elements('media') do |m|
             # product depends on others, so it is no standalone operating system
-            sw_class = "a" unless m.elements("productdependency").empty?
+            sw_class = 'a' unless m.elements('productdependency').empty?
           end
         end
         pd.elements('products') do |ps|
@@ -132,7 +132,7 @@ class Product < ApplicationRecord
       product_update_repositories.each do |pu|
         next unless pu.repository # it may be remote or not yet exist
         key = pu.repository.id.to_s
-        key += "/" + pu.arch_filter.name if pu.arch_filter_id
+        key += '/' + pu.arch_filter.name if pu.arch_filter_id
         update[key] = pu
       end
       u.elements('repository') do |repo|

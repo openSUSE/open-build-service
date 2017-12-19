@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 
 class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
   def setup
@@ -10,7 +10,7 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     login_king
     get '/issue_trackers'
     assert_response :success
-    assert_select "issue-tracker", 24
+    assert_select 'issue-tracker', 24
   end
 
   def test_create_and_update_new_trackers
@@ -41,15 +41,15 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     # Show the newly created issue tracker
     get '/issue_trackers/test'
     assert_response :success
-    assert_xml_tag tag: "name", content: "test"
-    assert_xml_tag tag: "description", content: "My test issue tracker"
-    assert_xml_tag tag: "regex", content: "test#\d+test"
-    assert_xml_tag tag: "label", content: 'test#@@@+test'
-    assert_xml_tag tag: "enable-fetch", content: "false"
-    assert_xml_tag tag: "kind", content: "bugzilla"
-    assert_xml_tag tag: "url", content: "http://example.com"
-    assert_xml_tag tag: "show-url", content: 'http://example.com/@@@'
-    assert_no_xml_tag tag: "password"
+    assert_xml_tag tag: 'name', content: 'test'
+    assert_xml_tag tag: 'description', content: 'My test issue tracker'
+    assert_xml_tag tag: 'regex', content: "test#\d+test"
+    assert_xml_tag tag: 'label', content: 'test#@@@+test'
+    assert_xml_tag tag: 'enable-fetch', content: 'false'
+    assert_xml_tag tag: 'kind', content: 'bugzilla'
+    assert_xml_tag tag: 'url', content: 'http://example.com'
+    assert_xml_tag tag: 'show-url', content: 'http://example.com/@@@'
+    assert_no_xml_tag tag: 'password'
     get '/issue_trackers/test.json'
     assert_response :success
 
@@ -76,15 +76,15 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/issue_trackers/test'
     assert_response :success
-    assert_xml_tag tag: "name", content: "test"
-    assert_xml_tag tag: "description", content: "My even better test issue tracker"
-    assert_xml_tag tag: "regex", content: "tester#\d+"
-    assert_xml_tag tag: "label", content: 'tester#@@@+'
-    assert_xml_tag tag: "enable-fetch", content: "true"
-    assert_xml_tag tag: "kind", content: "cve"
-    assert_xml_tag tag: "url", content: "http://test.com"
-    assert_xml_tag tag: "show-url", content: "http://test.com/@@@"
-    assert_no_xml_tag tag: "password"
+    assert_xml_tag tag: 'name', content: 'test'
+    assert_xml_tag tag: 'description', content: 'My even better test issue tracker'
+    assert_xml_tag tag: 'regex', content: "tester#\d+"
+    assert_xml_tag tag: 'label', content: 'tester#@@@+'
+    assert_xml_tag tag: 'enable-fetch', content: 'true'
+    assert_xml_tag tag: 'kind', content: 'cve'
+    assert_xml_tag tag: 'url', content: 'http://test.com'
+    assert_xml_tag tag: 'show-url', content: 'http://test.com/@@@'
+    assert_no_xml_tag tag: 'password'
 
     # Delete that issue tracker again
     login_adrian

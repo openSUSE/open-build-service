@@ -20,7 +20,7 @@ class APIMatcher
   end
 
   def self.public_or_about_path?(request)
-    request.fullpath.start_with?("/public", "/about")
+    request.fullpath.start_with?('/public', '/about')
   end
 end
 
@@ -65,7 +65,7 @@ OBSApi::Application.routes.draw do
       collection do
         get ':project(/:package)/new' => :new, constraints: cons, as: 'new'
         get ':project(/:package)/:attribute/edit' => :edit, constraints: cons, as: 'edit'
-        get ':project(/:package)' => :index, constraints: cons, as: 'index', defaults: { format: "html" }
+        get ':project(/:package)' => :index, constraints: cons, as: 'index', defaults: { format: 'html' }
       end
     end
 
@@ -97,7 +97,7 @@ OBSApi::Application.routes.draw do
       get 'monitor/events' => :events
     end
 
-    defaults format: "html" do
+    defaults format: 'html' do
       controller 'webui/package' do
         get 'package/show/:project/:package' => :show, as: 'package_show', constraints: cons
         get 'package/dependency/:project/:package' => :dependency, constraints: cons
@@ -165,7 +165,7 @@ OBSApi::Application.routes.draw do
       post 'patchinfo/new_patchinfo' => :new_patchinfo
       post 'patchinfo/updatepatchinfo' => :updatepatchinfo
       get 'patchinfo/edit_patchinfo' => :edit_patchinfo
-      get 'patchinfo/show/:project/:package' => :show, as: 'patchinfo_show', constraints: cons, defaults: { format: "html" }
+      get 'patchinfo/show/:project/:package' => :show, as: 'patchinfo_show', constraints: cons, defaults: { format: 'html' }
       get 'patchinfo/read_patchinfo' => :read_patchinfo
       post 'patchinfo/save' => :save
       post 'patchinfo/remove' => :remove
@@ -174,7 +174,7 @@ OBSApi::Application.routes.draw do
     end
     #
     controller 'webui/repositories' do
-      get 'repositories/:project(/:package)' => :index, constraints: cons, as: 'repositories', defaults: { format: "html" }
+      get 'repositories/:project(/:package)' => :index, constraints: cons, as: 'repositories', defaults: { format: 'html' }
       get 'project/repositories/:project' => :index, constraints: cons, as: 'project_repositories'
       get 'project/add_repository/:project' => :new, constraints: cons
       get 'project/add_repository_from_default_list/:project' => :distributions, constraints: cons, as: :repositories_distributions
@@ -693,9 +693,9 @@ OBSApi::Application.routes.draw do
 
   controller :source do
     get 'source' => :index
-    post 'source' => :global_command_createmaintenanceincident, constraints: ->(req) { req.params[:cmd] == "createmaintenanceincident" }
-    post 'source' => :global_command_branch,                    constraints: ->(req) { req.params[:cmd] == "branch" }
-    post 'source' => :global_command_orderkiwirepos,            constraints: ->(req) { req.params[:cmd] == "orderkiwirepos" }
+    post 'source' => :global_command_createmaintenanceincident, constraints: ->(req) { req.params[:cmd] == 'createmaintenanceincident' }
+    post 'source' => :global_command_branch,                    constraints: ->(req) { req.params[:cmd] == 'branch' }
+    post 'source' => :global_command_orderkiwirepos,            constraints: ->(req) { req.params[:cmd] == 'orderkiwirepos' }
 
     # project level
     get 'source/:project' => :show_project, constraints: cons

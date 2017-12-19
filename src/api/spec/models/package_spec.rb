@@ -78,12 +78,12 @@ RSpec.describe Package, vcr: true do
     end
   end
 
-  context "is_admin?" do
-    it "returns true for admins" do
+  context 'is_admin?' do
+    it 'returns true for admins' do
       expect(admin.is_admin?).to be true
     end
 
-    it "returns false for non-admins" do
+    it 'returns false for non-admins' do
       expect(user.is_admin?).to be false
     end
   end
@@ -246,10 +246,10 @@ RSpec.describe Package, vcr: true do
   end
 
   describe '#self.valid_name?' do
-    context "invalid" do
+    context 'invalid' do
       it { expect(Package.valid_name?(10)).to be(false) }
 
-      it "has an invalid character in first position" do
+      it 'has an invalid character in first position' do
         property_of do
           string = sized(1) { string(/[-+_\.]/) } + sized(range(0, 199)) { string(/[-+\w\.]/) }
           guard string !~ /^(_product|_product:\w|_patchinfo|_patchinfo:\w|_pattern|_project)/
@@ -259,7 +259,7 @@ RSpec.describe Package, vcr: true do
         end
       end
 
-      it "has more than 200 characters" do
+      it 'has more than 200 characters' do
         property_of do
           sized(1) { string(/[a-zA-Z0-9]/) } + sized(200) { string(/[-+\w\.:]/) }
         end.check(3) do |string|
@@ -271,8 +271,8 @@ RSpec.describe Package, vcr: true do
       it { expect(Package.valid_name?('')).to be(false) }
     end
 
-    context "valid" do
-      it "general case" do
+    context 'valid' do
+      it 'general case' do
         property_of do
           string = sized(1) { string(/[a-zA-Z0-9]/) } + sized(range(0, 199)) { string(/[-+\w\.]/) }
           guard string != '0'
@@ -333,7 +333,7 @@ RSpec.describe Package, vcr: true do
   #
   # results = package_locallink.buildresults
   #
-  context "#buildresults" do
+  context '#buildresults' do
     let(:results) { package.buildresults }
     let(:results_test_package) { results['test_package'] }
     let(:results_test_package_source) { results['test_package:test_package-source'] }
@@ -390,7 +390,7 @@ RSpec.describe Package, vcr: true do
     let(:parameter) { "package=#{package.name}&view=revpkgnames" }
     let(:url) { "#{CONFIG['source_url']}/build/#{package.project}/#{repository}/#{architecture}/_builddepinfo?#{parameter}" }
     let(:result) { Package.what_depends_on(package.project, package, repository, architecture) }
-    let(:no_dependency) { "<builddepinfo />" }
+    let(:no_dependency) { '<builddepinfo />' }
 
     it 'builds backend path correct' do
       stub_request(:get, url).and_return(body: no_dependency)
@@ -410,11 +410,11 @@ RSpec.describe Package, vcr: true do
 
     context 'with one build dependency' do
       let(:one_dependency) do
-        "<builddepinfo>" +
-          "<package name=\"gcc6\">" +
-          "<pkgdep>gcc</pkgdep>" +
-          "</package>" +
-          "</builddepinfo>"
+        '<builddepinfo>' +
+          '<package name="gcc6">' +
+          '<pkgdep>gcc</pkgdep>' +
+          '</package>' +
+          '</builddepinfo>'
       end
 
       before do
@@ -428,12 +428,12 @@ RSpec.describe Package, vcr: true do
 
     context 'with more than one build dependency' do
       let(:two_dependencies) do
-        "<builddepinfo>" +
-          "<package name=\"gcc\">" +
-          "<pkgdep>gcc6</pkgdep>" +
-          "<pkgdep>xz</pkgdep>" +
-          "</package>" +
-          "</builddepinfo>"
+        '<builddepinfo>' +
+          '<package name="gcc">' +
+          '<pkgdep>gcc6</pkgdep>' +
+          '<pkgdep>xz</pkgdep>' +
+          '</package>' +
+          '</builddepinfo>'
       end
 
       before do
@@ -480,7 +480,7 @@ RSpec.describe Package, vcr: true do
 
       it 'has errors' do
         subject
-        expect(package.errors.details).to eq({ :base => [{ :error => "Exception from WebMock" }] })
+        expect(package.errors.details).to eq({ :base => [{ :error => 'Exception from WebMock' }] })
       end
     end
 
@@ -579,7 +579,7 @@ RSpec.describe Package, vcr: true do
         %(<reason>\n  <explain>source change</explain>  <time>1496387771</time>  <oldsource>1de56fdc419ea4282e35bd388285d370</oldsource></reason>))
     end
 
-    let(:result) { package.last_build_reason("openSUSE_Leap_42.3", "x86_64") }
+    let(:result) { package.last_build_reason('openSUSE_Leap_42.3', 'x86_64') }
 
     it 'returns a PackageBuildReason object' do
       expect(result).to be_a(PackageBuildReason)
@@ -602,7 +602,7 @@ RSpec.describe Package, vcr: true do
         stub_request(:get, path).and_return(body:
           %(<reason>\n  <explain>source change</explain>  <time>1496387771</time>  <oldsource>1de56fdc419ea4282e35bd388285d370</oldsource>
             <packagechange change="md5sum" key="libsystemd0-mini"/></reason>))
-        result = package.last_build_reason("openSUSE_Leap_42.3", "x86_64")
+        result = package.last_build_reason('openSUSE_Leap_42.3', 'x86_64')
 
         expect(result.packagechange).to eq(
           [
@@ -618,7 +618,7 @@ RSpec.describe Package, vcr: true do
         stub_request(:get, path).and_return(body:
           %(<reason>\n  <explain>source change</explain>  <time>1496387771</time>  <oldsource>1de56fdc419ea4282e35bd388285d370</oldsource>
             <packagechange change="md5sum" key="libsystemd0-mini"/><packagechange change="md5sum" key="python3-websockets"/></reason>))
-        result = package.last_build_reason("openSUSE_Leap_42.3", "x86_64")
+        result = package.last_build_reason('openSUSE_Leap_42.3', 'x86_64')
 
         expect(result.packagechange).to eq(
           [
@@ -728,6 +728,6 @@ Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
   describe '#add_maintainer' do
     subject { package }
 
-    it_behaves_like "makes a user a maintainer of the subject"
+    it_behaves_like 'makes a user a maintainer of the subject'
   end
 end

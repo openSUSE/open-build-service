@@ -1,8 +1,8 @@
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'ichain_notifier'
 
 class IchainNotifierTest < ActiveSupport::TestCase
-  CHARSET = "utf-8".freeze
+  CHARSET = 'utf-8'.freeze
 
   fixtures :users
 
@@ -13,15 +13,15 @@ class IchainNotifierTest < ActiveSupport::TestCase
     ActionMailer::Base.perform_deliveries = true
     ActionMailer::Base.deliveries = []
 
-    @user = User.find_by_login "tom"
+    @user = User.find_by_login 'tom'
     assert @user.valid?
 
     @expected = TMail::Mail.new
-    @expected.set_content_type "text", "plain", { "charset" => CHARSET }
+    @expected.set_content_type 'text', 'plain', { 'charset' => CHARSET }
     @expected.from    = 'admin@opensuse.org'
     @expected.to      = @user.email
     @expected['Precedence'] = 'bulk'
-    @expected.mime_version = "1.0"
+    @expected.mime_version = '1.0'
   end
 
   # FIXME: this test fails, if it happens not in the same second.

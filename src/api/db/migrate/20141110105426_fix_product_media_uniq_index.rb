@@ -20,10 +20,10 @@ class FixProductMediaUniqIndex < ActiveRecord::Migration[4.2]
     add_index :product_media, :product_id
     add_index :product_media, :arch_filter_id
     add_index :product_media, :name
-    add_index :product_media, [:product_id, :repository_id, :name, :arch_filter_id], unique: true, name: "index_unique"
-    execute("alter table product_media add foreign key (product_id) references products(id)")
-    execute("alter table product_media add foreign key (repository_id) references repositories(id)")
-    execute("alter table product_media add foreign key (arch_filter_id) references architectures(id)")
+    add_index :product_media, [:product_id, :repository_id, :name, :arch_filter_id], unique: true, name: 'index_unique'
+    execute('alter table product_media add foreign key (product_id) references products(id)')
+    execute('alter table product_media add foreign key (repository_id) references repositories(id)')
+    execute('alter table product_media add foreign key (arch_filter_id) references architectures(id)')
 
     drop_table :product_update_repositories
     create_table :product_update_repositories do |t|
@@ -33,10 +33,10 @@ class FixProductMediaUniqIndex < ActiveRecord::Migration[4.2]
     end
     add_index :product_update_repositories, :product_id
     add_index :product_update_repositories, :arch_filter_id
-    add_index :product_update_repositories, [:product_id, :repository_id, :arch_filter_id], unique: true, name: "index_unique"
-    execute("alter table product_update_repositories add foreign key (product_id) references products(id)")
-    execute("alter table product_update_repositories add foreign key (repository_id) references repositories(id)")
-    execute("alter table product_update_repositories add foreign key (arch_filter_id) references architectures(id)")
+    add_index :product_update_repositories, [:product_id, :repository_id, :arch_filter_id], unique: true, name: 'index_unique'
+    execute('alter table product_update_repositories add foreign key (product_id) references products(id)')
+    execute('alter table product_update_repositories add foreign key (repository_id) references repositories(id)')
+    execute('alter table product_update_repositories add foreign key (arch_filter_id) references architectures(id)')
 
     Delayed::Job.enqueue UpdatePackageMetaJob.new
   end
@@ -50,10 +50,10 @@ class FixProductMediaUniqIndex < ActiveRecord::Migration[4.2]
       t.string :name
     end
     add_index :product_media, :arch_filter_id
-    add_index :product_media, [:product_id, :repository_id, :name], unique: true, name: "index_unique"
-    execute("alter table product_media add foreign key (product_id) references products(id)")
-    execute("alter table product_media add foreign key (repository_id) references repositories(id)")
-    execute("alter table product_media add foreign key (arch_filter_id) references architectures(id)")
+    add_index :product_media, [:product_id, :repository_id, :name], unique: true, name: 'index_unique'
+    execute('alter table product_media add foreign key (product_id) references products(id)')
+    execute('alter table product_media add foreign key (repository_id) references repositories(id)')
+    execute('alter table product_media add foreign key (arch_filter_id) references architectures(id)')
 
     drop_table :product_update_repositories
     create_table :product_update_repositories do |t|
@@ -62,10 +62,10 @@ class FixProductMediaUniqIndex < ActiveRecord::Migration[4.2]
       t.integer :arch_filter_id
     end
     add_index :product_update_repositories, :arch_filter_id
-    add_index :product_update_repositories, [:product_id, :repository_id], unique: true, name: "index_unique"
-    execute("alter table product_update_repositories add foreign key (product_id) references products(id)")
-    execute("alter table product_update_repositories add foreign key (repository_id) references repositories(id)")
-    execute("alter table product_update_repositories add foreign key (arch_filter_id) references architectures(id)")
+    add_index :product_update_repositories, [:product_id, :repository_id], unique: true, name: 'index_unique'
+    execute('alter table product_update_repositories add foreign key (product_id) references products(id)')
+    execute('alter table product_update_repositories add foreign key (repository_id) references repositories(id)')
+    execute('alter table product_update_repositories add foreign key (arch_filter_id) references architectures(id)')
 
     Delayed::Job.enqueue UpdatePackageMetaJob.new
   end

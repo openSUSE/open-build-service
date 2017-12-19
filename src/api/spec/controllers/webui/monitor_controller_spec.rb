@@ -1,23 +1,23 @@
 require 'rails_helper'
 
 RSpec.describe Webui::MonitorController, vcr: true do
-  describe "GET #index" do
+  describe 'GET #index' do
     before do
       get :index
     end
 
-    it { is_expected.to render_template("webui/monitor/index") }
+    it { is_expected.to render_template('webui/monitor/index') }
   end
 
-  describe "GET #old" do
+  describe 'GET #old' do
     before do
       get :old
     end
 
-    it { is_expected.to render_template("webui/monitor/old") }
+    it { is_expected.to render_template('webui/monitor/old') }
   end
 
-  describe "GET #update_building" do
+  describe 'GET #update_building' do
     before do
       get :update_building, xhr: true
       @json_response = JSON.parse(response.body)
@@ -26,7 +26,7 @@ RSpec.describe Webui::MonitorController, vcr: true do
     it { expect(@json_response).to have_key('simulated') } # it relays on a simulated VCR cassette
   end
 
-  describe "GET #events" do
+  describe 'GET #events' do
     before do
       # x86_64
       create_list(:status_history, 10, source: 'squeue_high')

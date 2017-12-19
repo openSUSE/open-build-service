@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'json'
 # require '/usr/lib64/ruby/gems/1.9.1/gems/perftools.rb-2.0.0/lib/perftools.so'
 
@@ -11,18 +11,18 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_maintained_project_names
-    project = Project.create(name: "Z")
-    ["A", "B", "C"].each do |project_name|
+    project = Project.create(name: 'Z')
+    ['A', 'B', 'C'].each do |project_name|
       project.maintained_projects.create(project: Project.create(name: project_name))
     end
 
-    assert_equal ["A", "B", "C"], project.maintained_project_names
+    assert_equal ['A', 'B', 'C'], project.maintained_project_names
   end
 
   def test_flags_inheritance
     User.current = users(:Iggy)
 
-    project = Project.create(name: "home:Iggy:flagtest")
+    project = Project.create(name: 'home:Iggy:flagtest')
 
     # project is given as axml
     axml = Xmlhash.parse(
@@ -62,7 +62,7 @@ class ProjectTest < ActiveSupport::TestCase
       end
     end
 
-    package1 = project.packages.create(name: "test1")
+    package1 = project.packages.create(name: 'test1')
     # package is given as axml
     axml = Xmlhash.parse(
       "<package name='test1' project='home:Iggy:flagtest'>
@@ -95,7 +95,7 @@ class ProjectTest < ActiveSupport::TestCase
       end
     end
 
-    package2 = project.packages.create(name: "test2")
+    package2 = project.packages.create(name: 'test2')
     # package is given as axml
     axml = Xmlhash.parse(
       "<package name='test2' project='home:Iggy:flagtest'>
@@ -150,22 +150,22 @@ class ProjectTest < ActiveSupport::TestCase
     project.reload
 
     assert_equal 5, project.get_flags('build').size
-    assert_equal 3, project.get_flags('build')["all"].size
+    assert_equal 3, project.get_flags('build')['all'].size
 
-    flag_test = project.get_flags('build')["SLE_11_SP4"][0]
+    flag_test = project.get_flags('build')['SLE_11_SP4'][0]
     assert_equal 'enable', flag_test.status
     assert_equal 'enable', flag_test.effective_status
     assert_equal 'disable', flag_test.default_status
 
-    flag_all = project.get_flags('build')["all"][0]
+    flag_all = project.get_flags('build')['all'][0]
     assert_equal 'disable', flag_all.status
     assert_equal 'disable', flag_all.effective_status
     assert_equal 'enable', flag_all.default_status
 
     assert_equal 5, project.get_flags('useforbuild').size
-    assert_equal 3, project.get_flags('useforbuild')["all"].size
+    assert_equal 3, project.get_flags('useforbuild')['all'].size
 
-    flag_useforbuild_all = project.get_flags('useforbuild')["all"][0]
+    flag_useforbuild_all = project.get_flags('useforbuild')['all'][0]
     assert_equal 'disable', flag_useforbuild_all.status
     assert_equal 'disable', flag_useforbuild_all.effective_status
     assert_equal 'enable', flag_useforbuild_all.default_status
@@ -190,27 +190,27 @@ class ProjectTest < ActiveSupport::TestCase
     package2.reload
 
     assert_equal 5, package2.get_flags('build').size
-    assert_equal 3, package2.get_flags('build')["all"].size
+    assert_equal 3, package2.get_flags('build')['all'].size
 
-    flag_test = package2.get_flags('build')["SLE_12_SP1"][0]
+    flag_test = package2.get_flags('build')['SLE_12_SP1'][0]
     assert_equal 'disable', flag_test.status
     assert_equal 'disable', flag_test.effective_status
     assert_equal 'enable', flag_test.default_status
 
-    flag_build_all = package2.get_flags('build')["all"][0]
+    flag_build_all = package2.get_flags('build')['all'][0]
     assert_equal 'enable',  flag_build_all.status
     assert_equal 'enable',  flag_build_all.effective_status
     assert_equal 'disable', flag_build_all.default_status
 
     assert_equal 5, package2.get_flags('useforbuild').size
-    assert_equal 3, package2.get_flags('useforbuild')["all"].size
+    assert_equal 3, package2.get_flags('useforbuild')['all'].size
 
-    flag_useforbuild_all = package2.get_flags('useforbuild')["all"][0]
+    flag_useforbuild_all = package2.get_flags('useforbuild')['all'][0]
     assert_equal 'enable', flag_useforbuild_all.status
     assert_equal 'enable', flag_useforbuild_all.effective_status
     assert_equal 'disable', flag_useforbuild_all.default_status
 
-    package3 = project.packages.create(name: "test3")
+    package3 = project.packages.create(name: 'test3')
     # package is given as axml
     axml = Xmlhash.parse(
       "<package name='test3' project='home:Iggy:flagtest'>
@@ -233,26 +233,26 @@ class ProjectTest < ActiveSupport::TestCase
     package3.reload
 
     assert_equal 5, package3.get_flags('build').size
-    assert_equal 3, package3.get_flags('build')["all"].size
+    assert_equal 3, package3.get_flags('build')['all'].size
 
-    flag_test = package3.get_flags('build')["SLE_12_SP1"][1]
+    flag_test = package3.get_flags('build')['SLE_12_SP1'][1]
     assert_equal 'i586',    flag_test.architecture.name
     assert_equal 'disable', flag_test.status
     assert_equal 'disable', flag_test.effective_status
     assert_equal 'enable',  flag_test.default_status
 
-    flag_test = package3.get_flags('build')["SLE_11_SP4"][0]
+    flag_test = package3.get_flags('build')['SLE_11_SP4'][0]
     assert_equal 'enable', flag_test.status
     assert_equal 'enable', flag_test.effective_status
     assert_equal 'disable', flag_test.default_status
 
-    flag_test = package3.get_flags('build')["all"][0]
+    flag_test = package3.get_flags('build')['all'][0]
     assert_equal 'disable', flag_test.status
     assert_equal 'disable', flag_test.effective_status
     assert_equal 'disable', flag_test.default_status
 
     # now the final test: check all flags default in project and package
-    project2 = Project.create(name: "home:Iggy:flagtest2")
+    project2 = Project.create(name: 'home:Iggy:flagtest2')
     axml = Xmlhash.parse(
       "<project name='home:Iggy:flagtest2'>
         <title>Iggy's Flag Testing Project 2</title>
@@ -298,7 +298,7 @@ class ProjectTest < ActiveSupport::TestCase
       end
     end
 
-    package4 = project2.packages.create(name: "test4")
+    package4 = project2.packages.create(name: 'test4')
     axml = Xmlhash.parse(
       "<package name='test4' project='home:Iggy:flagtest2'>
         <title>My Test package 4</title>
@@ -336,35 +336,35 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_release_targets_ng
-    User.current = User.find_by_login "king"
+    User.current = User.find_by_login 'king'
 
-    project = Project.create(name: "ABC", kind: "maintenance")
+    project = Project.create(name: 'ABC', kind: 'maintenance')
     project.store
 
-    subproject = Project.create(name: "ABC:D", kind: "maintenance_incident")
+    subproject = Project.create(name: 'ABC:D', kind: 'maintenance_incident')
     subproject.store
 
-    repo_1 = Repository.create(name: "repo_1", db_project_id: subproject.id)
-    repo_2 = Repository.create(name: "repo_2", db_project_id: subproject.id)
-    repo_1.release_targets.create(trigger: "maintenance", target_repository_id: repo_2.id)
+    repo_1 = Repository.create(name: 'repo_1', db_project_id: subproject.id)
+    repo_2 = Repository.create(name: 'repo_2', db_project_id: subproject.id)
+    repo_1.release_targets.create(trigger: 'maintenance', target_repository_id: repo_2.id)
 
-    package = subproject.packages.create(name: "test2")
-    package.flags.create(flag: :build, status: "enable", repo: "repo_1")
+    package = subproject.packages.create(name: 'test2')
+    package.flags.create(flag: :build, status: 'enable', repo: 'repo_1')
 
-    Patchinfo.new.create_patchinfo("ABC:D", "_patchinfo", { comment:  "patchinfo summary" })
+    Patchinfo.new.create_patchinfo('ABC:D', '_patchinfo', { comment:  'patchinfo summary' })
 
     result = subproject.reload.release_targets_ng
-    assert_equal ["ABC:D"], result.keys
-    assert_equal "repo_1",  result["ABC:D"][:reponame]
+    assert_equal ['ABC:D'], result.keys
+    assert_equal 'repo_1',  result['ABC:D'][:reponame]
 
-    assert_equal 1, result["ABC:D"][:packages].count
-    assert_equal package.id, result["ABC:D"][:packages].first.id
-    assert_equal "test2", result["ABC:D"][:packages].first.name
+    assert_equal 1, result['ABC:D'][:packages].count
+    assert_equal package.id, result['ABC:D'][:packages].first.id
+    assert_equal 'test2', result['ABC:D'][:packages].first.name
 
-    assert_equal "patchinfo summary", result["ABC:D"][:patchinfo][:summary]
-    assert_equal "recommended",       result["ABC:D"][:patchinfo][:category]
+    assert_equal 'patchinfo summary', result['ABC:D'][:patchinfo][:summary]
+    assert_equal 'recommended',       result['ABC:D'][:patchinfo][:category]
 
-    assert_nil result["ABC:D"][:patchinfo][:stopped]
+    assert_nil result['ABC:D'][:patchinfo][:stopped]
   ensure
     # Prevent AAAPreConsistency check to fail
     project.destroy
@@ -556,7 +556,7 @@ class ProjectTest < ActiveSupport::TestCase
     @project.update_from_xml!(axml)
     @project.reload
     xml = @project.render_xml
-    assert_xml_tag xml, tag: :maintains, attributes: { project: "BaseDistro" }
+    assert_xml_tag xml, tag: :maintains, attributes: { project: 'BaseDistro' }
 
     # add one maintained project
     axml = Xmlhash.parse(
@@ -572,8 +572,8 @@ class ProjectTest < ActiveSupport::TestCase
     @project.update_from_xml!(axml)
     @project.reload
     xml = @project.render_xml
-    assert_xml_tag xml, tag: :maintains, attributes: { project: "BaseDistro" }
-    assert_xml_tag xml, tag: :maintains, attributes: { project: "BaseDistro2.0" }
+    assert_xml_tag xml, tag: :maintains, attributes: { project: 'BaseDistro' }
+    assert_xml_tag xml, tag: :maintains, attributes: { project: 'BaseDistro2.0' }
 
     # remove one maintained project
     axml = Xmlhash.parse(
@@ -588,8 +588,8 @@ class ProjectTest < ActiveSupport::TestCase
     @project.update_from_xml!(axml)
     @project.reload
     xml = @project.render_xml
-    assert_no_xml_tag xml, tag: :maintains, attributes: { project: "BaseDistro" }
-    assert_xml_tag xml, tag: :maintains, attributes: { project: "BaseDistro2.0" }
+    assert_no_xml_tag xml, tag: :maintains, attributes: { project: 'BaseDistro' }
+    assert_xml_tag xml, tag: :maintains, attributes: { project: 'BaseDistro2.0' }
     assert_xml_tag xml, tag: :maintenance
 
     # drop entire <maintenance> defs
@@ -605,7 +605,7 @@ class ProjectTest < ActiveSupport::TestCase
     assert_no_xml_tag xml, tag: :maintenance
   end
 
-  test "duplicated repos" do
+  test 'duplicated repos' do
     User.current = users(:king)
     orig = @project.render_xml
 
@@ -630,7 +630,7 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal orig, @project.render_xml
   end
 
-  test "duplicated repos with remote" do
+  test 'duplicated repos with remote' do
     User.current = users(:Iggy)
     orig = @project.render_xml
 
@@ -658,7 +658,7 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal orig, @project.render_xml
   end
 
-  test "not duplicated repos with remote" do
+  test 'not duplicated repos with remote' do
     User.current = users(:Iggy)
     xml = <<-END.strip_heredoc
       <project name="home:Iggy">
@@ -696,7 +696,7 @@ class ProjectTest < ActiveSupport::TestCase
         <link project='home:Iggy' />
       </project>"
     )
-    project_a = Project.create(name: "home:Iggy:A")
+    project_a = Project.create(name: 'home:Iggy:A')
     project_a.update_from_xml!(axml)
     project_a.store
 
@@ -708,15 +708,15 @@ class ProjectTest < ActiveSupport::TestCase
         <link project='home:Iggy:A' />
       </project>"
     )
-    project_b = Project.create(name: "home:Iggy:B")
+    project_b = Project.create(name: 'home:Iggy:B')
     project_b.update_from_xml!(axml)
     project_b.store
 
     # validate xml
     xml_string = project_a.to_axml
-    assert_xml_tag xml_string, tag: :link, attributes: { project: "home:Iggy" }
+    assert_xml_tag xml_string, tag: :link, attributes: { project: 'home:Iggy' }
     xml_string = project_b.to_axml
-    assert_xml_tag xml_string, tag: :link, attributes: { project: "home:Iggy:A" }
+    assert_xml_tag xml_string, tag: :link, attributes: { project: 'home:Iggy:A' }
 
     project_a.destroy
     project_b.reload
@@ -728,7 +728,7 @@ class ProjectTest < ActiveSupport::TestCase
   def test_repository_with_download_url
     User.current = users(:king)
 
-    prj = Project.new(name: "DoD")
+    prj = Project.new(name: 'DoD')
     prj.update_from_xml!(Xmlhash.parse(
                            "<project name='DoD'>
                              <title/>
@@ -745,19 +745,19 @@ class ProjectTest < ActiveSupport::TestCase
     ))
 
     xml = prj.to_axml
-    assert_xml_tag xml, tag: :download, attributes: { arch: "i586", url: "http://me.org", repotype: "rpmmd" }
-    assert_xml_tag xml, tag: :archfilter, content: "i686,i586,noarch"
-    assert_xml_tag xml, tag: :master, attributes: { url: "http://download.opensuse.org", sslfingerprint: "0815" }
-    assert_xml_tag xml, tag: :pubkey, content: "grfzl"
+    assert_xml_tag xml, tag: :download, attributes: { arch: 'i586', url: 'http://me.org', repotype: 'rpmmd' }
+    assert_xml_tag xml, tag: :archfilter, content: 'i686,i586,noarch'
+    assert_xml_tag xml, tag: :master, attributes: { url: 'http://download.opensuse.org', sslfingerprint: '0815' }
+    assert_xml_tag xml, tag: :pubkey, content: 'grfzl'
   end
 
   def test_validate_remote_permissions
     # Single repository elements
-    request_data = Xmlhash.parse(load_backend_file("download_on_demand/project_with_dod.xml"))
+    request_data = Xmlhash.parse(load_backend_file('download_on_demand/project_with_dod.xml'))
     User.current = users(:king)
     assert Project.validate_remote_permissions(request_data).empty?
     User.current = users(:user5)
-    assert_equal "Admin rights are required to change projects using remote resources",
+    assert_equal 'Admin rights are required to change projects using remote resources',
                  Project.validate_remote_permissions(request_data)[:error]
 
     # With multiple repository elements
@@ -787,7 +787,7 @@ class ProjectTest < ActiveSupport::TestCase
   def test_repository_path_sync
     User.current = users(:king)
 
-    prj = Project.new(name: "Enterprise-SP0:GA")
+    prj = Project.new(name: 'Enterprise-SP0:GA')
     prj.update_from_xml!(Xmlhash.parse(
                            "<project name='Enterprise-SP0:GA'>
                              <title/>
@@ -795,7 +795,7 @@ class ProjectTest < ActiveSupport::TestCase
                              <repository name='sp0_ga' />
                            </project>"
     ))
-    prj = Project.new(name: "Enterprise-SP0:Update")
+    prj = Project.new(name: 'Enterprise-SP0:Update')
     prj.update_from_xml!(Xmlhash.parse(
                            "<project name='Enterprise-SP0:Update' kind='maintenance_release'>
                              <title/>
@@ -805,7 +805,7 @@ class ProjectTest < ActiveSupport::TestCase
                              </repository>
                            </project>"
     ))
-    prj = Project.new(name: "Enterprise-SP1:GA")
+    prj = Project.new(name: 'Enterprise-SP1:GA')
     prj.update_from_xml!(Xmlhash.parse(
                            "<project name='Enterprise-SP1:GA'>
                              <title/>
@@ -815,7 +815,7 @@ class ProjectTest < ActiveSupport::TestCase
                              </repository>
                            </project>"
     ))
-    prj = Project.new(name: "Enterprise-SP1:Update")
+    prj = Project.new(name: 'Enterprise-SP1:Update')
     prj.update_from_xml!(Xmlhash.parse(
                            "<project name='Enterprise-SP1:Update' kind='maintenance_release'>
                              <title/>
@@ -826,7 +826,7 @@ class ProjectTest < ActiveSupport::TestCase
                              </repository>
                            </project>"
     ))
-    prj = Project.new(name: "Enterprise-SP1:Channel:Server")
+    prj = Project.new(name: 'Enterprise-SP1:Channel:Server')
     prj.update_from_xml!(Xmlhash.parse(
                            "<project name='Enterprise-SP1:Channel:Server'>
                              <title/>
@@ -837,7 +837,7 @@ class ProjectTest < ActiveSupport::TestCase
                            </project>"
     ))
     # this is what the classic add_repository call is producing:
-    prj = Project.new(name: "My:Branch")
+    prj = Project.new(name: 'My:Branch')
     prj.update_from_xml!(Xmlhash.parse(
                            "<project name='My:Branch'>
                              <title/>
@@ -860,21 +860,21 @@ class ProjectTest < ActiveSupport::TestCase
     # be extended with later calls, we need to sync this always after finishing a
     # a setup of new branched packages with this sync function:
     xml = prj.to_axml
-    assert_xml_tag xml, tag: :repository, attributes: { name: "my_branch_sp1_update" },
+    assert_xml_tag xml, tag: :repository, attributes: { name: 'my_branch_sp1_update' },
                         children: { count: 1, only: { tag: :path } }
 
-    assert_no_xml_tag xml, tag: :path, attributes: { project: "My:Branch", repository: "my_branch_sp0_update" }
+    assert_no_xml_tag xml, tag: :path, attributes: { project: 'My:Branch', repository: 'my_branch_sp0_update' }
     prj.reload
     prj.sync_repository_pathes
     xml = prj.to_axml
-    assert_xml_tag xml, tag: :repository, attributes: { name: "my_branch_sp1_update" },
+    assert_xml_tag xml, tag: :repository, attributes: { name: 'my_branch_sp1_update' },
                         children: { count: 2, only: { tag: :path } }
-    assert_xml_tag xml, tag: :path, attributes: { project: "My:Branch", repository: "my_branch_sp0_update" }
+    assert_xml_tag xml, tag: :path, attributes: { project: 'My:Branch', repository: 'my_branch_sp0_update' }
     # untouched
-    assert_xml_tag xml, tag: :repository, attributes: { name: "my_branch_sp0_update" },
+    assert_xml_tag xml, tag: :repository, attributes: { name: 'my_branch_sp0_update' },
                         children: { count: 1, only: { tag: :path } }
-    assert_xml_tag xml, parent: { tag: :repository, attributes: { name: "Channel_Server" } },
-                        tag: :path, attributes: { project: "Enterprise-SP1:Channel:Server", repository: "channel" }
+    assert_xml_tag xml, parent: { tag: :repository, attributes: { name: 'Channel_Server' } },
+                        tag: :path, attributes: { project: 'Enterprise-SP1:Channel:Server', repository: 'channel' }
 
     # must not change again anything
     prj.sync_repository_pathes
@@ -898,20 +898,20 @@ class ProjectTest < ActiveSupport::TestCase
     assert !Project.valid_name?(10)
     assert !Project.valid_name?('')
     assert !Project.valid_name?('_foobar')
-    assert !Project.valid_name?("4" * 250)
+    assert !Project.valid_name?('4' * 250)
   end
 
   test 'valid name' do # spec/models/project_spec.rb
-    assert Project.valid_name?("foobar")
-    assert Project.valid_name?("Foobar_")
-    assert Project.valid_name?("foo1234")
-    assert Project.valid_name?("4" * 200)
+    assert Project.valid_name?('foobar')
+    assert Project.valid_name?('Foobar_')
+    assert Project.valid_name?('foo1234')
+    assert Project.valid_name?('4' * 200)
   end
 
   def test_cycle_handling
     User.current = users(:king)
 
-    prj_a = Project.new(name: "Project:A")
+    prj_a = Project.new(name: 'Project:A')
     prj_a.update_from_xml!(Xmlhash.parse(
                              "<project name='Project:A'>
                                <title/>
@@ -919,7 +919,7 @@ class ProjectTest < ActiveSupport::TestCase
                              </project>"
     ))
     prj_a.save!
-    prj_b = Project.new(name: "Project:B")
+    prj_b = Project.new(name: 'Project:B')
     prj_b.update_from_xml!(Xmlhash.parse(
                              "<project name='Project:B'>
                                <title/>
@@ -965,7 +965,7 @@ class ProjectTest < ActiveSupport::TestCase
     XML
 
     actual = Project.validate_maintenance_xml_attribute(Xmlhash.parse(xml))
-    expected = { error: "No write access to maintained project Apache" }
+    expected = { error: 'No write access to maintained project Apache' }
     assert_equal actual, expected
   end
 
@@ -1016,7 +1016,7 @@ class ProjectTest < ActiveSupport::TestCase
     flag.save
 
     actual = Project.validate_link_xml_attribute(Xmlhash.parse(xml), 'the_project')
-    expected = { error: "Project links work only when both projects have same read access protection level: the_project -> home:Iggy" }
+    expected = { error: 'Project links work only when both projects have same read access protection level: the_project -> home:Iggy' }
     assert_equal actual, expected
   end
 
@@ -1051,7 +1051,7 @@ class ProjectTest < ActiveSupport::TestCase
     XML
 
     actual = Project.validate_repository_xml_attribute(Xmlhash.parse(xml), 'other_project')
-    expected = { error: "The current backend implementation is not using binaries from read access protected projects home:Iggy" }
+    expected = { error: 'The current backend implementation is not using binaries from read access protected projects home:Iggy' }
     assert_equal actual, expected
   end
 
@@ -1168,7 +1168,7 @@ class ProjectTest < ActiveSupport::TestCase
     first_repository = project.repositories.first
 
     repository = repositories(:repositories_96)
-    repository.remote_project_name = "my_remote_repository"
+    repository.remote_project_name = 'my_remote_repository'
     repository.save
     project.repositories << repository
 
@@ -1222,8 +1222,8 @@ class ProjectTest < ActiveSupport::TestCase
   test 'linked_packages returns all packages from projects inherited by one level' do
     child = projects('BaseDistro2.0_LinkedUpdateProject')
 
-    assert_equal [["pack2", "BaseDistro2.0"], ["pack2.linked", "BaseDistro2.0"],
-                  ["pack_local", "BaseDistro2.0:LinkedUpdateProject"]],
+    assert_equal [['pack2', 'BaseDistro2.0'], ['pack2.linked', 'BaseDistro2.0'],
+                  ['pack_local', 'BaseDistro2.0:LinkedUpdateProject']],
                  child.expand_all_packages
   end
 
@@ -1260,9 +1260,9 @@ class ProjectTest < ActiveSupport::TestCase
       pack2 = parent.packages.where(name: 'pack2').first
       child.packages << pack2.dup
 
-      assert_equal [["pack2", "BaseDistro2.0:LinkedUpdateProject"],
-                    ["pack2.linked", "BaseDistro2.0"],
-                    ["pack_local", "BaseDistro2.0:LinkedUpdateProject"]],
+      assert_equal [['pack2', 'BaseDistro2.0:LinkedUpdateProject'],
+                    ['pack2.linked', 'BaseDistro2.0'],
+                    ['pack_local', 'BaseDistro2.0:LinkedUpdateProject']],
                    child.expand_all_packages
     end
   end
@@ -1317,15 +1317,15 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'config file exists and have the right content' do
-    assert_equal @project.config.to_s, File.read("test/fixtures/files/home_iggy_project_config.txt").strip
+    assert_equal @project.config.to_s, File.read('test/fixtures/files/home_iggy_project_config.txt').strip
   end
 
   test 'update config file and reload it, it also should have the right content' do
-    project_config = File.read("test/fixtures/files/home_iggy_project_config.txt")
-    new_project_config = File.read("test/fixtures/files/new_home_iggy_project_config.txt")
+    project_config = File.read('test/fixtures/files/home_iggy_project_config.txt')
+    new_project_config = File.read('test/fixtures/files/new_home_iggy_project_config.txt')
 
     User.current = users(:Iggy)
-    query_params = { user: User.current.login, comment: "Updated by test" }
+    query_params = { user: User.current.login, comment: 'Updated by test' }
     assert @project.config.save(query_params, new_project_config)
     assert_equal @project.config.to_s, new_project_config
 

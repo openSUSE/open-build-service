@@ -116,8 +116,8 @@ FactoryBot.define do
       end
 
       before(:create) do |project, evaluator|
-        create(:build_flag, project: project, status: "disable")
-        create(:publish_flag, project: project, status: "disable")
+        create(:build_flag, project: project, status: 'disable')
+        create(:publish_flag, project: project, status: 'disable')
 
         if evaluator.maintenance_project
           evaluator.maintenance_project.relationships.each do |role|

@@ -55,7 +55,7 @@ module HasAttributes
           a.values.build(position: i, value: values[i])
         end
       end
-      raise AttributeSaveError, a.errors.full_messages.join(", ") unless a.save
+      raise AttributeSaveError, a.errors.full_messages.join(', ') unless a.save
       changed = true
     end
     # write values
@@ -65,19 +65,19 @@ module HasAttributes
   def find_attribute(namespace, name, binary = nil)
     logger.debug "find_attribute for #{namespace}:#{name}"
     if namespace.nil?
-      raise AttributeFindError, "Namespace must be given"
+      raise AttributeFindError, 'Namespace must be given'
     end
     if name.nil?
-      raise AttributeFindError, "Name must be given"
+      raise AttributeFindError, 'Name must be given'
     end
     if binary
       if is_a? Project
-        raise AttributeFindError, "binary packages are not allowed in project attributes"
+        raise AttributeFindError, 'binary packages are not allowed in project attributes'
       end
       # rubocop:disable Metrics/LineLength
-      a = attribs.joins(attrib_type: :attrib_namespace).where("attrib_types.name = ? and attrib_namespaces.name = ? AND attribs.binary = ?", name, namespace, binary).first
+      a = attribs.joins(attrib_type: :attrib_namespace).where('attrib_types.name = ? and attrib_namespaces.name = ? AND attribs.binary = ?', name, namespace, binary).first
     else
-      a = attribs.nobinary.joins(attrib_type: :attrib_namespace).where("attrib_types.name = ? and attrib_namespaces.name = ?", name, namespace).first
+      a = attribs.nobinary.joins(attrib_type: :attrib_namespace).where('attrib_types.name = ? and attrib_namespaces.name = ?', name, namespace).first
       # rubocop:enable Metrics/LineLength
     end
     if a && a.readonly? # FIXME: joins make things read only
@@ -105,11 +105,11 @@ module HasAttributes
   def render_main_attributes(builder, params)
     done = {}
     attribs.each do |attr|
-      type_name = attr.attrib_type.attrib_namespace.name + ":" + attr.attrib_type.name
+      type_name = attr.attrib_type.attrib_namespace.name + ':' + attr.attrib_type.name
       next if params[:name] && !(attr.attrib_type.name == params[:name])
       next if params[:namespace] && !(attr.attrib_type.attrib_namespace.name == params[:namespace])
       next if params[:binary] && attr.binary != params[:binary]
-      next if params[:binary] == "" && attr.binary != "" # switch between all and NULL binary
+      next if params[:binary] == '' && attr.binary != '' # switch between all and NULL binary
       done[type_name] = 1 unless attr.binary
       p = {}
       p[:name] = attr.attrib_type.name

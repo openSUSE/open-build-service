@@ -12,14 +12,14 @@ class ProjectLogEntry < ApplicationRecord
 
   # Creates a new LogEntry record from the information contained in an Event
   def self.create_from(event)
-    project_id = Project.unscoped.where(name: event.payload["project"]).pluck(:id).first
+    project_id = Project.unscoped.where(name: event.payload['project']).pluck(:id).first
     # Map request number to internal id
-    bs_request_id = BsRequest.find_by_number(event.payload["requestid"]).try(:id)
+    bs_request_id = BsRequest.find_by_number(event.payload['requestid']).try(:id)
     entry = new(project_id: project_id,
-                package_name: event.payload["package"],
+                package_name: event.payload['package'],
                 bs_request_id: bs_request_id,
                 datetime: event.created_at,
-                event_type: event.class.model_name.to_s.split("::").last.underscore)
+                event_type: event.class.model_name.to_s.split('::').last.underscore)
     entry.user_name = username_from(event.payload)
     entry.additional_info = event.payload.except(*EXCLUDED_KEYS)
     entry.save
@@ -66,7 +66,7 @@ class ProjectLogEntry < ApplicationRecord
   def self.username_from(payload)
     USERNAME_KEYS.each do |key|
       username = payload[key]
-      return username unless username.blank? || username == "unknown"
+      return username unless username.blank? || username == 'unknown'
     end
     return
   end

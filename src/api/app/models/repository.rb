@@ -3,18 +3,18 @@ class Repository < ApplicationRecord
 
   before_destroy :cleanup_before_destroy
 
-  has_many :channel_targets, class_name: "ChannelTarget", dependent: :delete_all, foreign_key: 'repository_id'
-  has_many :release_targets, class_name: "ReleaseTarget", dependent: :delete_all, foreign_key: 'repository_id'
-  has_many :path_elements, -> { order("position") }, foreign_key: 'parent_id', dependent: :delete_all, inverse_of: :repository
+  has_many :channel_targets, class_name: 'ChannelTarget', dependent: :delete_all, foreign_key: 'repository_id'
+  has_many :release_targets, class_name: 'ReleaseTarget', dependent: :delete_all, foreign_key: 'repository_id'
+  has_many :path_elements, -> { order('position') }, foreign_key: 'parent_id', dependent: :delete_all, inverse_of: :repository
   has_many :download_repositories, dependent: :delete_all, foreign_key: :repository_id
-  has_many :links, class_name: "PathElement", foreign_key: 'repository_id', inverse_of: :link
-  has_many :targetlinks, class_name: "ReleaseTarget", foreign_key: 'target_repository_id'
-  has_one :hostsystem, class_name: "Repository", foreign_key: 'hostsystem_id'
+  has_many :links, class_name: 'PathElement', foreign_key: 'repository_id', inverse_of: :link
+  has_many :targetlinks, class_name: 'ReleaseTarget', foreign_key: 'target_repository_id'
+  has_one :hostsystem, class_name: 'Repository', foreign_key: 'hostsystem_id'
   has_many :binary_releases, dependent: :destroy
   has_many :product_update_repositories, dependent: :delete_all
   has_many :product_medium, dependent: :delete_all
-  has_many :repository_architectures, -> { order("position") }, dependent: :destroy, inverse_of: :repository
-  has_many :architectures, -> { order("position") }, through: :repository_architectures
+  has_many :repository_architectures, -> { order('position') }, dependent: :destroy, inverse_of: :repository
+  has_many :architectures, -> { order('position') }, through: :repository_architectures
 
   scope :not_remote, -> { where(remote_project_name: '') }
   scope :remote, -> { where.not(remote_project_name: '') }
@@ -28,7 +28,7 @@ class Repository < ApplicationRecord
   # Note that remote repositories have to be unique among their remote project (remote_project_name)
   # and the associated db_project.
   validates :name, uniqueness: { scope:   [:db_project_id, :remote_project_name],
-                                 message: "%{value} is already used by a repository of this project" }
+                                 message: '%{value} is already used by a repository of this project' }
 
   validates :db_project_id, presence: true
   # NOTE: remote_project_name cannot be NULL because mysql UNIQUE KEY constraint does considers
@@ -63,12 +63,12 @@ class Repository < ApplicationRecord
   end
 
   def self.deleted_instance
-    repo = Repository.find_by_project_and_name("deleted", "deleted")
+    repo = Repository.find_by_project_and_name('deleted', 'deleted')
     return repo unless repo.nil?
 
     # does not exist, so let's create it
     project = Project.deleted_instance
-    project.repositories.find_or_create_by!(name: "deleted")
+    project.repositories.find_or_create_by!(name: 'deleted')
   end
 
   def cleanup_before_destroy
@@ -163,7 +163,7 @@ class Repository < ApplicationRecord
 
   def is_kiwi_type?
     # HACK: will be cleaned up after implementing FATE #308899
-    name == "images"
+    name == 'images'
   end
 
   def has_local_path?
@@ -213,7 +213,7 @@ class Repository < ApplicationRecord
       xml = Xmlhash.parse(Backend::Api::Published.download_url_for_repository(project.name, name))
       xml.elements('url').last.to_s
     end
-    url + "/" + file if file.present?
+    url + '/' + file if file.present?
   end
 
   def download_url_for_file(package, architecture, filename)

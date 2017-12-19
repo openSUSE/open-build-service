@@ -1,9 +1,9 @@
-require "browser_helper"
+require 'browser_helper'
 
 RSpec.feature "User's notifications settings", type: :feature, js: true do
   let(:user_with_groups) { create(:user_with_groups, login: 'moi_wg') }
 
-  scenario "when a user is in some group" do
+  scenario 'when a user is in some group' do
     login user_with_groups
     visit user_notifications_path
     group_title = user_with_groups.groups.first.title

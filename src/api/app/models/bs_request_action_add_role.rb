@@ -20,9 +20,9 @@ class BsRequestActionAddRole < BsRequestAction
   #### Instance methods (public and then protected/private)
   def check_sanity
     super
-    errors.add(:role, "should not be empty for add_role") if role.blank?
+    errors.add(:role, 'should not be empty for add_role') if role.blank?
     return unless person_name.blank? && group_name.blank?
-    errors.add(:person_name, "Either person or group needs to be set")
+    errors.add(:person_name, 'Either person or group needs to be set')
   end
 
   def execute_accept(_opts)

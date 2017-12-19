@@ -45,25 +45,25 @@ module Backend
     # Performs a http get request to the configured OBS Backend server.
     # @return [String]
     def get(endpoint, options = {})
-      Backend::Connection.get(calculate_url(endpoint, options), options[:headers] || {}).body.force_encoding("UTF-8")
+      Backend::Connection.get(calculate_url(endpoint, options), options[:headers] || {}).body.force_encoding('UTF-8')
     end
 
     # Performs a http post request to the configured OBS Backend server.
     # @return [String]
     def post(endpoint, options = {})
-      Backend::Connection.post(calculate_url(endpoint, options), options[:data], options[:headers] || {}).body.force_encoding("UTF-8")
+      Backend::Connection.post(calculate_url(endpoint, options), options[:data], options[:headers] || {}).body.force_encoding('UTF-8')
     end
 
     # Performs a http put request to the configured OBS Backend server.
     # @return [String]
     def put(endpoint, options = {})
-      Backend::Connection.put(calculate_url(endpoint, options), options[:data], options[:headers] || {}).body.force_encoding("UTF-8")
+      Backend::Connection.put(calculate_url(endpoint, options), options[:data], options[:headers] || {}).body.force_encoding('UTF-8')
     end
 
     # Performs a http delete request to the configured OBS Backend server.
     # @return [String]
     def delete(endpoint, options = {})
-      Backend::Connection.delete(calculate_url(endpoint, options), options[:headers] || {}).body.force_encoding("UTF-8")
+      Backend::Connection.delete(calculate_url(endpoint, options), options[:headers] || {}).body.force_encoding('UTF-8')
     end
 
     def calculate_url(endpoint, options)

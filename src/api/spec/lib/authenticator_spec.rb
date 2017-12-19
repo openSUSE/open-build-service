@@ -120,7 +120,7 @@ RSpec.describe Authenticator do
         end
 
         context 'with a user authenticated in wrong Kerberos realm' do
-          before { allow(gssapi_mock).to receive(:display_name).and_return("tux@fake_realm") }
+          before { allow(gssapi_mock).to receive(:display_name).and_return('tux@fake_realm') }
 
           it 'trows an exception' do
             expect { authenticator.extract_user }.to raise_error(Authenticator::AuthenticationRequiredError,

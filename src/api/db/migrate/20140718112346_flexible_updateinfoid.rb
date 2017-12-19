@@ -1,7 +1,7 @@
 class FlexibleUpdateinfoid < ActiveRecord::Migration[4.2]
   def up
     # migration had wrong number first
-    return if MaintenanceIncident.column_names.include? "counter"
+    return if MaintenanceIncident.column_names.include? 'counter'
 
     # updateinfo_id column will become obsolete by this, but we need to keep it for backward compatibility
     add_column :maintenance_incidents, :counter, :integer

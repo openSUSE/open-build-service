@@ -1,6 +1,6 @@
 class CommentPolicy < ApplicationPolicy
   def initialize(user, record)
-    raise Pundit::NotAuthorizedError, "record does not exist" unless record
+    raise Pundit::NotAuthorizedError, 'record does not exist' unless record
     @user = user
     @record = record
   end
@@ -15,11 +15,11 @@ class CommentPolicy < ApplicationPolicy
     return true if @user == @record.user || @record.user.is_nobody?
 
     case @record.commentable_type
-    when "Package"
+    when 'Package'
       @user.has_local_permission?('change_package', @record.commentable)
-    when "Project"
+    when 'Project'
       @user.has_local_permission?('change_project', @record.commentable)
-    when "BsRequest"
+    when 'BsRequest'
       @record.commentable.is_target_maintainer?(@user)
     end
   end

@@ -1,5 +1,5 @@
-require "rails_helper"
-require "webmock/rspec"
+require 'rails_helper'
+require 'webmock/rspec'
 
 RSpec.describe Project do
   describe '.remote_image_templates' do

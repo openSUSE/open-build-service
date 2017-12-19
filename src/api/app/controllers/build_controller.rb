@@ -17,14 +17,14 @@ class BuildController < ApplicationController
       Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: false)
       pass_to_backend
     else
-      render_error status: 403, errorcode: "execute_cmd_no_permission",
-        message: "Upload of binaries is only permitted for administrators"
+      render_error status: 403, errorcode: 'execute_cmd_no_permission',
+        message: 'Upload of binaries is only permitted for administrators'
     end
   end
 
   def project_index
     prj = nil
-    unless params[:project] == "_dispatchprios"
+    unless params[:project] == '_dispatchprios'
       prj = Project.get_by_name params[:project]
     end
 
@@ -43,13 +43,13 @@ class BuildController < ApplicationController
       end
 
       unless %w(wipe restartbuild killbuild abortbuild rebuild unpublish).include? params[:cmd]
-        render_error status: 400, errorcode: "illegal_request",
+        render_error status: 400, errorcode: 'illegal_request',
           message: "unsupported POST command #{params[:cmd]} to #{request.url}"
         return
       end
 
       unless prj.class == Project
-        render_error status: 403, errorcode: "readonly_error",
+        render_error status: 403, errorcode: 'readonly_error',
           message: "The project #{params[:project]} is a remote project and therefore readonly."
         return
       end
@@ -66,14 +66,14 @@ class BuildController < ApplicationController
           if pkg.nil?
             allowed = permissions.project_change? prj
             unless allowed
-              render_error status: 403, errorcode: "execute_cmd_no_permission",
+              render_error status: 403, errorcode: 'execute_cmd_no_permission',
                 message: "No permission to execute command on package #{pack_name} in project #{prj.name}"
               return
             end
           else
             allowed = permissions.package_change? pkg
             unless allowed
-              render_error status: 403, errorcode: "execute_cmd_no_permission",
+              render_error status: 403, errorcode: 'execute_cmd_no_permission',
                 message: "No permission to execute command on package #{pack_name}"
               return
             end
@@ -82,7 +82,7 @@ class BuildController < ApplicationController
       end
 
       unless allowed
-        render_error status: 403, errorcode: "execute_cmd_no_permission",
+        render_error status: 403, errorcode: 'execute_cmd_no_permission',
           message: "No permission to execute command on project #{params[:project]}"
         return
       end
@@ -93,7 +93,7 @@ class BuildController < ApplicationController
       if User.current.is_admin?
         pass_to_backend
       else
-        render_error status: 403, errorcode: "execute_cmd_no_permission",
+        render_error status: 403, errorcode: 'execute_cmd_no_permission',
           message: "No permission to execute command on project #{params[:project]}"
       end
       return
@@ -107,7 +107,7 @@ class BuildController < ApplicationController
   def buildinfo
     required_parameters :project, :repository, :arch, :package
     # just for permission checking
-    if request.post? && params[:package] == "_repository"
+    if request.post? && params[:package] == '_repository'
       # for osc local package build in this repository
       Project.get_by_name params[:project]
     else
@@ -143,7 +143,7 @@ class BuildController < ApplicationController
 
     if pkg.class == Package && pkg.project.disabled_for?('binarydownload', params[:repository], params[:arch]) &&
        !User.current.can_download_binaries?(pkg.project)
-      render_error status: 403, errorcode: "download_binary_no_permission",
+      render_error status: 403, errorcode: 'download_binary_no_permission',
                    message: "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
       return
     end
@@ -183,12 +183,12 @@ class BuildController < ApplicationController
         if archstat[:missing].blank?
           oneline << nil
         else
-          oneline << archstat[:missing].join(",")
+          oneline << archstat[:missing].join(',')
         end
         archs << oneline
       end
       @result << [repo, archs]
     end
-    render xml: render_to_string(partial: "lastsuccess")
+    render xml: render_to_string(partial: 'lastsuccess')
   end
 end

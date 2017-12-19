@@ -5,7 +5,7 @@ end
 
 class Authenticator
   class AuthenticationRequiredError < APIException
-    setup 401, "Authentication required"
+    setup 401, 'Authentication required'
   end
 
   class AnonymousUser < APIException
@@ -81,7 +81,7 @@ class Authenticator
   def require_admin
     Rails.logger.debug "Checking for Admin role for user #{@http_user.login}"
     unless @http_user.is_admin?
-      Rails.logger.debug "not granted!"
+      Rails.logger.debug 'not granted!'
       raise AdminUserRequiredError, 'Requires admin privileges'
     end
     true
@@ -109,13 +109,13 @@ class Authenticator
     end
 
     unless CONFIG['kerberos_realm']
-      CONFIG['kerberos_realm'] = principal.rpartition("@")[2]
+      CONFIG['kerberos_realm'] = principal.rpartition('@')[2]
     end
 
     krb = GSSAPI::Simple.new(
-      principal.partition("/")[2].rpartition("@")[0],
-      principal.partition("/")[0],
-      CONFIG['kerberos_keytab'] || "/etc/krb5.keytab"
+      principal.partition('/')[2].rpartition('@')[0],
+      principal.partition('/')[0],
+      CONFIG['kerberos_keytab'] || '/etc/krb5.keytab'
     )
     krb.acquire_credentials
 
@@ -123,7 +123,7 @@ class Authenticator
   end
 
   def raise_and_invalidate(authorization, message = '')
-    @response.headers["WWW-Authenticate"] = authorization.join(' ')
+    @response.headers['WWW-Authenticate'] = authorization.join(' ')
     raise AuthenticationRequiredError, message
   end
 
@@ -148,10 +148,10 @@ class Authenticator
 
       unless tok == true
         tok = Base64.strict_encode64(tok)
-        @response.headers["WWW-Authenticate"] = "Negotiate #{tok}"
+        @response.headers['WWW-Authenticate'] = "Negotiate #{tok}"
       end
 
-      @login = krb.display_name.partition("@")[0]
+      @login = krb.display_name.partition('@')[0]
       @http_user = User.find_by_login(@login)
       unless @http_user
         Rails.logger.debug "Creating account for user '#{@login}'"
@@ -166,7 +166,7 @@ class Authenticator
     @login, @passwd = Base64.decode64(authorization[1]).split(':', 2)[0..1]
 
     # set password to the empty string in case no password is transmitted in the auth string
-    @passwd ||= ""
+    @passwd ||= ''
   end
 
   def extract_proxy_user
@@ -181,8 +181,8 @@ class Authenticator
       # If we do not find a User here, we need to create a user and wait for
       # the confirmation by the user and the BS Admin Team.
       unless @http_user
-        if ::Configuration.registration == "deny"
-          Rails.logger.debug("No user found in database, creation disabled")
+        if ::Configuration.registration == 'deny'
+          Rails.logger.debug('No user found in database, creation disabled')
           raise AuthenticationRequiredError, "User '#{login}' does not exist"
         end
 
@@ -193,7 +193,7 @@ class Authenticator
       # update user data from login proxy headers
       @http_user.update_user_info_from_proxy_env(request.env)
     else
-      Rails.logger.error "No X-username header was sent by login proxy!"
+      Rails.logger.error 'No X-username header was sent by login proxy!'
     end
   end
 
@@ -202,15 +202,15 @@ class Authenticator
     # privacy! logger.debug( "AUTH: #{authorization.inspect}" )
     if authorization
       # logger.debug( "AUTH2: #{authorization}" )
-      if authorization[0] == "Basic"
+      if authorization[0] == 'Basic'
         extract_basic_user authorization
-      elsif authorization[0] == "Negotiate" && CONFIG['kerberos_mode']
+      elsif authorization[0] == 'Negotiate' && CONFIG['kerberos_mode']
         extract_krb_user authorization
       else
         Rails.logger.debug "Unsupported authentication string '#{authorization[0]}' received."
       end
     else
-      Rails.logger.debug "No authentication string was received."
+      Rails.logger.debug 'No authentication string was received.'
     end
   end
 
@@ -224,8 +224,8 @@ class Authenticator
     end
 
     if @http_user.state == 'unconfirmed'
-      raise UnconfirmedUserError, "User is registered but not yet approved. Your account " +
-                                  "is a registered account, but it is not yet approved for the OBS by admin."
+      raise UnconfirmedUserError, 'User is registered but not yet approved. Your account ' +
+                                  'is a registered account, but it is not yet approved for the OBS by admin.'
     end
 
     User.current = @http_user
@@ -236,8 +236,8 @@ class Authenticator
       return true
     end
 
-    raise InactiveUserError, "User is registered but not in confirmed state. Your account " +
-                             "is a registered account, but it is in a not active state."
+    raise InactiveUserError, 'User is registered but not in confirmed state. Your account ' +
+                             'is a registered account, but it is in a not active state.'
   end
 
   # set the nobody user if a user agent is present in anonymous mode

@@ -5,8 +5,8 @@ class GroupMaintainer < ActiveRecord::Migration[4.2]
       t.references :user
     end
 
-    execute("alter table group_maintainers add foreign key (group_id) references groups(id)")
-    execute("alter table group_maintainers add foreign key (user_id) references users(id)")
+    execute('alter table group_maintainers add foreign key (group_id) references groups(id)')
+    execute('alter table group_maintainers add foreign key (user_id) references users(id)')
   end
 
   def down

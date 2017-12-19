@@ -8,11 +8,11 @@ module MaintenanceHelper
   class MultipleUpdateInfoTemplate < APIException; end
 
   def _release_product(source_package, target_project, action)
-    product_package = Package.find_by_project_and_name source_package.project.name, "_product"
+    product_package = Package.find_by_project_and_name source_package.project.name, '_product'
     # create package container, if missing
-    tpkg = create_package_container_if_missing(product_package, "_product", target_project)
+    tpkg = create_package_container_if_missing(product_package, '_product', target_project)
     # copy sources
-    release_package_copy_sources(action, product_package, "_product", target_project)
+    release_package_copy_sources(action, product_package, '_product', target_project)
     tpkg.project.update_product_autopackages
     tpkg.sources_changed
   end
@@ -53,7 +53,7 @@ module MaintenanceHelper
     # lock the scheduler
     target_project.suspend_scheduler
 
-    if source_package.name.starts_with?("_product:") && target_project.packages.where(name: "_product").count > 0
+    if source_package.name.starts_with?('_product:') && target_project.packages.where(name: '_product').count > 0
       # a master _product container exists, so we need to copy all sources
       _release_product(source_package, target_project, action)
     else
@@ -99,8 +99,8 @@ module MaintenanceHelper
     # commit with noservice parameter
     upload_params = {
       user:      User.current.login,
-      cmd:       "commitfilelist",
-      noservice: "1",
+      cmd:       'commitfilelist',
+      noservice: '1',
       comment:   "Set local link to #{target_package_name} via maintenance_release request"
     }
     upload_params[:requestid] = action.bs_request.number if action
@@ -124,7 +124,7 @@ module MaintenanceHelper
     end
     upload_params = {
       user:    User.current.login,
-      rev:     "repository",
+      rev:     'repository',
       comment: "Set link to #{target_package_name} via maintenance_release request"
     }
     upload_path = "/source/#{URI.escape(target_project.name)}/#{URI.escape(base_package_name)}/_link"
@@ -146,15 +146,15 @@ module MaintenanceHelper
     # backend copy of current sources as full copy
     # that means the xsrcmd5 is different, but we keep the incident project anyway.
     cp_params = {
-      cmd:            "copy",
+      cmd:            'copy',
       user:           User.current.login,
       oproject:       source_package.project.name,
       opackage:       source_package.name,
       comment:        "Release from #{source_package.project.name} / #{source_package.name}",
-      expand:         "1",
-      withvrev:       "1",
-      noservice:      "1",
-      withacceptinfo: "1"
+      expand:         '1',
+      withvrev:       '1',
+      noservice:      '1',
+      withacceptinfo: '1'
     }
     cp_params[:requestid] = action.bs_request.number if action
     if target_project.is_maintenance_release? && source_package.is_link?
@@ -172,7 +172,7 @@ module MaintenanceHelper
                                                                      :freezelink, :withacceptinfo])
     result = Backend::Connection.post(cp_path)
     result = Xmlhash.parse(result.body)
-    action.set_acceptinfo(result["acceptinfo"]) if action
+    action.set_acceptinfo(result['acceptinfo']) if action
   end
 
   def copy_binaries(filter_source_repository, source_package, target_package_name, target_project,
@@ -203,8 +203,8 @@ module MaintenanceHelper
     u_id = get_updateinfo_id(source_package, target_repo)
     source_package_name = source_package.name
     if multibuild_container.present?
-      source_package_name << ":" << multibuild_container
-      target_package_name = target_package_name.gsub(/:.*/, '') << ":" << multibuild_container
+      source_package_name << ':' << multibuild_container
+      target_package_name = target_package_name.gsub(/:.*/, '') << ':' << multibuild_container
     end
     source_repository.architectures.each do |arch|
       # get updateinfo id in case the source package comes from a maintenance project
@@ -217,16 +217,16 @@ module MaintenanceHelper
   def copy_single_binary(arch, target_repository, source_project_name, source_package_name, source_repo,
                          target_package_name, update_info_id, setrelease)
     cp_params = {
-      cmd:         "copy",
+      cmd:         'copy',
       oproject:    source_project_name,
       opackage:    source_package_name,
       orepository: source_repo.name,
       user:        User.current.login,
-      resign:      "1"
+      resign:      '1'
     }
     cp_params[:setupdateinfoid] = update_info_id if update_info_id
     cp_params[:setrelease] = setrelease if setrelease
-    cp_params[:multibuild] = "1" unless source_package_name.include? ':'
+    cp_params[:multibuild] = '1' unless source_package_name.include? ':'
     # rubocop:disable Metrics/LineLength
     cp_path = "/build/#{CGI.escape(target_repository.project.name)}/#{URI.escape(target_repository.name)}/#{URI.escape(arch.name)}/#{URI.escape(target_package_name)}"
     # rubocop:enable Metrics/LineLength
@@ -241,13 +241,13 @@ module MaintenanceHelper
 
     # check for patch name inside of _patchinfo file
     xml = Patchinfo.new.read_patchinfo_xmlhash(source_package)
-    e = xml.elements("name")
-    patch_name = e ? e.first : ""
+    e = xml.elements('name')
+    patch_name = e ? e.first : ''
 
     mi = MaintenanceIncident.find_by_db_project_id(source_package.project_id)
     return unless mi
 
-    id_template = "%Y-%C"
+    id_template = '%Y-%C'
     # check for a definition in maintenance project
     a = mi.maintenance_db_project.find_attribute('OBS', 'MaintenanceIdTemplate')
     if a
@@ -265,7 +265,7 @@ module MaintenanceHelper
     cts = ChannelTarget.find_by_repo(target_repo, project_filter) unless cts.any?
     first_ct = cts.first
     unless cts.all? { |c| c.id_template == first_ct.id_template }
-      msg = cts.map { |cti| "#{cti.channel.package.project.name}/#{cti.channel.package.name}" }.join(", ")
+      msg = cts.map { |cti| "#{cti.channel.package.project.name}/#{cti.channel.package.name}" }.join(', ')
       raise MultipleUpdateInfoTemplate, "Multiple channel targets found in #{msg} for repository #{target_repo.project.name}/#{target_repo.name}"
     end
     id_template = cts.first.id_template if cts.first && cts.first.id_template
@@ -298,8 +298,8 @@ module MaintenanceHelper
 
     if target_repo
       channel.elements['/channel'].add_element 'target', {
-        "project"    => target_repo.project.name,
-        "repository" => target_repo.name
+        'project'    => target_repo.project.name,
+        'repository' => target_repo.name
       }
     end
 
@@ -311,14 +311,14 @@ module MaintenanceHelper
         if defined?(prj) && prj
           a = prj.find_attribute('OBS', 'UpdateProject')
           if a && a.values[0]
-            b.attributes["project"] = a.values[0]
+            b.attributes['project'] = a.values[0]
           end
         end
       end
     end
 
     query = { user: User.current_login }
-    query[:comment] = "channel import function"
+    query[:comment] = 'channel import function'
     Backend::Connection.put(pkg.source_path('_channel', query), channel.to_s)
 
     pkg.sources_changed
@@ -352,9 +352,9 @@ module MaintenanceHelper
     pkg = project.packages.create(name: pkg_name, title: opkg.title, description: opkg.description)
     pkg.store
 
-    arguments = "&noservice=1"
-    arguments << "&requestid=" << opts[:request].number.to_s if opts[:request]
-    arguments << "&comment=" << CGI.escape(opts[:comment]) if opts[:comment]
+    arguments = '&noservice=1'
+    arguments << '&requestid=' << opts[:request].number.to_s if opts[:request]
+    arguments << '&comment=' << CGI.escape(opts[:comment]) if opts[:comment]
     if opts[:makeoriginolder]
       # rubocop:disable Metrics/LineLength
       # versioned copy
@@ -362,7 +362,7 @@ module MaintenanceHelper
       # rubocop:enable Metrics/LineLength
       if Package.exists_by_project_and_name(project.name, opkg.name, allow_remote_packages: true)
         # a package exists via project link, make it older in any case
-        path << "+and+make+source+instance+older&makeoriginolder=1"
+        path << '+and+make+source+instance+older&makeoriginolder=1'
       end
       Backend::Connection.post path
     else

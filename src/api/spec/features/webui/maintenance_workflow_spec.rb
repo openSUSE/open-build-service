@@ -40,7 +40,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
     expect(page).to have_text('Successfully branched package')
 
     # change the package sources so we have a difference
-    Backend::Connection.put("/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/DUMMY_FILE", "dummy")
+    Backend::Connection.put('/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/DUMMY_FILE', 'dummy')
 
     # Step 2: The user submits the update
     #####################################
@@ -52,11 +52,11 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
     fill_in('description', with: 'I want the update')
 
     click_button('Ok')
-    expect(page).to have_css("#flash-messages", text: "Created maintenance incident request")
+    expect(page).to have_css('#flash-messages', text: 'Created maintenance incident request')
 
     # Check that sending maintenance updates adds the source revision
     new_bs_request_action = BsRequestAction.where(
-      type:                  "maintenance_incident",
+      type:                  'maintenance_incident',
       target_project:        maintenance_project.name,
       target_releaseproject: update_project.name,
       source_project:        "#{user.home_project}:branches:#{update_project.name}",
@@ -75,7 +75,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
     fill_in('reason', with: 'really? ok')
 
     click_button('accept_request_button')
-    expect(page).to have_css("#flash-messages", text: "Request #{BsRequest.last.number} accepted")
+    expect(page).to have_css('#flash-messages', text: "Request #{BsRequest.last.number} accepted")
 
     # Step 4: The maintenance coordinator edits the patchinfo file
     ##############################################################
@@ -124,7 +124,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
     fill_in('incident_project', with: 2)
 
     click_button('Ok')
-    expect(page).to have_css("#flash-messages", text: "Incident MaintenanceProject:2 does not exist")
+    expect(page).to have_css('#flash-messages', text: 'Incident MaintenanceProject:2 does not exist')
 
     click_link('Merge with existing incident')
     # we need this find to wait for the dialog to appear
@@ -133,7 +133,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
     fill_in('incident_project', with: 0)
 
     click_button('Ok')
-    expect(page).to have_css("#flash-messages", text: "Set target of request 2 to incident 0")
+    expect(page).to have_css('#flash-messages', text: 'Set target of request 2 to incident 0')
 
     click_button('accept_request_button')
 
@@ -146,7 +146,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
     click_button('Ok')
 
     # As we can't release without build results this should fail
-    expect(page).to have_css("#flash-messages",
+    expect(page).to have_css('#flash-messages',
                              text: "The repository 'MaintenanceProject:0' / 'ProjectWithRepo_Update' / i586 did not finish the build yet")
   end
 end

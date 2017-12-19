@@ -16,11 +16,11 @@ RSpec.describe 'Kerberos login', vcr: false, type: :request do
     context "calling a controller with 'extract_user' before filter" do
       context "authorization header does not contain 'Negotiate'" do
         before do
-          get "/source.xml"
+          get '/source.xml'
         end
 
         it { expect(response).to have_http_status(:unauthorized) }
-        it { expect(response.header["WWW-Authenticate"]).to eq('Negotiate') }
+        it { expect(response.header['WWW-Authenticate']).to eq('Negotiate') }
       end
 
       context "authorization header contains 'Negotiate' with a valid ticket" do
@@ -29,7 +29,7 @@ RSpec.describe 'Kerberos login', vcr: false, type: :request do
         end
 
         before do
-          get "/source.xml", headers: { 'X-HTTP_AUTHORIZATION' => "Negotiate #{Base64.strict_encode64(ticket)}" }
+          get '/source.xml', headers: { 'X-HTTP_AUTHORIZATION' => "Negotiate #{Base64.strict_encode64(ticket)}" }
         end
 
         it { expect(response).to have_http_status(:success) }
@@ -41,7 +41,7 @@ RSpec.describe 'Kerberos login', vcr: false, type: :request do
         end
 
         before do
-          get "/source.xml", headers: { 'X-HTTP_AUTHORIZATION' => "Negotiate INVALID_TICKET" }
+          get '/source.xml', headers: { 'X-HTTP_AUTHORIZATION' => 'Negotiate INVALID_TICKET' }
         end
 
         it { expect(response).to have_http_status(:unauthorized) }

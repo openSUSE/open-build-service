@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_consistency_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_consistency_helper'
 
 class AAAPreConsistency < ActionDispatch::IntegrationTest
   fixtures :all

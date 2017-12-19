@@ -4,79 +4,79 @@ RSpec.describe Webui::MainController do
   let(:user) { create(:confirmed_user) }
   let(:admin_user) { create(:admin_user) }
 
-  describe "POST add_news" do
-    it "create a status message" do
+  describe 'POST add_news' do
+    it 'create a status message' do
       login(admin_user)
 
-      post :add_news, params: { message: "Some message", severity: "Green" }
+      post :add_news, params: { message: 'Some message', severity: 'Green' }
       expect(response).to redirect_to(root_path)
-      message = StatusMessage.where(user: admin_user, message: "Some message", severity: "Green")
+      message = StatusMessage.where(user: admin_user, message: 'Some message', severity: 'Green')
       expect(message).to exist
     end
 
-    it "requires message and severity parameters" do
+    it 'requires message and severity parameters' do
       login(admin_user)
 
       expect do
-        post :add_news, params: { message: "Some message" }
+        post :add_news, params: { message: 'Some message' }
       end.to_not change(StatusMessage, :count)
       expect(response).to redirect_to(root_path)
-      expect(flash[:error]).to eq("Please provide a message and severity")
+      expect(flash[:error]).to eq('Please provide a message and severity')
 
       expect do
-        post :add_news, params: { severity: "Green" }
+        post :add_news, params: { severity: 'Green' }
       end.to_not change(StatusMessage, :count)
       expect(response).to redirect_to(root_path)
-      expect(flash[:error]).to eq("Please provide a message and severity")
+      expect(flash[:error]).to eq('Please provide a message and severity')
     end
 
-    context "non-admin users" do
+    context 'non-admin users' do
       before do
         login(user)
 
-        post :add_news, params: { message: "Some message", severity: "Green" }
+        post :add_news, params: { message: 'Some message', severity: 'Green' }
       end
 
-      it "does not create a status message" do
+      it 'does not create a status message' do
         expect(response).to redirect_to(root_path)
-        message = StatusMessage.where(user: admin_user, message: "Some message", severity: "Green")
+        message = StatusMessage.where(user: admin_user, message: 'Some message', severity: 'Green')
         expect(message).not_to exist
       end
     end
 
-    context "empty message" do
+    context 'empty message' do
       before do
         login(admin_user)
-        post :add_news, params: { severity: "Green" }
+        post :add_news, params: { severity: 'Green' }
       end
 
-      it { expect(flash[:error]).to eq("Please provide a message and severity") }
+      it { expect(flash[:error]).to eq('Please provide a message and severity') }
     end
 
-    context "empty severity" do
+    context 'empty severity' do
       before do
         login(admin_user)
-        post :add_news, params: { message: "Some message" }
+        post :add_news, params: { message: 'Some message' }
       end
 
-      it { expect(flash[:error]).to eq("Please provide a message and severity") }
+      it { expect(flash[:error]).to eq('Please provide a message and severity') }
     end
 
-    context "that fails at saving the message" do
+    context 'that fails at saving the message' do
       before do
         login(admin_user)
         allow_any_instance_of(StatusMessage).to receive(:save).and_return(false)
-        post :add_news, params: { message: "Some message", severity: "Green" }
+        post :add_news, params: { message: 'Some message', severity: 'Green' }
       end
 
       it { expect(flash[:error]).not_to be nil }
     end
   end
 
-  describe "POST delete_message" do
+  describe 'POST delete_message' do
     let(:message) { create(:status_message, user: admin_user) }
 
-    it "marks a message as deleted" do
+    it 'marks a message as deleted' do
       login(admin_user)
 
       post :delete_message, params: { message_id: message.id }
@@ -84,7 +84,7 @@ RSpec.describe Webui::MainController do
       expect(message.reload.deleted_at).to be_a_kind_of(ActiveSupport::TimeWithZone)
     end
 
-    context "non-admin users" do
+    context 'non-admin users' do
       before do
         login(user)
         post :delete_message, params: { message_id: message.id }
@@ -97,12 +97,12 @@ RSpec.describe Webui::MainController do
     end
   end
 
-  describe "GET #sitemap" do
+  describe 'GET #sitemap' do
     render_views
 
     before do
       get :sitemap
-      @paths = Nokogiri::XML(response.body).xpath("//xmlns:loc").map do |url|
+      @paths = Nokogiri::XML(response.body).xpath('//xmlns:loc').map do |url|
         uri = URI.parse(url.content)
         "#{uri.path}?#{uri.query}"
       end
@@ -114,17 +114,17 @@ RSpec.describe Webui::MainController do
         expect(@paths).to include("/main/sitemap_packages/show?category=home%3A#{letter}")
       end
     end
-    it { expect(@paths).to include("/main/sitemap_packages/show?category=opensuse") }
+    it { expect(@paths).to include('/main/sitemap_packages/show?category=opensuse') }
   end
 
-  describe "GET #sitemap_projects" do
+  describe 'GET #sitemap_projects' do
     render_views
 
     before do
       create(:confirmed_user)
       @projects = create_list(:project, 5)
       get :sitemap_projects
-      @project_paths = Nokogiri::XML(response.body).xpath("//xmlns:loc").map { |url| URI.parse(url).path }
+      @project_paths = Nokogiri::XML(response.body).xpath('//xmlns:loc').map { |url| URI.parse(url).path }
     end
 
     it "have all project's urls" do
@@ -134,14 +134,14 @@ RSpec.describe Webui::MainController do
     end
   end
 
-  describe "GET #sitemap_packages" do
+  describe 'GET #sitemap_packages' do
     render_views
 
-    context "without category param provided" do
+    context 'without category param provided' do
       before do
         create_list(:project_with_package, 5)
         get :sitemap_packages, params: { listaction: 'show' }
-        @package_paths = Nokogiri::XML(response.body).xpath("//xmlns:loc").map { |url| URI.parse(url).path }
+        @package_paths = Nokogiri::XML(response.body).xpath('//xmlns:loc').map { |url| URI.parse(url).path }
       end
 
       it "have all packages's urls" do
@@ -151,12 +151,12 @@ RSpec.describe Webui::MainController do
       end
     end
 
-    context "with category param provided that matches home%" do
+    context 'with category param provided that matches home%' do
       before do
         create(:package, project: admin_user.home_project)
         create_list(:project_with_package, 2)
         get :sitemap_packages, params: { listaction: 'show', category: admin_user.home_project_name }
-        @package_paths = Nokogiri::XML(response.body).xpath("//xmlns:loc").map { |url| URI.parse(url).path }
+        @package_paths = Nokogiri::XML(response.body).xpath('//xmlns:loc').map { |url| URI.parse(url).path }
       end
 
       it "doesn't have packages's urls for non home subprojects" do
@@ -176,13 +176,13 @@ RSpec.describe Webui::MainController do
       end
     end
 
-    context "with category param provided as opensuse" do
+    context 'with category param provided as opensuse' do
       before do
         create(:project, name: 'openSUSE')
         create(:project_with_package, name: 'openSUSE:subproject1')
         create(:project_with_package, name: 'openSUSE:subproject2')
         get :sitemap_packages, params: { listaction: 'show', category: 'opensuse' }
-        @package_paths = Nokogiri::XML(response.body).xpath("//xmlns:loc").map { |url| URI.parse(url).path }
+        @package_paths = Nokogiri::XML(response.body).xpath('//xmlns:loc').map { |url| URI.parse(url).path }
       end
 
       it "doesn't have packages's urls for non openSUSE subprojects" do
@@ -203,7 +203,7 @@ RSpec.describe Webui::MainController do
     end
   end
 
-  describe "GET #add_news_dialog" do
+  describe 'GET #add_news_dialog' do
     before do
       get :add_news_dialog, xhr: true
     end
@@ -211,7 +211,7 @@ RSpec.describe Webui::MainController do
     it { is_expected.to respond_with(:success) }
   end
 
-  describe "GET #delete_message_dialog" do
+  describe 'GET #delete_message_dialog' do
     before do
       get :delete_message_dialog, xhr: true
     end
