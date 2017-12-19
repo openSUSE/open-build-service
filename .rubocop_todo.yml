@@ -364,17 +364,6 @@ Style/MultipleComparison:
 Style/RegexpLiteral:
   Enabled: false
 
-# Offense count: 14
-# Cop supports --auto-correct.
-# Configuration parameters: AllowAsExpressionSeparator.
-Style/Semicolon:
-  Exclude:
-    - 'src/api/app/models/bs_request_permission_check.rb'
-    - 'src/api/app/models/project.rb'
-    - 'src/api/lib/api_exception.rb'
-    - 'src/api/test/functional/build_controller_test.rb'
-    - 'src/api/test/functional/zzz_post_consistency_test.rb'
-
 # Offense count: 6
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
