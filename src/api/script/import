@@ -62,30 +62,28 @@ def store_project(p)
 end
 
 def store_packages_for(p)
-  begin
-    STDERR.puts "  --> storing packages for project '#{p.name}'"
-    list = Xpackage.find :all, project: p.name
-    xpack = nil
-    list.each_entry do |entry|
-      STDERR.print "     #{entry.name} => "
-      xpack = Xpackage.find entry.name, project: p.name
-      # remove devel entries
-      xpack.data.each_element('devel') { |e| xpack.data.delete_element e }
-      pack = Package.new(xpack.dump_xml, project: p.name)
+  STDERR.puts "  --> storing packages for project '#{p.name}'"
+  list = Xpackage.find :all, project: p.name
+  xpack = nil
+  list.each_entry do |entry|
+    STDERR.print "     #{entry.name} => "
+    xpack = Xpackage.find entry.name, project: p.name
+    # remove devel entries
+    xpack.data.each_element('devel') { |e| xpack.data.delete_element e }
+    pack = Package.new(xpack.dump_xml, project: p.name)
 
-      create_missing_users_for xpack
+    create_missing_users_for xpack
 
-      pack.save
-      STDERR.puts 'success'
-    end
-    STDERR.puts '  <-- fin'
-  rescue Object => e
-    # remove whole project to cause missing packages to be read at next run
-    STDERR.puts '### store_packages exception handling'
-    Project.find_by_name(p.name.to_s).destroy
-    xmldebug xpack.dump_xml
-    raise e
+    pack.save
+    STDERR.puts 'success'
   end
+  STDERR.puts '  <-- fin'
+rescue Object => e
+  # remove whole project to cause missing packages to be read at next run
+  STDERR.puts '### store_packages exception handling'
+  Project.find_by_name(p.name.to_s).destroy
+  xmldebug xpack.dump_xml
+  raise e
 end
 
 @xmldebug_called = false

@@ -99,107 +99,105 @@ class Webui::PatchinfoController < Webui::WebuiController
   end
 
   def save
-    begin
-      required_parameters :project, :package
-      flash[:error] = nil
-      # Note: At this point a patchinfo already got created by
-      #       Patchinfo.new.create_patchinfo in the new_patchinfo action
-      unless valid_summary? params[:summary]
-        flash[:error] = '|| Summary is too short (should have more than 10 signs)'
-      end
-      unless valid_description? params[:description]
-        flash[:error] = "#{flash[:error]} || Description is too short (should have more than 50 signs and longer than summary)"
-      end
+    required_parameters :project, :package
+    flash[:error] = nil
+    # Note: At this point a patchinfo already got created by
+    #       Patchinfo.new.create_patchinfo in the new_patchinfo action
+    unless valid_summary? params[:summary]
+      flash[:error] = '|| Summary is too short (should have more than 10 signs)'
+    end
+    unless valid_description? params[:description]
+      flash[:error] = "#{flash[:error]} || Description is too short (should have more than 50 signs and longer than summary)"
+    end
 
-      if flash[:error].nil?
-        issues = []
-        params[:issueid].to_a.each_with_index do |new_issue, index|
-          issues << [
-            new_issue,
-            params[:issuetracker][index],
-            params[:issuesum][index]
-          ]
+    if flash[:error].nil?
+      issues = []
+      params[:issueid].to_a.each_with_index do |new_issue, index|
+        issues << [
+          new_issue,
+          params[:issuetracker][index],
+          params[:issuesum][index]
+        ]
+      end
+      node = Builder::XmlMarkup.new(indent: 2)
+      attrs = {
+        incident: @package.project.name.gsub(/.*:/, '')
+      }
+      xml = node.patchinfo(attrs) do
+        params[:selected_binaries].to_a.each do |binary|
+          node.binary(binary) if binary.present?
         end
-        node = Builder::XmlMarkup.new(indent: 2)
-        attrs = {
-          incident: @package.project.name.gsub(/.*:/, '')
-        }
-        xml = node.patchinfo(attrs) do
-          params[:selected_binaries].to_a.each do |binary|
-            node.binary(binary) if binary.present?
-          end
-          node.name params[:name] if params[:name].present?
-          node.packager params[:packager]
-          issues.to_a.each do |issue|
-            unless IssueTracker.find_by_name(issue[1])
-              flash[:error] = "Unknown Issue tracker #{issue[1]}"
-              render action: 'edit_patchinfo', project: @project, package: @package
-              return
-            end
-            # people tend to enter entire cve strings instead of just the name
-            issue[0].gsub!(/^(CVE|cve)-/, '') if issue[1] == 'cve'
-            node.issue(issue[2], tracker: issue[1], id: issue[0])
-          end
-          node.category params[:category]
-          node.rating params[:rating]
-          node.summary params[:summary]
-          node.description params[:description].gsub("\r\n", "\n")
-          node.reboot_needed if params[:reboot]
-          node.relogin_needed if params[:relogin]
-          node.zypp_restart_needed if params[:zypp_restart_needed]
-          node.stopped params[:block_reason] if params[:block] == 'true'
-        end
-        begin
-          authorize @package, :update?
-
-          begin
-            Package.verify_file!(@package, '_patchinfo', xml)
-          rescue APIException => e
-            flash[:error] = "patchinfo is invalid: #{e.message}"
+        node.name params[:name] if params[:name].present?
+        node.packager params[:packager]
+        issues.to_a.each do |issue|
+          unless IssueTracker.find_by_name(issue[1])
+            flash[:error] = "Unknown Issue tracker #{issue[1]}"
             render action: 'edit_patchinfo', project: @project, package: @package
             return
           end
-
-          Backend::Api::Sources::Package.write_patchinfo(@package.project.name, @package.name, User.current.login, xml)
-
-          @package.sources_changed(wait_for_update: true) # wait for indexing for special files
-
-          flash[:notice] = "Successfully edited #{@package}"
-        rescue Timeout::Error
-          flash[:error] = 'Timeout when saving file. Please try again.'
+          # people tend to enter entire cve strings instead of just the name
+          issue[0].gsub!(/^(CVE|cve)-/, '') if issue[1] == 'cve'
+          node.issue(issue[2], tracker: issue[1], id: issue[0])
         end
-
-        redirect_to controller: 'patchinfo', action: 'show',
-                    project: @project.name, package: @package
-      else
-        @tracker = params[:tracker]
-        @packager = params[:packager]
-        @binaries = params[:selected_binaries]
-        @binarylist = params[:available_binaries]
-        @issues = []
-        params[:issueid].to_a.each_with_index do |new_issue, index|
-          @issues << [
-            new_issue,
-            params[:issuetracker][index],
-            params[:issueurl][index],
-            params[:issuesum][index]
-          ]
-        end
-        @category = params[:category]
-        @rating = params[:rating]
-        @summary = params[:summary]
-        @description = params[:description]
-        @relogin = params[:relogin]
-        @reboot = params[:reboot]
-        @zypp_restart_needed = params[:zypp_restart_needed]
-        @block = params[:block]
-        @block_reason = params[:block_reason]
-        render action: 'edit_patchinfo', project: @project, package: @package
+        node.category params[:category]
+        node.rating params[:rating]
+        node.summary params[:summary]
+        node.description params[:description].gsub("\r\n", "\n")
+        node.reboot_needed if params[:reboot]
+        node.relogin_needed if params[:relogin]
+        node.zypp_restart_needed if params[:zypp_restart_needed]
+        node.stopped params[:block_reason] if params[:block] == 'true'
       end
-    rescue ActiveXML::Transport::ForbiddenError
-      flash[:error] = 'No permission to edit the patchinfo-file.'
-      redirect_to action: 'show', project: @project.name, package: @package.name
+      begin
+        authorize @package, :update?
+
+        begin
+          Package.verify_file!(@package, '_patchinfo', xml)
+        rescue APIException => e
+          flash[:error] = "patchinfo is invalid: #{e.message}"
+          render action: 'edit_patchinfo', project: @project, package: @package
+          return
+        end
+
+        Backend::Api::Sources::Package.write_patchinfo(@package.project.name, @package.name, User.current.login, xml)
+
+        @package.sources_changed(wait_for_update: true) # wait for indexing for special files
+
+        flash[:notice] = "Successfully edited #{@package}"
+      rescue Timeout::Error
+        flash[:error] = 'Timeout when saving file. Please try again.'
+      end
+
+      redirect_to controller: 'patchinfo', action: 'show',
+                  project: @project.name, package: @package
+    else
+      @tracker = params[:tracker]
+      @packager = params[:packager]
+      @binaries = params[:selected_binaries]
+      @binarylist = params[:available_binaries]
+      @issues = []
+      params[:issueid].to_a.each_with_index do |new_issue, index|
+        @issues << [
+          new_issue,
+          params[:issuetracker][index],
+          params[:issueurl][index],
+          params[:issuesum][index]
+        ]
+      end
+      @category = params[:category]
+      @rating = params[:rating]
+      @summary = params[:summary]
+      @description = params[:description]
+      @relogin = params[:relogin]
+      @reboot = params[:reboot]
+      @zypp_restart_needed = params[:zypp_restart_needed]
+      @block = params[:block]
+      @block_reason = params[:block_reason]
+      render action: 'edit_patchinfo', project: @project, package: @package
     end
+  rescue ActiveXML::Transport::ForbiddenError
+    flash[:error] = 'No permission to edit the patchinfo-file.'
+    redirect_to action: 'show', project: @project.name, package: @package.name
   end
 
   def remove

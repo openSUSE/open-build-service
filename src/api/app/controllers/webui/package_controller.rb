@@ -792,13 +792,12 @@ class Webui::PackageController < Webui::WebuiController
 
   def set_initial_offset
     # Do not start at the beginning long time ago
-    begin
-      size = get_size_of_log(@project, @package, @repo, @arch)
-      logger.debug("log size is #{size}")
-      @offset = [0, size - 32 * 1024].max
-    rescue => e
-      logger.error "Got #{e.class}: #{e.message}; returning empty log."
-    end
+
+    size = get_size_of_log(@project, @package, @repo, @arch)
+    logger.debug("log size is #{size}")
+    @offset = [0, size - 32 * 1024].max
+  rescue => e
+    logger.error "Got #{e.class}: #{e.message}; returning empty log."
   end
 
   def update_build_log
@@ -1042,21 +1041,19 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def file_available?(url, max_redirects = 5)
-    begin
-      logger.debug "Checking url: #{url}"
-      uri = URI.parse(url)
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.open_timeout = 15
-      http.read_timeout = 15
-      response = http.head uri.path
-      if response.code.to_i == 302 && response['location'] && max_redirects > 0
-        return file_available? response['location'], (max_redirects - 1)
-      end
-      return response.code.to_i == 200
-    rescue Object => e
-      logger.error "Error in checking for file #{url}: #{e.message}"
-      return false
+    logger.debug "Checking url: #{url}"
+    uri = URI.parse(url)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.open_timeout = 15
+    http.read_timeout = 15
+    response = http.head uri.path
+    if response.code.to_i == 302 && response['location'] && max_redirects > 0
+      return file_available? response['location'], (max_redirects - 1)
     end
+    return response.code.to_i == 200
+  rescue Object => e
+    logger.error "Error in checking for file #{url}: #{e.message}"
+    return false
   end
 
   def users_path

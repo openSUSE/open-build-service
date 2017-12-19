@@ -1145,10 +1145,8 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def set_project_by_name
-    begin
-      @project = Project.get_by_name(params['project'])
-    rescue Project::UnknownObjectError
-      @project = nil
-    end
+    @project = Project.get_by_name(params['project'])
+  rescue Project::UnknownObjectError
+    @project = nil
   end
 end

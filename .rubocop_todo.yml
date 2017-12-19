@@ -357,20 +357,6 @@ Style/MultipleComparison:
     - 'src/api/lib/tasks/extract.rake'
     - 'src/api/script/reformat_memprof'
 
-# Offense count: 12
-# Cop supports --auto-correct.
-Style/RedundantBegin:
-  Exclude:
-    - 'src/api/app/controllers/webui/package_controller.rb'
-    - 'src/api/app/controllers/webui/patchinfo_controller.rb'
-    - 'src/api/app/controllers/webui/project_controller.rb'
-    - 'src/api/app/models/bs_request_action.rb'
-    - 'src/api/app/models/event/build_fail.rb'
-    - 'src/api/app/models/package.rb'
-    - 'src/api/config/routes.rb'
-    - 'src/api/db/migrate/20140721112346_delayed_job_indexes.rb'
-    - 'src/api/script/import'
-
 # Offense count: 10
 # Cop supports --auto-correct.
 Style/RedundantException:

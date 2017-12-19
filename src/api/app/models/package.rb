@@ -1112,11 +1112,9 @@ class Package < ApplicationRecord
 
   # just make sure the backend_package is there
   def update_if_dirty
-    begin
-      backend_package
-    rescue Mysql2::Error
-      # the delayed job might have jumped in and created the entry just before us
-    end
+    backend_package
+  rescue Mysql2::Error
+    # the delayed job might have jumped in and created the entry just before us
   end
 
   def linking_packages
@@ -1236,11 +1234,9 @@ class Package < ApplicationRecord
   end
 
   def patchinfo
-    begin
-      Patchinfo.new(source_file('_patchinfo'))
-    rescue ActiveXML::Transport::NotFoundError
-      nil
-    end
+    Patchinfo.new(source_file('_patchinfo'))
+  rescue ActiveXML::Transport::NotFoundError
+    nil
   end
 
   def delete_file(name, opt = {})
@@ -1449,12 +1445,10 @@ class Package < ApplicationRecord
   end
 
   def self.what_depends_on(project, package, repository, architecture)
-    begin
-      path = "/build/#{project}/#{repository}/#{architecture}/_builddepinfo?package=#{package}&view=revpkgnames"
-      [Xmlhash.parse(Backend::Connection.get(path).body).try(:[], 'package').try(:[], 'pkgdep')].flatten.compact
-    rescue ActiveXML::Transport::NotFoundError
-      []
-    end
+    path = "/build/#{project}/#{repository}/#{architecture}/_builddepinfo?package=#{package}&view=revpkgnames"
+    [Xmlhash.parse(Backend::Connection.get(path).body).try(:[], 'package').try(:[], 'pkgdep')].flatten.compact
+  rescue ActiveXML::Transport::NotFoundError
+    []
   end
 
   def last_build_reason(repo, arch)

@@ -15,22 +15,20 @@ module Event
     end
 
     def faillog
+      size = get_size_of_log(payload['project'], payload['package'], payload['repository'], payload['arch'])
+      offset = size - 18 * 1024
+      offset = 0 if offset < 0
+      log = raw_log_chunk(payload['project'], payload['package'], payload['repository'], payload['arch'], offset, size)
       begin
-        size = get_size_of_log(payload['project'], payload['package'], payload['repository'], payload['arch'])
-        offset = size - 18 * 1024
-        offset = 0 if offset < 0
-        log = raw_log_chunk(payload['project'], payload['package'], payload['repository'], payload['arch'], offset, size)
-        begin
-          log.encode!(invalid: :replace, undef: :replace, universal_newline: true)
-        rescue Encoding::UndefinedConversionError
-          # encode is documented not to throw it if undef: is :replace, but at least we tried - and ruby 1.9.3 is buggy
-        end
-        log = log.chomp.lines
-        log = log.slice(-29, log.length) if log.length > 30
-        log.join
-      rescue ActiveXML::Transport::Error
-        nil
+        log.encode!(invalid: :replace, undef: :replace, universal_newline: true)
+      rescue Encoding::UndefinedConversionError
+        # encode is documented not to throw it if undef: is :replace, but at least we tried - and ruby 1.9.3 is buggy
       end
+      log = log.chomp.lines
+      log = log.slice(-29, log.length) if log.length > 30
+      log.join
+    rescue ActiveXML::Transport::Error
+      nil
     end
 
     def expanded_payload
