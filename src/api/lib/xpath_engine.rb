@@ -268,17 +268,10 @@ class XpathEngine
       token = @stack.shift
       # logger.debug "next token: #{token.inspect}"
       case token
-      when :ancestor
-      when :ancestor_or_self
-      when :attribute
-      when :descendant
-      when :descendant_or_self
-      when :following
-      when :following_sibling
-      when :namespace
-      when :parent
-      when :preceding
-      when :preceding_sibling
+      when :ancestor, :ancestor_or_self, :attribute,
+           :descendant, :descendant_or_self, :following, :following_sibling,
+           :namespace, :parent, :preceding, :preceding_sibling
+        nil
       when :self
         raise IllegalXpathError, "axis '#{token}' not supported"
       when :child

@@ -148,12 +148,11 @@ class BsRequestPermissionCheck
     if @source_package
       @source_package.check_source_access!
     else
-      err = nil
       case action.action_type
       when :change_devel
         err = "Local source package is missing for request #{action.bs_request.number} (type #{action.action_type})"
-      when :set_bugowner
-      when :add_role
+      when :set_bugowner, :add_role
+        err = nil
       else
         action.source_access_check!
       end
@@ -396,6 +395,7 @@ class BsRequestPermissionCheck
           "You have no role in request #{req.number}"
         end
       when 'accepted'
+        nil
       # requires write permissions in all targets, this is already handled in each action check
       when 'revoked'
         # general revoke permission check based on source maintainership. We don't get here if the user is the creator of request

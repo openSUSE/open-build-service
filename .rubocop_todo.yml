@@ -37,15 +37,6 @@ Lint/DuplicateMethods:
     - 'src/api/app/models/history_element.rb'
     - 'src/api/lib/activexml/node.rb'
 
-# Offense count: 19
-Lint/EmptyWhen:
-  Exclude:
-    - 'src/api/app/controllers/request_controller.rb'
-    - 'src/api/app/models/bs_request_permission_check.rb'
-    - 'src/api/app/models/user.rb'
-    - 'src/api/lib/xpath_engine.rb'
-    - 'src/api/test/activexml_matcher.rb'
-
 # Offense count: 22
 Lint/HandleExceptions:
   Enabled: false

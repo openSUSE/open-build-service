@@ -401,6 +401,7 @@ class User < ApplicationRecord
     when Integer
       group = Group.find(group)
     when Group, nil
+      nil
     else
       raise ArgumentError, "illegal parameter type to User#is_in_group?: #{group.class}"
     end
