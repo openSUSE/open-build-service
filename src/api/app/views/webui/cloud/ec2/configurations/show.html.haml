@@ -1,0 +1,57 @@
+%h1
+  Amazon EC2 Configuration
+
+%p
+  Before the Open Build Service can upload appliances to Amazon EC2, you need to enable some configuration in your AWS Account.
+
+%h2 SSH Key
+%p
+  %ul
+    %li Select the Region you want to upload the image.
+    %li
+      Go to
+      %i
+        Network & Security -> Key Pairs -> Import Key Pair
+      and paste the OBS public key:
+      %pre
+        ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQConqL/iFLOoV5Ts7dXMQ4hGTnv9Cn+Dvalh/JDaQ9lU2TBfdoYIjqkcw1ARiKLbynmZ9ktCX2Nmxi2HCsUYP0S2z+2KbQn2WRWF1Gel5tgwNqaed85bnySg3oPLqI2fVEUdQdCA2P73P/c4/nXkunlZc6PVPQX4Q28xaYvXRfcZS8cNW5Uhxc357uPuNXSsbUIXwRZGwfHi7jBoXOincj+YBdx86+NTAlltIRqXrn3l+Paq2JDm1gLmw9pThhfpzm/eX6BKaODG7sIGVGgOeulgxVimAxsXJDVJtNC20ITU0HrPJjqfQ0pNQj86LKm+2y20JplMw0aEXWVnSD+4ixX
+    %li Make sure that default security group has the permission to SSH into the machine.
+
+%h2 Roles and permissions
+%p
+  %ul
+    %li
+      Go to
+      %i
+        IAM -> Roles -> Create role
+      and select
+      %i
+        Another AWS Account.
+    %li
+      Enter
+      %b
+        = @aws_account_id
+      as
+      %i
+        Account ID.
+    %li
+      Select option
+      %i
+        Require external ID
+      and enter
+      %b
+        = @ec2_configuration.external_id
+      as External ID.
+    %li
+      Attach
+      %i
+        AmazonEC2FullAccess
+      permission policy and create the role.
+
+= form_for @ec2_configuration, url: cloud_ec2_configuration_path, method: :put do
+  %p
+    Please enter now the obtained
+    %b
+      Amazon Resouce Name (ARN):
+    = text_field :ec2_configuration, :arn, value: @ec2_configuration.arn
+    = submit_tag "Submit"

@@ -1,0 +1,18 @@
+%h1
+  Cloud Upload
+
+%div
+  %table#upload-jobs
+    %thead
+      %tr
+        %th #
+        %th Platform
+    %tbody
+      - @upload_jobs.each do |job|
+        %tr
+          %td= job.job_id
+          %td EC2
+
+%div
+  %p
+    = link_to 'Update your EC2 Configuration', cloud_ec2_configuration_path

@@ -88,4 +88,8 @@ module Webui::PackageHelper
   def repo_type_and_priority(repository)
     [repository.repo_type, repository.priority].compact.join(', Priority: ')
   end
+
+  def cloud_image_file?(filename)
+    filename.end_with?('.raw.xz', '.vhdfixed.xz')
+  end
 end
