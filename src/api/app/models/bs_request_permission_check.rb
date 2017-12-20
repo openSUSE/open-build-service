@@ -370,9 +370,9 @@ class BsRequestPermissionCheck
   attr_accessor :opts, :req
 
   # check if the request can change state - or throw an APIException if not
-  def initialize(_req, _opts)
-    self.req = _req
-    self.opts = _opts
+  def initialize(request, options)
+    self.req = request
+    self.opts = options
 
     @write_permission_in_source = false
     @write_permission_in_target = false

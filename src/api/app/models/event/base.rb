@@ -117,14 +117,14 @@ module Event
       self.class.receiver_roles
     end
 
-    def initialize(_attribs)
-      attribs = _attribs.dup
+    def initialize(attribs)
+      attributes = attribs.dup
       super()
-      self.created_at = attribs[:time] if attribs[:time]
-      attribs.delete :eventtype
-      attribs.delete :time
+      self.created_at = attribs[:time] if attributes[:time]
+      attributes.delete :eventtype
+      attributes.delete :time
 
-      set_payload(attribs, payload_keys)
+      set_payload(attributes, payload_keys)
     end
 
     def check_left_attribs(attribs)

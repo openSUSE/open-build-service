@@ -69,14 +69,6 @@ Lint/ShadowedException:
   Exclude:
     - 'src/api/lib/activexml/transport.rb'
 
-# Offense count: 6
-Lint/UnderscorePrefixedVariableName:
-  Exclude:
-    - 'src/api/app/helpers/webui/main_helper.rb'
-    - 'src/api/app/models/bs_request_permission_check.rb'
-    - 'src/api/app/models/event/base.rb'
-    - 'src/api/lib/api_exception.rb'
-
 # Offense count: 50
 Lint/UriEscapeUnescape:
   Enabled: false
