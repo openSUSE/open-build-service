@@ -76,6 +76,10 @@ Lint/EndAlignment:
 Rails:
   Enabled: true
 
+# Actually is not possible to enable this cop because we have several overwritten methods.
+Rails/DynamicFindBy:
+  Enabled: false
+
 # Enforces that 'exit' calls are not used.
 Rails/Exit:
   Exclude:

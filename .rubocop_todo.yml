@@ -228,13 +228,6 @@ Naming/VariableNumber:
 Performance/HashEachMethods:
   Enabled: false
 
-# Offense count: 538
-# Cop supports --auto-correct.
-# Configuration parameters: Whitelist.
-# Whitelist: find_by_sql
-Rails/DynamicFindBy:
-  Enabled: false
-
 # Offense count: 83
 Rails/FilePath:
   Enabled: false
