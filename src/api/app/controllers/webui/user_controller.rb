@@ -28,7 +28,7 @@ class Webui::UserController < Webui::WebuiController
     user = User.find_with_credentials(params[:username], params[:password])
 
     if user && !user.is_active?
-      redirect_to(root_path, error: "Your account is disabled. Please contact the administrator for details.")
+      redirect_to(root_path, error: 'Your account is disabled. Please contact the administrator for details.')
       return
     end
 
@@ -42,7 +42,7 @@ class Webui::UserController < Webui::WebuiController
     session[:login] = user.login
     User.current = user
 
-    if request.referer && request.referer.end_with?("/user/login")
+    if request.referer && request.referer.end_with?('/user/login')
       redirect_to user_show_path(User.current)
     else
       redirect_back(fallback_location: root_path)
@@ -200,14 +200,14 @@ class Webui::UserController < Webui::WebuiController
       user.password_confirmation = params[:repeat_password]
 
       if user.save
-        flash[:notice] = "Your password has been changed successfully."
+        flash[:notice] = 'Your password has been changed successfully.'
         redirect_to action: :show, user: user
       else
         flash[:error] = "The password could not be changed. #{user.errors.full_messages.to_sentence}"
         redirect_back fallback_location: root_path
       end
     else
-      flash[:error] = "The value of current password does not match your current password. Please enter the password and try again."
+      flash[:error] = 'The value of current password does not match your current password. Please enter the password and try again.'
       redirect_back fallback_location: root_path
       return
     end

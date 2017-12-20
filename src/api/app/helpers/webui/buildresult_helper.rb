@@ -7,14 +7,14 @@ module Webui::BuildresultHelper
       code = status['code']
       theclass = 'status_' + code.gsub(/[- ]/, '_')
       # special case for scheduled jobs with constraints limiting the workers a lot
-      theclass = "status_scheduled_warning" if code == "scheduled" && link_title.present?
+      theclass = 'status_scheduled_warning' if code == 'scheduled' && link_title.present?
     else
       code = ''
       theclass = ' '
     end
 
-    content_tag(:td, class: [theclass, "buildstatus", "nowrap"]) do
-      if code.in?(["-", "unresolvable", "blocked", "excluded", "scheduled"])
+    content_tag(:td, class: [theclass, 'buildstatus', 'nowrap']) do
+      if code.in?(['-', 'unresolvable', 'blocked', 'excluded', 'scheduled'])
         concat link_to(code, '#', title: link_title, id: status_id, class: code)
       else
         concat link_to(code.gsub(/\s/, '&nbsp;'),
@@ -23,7 +23,7 @@ module Webui::BuildresultHelper
       end
 
       if enable_help && status['code']
-        concat " "
+        concat ' '
         concat sprite_tag('help', title: Buildresult.status_description(status['code']))
       end
     end

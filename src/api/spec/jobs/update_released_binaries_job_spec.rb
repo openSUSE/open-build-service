@@ -9,7 +9,7 @@ RSpec.describe UpdateReleasedBinariesJob, vcr: true do
     let!(:repository) { create(:repository, name: 'mod_ssl', project: project, architectures: ['i586']) }
     let!(:event) { Event::Packtrack.create(project: project.name, repo: repository.name, payload: 'fake_payload') }
 
-    context "for an event with a repo" do
+    context 'for an event with a repo' do
       before do
         allow(BinaryRelease).to receive(:update_binary_releases)
       end
@@ -19,7 +19,7 @@ RSpec.describe UpdateReleasedBinariesJob, vcr: true do
       it { expect(BinaryRelease).to have_received(:update_binary_releases) }
     end
 
-    context "for an event without a repo" do
+    context 'for an event without a repo' do
       let!(:event_without_repo) do
         Event::Packtrack.create(project: project.name, repo: nil, payload: 'fake_payload')
       end
@@ -33,7 +33,7 @@ RSpec.describe UpdateReleasedBinariesJob, vcr: true do
       it { expect(BinaryRelease).not_to have_received(:update_binary_releases) }
     end
 
-    context "when perform raises an exception" do
+    context 'when perform raises an exception' do
       before do
         allow(BinaryRelease).to receive(:update_binary_releases).and_raise(StandardError)
         allow($stdout).to receive(:write) # Needed to avoid the puts of the error method

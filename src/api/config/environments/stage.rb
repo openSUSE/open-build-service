@@ -21,14 +21,14 @@ config.action_controller.perform_caching = true
 # LDAP Servers separated by ':'.
 # OVERRIDE with your company's ldap servers. Servers are picked randomly for
 # each connection to distribute load.
-CONFIG['ldap_servers'] = "ldap1.mycompany.com:ldap2.mycompany.com"
+CONFIG['ldap_servers'] = 'ldap1.mycompany.com:ldap2.mycompany.com'
 # OVERRIDE with your company's ldap search base for the users who will use OBS
-CONFIG['ldap_search_base'] = "OU=Organizational Unit,DC=Domain Component"
+CONFIG['ldap_search_base'] = 'OU=Organizational Unit,DC=Domain Component'
 # Sam Account Name is the login name for LDAP
-CONFIG['ldap_search_attr'] = "sAMAccountName"
+CONFIG['ldap_search_attr'] = 'sAMAccountName'
 # Max number of times to attempt to contact the LDAP servers
 CONFIG['max_ldap_attempts'] = 10
 
-ActionController::AbstractRequest.relative_url_root = "/stage"
+ActionController::AbstractRequest.relative_url_root = '/stage'
 
 CONFIG['response_schema_validation'] = true

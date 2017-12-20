@@ -23,12 +23,12 @@ class AttribNamespace < ApplicationRecord
   end
 
   def create_one_rule(node)
-    if !node["user"] && !node["group"]
+    if !node['user'] && !node['group']
       raise RuntimeError, "attribute type '#{node.name}' modifiable_by element has no valid rules set"
     end
     new_rule = {}
-    new_rule[:user] = User.find_by_login!(node["user"]) if node["user"]
-    new_rule[:group] = Group.find_by_title!(node["group"]) if node["group"]
+    new_rule[:user] = User.find_by_login!(node['user']) if node['user']
+    new_rule[:group] = Group.find_by_title!(node['group']) if node['group']
     attrib_namespace_modifiable_bies << AttribNamespaceModifiableBy.new(new_rule)
   end
 
@@ -36,7 +36,7 @@ class AttribNamespace < ApplicationRecord
     transaction do
       attrib_namespace_modifiable_bies.delete_all
       # store permission settings
-      node.elements("modifiable_by") { |element| create_one_rule(element) }
+      node.elements('modifiable_by') { |element| create_one_rule(element) }
       save
     end
   end

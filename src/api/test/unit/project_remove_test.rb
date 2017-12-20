@@ -1,5 +1,5 @@
 # Testing the things that should and shouldn't happen when you remove a Project
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'securerandom'
 
 class ProjectRemoveTest < ActiveSupport::TestCase
@@ -22,7 +22,7 @@ class ProjectRemoveTest < ActiveSupport::TestCase
   end
 
   def test_cleanup_local_devel_packages
-    skip "nullify the Packages in this Project that have develpackage_id"
+    skip 'nullify the Packages in this Project that have develpackage_id'
   end
 
   def test_destroy_source_revokes_request
@@ -78,7 +78,7 @@ class ProjectRemoveTest < ActiveSupport::TestCase
   def test_accept_request_does_not_revoke_request_for_multiple_packages
     User.current = users(:Iggy)
     branch_package
-    project = Project.find_by(name: "home:Iggy:branches:Apache")
+    project = Project.find_by(name: 'home:Iggy:branches:Apache')
     project.packages.create!(name: 'pack')
     create_request
 
@@ -121,11 +121,11 @@ class ProjectRemoveTest < ActiveSupport::TestCase
   end
 
   def test_cleanup_packages
-    skip "Project.packages get removed but not on the backend"
+    skip 'Project.packages get removed but not on the backend'
   end
 
   def test_delete_on_backend
-    skip "Project is also deleted on the backend"
+    skip 'Project is also deleted on the backend'
   end
 
   private
@@ -140,7 +140,7 @@ class ProjectRemoveTest < ActiveSupport::TestCase
 
   def create_request(project = 'Apache', package = 'apache2', source_project = "home:#{User.current.login}:branches:#{project}")
     # Create a request to submit the changes back
-    request = BsRequest.new(state: "new", description: 'project_remove_test')
+    request = BsRequest.new(state: 'new', description: 'project_remove_test')
     action = BsRequestActionSubmit.new(source_project: source_project,
                                        source_package: package,
                                        target_project: project,

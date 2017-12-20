@@ -33,14 +33,14 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
 
     releaseproject = target_releaseproject ? Project.get_by_name(target_releaseproject) : tprj
     if releaseproject.try(:name).blank?
-      raise NoMaintenanceReleaseTarget, "Maintenance incident request contains no defined release" +
+      raise NoMaintenanceReleaseTarget, 'Maintenance incident request contains no defined release' +
                                         " target project for package #{pkg.name}"
     end
 
     # Automatically switch to update project
     releaseproject = releaseproject.update_instance
     unless releaseproject.is_maintenance_release?
-      raise NoMaintenanceReleaseTarget, "Maintenance incident request contains release target " +
+      raise NoMaintenanceReleaseTarget, 'Maintenance incident request contains release target ' +
                                         "project #{releaseproject.name} with invalid project " +
                                         "kind \"#{releaseproject.kind}\" (should be " +
                                         "\"maintenance_release\") for package #{pkg.name}"
@@ -49,7 +49,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
   end
 
   def sourcediff(opts = {})
-    unless opts[:view] == "xml"
+    unless opts[:view] == 'xml'
       # skip local links
       hash = Directory.hashed(project: source_project, package: source_package)
       return '' if hash['linkinfo'] && hash['linkinfo']['project'] == source_project
@@ -70,8 +70,8 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       return
     end
     kinds = Package.detect_package_kinds(dir_hash)
-    pkg_title = ""
-    pkg_description = ""
+    pkg_title = ''
+    pkg_description = ''
 
     # patchinfos are handled as new packages
     if kinds.include? 'patchinfo'
@@ -101,7 +101,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       if defined?(linkprj) && linkprj
         if linkprj.is_maintenance_incident? || linkprj != linkprj.update_instance || kinds.include?('channel')
           branch_params[:project] = linkinfo['project']
-          branch_params[:ignoredevel] = "1"
+          branch_params[:ignoredevel] = '1'
         end
       end
       # it is fine to have new packages
@@ -150,7 +150,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     cp_params[:orev] = source_rev if source_rev
     response = Backend::Api::Sources::Package.copy(incident_project.name, new_pkg.name, source_project, source_package, User.current.login, cp_params)
     result = Xmlhash.parse(response)
-    set_acceptinfo(result["acceptinfo"])
+    set_acceptinfo(result['acceptinfo'])
 
     new_pkg.sources_changed
     new_pkg

@@ -13,7 +13,7 @@ class Attrib < ApplicationRecord
   belongs_to :attrib_type
   has_many :attrib_issues
   has_many :issues, through: :attrib_issues, dependent: :destroy
-  has_many :values, -> { order("position ASC") }, class_name: 'AttribValue', dependent: :delete_all
+  has_many :values, -> { order('position ASC') }, class_name: 'AttribValue', dependent: :delete_all
 
   accepts_nested_attributes_for :values, allow_destroy: true
   accepts_nested_attributes_for :issues, allow_destroy: true

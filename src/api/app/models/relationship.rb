@@ -17,25 +17,25 @@ class Relationship < ApplicationRecord
 
   validates :project_id, uniqueness: {
     scope: [:role_id, :group_id, :user_id], allow_nil: true,
-    message: "Project has non unique id"
+    message: 'Project has non unique id'
   }
   validates :package_id, uniqueness: {
     scope: [:role_id, :group_id, :user_id], allow_nil: true,
-    message: "Package has non unique id"
+    message: 'Package has non unique id'
   }
 
   validates :package, presence: {
-    message: "Neither package nor project exists"
+    message: 'Neither package nor project exists'
   }, unless: proc { |relationship| relationship.project.present? }
   validates :package, absence: {
-    message: "Package and project can not exist at the same time"
+    message: 'Package and project can not exist at the same time'
   }, if: proc { |relationship| relationship.project.present? }
 
   validates :user, presence: {
-    message: "Neither user nor group exists"
+    message: 'Neither user nor group exists'
   }, unless: proc { |relationship| relationship.group.present? }
   validates :user, absence: {
-    message: "User and group can not exist at the same time"
+    message: 'User and group can not exist at the same time'
   }, if: proc { |relationship| relationship.group.present? }
 
   # don't use "is not null" - it won't be in index
@@ -74,7 +74,7 @@ class Relationship < ApplicationRecord
     end
 
     if obj.relationships.where(user: user, role: role).exists?
-      raise SaveError, "Relationship already exists" if check
+      raise SaveError, 'Relationship already exists' if check
       logger.debug "ignore user #{user.login} - already has role #{role.title}"
       return
     end
@@ -104,7 +104,7 @@ class Relationship < ApplicationRecord
 
     obj.relationships.each do |r|
       if r.group_id == group.id && r.role_id == role.id
-        raise SaveError, "Relationship already exists" if check
+        raise SaveError, 'Relationship already exists' if check
         logger.debug "ignore group #{group.title} - already has role #{role.title}"
         return
       end

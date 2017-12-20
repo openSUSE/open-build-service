@@ -1,6 +1,6 @@
-require "browser_helper"
+require 'browser_helper'
 
-RSpec.feature "Repositories", type: :feature, js: true do
+RSpec.feature 'Repositories', type: :feature, js: true do
   let!(:user) { create(:confirmed_user) }
   let!(:project) { create(:project) }
   let!(:relationship) { create(:relationship_project_user, project: project, user: user) }
@@ -9,7 +9,7 @@ RSpec.feature "Repositories", type: :feature, js: true do
   let!(:repository) { create(:repository, name: 'standard', project: my_project) }
   let!(:distribution) { create(:distribution, project: 'MyProject', repository: 'standard') }
 
-  scenario "add" do
+  scenario 'add' do
     login user
     visit "/project/add_repository_from_default_list/#{project.name}"
 

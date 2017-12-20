@@ -90,7 +90,7 @@ class BsRequestAction < ApplicationRecord
     # requests. However, it is not used there anymore, so dis-allow to create
     # new requests. But we do validate that the code is still working.
     # FIXME3.0: drop this code and drop these actions from database.
-    raise ArgumentError, "request actions of type group can not be created anymore" if classname == BsRequestActionGroup && !Rails.env.test?
+    raise ArgumentError, 'request actions of type group can not be created anymore' if classname == BsRequestActionGroup && !Rails.env.test?
 
     raise ArgumentError, 'unknown type' unless classname
 
@@ -572,20 +572,20 @@ class BsRequestAction < ApplicationRecord
           arch = result.attributes['arch']
           if result.attributes['dirty']
             raise BuildNotFinished, "The repository '#{pkg.project.name}' / '#{repo}' / #{arch} " +
-                                    "needs recalculation by the schedulers"
+                                    'needs recalculation by the schedulers'
           end
-          if result.attributes['state'].in?(["finished", "publishing"])
+          if result.attributes['state'].in?(['finished', 'publishing'])
             raise BuildNotFinished, "The repository '#{pkg.project.name}' / '#{repo}' / #{arch}" +
-                                    "did not finish the publish yet"
+                                    'did not finish the publish yet'
           end
-          unless result.attributes['state'].in?(["published", "unpublished"])
+          unless result.attributes['state'].in?(['published', 'unpublished'])
             raise BuildNotFinished, "The repository '#{pkg.project.name}' / '#{repo}' / #{arch} " +
-                                    "did not finish the build yet"
+                                    'did not finish the build yet'
           end
 
           # all versrel are the same
           versrel[repo] ||= {}
-          result.get_elements("status").each do |status|
+          result.get_elements('status').each do |status|
             package = status.attributes['package']
             vrel = status.attributes['versrel']
             next unless vrel
@@ -620,15 +620,15 @@ class BsRequestAction < ApplicationRecord
           release_target = nil
           pkg.project.repositories.includes(:release_targets).each do |repo|
             repo.release_targets.each do |rt|
-              next if rt.trigger != "maintenance"
+              next if rt.trigger != 'maintenance'
               next unless rt.target_repository.project.is_maintenance_release?
               if release_target && release_target != rt.target_repository.project
-                raise InvalidReleaseTarget, "Multiple release target projects are not supported"
+                raise InvalidReleaseTarget, 'Multiple release target projects are not supported'
               end
               release_target = rt.target_repository.project
             end
           end
-          raise InvalidReleaseTarget, "Can not release to a maintenance incident project" unless release_target
+          raise InvalidReleaseTarget, 'Can not release to a maintenance incident project' unless release_target
           tprj = release_target
         end
       end
@@ -673,9 +673,9 @@ class BsRequestAction < ApplicationRecord
           new_action.destroy
           new_action = sumbit_action
         else # non-channel package
-          next if ReleaseTarget.where(repository: pkg.project.repositories, target_repository: tprj.repositories, trigger: "maintenance").empty?
+          next if ReleaseTarget.where(repository: pkg.project.repositories, target_repository: tprj.repositories, trigger: 'maintenance').empty?
           unless pkg.project.can_be_released_to_project?(tprj)
-            raise WrongLinkedPackageSource, "According to the source link of package " +
+            raise WrongLinkedPackageSource, 'According to the source link of package ' +
                                             "#{pkg.project.name}/#{pkg.name} it would go to project" +
                                             "#{tprj.name} which is not specified as release target."
           end
@@ -717,7 +717,7 @@ class BsRequestAction < ApplicationRecord
 
         # rubocop:disable Metrics/LineLength
         # skip if there is no active maintenance trigger for this package
-        next if is_maintenance_release? && ReleaseTarget.where(repository: pkg.project.repositories, target_repository: Project.find_by_name(p).repositories, trigger: "maintenance").empty?
+        next if is_maintenance_release? && ReleaseTarget.where(repository: pkg.project.repositories, target_repository: Project.find_by_name(p).repositories, trigger: 'maintenance').empty?
         # rubocop:enable Metrics/LineLength
 
         new_action = dup
@@ -798,7 +798,7 @@ class BsRequestAction < ApplicationRecord
         raise 'We should have expanded a target_project' unless target_project
         # validate project type
         prj = Project.get_by_name(target_project)
-        unless prj.kind.in?(["maintenance", "maintenance_incident"])
+        unless prj.kind.in?(['maintenance', 'maintenance_incident'])
           raise IncidentHasNoMaintenanceProject, 'incident projects shall only create below maintenance projects'
         end
       end
@@ -813,7 +813,7 @@ class BsRequestAction < ApplicationRecord
         end
       end
       if action_type == :submit && tprj.kind_of?(Project)
-        at = AttribType.find_by_namespace_and_name!("OBS", "MakeOriginOlder")
+        at = AttribType.find_by_namespace_and_name!('OBS', 'MakeOriginOlder')
         self.makeoriginolder = true if tprj.attribs.find_by(attrib_type: at)
       end
       # allow cleanup only, if no devel package reference
@@ -838,7 +838,7 @@ class BsRequestAction < ApplicationRecord
     if tprj.is_a? Project
       if tprj.is_maintenance_release? && action_type == :submit
         raise SubmitRequestRejected, "The target project #{target_project} is a maintenance release project, " +
-                                     "a submit self is not possible, please use the maintenance workflow instead."
+                                     'a submit self is not possible, please use the maintenance workflow instead.'
       end
       a = tprj.find_attribute('OBS', 'RejectRequests')
       if a && a.values.first
@@ -943,7 +943,7 @@ class BsRequestAction < ApplicationRecord
     # validate that the sources are not broken
     begin
       query = {}
-      query[:expand] = "1" unless updatelink
+      query[:expand] = '1' unless updatelink
       query[:rev] = source_rev if source_rev
       # FIXME we have a Directory model
       url = Package.source_path(source_project, source_package, nil, query)

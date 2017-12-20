@@ -12,7 +12,7 @@ class AttribType < ApplicationRecord
   belongs_to :attrib_namespace
 
   has_many :attribs, dependent: :destroy
-  has_many :default_values, -> { order("position ASC") }, class_name: 'AttribDefaultValue', dependent: :delete_all
+  has_many :default_values, -> { order('position ASC') }, class_name: 'AttribDefaultValue', dependent: :delete_all
   has_many :allowed_values, class_name: 'AttribAllowedValue', dependent: :delete_all
   has_many :attrib_type_modifiable_bies, class_name: 'AttribTypeModifiableBy', dependent: :delete_all
 
@@ -40,9 +40,9 @@ class AttribType < ApplicationRecord
 
   def self.find_by_namespace_and_name(namespace, name, or_fail = false)
     unless namespace && name
-      raise ArgumentError, "Need namespace and name as parameters"
+      raise ArgumentError, 'Need namespace and name as parameters'
     end
-    ats = joins(:attrib_namespace).where("attrib_namespaces.name = ? and attrib_types.name = ?", namespace, name)
+    ats = joins(:attrib_namespace).where('attrib_namespaces.name = ? and attrib_types.name = ?', namespace, name)
     if or_fail && ats.count != 1
       raise UnknownAttributeTypeError, "Attribute Type #{namespace}:#{name} does not exist"
     end
@@ -61,13 +61,13 @@ class AttribType < ApplicationRecord
   end
 
   def create_one_rule(node)
-    if node["user"].blank? && node["group"].blank? && node["role"].blank?
+    if node['user'].blank? && node['group'].blank? && node['role'].blank?
       raise RuntimeError, "attribute type '#{node.name}' modifiable_by element has no valid rules set"
     end
     new_rule = {}
-    new_rule[:user] = User.find_by_login!(node["user"]) if node["user"]
-    new_rule[:group] = Group.find_by_title!(node["group"]) if node["group"]
-    new_rule[:role] = Role.find_by_title!(node["role"]) if node["role"]
+    new_rule[:user] = User.find_by_login!(node['user']) if node['user']
+    new_rule[:group] = Group.find_by_title!(node['group']) if node['group']
+    new_rule[:role] = Role.find_by_title!(node['role']) if node['role']
     attrib_type_modifiable_bies << AttribTypeModifiableBy.new(new_rule)
   end
 
@@ -75,7 +75,7 @@ class AttribType < ApplicationRecord
     default_values.delete_all
     position = 1
     default_elements.each do |d|
-      d.elements("value") do |v|
+      d.elements('value') do |v|
         default_values << AttribDefaultValue.new(value: v, position: position)
         position += 1
       end
@@ -88,32 +88,32 @@ class AttribType < ApplicationRecord
       attrib_type_modifiable_bies.delete_all
 
       # store permission setting
-      xmlhash.elements("modifiable_by") { |element| create_one_rule(element) }
+      xmlhash.elements('modifiable_by') { |element| create_one_rule(element) }
 
       # attribute type definition
       self.description = nil
-      xmlhash.elements("description") do |element|
+      xmlhash.elements('description') do |element|
         self.description = element
       end
 
       # set value counter (this number of values must exist, not more, not less)
       self.value_count = nil
-      xmlhash.elements("count") do |element|
+      xmlhash.elements('count') do |element|
         self.value_count = element
       end
 
       # allow issues?
       logger.debug "XML #{xmlhash.inspect}"
-      self.issue_list = !xmlhash["issue_list"].nil?
+      self.issue_list = !xmlhash['issue_list'].nil?
       logger.debug "IL #{issue_list}"
 
       # default values of a attribute stored
-      update_default_values(xmlhash.elements("default"))
+      update_default_values(xmlhash.elements('default'))
 
       # list of allowed values
       allowed_values.delete_all
-      xmlhash.elements("allowed") do |allowed_element|
-        allowed_element.elements("value") do |value_element|
+      xmlhash.elements('allowed') do |allowed_element|
+        allowed_element.elements('value') do |value_element|
           allowed_values.build(value: value_element)
         end
       end

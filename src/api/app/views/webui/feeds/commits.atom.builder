@@ -1,7 +1,7 @@
 # Don't ask me why atom_feed helper does not work. Reimplementing its logic
-feed_opts = { "xml:lang" => "en-US",
-              "xmlns"    => 'http://www.w3.org/2005/Atom' }
-schema_date = "2013-11-22"
+feed_opts = { 'xml:lang' => 'en-US',
+              'xmlns'    => 'http://www.w3.org/2005/Atom' }
+schema_date = '2013-11-22'
 obs_host = URI.parse(::Configuration.obs_url).host
 
 xml.feed(feed_opts) do |feed|
@@ -25,17 +25,17 @@ xml.feed(feed_opts) do |feed|
       entry.content type: 'xhtml' do |xhtml|
         xhtml.div do |div|
           div.p commit.message
-          div.p "Basic information:"
+          div.p 'Basic information:'
           div.dl do |dl|
-            dl.dt "Package"
+            dl.dt 'Package'
             dl.dd do |dd|
               url = url_for(:only_path => false, :controller => 'package', :action => 'rdiff', :project => @project.name,
                             :package => package, :rev => commit.additional_info['rev'], :linkrev => 'base')
               dd.a package, href: url
             end
-            dl.dt "User"
+            dl.dt 'User'
             dl.dd user
-            dl.dt "Request"
+            dl.dt 'Request'
             if reqid
               # prefer the request url
               url = request_show_url(reqid)
@@ -46,7 +46,7 @@ xml.feed(feed_opts) do |feed|
               dl.dd reqid
             end
           end
-          div.p "Additional information:"
+          div.p 'Additional information:'
           div.dl do |dl|
             commit.additional_info.each do |k, v|
               dl.dt k

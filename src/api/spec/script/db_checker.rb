@@ -49,8 +49,8 @@ RSpec.describe DB::Checker do
     end
   end
 
-  describe "#check_foreign_keys" do
-    context "without inconsistent records" do
+  describe '#check_foreign_keys' do
+    context 'without inconsistent records' do
       before do
         allow(checker).to receive(:check_foreign_key).and_return([])
       end
@@ -59,7 +59,7 @@ RSpec.describe DB::Checker do
       it { expect { checker.check_foreign_keys }.not_to output(/Trying to fix/).to_stdout }
     end
 
-    context "with inconsistent records" do
+    context 'with inconsistent records' do
       before do
         allow(checker).to receive(:check_foreign_key).and_return([1, 2, 3])
         allow(checker).to receive(:ask_for_fixing)
@@ -70,7 +70,7 @@ RSpec.describe DB::Checker do
     end
   end
 
-  describe "#resolve_devel_packages" do
+  describe '#resolve_devel_packages' do
     let(:project) { create(:project) }
     let(:package_without_cycle) do
       package = create(:package, project: project)
@@ -83,14 +83,14 @@ RSpec.describe DB::Checker do
       package.save
     end
 
-    context "without problematic packages" do
+    context 'without problematic packages' do
       before { package_without_cycle }
 
       it { expect { checker.resolve_devel_packages }.to output(/OK/).to_stdout }
       it { expect { checker.resolve_devel_packages }.not_to output(/Errors detected at project/).to_stdout }
     end
 
-    context "with problematic packages" do
+    context 'with problematic packages' do
       before { package_with_cycle }
 
       it { expect { checker.resolve_devel_packages }.to output(/FAIL/).to_stdout }

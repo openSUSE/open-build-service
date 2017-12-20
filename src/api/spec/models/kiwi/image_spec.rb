@@ -492,14 +492,14 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
     let!(:kiwi_repository) { create(:kiwi_repository, image: kiwi_image) }
     let(:result) do
       {
-        "Repository: http://example.com/" => [
+        'Repository: http://example.com/' => [
           "Source path can't be nil",
-          "Source path has an invalid format",
-          "Order is not a number",
-          "Replaceable has to be a boolean"
+          'Source path has an invalid format',
+          'Order is not a number',
+          'Replaceable has to be a boolean'
         ],
-        "Image Errors:"                   => [
-          "Multiple package groups with same type are not allowed"
+        'Image Errors:'                   => [
+          'Multiple package groups with same type are not allowed'
         ]
       }
     end

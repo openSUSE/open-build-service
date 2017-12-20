@@ -21,7 +21,7 @@ class AttribValue < ApplicationRecord
       default = attrib.attrib_type.default_values.find_by(position: position)
       default.try(:value).to_s
     else
-      ""
+      ''
     end
   end
 end

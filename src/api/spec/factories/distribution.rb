@@ -1,12 +1,12 @@
 FactoryBot.define do
   factory :distribution do
     vendor { Faker::Lorem.word }
-    version "13.2"
+    version '13.2'
     name { Faker::Lorem.word }
     project { Faker::Lorem.word }
     sequence(:reponame) { |n| "reponame_#{n}" }
-    repository "standard"
-    link "http://www.opensuse.org/"
+    repository 'standard'
+    link 'http://www.opensuse.org/'
 
     transient do
       architectures []

@@ -7,8 +7,8 @@ require 'webmock/rspec'
 
 # rubocop:disable Metrics/BlockLength
 RSpec.describe Webui::ProjectController, vcr: true do
-  let(:user) { create(:confirmed_user, login: "tom") }
-  let(:admin_user) { create(:admin_user, login: "admin") }
+  let(:user) { create(:confirmed_user, login: 'tom') }
+  let(:admin_user) { create(:admin_user, login: 'admin') }
   let(:apache_project) { create(:project, name: 'Apache') }
   let(:another_project) { create(:project, name: 'Another_Project') }
   let(:apache2_project) { create(:project, name: 'Apache2') }
@@ -39,7 +39,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   describe 'GET #index' do
     context 'showing all projects' do
       before do
-        allow(::Configuration).to receive(:unlisted_projects_filter) { "^home:.*" }
+        allow(::Configuration).to receive(:unlisted_projects_filter) { '^home:.*' }
         home_moi_project
         another_project
         get :index, params: { show_all: true }
@@ -47,12 +47,12 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       it { expect(assigns(:projects).length).to eq(2) }
       it { expect(Project.count).to eq(2) }
-      it { is_expected.to render_template("webui/project/list") }
+      it { is_expected.to render_template('webui/project/list') }
     end
 
     context 'showing filtered projects' do
       before do
-        allow(::Configuration).to receive(:unlisted_projects_filter) { "^home:.*" }
+        allow(::Configuration).to receive(:unlisted_projects_filter) { '^home:.*' }
         home_moi_project
         another_project
         get :index, params: { show_all: false }
@@ -60,7 +60,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       it { expect(assigns(:projects).length).to eq(1) }
       it { expect(Project.count).to eq(2) }
-      it { is_expected.to render_template("webui/project/list") }
+      it { is_expected.to render_template('webui/project/list') }
     end
 
     context 'showing projects being a spider bot' do
@@ -70,35 +70,35 @@ RSpec.describe Webui::ProjectController, vcr: true do
         get :index
       end
 
-      it { is_expected.to render_template("webui/project/list_simple") }
+      it { is_expected.to render_template('webui/project/list_simple') }
     end
   end
 
   describe 'PATCH #update' do
     let(:project) { user.home_project }
 
-    context "with valid parameters" do
+    context 'with valid parameters' do
       before do
         login user
-        patch :update, params: { id: project.id, project: { description: "My projects description", title: "My projects title" } }
+        patch :update, params: { id: project.id, project: { description: 'My projects description', title: 'My projects title' } }
         project.reload
       end
 
       it { expect(response).to redirect_to(project_show_path(project)) }
-      it { expect(flash[:notice]).to eq "Project was successfully updated." }
-      it { expect(project.title).to eq "My projects title" }
-      it { expect(project.description).to eq "My projects description" }
+      it { expect(flash[:notice]).to eq 'Project was successfully updated.' }
+      it { expect(project.title).to eq 'My projects title' }
+      it { expect(project.description).to eq 'My projects description' }
     end
 
-    context "with invalid data" do
+    context 'with invalid data' do
       before do
         login user
-        patch :update, params: { id: project.id, project: { description: "My projects description", title: "My projects title" * 200 } }
+        patch :update, params: { id: project.id, project: { description: 'My projects description', title: 'My projects title' * 200 } }
         project.reload
       end
 
       it { expect(response).to have_http_status(:success) }
-      it { expect(flash[:error]).to eq "Failed to update project" }
+      it { expect(flash[:error]).to eq 'Failed to update project' }
       it { expect(project.title).to be nil }
       it { expect(project.description).to be nil }
     end
@@ -142,7 +142,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
 
     context 'with a subprojects' do
-      let!(:apache_subproject) { create(:project, name: "Apache:subproject") }
+      let!(:apache_subproject) { create(:project, name: 'Apache:subproject') }
 
       context 'and searching for parent project' do
         before do
@@ -252,7 +252,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         get :subprojects, params: { project: @project }
       end
 
-      it "has subprojects" do
+      it 'has subprojects' do
         expect(assigns(:subprojects)).to match_array([@subproject1, @subproject2])
         expect(assigns(:parentprojects)).to contain_exactly(apache_project)
         expect(assigns(:siblings)).to be_empty
@@ -264,7 +264,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         get :subprojects, params: { project: @subproject1 }
       end
 
-      it "has siblingprojects" do
+      it 'has siblingprojects' do
         expect(assigns(:subprojects)).to be_empty
         expect(assigns(:parentprojects)).to match_array([apache_project, @project])
         expect(assigns(:siblings)).to contain_exactly(@subproject2)
@@ -527,7 +527,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
         it { expect(Project.count).to eq(1) }
         it { is_expected.to redirect_to(project_show_path(user.home_project)) }
-        it { expect(flash[:notice]).to eq("Project was successfully removed.") }
+        it { expect(flash[:notice]).to eq('Project was successfully removed.') }
       end
 
       context 'not having a parent project' do
@@ -537,7 +537,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
         it { expect(Project.count).to eq(0) }
         it { is_expected.to redirect_to(action: :index) }
-        it { expect(flash[:notice]).to eq("Project was successfully removed.") }
+        it { expect(flash[:notice]).to eq('Project was successfully removed.') }
       end
     end
 
@@ -636,7 +636,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           get :rebuild_time, params: { project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
         end
 
-        it { expect(assigns(:longestpaths)).to match_array([[], [], [], [], ["package_name"]]) }
+        it { expect(assigns(:longestpaths)).to match_array([[], [], [], [], ['package_name']]) }
       end
 
       context 'with diststats not generated' do
@@ -663,11 +663,11 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'with a valid key' do
       before do
-        Rails.cache.write("rebuild-valid_key.png", "PNG Content")
+        Rails.cache.write('rebuild-valid_key.png', 'PNG Content')
         get :rebuild_time_png, params: { project: user.home_project, key: 'valid_key' }
       end
 
-      it { expect(response.body).to eq("PNG Content") }
+      it { expect(response.body).to eq('PNG Content') }
       it { expect(response.header['Content-Type']).to eq('image/png') }
       it { expect(response.header['Content-Disposition']).to eq('inline') }
     end
@@ -686,10 +686,10 @@ RSpec.describe Webui::ProjectController, vcr: true do
   describe 'GET #create' do
     before do
       login user
-      request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+      request.env['HTTP_REFERER'] = root_url # Needed for the redirect_to :back
     end
 
-    shared_examples "a valid project saved" do
+    shared_examples 'a valid project saved' do
       it { expect(flash[:notice]).to start_with("Project '#{user.home_project_name}:my_project' was created successfully") }
       it { is_expected.to redirect_to(project_show_path("#{user.home_project_name}:my_project")) }
     end
@@ -700,7 +700,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(assigns(:project).name).to eq("#{user.home_project_name}:my_project") }
-      it_should_behave_like "a valid project saved"
+      it_should_behave_like 'a valid project saved'
     end
 
     context 'with a param called maintenance_project' do
@@ -709,23 +709,23 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(assigns(:project).kind).to eq('maintenance') }
-      it_should_behave_like "a valid project saved"
+      it_should_behave_like 'a valid project saved'
     end
 
     context 'with a param that disables a flag' do
-      shared_examples "a param that creates a disabled flag" do |param_name, flag_name|
+      shared_examples 'a param that creates a disabled flag' do |param_name, flag_name|
         before do
           post :create, params: { :project => { name: 'my_project' }, :ns => user.home_project_name, param_name.to_sym => true }
         end
 
         it { expect(assigns(:project).flags.first.flag).to eq(flag_name) }
         it { expect(assigns(:project).flags.find_by(flag: flag_name).status).to eq('disable') }
-        it_should_behave_like "a valid project saved"
+        it_should_behave_like 'a valid project saved'
       end
 
-      it_should_behave_like "a param that creates a disabled flag", :access_protection, 'access'
-      it_should_behave_like "a param that creates a disabled flag", :source_protection, 'sourceaccess'
-      it_should_behave_like "a param that creates a disabled flag", :disable_publishing, 'publish'
+      it_should_behave_like 'a param that creates a disabled flag', :access_protection, 'access'
+      it_should_behave_like 'a param that creates a disabled flag', :source_protection, 'sourceaccess'
+      it_should_behave_like 'a param that creates a disabled flag', :disable_publishing, 'publish'
     end
 
     context 'with an invalid project data' do
@@ -743,23 +743,23 @@ RSpec.describe Webui::ProjectController, vcr: true do
       login user
     end
 
-    context "with valid data" do
+    context 'with valid data' do
       before do
         patch :update, params: { id: user.home_project.id, project: { title: 'New Title' } }
       end
 
       it { expect(assigns(:project).title).to eq('New Title') }
-      it { expect(flash[:notice]).to eq("Project was successfully updated.") }
+      it { expect(flash[:notice]).to eq('Project was successfully updated.') }
       it { is_expected.to redirect_to(project_show_path(user.home_project)) }
     end
 
-    context "with no valid data" do
+    context 'with no valid data' do
       before do
         patch :update, params: { id: user.home_project.id, project: { name: 'non valid name' } }
       end
 
-      it { expect(flash[:error]).to eq("Failed to update project") }
-      it { is_expected.to render_template("webui/project/edit") }
+      it { expect(flash[:error]).to eq('Failed to update project') }
+      it { is_expected.to render_template('webui/project/edit') }
       it { expect(response).to have_http_status(:success) }
     end
   end
@@ -769,27 +769,27 @@ RSpec.describe Webui::ProjectController, vcr: true do
       login user
     end
 
-    context "without target project" do
+    context 'without target project' do
       before do
         expect(BsRequestActionDelete).to receive(:new).and_raise(BsRequestAction::UnknownTargetProject)
         post :remove_target_request, params: { project: apache_project, description: 'Fake description' }
       end
 
-      it { expect(flash[:error]).to eq("BsRequestAction::UnknownTargetProject") }
+      it { expect(flash[:error]).to eq('BsRequestAction::UnknownTargetProject') }
       it { is_expected.to redirect_to(action: :index, controller: :repositories, project: apache_project) }
     end
 
-    context "without target package" do
+    context 'without target package' do
       before do
         expect(BsRequestActionDelete).to receive(:new).and_raise(BsRequestAction::UnknownTargetPackage)
         post :remove_target_request, params: { project: apache_project, description: 'Fake description' }
       end
 
-      it { expect(flash[:error]).to eq("BsRequestAction::UnknownTargetPackage") }
+      it { expect(flash[:error]).to eq('BsRequestAction::UnknownTargetPackage') }
       it { is_expected.to redirect_to(action: :index, project: apache_project, controller: :repositories) }
     end
 
-    context "with proper params" do
+    context 'with proper params' do
       before do
         post :remove_target_request, params: { project: apache_project, description: 'Fake description' }
       end
@@ -809,33 +809,33 @@ RSpec.describe Webui::ProjectController, vcr: true do
       login user
     end
 
-    it "without a repository param" do
+    it 'without a repository param' do
       expect { post :remove_path_from_target, params: { project: user } }.to raise_error ActiveRecord::RecordNotFound
     end
 
-    it "with a repository param but without a path param" do
+    it 'with a repository param but without a path param' do
       expect { post :remove_path_from_target, params: { repository: repo_for_user_home, project: user } }.to raise_error ActiveRecord::RecordNotFound
     end
 
-    context "with a repository and path" do
+    context 'with a repository and path' do
       before do
         post :remove_path_from_target, params: { project: user.home_project, repository: repo_for_user_home, path: path_element }
       end
 
-      it { expect(flash[:success]).to eq("Successfully removed path") }
+      it { expect(flash[:success]).to eq('Successfully removed path') }
       it { is_expected.to redirect_to(action: :index, project: user.home_project, controller: :repositories) }
       it { expect(repo_for_user_home.path_elements.count).to eq(0) }
     end
 
-    context "with a target repository but letting the project invalid" do
+    context 'with a target repository but letting the project invalid' do
       before do
-        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+        request.env['HTTP_REFERER'] = root_url # Needed for the redirect_to :back
         path_element # Needed before stubbing Project#valid? to false
         allow_any_instance_of(Project).to receive(:valid?).and_return(false)
         post :remove_path_from_target, params: { project: user.home_project, repository: repo_for_user_home, path: path_element }
       end
 
-      it { expect(flash[:error]).to eq("Can not remove path: ") }
+      it { expect(flash[:error]).to eq('Can not remove path: ') }
       it { is_expected.to redirect_to(root_url) }
       it { expect(assigns(:project).repositories.count).to eq(1) }
     end
@@ -846,24 +846,24 @@ RSpec.describe Webui::ProjectController, vcr: true do
       login user
     end
 
-    it "with a project already whatched" do
+    it 'with a project already whatched' do
       create(:watched_project, project: user.home_project, user: user)
       get :toggle_watch, params: { project: user.home_project }
       expect(user.watched_project_names).not_to include(user.home_project_name)
     end
 
-    it "with a project not whatched" do
+    it 'with a project not whatched' do
       get :toggle_watch, params: { project: user.home_project }
       expect(user.watched_project_names).to include(user.home_project_name)
     end
 
-    it "redirects to back if a referer is there" do
-      request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+    it 'redirects to back if a referer is there' do
+      request.env['HTTP_REFERER'] = root_url # Needed for the redirect_to :back
       get :toggle_watch, params: { project: user.home_project }
       is_expected.to redirect_to(root_url)
     end
 
-    it "redirects to project#show" do
+    it 'redirects to project#show' do
       get :toggle_watch, params: { project: user.home_project }
       is_expected.to redirect_to(project_show_path(user.home_project))
     end
@@ -926,7 +926,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           post :save_meta, params: { project: user.home_project, meta: meta }, xhr: true
         end
 
-        it { expect(flash.now[:error]).to eq("A project with the name not-existent does not exist. Please update the repository path elements.") }
+        it { expect(flash.now[:error]).to eq('A project with the name not-existent does not exist. Please update the repository path elements.') }
         it { expect(response).to have_http_status(400) }
       end
     end
@@ -937,7 +937,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       login user
     end
 
-    context "with a project that is locked" do
+    context 'with a project that is locked' do
       before do
         user.home_project.flags.create(flag: 'lock', status: 'enable')
       end
@@ -951,7 +951,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         it { expect(flash[:notice]).to eq('Successfully unlocked project') }
       end
 
-      context "with a project that has maintenance release requests" do
+      context 'with a project that has maintenance release requests' do
         let!(:bs_request) { create(:bs_request, type: 'maintenance_release', source_project: user.home_project.name) }
 
         before do
@@ -984,12 +984,12 @@ RSpec.describe Webui::ProjectController, vcr: true do
       login user
     end
 
-    context "with maintained kind" do
+    context 'with maintained kind' do
       before do
         user.home_project.update(kind: 'maintenance')
       end
 
-      context "maintained project successfully removed" do
+      context 'maintained project successfully removed' do
         let(:maintained_project) { create(:maintained_project, project: user.home_project) }
 
         before do
@@ -1001,9 +1001,9 @@ RSpec.describe Webui::ProjectController, vcr: true do
         it { is_expected.to redirect_to(action: 'maintained_projects', project: user.home_project) }
       end
 
-      context "with an invalid maintained project" do
+      context 'with an invalid maintained project' do
         before do
-          request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+          request.env['HTTP_REFERER'] = root_url # Needed for the redirect_to :back
           post :remove_maintained_project, params: { project: user.home_project, maintained_project: user.home_project.name }
         end
 
@@ -1012,14 +1012,14 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       # raise the exception in the before_action set_maintained_project
-      it "#remove_maintained_project raise excepction with invalid maintained project" do
+      it '#remove_maintained_project raise excepction with invalid maintained project' do
         expect do
-          post :remove_maintained_project, params: { project: user.home_project, maintained_project: "invalid" }
+          post :remove_maintained_project, params: { project: user.home_project, maintained_project: 'invalid' }
         end.to raise_exception ActiveRecord::RecordNotFound
       end
     end
 
-    context "#remove_maintained_project fails without maintenance kind for a valid maintained project" do
+    context '#remove_maintained_project fails without maintenance kind for a valid maintained project' do
       let(:maintained_project) { create(:maintained_project, project: user.home_project) }
 
       before do
@@ -1030,7 +1030,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
   end
 
-  describe "POST #add_maintained_project" do
+  describe 'POST #add_maintained_project' do
     before do
       login user
     end
@@ -1040,7 +1040,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         user.home_project.update(kind: 'maintenance')
       end
 
-      context "adding a valid maintained project" do
+      context 'adding a valid maintained project' do
         before do
           post :add_maintained_project, params: { project: user.home_project, maintained_project: user.home_project.name }
         end
@@ -1050,13 +1050,13 @@ RSpec.describe Webui::ProjectController, vcr: true do
         it { is_expected.to redirect_to(action: 'maintained_projects', project: user.home_project) }
       end
 
-      context "adding an invalid project" do
+      context 'adding an invalid project' do
         before do
-          post :add_maintained_project, params: { project: user.home_project, maintained_project: "invalid project" }
+          post :add_maintained_project, params: { project: user.home_project, maintained_project: 'invalid project' }
         end
 
         it { expect(user.home_project.maintained_projects.where(project_id: user.home_project.id)).not_to exist }
-        it { expect(flash[:error]).to eq("Failed to add invalid project to maintenance") }
+        it { expect(flash[:error]).to eq('Failed to add invalid project to maintenance') }
         it { is_expected.to redirect_to(root_path) }
       end
     end
@@ -1074,29 +1074,29 @@ RSpec.describe Webui::ProjectController, vcr: true do
   describe 'POST #new_incident_request' do
     before do
       login user
-      request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+      request.env['HTTP_REFERER'] = root_url # Needed for the redirect_to :back
     end
 
-    it "without an existent project will raise an exception" do
+    it 'without an existent project will raise an exception' do
       expect { post :new_incident_request, params: { project: 'non:existent:project' } }.to raise_error Project::UnknownObjectError
     end
 
-    context "without a proper action for the maintenance project" do
+    context 'without a proper action for the maintenance project' do
       before do
-        post :new_incident_request, params: { project: maintenance_project, description: "Fake description for a request" }
+        post :new_incident_request, params: { project: maintenance_project, description: 'Fake description for a request' }
       end
 
-      it { expect(flash[:error]).to eq("MaintenanceHelper::MissingAction") }
+      it { expect(flash[:error]).to eq('MaintenanceHelper::MissingAction') }
       it { is_expected.to redirect_to(root_url) }
     end
 
-    context "with the proper params" do
+    context 'with the proper params' do
       before do
         allow_any_instance_of(BsRequest).to receive(:save!).and_return(true)
-        post :new_incident_request, params: { project: maintenance_project, description: "Fake description for a request" }
+        post :new_incident_request, params: { project: maintenance_project, description: 'Fake description for a request' }
       end
 
-      it { expect(flash[:success]).to eq("Created maintenance incident request") }
+      it { expect(flash[:success]).to eq('Created maintenance incident request') }
       it { is_expected.to redirect_to(project_show_path(maintenance_project)) }
     end
   end
@@ -1104,7 +1104,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   describe 'POST #edit_comment' do
     let(:package) { create(:package, name: 'home_package', project: user.home_project) }
     let(:attribute_type) { AttribType.find_by_namespace_and_name!('OBS', 'ProjectStatusPackageFailComment') }
-    let(:text) { "The text to edit the comment" }
+    let(:text) { 'The text to edit the comment' }
 
     before do
     end
@@ -1199,7 +1199,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
   describe 'GET #clear_failed_comment' do
     let(:package) { create(:package_with_failed_comment_attribute, name: 'my_package', project: user.home_project) }
-    let(:attribute_type) { AttribType.find_by_name("OBS:ProjectStatusPackageFailComment") }
+    let(:attribute_type) { AttribType.find_by_name('OBS:ProjectStatusPackageFailComment') }
 
     before do
       login(user)
@@ -1210,7 +1210,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         get :clear_failed_comment, params: { project: user.home_project, package: package }
       end
 
-      it { expect(flash[:notice]).to eq("Cleared comments for packages.") }
+      it { expect(flash[:notice]).to eq('Cleared comments for packages.') }
       it { expect(response).to redirect_to(project_status_path(user.home_project)) }
       it { expect(package.attribs.where(attrib_type: attribute_type)).to be_empty }
     end
@@ -1221,7 +1221,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(response).to have_http_status(:success) }
-      it { expect(response.body).to eq("<em>Cleared comments for packages</em>") }
+      it { expect(response.body).to eq('<em>Cleared comments for packages</em>') }
       it { expect(package.attribs.where(attrib_type: attribute_type)).to be_empty }
     end
   end
@@ -1303,7 +1303,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           end
 
           it { expect(path_element.reload.position).to eq(position) }
-          it { expect(flash[:notice]).to eq("Path moved up successfully") }
+          it { expect(flash[:notice]).to eq('Path moved up successfully') }
           it { expect(response).to redirect_to({ action: :index, controller: :repositories, project: apache_project }) }
         end
 
@@ -1313,7 +1313,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           end
 
           it { expect(path_element.reload.position).to eq(position) }
-          it { expect(flash[:notice]).to eq("Path moved down successfully") }
+          it { expect(flash[:notice]).to eq('Path moved down successfully') }
           it { expect(response).to redirect_to({ action: :index, controller: :repositories, project: apache_project }) }
         end
       end
@@ -1333,7 +1333,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
               move
             end
 
-            it { expect(flash[:notice]).to eq("Path moved up successfully") }
+            it { expect(flash[:notice]).to eq('Path moved up successfully') }
             it { expect(response).to redirect_to({ action: :index, controller: :repositories, project: apache_project }) }
           end
 
@@ -1354,7 +1354,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
               move
             end
 
-            it { expect(flash[:notice]).to eq("Path moved down successfully") }
+            it { expect(flash[:notice]).to eq('Path moved down successfully') }
             it { expect(response).to redirect_to({ action: :index, controller: :repositories, project: apache_project }) }
           end
 
@@ -1438,20 +1438,20 @@ RSpec.describe Webui::ProjectController, vcr: true do
             )
           end
           let(:statushash) do
-            { "openSUSE_Tumbleweed" => {
-              "i586"   => {
-                "c++"   => { "package" => "c++",   "code" => "succeeded" },
-                "redis" => { "package" => "redis", "code" => "failed" }
+            { 'openSUSE_Tumbleweed' => {
+              'i586'   => {
+                'c++'   => { 'package' => 'c++',   'code' => 'succeeded' },
+                'redis' => { 'package' => 'redis', 'code' => 'failed' }
               },
-              "x86_64" => {
-                "c++"   => { "package" => "c++",   "code" => "unresolvable", "details" => "nothing provides foo" },
-                "redis" => { "package" => "redis", "code" => "building", "details" => "building on obs-node-3" }
+              'x86_64' => {
+                'c++'   => { 'package' => 'c++',   'code' => 'unresolvable', 'details' => 'nothing provides foo' },
+                'redis' => { 'package' => 'redis', 'code' => 'building', 'details' => 'building on obs-node-3' }
               }
             },
-              "openSUSE_42.2"       => {
-                "s390x" => {
-                  "c++"   => { "package" => "c++",   "code" => "succeeded" },
-                  "redis" => { "package" => "redis", "code" => "succeeded" }
+              'openSUSE_42.2'       => {
+                's390x' => {
+                  'c++'   => { 'package' => 'c++',   'code' => 'succeeded' },
+                  'redis' => { 'package' => 'redis', 'code' => 'succeeded' }
                 }
               } }
           end
@@ -1464,14 +1464,14 @@ RSpec.describe Webui::ProjectController, vcr: true do
           it { expect(assigns(:buildresult_unavailable)).to be_nil }
           it { expect(assigns(:packagenames)).to eq(['c++', 'redis']) }
           it { expect(assigns(:statushash)).to eq(statushash) }
-          it { expect(assigns(:repohash)).to eq({ "openSUSE_Tumbleweed" => ["i586", "x86_64"], "openSUSE_42.2" => ["s390x"] }) }
+          it { expect(assigns(:repohash)).to eq({ 'openSUSE_Tumbleweed' => ['i586', 'x86_64'], 'openSUSE_42.2' => ['s390x'] }) }
           it {
-            expect(assigns(:repostatushash)).to eq({ "openSUSE_Tumbleweed" => { "i586" => "published", "x86_64" => "building" },
-                                                     "openSUSE_42.2"       => { "s390x" => "outdated_published" } })
+            expect(assigns(:repostatushash)).to eq({ 'openSUSE_Tumbleweed' => { 'i586' => 'published', 'x86_64' => 'building' },
+                                                     'openSUSE_42.2'       => { 's390x' => 'outdated_published' } })
           }
           it {
-            expect(assigns(:repostatusdetailshash)).to eq({ "openSUSE_Tumbleweed" => { "x86_64" => "This repo is broken" },
-                                                            "openSUSE_42.2"       => {} })
+            expect(assigns(:repostatusdetailshash)).to eq({ 'openSUSE_Tumbleweed' => { 'x86_64' => 'This repo is broken' },
+                                                            'openSUSE_42.2'       => {} })
           }
           it { expect(response).to have_http_status(:ok) }
         end
@@ -1548,33 +1548,33 @@ RSpec.describe Webui::ProjectController, vcr: true do
       context 'with project' do
         let(:fake_buildresult) do
           Xmlhash::XMLHash.new(
-            "state" => "c0a974eb305112d2fdf45f9ecc54a86b", "result" => [
-              Xmlhash::XMLHash.new("project" => "home:tom", "repository" => "home_coolo_standard", "arch" => "i586", "code" => "published",
-                                   "state" => "published", "status" => [
-                                     Xmlhash::XMLHash.new("package" => "apache", "code" => "succeeded"),
-                                     Xmlhash::XMLHash.new("package" => "obs-server", "code" => "succeeded")
+            'state' => 'c0a974eb305112d2fdf45f9ecc54a86b', 'result' => [
+              Xmlhash::XMLHash.new('project' => 'home:tom', 'repository' => 'home_coolo_standard', 'arch' => 'i586', 'code' => 'published',
+                                   'state' => 'published', 'status' => [
+                                     Xmlhash::XMLHash.new('package' => 'apache', 'code' => 'succeeded'),
+                                     Xmlhash::XMLHash.new('package' => 'obs-server', 'code' => 'succeeded')
                                    ]),
-              Xmlhash::XMLHash.new("project" => "home:tom", "repository" => "home_coolo_standard", "arch" => "x86_64", "code" => "published",
-                                   "state" => "published", "status" => [
-                                     Xmlhash::XMLHash.new("package" => "apache", "code" => "succeeded"),
-                                     Xmlhash::XMLHash.new("package" => "obs-server", "code" => "succeeded")
+              Xmlhash::XMLHash.new('project' => 'home:tom', 'repository' => 'home_coolo_standard', 'arch' => 'x86_64', 'code' => 'published',
+                                   'state' => 'published', 'status' => [
+                                     Xmlhash::XMLHash.new('package' => 'apache', 'code' => 'succeeded'),
+                                     Xmlhash::XMLHash.new('package' => 'obs-server', 'code' => 'succeeded')
                                    ])
             ]
           )
         end
         let(:repohash) do
-          { "home_coolo_standard" => ["i586", "x86_64"] }
+          { 'home_coolo_standard' => ['i586', 'x86_64'] }
         end
 
         let(:statushash) do
-          { "home_coolo_standard" => {
-            "i586"   => {
-              "apache"     => { "package" => "apache", "code" => "succeeded" },
-              "obs-server" => { "package" => "obs-server", "code" => "succeeded" }
+          { 'home_coolo_standard' => {
+            'i586'   => {
+              'apache'     => { 'package' => 'apache', 'code' => 'succeeded' },
+              'obs-server' => { 'package' => 'obs-server', 'code' => 'succeeded' }
             },
-            "x86_64" => {
-              "apache"     => { "package" => "apache", "code" => "succeeded" },
-              "obs-server" => { "package" => "obs-server", "code" => "succeeded" }
+            'x86_64' => {
+              'apache'     => { 'package' => 'apache', 'code' => 'succeeded' },
+              'obs-server' => { 'package' => 'obs-server', 'code' => 'succeeded' }
             }
           } }
         end
@@ -1591,29 +1591,29 @@ RSpec.describe Webui::ProjectController, vcr: true do
       context 'with project and package' do
         let(:fake_buildresult) do
           Xmlhash::XMLHash.new(
-            "state" => "c0a974eb305112d2fdf45f9ecc54a86b", "result" => [
-              Xmlhash::XMLHash.new("project" => "home:tom", "repository" => "home_coolo_standard", "arch" => "i586", "code" => "published",
-                                   "state" => "published", "status" => [
-                                     Xmlhash::XMLHash.new("package" => "obs-server", "code" => "succeeded")
+            'state' => 'c0a974eb305112d2fdf45f9ecc54a86b', 'result' => [
+              Xmlhash::XMLHash.new('project' => 'home:tom', 'repository' => 'home_coolo_standard', 'arch' => 'i586', 'code' => 'published',
+                                   'state' => 'published', 'status' => [
+                                     Xmlhash::XMLHash.new('package' => 'obs-server', 'code' => 'succeeded')
                                    ]),
-              Xmlhash::XMLHash.new("project" => "home:tom", "repository" => "home_coolo_standard", "arch" => "x86_64", "code" => "published",
-                                   "state" => "published", "status" => [
-                                     Xmlhash::XMLHash.new("package" => "obs-server", "code" => "succeeded")
+              Xmlhash::XMLHash.new('project' => 'home:tom', 'repository' => 'home_coolo_standard', 'arch' => 'x86_64', 'code' => 'published',
+                                   'state' => 'published', 'status' => [
+                                     Xmlhash::XMLHash.new('package' => 'obs-server', 'code' => 'succeeded')
                                    ])
             ]
           )
         end
         let(:repohash) do
-          { "home_coolo_standard" => ["i586", "x86_64"] }
+          { 'home_coolo_standard' => ['i586', 'x86_64'] }
         end
 
         let(:statushash) do
-          { "home_coolo_standard" => {
-            "i586"   => {
-              "obs-server" => { "package" => "obs-server", "code" => "succeeded" }
+          { 'home_coolo_standard' => {
+            'i586'   => {
+              'obs-server' => { 'package' => 'obs-server', 'code' => 'succeeded' }
             },
-            "x86_64" => {
-              "obs-server" => { "package" => "obs-server", "code" => "succeeded" }
+            'x86_64' => {
+              'obs-server' => { 'package' => 'obs-server', 'code' => 'succeeded' }
             }
           } }
         end

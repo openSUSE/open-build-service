@@ -41,11 +41,11 @@ module BuildLogSupport
 
   def get_status(project, package, repo, arch)
     data = Backend::Api::BuildResults::Status.build_result(project.to_s, package.to_s, repo, arch)
-    return "" unless data
+    return '' unless data
     doc = Xmlhash.parse(data)
     if doc['result'] && doc['result']['status'] && doc['result']['status']['code']
       return doc['result']['status']['code']
     end
-    ""
+    ''
   end
 end

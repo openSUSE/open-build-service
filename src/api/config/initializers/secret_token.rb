@@ -9,5 +9,5 @@
 if File.exist? "#{Rails.root}/config/secret.key"
   OBSApi::Application.config.secret_key_base = File.read "#{Rails.root}/config/secret.key"
 elsif Rails.env.production?
-  raise "Missing config/secret.key file!"
+  raise 'Missing config/secret.key file!'
 end

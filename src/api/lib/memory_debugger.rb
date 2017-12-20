@@ -38,7 +38,7 @@ class MemoryDebugger
     logger = Rails.logger
     GC.start
     before = %x(ps -orss= -p#{$$}).to_i
-    file = File.new("/tmp/memprof-#{$$}.log", "w")
+    file = File.new("/tmp/memprof-#{$$}.log", 'w')
     ret = Memprof.dump(file.path) do
       ret = @app.call(env)
       GC.start
@@ -47,7 +47,7 @@ class MemoryDebugger
     file.close
     after = %x(ps -orss= -p#{$$}).to_i
     logger.debug "memory diff #{after - before} from #{before} to #{after}"
-    file = File.new("/tmp/memprof-#{$$}.log", "r")
+    file = File.new("/tmp/memprof-#{$$}.log", 'r')
     ids = Hash.new
     file.each_line do |line|
       d = JSON.parse(line)
@@ -58,32 +58,32 @@ class MemoryDebugger
 
     ids.each do |_, d|
       type = d.line['type'] || ''
-      if d.line["data"]
-        d.line["data"].each do |key, value|
+      if d.line['data']
+        d.line['data'].each do |key, value|
           d.add(ids[key])
           d.add(ids[value])
         end if type == 'varmap' || type == 'hash'
-        d.line["data"].each do |v|
+        d.line['data'].each do |v|
           d.add(ids[v])
-        end if type == "array"
+        end if type == 'array'
       end
-      if type == "scope"
-        d.line["variables"].each do |key, value|
+      if type == 'scope'
+        d.line['variables'].each do |key, value|
           d.add(ids[key])
           d.add(ids[value])
-        end if d.line["variables"]
+        end if d.line['variables']
       end
-      if type == "class"
-        d.line["methods"].each do |key, value|
+      if type == 'class'
+        d.line['methods'].each do |key, value|
           d.add(ids[key])
           d.add(ids[value])
-        end if d.line["methods"]
+        end if d.line['methods']
       end
-      if type == "object"
-        d.line["ivars"].each do |key, value|
+      if type == 'object'
+        d.line['ivars'].each do |key, value|
           d.add(ids[key])
           d.add(ids[value])
-        end if d.line["ivars"]
+        end if d.line['ivars']
       end
       %w(n1 n2 n3 block scope shared).each do |key|
         if d.line.has_key?(key)

@@ -19,7 +19,7 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
       return
     end
 
-    redirect_to project_repositories_path(@project), notice: "Successfully created Download on Demand"
+    redirect_to project_repositories_path(@project), notice: 'Successfully created Download on Demand'
   end
 
   def update
@@ -40,7 +40,7 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
       return
     end
 
-    redirect_to project_repositories_path(@project), notice: "Successfully updated Download on Demand"
+    redirect_to project_repositories_path(@project), notice: 'Successfully updated Download on Demand'
   end
 
   def destroy
@@ -62,7 +62,7 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
       return
     end
 
-    redirect_to project_repositories_path(@project), notice: "Successfully removed Download on Demand"
+    redirect_to project_repositories_path(@project), notice: 'Successfully removed Download on Demand'
   end
 
   private

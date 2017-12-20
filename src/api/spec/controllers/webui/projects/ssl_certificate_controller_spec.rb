@@ -3,7 +3,7 @@ require 'webmock/rspec'
 
 RSpec.describe Webui::Projects::SslCertificateController, type: :controller do
   describe 'GET #show' do
-    let(:project) { create(:project, name: "test_project", title: "Test Project") }
+    let(:project) { create(:project, name: 'test_project', title: 'Test Project') }
     let(:gpg_public_key) { Faker::Lorem.characters(1024) }
 
     before do

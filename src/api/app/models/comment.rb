@@ -16,7 +16,7 @@ class Comment < ApplicationRecord
   has_many :children, dependent: :destroy, class_name: 'Comment', foreign_key: 'parent_id'
 
   extend ActsAsTree::TreeWalker
-  acts_as_tree order: "created_at"
+  acts_as_tree order: 'created_at'
 
   def to_s
     body
@@ -28,16 +28,16 @@ class Comment < ApplicationRecord
     params[:commenters] = involved_users
 
     case commentable_type
-    when "Package"
+    when 'Package'
       params[:package] = commentable.name
       params[:project] = commentable.project.name
       # call the action
       Event::CommentForPackage.create params
-    when "Project"
+    when 'Project'
       params[:project] = commentable.name
       # call the action
       Event::CommentForProject.create params
-    when "BsRequest"
+    when 'BsRequest'
       params = commentable.notify_parameters(params)
       # call the action
       Event::CommentForRequest.create params
@@ -95,7 +95,7 @@ class Comment < ApplicationRecord
   def validate_parent_id
     return unless parent_id
     return if commentable.comments.where(id: parent_id).present?
-    errors.add(:parent, "belongs to different object")
+    errors.add(:parent, 'belongs to different object')
   end
 end
 

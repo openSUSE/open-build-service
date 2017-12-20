@@ -17,7 +17,7 @@ RSpec.describe Webui::RequestHelper do
       end
       let(:row) { BsRequest::DataTable::Row .new(bs_request_with_submit_action) }
 
-      it { expect(new_or_update_request(row)).to eq("submit <small>(new package)</small>") }
+      it { expect(new_or_update_request(row)).to eq('submit <small>(new package)</small>') }
       it { expect(new_or_update_request(row)).to be_a(ActiveSupport::SafeBuffer) }
     end
 
@@ -31,7 +31,7 @@ RSpec.describe Webui::RequestHelper do
       end
       let(:row) { BsRequest::DataTable::Row .new(bs_request_with_maintenance_release_action) }
 
-      it { expect(new_or_update_request(row)).to eq("release") }
+      it { expect(new_or_update_request(row)).to eq('release') }
     end
 
     context 'for submitting an existing package' do
@@ -44,7 +44,7 @@ RSpec.describe Webui::RequestHelper do
       end
       let(:row) { BsRequest::DataTable::Row .new(bs_request_with_submit_action) }
 
-      it { expect(new_or_update_request(row)).to eq("submit") }
+      it { expect(new_or_update_request(row)).to eq('submit') }
     end
   end
 end

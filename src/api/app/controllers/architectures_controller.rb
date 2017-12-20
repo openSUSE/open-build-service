@@ -33,7 +33,7 @@ class ArchitecturesController < ApplicationController
     required_parameters :id
     @architecture = Architecture.find_by_name(params[:id])
     unless @architecture
-      render_error(status: 400, errorcode: "unknown_architecture", message: "Architecture does not exist: #{params[:id]}") && return
+      render_error(status: 400, errorcode: 'unknown_architecture', message: "Architecture does not exist: #{params[:id]}") && return
     end
 
     respond_to do |format|

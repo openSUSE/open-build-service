@@ -59,14 +59,14 @@ class SearchController < ApplicationController
 
   def attribute
     unless params[:namespace] && params[:name]
-      render_error status: 400, message: "need namespace and name parameter"
+      render_error status: 400, message: 'need namespace and name parameter'
       return
     end
     find_attribute(params[:namespace], params[:name])
   end
 
   def missing_owner
-    params[:limit] ||= "0" # unlimited by default
+    params[:limit] ||= '0' # unlimited by default
 
     @owners = Owner.search(params, nil).map(&:to_hash)
   end
@@ -82,7 +82,7 @@ class SearchController < ApplicationController
     obj = Project.get_by_name(params[:project]) if obj.nil? && params[:project].present?
 
     if obj.blank?
-      render_error status: 400, errorcode: "no_binary",
+      render_error status: 400, errorcode: 'no_binary',
                    message: "The search needs at least a 'binary' or 'user' parameter"
       return
     end
@@ -99,7 +99,7 @@ class SearchController < ApplicationController
            else
              p
     end
-    pred = "*" if pred.blank?
+    pred = '*' if pred.blank?
     pred
   end
 
@@ -159,8 +159,8 @@ class SearchController < ApplicationController
 
   def search(what, render_all)
     if render_all && params[:match].blank?
-      render_error status: 400, errorcode: "empty_match",
-                   message: "No predicate found in match argument"
+      render_error status: 400, errorcode: 'empty_match',
+                   message: 'No predicate found in match argument'
       return
     end
 
@@ -202,7 +202,7 @@ class SearchController < ApplicationController
         includes = [:repositories]
       else
         includes = []
-        relation = relation.select("projects.id,projects.name")
+        relation = relation.select('projects.id,projects.name')
       end
     when :repository
       relation = Repository.where(id: search_items)
@@ -237,14 +237,14 @@ class SearchController < ApplicationController
     relation.each do |item|
       next if xml[item.id]
       xml[item.id] = render_all ? item.to_axml(opts) : item.to_axml_id
-      xml[item.id].gsub!(/(..*)/, "  \\1") # indent it by two spaces, if line is not empty
+      xml[item.id].gsub!(/(..*)/, '  \\1') # indent it by two spaces, if line is not empty
     end unless items.empty?
 
     items.each do |i|
       output << xml[i]
     end
 
-    output << "</collection>"
+    output << '</collection>'
     render xml: output
   end
 
@@ -280,14 +280,14 @@ class SearchController < ApplicationController
 
     # get the values associated with the attributes and store them
     attribs = attribs.pluck(:id, :package_id)
-    values = AttribValue.where("attrib_id IN (?)", attribs.collect { |a| a[0] })
+    values = AttribValue.where('attrib_id IN (?)', attribs.collect { |a| a[0] })
     attrib_values = Hash.new
     values.each do |v|
       attrib_values[v.attrib_id] ||= Array.new
       attrib_values[v.attrib_id] << v
     end
     # retrieve the package name and project for the attributes
-    packages = Package.where("packages.id IN (?)", attribs.collect { |a| a[1] }).pluck(:id, :name, :project_id)
+    packages = Package.where('packages.id IN (?)', attribs.collect { |a| a[1] }).pluck(:id, :name, :project_id)
     pack2attrib = Hash.new
     attribs.each do |attrib_id, pkg|
       pack2attrib[pkg] = attrib_id

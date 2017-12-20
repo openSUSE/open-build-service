@@ -14,7 +14,7 @@ RSpec.describe Webui::RequestController, vcr: true do
   let(:source_package) { create(:package, name: 'ball', project_id: source_project.id) }
   let(:devel_project) { create(:project, name: 'devel:project') }
   let(:devel_package) { create(:package_with_file, name: 'goal', project: devel_project) }
-  let(:bs_request) { create(:bs_request, description: "Please take this", creator: submitter.login) }
+  let(:bs_request) { create(:bs_request, description: 'Please take this', creator: submitter.login) }
   let(:bs_request_submit_action) do
     create(:bs_request_action_submit, target_project: target_project.name,
                                       target_package: target_package.name,
@@ -88,47 +88,47 @@ RSpec.describe Webui::RequestController, vcr: true do
     end
   end
 
-  describe "POST #delete_request" do
+  describe 'POST #delete_request' do
     before do
       login(submitter)
     end
 
-    context "a valid request" do
+    context 'a valid request' do
       before do
-        post :delete_request, params: { project: target_project, package: target_package, description: "delete it!" }
+        post :delete_request, params: { project: target_project, package: target_package, description: 'delete it!' }
       end
 
       subject do
         BsRequest.joins(:bs_request_actions).
-          where("bs_request_actions.target_project=? AND bs_request_actions.target_package=? AND type=?",
-                target_project.to_s, target_package.to_s, "delete").first
+          where('bs_request_actions.target_project=? AND bs_request_actions.target_package=? AND type=?',
+                target_project.to_s, target_package.to_s, 'delete').first
       end
 
       it { expect(response).to redirect_to(request_show_path(number: subject)) }
       it { expect(flash[:success]).to match("Created .+repository delete request #{subject.number}") }
-      it { expect(subject.description).to eq("delete it!") }
+      it { expect(subject.description).to eq('delete it!') }
     end
 
-    context "a request causing a APIException" do
+    context 'a request causing a APIException' do
       before do
-        allow_any_instance_of(BsRequest).to receive(:save!).and_raise(APIException, "something happened")
-        post :delete_request, params: { project: target_project, package: target_package, description: "delete it!" }
+        allow_any_instance_of(BsRequest).to receive(:save!).and_raise(APIException, 'something happened')
+        post :delete_request, params: { project: target_project, package: target_package, description: 'delete it!' }
       end
 
-      it { expect(flash[:error]).to eq("something happened") }
+      it { expect(flash[:error]).to eq('something happened') }
       it { expect(response).to redirect_to(package_show_path(project: target_project, package: target_package)) }
 
-      it "does not create a delete request" do
+      it 'does not create a delete request' do
         expect(BsRequest.count).to eq(0)
       end
     end
   end
 
-  describe "POST #modify_review" do
+  describe 'POST #modify_review' do
     RSpec.shared_examples 'a valid review' do |new_state|
       let(:params_hash) do
         {
-          review_comment_0:        "yeah",
+          review_comment_0:        'yeah',
           review_request_number_0: request_with_review.number,
           review_by_user_0:        reviewer
         }
@@ -145,32 +145,32 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       it { expect(response).to redirect_to(request_show_path(number: request_with_review.number)) }
       it { expect(subject.state).to eq(new_state) }
-      it { expect(flash[:success]).to eq("Successfully submitted review") }
+      it { expect(flash[:success]).to eq('Successfully submitted review') }
     end
 
     before do
       login(reviewer)
     end
 
-    context "with valid parameters" do
+    context 'with valid parameters' do
       it_behaves_like 'a valid review', :accepted
       it_behaves_like 'a valid review', :new
       it_behaves_like 'a valid review', :declined
     end
 
-    context "with invalid parameters" do
+    context 'with invalid parameters' do
       it 'without request' do
-        post :modify_review, params: { review_comment_0:        "yeah",
+        post :modify_review, params: { review_comment_0:        'yeah',
                                        review_request_number_0: 1899,
                                        review_by_user_0:        reviewer,
-                                       accepted:                "Approve" }
+                                       accepted:                'Approve' }
         expect(flash[:error]).to eq('Unable to load request')
         expect(request_with_review.reload.reviews.last.state).to eq(:new)
         expect(request_with_review.reload.state).to eq(:review)
       end
 
       it 'without state' do
-        post :modify_review, params: { review_comment_0:        "yeah",
+        post :modify_review, params: { review_comment_0:        'yeah',
                                        review_request_number_0: request_with_review.number,
                                        review_by_user_0:        reviewer }
         expect(flash[:error]).to eq('Unknown state to set')
@@ -178,8 +178,8 @@ RSpec.describe Webui::RequestController, vcr: true do
         expect(request_with_review.reload.state).to eq(:review)
       end
 
-      it "without permissions" do
-        post :modify_review, params: { review_comment_0:        "yeah",
+      it 'without permissions' do
+        post :modify_review, params: { review_comment_0:        'yeah',
                                        review_request_number_0: request_with_review.number,
                                        review_by_user_0:        submitter,
                                        accepted:                'Approve' }
@@ -188,25 +188,25 @@ RSpec.describe Webui::RequestController, vcr: true do
         expect(request_with_review.reload.state).to eq(:review)
       end
 
-      it "with invalid transition" do
+      it 'with invalid transition' do
         request_with_review.update_attributes(state: 'declined')
-        post :modify_review, params: { review_comment_0:        "yeah",
+        post :modify_review, params: { review_comment_0:        'yeah',
                                        review_request_number_0: request_with_review.number,
                                        review_by_user_0:        reviewer,
                                        accepted:                'Approve' }
-        expect(flash[:error]).to eq("Not permitted to change review state: The request is neither in state review nor new")
+        expect(flash[:error]).to eq('Not permitted to change review state: The request is neither in state review nor new')
         expect(request_with_review.reload.state).to eq(:declined)
       end
     end
   end
 
-  describe "POST #changerequest" do
+  describe 'POST #changerequest' do
     before do
       bs_request.bs_request_actions.delete_all
       bs_request_submit_action
     end
 
-    context "with valid parameters" do
+    context 'with valid parameters' do
       it 'accepts' do
         login(receiver)
         post :changerequest, params: {
@@ -251,7 +251,7 @@ RSpec.describe Webui::RequestController, vcr: true do
       end
     end
 
-    context "with invalid parameters" do
+    context 'with invalid parameters' do
       before do
         login(receiver)
         post :changerequest, params: { number: 1899, accepted: 'accepted' }
@@ -262,7 +262,7 @@ RSpec.describe Webui::RequestController, vcr: true do
       end
     end
 
-    context "when forwarding the request fails" do
+    context 'when forwarding the request fails' do
       before do
         allow(BsRequestActionSubmit).to receive(:new).and_raise(APIException, 'some error')
         login(receiver)
@@ -275,31 +275,31 @@ RSpec.describe Webui::RequestController, vcr: true do
                                          description: 'blah blah blah' }
         end.not_to change(BsRequest, :count)
         expect(bs_request.reload.state).to eq(:accepted)
-        expect(flash[:notice]).to match("Request \\d accepted")
+        expect(flash[:notice]).to match('Request \\d accepted')
         expect(flash[:error]).to eq('Unable to forward submit request: some error')
       end
     end
   end
 
-  describe "POST #change_devel_request" do
-    context "with valid parameters" do
+  describe 'POST #change_devel_request' do
+    context 'with valid parameters' do
       before do
         login(submitter)
         post :change_devel_request, params: {
           project: target_project.name, package: target_package.name,
-            devel_project: source_project.name, devel_package: source_package.name, description: "change it!"
+            devel_project: source_project.name, devel_package: source_package.name, description: 'change it!'
         }
-        @bs_request = BsRequest.where(description: "change it!", creator: submitter.login, state: "new").first
+        @bs_request = BsRequest.where(description: 'change it!', creator: submitter.login, state: 'new').first
       end
 
       it { expect(response).to redirect_to(request_show_path(number: @bs_request)) }
       it { expect(flash[:success]).to be nil }
       it { expect(@bs_request).not_to be nil }
-      it { expect(@bs_request.description).to eq("change it!") }
+      it { expect(@bs_request.description).to eq('change it!') }
 
-      it "creates a request action with correct data" do
+      it 'creates a request action with correct data' do
         request_action = @bs_request.bs_request_actions.where(
-          type: "change_devel",
+          type: 'change_devel',
           target_project: target_project.name,
           target_package: target_package.name,
           source_project: source_project.name,
@@ -309,14 +309,14 @@ RSpec.describe Webui::RequestController, vcr: true do
       end
     end
 
-    context "with invalid devel_package parameter" do
+    context 'with invalid devel_package parameter' do
       before do
         login(submitter)
         post :change_devel_request, params: {
           project: target_project.name, package: target_package.name,
-            devel_project: source_project.name, devel_package: "non-existant", description: "change it!"
+            devel_project: source_project.name, devel_package: 'non-existant', description: 'change it!'
         }
-        @bs_request = BsRequest.where(description: "change it!", creator: submitter.login, state: "new").first
+        @bs_request = BsRequest.where(description: 'change it!', creator: submitter.login, state: 'new').first
       end
 
       it { expect(flash[:error]).to eq("No such package: #{source_project.name}/non-existant") }
@@ -325,8 +325,8 @@ RSpec.describe Webui::RequestController, vcr: true do
     end
   end
 
-  describe "POST #sourcediff" do
-    context "with xhr header" do
+  describe 'POST #sourcediff' do
+    context 'with xhr header' do
       before do
         post :sourcediff, xhr: true
       end
@@ -335,7 +335,7 @@ RSpec.describe Webui::RequestController, vcr: true do
       it { expect(response).to render_template('shared/_editor') }
     end
 
-    context "without xhr header" do
+    context 'without xhr header' do
       let(:call_sourcediff) { post :sourcediff }
 
       it { expect { call_sourcediff }.to raise_error(ActionController::RoutingError, 'Expected AJAX call') }

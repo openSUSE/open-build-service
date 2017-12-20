@@ -5,7 +5,7 @@ ENV['RAILS_ENV'] = 'test'
 require 'simplecov'
 require 'codecov'
 require 'builder'
-require "minitest/reporters"
+require 'minitest/reporters'
 
 Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
 
@@ -22,7 +22,7 @@ if ENV['DO_COVERAGE']
   end
 
   SimpleCov.at_exit do
-    puts "Coverage done"
+    puts 'Coverage done'
     SimpleCov.result.format!
   end
 end
@@ -72,17 +72,17 @@ end
 # @ENABLE_BROKEN_TEST=true
 
 def backend_config
-  backend_dir_suffix = ""
+  backend_dir_suffix = ''
   if ENV['origin_RAILS_ENV'] == 'development'
-    backend_dir_suffix = "_development"
+    backend_dir_suffix = '_development'
   end
   "#{ENV['OBS_BACKEND_TEMP']}/config#{backend_dir_suffix}"
 end
 
 def backend_data
-  backend_dir_suffix = ""
+  backend_dir_suffix = ''
   if ENV['origin_RAILS_ENV'] == 'development'
-    backend_dir_suffix = "_development"
+    backend_dir_suffix = '_development'
   end
   "#{ENV['OBS_BACKEND_TEMP']}/data#{backend_dir_suffix}"
 end
@@ -90,7 +90,7 @@ end
 def inject_build_job(project, package, repo, arch, extrabinary = nil)
   job = IO.popen("find #{backend_data}/jobs/#{arch}/ -name #{project}::#{repo}::#{package}-*")
   jobfile = job.readlines.first
-  return if project == "BrokenPublishing"
+  return if project == 'BrokenPublishing'
   raise unless jobfile
   jobfile.chomp!
   jobid = ''
@@ -162,8 +162,8 @@ module ActionDispatch
     class Session
       def add_auth(headers)
         headers = {} if headers.nil?
-        if !headers.has_key?("HTTP_AUTHORIZATION") && IntegrationTest.basic_auth
-          headers["HTTP_AUTHORIZATION"] = IntegrationTest.basic_auth
+        if !headers.has_key?('HTTP_AUTHORIZATION') && IntegrationTest.basic_auth
+          headers['HTTP_AUTHORIZATION'] = IntegrationTest.basic_auth
         end
 
         headers
@@ -375,7 +375,7 @@ module Webui
       find(:id, 'delete-package').click
       find(:id, 'del_dialog').must_have_text 'Do you really want to delete this package?'
       find_button('Ok').click
-      find('#flash-messages').must_have_text "Package was successfully removed."
+      find('#flash-messages').must_have_text 'Package was successfully removed.'
     end
 
     def valid_xml_id(rawid)

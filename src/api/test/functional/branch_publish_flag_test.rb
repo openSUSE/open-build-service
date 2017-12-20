@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'source_controller'
 
 class BranchPublishFlagTest < ActionDispatch::IntegrationTest
@@ -35,7 +35,7 @@ class BranchPublishFlagTest < ActionDispatch::IntegrationTest
     debug @response.body
     assert_response :success
     if @@verbose
-      debug "here is the branch:"
+      debug 'here is the branch:'
       get "/source/#{tprj}"
       debug @response.body
     end
@@ -46,14 +46,14 @@ class BranchPublishFlagTest < ActionDispatch::IntegrationTest
     if expected_publish_allowed
       # the XML says nothing about whether publishing is enabled, which means
       # it is
-      assert_no_xml_tag tag: "publish"
+      assert_no_xml_tag tag: 'publish'
     else
       # publishing is explicitly disabled
-      assert_xml_tag tag: "publish", child: { tag: "disable" }
+      assert_xml_tag tag: 'publish', child: { tag: 'disable' }
     end
 
     # get rid of the branch so we can try again
-    debug "deleting branch"
+    debug 'deleting branch'
     delete "/source/#{tprj}"
     debug @response.body
     assert_response :success
@@ -70,7 +70,7 @@ class BranchPublishFlagTest < ActionDispatch::IntegrationTest
 
     # "small team" mode: resources are unconstrained so we might as well
     # publish everything by default
-    debug "allowing publishing for branches"
+    debug 'allowing publishing for branches'
     put '/configuration?disable_publish_for_branches=off'
     debug @response.body
     assert_response :success
@@ -80,7 +80,7 @@ class BranchPublishFlagTest < ActionDispatch::IntegrationTest
 
     # explicitly go back to the default and check that the result is still
     # the same
-    debug "explicitly disallowing publishing for branches"
+    debug 'explicitly disallowing publishing for branches'
     put '/configuration?disable_publish_for_branches=on'
     debug @response.body
     assert_response :success

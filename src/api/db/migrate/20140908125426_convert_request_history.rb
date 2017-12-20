@@ -10,7 +10,7 @@ class ConvertRequestHistory < ActiveRecord::Migration[4.2]
     # one big transaction to improve speed
     ActiveRecord::Base.transaction do
       puts "Creating some history elements based on #{BsRequest.count} request states..."
-      puts "This can take some time..." if BsRequest.count > 1000
+      puts 'This can take some time...' if BsRequest.count > 1000
       BsRequest.all.each do |request|
         next if request.state == :new # nothing happend yet
         user[request.commenter] ||= User.find_by_login request.commenter
@@ -50,11 +50,11 @@ class ConvertRequestHistory < ActiveRecord::Migration[4.2]
       end
 
       # rubocop:disable Metrics/LineLength
-      s = OldHistory.find_by_sql "SELECT id,bs_request_id,state,comment,commenter,superseded_by,created_at FROM bs_request_histories ORDER BY bs_request_id ASC, created_at ASC"
+      s = OldHistory.find_by_sql 'SELECT id,bs_request_id,state,comment,commenter,superseded_by,created_at FROM bs_request_histories ORDER BY bs_request_id ASC, created_at ASC'
       # rubocop:enable Metrics/LineLength
       oldid = nil
       puts "Converting #{s.length} request history elements into new structure"
-      puts "This can take some time..." if s.length > 1000
+      puts 'This can take some time...' if s.length > 1000
       s.each do |e|
         user[e.commenter] ||= User.find_by_login e.commenter
         next unless user[e.commenter]
@@ -64,28 +64,28 @@ class ConvertRequestHistory < ActiveRecord::Migration[4.2]
         firstentry = (oldid != e.bs_request_id)
         oldid = e.bs_request_id
         firstreviews = true if firstentry
-        firstreviews = nil unless e.state == "review"
+        firstreviews = nil unless e.state == 'review'
 
         history = nil
         case e.state
-        when "accepted" then
+        when 'accepted' then
           history = HistoryElement::RequestAccepted
-        when "declined" then
+        when 'declined' then
           history = HistoryElement::RequestDeclined
-        when "revoked" then
+        when 'revoked' then
           history = HistoryElement::RequestRevoked
-        when "superseded" then
+        when 'superseded' then
           history = HistoryElement::RequestSuperseded
           p[:description_extension] = e.superseded_by.to_s
-        when "deleted" then
+        when 'deleted' then
           e.destroy
-        when "review" then
+        when 'review' then
           if firstreviews
             e.destroy
             next
           end
           history = HistoryElement::RequestReviewAdded
-        when "new" then
+        when 'new' then
           if firstentry
             e.destroy
             next
@@ -100,14 +100,14 @@ class ConvertRequestHistory < ActiveRecord::Migration[4.2]
       if OldHistory.count.zero?
         drop_table :bs_request_histories
       else
-        puts "WARNING: not all old request history elements could be transfered to new model"
-        puts "         bs_request_histories SQL table still contains not transfered entries"
-        puts "         a typical reason are entries of not anymore existing users"
+        puts 'WARNING: not all old request history elements could be transfered to new model'
+        puts '         bs_request_histories SQL table still contains not transfered entries'
+        puts '         a typical reason are entries of not anymore existing users'
       end
     end
   end
 
   def down
-    raise "Sorry, reverting request history is not possible"
+    raise 'Sorry, reverting request history is not possible'
   end
 end

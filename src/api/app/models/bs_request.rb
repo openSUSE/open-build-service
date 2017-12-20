@@ -122,9 +122,9 @@ class BsRequest < ApplicationRecord
     states = opts[:states] || []
 
     # it's wiser to split the queries
-    if opts[:project] && roles.empty? && (states.empty? || states.include?("review"))
-      (BsRequest.find_for(opts.merge(roles: ["reviewer"])) +
-        BsRequest.find_for(opts.merge(roles: ["target", "source"]))).uniq
+    if opts[:project] && roles.empty? && (states.empty? || states.include?('review'))
+      (BsRequest.find_for(opts.merge(roles: ['reviewer'])) +
+        BsRequest.find_for(opts.merge(roles: ['target', 'source']))).uniq
     else
       BsRequest.find_for(opts).uniq
     end
@@ -348,7 +348,7 @@ class BsRequest < ApplicationRecord
       attributes = { name: state, who: commenter, when: updated_when.strftime('%Y-%m-%dT%H:%M:%S') }
       attributes[:superseded_by] = superseded_by if superseded_by
 
-      r.priority priority unless priority == "moderate"
+      r.priority priority unless priority == 'moderate'
 
       r.state(attributes) do |s|
         comment = self.comment
@@ -364,7 +364,7 @@ class BsRequest < ApplicationRecord
         attributes = { who: creator, when: created_at.strftime('%Y-%m-%dT%H:%M:%S') }
         builder.history(attributes) do
           # request description is on purpose the comment in history:
-          builder.description! "Request created"
+          builder.description! 'Request created'
           builder.comment! description if description.present?
         end
       end
@@ -420,10 +420,10 @@ class BsRequest < ApplicationRecord
         review.state = :obsoleted
         review.save
         history = HistoryElement::ReviewObsoleted
-        history.create(review: review, comment: "reviewer got removed", user_id: User.current.id)
+        history.create(review: review, comment: 'reviewer got removed', user_id: User.current.id)
 
         # Maybe this will turn the request into an approved state?
-        if state == :review && reviews.where(state: "new").none?
+        if state == :review && reviews.where(state: 'new').none?
           self.state = :new
           save
           history = HistoryElement::RequestAllReviewsApproved
@@ -477,7 +477,7 @@ class BsRequest < ApplicationRecord
   def permission_check_change_groups!
     # adding and removing of requests is only allowed for groups
     return unless bs_request_actions.first.action_type != :group
-    raise GroupRequestSpecial, "Command is only valid for group requests"
+    raise GroupRequestSpecial, 'Command is only valid for group requests'
   end
 
   def permission_check_change_state!(opts)
@@ -595,20 +595,20 @@ class BsRequest < ApplicationRecord
 
       params = { request: self, comment: opts[:comment], user_id: User.current.id }
       case opts[:newstate]
-      when "accepted" then
+      when 'accepted' then
         history = HistoryElement::RequestAccepted
-      when "declined" then
+      when 'declined' then
         history = HistoryElement::RequestDeclined
-      when "revoked" then
+      when 'revoked' then
         history = HistoryElement::RequestRevoked
-      when "superseded" then
+      when 'superseded' then
         history = HistoryElement::RequestSuperseded
         params[:description_extension] = superseded_by.to_s
-      when "review" then
+      when 'review' then
         history = HistoryElement::RequestReopened
-      when "new" then
+      when 'new' then
         history = HistoryElement::RequestReopened
-      when "deleted" then
+      when 'deleted' then
         history = HistoryElement::RequestDeleted
       else
         raise RuntimeError, "Unhandled state #{opts[:newstate]} for history"
@@ -629,8 +629,8 @@ class BsRequest < ApplicationRecord
       if opts[:revert]
         _assignreview_update_reviews(reviewer, opts)
         raise Review::NotFoundError unless user_review
-        raise InvalidStateError, "review is not in new state" unless user_review.state == :new
-        raise Review::NotFoundError, "Not an assigned review" unless HistoryElement::ReviewAssigned.where(op_object_id: user_review.id).last
+        raise InvalidStateError, 'review is not in new state' unless user_review.state == :new
+        raise Review::NotFoundError, 'Not an assigned review' unless HistoryElement::ReviewAssigned.where(op_object_id: user_review.id).last
         user_review.destroy
       elsif user_review
         review_comment = _assignreview_update_reviews(reviewer, opts)
@@ -1173,9 +1173,9 @@ class BsRequest < ApplicationRecord
   # We can only raise the priority, in the context where this method is needed.
   # This method checks makes sure this is the case.
   def change_priorities?(new_priority)
-    new_priority == "critical" ||
-      new_priority == "important" && priority.in?(["moderate", "low"]) ||
-      new_priority == "moderate" && priority == "low"
+    new_priority == 'critical' ||
+      new_priority == 'important' && priority.in?(['moderate', 'low']) ||
+      new_priority == 'moderate' && priority == 'low'
   end
 
   def check_bs_request_actions!(opts = {})
@@ -1192,7 +1192,7 @@ class BsRequest < ApplicationRecord
                                                    # We need to have a user here
                                                    user:                  User.find_nobody!,
                                                    description_extension: "#{priority_was} => #{priority}",
-                                                   comment:               "Automatic priority bump: Priority of related action increased."
+                                                   comment:               'Automatic priority bump: Priority of related action increased.'
                                                  })
   end
 
@@ -1207,12 +1207,12 @@ class BsRequest < ApplicationRecord
       # approve for this review
       if opts[:revert]
         review.state = :new
-        review_comment = "revert the "
+        review_comment = 'revert the '
         history_class = HistoryElement::ReviewReopened
       else
         review.state = :accepted
         review.review_assigned_to = new_review if new_review
-        review_comment = ""
+        review_comment = ''
         history_class = HistoryElement::ReviewAccepted
       end
       review.reviewer = User.current.try(:login)

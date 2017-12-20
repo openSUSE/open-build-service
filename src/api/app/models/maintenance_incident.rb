@@ -1,8 +1,8 @@
 # The maintenance incident class represents the entry in the database.
 #
 class MaintenanceIncident < ApplicationRecord
-  belongs_to :project, class_name: "Project", foreign_key: :db_project_id
-  belongs_to :maintenance_db_project, class_name: "Project"
+  belongs_to :project, class_name: 'Project', foreign_key: :db_project_id
+  belongs_to :maintenance_db_project, class_name: 'Project'
 
   # <project> - The maintenance project
   # target_project - The maintenance incident project
@@ -48,26 +48,26 @@ class MaintenanceIncident < ApplicationRecord
 
   def project_name
     unless incident_id
-      r = MaintenanceIncident.exec_query(["SELECT counter FROM incident_counter WHERE maintenance_db_project_id = ? FOR UPDATE",
+      r = MaintenanceIncident.exec_query(['SELECT counter FROM incident_counter WHERE maintenance_db_project_id = ? FOR UPDATE',
                                           maintenance_db_project_id]).first
       if r.nil?
         # no counter exists, initialize it and select again
         MaintenanceIncident.exec_query ["INSERT INTO incident_counter(maintenance_db_project_id) VALUES('?')", maintenance_db_project_id]
 
-        r = MaintenanceIncident.exec_query(["SELECT counter FROM incident_counter WHERE maintenance_db_project_id = ? FOR UPDATE",
+        r = MaintenanceIncident.exec_query(['SELECT counter FROM incident_counter WHERE maintenance_db_project_id = ? FOR UPDATE',
                                             maintenance_db_project_id]).first
       end
 
       # do an atomic increase of counter
-      MaintenanceIncident.exec_query ["UPDATE incident_counter SET counter = counter+1 WHERE maintenance_db_project_id = ?",
+      MaintenanceIncident.exec_query ['UPDATE incident_counter SET counter = counter+1 WHERE maintenance_db_project_id = ?',
                                       maintenance_db_project_id]
       self.incident_id = r[0]
     end
-    name = maintenance_db_project.name + ":" + incident_id.to_s
+    name = maintenance_db_project.name + ':' + incident_id.to_s
     name
   end
 
-  def getUpdateinfoCounter(time, template = "%Y-%C")
+  def getUpdateinfoCounter(time, template = '%Y-%C')
     uc = UpdateinfoCounter.find_or_create(time, template)
     IncidentUpdateinfoCounterValue.find_or_create(time, uc, project)
   end
@@ -86,7 +86,7 @@ class MaintenanceIncident < ApplicationRecord
     my_id.gsub!(/%Y/, counter.released_at.year.to_s)
     my_id.gsub!(/%M/, counter.released_at.month.to_s)
     my_id.gsub!(/%D/, counter.released_at.day.to_s)
-    my_id.gsub!(/%N/, patch_name || "")
+    my_id.gsub!(/%N/, patch_name || '')
     my_id.gsub!(/%i/, incident_id.to_s)
     my_id.gsub!(/%g/, id.to_s)
 

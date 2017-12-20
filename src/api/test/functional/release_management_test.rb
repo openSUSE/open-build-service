@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'source_controller'
 
 class ReleaseManagementTests < ActionDispatch::IntegrationTest
@@ -13,55 +13,55 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     login_tom
 
     # try as non-admin
-    post "/source/home:tom:BaseDistro", params: { cmd: :move, oproject: "BaseDistro" }
+    post '/source/home:tom:BaseDistro', params: { cmd: :move, oproject: 'BaseDistro' }
     assert_response 403
 
     login_king
-    post "/source/home:tom", params: { cmd: :move, oproject: "BaseDistro" }
+    post '/source/home:tom', params: { cmd: :move, oproject: 'BaseDistro' }
     assert_response 400
 
     # real move
-    post "/source/TEMP:BaseDistro", params: { cmd: :move, oproject: "BaseDistro" }
+    post '/source/TEMP:BaseDistro', params: { cmd: :move, oproject: 'BaseDistro' }
     assert_response :success
-    assert_xml_tag(tag: "status", attributes: { code: "ok" })
-    get "/source/TEMP:BaseDistro"
+    assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
+    get '/source/TEMP:BaseDistro'
     assert_response :success
-    get "/source/TEMP:BaseDistro/_project"
+    get '/source/TEMP:BaseDistro/_project'
     assert_response :success
-    get "/source/TEMP:BaseDistro/_project/_history?meta=1"
+    get '/source/TEMP:BaseDistro/_project/_history?meta=1'
     assert_response :success
-    assert_xml_tag tag: "comment", content: "Project move from BaseDistro to TEMP:BaseDistro"
-    get "/source/TEMP:BaseDistro/pack2/_meta"
+    assert_xml_tag tag: 'comment', content: 'Project move from BaseDistro to TEMP:BaseDistro'
+    get '/source/TEMP:BaseDistro/pack2/_meta'
     assert_response :success
-    assert_xml_tag tag: "package", attributes: { project: "TEMP:BaseDistro" }
-    get "/build/TEMP:BaseDistro"
+    assert_xml_tag tag: 'package', attributes: { project: 'TEMP:BaseDistro' }
+    get '/build/TEMP:BaseDistro'
     assert_response :success
-    get "/build/TEMP:BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"
+    get '/build/TEMP:BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm'
     assert_response :success
-    get "/source/BaseDistro"
+    get '/source/BaseDistro'
     assert_response 404
-    get "/build/BaseDistro"
+    get '/build/BaseDistro'
     assert_response 404
-    get "/build/BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"
+    get '/build/BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm'
     assert_response 404
 
     # move back
-    post "/source/BaseDistro", params: { cmd: :move, oproject: "TEMP:BaseDistro" }
+    post '/source/BaseDistro', params: { cmd: :move, oproject: 'TEMP:BaseDistro' }
     assert_response :success
-    assert_xml_tag(tag: "status", attributes: { code: "ok" })
-    get "/source/BaseDistro/pack2/_meta"
+    assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
+    get '/source/BaseDistro/pack2/_meta'
     assert_response :success
-    assert_xml_tag tag: "package", attributes: { project: "BaseDistro" }
-    get "/source/BaseDistro/_project/_history?meta=1"
+    assert_xml_tag tag: 'package', attributes: { project: 'BaseDistro' }
+    get '/source/BaseDistro/_project/_history?meta=1'
     assert_response :success
-    assert_xml_tag tag: "comment", content: "Project move from TEMP:BaseDistro to BaseDistro"
-    get "/build/TEMP:BaseDistro"
+    assert_xml_tag tag: 'comment', content: 'Project move from TEMP:BaseDistro to BaseDistro'
+    get '/build/TEMP:BaseDistro'
     assert_response 404
-    get "/build/TEMP:BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"
+    get '/build/TEMP:BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm'
     assert_response 404
-    get "/build/BaseDistro"
+    get '/build/BaseDistro'
     assert_response :success
-    get "/build/BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"
+    get '/build/BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm'
     assert_response :success
   end
 
@@ -69,28 +69,28 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     login_tom
 
     # inject a job for copy any entire project ... gets copied in testsuite but appears to be delayed
-    post "/source/home:tom:BaseDistro", params: { cmd: :copy, oproject: "BaseDistro" }
+    post '/source/home:tom:BaseDistro', params: { cmd: :copy, oproject: 'BaseDistro' }
     assert_response :success
-    assert_xml_tag(tag: "status", attributes: { code: "invoked" })
+    assert_xml_tag(tag: 'status', attributes: { code: 'invoked' })
 
     # cleanup
-    delete "/source/home:tom:BaseDistro"
+    delete '/source/home:tom:BaseDistro'
     assert_response :success
 
     # copy any entire project NOW
-    post "/source/home:tom:BaseDistro", params: { cmd: :copy, oproject: "BaseDistro", nodelay: 1 }
+    post '/source/home:tom:BaseDistro', params: { cmd: :copy, oproject: 'BaseDistro', nodelay: 1 }
     assert_response :success
-    assert_xml_tag(tag: "status", attributes: { code: "ok" })
+    assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
 
     # try a split
-    post "/source/home:tom:BaseDistro", params: { cmd: :copy, oproject: "BaseDistro", makeolder: 1 }
+    post '/source/home:tom:BaseDistro', params: { cmd: :copy, oproject: 'BaseDistro', makeolder: 1 }
     assert_response 403
 
     # cleanup
-    delete "/source/home:tom:BaseDistro"
+    delete '/source/home:tom:BaseDistro'
     assert_response :success
 
-    get "/source/BaseDistro"
+    get '/source/BaseDistro'
     assert_response :success
     packages = ActiveXML::Node.new(@response.body)
     vrevs = {}
@@ -104,7 +104,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
 
     # make a full split as admin
     login_king
-    post "/source/TEST:BaseDistro", params: { cmd: :copy, oproject: "BaseDistro", makeolder: 1, nodelay: 1 }
+    post '/source/TEST:BaseDistro', params: { cmd: :copy, oproject: 'BaseDistro', makeolder: 1, nodelay: 1 }
     assert_response :success
 
     # the origin must got increased by 2 behind a possible dot
@@ -127,11 +127,11 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     end
 
     # cleanup
-    delete "/source/TEST:BaseDistro"
+    delete '/source/TEST:BaseDistro'
     assert_response :success
 
     # test again with history copy
-    post "/source/TEST:BaseDistro", params: { cmd: :copy, oproject: "BaseDistro", makeolder: 1, nodelay: 1, withhistory: 1 }
+    post '/source/TEST:BaseDistro', params: { cmd: :copy, oproject: 'BaseDistro', makeolder: 1, nodelay: 1, withhistory: 1 }
     assert_response :success
 
     # the origin must got increased by another 2
@@ -151,14 +151,14 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     end
 
     # cleanup
-    delete "/source/TEST:BaseDistro"
+    delete '/source/TEST:BaseDistro'
     assert_response :success
   end
 
   def test_copy_project_withbinaries
     login_king
 
-    put "/source/home:Iggy/TestPack/dummy_change", params: "trigger build"
+    put '/source/home:Iggy/TestPack/dummy_change', params: 'trigger build'
     assert_response :success
     run_scheduler('i586')
     run_scheduler('x86_64')
@@ -258,7 +258,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'binarylist', children: { count: 5 }
 
     # cleanup
-    delete "/source/home:Iggy/TestPack/dummy_change"
+    delete '/source/home:Iggy/TestPack/dummy_change'
     assert_response :success
     delete '/source/IggyHomeCopy'
     assert_response :success

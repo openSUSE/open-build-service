@@ -48,7 +48,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     f = pkg.project.flags.find_by_flag_and_status('lock', 'disable')
     pkg.project.flags.delete(f) if f # remove possible existing disable lock flag
     pkg.project.flags.create(status: 'enable', flag: 'lock')
-    pkg.project.store(comment: "maintenance_release request accepted")
+    pkg.project.store(comment: 'maintenance_release request accepted')
   end
 
   def per_request_cleanup(opts)
@@ -57,7 +57,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     opts[:projectCommit].each do |tprj, sprj|
       commit_params = {
         requestid: bs_request.number,
-        rev:       "latest",
+        rev:       'latest',
         comment:   "Releasing from project #{sprj}"
       }
       commit_params[:comment] += " the update #{opts[:updateinfoIDs].join(', ')}" if opts[:updateinfoIDs]
@@ -162,14 +162,14 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     f = object.flags.find_by_flag_and_status('lock', 'disable')
     object.flags.delete(f) if f # remove possible existing disable lock flag
     object.flags.create(status: 'enable', flag: 'lock')
-    object.store(comment: "maintenance_release request")
+    object.store(comment: 'maintenance_release request')
   end
 
   def minimum_priority
     spkg = Package.find_by_project_and_name source_project, source_package
     return unless spkg && spkg.is_patchinfo?
     pi = Xmlhash.parse(spkg.patchinfo.dump_xml)
-    pi["rating"]
+    pi['rating']
   end
 
   #### Alias of methods

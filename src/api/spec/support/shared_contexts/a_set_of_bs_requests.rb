@@ -1,6 +1,6 @@
 RSpec.shared_context 'a set of bs requests' do
   # Set 1
-  let!(:user) { create(:confirmed_user, login: "tom") }
+  let!(:user) { create(:confirmed_user, login: 'tom') }
 
   let!(:source_project) { create(:project_with_package) }
   let!(:source_package) { source_project.packages.first }
@@ -37,7 +37,7 @@ RSpec.shared_context 'a set of bs requests' do
   end
 
   # Set 2
-  let!(:user2) { create(:confirmed_user, login: "jerry") }
+  let!(:user2) { create(:confirmed_user, login: 'jerry') }
 
   let!(:source_project2) { create(:project_with_package) }
   let!(:source_package2) { source_project2.packages.first }

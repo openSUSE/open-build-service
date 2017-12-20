@@ -231,7 +231,7 @@ module NodeMatcher #:nodoc:
         siblings << child
         self_index = index if child == node
       end
-      raise "homeless child!" unless self_index >= 0
+      raise 'homeless child!' unless self_index >= 0
 
       if conditions[:sibling]
         return false unless siblings.detect do |s|

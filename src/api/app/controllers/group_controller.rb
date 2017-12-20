@@ -10,12 +10,12 @@ class GroupController < ApplicationController
 
   rescue_from Pundit::NotAuthorizedError do |exception|
     pundit_action = case exception.query.to_s
-                    when "index?" then "list"
-                    when "show?" then "view"
-                    when "create?" then "create"
-                    when "new?" then "create"
-                    when "update?" then "update"
-                    when "destroy?" then "delete"
+                    when 'index?' then 'list'
+                    when 'show?' then 'view'
+                    when 'create?' then 'create'
+                    when 'new?' then 'create'
+                    when 'update?' then 'update'
+                    when 'destroy?' then 'delete'
                     else exception.query
     end
 
@@ -55,7 +55,7 @@ class GroupController < ApplicationController
     authorize group, :update?
 
     xmlhash = Xmlhash.parse(request.raw_post)
-    raise InvalidParameterError, "group name from path and xml mismatch" unless group.title == xmlhash.value('title')
+    raise InvalidParameterError, 'group name from path and xml mismatch' unless group.title == xmlhash.value('title')
 
     group.update_from_xml(xmlhash)
     group.save!
@@ -70,14 +70,14 @@ class GroupController < ApplicationController
 
     user = User.find_by_login!(params[:userid]) if params[:userid]
 
-    if params[:cmd] == "add_user"
+    if params[:cmd] == 'add_user'
       group.add_user user
-    elsif params[:cmd] == "remove_user"
+    elsif params[:cmd] == 'remove_user'
       group.remove_user user
-    elsif params[:cmd] == "set_email"
+    elsif params[:cmd] == 'set_email'
       group.set_email params[:email]
     else
-      raise UnknownCommandError, "cmd must be set to add_user or remove_user"
+      raise UnknownCommandError, 'cmd must be set to add_user or remove_user'
     end
 
     render_ok

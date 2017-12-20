@@ -1,4 +1,4 @@
-xml.status("code" => @errorcode) do
+xml.status('code' => @errorcode) do
   xml.summary @summary
   if @exception
     xml.exception do

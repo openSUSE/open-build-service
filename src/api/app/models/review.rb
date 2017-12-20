@@ -59,13 +59,13 @@ class Review < ApplicationRecord
 
     errors.add(
       :review_id,
-      "assigned to review which is already assigned to this review"
+      'assigned to review which is already assigned to this review'
     )
   end
 
   def validate_not_self_assigned
     return unless persisted? && id == review_id
-    errors.add(:review_id, "recursive assignment")
+    errors.add(:review_id, 'recursive assignment')
   end
 
   def state

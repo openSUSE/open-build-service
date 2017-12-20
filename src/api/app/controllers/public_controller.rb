@@ -167,7 +167,7 @@ class PublicController < ApplicationController
             # So we have to revert this here...
             filepath = b.value(:filepath)
             # having both gsub! in one line can crash with some ruby builds
-            filepath.gsub!(/:\//, ":")
+            filepath.gsub!(/:\//, ':')
             filepath.gsub!(/^[^\/]*\/[^\/]*\//, '')
 
             @binary_links[dist_id][:binary] << { type: binary_type, arch: b.value(:arch), url: repo.download_url(filepath) }

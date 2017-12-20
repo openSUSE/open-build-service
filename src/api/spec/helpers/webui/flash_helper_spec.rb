@@ -28,7 +28,7 @@ RSpec.describe Webui::FlashHelper do
        EOF
     end
 
-    let(:flash) { "example: \\n<i>error 1</i> <b>content</b>" }
+    let(:flash) { 'example: \\n<i>error 1</i> <b>content</b>' }
 
     before do
       init_haml_helpers

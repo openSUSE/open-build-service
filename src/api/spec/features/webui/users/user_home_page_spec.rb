@@ -1,11 +1,11 @@
-require "browser_helper"
+require 'browser_helper'
 
 RSpec.feature "User's home project creation", type: :feature, js: true do
   let!(:user) do
     create(:confirmed_user, {
-             login:    "Jim",
-             realname: "Jim Knopf",
-             email:    "jim.knopf@puppenkiste.com"
+             login:    'Jim',
+             realname: 'Jim Knopf',
+             email:    'jim.knopf@puppenkiste.com'
            })
   end
 
@@ -14,34 +14,34 @@ RSpec.feature "User's home project creation", type: :feature, js: true do
     visit home_path
   end
 
-  scenario "view home page" do
-    expect(page).to have_css("#home-realname", text: "Jim Knopf")
-    expect(page).to have_css("a[href='mailto:jim.knopf@puppenkiste.com']", text: "jim.knopf@puppenkiste.com")
+  scenario 'view home page' do
+    expect(page).to have_css('#home-realname', text: 'Jim Knopf')
+    expect(page).to have_css("a[href='mailto:jim.knopf@puppenkiste.com']", text: 'jim.knopf@puppenkiste.com')
 
-    expect(page).to have_text("Edit your account")
-    expect(page).to have_text("Change your password")
+    expect(page).to have_text('Edit your account')
+    expect(page).to have_text('Change your password')
 
-    expect(page).to have_link("Involved Packages")
-    expect(page).to have_link("Involved Projects")
-    expect(page).to have_link("Owned Project/Packages")
+    expect(page).to have_link('Involved Packages')
+    expect(page).to have_link('Involved Projects')
+    expect(page).to have_link('Owned Project/Packages')
 
-    expect(page).to have_link("Incoming Requests")
-    expect(page).to have_link("Outgoing Requests")
-    expect(page).to have_link("Declined Requests")
-    expect(page).to have_link("All Requests")
+    expect(page).to have_link('Incoming Requests')
+    expect(page).to have_link('Outgoing Requests')
+    expect(page).to have_link('Declined Requests')
+    expect(page).to have_link('All Requests')
 
-    expect(page).not_to have_link("Maintenance Requests")
+    expect(page).not_to have_link('Maintenance Requests')
   end
 
-  scenario "edit account information" do
-    click_link("Edit your account")
+  scenario 'edit account information' do
+    click_link('Edit your account')
 
-    fill_in "user_realname", with: "John Doe"
-    fill_in "user_email", with: "john.doe@opensuse.org"
-    click_button("Ok")
+    fill_in 'user_realname', with: 'John Doe'
+    fill_in 'user_email', with: 'john.doe@opensuse.org'
+    click_button('Ok')
 
     expect(page).to have_text("User data for user 'Jim' successfully updated.")
-    expect(page).to have_css("#home-realname", text: "John Doe")
-    expect(page).to have_css("a[href='mailto:john.doe@opensuse.org']", text: "john.doe@opensuse.org")
+    expect(page).to have_css('#home-realname', text: 'John Doe')
+    expect(page).to have_css("a[href='mailto:john.doe@opensuse.org']", text: 'john.doe@opensuse.org')
   end
 end

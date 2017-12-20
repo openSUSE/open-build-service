@@ -8,7 +8,7 @@ RSpec.describe PersonController, vcr: false do
   let(:user) { create(:confirmed_user) }
   let(:admin_user) { create(:admin_user) }
 
-  shared_examples "not allowed to change user details" do
+  shared_examples 'not allowed to change user details' do
     it 'sets an error code' do
       subject
       expect(response.header['X-Opensuse-Errorcode']).to eq('change_userinfo_no_permission')
@@ -32,7 +32,7 @@ RSpec.describe PersonController, vcr: false do
       let!(:old_password) { user.password_digest }
 
       before do
-        request.env["RAW_POST_DATA"] = "password_has_changed"
+        request.env['RAW_POST_DATA'] = 'password_has_changed'
         post :post_userinfo, params: { login: user.login, cmd: 'change_password', format: :xml }
 
         user.reload
@@ -68,7 +68,7 @@ RSpec.describe PersonController, vcr: false do
     context 'when in LDAP mode' do
       before do
         stub_const('CONFIG', CONFIG.merge({ 'ldap_mode' => :on }))
-        request.env["RAW_POST_DATA"] = xml
+        request.env['RAW_POST_DATA'] = xml
       end
 
       subject { put :put_userinfo, params: { login: user.login, format: :xml } }
@@ -78,7 +78,7 @@ RSpec.describe PersonController, vcr: false do
           login admin_user
         end
 
-        it_should_behave_like "not allowed to change user details"
+        it_should_behave_like 'not allowed to change user details'
       end
 
       context 'as a user' do
@@ -86,7 +86,7 @@ RSpec.describe PersonController, vcr: false do
           login user
         end
 
-        it_should_behave_like "not allowed to change user details"
+        it_should_behave_like 'not allowed to change user details'
       end
     end
   end

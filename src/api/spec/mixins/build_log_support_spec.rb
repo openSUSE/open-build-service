@@ -1,9 +1,9 @@
-require "webmock/rspec"
+require 'webmock/rspec'
 require 'rails_helper'
 
 RSpec.describe BuildLogSupport do
   let(:instance_with_build_log_support) do
-    fake_instance = double("Fake Instance with BuildLogSupport")
+    fake_instance = double('Fake Instance with BuildLogSupport')
     fake_instance.extend(BuildLogSupport)
     allow(fake_instance).to receive(:logger).and_return(Rails.logger)
     fake_instance

@@ -41,14 +41,14 @@ RSpec.describe BranchPackage, vcr: true do
 
         it 'is set to 14 if there is no default' do
           branch_apache_package.branch
-          project = Project.find_by_name(user.branch_project_name("openSUSE_Leap"))
+          project = Project.find_by_name(user.branch_project_name('openSUSE_Leap'))
           expect(14.days.from_now - Time.zone.parse(project.attribs.first.values.first.value)).to be < 1.minute
         end
 
         it 'is set to the default' do
           allow(Configuration).to receive(:cleanup_after_days).and_return(42)
           branch_apache_package.branch
-          project = Project.find_by_name(user.branch_project_name("openSUSE_Leap"))
+          project = Project.find_by_name(user.branch_project_name('openSUSE_Leap'))
           expect(42.days.from_now - Time.zone.parse(project.attribs.first.values.first.value)).to be < 1.minute
         end
       end
@@ -59,13 +59,13 @@ RSpec.describe BranchPackage, vcr: true do
         it 'is set to the default' do
           allow(Configuration).to receive(:cleanup_after_days).and_return(42)
           branch_apache_package.branch
-          project = Project.find_by_name(user.branch_project_name("openSUSE_Leap"))
+          project = Project.find_by_name(user.branch_project_name('openSUSE_Leap'))
           expect(42.days.from_now - Time.zone.parse(project.attribs.first.values.first.value)).to be < 1.minute
         end
 
         it 'is not set' do
           branch_apache_package.branch
-          project = Project.find_by_name(user.branch_project_name("openSUSE_Leap"))
+          project = Project.find_by_name(user.branch_project_name('openSUSE_Leap'))
           expect(project.attribs.length).to be(0)
         end
       end

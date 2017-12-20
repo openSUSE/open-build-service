@@ -8,25 +8,25 @@ class IssueTest < ActiveSupport::TestCase
   # rubocop:enable Metrics/LineLength
 
   def test_parse
-    bnc = IssueTracker.find_by_name("bnc")
-    url = bnc.show_url_for("0815")
-    assert_equal url, "https://bugzilla.novell.com/show_bug.cgi?id=0815"
-    html = bnc.get_html("<body><p>blah bnc#123 and bnc#789 and fate#9 via CVE-1974-42 </p></body>")
+    bnc = IssueTracker.find_by_name('bnc')
+    url = bnc.show_url_for('0815')
+    assert_equal url, 'https://bugzilla.novell.com/show_bug.cgi?id=0815'
+    html = bnc.get_html('<body><p>blah bnc#123 and bnc#789 and fate#9 via CVE-1974-42 </p></body>')
     # rubocop:disable Metrics/LineLength
-    assert_equal html, "<body><p>blah <a href=\"https://bugzilla.novell.com/show_bug.cgi?id=123\">bnc#123</a> and <a href=\"https://bugzilla.novell.com/show_bug.cgi?id=789\">bnc#789</a> and fate#9 via CVE-1974-42 </p></body>"
+    assert_equal html, '<body><p>blah <a href="https://bugzilla.novell.com/show_bug.cgi?id=123">bnc#123</a> and <a href="https://bugzilla.novell.com/show_bug.cgi?id=789">bnc#789</a> and fate#9 via CVE-1974-42 </p></body>'
     # rubocop:enable Metrics/LineLength
   end
 
   def test_create_and_destroy
-    stub_request(:post, "http://bugzilla.novell.com/xmlrpc.cgi").
+    stub_request(:post, 'http://bugzilla.novell.com/xmlrpc.cgi').
         with(body: BugGet0815).
         to_return(status: 200,
-                  body: load_backend_file("bugzilla_get_0815.xml"),
+                  body: load_backend_file('bugzilla_get_0815.xml'),
                   headers: {})
 
     # pkg = Package.find( 10095 )
-    iggy = User.find_by_email("Iggy@pop.org")
-    bnc = IssueTracker.find_by_name("bnc")
+    iggy = User.find_by_email('Iggy@pop.org')
+    bnc = IssueTracker.find_by_name('bnc')
     issue = Issue.create name: '0815', issue_tracker: bnc
     issue.save
     issue.summary = 'This unit test is not working'
@@ -46,54 +46,54 @@ class IssueTest < ActiveSupport::TestCase
             <member><name>permissive</name><value><i4>1</i4></value></member>
             </struct></value></param></params></methodCall>\n".freeze
 
-  test "fetch issues" do
-    stub_request(:post, "http://bugzilla.novell.com/xmlrpc.cgi").
+  test 'fetch issues' do
+    stub_request(:post, 'http://bugzilla.novell.com/xmlrpc.cgi').
         with(body: BUG_SEARCH).
         to_return(status: 200,
-                  body: load_backend_file("bugzilla_response_search.xml"),
+                  body: load_backend_file('bugzilla_response_search.xml'),
                   headers: {})
 
-    stub_request(:post, "http://bugzilla.novell.com/xmlrpc.cgi").
+    stub_request(:post, 'http://bugzilla.novell.com/xmlrpc.cgi').
         with(body: BUG_GET).
         to_return(status: 200,
-                  body: load_backend_file("bugzilla_get_response.xml"),
+                  body: load_backend_file('bugzilla_get_response.xml'),
                   headers: {})
 
     IssueTracker.update_all_issues
   end
 
-  test "fetch cve" do
+  test 'fetch cve' do
     # erase all the bugzilla fixtures
     Issue.destroy_all
-    IssueTracker.find_by_kind("bugzilla").destroy
+    IssueTracker.find_by_kind('bugzilla').destroy
 
-    cve = IssueTracker.find_by_name("cve")
+    cve = IssueTracker.find_by_name('cve')
     cve.enable_fetch = 1
     cve.save
-    cve.issues.create name: "CVE-1999-0001"
+    cve.issues.create name: 'CVE-1999-0001'
 
-    stub_request(:head, "http://cve.mitre.org/data/downloads/allitems.xml.gz").
+    stub_request(:head, 'http://cve.mitre.org/data/downloads/allitems.xml.gz').
         to_return(status: 200, headers: { 'Last-Modified' => 2.days.ago })
 
-    stub_request(:get, "http://cve.mitre.org/data/downloads/allitems.xml.gz").
-        to_return(status: 200, body: load_backend_file("allitems.xml.gz"),
+    stub_request(:get, 'http://cve.mitre.org/data/downloads/allitems.xml.gz').
+        to_return(status: 200, body: load_backend_file('allitems.xml.gz'),
                   headers: { 'Last-Modified' => 2.days.ago })
 
     IssueTracker.update_all_issues
   end
 
-  test "fetch fate" do
+  test 'fetch fate' do
     # erase all the bugzilla fixtures
     Issue.destroy_all
-    IssueTracker.find_by_kind("bugzilla").destroy
+    IssueTracker.find_by_kind('bugzilla').destroy
 
-    stub_request(:get, "https://features.opensuse.org//fate").
-        to_return(status: 200, body: "", headers: {})
+    stub_request(:get, 'https://features.opensuse.org//fate').
+        to_return(status: 200, body: '', headers: {})
 
-    fate = IssueTracker.find_by_name("fate")
+    fate = IssueTracker.find_by_name('fate')
     fate.enable_fetch = 1
     fate.save
-    fate.issues.create name: "fate#2282"
+    fate.issues.create name: 'fate#2282'
 
     IssueTracker.update_all_issues
   end

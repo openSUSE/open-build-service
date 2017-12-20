@@ -1,7 +1,7 @@
 # Settings specified here will take precedence over those in config/environment.rb
 
 ENV['CACHENAMESPACE'] ||= "obs-api-test-#{Time.now.to_i}"
-ENV['OBS_BACKEND_TEMP'] ||= Dir.mktmpdir("obsbackend", '/var/tmp')
+ENV['OBS_BACKEND_TEMP'] ||= Dir.mktmpdir('obsbackend', '/var/tmp')
 
 Rails.application.configure do
   config.active_support.test_order = :sorted # switch to :random ?
@@ -72,10 +72,10 @@ CONFIG['source_url'] = "http://#{CONFIG['source_host']}:#{CONFIG['source_port']}
 # we set this to true
 CONFIG['global_write_through'] = false
 
-CONFIG['frontend_host'] = "localhost"
+CONFIG['frontend_host'] = 'localhost'
 CONFIG['frontend_port'] = 3203
 CONFIG['frontend_protocol'] = 'http'
 CONFIG['frontend_ldap_mode'] = :off
 
 # some defaults enforced
-CONFIG['apidocs_location'] = File.expand_path("../../docs/api/html/")
+CONFIG['apidocs_location'] = File.expand_path('../../docs/api/html/')

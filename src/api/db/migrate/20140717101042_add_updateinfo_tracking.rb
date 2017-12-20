@@ -9,8 +9,8 @@ class AddUpdateinfoTracking < ActiveRecord::Migration[4.2]
 
     add_index :updateinfos, :identifier
     add_index :updateinfos, [:repository_id, :package_id]
-    execute("alter table updateinfos add FOREIGN KEY (repository_id) references repositories(id)")
-    execute("alter table updateinfos add FOREIGN KEY (package_id) references packages(id)")
+    execute('alter table updateinfos add FOREIGN KEY (repository_id) references repositories(id)')
+    execute('alter table updateinfos add FOREIGN KEY (package_id) references packages(id)')
   end
 
   def down

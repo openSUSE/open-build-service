@@ -1,4 +1,4 @@
-require "rails_helper"
+require 'rails_helper'
 
 RSpec.describe Comment do
   let(:comment_package) { create(:comment_package) }
@@ -6,38 +6,38 @@ RSpec.describe Comment do
   let(:comment_package_with_parent_2) { create(:comment_package, parent: comment_package, commentable: comment_package.commentable) }
   let(:comment_package_with_grandparent) { create(:comment_package, parent: comment_package_with_parent, commentable: comment_package.commentable) }
 
-  describe "has a valid Factory" do
+  describe 'has a valid Factory' do
     it { expect(comment_package).to be_valid }
   end
 
-  describe "associations" do
+  describe 'associations' do
     it { is_expected.to belong_to(:commentable) }
     it { is_expected.to belong_to(:user).inverse_of(:comments) }
 
     it { is_expected.to have_many(:children).dependent(:destroy).class_name('Comment').with_foreign_key('parent_id') }
   end
 
-  describe "validations" do
+  describe 'validations' do
     it { is_expected.to validate_presence_of(:body) }
     it { is_expected.to validate_presence_of(:commentable) }
     it { is_expected.to validate_presence_of(:user) }
     it {
       expect { create(:comment_package, parent: comment_package) }.to raise_error(
-        ActiveRecord::RecordInvalid, "Validation failed: Parent belongs to different object"
+        ActiveRecord::RecordInvalid, 'Validation failed: Parent belongs to different object'
       )
     }
   end
 
-  describe "to_xml" do
+  describe 'to_xml' do
     let(:builder) { Nokogiri::XML::Builder.new }
     let(:comment_element) { builder.doc.css('comment') }
 
-    context "without parent" do
+    context 'without parent' do
       before do
         comment_package.to_xml(builder)
       end
 
-      it "creates xml with correct attributes and content" do
+      it 'creates xml with correct attributes and content' do
         expect(comment_element.attribute('id').value).to eq(comment_package.id.to_s)
         expect(comment_element.attribute('when').value.to_datetime).to eq(comment_package.created_at)
         expect(comment_element.attribute('who').value).to eq(comment_package.user.login)
@@ -46,12 +46,12 @@ RSpec.describe Comment do
       end
     end
 
-    context "with parent" do
+    context 'with parent' do
       before do
         comment_package_with_parent.to_xml(builder)
       end
 
-      it "creates xml with correct attributes and content" do
+      it 'creates xml with correct attributes and content' do
         expect(comment_element.attribute('id').value).to eq(comment_package_with_parent.id.to_s)
         expect(comment_element.attribute('when').value.to_datetime).to eq(comment_package_with_parent.created_at)
         expect(comment_element.attribute('who').value).to eq(comment_package_with_parent.user.login)
@@ -62,8 +62,8 @@ RSpec.describe Comment do
     end
   end
 
-  describe "blank_or_destroy" do
-    context "without children" do
+  describe 'blank_or_destroy' do
+    context 'without children' do
       before do
         comment_package
       end
@@ -73,7 +73,7 @@ RSpec.describe Comment do
       end
     end
 
-    context "with nobody parent and a brother" do
+    context 'with nobody parent and a brother' do
       before do
         comment_package_with_parent
         comment_package_with_parent_2
@@ -85,7 +85,7 @@ RSpec.describe Comment do
       end
     end
 
-    context "with nobody parent, nobody grandparent and no brother" do
+    context 'with nobody parent, nobody grandparent and no brother' do
       before do
         comment_package_with_grandparent
         comment_package_with_parent.blank_or_destroy
@@ -97,7 +97,7 @@ RSpec.describe Comment do
       end
     end
 
-    context "with children" do
+    context 'with children' do
       before do
         comment_package_with_parent
       end

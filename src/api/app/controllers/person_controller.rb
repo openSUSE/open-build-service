@@ -12,7 +12,7 @@ class PersonController < ApplicationController
 
   def show
     if params[:prefix]
-      @list = User.where("login LIKE ?", params[:prefix] + '%')
+      @list = User.where('login LIKE ?', params[:prefix] + '%')
     else
       @list = User.all
     end
@@ -24,7 +24,7 @@ class PersonController < ApplicationController
 
   # Returns a list of all users (that optionally start with a prefix)
   def command
-    if params[:cmd] == "register"
+    if params[:cmd] == 'register'
       internal_register
       return
     end
@@ -48,31 +48,31 @@ class PersonController < ApplicationController
     # just for permission checking
     User.find_by_login!(login)
 
-    if params[:cmd] == "change_password"
+    if params[:cmd] == 'change_password'
       login ||= User.current.login
       password = request.raw_post.to_s.chomp
       if (login != User.current.login && !User.current.is_admin?) || !::Configuration.passwords_changable?
-        render_error status: 403, errorcode: "change_password_no_permission",
+        render_error status: 403, errorcode: 'change_password_no_permission',
                      message: "No permission to change password for user #{login}"
         return
       end
       if password.blank?
-        render_error status: 404, errorcode: "password_empty",
-                     message: "No new password given in first line of the body"
+        render_error status: 404, errorcode: 'password_empty',
+                     message: 'No new password given in first line of the body'
         return
       end
       change_password(login, password)
       render_ok
       return
     end
-    if params[:cmd] == "lock"
+    if params[:cmd] == 'lock'
       return unless require_admin
       user = User.find_by_login!(params[:login])
       user.lock!
       render_ok
       return
     end
-    if params[:cmd] == "delete"
+    if params[:cmd] == 'delete'
       # maybe we should allow the users to delete themself?
       return unless require_admin
       user = User.find_by_login!(params[:login])
@@ -95,17 +95,17 @@ class PersonController < ApplicationController
 
     if user
       unless user.login == User.current.login || User.current.is_admin?
-        logger.debug "User has no permission to change userinfo"
+        logger.debug 'User has no permission to change userinfo'
         render_error(status: 403, errorcode: 'change_userinfo_no_permission',
           message: "no permission to change userinfo for user #{user.login}") && return
       end
     elsif User.current.is_admin?
-      user = User.create(login: login, password: "notset", email: "TEMP")
-      user.state = "locked"
+      user = User.create(login: login, password: 'notset', email: 'TEMP')
+      user.state = 'locked'
     else
-      logger.debug "Tried to create non-existing user without admin rights"
+      logger.debug 'Tried to create non-existing user without admin rights'
       @errorcode = 404
-      @summary = "Requested non-existing user"
+      @summary = 'Requested non-existing user'
       render_error(status: @errorcode) && return
     end
 
@@ -133,7 +133,7 @@ class PersonController < ApplicationController
   end
 
   class NoPermissionToGroupList < APIException
-    setup 401, "No user logged in, permission to grouplist denied"
+    setup 401, 'No user logged in, permission to grouplist denied'
   end
 
   def grouplist
@@ -159,7 +159,7 @@ class PersonController < ApplicationController
       render_error(
         status: 403,
         errorcode: 'permission_denied',
-        message: "User accounts can not be registered via OBS when in LDAP mode. Please refer to your LDAP server to create new users."
+        message: 'User accounts can not be registered via OBS when in LDAP mode. Please refer to your LDAP server to create new users.'
       )
       return
     end
@@ -168,20 +168,20 @@ class PersonController < ApplicationController
 
     logger.debug("register XML: #{request.raw_post}")
 
-    login = xml.elements["/unregisteredperson/login"].text
-    realname = xml.elements["/unregisteredperson/realname"].text
-    email = xml.elements["/unregisteredperson/email"].text
-    password = xml.elements["/unregisteredperson/password"].text
-    note = xml.elements["/unregisteredperson/note"].text if xml.elements["/unregisteredperson/note"]
-    status = xml.elements["/unregisteredperson/state"].text if xml.elements["/unregisteredperson/status"]
+    login = xml.elements['/unregisteredperson/login'].text
+    realname = xml.elements['/unregisteredperson/realname'].text
+    email = xml.elements['/unregisteredperson/email'].text
+    password = xml.elements['/unregisteredperson/password'].text
+    note = xml.elements['/unregisteredperson/note'].text if xml.elements['/unregisteredperson/note']
+    status = xml.elements['/unregisteredperson/state'].text if xml.elements['/unregisteredperson/status']
 
     if authenticator.proxy_mode?
       if request.env['HTTP_X_USERNAME'].blank?
-        raise ErrRegisterSave, "Missing iChain header"
+        raise ErrRegisterSave, 'Missing iChain header'
       end
       login = request.env['HTTP_X_USERNAME']
       email = request.env['HTTP_X_EMAIL'] if request.env['HTTP_X_EMAIL'].present?
-      realname = request.env['HTTP_X_FIRSTNAME'] + " " + request.env['HTTP_X_LASTNAME'] if request.env['HTTP_X_LASTNAME'].present?
+      realname = request.env['HTTP_X_FIRSTNAME'] + ' ' + request.env['HTTP_X_LASTNAME'] if request.env['HTTP_X_LASTNAME'].present?
     end
 
     UnregisteredUser.register(login: login, realname: realname, email:
@@ -192,13 +192,13 @@ class PersonController < ApplicationController
     render_ok
   rescue Exception => e
     # Strip passwords from request environment and re-raise exception
-    request.env["RAW_POST_DATA"] = request.env["RAW_POST_DATA"].sub(/<password>(.*)<\/password>/, "<password>STRIPPED<password>")
+    request.env['RAW_POST_DATA'] = request.env['RAW_POST_DATA'].sub(/<password>(.*)<\/password>/, '<password>STRIPPED<password>')
     raise e
   end
 
   def update_watchlist(user, xml)
     new_watchlist = []
-    xml.get('watchlist').elements("project") do |e|
+    xml.get('watchlist').elements('project') do |e|
       new_watchlist << e['name']
     end
 
@@ -206,13 +206,13 @@ class PersonController < ApplicationController
       WatchedProject.find_or_create_by(project: Project.find_by_name!(name), user: user)
     end
     user.watched_projects.replace(new_watchlist)
-    Rails.cache.delete(["watched_project_names", user])
+    Rails.cache.delete(['watched_project_names', user])
   end
   private :update_watchlist
 
   def update_globalroles(user, xml)
     new_globalroles = []
-    xml.elements("globalrole") do |e|
+    xml.elements('globalrole') do |e|
       new_globalroles << e.to_s
     end
 
@@ -227,8 +227,8 @@ class PersonController < ApplicationController
 
     logger.debug("changepasswd XML: #{request.raw_post}")
 
-    login = xml.elements["/userchangepasswd/login"].text
-    password = xml.elements["/userchangepasswd/password"].text
+    login = xml.elements['/userchangepasswd/login'].text
+    password = xml.elements['/userchangepasswd/password'].text
     login = URI.unescape(login)
 
     change_password(login, URI.unescape(password))
@@ -237,15 +237,15 @@ class PersonController < ApplicationController
 
   def change_password(login, password)
     unless User.current
-      logger.debug "No user logged in, permission to changing password denied"
+      logger.debug 'No user logged in, permission to changing password denied'
       @errorcode = 401
-      @summary = "No user logged in, permission to changing password denied"
+      @summary = 'No user logged in, permission to changing password denied'
       render template: 'error', status: 401
     end
 
     if login.blank? || password.blank?
       render_error status: 404, errorcode: 'failed to change password',
-            message: "Failed to change password: missing parameter"
+            message: 'Failed to change password: missing parameter'
       return
     end
     user = User.get_by_login(login)
@@ -253,7 +253,7 @@ class PersonController < ApplicationController
     # change password to LDAP if LDAP is enabled
     if CONFIG['ldap_mode'] == :on
       render_error status: 404, errorcode: 'change_passwd_failure',
-                                message: "LDAP passwords can not be changed in OBS. Please refer to your LDAP server to change it."
+                                message: 'LDAP passwords can not be changed in OBS. Please refer to your LDAP server to change it.'
       return
     end
 
@@ -273,7 +273,7 @@ class PersonController < ApplicationController
   def command_token
     user = User.get_by_login(params[:login])
 
-    unless params[:cmd] == "create"
+    unless params[:cmd] == 'create'
       raise UnknownCommandError, "Allowed commands are 'create'"
     end
     pkg = nil

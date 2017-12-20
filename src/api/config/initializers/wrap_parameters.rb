@@ -18,7 +18,7 @@ ActiveSupport.on_load(:active_record) do
   self.include_root_in_json = false
 end
 
-OBSApi::Application.config.middleware.delete "ActionDispatch::ParamsParser"
+OBSApi::Application.config.middleware.delete 'ActionDispatch::ParamsParser'
 
 # custom params parser (modified form of ActionDispatch::ParamsParser)
 
@@ -32,7 +32,7 @@ class MyParamsParser
 
   def call(env)
     params = parse_parameters(env)
-    env["action_dispatch.request.request_parameters"] = params if params
+    env['action_dispatch.request.request_parameters'] = params if params
 
     env['HTTP_ACCEPT'] ||= 'application/xml'
     @app.call(env)

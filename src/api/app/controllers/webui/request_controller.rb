@@ -46,7 +46,7 @@ class Webui::RequestController < Webui::WebuiController
     state = nil
     req = nil
     params.each do |key, value|
-      state = key if  key.in?(["accepted", "declined", "new"])
+      state = key if  key.in?(['accepted', 'declined', 'new'])
       req = BsRequest.find_by_number(value) if key.starts_with?('review_request_number_')
 
       # Our views are valid XHTML. So, several forms 'POST'-ing to the same action have different
@@ -59,11 +59,11 @@ class Webui::RequestController < Webui::WebuiController
     end
 
     if req.nil?
-      flash[:error] = "Unable to load request"
+      flash[:error] = 'Unable to load request'
       redirect_back(fallback_location: user_show_path(User.current))
       return
     elsif state.nil?
-      flash[:error] = "Unknown state to set"
+      flash[:error] = 'Unknown state to set'
     else
       begin
         req.permission_check_change_review!(opts)
@@ -75,7 +75,7 @@ class Webui::RequestController < Webui::WebuiController
       end
     end
 
-    redirect_to request_show_path(number: req), success: "Successfully submitted review"
+    redirect_to request_show_path(number: req), success: 'Successfully submitted review'
   end
 
   def show
@@ -91,8 +91,8 @@ class Webui::RequestController < Webui::WebuiController
 
     @my_open_reviews = @req['my_open_reviews']
     @other_open_reviews = @req['other_open_reviews']
-    @can_add_reviews = @state.in?(["new", "review"]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?) && !User.current.is_nobody?
-    @can_handle_request = @state.in?(["new", "review", "declined"]) && (@is_target_maintainer || @is_author) && !User.current.is_nobody?
+    @can_add_reviews = @state.in?(['new', 'review']) && (@is_author || @is_target_maintainer || @my_open_reviews.present?) && !User.current.is_nobody?
+    @can_handle_request = @state.in?(['new', 'review', 'declined']) && (@is_target_maintainer || @is_author) && !User.current.is_nobody?
 
     @history = @bs_request.history_elements
     @actions = @req['actions']
@@ -103,7 +103,7 @@ class Webui::RequestController < Webui::WebuiController
     # search for a project, where the user is not a package maintainer but a project maintainer and show
     # a hint if that package has some package maintainers (issue#1970)
     projects = @actions.map { |action| action[:tprj] }.uniq
-    maintainer_role = Role.find_by_title("maintainer")
+    maintainer_role = Role.find_by_title('maintainer')
 
     @show_project_maintainer_hint = (!@package_maintainers.empty? && !@package_maintainers.include?(User.current) &&
       projects.any? { |project| Project.find_by_name(project).user_has_role?(User.current, maintainer_role) })
@@ -189,7 +189,7 @@ class Webui::RequestController < Webui::WebuiController
     begin
       BsRequest.transaction do
         req = BsRequest.new
-        req.state = "new"
+        req.state = 'new'
         req.description = params[:description]
 
         opts = { target_project: params[:project] }
@@ -228,7 +228,7 @@ class Webui::RequestController < Webui::WebuiController
     begin
       BsRequest.transaction do
         req = BsRequest.new
-        req.state = "new"
+        req.state = 'new'
         req.description = params[:description]
 
         opts = { target_project: params[:project],
@@ -260,7 +260,7 @@ class Webui::RequestController < Webui::WebuiController
     begin
       BsRequest.transaction do
         req = BsRequest.new
-        req.state = "new"
+        req.state = 'new'
         req.description = params[:description]
 
         opts = { target_project: params[:project] }
@@ -296,7 +296,7 @@ class Webui::RequestController < Webui::WebuiController
     req = nil
     begin
       BsRequest.transaction do
-        req = BsRequest.new(state: "new", description: params[:description])
+        req = BsRequest.new(state: 'new', description: params[:description])
         action = BsRequestActionChangeDevel.new({
                                                   target_project: params[:project],
                                                   target_package: params[:package],
@@ -329,9 +329,9 @@ class Webui::RequestController < Webui::WebuiController
   def set_incident
     req = BsRequest.find_by_number(params[:number])
     if req.nil?
-      flash[:error] = "Unable to load request"
+      flash[:error] = 'Unable to load request'
     elsif params[:incident_project].blank?
-      flash[:error] = "Unknown incident project to set"
+      flash[:error] = 'Unknown incident project to set'
     else
       begin
         req.setincident(params[:incident_project])
@@ -369,7 +369,7 @@ class Webui::RequestController < Webui::WebuiController
   def change_state(newstate, params)
     req = BsRequest.find_by_number(params[:number])
     if req.nil?
-      flash[:error] = "Unable to load request"
+      flash[:error] = 'Unable to load request'
     else
       # FIXME: make force optional, it hides warnings!
       opts = {
@@ -406,7 +406,7 @@ class Webui::RequestController < Webui::WebuiController
     req = nil
     begin
       BsRequest.transaction do
-        req = BsRequest.new(state: "new")
+        req = BsRequest.new(state: 'new')
         req.description = params[:description]
         @bs_request.bs_request_actions.each do |action|
           rev = Directory.hashed(project: action.target_project, package: action.target_package)['rev']

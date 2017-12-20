@@ -14,7 +14,7 @@ RSpec.describe ConvertNotificationsEventPayloadToJson do
     subject! { ConvertNotificationsEventPayloadToJson.up }
 
     it 'converts the notifications event_payload from yaml to json' do
-      json_hash = { "hello" => "world", "how" => ["are", "you", "today?"], "im" => "fine thanks" }
+      json_hash = { 'hello' => 'world', 'how' => ['are', 'you', 'today?'], 'im' => 'fine thanks' }
       expect(Notification.first.event_payload).to eq(json_hash)
     end
   end

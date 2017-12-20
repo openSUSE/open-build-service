@@ -7,10 +7,10 @@ RSpec.describe Backend::File, vcr: true do
   let(:user) { create(:user, login: 'user') }
   let(:package_with_file) { create(:package_with_file, name: 'package_with_files', project: user.home_project) }
   let(:fake_file) do
-    File.open(File.expand_path(Rails.root.join("spec/support/files/hello.txt"))) { |file| file }
+    File.open(File.expand_path(Rails.root.join('spec/support/files/hello.txt'))) { |file| file }
   end
   let(:fake_file_without_extension) do
-    File.open(File.expand_path(Rails.root.join("spec/support/files/hello_world"))) { |file| file }
+    File.open(File.expand_path(Rails.root.join('spec/support/files/hello_world'))) { |file| file }
   end
   let(:somefile_txt_url) { "/source/#{user.home_project_name}/#{package_with_file.name}/somefile.txt" }
 
@@ -58,7 +58,7 @@ RSpec.describe Backend::File, vcr: true do
       end
 
       it { expect(subject.file.class).to eq(File) }
-      it { expect(subject.response[:type]).to eq("text/plain") }
+      it { expect(subject.response[:type]).to eq('text/plain') }
       it { expect(subject.response[:status]).to eq(200) }
       it { expect(subject.response[:size]).to eq(6) }
       it { expect(File.open(subject.file.path).read).to eq("hello\n") }
@@ -84,7 +84,7 @@ RSpec.describe Backend::File, vcr: true do
       end
 
       it { expect(subject.file.class).to eq(File) }
-      it { expect(subject.response[:type]).to eq("text/plain") }
+      it { expect(subject.response[:type]).to eq('text/plain') }
       it { expect(subject.response[:status]).to eq(200) }
       it { expect(subject.response[:size]).to eq(6) }
       it { expect(File.open(subject.file.path).read).to eq("hello\n") }
@@ -108,8 +108,8 @@ RSpec.describe Backend::File, vcr: true do
         end
 
         it { expect(subject.file.class).to eq(Tempfile) }
-        it { expect(subject.response[:type]).to eq("application/octet-stream") }
-        it { expect(subject.response[:status]).to eq("200") }
+        it { expect(subject.response[:type]).to eq('application/octet-stream') }
+        it { expect(subject.response[:status]).to eq('200') }
         it { expect(subject.response[:size]).to be > 0 }
         it { expect(File.open(subject.file.path).read).not_to be_empty }
       end
@@ -122,12 +122,12 @@ RSpec.describe Backend::File, vcr: true do
 
       it { expect(subject.file).to be_nil }
 
-      it "left the object invalid if errors are present" do
+      it 'left the object invalid if errors are present' do
         subject.file
         expect(subject.valid?).to be_falsy
       end
 
-      it "it will have error messages" do
+      it 'it will have error messages' do
         subject.file
         expect(subject.errors.full_messages).to match_array(['Content message'])
       end
@@ -182,7 +182,7 @@ RSpec.describe Backend::File, vcr: true do
       end
 
       it { expect(File.open(subject.file.path).read).not_to eq(@previous_content) }
-      it { expect(File.open(subject.file.path).read).to eq("hello") }
+      it { expect(File.open(subject.file.path).read).to eq('hello') }
     end
 
     context 'with a file as content' do
@@ -204,12 +204,12 @@ RSpec.describe Backend::File, vcr: true do
         allow(Backend::Connection).to receive(:put).and_raise(StandardError, 'message')
       end
 
-      it "left the object invalid if errors are present" do
+      it 'left the object invalid if errors are present' do
         subject.save({}, 'hello')
         expect(subject.valid?).to be_falsy
       end
 
-      it "it will have error messages" do
+      it 'it will have error messages' do
         subject.save({}, 'hello')
         expect(subject.errors.full_messages).to match_array(['Content message'])
       end
@@ -224,7 +224,7 @@ RSpec.describe Backend::File, vcr: true do
     it { expect { Backend::Connection.get(somefile_txt_url) }.to raise_error(ActiveXML::Transport::NotFoundError) }
     it { expect(subject.frozen?).to be_truthy }
     it { expect(subject.response[:type]).to eq('text/xml') }
-    it { expect(subject.response[:status]).to eq("200") }
+    it { expect(subject.response[:status]).to eq('200') }
     it { expect(subject.response[:size]).to be > 0 }
   end
 
@@ -241,8 +241,8 @@ RSpec.describe Backend::File, vcr: true do
       it { expect(subject.frozen?).to be_falsy }
       it { expect(subject.valid?).to be_falsy }
       it { expect(subject.errors.full_messages).to match_array(['Content message']) }
-      it { expect(subject.response[:type]).to eq("application/octet-stream") }
-      it { expect(subject.response[:status]).to eq("200") }
+      it { expect(subject.response[:type]).to eq('application/octet-stream') }
+      it { expect(subject.response[:status]).to eq('200') }
       it { expect(subject.response[:size]).to be > 0 }
     end
   end
@@ -253,8 +253,8 @@ RSpec.describe Backend::File, vcr: true do
     let(:key_list) { [:a] }
 
     it { expect(Backend::File.query_from_list({})).to be_empty }
-    it { expect(Backend::File.query_from_list(hash)).to eq("?a=1&b=2") }
-    it { expect(Backend::File.query_from_list(hash_with_nil_values)).to eq("?a=1&b=2&c=&d=6") }
-    it { expect(Backend::File.query_from_list(hash, key_list)).to eq("?a=1") }
+    it { expect(Backend::File.query_from_list(hash)).to eq('?a=1&b=2') }
+    it { expect(Backend::File.query_from_list(hash_with_nil_values)).to eq('?a=1&b=2&c=&d=6') }
+    it { expect(Backend::File.query_from_list(hash, key_list)).to eq('?a=1') }
   end
 end

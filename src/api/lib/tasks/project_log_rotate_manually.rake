@@ -5,7 +5,7 @@ task(project_log_rotate_manually: :environment) do
 
   # First, skip old events and mark them all as "logged" (even those that
   # don't belong to the event_classes)
-  Event::Base.where(project_logged: false).where(["created_at < ?", oldest_date]).update_all(project_logged: true)
+  Event::Base.where(project_logged: false).where(['created_at < ?', oldest_date]).update_all(project_logged: true)
 
   # Create log entries based on the events in event_classes
   Event::Base.where(project_logged: false, eventtype: event_types).find_in_batches(batch_size: 10000) do |events_batch|

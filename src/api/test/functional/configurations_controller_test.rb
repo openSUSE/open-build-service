@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 
 class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
   def setup
@@ -10,13 +10,13 @@ class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
     get '/public/configuration.json' # is done by webui from OBS 2.4
     assert_response :success
     json = JSON.parse(@response.body)
-    assert_equal json['title'], "Open Build Service" # got json
+    assert_equal json['title'], 'Open Build Service' # got json
     get '/public/configuration.xml'
     assert_response :success
-    assert_xml_tag tag: "configuration" # is xml
+    assert_xml_tag tag: 'configuration' # is xml
     get '/public/configuration'
     assert_response :success
-    assert_xml_tag tag: "configuration" # is xml
+    assert_xml_tag tag: 'configuration' # is xml
     get '/configuration' # default
     assert_response :success
     config = @response.body
@@ -32,23 +32,23 @@ class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/configuration.xml'
     assert_response :success
-    assert_xml_tag tag: "title", content: "openSUSE"
-    assert_xml_tag tag: "description", content: "blah_fasel"
-    assert_xml_tag tag: "name", content: "obsname"
-    assert_xml_tag tag: "admin_email", content: "obs-email@opensuse.org"
-    assert_xml_tag parent: { tag: "schedulers" },
-                   tag: "arch", content: "ppc"
-    assert_xml_tag parent: { tag: "schedulers" },
-                   tag: "arch", content: "s390x"
-    assert_no_xml_tag parent: { tag: "schedulers" },
-                   tag: "arch", content: "i586"
+    assert_xml_tag tag: 'title', content: 'openSUSE'
+    assert_xml_tag tag: 'description', content: 'blah_fasel'
+    assert_xml_tag tag: 'name', content: 'obsname'
+    assert_xml_tag tag: 'admin_email', content: 'obs-email@opensuse.org'
+    assert_xml_tag parent: { tag: 'schedulers' },
+                   tag: 'arch', content: 'ppc'
+    assert_xml_tag parent: { tag: 'schedulers' },
+                   tag: 'arch', content: 's390x'
+    assert_no_xml_tag parent: { tag: 'schedulers' },
+                   tag: 'arch', content: 'i586'
 
     # overwriting options.yml is not allowed
-    ::Configuration::OPTIONS_YML[:registration] = "allow"
+    ::Configuration::OPTIONS_YML[:registration] = 'allow'
     put '/configuration?registration=deny'
     assert_response 403
-    assert_xml_tag tag: "status", attributes: { code: "no_permission_to_change" }
-    ::Configuration::OPTIONS_YML[:registration] = "deny"
+    assert_xml_tag tag: 'status', attributes: { code: 'no_permission_to_change' }
+    ::Configuration::OPTIONS_YML[:registration] = 'deny'
     put '/configuration?registration=deny'
     assert_response :success
     ::Configuration::OPTIONS_YML[:registration] = nil
@@ -60,11 +60,11 @@ class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
     login_tom
     get '/configuration.xml'
     assert_response :success
-    assert_xml_tag tag: "title", content: "Open Build Service"
-    assert_xml_tag tag: "name", content: "obstest"
-    assert_xml_tag parent: { tag: "schedulers" },
-                   tag: "arch", content: "i586"
-    assert_no_xml_tag parent: { tag: "schedulers" },
-                   tag: "arch", content: "s390x"
+    assert_xml_tag tag: 'title', content: 'Open Build Service'
+    assert_xml_tag tag: 'name', content: 'obstest'
+    assert_xml_tag parent: { tag: 'schedulers' },
+                   tag: 'arch', content: 'i586'
+    assert_no_xml_tag parent: { tag: 'schedulers' },
+                   tag: 'arch', content: 's390x'
   end
 end

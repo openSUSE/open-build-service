@@ -49,13 +49,13 @@ class Webui::GroupsController < Webui::WebuiController
 
   def autocomplete
     required_parameters :term
-    groups = Group.where("title LIKE ?", "#{params[:term]}%").pluck(:title)
+    groups = Group.where('title LIKE ?', "#{params[:term]}%").pluck(:title)
     render json: groups
   end
 
   def tokens
     required_parameters :q
-    groups = Group.where("title LIKE ?", "#{params[:q]}%").pluck(:title).map { |title| { name: title } }
+    groups = Group.where('title LIKE ?', "#{params[:q]}%").pluck(:title).map { |title| { name: title } }
     render json: groups
   end
 

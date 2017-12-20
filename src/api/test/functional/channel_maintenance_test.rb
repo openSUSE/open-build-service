@@ -146,9 +146,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     pi = ActiveXML::Node.new(@response.body)
     e = pi.add_element 'name'
-    e.text = "patch_name"
+    e.text = 'patch_name'
     e = pi.add_element 'message'
-    e.text = "During reboot a popup with a question will appear"
+    e.text = 'During reboot a popup with a question will appear'
     put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.dump_xml
     assert_response :success
 
@@ -212,7 +212,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     id3 = node.value(:id)
 
     # second one for failing permission test on lock
-    put "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject/dummy", params: "dummy change"
+    put '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject/dummy', params: 'dummy change'
     assert_response :success
     post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_incident">
@@ -262,12 +262,12 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_equal incident_project, maintenance_not_new_project
 
     # validate releasename
-    get "/source/" + incident_project + "/pack2.BaseDistro2.0_LinkedUpdateProject/_meta"
+    get '/source/' + incident_project + '/pack2.BaseDistro2.0_LinkedUpdateProject/_meta'
     assert_response :success
-    assert_xml_tag tag: "releasename", content: "pack2"
-    get "/source/" + incident_project + "/pack2.linked.BaseDistro2.0_LinkedUpdateProject/_meta"
+    assert_xml_tag tag: 'releasename', content: 'pack2'
+    get '/source/' + incident_project + '/pack2.linked.BaseDistro2.0_LinkedUpdateProject/_meta'
     assert_response :success
-    assert_xml_tag tag: "releasename", content: "pack2.linked"
+    assert_xml_tag tag: 'releasename', content: 'pack2.linked'
 
     # no patchinfo was part in source project, got it created ?
     get "/source/#{incident_project}/patchinfo/_patchinfo"
@@ -348,21 +348,21 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # validate branch from projects with local channel repos
     get "/source/#{incident_project}/_meta"
     assert_response :success
-    assert_xml_tag tag: "repository", attributes: { name: "BaseDistro3Channel" }
+    assert_xml_tag tag: 'repository', attributes: { name: 'BaseDistro3Channel' }
     post "/source/#{incident_project}/pack2.BaseDistro2.0_LinkedUpdateProject", params: { cmd: 'branch', add_repositories: 1 }
     assert_response :success
-    get "/source/home:maintenance_coord:branches:My:Maintenance:0/_meta"
+    get '/source/home:maintenance_coord:branches:My:Maintenance:0/_meta'
     assert_response :success
     # local channel got skipped:
-    assert_no_xml_tag tag: "repository", attributes: { name: "BaseDistro3Channel" }
+    assert_no_xml_tag tag: 'repository', attributes: { name: 'BaseDistro3Channel' }
     post "/source/#{incident_project}/BaseDistro2.Channel", params: { cmd: 'branch', add_repositories: 1 }
     assert_response :success
-    get "/source/home:maintenance_coord:branches:My:Maintenance:0/_meta"
+    get '/source/home:maintenance_coord:branches:My:Maintenance:0/_meta'
     assert_response :success
     # added by branching the channel package container
-    assert_xml_tag tag: "repository", attributes: { name: "BaseDistro3Channel" }
+    assert_xml_tag tag: 'repository', attributes: { name: 'BaseDistro3Channel' }
     # cleanup
-    delete "/source/home:maintenance_coord:branches:My:Maintenance:0"
+    delete '/source/home:maintenance_coord:branches:My:Maintenance:0'
     assert_response :success
 
     # accept another request to check that addchannel is working automatically
@@ -380,11 +380,11 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/#{maintenance_yet_another_project}"
     assert_response :success
-    assert_xml_tag tag: "entry", attributes: { name: "BaseDistro2.Channel" }
-    assert_xml_tag tag: "entry", attributes: { name: "pack2.BaseDistro2.0_LinkedUpdateProject" }
-    assert_xml_tag tag: "entry", attributes: { name: "pack2.linked.BaseDistro2.0_LinkedUpdateProject" }
-    assert_xml_tag tag: "entry", attributes: { name: "patchinfo" }
-    assert_xml_tag tag: "directory", attributes: { count: "4" }
+    assert_xml_tag tag: 'entry', attributes: { name: 'BaseDistro2.Channel' }
+    assert_xml_tag tag: 'entry', attributes: { name: 'pack2.BaseDistro2.0_LinkedUpdateProject' }
+    assert_xml_tag tag: 'entry', attributes: { name: 'pack2.linked.BaseDistro2.0_LinkedUpdateProject' }
+    assert_xml_tag tag: 'entry', attributes: { name: 'patchinfo' }
+    assert_xml_tag tag: 'directory', attributes: { count: '4' }
     # cleanup
     delete "/source/#{maintenance_yet_another_project}"
     assert_response :success
@@ -467,14 +467,14 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # validate that patchinfo is not building in channel without an issue
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro3Channel', arch: 'i586', state: 'published' } }, tag: 'status', attributes: { package: 'patchinfo', code: 'failed' }
     # BaseDistro2 is in LTSS, repos exist but none enabled
-    assert_no_xml_tag tag: 'status', attributes: { package: "BaseDistro2.0.Channel", code: 'succeeded' }
-    assert_xml_tag tag: 'status', attributes: { package: "BaseDistro2.0.Channel", code: 'disabled' }
+    assert_no_xml_tag tag: 'status', attributes: { package: 'BaseDistro2.0.Channel', code: 'succeeded' }
+    assert_xml_tag tag: 'status', attributes: { package: 'BaseDistro2.0.Channel', code: 'disabled' }
 
     # enable the patchinfo via api call
     login_king
-    put "/source/BaseDistro2.0/_product/_meta", params: "<package project='BaseDistro2.0' name='_product'><title/><description/></package>"
+    put '/source/BaseDistro2.0/_product/_meta', params: "<package project='BaseDistro2.0' name='_product'><title/><description/></package>"
     assert_response :success
-    ["defaults-archsets.include", "defaults-conditionals.include", "defaults-repositories.include", "obs.group", "obs-release.spec", "simple.product"].each do |file|
+    ['defaults-archsets.include', 'defaults-conditionals.include', 'defaults-repositories.include', 'obs.group', 'obs-release.spec', 'simple.product'].each do |file|
       raw_put "/source/BaseDistro2.0/_product/#{file}",
               File.open("#{Rails.root}/test/fixtures/backend/source/simple_product/#{file}").read
       assert_response :success
@@ -483,12 +483,12 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get "/source/#{incident_project}/BaseDistro2.0.Channel/_meta"
     old_meta = @response.body
     assert_response :success
-    assert_no_xml_tag tag: 'enable', attributes: { repository: "BaseDistro2.0_LinkedUpdateProject" }
+    assert_no_xml_tag tag: 'enable', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject' }
     post "/source/#{incident_project}/BaseDistro2.0.Channel?cmd=set_flag&product=simple&flag=build&status=enable"
     assert_response :success
     get "/source/#{incident_project}/BaseDistro2.0.Channel/_meta"
     assert_response :success
-    assert_xml_tag tag: 'enable', attributes: { repository: "BaseDistro2.0_LinkedUpdateProject" }
+    assert_xml_tag tag: 'enable', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject' }
     # revert and enable via enablechannel
     put "/source/#{incident_project}/BaseDistro2.0.Channel/_meta", params: old_meta
     assert_response :success
@@ -496,13 +496,13 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/#{incident_project}/BaseDistro2.0.Channel/_meta"
     assert_response :success
-    assert_xml_tag tag: 'enable', attributes: { repository: "BaseDistro2.0_LinkedUpdateProject" }
+    assert_xml_tag tag: 'enable', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject' }
 
     # check repository search by product
     get "/search/repository/id?match=targetproduct/@name='simple'"
     assert_response :success
     assert_xml_tag tag: 'collection', children: { count: 2 }
-    assert_xml_tag tag: 'repository', attributes: { project: "home:tom:branches:OBS_Maintained:pack2", name: 'BaseDistro2.0_LinkedUpdateProject' }
+    assert_xml_tag tag: 'repository', attributes: { project: 'home:tom:branches:OBS_Maintained:pack2', name: 'BaseDistro2.0_LinkedUpdateProject' }
     assert_xml_tag tag: 'repository', attributes: { project: incident_project, name: 'BaseDistro2.0_LinkedUpdateProject' }
     get "/search/repository/id?match=targetproduct/[@name='simple'+and+@version='13.1']+and+@project='#{incident_project}'"
     assert_response :success
@@ -512,7 +512,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success # empty, just to check for crashes
 
     login_king
-    delete "/source/BaseDistro2.0/_product"
+    delete '/source/BaseDistro2.0/_product'
     assert_response :success
     prepare_request_with_user 'maintenance_coord', 'buildservice'
 
@@ -540,16 +540,16 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # check published search db
     get "/search/published/binary/id?match=project='" + incident_project + "'"
     assert_response :success
-    assert_xml_tag tag: "binary", attributes: { name: "package", project: incident_project, package: "patchinfo",
-                                                      repository: "BaseDistro3", version: "1.0", release: "1", arch: "i586",
-                                                      filename: "package-1.0-1.i586.rpm",
-                                                      filepath: "My:/Maintenance:/0/BaseDistro3/i586/package-1.0-1.i586.rpm",
-                                                      baseproject: "BaseDistro3", type: "rpm" }
-    assert_xml_tag tag: "binary", attributes: { name: "package", project: incident_project, package: "patchinfo",
-                                                      repository: "BaseDistro3Channel", version: "1.0", release: "1", arch: "i586",
-                                                      filename: "package-1.0-1.i586.rpm",
-                                                      filepath: "My:/Maintenance:/0/BaseDistro3Channel/rpm/i586/package-1.0-1.i586.rpm",
-                                                      baseproject: "BaseDistro3Channel", type: "rpm" }
+    assert_xml_tag tag: 'binary', attributes: { name: 'package', project: incident_project, package: 'patchinfo',
+                                                      repository: 'BaseDistro3', version: '1.0', release: '1', arch: 'i586',
+                                                      filename: 'package-1.0-1.i586.rpm',
+                                                      filepath: 'My:/Maintenance:/0/BaseDistro3/i586/package-1.0-1.i586.rpm',
+                                                      baseproject: 'BaseDistro3', type: 'rpm' }
+    assert_xml_tag tag: 'binary', attributes: { name: 'package', project: incident_project, package: 'patchinfo',
+                                                      repository: 'BaseDistro3Channel', version: '1.0', release: '1', arch: 'i586',
+                                                      filename: 'package-1.0-1.i586.rpm',
+                                                      filepath: 'My:/Maintenance:/0/BaseDistro3Channel/rpm/i586/package-1.0-1.i586.rpm',
+                                                      baseproject: 'BaseDistro3Channel', type: 'rpm' }
 
     # create release request
     post '/request?cmd=create', params: '<request>
@@ -559,9 +559,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    assert_xml_tag tag: "review", attributes: { by_user: "adrian_reader", state: "new" } # from channel
-    assert_xml_tag tag: "review", attributes: { by_user: "fred", state: "new" }
-    assert_xml_tag tag: "review", attributes: { by_group: "test_group", state: "new" }
+    assert_xml_tag tag: 'review', attributes: { by_user: 'adrian_reader', state: 'new' } # from channel
+    assert_xml_tag tag: 'review', attributes: { by_user: 'fred', state: 'new' }
+    assert_xml_tag tag: 'review', attributes: { by_group: 'test_group', state: 'new' }
     # no submit action
     assert_no_xml_tag tag: 'action', attributes: { type: 'submit' }
     node = ActiveXML::Node.new(@response.body)
@@ -573,7 +573,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     post "/request/#{id4}?cmd=changestate&newstate=accepted&force=1" # ignore reviews and accept
     assert_response 403
-    assert_xml_tag tag: "status", attributes: { code: "post_request_no_permission" }
+    assert_xml_tag tag: 'status', attributes: { code: 'post_request_no_permission' }
 
     # revoke the release request request
     post "/request/#{reqid}?cmd=changestate&newstate=revoked"
@@ -593,7 +593,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     run_publisher
     get "/build/#{incident_project}/_result"
     assert_response :success
-    assert_xml_tag tag: "result", attributes: { repository: "BaseDistro3Channel", code: "published" }
+    assert_xml_tag tag: 'result', attributes: { repository: 'BaseDistro3Channel', code: 'published' }
     # validate channel build results
     get "/build/#{incident_project}/BaseDistro3Channel/i586/patchinfo"
     assert_response :success
@@ -656,7 +656,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'action', attributes: { type: 'maintenance_release' } },
                    tag: 'target', attributes: { project: 'BaseDistro3', package: 'pack2.0' }
     assert_xml_tag parent: { tag: 'action', attributes: { type: 'maintenance_release' } },
-                   tag: 'acceptinfo', attributes: { rev: '1', oproject: "BaseDistro3", opackage: "pack2", oxsrcmd5: 'eb6705ddf47af932b8332e16ab2ed8b3', osrcmd5: "eb6705ddf47af932b8332e16ab2ed8b3" }
+                   tag: 'acceptinfo', attributes: { rev: '1', oproject: 'BaseDistro3', opackage: 'pack2', oxsrcmd5: 'eb6705ddf47af932b8332e16ab2ed8b3', osrcmd5: 'eb6705ddf47af932b8332e16ab2ed8b3' }
 
     # diffing works
     post "/request/#{reqid}?cmd=diff&view=xml"
@@ -668,9 +668,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     run_publisher
 
     # validate releasename
-    get "/source/BaseDistro3/pack2.0/_meta"
+    get '/source/BaseDistro3/pack2.0/_meta'
     assert_response :success
-    assert_xml_tag tag: "releasename", content: "pack2"
+    assert_xml_tag tag: 'releasename', content: 'pack2'
 
     # collect the job results
     get "/build/#{incident_project}/_result"
@@ -689,11 +689,11 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get '/build/BaseDistro3Channel/_result'
     assert_response :success
     assert_xml_tag tag: 'result', attributes: {
-      project:    "BaseDistro3Channel",
-      repository: "channel_repo",
-      arch:       "i586",
-      code:       "published",
-      state:      "published"
+      project:    'BaseDistro3Channel',
+      repository: 'channel_repo',
+      arch:       'i586',
+      code:       'published',
+      state:      'published'
     }
     get '/published/BaseDistro3Channel/channel_repo/repodata'
     assert_response :success
@@ -719,100 +719,100 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # channel search tests
     get '/search/channel/binary?match=@name="package"'
     assert_response :success
-    assert_xml_tag tag: "collection", attributes: { matches: "2" }
-    assert_xml_tag parent: { tag: "channel", attributes: { project: "Channel", package: "BaseDistro3" } },
-                   tag: "binary", attributes: { project: "BaseDistro3", package: "pack2", name: "package" }
-    assert_xml_tag parent: { tag: "channel", attributes: { project: "Channel", package: "BaseDistro3" } },
-                   tag: "target", attributes: { project: "BaseDistro3Channel", repository: "channel_repo" }
-    assert_xml_tag parent: { tag: "target", attributes: { project: "BaseDistro2.0:LinkedUpdateProject", repository: "BaseDistro2LinkedUpdateProject_repo" } },
-                   tag: "updatefor", attributes: { project: "BaseDistro", product: "fixed", version: "1.2" }
+    assert_xml_tag tag: 'collection', attributes: { matches: '2' }
+    assert_xml_tag parent: { tag: 'channel', attributes: { project: 'Channel', package: 'BaseDistro3' } },
+                   tag: 'binary', attributes: { project: 'BaseDistro3', package: 'pack2', name: 'package' }
+    assert_xml_tag parent: { tag: 'channel', attributes: { project: 'Channel', package: 'BaseDistro3' } },
+                   tag: 'target', attributes: { project: 'BaseDistro3Channel', repository: 'channel_repo' }
+    assert_xml_tag parent: { tag: 'target', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', repository: 'BaseDistro2LinkedUpdateProject_repo' } },
+                   tag: 'updatefor', attributes: { project: 'BaseDistro', product: 'fixed', version: '1.2' }
     get '/search/channel/binary?match=@package="pack2"'
     assert_response :success
-    assert_xml_tag tag: "collection", attributes: { matches: "2" }
+    assert_xml_tag tag: 'collection', attributes: { matches: '2' }
     # channel search refers to channel package container
     get '/search/channel?match=@package="BaseDistro3"+and+binary/@package="pack2"'
     assert_response :success
-    assert_xml_tag tag: "collection", attributes: { matches: "1" }
-    assert_xml_tag parent: { tag: "channel", attributes: { project: "Channel", package: "BaseDistro3" } },
-                   tag: "binary", attributes: { project: "BaseDistro3", package: "pack2", name: "package" }
+    assert_xml_tag tag: 'collection', attributes: { matches: '1' }
+    assert_xml_tag parent: { tag: 'channel', attributes: { project: 'Channel', package: 'BaseDistro3' } },
+                   tag: 'binary', attributes: { project: 'BaseDistro3', package: 'pack2', name: 'package' }
     # search by given product
     get '/search/channel/binary?match=updatefor/[@project="BaseDistro"+and+@product="fixed"]'
     assert_response :success
-    assert_xml_tag tag: "collection", attributes: { matches: "2" }
+    assert_xml_tag tag: 'collection', attributes: { matches: '2' }
     get '/search/channel/binary?match=updatefor/[@project="BaseDistro"+and+@product="fixed"]+and+not(target/disabled)'
     assert_response :success
-    assert_xml_tag tag: "collection", attributes: { matches: "0" }
+    assert_xml_tag tag: 'collection', attributes: { matches: '0' }
     get '/search/channel/binary?match=updatefor/[@project="BaseDistro"+and+@product="fixed"]+and+boolean(target/disabled)'
     assert_response :success
-    assert_xml_tag tag: "collection", attributes: { matches: "2" }
+    assert_xml_tag tag: 'collection', attributes: { matches: '2' }
     get '/search/channel/binary?match=not(target/disabled)'
     assert_response :success
-    assert_xml_tag tag: "collection", attributes: { matches: "1" }
-    assert_xml_tag parent: { tag: "channel", attributes: { project: "Channel", package: "BaseDistro3" } },
-                   tag: "binary", attributes: { package: "pack2", name: "package" }
-    assert_xml_tag parent: { tag: "channel", attributes: { project: "Channel", package: "BaseDistro3" } },
-                   tag: "target", attributes: { project: "BaseDistro3Channel", repository: "channel_repo" }
+    assert_xml_tag tag: 'collection', attributes: { matches: '1' }
+    assert_xml_tag parent: { tag: 'channel', attributes: { project: 'Channel', package: 'BaseDistro3' } },
+                   tag: 'binary', attributes: { package: 'pack2', name: 'package' }
+    assert_xml_tag parent: { tag: 'channel', attributes: { project: 'Channel', package: 'BaseDistro3' } },
+                   tag: 'target', attributes: { project: 'BaseDistro3Channel', repository: 'channel_repo' }
 
     # event handling
     UpdateNotificationEvents.new.perform
     get '/search/released/binary', params: { match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo']" }
     assert_response :success
-    assert_xml_tag parent: { tag: 'binary', attributes: { name: 'package_newweaktags', version: "1.0", release: "1", arch: "x86_64" } },
-                   tag: 'publish', attributes: { package: "pack2" }
-    assert_no_xml_tag parent: { tag: 'binary', attributes: { name: 'package_newweaktags', version: "1.0", release: "1", arch: "i586" } },
+    assert_xml_tag parent: { tag: 'binary', attributes: { name: 'package_newweaktags', version: '1.0', release: '1', arch: 'x86_64' } },
+                   tag: 'publish', attributes: { package: 'pack2' }
+    assert_no_xml_tag parent: { tag: 'binary', attributes: { name: 'package_newweaktags', version: '1.0', release: '1', arch: 'i586' } },
                    tag: 'obsolete'
-    assert_xml_tag parent: { tag: 'binary', attributes:                      { name: 'package', version: "1.0", release: "1", arch: "i586" } },
-                   tag: 'build', attributes: { time: "2014-07-03 12:26:54 UTC" }
-    assert_xml_tag parent: { tag: 'binary', attributes:                      { name: 'package', version: "1.0", release: "1", arch: "i586" } },
-                   tag: 'disturl', content: "obs://testsuite/BaseDistro/repo/ce167c27b536e6ca39f8d951fa02a4ff-package"
-    assert_xml_tag tag: 'updatefor', attributes: { project: "BaseDistro", product: "fixed" }
+    assert_xml_tag parent: { tag: 'binary', attributes:                      { name: 'package', version: '1.0', release: '1', arch: 'i586' } },
+                   tag: 'build', attributes: { time: '2014-07-03 12:26:54 UTC' }
+    assert_xml_tag parent: { tag: 'binary', attributes:                      { name: 'package', version: '1.0', release: '1', arch: 'i586' } },
+                   tag: 'disturl', content: 'obs://testsuite/BaseDistro/repo/ce167c27b536e6ca39f8d951fa02a4ff-package'
+    assert_xml_tag tag: 'updatefor', attributes: { project: 'BaseDistro', product: 'fixed' }
 
-    assert_xml_tag parent: { tag: 'binary', attributes:            { name: 'package', project: "BaseDistro3", repository: "BaseDistro3_repo", arch: "i586" } },
-                   tag: 'operation', content: "modified"
-    assert_xml_tag parent: { tag: 'binary', attributes:            { name: 'package', project: "BaseDistro3", repository: "BaseDistro3_repo", arch: "src" } },
-                   tag: 'operation', content: "added"
-    assert_xml_tag parent: { tag: 'binary', attributes:            { name: 'dropped', project: "BaseDistro3", repository: "BaseDistro3_repo", arch: "i586" } },
-                   tag: 'operation', content: "added"
+    assert_xml_tag parent: { tag: 'binary', attributes:            { name: 'package', project: 'BaseDistro3', repository: 'BaseDistro3_repo', arch: 'i586' } },
+                   tag: 'operation', content: 'modified'
+    assert_xml_tag parent: { tag: 'binary', attributes:            { name: 'package', project: 'BaseDistro3', repository: 'BaseDistro3_repo', arch: 'src' } },
+                   tag: 'operation', content: 'added'
+    assert_xml_tag parent: { tag: 'binary', attributes:            { name: 'dropped', project: 'BaseDistro3', repository: 'BaseDistro3_repo', arch: 'i586' } },
+                   tag: 'operation', content: 'added'
     # entire channel content
     get '/search/released/binary', params: { match: "repository/[@project = 'BaseDistro3Channel']" }
     assert_response :success
-    assert_xml_tag parent: { tag: 'binary', attributes:            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "i586" } },
-                   tag: 'operation', content: "added"
-    assert_xml_tag parent: { tag: 'binary', attributes:            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "i586" } },
-                   tag: 'supportstatus', content: "l3"
-    assert_xml_tag parent: { tag: 'binary', attributes:            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "i586" } },
-                   tag: 'updateinfo', attributes: { id: "UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1", version: "1" }
+    assert_xml_tag parent: { tag: 'binary', attributes:            { name: 'package', project: 'BaseDistro3Channel', repository: 'channel_repo', arch: 'i586' } },
+                   tag: 'operation', content: 'added'
+    assert_xml_tag parent: { tag: 'binary', attributes:            { name: 'package', project: 'BaseDistro3Channel', repository: 'channel_repo', arch: 'i586' } },
+                   tag: 'supportstatus', content: 'l3'
+    assert_xml_tag parent: { tag: 'binary', attributes:            { name: 'package', project: 'BaseDistro3Channel', repository: 'channel_repo', arch: 'i586' } },
+                   tag: 'updateinfo', attributes: { id: "UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1", version: '1' }
 
     # search via official updateinfo id tag
     get '/search/released/binary', params: { match: "updateinfo/@id = 'UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1'" }
     assert_response :success
-    assert_xml_tag tag: 'binary', attributes:            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "i586" }
-    assert_xml_tag tag: 'binary', attributes:            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "src" }
-    assert_xml_tag tag: 'updateinfo', attributes: { id: "UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1", version: "1" }
+    assert_xml_tag tag: 'binary', attributes:            { name: 'package', project: 'BaseDistro3Channel', repository: 'channel_repo', arch: 'i586' }
+    assert_xml_tag tag: 'binary', attributes:            { name: 'package', project: 'BaseDistro3Channel', repository: 'channel_repo', arch: 'src' }
+    assert_xml_tag tag: 'updateinfo', attributes: { id: "UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1", version: '1' }
 
     # drop and re-release manual release and try again
     prj = Project.find_by_name('My:Maintenance:0')
     prj.repositories.each do |repo|
       repo.release_targets.each do |rt|
-        rt.trigger = "manual"
+        rt.trigger = 'manual'
         rt.save
       end
     end
-    get "/source/BaseDistro3/pack2.0/_history"
+    get '/source/BaseDistro3/pack2.0/_history'
     assert_response :success
     assert_xml_tag(tag: 'requestid')
-    delete "/source/BaseDistro3/pack2"
+    delete '/source/BaseDistro3/pack2'
     assert_response :success
-    delete "/source/BaseDistro3/pack2.0"
+    delete '/source/BaseDistro3/pack2.0'
     assert_response :success
-    post "/source/My:Maintenance:0/pack2.BaseDistro3?cmd=release"
+    post '/source/My:Maintenance:0/pack2.BaseDistro3?cmd=release'
     assert_response :success
-    get "/source/BaseDistro3/pack2.0/_history"
+    get '/source/BaseDistro3/pack2.0/_history'
     assert_response :success
     assert_no_xml_tag(tag: 'requestid') # manual release entry
-    get "/source/BaseDistro3/pack2"
+    get '/source/BaseDistro3/pack2'
     assert_response 404
-    post "/source/BaseDistro3/pack2?cmd=undelete"
+    post '/source/BaseDistro3/pack2?cmd=undelete'
     assert_response :success
 
     #

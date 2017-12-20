@@ -31,7 +31,7 @@ module Suse
 
       raise ArgumentError, "unable to find project object for #{project}" if prj.nil?
 
-      return true if @user.has_global_permission?("global_project_change")
+      return true if @user.has_global_permission?('global_project_change')
 
       @user.can_modify_project?(prj)
     end
@@ -50,7 +50,7 @@ module Suse
         pkg = package
       else
         if project.nil?
-          raise RuntimeError, "autofetch of project only works with objects of class Package"
+          raise RuntimeError, 'autofetch of project only works with objects of class Package'
         end
 
         if project.kind_of? String
@@ -79,7 +79,7 @@ module Suse
           return false
         end
       else
-        logger.debug "Permission check failed because no user is checked in"
+        logger.debug 'Permission check failed because no user is checked in'
         return false
       end
     end

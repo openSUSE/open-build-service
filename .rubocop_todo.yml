@@ -675,13 +675,6 @@ Style/StderrPuts:
   Exclude:
     - 'src/api/test/functional/webui/spider_test.rb'
 
-# Offense count: 9358
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, ConsistentQuotesInMultiline.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiterals:
-  Enabled: false
-
 # Offense count: 272
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, MinSize, SupportedStyles.

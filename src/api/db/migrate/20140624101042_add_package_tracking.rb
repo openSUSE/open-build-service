@@ -21,12 +21,12 @@ class AddPackageTracking < ActiveRecord::Migration[4.2]
     end
 
     add_index :binary_releases, :binary_name
-    add_index :binary_releases, [:repository_id, :binary_name], name: "ra_name_index"
-    add_index :binary_releases, [:binary_name, :binary_epoch, :binary_version, :binary_release, :binary_arch], name: "exact_search_index"
+    add_index :binary_releases, [:repository_id, :binary_name], name: 'ra_name_index'
+    add_index :binary_releases, [:binary_name, :binary_epoch, :binary_version, :binary_release, :binary_arch], name: 'exact_search_index'
 
     execute("alter table binary_releases modify column `operation` enum('added','removed', 'modified') DEFAULT 'added';")
-    execute("alter table binary_releases add FOREIGN KEY (repository_id) references repositories(id)")
-    execute("alter table binary_releases add FOREIGN KEY (release_package_id) references packages(id)")
+    execute('alter table binary_releases add FOREIGN KEY (repository_id) references repositories(id)')
+    execute('alter table binary_releases add FOREIGN KEY (release_package_id) references packages(id)')
   end
 
   def down

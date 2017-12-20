@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 
 class DebuginfoFlagTest < ActiveSupport::TestCase
   fixtures :all
@@ -19,7 +19,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
 
     # create two new flags and save it.
     for i in 1..2 do
-      f = Flag.new(repo: "10.#{i}", status: "enable", position: i + 2, flag: 'debuginfo')
+      f = Flag.new(repo: "10.#{i}", status: 'enable', position: i + 2, flag: 'debuginfo')
       f.architecture = @arch
       @project.flags << f
     end
@@ -56,7 +56,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
 
     # create two new flags and save it.
     for i in 1..2 do
-      f = Flag.new(repo: "10.#{i}", status: "disable", position: i + 1, flag: 'debuginfo')
+      f = Flag.new(repo: "10.#{i}", status: 'disable', position: i + 1, flag: 'debuginfo')
       f.architecture = @arch
       @package.flags << f
     end
@@ -136,7 +136,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     count = Flag.all.size
 
     # create new flag and save it.
-    f = Flag.new(repo: "10.3", status: "enable", position: 3, flag: 'debuginfo')
+    f = Flag.new(repo: '10.3', status: 'enable', position: 3, flag: 'debuginfo')
     f.architecture = @arch
     @project.flags << f
 
@@ -157,7 +157,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
 
     # create new flag and save it, but set the references in different order as above.
     # The result should be the same.
-    f = Flag.new(repo: "10.2", status: "enable", position: 4, flag: 'debuginfo')
+    f = Flag.new(repo: '10.2', status: 'enable', position: 4, flag: 'debuginfo')
     f.architecture = @arch
     @project.flags << f
 

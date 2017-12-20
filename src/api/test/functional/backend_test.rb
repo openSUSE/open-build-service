@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 
 class BackendTests < ActionDispatch::IntegrationTest
   def test_validate_bsxml
@@ -19,24 +19,24 @@ class BackendTests < ActionDispatch::IntegrationTest
             status_messages tagcloud taglist tags updated_timestamp distributions productlist binary_released).include? schema
         # no backend schema exists
         next
-      elsif schema == "aggregate"
-        schema = "aggregatelist"
-      elsif schema == "buildhistory"
-        schema = "buildhist"
-      elsif schema == "buildresult"
-        schema = "resultlist"
-      elsif schema == "directory"
-        schema = "dir"
-      elsif schema == "package"
-        schema = "pack"
-      elsif schema == "project"
-        schema = "proj"
-      elsif schema == "service"
-        schema = "services"
-      elsif schema == "status"
-        schema = "opstatus"
-      elsif schema == "user"
-        schema = "person"
+      elsif schema == 'aggregate'
+        schema = 'aggregatelist'
+      elsif schema == 'buildhistory'
+        schema = 'buildhist'
+      elsif schema == 'buildresult'
+        schema = 'resultlist'
+      elsif schema == 'directory'
+        schema = 'dir'
+      elsif schema == 'package'
+        schema = 'pack'
+      elsif schema == 'project'
+        schema = 'proj'
+      elsif schema == 'service'
+        schema = 'services'
+      elsif schema == 'status'
+        schema = 'opstatus'
+      elsif schema == 'user'
+        schema = 'person'
       end
 
       # rubocop:disable Metrics/LineLength

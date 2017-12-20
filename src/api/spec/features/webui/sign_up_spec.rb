@@ -1,9 +1,9 @@
-require "browser_helper"
+require 'browser_helper'
 
-RSpec.feature "Sign up", type: :feature do
+RSpec.feature 'Sign up', type: :feature do
   let!(:user) { build(:user) }
 
-  scenario "User" do
+  scenario 'User' do
     visit root_path
 
     fill_in 'login', with: 'eisendieter'
@@ -15,9 +15,9 @@ RSpec.feature "Sign up", type: :feature do
     assert User.find_by(login: 'eisendieter').is_active?
   end
 
-  scenario "User with confirmation" do
+  scenario 'User with confirmation' do
     # Configure confirmation for signups
-    allow_any_instance_of(::Configuration).to receive(:registration).and_return("confirmation")
+    allow_any_instance_of(::Configuration).to receive(:registration).and_return('confirmation')
 
     visit root_path
 
@@ -26,15 +26,15 @@ RSpec.feature "Sign up", type: :feature do
     fill_in 'pwd', with: 'alemao'
     click_button('Sign Up')
 
-    expect(page).to have_text("Thank you for signing up! An admin has to confirm your account now. Please be patient.")
+    expect(page).to have_text('Thank you for signing up! An admin has to confirm your account now. Please be patient.')
   end
 
-  scenario "User is denied" do
+  scenario 'User is denied' do
     # Deny signups
-    allow_any_instance_of(::Configuration).to receive(:registration).and_return("deny")
+    allow_any_instance_of(::Configuration).to receive(:registration).and_return('deny')
 
     visit user_register_user_path
 
-    expect(page).to have_text("Sorry, sign up is disabled")
+    expect(page).to have_text('Sorry, sign up is disabled')
   end
 end

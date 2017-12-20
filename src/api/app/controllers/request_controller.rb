@@ -54,7 +54,7 @@ class RequestController < ApplicationController
 
   # POST /request?cmd=create
   def global_command
-    unless params[:cmd] == "create"
+    unless params[:cmd] == 'create'
       raise UnknownCommandError, "Unknown command '#{params[:cmd]}' for path #{request.path}"
     end
 
@@ -167,7 +167,7 @@ class RequestController < ApplicationController
     end
 
     req.bs_request_actions.each do |action|
-      withissues = params[:withissues].to_s.in?(["1", "true"])
+      withissues = params[:withissues].to_s.in?(['1', 'true'])
       action_diff = action.sourcediff(view: params[:view], withissues: withissues)
 
       if xml_request
@@ -182,7 +182,7 @@ class RequestController < ApplicationController
     end
 
     if xml_request
-      xml_request.set_attribute('actions', "0")
+      xml_request.set_attribute('actions', '0')
       render xml: xml_request.dump_xml
     else
       render plain: diff_text

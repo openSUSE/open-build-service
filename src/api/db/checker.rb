@@ -15,7 +15,7 @@ module DB
     def warn_for_environment
       return unless ENV['RAILS_ENV'] != 'production'
       puts "\nWARNING: This script is supposed to be running in \"production\" environment but actual is \"#{ENV['RAILS_ENV']}\".".red
-      puts "         To do so just run \"RAILS_ENV=production ./script/check_database\"".red
+      puts '         To do so just run "RAILS_ENV=production ./script/check_database"'.red
     end
 
     def initialize
@@ -95,7 +95,7 @@ module DB
       begin
         User.current = User.find_by_login('_nobody_')
         projects = {}
-        Package.where("develpackage_id is not null").each do |package|
+        Package.where('develpackage_id is not null').each do |package|
           begin
             package.resolve_devel_package
             print step(:ok)

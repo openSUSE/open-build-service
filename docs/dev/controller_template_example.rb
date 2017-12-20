@@ -83,7 +83,7 @@ class Webui::DogsController < ApplicationController
   # Use hide_action if they are not private
 
   def call_them(dogs = [])
-    say("Hey!")
+    say('Hey!')
     dogs.each(&:bark)
   end
 

@@ -12,7 +12,7 @@ class TriggerController < ApplicationController
 
   def runservice
     auth = request.env['HTTP_AUTHORIZATION']
-    unless auth && auth[0..4] == "Token" && auth[6..-1] =~ /^[A-Za-z0-9+\/]+$/
+    unless auth && auth[0..4] == 'Token' && auth[6..-1] =~ /^[A-Za-z0-9+\/]+$/
       render_error errorcode: 'permission_denied',
                    message: "No valid token found 'Authorization' header",
                    status: 403
@@ -22,7 +22,7 @@ class TriggerController < ApplicationController
     token = Token::Service.find_by_string(auth[6..-1])
 
     unless token
-      render_error message: "Token not found", status: 404
+      render_error message: 'Token not found', status: 404
       return
     end
 
@@ -44,7 +44,7 @@ class TriggerController < ApplicationController
 
     # execute the service in backend
     path = pkg.source_path
-    params = { cmd: "runservice", comment: "runservice via trigger", user: token.user.login }
+    params = { cmd: 'runservice', comment: 'runservice via trigger', user: token.user.login }
     path << build_query_from_hash(params, [:cmd, :comment, :user])
     pass_to_backend path
 

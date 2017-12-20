@@ -8,10 +8,10 @@ RSpec.describe Webui::Packages::JobHistoryHelper, type: :helper do
   describe '#job_history_bread_crumb' do
     let(:breadcrumb) do
       [
-        "<a href=\"/project/list_public\">Projects</a>",
-        ["<a href=\"/project/show/home:tom\">home:tom</a>"],
-        "<a href=\"/package/show/home:tom/my_package\">my_package</a>",
-        "Job history"
+        '<a href="/project/list_public">Projects</a>',
+        ['<a href="/project/show/home:tom">home:tom</a>'],
+        '<a href="/package/show/home:tom/my_package">my_package</a>',
+        'Job history'
       ]
     end
 

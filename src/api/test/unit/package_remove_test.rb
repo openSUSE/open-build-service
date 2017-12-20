@@ -1,5 +1,5 @@
 # Testing the things that should and shouldn't happen when you remove a Package
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 
 class PackageRemoveTest < ActiveSupport::TestCase
   fixtures :all
@@ -9,11 +9,11 @@ class PackageRemoveTest < ActiveSupport::TestCase
   end
 
   def test_delete_on_backend
-    skip "Removing a package should remove the package on the backend"
+    skip 'Removing a package should remove the package on the backend'
   end
 
   def test_delete_on_backend_no_backend_write
-    skip "Removing a package with commit_opts[:no_backend_write] should not remove the package on the backend"
+    skip 'Removing a package with commit_opts[:no_backend_write] should not remove the package on the backend'
   end
 
   def test_destroy_source_revokes_request
@@ -66,7 +66,7 @@ class PackageRemoveTest < ActiveSupport::TestCase
     create_request('test_destroy_target_declines_request', 'pack')
 
     User.current = users(:king)
-    Package.find_by_project_and_name("test_destroy_target_declines_request", 'pack').destroy
+    Package.find_by_project_and_name('test_destroy_target_declines_request', 'pack').destroy
 
     @request.reload
     assert_equal :declined, @request.state
@@ -77,16 +77,16 @@ class PackageRemoveTest < ActiveSupport::TestCase
   end
 
   def test_update_project_for_product
-    skip "No idea what Project.update_product_autopackages is supposed to do, Adrian?"
+    skip 'No idea what Project.update_product_autopackages is supposed to do, Adrian?'
   end
 
   def test_remove_linked_packages
-    skip "to be done"
+    skip 'to be done'
     # remove all BackendPackage.where(links_to_id: self.id)
   end
 
   def test_remove_devel_packages
-    skip "to be done"
+    skip 'to be done'
     # nullify all Package.where(develpackage: self)
   end
 
@@ -101,7 +101,7 @@ class PackageRemoveTest < ActiveSupport::TestCase
 
   def create_request(project = 'Apache', package = 'apache2')
     # Create a request to submit the changes back
-    request = BsRequest.new(state: "new", description: 'package_remove_test')
+    request = BsRequest.new(state: 'new', description: 'package_remove_test')
     action = BsRequestActionSubmit.new(source_project: "home:#{User.current.login}:branches:#{project}",
                                        source_package: package,
                                        target_project: project,

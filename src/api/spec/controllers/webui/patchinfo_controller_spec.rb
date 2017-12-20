@@ -65,7 +65,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       end
 
       it { expect(response).to redirect_to(project_show_path(other_user.home_project)) }
-      it { expect(flash[:error]).to eq "No permission to create packages" }
+      it { expect(flash[:error]).to eq 'No permission to create packages' }
     end
 
     context 'when it fails to create the patchinfo package' do
@@ -75,7 +75,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       end
 
       it { expect(response).to redirect_to(project_show_path(user.home_project)) }
-      it { expect(flash[:error]).to eq "Error creating patchinfo" }
+      it { expect(flash[:error]).to eq 'Error creating patchinfo' }
     end
 
     context 'when the patchinfo package file is not found' do
@@ -96,8 +96,8 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       end
 
       it { expect(response).to have_http_status(:success) }
-      it { expect(assigns(:binarylist)).to match_array(["fake_binary_002"]) }
-      it { expect(assigns(:binaries)).to match_array(["fake_binary_001"]) }
+      it { expect(assigns(:binarylist)).to match_array(['fake_binary_002']) }
+      it { expect(assigns(:binaries)).to match_array(['fake_binary_001']) }
       it { expect(assigns(:packager)).to eq(user.login) }
       it { expect(assigns(:file)).not_to be_nil }
     end
@@ -162,7 +162,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
         }
       end
 
-      it { expect(flash[:error]).to eq("|| Summary is too short (should have more than 10 signs)") }
+      it { expect(flash[:error]).to eq('|| Summary is too short (should have more than 10 signs)') }
       it { expect(response).to have_http_status(:success) }
     end
 
@@ -174,7 +174,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
         }
       end
 
-      it { expect(flash[:error]).to eq(" || Description is too short (should have more than 50 signs and longer than summary)") }
+      it { expect(flash[:error]).to eq(' || Description is too short (should have more than 50 signs and longer than summary)') }
       it { expect(response).to have_http_status(:success) }
     end
 
@@ -187,7 +187,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
         }
       end
 
-      it { expect(flash[:error]).to eq("Unknown Issue tracker NonExistingTracker") }
+      it { expect(flash[:error]).to eq('Unknown Issue tracker NonExistingTracker') }
       it { expect(response).to have_http_status(:success) }
     end
 
@@ -200,7 +200,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
         }
       end
 
-      it { expect(flash[:error]).to start_with("patchinfo is invalid: ") }
+      it { expect(flash[:error]).to start_with('patchinfo is invalid: ') }
       it { expect(response).to have_http_status(:success) }
     end
 
@@ -217,7 +217,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       it { expect(response).to redirect_to(action: 'show', project: user.home_project_name, package: patchinfo_package.name) }
     end
 
-    context "without permission to edit the patchinfo-file" do
+    context 'without permission to edit the patchinfo-file' do
       before do
         patchinfo_package
         allow(Backend::Connection).to receive(:put).and_raise(ActiveXML::Transport::ForbiddenError)
@@ -228,7 +228,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       it { expect(response).to redirect_to(action: 'show', project: user.home_project_name, package: patchinfo_package.name) }
     end
 
-    context "putting the file is taking so long that will raise a timeout" do
+    context 'putting the file is taking so long that will raise a timeout' do
       before do
         patchinfo_package
         allow(Backend::Connection).to receive(:put).and_raise(Timeout::Error)
@@ -250,7 +250,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
         post :remove, params: { project: user.home_project_name, package: patchinfo_package.name }
       end
 
-      it { expect(flash[:notice]).to eq("Patchinfo was successfully removed.") }
+      it { expect(flash[:notice]).to eq('Patchinfo was successfully removed.') }
       it { expect(response).to redirect_to(project_show_path(user.home_project)) }
     end
 
@@ -277,19 +277,19 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
 
       it do
         expect(JSON.parse(response.body)).to eq({
-                                                  "error"  => '',
-                                                  "issues" => [['bgo', '132412', 'https://bugzilla.gnome.org/show_bug.cgi?id=132412', '']]
+                                                  'error'  => '',
+                                                  'issues' => [['bgo', '132412', 'https://bugzilla.gnome.org/show_bug.cgi?id=132412', '']]
                                                 })
       end
       it { expect(response).to have_http_status(:success) }
     end
 
-    context "if issues are wrongly formatted" do
+    context 'if issues are wrongly formatted' do
       before do
         get :new_tracker, params: { project: user.home_project_name, package: patchinfo_package.name, issues: ['hell#666'] }
       end
 
-      it { expect(JSON.parse(response.body)).to eq({ "error" => "hell is not a valid tracker.\n", "issues" => [] }) }
+      it { expect(JSON.parse(response.body)).to eq({ 'error' => "hell is not a valid tracker.\n", 'issues' => [] }) }
       it { expect(response).to have_http_status(:success) }
     end
   end

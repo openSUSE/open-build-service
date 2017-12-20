@@ -45,7 +45,7 @@ class AttributeController < ApplicationController
       @an = AttribNamespace.where(name: namespace).select(:id, :name).first
       unless @an
         render_error message: "Unknown attribute namespace '#{namespace}'",
-          status: 404, errorcode: "unknown_attribute_namespace"
+          status: 404, errorcode: 'unknown_attribute_namespace'
       end
       return
     end
@@ -54,12 +54,12 @@ class AttributeController < ApplicationController
     return unless extract_user
     unless User.current.is_admin?
       render_error status: 403, errorcode: 'permissions denied',
-        message: "Namespace changes are only permitted by the administrator"
+        message: 'Namespace changes are only permitted by the administrator'
       return
     end
 
     if request.post? || request.put?
-      logger.debug "--- updating attribute namespace definitions ---"
+      logger.debug '--- updating attribute namespace definitions ---'
 
       xml_element = Xmlhash.parse(request.raw_post)
 
@@ -71,14 +71,14 @@ class AttributeController < ApplicationController
 
       db = AttribNamespace.where(name: namespace).first
       if db
-        logger.debug "* updating existing attribute namespace"
+        logger.debug '* updating existing attribute namespace'
         db.update_from_xml(xml_element)
       else
-        logger.debug "* create new attribute namespace"
+        logger.debug '* create new attribute namespace'
         AttribNamespace.create(name: namespace).update_from_xml(xml_element)
       end
 
-      logger.debug "--- finished updating attribute namespace definitions ---"
+      logger.debug '--- finished updating attribute namespace definitions ---'
       render_ok
     elsif request.delete?
       AttribNamespace.where(name: namespace).destroy_all
@@ -110,7 +110,7 @@ class AttributeController < ApplicationController
       @at = ans.attrib_types.find_by(name: name)
       unless @at
         render_error message: "Unknown attribute '#{namespace}':'#{name}'",
-          status: 404, errorcode: "unknown_attribute"
+          status: 404, errorcode: 'unknown_attribute'
       end
       return
     end
@@ -119,7 +119,7 @@ class AttributeController < ApplicationController
     return unless extract_user
 
     if request.post? || request.put?
-      logger.debug "--- updating attribute type definitions ---"
+      logger.debug '--- updating attribute type definitions ---'
 
       xml_element = Xmlhash.parse(request.raw_post)
 
@@ -129,28 +129,28 @@ class AttributeController < ApplicationController
         return
       end
 
-      entry = ans.attrib_types.where("name = ?", name).first
+      entry = ans.attrib_types.where('name = ?', name).first
 
       if entry
         authorize entry, :update?
 
         db = AttribType.find(entry.id) # get a writable object
-        logger.debug "* updating existing attribute definitions"
+        logger.debug '* updating existing attribute definitions'
         db.update_from_xml(xml_element)
       else
         entry = AttribType.new(name: name, attrib_namespace: ans)
         authorize entry, :create?
 
-        logger.debug "* create new attribute definition"
+        logger.debug '* create new attribute definition'
         entry.update_from_xml(xml_element)
       end
 
-      logger.debug "--- finished updating attribute namespace definitions ---"
+      logger.debug '--- finished updating attribute namespace definitions ---'
       #--- end update attribute namespace definitions ---#
 
       render_ok
     elsif request.delete?
-      at = ans.attrib_types.where("name = ?", name).first
+      at = ans.attrib_types.where('name = ?', name).first
 
       if at
         authorize at, :destroy?
@@ -165,7 +165,7 @@ class AttributeController < ApplicationController
   end
 
   class RemoteProject < APIException
-    setup 400, "Attribute access to remote project is not yet supported"
+    setup 400, 'Attribute access to remote project is not yet supported'
   end
 
   class InvalidAttribute < APIException
@@ -201,19 +201,19 @@ class AttributeController < ApplicationController
 
     # init
     if params[:namespace].blank? || params[:name].blank?
-      render_error status: 400, errorcode: "missing_attribute",
-                   message: "No attribute got specified for delete"
+      render_error status: 400, errorcode: 'missing_attribute',
+                   message: 'No attribute got specified for delete'
       return
     end
     ac = @attribute_container.find_attribute(params[:namespace], params[:name], @binary)
 
     # checks
     unless ac
-      render_error(status: 404, errorcode: "not_found",
+      render_error(status: 404, errorcode: 'not_found',
                    message: "Attribute #{params[:attribute]} does not exist") && return
     end
     unless User.current.can_create_attribute_in? @attribute_container, namespace: params[:namespace], name: params[:name]
-      render_error status: 403, errorcode: "change_attribute_no_permission",
+      render_error status: 403, errorcode: 'change_attribute_no_permission',
                    message: "user #{user.login} has no permission to change attribute"
       return
     end
@@ -238,10 +238,10 @@ class AttributeController < ApplicationController
     # This is necessary for checking the authorization and do not create the attribute
     # The attribute creation will happen in @attribute_container.store_attribute_axml
     req.each('attribute') do |attr|
-      attrib_type = AttribType.find_by_namespace_and_name!(attr.value("namespace"), attr.value("name"))
+      attrib_type = AttribType.find_by_namespace_and_name!(attr.value('namespace'), attr.value('name'))
       attrib = Attrib.new(attrib_type: attrib_type)
 
-      attr.each("value") do |value|
+      attr.each('value') do |value|
         attrib.values.new(value: value.text)
       end
 
@@ -275,7 +275,7 @@ class AttributeController < ApplicationController
     @binary = nil
     @binary = params[:binary] if params[:binary]
     # valid post commands
-    if params[:package] && params[:package] != "_project"
+    if params[:package] && params[:package] != '_project'
       @attribute_container = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
     else
       # project

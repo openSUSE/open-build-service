@@ -10,7 +10,7 @@ namespace :assets do
     # md5=Digest::MD5.hexdigest(File.open('tmp/sprite.tmp.png').read)
     # File.unlink('tmp/sprite.tmp.png')
     SpriteFactory.run!('app/assets/icons', output_style: 'app/assets/stylesheets/webui/application/icons.scss',
-                       output_image: "app/assets/images/icons_sprite.png", margin: 2, nocomments: true) do |images|
+                       output_image: 'app/assets/images/icons_sprite.png', margin: 2, nocomments: true) do |images|
       rules = []
       images.each do |icon, hash|
         rules << ".icons-#{icon} { #{hash[:style]}; }"
@@ -19,6 +19,6 @@ namespace :assets do
       rules << ".delete-attribute { #{images[:note_delete][:style]} !important; }"
       rules.join("\n")
     end
-    system("optipng", "-o5", "app/assets/images/icons_sprite.png")
+    system('optipng', '-o5', 'app/assets/images/icons_sprite.png')
   end
 end

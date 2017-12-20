@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 
 class FlagTest < ActiveSupport::TestCase
   fixtures :all
@@ -11,7 +11,7 @@ class FlagTest < ActiveSupport::TestCase
     assert_equal false, f.save
 
     # expected error message
-    assert_equal "Please set either project or package", f.errors[:name].join
+    assert_equal 'Please set either project or package', f.errors[:name].join
   end
 
   def test_to_xml_error
@@ -24,11 +24,11 @@ class FlagTest < ActiveSupport::TestCase
     f.status = 'enable'
     assert_equal true, f.save
 
-    f = Flag.find_by_repo("999.999")
+    f = Flag.find_by_repo('999.999')
     assert_kind_of Flag, f
 
     builder = Nokogiri::XML::Builder.new
     f.to_xml(builder)
-    assert_xml_tag builder.to_xml, tag: "enable", attributes: { repository: "999.999", arch: "i586" }
+    assert_xml_tag builder.to_xml, tag: 'enable', attributes: { repository: '999.999', arch: 'i586' }
   end
 end

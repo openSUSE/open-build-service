@@ -18,7 +18,7 @@ namespace :statistics do
       date += 1.month
       old_bs_requests = num_bs_requests
     end
-    out_file = File.new("number_bs_requests.txt", "w")
+    out_file = File.new('number_bs_requests.txt', 'w')
     out_file.puts(information)
     out_file.close
   end
@@ -48,7 +48,7 @@ namespace :statistics do
       date += 1.month
       old_bs_requests = num_bs_requests
     end
-    out_file = File.new("number_bs_requests_for_#{args[:project]}.txt", "w")
+    out_file = File.new("number_bs_requests_for_#{args[:project]}.txt", 'w')
     out_file.puts(information)
     out_file.close
   end
@@ -62,12 +62,12 @@ namespace :statistics do
     # as BsRequestAction was introduced at the end of 2012
     date = Date.new(2013, 1, 1)
     while date < Time.zone.today
-      num_bs_requests = BsRequestAction.where('created_at < ? AND created_at >= ?', date, date - 1.month).group("target_project").count.length
+      num_bs_requests = BsRequestAction.where('created_at < ? AND created_at >= ?', date, date - 1.month).group('target_project').count.length
       information += "#{date}, #{num_bs_requests}\n"
       # granularity, currently it is one month. Adjust it as needed
       date += 1.month
     end
-    out_file = File.new("number_projects_bs_requests.txt", "w")
+    out_file = File.new('number_projects_bs_requests.txt', 'w')
     out_file.puts(information)
     out_file.close
   end

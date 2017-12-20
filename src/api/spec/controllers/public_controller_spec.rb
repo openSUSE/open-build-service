@@ -6,19 +6,19 @@ require 'webmock/rspec'
 # CONFIG['global_write_through'] = true
 
 RSpec.describe PublicController, vcr: true do
-  let(:project) { create(:project, name: "public_controller_project", title: "The Public Controller Project") }
-  let(:package) { create(:package_with_file, name: "public_controller_package", project: project) }
+  let(:project) { create(:project, name: 'public_controller_project', title: 'The Public Controller Project') }
+  let(:package) { create(:package_with_file, name: 'public_controller_package', project: project) }
 
-  describe "GET #source_file" do
+  describe 'GET #source_file' do
     before do
-      get :source_file, params: { project: project.name, package: package.name, filename: "somefile.txt" }
+      get :source_file, params: { project: project.name, package: package.name, filename: 'somefile.txt' }
     end
 
     it { is_expected.to respond_with(:success) }
-    it { expect(response.body).to eq(package.source_file("somefile.txt")) }
+    it { expect(response.body).to eq(package.source_file('somefile.txt')) }
   end
 
-  describe "GET #index" do
+  describe 'GET #index' do
     before do
       get :index
     end
@@ -26,7 +26,7 @@ RSpec.describe PublicController, vcr: true do
     it { is_expected.to redirect_to(about_index_path) }
   end
 
-  describe "GET #build" do
+  describe 'GET #build' do
     before do
       get :build, params: { project: project.name }
     end
@@ -35,8 +35,8 @@ RSpec.describe PublicController, vcr: true do
     it { expect(a_request(:get, /.*\/build\/public_controller_project/)).to have_been_made.once }
   end
 
-  describe "GET #configuration" do
-    context "as JSON format" do
+  describe 'GET #configuration' do
+    context 'as JSON format' do
       before do
         get :configuration_show, params: { format: :json }
       end
@@ -45,7 +45,7 @@ RSpec.describe PublicController, vcr: true do
       it { expect(assigns(:configuration)).to eq(Configuration.first) }
     end
 
-    context "as XML format" do
+    context 'as XML format' do
       before do
         get :configuration_show
       end
@@ -55,7 +55,7 @@ RSpec.describe PublicController, vcr: true do
     end
   end
 
-  describe "GET #project_meta" do
+  describe 'GET #project_meta' do
     before do
       get :project_meta, params: { project: project.name }
     end
@@ -65,8 +65,8 @@ RSpec.describe PublicController, vcr: true do
     it { expect(a_request(:get, /.*\/source\/public_controller_project\/_meta/)).to have_been_made.once }
   end
 
-  describe "GET #project_index" do
-    context "without view specified" do
+  describe 'GET #project_index' do
+    context 'without view specified' do
       before do
         get :project_index, params: { project: project.name }
       end
@@ -80,7 +80,7 @@ RSpec.describe PublicController, vcr: true do
     context "with 'info' view specified" do
       context "and nofilename is not equal '1'" do
         before do
-          get :project_index, params: { project: project.name, view: "info", nofilename: "filename" }
+          get :project_index, params: { project: project.name, view: 'info', nofilename: 'filename' }
         end
 
         it { is_expected.to respond_with(400) }
@@ -89,7 +89,7 @@ RSpec.describe PublicController, vcr: true do
 
       context "and nofilename is equal '1'" do
         before do
-          get :project_index, params: { project: project.name, view: "info", nofilename: "1" }
+          get :project_index, params: { project: project.name, view: 'info', nofilename: '1' }
         end
 
         it { expect(assigns(:project)).to eq(project) }
@@ -100,7 +100,7 @@ RSpec.describe PublicController, vcr: true do
 
     context "with 'verboseproductlist' view specified" do
       before do
-        get :project_index, params: { project: project.name, view: "verboseproductlist" }
+        get :project_index, params: { project: project.name, view: 'verboseproductlist' }
       end
 
       it { expect(assigns(:project)).to eq(project) }
@@ -111,7 +111,7 @@ RSpec.describe PublicController, vcr: true do
 
     context "with 'productlist' view specified" do
       before do
-        get :project_index, params: { project: project.name, view: "productlist" }
+        get :project_index, params: { project: project.name, view: 'productlist' }
       end
 
       it { expect(assigns(:project)).to eq(project) }
@@ -121,17 +121,17 @@ RSpec.describe PublicController, vcr: true do
     end
   end
 
-  describe "GET #project_file" do
+  describe 'GET #project_file' do
     before do
       get :project_file, params: { project: project.name }
     end
 
     it { is_expected.to respond_with(:success) }
     it { expect(a_request(:get, /.*\/source\/public_controller_project\/_config/)).to have_been_made }
-    it { expect(response.body).to eq(project.source_file("_config")) }
+    it { expect(response.body).to eq(project.source_file('_config')) }
   end
 
-  describe "GET #package_index" do
+  describe 'GET #package_index' do
     before do
       get :package_index, params: { project: project.name, package: package.name }
     end
@@ -141,7 +141,7 @@ RSpec.describe PublicController, vcr: true do
     it { expect(a_request(:get, /.*\/source\/public_controller_project\/public_controller_package/)).to have_been_made.once }
   end
 
-  describe "GET #package_meta" do
+  describe 'GET #package_meta' do
     before do
       get :package_meta, params: { project: project.name, package: package.name }
     end
@@ -151,7 +151,7 @@ RSpec.describe PublicController, vcr: true do
     it { expect(a_request(:get, /.*\/source\/public_controller_project\/public_controller_package\/_meta/)).to have_been_made.once }
   end
 
-  describe "GET #distributions" do
+  describe 'GET #distributions' do
     before do
       get :distributions, params: { format: :xml }
     end
@@ -160,7 +160,7 @@ RSpec.describe PublicController, vcr: true do
     it { expect(assigns(:distributions)).to eq(Distribution.all_as_hash) }
   end
 
-  describe "GET #show_request" do
+  describe 'GET #show_request' do
     let(:request) { create(:bs_request) }
 
     before do
@@ -171,7 +171,7 @@ RSpec.describe PublicController, vcr: true do
     it { expect(response.body).to eq(request.render_xml) }
   end
 
-  describe "GET #binary_packages" do
+  describe 'GET #binary_packages' do
     before do
       get :binary_packages, params: { project: project.name, package: package.name }
     end
@@ -180,20 +180,20 @@ RSpec.describe PublicController, vcr: true do
     it { expect(assigns(:pkg)).to eq(package) }
   end
 
-  describe "GET #source_file history" do
-    context "with history unlimited" do
+  describe 'GET #source_file history' do
+    context 'with history unlimited' do
       before do
-        get :source_file, params: { project: project.name, package: package.name, filename: "_history" }
-        @revisions = Nokogiri::XML(response.body).xpath("//revision")
+        get :source_file, params: { project: project.name, package: package.name, filename: '_history' }
+        @revisions = Nokogiri::XML(response.body).xpath('//revision')
       end
       it { is_expected.to respond_with(:success) }
       it { expect(@revisions.count).to be > 1 }
     end
 
-    context "with history limited to 1" do
+    context 'with history limited to 1' do
       before do
-        get :source_file, params: { project: project.name, package: package.name, filename: "_history", limit: 1 }
-        @revisions = Nokogiri::XML(response.body).xpath("//revision")
+        get :source_file, params: { project: project.name, package: package.name, filename: '_history', limit: 1 }
+        @revisions = Nokogiri::XML(response.body).xpath('//revision')
       end
       it { is_expected.to respond_with(:success) }
       it { expect(@revisions.count).to eq 1 }

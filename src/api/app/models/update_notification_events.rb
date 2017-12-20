@@ -39,7 +39,7 @@ class UpdateNotificationEvents
 
   def perform
     if semaphore.locked?
-      Rails.logger.debug "skip lastnotifications, still locked"
+      Rails.logger.debug 'skip lastnotifications, still locked'
       return
     end
 

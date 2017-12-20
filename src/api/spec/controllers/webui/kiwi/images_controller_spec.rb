@@ -80,8 +80,8 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
           end
           let(:errors) do
             {
-              "Image Errors:" => [
-                "A repository with source_path \"obsrepositories:/\" has been set. If you want to use it, please remove the other repositories",
+              'Image Errors:' => [
+                'A repository with source_path "obsrepositories:/" has been set. If you want to use it, please remove the other repositories',
                 "Preference can't be blank"
               ],
               title: "Kiwi File 'package_with_invalid_kiwi_file.kiwi' has errors:"
@@ -113,9 +113,9 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
             [
               [:title, "Kiwi File 'package_with_invalid_kiwi_file.kiwi' has errors:"],
               [
-                "Image Errors:",
+                'Image Errors:',
                 [
-                  "Multiple package groups with same type are not allowed",
+                  'Multiple package groups with same type are not allowed',
                   "Preference can't be blank"
                 ]
               ]
@@ -143,14 +143,14 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
       login user
     end
 
-    context "json" do
+    context 'json' do
       subject { get :show, params: { format: :json, id: kiwi_image_with_package_with_kiwi_file.id } }
 
-      it { expect(subject.content_type).to eq("application/json") }
+      it { expect(subject.content_type).to eq('application/json') }
       it { expect(subject).to have_http_status(:success) }
     end
 
-    context "html" do
+    context 'html' do
       subject { get :show, params: { id: kiwi_image_with_package_with_kiwi_file.id } }
 
       it { expect(subject).to have_http_status(:success) }
@@ -184,11 +184,11 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
       end
       let(:errors) do
         {
-          "Repository: htt://example.com" => [
-            "Source path has an invalid format",
+          'Repository: htt://example.com' => [
+            'Source path has an invalid format',
             "Repo type 'apt2-deb' is not included in the list"
           ],
-          title: "Cannot update KIWI Image:"
+          title: 'Cannot update KIWI Image:'
         }
       end
 
@@ -268,8 +268,8 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
                 packages_attributes: {
                   '0' => {
                     id:   kiwi_package.id,
-                    name: "",
-                    arch: "x86"
+                    name: '',
+                    arch: 'x86'
                   }
                 }
               }
@@ -280,8 +280,8 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
 
       let(:errors) do
         {
-          "Package: " => ["Name can't be blank"],
-          title: "Cannot update KIWI Image:"
+          'Package: ' => ["Name can't be blank"],
+          title: 'Cannot update KIWI Image:'
         }
       end
 
@@ -304,7 +304,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
                   '0' => {
                     id:   kiwi_package.id,
                     name: kiwi_package.name,
-                    arch: "x86-876"
+                    arch: 'x86-876'
                   }
                 }
               }
@@ -320,7 +320,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
 
       it { expect(response).to redirect_to(action: :edit) }
       it { expect(flash[:error]).to be_nil }
-      it { expect(kiwi_package.arch).to eq("x86-876") }
+      it { expect(kiwi_package.arch).to eq('x86-876') }
     end
   end
 
@@ -341,7 +341,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
       get :autocomplete_binaries, params: { format: :json, id: kiwi_image_with_package_with_kiwi_file.id, term: term }
     end
 
-    it { expect(subject.content_type).to eq("application/json") }
+    it { expect(subject.content_type).to eq('application/json') }
     it { expect(subject).to have_http_status(:success) }
     it do
       expect(JSON.parse(subject.body)).to eq([{ 'id' => 'apache', 'label' => 'apache', 'value' => 'apache' },

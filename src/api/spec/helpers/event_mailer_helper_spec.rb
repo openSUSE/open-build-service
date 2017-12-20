@@ -5,23 +5,23 @@ RSpec.describe EventMailerHelper do
   let(:package) { project.packages.first }
 
   describe '#project_or_package_text' do
-    context "with a project" do
-      context "with a package" do
-        it { expect(project_or_package_text(project, package)).to eq("package MyProject/MyPackage") }
+    context 'with a project' do
+      context 'with a package' do
+        it { expect(project_or_package_text(project, package)).to eq('package MyProject/MyPackage') }
       end
 
-      context "without a package" do
-        it { expect(project_or_package_text(project, nil)).to eq("project MyProject") }
+      context 'without a package' do
+        it { expect(project_or_package_text(project, nil)).to eq('project MyProject') }
       end
     end
 
-    context "without a project" do
-      context "with a package" do
-        it { expect(project_or_package_text(nil, package)).to eq("package /MyPackage") }
+    context 'without a project' do
+      context 'with a package' do
+        it { expect(project_or_package_text(nil, package)).to eq('package /MyPackage') }
       end
 
-      context "without a package" do
-        it { expect(project_or_package_text(nil, nil)).to eq("project ") }
+      context 'without a package' do
+        it { expect(project_or_package_text(nil, nil)).to eq('project ') }
       end
     end
   end

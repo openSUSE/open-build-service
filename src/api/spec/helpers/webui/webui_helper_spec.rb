@@ -41,53 +41,53 @@ RSpec.describe Webui::WebuiHelper do
   end
 
   describe '#word_break' do
-    it "continuously adds tag after N characters" do
-      expect(word_break("0123456789012345678901234567890123456789", 10)).to \
-        eq("0123456789<wbr>0123456789<wbr>0123456789<wbr>0123456789")
+    it 'continuously adds tag after N characters' do
+      expect(word_break('0123456789012345678901234567890123456789', 10)).to \
+        eq('0123456789<wbr>0123456789<wbr>0123456789<wbr>0123456789')
     end
 
-    it "adds no tag if string is shorter than N characters" do
-      expect(word_break("0123456789", 10)).to eq("0123456789")
+    it 'adds no tag if string is shorter than N characters' do
+      expect(word_break('0123456789', 10)).to eq('0123456789')
     end
 
-    it "adds one tag if string is longer than N characters" do
-      expect(word_break("01234567890", 10)).to eq("0123456789<wbr>0")
+    it 'adds one tag if string is longer than N characters' do
+      expect(word_break('01234567890', 10)).to eq('0123456789<wbr>0')
     end
 
-    it "does not evaluate HTML tags" do
-      expect(word_break("01234<b>567</b>890", 3)).to eq("012<wbr>34&lt;<wbr>b&gt;5<wbr>67&lt;<wbr>/b&gt;<wbr>890")
+    it 'does not evaluate HTML tags' do
+      expect(word_break('01234<b>567</b>890', 3)).to eq('012<wbr>34&lt;<wbr>b&gt;5<wbr>67&lt;<wbr>/b&gt;<wbr>890')
     end
 
-    it "returns blank if no string given" do
-      expect(word_break(nil, 3)).to eq("")
+    it 'returns blank if no string given' do
+      expect(word_break(nil, 3)).to eq('')
     end
   end
 
   describe '#repo_status_icon' do
     it 'renders icon' do
       blocked = repo_status_icon('blocked')
-      expect(blocked).to include("icons-time")
-      expect(blocked).to include("No build possible atm")
+      expect(blocked).to include('icons-time')
+      expect(blocked).to include('No build possible atm')
     end
 
     it 'renders outdated icon' do
       outdated_scheduling = repo_status_icon('outdated_scheduling')
-      expect(outdated_scheduling).to include("icons-cog_error")
-      expect(outdated_scheduling).to include("state is being calculated")
-      expect(outdated_scheduling).to include("needs recalculations")
+      expect(outdated_scheduling).to include('icons-cog_error')
+      expect(outdated_scheduling).to include('state is being calculated')
+      expect(outdated_scheduling).to include('needs recalculations')
     end
 
     it 'renders unknown icon' do
       undefined_icon = repo_status_icon('undefined')
-      expect(undefined_icon).to include("icons-eye")
-      expect(undefined_icon).to include("Unknown state")
+      expect(undefined_icon).to include('icons-eye')
+      expect(undefined_icon).to include('Unknown state')
     end
   end
 
   describe '#get_frontend_url_for' do
     it 'generates a url' do
       url = get_frontend_url_for(controller: 'foo', host: 'bar.com', port: 80, protocol: 'http')
-      expect(url).to eq("http://bar.com:80/foo")
+      expect(url).to eq('http://bar.com:80/foo')
     end
   end
 
@@ -104,7 +104,7 @@ RSpec.describe Webui::WebuiHelper do
     end
 
     it 'returns link to a prefilled bugzilla enter bug form' do
-      expected_url = "https://bugzilla.example.org/enter_bug.cgi?" +
+      expected_url = 'https://bugzilla.example.org/enter_bug.cgi?' +
                      @expected_attributes.map { |key, value| "#{key}=#{value}" }.join('&')
       expect(bugzilla_url).to eq(expected_url)
     end
@@ -114,7 +114,7 @@ RSpec.describe Webui::WebuiHelper do
       expected_attributes[:short_desc] = 'some_description'
       expected_attributes[:assigned_to] = 'assignee@example.org'
 
-      expected_url = "https://bugzilla.example.org/enter_bug.cgi?" +
+      expected_url = 'https://bugzilla.example.org/enter_bug.cgi?' +
                      expected_attributes.map { |key, value| "#{key}=#{value}" }.join('&')
       expect(bugzilla_url(['assignee@example.org'], 'some_description')).to eq(expected_url)
     end
@@ -122,14 +122,14 @@ RSpec.describe Webui::WebuiHelper do
 
   describe '#format_projectname' do
     it "shortens project pathes by replacing home projects with '~'" do
-      expect(format_projectname("home:bob", "bob")).to eq("~")
-      expect(format_projectname("home:alice", "bob")).to eq("~alice")
-      expect(format_projectname("home:bob:foo", "bob")).to eq("~:foo")
-      expect(format_projectname("home:alice:foo", "bob")).to eq("~alice:foo")
+      expect(format_projectname('home:bob', 'bob')).to eq('~')
+      expect(format_projectname('home:alice', 'bob')).to eq('~alice')
+      expect(format_projectname('home:bob:foo', 'bob')).to eq('~:foo')
+      expect(format_projectname('home:alice:foo', 'bob')).to eq('~alice:foo')
     end
 
-    it "leaves projects that are no home projects untouched" do
-      expect(format_projectname("some:project:foo:bar", "bob")).to eq("some:project:foo:bar")
+    it 'leaves projects that are no home projects untouched' do
+      expect(format_projectname('some:project:foo:bar', 'bob')).to eq('some:project:foo:bar')
     end
   end
 
@@ -190,7 +190,7 @@ RSpec.describe Webui::WebuiHelper do
       end
 
       it 'ignores a possible fallback parameter' do
-        html_options = { class: 'list', fallback: "<p><i>fallback</i></p>" }
+        html_options = { class: 'list', fallback: '<p><i>fallback</i></p>' }
         expect(possibly_empty_ul(html_options, &@cont)).to eq('<ul class="list">some content</ul>')
       end
     end
@@ -202,7 +202,7 @@ RSpec.describe Webui::WebuiHelper do
 
       context 'and a fallback option is given' do
         before do
-          @html_options = { class: 'list', fallback: "<p><i>fallback</i></p>" }
+          @html_options = { class: 'list', fallback: '<p><i>fallback</i></p>' }
         end
 
         it { expect(possibly_empty_ul(@html_options, &@cont)).to eq('<p><i>fallback</i></p>') }
@@ -258,7 +258,7 @@ RSpec.describe Webui::WebuiHelper do
       it { expect(next_codemirror_uid).to eq(1) }
     end
 
-    context "if next_codemirror_uid has been called before" do
+    context 'if next_codemirror_uid has been called before' do
       before do
         next_codemirror_uid
       end
@@ -434,8 +434,8 @@ RSpec.describe Webui::WebuiHelper do
   end
 
   describe '#toggle_sliced_text' do
-    let(:short_text) { "short_text" }
-    let(:big_text) { "big_text_" * 100 }
+    let(:short_text) { 'short_text' }
+    let(:big_text) { 'big_text_' * 100 }
     let(:sliced_text) { big_text.slice(0, 50) }
 
     context 'with nil as text' do

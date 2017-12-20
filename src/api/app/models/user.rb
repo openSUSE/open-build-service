@@ -55,7 +55,7 @@ class User < ApplicationRecord
 
   has_many :rss_feed_items, -> { order(created_at: :desc) }, class_name: 'Notification::RssFeedItem', as: :subscriber, dependent: :destroy
 
-  scope :all_without_nobody, -> { where("login != ?", nobody_login) }
+  scope :all_without_nobody, -> { where('login != ?', nobody_login) }
 
   validates :login, :state, presence: { message: 'must be given' }
 
@@ -88,7 +88,7 @@ class User < ApplicationRecord
   after_create :create_home_project
   def create_home_project
     # avoid errors during seeding
-    return if login.in?(["_nobody_", "Admin"])
+    return if login.in?(['_nobody_', 'Admin'])
     # may be disabled via Configuration setting
     return unless can_create_project?(home_project_name)
     # find or create the project
@@ -128,7 +128,7 @@ class User < ApplicationRecord
   end
 
   def self.create_ldap_user(attributes = {})
-    user = create_user_with_fake_pw!(attributes.merge(state: default_user_state, adminnote: "User created via LDAP"))
+    user = create_user_with_fake_pw!(attributes.merge(state: default_user_state, adminnote: 'User created via LDAP'))
 
     return user if user.errors.empty?
 
@@ -183,7 +183,7 @@ class User < ApplicationRecord
       user.assign_attributes(email: ldap_info[0], realname: ldap_info[1])
       user.save if user.changed?
     else
-      logger.debug("No user found in database, creating")
+      logger.debug('No user found in database, creating')
       logger.debug("Email: #{ldap_info[0]}")
       logger.debug("Name : #{ldap_info[1]}")
 
@@ -220,10 +220,10 @@ class User < ApplicationRecord
   end
 
   def self.find_nobody!
-    User.create_with(email: "nobody@localhost",
-                     realname: "Anonymous User",
+    User.create_with(email: 'nobody@localhost',
+                     realname: 'Anonymous User',
                      state: 'locked',
-                     password: "123456").find_or_create_by(login: nobody_login)
+                     password: '123456').find_or_create_by(login: nobody_login)
   end
 
   def self.find_by_login!(login)
@@ -246,7 +246,7 @@ class User < ApplicationRecord
   def self.realname_for_login(login)
     User.find_by_login!(login).realname
   rescue NotFoundError
-    ""
+    ''
   end
 
   # Overriding this method to do some more validation:
@@ -325,11 +325,11 @@ class User < ApplicationRecord
     when 'unconfirmed'
       true
     when 'confirmed'
-      to.in?(["locked", "deleted"])
+      to.in?(['locked', 'deleted'])
     when 'locked'
-      to.in?(["confirmed", "deleted"])
+      to.in?(['confirmed', 'deleted'])
     when 'deleted'
-      to == "confirmed"
+      to == 'confirmed'
     else
       false
     end
@@ -425,7 +425,7 @@ class User < ApplicationRecord
 
     if project.new_record?
       # Project.check_write_access(!) should have been used?
-      raise NotFoundError, "Project is not stored yet"
+      raise NotFoundError, 'Project is not stored yet'
     end
 
     can_modify_project_internal(project, ignore_lock)
@@ -608,9 +608,9 @@ class User < ApplicationRecord
     save!
 
     # lock also all home projects to avoid unneccessary builds
-    Project.where("name like ?", "#{home_project_name}%").find_each do |prj|
+    Project.where('name like ?', "#{home_project_name}%").find_each do |prj|
       next if prj.is_locked?
-      prj.lock("User account got locked")
+      prj.lock('User account got locked')
     end
   end
 
@@ -619,8 +619,8 @@ class User < ApplicationRecord
     save!
 
     # wipe also all home projects
-    Project.where("name like ?", "#{home_project_name}%").find_each do |prj|
-      prj.commit_opts = { comment: "User account got deleted" }
+    Project.where('name like ?', "#{home_project_name}%").find_each do |prj|
+      prj.commit_opts = { comment: 'User account got deleted' }
       prj.destroy
     end
   end
@@ -866,12 +866,12 @@ class User < ApplicationRecord
   # Hashes the given parameter by the selected hashing method. It uses the
   # "password_salt" property's value to make the hashing more secure.
   def hash_string(value)
-    crypt2index = { "md5crypt"    => 1,
-                    "sha256crypt" => 5 }
-    if deprecated_password_hash_type == "md5"
+    crypt2index = { 'md5crypt'    => 1,
+                    'sha256crypt' => 5 }
+    if deprecated_password_hash_type == 'md5'
       Digest::MD5.hexdigest(value + deprecated_password_salt)
     elsif crypt2index.keys.include?(deprecated_password_hash_type)
-      value.crypt("$#{crypt2index[deprecated_password_hash_type]}$#{deprecated_password_salt}$").split("$")[3]
+      value.crypt("$#{crypt2index[deprecated_password_hash_type]}$#{deprecated_password_salt}$").split('$')[3]
     end
   end
 

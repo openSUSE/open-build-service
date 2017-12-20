@@ -27,7 +27,7 @@ class Owner
   end
 
   def self.search(params, obj)
-    params[:attribute] ||= "OBS:OwnerRootProject"
+    params[:attribute] ||= 'OBS:OwnerRootProject'
     at = AttribType.find_by_name!(params[:attribute])
 
     limit = params[:limit] || 1
@@ -56,9 +56,9 @@ class Owner
       filter = %w(maintainer bugowner)
       devel  = true
       if params[:filter]
-        filter = params[:filter].split(",")
+        filter = params[:filter].split(',')
       else
-        v = attrib.values.where(value: "BugownerOnly").exists? if attrib
+        v = attrib.values.where(value: 'BugownerOnly').exists? if attrib
         if attrib && v
           filter = %w(bugowner)
         end
@@ -66,7 +66,7 @@ class Owner
       if params[:devel]
         devel = false if %w(0 false).include? params[:devel]
       else
-        v = attrib.values.where(value: "DisableDevel").exists? if attrib
+        v = attrib.values.where(value: 'DisableDevel').exists? if attrib
         if attrib && v
           devel = false
         end
@@ -99,19 +99,19 @@ class Owner
     # binary search via all projects
     data = Xmlhash.parse(Backend::Api::Search.binary(projects.map(&:name), binary_name))
     # found binary package?
-    return [] if data["matches"].to_i.zero?
+    return [] if data['matches'].to_i.zero?
 
     already_checked = {}
     deepest_match = nil
     projects.each do |prj| # project link order
-      data.elements("binary").each do |b| # no order
-        next unless b["project"] == prj.name
+      data.elements('binary').each do |b| # no order
+        next unless b['project'] == prj.name
 
-        pkg = prj.packages.find_by_name(b["package"])
+        pkg = prj.packages.find_by_name(b['package'])
         next if pkg.nil?
 
         # the "" means any matching relationships will get taken
-        m, limit, already_checked = lookup_package_owner(rootproject, pkg, "", limit, devel, filter, deepest, already_checked)
+        m, limit, already_checked = lookup_package_owner(rootproject, pkg, '', limit, devel, filter, deepest, already_checked)
 
         unless m
           # collect all no matched entries
@@ -156,7 +156,7 @@ class Owner
                                where(["relationships.role_id IN (?) AND users.state = 'confirmed'",
                                       roles]).pluck(:name)
     # relationship in package object by group
-    defined_packages += Package.where(project_id: projects).joins(:relationships).where(["relationships.role_id IN (?) AND group_id IN (?)",
+    defined_packages += Package.where(project_id: projects).joins(:relationships).where(['relationships.role_id IN (?) AND group_id IN (?)',
                                                                                          roles, maintained_groups]).pluck(:name)
     # relationship in project object by user
     Project.joins(relationships: :user).where("projects.id in (?) AND role_id in (?) AND users.state = 'confirmed'",
@@ -165,12 +165,12 @@ class Owner
     end
     # relationship in project object by group
     Project.joins(:relationships).
-      where("projects.id in (?) AND role_id in (?) AND group_id IN (?)", projects, roles, maintained_groups).find_each do |prj|
+      where('projects.id in (?) AND role_id in (?) AND group_id IN (?)', projects, roles, maintained_groups).find_each do |prj|
         defined_packages += prj.packages.pluck(:name)
       end
     # accept all incident containers in release projects. the main package (link) is enough here
     defined_packages += Package.where(project_id: projects).
-        joins("LEFT JOIN projects ON packages.project_id=projects.id LEFT JOIN package_kinds ON packages.id=package_kinds.package_id").
+        joins('LEFT JOIN projects ON packages.project_id=projects.id LEFT JOIN package_kinds ON packages.id=package_kinds.package_id').
         distinct.where("projects.kind='maintenance_release' AND (ISNULL(package_kinds.kind) OR package_kinds.kind='patchinfo')").pluck(:name)
 
     if devel == true
@@ -221,7 +221,7 @@ class Owner
       # group in project object
       found_projects = found_projects.where(group_id: owner)
     else
-      raise "illegal object handed to find_containers"
+      raise 'illegal object handed to find_containers'
     end
     if devel == true
       # FIXME add devel packages, but how do recursive lookup fast in SQL?
@@ -329,18 +329,18 @@ class Owner
 
   def self._extract_from_container(m, r, sql, objfilter)
     usersql = groupsql = sql
-    usersql  = sql << " AND user_id = " << objfilter.id.to_s  if objfilter.class == User
-    groupsql = sql << " AND group_id = " << objfilter.id.to_s if objfilter.class == Group
+    usersql  = sql << ' AND user_id = ' << objfilter.id.to_s  if objfilter.class == User
+    groupsql = sql << ' AND group_id = ' << objfilter.id.to_s if objfilter.class == Group
 
     r.users.where(usersql).find_each do |p|
-      next unless p.user.state == "confirmed"
+      next unless p.user.state == 'confirmed'
       m.users ||= {}
       m.users[p.role.title] ||= []
       m.users[p.role.title] << p.user.login
     end unless objfilter.class == Group
 
     r.groups.where(groupsql).find_each do |p|
-      next if p.group.users.where(state: "confirmed").empty?
+      next if p.group.users.where(state: 'confirmed').empty?
       m.groups ||= {}
       m.groups[p.role.title] ||= []
       m.groups[p.role.title] << p.group.title
@@ -354,17 +354,17 @@ class Owner
     if rolefilter.present?
       rolefilter.each do |rf|
         if sql.nil?
-          sql = "( "
+          sql = '( '
         else
-          sql << " OR "
+          sql << ' OR '
         end
         role = Role.find_by_title!(rf)
-        sql << "role_id = " << role.id.to_s
+        sql << 'role_id = ' << role.id.to_s
       end
     else
       # match all roles
-      sql = "( 1 "
+      sql = '( 1 '
     end
-    sql << " )"
+    sql << ' )'
   end
 end

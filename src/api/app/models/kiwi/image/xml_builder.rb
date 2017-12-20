@@ -107,8 +107,8 @@ module Kiwi
       end
 
       def update_repositories(document)
-        repository_position = document.xpath("image/repository").first.try(:previous) || document.at_css('image').last_element_child
-        document.xpath("image/repository").remove
+        repository_position = document.xpath('image/repository').first.try(:previous) || document.at_css('image').last_element_child
+        document.xpath('image/repository').remove
         xml_repos = repositories_for_xml.map(&:to_xml).join("\n")
         repository_position.after(xml_repos)
         document

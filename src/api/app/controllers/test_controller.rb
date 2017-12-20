@@ -8,7 +8,7 @@ class TestController < ApplicationController
     if Rails.env.test? || Rails.env.development?
       true
     else
-      render_error message: "This is only accessible for testing environments", status: 403
+      render_error message: 'This is only accessible for testing environments', status: 403
       false
     end
   end

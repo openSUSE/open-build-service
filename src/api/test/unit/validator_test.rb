@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 
 require 'opensuse/validator'
 
@@ -7,7 +7,7 @@ class ValidatorTest < ActiveSupport::TestCase
     exception = assert_raise ArgumentError do
       Suse::Validator.validate 'notthere'
     end
-    assert_match("wrong number of arguments (given 1, expected 2)", exception.message)
+    assert_match('wrong number of arguments (given 1, expected 2)', exception.message)
 
     exception = assert_raise RuntimeError do
       # passing garbage
@@ -19,7 +19,7 @@ class ValidatorTest < ActiveSupport::TestCase
       # no action, no schema
       Suse::Validator.validate controller: :project
     end
-    assert_match("wrong number of arguments (given 1, expected 2)", exception.message)
+    assert_match('wrong number of arguments (given 1, expected 2)', exception.message)
 
     request = ActionController::TestRequest.create({})
     exception = assert_raise Suse::ValidationError do
@@ -86,25 +86,25 @@ class ValidatorTest < ActiveSupport::TestCase
         </service>
       </services>
     EOS
-    assert_xml_tag xml, tag: "service", attributes: { name: "download_url", not_present_tag: nil }
-    assert_xml_tag xml, before: { attributes: { name: "set_version" } }, attributes: { name: "download_files" }
-    assert_xml_tag xml, after: { attributes: { name: "download_url" } }, attributes: { name: "download_files" }
-    assert_xml_tag xml, sibling: { attributes: { name: "download_url" } }, attributes: { name: "set_version" }
-    assert_xml_tag xml, ancestor: { tag: "services" }, content: "0815"
-    assert_xml_tag xml, descendant: { content: "0815" }
-    assert_no_xml_tag xml, descendant: { content: "0815" }, tag: "param", attributes: { name: "host" }
-    assert_xml_tag xml, tag: "services", children: { count: 3, only: { tag: "service" } }
-    assert_xml_tag xml, tag: "service", attributes: { name: "download_files" }
-    assert_xml_tag xml, parent: { tag: "service", attributes: { name: "download_url" } },
-                        tag: "param", attributes: { name: "host" },
-                        content: "blahfasel"
-    assert_xml_tag xml, parent: { tag: "service", attributes: { name: "set_version" } },
-                        tag: "param", attributes: { name: "version" },
-                        content: "0815"
-    assert_no_xml_tag xml, parent: { tag: "service", attributes: { name: "set_version" } },
-                           tag: "param", attributes: { name: "version" },
-                           content: "0816"
-    assert_xml_tag xml, child: { tag: "param" }, attributes: { name: "download_url" }
+    assert_xml_tag xml, tag: 'service', attributes: { name: 'download_url', not_present_tag: nil }
+    assert_xml_tag xml, before: { attributes: { name: 'set_version' } }, attributes: { name: 'download_files' }
+    assert_xml_tag xml, after: { attributes: { name: 'download_url' } }, attributes: { name: 'download_files' }
+    assert_xml_tag xml, sibling: { attributes: { name: 'download_url' } }, attributes: { name: 'set_version' }
+    assert_xml_tag xml, ancestor: { tag: 'services' }, content: '0815'
+    assert_xml_tag xml, descendant: { content: '0815' }
+    assert_no_xml_tag xml, descendant: { content: '0815' }, tag: 'param', attributes: { name: 'host' }
+    assert_xml_tag xml, tag: 'services', children: { count: 3, only: { tag: 'service' } }
+    assert_xml_tag xml, tag: 'service', attributes: { name: 'download_files' }
+    assert_xml_tag xml, parent: { tag: 'service', attributes: { name: 'download_url' } },
+                        tag: 'param', attributes: { name: 'host' },
+                        content: 'blahfasel'
+    assert_xml_tag xml, parent: { tag: 'service', attributes: { name: 'set_version' } },
+                        tag: 'param', attributes: { name: 'version' },
+                        content: '0815'
+    assert_no_xml_tag xml, parent: { tag: 'service', attributes: { name: 'set_version' } },
+                           tag: 'param', attributes: { name: 'version' },
+                           content: '0816'
+    assert_xml_tag xml, child: { tag: 'param' }, attributes: { name: 'download_url' }
 
     xml = <<-EOS
       <project name="home:Iggy:branches:BaseDistro">
@@ -125,6 +125,6 @@ class ValidatorTest < ActiveSupport::TestCase
         </watchlist>
       </person>
     EOS
-    assert_no_xml_tag xml, { tag: "person", child: { tag: "globalrole", content: "Admin" } }
+    assert_no_xml_tag xml, { tag: 'person', child: { tag: 'globalrole', content: 'Admin' } }
   end
 end

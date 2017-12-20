@@ -75,7 +75,7 @@ class HistoryElement::RequestSuperseded < HistoryElement::Request
 
   def description
     desc = 'Request got superseded'
-    desc << " by request " << description_extension if description_extension
+    desc << ' by request ' << description_extension if description_extension
     desc
   end
 

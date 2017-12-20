@@ -106,7 +106,7 @@ class Webui::SearchController < Webui::WebuiController
     @search_tracker = nil
     @search_tracker = params[:issue_tracker] if params[:issue_tracker].present?
 
-    @search_text = ""
+    @search_text = ''
     @search_text = params[:search_text].strip if params[:search_text].present?
     @search_text = @search_text.delete("'[]\n")
 

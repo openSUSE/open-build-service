@@ -2,8 +2,8 @@ class AddModifyTimeToBinaryRelease < ActiveRecord::Migration[4.2]
   def self.up
     add_column :binary_releases, :modify_time, :datetime
 
-    BinaryRelease.where(operation: "modified").each do |br|
-      added = BinaryRelease.where(operation: "added",
+    BinaryRelease.where(operation: 'modified').each do |br|
+      added = BinaryRelease.where(operation: 'added',
                                   repository_id: br.repository_id,
                                   binary_name: br.binary_name,
                                   binary_version: br.binary_version,
@@ -23,7 +23,7 @@ class AddModifyTimeToBinaryRelease < ActiveRecord::Migration[4.2]
 
   def self.down
     BinaryRelease.not.where(modify_time: nil).each do |br|
-      added = BinaryRelease.where(operation: "added",
+      added = BinaryRelease.where(operation: 'added',
                                   repository_id: br.repository_id,
                                   binary_name: br.binary_name,
                                   binary_version: br.binary_version,

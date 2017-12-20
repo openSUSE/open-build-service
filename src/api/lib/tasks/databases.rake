@@ -28,12 +28,12 @@ end
 
 namespace :db do
   namespace :structure do
-    desc "Dump the database structure to a SQL file"
+    desc 'Dump the database structure to a SQL file'
     task dump: :environment do
       structure = ''
       abcs = ActiveRecord::Base.configurations
-      case abcs[Rails.env]["adapter"]
-      when "mysql2"
+      case abcs[Rails.env]['adapter']
+      when 'mysql2'
         ActiveRecord::Base.establish_connection(abcs[Rails.env])
         con = ActiveRecord::Base.connection
 
@@ -81,24 +81,24 @@ namespace :db do
           new_structure += line
         end
       end
-      File.open("#{Rails.root}/db/structure.sql", "w+") { |f| f << new_structure }
+      File.open("#{Rails.root}/db/structure.sql", 'w+') { |f| f << new_structure }
     end
 
-    desc "Verify that structure.sql in git is up to date"
+    desc 'Verify that structure.sql in git is up to date'
     task verify: :environment do
-      puts "Running rails db:migrate"
-      Rake::Task["db:migrate"].invoke
-      puts "Diffing the db/structure.sql"
+      puts 'Running rails db:migrate'
+      Rake::Task['db:migrate'].invoke
+      puts 'Diffing the db/structure.sql'
       sh %{git diff --quiet db/structure.sql} do |ok, _|
         unless ok
-          abort "Generated structure.sql differs from structure.sql stored in git. " +
-                "Please run rake db:migrate and check the differences."
+          abort 'Generated structure.sql differs from structure.sql stored in git. ' +
+                'Please run rake db:migrate and check the differences.'
         end
       end
-      puts "Everything looks fine!"
+      puts 'Everything looks fine!'
     end
 
-    desc "Verify that structure.sql does not use any columns with type = bigint"
+    desc 'Verify that structure.sql does not use any columns with type = bigint'
     task verify_no_bigint: :environment do
       puts 'Checking db/structure.sql for bigint'
 
@@ -117,8 +117,8 @@ namespace :db do
 
   desc 'Create the database, load the structure, and initialize with the seed data'
   redefine_task setup: :environment do
-    Rake::Task["db:structure:load"].invoke
-    Rake::Task["db:seed"].invoke
+    Rake::Task['db:structure:load'].invoke
+    Rake::Task['db:seed'].invoke
   end
 
   desc 'Migrate the database (options: VERSION=x, VERBOSE=false, SCOPE=blog)'

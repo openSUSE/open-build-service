@@ -22,16 +22,16 @@ class BsRequestActionSetBugowner < BsRequestAction
     super
     return unless person_name.blank? && group_name.blank?
 
-    errors.add(:person_name, "Either person or group needs to be set")
+    errors.add(:person_name, 'Either person or group needs to be set')
   end
 
   def execute_accept(_opts)
     object = Project.find_by_name!(target_project)
-    bugowner = Role.find_by_title!("bugowner")
+    bugowner = Role.find_by_title!('bugowner')
     if target_package
       object = object.packages.find_by_name!(target_package)
     end
-    object.relationships.where("role_id = ?", bugowner).find_each(&:destroy)
+    object.relationships.where('role_id = ?', bugowner).find_each(&:destroy)
     object.add_user(person_name, bugowner, true) if person_name # runs with ignoreLock
     object.add_group(group_name, bugowner, true) if group_name  # runs with ignoreLock
     object.store(comment: "set_bugowner request #{bs_request.number}", request: bs_request)

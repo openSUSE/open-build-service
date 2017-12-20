@@ -1,8 +1,8 @@
 FactoryBot.define do
   factory :download_repository do
-    arch "x86_64"
-    url "http://suse.com"
-    repotype "rpmmd"
+    arch 'x86_64'
+    url 'http://suse.com'
+    repotype 'rpmmd'
     repository { create(:repository, architectures: [arch]) }
 
     before(:create) do |download_repository|

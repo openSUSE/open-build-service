@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test/test_helper'
 require 'source_controller'
 
 #
@@ -8,9 +8,9 @@ require 'source_controller'
 def resubmit_all_fixtures
   # this just reads and writes again the meta data. 1st run the fixtures and on 2nd all left
   # overs from other other tests
-  prepare_request_with_user "king", "sunflower"
+  prepare_request_with_user 'king', 'sunflower'
   # projects
-  get "/source"
+  get '/source'
   assert_response :success
   node = ActiveXML::Node.new(@response.body)
   node.each(:entry) do |e|

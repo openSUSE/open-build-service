@@ -4,7 +4,7 @@ class IssueTracker < ApplicationRecord
   has_many :issues, dependent: :destroy
 
   class NotFoundError < APIException
-    setup 'issue_tracker_not_found', 404, "Issue Tracker not found"
+    setup 'issue_tracker_not_found', 404, 'Issue Tracker not found'
   end
   class InvalidIssueName < APIException; end
 
@@ -34,7 +34,7 @@ class IssueTracker < ApplicationRecord
   end
 
   def cve?
-    kind == "cve"
+    kind == 'cve'
   end
 
   def valid_issue_name?(name)
@@ -81,7 +81,7 @@ class IssueTracker < ApplicationRecord
       end
       return false
     end
-    ids = result["bugs"].map { |x| x["id"].to_i }
+    ids = result['bugs'].map { |x| x['id'].to_i }
 
     return unless private_fetch_issues(ids)
 
@@ -121,14 +121,14 @@ class IssueTracker < ApplicationRecord
 
     # fixed URL of all entries
     # cveurl = "http://cve.mitre.org/data/downloads/allitems.xml.gz"
-    http = Net::HTTP.start("cve.mitre.org")
-    header = http.head("/data/downloads/allitems.xml.gz")
-    mtime = Time.parse(header["Last-Modified"])
+    http = Net::HTTP.start('cve.mitre.org')
+    header = http.head('/data/downloads/allitems.xml.gz')
+    mtime = Time.parse(header['Last-Modified'])
 
     return unless mtime.nil? || self.issues_updated.nil? || (self.issues_updated < mtime)
 
     # new file exists
-    h = http.get("/data/downloads/allitems.xml.gz")
+    h = http.get('/data/downloads/allitems.xml.gz')
     unzipedio = StringIO.new(h.body) # Net::HTTP is decompressing already
     listener = CVEparser.new
     listener.set_tracker(self)
@@ -146,9 +146,9 @@ class IssueTracker < ApplicationRecord
     # guarantee a complete search)
     @update_time_stamp = Time.at(Time.now.to_f - 5)
 
-    return update_issues_bugzilla if kind == "bugzilla"
-    return update_issues_github if kind == "github"
-    return update_issues_cve if kind == "cve"
+    return update_issues_bugzilla if kind == 'bugzilla'
+    return update_issues_github if kind == 'github'
+    return update_issues_cve if kind == 'cve'
     false
   end
 
@@ -203,38 +203,38 @@ class IssueTracker < ApplicationRecord
         logger.error "Unable to fetch issue #{e.inspect}"
         return false
       end
-      result["bugs"].each { |r| parse_single_bugzilla_issue(r) }
+      result['bugs'].each { |r| parse_single_bugzilla_issue(r) }
       ids = ids[limit_per_slice..-1]
     end
     true
   end
 
   def parse_single_bugzilla_issue(bugzilla_response)
-    issue = Issue.find_by_name_and_tracker(bugzilla_response["id"].to_s, name)
+    issue = Issue.find_by_name_and_tracker(bugzilla_response['id'].to_s, name)
     return unless issue
 
-    if bugzilla_response["is_open"]
+    if bugzilla_response['is_open']
       # bugzilla sees it as open
-      issue.state = "OPEN"
-    elsif bugzilla_response["is_open"] == false
+      issue.state = 'OPEN'
+    elsif bugzilla_response['is_open'] == false
       # bugzilla sees it as closed
-      issue.state = "CLOSED"
+      issue.state = 'CLOSED'
     else
       # bugzilla does not tell a state
-      issue.state = Issue.bugzilla_state(bugzilla_response["status"])
+      issue.state = Issue.bugzilla_state(bugzilla_response['status'])
     end
 
-    user = User.find_by_email(bugzilla_response["assigned_to"].to_s)
+    user = User.find_by_email(bugzilla_response['assigned_to'].to_s)
     if user
       issue.owner_id = user.id
     else
       logger.info "Bugzilla user #{bugzilla_response['assigned_to']} is not found in OBS user database"
     end
 
-    if bugzilla_response["creation_time"].present?
+    if bugzilla_response['creation_time'].present?
       # rubocop:disable Rails/Date
       # rubocop bug, this is XMLRPC/DateTime not Rails/Date
-      issue.created_at = bugzilla_response["creation_time"].to_time
+      issue.created_at = bugzilla_response['creation_time'].to_time
     # rubocop:enable Rails/Date
     else
       issue.created_at = Time.now
@@ -242,10 +242,10 @@ class IssueTracker < ApplicationRecord
 
     # this is our update_at, not the one bugzilla logged in last_change_time
     issue.updated_at = @update_time_stamp
-    if bugzilla_response["is_private"]
+    if bugzilla_response['is_private']
       issue.summary = nil
     else
-      issue.summary = bugzilla_response["summary"]
+      issue.summary = bugzilla_response['summary']
     end
     issue.save
   end
@@ -260,23 +260,23 @@ class IssueTracker < ApplicationRecord
     issue = nil
     begin
       if create
-        issue = Issue.find_or_create_by_name_and_tracker(js["number"].to_s, name)
+        issue = Issue.find_or_create_by_name_and_tracker(js['number'].to_s, name)
       else
-        issue = Issue.find_by_name_and_tracker(js["number"].to_s, name)
+        issue = Issue.find_by_name_and_tracker(js['number'].to_s, name)
         return if issue.nil?
       end
     rescue TypeError
       logger.debug "[IssueTracker#parse_github_issue] cannot parse json response:\n#{js}"
       raise
     end
-    if js["state"] == "open"
-      issue.state = "OPEN"
+    if js['state'] == 'open'
+      issue.state = 'OPEN'
     else
-      issue.state = "CLOSED"
+      issue.state = 'CLOSED'
     end
 
     issue.updated_at = @update_time_stamp
-    issue.summary = js["title"]
+    issue.summary = js['title']
     issue.save
   end
 
@@ -286,11 +286,11 @@ class IssueTracker < ApplicationRecord
       return false
     end
 
-    return fetch_bugzilla_issues(ids) if kind == "bugzilla"
-    return fetch_github_issues(ids) if kind == "github"
+    return fetch_bugzilla_issues(ids) if kind == 'bugzilla'
+    return fetch_github_issues(ids) if kind == 'github'
 
     # Try with 'IssueTracker.find_by_name('fate').details('123')' on script/console
-    return fetch_fate_issues if kind == "fate"
+    return fetch_fate_issues if kind == 'fate'
 
     # everything succeeded
     true
@@ -346,7 +346,7 @@ end
 class CVEparser < Nokogiri::XML::SAX::Document
   @@my_tracker = nil
   @@my_issue = nil
-  @@my_summary = ""
+  @@my_summary = ''
   @@is_desc = false
 
   def set_tracker(tracker)
@@ -354,19 +354,19 @@ class CVEparser < Nokogiri::XML::SAX::Document
   end
 
   def start_element(name, attrs = [])
-    if name == "item"
+    if name == 'item'
       cve = nil
       attrs.each_index do |i|
-        if attrs[i][0] == "name"
+        if attrs[i][0] == 'name'
           cve = attrs[i][1]
         end
       end
 
       @@my_issue = Issue.find_or_create_by_name_and_tracker(cve.gsub(/^CVE-/, ''), @@my_tracker.name)
-      @@my_summary = ""
+      @@my_summary = ''
       @@is_desc = false
     end
-    if @@my_issue && name == "desc"
+    if @@my_issue && name == 'desc'
       @@is_desc = true
     else
       @@is_desc = false
@@ -379,7 +379,7 @@ class CVEparser < Nokogiri::XML::SAX::Document
   end
 
   def end_element(name)
-    return unless name == "item"
+    return unless name == 'item'
     if @@my_summary.present?
       @@my_issue.summary = @@my_summary[0..254]
       @@my_issue.save

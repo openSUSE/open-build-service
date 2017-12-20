@@ -1,4 +1,4 @@
-require "rails_helper"
+require 'rails_helper'
 
 RSpec.describe CommentPolicy do
   let(:anonymous_user) { create(:user_nobody) }

@@ -206,7 +206,7 @@ class Project
     def update_path_elements(current_repo, xml_hash)
       # destroy all current pathelements
       current_repo.path_elements.destroy_all
-      return unless xml_hash["path"]
+      return unless xml_hash['path']
 
       # recreate pathelements from xml
       position = 1
@@ -302,18 +302,18 @@ class Project
     def update_download_repositories(current_repo, xml_hash)
       current_repo.download_repositories.delete_all
 
-      dod_repositories = xml_hash.elements("download").map do |dod|
+      dod_repositories = xml_hash.elements('download').map do |dod|
         dod_attributes = {
           repository: current_repo,
-          arch:       dod["arch"],
-          url:        dod["url"],
-          repotype:   dod["repotype"],
-          archfilter: dod["archfilter"],
-          pubkey:     dod["pubkey"]
+          arch:       dod['arch'],
+          url:        dod['url'],
+          repotype:   dod['repotype'],
+          archfilter: dod['archfilter'],
+          pubkey:     dod['pubkey']
         }
-        if dod["master"]
-          dod_attributes[:masterurl]            = dod["master"]["url"]
-          dod_attributes[:mastersslfingerprint] = dod["master"]["sslfingerprint"]
+        if dod['master']
+          dod_attributes[:masterurl]            = dod['master']['url']
+          dod_attributes[:mastersslfingerprint] = dod['master']['sslfingerprint']
         end
 
         repository = DownloadRepository.new(dod_attributes)

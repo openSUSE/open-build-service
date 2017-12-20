@@ -3,7 +3,7 @@ xml.rss version: '2.0' do
     xml.title "#{@user.realname} (#{@user.login}) notifications"
     xml.description "Event notifications from #{@configuration['title']}"
     xml.link url_for only_path: false, controller: 'main', action: 'index'
-    xml.language "en"
+    xml.language 'en'
     xml.pubDate Time.now
     xml.generator @configuration['title']
 

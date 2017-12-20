@@ -166,7 +166,7 @@ class Package < ApplicationRecord
 
   def self.striping_multibuild_suffix(name)
     # exception for package names used to have a collon
-    return name if name.start_with?("_patchinfo:", "_product:")
+    return name if name.start_with?('_patchinfo:', '_product:')
 
     name.gsub(/:.*$/, '')
   end
@@ -382,7 +382,7 @@ class Package < ApplicationRecord
 
   def master_product_object
     # test _product permissions if any other _product: subcontainer is used and _product exists
-    product_object = project.packages.find_by(name: "_product") if name =~ /\A_product:\w[-+\w\.]*\z/
+    product_object = project.packages.find_by(name: '_product') if name =~ /\A_product:\w[-+\w\.]*\z/
     product_object || self
   end
 
@@ -432,7 +432,7 @@ class Package < ApplicationRecord
     data.elements.each('collection/package') do |e|
       p = Package.find_by_project_and_name(e.attributes['project'], e.attributes['name'])
       if p.nil?
-        logger.error "read permission or data inconsistency, backend delivered package as linked package " +
+        logger.error 'read permission or data inconsistency, backend delivered package as linked package ' +
                      "where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
       else
         result << p
@@ -465,7 +465,7 @@ class Package < ApplicationRecord
     f = flags.find_by_flag_and_status('lock', 'enable')
     return unless f
     flags.delete(f)
-    store(comment: "Request got revoked", request: request, lowprio: 1)
+    store(comment: 'Request got revoked', request: request, lowprio: 1)
   end
 
   def sources_changed(opts = {})
@@ -914,7 +914,7 @@ class Package < ApplicationRecord
   def self.extended_name(project, package)
     # the package name which will be used on a branch with extended or maintenance option
     directory_hash = Directory.hashed(project: project, package: package)
-    linkinfo = directory_hash["linkinfo"] || {}
+    linkinfo = directory_hash['linkinfo'] || {}
 
     "#{linkinfo['package'] || package}.#{linkinfo['project'] || project}".tr(':', '_')
   end
@@ -1015,9 +1015,9 @@ class Package < ApplicationRecord
   end
 
   def is_local_link?
-    linkinfo = dir_hash["linkinfo"]
+    linkinfo = dir_hash['linkinfo']
 
-    linkinfo && (linkinfo["project"] == project.name)
+    linkinfo && (linkinfo['project'] == project.name)
   end
 
   def modify_channel(mode = :add_disabled)
@@ -1058,7 +1058,7 @@ class Package < ApplicationRecord
 
     # and all possible existing local links
     if opkg.project.is_maintenance_release? && opkg.is_link?
-      opkg = opkg.project.packages.find_by_name opkg.linkinfo["package"]
+      opkg = opkg.project.packages.find_by_name opkg.linkinfo['package']
     end
 
     opkg.find_project_local_linking_packages.each do |p|
@@ -1094,7 +1094,7 @@ class Package < ApplicationRecord
     return false unless name.kind_of? String
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200
-    return false if name == "0"
+    return false if name == '0'
     return true if %w(_product _pattern _project _patchinfo).include?(name)
     # _patchinfo: is obsolete, just for backward compatibility
     allowed_characters = /[-+\w\.#{ allow_multibuild ? ':' : '' }]/
@@ -1107,8 +1107,8 @@ class Package < ApplicationRecord
   end
 
   def branch_from(origin_project, origin_package, rev = nil, missingok = nil, comment = nil, olinkrev = nil)
-    myparam = { cmd:       "branch",
-                noservice: "1",
+    myparam = { cmd:       'branch',
+                noservice: '1',
                 oproject:  origin_project,
                 opackage:  origin_package,
                 user:      User.current.login }
@@ -1343,7 +1343,7 @@ class Package < ApplicationRecord
     end
 
     # validate all files inside of _pattern container
-    if pkg && pkg.name == "_pattern"
+    if pkg && pkg.name == '_pattern'
       Suse::Validator.validate('pattern', content)
     end
 
@@ -1462,11 +1462,11 @@ class Package < ApplicationRecord
   end
 
   def file_exists?(filename)
-    dir_hash.has_key?("entry") && [dir_hash["entry"]].flatten.any? { |item| item["name"] == filename }
+    dir_hash.has_key?('entry') && [dir_hash['entry']].flatten.any? { |item| item['name'] == filename }
   end
 
   def has_icon?
-    file_exists?("_icon")
+    file_exists?('_icon')
   end
 
   def self.what_depends_on(project, package, repository, architecture)

@@ -5,7 +5,7 @@ class StatusHistoryRescalerJob < ApplicationJob
   def perform
     maxtime = StatusHistory.maximum(:time)
     if maxtime
-      StatusHistory.where("time < ?", maxtime - 365 * 24 * 3600).delete_all
+      StatusHistory.where('time < ?', maxtime - 365 * 24 * 3600).delete_all
     end
 
     keys = StatusHistory.pluck('DISTINCT `key`')

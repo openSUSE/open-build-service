@@ -46,12 +46,12 @@ RSpec.describe User do
   describe "methods used in the User's dashboard" do
     let(:project) { create(:project, name: 'project_a') }
 
-    it "will have involved packages" do
+    it 'will have involved packages' do
       create(:relationship_package_user, package: project_with_package.packages.first, user: user)
       expect(user.involved_packages).to include(project_with_package.packages.first)
     end
 
-    it "will have involved projects" do
+    it 'will have involved projects' do
       create(:relationship_project_user, project: project, user: user)
       create(:relationship_project_user, project: project_with_package, user: user)
       involved_projects = user.involved_projects
@@ -60,7 +60,7 @@ RSpec.describe User do
       expect(involved_projects).to include(project_with_package)
     end
 
-    it "will have owned projects and packages" do
+    it 'will have owned projects and packages' do
       create(:attrib, attrib_type: AttribType.find_by(name: 'OwnerRootProject'), project: project_with_package)
       create(:relationship_package_user, package: project_with_package.packages.first, user: user)
       create(:relationship_project_user, project: project_with_package, user: user)

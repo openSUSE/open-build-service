@@ -12,7 +12,7 @@ class Dog < ApplicationRecord
   POSSIBLE_COLORS = %w(white black brown vanilla chocolate dotted).freeze
 
   #### Self config
-  self.table_name = "OBS_dogs"
+  self.table_name = 'OBS_dogs'
 
   #### Attributes
   attr_accessor :number_of_barks
@@ -53,12 +53,12 @@ class Dog < ApplicationRecord
   end
 
   def self.killall_by(attributes = {})
-    say("Die!")
+    say('Die!')
     where(attributes).each(&:kill)
   end
 
   def self.call_all
-    say("Fiuuiuuuu!")
+    say('Fiuuiuuuu!')
     all.each(&:bark)
   end
 

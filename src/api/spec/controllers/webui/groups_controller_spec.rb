@@ -79,7 +79,7 @@ RSpec.describe Webui::GroupsController do
       it 'does not allow to see the edit form used for updating a group' do
         get :edit, params: { title: group.title }
 
-        expect(flash[:error]).to eq("Sorry, you are not authorized to update this Group.")
+        expect(flash[:error]).to eq('Sorry, you are not authorized to update this Group.')
       end
     end
 
@@ -111,7 +111,7 @@ RSpec.describe Webui::GroupsController do
       it 'does not allow to create a group' do
         post :create, params: { group: { title: group.title, members: users_to_add.map(&:login).join(',') } }
 
-        expect(flash[:error]).to eq("Sorry, you are not authorized to create this Class.")
+        expect(flash[:error]).to eq('Sorry, you are not authorized to create this Class.')
       end
     end
 
@@ -126,7 +126,7 @@ RSpec.describe Webui::GroupsController do
 
           expect(response).to redirect_to(groups_path)
           expect(flash[:success]).to eq("Group 'my_group' successfully updated.")
-          expect(Group.where(title: "my_group")).to exist
+          expect(Group.where(title: 'my_group')).to exist
         end
       end
 
@@ -135,7 +135,7 @@ RSpec.describe Webui::GroupsController do
           post :create, params: { group: { title: 'my group', members: users_to_add.map(&:login).join(',') } }
 
           expect(flash[:error]).to eq("Group can't be saved: Title must not contain invalid characters")
-          expect(Group.where(title: "my group")).not_to exist
+          expect(Group.where(title: 'my group')).not_to exist
         end
       end
     end

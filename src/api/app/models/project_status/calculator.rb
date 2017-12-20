@@ -49,7 +49,7 @@ module ProjectStatus
             next unless pkg
 
             pkg.set_versrel(p['versrel'], p['readytime'])
-            pkg.failure(repo, arch, p['readytime'], p['verifymd5']) if p['code'] == "failed"
+            pkg.failure(repo, arch, p['readytime'], p['verifymd5']) if p['code'] == 'failed'
           end
         end
       end
