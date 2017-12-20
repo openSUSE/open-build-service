@@ -412,10 +412,7 @@ class BsRequest < ApplicationRecord
   def obsolete_reviews(opts)
     return false unless opts[:by_user] || opts[:by_group] || opts[:by_project] || opts[:by_package]
     reviews.each do |review|
-      if review.by_user && review.by_user == opts[:by_user] ||
-         review.by_group && review.by_group == opts[:by_group] ||
-         review.by_project && review.by_project == opts[:by_project] ||
-         review.by_package && review.by_package == opts[:by_package]
+      if review.reviewable_by?(opts)
         logger.debug "Obsoleting review #{review.id}"
         review.state = :obsoleted
         review.save

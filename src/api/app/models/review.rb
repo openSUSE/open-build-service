@@ -224,6 +224,13 @@ class Review < ApplicationRecord
     Event::ReviewWanted.create params
   end
 
+  def reviewable_by?(opts)
+    by_user && by_user == opts[:by_user] ||
+      by_group && by_group == opts[:by_group] ||
+      by_project && by_project == opts[:by_project] ||
+      by_package && by_package == opts[:by_package]
+  end
+
   private
 
   # The authoritative storage are the by_ attributes as even when a record (project, package ...) got deleted

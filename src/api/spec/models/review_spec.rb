@@ -401,4 +401,30 @@ RSpec.describe Review do
       end
     end
   end
+
+  describe '#reviewable_by?' do
+    let(:other_user)    { create(:user, login: 'bob') }
+    let(:other_group)   { create(:group, title: 'my_group') }
+    let(:other_project) { create(:project_with_package, name: 'doc:things', package_name: 'less') }
+    let(:other_package) { other_project.packages.first }
+
+    let(:review_by_user)    { create(:review, by_user:    user.login) }
+    let(:review_by_group)   { create(:review, by_group:   group.title) }
+    let(:review_by_project) { create(:review, by_project: project.name) }
+    let(:review_by_package) { create(:review, by_project: project.name, by_package: package.name) }
+
+    it 'returns true if review configuration matches provided hash' do
+      expect(review_by_user.reviewable_by?({    by_user:    user.login   })).to be true
+      expect(review_by_group.reviewable_by?({   by_group:   group.title  })).to be true
+      expect(review_by_project.reviewable_by?({ by_project: project.name })).to be true
+      expect(review_by_package.reviewable_by?({ by_package: package.name })).to be true
+    end
+
+    it 'returns false if review configuration does not match provided hash' do
+      expect(review_by_user.reviewable_by?({    by_user:    other_user.login   })).to be_falsy
+      expect(review_by_group.reviewable_by?({   by_group:   other_group.title  })).to be_falsy
+      expect(review_by_project.reviewable_by?({ by_project: other_project.name })).to be_falsy
+      expect(review_by_package.reviewable_by?({ by_package: other_package.name })).to be_falsy
+    end
+  end
 end
