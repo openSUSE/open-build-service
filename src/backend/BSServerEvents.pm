@@ -137,7 +137,7 @@ sub reply_error  {
 
 sub reply_stream {
   my ($rev, @hdrs) = @_;
-  push @hdrs, 'Transfer-Encoding: chunked';
+  push @hdrs, 'Transfer-Encoding: chunked' if $rev->{'makechunks'};
   unshift @hdrs, 'Content-Type: application/octet-stream' unless grep {/^content-type:/i} @hdrs;
   reply(undef, @hdrs);
   my $ev = $gev;
@@ -155,6 +155,11 @@ sub reply_stream {
 
 sub reply_file {
   my ($filename, @hdrs) = @_;
+  my $param = {'chunked' => 1};
+  if (ref($filename) eq 'HASH' && exists($filename->{'filename'})) {
+    $param = $filename;
+    $filename = $filename->{'filename'};
+  }
   my $fd = $filename;
   if (!ref($fd)) {
     $fd = gensym;
@@ -162,8 +167,20 @@ sub reply_file {
   }
   my $rev = BSEvents::new('always');
   $rev->{'fd'} = $fd;
-  $rev->{'makechunks'} = 1;
+  $rev->{'makechunks'} = 1 if $param->{'chunked'};
+  $rev->{'filegrows'} = 1 if $param->{'filegrows'};
+  $rev->{'maxbytes'} = $param->{'maxbytes'} if defined $param->{'maxbytes'};
   reply_stream($rev, @hdrs);
+  return $rev;
+}
+
+sub reply_file_grown {
+  my ($eof) = @_;
+  my $ev = $gev;
+  my $rev = $ev->{'readev'};
+  return unless $rev && $rev->{'type'} eq 'always';
+  delete $rev->{'filegrows'} if $eof;
+  BSEvents::add($rev) unless $rev->{'paused'};
 }
 
 sub cpio_nextfile {
@@ -475,12 +492,13 @@ sub stream_read_handler {
   $wev->{'replbuf'} = '' unless exists $wev->{'replbuf'};
   my $r;
   if ($ev->{'fd'}) {
+    my $bite = defined($ev->{'maxbytes'}) && $ev->{'maxbytes'} < 4096 ? $ev->{'maxbytes'} : 4096;
     if ($ev->{'makechunks'}) {
       my $b = '';
-      $r = sysread($ev->{'fd'}, $b, 4096);
+      $r = sysread($ev->{'fd'}, $b, $bite);
       $wev->{'replbuf'} .= sprintf("%X\r\n", length($b)).$b."\r\n" if $r;
     } else {
-      $r = sysread($ev->{'fd'}, $wev->{'replbuf'}, 4096, length($wev->{'replbuf'}));
+      $r = sysread($ev->{'fd'}, $wev->{'replbuf'}, $bite, length($wev->{'replbuf'}));
     }
     if (!defined($r)) {
       if ($! == POSIX::EINTR || $! == POSIX::EWOULDBLOCK) {
@@ -489,10 +507,17 @@ sub stream_read_handler {
       }
       print "stream_read_handler: $!\n";
       # can't do much here, fallthrough in EOF code
+    } elsif (defined($ev->{'maxbytes'})) {
+      $ev->{'maxbytes'} -= $r;
+      $r = 0 if $ev->{'maxbytes'} <= 0;
     }
   }
   if (!$r) {
 #    print "stream_read_handler: EOF\n";
+    # filegrows case: just return. we need to continue with some other trigger
+    if (defined($r) && $ev->{'filegrows'} && $ev->{'type'} eq 'always' && (!defined($ev->{'maxbytes'}) || $ev->{'maxbytes'} > 0)) {
+      return;
+    }
     if ($ev->{'eofhandler'}) {
       close $ev->{'fd'} if $ev->{'fd'};
       delete $ev->{'fd'};
