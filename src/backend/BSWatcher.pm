@@ -124,9 +124,11 @@ my %filewatchers_periodic;
 my $filewatchers_ev;
 my $filewatchers_ev_active;
 
+our $filewatchers_interval = 1;
+
 sub filewatcher_handler {
   # print "filewatcher_handler\n";
-  BSEvents::add($filewatchers_ev, 1);
+  BSEvents::add($filewatchers_ev, $filewatchers_interval);
   for my $file (sort keys %filewatchers) {
     next unless $filewatchers{$file};
     my $periodic = $filewatchers_periodic{$file};
@@ -170,7 +172,7 @@ sub addfilewatcher {
     $filewatchers_ev = BSEvents::new('timeout', \&filewatcher_handler);
   }
   if (!$filewatchers_ev_active) {
-    BSEvents::add($filewatchers_ev, 1);
+    BSEvents::add($filewatchers_ev, $filewatchers_interval);
     $filewatchers_ev_active = 1;
   }
   my @s = stat($file);
