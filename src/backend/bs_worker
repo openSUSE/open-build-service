@@ -2283,6 +2283,10 @@ sub getbinaries {
 	# fill epoch/version/release/arch?
 	push @$outbdep, $obdep;
       }
+      if (!$kiwimode && $kiwiorigins) {
+	# sigh, no package information available yet...
+	$kiwiorigins->{$_} = "$repoprp/$buildinfo->{'arch'}";
+      }
     }
     @todo = grep {!$done{$_}} @todo;
     if ($kiwimode) {
@@ -2716,11 +2720,12 @@ sub dobuild {
   $kiwimode = 'product' if $kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
   $kiwimode = 'docker' if $buildinfo->{'file'} eq 'Dockerfile';
   $kiwimode = 'fissile' if $buildinfo->{'file'} eq 'fissile.yml';
-  my $kiwiorigins = {};
+  my $kiwiorigins;
   my $stats = {};
   my $deltamode;
   $deltamode = 1 if $buildinfo->{'file'} eq '_delta';
   my $followupmode = $buildinfo->{'followupfile'};
+  my $followupcopy = {};
   my $needobspackage;
 
   my $helper = '';
@@ -2774,7 +2779,7 @@ sub dobuild {
   $binariesdownloadsize = 0;
   my $downloadstarttime = time();
   my @meta;
-  my $preinstallimagedata = {};
+  my $preinstallimagedata = $Build::Features::preinstallimage ? {} : undef;
   print "fetching sources, ";
   mkdir($srcdir) || die("mkdir $srcdir: $!\n");
   if ($deltamode) {
@@ -2793,7 +2798,7 @@ sub dobuild {
     print "packages, ";
     if (($kiwimode || '') eq 'product') {
       getbinaries_kiwiproduct($buildinfo, $pkgdir, $srcdir, {});
-      $kiwiorigins->{$_} = readstr("$srcdir/$_") for grep {$_ eq '_channel' || /\.report$/} ls($srcdir);
+      $followupcopy->{$_} = readstr("$srcdir/$_") for grep {$_ eq '_channel' || /\.report$/} ls($srcdir);
     } else {
       getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
     }
@@ -2808,6 +2813,7 @@ sub dobuild {
     $kiwimode = 'fissile' if $buildinfo->{'file'} eq 'fissile.yml';
     @meta = split("\n", readstr("$srcdir/meta"));
   } else {
+    $kiwiorigins = {} if $kiwimode;	# always for kiwi
     my $needsslcert;
     push @meta, getsources($buildinfo, $srcdir);
     importbuild() unless defined &Build::queryhdrmd5;
@@ -2817,8 +2823,9 @@ sub dobuild {
       if (open(F, '<', "$srcdir/$buildinfo->{'file'}")) {
 	while(<F>) {
 	  chomp;
-	  if (/^#\s*needsbinariesforbuild\s*$/s && $Build::Features::preinstallimage) {
-	    undef $preinstallimagedata;	# can't use an image, sorry
+	  if (/^#\s*needsbinariesforbuild\s*$/s) {
+	    undef $preinstallimagedata;		# can't use an image, sorry
+	    $kiwiorigins = {};			# but collect origins
 	  }
 	  $needsslcert = 1 if /^#\s*needssslcertforbuild\s*$/s;
 	  $needobspackage = 1 if /\@OBS_PACKAGE\@/;
@@ -3077,14 +3084,14 @@ sub dobuild {
 
   # as a special service we also create a channel file from
   # the report files
-  if (($kiwimode || '') eq 'product' && !$followupmode) {
+  if (($kiwimode || '') eq 'product' && !$followupmode && $kiwiorigins) {
     createchannel("$buildroot/.build.packages/OTHER", $kiwiorigins);
   }
-  if ($kiwimode && $kiwimode ne 'product' && !$followupmode) {
+  if ((!$kiwimode || $kiwimode ne 'product') && !$followupmode && $kiwiorigins) {
     createkiwireport("$buildroot/.build.packages/KIWI", $kiwiorigins);
   }
-  if ($followupmode && %$kiwiorigins) {
-    writestr("$buildroot/.build.packages/OTHER/$_", undef, $kiwiorigins->{$_}) for keys %$kiwiorigins;
+  if (%$followupcopy) {
+    writestr("$buildroot/.build.packages/OTHER/$_", undef, $followupcopy->{$_}) for keys %$followupcopy;
   }
   return 0;
 }
