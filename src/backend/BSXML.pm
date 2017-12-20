@@ -1885,4 +1885,9 @@ our $clouduploadjob = [
 	'pid',		# internal
 ];
 
+our $clouduploadjoblist = [
+    'clouduploadjoblist' =>
+      [ $clouduploadjob ],
+];
+
 1;

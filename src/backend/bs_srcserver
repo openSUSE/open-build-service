@@ -6141,15 +6141,41 @@ sub cloudupload_create {
 }
 
 sub cloudupload_status {
-  my ($cgi, $job) = @_;
+  my ($cgi, $jobid) = @_;
   die("no cloud upload server configurated\n") unless $BSConfig::clouduploadserver;
   my $param = {
-    'uri' => "$BSConfig::clouduploadserver/cloudupload/$job",
+    'uri' => "$BSConfig::clouduploadserver/cloudupload/$jobid",
     'ignorestatus' => 1,
     'receiver' => \&BSServer::reply_receiver,
   };
   BSWatcher::rpc($param, undef);
   return undef;
+}
+
+sub cloudupload_joblist {
+  my ($cgi) = @_;
+  die("no cloud upload server configurated\n") unless $BSConfig::clouduploadserver;
+  my $param = {
+    'uri' => "$BSConfig::clouduploadserver/cloudupload",
+  };
+  return BSRPC::rpc($param, undef, BSRPC::args($cgi, 'name'));
+}
+
+sub cloudupload_log {
+  my ($cgi, $jobid) = @_;
+  die("no cloud upload server configurated\n") unless $BSConfig::clouduploadserver;
+  my @args = BSRPC::args($cgi, 'nostream', 'start', 'end', 'view');
+  if (!$BSStdServer::isajax && !$cgi->{'nostream'} && !$cgi->{'view'}) {
+    BSHandoff::handoff("/cloudupload/$jobid/_log", undef, @args);
+  }
+  my $param = {
+    'uri' => "$BSConfig::clouduploadserver/cloudupload/$jobid/_log",
+    'ignorestatus' => 1,
+    'receiver' => \&BSServer::reply_receiver,
+    'joinable' => 1,
+  };
+  BSWatcher::rpc($param, undef, @args);
+  return undef; # always streams result
 }
 
 ####################################################################
@@ -6323,6 +6349,8 @@ my $dispatches = [
   # cloud upload calls
   'POST:/cloudupload $project $repository $arch $package $filename user: target:' => \&cloudupload_create,
   '/cloudupload/$job' => \&cloudupload_status,
+  '/cloudupload/$job/_log nostream:bool? start:intnum? end:num? view:?' => \&cloudupload_log,
+  '/cloudupload name:num*' => \&cloudupload_joblist,
 
   '/ajaxstatus' => \&getajaxstatus,
   '/serverstatus' => \&BSStdServer::serverstatus,
@@ -6346,6 +6374,7 @@ my $dispatches_ajax = [
   '/source/$project/$package:package/$filename rev?' => \&getfile,
   '/request/$id:num withkey:bool? oldkey:md5?' => \&getrequest,
   '/sourcediffcache/$cacheid:md5 view:?' => \&getsourcediffcache,
+  '/cloudupload/$job/_log nostream:bool? start:intnum? end:num? view:?' => \&cloudupload_log,
 ];
 
 ####################################################################

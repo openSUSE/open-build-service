@@ -49,21 +49,20 @@ sub startupload {
   my ($conf, $job, $logfp) = @_;
   my $jobid = $job->{'name'};
   my $pid;
+  BSUtil::printlog("uploading job $job->{'name'} [$job->{'user'}, $job->{'target'}]\n");
   if (!($pid = xfork())) {
     close($logfp);
-    exec("upload", $job->{'user'}, $job->{'target'}, "$jobdir/$jobid.file", "$jobdir/$jobid.data", "$jobdir/$jobid.log");
-    die("upload: $!\n");
+    print "calling $INC[0]/clouduploader $job->{'user'} $job->{'target'} $jobdir/$jobid.file $jobdir/$jobid.data $jobdir/$jobid.log\n";
+    exec("$INC[0]/clouduploader", $job->{'user'}, $job->{'target'}, "$jobdir/$jobid.file", "$jobdir/$jobid.data", "$jobdir/$jobid.log");
+    die("$INC[0]/clouduploader: $!\n");
   }
-  my $ex;
+  my $ex = 1;	# assume fail
   while (1) {
     if (waitpid($pid, 0)) {
       $ex = $?;
       last;
     }
-    if ($! != POSIX::EINTR) {
-      $ex = 1;	# hmm
-      last;
-    }
+    last if $! != POSIX::EINTR;
   }
   local *JOBLOCK;
   $job = BSUtil::lockopenxml(\*JOBLOCK, '<', "$jobdir/$jobid", $BSXML::clouduploadjob);
@@ -140,16 +139,29 @@ sub run {
 	close JOBBLOCK;
 	next;
       }
+
+      # make sure job is sane
       eval { checkjob($jobid, $job) };
       if ($@) {
         warn("bad job: $jobid $@\n");
 	close JOBBLOCK;
 	next;
       }
+
+      # open and lock the log file
       local *LOGLOCK;
-      unlink("$jobdir/.$jobid.log.$$");
-      BSUtil::lockopen(\*LOGLOCK, '>', "$jobdir/.$jobid.log.$$");
-      rename("$jobdir/.$jobid.log.$$", "$jobdir/$jobid.log") || die("rename $jobdir/.$jobid.log.$$ $jobdir/$jobid.log: $!\n");
+      my $haveloglock;
+      if (open(LOGLOCK, '>>', "$jobdir/$jobid.log")) {
+	$haveloglock = 1 if flock(LOGLOCK, LOCK_EX | LOCK_NB);
+	close(LOGLOCK) unless $haveloglock;
+      }
+      if (!$haveloglock) {
+	# could not get lock, start a new file
+        unlink("$jobdir/.$jobid.log.$$");
+        BSUtil::lockopen(\*LOGLOCK, '>', "$jobdir/.$jobid.log.$$");
+        rename("$jobdir/.$jobid.log.$$", "$jobdir/$jobid.log") || die("rename $jobdir/.$jobid.log.$$ $jobdir/$jobid.log: $!\n");
+      }
+
       if (!($pid = xfork())) {
         close JOBLOCK;
 	startupload($conf, $job, \*LOGLOCK);
