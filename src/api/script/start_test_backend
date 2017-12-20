@@ -21,7 +21,7 @@ end
 backendtempdir = ENV['OBS_BACKEND_TEMP'] || "#{Rails.root}/tmp"
 backend_config = "#{backendtempdir}/config#{backend_dir_suffix}"
 backend_data   = "#{backendtempdir}/data#{backend_dir_suffix}"
-require File.expand_path(File.dirname(__FILE__)) + '/../test/test_helper'
+require __dir__ + '/../test/test_helper'
 
 Backend::Test.do_not_start_test_backend
 
