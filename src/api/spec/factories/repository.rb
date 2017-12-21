@@ -9,10 +9,8 @@ FactoryBot.define do
 
     after(:create) do |repository, evaluator|
       evaluator.architectures.each do |arch|
-        create(:repository_architecture, {
-                 repository:   repository,
-                 architecture: Architecture.find_or_create_by!(name: arch)
-               })
+        create(:repository_architecture, repository:   repository,
+               architecture: Architecture.find_or_create_by!(name: arch))
       end
     end
   end

@@ -365,7 +365,7 @@ class Webui::PackageController < Webui::WebuiController
 
       @files = package_files(@srcmd5 || @revision, @expand)
     rescue ActiveXML::Transport::Error => e
-      # TODO crudest hack ever!
+      # TODO: crudest hack ever!
       if e.summary == 'service in progress' && @expand == 1
         @expand = 0
         @service_running = true
@@ -1089,9 +1089,9 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     begin
-      @package = Package.get_by_project_and_name(@project, params[:package], { use_source:           false,
-                                                                               follow_multibuild:    true,
-                                                                               follow_project_links: true })
+      @package = Package.get_by_project_and_name(@project, params[:package], use_source:           false,
+                                                                             follow_multibuild:    true,
+                                                                             follow_project_links: true)
     rescue Package::UnknownObjectError
       redirect_to project_show_path(@project.to_param),
                   error: "Couldn't find package '#{params[:package]}' in " +

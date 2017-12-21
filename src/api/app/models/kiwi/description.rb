@@ -7,7 +7,7 @@ class Kiwi::Description < ApplicationRecord
 
   def to_xml
     builder = Nokogiri::XML::Builder.new
-    builder.description({ type: description_type }) do |description|
+    builder.description(type: description_type) do |description|
       description.author(author)
       description.contact(contact)
       description.specification(specification)

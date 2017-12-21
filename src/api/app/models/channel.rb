@@ -135,7 +135,7 @@ class Channel < ApplicationRecord
     # create a package container
     target_package = Package.new(name: name, title: package.title, description: package.description)
     project.packages << target_package
-    target_package.store({ comment: comment })
+    target_package.store(comment: comment)
 
     # branch sources
     target_package.branch_from(package.project.name, package.name, nil, nil, comment)
@@ -154,7 +154,7 @@ class Channel < ApplicationRecord
   def add_channel_repos_to_project(target_package, mode = nil)
     if channel_targets.empty?
       # not defined in channel, so take all from project
-      target_package.project.branch_to_repositories_from(package.project, package, { extend_names: true })
+      target_package.project.branch_to_repositories_from(package.project, package, extend_names: true)
       return
     end
 

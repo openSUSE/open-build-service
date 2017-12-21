@@ -15,7 +15,7 @@ RSpec.describe Authenticator do
       it_behaves_like 'a confirmed user logs in' do
         let(:request_mock) { double(:request, env: { 'HTTP_X_USERNAME' => user.login }) }
 
-        before { stub_const('CONFIG', CONFIG.merge({ 'proxy_auth_mode' => :on })) }
+        before { stub_const('CONFIG', CONFIG.merge('proxy_auth_mode' => :on)) }
       end
     end
 
@@ -24,7 +24,7 @@ RSpec.describe Authenticator do
         let(:request_mock) { double(:request, env: { 'Authorization' => "Basic #{Base64.encode64("#{user.login}:buildservice")}" }) }
 
         before do
-          stub_const('CONFIG', CONFIG.merge({ 'ldap_mode' => :on }))
+          stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
           allow(UserLdapStrategy).to receive(:find_with_ldap).and_return([user.email, user.realname])
         end
       end
@@ -40,12 +40,10 @@ RSpec.describe Authenticator do
       let(:request_mock) { double(:request, env: { 'Authorization' => 'Negotiate' }) }
 
       before do
-        stub_const('CONFIG', CONFIG.merge({
-                                            'kerberos_service_principal' => 'HTTP/obs.test.com@test_realm.com',
-                                            'kerberos_realm'             => 'test_realm.com',
-                                            'kerberos_mode'              => true,
-                                            'kerberos_keytab'            => '/etc/krb5.keytab'
-                                          }))
+        stub_const('CONFIG', CONFIG.merge('kerberos_service_principal' => 'HTTP/obs.test.com@test_realm.com',
+                                          'kerberos_realm'             => 'test_realm.com',
+                                          'kerberos_mode'              => true,
+                                          'kerberos_keytab'            => '/etc/krb5.keytab'))
       end
 
       context 'with an invalid ticket' do
@@ -98,7 +96,7 @@ RSpec.describe Authenticator do
 
         context 'without kerberos_realm being set' do
           before do
-            stub_const('CONFIG', CONFIG.merge({ 'kerberos_realm' => nil }))
+            stub_const('CONFIG', CONFIG.merge('kerberos_realm' => nil))
             authenticator.extract_user
           end
 
@@ -107,13 +105,13 @@ RSpec.describe Authenticator do
 
         context 'without kerberos_service_principal being set' do
           it 'without kerberos_service_principal key' do
-            stub_const('CONFIG', CONFIG.merge({ 'kerberos_service_principal' => nil }))
+            stub_const('CONFIG', CONFIG.merge('kerberos_service_principal' => nil))
             expect { authenticator.extract_user }.to raise_error(Authenticator::AuthenticationRequiredError,
                                                                  'Kerberos configuration is broken. Principal is empty.')
           end
 
           it 'with kerberos_service_principal being set to empty string' do
-            stub_const('CONFIG', CONFIG.merge({ 'kerberos_service_principal' => '' }))
+            stub_const('CONFIG', CONFIG.merge('kerberos_service_principal' => ''))
             expect { authenticator.extract_user }.to raise_error(Authenticator::AuthenticationRequiredError,
                                                                  'Kerberos configuration is broken. Principal is empty.')
           end

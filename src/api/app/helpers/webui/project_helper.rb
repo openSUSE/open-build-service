@@ -43,7 +43,7 @@ module Webui::ProjectHelper
     @crumb_list = [link_to('Projects', project_list_public_path)]
     return if @spider_bot
     # FIXME: should also work for remote
-    if @project && @project.kind_of?(Project) && !@project.new_record?
+    if @project && @project.is_a?(Project) && !@project.new_record?
       prj_parents = nil
       if @namespace # corner case where no project object is available
         prj_parents = Project.parent_projects(@namespace)

@@ -20,6 +20,6 @@ class CreateJob < ApplicationJob
       Rails.logger.debug "ERROR: #{exception.inspect}: #{exception.backtrace}"
       puts exception.inspect, exception.backtrace
     end
-    Airbrake.notify(exception, { failed_job: job_id })
+    Airbrake.notify(exception, failed_job: job_id)
   end
 end

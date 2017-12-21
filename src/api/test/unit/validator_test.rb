@@ -125,6 +125,6 @@ class ValidatorTest < ActiveSupport::TestCase
         </watchlist>
       </person>
     EOS
-    assert_no_xml_tag xml, { tag: 'person', child: { tag: 'globalrole', content: 'Admin' } }
+    assert_no_xml_tag xml, tag: 'person', child: { tag: 'globalrole', content: 'Admin' }
   end
 end

@@ -474,7 +474,7 @@ class Package < ApplicationRecord
     # to call update_activity before filter
     # NOTE: We need `Time.now`, otherwise the old tests suite doesn't work,
     # remove it when removing the tests
-    update({ updated_at: Time.now })
+    update(updated_at: Time.now)
 
     # mark the backend infos "dirty"
     BackendPackage.where(package_id: id).delete_all
@@ -642,7 +642,7 @@ class Package < ApplicationRecord
         if Rails.env.test?
           raise e
         else
-          Airbrake.notify(e, { failed_job: "Couldn't store channel" })
+          Airbrake.notify(e, failed_job: "Couldn't store channel")
         end
       end
     else
@@ -1091,7 +1091,7 @@ class Package < ApplicationRecord
   end
 
   def self.valid_name?(name, allow_multibuild = false)
-    return false unless name.kind_of? String
+    return false unless name.is_a? String
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200
     return false if name == '0'
@@ -1222,7 +1222,7 @@ class Package < ApplicationRecord
       request.bs_request_actions.each do |action|
         if action.source_project == project.name && action.source_package == name
           begin
-            request.change_state({ newstate: 'revoked', comment: "The source package '#{name}' has been removed" })
+            request.change_state(newstate: 'revoked', comment: "The source package '#{name}' has been removed")
           rescue PostRequestNoPermission
             logger.debug "#{User.current.login} tried to revoke request #{id} but had no permissions"
           end
@@ -1230,7 +1230,7 @@ class Package < ApplicationRecord
         end
         if action.target_project == project.name && action.target_package == name
           begin
-            request.change_state({ newstate: 'declined', comment: "The target package '#{name}' has been removed" })
+            request.change_state(newstate: 'declined', comment: "The target package '#{name}' has been removed")
           rescue PostRequestNoPermission
             logger.debug "#{User.current.login} tried to decline request #{id} but had no permissions"
           end
@@ -1333,7 +1333,7 @@ class Package < ApplicationRecord
 
     # file is an ActionDispatch::Http::UploadedFile and Suse::Validator.validate
     # will call to_s therefore we have to read the content first
-    content = File.open(content.path).read if content.kind_of?(ActionDispatch::Http::UploadedFile)
+    content = File.open(content.path).read if content.is_a?(ActionDispatch::Http::UploadedFile)
 
     # schema validation, if possible
     %w{aggregate constraints link service patchinfo channel}.each do |schema|

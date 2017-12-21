@@ -216,7 +216,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
   describe 'GET #autocomplete_repositories' do
     before do
-      @repositories = create_list(:repository, 5, { project: apache_project })
+      @repositories = create_list(:repository, 5, project: apache_project)
       get :autocomplete_repositories, params: { project: apache_project }
       @json_response = JSON.parse(response.body)
     end
@@ -480,10 +480,17 @@ RSpec.describe Webui::ProjectController, vcr: true do
   end
 
   describe 'GET #buildresult' do
-    let(:summary) { Xmlhash::XMLHash.new({ 'statuscount' => { 'code' => 'succeeded', 'count' => '1' } }) }
+    let(:summary) { Xmlhash::XMLHash.new('statuscount' => { 'code' => 'succeeded', 'count' => '1' }) }
     let(:build_result) do
-      { 'result' => Xmlhash::XMLHash.new({ 'repository' => 'openSUSE',
-                                          'arch' => 'x86_64', 'code' => 'published', 'state' => 'published', 'summary' => summary }) }
+      {
+        'result' => Xmlhash::XMLHash.new(
+          'repository' => 'openSUSE',
+          'arch'       => 'x86_64',
+          'code'       => 'published',
+          'state'      => 'published',
+          'summary'    => summary
+        )
+      }
     end
 
     let(:local_build_result) { assigns(:project).buildresults['openSUSE'].first }
@@ -497,7 +504,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     it { expect(assigns(:project).buildresults).to have_key('openSUSE') }
     it { expect(local_build_result).to have_attributes(result) }
-    it { expect(status_count).to have_attributes({ code: 'succeeded', count: '1' }) }
+    it { expect(status_count).to have_attributes(code: 'succeeded', count: '1') }
   end
 
   describe 'GET #delete_dialog' do
@@ -630,8 +637,8 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       context 'with diststats generated' do
         before do
-          path = Xmlhash::XMLHash.new({ 'package' => 'package_name' })
-          longestpaths_xml = Xmlhash::XMLHash.new({ 'longestpath' => Xmlhash::XMLHash.new({ 'path' => path }) })
+          path = Xmlhash::XMLHash.new('package' => 'package_name')
+          longestpaths_xml = Xmlhash::XMLHash.new('longestpath' => Xmlhash::XMLHash.new('path' => path))
           allow_any_instance_of(Webui::ProjectController).to receive(:call_diststats).and_return(longestpaths_xml)
           get :rebuild_time, params: { project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
         end
@@ -1304,7 +1311,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
           it { expect(path_element.reload.position).to eq(position) }
           it { expect(flash[:notice]).to eq('Path moved up successfully') }
-          it { expect(response).to redirect_to({ action: :index, controller: :repositories, project: apache_project }) }
+          it { expect(response).to redirect_to(action: :index, controller: :repositories, project: apache_project) }
         end
 
         context 'direction down' do
@@ -1314,7 +1321,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
           it { expect(path_element.reload.position).to eq(position) }
           it { expect(flash[:notice]).to eq('Path moved down successfully') }
-          it { expect(response).to redirect_to({ action: :index, controller: :repositories, project: apache_project }) }
+          it { expect(response).to redirect_to(action: :index, controller: :repositories, project: apache_project) }
         end
       end
 
@@ -1334,7 +1341,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
             end
 
             it { expect(flash[:notice]).to eq('Path moved up successfully') }
-            it { expect(response).to redirect_to({ action: :index, controller: :repositories, project: apache_project }) }
+            it { expect(response).to redirect_to(action: :index, controller: :repositories, project: apache_project) }
           end
 
           context 'elements position' do
@@ -1355,7 +1362,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
             end
 
             it { expect(flash[:notice]).to eq('Path moved down successfully') }
-            it { expect(response).to redirect_to({ action: :index, controller: :repositories, project: apache_project }) }
+            it { expect(response).to redirect_to(action: :index, controller: :repositories, project: apache_project) }
           end
 
           context 'elements position' do
@@ -1464,14 +1471,14 @@ RSpec.describe Webui::ProjectController, vcr: true do
           it { expect(assigns(:buildresult_unavailable)).to be_nil }
           it { expect(assigns(:packagenames)).to eq(['c++', 'redis']) }
           it { expect(assigns(:statushash)).to eq(statushash) }
-          it { expect(assigns(:repohash)).to eq({ 'openSUSE_Tumbleweed' => ['i586', 'x86_64'], 'openSUSE_42.2' => ['s390x'] }) }
+          it { expect(assigns(:repohash)).to eq('openSUSE_Tumbleweed' => ['i586', 'x86_64'], 'openSUSE_42.2' => ['s390x']) }
           it {
-            expect(assigns(:repostatushash)).to eq({ 'openSUSE_Tumbleweed' => { 'i586' => 'published', 'x86_64' => 'building' },
-                                                     'openSUSE_42.2'       => { 's390x' => 'outdated_published' } })
+            expect(assigns(:repostatushash)).to eq('openSUSE_Tumbleweed' => { 'i586' => 'published', 'x86_64' => 'building' },
+                                                   'openSUSE_42.2'       => { 's390x' => 'outdated_published' })
           }
           it {
-            expect(assigns(:repostatusdetailshash)).to eq({ 'openSUSE_Tumbleweed' => { 'x86_64' => 'This repo is broken' },
-                                                            'openSUSE_42.2'       => {} })
+            expect(assigns(:repostatusdetailshash)).to eq('openSUSE_Tumbleweed' => { 'x86_64' => 'This repo is broken' },
+                                                          'openSUSE_42.2'       => {})
           }
           it { expect(response).to have_http_status(:ok) }
         end

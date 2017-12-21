@@ -304,7 +304,7 @@ class Project < ApplicationRecord
       request.bs_request_actions.each do |action|
         if action.source_project == name
           begin
-            request.change_state({ newstate: 'revoked', comment: "The source project '#{name}' has been removed" })
+            request.change_state(newstate: 'revoked', comment: "The source project '#{name}' has been removed")
           rescue PostRequestNoPermission
             logger.debug "#{User.current.login} tried to revoke request #{request.number} but had no permissions"
           end
@@ -312,7 +312,7 @@ class Project < ApplicationRecord
         end
         if action.target_project == name
           begin
-            request.change_state({ newstate: 'declined', comment: "The target project '#{name}' has been removed" })
+            request.change_state(newstate: 'declined', comment: "The target project '#{name}' has been removed")
           rescue PostRequestNoPermission
             logger.debug "#{User.current.login} tried to decline request #{request.number} but had no permissions"
           end
@@ -1107,7 +1107,7 @@ class Project < ApplicationRecord
               new_path = repo.path_elements.create(link: my_repo, position: ipe.position)
               cycle_detection[new_path.id]
             else
-              PathElement.update(elements.first.id, { position: ipe.position, link: my_repo })
+              PathElement.update(elements.first.id, position: ipe.position, link: my_repo)
             end
             cycle_detection[elements.first.id] = true
             if elements.count > 1
@@ -1267,7 +1267,7 @@ class Project < ApplicationRecord
   private :bsrequest_repos_map
 
   def self.valid_name?(name)
-    return false unless name.kind_of? String
+    return false unless name.is_a? String
     return false if name == '0';
     return false if name =~ /::/
     return false if name.end_with?(':')
@@ -1359,7 +1359,7 @@ class Project < ApplicationRecord
       f = flags.find_by_flag_and_status('lock', 'disable')
       flags.delete(f) if f
       flags.create(status: 'enable', flag: 'lock')
-      store({ comment: comment })
+      store(comment: comment)
     end
   end
 
@@ -1367,7 +1367,7 @@ class Project < ApplicationRecord
     transaction do
       delete_flag = flags.find_by_flag_and_status('lock', 'enable')
       flags.delete(delete_flag)
-      store({ comment: comment })
+      store(comment: comment)
 
       # maintenance incidents need special treatment when unlocking
       reopen_release_targets if is_maintenance_incident?
@@ -1664,7 +1664,7 @@ class Project < ApplicationRecord
           # FIXME: we would actually need to check for :no_write_to_backend here as well
           #        but the calling code is currently broken and would need the starting
           #        project different
-          Project.remove_repositories(linking_repositories, { recursive_remove: true })
+          Project.remove_repositories(linking_repositories, recursive_remove: true)
         end
 
         # try to remove the repository
@@ -1682,7 +1682,7 @@ class Project < ApplicationRecord
       if Repository.exists?(repo.id) && repository
         logger.info "destroy repo #{repository.name} in '#{project.name}'"
         repository.destroy
-        project.store({ lowprio: true }) unless opts[:no_write_to_backend]
+        project.store(lowprio: true) unless opts[:no_write_to_backend]
       end
     end
     {}

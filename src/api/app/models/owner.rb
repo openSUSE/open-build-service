@@ -174,7 +174,7 @@ class Owner
         distinct.where("projects.kind='maintenance_release' AND (ISNULL(package_kinds.kind) OR package_kinds.kind='patchinfo')").pluck(:name)
 
     if devel == true
-      # FIXME add devel packages, but how do recursive lookup fast in SQL?
+      # FIXME: add devel packages, but how do recursive lookup fast in SQL?
     end
     defined_packages.uniq!
 
@@ -224,7 +224,7 @@ class Owner
       raise 'illegal object handed to find_containers'
     end
     if devel == true
-      # FIXME add devel packages, but how do recursive lookup fast in SQL?
+      # FIXME: add devel packages, but how do recursive lookup fast in SQL?
     end
     found_packages = found_packages.pluck(:package_id).uniq
     found_projects = found_projects.pluck(:project_id).uniq

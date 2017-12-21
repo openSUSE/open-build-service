@@ -90,7 +90,7 @@ RSpec.describe Webui::UserController do
     end
 
     it 'tells users about wrong state' do
-      user.update({ state: :locked })
+      user.update(state: :locked)
       post :do_login, params: { username: user.login, password: 'buildservice' }
       expect(response).to redirect_to root_path
       expect(flash[:error]).to eq('Your account is disabled. Please contact the administrator for details.')
@@ -251,7 +251,7 @@ RSpec.describe Webui::UserController do
       end
 
       before do
-        stub_const('CONFIG', CONFIG.merge({ 'ldap_mode' => :on }))
+        stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
       end
 
       describe 'as an admin user' do
@@ -362,7 +362,7 @@ RSpec.describe Webui::UserController do
     before do
       login non_admin_user
 
-      stub_const('CONFIG', CONFIG.merge({ 'ldap_mode' => :on }))
+      stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
       post :change_password
     end
 

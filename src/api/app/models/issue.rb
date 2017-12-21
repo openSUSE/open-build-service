@@ -13,10 +13,7 @@ class Issue < ApplicationRecord
   scope :stateless, -> { where(state: nil) }
 
   def self.find_or_create_by_name_and_tracker(name, issue_tracker_name, force_update = nil)
-    find_by_name_and_tracker(name, issue_tracker_name, {
-                               force_update:   force_update,
-                               create_missing: true
-                             })
+    find_by_name_and_tracker(name, issue_tracker_name, force_update: force_update, create_missing: true)
   end
 
   def self.find_by_name_and_tracker(name, issue_tracker_name, options = {})

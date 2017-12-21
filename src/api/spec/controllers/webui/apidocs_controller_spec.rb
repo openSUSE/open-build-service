@@ -73,7 +73,7 @@ RSpec.describe Webui::ApidocsController, type: :controller do
 
       it 'errors and redirects' do
         expect(flash[:error]).to eq("File not found: #{non_existing_filename}")
-        expect(response).to redirect_to({ controller: 'webui/apidocs', action: 'index' })
+        expect(response).to redirect_to(controller: 'webui/apidocs', action: 'index')
       end
     end
   end

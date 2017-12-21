@@ -31,59 +31,53 @@ RSpec.describe UserLdapStrategy do
   describe '.authenticate_with_local' do
     context "with ldap auth method ':cleartext'" do
       before do
-        stub_const('CONFIG', CONFIG.merge({
-                                            'ldap_auth_mech' => :cleartext,
-                                            'ldap_auth_attr' => 'CLR_userPassword'
-                                          }))
+        stub_const('CONFIG', CONFIG.merge('ldap_auth_mech' => :cleartext,
+                                          'ldap_auth_attr' => 'CLR_userPassword'))
       end
 
       it 'validates a correct password' do
         expect(UserLdapStrategy.authenticate_with_local('cleartext_pw',
-                                                        { 'CLR_userPassword' => ['cleartext_pw'] })).to be true
+                                                        'CLR_userPassword' => ['cleartext_pw'])).to be true
       end
 
       it 'does not validate an incorrect password' do
         expect(UserLdapStrategy.authenticate_with_local('wrong_pw',
-                                                        { 'CLR_userPassword' => ['cleartext_pw'] })).to be false
+                                                        'CLR_userPassword' => ['cleartext_pw'])).to be false
       end
     end
 
     context "with ldap auth method ':md5'" do
       before do
-        stub_const('CONFIG', CONFIG.merge({
-                                            'ldap_auth_mech' => :md5,
-                                            'ldap_auth_attr' => 'MD5_userPassword'
-                                          }))
+        stub_const('CONFIG', CONFIG.merge('ldap_auth_mech' => :md5,
+                                          'ldap_auth_attr' => 'MD5_userPassword'))
       end
 
       it 'validates a correct password' do
         expect(UserLdapStrategy.authenticate_with_local('my_password',
-                                                        { 'MD5_userPassword' => ["{MD5}qGWn4N2/NfpvaiMuCJO+pA==\n"] })).to be true
+                                                        'MD5_userPassword' => ["{MD5}qGWn4N2/NfpvaiMuCJO+pA==\n"])).to be true
       end
 
       it 'does not validate an incorrect password' do
         expect(UserLdapStrategy.authenticate_with_local('wrong_pw',
-                                                        { 'MD5_userPassword' => ["{MD5}qGWn4N2/NfpvaiMuCJO+pA==\n"] })).to be false
+                                                        'MD5_userPassword' => ["{MD5}qGWn4N2/NfpvaiMuCJO+pA==\n"])).to be false
       end
     end
 
     context 'with an unknown ldap auth method' do
       it 'does not validate' do
         expect(UserLdapStrategy.authenticate_with_local('cleartext_pw',
-                                                        { 'CLR_userPassword' => ['cleartext_pw'] })).to be false
+                                                        'CLR_userPassword' => ['cleartext_pw'])).to be false
       end
     end
 
     context "when 'ldap_auth_attr' is empty" do
       before do
-        stub_const('CONFIG', CONFIG.merge({
-                                            'ldap_auth_mech' => :cleartext
-                                          }))
+        stub_const('CONFIG', CONFIG.merge('ldap_auth_mech' => :cleartext))
       end
 
       it 'returns false' do
         expect(UserLdapStrategy.authenticate_with_local('cleartext_pw',
-                                                        { 'CLR_userPassword' => ['cleartext_pw'] })).to be false
+                                                        'CLR_userPassword' => ['cleartext_pw'])).to be false
       end
     end
   end
@@ -95,14 +89,14 @@ RSpec.describe UserLdapStrategy do
 
     context 'when ldap servers are configured' do
       before do
-        stub_const('CONFIG', CONFIG.merge({ 'ldap_servers' => 'my_ldap_server.com' }))
+        stub_const('CONFIG', CONFIG.merge('ldap_servers' => 'my_ldap_server.com'))
       end
 
       context 'for SSL' do
         include_context 'setup ldap mock', for_ssl: true
 
         before do
-          stub_const('CONFIG', CONFIG.merge({ 'ldap_ssl' => :on }))
+          stub_const('CONFIG', CONFIG.merge('ldap_ssl' => :on))
         end
 
         it_should_behave_like 'a ldap connection'
@@ -112,7 +106,7 @@ RSpec.describe UserLdapStrategy do
         include_context 'setup ldap mock', for_ssl: true, start_tls: true
 
         before do
-          stub_const('CONFIG', CONFIG.merge({ 'ldap_start_tls' => :on }))
+          stub_const('CONFIG', CONFIG.merge('ldap_start_tls' => :on))
         end
 
         it_should_behave_like 'a ldap connection'
@@ -122,7 +116,7 @@ RSpec.describe UserLdapStrategy do
         include_context 'setup ldap mock'
 
         before do
-          stub_const('CONFIG', CONFIG.merge({ 'ldap_ssl' => :off }))
+          stub_const('CONFIG', CONFIG.merge('ldap_ssl' => :off))
         end
 
         it_should_behave_like 'a ldap connection'
@@ -139,11 +133,9 @@ RSpec.describe UserLdapStrategy do
       include_context 'setup ldap mock', for_ssl: true
 
       before do
-        stub_const('CONFIG', CONFIG.merge({
-                                            'ldap_search_user'      => 'tux',
-                                            'ldap_search_auth'      => 'tux_password',
-                                            'ldap_group_title_attr' => 'ldap_group'
-                                          }))
+        stub_const('CONFIG', CONFIG.merge('ldap_search_user'      => 'tux',
+                                          'ldap_search_auth'      => 'tux_password',
+                                          'ldap_group_title_attr' => 'ldap_group'))
 
         allow(ldap_mock).to receive(:bind).with('tux', 'tux_password')
         allow(ldap_mock).to receive(:bound?).and_return(true)
@@ -191,12 +183,10 @@ RSpec.describe UserLdapStrategy do
 
   describe '#find_with_ldap' do
     before do
-      stub_const('CONFIG', CONFIG.merge({
-                                          'ldap_search_user'  => 'tux',
-                                          'ldap_search_auth'  => 'tux_password',
-                                          'ldap_ssl'          => :off,
-                                          'ldap_authenticate' => :ldap
-                                        }))
+      stub_const('CONFIG', CONFIG.merge('ldap_search_user'  => 'tux',
+                                        'ldap_search_auth'  => 'tux_password',
+                                        'ldap_ssl'          => :off,
+                                        'ldap_authenticate' => :ldap))
     end
 
     context 'ldap doesnt connect' do
@@ -234,7 +224,7 @@ RSpec.describe UserLdapStrategy do
         include_context 'an ldap connection'
 
         before do
-          stub_const('CONFIG', CONFIG.merge({ 'ldap_user_filter' => nil }))
+          stub_const('CONFIG', CONFIG.merge('ldap_user_filter' => nil))
 
           allow(ldap_mock).to receive(:search)
         end
@@ -271,7 +261,7 @@ RSpec.describe UserLdapStrategy do
         let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'helloworld' }) }
 
         before do
-          stub_const('CONFIG', CONFIG.merge({ 'ldap_authenticate' => :local }))
+          stub_const('CONFIG', CONFIG.merge('ldap_authenticate' => :local))
           allow(ldap_mock).to receive(:search).and_yield(ldap_user)
         end
 
@@ -289,7 +279,7 @@ RSpec.describe UserLdapStrategy do
         let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'helloworld' }) }
 
         before do
-          stub_const('CONFIG', CONFIG.merge({ 'ldap_authenticate' => nil }))
+          stub_const('CONFIG', CONFIG.merge('ldap_authenticate' => nil))
           allow(ldap_mock).to receive(:search).and_yield(ldap_user)
         end
 
@@ -367,9 +357,7 @@ RSpec.describe UserLdapStrategy do
         end
 
         before do
-          stub_const('CONFIG', CONFIG.merge({
-                                              'ldap_name_attr' => 'fn'
-                                            }))
+          stub_const('CONFIG', CONFIG.merge('ldap_name_attr' => 'fn'))
         end
 
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }

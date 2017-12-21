@@ -50,7 +50,7 @@ RSpec.describe BsRequest do
         login(reviewer)
       end
 
-      subject! { request.assignreview({ by_group: group.title, reviewer: reviewer.login }) }
+      subject! { request.assignreview(by_group: group.title, reviewer: reviewer.login) }
 
       let(:new_review) { request.reviews.last }
 
@@ -77,7 +77,7 @@ RSpec.describe BsRequest do
 
     before do
       login(reviewer)
-      request.addreview({ by_group: group.title })
+      request.addreview(by_group: group.title)
     end
 
     subject { Review.last }
@@ -102,7 +102,7 @@ RSpec.describe BsRequest do
     context 'to delete state' do
       before do
         User.current = admin
-        request.change_state({ newstate: 'deleted' })
+        request.change_state(newstate: 'deleted')
       end
 
       it 'changes state to deleted' do

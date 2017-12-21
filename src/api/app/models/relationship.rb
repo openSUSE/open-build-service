@@ -61,7 +61,7 @@ class Relationship < ApplicationRecord
 
   def self.add_user(obj, user, role, ignore_lock = nil, check = nil)
     obj.check_write_access!(ignore_lock)
-    unless role.kind_of? Role
+    unless role.is_a? Role
       role = Role.find_by_title!(role)
     end
     if role.global
@@ -69,7 +69,7 @@ class Relationship < ApplicationRecord
       raise SaveError, "tried to set global role '#{role.title}' for user '#{user}' in #{obj.class} '#{name}'"
     end
 
-    unless user.kind_of? User
+    unless user.is_a? User
       user = User.find_by_login!(user)
     end
 
@@ -89,7 +89,7 @@ class Relationship < ApplicationRecord
   def self.add_group(obj, group, role, ignore_lock = nil, check = nil)
     obj.check_write_access!(ignore_lock)
 
-    unless role.kind_of? Role
+    unless role.is_a? Role
       role = Role.find_by_title!(role)
     end
 
@@ -98,7 +98,7 @@ class Relationship < ApplicationRecord
       raise SaveError, "tried to set global role '#{role_title}' for group '#{group}' in #{obj.class} '#{name}'"
     end
 
-    unless group.kind_of? Group
+    unless group.is_a? Group
       group = Group.find_by_title(group.to_s)
     end
 

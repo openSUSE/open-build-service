@@ -69,12 +69,12 @@ RSpec.describe Package, vcr: true do
   context '#save_file' do
     it 'calls #addKiwiImport if filename ends with kiwi.txz' do
       expect_any_instance_of(Service).to receive(:addKiwiImport).once
-      package.save_file({ filename: 'foo.kiwi.txz' })
+      package.save_file(filename: 'foo.kiwi.txz')
     end
 
     it 'does not call #addKiwiImport if filename ends not with kiwi.txz' do
       expect_any_instance_of(Service).not_to receive(:addKiwiImport)
-      package.save_file({ filename: 'foo.spec' })
+      package.save_file(filename: 'foo.spec')
     end
   end
 
@@ -110,7 +110,7 @@ RSpec.describe Package, vcr: true do
 
       context 'with custom options' do
         before do
-          package_with_file.delete_file('somefile.txt', { comment: 'comment' })
+          package_with_file.delete_file('somefile.txt', comment: 'comment')
         end
 
         it 'sets options correct' do
@@ -373,14 +373,14 @@ RSpec.describe Package, vcr: true do
   context '#source_path' do
     it { expect(package_with_file.source_path).to eq('/source/home:tom/package_with_files') }
     it { expect(package_with_file.source_path('icon')).to eq('/source/home:tom/package_with_files/icon') }
-    it { expect(package_with_file.source_path('icon', { format: :html })).to eq('/source/home:tom/package_with_files/icon?format=html') }
+    it { expect(package_with_file.source_path('icon', format: :html)).to eq('/source/home:tom/package_with_files/icon?format=html') }
   end
 
   context '#public_source_path' do
     it { expect(package_with_file.public_source_path).to eq('/public/source/home:tom/package_with_files') }
     it { expect(package_with_file.public_source_path('icon')).to eq('/public/source/home:tom/package_with_files/icon') }
     it 'adds the format parameter to the url that was given to the method' do
-      expect(package_with_file.public_source_path('icon', { format: :html })).to eq('/public/source/home:tom/package_with_files/icon?format=html')
+      expect(package_with_file.public_source_path('icon', format: :html)).to eq('/public/source/home:tom/package_with_files/icon?format=html')
     end
   end
 
@@ -480,7 +480,7 @@ RSpec.describe Package, vcr: true do
 
       it 'has errors' do
         subject
-        expect(package.errors.details).to eq({ :base => [{ :error => 'Exception from WebMock' }] })
+        expect(package.errors.details).to eq(:base => [{ :error => 'Exception from WebMock' }])
       end
     end
 
@@ -500,7 +500,7 @@ RSpec.describe Package, vcr: true do
 
       it 'has errors' do
         subject
-        expect(package.errors.details).to eq({ :base=>[{ :error=>"No permission to modify project '#{other_project}' for user '#{user}'" }] })
+        expect(package.errors.details).to eq(:base=>[{ :error=>"No permission to modify project '#{other_project}' for user '#{user}'" }])
       end
     end
   end

@@ -17,7 +17,7 @@ class IchainNotifierTest < ActiveSupport::TestCase
     assert @user.valid?
 
     @expected = TMail::Mail.new
-    @expected.set_content_type 'text', 'plain', { 'charset' => CHARSET }
+    @expected.set_content_type 'text', 'plain', 'charset' => CHARSET
     @expected.from    = 'admin@opensuse.org'
     @expected.to      = @user.email
     @expected['Precedence'] = 'bulk'

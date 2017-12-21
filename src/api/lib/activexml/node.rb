@@ -68,21 +68,21 @@ module ActiveXML
       end
 
       def prepare_args(args)
-        if args[0].kind_of? String
+        if args[0].is_a? String
           args[1] ||= {}
           first_arg = args.shift
           hash = args.shift
           hash[@default_find_parameter] = first_arg
           args.insert(0, hash)
         end
-        if args[0].kind_of? Hash
+        if args[0].is_a? Hash
           hash = Hash.new
           args[0].each do |key, value|
             if key.nil? || value.nil?
               Rails.logger.debug "nil value given #{args.inspect}"
               next
             end
-            if value.kind_of? Array
+            if value.is_a? Array
               hash[key.to_sym] = value
             else
               hash[key.to_sym] = value.to_s
@@ -148,7 +148,7 @@ module ActiveXML
       def free_cache(*args)
         # modify copy of args as it might be still used in the calling method
         free_args = args.dup
-        options = free_args.last if free_args.last.kind_of?(Hash)
+        options = free_args.last if free_args.last.is_a?(Hash)
         if options && options[:expires_in]
           free_args[free_args.length - 1] = free_args.last.dup
           free_args.last.delete :expires_in
@@ -164,22 +164,22 @@ module ActiveXML
 
     def initialize(data)
       @init_options = {}
-      if data.kind_of? Nokogiri::XML::Node
+      if data.is_a? Nokogiri::XML::Node
         @data = data
-      elsif data.kind_of? String
+      elsif data.is_a? String
         self.raw_data = data.clone
-      elsif data.kind_of? Hash
+      elsif data.is_a? Hash
         # create new
         @init_options = data
         stub = self.class.make_stub(data)
-        if stub.kind_of? String
+        if stub.is_a? String
           self.raw_data = stub
-        elsif stub.kind_of? Node
+        elsif stub.is_a? Node
           self.raw_data = stub.dump_xml
         else
           raise "make_stub should return Node or String, was #{stub.inspect}"
         end
-      elsif data.kind_of? Node
+      elsif data.is_a? Node
         @data = data.internal_data.clone
       else
         raise 'constructor needs either XML::Node, String or Hash'
@@ -204,7 +204,7 @@ module ActiveXML
     private :parse
 
     def raw_data=(data)
-      if data.kind_of? Nokogiri::XML::Node
+      if data.is_a? Nokogiri::XML::Node
         @data = data.clone
       else
         @raw_data = data.clone
@@ -329,7 +329,7 @@ module ActiveXML
     end
 
     def add_node(node)
-      raise ArgumentError, 'argument must be a string' unless node.kind_of? String
+      raise ArgumentError, 'argument must be a string' unless node.is_a? String
       xmlnode = Nokogiri::XML::Document.parse(node, nil, nil, Nokogiri::XML::ParseOptions::STRICT).root
       _data.add_child(xmlnode)
       cleanup_cache
@@ -342,7 +342,7 @@ module ActiveXML
       _data.add_child(el)
       attrs.each do |key, value|
         el[key.to_s] = value.to_s
-      end if attrs.kind_of? Hash
+      end if attrs.is_a? Hash
       # you never know
       cleanup_cache
       Node.new(el)
@@ -369,7 +369,7 @@ module ActiveXML
     # query can either be an element name, an xpath, or any object
     # whose to_s method evaluates to an element name or xpath
     def has_element?(query)
-      if @hash_cache && query.kind_of?(Symbol)
+      if @hash_cache && query.is_a?(Symbol)
         return @hash_cache.has_key? query.to_s
       end
       !find_first(query).nil?
@@ -380,7 +380,7 @@ module ActiveXML
     end
 
     def has_attribute?(query)
-      if @hash_cache && query.kind_of?(Symbol)
+      if @hash_cache && query.is_a?(Symbol)
         return @hash_cache.has_key? query.to_s
       end
       _data.attributes.has_key?(query.to_s)
@@ -396,14 +396,14 @@ module ActiveXML
     end
 
     def delete_element(elem)
-      if elem.kind_of? Node
+      if elem.is_a? Node
         raise 'NO GOOD IDEA!' unless _data.document == elem.internal_data.document
         elem.internal_data.remove
-      elsif elem.kind_of? Nokogiri::XML::Node
+      elsif elem.is_a? Nokogiri::XML::Node
         raise 'this should be obsolete!!!'
       else
         s = _data.xpath(elem.to_s)
-        raise 'this was supposed to return sets' unless s.kind_of? Nokogiri::XML::NodeSet
+        raise 'this was supposed to return sets' unless s.is_a? Nokogiri::XML::NodeSet
         raise 'xpath for delete did not give exactly one node!' unless s.length == 1
         s.first.remove
       end
@@ -431,7 +431,7 @@ module ActiveXML
 
       if @hash_cache
         ret = @hash_cache[symbols]
-        return ret if ret && ret.kind_of?(String)
+        return ret if ret && ret.is_a?(String)
       end
       return @value_cache[symbols] if @value_cache.has_key?(symbols)
 

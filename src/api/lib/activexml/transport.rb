@@ -246,11 +246,11 @@ module ActiveXML
             # any other case, stringify param and put it in url
             next if !params.has_key?($1.to_sym) || params[$1.to_sym].nil?
             sub_val = params[$1.to_sym]
-            if sub_val.kind_of? Array
+            if sub_val.is_a? Array
               sub_val.each do |val|
                 new_pairs << $1 + '=' + CGI.escape(val)
               end
-            elsif sub_val.kind_of? Hash
+            elsif sub_val.is_a? Hash
               sub_val.each_key do |key|
                 new_pairs << CGI.escape(key) + '=' + CGI.escape(sub_val[key])
               end
@@ -282,7 +282,7 @@ module ActiveXML
       defaults = { timeout: 60 }
       opt = defaults.merge opt
 
-      if url.kind_of? String
+      if url.is_a? String
         url = URI(url)
       end
 

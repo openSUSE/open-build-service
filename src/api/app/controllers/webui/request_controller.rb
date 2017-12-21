@@ -302,12 +302,10 @@ class Webui::RequestController < Webui::WebuiController
     begin
       BsRequest.transaction do
         req = BsRequest.new(state: 'new', description: params[:description])
-        action = BsRequestActionChangeDevel.new({
-                                                  target_project: params[:project],
-                                                  target_package: params[:package],
-                                                  source_project: params[:devel_project],
-                                                  source_package: params[:devel_package] || params[:package]
-                                                })
+        action = BsRequestActionChangeDevel.new(target_project: params[:project],
+          target_package: params[:package],
+          source_project: params[:devel_project],
+          source_package: params[:devel_package] || params[:package])
 
         req.bs_request_actions << action
         action.bs_request = req

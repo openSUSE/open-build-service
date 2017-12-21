@@ -99,7 +99,7 @@ module FlagHelper
     validate_type flag
 
     prj = self
-    prj = project if kind_of? Package
+    prj = project if is_a? Package
     update = nil
 
     # we find all repositories targeted by given products

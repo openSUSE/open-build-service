@@ -127,7 +127,7 @@ class BsRequestAction < ApplicationRecord
     errors.add(:target_project, 'is invalid project name') if target_project && !Project.valid_name?(target_project)
     errors.add(:source_project, 'is invalid project name') if source_project && !Project.valid_name?(source_project)
 
-    # TODO to be continued
+    # TODO: to be continued
   end
 
   def action_type
@@ -510,7 +510,7 @@ class BsRequestAction < ApplicationRecord
     new_targets = Array.new
 
     packages.each do |pkg|
-      unless pkg.kind_of? Package
+      unless pkg.is_a? Package
         raise RemoteSource, 'No support for auto expanding from remote instance. You need to submit a full specified request in that case.'
       end
       # find target via linkinfo or submit to all.
@@ -815,7 +815,7 @@ class BsRequestAction < ApplicationRecord
           end
         end
       end
-      if action_type == :submit && tprj.kind_of?(Project)
+      if action_type == :submit && tprj.is_a?(Project)
         at = AttribType.find_by_namespace_and_name!('OBS', 'MakeOriginOlder')
         self.makeoriginolder = true if tprj.attribs.find_by(attrib_type: at)
       end
@@ -876,7 +876,7 @@ class BsRequestAction < ApplicationRecord
 
     if action_type.in?([:submit, :maintenance_incident])
       if target_package &&
-         Package.exists_by_project_and_name(target_project, target_package, { follow_project_links: false })
+         Package.exists_by_project_and_name(target_project, target_package, follow_project_links: false)
         raise MissingAction unless contains_change?
         return
       end
@@ -904,7 +904,7 @@ class BsRequestAction < ApplicationRecord
         per_package_locking = true if action_type == :maintenance_release
       end
 
-      return create_expand_package(packages, { ignore_build_state: ignore_build_state }),
+      return create_expand_package(packages, ignore_build_state: ignore_build_state),
              per_package_locking
     end
 
@@ -948,15 +948,15 @@ class BsRequestAction < ApplicationRecord
       query = {}
       query[:expand] = '1' unless updatelink
       query[:rev] = source_rev if source_rev
-      # FIXME we have a Directory model
+      # FIXME: we have a Directory model
       url = Package.source_path(source_project, source_package, nil, query)
       c = Backend::Connection.get(url).body
       if add_revision && !source_rev
         dir = Xmlhash.parse(c)
         if action_type == :maintenance_release && dir['entry']
           # patchinfos in release requests get not frozen to allow to modify meta data
-          return if dir['entry'].kind_of?(Array) && dir['entry'].map { |e| e['name'] }.include?('_patchinfo')
-          return if dir['entry'].kind_of?(Hash) && dir['entry']['name'] == '_patchinfo'
+          return if dir['entry'].is_a?(Array) && dir['entry'].map { |e| e['name'] }.include?('_patchinfo')
+          return if dir['entry'].is_a?(Hash) && dir['entry']['name'] == '_patchinfo'
         end
         self.source_rev = dir['srcmd5']
       end

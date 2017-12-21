@@ -415,8 +415,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_match(/admin rights are required to change projects using remote resources/, @response.body)
     # DoD remote repository
     doc = ActiveXML::Node.new(xml)
-    r = doc.add_element 'repository', { name: 'download_on_demand' }
-    r.add_element 'download', { arch: 'i586', url: 'http://somewhere', repotype: 'rpmmd' }
+    r = doc.add_element 'repository', name: 'download_on_demand'
+    r.add_element 'download', arch: 'i586', url: 'http://somewhere', repotype: 'rpmmd'
     put url_for(controller: :source, action: :update_project_meta, project: 'kde4'), params: doc.dump_xml
     assert_response 403
     assert_match(/admin rights are required to change projects using remote resources/, @response.body)

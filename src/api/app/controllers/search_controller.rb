@@ -232,7 +232,7 @@ class SearchController < ApplicationController
     end
     relation = relation.includes(includes).references(includes)
 
-    # TODO support sort_by and order parameters?
+    # TODO: support sort_by and order parameters?
 
     relation.each do |item|
       next if xml[item.id]

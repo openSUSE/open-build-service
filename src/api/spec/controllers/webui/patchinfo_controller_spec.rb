@@ -276,10 +276,8 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       end
 
       it do
-        expect(JSON.parse(response.body)).to eq({
-                                                  'error'  => '',
-                                                  'issues' => [['bgo', '132412', 'https://bugzilla.gnome.org/show_bug.cgi?id=132412', '']]
-                                                })
+        expect(JSON.parse(response.body)).to eq('error'  => '',
+                                                'issues' => [['bgo', '132412', 'https://bugzilla.gnome.org/show_bug.cgi?id=132412', '']])
       end
       it { expect(response).to have_http_status(:success) }
     end
@@ -289,7 +287,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
         get :new_tracker, params: { project: user.home_project_name, package: patchinfo_package.name, issues: ['hell#666'] }
       end
 
-      it { expect(JSON.parse(response.body)).to eq({ 'error' => "hell is not a valid tracker.\n", 'issues' => [] }) }
+      it { expect(JSON.parse(response.body)).to eq('error' => "hell is not a valid tracker.\n", 'issues' => []) }
       it { expect(response).to have_http_status(:success) }
     end
   end

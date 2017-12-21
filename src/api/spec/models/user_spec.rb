@@ -145,10 +145,10 @@ RSpec.describe User do
 
   describe 'create_user_with_fake_pw!' do
     context 'with login and email' do
-      let(:user) { User.create_user_with_fake_pw!({ login: 'tux', email: 'some@email.com' }) }
+      let(:user) { User.create_user_with_fake_pw!(login: 'tux', email: 'some@email.com') }
 
       it 'creates a user with a fake password' do
-        expect(user.password).not_to eq(User.create_user_with_fake_pw!({ login: 'tux2', email: 'some@email.com' }).password)
+        expect(user.password).not_to eq(User.create_user_with_fake_pw!(login: 'tux2', email: 'some@email.com').password)
       end
 
       it 'creates a user from given attributes' do
@@ -838,11 +838,9 @@ RSpec.describe User do
       end
 
       before do
-        stub_const('CONFIG', CONFIG.merge({
-                                            'ldap_mode'        => :on,
-                                            'ldap_search_user' => 'tux',
-                                            'ldap_search_auth' => 'tux_password'
-                                          }))
+        stub_const('CONFIG', CONFIG.merge('ldap_mode'        => :on,
+                                          'ldap_search_user' => 'tux',
+                                          'ldap_search_auth' => 'tux_password'))
       end
 
       context 'and user is already known by OBS' do

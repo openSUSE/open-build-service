@@ -8,7 +8,7 @@ class Service < ActiveXML::Node
   end
 
   def self.valid_name?(name)
-    return false unless name.kind_of?(String)
+    return false unless name.is_a?(String)
     return false if name.length > 200 || name.blank?
     return false if name =~ %r{^[_\.]}
     return false if name =~ %r{::}

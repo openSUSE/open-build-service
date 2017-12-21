@@ -480,11 +480,11 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
 
     it { expect(subject.find_binaries_by_name('', 'project', [], use_project_repositories: true)).to eq(binaries_available_sample) }
     it do
-      expect(subject.find_binaries_by_name('ap', 'project', [], use_project_repositories: true)).to eq({ 'apache' => ['i586', 'x86_64'],
-        'apache2' => ['x86_64'], 'appArmor' => ['i586', 'x86_64'] })
+      expect(subject.find_binaries_by_name('ap', 'project', [], use_project_repositories: true)).to eq('apache' => ['i586', 'x86_64'],
+        'apache2' => ['x86_64'], 'appArmor' => ['i586', 'x86_64'])
     end
-    it { expect(subject.find_binaries_by_name('app', 'project', [], use_project_repositories: true)).to eq({ 'appArmor' => ['i586', 'x86_64'] }) }
-    it { expect(subject.find_binaries_by_name('b', 'project', [], use_project_repositories: true)).to eq({ 'bcrypt' => ['x86_64'] }) }
+    it { expect(subject.find_binaries_by_name('app', 'project', [], use_project_repositories: true)).to eq('appArmor' => ['i586', 'x86_64']) }
+    it { expect(subject.find_binaries_by_name('b', 'project', [], use_project_repositories: true)).to eq('bcrypt' => ['x86_64']) }
     it { expect(subject.find_binaries_by_name('c', 'project', [], use_project_repositories: true)).to be_empty }
   end
 

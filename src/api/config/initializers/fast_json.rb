@@ -3,7 +3,7 @@
 require 'yajl'
 
 ActionController::Renderers.add :json do |json, _|
-  json = Yajl::Encoder.encode(json) unless json.kind_of?(String)
+  json = Yajl::Encoder.encode(json) unless json.is_a?(String)
   self.content_type ||= Mime[:json]
   json
 end

@@ -84,7 +84,7 @@ class Repository < ApplicationRecord
           pe.save
         end
       end
-      lrep.project.store({ lowprio: true })
+      lrep.project.store(lowprio: true)
     end
     # target repos
     logger.debug "remove target repositories from repository #{project.name}/#{name}"
@@ -101,7 +101,7 @@ class Repository < ApplicationRecord
           rt.target_repository = Repository.deleted_instance
           rt.save
         end
-        repo.project.store({ lowprio: true })
+        repo.project.store(lowprio: true)
       end
     end
   end

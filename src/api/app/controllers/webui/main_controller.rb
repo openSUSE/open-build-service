@@ -94,7 +94,7 @@ class Webui::MainController < Webui::WebuiController
       flash[:error] = 'Please provide a message and severity'
       redirect_to(action: 'index') && return
     end
-    # TODO - make use of permissions.status_message_create
+    # TODO: make use of permissions.status_message_create
     status_message = StatusMessage.new(message: params[:message], severity: params[:severity], user: User.current)
     if status_message.save
       flash[:notice] = 'Status message was successfully created.'

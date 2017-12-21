@@ -130,15 +130,13 @@ class BsRequestTest < ActiveSupport::TestCase
     wi = req.webui_infos(diffs: false)
     # iggy is *not* target maintainer
     assert_equal false, wi['is_target_maintainer']
-    assert_equal wi['actions'][0], {
-      type: :submit,
-      sprj: 'home:Iggy',
-      spkg: 'TestPack',
-      srev: '1',
-      tprj: 'kde4',
-      tpkg: 'mypackage',
-      name: 'Submit TestPack'
-    }
+    assert_equal wi['actions'][0], type: :submit,
+                                   sprj: 'home:Iggy',
+                                   spkg: 'TestPack',
+                                   srev: '1',
+                                   tprj: 'kde4',
+                                   tpkg: 'mypackage',
+                                   name: 'Submit TestPack'
   end
 
   def check_user_targets(user, *trues)

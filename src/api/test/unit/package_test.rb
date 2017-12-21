@@ -122,12 +122,12 @@ class PackageTest < ActiveSupport::TestCase
 
   def test_render
     xml = packages(:kde4_kdelibs).render_xml
-    assert_equal Xmlhash.parse(xml), { 'name' => 'kdelibs',
-                                      'project' => 'kde4', 'title' => 'blub', 'description' => 'blub',
-                                      'devel' => { 'project' => 'home:coolo:test', 'package' => 'kdelibs_DEVEL_package' },
-                                      'person' => [{ 'userid' => 'fredlibs', 'role' => 'maintainer' },
-                                                   { 'userid' => 'adrian', 'role' => 'reviewer' }],
-                                      'group' => { 'groupid' => 'test_group', 'role' => 'maintainer' } }
+    assert_equal Xmlhash.parse(xml), 'name' => 'kdelibs',
+                                     'project' => 'kde4', 'title' => 'blub', 'description' => 'blub',
+                                     'devel' => { 'project' => 'home:coolo:test', 'package' => 'kdelibs_DEVEL_package' },
+                                     'person' => [{ 'userid' => 'fredlibs', 'role' => 'maintainer' },
+                                                  { 'userid' => 'adrian', 'role' => 'reviewer' }],
+                                     'group' => { 'groupid' => 'test_group', 'role' => 'maintainer' }
   end
 
   def test_can_be_deleted

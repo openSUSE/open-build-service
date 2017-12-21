@@ -5,7 +5,7 @@ require 'nyan_cat_formatter'
 class RSpec3
   def start(notification)
     # TODO: Lazy fix for specs.
-    if notification.kind_of?(Integer)
+    if notification.is_a?(Integer)
       super(OpenStruct.new(count: notification))
     else
       super(notification)

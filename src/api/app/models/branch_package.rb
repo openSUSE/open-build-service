@@ -166,7 +166,7 @@ class BranchPackage
             msg = "fetch updates from devel package #{p[:copy_from_devel].project.name}/#{p[:copy_from_devel].name}"
           end
           Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name,  p[:copy_from_devel].project.name, p[:copy_from_devel].name,
-                                              User.current.login, { comment: msg, keeplink: 1, expand: 1 })
+                                              User.current.login, comment: msg, keeplink: 1, expand: 1)
         end
       end
       tpkg.sources_changed
@@ -274,7 +274,7 @@ class BranchPackage
   end
 
   def lookup_incident_pkg(p)
-    return unless p[:package].kind_of? Package
+    return unless p[:package].is_a? Package
     @obs_maintenanceproject ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
     @maintenance_projects ||= Project.find_by_attribute_type(@obs_maintenanceproject)
     incident_pkg = nil
@@ -314,7 +314,7 @@ class BranchPackage
       p[:target_package] += ".#{p[:link_target_project].name}" if @extend_names
     end
     if @extend_names
-      p[:release_name] = p[:package].kind_of?(String) ? p[:package] : p[:package].name
+      p[:release_name] = p[:package].is_a?(String) ? p[:package] : p[:package].name
     end
 
     # validate and resolve devel package or devel project definitions
@@ -465,11 +465,11 @@ class BranchPackage
       unless found
         logger.debug "found local linked package in project #{p[:package].project.name}/#{ap.name}, " +
                      "adding it as well, pointing it to #{p[:package].name} for #{target_package}"
-        @packages.push({ base_project: p[:base_project],
-                         link_target_project: p[:link_target_project],
-                         link_target_package: p[:package].name,
-                         package: ap, target_package: target_package,
-                         release_name: release_name, local_link: 1 })
+        @packages.push(base_project: p[:base_project],
+                       link_target_project: p[:link_target_project],
+                       link_target_package: p[:package].name,
+                       package: ap, target_package: target_package,
+                       release_name: release_name, local_link: 1)
       end
     end
   end
@@ -495,7 +495,7 @@ class BranchPackage
           pkg = Package.get_by_project_and_name action.source_project, action.source_package
         end
 
-        @packages.push({ link_target_project: action.source_project, package: pkg, target_package: "#{pkg.name}.#{pkg.project.name}" })
+        @packages.push(link_target_project: action.source_project, package: pkg, target_package: "#{pkg.name}.#{pkg.project.name}")
       end
     elsif params[:project] && params[:package]
       pkg = nil
@@ -505,7 +505,7 @@ class BranchPackage
           raise NotMissingError, "Branch call with missingok parameter but branched source (#{params[:project]}/#{params[:package]}) exists."
         end
       else
-        pkg = Package.get_by_project_and_name params[:project], params[:package], { check_update_project: true }
+        pkg = Package.get_by_project_and_name params[:project], params[:package], check_update_project: true
         if prj.is_a?(Project) && prj.find_attribute('OBS', 'BranchTarget')
           @copy_from_devel = true
         elsif pkg
@@ -517,12 +517,12 @@ class BranchPackage
       tpkg_name += ".#{prj.name}" if @extend_names
       if pkg
         # local package
-        @packages.push({ base_project: prj, link_target_project: prj, package: pkg, rev: params[:rev], target_package: tpkg_name })
+        @packages.push(base_project: prj, link_target_project: prj, package: pkg, rev: params[:rev], target_package: tpkg_name)
       else
         # remote or not existing package
-        @packages.push({ base_project: prj,
-                         link_target_project: (prj || params[:project]),
-                         package: params[:package], rev: params[:rev], target_package: tpkg_name })
+        @packages.push(base_project: prj,
+                       link_target_project: (prj || params[:project]),
+                       package: params[:package], rev: params[:rev], target_package: tpkg_name)
       end
     else
       @extend_names = true
@@ -533,7 +533,7 @@ class BranchPackage
       if params[:value]
         Package.find_by_attribute_type_and_value(at, params[:value], params[:package]) do |p|
           logger.info "Found package instance #{p.project.name}/#{p.name} for attribute #{at.name} with value #{params[:value]}"
-          @packages.push({ base_project: p.project, link_target_project: p.project, package: p, target_package: "#{p.name}.#{p.project.name}" })
+          @packages.push(base_project: p.project, link_target_project: p.project, package: p, target_package: "#{p.name}.#{p.project.name}")
         end
         # FIXME: how to handle linked projects here ? shall we do at all or has the tagger
         # (who creates the attribute) to create the package instance ?
@@ -541,7 +541,7 @@ class BranchPackage
         # Find all direct instances of a package
         Package.find_by_attribute_type(at, params[:package]).each do |p|
           logger.info "Found package instance #{p.project.name}/#{p.name} for attribute #{at.name} and given package name #{params[:package]}"
-          @packages.push({ base_project: p.project, link_target_project: p.project, package: p, target_package: "#{p.name}.#{p.project.name}" })
+          @packages.push(base_project: p.project, link_target_project: p.project, package: p, target_package: "#{p.name}.#{p.project.name}")
         end
         # Find all indirect instance via project links
         ltprj = nil
@@ -555,8 +555,8 @@ class BranchPackage
             if ltprj.find_attribute('OBS', 'BranchTarget').nil?
               ltprj = pkg2.project
             end
-            @packages.push({ base_project: pkg2.project, link_target_project: ltprj,
-                             package: pkg2, target_package: "#{pkg2.name}.#{pkg2.project.name}" })
+            @packages.push(base_project: pkg2.project, link_target_project: ltprj,
+                           package: pkg2, target_package: "#{pkg2.name}.#{pkg2.project.name}")
           end
         end
       end

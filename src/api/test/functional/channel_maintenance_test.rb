@@ -301,7 +301,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/My:Maintenance/_meta'
     assert_response :success
     meta = ActiveXML::Node.new(@response.body)
-    meta.find_first('maintenance').add_element 'maintains', { project: 'Channel' }
+    meta.find_first('maintenance').add_element 'maintains', project: 'Channel'
     put '/source/My:Maintenance/_meta', params: meta.dump_xml
     assert_response :success
 
@@ -522,7 +522,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get "/source/#{incident_project}/patchinfo/_patchinfo"
     assert_response :success
     pi = ActiveXML::Node.new(@response.body)
-    pi.add_element 'issue', { 'id' => '0815', 'tracker' => 'bnc' }
+    pi.add_element 'issue', 'id' => '0815', 'tracker' => 'bnc'
     put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.dump_xml
     assert_response :success
 

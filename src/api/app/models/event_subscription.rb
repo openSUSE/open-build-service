@@ -35,9 +35,9 @@ class EventSubscription < ApplicationRecord
   scope :for_eventtype, ->(eventtype) { where(eventtype: eventtype) }
   scope :defaults, -> { where(user_id: nil, group_id: nil) }
   scope :for_subscriber, lambda { |subscriber|
-    if subscriber.kind_of? User
+    if subscriber.is_a? User
       where(user: subscriber)
-    elsif subscriber.kind_of? Group
+    elsif subscriber.is_a? Group
       where(group: subscriber)
     else
       defaults

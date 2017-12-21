@@ -126,7 +126,7 @@ class AttribType < ApplicationRecord
   def as_json(options = nil)
     if options
       if options.key?(:methods)
-        if options[:methods].kind_of? Array
+        if options[:methods].is_a? Array
           options[:methods] << :attrib_namespace_name unless options[:methods].include?(:attrib_namespace_name)
         elsif options[:methods] != :attrib_namespace_name
           options[:methods] = [options[:methods]] + [:attrib_namespace_name]

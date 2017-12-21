@@ -71,7 +71,7 @@ module Kiwi
 
       Package.transaction do
         file_name = package.kiwi_image_file || "#{package.name}.kiwi"
-        package.save_file({ filename: file_name, file: to_xml })
+        package.save_file(filename: file_name, file: to_xml)
         self.md5_last_revision = package.kiwi_file_md5
         save!
       end

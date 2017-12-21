@@ -69,8 +69,8 @@ class EventMailerTest < ActionMailer::TestCase
 
     req = bs_requests(:submit_from_home_project)
 
-    GroupsUser.where(user: users(:maintenance_assi), group: groups(:maint_coord)).first.update({ email: false })
-    GroupsUser.where(user: users(:maintenance_coord), group: groups(:maint_coord)).first.update({ email: false })
+    GroupsUser.where(user: users(:maintenance_assi), group: groups(:maint_coord)).first.update(email: false)
+    GroupsUser.where(user: users(:maintenance_coord), group: groups(:maint_coord)).first.update(email: false)
     assert_difference 'ActionMailer::Base.deliveries.size', 0 do
       req.addreview(by_group: 'maint_coord', comment: 'does it still look ok?')
     end

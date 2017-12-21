@@ -173,13 +173,13 @@ class BsRequest < ApplicationRecord
       request.number = theid if theid
 
       actions = hashed.delete('action')
-      if actions.kind_of? Hash
+      if actions.is_a? Hash
         actions = [actions]
       end
 
       request.priority = hashed.delete('priority') || 'moderate'
 
-      state = hashed.delete('state') || Xmlhash::XMLHash.new({ 'name' => 'new' })
+      state = hashed.delete('state') || Xmlhash::XMLHash.new('name' => 'new')
       request.state = state.delete('name') || 'new'
       request.state = :declined if request.state.to_s == 'rejected'
       request.state = :accepted if request.state.to_s == 'accept'
@@ -222,7 +222,7 @@ class BsRequest < ApplicationRecord
       hashed.delete('history')
 
       reviews = hashed.delete('review')
-      if reviews.kind_of? Hash
+      if reviews.is_a? Hash
         reviews = [reviews]
       end
       reviews.each do |r|
@@ -317,11 +317,11 @@ class BsRequest < ApplicationRecord
   def to_axml(opts = {})
     if opts[:withfullhistory]
       Rails.cache.fetch("xml_bs_request_fullhistory_#{cache_key}") do
-        render_xml({ withfullhistory: 1 })
+        render_xml(withfullhistory: 1)
       end
     elsif opts[:withhistory]
       Rails.cache.fetch("xml_bs_request_history_#{cache_key}") do
-        render_xml({ withhistory: 1 })
+        render_xml(withhistory: 1)
       end
     else
       Rails.cache.fetch("xml_bs_request_#{cache_key}") do
@@ -456,7 +456,7 @@ class BsRequest < ApplicationRecord
   end
 
   def permission_check_setincident!(incident)
-    checker = BsRequestPermissionCheck.new(self, { incident: incident })
+    checker = BsRequestPermissionCheck.new(self, incident: incident)
     checker.cmd_setincident_permissions
   end
 
@@ -493,7 +493,7 @@ class BsRequest < ApplicationRecord
     bs_request_actions.each do |action|
       source_project = Project.find_by_name(action.source_project)
       if action.source_project && action.is_maintenance_release?
-        if source_project.kind_of?(Project)
+        if source_project.is_a?(Project)
           at = AttribType.find_by_namespace_and_name!('OBS', 'EmbargoDate')
           attrib = source_project.attribs.find_by(attrib_type: at)
           v = attrib.values.first if attrib
@@ -918,13 +918,13 @@ class BsRequest < ApplicationRecord
       User.current ||= User.find_by_login creator
 
       begin
-        change_state({ newstate: 'accepted', comment: 'Auto accept' })
+        change_state(newstate: 'accepted', comment: 'Auto accept')
       rescue BsRequestPermissionCheck::NotExistingTarget
-        change_state({ newstate: 'revoked', comment: 'Target disappeared' })
+        change_state(newstate: 'revoked', comment: 'Target disappeared')
       rescue PostRequestNoPermission
-        change_state({ newstate: 'revoked', comment: 'Permission problem' })
+        change_state(newstate: 'revoked', comment: 'Permission problem')
       rescue APIException
-        change_state({ newstate: 'declined', comment: 'Unhandled error during accept' })
+        change_state(newstate: 'declined', comment: 'Unhandled error during accept')
       end
     end
   end
@@ -973,7 +973,7 @@ class BsRequest < ApplicationRecord
 
     # Autoapproval? Is the creator allowed to accept it?
     if accept_at
-      permission_check_change_state!({ newstate: 'accepted' })
+      permission_check_change_state!(newstate: 'accepted')
     end
 
     apply_default_reviewers
@@ -981,7 +981,7 @@ class BsRequest < ApplicationRecord
 
   def set_accept_at!(time = nil)
     # Approve a request to be accepted when the reviews finished
-    permission_check_change_state!({ newstate: 'accepted' })
+    permission_check_change_state!(newstate: 'accepted')
 
     self.accept_at = time || Time.now
     save!
@@ -998,9 +998,7 @@ class BsRequest < ApplicationRecord
     bs_request_actions.each do |action|
       reviewers += action.default_reviewers
 
-      action.create_post_permissions_hook({
-                                            per_package_locking: @per_package_locking
-                                          })
+      action.create_post_permissions_hook(per_package_locking: @per_package_locking)
     end
 
     # apply reviewers
@@ -1196,13 +1194,13 @@ class BsRequest < ApplicationRecord
 
     return unless persisted? && priority_changed?
 
-    HistoryElement::RequestPriorityChange.create({
-                                                   request:               self,
-                                                   # We need to have a user here
-                                                   user:                  User.find_nobody!,
-                                                   description_extension: "#{priority_was} => #{priority}",
-                                                   comment:               'Automatic priority bump: Priority of related action increased.'
-                                                 })
+    HistoryElement::RequestPriorityChange.create(
+      request:               self,
+      # We need to have a user here
+      user:                  User.find_nobody!,
+      description_extension: "#{priority_was} => #{priority}",
+      comment:               'Automatic priority bump: Priority of related action increased.'
+    )
   end
 
   def _assignreview_update_reviews(reviewer, opts, new_review = nil)

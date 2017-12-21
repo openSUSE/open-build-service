@@ -298,24 +298,10 @@ Rails/SkipsModelValidations:
 Rails/TimeZone:
   Enabled: false
 
-# Offense count: 200
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: braces, no_braces, context_dependent
-Style/BracesAroundHashParameters:
-  Enabled: false
-
 # Offense count: 67
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 # SupportedStyles: nested, compact
 Style/ClassAndModuleChildren:
-  Enabled: false
-
-# Offense count: 85
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: is_a?, kind_of?
-Style/ClassCheck:
   Enabled: false
 
 # Offense count: 35
@@ -329,24 +315,6 @@ Style/ClassVars:
     - 'src/api/lib/activexml/transport.rb'
     - 'src/api/test/functional/branch_publish_flag_test.rb'
     - 'src/api/test/test_helper.rb'
-
-# Offense count: 15
-# Cop supports --auto-correct.
-# Configuration parameters: Keywords.
-# Keywords: TODO, FIXME, OPTIMIZE, HACK, REVIEW
-Style/CommentAnnotation:
-  Exclude:
-    - 'src/api/app/controllers/person_controller.rb'
-    - 'src/api/app/controllers/search_controller.rb'
-    - 'src/api/app/controllers/webui/main_controller.rb'
-    - 'src/api/app/controllers/webui/package_controller.rb'
-    - 'src/api/app/models/bs_request_action.rb'
-    - 'src/api/app/models/bs_request_action_group.rb'
-    - 'src/api/app/models/owner.rb'
-    - 'src/api/app/models/product.rb'
-    - 'src/api/test/functional/attributes_test.rb'
-    - 'src/api/test/functional/build_controller_test.rb'
-    - 'src/api/test/functional/request_controller_test.rb'
 
 # Offense count: 8
 Style/CommentedKeyword:

@@ -125,7 +125,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     context 'not successful' do
       before do
         # NOTE: This test has to run with running backend, but 'global_write_through' disabled
-        stub_const('CONFIG', CONFIG.merge({ 'global_write_through' => false }))
+        stub_const('CONFIG', CONFIG.merge('global_write_through' => false))
         post :submit_request, params: { project: source_project, package: source_package, targetproject: target_project.name }
       end
 
@@ -1209,12 +1209,12 @@ RSpec.describe Webui::PackageController, vcr: true do
       before do
         allow(Statistic).to receive(:find_hashed).
           with(project: source_project, package: source_package, repository: repository.name, arch: 'i586').
-          and_return({ disk: { usage: 20, size: 30 } })
+          and_return(disk: { usage: 20, size: 30 })
 
         get :statistics, params: { project: source_project, package: source_package, arch: 'i586', repository: repository.name }
       end
 
-      it { expect(assigns(:statistics)).to eq({ disk: { usage: 20, size: 30 } }) }
+      it { expect(assigns(:statistics)).to eq(disk: { usage: 20, size: 30 }) }
       it { expect(response).to have_http_status(:success) }
     end
 

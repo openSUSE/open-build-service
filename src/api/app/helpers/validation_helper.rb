@@ -30,7 +30,7 @@ module ValidationHelper
   # load last package meta file and just check if sourceaccess flag was used at all, no per user checking atm
   def validate_read_access_of_deleted_package(project, name)
     prj = Project.get_by_name project
-    if prj.kind_of? Project
+    if prj.is_a? Project
       raise Project::ReadAccessError, project.to_s if prj.disabled_for? 'access', nil, nil
       raise Package::ReadSourceAccessError, "#{target_project_name}/#{target_package_name}" if prj.disabled_for? 'sourceaccess', nil, nil
     end

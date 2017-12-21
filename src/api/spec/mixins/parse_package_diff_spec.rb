@@ -40,9 +40,9 @@ RSpec.describe ParsePackageDiff do
 
       it { expect(subject['filenames']).to eq([filename]) }
       it { expect(subject['files'][filename]['state']).to eq('changed') }
-      it { expect(subject['files'][filename]['old']).to eq({ 'name' => filename, 'md5' => 'f00a43bbe6d74b350577e5bce2ea5ff7', 'size' => '42' }) }
-      it { expect(subject['files'][filename]['new']).to eq({ 'name' => filename, 'md5' => '3fd7513ed78f95e2be1bb211369bbea3', 'size' => '10' }) }
-      it { expect(subject['files'][filename]['diff']).to eq({ 'lines' => '1', '_content' => '# the diff' }) }
+      it { expect(subject['files'][filename]['old']).to eq('name' => filename, 'md5' => 'f00a43bbe6d74b350577e5bce2ea5ff7', 'size' => '42') }
+      it { expect(subject['files'][filename]['new']).to eq('name' => filename, 'md5' => '3fd7513ed78f95e2be1bb211369bbea3', 'size' => '10') }
+      it { expect(subject['files'][filename]['diff']).to eq('lines' => '1', '_content' => '# the diff') }
     end
 
     context 'with more than one file' do

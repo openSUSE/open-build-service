@@ -141,7 +141,7 @@ RSpec.describe Statistics::MaintenanceStatistic do
 
       before do
         login(user)
-        bs_request.assignreview({ by_group: group.title, reviewer: user.login })
+        bs_request.assignreview(by_group: group.title, reviewer: user.login)
         new_review = Review.last
         create(
           :history_element_review_accepted,

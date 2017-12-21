@@ -136,7 +136,7 @@ class SourceController < ApplicationController
     project = Project.get_by_name(params[:project])
 
     # checks
-    unless project.kind_of?(Project) && User.current.can_modify_project?(project)
+    unless project.is_a?(Project) && User.current.can_modify_project?(project)
       logger.debug "No permission to delete project #{project}"
       render_error status: 403, errorcode: 'delete_project_no_permission',
                    message: "Permission denied (delete project #{project})"
@@ -512,7 +512,7 @@ class SourceController < ApplicationController
         # FIXME3.0: don't modify send data
         project.relationships.build(user: User.current, role: Role.find_by_title!('maintainer'))
       end
-      project.store({ comment: params[:comment] })
+      project.store(comment: params[:comment])
     end
     render_ok
   end
@@ -690,7 +690,7 @@ class SourceController < ApplicationController
       end
     else
       prj = Project.get_by_name(@project_name)
-      unless prj.kind_of?(Project) && User.current.can_create_package_in?(prj)
+      unless prj.is_a?(Project) && User.current.can_create_package_in?(prj)
         render_error status: 403, errorcode: 'create_package_no_permission',
                      message: "no permission to create a package in project '#{@project_name}'"
         return
@@ -951,7 +951,7 @@ class SourceController < ApplicationController
     @project.packages.each do |pkg|
       pkg.modify_channel(mode)
     end
-    @project.store({ user: User.current.login })
+    @project.store(user: User.current.login)
 
     render_ok
   end
@@ -993,7 +993,7 @@ class SourceController < ApplicationController
   def project_command_release
     params[:user] = User.current.login
 
-    @project = Project.get_by_name params[:project], { includeallpackages: 1 }
+    @project = Project.get_by_name params[:project], includeallpackages: 1
     verify_repos_match!(@project)
 
     if @project.is_a? String # remote project
@@ -1080,7 +1080,7 @@ class SourceController < ApplicationController
     unless (@project && User.current.can_modify_project?(@project)) || User.current.can_create_project?(project_name)
       raise CmdExecutionNoPermission, "no permission to execute command 'copy'"
     end
-    oprj = Project.get_by_name(params[:oproject], { includeallpackages: 1 })
+    oprj = Project.get_by_name(params[:oproject], includeallpackages: 1)
     if params.has_key?(:makeolder) || params.has_key?(:makeoriginolder)
       unless User.current.can_modify_project?(oprj)
         raise CmdExecutionNoPermission, "no permission to execute command 'copy', requires modification permission in origin project"
@@ -1203,7 +1203,7 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=enablechannel
   def package_command_enablechannel
     @package.modify_channel(:enable_all)
-    @package.project.store({ user: User.current.login })
+    @package.project.store(user: User.current.login)
 
     render_ok
   end
@@ -1258,7 +1258,7 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=instantiate
   def package_command_instantiate
     project = Project.get_by_name(params[:project])
-    opackage = Package.get_by_project_and_name(project.name, params[:package], { check_update_project: true })
+    opackage = Package.get_by_project_and_name(project.name, params[:package], check_update_project: true)
     unless opackage
       raise RemoteProjectError, 'Instantiation from remote project is not supported'
     end
@@ -1286,7 +1286,7 @@ class SourceController < ApplicationController
       raise PackageExists, "the package exists already #{@target_project_name} #{@target_package_name}"
     end
     tprj = Project.get_by_name(@target_project_name)
-    unless tprj.kind_of?(Project) && User.current.can_create_package_in?(tprj)
+    unless tprj.is_a?(Project) && User.current.can_create_package_in?(tprj)
       raise CmdExecutionNoPermission, "no permission to create package in project #{@target_project_name}"
     end
 
@@ -1553,7 +1553,7 @@ class SourceController < ApplicationController
 
     if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false)
       verify_can_modify_target_package!
-    elsif !@project.kind_of?(Project) || !User.current.can_create_package_in?(@project)
+    elsif !@project.is_a?(Project) || !User.current.can_create_package_in?(@project)
       raise CmdExecutionNoPermission, "no permission to create package in project #{@target_project_name}"
     end
   end

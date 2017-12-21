@@ -43,7 +43,7 @@ module MaintenanceHelper
   def release_package(source_package, target, target_package_name,
                       filter_source_repository = nil, multibuild_container = nil, action = nil,
                       setrelease = nil, manual = nil)
-    if target.kind_of? Repository
+    if target.is_a? Repository
       target_project = target.project
     else
       # project
@@ -61,7 +61,7 @@ module MaintenanceHelper
     end
 
     # copy binaries
-    if target.kind_of? Repository
+    if target.is_a? Repository
       u_ids = copy_binaries_to_repository(filter_source_repository, source_package, target, target_package_name, multibuild_container, setrelease)
     else
       u_ids = copy_binaries(filter_source_repository, source_package, target_package_name, target_project, multibuild_container, setrelease)
@@ -77,7 +77,7 @@ module MaintenanceHelper
     if f
       unless target_project.flags.find_by_flag_and_status('access', 'disable')
         source_package.project.flags.delete(f)
-        source_package.project.store({ comment: 'project becomes public on release action' })
+        source_package.project.store(comment: 'project becomes public on release action')
         # patchinfos stay unpublished, it is anyway too late to test them now ...
       end
     end
@@ -297,10 +297,7 @@ module MaintenanceHelper
     channel = REXML::Document.new(channel)
 
     if target_repo
-      channel.elements['/channel'].add_element 'target', {
-        'project'    => target_repo.project.name,
-        'repository' => target_repo.name
-      }
+      channel.elements['/channel'].add_element 'target', 'project' => target_repo.project.name, 'repository' => target_repo.name
     end
 
     # replace all project definitions with update projects, if they are defined
