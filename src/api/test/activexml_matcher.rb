@@ -7,9 +7,9 @@ module NodeMatcher #:nodoc:
       hash = keys_to_symbols(hash)
       hash.each do |k, v|
         case k
-        when :tag, :content then
-          # keys are valid, and require no further processing
-        when :attributes then
+        when :tag, :content
+          nil # keys are valid, and require no further processing
+        when :attributes
           hash[k] = keys_to_strings(v)
         when :parent, :child, :ancestor, :descendant, :sibling, :before,
           :after
@@ -19,7 +19,7 @@ module NodeMatcher #:nodoc:
           v.each do |key, value|
             case key
             when :count, :greater_than, :less_than
-              # keys are valid, and require no further processing
+              nil # keys are valid, and require no further processing
             when :only
               v[key] = Conditions.new(value)
             else
@@ -126,6 +126,7 @@ module NodeMatcher #:nodoc:
     when Regexp
       return node.text =~ conditions
     when Conditions
+      nil
     else
       return false
     end

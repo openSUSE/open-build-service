@@ -85,6 +85,7 @@ class RequestController < ApplicationController
     when 'create', 'changestate', 'addreview', 'setpriority', 'setincident', 'setacceptat'
       # create -> noop
       # permissions are checked by the model
+      nil
     when 'changereviewstate', 'assignreview'
       @req.permission_check_change_review!(params)
     when 'addrequest', 'removerequest'

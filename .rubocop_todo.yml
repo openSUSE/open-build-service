@@ -37,15 +37,6 @@ Lint/DuplicateMethods:
     - 'src/api/app/models/history_element.rb'
     - 'src/api/lib/activexml/node.rb'
 
-# Offense count: 19
-Lint/EmptyWhen:
-  Exclude:
-    - 'src/api/app/controllers/request_controller.rb'
-    - 'src/api/app/models/bs_request_permission_check.rb'
-    - 'src/api/app/models/user.rb'
-    - 'src/api/lib/xpath_engine.rb'
-    - 'src/api/test/activexml_matcher.rb'
-
 # Offense count: 22
 Lint/HandleExceptions:
   Enabled: false
@@ -77,14 +68,6 @@ Lint/RescueWithoutErrorClass:
 Lint/ShadowedException:
   Exclude:
     - 'src/api/lib/activexml/transport.rb'
-
-# Offense count: 6
-Lint/UnderscorePrefixedVariableName:
-  Exclude:
-    - 'src/api/app/helpers/webui/main_helper.rb'
-    - 'src/api/app/models/bs_request_permission_check.rb'
-    - 'src/api/app/models/event/base.rb'
-    - 'src/api/lib/api_exception.rb'
 
 # Offense count: 50
 Lint/UriEscapeUnescape:
