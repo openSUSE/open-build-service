@@ -9,11 +9,11 @@ RSpec.describe Webui::RequestController, vcr: true do
   let(:receiver) { create(:confirmed_user, login: 'titan') }
   let(:reviewer) { create(:confirmed_user, login: 'klasnic') }
   let(:target_project) { receiver.home_project }
-  let(:target_package) { create(:package, name: 'goal', project_id: target_project.id) }
+  let(:target_package) { create(:package_with_file, name: 'goal', project_id: target_project.id) }
   let(:source_project) { submitter.home_project }
   let(:source_package) { create(:package, name: 'ball', project_id: source_project.id) }
   let(:devel_project) { create(:project, name: 'devel:project') }
-  let(:devel_package) { create(:package_with_file, name: 'goal', project: devel_project) }
+  let(:devel_package) { create(:package, name: 'goal', project: devel_project) }
   let(:bs_request) { create(:bs_request, description: 'Please take this', creator: submitter.login) }
   let(:bs_request_submit_action) do
     create(:bs_request_action_submit, target_project: target_project.name,
@@ -34,7 +34,7 @@ RSpec.describe Webui::RequestController, vcr: true do
   it { is_expected.to use_before_action(:require_login) }
   it { is_expected.to use_before_action(:require_request) }
 
-  describe 'GET show' do
+  describe 'GET #show' do
     context 'as nobody' do
       before do
         get :show, params: { number: bs_request.number }
@@ -84,6 +84,95 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       it 'does not show a hint to project maintainers by default' do
         expect(assigns(:show_project_maintainer_hint)).to be_falsey
+      end
+    end
+
+    let(:diff_header_size) { 4 }
+    let(:ascii_file_size) { 11000 }
+    # Taken from package_with_binary_diff factory files (bigfile_archive.tar.gz and bigfile_archive_2.tar.gz)
+    let(:binary_file_size) { 30000 }
+    let(:binary_file_changed_size) { 13000 }
+    # TODO: check if this value, the default diff size, is correct
+    let(:default_diff_size) { 9999 }
+
+    shared_examples 'a full diff not requested for' do |file_name|
+      before do
+        bs_request_submit_action
+        get :show, params: { number: bs_request.number }
+      end
+
+      it 'shows a hint' do
+        expect(assigns(:not_full_diff)).to be_truthy
+      end
+
+      it 'shows the truncated diff' do
+        actions = assigns(:actions).select { |action| action[:type] == :submit && action[:sourcediff] }
+        diff_size = actions.first[:sourcediff].first['files'][file_name]['diff']['_content'].split.size
+        expect(diff_size).to eq(expected_diff_size)
+      end
+    end
+
+    context 'full diff not requested' do
+      let(:expected_diff_size) { default_diff_size + diff_header_size }
+      context 'for ASCII files' do
+        let(:target_package) do
+          create(:package_with_file, name: 'test-package-ascii',
+                 file_content: "a\n" * ascii_file_size, project: target_project)
+        end
+
+        it_behaves_like 'a full diff not requested for', 'somefile.txt'
+      end
+
+      context 'for archives' do
+        let(:target_package) do
+          create(:package_with_binary, name: 'test-package-binary', project: target_project)
+        end
+        let(:source_package) do
+          create(:package_with_binary, name: 'test-source-package-binary', project: source_project,
+                 file_name: 'spec/support/files/bigfile_archive_2.tar.gz')
+        end
+
+        it_behaves_like 'a full diff not requested for', 'bigfile_archive.tar.gz/bigfile.txt'
+      end
+    end
+
+    shared_examples 'a full diff requested for' do |file_name|
+      before do
+        bs_request_submit_action
+        get :show, params: { number: bs_request.number, full_diff: true }
+      end
+
+      it 'does not show a hint' do
+        expect(assigns(:not_full_diff)).to be_falsy
+      end
+
+      it 'shows the complete diff' do
+        actions = assigns(:actions).select { |action| action[:type] == :submit && action[:sourcediff] }
+        diff_size = actions.first[:sourcediff].first['files'][file_name]['diff']['_content'].split.size
+        expect(diff_size).to eq(expected_diff_size)
+      end
+    end
+
+    context 'full diff requested' do
+      context 'for ASCII files' do
+        let(:expected_diff_size) { ascii_file_size + diff_header_size }
+        let(:target_package) do
+          create(:package_with_file, name: 'test-package-ascii',
+                 file_content: "a\n" * ascii_file_size, project: target_project)
+        end
+
+        it_behaves_like 'a full diff requested for', 'somefile.txt'
+      end
+
+      context 'for archives' do
+        let(:expected_diff_size) { binary_file_size + binary_file_changed_size + diff_header_size }
+        let(:target_package) { create(:package_with_binary, name: 'test-package-binary', project: target_project) }
+        let(:source_package) do
+          create(:package_with_binary, name: 'test-source-package-binary',
+                 project: source_project, file_name: 'spec/support/files/bigfile_archive_2.tar.gz')
+        end
+
+        it_behaves_like 'a full diff requested for', 'bigfile_archive.tar.gz/bigfile.txt'
       end
     end
   end

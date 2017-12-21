@@ -79,7 +79,9 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def show
-    @req = @bs_request.webui_infos
+    diff_limit = params[:full_diff] ? 0 : nil
+
+    @req = @bs_request.webui_infos(filelimit: diff_limit, tarlimit: diff_limit)
     @id = @req['id']
     @number = @req['number']
     @state = @req['state'].to_s
@@ -96,6 +98,9 @@ class Webui::RequestController < Webui::WebuiController
 
     @history = @bs_request.history_elements
     @actions = @req['actions']
+
+    # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
+    @not_full_diff = BsRequest.truncated_diffs?(@req)
 
     # retrieve a list of all package maintainers that are assigned to at least one target package
     @package_maintainers = get_target_package_maintainers(@actions) || []

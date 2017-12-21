@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
+  recorded_at: Wed, 20 Dec 2017 16:41:46 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=_nobody_
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>The Little Foxes</title>
-          <description>Cumque et et necessitatibus.</description>
+          <title>To Your Scattered Bodies Go</title>
+          <description>Omnis rerum perspiciatis nesciunt inventore.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '184'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>The Little Foxes</title>
-          <description>Cumque et et necessitatibus.</description>
+          <title>To Your Scattered Bodies Go</title>
+          <description>Omnis rerum perspiciatis nesciunt inventore.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
+  recorded_at: Wed, 20 Dec 2017 16:41:46 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>The Little Foxes</title>
-          <description>Cumque et et necessitatibus.</description>
+          <title>To Your Scattered Bodies Go</title>
+          <description>Omnis rerum perspiciatis nesciunt inventore.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,22 +109,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '184'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>The Little Foxes</title>
-          <description>Cumque et et necessitatibus.</description>
+          <title>To Your Scattered Bodies Go</title>
+          <description>Omnis rerum perspiciatis nesciunt inventore.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
+  recorded_at: Wed, 20 Dec 2017 16:41:46 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Optio quia dolorem. Inventore maxime non qui. Ratione consectetur dolorum.
+      string: Eaque autem et id cumque nulla ut. Voluptas quia quod repellat tenetur
+        perspiciatis ducimus. Adipisci et minus aut corporis ea architecto doloribus.
+        Aut sapiente qui et.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -144,28 +146,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>78ae42b4e4055e31cc63d9aeca03e36e</srcmd5>
+        <revision rev="13" vrev="13">
+          <srcmd5>2853d8a89fb10027ef98e164cf3bd5f0</srcmd5>
           <version>unknown</version>
-          <time>1493194713</time>
+          <time>1513788106</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
+  recorded_at: Wed, 20 Dec 2017 16:41:46 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Quam error est ut quod corrupti sit. Qui perspiciatis corrupti optio
-        aut id fuga perferendis. Consequuntur quae hic praesentium aliquid. Sed recusandae
-        minus assumenda necessitatibus. Sequi maiores possimus itaque ipsam sed sapiente.
+      string: Repellendus quia qui beatae blanditiis. Ratione eos neque libero facere
+        eius. Quo libero minima corrupti vel impedit et nihil. Optio eaque quis quidem
+        ut.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,20 +187,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
-          <srcmd5>357e0338def01000c1f095dcad86de54</srcmd5>
+        <revision rev="14" vrev="14">
+          <srcmd5>2387245a3a4c8fd48ba20131e2852e54</srcmd5>
           <version>unknown</version>
-          <time>1493194713</time>
+          <time>1513788106</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
+  recorded_at: Wed, 20 Dec 2017 16:41:46 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file
@@ -224,16 +226,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '305'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="4" vrev="4" srcmd5="357e0338def01000c1f095dcad86de54">
-          <entry name="_config" md5="66d344e38502b0d412bcfe7b2de7f77f" size="74" mtime="1493194713" />
-          <entry name="somefile.txt" md5="1039aa320d12e7de8d6ad69bdb13b8b6" size="233" mtime="1493194713" />
+        <directory name="package_with_file" rev="14" vrev="14" srcmd5="2387245a3a4c8fd48ba20131e2852e54">
+          <entry name="_config" md5="b69b65c0e93eabe1ea3c793eea880695" size="169" mtime="1513788106" />
+          <entry name="somefile.txt" md5="d168c91e90f7f157964af1fd9e3af70c" size="154" mtime="1513788106" />
         </directory>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
+  recorded_at: Wed, 20 Dec 2017 16:41:46 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file
@@ -259,29 +261,27 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '305'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="4" vrev="4" srcmd5="357e0338def01000c1f095dcad86de54">
-          <entry name="_config" md5="66d344e38502b0d412bcfe7b2de7f77f" size="74" mtime="1493194713" />
-          <entry name="somefile.txt" md5="1039aa320d12e7de8d6ad69bdb13b8b6" size="233" mtime="1493194713" />
+        <directory name="package_with_file" rev="14" vrev="14" srcmd5="2387245a3a4c8fd48ba20131e2852e54">
+          <entry name="_config" md5="b69b65c0e93eabe1ea3c793eea880695" size="169" mtime="1513788106" />
+          <entry name="somefile.txt" md5="d168c91e90f7f157964af1fd9e3af70c" size="154" mtime="1513788106" />
         </directory>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
+  recorded_at: Wed, 20 Dec 2017 16:41:46 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=1&opackage=package_with_file&oproject=home:tom&rev=4&view=xml&withissues=1
+    uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=1&opackage=package_with_file&oproject=home:tom&rev=14&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
     headers:
       Content-Type:
-      - text/plain
+      - application/octet-stream
       Accept-Encoding:
-      - identity
-      Content-Length:
-      - '0'
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -298,15 +298,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '292'
+      - '294'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="58b0beea9ee5eee211018ba94f4a0914">
-          <old project="home:tom" package="package_with_file" rev="4" srcmd5="357e0338def01000c1f095dcad86de54" />
-          <new project="home:tom" package="package_with_file" rev="4" srcmd5="357e0338def01000c1f095dcad86de54" />
+        <sourcediff key="ec290b451ac5074fea6b46dd7a396ebd">
+          <old project="home:tom" package="package_with_file" rev="14" srcmd5="2387245a3a4c8fd48ba20131e2852e54" />
+          <new project="home:tom" package="package_with_file" rev="14" srcmd5="2387245a3a4c8fd48ba20131e2852e54" />
           <files />
         </sourcediff>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Wed, 20 Dec 2017 16:41:46 GMT
+recorded_with: VCR 4.0.0

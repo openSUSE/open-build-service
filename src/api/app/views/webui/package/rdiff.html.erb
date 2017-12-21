@@ -10,6 +10,11 @@
     <h3>Changes of Revision <%= @rev %></h3>
 <% end %>
 
+<% if @not_full_diff %>
+  <%= render partial: 'webui/shared/truncated_diff_hint', locals: { type: :package } %>
+  <br />
+<% end %>
+
 <%= render(partial: 'shared/sourcediff', locals: { filenames: @filenames, files: @files, source: { project: @project, package: @package, rev: @rev }, editor_width: '915px' }) %>
 
 <% unless @last_req.blank? %>

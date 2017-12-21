@@ -5,6 +5,7 @@ require 'rails_helper'
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
 
+# rubocop:disable Metrics/BlockLength
 RSpec.describe Webui::PackageController, vcr: true do
   let(:admin) { create(:admin_user, login: 'admin') }
   let(:user) { create(:confirmed_user, login: 'tom') }
@@ -806,6 +807,78 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       it { expect(flash[:error]).to eq('Error getting diff: revision is empty') }
       it { is_expected.to redirect_to(package_show_path(project: source_project, package: package)) }
+    end
+
+    context 'with diff truncation' do
+      let(:diff_header_size) { 4 }
+      let(:ascii_file_size) { 11000 }
+      # Taken from package_with_binary_diff factory files (bigfile_archive.tar.gz and bigfile_archive_2.tar.gz)
+      let(:binary_file_size) { 30000 }
+      let(:binary_file_changed_size) { 13000 }
+      # TODO: check if this value, the default diff size, is correct
+      let(:default_diff_size) { 199 }
+      let(:package_ascii_file) do
+        create(:package_with_file, name: 'diff-truncation-test-1', project: source_project, file_content: "a\n" * ascii_file_size)
+      end
+      let(:package_binary_file) { create(:package_with_binary_diff, name: 'diff-truncation-test-2', project: source_project) }
+
+      context 'full diff requested' do
+        it 'does not show a hint' do
+          get :rdiff, params: { project: source_project, package: package_ascii_file, full_diff: true, rev: 2 }
+          expect(assigns(:not_full_diff)).to be_falsy
+        end
+
+        context 'for ASCII files' do
+          before do
+            get :rdiff, params: { project: source_project, package: package_ascii_file, full_diff: true, rev: 2 }
+          end
+
+          it 'shows the complete diff' do
+            diff_size = assigns(:files)['somefile.txt']['diff']['_content'].split.size
+            expect(diff_size).to eq(ascii_file_size + diff_header_size)
+          end
+        end
+
+        context 'for archives' do
+          before do
+            get :rdiff, params: { project: source_project, package: package_binary_file, full_diff: true }
+          end
+
+          it 'shows the complete diff' do
+            diff_size = assigns(:files)['bigfile_archive.tar.gz/bigfile.txt']['diff']['_content'].split.size
+            expect(diff_size).to eq(binary_file_size + binary_file_changed_size + diff_header_size)
+          end
+        end
+      end
+
+      context 'full diff not requested' do
+        it 'shows a hint' do
+          get :rdiff, params: { project: source_project, package: package_ascii_file, rev: 2 }
+          expect(assigns(:not_full_diff)).to be_truthy
+        end
+
+        context 'for ASCII files' do
+          before do
+            get :rdiff, params: { project: source_project, package: package_ascii_file, rev: 2 }
+          end
+
+          it 'shows the truncated diff' do
+            diff_size = assigns(:files)['somefile.txt']['diff']['_content'].split.size
+            expect(diff_size).to eq(default_diff_size + diff_header_size)
+          end
+        end
+
+        context 'for archives' do
+          before do
+            get :rdiff, params: { project: source_project, package: package_binary_file }
+          end
+
+          it 'shows the truncated diff' do
+            diff_size = assigns(:files)['bigfile_archive.tar.gz/bigfile.txt']['diff']['_content'].split.size
+            expect(diff_size).to eq(default_diff_size + diff_header_size)
+          end
+        end
+      end
     end
   end
 

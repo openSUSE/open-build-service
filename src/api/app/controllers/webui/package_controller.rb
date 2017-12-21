@@ -450,17 +450,22 @@ class Webui::PackageController < Webui::WebuiController
     @last_req = find_last_req
 
     @rev = params[:rev] || @last_rev
+    @linkrev = params[:linkrev]
 
     options = {}
     [:orev, :opackage, :oproject, :linkrev, :olinkrev].each do |k|
       options[k] = params[k] if params[k].present?
     end
     options[:rev] = @rev if @rev
+    options[:filelimit] = 0 if params[:full_diff]
+    options[:tarlimit] = 0 if params[:full_diff]
     return unless get_diff(@project.name, @package.name, options)
 
     # we only look at [0] because this is a generic function for multi diffs - but we're sure we get one
     filenames = sorted_filenames_from_sourcediff(@rdiff)[0]
+
     @files = filenames['files']
+    @not_full_diff = @files.any? { |file| file[1]['diff']['shown'] }
     @filenames = filenames['filenames']
   end
 

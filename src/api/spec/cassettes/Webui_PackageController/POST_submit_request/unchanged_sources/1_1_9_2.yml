@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:56 GMT
+  recorded_at: Wed, 20 Dec 2017 17:03:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Beneath the Bleeding</title>
-          <description>Exercitationem aliquam tenetur ex et.</description>
+          <title>The Torment of Others</title>
+          <description>Quia beatae adipisci et et rem ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Beneath the Bleeding</title>
-          <description>Exercitationem aliquam tenetur ex et.</description>
+          <title>The Torment of Others</title>
+          <description>Quia beatae adipisci et et rem ut.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:56 GMT
+  recorded_at: Wed, 20 Dec 2017 17:03:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Beneath the Bleeding</title>
-          <description>Exercitationem aliquam tenetur ex et.</description>
+          <title>The Torment of Others</title>
+          <description>Quia beatae adipisci et et rem ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,23 +109,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Beneath the Bleeding</title>
-          <description>Exercitationem aliquam tenetur ex et.</description>
+          <title>The Torment of Others</title>
+          <description>Quia beatae adipisci et et rem ut.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:56 GMT
+  recorded_at: Wed, 20 Dec 2017 17:03:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Ex voluptatem sint et et doloremque nulla iusto. Aut non nihil fuga
-        iure. Adipisci non quis eligendi et a. Nesciunt incidunt harum.
+      string: Labore quam ex quis veniam soluta molestiae. Non dolore distinctio quia
+        aut. Omnis possimus nihil nobis reprehenderit nisi magni distinctio. Architecto
+        eligendi enim.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -149,22 +150,23 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="37" vrev="37">
-          <srcmd5>ff6ae03da630b8eefc2184c75155711d</srcmd5>
+        <revision rev="19" vrev="19">
+          <srcmd5>fe44bc39a6eb343af9c259ead08a77ec</srcmd5>
           <version>unknown</version>
-          <time>1493736956</time>
+          <time>1513789414</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:56 GMT
+  recorded_at: Wed, 20 Dec 2017 17:03:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Quo harum eum. Impedit quis sit fugit. Quo et debitis laudantium.
+      string: Et cumque nobis pariatur corrupti autem et. Ut totam odit non repellendus
+        perspiciatis. Numquam facere inventore. Sint perferendis quas sint minima.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -188,16 +190,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="38" vrev="38">
-          <srcmd5>58956cbb24bdff1531f0ccb0826c00c7</srcmd5>
+        <revision rev="20" vrev="20">
+          <srcmd5>6ca5c9eab57a68abcb03453f43c40657</srcmd5>
           <version>unknown</version>
-          <time>1493736956</time>
+          <time>1513789414</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:56 GMT
+  recorded_at: Wed, 20 Dec 2017 17:03:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file
@@ -205,10 +207,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -225,19 +225,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '307'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="38" vrev="38" srcmd5="58956cbb24bdff1531f0ccb0826c00c7">
-          <entry name="_config" md5="1e562280625e777d436063b43cfb5fae" size="131" mtime="1493736956" />
-          <entry name="somefile.txt" md5="c1025bce70578aa62ff39e1355a4d9e4" size="65" mtime="1493736956" />
+        <directory name="package_with_file" rev="20" vrev="20" srcmd5="6ca5c9eab57a68abcb03453f43c40657">
+          <entry name="_config" md5="894cee97f94bff8a4444f07e37a2d186" size="166" mtime="1513789414" />
+          <entry name="somefile.txt" md5="44925878ce8b06a103f47b27887930e5" size="148" mtime="1513789414" />
         </directory>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:56 GMT
+  recorded_at: Wed, 20 Dec 2017 17:03:35 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=1&filelimit=10000&opackage=package_with_file&oproject=home:tom
+    uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=1&filelimit=10000&opackage=package_with_file&oproject=home:tom&tarlimit=10000
     body:
       encoding: UTF-8
       string: ''
@@ -267,5 +267,5 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:56 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Wed, 20 Dec 2017 17:03:35 GMT
+recorded_with: VCR 4.0.0
