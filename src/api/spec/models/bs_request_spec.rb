@@ -276,6 +276,18 @@ RSpec.describe BsRequest do
 
       it { expect(BsRequest.truncated_diffs?(request_action)).to eq false }
     end
+
+    context "when there is a sourcediff attribute with no 'files'" do
+      let(:request_action) do
+        {
+          'actions' => [
+            { type: :submit, sourcediff: ['other_dater' => 'foo'] }
+          ]
+        }
+      end
+
+      it { expect(BsRequest.truncated_diffs?(request_action)).to eq false }
+    end
   end
 
   describe '.delayed_auto_accept' do
