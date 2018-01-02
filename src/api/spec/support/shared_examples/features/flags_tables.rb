@@ -1,23 +1,23 @@
 RSpec.shared_examples 'a flag table' do
   def enable_flag_field_for(flag_attributes)
-    change_flag_field_from_to(flag_attributes, 'Enable', 'Disable')
+    change_flag_field_to(flag_attributes, 'Enable')
   end
 
   def disable_flag_field_for(flag_attributes)
-    change_flag_field_from_to(flag_attributes, 'Disable', 'Enable')
+    change_flag_field_to(flag_attributes, 'Disable')
   end
 
   # flag_attributes are repository and architecture. Both are used
   # to identify correct field coordinates of the flag table.
-  def change_flag_field_from_to(flag_attributes, from, to)
+  def change_flag_field_to(flag_attributes, to)
     locator = css_locator_for(flag_attributes[:repository], flag_attributes[:architecture])
 
-    subject.find(locator, text: from, visible: false).hover
+    subject.find(locator).find('.current_flag_state').hover
     # Workaround: There can be an additional link with
     #             text similar to "Enable Take default (disable)"
-    subject.find(locator, text: /#{from}/).first('a').click
+    subject.find(locator, text: /#{to}/).first('a').click
     # Wait for request to finish
-    subject.find(locator, text: /#{to}/, visible: false)
+    subject.find(locator).find(".current_flag_state.icons-#{flag_type}_#{to.downcase}_blue")
   end
 
   def css_locator_for(repository, architecture)
