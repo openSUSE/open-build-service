@@ -294,7 +294,7 @@ RSpec.describe BsRequest do
       let(:request_action) do
         {
           'actions' => [
-            { type: :submit, sourcediff: ['other_dater' => 'foo'] }
+            { type: :submit, sourcediff: ['other_data' => 'foo'] }
           ]
         }
       end
