@@ -113,6 +113,10 @@ sub nextjobid {
   return $jobid;
 }
 
+sub pingworker {
+  BSUtil::ping("$eventdir/clouduploadworker/.ping");
+}
+
 sub cloudupload_create {
   my ($cgi) = @_;
   my $jobskelxml = BSServer::read_data(10000000);
@@ -172,7 +176,7 @@ sub cloudupload_upload {
   $job->{'state'} = 'scheduled';
   writexml("$jobdir/.$jobid$$", "$jobdir/$jobid", $job, $BSXML::clouduploadjob);
   close F;
-  BSUtil::ping("$eventdir/clouduploadworker/.ping");
+  pingworker();
   return $BSStdServer::return_ok;
 }
 
@@ -181,6 +185,43 @@ sub cloudupload_status {
   my ($job) = readxml("$jobdir/$jobid", $BSXML::clouduploadjob, 1) || readxml("$jobdonedir/$jobid", $BSXML::clouduploadjob, 1);
   die("404 no such job\n") unless $job;
   return ($job, $BSXML::clouduploadjob);
+}
+
+sub archivejob {
+  my ($jobid, $job) = @_;
+  mkdir_p($jobdonedir);
+  rename("$jobdir/$jobid.log", "$jobdonedir/$jobid.log");
+  writexml("$jobdonedir/.$jobid$$", "$jobdonedir/$jobid", $job, $BSXML::clouduploadjob);
+  unlink("$jobdir/$jobid.log");
+  unlink("$jobdir/$jobid.data");
+  unlink("$jobdir/$jobid.file");
+  unlink("$jobdir/$jobid");
+}
+
+sub cloudupload_kill {
+  my ($cgi, $jobid) = @_;
+  local *F;
+  my $job = BSUtil::lockopenxml(\*F, '<', "$jobdir/$jobid", $BSXML::clouduploadjob, 1);
+  if (!$job) {
+    die("404 no such job\n") unless readxml("$jobdonedir/$jobid", $BSXML::clouduploadjob, 1);
+    return $BSStdServer::return_ok;
+  }
+  if ($job->{'status'} eq 'succeeded' || $job->{'status'} eq 'failed') {
+    close F;
+    return $BSStdServer::return_ok;
+  }
+  my $pid = $job->{'pid'};
+  if ($pid && $pid > 1) {
+    kill -15, $pid;
+    pingworker();	# trigger process reap
+  }
+  unlink("$jobdir/.$jobid.file$pid") if $pid && $job->{'status'} eq 'receiving';
+  delete $job->{'pid'};
+  $job->{'status'} = 'failed';
+  $job->{'details'} = 'killed';
+  archivejob($jobid, $job);
+  close F;
+  return $BSStdServer::return_ok;
 }
 
 sub cloudupload_joblist {
@@ -315,6 +356,7 @@ my $dispatches = [
 
   '!- POST:/cloudupload' => \&cloudupload_create,
   '!- PUT:/cloudupload/$job' => \&cloudupload_upload,
+  'POST:/cloudupload/$job cmd=kill' => \&cloudupload_kill,
   '/cloudupload/$job' => \&cloudupload_status,
   '/cloudupload/$job/_log nostream:bool? start:intnum? end:num? view:?' => \&cloudupload_log,
   '/cloudupload name:num*' => \&cloudupload_joblist,

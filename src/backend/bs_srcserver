@@ -6152,6 +6152,19 @@ sub cloudupload_status {
   return undef;
 }
 
+sub cloudupload_kill {
+  my ($cgi, $jobid) = @_;
+  die("no cloud upload server configurated\n") unless $BSConfig::clouduploadserver;
+  my $param = {
+    'uri' => "$BSConfig::clouduploadserver/cloudupload/$jobid",
+    'request' => 'POST',
+    'ignorestatus' => 1,
+    'receiver' => \&BSServer::reply_receiver,
+  };
+  BSWatcher::rpc($param, undef, 'cmd=kill');
+  return undef;
+}
+
 sub cloudupload_joblist {
   my ($cgi) = @_;
   die("no cloud upload server configurated\n") unless $BSConfig::clouduploadserver;
@@ -6348,6 +6361,7 @@ my $dispatches = [
 
   # cloud upload calls
   'POST:/cloudupload $project $repository $arch $package $filename user: target:' => \&cloudupload_create,
+  'POST:/cloudupload/$job cmd=kill' => \&cloudupload_kill,
   '/cloudupload/$job' => \&cloudupload_status,
   '/cloudupload/$job/_log nostream:bool? start:intnum? end:num? view:?' => \&cloudupload_log,
   '/cloudupload name:num*' => \&cloudupload_joblist,

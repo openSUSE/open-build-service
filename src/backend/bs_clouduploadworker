@@ -45,15 +45,30 @@ sub reap {
   }
 }
 
+sub archivejob {
+  my ($jobid, $job) = @_; 
+  mkdir_p($jobdonedir);
+  rename("$jobdir/$jobid.log", "$jobdonedir/$jobid.log");
+  writexml("$jobdonedir/.$jobid$$", "$jobdonedir/$jobid", $job, $BSXML::clouduploadjob);
+  unlink("$jobdir/$jobid.log");
+  unlink("$jobdir/$jobid.data");
+  unlink("$jobdir/$jobid.file");
+  unlink("$jobdir/$jobid");
+}
+
 sub startupload {
-  my ($conf, $job, $logfp) = @_;
+  my ($job, $logfp) = @_;
   my $jobid = $job->{'name'};
   my $pid;
   BSUtil::printlog("uploading job $job->{'name'} [$job->{'user'}, $job->{'target'}]\n");
   if (!($pid = xfork())) {
+    my @args = ($job->{'user'}, $job->{'target'}, "$jobdir/$jobid.file", "$jobdir/$jobid.data", "$jobdir/$jobid.log");
+    print "calling $INC[0]/clouduploader @args\n";
+    open(STDIN, '<', '/dev/null') || die("/dev/null: $!\n");
+    open(STDOUT, '>&', $logfp);
+    open(STDERR, '>&STDOUT');
     close($logfp);
-    print "calling $INC[0]/clouduploader $job->{'user'} $job->{'target'} $jobdir/$jobid.file $jobdir/$jobid.data $jobdir/$jobid.log\n";
-    exec("$INC[0]/clouduploader", $job->{'user'}, $job->{'target'}, "$jobdir/$jobid.file", "$jobdir/$jobid.data", "$jobdir/$jobid.log");
+    exec("$INC[0]/clouduploader", @args);
     die("$INC[0]/clouduploader: $!\n");
   }
   my $ex = 1;	# assume fail
@@ -65,26 +80,20 @@ sub startupload {
     last if $! != POSIX::EINTR;
   }
   local *JOBLOCK;
-  $job = BSUtil::lockopenxml(\*JOBLOCK, '<', "$jobdir/$jobid", $BSXML::clouduploadjob);
-  if ($job->{'state'} eq 'uploading') {
-    if ($ex) {
-      $job->{'state'} = 'failed';
-      $job->{'details'} = "exit status ".($ex >> 8);
-    } else {
-      $job->{'state'} = 'succeeded';
+  $job = BSUtil::lockopenxml(\*JOBLOCK, '<', "$jobdir/$jobid", $BSXML::clouduploadjob, 1);
+  if ($job) {
+    if ($job->{'state'} eq 'uploading') {
+      if ($ex) {
+        $job->{'state'} = 'failed';
+        $job->{'details'} = "exit status ".($ex >> 8);
+      } else {
+        $job->{'state'} = 'succeeded';
+      }
+      delete $job->{'pid'};
+      archivejob($jobid, $job);
     }
-    delete $job->{'pid'};
+    close JOBLOCK;
   }
-  mkdir_p($jobdonedir);
-  rename("$jobdir/$jobid.log", "$jobdonedir/$jobid.log");
-  writexml("$jobdonedir/.$jobid$$", "$jobdonedir/$jobid", $job, $BSXML::clouduploadjob);
-  unlink("$jobdir/$jobid.log");
-  unlink("$jobdir/$jobid.data");
-  unlink("$jobdir/$jobid.file");
-  unlink("$jobdir/$jobid");
-  close JOBLOCK;
-  BSUtil::ping($conf->{'ping'});	# trigger process reap
-  exit(0);
 }
 
 sub checkjob {
@@ -158,15 +167,17 @@ sub run {
       if (!$haveloglock) {
 	# could not get lock, start a new file
         unlink("$jobdir/.$jobid.log.$$");
-        BSUtil::lockopen(\*LOGLOCK, '>', "$jobdir/.$jobid.log.$$");
+        BSUtil::lockopen(\*LOGLOCK, '>>', "$jobdir/.$jobid.log.$$");
         rename("$jobdir/.$jobid.log.$$", "$jobdir/$jobid.log") || die("rename $jobdir/.$jobid.log.$$ $jobdir/$jobid.log: $!\n");
       }
 
       if (!($pid = xfork())) {
-        close JOBLOCK;
-	startupload($conf, $job, \*LOGLOCK);
+	POSIX::setsid() > 0 || die("setsid: $!\n");	# creates new session and process group
+	startupload($job, \*LOGLOCK);
+	BSUtil::ping($ping);	# trigger process reap
 	exit(0);
       }
+
       close LOGLOCK;
       $job->{'pid'} = $pid;
       $job->{'state'} = 'uploading';
