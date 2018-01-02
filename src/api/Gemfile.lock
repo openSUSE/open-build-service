@@ -103,7 +103,7 @@ GEM
       safe_yaml (~> 1.0.0)
     crass (1.0.3)
     cssmin (1.0.3)
-    daemons (1.2.5)
+    daemons (1.2.6)
     dalli (2.7.6)
     data_migrate (3.2.2)
       rails (>= 4.0)
