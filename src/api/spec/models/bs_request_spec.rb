@@ -253,6 +253,19 @@ RSpec.describe BsRequest do
       it { expect(BsRequest.truncated_diffs?(request_action)).to eq false }
     end
 
+    context 'when the sourcediff is empty' do
+      let(:request_action) do
+        {
+          'actions' => [
+            { type: :foo, sourcediff: nil },
+            { type: :submit }
+          ]
+        }
+      end
+
+      it { expect(BsRequest.truncated_diffs?(request_action)).to eq false }
+    end
+
     context 'when the diff is at least one diff that has a shown attribute' do
       let(:request_action) do
         {
@@ -281,7 +294,7 @@ RSpec.describe BsRequest do
       let(:request_action) do
         {
           'actions' => [
-            { type: :submit, sourcediff: ['other_dater' => 'foo'] }
+            { type: :submit, sourcediff: ['other_data' => 'foo'] }
           ]
         }
       end
