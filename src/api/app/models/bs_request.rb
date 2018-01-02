@@ -1160,16 +1160,22 @@ class BsRequest < ApplicationRecord
   end
 
   def self.truncated_diffs?(request)
-    request['actions'].select { |action| action[:type] == :submit && action[:sourcediff] }.each do |action|
-      action[:sourcediff].each do |sourcediff|
-        next unless sourcediff && sourcediff['files']
-        # the 'shown' attribute is only set if the backend truncated the diff
-        return true if sourcediff['files'].any? { |file| file[1]['diff']['shown'] }
-      end
-    end
+    submit_requests = request['actions'].select { |action| action[:type] == :submit && action[:sourcediff] }
 
-    false
+    submit_requests.any? do |action|
+      action[:sourcediff].any? { |sourcediff| sourcediff_has_shown_attribute?(sourcediff) }
+    end
   end
+
+  def self.sourcediff_has_shown_attribute?(sourcediff)
+    if sourcediff && sourcediff['files']
+      # the 'shown' attribute is only set if the backend truncated the diff
+      sourcediff['files'].any? { |file| file[1]['diff']['shown'] }
+    else
+      false
+    end
+  end
+  private_class_method :sourcediff_has_shown_attribute?
 
   private
 
