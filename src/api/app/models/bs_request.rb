@@ -1162,8 +1162,9 @@ class BsRequest < ApplicationRecord
   def self.truncated_diffs?(request)
     request['actions'].select { |action| action[:type] == :submit && action[:sourcediff] }.each do |action|
       action[:sourcediff].each do |sourcediff|
+        next unless sourcediff && sourcediff['files']
         # the 'shown' attribute is only set if the backend truncated the diff
-        return true if (sourcediff['files'] || []).any? { |file| file[1]['diff']['shown'] }
+        return true if sourcediff['files'].any? { |file| file[1]['diff']['shown'] }
       end
     end
 
