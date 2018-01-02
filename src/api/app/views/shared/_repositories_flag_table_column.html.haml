@@ -7,28 +7,26 @@
       %div{ class: "#{"current_flag_state icons-#{flag.flag}_#{flag.status}_blue"} icon_24" }
     .hidden.flagtoggle
       - if flag.new_record?
-        - if flag.status == 'enable'
-          .iconwrapper
-            %div{ class: "icons-#{flag.flag}_disable_blue icon_24" }
-          = link_to 'Disable', { action: :create_flag,
-              project: @project,
-              package: @package,
-              flag: flag.flag,
-              status: 'disable',
-              repository: flag.repo,
-              architecture: flag.arch },
-            id: "#{flag.fullname}_disable", class: "flag_spinner_trigger_#{flag.flag}", method: :post, remote: remote
-        - else
-          .iconwrapper
-            %div{class: "icons-#{flag.flag}_enable_blue icon_24"}
-          = link_to 'Enable', { action: :create_flag,
-              project: @project,
-              package: @package,
-              flag: flag.flag,
-              status: 'enable',
-              repository: flag.repo,
-              architecture: flag.arch},
-            id: "#{flag.fullname}_enable", class: "flag_spinner_trigger_#{flag.flag}", method: :post, remote: remote
+        .iconwrapper
+          %div{ class: "icons-#{flag.flag}_disable_blue icon_24" }
+        = link_to 'Disable', { action: :create_flag,
+            project: @project,
+            package: @package,
+            flag: flag.flag,
+            status: 'disable',
+            repository: flag.repo,
+            architecture: flag.arch },
+          id: "#{flag.fullname}_disable", class: "flag_spinner_trigger_#{flag.flag}", method: :post, remote: remote
+        .iconwrapper
+          %div{class: "icons-#{flag.flag}_enable_blue icon_24"}
+        = link_to 'Enable', { action: :create_flag,
+            project: @project,
+            package: @package,
+            flag: flag.flag,
+            status: 'enable',
+            repository: flag.repo,
+            architecture: flag.arch},
+          id: "#{flag.fullname}_enable", class: "flag_spinner_trigger_#{flag.flag}", method: :post, remote: remote
       - else
         - if flag.status == 'enable'
           .iconwrapper
