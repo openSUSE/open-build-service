@@ -613,13 +613,6 @@ Style/StderrPuts:
   Exclude:
     - 'src/api/test/functional/webui/spider_test.rb'
 
-# Offense count: 272
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, MinSize, SupportedStyles.
-# SupportedStyles: percent, brackets
-Style/SymbolArray:
-  Enabled: false
-
 # Offense count: 3
 # Cop supports --auto-correct.
 # Configuration parameters: ExactNameMatch, AllowPredicates, AllowDSLWriters, IgnoreClassMethods, Whitelist.
@@ -628,10 +621,3 @@ Style/TrivialAccessors:
   Exclude:
     - 'src/api/lib/activexml/node.rb'
     - 'src/api/test/test_helper.rb'
-
-# Offense count: 128
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, MinSize, WordRegex.
-# SupportedStyles: percent, brackets
-Style/WordArray:
-  Enabled: false

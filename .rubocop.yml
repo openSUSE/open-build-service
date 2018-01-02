@@ -37,6 +37,10 @@ Style/Alias:
 Style/CommandLiteral:
   EnforcedStyle: percent_x
 
+# We need to allow some variables related to rabbiMQ.
+Style/GlobalVars:
+  AllowedVariables: ['$rabbitmq_conn', '$rabbitmq_exchange', '$rabbitmq_channel']
+
 # Checks for chaining of a block after another block that spans multiple lines.
 # We disabled this cop because of Rantly.
 Style/MultilineBlockChain:
@@ -47,8 +51,13 @@ Style/MultilineBlockChain:
 Style/RedundantReturn:
   Enabled: false
 
-Style/GlobalVars:
-  AllowedVariables: ['$rabbitmq_conn', '$rabbitmq_exchange', '$rabbitmq_channel']
+# TODO: Disabled until we reach an agreement
+Style/SymbolArray:
+  Enabled: false
+
+# TODO: Disabled until we reach an agreement
+Style/WordArray:
+  Enabled: false
 
 ##################### Metrics ##################################
 
