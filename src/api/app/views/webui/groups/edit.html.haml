@@ -1,4 +1,5 @@
 - @pagetitle = "Edit User Data"
+- @crumb_list = [group_management_label, link_to(@group.title, group_show_path(@group.title,))]
 %h2
   Edit Group #{@group.title}
 = form_tag({ action: 'update' }, { id: 'group_add_form' }) do
