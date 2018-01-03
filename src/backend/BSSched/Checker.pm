@@ -487,7 +487,27 @@ sub expandandsort {
   print "    sorting ".@$packs." packages\n";
   my @cycles;
   if (@$packs > 1) {
-    @$packs = BSSolv::depsort(\%pdeps, $ctx->{'dep2src'}, \@cycles, @$packs);
+    if (defined &BSSolv::depsort2) {
+      @$packs = BSSolv::depsort2(\%pdeps, $ctx->{'dep2src'}, \%pkg2src, \@cycles, @$packs);
+    } else {
+      my $dep2src = $ctx->{'dep2src'};
+      my %src2pkg = reverse(%pkg2src);
+      my %pkgdeps;
+      my @dups = grep {$src2pkg{$pkg2src{$_}} ne $_} reverse(keys %pkg2src);
+      if (@dups) {
+	print "src2pkg dups: @dups\n";
+	push @dups, grep {defined($_)} map {delete $src2pkg{$pkg2src{$_}}} @dups;
+	push @{$src2pkg{$pkg2src{$_}}}, $_ for sort @dups;
+	for my $pkg (keys %pdeps) {
+	  $pkgdeps{$pkg} = [ map {ref($_) ? @$_ : $_} map { $src2pkg{$dep2src->{$_} || $_} || $dep2src->{$_} || $_} @{$pdeps{$pkg}} ];
+	}
+      } else {
+	for my $pkg (keys %pdeps) {
+	  $pkgdeps{$pkg} = [ map { $src2pkg{$dep2src->{$_} || $_} || $dep2src->{$_} || $_} @{$pdeps{$pkg}} ];
+	}
+      }
+      @$packs = BSSolv::depsort(\%pkgdeps, undef, \@cycles, @$packs);
+    }
     if (@cycles) {
       print "cycle: ".join(' -> ', @$_)."\n" for @cycles;
     }
