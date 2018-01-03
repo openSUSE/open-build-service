@@ -243,6 +243,8 @@ sub wipeobsolete {
   my $projpacks = $gctx->{'projpacks'};
   my $myarch = $gctx->{'arch'};
   my $pdatas = $projpacks->{$projid}->{'package'} || {};
+  my $fullcache = {};
+  my $hadobsolete;
   for my $packid (grep {!/^[:\.]/} ls($gdst)) {
     next if $packid eq '_volatile';
     my $reason;
@@ -268,6 +270,7 @@ sub wipeobsolete {
       next unless grep {$_ ne '.bininfo' && !(/^::import::/ || /^\.meta\.success\.import\./)} @files;
     }
     print "      - $packid: is $reason\n";
+    $hadobsolete = 1;
     delete $ctx->{'lastcheck'}->{$packid};
     # delete full entries
     my $useforbuildenabled = 1;
@@ -276,9 +279,7 @@ sub wipeobsolete {
     $useforbuildenabled = 0 if -s "$gdst/$packid/.updateinfodata";
     # don't wipe imports if we're excluded
     my $importarch = $pdatas->{$packid} && @ifiles ? '' : undef;
-    BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $ctx->{'prpsearchpath'}, undef, $importarch);
-    $gctx->{'changed_med'}->{$prp} = 2;
-    BSSched::EventSource::Directory::sendrepochangeevent($gctx, $prp);
+    BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $ctx->{'prpsearchpath'}, $fullcache, $importarch);
     # delete other files
     unlink("$gdst/:logfiles.success/$packid");
     unlink("$gdst/:logfiles.fail/$packid");
@@ -294,6 +295,11 @@ sub wipeobsolete {
     }
     rmdir("$gdst/$packid");
     BSSched::BuildJob::killbuilding($gctx, $prp, $packid);
+  }
+  if ($hadobsolete) {
+    BSSched::BuildRepo::sync_fullcache($gctx, $fullcache);
+    $gctx->{'changed_med'}->{$prp} = 2;
+    BSSched::EventSource::Directory::sendrepochangeevent($gctx, $prp);
     unlink("$gdst/:repodone");
   }
 }
