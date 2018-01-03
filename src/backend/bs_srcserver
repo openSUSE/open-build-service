@@ -3200,7 +3200,7 @@ sub copyproject {
 	my $omb = BSSrcServer::Multibuild::getmultibuild($oprojid, $packid);
 	my $mb = BSSrcServer::Multibuild::getmultibuild($projid, $packid);
 	if ($mb || $omb) {
-          BSSrcServer::Multibuild::setmultibuild($projid, $packid, $mb);
+          BSSrcServer::Multibuild::setmultibuild($projid, $packid, $omb);
           notify_repservers('package', $projid, $packid) if $cgi->{'withbinaries'};
 	}
       }
@@ -3388,8 +3388,8 @@ sub sourcecopy {
 
   # copy multibuild data
   if ($cgi->{'expand'} && $cgi->{'noservice'} && $packid ne '_product') {
-    my $mb = BSSrcServer::Multibuild::getmultibuild($oprojid, $opackid);
-    BSSrcServer::Multibuild::setmultibuild($projid, $packid, $mb);
+    my $omb = BSSrcServer::Multibuild::getmultibuild($oprojid, $opackid);
+    BSSrcServer::Multibuild::setmultibuild($projid, $packid, $omb);
   }
 
   if ($cgi->{'withvrev'} && !$cgi->{'vrev'} && defined($oldvrev)) {
