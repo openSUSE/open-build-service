@@ -41,7 +41,7 @@ class Webui::GroupsController < Webui::WebuiController
 
     if @group.replace_members(group_params[:members])
       flash[:success] = "Group '#{@group.title}' successfully updated."
-      redirect_to controller: :groups, action: :index
+      redirect_to group_edit_title_path(title: @group.title)
     else
       redirect_back(fallback_location: root_path, error: "Group can't be saved: #{@group.errors.full_messages.to_sentence}")
     end

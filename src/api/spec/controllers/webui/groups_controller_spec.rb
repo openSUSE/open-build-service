@@ -164,7 +164,7 @@ RSpec.describe Webui::GroupsController do
       end
 
       it { expect(flash[:success]).to eq("Group '#{group.title}' successfully updated.") }
-      it { expect(response).to redirect_to(groups_path) }
+      it { expect(response).to redirect_to(group_edit_title_path(title: group.title)) }
     end
 
     context 'as an admin' do
@@ -177,7 +177,7 @@ RSpec.describe Webui::GroupsController do
       end
 
       it { expect(flash[:success]).to eq("Group '#{group.title}' successfully updated.") }
-      it { expect(response).to redirect_to(groups_path) }
+      it { expect(response).to redirect_to(group_edit_title_path(title: group.title)) }
     end
   end
 end
