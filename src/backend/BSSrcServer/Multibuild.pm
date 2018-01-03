@@ -58,6 +58,7 @@ sub getcache {
 sub putcache {
   my ($projid, $mc) = @_;
   if (%$mc) {
+    mkdir_p("$projectsdir/$projid.pkg") unless -d "$projectsdir/$projid.pkg";
     BSUtil::store("$projectsdir/$projid.pkg/.:multibuild.$$", "$projectsdir/$projid.pkg/:multibuild", $mc);
   } else {
     unlink("$projectsdir/$projid.pkg/:multibuild");
@@ -95,6 +96,7 @@ sub updatemultibuild {
   }
 
   # need to update, lock
+  mkdir_p("$projectsdir/$projid.pkg") unless -d "$projectsdir/$projid.pkg";
   local *F;
   BSUtil::lockopen(\*F, '>>', "$projectsdir/$projid.pkg/:multibuild");
   $mc = getcache($projid, 1);
@@ -127,6 +129,7 @@ sub prunemultibuild {
   return unless grep {!$p{$_}} keys %$mc;
 
   # need to update, lock
+  mkdir_p("$projectsdir/$projid.pkg") unless -d "$projectsdir/$projid.pkg";
   local *F;
   BSUtil::lockopen(\*F, '>>', "$projectsdir/$projid.pkg/:multibuild");
   $mc = getcache($projid, 1);
@@ -147,6 +150,11 @@ sub getmultibuild {
 sub setmultibuild {
   my ($projid, $packid, $mb) = @_;
   return if $packid eq '_product' || $packid =~ /:/;		# master packages only
+  if (!$mb && ! -e "$projectsdir/$projid.pkg/:multibuild") {
+    $multibuildcache->{$projid} = {};
+    return;
+  }
+  mkdir_p("$projectsdir/$projid.pkg") unless -d "$projectsdir/$projid.pkg";
   local *F;
   BSUtil::lockopen(\*F, '>>', "$projectsdir/$projid.pkg/:multibuild");
   my $mc = getcache($projid, 1);
