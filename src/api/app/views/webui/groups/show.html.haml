@@ -35,6 +35,9 @@
       = render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: group_requests_path(@group) })
     .table-container.hidden#group-members
       %h3 Group Members
+      - if User.current.is_admin? || @group.group_maintainers.where(user: User.current).exists?
+        .grid_16{ style: "margin-bottom: 10px;" }
+          = link_to(sprited_text('brick_edit', 'Update group members'), group_edit_title_path(title: @group.title))
       %table#group-members-table
         %thead
           %tr
