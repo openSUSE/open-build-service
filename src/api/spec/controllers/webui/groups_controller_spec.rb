@@ -140,4 +140,44 @@ RSpec.describe Webui::GroupsController do
       end
     end
   end
+
+  describe 'POST update' do
+    let(:user_to_add) { create(:user) }
+    let(:group_maintainer) { create(:group_maintainer, group: group) }
+
+    context 'as a normal user' do
+      before do
+        login(user)
+
+        post :update, params: { title: group.title, group: { members: user_to_add.login } }
+      end
+
+      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this Group.') }
+      it { expect(response).to redirect_to(root_path) }
+    end
+
+    context 'as a maintainer of the group' do
+      before do
+        login(group_maintainer.user)
+
+        post :update, params: { title: group.title, group: { members: user_to_add.login } }
+      end
+
+      it { expect(flash[:success]).to eq("Group '#{group.title}' successfully updated.") }
+      it { expect(response).to redirect_to(groups_path) }
+    end
+
+    context 'as an admin' do
+      let(:admin) { create(:admin_user) }
+
+      before do
+        login(admin)
+
+        post :update, params: { title: group.title, group: { members: user_to_add.login } }
+      end
+
+      it { expect(flash[:success]).to eq("Group '#{group.title}' successfully updated.") }
+      it { expect(response).to redirect_to(groups_path) }
+    end
+  end
 end
