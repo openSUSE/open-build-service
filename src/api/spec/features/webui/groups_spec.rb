@@ -36,7 +36,7 @@ RSpec.feature 'Groups', type: :feature, js: true do
     page.find('input#members', visible: false).set 'eisendieter'
     click_button 'Save'
 
-    within :xpath, "//tr[@id='group-test_group_b']" do
+    within 'form', text: 'Members:' do
       expect(page).to have_content('eisendieter')
     end
   end
