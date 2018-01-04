@@ -58,7 +58,7 @@ xml.project(project_attributes) do
         xml_repository.releasetarget(params)
       end
       if repo.hostsystem
-        xml_repository.hostsystem(:project => repo.hostsystem.project.name, :repository => repo.hostsystem.name)
+        xml_repository.hostsystem(project: repo.hostsystem.project.name, repository: repo.hostsystem.name)
       end
       repo.path_elements.includes(:link).each do |pe|
         if pe.link.remote_project_name.present?
@@ -66,7 +66,7 @@ xml.project(project_attributes) do
         else
           project_name = pe.link.project.name
         end
-        xml_repository.path(:project => project_name, :repository => pe.link.name)
+        xml_repository.path(project: project_name, repository: pe.link.name)
       end
       repo.repository_architectures.joins(:architecture).pluck('architectures.name').each do |arch|
         xml_repository.arch arch
@@ -77,7 +77,7 @@ xml.project(project_attributes) do
   unless MaintainedProject.where(maintenance_project_id: my_model.id).empty?
     xml.maintenance do |maintenance|
       MaintainedProject.where(maintenance_project_id: my_model.id).each do |mp|
-        maintenance.maintains(:project => mp.project.name)
+        maintenance.maintains(project: mp.project.name)
       end
     end
   end

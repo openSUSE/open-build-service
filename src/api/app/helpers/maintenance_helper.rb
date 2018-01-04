@@ -250,9 +250,7 @@ module MaintenanceHelper
     id_template = '%Y-%C'
     # check for a definition in maintenance project
     a = mi.maintenance_db_project.find_attribute('OBS', 'MaintenanceIdTemplate')
-    if a
-      id_template = a.values[0].value
-    end
+    id_template = a.values[0].value if a
 
     # expand a possible defined update info template in release target of channel
     project_filter = nil
@@ -307,9 +305,7 @@ module MaintenanceHelper
         prj = Project.get_by_name(attrib.to_s) if attrib
         if defined?(prj) && prj
           a = prj.find_attribute('OBS', 'UpdateProject')
-          if a && a.values[0]
-            b.attributes['project'] = a.values[0]
-          end
+          b.attributes['project'] = a.values[0] if a && a.values[0]
         end
       end
     end

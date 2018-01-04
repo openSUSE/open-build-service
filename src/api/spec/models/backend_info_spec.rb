@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe BackendInfo, :type => :model do
+RSpec.describe BackendInfo, type: :model do
   describe '.getter' do
     context 'key does not exist' do
       it { expect(BackendInfo.lastnotification_nr).to eq(0) }

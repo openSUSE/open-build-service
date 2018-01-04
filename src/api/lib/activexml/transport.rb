@@ -38,9 +38,7 @@ module ActiveXML
 
       def details
         parse!
-        if @xml.has_key? 'details'
-          return @xml['details']
-        end
+        return @xml['details'] if @xml.has_key? 'details'
         return
       end
 
@@ -104,23 +102,23 @@ module ActiveXML
       @schema = schema
       @host = host
       @port = port
-      @default_servers ||= Hash.new
+      @default_servers ||= {}
       @http_header = { 'Content-Type' => 'text/plain', 'Accept-Encoding' => 'identity' }
       # stores mapping information
       # key: symbolified model name
       # value: hash with keys :target_uri and :opt (arguments to connect method)
-      @mapping = Hash.new
+      @mapping = {}
     end
 
     def login(user, password)
-      @http_header ||= Hash.new
+      @http_header ||= {}
       @http_header['Authorization'] = 'Basic ' + Base64.encode64("#{user}:#{password}")
     end
 
     # returns object
     def find(model, *args)
       logger.debug "[REST] find( #{model.inspect}, #{args.inspect} )"
-      params = Hash.new
+      params = {}
       data = nil
       own_mimetype = nil
       symbolified_model = model.name.downcase.split('::').last.to_sym
@@ -134,9 +132,7 @@ module ActiveXML
         if args.length > 1
           #:conditions triggers atm. always a post request, the conditions are
           # transmitted as post-data
-          if args[1].has_key? :conditions
-            data = args[1][:conditions]
-          end
+          data = args[1][:conditions] if args[1].has_key? :conditions
           params = args[1].merge params
         end
       when String
@@ -196,9 +192,7 @@ module ActiveXML
     # defines an additional header that is passed to the REST server on every subsequent request
     # e.g.: set_additional_header( "X-Username", "margarethe" )
     def set_additional_header(key, value)
-      if value.nil? && @http_header.has_key?(key)
-        @http_header[key] = nil
-      end
+      @http_header[key] = nil if value.nil? && @http_header.has_key?(key)
 
       @http_header[key] = value
     end
@@ -282,9 +276,7 @@ module ActiveXML
       defaults = { timeout: 60 }
       opt = defaults.merge opt
 
-      if url.is_a? String
-        url = URI(url)
-      end
+      url = URI(url) if url.is_a? String
 
       # set default host if not set in uri
       url.scheme, url.host = @schema, @host unless url.host
@@ -362,9 +354,7 @@ module ActiveXML
           payload = http_response['X-Opensuse-Runtimes']
           payload = JSON.parse(payload) if payload
           payload ||= {}
-          if runtime
-            payload[:runtime] = Float(runtime) * 1000
-          end
+          payload[:runtime] = Float(runtime) * 1000 if runtime
           payload[:all] = (Time.now - start) * 1000
           details.add(payload)
           logger.debug "RT #{url} #{payload.inspect}"
@@ -404,9 +394,7 @@ module ActiveXML
       begin
         http.start
         response = http.get uri.request_uri
-        if response.is_a?(Net::HTTPSuccess)
-          content = response.body
-        end
+        content = response.body if response.is_a?(Net::HTTPSuccess)
       rescue SocketError, Errno::EINTR, Errno::EPIPE, EOFError, Net::HTTPBadResponse, IOError, Errno::ENETUNREACH,
              Errno::ETIMEDOUT, Errno::ECONNREFUSED, Timeout::Error => err
         logger.debug "#{err} when fetching #{uri}"
@@ -419,9 +407,7 @@ module ActiveXML
     # small helper function to avoid having to hardcode the content_type all around
     def http_json(method, uri, data = nil)
       opts = { content_type: 'application/json' }
-      if data
-        opts[:data] = data.to_json
-      end
+      opts[:data] = data.to_json if data
       http_do method, uri, opts
     end
 

@@ -480,7 +480,7 @@ RSpec.describe Package, vcr: true do
 
       it 'has errors' do
         subject
-        expect(package.errors.details).to eq(:base => [{ :error => 'Exception from WebMock' }])
+        expect(package.errors.details).to eq(base: [{ error: 'Exception from WebMock' }])
       end
     end
 
@@ -500,7 +500,7 @@ RSpec.describe Package, vcr: true do
 
       it 'has errors' do
         subject
-        expect(package.errors.details).to eq(:base=>[{ :error=>"No permission to modify project '#{other_project}' for user '#{user}'" }])
+        expect(package.errors.details).to eq(base: [{ error: "No permission to modify project '#{other_project}' for user '#{user}'" }])
       end
     end
   end

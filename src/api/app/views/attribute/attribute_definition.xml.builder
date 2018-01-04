@@ -2,9 +2,7 @@ p = {}
 p[:name] = @at.name
 p[:namespace] = @at.attrib_namespace.name
 xml.definition(p) do |attr|
-  if @at.description
-    attr.description @at.description
-  end
+  attr.description @at.description if @at.description
 
   if @at.default_values.present?
     attr.default do |default|
@@ -22,13 +20,9 @@ xml.definition(p) do |attr|
     end
   end
 
-  if @at.value_count
-    attr.count @at.value_count
-  end
+  attr.count @at.value_count if @at.value_count
 
-  if @at.issue_list
-    attr.issue_list
-  end
+  attr.issue_list if @at.issue_list
 
   abies = @at.attrib_type_modifiable_bies.includes(:user, :group, :role)
   if abies.present?

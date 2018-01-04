@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 i*-
-
 require 'api_exception'
 
 class Owner
@@ -59,17 +57,13 @@ class Owner
         filter = params[:filter].split(',')
       else
         v = attrib.values.where(value: 'BugownerOnly').exists? if attrib
-        if attrib && v
-          filter = %w(bugowner)
-        end
+        filter = %w(bugowner) if attrib && v
       end
       if params[:devel]
         devel = false if %w(0 false).include? params[:devel]
       else
         v = attrib.values.where(value: 'DisableDevel').exists? if attrib
-        if attrib && v
-          devel = false
-        end
+        devel = false if attrib && v
       end
 
       if obj.nil?

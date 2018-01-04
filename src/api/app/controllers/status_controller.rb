@@ -104,12 +104,10 @@ class StatusController < ApplicationController
   end
 
   def find_relationships_for_packages(packages)
-    package_hash = Hash.new
+    package_hash = {}
     packages.each_value do |p|
       package_hash[p.package_id] = p
-      if p.develpack
-        package_hash[p.develpack.package_id] = p.develpack
-      end
+      package_hash[p.develpack.package_id] = p.develpack if p.develpack
     end
     @rolecache = {}
     @usercache = {}
@@ -137,7 +135,7 @@ class StatusController < ApplicationController
     Backend::Test.start if Rails.env.test?
     @id = params[:id]
 
-    @result = Hash.new
+    @result = {}
     BsRequest.find_by_number!(params[:id]).bs_request_actions.each do |action|
       # raise NotSubmitRequest.new 'Not submit' unless action.action_type == :submit
       sproj = Project.find_by_name!(action.source_project)

@@ -355,7 +355,7 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/groups/bs_requests' do
-      get 'groups/(:title)/requests' => :index, constraints: { :title => /[^\/]*/ }, as: 'group_requests'
+      get 'groups/(:title)/requests' => :index, constraints: { title: /[^\/]*/ }, as: 'group_requests'
     end
 
     controller 'webui/users/rss_tokens' do
@@ -364,10 +364,10 @@ OBSApi::Application.routes.draw do
 
     controller 'webui/groups' do
       get 'groups' => :index
-      get 'group/show/:title' => :show, constraints: { :title => /[^\/]*/ }, as: 'group_show'
+      get 'group/show/:title' => :show, constraints: { title: /[^\/]*/ }, as: 'group_show'
       get 'group/new' => :new
       post 'group/create' => :create
-      get 'group/edit/title' => :edit, constraints: { :title => /[^\/]*/ }
+      get 'group/edit/title' => :edit, constraints: { title: /[^\/]*/ }
       post 'group/update' => :update
       get 'group/autocomplete' => :autocomplete
       get 'group/tokens' => :tokens

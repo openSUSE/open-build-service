@@ -51,7 +51,7 @@ class Webui::PatchinfoController < Webui::WebuiController
   end
 
   def read_patchinfo
-    @binaries = Array.new
+    @binaries = []
     @file.each(:binary) do |binaries|
       @binaries << binaries.text
     end
@@ -126,9 +126,7 @@ class Webui::PatchinfoController < Webui::WebuiController
         }
         xml = node.patchinfo(attrs) do
           params[:selected_binaries].to_a.each do |binary|
-            if binary.present?
-              node.binary(binary)
-            end
+            node.binary(binary) if binary.present?
           end
           node.name params[:name] if params[:name].present?
           node.packager params[:packager]
@@ -149,9 +147,7 @@ class Webui::PatchinfoController < Webui::WebuiController
           node.reboot_needed if params[:reboot]
           node.relogin_needed if params[:relogin]
           node.zypp_restart_needed if params[:zypp_restart_needed]
-          if params[:block] == 'true'
-            node.stopped params[:block_reason]
-          end
+          node.stopped params[:block_reason] if params[:block] == 'true'
         end
         begin
           authorize @package, :update?

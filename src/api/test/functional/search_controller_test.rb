@@ -254,7 +254,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   # <<< Testing package inside HiddenProject - flag "access" set to "disabled" in Project
 
   def get_repos
-    ret = Array.new
+    ret = []
     col = Xmlhash.parse @response.body
     col.elements('repository') do |r|
       ret << "#{r['project']}/#{r['name']}"

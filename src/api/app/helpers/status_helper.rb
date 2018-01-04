@@ -2,15 +2,13 @@ module StatusHelper
   def self.resample(values, samples = 400)
     values.sort! { |a, b| a[0] <=> b[0] }
 
-    result = Array.new
+    result = []
     return result if values.empty?
 
     lastvalue = 0
     now = values[0][0].to_f
     samplerate = (values[-1][0] - now) / samples
-    if samples < values.length
-      now -= samplerate / 2
-    end
+    now -= samplerate / 2 if samples < values.length
 
     index = 0
 

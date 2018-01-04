@@ -59,7 +59,7 @@ namespace :db do
       structure += "\n"
       # sort the constraint lines always in the same order
       new_structure = ''
-      constraints = Array.new
+      constraints = []
       added_comma = false
       structure.each_line do |line|
         if line =~ /[ ]*CONSTRAINT/
@@ -72,10 +72,8 @@ namespace :db do
           if constraints.count > 0
             constraints.sort!
             new_structure += constraints.join
-            if added_comma
-              new_structure = new_structure[0..-3] + "\n"
-            end
-            constraints = Array.new
+            new_structure = new_structure[0..-3] + "\n" if added_comma
+            constraints = []
           end
           added_comma = false
           new_structure += line

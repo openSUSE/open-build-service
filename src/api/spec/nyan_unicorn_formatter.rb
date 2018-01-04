@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 require 'nyan_cat_formatter'
 
 # Overwritting nyan-cat-formatter class to remove warning '::Fixnum is deprecated'
@@ -18,9 +17,7 @@ class RSpec3
   end
 
   def example_started(notification)
-    if notification.respond_to?(:example)
-      notification = notification.example
-    end
+    notification = notification.example if notification.respond_to?(:example)
     @example_name = notification.full_description
   end
 end

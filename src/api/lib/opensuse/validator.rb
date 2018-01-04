@@ -38,8 +38,8 @@ module Suse
         # logger.debug "add validation mapping: #{controller.inspect}, #{action.inspect} => #{opt.inspect}"
 
         controller = controller.to_s
-        @schema_map ||= Hash.new
-        @schema_map[controller] ||= Hash.new
+        @schema_map ||= {}
+        @schema_map[controller] ||= {}
         if opt.has_key? :method
           key = action.to_s + '-' + opt[:method].to_s
         else
@@ -90,9 +90,7 @@ module Suse
           return true
         end
 
-        if content.nil?
-          raise "illegal option; need content for #{schema_file}"
-        end
+        raise "illegal option; need content for #{schema_file}" if content.nil?
         content = content.to_s
         if content.empty?
           logger.debug "no content, skipping validation for #{schema_file}"

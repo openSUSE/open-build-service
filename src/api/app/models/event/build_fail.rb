@@ -26,9 +26,7 @@ module Event
           # encode is documented not to throw it if undef: is :replace, but at least we tried - and ruby 1.9.3 is buggy
         end
         log = log.chomp.lines
-        if log.length > 30
-          log = log.slice(-29, log.length)
-        end
+        log = log.slice(-29, log.length) if log.length > 30
         log.join
       rescue ActiveXML::Transport::Error
         nil

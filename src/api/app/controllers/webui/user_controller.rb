@@ -21,8 +21,7 @@ class Webui::UserController < Webui::WebuiController
     end
   end
 
-  def login
-  end
+  def login; end
 
   def do_login
     user = User.find_with_credentials(params[:username], params[:password])
@@ -100,8 +99,7 @@ class Webui::UserController < Webui::WebuiController
     redirect_back(fallback_location: { action: 'show', user: @displayed_user })
   end
 
-  def edit
-  end
+  def edit; end
 
   def delete
     @displayed_user.state = 'deleted'
@@ -179,8 +177,7 @@ class Webui::UserController < Webui::WebuiController
     end
   end
 
-  def register_user
-  end
+  def register_user; end
 
   def password_dialog
     render_dialog

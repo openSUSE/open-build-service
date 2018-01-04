@@ -8,9 +8,7 @@ xml.packageresult('project' => @project, 'repository' => @repository,
   @arch_status.each do |a, s|
     xml.archresult('arch' => a) do
       xml.status('code' => s['code']) do
-        if (s['summary'])
-          xml.summary(s['summary'])
-        end
+        xml.summary(s['summary']) if (s['summary'])
       end
       @arch_rpms[a].each do |r|
         xml.rpm('filename' => r)

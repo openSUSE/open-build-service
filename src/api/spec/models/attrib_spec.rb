@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Attrib, :type => :model do
+RSpec.describe Attrib, type: :model do
   let(:attribute) { create(:attrib, project: create(:project)) }
   let(:project) { create(:project) }
   let(:package) { create(:package) }

@@ -136,12 +136,12 @@ class PublicController < ApplicationController
       return
     end
 
-    binary_map = Hash.new
+    binary_map = {}
     binaries.each do |bin|
       repo_string = bin.value(:repository)
       next if bin.value(:arch) == 'src'
       next unless bin.value(:filepath)
-      binary_map[repo_string] ||= Array.new
+      binary_map[repo_string] ||= []
       binary_map[repo_string] << bin
     end
 

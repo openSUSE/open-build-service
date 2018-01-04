@@ -64,7 +64,7 @@ class UserLdapStrategy
 
   # This static method performs the search with the given grouplist, user to return the groups that the user in
   def self.render_grouplist_ldap(grouplist, user = nil)
-    result = Array.new
+    result = []
     if @@ldap_search_con.nil?
       @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
     end
@@ -81,8 +81,8 @@ class UserLdapStrategy
       else
         filter = "(#{CONFIG['ldap_search_attr']}=#{user})"
       end
-      user_dn = String.new
-      user_memberof_attr = String.new
+      user_dn = ''
+      user_memberof_attr = ''
       ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
         user_dn = entry.dn
         if CONFIG['ldap_user_memberof_attr'].in?(entry.attrs)
@@ -96,15 +96,11 @@ class UserLdapStrategy
       Rails.logger.debug("User dn: #{user_dn} user_memberof_attr: #{user_memberof_attr}")
     end
 
-    group_dn = String.new
-    group_member_attr = String.new
+    group_dn = ''
+    group_member_attr = ''
     grouplist.each do |eachgroup|
-      if eachgroup.is_a? String
-        group = eachgroup
-      end
-      if eachgroup.is_a? Group
-        group = eachgroup.title
-      end
+      group = eachgroup if eachgroup.is_a? String
+      group = eachgroup.title if eachgroup.is_a? Group
 
       unless group.is_a? String
         raise ArgumentError, "illegal parameter type to UserLdapStrategy#render_grouplist_ldap?: #{eachgroup.class.name}"

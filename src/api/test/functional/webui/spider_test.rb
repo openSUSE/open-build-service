@@ -128,9 +128,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
         end
       end
       body.css('h2').each do |h|
-        if h.content == 'XML errors'
-          raiseit('XML errors', theone)
-        end
+        raiseit('XML errors', theone) if h.content == 'XML errors'
       end
       body.css('#exception-error').each do |e|
         raiseit("error '#{e.content}'", theone)
@@ -146,7 +144,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
   def test_spider_anonymously
     visit root_path
     @pages_to_visit = { page.current_url => [nil, nil] }
-    @pages_visited = Hash.new
+    @pages_visited = {}
 
     crawl
     ActiveRecord::Base.clear_active_connections!
@@ -157,7 +155,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
   def test_spider_as_admin
     login_king to: root_path
     @pages_to_visit = { page.current_url => [nil, nil] }
-    @pages_visited = Hash.new
+    @pages_visited = {}
 
     crawl
     ActiveRecord::Base.clear_active_connections!

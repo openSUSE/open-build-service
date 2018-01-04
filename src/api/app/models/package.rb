@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 i*-
-
 require_dependency 'api_exception'
 require 'builder/xchar'
 require 'rexml/document'
@@ -313,9 +311,7 @@ class Package < ApplicationRecord
 
   def check_source_access?
     if disabled_for?('sourceaccess', nil, nil) || project.disabled_for?('sourceaccess', nil, nil)
-      unless User.current && User.current.can_source_access?(self)
-        return false
-      end
+      return false unless User.current && User.current.can_source_access?(self)
     end
     true
   end
@@ -659,7 +655,7 @@ class Package < ApplicationRecord
     end
 
     # hash existing entries
-    old = Hash.new
+    old = {}
     products.each { |p| old[p.name] = p }
 
     Product.transaction do
@@ -690,13 +686,9 @@ class Package < ApplicationRecord
     ret = []
     directory.elements('entry') do |e|
       %w{patchinfo aggregate link channel}.each do |kind|
-        if e['name'] == '_' + kind
-          ret << kind
-        end
+        ret << kind if e['name'] == '_' + kind
       end
-      if e['name'] =~ /.product$/
-        ret << 'product'
-      end
+      ret << 'product' if e['name'] =~ /.product$/
       # further types my be spec, dsc, kiwi in future
     end
     ret.uniq
@@ -740,13 +732,9 @@ class Package < ApplicationRecord
         prj = pkg.project.develproject
         prj_name = prj.name
         pkg = prj.packages.get_by_name(pkg.name)
-        if pkg.nil?
-          return
-        end
+        return if pkg.nil?
       end
-      if pkg.id == id
-        pkg = self
-      end
+      pkg = self if pkg.id == id
     end
     # logger.debug "WORKED - #{pkg.inspect}"
     pkg
@@ -1257,7 +1245,7 @@ class Package < ApplicationRecord
   end
 
   def delete_file(name, opt = {})
-    delete_opt = Hash.new
+    delete_opt = {}
     delete_opt[:keeplink] = 1 if opt[:expand]
     delete_opt[:user] = User.current.login
     delete_opt[:comment] = opt[:comment] if opt[:comment]
@@ -1337,9 +1325,7 @@ class Package < ApplicationRecord
 
     # schema validation, if possible
     %w{aggregate constraints link service patchinfo channel}.each do |schema|
-      if name == '_' + schema
-        Suse::Validator.validate(schema, content)
-      end
+      Suse::Validator.validate(schema, content) if name == '_' + schema
     end
 
     # validate all files inside of _pattern container
@@ -1366,15 +1352,9 @@ class Package < ApplicationRecord
     end
 
     # special checks in their models
-    if name == '_service'
-      Service.verify_xml!(content)
-    end
-    if name == '_channel'
-      Channel.verify_xml!(content)
-    end
-    if name == '_patchinfo'
-      Patchinfo.new.verify_data(pkg.project, content)
-    end
+    Service.verify_xml!(content) if name == '_service'
+    Channel.verify_xml!(content) if name == '_channel'
+    Patchinfo.new.verify_data(pkg.project, content) if name == '_patchinfo'
     return unless name == '_attribute'
     raise IllegalFileName
   end

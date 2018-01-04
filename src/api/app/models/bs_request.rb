@@ -173,9 +173,7 @@ class BsRequest < ApplicationRecord
       request.number = theid if theid
 
       actions = hashed.delete('action')
-      if actions.is_a? Hash
-        actions = [actions]
-      end
+      actions = [actions] if actions.is_a?(Hash)
 
       request.priority = hashed.delete('priority') || 'moderate'
 
@@ -222,9 +220,7 @@ class BsRequest < ApplicationRecord
       hashed.delete('history')
 
       reviews = hashed.delete('review')
-      if reviews.is_a? Hash
-        reviews = [reviews]
-      end
+      reviews = [reviews] if reviews.is_a?(Hash)
       reviews.each do |r|
         request.reviews << Review.new_from_xml_hash(r)
       end if reviews
@@ -278,13 +274,9 @@ class BsRequest < ApplicationRecord
   end
 
   def check_creator
-    unless creator
-      errors.add(:creator, 'No creator defined')
-    end
+    errors.add(:creator, 'No creator defined') unless creator
     user = User.get_by_login creator
-    unless user
-      errors.add(:creator, "Invalid creator specified #{creator}")
-    end
+    errors.add(:creator, "Invalid creator specified #{creator}") unless user
     return if user.is_active?
     errors.add(:creator, "Login #{user.login} is not an active user")
   end
@@ -677,7 +669,7 @@ class BsRequest < ApplicationRecord
       go_new_state = new_review_state if new_review_state.in?([:declined, :superseded])
       found = false
 
-      reviews_seen = Hash.new
+      reviews_seen = {}
       reviews.reverse_each do |review|
         matching = true
         matching = false if review.by_user && review.by_user != opts[:by_user]
@@ -740,9 +732,7 @@ class BsRequest < ApplicationRecord
             end
           end
           # if all groups agreed, we can set all now to new
-          if go_new_state
-            bs_request_action_groups.each(&:set_group_to_new)
-          end
+          bs_request_action_groups.each(&:set_group_to_new) if go_new_state
         elsif go_new_state == :review
           bs_request_action_groups.each(&:set_group_to_review)
         elsif go_new_state == :declined
@@ -760,9 +750,7 @@ class BsRequest < ApplicationRecord
       history.create(p) if history
 
       # we want to check right now if pre-approved requests can be processed
-      if go_new_state == :new && accept_at
-        AcceptRequestsJob.perform_later
-      end
+      AcceptRequestsJob.perform_later if go_new_state == :new && accept_at
     end
   end
 
@@ -872,12 +860,8 @@ class BsRequest < ApplicationRecord
 
   def review_matches_user?(review, user)
     return false unless user
-    if review.by_user
-      return user.login == review.by_user
-    end
-    if review.by_group
-      return user.is_in_group?(review.by_group)
-    end
+    return user.login == review.by_user if review.by_user
+    return user.is_in_group?(review.by_group) if review.by_group
     if review.by_project
       p = nil
       m = 'change_project'
@@ -907,7 +891,7 @@ class BsRequest < ApplicationRecord
 
   def webui_infos(opts = {})
     opts.reverse_merge!(diffs: true)
-    result = Hash.new
+    result = {}
     result['id'] = id
     result['number'] = number
 
@@ -990,9 +974,7 @@ class BsRequest < ApplicationRecord
     check_bs_request_actions!
 
     # Autoapproval? Is the creator allowed to accept it?
-    if accept_at
-      permission_check_change_state!(newstate: 'accepted')
-    end
+    permission_check_change_state!(newstate: 'accepted') if accept_at
 
     apply_default_reviewers
   end

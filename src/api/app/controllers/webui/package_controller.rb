@@ -393,11 +393,9 @@ class Webui::PackageController < Webui::WebuiController
   end
   private :set_file_details
 
-  def add_person
-  end
+  def add_person; end
 
-  def add_group
-  end
+  def add_group; end
 
   def find_last_req
     if @oproject && @opackage
@@ -611,9 +609,7 @@ class Webui::PackageController < Webui::WebuiController
     authorize @package, :destroy?
 
     # Don't check weak dependencies if we force
-    unless params[:force]
-      @package.check_weak_dependencies?
-    end
+    @package.check_weak_dependencies? unless params[:force]
     if @package.errors.empty?
       @package.destroy
       redirect_to(project_show_path(@project), notice: 'Package was successfully removed.')
@@ -1017,8 +1013,7 @@ class Webui::PackageController < Webui::WebuiController
     end
   end
 
-  def edit
-  end
+  def edit; end
 
   private
 
@@ -1109,9 +1104,7 @@ class Webui::PackageController < Webui::WebuiController
     @can_modify = User.current.can_modify_project?(@project) || User.current.can_modify_package?(@package)
 
     # for remote and multibuild / local link packages
-    if @package.try(:name) != params[:package]
-      @package = params[:package]
-    end
+    @package = params[:package] if @package.try(:name) != params[:package]
 
     true
   end

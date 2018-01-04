@@ -20,9 +20,7 @@ module ActiveXML
       end
 
       def get_class(element_name)
-        if @@elements.include? element_name
-          return @@elements[element_name]
-        end
+        return @@elements[element_name] if @@elements.include? element_name
         ActiveXML::Node
       end
 
@@ -76,7 +74,7 @@ module ActiveXML
           args.insert(0, hash)
         end
         if args[0].is_a? Hash
-          hash = Hash.new
+          hash = {}
           args[0].each do |key, value|
             if key.nil? || value.nil?
               Rails.logger.debug "nil value given #{args.inspect}"
@@ -244,7 +242,7 @@ module ActiveXML
     end
 
     def each(symbol = nil)
-      result = Array.new
+      result = []
       each_with_index(symbol) do |node, _|
         result << node
         yield node if block_given?
@@ -253,9 +251,7 @@ module ActiveXML
     end
 
     def each_with_index(symbol = nil)
-      unless block_given?
-        raise 'use each instead'
-      end
+      raise 'use each instead' unless block_given?
       index = 0
       if symbol.nil?
         nodes = _data.element_children
@@ -275,9 +271,7 @@ module ActiveXML
 
       t0 = Time.now
       e = _data.xpath(symbol)
-      if e.empty?
-        return @node_cache[symbol] = nil
-      end
+      return @node_cache[symbol] = nil if e.empty?
       node = create_node_with_relations(e.first)
       @@xml_time += Time.now - t0
       @node_cache[symbol] = node
@@ -306,9 +300,7 @@ module ActiveXML
       # raise "to_s is obsolete #{self.inspect}"
       ret = ''
       _data.children.each do |node|
-        if node.text?
-          ret += node.content
-        end
+        ret += node.content if node.text?
       end
       ret
     end
@@ -322,9 +314,7 @@ module ActiveXML
     end
 
     def to_param
-      if @hash_cache
-        return @hash_cache['name']
-      end
+      return @hash_cache['name'] if @hash_cache
       _data.attributes['name'].value
     end
 
@@ -440,9 +430,7 @@ module ActiveXML
       end
 
       elem = _data.xpath(symbols)
-      unless elem.empty?
-        return @value_cache[symbols] = elem.first.inner_text
-      end
+      return @value_cache[symbols] = elem.first.inner_text unless elem.empty?
 
       @value_cache[symbols] = nil
     end

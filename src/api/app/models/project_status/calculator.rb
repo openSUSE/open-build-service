@@ -32,9 +32,7 @@ module ProjectStatus
       prjpacks = {}
       dname = proj.name
       mypackages.each_value do |package|
-        if package.project == dname
-          prjpacks[package.name] = package
-        end
+        prjpacks[package.name] = package if package.project == dname
       end
 
       proj.repositories_linking_project(@dbproj).each do |r|

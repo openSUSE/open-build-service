@@ -298,9 +298,7 @@ module Webui
       WebMock.reset!
       ActiveRecord::Base.clear_active_connections!
 
-      unless run_in_transaction?
-        DatabaseCleaner.clean_with :deletion
-      end
+      DatabaseCleaner.clean_with :deletion unless run_in_transaction?
 
       # puts "#{self.__name__} took #{Time.now - @starttime}"
     end
@@ -335,9 +333,7 @@ module Webui
     #
     def flash_message
       results = all(:css, 'div#flash-messages p')
-      if results.empty?
-        return 'none'
-      end
+      return 'none' if results.empty?
       if results.count > 1
         texts = results.map(&:text)
         raise "One flash expected, but we had #{texts.inspect}"

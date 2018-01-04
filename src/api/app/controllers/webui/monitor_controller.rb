@@ -6,7 +6,7 @@ class Webui::MonitorController < Webui::WebuiController
     private_class_method
     def addarrays(arr1, arr2)
       # we assert that both have the same size
-      ret = Array.new
+      ret = []
       arr1.length.times do |i|
         time1, value1 = arr1[i]
         time2, value2 = arr2[i]
@@ -21,8 +21,7 @@ class Webui::MonitorController < Webui::WebuiController
     end
   end
 
-  def old
-  end
+  def old; end
 
   def index
     @default_architecture = 'x86_64'
@@ -36,8 +35,8 @@ class Webui::MonitorController < Webui::WebuiController
         @workerstatus = {}
       end
 
-      workers = Hash.new
-      workers_list = Array.new
+      workers = {}
+      workers_list = []
       %w{idle building away down dead}.each do |state|
         @workerstatus.elements(state) do |b|
           workers_list << [b['workerid'], b['hostarch']]
@@ -46,7 +45,7 @@ class Webui::MonitorController < Webui::WebuiController
       workers_list.each do |bid, barch|
         hostname, subid = bid.gsub(%r{[:]}, '/').split('/')
         id = bid.gsub(%r{[:./]}, '_')
-        workers[hostname] ||= Hash.new
+        workers[hostname] ||= {}
         workers[hostname]['_arch'] = barch
         workers[hostname][subid] = id
       end
@@ -58,26 +57,20 @@ class Webui::MonitorController < Webui::WebuiController
 
   def update_building
     check_ajax
-    workers = Hash.new
+    workers = {}
     max_time = 4 * 3600
     @workerstatus.elements('idle') do |b|
       id = b['workerid'].gsub(%r{[:./]}, '_')
-      workers[id] = Hash.new
+      workers[id] = {}
     end
 
     @workerstatus.elements('building') do |b|
       id = b['workerid'].gsub(%r{[:./]}, '_')
       delta = (Time.now - Time.at(b['starttime'].to_i)).round
-      if delta < 5
-        delta = 5
-      end
-      if delta > max_time
-        delta = max_time
-      end
+      delta = 5 if delta < 5
+      delta = max_time if delta > max_time
       delta = (100 * Math.sin(Math.acos(1 - (Float(delta) / max_time)))).round
-      if (delta > 100)
-        delta = 100
-      end
+      delta = 100 if (delta > 100)
       workers[id] = { 'delta' => delta, 'project' => b['project'], 'repository' => b['repository'],
                       'package' => b['package'], 'arch' => b['arch'], 'starttime' => b['starttime'] }
     end
@@ -96,7 +89,7 @@ class Webui::MonitorController < Webui::WebuiController
 
   def events
     check_ajax
-    data = Hash.new
+    data = {}
     required_parameters :arch, :range
 
     arch = params[:arch]
@@ -107,11 +100,11 @@ class Webui::MonitorController < Webui::WebuiController
     %w{idle building away down dead}.each do |prefix|
       data[prefix] = gethistory(prefix + '_' + map_to_workers(arch), range, !discard_cache?).map { |time, value| [time * 1000, value] }
     end
-    low = Hash.new
+    low = {}
     gethistory("squeue_low_#{arch}", range).each do |time, value|
       low[time] = value
     end
-    comb = Array.new
+    comb = []
     gethistory("squeue_next_#{arch}", range).each do |time, value|
       clow = low[time] || 0
       comb << [1000 * time, clow + value]

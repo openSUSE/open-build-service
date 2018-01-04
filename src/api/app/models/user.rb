@@ -476,9 +476,7 @@ class User < ApplicationRecord
   end
 
   def can_create_attribute_definition?(object)
-    if object.is_a? AttribType
-      object = object.attrib_namespace
-    end
+    object = object.attrib_namespace if object.is_a? AttribType
     unless object.is_a? AttribNamespace
       raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}"
     end
@@ -500,12 +498,8 @@ class User < ApplicationRecord
     if !object.is_a?(Project) && !object.is_a?(Package)
       raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}"
     end
-    unless opts[:namespace]
-      raise ArgumentError, 'no namespace given'
-    end
-    unless opts[:name]
-      raise ArgumentError, 'no name given'
-    end
+    raise ArgumentError, 'no namespace given' unless opts[:namespace]
+    raise ArgumentError, 'no name given' unless opts[:name]
 
     # find attribute type definition
     atype = AttribType.find_by_namespace_and_name!(opts[:namespace], opts[:name])
@@ -559,9 +553,7 @@ class User < ApplicationRecord
       return true if lookup_strategy.local_role_check(role, object)
     end
 
-    if object.is_a? Package
-      return has_local_role?(role, object.project)
-    end
+    return has_local_role?(role, object.project) if object.is_a? Package
 
     false
   end
@@ -716,13 +708,13 @@ class User < ApplicationRecord
 
   # lists running maintenance updates where this user is involved in
   def involved_patchinfos
-    array = Array.new
+    array = []
 
     ids = PackageIssue.open_issues_of_owner(id).with_patchinfo.distinct.pluck(:package_id)
 
     Package.where(id: ids).find_each do |p|
       hash = { package: { project: p.project.name, name: p.name } }
-      issues = Array.new
+      issues = []
 
       p.issues.each do |is|
         i = {}

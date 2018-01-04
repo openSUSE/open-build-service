@@ -176,9 +176,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     # update action with real target project
     self.target_project = incident_project.name
 
-    if sourceupdate == 'cleanup'
-      source_cleanup
-    end
+    source_cleanup if sourceupdate == 'cleanup'
 
     # create a patchinfo if missing and incident has just been created
     if opts[:check_for_patchinfo] && !incident_project.packages.joins(:package_kinds).where("kind = 'patchinfo'").exists?

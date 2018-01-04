@@ -197,7 +197,7 @@ module NodeMatcher #:nodoc:
     # count children
     opts = conditions[:children]
     if opts
-      matches = Array.new
+      matches = []
       node.each do |child|
         if opts[:only]
           matches << child if match(child, opts[:only])
