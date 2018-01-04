@@ -62,7 +62,7 @@ sub startupload {
   my $pid;
   BSUtil::printlog("uploading job $job->{'name'} [$job->{'user'}, $job->{'target'}]\n");
   if (!($pid = xfork())) {
-    my @args = ($job->{'user'}, $job->{'target'}, "$jobdir/$jobid.file", "$jobdir/$jobid.data", "$jobdir/$jobid.log");
+    my @args = ($job->{'user'}, $job->{'target'}, "$jobdir/$jobid.file", "$jobdir/$jobid.data");
     print "calling $INC[0]/clouduploader @args\n";
     open(STDIN, '<', '/dev/null') || die("/dev/null: $!\n");
     open(STDOUT, '>&', $logfp);
