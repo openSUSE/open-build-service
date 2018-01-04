@@ -6,12 +6,16 @@
     %thead
       %tr
         %th #
+        %th Filename
         %th Platform
+        %th Status
     %tbody
       - @upload_jobs.each do |job|
         %tr
-          %td= job.job_id
-          %td EC2
+          %td= job.id
+          %td= job.filename
+          %td= job.platform.upcase
+          %td= job.state
 
 %div
   %p

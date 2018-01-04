@@ -1,9 +1,9 @@
 require 'rails_helper'
+require 'webmock/rspec'
 
 RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true do
   let!(:user) { create(:confirmed_user, login: 'tom') }
   let!(:ec2_configuration) { create(:ec2_configuration, user: user) }
-  let!(:upload_job) { create(:upload_job, user: user) }
   let(:project) { create(:project, name: 'Apache') }
   let!(:package) { create(:package, name: 'apache2', project: project) }
 
@@ -27,14 +27,38 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
       end
 
       context 'with an EC2 configuration' do
+        let(:upload_job) { create(:upload_job, user: user) }
+        let(:path) { "#{CONFIG['source_url']}/cloudupload?name=#{upload_job.job_id}" }
+        let(:xml_response) do
+          <<-HEREDOC
+          <clouduploadjoblist>
+            <clouduploadjob name="2">
+              <state>uploading</state>
+              <created>1513603428</created>
+              <user>mlschroe</user>
+              <target>ec2</target>
+              <project>Base:System</project>
+              <repository>openSUSE_Factory</repository>
+              <package>rpm</package>
+              <arch>x86_64</arch>
+              <filename>rpm-4.14.0-504.2.x86_64.rpm</filename>
+              <size>1690860</size>
+              <pid>18788</pid>
+            </clouduploadjob>
+          </clouduploadjoblist>
+          HEREDOC
+        end
+
         before do
+          stub_request(:get, path).and_return(body: xml_response)
           Feature.run_with_activated(:cloud_upload) do
             get :index
           end
         end
 
-        it { expect(assigns(:upload_jobs)).to match_array([upload_job]) }
-        it { expect(response).to have_http_status(:success) }
+        it { expect(assigns(:upload_jobs).length).to eq(1) }
+        it { expect(assigns(:upload_jobs).first.id).to eq('2') }
+        it { expect(response).to be_success }
       end
     end
 
@@ -45,7 +69,7 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
         end
       end
 
-      it { expect(response).to have_http_status(:not_found) }
+      it { expect(response).to be_not_found }
     end
   end
 
@@ -56,7 +80,7 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
       end
     end
 
-    it { expect(response).to have_http_status(:success) }
+    it { expect(response).to be_success }
     it {
       expect(assigns(:upload_job)).
         to have_attributes(project: 'Apache', package: 'apache2', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz')
@@ -74,11 +98,12 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
       end
 
       it { expect(flash[:error]).not_to be_nil }
-      it { expect(response).to have_http_status(302) }
+      it { expect(response).to be_redirect }
     end
 
     context 'with a backend response' do
-      let(:response) do
+      let(:path) { "#{CONFIG['source_url']}/cloudupload?#{backend_params.to_param}" }
+      let(:xml_response) do
         <<-HEREDOC
         <clouduploadjob name="6">
           <state>created</state>
@@ -96,17 +121,24 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
         HEREDOC
       end
       let(:params) do
-        ActionController::Parameters.new(
+        {
           project:    'Cloud',
           package:    'aws',
           repository: 'standard',
           arch:       'x86_64',
           filename:   'appliance.raw.gz',
           region:     'us-east-1'
-        ).permit!
+        }
       end
+      let(:backend_params) do
+        params.merge(target: 'ec2', user: user.login).except(:region)
+      end
+      let(:post_body) do
+        user.ec2_configuration.attributes.except('id', 'created_at', 'updated_at').merge(region: 'us-east-1').to_json
+      end
+
       before do
-        allow(Backend::Api::Cloud).to receive(:upload).with(user, params).and_return(response)
+        stub_request(:post, path).with(body: post_body).and_return(body: xml_response)
 
         Feature.run_with_activated(:cloud_upload) do
           post :create, params: { cloud_backend_upload_job: params }
@@ -117,6 +149,7 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
       it { expect(Cloud::User::UploadJob.last.job_id).to eq(6) }
       it { expect(Cloud::User::UploadJob.last.user).to eq(user) }
       it { expect(response).to redirect_to(cloud_upload_index_path) }
+      it { expect(response).to be_redirect }
     end
   end
 end
