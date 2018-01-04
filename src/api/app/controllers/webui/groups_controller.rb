@@ -17,11 +17,7 @@ class Webui::GroupsController < Webui::WebuiController
   def edit
     authorize @group, :update?
     @roles = Role.global_roles
-    @members = []
-    @group.users.each do |person|
-      user = { 'name' => person.login }
-      @members << user
-    end
+    @members = @group.users.pluck(:login).map { |login| { 'name' => login } }
   end
 
   def create
