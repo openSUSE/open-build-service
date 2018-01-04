@@ -243,7 +243,7 @@ class BsRequest < ApplicationRecord
   def self.sourcediff_has_shown_attribute?(sourcediff)
     if sourcediff && sourcediff['files']
       # the 'shown' attribute is only set if the backend truncated the diff
-      sourcediff['files'].any? { |file| file[1]['diff']['shown'] }
+      sourcediff['files'].any? { |file| file[1]['diff'].try(:[], 'shown') }
     else
       false
     end
