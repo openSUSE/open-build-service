@@ -20,7 +20,7 @@
       %li
         = link_to(content_tag(:span, content_tag(:span, '', class: 'icons-project') + raw(project.gsub(':', ':<wbr>')),
           class: 'project-link'), project_show_path(project))
-= form_tag(search_path, { id: 'global-search-form', class: 'label-overlay' }) do
+= form_tag(search_path(project: 1, package: 1, name: 1), { id: 'global-search-form', class: 'label-overlay' }) do
   %div{ style: 'display: inline' }
     %label.hidden{ for: 'search' } Search
     = text_field_tag 'search_text', '', id: 'search'

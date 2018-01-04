@@ -80,9 +80,9 @@ RSpec.describe Webui::SearchController, vcr: true do
       end
     end
 
-    context 'with bad search_where' do
+    context 'with no search scope' do
       before do
-        get :index, params: { search_text: 'whatever', name: '0' }
+        get :index, params: { search_text: 'whatever' }
       end
 
       it { expect(flash[:error]).to eq('You have to search for whatever in something. Click the advanced button...') }
@@ -92,7 +92,7 @@ RSpec.describe Webui::SearchController, vcr: true do
     context 'with proper parameters but no results' do
       before do
         allow(ThinkingSphinx).to receive(:search).and_return([])
-        get :index, params: { search_text: 'whatever' }
+        get :index, params: { search_text: 'whatever', project: 1, package: 1, name: 1 }
       end
 
       it { expect(flash[:notice]).to eq('Your search did not return any results.') }
@@ -103,7 +103,7 @@ RSpec.describe Webui::SearchController, vcr: true do
     context 'with proper parameters and some results' do
       before do
         allow(ThinkingSphinx).to receive(:search).and_return(["Fake result with #{package.name}"])
-        get :index, params: { search_text: package.name }
+        get :index, params: { search_text: package.name, project: 1, package: 1, name: 1 }
       end
 
       it { expect(response).to have_http_status(:success) }
