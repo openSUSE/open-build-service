@@ -193,9 +193,7 @@ class Project < ApplicationRecord
     # We don't store the project and packages objects because they're fetched from remote instances and stored in cache
     project = Project.new(name: "#{remote_project.name}:#{image_template_project['name']}")
     image_template_project.elements('image_template_package').each do |image_template_package|
-      project.packages.new(name: image_template_package['name'],
-                           title: image_template_package['title'],
-                           description: image_template_package['description'])
+      project.packages.new(image_template_package.slice('name', 'title', 'description').symbolize_keys)
     end
     project
   end
