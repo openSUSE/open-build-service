@@ -272,4 +272,10 @@ RSpec.describe Webui::PackageHelper, type: :helper do
       end
     end
   end
+
+  describe 'cloud_image_file?' do
+    it { expect(cloud_image_file?('image.raw.xz')).to be_truthy }
+    it { expect(cloud_image_file?('image.vhdfixed.xz')).to be_truthy }
+    it { expect(cloud_image_file?('apache2.rpm')).to be_falsy }
+  end
 end

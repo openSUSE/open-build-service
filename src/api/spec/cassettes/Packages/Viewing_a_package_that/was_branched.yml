@@ -1161,4 +1161,82 @@ http_interactions:
 '
     http_version: 
   recorded_at: Fri, 28 Apr 2017 11:53:31 GMT
-recorded_with: VCR 3.0.3
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:package_test_user">
+          <title>The Way Through the Woods</title>
+          <description>Voluptas ut aperiam sit id ea quidem amet.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '189'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:package_test_user">
+          <title>The Way Through the Woods</title>
+          <description>Voluptas ut aperiam sit id ea quidem amet.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 13:14:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_package_test_user">
+          <title>Many Waters</title>
+          <description>Voluptatum ut ea doloremque consectetur minima.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '193'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_package_test_user">
+          <title>Many Waters</title>
+          <description>Voluptatum ut ea doloremque consectetur minima.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 13:14:14 GMT
+recorded_with: VCR 4.0.0

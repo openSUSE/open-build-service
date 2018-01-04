@@ -4,7 +4,8 @@ module Feature
     #
     class ObsRepository < YamlRepository
       DEFAULTS = {
-        image_templates: true
+        image_templates: true,
+        cloud_upload:    false
       }.freeze
 
       # Returns list of active features

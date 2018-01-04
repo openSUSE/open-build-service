@@ -1357,4 +1357,150 @@ http_interactions:
         </status>
     http_version: 
   recorded_at: Fri, 16 Jun 2017 14:23:08 GMT
-recorded_with: VCR 3.0.3
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:package_test_user">
+          <title>Surprised by Joy</title>
+          <description>Corrupti numquam placeat suscipit ipsum quia sed rerum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '193'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:package_test_user">
+          <title>Surprised by Joy</title>
+          <description>Corrupti numquam placeat suscipit ipsum quia sed rerum.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 13:13:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_package_test_user">
+          <title>The Lathe of Heaven</title>
+          <description>Ea deleniti nisi ut qui ut ut qui repellat.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '197'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_package_test_user">
+          <title>The Lathe of Heaven</title>
+          <description>Ea deleniti nisi ut qui ut ut qui repellat.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 13:13:42 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '200'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="1" vrev="1" srcmd5="76f14d7f71d84f62e33056b3e088d941">
+          <entry name="_config" md5="59b46c46338e845890c00a2811779a58" size="102" mtime="1514985210" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 13:13:44 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '200'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="1" vrev="1" srcmd5="76f14d7f71d84f62e33056b3e088d941">
+          <entry name="_config" md5="59b46c46338e845890c00a2811779a58" size="102" mtime="1514985210" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 13:13:44 GMT
+recorded_with: VCR 4.0.0

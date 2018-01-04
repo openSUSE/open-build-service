@@ -119,6 +119,13 @@
                     </li>
                   <% end %>
                 <% end %>
+                <% if Feature.active?(:cloud_upload) && !User.current.is_nobody? %>
+                  <% if @package.kiwi_image? %>
+                    <li>
+                      <%= link_to(sprited_text('drive_web', 'Cloud Upload'), cloud_upload_index_path, id: 'cloud-upload') %>
+                    </li>
+                  <% end %>
+                <% end %>
                 <% if @services.present? %>
                   <li>
                     <%= link_to(sprited_text('package_link', 'Trigger services'), { action: :trigger_services, package: @package, project: @project }, method: :post) %>

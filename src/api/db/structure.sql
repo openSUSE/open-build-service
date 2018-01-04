@@ -322,6 +322,29 @@ CREATE TABLE `channels` (
   CONSTRAINT `channels_ibfk_1` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+CREATE TABLE `cloud_ec2_configurations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `external_id` varchar(255) DEFAULT NULL,
+  `arn` varchar(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_cloud_ec2_configurations_on_external_id_and_arn` (`external_id`,`arn`),
+  KEY `index_cloud_ec2_configurations_on_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `cloud_user_upload_jobs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `job_id` int(11) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_cloud_user_upload_jobs_on_job_id` (`job_id`),
+  KEY `index_cloud_user_upload_jobs_on_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `comments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `body` text COLLATE utf8_unicode_ci,
@@ -1288,6 +1311,8 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20171102110929'),
 ('20171107125828'),
 ('20171109095756'),
-('20171212083426');
+('20171212083426'),
+('20171218160607'),
+('20171219122451');
 
 

@@ -1,0 +1,26 @@
+%h1
+  EC2 Uploader
+
+%p
+  Select the Amazon EC2 region to which you want to upload your cloud image.
+  Please note that it is necessary to have the OBS public key available in this region before starting the upload job.
+  Please have a lookt at your
+  = link_to "Amazon EC2 configuration", cloud_ec2_configuration_path
+  for more information.
+
+= form_for @upload_job, url: cloud_upload_index_path, method: :post do |person_form|
+  %p
+    Upload image
+    %b
+      = @upload_job.filename
+    to region
+    = select_tag('cloud_backend_upload_job[region]', options_for_select([['us-east-1', 'us-east-1'], ['us-east-2', 'us-east-2']], 'us-east-2'))
+    = person_form.hidden_field :project
+    = person_form.hidden_field :package
+    = person_form.hidden_field :arch
+    = person_form.hidden_field :repository
+    = person_form.hidden_field :filename
+    = submit_tag 'Upload'
+
+%p
+  = link_to "All Cloud Uploads", cloud_upload_index_path

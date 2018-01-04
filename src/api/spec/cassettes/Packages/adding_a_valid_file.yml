@@ -1491,4 +1491,150 @@ http_interactions:
         </status>
     http_version: 
   recorded_at: Fri, 16 Jun 2017 14:23:11 GMT
-recorded_with: VCR 3.0.3
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_package_test_user">
+          <title>This Side of Paradise</title>
+          <description>Minus est iste sit voluptas deleniti.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '193'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_package_test_user">
+          <title>This Side of Paradise</title>
+          <description>Minus est iste sit voluptas deleniti.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 13:13:18 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/test_package?rev=6
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: package 'test_package' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>package 'test_package' does not exist</summary>
+          <details>404 package 'test_package' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 13:13:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:package_test_user">
+          <title>Butter In a Lordly Dish</title>
+          <description>Tempore corporis odit dolorem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '175'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:package_test_user">
+          <title>Butter In a Lordly Dish</title>
+          <description>Tempore corporis odit dolorem.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 13:13:21 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '87'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 13:13:21 GMT
+recorded_with: VCR 4.0.0

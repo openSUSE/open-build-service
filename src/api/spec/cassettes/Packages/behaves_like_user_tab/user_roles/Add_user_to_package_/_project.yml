@@ -592,4 +592,406 @@ http_interactions:
         </status>
     http_version: 
   recorded_at: Fri, 16 Jun 2017 14:23:50 GMT
-recorded_with: VCR 3.0.3
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/_meta?user=package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:package_test_user">
+          <title/>
+          <description/>
+          <person userid="package_test_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:package_test_user">
+          <title></title>
+          <description></description>
+          <person userid="package_test_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 13:16:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_tab_user/_meta?user=user_tab_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_tab_user">
+          <title/>
+          <description/>
+          <person userid="user_tab_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '149'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_tab_user">
+          <title></title>
+          <description></description>
+          <person userid="user_tab_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 13:16:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_tab_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="group_test_package" project="home:user_tab_user">
+          <title>The Needle's Eye</title>
+          <description>Consequatur ex deserunt qui.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="group_test_package" project="home:user_tab_user">
+          <title>The Needle's Eye</title>
+          <description>Consequatur ex deserunt qui.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 13:16:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="group_test_package" project="home:user_tab_user">
+          <title>The Needle's Eye</title>
+          <description>Consequatur ex deserunt qui.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="group_test_package" project="home:user_tab_user">
+          <title>The Needle's Eye</title>
+          <description>Consequatur ex deserunt qui.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 13:16:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_user/_meta?user=other_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_user">
+          <title/>
+          <description/>
+          <person userid="other_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '143'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_user">
+          <title></title>
+          <description></description>
+          <person userid="other_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 13:16:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=user_tab_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_user">
+          <title>From Here to Eternity</title>
+          <description>Reiciendis est ut in voluptate rerum corporis porro.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '195'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_user">
+          <title>From Here to Eternity</title>
+          <description>Reiciendis est ut in voluptate rerum corporis porro.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 13:16:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_config
+    body:
+      encoding: UTF-8
+      string: Dolores minus quia dolor qui aliquid ex. Quas ab dolores non libero.
+        Iste animi necessitatibus itaque. Qui veritatis rerum sed et ut fuga. Eos
+        possimus nulla eveniet amet.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="6" vrev="6">
+          <srcmd5>9ea52f1dc5b29976cfc9f14d1e1828a3</srcmd5>
+          <version>unknown</version>
+          <time>1514985374</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 13:16:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:reader_user/_meta?user=reader_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:reader_user">
+          <title/>
+          <description/>
+          <person userid="reader_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '145'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:reader_user">
+          <title></title>
+          <description></description>
+          <person userid="reader_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 13:16:15 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '93'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 13:16:16 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_tab_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="group_test_package" project="home:user_tab_user">
+          <title>The Needle's Eye</title>
+          <description>Consequatur ex deserunt qui.</description>
+          <person userid="user_tab_user" role="bugowner"/>
+          <person userid="other_user" role="maintainer"/>
+          <person userid="user_tab_user" role="maintainer"/>
+          <person userid="reader_user" role="reader"/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '373'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="group_test_package" project="home:user_tab_user">
+          <title>The Needle's Eye</title>
+          <description>Consequatur ex deserunt qui.</description>
+          <person userid="user_tab_user" role="bugowner" />
+          <person userid="other_user" role="maintainer" />
+          <person userid="user_tab_user" role="maintainer" />
+          <person userid="reader_user" role="reader" />
+        </package>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 13:16:17 GMT
+recorded_with: VCR 4.0.0

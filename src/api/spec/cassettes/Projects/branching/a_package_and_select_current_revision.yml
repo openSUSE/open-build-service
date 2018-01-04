@@ -1846,4 +1846,109 @@ http_interactions:
         </status>
     http_version: 
   recorded_at: Fri, 16 Jun 2017 14:26:54 GMT
-recorded_with: VCR 3.0.3
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Jane/branch_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: package 'branch_test_package' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>package 'branch_test_package' does not exist</summary>
+          <details>404 package 'branch_test_package' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 14:25:42 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Jane/branch_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: package 'branch_test_package' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>package 'branch_test_package' does not exist</summary>
+          <details>404 package 'branch_test_package' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 14:25:42 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Jane/branch_test_package?expand=0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: package 'branch_test_package' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>package 'branch_test_package' does not exist</summary>
+          <details>404 package 'branch_test_package' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 03 Jan 2018 14:25:42 GMT
+recorded_with: VCR 4.0.0

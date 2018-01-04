@@ -1,0 +1,75 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://backend:5352/cloudupload?arch=x86_64&filename=appliance.raw.gz&package=aws&project=Cloud&repository=standard&target=ec2&user=user_2
+    body:
+      encoding: UTF-8
+      string: '{"user_id":2,"external_id":"25g6n136gxfmlwkmg4c9t4fw","arn":"arn:z8mmuzjwyz","region":"us-east-1"}'
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: no cloud upload server configurated
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '87'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="400">
+          <summary>no cloud upload server configurated</summary>
+        </status>
+    http_version: 
+  recorded_at: Fri, 22 Dec 2017 13:05:23 GMT
+- request:
+    method: post
+    uri: http://backend:5352/cloudupload?arch=x86_64&filename=appliance.raw.gz&package=aws&project=Cloud&repository=standard&target=ec2&user=tom
+    body:
+      encoding: UTF-8
+      string: '{"user_id":2,"external_id":"mh3lr0by0j0ln21ic0cqo45g","arn":"arn:gdum5fc6qc","region":"us-east-1"}'
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: no cloud upload server configurated
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '87'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="400">
+          <summary>no cloud upload server configurated</summary>
+        </status>
+    http_version: 
+  recorded_at: Fri, 22 Dec 2017 13:44:50 GMT
+recorded_with: VCR 4.0.0

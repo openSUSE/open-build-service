@@ -2,13 +2,16 @@ production:
   features: &default
     image_templates: true
     kiwi_image_editor: false
+    cloud_upload: false
 
 development:
   features:
     <<: *default
     kiwi_image_editor: true
+    cloud_upload: true
 
 test:
   features:
     <<: *default
     kiwi_image_editor: true
+    cloud_upload: true
