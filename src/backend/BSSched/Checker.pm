@@ -553,6 +553,7 @@ sub expandandsort {
     delete $pkg2src{$_};
   }
   $ctx->{'cycles'} = \@cycles;
+  $ctx->{'pkg2src'} = \%pkg2src;
   return ('scheduling', undef);
 }
 
@@ -647,7 +648,6 @@ sub checkpkgs {
 
   $ctx->{'packstatus'} = \%packstatus;
   $ctx->{'cychash'} = \%cychash;
-  $ctx->{'cycpass'} = \%cycpass;
   $ctx->{'nharder'} = 0;
   $ctx->{'building'} = \%building;
   $ctx->{'unfinished'} = \%unfinished;
@@ -679,31 +679,39 @@ sub checkpkgs {
   my @cpacks = @{$ctx->{'packs'}};
   while (@cpacks) {
     my $packid = shift @cpacks;
+
+    # cycle handling code
     my $incycle = 0;
     if ($cychash{$packid}) {
-      next if $packstatus{$packid} && $packstatus{$packid} ne 'done'; # already decided in phase 1
-      # cycle package, we look at a cycle two times:
-      # 1) just trigger package builds caused by source changes
-      # 2) normal package build triggering
-      # cychash contains all packages of this cycle
-
-      # calculate phase 1 packages
-      my @cnext = grep {!$cycpass{$_}} @{$cychash{$packid}};
-      if (@cnext) {
-	# still phase1 packages left, do them first
-	unshift @cpacks, $packid;
-	$packid = shift @cnext;
-	$cycpass{$packid} = 1;	# now doinig phase 1
+      # do every package in the cycle twice:
+      # pass1: only build source changes
+      # pass2: normal build, but block if a pass1 package is building
+      # pass3: ignore
+      $incycle = $cycpass{$packid};
+      if (!$incycle) {
+	# starting pass 1	(incycle == 1)
+	my @cycp = @{$cychash{$packid}};
+	unshift @cpacks, $cycp[0];	# pass3
+	unshift @cpacks, @cycp;		# pass2
+	unshift @cpacks, @cycp;		# pass1
+	$packid = shift @cpacks;
 	$incycle = 1;
-      } elsif (($cycpass{$packid} || 0) < 2) {
-	# enter phase 2
-	$cycpass{$packid} = 2;	# just in case...
-	my $pass = 2;
-	# we are building packages because of source changes,
-	# set cycpass to 3 so that we don't start other builds
-	$pass = 3 if grep {$building{$_}} @{$cychash{$packid}};
-	$cycpass{$_} = $pass for @{$cychash{$packid}};
+	$cycpass{$_} = $incycle for @cycp;
+	$cycpass{$packid} = 12;		# go to pass 2 the next time
+      } elsif ($incycle == 12) {
+	# starting pass 2	(incycle == 2/3)
+	my @cycp = @{$cychash{$packid}};
+	$incycle = (grep {$building{$_}} @cycp) ? 3 : 2;
+	$cycpass{$_} = $incycle for @cycp;
+	$cycpass{$packid} = 13;		# ignore after this
+      } elsif ($incycle == 13) {
+	# starting pass 3	(incycle == 4)
+	my @cycp = @{$cychash{$packid}};
+	$incycle = 4;
+	$cycpass{$_} = $incycle for @cycp;
       }
+      next if $incycle == 4;	# ignore after pass1/2
+      next if $packstatus{$packid} && $packstatus{$packid} ne 'done'; # already decided in phase 1
     }
     $ctx->{'incycle'} = $incycle;
 

@@ -98,13 +98,13 @@ sub check {
   }
 
   # calculate if we're blocked
+  my $incycle = $ctx->{'incycle'};
   my @blocked = grep {$notready->{$dep2src->{$_}}} @$edeps;
   @blocked = () if $repo->{'block'} && $repo->{'block'} eq 'never';
-  if ($ctx->{'cychash'}->{$packid}) {
+  if ($incycle) {
     # package belongs to a cycle, prune blocked list
-    my $cycpass = $ctx->{'cycpass'}->{$packid} || 0;
-    if (@blocked && $cycpass == 3) {
-      # cycpass == 2 means that packages of this cycle are building
+    if (@blocked && $incycle == 3) {
+      # incycle == 3 means that packages of this cycle are building
       # because of source changes
       if ($ctx->{'verbose'}) {
         print "      - $packid ($buildtype)\n";
@@ -112,9 +112,10 @@ sub check {
       }
       return ('blocked', join(', ', @blocked));
     }
-    my %cycs = map {$_ => 1} @{$ctx->{'cychash'}->{$packid}};
-    # prune building cycle packages from blocked
+    my $pkg2src = $ctx->{'pkg2src'} || {};
     my $building = $ctx->{'building'};
+    my %cycs = map {($pkg2src->{$_} || $_) => 1} @{$ctx->{'cychash'}->{$packid}};
+    # prune building cycle packages from blocked
     @blocked = grep {!$cycs{$dep2src->{$_}} || !$building->{$dep2src->{$_}}} @blocked;
     if (@blocked) {
       if ($ctx->{'verbose'}) {
@@ -189,7 +190,7 @@ sub check {
       goto relsynccheck;
     }
     # more work, check if dep rpm changed
-    if ($ctx->{'incycle'}) {
+    if ($incycle == 1) {
       # print "      - $packid ($buildtype)\n";
       # print "        in cycle, no source change...\n";
       return ('done');
