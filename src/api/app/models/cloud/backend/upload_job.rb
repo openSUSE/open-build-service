@@ -33,6 +33,15 @@ module Cloud
         new(exception: exception.message)
       end
 
+      def self.all(user)
+        xml = ::Backend::Api::Cloud.status(user)
+        [Xmlhash.parse(xml)['clouduploadjob']].flatten.compact.map do |xml_hash|
+          new(xml_object: OpenStruct.new(xml_hash))
+        end
+      rescue ActiveXML::Transport::Error, Timeout::Error
+        []
+      end
+
       private
 
       def xml_object

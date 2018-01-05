@@ -7,7 +7,7 @@ module Webui
       before_action :set_package, only: :new
 
       def index
-        @upload_jobs = User.current.upload_jobs
+        @upload_jobs = ::Cloud::Backend::UploadJob.all(User.current)
       end
 
       def new

@@ -10,10 +10,10 @@ module Backend
         post(['/cloudupload'], params: params.merge(user: user.login, target: target_name), data: data)
       end
 
-      # Returns the status of a cloud upload job
+      # Returns the status of the cloud upload jobs of a user
       # @return [String]
-      def self.status(job_id)
-        get(['/cloudupload', job_id])
+      def self.status(user)
+        get(['/cloudupload'], params: { name: user.upload_jobs.pluck(:job_id) }, expand: [:name])
       end
     end
   end
