@@ -45,7 +45,7 @@ other changes:
 ++++++ myfile (new)
 --- myfile
 +++ myfile
-@@ -0,0 +1,1 @@
+@@ -0,0 +1 @@
 +DummyContent
 \ No newline at end of file
 
