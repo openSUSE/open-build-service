@@ -13,8 +13,6 @@ end
 RSpec.configure do |config|
   config.include SphinxHelpers, type: :feature
 
-  FullTextSearch.max_matches = 1000
-
   config.before(:suite) do
     # Ensure sphinx directories exist for the test environment
     ThinkingSphinx::Test.init
