@@ -334,7 +334,7 @@ sub parsemetadata {
       $archfilter->{$_} = 1 unless delete $archfilter->{"-$_"};
     }
   }
-  Build::Repo::parse($doddata->{'repotype'}, $file, sub { addpkg($cache, $_[0], $archfilter) }, 'addselfprovides' => 1, 'normalizedeps' => 1, 'withchecksum' => 1);
+  Build::Repo::parse($doddata->{'repotype'}, $file, sub { addpkg($cache, $_[0], $archfilter) }, 'addselfprovides' => 1, 'normalizedeps' => 1, 'withchecksum' => 1, 'testcaseformat' => 1);
   $baseurl =~ s/\/$//;
   $cache->{'/url'} = $baseurl;
   BSUtil::store("$file.parsed", $file, $cache);
