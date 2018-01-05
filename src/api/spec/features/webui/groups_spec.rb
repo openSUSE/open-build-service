@@ -15,6 +15,7 @@ RSpec.feature 'Groups', type: :feature, js: true do
     expect(page).to have_content('Incoming Reviews')
     find('#group-members-tab').click
     expect(page).to have_content('This group does not contain users.')
+    expect(page).to have_link('Update group members')
 
     visit groups_path
     expect(page).to have_content('Showing 1 to 2 of 2 entries')
