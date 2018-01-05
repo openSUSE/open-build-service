@@ -15,6 +15,12 @@ module Backend
       def self.status(user)
         get('/cloudupload', params: { name: user.upload_jobs.pluck(:job_id) }, expand: [:name])
       end
+
+      # Returns the log file of the cloud upload job
+      # @return [String]
+      def self.log(id)
+        get(['/cloudupload/:id/_log', id])
+      end
     end
   end
 end
