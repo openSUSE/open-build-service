@@ -50,7 +50,7 @@ GEM
       public_suffix (>= 2.0.2, < 4.0)
     airbrake (7.1.0)
       airbrake-ruby (~> 2.5)
-    airbrake-ruby (2.5.0)
+    airbrake-ruby (2.7.1)
     amq-protocol (2.2.0)
     annotate (2.7.2)
       activerecord (>= 3.2, < 6.0)
@@ -422,7 +422,7 @@ DEPENDENCIES
   acts_as_tree
   addressable
   airbrake (<= 7.1.0)
-  airbrake-ruby (<= 2.5.0)
+  airbrake-ruby (<= 2.7.1)
   annotate
   bcrypt
   bullet
