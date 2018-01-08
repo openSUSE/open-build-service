@@ -427,7 +427,7 @@ sub filediff_libxdiff {
   my $maxc = defined($max) ? $max * 80 : undef;
   $maxc = $opts{'fmaxc'} if exists $opts{'fmaxc'};
 
-  my $d = Diff::LibXDiff->diff(ref($f1) ? '' : $f1, ref($f2) ? '' : $f2);
+  my $d = Diff::LibXDiff->diff(!defined($f1) || ref($f1) ? '' : $f1, !defined($f2) || ref($f2) ? '' : $f2);
   my $lcnt = $d =~ tr/\n/\n/;
   my $ccnt = 0;
   if (defined($max)) {
@@ -485,10 +485,9 @@ sub filediff {
   my $diffarg = $opts{'diffarg'} || '-u';
 
   if ($havelibxdiff && $diffarg eq '-u') {
-    my $c1 = filediff_libxdiff_check($f1);
-    if (defined($c1)) {
-      my $c2 = filediff_libxdiff_check($f2);
-      if (defined($c2)) {
+    my ($c1, $c2);
+    if (!defined($f1) || defined($c1 = filediff_libxdiff_check($f1))) {
+      if (!defined($f2) || defined($c2 = filediff_libxdiff_check($f2))) {
         return filediff_libxdiff($c1, $c2, %opts);
       }
     }
@@ -627,12 +626,9 @@ sub fixup {
 sub filediff_fixup {
   my ($f1, $f2, %opts) = @_;
   if ($havelibxdiff && ($opts{'diffarg'} || '-u') eq '-u') {
-    my $c1 = '';
-    $c1 = filediff_libxdiff_check(fixup($f1, 1), $f1->{'content'}) if $f1;
-    if (defined($c1)) {
-      my $c2 = '';
-      $c2 = filediff_libxdiff_check(fixup($f2, 1), $f2->{'content'}) if $f2;
-      if (defined($c2)) {
+    my ($c1, $c2);
+    if (!$f1 || defined($c1 = filediff_libxdiff_check(fixup($f1, 1), $f1->{'content'}))) {
+      if (!$f2 || defined($c2 = filediff_libxdiff_check(fixup($f2, 1), $f2->{'content'}))) {
         return filediff_libxdiff($c1, $c2, %opts);
       }
     }
