@@ -29,7 +29,7 @@ class SendEventEmailsJob < ApplicationJob
       Notification::RssFeedItem.create(
         subscriber: subscription.subscriber,
         event_type: event.eventtype,
-        event_payload: event.payload,
+        event_payload: Yajl::Encoder.encode(event.payload),
         subscription_receiver_role: subscription.receiver_role
       )
     end

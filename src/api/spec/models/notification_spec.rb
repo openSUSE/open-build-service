@@ -5,7 +5,7 @@ RSpec.describe Notification do
   let(:delete_package_event) { Event::DeletePackage.new(payload) }
 
   describe '#event' do
-    subject { create(:rss_notification, event_type: 'Event::DeletePackage', event_payload: payload).event }
+    subject { create(:rss_notification, event_type: 'Event::DeletePackage', event_payload: Yajl::Encoder.encode(payload)).event }
 
     it { expect(subject.class).to eq(delete_package_event.class) }
     it { expect(subject.payload).to eq(delete_package_event.payload) }

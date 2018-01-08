@@ -51,6 +51,14 @@ RSpec.describe SendEventEmailsJob, type: :job do
         expect(raw_event_payload).to eq(raw_notification_payload)
       end
 
+      it 'serializes payloads the same way as event payloads are serialized' do
+        notification = Notification.find_by(subscriber: user)
+        event_payload = Event::Base.first.attributes['payload']
+        notification_payload = notification.attributes['event_payload']
+
+        expect(event_payload).to eq(notification_payload)
+      end
+
       it "creates an rss notification for group's email" do
         notification = Notification::RssFeedItem.find_by(subscriber: group)
 
