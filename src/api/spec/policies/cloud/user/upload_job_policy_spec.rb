@@ -9,7 +9,7 @@ RSpec.describe Cloud::User::UploadJobPolicy do
 
   subject { Cloud::User::UploadJobPolicy }
 
-  permissions :show? do
+  shared_examples_for 'a upload job policy' do
     it 'allows admin users to see any log' do
       expect(subject).to permit(admin_user, upload_job)
     end
@@ -25,5 +25,13 @@ RSpec.describe Cloud::User::UploadJobPolicy do
     it 'does not allow users to see logs of other user' do
       expect(subject).not_to permit(user, upload_job)
     end
+  end
+
+  permissions :show? do
+    it_behaves_like 'a upload job policy'
+  end
+
+  permissions :destroy? do
+    it_behaves_like 'a upload job policy'
   end
 end

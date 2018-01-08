@@ -21,6 +21,14 @@ module Backend
       def self.log(id)
         get(['/cloudupload/:id/_log', id])
       end
+
+      # Destroys (killing the process) the upload job.
+      # The backend will not delete the log files etc for history reasons.
+      # It will return the status of the job or raise an exception.
+      # @return [String]
+      def self.destroy(id)
+        post(['/cloudupload/:id', id], data: { command: :kill }.to_param)
+      end
     end
   end
 end

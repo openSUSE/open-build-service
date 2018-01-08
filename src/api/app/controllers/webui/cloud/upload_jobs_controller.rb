@@ -5,6 +5,7 @@ module Webui
       before_action -> { feature_active?(:cloud_upload) }
       before_action :validate_configuration_presence, :set_breadcrump
       before_action :set_package, only: :new
+      before_action :set_upload_job, only: :destroy
 
       def index
         @upload_jobs = ::Cloud::Backend::UploadJob.all(User.current)
@@ -26,6 +27,18 @@ module Webui
         end
       end
 
+      def destroy
+        begin
+          authorize @upload_job, :destroy?
+          Backend::Api::Cloud.destroy(@upload_job.job_id)
+          flash[:success] = "Successfully aborted upload job with id #{params[:id]}."
+        rescue ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => exception
+          flash[:error] = exception.message
+        end
+
+        redirect_to cloud_upload_index_path
+      end
+
       private
 
       def set_breadcrump
@@ -38,6 +51,13 @@ module Webui
 
       def permitted_params
         params.require(:cloud_backend_upload_job).permit(:project, :package, :repository, :arch, :filename, :region)
+      end
+
+      def set_upload_job
+        @upload_job = ::Cloud::User::UploadJob.find_by(job_id: params[:id])
+        return if @upload_job.present?
+        flash[:error] = "No upload job with id #{params[:id]} found."
+        redirect_to cloud_upload_index_path
       end
 
       def set_package

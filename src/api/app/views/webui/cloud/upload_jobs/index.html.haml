@@ -9,7 +9,7 @@
         %th Filename
         %th Platform
         %th Status
-        %th Log
+        %th
     %tbody
       - @upload_jobs.each do |job|
         %tr
@@ -17,7 +17,11 @@
           %td= job.filename
           %td= job.platform.upcase
           %td= job.state
-          %td= link_to("Show", cloud_upload_log_path(job.id))
+          %td
+            = link_to "Log", cloud_upload_log_path(job.id)
+            - unless ["succeeded", "failed"].include?(job.state)
+              |
+              = link_to 'Abort', cloud_upload_path(job.id),  method: :delete, data: { confirm: "Do you really want to abort job #{job.id}? Please note that we do NOT clean up AWS (e.g. removing the helper instance)!" }
 
 %div
   %p
