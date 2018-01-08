@@ -72,7 +72,9 @@ RSpec.describe Webui::FeedsController do
         when: '2017-06-27T10:34:30',
         who: 'heino' }
     end
-    let!(:rss_notification) { create(:rss_notification, event_payload: payload, subscriber: user, event_type: 'Event::RequestCreate') }
+    let!(:rss_notification) do
+      create(:rss_notification, event_payload: Yajl::Encoder.encode(payload), subscriber: user, event_type: 'Event::RequestCreate')
+    end
 
     context 'with a working token' do
       render_views
