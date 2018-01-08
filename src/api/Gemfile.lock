@@ -51,7 +51,7 @@ GEM
     airbrake (7.1.0)
       airbrake-ruby (~> 2.5)
     airbrake-ruby (2.5.0)
-    amq-protocol (2.2.0)
+    amq-protocol (2.3.0)
     annotate (2.7.2)
       activerecord (>= 3.2, < 6.0)
       rake (>= 10.4, < 13.0)
@@ -63,7 +63,7 @@ GEM
     bullet (5.7.0)
       activesupport (>= 3.0.0)
       uniform_notifier (~> 1.10.0)
-    bunny (2.8.0)
+    bunny (2.9.0)
       amq-protocol (>= 2.2.0)
     capybara (2.17.0)
       addressable
