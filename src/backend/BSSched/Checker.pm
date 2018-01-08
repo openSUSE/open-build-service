@@ -381,7 +381,10 @@ sub emulate_depsort2 {
   my ($deps, $dep2src, $pkg2src, $cycles, @packs) = @_;
   my %src2pkg = reverse(%$pkg2src);
   my %pkgdeps;
-  my @dups = grep {$src2pkg{$pkg2src->{$_}} ne $_} reverse(keys %$pkg2src);
+  my @dups;
+  if (keys(%src2pkg) != keys (%$pkg2src)) {
+    @dups = grep {$src2pkg{$pkg2src->{$_}} ne $_} reverse(keys %$pkg2src);
+  }
   if (@dups) {
     push @dups, grep {defined($_)} map {delete $src2pkg{$pkg2src->{$_}}} @dups;
     @dups = sort(@dups);
