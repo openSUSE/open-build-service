@@ -9,6 +9,7 @@
         %th Filename
         %th Platform
         %th Status
+        %th Log
     %tbody
       - @upload_jobs.each do |job|
         %tr
@@ -16,6 +17,7 @@
           %td= job.filename
           %td= job.platform.upcase
           %td= job.state
+          %td= link_to("Show", cloud_upload_log_path(job.id))
 
 %div
   %p

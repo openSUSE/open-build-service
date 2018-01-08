@@ -11,7 +11,7 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
     login(user)
   end
 
-  describe 'src/api/spec/ #index' do
+  describe '#index' do
     context 'with cloud_upload feature enabled' do
       context 'without an EC2 configuration' do
         before do

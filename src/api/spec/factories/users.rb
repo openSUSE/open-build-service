@@ -12,6 +12,10 @@ FactoryBot.define do
         roles { [Role.find_by_title('admin')] }
       end
 
+      factory :staff_user do
+        roles { [Role.find_by_title('Staff')] }
+      end
+
       factory :user_with_groups do
         after(:create) do |user|
           create(:group, users: [user])

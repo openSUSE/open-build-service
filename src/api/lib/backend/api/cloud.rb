@@ -7,13 +7,19 @@ module Backend
       def self.upload(user, params, target_name = 'ec2')
         region = params.delete(:region)
         data = user.ec2_configuration.attributes.except('id', 'created_at', 'updated_at').merge(region: region).to_json
-        post(['/cloudupload'], params: params.merge(user: user.login, target: target_name), data: data)
+        post('/cloudupload', params: params.merge(user: user.login, target: target_name), data: data)
       end
 
       # Returns the status of the cloud upload jobs of a user
       # @return [String]
       def self.status(user)
-        get(['/cloudupload'], params: { name: user.upload_jobs.pluck(:job_id) }, expand: [:name])
+        get('/cloudupload', params: { name: user.upload_jobs.pluck(:job_id) }, expand: [:name])
+      end
+
+      # Returns the log file of the cloud upload job
+      # @return [String]
+      def self.log(id)
+        get(['/cloudupload/:id/_log', id])
       end
     end
   end
