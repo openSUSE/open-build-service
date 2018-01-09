@@ -105,7 +105,7 @@ module ActiveXML
       @default_servers ||= {}
       @http_header = { 'Content-Type' => 'text/plain', 'Accept-Encoding' => 'identity' }
       # stores mapping information
-      # key: symbolified model name
+      # key: symbolized model name
       # value: hash with keys :target_uri and :opt (arguments to connect method)
       @mapping = {}
     end
@@ -121,9 +121,9 @@ module ActiveXML
       params = {}
       data = nil
       own_mimetype = nil
-      symbolified_model = symbolified_model(model)
-      uri = target_for(symbolified_model)
-      options = options_for(symbolified_model)
+      symbolized_model = symbolize_model(model)
+      uri = target_for(symbolized_model)
+      options = options_for(symbolized_model)
       case args[0]
       when Symbol
         # logger.debug "Transport.find: using symbol"
@@ -262,12 +262,12 @@ module ActiveXML
     end
 
     def substituted_uri_for(object, path_id = nil, opt = {})
-      symbolified_model = symbolified_model(object.class)
-      options = options_for(symbolified_model)
+      symbolized_model = symbolize_model(object.class)
+      options = options_for(symbolized_model)
       if path_id && options.has_key?(path_id)
         uri = options[path_id]
       else
-        uri = target_for(symbolified_model)
+        uri = target_for(symbolized_model)
       end
       substitute_uri(uri, object.instance_variable_get('@init_options').merge(opt))
     end
@@ -440,7 +440,7 @@ module ActiveXML
 
     private
 
-    def symbolified_model(model_class)
+    def symbolize_model(model_class)
       model_class.name.demodulize.downcase.to_sym
     end
   end
