@@ -9,6 +9,7 @@
         %th Filename
         %th Platform
         %th Status
+        %th Created
         %th
     %tbody
       - @upload_jobs.each do |job|
@@ -17,6 +18,7 @@
           %td= job.filename
           %td= job.platform.upcase
           %td= job.state
+          %td= time_tag(job.created_at)
           %td
             = link_to "Log", cloud_upload_log_path(job.id)
             - unless ["succeeded", "failed"].include?(job.state)

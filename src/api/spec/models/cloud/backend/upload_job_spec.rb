@@ -3,6 +3,8 @@ require 'webmock/rspec'
 
 RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tom', ec2_configuration: create(:ec2_configuration)) }
+  let(:now) { Time.now }
+
   describe '.create' do
     let(:params) do
       {
@@ -19,7 +21,7 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
       <clouduploadjob name="6">
         <state>created</state>
         <details>waiting to receive image</details>
-        <created>1513604055</created>
+        <created>#{now.to_i}</created>
         <user>mlschroe</user>
         <target>ec2</target>
         <project>Base:System</project>
@@ -58,6 +60,8 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
       it { expect(subject.architecture).to eq('x86_64') }
       it { expect(subject.filename).to eq('rpm-4.14.0-504.2.x86_64.rpm') }
       it { expect(subject.size).to eq('1690860') }
+      it { expect(subject.created_at).to be_a(DateTime) }
+      it { expect(subject.created_at.to_s).to eq(now.to_datetime.to_s) }
     end
 
     context 'with an invalid backend response' do
