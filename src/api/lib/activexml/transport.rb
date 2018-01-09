@@ -121,7 +121,7 @@ module ActiveXML
       params = {}
       data = nil
       own_mimetype = nil
-      symbolified_model = model.name.demodulize.downcase.to_sym
+      symbolified_model = symbolified_model(model)
       uri = target_for(symbolified_model)
       options = options_for(symbolified_model)
       case args[0]
@@ -262,7 +262,7 @@ module ActiveXML
     end
 
     def substituted_uri_for(object, path_id = nil, opt = {})
-      symbolified_model = object.class.name.demodulize.downcase.to_sym
+      symbolified_model = symbolified_model(object.class)
       options = options_for(symbolified_model)
       if path_id && options.has_key?(path_id)
         uri = options[path_id]
@@ -436,6 +436,12 @@ module ActiveXML
       message = http_response.read_body
       message = http_response.to_s if message.blank?
       raise Error, message.force_encoding('UTF-8')
+    end
+
+    private
+
+    def symbolified_model(model_class)
+      model_class.name.demodulize.downcase.to_sym
     end
   end
 end
