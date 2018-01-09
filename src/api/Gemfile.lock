@@ -134,7 +134,7 @@ GEM
       sexp_processor (~> 4.8)
     flot-rails (0.0.7)
       jquery-rails
-    font-awesome-rails (4.7.0.2)
+    font-awesome-rails (4.7.0.3)
       railties (>= 3.2, < 5.2)
     git-cop (1.7.1)
       pastel (~> 0.7)
@@ -197,7 +197,7 @@ GEM
     middleware (0.1.0)
     mini_mime (1.0.0)
     mini_portile2 (2.3.0)
-    minitest (5.10.3)
+    minitest (5.11.1)
     minitest-fail-fast (0.1.0)
       minitest (~> 5)
     minitest-reporters (1.1.19)
