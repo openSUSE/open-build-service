@@ -45,23 +45,24 @@ SKIP: {
   while (1) {
     my $found="";
     $timeout--;
+    my @all_lines;
     open(my $fh, "<", "/srv/obs/log/publisher.log");
     while (<$fh>) {
+      push(@all_lines, $_);
       $last_upload = $1 if ( $_ =~ /Decompressing.*(\/tmp\/\w*)/ );
     }
     close($fh);
-    open($fh, "<", "/srv/obs/log/publisher.log");
-    while (<$fh>) {
-      $found = $1 if ( $_ =~ /Deleting ($last_upload)/);
-    }
-    close($fh);
 
-    if ( $found ) {
+    my @found = grep { /Deleting ($last_upload)/ } @all_lines;
+
+    if ( @found ) {
       ok(1,"Checking for upload");
       
       last;
     } else {
       if ($timeout < 0 ) {
+        print STDERR "Timeout reached\n";
+        print STDERR "@all_lines";
         ok(0,"Checking for upload");
         last;
       }
