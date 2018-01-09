@@ -1367,10 +1367,11 @@ class Project < ApplicationRecord
     transaction do
       delete_flag = flags.find_by_flag_and_status('lock', 'enable')
       flags.delete(delete_flag)
-      store(comment: comment)
 
       # maintenance incidents need special treatment when unlocking
       reopen_release_targets if is_maintenance_incident?
+
+      store(comment: comment)
     end
     update_packages_if_dirty
   end
@@ -1411,7 +1412,6 @@ class Project < ApplicationRecord
         releasetarget.save!
       end
     end
-    store(p)
 
     return unless repositories.count > 0
     # ensure higher build numbers for re-release
