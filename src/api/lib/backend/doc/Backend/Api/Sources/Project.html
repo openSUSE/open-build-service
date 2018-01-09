@@ -6,7 +6,7 @@
 <title>
   Class: Backend::Api::Sources::Project
   
-    &mdash; Documentation by YARD 0.9.9
+    &mdash; Documentation by YARD 0.9.12
   
 </title>
 
@@ -133,7 +133,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#attributes-class_method" title="attributes (class method)">.<strong>attributes</strong>(project, revision)  &#x21d2; String </a>
+      <a href="#attributes-class_method" title="attributes (class method)">.<strong>attributes</strong>(project_name, revision)  &#x21d2; String </a>
     
 
     
@@ -157,7 +157,55 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#key_info-class_method" title="key_info (class method)">.<strong>key_info</strong>(project)  &#x21d2; String </a>
+      <a href="#commit-class_method" title="commit (class method)">.<strong>commit</strong>(project_name, user_login, options = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Commits the request for the project.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#delete-class_method" title="delete (class method)">.<strong>delete</strong>(project_name)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Deletes the project and all the packages inside.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#key_info-class_method" title="key_info (class method)">.<strong>key_info</strong>(project_name)  &#x21d2; String </a>
     
 
     
@@ -181,7 +229,31 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#meta-class_method" title="meta (class method)">.<strong>meta</strong>(project, options = {})  &#x21d2; String </a>
+      <a href="#list-class_method" title="list (class method)">.<strong>list</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the list of projects.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#meta-class_method" title="meta (class method)">.<strong>meta</strong>(project_name, options = {})  &#x21d2; String </a>
     
 
     
@@ -205,7 +277,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#move-class_method" title="move (class method)">.<strong>move</strong>(source, target)  &#x21d2; String </a>
+      <a href="#move-class_method" title="move (class method)">.<strong>move</strong>(source_project_name, target_project_name)  &#x21d2; String </a>
     
 
     
@@ -229,7 +301,31 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#patchinfo-class_method" title="patchinfo (class method)">.<strong>patchinfo</strong>(project)  &#x21d2; String </a>
+      <a href="#packages-class_method" title="packages (class method)">.<strong>packages</strong>(project_name)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the list of packages inside the project.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#patchinfo-class_method" title="patchinfo (class method)">.<strong>patchinfo</strong>(project_name)  &#x21d2; String </a>
     
 
     
@@ -253,7 +349,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#revisions-class_method" title="revisions (class method)">.<strong>revisions</strong>(project)  &#x21d2; String </a>
+      <a href="#revisions-class_method" title="revisions (class method)">.<strong>revisions</strong>(project_name)  &#x21d2; String </a>
     
 
     
@@ -277,7 +373,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#write_attributes-class_method" title="write_attributes (class method)">.<strong>write_attributes</strong>(project, user, content, comment)  &#x21d2; String </a>
+      <a href="#write_attributes-class_method" title="write_attributes (class method)">.<strong>write_attributes</strong>(project_name, user_login, content, comment)  &#x21d2; String </a>
     
 
     
@@ -301,7 +397,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#write_configuration-class_method" title="write_configuration (class method)">.<strong>write_configuration</strong>(project, configuration)  &#x21d2; String </a>
+      <a href="#write_configuration-class_method" title="write_configuration (class method)">.<strong>write_configuration</strong>(project_name, configuration)  &#x21d2; String </a>
     
 
     
@@ -340,7 +436,7 @@
       <div class="method_details first">
   <h3 class="signature first" id="attributes-class_method">
   
-    .<strong>attributes</strong>(project, revision)  &#x21d2; <tt>String</tt> 
+    .<strong>attributes</strong>(project_name, revision)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -357,22 +453,6 @@
 <div class="tags">
   <p class="tag_title">Parameters:</p>
 <ul class="param">
-  
-    <li>
-      
-        <span class='name'>project</span>
-      
-      
-        <span class='type'>(<tt>String</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Name of the project.</p>
-</div>
-      
-    </li>
   
     <li>
       
@@ -402,11 +482,6 @@
       
       
       
-        &mdash;
-        <div class='inline'>
-<p>The XML with the attributes content</p>
-</div>
-      
     </li>
   
 </ul>
@@ -417,19 +492,105 @@
       <pre class="lines">
 
 
+11
 12
 13
 14
-15
-16</pre>
+15</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 12</span>
+      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 11</span>
 
-<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_revision'>revision</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_revision'>revision</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='lbrace'>{</span> <span class='label'>meta:</span> <span class='int'>1</span> <span class='rbrace'>}</span>
   <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:rev</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_revision'>revision</span> <span class='kw'>if</span> <span class='id identifier rubyid_revision'>revision</span>
-  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/:project/_project/_attribute</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/source/:project/_project/_attribute</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="commit-class_method">
+  
+    .<strong>commit</strong>(project_name, user_login, options = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Commits the request for the project</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+64
+65
+66
+67
+68</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 64</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_commit'>commit</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_user_login'>user_login</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/source/:project/_project</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='rbracket'>]</span><span class='comma'>,</span>
+       <span class='label'>defaults:</span> <span class='lbrace'>{</span> <span class='label'>cmd:</span> <span class='symbol'>:commit</span><span class='comma'>,</span> <span class='label'>user:</span> <span class='id identifier rubyid_user_login'>user_login</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+       <span class='label'>params:</span> <span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='label'>accepted:</span> <span class='lbracket'>[</span><span class='symbol'>:requestid</span><span class='comma'>,</span> <span class='symbol'>:rev</span><span class='comma'>,</span> <span class='symbol'>:comment</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="delete-class_method">
+  
+    .<strong>delete</strong>(project_name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Deletes the project and all the packages inside</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+81
+82
+83</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 81</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/source/:project</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='rbracket'>]</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -439,7 +600,7 @@
       <div class="method_details ">
   <h3 class="signature " id="key_info-class_method">
   
-    .<strong>key_info</strong>(project)  &#x21d2; <tt>String</tt> 
+    .<strong>key_info</strong>(project_name)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -454,27 +615,7 @@
   </div>
 </div>
 <div class="tags">
-  <p class="tag_title">Parameters:</p>
-<ul class="param">
   
-    <li>
-      
-        <span class='name'>project</span>
-      
-      
-        <span class='type'>(<tt>String</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Name of the project.</p>
-</div>
-      
-    </li>
-  
-</ul>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
@@ -484,11 +625,6 @@
         <span class='type'>(<tt>String</tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>The key info file content</p>
-</div>
       
     </li>
   
@@ -500,15 +636,56 @@
       <pre class="lines">
 
 
-54
-55
-56</pre>
+47
+48
+49</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 54</span>
+      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 47</span>
 
-<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_key_info'>key_info</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/:project/_keyinfo</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>withsslcert:</span> <span class='int'>1</span><span class='comma'>,</span> <span class='label'>donotcreatecert:</span> <span class='int'>1</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_key_info'>key_info</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/source/:project/_keyinfo</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>withsslcert:</span> <span class='int'>1</span><span class='comma'>,</span> <span class='label'>donotcreatecert:</span> <span class='int'>1</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="list-class_method">
+  
+    .<strong>list</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the list of projects</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+76
+77
+78</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 76</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_list'>list</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/source</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -518,7 +695,7 @@
       <div class="method_details ">
   <h3 class="signature " id="meta-class_method">
   
-    .<strong>meta</strong>(project, options = {})  &#x21d2; <tt>String</tt> 
+    .<strong>meta</strong>(project_name, options = {})  &#x21d2; <tt>String</tt> 
   
 
   
@@ -535,22 +712,6 @@
 <div class="tags">
   <p class="tag_title">Parameters:</p>
 <ul class="param">
-  
-    <li>
-      
-        <span class='name'>project</span>
-      
-      
-        <span class='type'>(<tt>String</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Name of the project.</p>
-</div>
-      
-    </li>
   
     <li>
       
@@ -619,11 +780,6 @@
       
       
       
-        &mdash;
-        <div class='inline'>
-<p>The meta file content</p>
-</div>
-      
     </li>
   
 </ul>
@@ -634,15 +790,15 @@
       <pre class="lines">
 
 
-39
-40
-41</pre>
+35
+36
+37</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 39</span>
+      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 35</span>
 
-<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_meta'>meta</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/:project/_project/_meta</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='label'>accepted:</span> <span class='lbracket'>[</span><span class='symbol'>:revision</span><span class='comma'>,</span> <span class='symbol'>:deleted</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>rename:</span> <span class='lbrace'>{</span> <span class='label'>revision:</span> <span class='symbol'>:rev</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_meta'>meta</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/source/:project/_project/_meta</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='label'>accepted:</span> <span class='lbracket'>[</span><span class='symbol'>:revision</span><span class='comma'>,</span> <span class='symbol'>:deleted</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>rename:</span> <span class='lbrace'>{</span> <span class='label'>revision:</span> <span class='symbol'>:rev</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -652,7 +808,7 @@
       <div class="method_details ">
   <h3 class="signature " id="move-class_method">
   
-    .<strong>move</strong>(source, target)  &#x21d2; <tt>String</tt> 
+    .<strong>move</strong>(source_project_name, target_project_name)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -667,43 +823,7 @@
   </div>
 </div>
 <div class="tags">
-  <p class="tag_title">Parameters:</p>
-<ul class="param">
   
-    <li>
-      
-        <span class='name'>source</span>
-      
-      
-        <span class='type'>(<tt>String</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Name of the source project.</p>
-</div>
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>target</span>
-      
-      
-        <span class='type'>(<tt>String</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Name of the target project.</p>
-</div>
-      
-    </li>
-  
-</ul>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
@@ -724,15 +844,56 @@
       <pre class="lines">
 
 
-69
-70
-71</pre>
+59
+60
+61</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 69</span>
+      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 59</span>
 
-<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_move'>move</span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='comma'>,</span> <span class='id identifier rubyid_target'>target</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/:project</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_target'>target</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>cmd:</span> <span class='symbol'>:move</span><span class='comma'>,</span> <span class='label'>oproject:</span> <span class='id identifier rubyid_source'>source</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_move'>move</span><span class='lparen'>(</span><span class='id identifier rubyid_source_project_name'>source_project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_target_project_name'>target_project_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/source/:project</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_target_project_name'>target_project_name</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>cmd:</span> <span class='symbol'>:move</span><span class='comma'>,</span> <span class='label'>oproject:</span> <span class='id identifier rubyid_source_project_name'>source_project_name</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="packages-class_method">
+  
+    .<strong>packages</strong>(project_name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the list of packages inside the project</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+71
+72
+73</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 71</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_packages'>packages</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/source/:project</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='rbracket'>]</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -742,7 +903,7 @@
       <div class="method_details ">
   <h3 class="signature " id="patchinfo-class_method">
   
-    .<strong>patchinfo</strong>(project)  &#x21d2; <tt>String</tt> 
+    .<strong>patchinfo</strong>(project_name)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -757,27 +918,7 @@
   </div>
 </div>
 <div class="tags">
-  <p class="tag_title">Parameters:</p>
-<ul class="param">
   
-    <li>
-      
-        <span class='name'>project</span>
-      
-      
-        <span class='type'>(<tt>String</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Name of the project.</p>
-</div>
-      
-    </li>
-  
-</ul>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
@@ -787,11 +928,6 @@
         <span class='type'>(<tt>String</tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>The patchinfo file content</p>
-</div>
       
     </li>
   
@@ -803,15 +939,15 @@
       <pre class="lines">
 
 
-61
-62
-63</pre>
+53
+54
+55</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 61</span>
+      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 53</span>
 
-<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_patchinfo'>patchinfo</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/:project/_patchinfo</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_patchinfo'>patchinfo</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/source/:project/_patchinfo</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='rbracket'>]</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -821,7 +957,7 @@
       <div class="method_details ">
   <h3 class="signature " id="revisions-class_method">
   
-    .<strong>revisions</strong>(project)  &#x21d2; <tt>String</tt> 
+    .<strong>revisions</strong>(project_name)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -836,27 +972,7 @@
   </div>
 </div>
 <div class="tags">
-  <p class="tag_title">Parameters:</p>
-<ul class="param">
   
-    <li>
-      
-        <span class='name'>project</span>
-      
-      
-        <span class='type'>(<tt>String</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Name of the project.</p>
-</div>
-      
-    </li>
-  
-</ul>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
@@ -866,11 +982,6 @@
         <span class='type'>(<tt>String</tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>The XML with the revisions list</p>
-</div>
       
     </li>
   
@@ -882,15 +993,15 @@
       <pre class="lines">
 
 
-30
-31
-32</pre>
+27
+28
+29</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 30</span>
+      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 27</span>
 
-<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_revisions'>revisions</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/:project/_project/_history</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>meta:</span> <span class='int'>1</span><span class='comma'>,</span> <span class='label'>deleted:</span> <span class='int'>1</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_revisions'>revisions</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/source/:project/_project/_history</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>meta:</span> <span class='int'>1</span><span class='comma'>,</span> <span class='label'>deleted:</span> <span class='int'>1</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -900,7 +1011,7 @@
       <div class="method_details ">
   <h3 class="signature " id="write_attributes-class_method">
   
-    .<strong>write_attributes</strong>(project, user, content, comment)  &#x21d2; <tt>String</tt> 
+    .<strong>write_attributes</strong>(project_name, user_login, content, comment)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -915,27 +1026,7 @@
   </div>
 </div>
 <div class="tags">
-  <p class="tag_title">Parameters:</p>
-<ul class="param">
   
-    <li>
-      
-        <span class='name'>project</span>
-      
-      
-        <span class='type'>(<tt>String</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Name of the project.</p>
-</div>
-      
-    </li>
-  
-</ul>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
@@ -956,19 +1047,19 @@
       <pre class="lines">
 
 
+19
+20
 21
 22
-23
-24
-25</pre>
+23</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 21</span>
+      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 19</span>
 
-<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_write_attributes'>write_attributes</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_user'>user</span><span class='comma'>,</span> <span class='id identifier rubyid_content'>content</span><span class='comma'>,</span> <span class='id identifier rubyid_comment'>comment</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='lbrace'>{</span> <span class='label'>meta:</span> <span class='int'>1</span><span class='comma'>,</span> <span class='label'>user:</span> <span class='id identifier rubyid_user'>user</span> <span class='rbrace'>}</span>
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_write_attributes'>write_attributes</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_user_login'>user_login</span><span class='comma'>,</span> <span class='id identifier rubyid_content'>content</span><span class='comma'>,</span> <span class='id identifier rubyid_comment'>comment</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='lbrace'>{</span> <span class='label'>meta:</span> <span class='int'>1</span><span class='comma'>,</span> <span class='label'>user:</span> <span class='id identifier rubyid_user_login'>user_login</span> <span class='rbrace'>}</span>
   <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:comment</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_comment'>comment</span> <span class='kw'>if</span> <span class='id identifier rubyid_comment'>comment</span>
-  <span class='id identifier rubyid_put'>put</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/:project/_project/_attribute</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>data:</span> <span class='id identifier rubyid_content'>content</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_put'>put</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/source/:project/_project/_attribute</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>data:</span> <span class='id identifier rubyid_content'>content</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -978,7 +1069,7 @@
       <div class="method_details ">
   <h3 class="signature " id="write_configuration-class_method">
   
-    .<strong>write_configuration</strong>(project, configuration)  &#x21d2; <tt>String</tt> 
+    .<strong>write_configuration</strong>(project_name, configuration)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -993,43 +1084,7 @@
   </div>
 </div>
 <div class="tags">
-  <p class="tag_title">Parameters:</p>
-<ul class="param">
   
-    <li>
-      
-        <span class='name'>project</span>
-      
-      
-        <span class='type'>(<tt>String</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Name of the project.</p>
-</div>
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>configuration</span>
-      
-      
-        <span class='type'>(<tt>String</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>The content to write in the configuration.</p>
-</div>
-      
-    </li>
-  
-</ul>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
@@ -1050,15 +1105,15 @@
       <pre class="lines">
 
 
-47
-48
-49</pre>
+41
+42
+43</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 47</span>
+      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 41</span>
 
-<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_write_configuration'>write_configuration</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_configuration'>configuration</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_put'>put</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/:project/_config</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>data:</span> <span class='id identifier rubyid_configuration'>configuration</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_write_configuration'>write_configuration</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_configuration'>configuration</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_put'>put</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/source/:project/_config</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>data:</span> <span class='id identifier rubyid_configuration'>configuration</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1070,9 +1125,9 @@
 </div>
 
       <div id="footer">
-  Generated by
+  Generated on Tue Jan  9 16:26:15 2018 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.9.
+  0.9.12 (ruby-2.1.9).
 </div>
 
     </div>

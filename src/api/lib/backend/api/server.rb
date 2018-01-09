@@ -34,7 +34,7 @@ module Backend
       # @param plugin_id [String]
       # @return [String]
       def self.notify_plugin(plugin_id, payload)
-        post(['/notify_plugins/:plugin', plugin_id], data: Yajl::Encoder.encode(payload), headers: { 'Content-Type' => 'application/json' })
+        post(['/notify_plugins/:plugin', plugin_id], data: ActiveSupport::JSON.encode(payload), headers: { 'Content-Type' => 'application/json' })
       end
 
       # Pings the root of the source repository server

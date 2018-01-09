@@ -6,7 +6,7 @@
 <title>
   Class: Backend::Api::BuildResults::Binaries
   
-    &mdash; Documentation by YARD 0.9.9
+    &mdash; Documentation by YARD 0.9.12
   
 </title>
 
@@ -298,6 +298,31 @@
 </li>
 
       
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#wipe_published_locked-class_method" title="wipe_published_locked (class method)">.<strong>wipe_published_locked</strong>(project_name)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Runs the command wipepublishedlocked for that project to cleanup published
+binaries.</p>
+</div></span>
+  
+</li>
+
+      
     </ul>
   
 
@@ -360,7 +385,7 @@
       <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 43</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_available_in_project'>available_in_project</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_transform_binary_packages_response'>transform_binary_packages_response</span><span class='lparen'>(</span><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/_availablebinaries</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_transform_binary_packages_response'>transform_binary_packages_response</span><span class='lparen'>(</span><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/build/:project/_availablebinaries</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -451,9 +476,9 @@
     <td>
       <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 51</span>
 
-<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_available_in_repositories'>available_in_repositories</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span> <span class='comma'>,</span> <span class='id identifier rubyid_repository_urls'>repository_urls</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_paths'>repository_paths</span><span class='rparen'>)</span>
-  <span class='kw'>return</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='kw'>if</span> <span class='id identifier rubyid_repositories'>repositories</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_urls'>urls</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
-  <span class='id identifier rubyid_transform_binary_packages_response'>transform_binary_packages_response</span><span class='lparen'>(</span><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/_availablebinaries</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='rbracket'>]</span><span class='comma'>,</span>
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_available_in_repositories'>available_in_repositories</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_urls'>repository_urls</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_paths'>repository_paths</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='kw'>if</span> <span class='id identifier rubyid_repository_paths'>repository_paths</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_repository_urls'>repository_urls</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='id identifier rubyid_transform_binary_packages_response'>transform_binary_packages_response</span><span class='lparen'>(</span><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/build/:project/_availablebinaries</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='rbracket'>]</span><span class='comma'>,</span>
                                          <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>url:</span> <span class='id identifier rubyid_repository_urls'>repository_urls</span><span class='comma'>,</span> <span class='label'>path:</span> <span class='id identifier rubyid_repository_paths'>repository_paths</span> <span class='rbrace'>}</span><span class='comma'>,</span> <span class='label'>expand:</span> <span class='lbracket'>[</span><span class='symbol'>:url</span><span class='comma'>,</span> <span class='symbol'>:path</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -509,7 +534,7 @@
       <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 36</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_build_dependency_info'>build_dependency_info</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_package_name'>package_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/:repository/:architecture/_builddepinfo</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/build/:project/:repository/:architecture/_builddepinfo</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='rbracket'>]</span><span class='comma'>,</span>
       <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>package:</span> <span class='id identifier rubyid_package_name'>package_name</span><span class='comma'>,</span> <span class='label'>view:</span> <span class='symbol'>:pkgnames</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -565,7 +590,7 @@
       <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 23</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_download_url_for_file'>download_url_for_file</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_package_name'>package_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='comma'>,</span> <span class='id identifier rubyid_file_name'>file_name</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/:repository/:architecture/:package/:file</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='comma'>,</span> <span class='id identifier rubyid_package_name'>package_name</span><span class='comma'>,</span> <span class='id identifier rubyid_file_name'>file_name</span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/build/:project/:repository/:architecture/:package/:file</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='comma'>,</span> <span class='id identifier rubyid_package_name'>package_name</span><span class='comma'>,</span> <span class='id identifier rubyid_file_name'>file_name</span><span class='rbracket'>]</span><span class='comma'>,</span>
       <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>view:</span> <span class='symbol'>:publishedpath</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -620,7 +645,7 @@
       <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 10</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='comma'>,</span> <span class='id identifier rubyid_package_name'>package_name</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/:repository/:architecture/:package</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='comma'>,</span> <span class='id identifier rubyid_package_name'>package_name</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/build/:project/:repository/:architecture/:package</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='comma'>,</span> <span class='id identifier rubyid_package_name'>package_name</span><span class='rbracket'>]</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -675,7 +700,7 @@
       <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 16</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_job_history'>job_history</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/:repository/:architecture/_jobhistory</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/build/:project/:repository/:architecture/_jobhistory</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='rbracket'>]</span><span class='comma'>,</span>
       <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>code:</span> <span class='symbol'>:lastfailures</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -730,7 +755,49 @@
       <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 30</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_rpmlint_log'>rpmlint_log</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_package_name'>package_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/:repository/:architecture/:package/rpmlint.log</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='comma'>,</span> <span class='id identifier rubyid_package_name'>package_name</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/build/:project/:repository/:architecture/:package/rpmlint.log</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='comma'>,</span> <span class='id identifier rubyid_package_name'>package_name</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="wipe_published_locked-class_method">
+  
+    .<strong>wipe_published_locked</strong>(project_name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Runs the command wipepublishedlocked for that project to cleanup published
+binaries</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+58
+59
+60</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 58</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_wipe_published_locked'>wipe_published_locked</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/build/:project</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>cmd:</span> <span class='symbol'>:wipepublishedlocked</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -742,9 +809,9 @@
 </div>
 
       <div id="footer">
-  Generated by
+  Generated on Tue Jan  9 16:26:15 2018 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.9.
+  0.9.12 (ruby-2.1.9).
 </div>
 
     </div>
