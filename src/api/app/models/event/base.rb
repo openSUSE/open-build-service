@@ -152,7 +152,7 @@ module Event
     end
 
     def payload
-      @payload ||= Yajl::Parser.parse(self[:payload])
+      @payload ||= ActiveSupport::JSON.decode(self[:payload])
     end
 
     def create_project_log_entry_job
