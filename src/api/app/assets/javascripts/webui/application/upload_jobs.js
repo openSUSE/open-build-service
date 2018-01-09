@@ -1,3 +1,5 @@
 $(document).ready(function(){
-  $('#upload-jobs').DataTable();
+  $('#upload-jobs').DataTable({
+    order: [0, 'desc']
+  });
 });
