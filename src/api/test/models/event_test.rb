@@ -92,12 +92,8 @@ class EventTest < ActionDispatch::IntegrationTest
   test 'cleanup job' do
     firstcount = Event::Base.count
     CleanupEvents.new.perform
-    assert Event::Base.count == firstcount, 'all our fixtures are fresh'
+    assert Event::Base.count == firstcount, 'all our fixtures are fresh, mail must be sent first'
     f = Event::Base.first
-    f.project_logged = true
-    f.save
-    CleanupEvents.new.perform
-    assert Event::Base.count == firstcount, 'mail must be sent first'
     f.mails_sent = true
     f.save
     CleanupEvents.new.perform
