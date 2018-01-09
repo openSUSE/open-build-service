@@ -1,0 +1,24 @@
+version: "2"
+services:
+  old_test_suite:
+    image: openbuildservice/old_test_suite
+    build:
+      context: .
+      dockerfile: Dockerfile.old_test_suite
+    volumes:
+      - .:/obs
+    privileged: true
+    depends_on:
+      - db
+    command: /obs/contrib/start_old_tests
+  db:
+    image: openbuildservice/mariadb
+    volumes:
+      - mysql_vol:/var/lib/mysql_tmpfs/
+      - .:/obs
+    command: /obs/contrib/start_test_db
+volumes:
+  mysql_vol:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs

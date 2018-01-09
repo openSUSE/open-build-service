@@ -7,11 +7,6 @@ class EventMailerTest < ActionMailer::TestCase
     Timecop.return
   end
 
-  def verify_email(fixture_name, email)
-    should = load_fixture("event_mailer/#{fixture_name}").chomp
-    assert_equal should, email.encoded.lines.map(&:chomp).select { |l| l !~ %r{^Date:} }.join("\n")
-  end
-
   test 'commit event' do
     mail = EventMailer.event([users(:adrian)], events(:pack1_commit))
     assert_equal 'BaseDistro/pack1 r1 commited', mail.subject
@@ -23,24 +18,36 @@ class EventMailerTest < ActionMailer::TestCase
     # for this test we don't want fixtures to interfere
     EventSubscription.delete_all
 
-    # just one subsciption
+    # just one subscription
     EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :maintainer, user: users(:Iggy)
     Backend::Test.start(wait_for_scheduler: true)
 
-    mail = EventMailer.event([users(:Iggy)], events(:build_failure_for_iggy))
-    verify_email('build_fail', mail)
+    mail = EventMailer.event([users(:Iggy)], events(:build_failure_for_iggy)).encoded.lines.map(&:chomp).join("\n")
+
+    assert_match(/To: Iggy Pop <Iggy@pop.org>/, mail)
+    pattern = Regexp.new('Visit http://localhost/package/live_build_log/home:Iggy/TestPack/10.2/i586')
+    assert_match(pattern, mail.gsub(/=\n/, ''))
+    pattern = Regexp.new('Package home:Iggy/TestPack failed to build in 10.2/i586')
+    assert_match(pattern, mail)
+    assert_match(/osc checkout home:Iggy TestPack/, mail)
   end
 
   test 'reader mails for build failure' do
     # for this test we don't want fixtures to interfere
     EventSubscription.delete_all
 
-    # just one subsciption
+    # just one subscription
     EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :reader, user: users(:fred)
     Backend::Test.start(wait_for_scheduler: true)
 
-    mail = EventMailer.event([users(:fred)], events(:build_failure_for_reader))
-    verify_email('build_fail_reader', mail)
+    mail = EventMailer.event([users(:fred)], events(:build_failure_for_reader)).encoded.lines.map(&:chomp).join("\n")
+
+    assert_match(/To: Frederic Feuerstone <fred@feuerstein.de>/, mail)
+    pattern = Regexp.new('Visit http://localhost/package/live_build_log/home:Iggy/TestPack/10.2/i586')
+    assert_match(pattern, mail.gsub(/=\n/, ''))
+    pattern = Regexp.new('Package home:Iggy/TestPack failed to build in 10.2/i586')
+    assert_match(pattern, mail)
+    assert_match(/osc checkout home:Iggy TestPack/, mail)
   end
 
   test 'group emails' do

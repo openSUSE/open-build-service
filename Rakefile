@@ -1,4 +1,5 @@
 CONTAINER_USERID = %x(id -u).freeze
+VERSION = '42.3'.freeze
 
 namespace :docker do
   desc 'Build our development environment'
@@ -45,53 +46,72 @@ namespace :docker do
         sh 'docker-compose -f docker-compose.ci.yml stop'
       end
     end
+
+    namespace :old do
+      desc 'Run our frontend api old test suite in the docker container'
+      task :api do
+        begin
+          sh 'docker-compose -f docker-compose.ci_old.yml up --abort-on-container-exit'
+        ensure
+          sh 'docker-compose -f docker-compose.ci_old.yml stop'
+        end
+      end
+    end
   end
 
   namespace :maintainer do
     desc 'Rebuild all our static containers'
-    task rebuild: ['rebuild:base', 'rebuild:backend', 'rebuild:frontend-base', 'rebuild:mariadb', 'rebuild:memcached'] do
+    task rebuild: ['rebuild:base', 'rebuild:backend', 'rebuild:frontend-base', 'rebuild:mariadb', 'rebuild:memcached', 'rebuild:old-test-suite'] do
     end
     namespace :rebuild do
       task :base do
-        sh 'docker build . -t openbuildservice/base:423 -t openbuildservice/base -f Dockerfile.423'
+        sh "docker build . -t openbuildservice/base:#{VERSION} -t openbuildservice/base -f Dockerfile.#{VERSION}"
       end
       task :mariadb do
-        sh 'docker build . -t openbuildservice/mariadb:423 -t openbuildservice/mariadb -f Dockerfile.mariadb'
+        sh "docker build . -t openbuildservice/mariadb:#{VERSION} -t openbuildservice/mariadb -f Dockerfile.mariadb"
       end
       task :memcached do
-        sh 'docker build . -t openbuildservice/memcached:423 -t openbuildservice/memcached -f Dockerfile.memcached'
+        sh "docker build . -t openbuildservice/memcached:#{VERSION} -t openbuildservice/memcached -f Dockerfile.memcached"
       end
       task 'frontend-base' do
-        sh 'docker build . -t openbuildservice/frontend-base:423 -t openbuildservice/frontend-base -f Dockerfile.frontend-base'
+        sh "docker build . -t openbuildservice/frontend-base:#{VERSION} -t openbuildservice/frontend-base -f Dockerfile.frontend-base"
       end
       task :backend do
-        sh 'docker build . -t openbuildservice/backend:423 -t openbuildservice/backend -f Dockerfile.backend'
+        sh "docker build . -t openbuildservice/backend:#{VERSION} -t openbuildservice/backend -f Dockerfile.backend"
+      end
+      task 'old-test-suite' do
+        sh "docker build . -t openbuildservice/old_test_suite:#{VERSION} -t openbuildservice/old_test_suite -f Dockerfile.old_test_suite"
       end
     end
 
     desc 'Rebuild and publish all our static containers'
-    task publish: [:rebuild, 'publish:base', 'publish:mariadb', 'publish:memcached', 'publish:backend', 'publish:frontend-base'] do
+    task publish: [:rebuild, 'publish:base', 'publish:mariadb', 'publish:memcached', 'publish:backend', 'publish:frontend-base', \
+                   'publish:old-test-suite'] do
     end
     namespace :publish do
       task :base do
-        sh 'docker push openbuildservice/base:423'
+        sh "docker push openbuildservice/base:#{VERSION}"
         sh 'docker push openbuildservice/base'
       end
       task :mariadb do
-        sh 'docker push openbuildservice/mariadb:423'
+        sh "docker push openbuildservice/mariadb:#{VERSION}"
         sh 'docker push openbuildservice/mariadb'
       end
       task :memcached do
-        sh 'docker push openbuildservice/memcached:423'
+        sh "docker push openbuildservice/memcached:#{VERSION}"
         sh 'docker push openbuildservice/memcached'
       end
       task :backend do
-        sh 'docker push openbuildservice/backend:423'
+        sh "docker push openbuildservice/backend:#{VERSION}"
         sh 'docker push openbuildservice/backend'
       end
       task 'frontend-base' do
-        sh 'docker push openbuildservice/frontend-base:423'
+        sh "docker push openbuildservice/frontend-base:#{VERSION}"
         sh 'docker push openbuildservice/frontend-base'
+      end
+      task 'old-test-suite' do
+        sh "docker push openbuildservice/old-test-suite:#{VERSION}"
+        sh 'docker push openbuildservice/old-test-suite'
       end
     end
   end

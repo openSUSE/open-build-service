@@ -1,5 +1,9 @@
 FROM opensuse:42.3
 
+# FIXME: Temporarily fix pam
+# See https://github.com/openSUSE/docker-containers/issues/82
+RUN sed -i 's/.*root.*-.*nproc.*unlimited.*$//g' /etc/security/limits.conf
+
 # Add our repo
 RUN echo 'solver.allowVendorChange = true' >> /etc/zypp/zypp.conf; \
     zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/Unstable/openSUSE_42.3/OBS:Server:Unstable.repo; \
@@ -11,6 +15,9 @@ RUN zypper -n install --no-recommends --replacefiles \
   make gcc gcc-c++ patch curl vim vim-data psmisc \
   timezone ack glibc-locale sudo aaa_base
 
+# Add our bootstrap script
+ADD contrib/docker-bootstrap.sh /root/bin/docker-bootstrap.sh
+
 # Add our user
 RUN useradd -m frontend
 
@@ -18,4 +25,4 @@ RUN useradd -m frontend
 RUN echo 'frontend ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 # Run our command
-CMD ["bash", "-l"] 
+CMD ["bash", "-l"]

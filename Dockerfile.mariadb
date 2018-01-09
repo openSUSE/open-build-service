@@ -4,7 +4,7 @@ FROM openbuildservice/base
 RUN rm -rf /var/cache/zypp/*
 
 # Install mariadb and dependencies
-RUN zypper -n install --no-recommends --replacefiles mariadb hostname 
+RUN zypper -n install --no-recommends --replacefiles mariadb hostname
 
 # Setup mariadb
 RUN /usr/lib/mysql/mysql-systemd-helper install; \
@@ -14,4 +14,4 @@ RUN /usr/lib/mysql/mysql-systemd-helper install; \
     kill `cat /var/lib/mysql/*.pid`; \
     sleep 10
 
-CMD ["/usr/lib/mysql/mysql-systemd-helper", "start"] 
+CMD ["/usr/lib/mysql/mysql-systemd-helper", "start"]

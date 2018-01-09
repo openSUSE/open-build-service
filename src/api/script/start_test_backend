@@ -61,7 +61,7 @@ end
     Net::HTTP.start(CONFIG['source_host'], port) { |http| http.get('/') }
     puts "ERROR Port #{port} is already in use, maybe from former unclean shutdown, aborting ..."
     exit 1
-  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
+  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH, Errno::EADDRNOTAVAIL
     # Connect failed, good :)
     next
   end
@@ -149,7 +149,7 @@ until dienow
   puts 'Connecting to srcserver...'
   begin
     Net::HTTP.start(CONFIG['source_host'], port_src_server) { |http| http.get('/') }
-  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
+  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH, Errno::EADDRNOTAVAIL
     sleep 0.5
     next
   end
@@ -160,7 +160,7 @@ until dienow
   puts 'Connecting to repserver...'
   begin
     Net::HTTP.start(CONFIG['source_host'], port_rep_server) { |http| http.get('/') }
-  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
+  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH, Errno::EADDRNOTAVAIL
     sleep 0.5
     next
   end
@@ -217,7 +217,7 @@ until dienow
   puts 'Connecting to serviceserver...'
   begin
     Net::HTTP.start(CONFIG['source_host'], port_service_server) { |http| http.get('/') }
-  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
+  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH, Errno::EADDRNOTAVAIL
     sleep 0.5
     next
   end

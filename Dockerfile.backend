@@ -3,14 +3,7 @@ FROM openbuildservice/base
 # FIXME: https://bugzilla.opensuse.org/show_bug.cgi?id=957818
 RUN rm -rf /var/cache/zypp/*
 
-# Install requirements for running the backend & signd
-RUN zypper -n install --no-recommends --replacefiles \
-  obs-server obs-signd \
-  obs-service-download_src_package obs-service-download_files \
-  obs-service-download_url \
-  obs-service-format_spec_file obs-service-kiwi_import \
-  perl-Devel-Cover \
-  osc
+RUN /root/bin/docker-bootstrap.sh backend
 
 # Add our sign configuration
 ADD dist/obs-signd-conf.tar.bz2 sign
@@ -22,4 +15,4 @@ RUN rm -rf /root/.gnupg; \
 
 # Run our command
 WORKDIR /obs
-CMD ["contrib/start_development_backend", "-d", "/obs"] 
+CMD ["contrib/start_development_backend", "-d", "/obs"]
