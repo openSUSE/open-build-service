@@ -156,7 +156,7 @@ module Event
     end
 
     def create_project_log_entry_job
-      CreateProjectLogEntryJob.perform_later(id)
+      CreateProjectLogEntryJob.perform_later(payload, created_at.to_s, self.class.name)
     end
 
     after_create :perform_create_jobs

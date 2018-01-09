@@ -10,18 +10,19 @@ class ProjectLogEntry < ApplicationRecord
   USERNAME_KEYS = %w(sender user who author commenter).freeze
   EXCLUDED_KEYS = (USERNAME_KEYS + %w(project package requestid)).freeze
 
-  # Creates a new LogEntry record from the information contained in an Event
-  def self.create_from(event)
-    project_id = Project.unscoped.where(name: event.payload['project']).pluck(:id).first
+  # Creates a new LogEntry record from the payload, timestamp, and model name of
+  # an Event
+  def self.create_from(payload, created_at, event_model_name)
+    project_id = Project.unscoped.where(name: payload['project']).pluck(:id).first
     # Map request number to internal id
-    bs_request_id = BsRequest.find_by_number(event.payload['requestid']).try(:id)
+    bs_request_id = BsRequest.find_by_number(payload['requestid']).try(:id)
     entry = new(project_id: project_id,
-                package_name: event.payload['package'],
+                package_name: payload['package'],
                 bs_request_id: bs_request_id,
-                datetime: event.created_at,
-                event_type: event.class.name.demodulize.underscore)
-    entry.user_name = username_from(event.payload)
-    entry.additional_info = event.payload.except(*EXCLUDED_KEYS)
+                datetime: Time.parse(created_at),
+                event_type: event_model_name.demodulize.underscore)
+    entry.user_name = username_from(payload)
+    entry.additional_info = payload.except(*EXCLUDED_KEYS)
     entry.save
     entry
   end
