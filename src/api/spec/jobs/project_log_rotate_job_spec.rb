@@ -20,11 +20,5 @@ RSpec.describe CreateProjectLogEntryJob, type: :job do
     it 'creates a ProjectLogEntry' do
       expect(ProjectLogEntry.count).to eq(10)
     end
-
-    it 'updates the events to have project_logged = true' do
-      Event::CommentForProject.all.each do |event|
-        expect(event.project_logged).to be_truthy
-      end
-    end
   end
 end
