@@ -953,6 +953,13 @@ sub create {
     }
   }
 
+  # make sure we have the preinstalls and vminstalls
+  my @missing = grep {!$ctx->{'dep2pkg'}->{$_}} (@pdeps, @vmdeps);
+  if (@missing) {
+    @missing = sort(BSutil::unify(@missing));
+    return ('unresolvable', "missing pre/vminstalls: ".join(', ', @missing));
+  }
+
   # kill those ancient other jobs
   if ($myjobsdir) {
     my @otherjobs = find_otherjobs($ctx, $jobprefix);
