@@ -42,6 +42,11 @@ module Cloud
         []
       end
 
+      def created
+        Time.at(xml_object.created.to_i).to_datetime
+      end
+      alias_method :created_at, :created
+
       private
 
       def xml_object
