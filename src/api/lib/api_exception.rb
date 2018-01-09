@@ -24,7 +24,7 @@ class APIException < RuntimeError
   def errorcode
     err = self.class.instance_variable_get '@errorcode'
     return err if err
-    err = self.class.name.split('::').last.underscore
+    err = self.class.name.demodulize.underscore
     # if the class name stops with Error, strip that
     err.gsub(%r{_error$}, '')
   end

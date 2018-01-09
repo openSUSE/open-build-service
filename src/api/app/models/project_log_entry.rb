@@ -19,7 +19,7 @@ class ProjectLogEntry < ApplicationRecord
                 package_name: event.payload['package'],
                 bs_request_id: bs_request_id,
                 datetime: event.created_at,
-                event_type: event.class.model_name.to_s.split('::').last.underscore)
+                event_type: event.class.name.demodulize.underscore)
     entry.user_name = username_from(event.payload)
     entry.additional_info = event.payload.except(*EXCLUDED_KEYS)
     entry.save

@@ -121,7 +121,7 @@ module ActiveXML
       params = {}
       data = nil
       own_mimetype = nil
-      symbolified_model = model.name.downcase.split('::').last.to_sym
+      symbolified_model = model.name.demodulize.downcase.to_sym
       uri = target_for(symbolified_model)
       options = options_for(symbolified_model)
       case args[0]
@@ -262,7 +262,7 @@ module ActiveXML
     end
 
     def substituted_uri_for(object, path_id = nil, opt = {})
-      symbolified_model = object.class.name.downcase.split('::').last.to_sym
+      symbolified_model = object.class.name.demodulize.downcase.to_sym
       options = options_for(symbolified_model)
       if path_id && options.has_key?(path_id)
         uri = options[path_id]
