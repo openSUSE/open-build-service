@@ -146,7 +146,7 @@ module Event
         v = attribs.delete k unless v
         values[k] = v unless v.nil?
       end
-      self.payload = Yajl::Encoder.encode(values)
+      self.payload = ActiveSupport::JSON.encode(values)
       # now check if anything but the default rails params are left
       check_left_attribs(attribs)
     end

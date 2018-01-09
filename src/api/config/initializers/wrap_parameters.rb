@@ -46,8 +46,8 @@ class MyParamsParser
     case request.content_mime_type
     when Mime[:json]
       begin
-        data = Yajl::Parser.parse(request.raw_post)
-      rescue Yajl::ParseError => e
+        data = ActiveSupport::JSON.decode(request.raw_post)
+      rescue JSON::ParserError => e
         Rails.logger.info "failed to parse JSON: #{e.message}"
         return false
       end
