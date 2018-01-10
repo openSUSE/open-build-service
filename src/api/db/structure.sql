@@ -476,7 +476,7 @@ CREATE TABLE `event_subscriptions` (
 CREATE TABLE `events` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `eventtype` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `payload` text COLLATE utf8_unicode_ci,
+  `payload` mediumtext COLLATE utf8_unicode_ci,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
   `project_logged` tinyint(1) DEFAULT '0',
@@ -1313,6 +1313,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20171109095756'),
 ('20171212083426'),
 ('20171218160607'),
-('20171219122451');
+('20171219122451'),
+('20180110081109');
 
 
