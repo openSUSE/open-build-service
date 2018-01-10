@@ -11,7 +11,7 @@ gem 'nokogiri'
 # for delayed tasks
 gem 'delayed_job_active_record', '>= 4.0.0'
 # to fill errbit
-gem 'airbrake', '<= 7.1.0'
+gem 'airbrake', '<= 7.2.0'
 # Due to a bug in Errbit we need to use 2.5.0 -> https://github.com/errbit/errbit/pull/1237
 gem 'airbrake-ruby', '<= 2.5.0'
 # as JSON library - the default json conflicts with activerecord (by means of vice-versa monkey patching)
