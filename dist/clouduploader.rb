@@ -10,6 +10,7 @@ PRIVATE_KEY = '/etc/clouduploader.pem'.freeze
 HOME = '/etc/obs/cloudupload'.freeze
 ENV['HOME'] = HOME
 ENV['PYTHONUNBUFFERED'] = '1'
+STDOUT.sync = true
 
 if ARGV.length != 5
   raise 'Wrong number of arguments, please provide: user platform upload_file targetdata filename'
