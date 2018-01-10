@@ -61,6 +61,7 @@ Shipment:
 Bugfixes:
  * Deletion of groups with users was not working
  * Fixed generation of the breadcrumb for the Image Editor (Kiwi)
+ * Using ActiveSupport::JSON as encoder everywhere prevent to fail on Notification creation with events that have a very big payload
 
 Wanted changes:
 ===============
