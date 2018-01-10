@@ -3,6 +3,7 @@ require 'json'
 require 'ostruct'
 require 'open3'
 
+start = Time.now
 ONE_HOUR = 3600
 KEY_NAME = 'obs'.freeze
 PRIVATE_KEY = '/etc/clouduploader.pem'.freeze
@@ -80,3 +81,6 @@ if platform == 'ec2'
 else
   abort('No valid platform. Valid platforms is ec2.')
 end
+
+diff = Time.now - start
+STDOUT.write("Upload took: #{Time.at(diff).utc.strftime("%H:%M:%S")}")
