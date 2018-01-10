@@ -413,14 +413,9 @@ sub expandandsort {
   my $bconf = $ctx->{'conf'};
   my $repo = $ctx->{'repo'};
   if ($bconf->{'expandflags:preinstallexpand'}) {
-    my $err;
-    if (!defined &Build::expandpreinstalls($bconf)) {
-      $err = "Build::expandpreinstalls does not exist";
-    } else {
-      $err = Build::expandpreinstalls($bconf);
-      $err = "unresolvable $err" if $err;
-    }
-    return ('broken', $err) if $err;
+    return ('broken', 'Build::expandpreinstalls does not exist') unless defined &Build::expandpreinstalls;
+    my $err = Build::expandpreinstalls($bconf);
+    return ('broken', "unresolvable $err") if $err;
   }
   my $projpacks = $gctx->{'projpacks'};
   my $pdatas = $projpacks->{$projid}->{'package'} || {};
@@ -701,21 +696,29 @@ sub checkpkgs {
 	$packid = shift @cpacks;
 	$incycle = 1;
 	$cycpass{$_} = $incycle for @cycp;
-	$cycpass{$packid} = 12;		# go to pass 2 the next time
-      } elsif ($incycle == 12) {
-	# starting pass 2	(incycle == 2/3)
+	$cycpass{$packid} = -1;		# pass1 ended
+      } elsif ($incycle == -1) {
+	# starting pass 2	(incycle will be 2 or 3)
 	my @cycp = @{$cychash{$packid}};
 	$incycle = (grep {$building{$_}} @cycp) ? 3 : 2;
 	$cycpass{$_} = $incycle for @cycp;
-	$cycpass{$packid} = 13;		# ignore after this
-      } elsif ($incycle == 13) {
+	$cycpass{$packid} = -2;		# pass2 ended
+      } elsif ($incycle == -2) {
 	# starting pass 3	(incycle == 4)
 	my @cycp = @{$cychash{$packid}};
 	$incycle = 4;
 	$cycpass{$_} = $incycle for @cycp;
+	# propagate notready/unfinished to all cycle packages
+	my $pkg2src = $ctx->{'pkg2src'} || {};
+	if (grep {$notready->{$pkg2src->{$_} || $_}} @cycp) {
+	  $notready->{$pkg2src->{$_} || $_} ||= 1 for @cycp;
+	}
+	if (grep {$unfinished{$pkg2src->{$_} || $_}} @cycp) {
+	  $unfinished{$pkg2src->{$_} || $_} ||= 1 for @cycp;
+	}
       }
       next if $incycle == 4;	# ignore after pass1/2
-      next if $packstatus{$packid} && $packstatus{$packid} ne 'done'; # already decided in phase 1
+      next if $packstatus{$packid} && $packstatus{$packid} ne 'done'; # already decided
     }
     $ctx->{'incycle'} = $incycle;
 
@@ -819,23 +822,21 @@ sub checkpkgs {
     # name of src package, needed for block detection
     my $pname = $info->{'name'} || $packid;
 
-    if (!$incycle) {
-      # speedup hack: check if a build is already scheduled
-      # hmm, this might be a bad idea...
-      my $job = BSSched::BuildJob::jobname($prp, $packid)."-$pdata->{'srcmd5'}";
-      my $myjobsdir = $gctx->{'myjobsdir'};
-      if ($myjobsdir && -s "$myjobsdir/$job") {
-	# print "      - $packid ($buildtype)\n";
-	# print "        already scheduled\n";
-	my $bconf = $ctx->{'conf'};
-	BSSched::BuildJob::add_crossmarker($gctx, $bconf->{'hostarch'}, $job) if $bconf->{'hostarch'};
-	my $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $prjuseforbuildenabled, $myarch);
-	$building{$packid} = $job;
-	$notready->{$pname} = 1 if $useforbuildenabled;
-	$unfinished{$pname} = 1;
-	$packstatus{$packid} = 'scheduled';
-	next;
-      }
+    # speedup hack: check if a build is already scheduled
+    # hmm, this might be a bad idea...
+    my $job = BSSched::BuildJob::jobname($prp, $packid)."-$pdata->{'srcmd5'}";
+    my $myjobsdir = $gctx->{'myjobsdir'};
+    if ($myjobsdir && -s "$myjobsdir/$job") {
+      # print "      - $packid ($buildtype)\n";
+      # print "        already scheduled\n";
+      my $bconf = $ctx->{'conf'};
+      BSSched::BuildJob::add_crossmarker($gctx, $bconf->{'hostarch'}, $job) if $bconf->{'hostarch'};
+      my $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $prjuseforbuildenabled, $myarch);
+      $building{$packid} = $job;
+      $notready->{$pname} = 1 if $useforbuildenabled;
+      $unfinished{$pname} = 1;
+      $packstatus{$packid} = 'scheduled';
+      next;
     }
 
     # check for expansion errors
