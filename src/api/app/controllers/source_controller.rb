@@ -1408,7 +1408,7 @@ class SourceController < ApplicationController
     path = @package.source_path
     path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand,
                                            :keeplink, :repairlink, :linkrev, :olinkrev, :requestid,
-                                           :noservice, :dontupdatesource, :withhistory])
+                                           :withvrev, :noservice, :dontupdatesource, :withhistory])
     pass_to_backend path
 
     @package.sources_changed

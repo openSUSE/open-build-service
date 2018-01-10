@@ -838,6 +838,7 @@ Parameters:
   setrelease: define a specific release tag when used with "release" command. Setting it to "-" strips
               the release string.
   withvalidate: activate sha validation code
+  withvrev: copy also the vrev counter of the revision
 
 
 
