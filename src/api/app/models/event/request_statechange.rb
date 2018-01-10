@@ -21,7 +21,7 @@ end
 #
 #  id             :integer          not null, primary key
 #  eventtype      :string(255)      not null, indexed
-#  payload        :text(65535)
+#  payload        :text(16777215)
 #  created_at     :datetime         indexed
 #  updated_at     :datetime
 #  project_logged :boolean          default(FALSE), indexed
