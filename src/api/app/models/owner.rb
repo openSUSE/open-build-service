@@ -147,8 +147,8 @@ class Owner
     # fast find packages with defintions
     # relationship in package object by user
     defined_packages = Package.where(project_id: projects).joins(relationships: :user).\
-                               where(["relationships.role_id IN (?) AND users.state = 'confirmed'",
-                                      roles]).pluck(:name)
+                       where(["relationships.role_id IN (?) AND users.state = 'confirmed'",
+                              roles]).pluck(:name)
     # relationship in package object by group
     defined_packages += Package.where(project_id: projects).joins(:relationships).where(['relationships.role_id IN (?) AND group_id IN (?)',
                                                                                          roles, maintained_groups]).pluck(:name)
@@ -163,9 +163,10 @@ class Owner
         defined_packages += prj.packages.pluck(:name)
       end
     # accept all incident containers in release projects. the main package (link) is enough here
-    defined_packages += Package.where(project_id: projects).
-        joins('LEFT JOIN projects ON packages.project_id=projects.id LEFT JOIN package_kinds ON packages.id=package_kinds.package_id').
-        distinct.where("projects.kind='maintenance_release' AND (ISNULL(package_kinds.kind) OR package_kinds.kind='patchinfo')").pluck(:name)
+    defined_packages +=
+      Package.where(project_id: projects).
+      joins('LEFT JOIN projects ON packages.project_id=projects.id LEFT JOIN package_kinds ON packages.id=package_kinds.package_id').
+      distinct.where("projects.kind='maintenance_release' AND (ISNULL(package_kinds.kind) OR package_kinds.kind='patchinfo')").pluck(:name)
 
     if devel == true
       # FIXME: add devel packages, but how do recursive lookup fast in SQL?

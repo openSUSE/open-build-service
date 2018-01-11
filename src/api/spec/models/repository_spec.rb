@@ -7,8 +7,8 @@ RSpec.describe Repository do
     it 'validates uniqueness of name' do
       repository = create(:repository)
       expect(repository).to validate_uniqueness_of(:name).
-                              scoped_to(:db_project_id, :remote_project_name).
-                              with_message("#{repository.name} is already used by a repository of this project")
+        scoped_to(:db_project_id, :remote_project_name).
+        with_message("#{repository.name} is already used by a repository of this project")
     end
     it { should_not allow_value('_foo').for(:name) }
     it { should_not allow_value('f:oo').for(:name) }

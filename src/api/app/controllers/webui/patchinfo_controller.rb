@@ -74,7 +74,7 @@ class Webui::PatchinfoController < Webui::WebuiController
         end
 
         issueurl = IssueTracker.find_by_name(a.value(:tracker)).
-          try(:show_url_for, a.value(:id)).to_s
+                   try(:show_url_for, a.value(:id)).to_s
 
         @issues << [
           a.value(:tracker),

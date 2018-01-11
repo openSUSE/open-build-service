@@ -140,7 +140,7 @@ class UserTest < ActiveSupport::TestCase
     f.save # of course just for this test
 
     stub_request(:get, 'http://www.gravatar.com/avatar/ef677ecd5e63faa5842d43bcdfca2f33?d=wavatar&s=20').
-        to_return(status: 200, body: 'Superpng', headers: {})
+      to_return(status: 200, body: 'Superpng', headers: {})
     assert_equal 'Superpng', users(:tom).gravatar_image(20)
 
     stub_request(:get, 'http://www.gravatar.com/avatar/ef677ecd5e63faa5842d43bcdfca2f33?d=wavatar&s=200').to_timeout

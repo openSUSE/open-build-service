@@ -137,10 +137,7 @@ module FlagHelper
   end
 
   def find_flag_state(flag_type, repo, arch)
-    flag = flags.of_type(flag_type).
-      select { |f| f.is_relevant_for?(repo, arch) }.
-      sort_by(&:specifics).
-      last
+    flag = flags.of_type(flag_type).select { |f| f.is_relevant_for?(repo, arch) }.sort_by(&:specifics).last
 
     state = flag.try(:status) || :default
 
