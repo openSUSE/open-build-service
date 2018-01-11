@@ -14,7 +14,7 @@
     %b
       = @upload_job.filename
     to region
-    = select_tag('cloud_backend_upload_job[region]', options_for_select([['us-east-1', 'us-east-1'], ['us-east-2', 'us-east-2']], 'us-east-2'))
+    = select_tag('cloud_backend_upload_job[region]', options_for_select(@ec2_regions))
     = person_form.hidden_field :project
     = person_form.hidden_field :package
     = person_form.hidden_field :arch
