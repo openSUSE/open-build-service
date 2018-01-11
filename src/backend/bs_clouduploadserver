@@ -206,7 +206,7 @@ sub cloudupload_kill {
     die("404 no such job\n") unless readxml("$jobdonedir/$jobid", $BSXML::clouduploadjob, 1);
     return $BSStdServer::return_ok;
   }
-  if ($job->{'status'} eq 'succeeded' || $job->{'status'} eq 'failed') {
+  if ($job->{'state'} eq 'succeeded' || $job->{'state'} eq 'failed') {
     close F;
     return $BSStdServer::return_ok;
   }
@@ -215,9 +215,9 @@ sub cloudupload_kill {
     kill -15, $pid;
     pingworker();	# trigger process reap
   }
-  unlink("$jobdir/.$jobid.file$pid") if $pid && $job->{'status'} eq 'receiving';
+  unlink("$jobdir/.$jobid.file$pid") if $pid && $job->{'state'} eq 'receiving';
   delete $job->{'pid'};
-  $job->{'status'} = 'failed';
+  $job->{'state'} = 'failed';
   $job->{'details'} = 'killed';
   archivejob($jobid, $job);
   close F;
