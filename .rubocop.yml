@@ -26,6 +26,10 @@ Layout/AlignHash:
   # inspected?
   EnforcedLastArgumentHashStyle: ignore_implicit
 
+# We decide disable this cop because we can't reach an agreement
+Layout/DotPosition:
+  Enabled: false
+
 #################### Style ###########################
 
 # Find uses of alias where alias_method would be more appropriate (or is simply preferred due to configuration), and vice versa.
@@ -36,6 +40,9 @@ Style/Alias:
 # Use ` or %x around command literals.
 Style/CommandLiteral:
   EnforcedStyle: percent_x
+
+Style/Documentation:
+  Enabled: false
 
 # We need to allow some variables related to rabbiMQ.
 Style/GlobalVars:
@@ -93,6 +100,9 @@ Rails/DynamicFindBy:
 Rails/Exit:
   Exclude:
     - 'src/api/lib/memory_dumper.rb'
+
+Rails/HasAndBelongsToMany:
+  Enabled: false
 
 # Checks for the use of output calls like puts and print
 Rails/Output:
