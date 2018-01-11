@@ -4,7 +4,6 @@ build_fails_with_deleted_user_and_request:
   payload: '{"project":"BaseDistro","package":"pack1","repository":"10.2","arch":"i586","sender":"no_longer_there","rev":"5"}'
   created_at: 2013-08-30 14:56:50.000000000 Z
   updated_at: 2013-08-30 14:56:50.000000000 Z
-  project_logged: 0
 build_failure_for_iggy:
   id: 6
   eventtype: Event::BuildFail
@@ -12,7 +11,6 @@ build_failure_for_iggy:
     build","bcnt":"1","verifymd5":"1ac07842727acaf13d0e2b3213b47785","workerid":"build12"}'
   created_at: 2013-08-31 14:56:52.000000000 Z
   updated_at: 2013-08-31 14:56:52.000000000 Z
-  project_logged: 0
 build_failure_for_reader:
   id: 19
   eventtype: Event::BuildFail
@@ -20,102 +18,87 @@ build_failure_for_reader:
     build","bcnt":"1","verifymd5":"1ac07842727acaf13d0e2b3213b47785","workerid":"build12"}'
   created_at: 2013-08-31 14:56:52.000000000 Z
   updated_at: 2013-08-31 14:56:52.000000000 Z
-  project_logged: 0
 service_failure_for_iggy:
   id: 18
   eventtype: Event::ServiceFail
   payload: '{"project":"home:Iggy","package":"TestPack","rev":"2","comment":"trigger service run","error":"service daemon error:\n400 remote error: /usr/lib/obs/service//not_existing  No such file or directory","user":"Admin"}'
   created_at: 2013-08-31 14:56:52.000000000 Z
   updated_at: 2013-08-31 14:56:52.000000000 Z
-  project_logged: 0
 build_success_from_deleted_project:
   id: 2
   eventtype: Event::BuildSuccess
   payload: '{"project":"NotLongerThere","package":"IsAlsoGone","arch":"WhoCares"}'
   created_at: 2013-08-30 14:56:50.000000000 Z
   updated_at: 2013-08-30 14:56:50.000000000 Z
-  project_logged: 0
 commit_for_deleted_package:
   id: 3
   eventtype: Event::Commit
   payload: '{"project":"BaseDistro2.0","package":"isgone","user":"Iggy","requestid":"1000","files":"Added:\n  onefile\n\n","rev":"3"}'
   created_at: 2013-08-30 14:56:50.000000000 Z
   updated_at: 2013-08-30 14:56:50.000000000 Z
-  project_logged: 0
 events_11:
   id: 11
   eventtype: Event::UpdateProjectConfig
   payload: '{"project":"BaseDistro","sender":"unknown"}'
   created_at: 2013-08-31 14:56:50.000000000 Z
   updated_at: 2013-08-31 14:56:50.000000000 Z
-  project_logged: 0
 events_12:
   id: 12
   eventtype: Event::RepoPublished
   payload: '{"project":"home:Iggy","repo":"10.2"}'
   created_at: 2013-08-31 14:56:52.000000000 Z
   updated_at: 2013-08-31 14:56:52.000000000 Z
-  project_logged: 0
 events_13:
   id: 13
   eventtype: Event::UpdatePackage
   payload: '{"project":"Apache","package":"Taskjuggler","sender":"king"}'
   created_at: 2013-08-20 13:42:12.000000000 Z
   updated_at: 2013-08-20 13:42:12.000000000 Z
-  project_logged: 0
 events_14:
   id: 14
   eventtype: Event::CreatePackage
   payload: '{"project":"kde4","package":"kdelibs","sender":"unknown"}'
   created_at: 2013-08-31 14:56:49.000000000 Z
   updated_at: 2013-08-31 14:56:49.000000000 Z
-  project_logged: 0
 events_15:
   id: 15
   eventtype: Event::CreateProject
   payload: '{"project":"home:adrian","sender":"unknown"}'
   created_at: 2013-08-31 14:56:49.000000000 Z
   updated_at: 2013-08-31 14:56:49.000000000 Z
-  project_logged: 0
 events_16:
   id: 16
   eventtype: Event::UpdateProject
   payload: '{"project":"BaseDistro","sender":"king"}'
   created_at: 2013-08-20 13:42:19.000000000 Z
   updated_at: 2013-08-20 13:42:19.000000000 Z
-  project_logged: 0
 events_5:
   id: 5
   eventtype: Event::Commit
   payload: '{"project":"BaseDistro2.0","package":"pack2","user":"unknown","files":"Added:\n  myfile\n\n","rev":"2"}'
   created_at: 2013-08-31 14:56:50.000000000 Z
   updated_at: 2013-08-31 14:56:50.000000000 Z
-  project_logged: 0
 events_7:
   id: 7
   eventtype: Event::Commit
   payload: '{"project":"CopyTest","package":"test","comment":"","user":"unknown","files":"Added:\n  my_file\n\n","rev":1}'
   created_at: 2013-08-20 13:42:11.000000000 Z
   updated_at: 2013-08-20 13:42:11.000000000 Z
-  project_logged: 0
 events_8:
   id: 8
   eventtype: Event::RepoPublishState
   payload: '{"project":"home:tom","repo":"home_coolo_standard","state":"publishing"}'
   created_at: 2013-08-20 13:42:14.000000000 Z
   updated_at: 2013-08-20 13:42:14.000000000 Z
-  project_logged: 0
 events_9:
   id: 9
   eventtype: Event::VersionChange
   payload: '{"package":"test","comment":"","files":"Added:\n  package.spec\n\n","project":"CopyTest","rev":2,"newversion":"1.0","user":"unknown","oldversion":"unknown"}'
   created_at: 2013-08-20 13:42:11.000000000 Z
   updated_at: 2013-08-20 13:42:11.000000000 Z
-  project_logged: 0
 pack1_commit:
   id: 17
   eventtype: Event::Commit
   payload: '{"project":"BaseDistro","package":"pack1","user":"unknown","files":"Added:\n  my_file\n\n","rev":"1"}'
   created_at: 2013-08-31 14:56:50.000000000 Z
   updated_at: 2013-08-31 14:56:50.000000000 Z
-  project_logged: 1

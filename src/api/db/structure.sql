@@ -406,7 +406,7 @@ CREATE TABLE `delayed_jobs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `priority` int(11) DEFAULT '0',
   `attempts` int(11) DEFAULT '0',
-  `handler` text CHARACTER SET utf8,
+  `handler` mediumtext COLLATE utf8_bin,
   `last_error` text CHARACTER SET utf8,
   `run_at` datetime DEFAULT NULL,
   `locked_at` datetime DEFAULT NULL,
@@ -479,11 +479,9 @@ CREATE TABLE `events` (
   `payload` text COLLATE utf8_unicode_ci,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
-  `project_logged` tinyint(1) DEFAULT '0',
   `undone_jobs` int(11) DEFAULT '0',
   `mails_sent` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
-  KEY `index_events_on_project_logged` (`project_logged`) USING BTREE,
   KEY `index_events_on_eventtype` (`eventtype`) USING BTREE,
   KEY `index_events_on_created_at` (`created_at`) USING BTREE,
   KEY `index_events_on_mails_sent` (`mails_sent`)
@@ -1313,6 +1311,8 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20171109095756'),
 ('20171212083426'),
 ('20171218160607'),
-('20171219122451');
+('20171219122451'),
+('20180109115548'),
+('20180110074142');
 
 
