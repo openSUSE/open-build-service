@@ -15,7 +15,6 @@ TABLES_TO_REMOVE = ['cache_lines', 'project_log_entries'].freeze
 @options_path = ::File.expand_path('../../config/options.yml', __FILE__)
 @database_path = ::File.expand_path('../../config/database.yml', __FILE__)
 @data_path = ::File.expand_path('../../db/data', __FILE__)
-@vagrant_path = ::File.expand_path('../../../../.vagrant', __FILE__)
 
 OptionParser.new do |opts|
   opts.banner = 'Usage: import_database.rb [options]'
@@ -46,10 +45,6 @@ def init
     abort('Not possible to locate options.yml or database.yml. Please execute this script in your open-build-service directory.')
   end
 
-  if File.exist?(@vagrant_path)
-    puts "You're using vagrant, make sure to run this script in your vagrant project."
-  end
-
   # There is only the filename given
   abort('No parameters, use --help') if @params.count == 1
 
@@ -76,7 +71,7 @@ def load_dump
   end
 
   puts 'Downloading database backup ...'
-  %x(scp -P #{port ? port : 22} #{username}@#{server}:#{File.join(location, filename)} #{@data_path})
+  %x(scp -v -P #{port ? port : 22} #{username}@#{server}:#{File.join(location, filename)} #{@data_path})
 end
 
 def import_dump
@@ -85,6 +80,7 @@ def import_dump
 
   environment = @params[:environment]
   database = config[environment]['database']
+  host = config[environment]['host']
   username = config[environment]['username']
   password = config[environment]['password']
   filename = @params[:path] || options['backup_filename']
@@ -93,7 +89,7 @@ def import_dump
   cmds << TABLES_TO_REMOVE.map do |table|
     "sed '/-- Dumping data for table `#{table}`/,/-- Table structure for table/{//!d}'"
   end.join(' | ') unless TABLES_TO_REMOVE.empty?
-  cmds << "#{File.exist?(@vagrant_path) ? 'vagrant exec' : ''} mysql -u#{username} -p#{password} #{database}"
+  cmds << "mysql -u#{username} -p#{password} -h#{host} #{database}"
 
   puts "Extracting and importing data from #{filename}..."
   %x(#{cmds.join(' | ')})
