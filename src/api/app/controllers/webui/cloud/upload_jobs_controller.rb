@@ -14,6 +14,7 @@ module Webui
       def new
         xml_object = OpenStruct.new(params.slice(:project, :package, :repository, :arch, :filename))
         @upload_job = ::Cloud::Backend::UploadJob.new(xml_object: xml_object)
+        @ec2_regions = ::Cloud::Ec2::Configuration::REGIONS
       end
 
       def create

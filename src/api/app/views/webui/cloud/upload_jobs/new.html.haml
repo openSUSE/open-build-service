@@ -8,18 +8,18 @@
   = link_to "Amazon EC2 configuration", cloud_ec2_configuration_path
   for more information.
 
-= form_for @upload_job, url: cloud_upload_index_path, method: :post do |person_form|
+= form_for @upload_job, url: cloud_upload_index_path, method: :post do |upload_job_form|
   %p
     Upload image
     %b
       = @upload_job.filename
     to region
-    = select_tag('cloud_backend_upload_job[region]', options_for_select([['us-east-1', 'us-east-1'], ['us-east-2', 'us-east-2']], 'us-east-2'))
-    = person_form.hidden_field :project
-    = person_form.hidden_field :package
-    = person_form.hidden_field :arch
-    = person_form.hidden_field :repository
-    = person_form.hidden_field :filename
+    = select_tag('cloud_backend_upload_job[region]', options_for_select(@ec2_regions))
+    = upload_job_form.hidden_field :project
+    = upload_job_form.hidden_field :package
+    = upload_job_form.hidden_field :arch
+    = upload_job_form.hidden_field :repository
+    = upload_job_form.hidden_field :filename
     = submit_tag 'Upload'
 
 %p
