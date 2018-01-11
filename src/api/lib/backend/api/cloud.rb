@@ -4,10 +4,12 @@ module Backend
       extend Backend::ConnectionHelper
       # Triggers a cloud upload job
       # @return [String]
-      def self.upload(user, params, target_name = 'ec2')
-        region = params.delete(:region)
-        data = user.ec2_configuration.attributes.except('id', 'created_at', 'updated_at').merge(region: region).to_json
-        post('/cloudupload', params: params.merge(user: user.login, target: target_name), data: data)
+      def self.upload(params)
+        data = params.slice(:region, :virtualization_type, :ami_name)
+        user = params[:user]
+        params = params.except(:region, :virtualization_type, :ami_name).merge(user: user.login, target: params[:target])
+        data = user.ec2_configuration.attributes.except('id', 'created_at', 'updated_at').merge(data).to_json
+        post('/cloudupload', params: params, data: data)
       end
 
       # Returns the status of the cloud upload jobs of a user

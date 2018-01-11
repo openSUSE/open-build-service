@@ -19,6 +19,11 @@ module Cloud
         ['South America (São Paulo)', 'sa-east-1']
       ].freeze
 
+      VIRTUALIZATION_TYPES = [
+        ['HVM', 'hvm'],
+        ['PV', 'pv']
+      ].freeze
+
       has_secure_token :external_id
       belongs_to :user, required: true
 
