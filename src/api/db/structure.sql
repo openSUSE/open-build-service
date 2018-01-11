@@ -406,7 +406,7 @@ CREATE TABLE `delayed_jobs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `priority` int(11) DEFAULT '0',
   `attempts` int(11) DEFAULT '0',
-  `handler` text CHARACTER SET utf8,
+  `handler` mediumtext COLLATE utf8_bin,
   `last_error` text CHARACTER SET utf8,
   `run_at` datetime DEFAULT NULL,
   `locked_at` datetime DEFAULT NULL,
@@ -1312,6 +1312,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20171212083426'),
 ('20171218160607'),
 ('20171219122451'),
-('20180109115548');
+('20180109115548'),
+('20180110074142');
 
 
