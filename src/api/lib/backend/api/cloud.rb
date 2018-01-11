@@ -27,7 +27,7 @@ module Backend
       # It will return the status of the job or raise an exception.
       # @return [String]
       def self.destroy(id)
-        post(['/cloudupload/:id', id], data: { command: :kill }.to_param)
+        post(['/cloudupload/:id', id], params: { cmd: :kill })
       end
     end
   end
