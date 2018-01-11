@@ -146,11 +146,11 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
 
   describe 'DELETE #destroy' do
     let(:upload_job) { create(:upload_job, user: user_with_ec2_configuration) }
-    let(:path) { "#{CONFIG['source_url']}/cloudupload/#{upload_job.job_id}" }
+    let(:path) { "#{CONFIG['source_url']}/cloudupload/#{upload_job.job_id}?cmd=kill" }
 
     context 'of an existing upload job' do
       before do
-        stub_request(:post, path).with(body: { command: :kill }.to_param).and_return(body: xml_response)
+        stub_request(:post, path).and_return(body: xml_response)
         Feature.run_with_activated(:cloud_upload) do
           delete :destroy, params: { id: upload_job.job_id }
         end
@@ -173,7 +173,7 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
 
     context 'with an backend error response' do
       before do
-        stub_request(:post, path).with(body: { command: :kill }.to_param).and_return(status: 404, body: 'not found')
+        stub_request(:post, path).and_return(status: 404, body: 'not found')
         Feature.run_with_activated(:cloud_upload) do
           delete :destroy, params: { id: upload_job.job_id }
         end
