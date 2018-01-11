@@ -26,9 +26,9 @@ Such requests get not created for projects with open requests or if you remove t
 
     # open requests do block the cleanup
     open_requests_count = BsRequest.in_states([:new, :review, :declined]).
-      joins(:bs_request_actions).
-      where('bs_request_actions.target_project = ? OR bs_request_actions.source_project = ?', prj.name, prj.name).
-      count
+                          joins(:bs_request_actions).
+                          where('bs_request_actions.target_project = ? OR bs_request_actions.source_project = ?', prj.name, prj.name).
+                          count
     return if open_requests_count > 0
 
     # check the time in project attribute

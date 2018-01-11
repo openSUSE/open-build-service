@@ -19,10 +19,10 @@ class IssueTest < ActiveSupport::TestCase
 
   def test_create_and_destroy
     stub_request(:post, 'http://bugzilla.novell.com/xmlrpc.cgi').
-        with(body: BugGet0815).
-        to_return(status: 200,
-                  body: load_backend_file('bugzilla_get_0815.xml'),
-                  headers: {})
+      with(body: BugGet0815).
+      to_return(status: 200,
+                body: load_backend_file('bugzilla_get_0815.xml'),
+                headers: {})
 
     # pkg = Package.find( 10095 )
     iggy = User.find_by_email('Iggy@pop.org')
@@ -48,16 +48,16 @@ class IssueTest < ActiveSupport::TestCase
 
   test 'fetch issues' do
     stub_request(:post, 'http://bugzilla.novell.com/xmlrpc.cgi').
-        with(body: BUG_SEARCH).
-        to_return(status: 200,
-                  body: load_backend_file('bugzilla_response_search.xml'),
-                  headers: {})
+      with(body: BUG_SEARCH).
+      to_return(status: 200,
+                body: load_backend_file('bugzilla_response_search.xml'),
+                headers: {})
 
     stub_request(:post, 'http://bugzilla.novell.com/xmlrpc.cgi').
-        with(body: BUG_GET).
-        to_return(status: 200,
-                  body: load_backend_file('bugzilla_get_response.xml'),
-                  headers: {})
+      with(body: BUG_GET).
+      to_return(status: 200,
+                body: load_backend_file('bugzilla_get_response.xml'),
+                headers: {})
 
     IssueTracker.update_all_issues
   end
@@ -73,11 +73,11 @@ class IssueTest < ActiveSupport::TestCase
     cve.issues.create name: 'CVE-1999-0001'
 
     stub_request(:head, 'http://cve.mitre.org/data/downloads/allitems.xml.gz').
-        to_return(status: 200, headers: { 'Last-Modified' => 2.days.ago })
+      to_return(status: 200, headers: { 'Last-Modified' => 2.days.ago })
 
     stub_request(:get, 'http://cve.mitre.org/data/downloads/allitems.xml.gz').
-        to_return(status: 200, body: load_backend_file('allitems.xml.gz'),
-                  headers: { 'Last-Modified' => 2.days.ago })
+      to_return(status: 200, body: load_backend_file('allitems.xml.gz'),
+                headers: { 'Last-Modified' => 2.days.ago })
 
     IssueTracker.update_all_issues
   end
@@ -88,7 +88,7 @@ class IssueTest < ActiveSupport::TestCase
     IssueTracker.find_by_kind('bugzilla').destroy
 
     stub_request(:get, 'https://features.opensuse.org//fate').
-        to_return(status: 200, body: '', headers: {})
+      to_return(status: 200, body: '', headers: {})
 
     fate = IssueTracker.find_by_name('fate')
     fate.enable_fetch = 1

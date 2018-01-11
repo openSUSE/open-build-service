@@ -88,7 +88,7 @@ class StatisticsController < ApplicationController
   def most_active_projects
     # get all packages including activity values
     @packages = Package.select("packages.*, #{Package.activity_algorithm}").
-        limit(@limit).order('activity_value DESC')
+                limit(@limit).order('activity_value DESC')
     # count packages per project and sum up activity values
     projects = {}
     @packages.each do |package|
@@ -110,7 +110,7 @@ class StatisticsController < ApplicationController
   def most_active_packages
     # get all packages including activity values
     @packages = Package.select("packages.*, #{Package.activity_algorithm}").
-        limit(@limit).order('activity_value DESC')
+                limit(@limit).order('activity_value DESC')
     @packages
   end
 
@@ -191,7 +191,7 @@ class StatisticsController < ApplicationController
 
     # get devel projects
     ids = Package.joins('left outer join packages d on d.develpackage_id = packages.id').
-        where('d.project_id = ?', @project.id).pluck('packages.project_id').sort.uniq
+          where('d.project_id = ?', @project.id).pluck('packages.project_id').sort.uniq
     ids << @project.id
     projects = Project.where('id in (?)', ids).select(:name).map(&:name)
 

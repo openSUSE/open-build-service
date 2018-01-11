@@ -1063,9 +1063,9 @@ class Webui::ProjectController < Webui::WebuiController
     # we do not filter requests for project because we need devel projects too later on and as long as the
     # number of open requests is limited this is the easiest solution
     raw_requests = BsRequest.order(:number).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
-        where(bs_request_actions: { type: 'submit' }).pluck('bs_requests.number', 'bs_requests.state',
-                                                            'bs_request_actions.target_project',
-                                                            'bs_request_actions.target_package')
+                   where(bs_request_actions: { type: 'submit' }).pluck('bs_requests.number', 'bs_requests.state',
+                                                                       'bs_request_actions.target_project',
+                                                                       'bs_request_actions.target_package')
 
     @declined_requests = {}
     @submits = {}
