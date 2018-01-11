@@ -19,7 +19,7 @@ module Backend
       # Returns the log file of the cloud upload job
       # @return [String]
       def self.log(id)
-        get(['/cloudupload/:id/_log', id])
+        get(['/cloudupload/:id/_log', id], params: { nostream: 1, start: 0 })
       end
 
       # Destroys (killing the process) the upload job.

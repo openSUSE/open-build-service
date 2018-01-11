@@ -29,7 +29,7 @@ RSpec.describe Webui::Cloud::UploadJob::LogsController, type: :controller, vcr: 
 
         context 'and an upload job' do
           let(:upload_job) { create(:upload_job, user: user_with_ec2_configuration) }
-          let(:path) { "#{CONFIG['source_url']}/cloudupload/#{upload_job.job_id}/_log" }
+          let(:path) { "#{CONFIG['source_url']}/cloudupload/#{upload_job.job_id}/_log?nostream=1&start=0" }
           let(:log) { 'lorem ipsum dolorem' }
 
           before do
