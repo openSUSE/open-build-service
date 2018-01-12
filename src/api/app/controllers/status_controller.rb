@@ -71,7 +71,7 @@ class StatusController < ApplicationController
   def workercommand
     required_parameters :cmd, :project, :package, :repository, :arch
 
-    unless %w(checkconstraints).include? params[:cmd]
+    unless %w[checkconstraints].include? params[:cmd]
       raise UnknownCommandError, "Unknown command '#{params[:cmd]}' for path #{request.path}"
     end
 

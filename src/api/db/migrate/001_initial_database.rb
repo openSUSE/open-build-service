@@ -17,13 +17,13 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
 
     create_table 'attrib_allowed_values', force: :cascade, options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin' do |t|
       t.integer 'attrib_type_id',               null: false
-      t.text    'value',          limit: 65535,              collation: 'utf8_general_ci'
+      t.text    'value',          limit: 65_535,              collation: 'utf8_general_ci'
       t.index ['attrib_type_id'], name: 'attrib_type_id', using: :btree
     end
 
     create_table 'attrib_default_values', force: :cascade, options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin' do |t|
       t.integer 'attrib_type_id',               null: false
-      t.text    'value',          limit: 65535, null: false, collation: 'utf8_general_ci'
+      t.text    'value',          limit: 65_535, null: false, collation: 'utf8_general_ci'
       t.integer 'position',                     null: false
       t.index ['attrib_type_id'], name: 'attrib_type_id', using: :btree
     end
@@ -75,7 +75,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
 
     create_table 'attrib_values', force: :cascade, options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin' do |t|
       t.integer 'attrib_id',               null: false
-      t.text    'value',     limit: 65535, null: false, collation: 'utf8_general_ci'
+      t.text    'value',     limit: 65_535, null: false, collation: 'utf8_general_ci'
       t.integer 'position',                null: false
       t.index ['attrib_id', 'position'], name: 'index_attrib_values_on_attrib_id_and_position', unique: true, using: :btree
       t.index ['attrib_id'], name: 'index_attrib_values_on_attrib_id', using: :btree
@@ -106,7 +106,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.string   'changesmd5'
       t.string   'verifymd5'
       t.string   'expandedmd5'
-      t.text     'error',       limit: 65535
+      t.text     'error',       limit: 65_535
       t.datetime 'maxmtime'
       t.index ['links_to_id'], name: 'index_backend_packages_on_links_to_id', using: :btree
     end
@@ -154,7 +154,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
     create_table 'bs_request_histories', force: :cascade, options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin' do |t|
       t.integer  'bs_request_id'
       t.string   'state',                       collation: 'utf8_unicode_ci'
-      t.text     'comment',       limit: 65535
+      t.text     'comment',       limit: 65_535
       t.string   'commenter',                   collation: 'utf8_unicode_ci'
       t.integer  'superseded_by'
       t.datetime 'created_at'
@@ -162,10 +162,10 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
     end
 
     create_table 'bs_requests', force: :cascade, options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin' do |t|
-      t.text     'description',   limit: 65535
+      t.text     'description',   limit: 65_535
       t.string   'creator',                                  collation: 'utf8_unicode_ci'
       t.string   'state',                                    collation: 'utf8_unicode_ci'
-      t.text     'comment',       limit: 65535
+      t.text     'comment',       limit: 65_535
       t.string   'commenter',                                collation: 'utf8_unicode_ci'
       t.integer  'superseded_by'
       t.datetime 'created_at',                  null: false
@@ -230,7 +230,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer  'project_id'
       t.integer  'package_id'
       t.integer  'bs_request_id'
-      t.text     'body',          limit: 65535
+      t.text     'body',          limit: 65_535
       t.integer  'parent_id'
       t.string   'type'
       t.datetime 'created_at'
@@ -245,7 +245,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
 
     create_table 'configurations', force: :cascade, options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin' do |t|
       t.string   'title',                                           default: ''
-      t.text     'description',                       limit: 65535,                                               collation: 'utf8_general_ci'
+      t.text     'description',                       limit: 65_535,                                               collation: 'utf8_general_ci'
       t.datetime 'created_at'
       t.datetime 'updated_at'
       t.string   'name',                                            default: ''
@@ -284,8 +284,8 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
     create_table 'delayed_jobs', force: :cascade, options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin' do |t|
       t.integer  'priority',                 default: 0
       t.integer  'attempts',                 default: 0
-      t.text     'handler',    limit: 65535,             collation: 'utf8_general_ci'
-      t.text     'last_error', limit: 65535,             collation: 'utf8_general_ci'
+      t.text     'handler',    limit: 65_535,             collation: 'utf8_general_ci'
+      t.text     'last_error', limit: 65_535,             collation: 'utf8_general_ci'
       t.datetime 'run_at'
       t.datetime 'locked_at'
       t.datetime 'failed_at'
@@ -340,7 +340,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
 
     create_table 'events', force: :cascade, options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci' do |t|
       t.string   'eventtype',                                    null: false
-      t.text     'payload',        limit: 65535
+      t.text     'payload',        limit: 65_535
       t.boolean  'queued',                       default: false, null: false
       t.integer  'lock_version',                 default: 0,     null: false
       t.datetime 'created_at'
@@ -414,7 +414,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.string   'regex',                                        null: false, collation: 'utf8_general_ci'
       t.string   'user',                                                      collation: 'utf8_general_ci'
       t.string   'password',                                                  collation: 'utf8_general_ci'
-      t.text     'label',          limit: 65535,                 null: false, collation: 'utf8_general_ci'
+      t.text     'label',          limit: 65_535,                 null: false, collation: 'utf8_general_ci'
       t.datetime 'issues_updated',                               null: false
       t.boolean  'enable_fetch',                 default: false
     end
@@ -459,7 +459,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.datetime 'sent_at'
       t.boolean  'private'
       t.integer  'severity'
-      t.text     'text',           limit: 65535, collation: 'utf8_general_ci'
+      t.text     'text',           limit: 65_535, collation: 'utf8_general_ci'
       t.index ['db_object_id'], name: 'object', using: :btree
       t.index ['user_id'], name: 'user', using: :btree
     end
@@ -481,9 +481,9 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
 
     create_table 'packages', force: :cascade, options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin' do |t|
       t.integer  'project_id',                                    null: false
-      t.text     'name',            limit: 65535
+      t.text     'name',            limit: 65_535
       t.string   'title',                                                      collation: 'utf8_general_ci'
-      t.text     'description',     limit: 65535,                              collation: 'utf8_general_ci'
+      t.text     'description',     limit: 65_535,                              collation: 'utf8_general_ci'
       t.datetime 'created_at'
       t.datetime 'updated_at'
       t.string   'url',                                                        collation: 'utf8_general_ci'
@@ -536,7 +536,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer  'bs_request_id'
       t.datetime 'datetime'
       t.string   'event_type'
-      t.text     'additional_info', limit: 65535
+      t.text     'additional_info', limit: 65_535
       t.index ['project_id'], name: 'project_id', using: :btree
       t.index ['user_name'], name: 'index_project_log_entries_on_user_name', using: :btree
       t.index ['package_name'], name: 'index_project_log_entries_on_package_name', using: :btree
@@ -546,9 +546,9 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
     end
 
     create_table 'projects', force: :cascade, options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin' do |t|
-      t.text     'name',                   limit: 65535
+      t.text     'name',                   limit: 65_535
       t.string   'title',                                                            collation: 'utf8_general_ci'
-      t.text     'description',            limit: 65535,                             collation: 'utf8_general_ci'
+      t.text     'description',            limit: 65_535,                             collation: 'utf8_general_ci'
       t.datetime 'created_at'
       t.datetime 'updated_at'
       t.string   'remoteurl',                                                        collation: 'utf8_general_ci'
@@ -622,7 +622,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer  'bs_request_id'
       t.string   'creator'
       t.string   'reviewer'
-      t.text     'reason',        limit: 65535
+      t.text     'reason',        limit: 65_535
       t.string   'state'
       t.string   'by_user'
       t.string   'by_group'
@@ -666,7 +666,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
 
     create_table 'sessions', force: :cascade, options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci' do |t|
       t.string   'session_id',               null: false
-      t.text     'data',       limit: 65535
+      t.text     'data',       limit: 65_535
       t.datetime 'created_at'
       t.datetime 'updated_at'
       t.index ['session_id'], name: 'index_sessions_on_session_id', using: :btree
@@ -689,7 +689,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
     create_table 'status_messages', force: :cascade, options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin' do |t|
       t.datetime 'created_at'
       t.datetime 'deleted_at'
-      t.text     'message',    limit: 65535, collation: 'utf8_general_ci'
+      t.text     'message',    limit: 65_535, collation: 'utf8_general_ci'
       t.integer  'user_id'
       t.integer  'severity'
       t.index ['user_id'], name: 'user', using: :btree
@@ -732,7 +732,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
 
     create_table 'user_registrations', force: :cascade, options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin' do |t|
       t.integer  'user_id',                  default: 0, null: false
-      t.text     'token',      limit: 65535,             null: false, collation: 'utf8_general_ci'
+      t.text     'token',      limit: 65_535,             null: false, collation: 'utf8_general_ci'
       t.datetime 'created_at'
       t.datetime 'expires_at'
       t.index ['expires_at'], name: 'user_registrations_expires_at_index', using: :btree
@@ -744,7 +744,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.datetime 'updated_at'
       t.datetime 'last_logged_in_at'
       t.integer  'login_failure_count',               default: 0,            null: false
-      t.text     'login',               limit: 65535
+      t.text     'login',               limit: 65_535
       t.string   'email',               limit: 200,   default: '',           null: false, collation: 'utf8_general_ci'
       t.string   'realname',            limit: 200,   default: '',           null: false, collation: 'utf8_general_ci'
       t.string   'password',            limit: 100,   default: '',           null: false, collation: 'utf8_general_ci'
@@ -752,7 +752,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.string   'password_salt',       limit: 10,    default: '1234512345', null: false, collation: 'utf8_general_ci'
       t.string   'password_crypted',    limit: 64,                                        collation: 'utf8_general_ci'
       t.integer  'state',                             default: 1,            null: false
-      t.text     'adminnote',           limit: 65535,                                     collation: 'utf8_general_ci'
+      t.text     'adminnote',           limit: 65_535,                                     collation: 'utf8_general_ci'
       t.index ['login'], name: 'users_login_index', unique: true, length: { login: 255 }, using: :btree
       t.index ['password'], name: 'users_password_index', using: :btree
     end

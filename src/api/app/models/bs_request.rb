@@ -29,7 +29,7 @@ class BsRequest < ApplicationRecord
     'bs_request_actions.type'
   ].freeze
 
-  FINAL_REQUEST_STATES = %w(accepted declined superseded revoked).freeze
+  FINAL_REQUEST_STATES = %w[accepted declined superseded revoked].freeze
 
   VALID_REQUEST_STATES = [:new, :deleted, :declined, :accepted, :review, :revoked, :superseded].freeze
 
@@ -86,8 +86,8 @@ class BsRequest < ApplicationRecord
   validates :creator, presence: true
   validate :check_supersede_state
   validate :check_creator, on: [:create, :save!]
-  validates :comment, length: { maximum: 65535 }
-  validates :description, length: { maximum: 65535 }
+  validates :comment, length: { maximum: 65_535 }
+  validates :description, length: { maximum: 65_535 }
 
   after_update :send_state_change
   after_commit :update_cache
@@ -194,11 +194,13 @@ class BsRequest < ApplicationRecord
       # to be overwritten if we find history
       request.creator = request.commenter
 
-      actions.each do |ac|
-        a = BsRequestAction.new_from_xml_hash(ac)
-        request.bs_request_actions << a
-        a.bs_request = request
-      end if actions
+      if actions
+        actions.each do |ac|
+          a = BsRequestAction.new_from_xml_hash(ac)
+          request.bs_request_actions << a
+          a.bs_request = request
+        end
+      end
 
       str = state.delete('when')
       request.updated_when = Time.zone.parse(str) if str
@@ -221,9 +223,11 @@ class BsRequest < ApplicationRecord
 
       reviews = hashed.delete('review')
       reviews = [reviews] if reviews.is_a?(Hash)
-      reviews.each do |r|
-        request.reviews << Review.new_from_xml_hash(r)
-      end if reviews
+      if reviews
+        reviews.each do |r|
+          request.reviews << Review.new_from_xml_hash(r)
+        end
+      end
 
       raise ArgumentError, "too much information #{hashed.inspect}" if hashed.present?
 
@@ -422,21 +426,21 @@ class BsRequest < ApplicationRecord
   def obsolete_reviews(opts)
     return false unless opts[:by_user] || opts[:by_group] || opts[:by_project] || opts[:by_package]
     reviews.each do |review|
-      if review.reviewable_by?(opts)
-        logger.debug "Obsoleting review #{review.id}"
-        review.state = :obsoleted
-        review.save
-        history = HistoryElement::ReviewObsoleted
-        history.create(review: review, comment: 'reviewer got removed', user_id: User.current.id)
+      next unless review.reviewable_by?(opts)
 
-        # Maybe this will turn the request into an approved state?
-        if state == :review && reviews.where(state: 'new').none?
-          self.state = :new
-          save
-          history = HistoryElement::RequestAllReviewsApproved
-          history.create(request: self, comment: opts[:comment], user_id: User.current.id)
-        end
-      end
+      logger.debug "Obsoleting review #{review.id}"
+      review.state = :obsoleted
+      review.save
+      history = HistoryElement::ReviewObsoleted
+      history.create(review: review, comment: 'reviewer got removed', user_id: User.current.id)
+
+      # Maybe this will turn the request into an approved state?
+      next unless state == :review && reviews.where(state: 'new').none?
+
+      self.state = :new
+      save
+      history = HistoryElement::RequestAllReviewsApproved
+      history.create(request: self, comment: opts[:comment], user_id: User.current.id)
     end
   end
 
@@ -528,17 +532,16 @@ class BsRequest < ApplicationRecord
 
       target_project = Project.get_by_name action.target_project
       # create a new incident if needed
-      if target_project.is_maintenance?
-        # create incident if it is a maintenance project
-        incident_project ||= MaintenanceIncident.build_maintenance_incident(target_project, source_project.nil?, self).project
-        opts[:check_for_patchinfo] = true
+      next unless target_project.is_maintenance?
+      # create incident if it is a maintenance project
+      incident_project ||= MaintenanceIncident.build_maintenance_incident(target_project, source_project.nil?, self).project
+      opts[:check_for_patchinfo] = true
 
-        unless incident_project.name.start_with?(target_project.name)
-          raise MultipleMaintenanceIncidents, 'This request handles different maintenance incidents, this is not allowed !'
-        end
-        action.target_project = incident_project.name
-        action.save!
+      unless incident_project.name.start_with?(target_project.name)
+        raise MultipleMaintenanceIncidents, 'This request handles different maintenance incidents, this is not allowed !'
       end
+      action.target_project = incident_project.name
+      action.save!
     end
 
     # We have permission to change all requests inside, now execute
@@ -590,12 +593,11 @@ class BsRequest < ApplicationRecord
       # check for not accepted reviews on re-open
       if state == :new || state == :review
         reviews.each do |review|
-          if review.state != :accepted
-            # FIXME3.0 review history?
-            review.state = :new
-            review.save!
-            self.state = :review
-          end
+          next unless review.state != :accepted
+          # FIXME3.0 review history?
+          review.state = :new
+          review.save!
+          self.state = :review
         end
       end
       save!
@@ -681,7 +683,7 @@ class BsRequest < ApplicationRecord
 
         # This is needed for MeeGo BOSS, which adds multiple reviews b
         # FIXME3.0: think about review ordering and make reviews addressable
-        if matching && !(reviews_seen.has_key?(rkey) && review.state == :accepted)
+        if matching && !(reviews_seen.key?(rkey) && review.state == :accepted)
           reviews_seen[rkey] = 1
           found = true
           comment = opts[:comment] || ''
@@ -833,7 +835,7 @@ class BsRequest < ApplicationRecord
   end
 
   def send_state_change
-    intermediate_state = %w(new review)
+    intermediate_state = %w[new review]
     return if state_was.to_s == state.to_s
     # new->review && review->new are not worth an event - it's just spam
     return if state.to_s.in?(intermediate_state) && state_was.to_s.in?(intermediate_state)
@@ -878,7 +880,8 @@ class BsRequest < ApplicationRecord
   end
 
   def reviews_for_user_and_others(user)
-    user_reviews, other_open_reviews = [], []
+    user_reviews = []
+    other_open_reviews = []
     reviews.where(state: 'new').find_each do |review|
       if review_matches_user?(review, user)
         user_reviews << review.webui_infos
@@ -933,7 +936,8 @@ class BsRequest < ApplicationRecord
 
   # Check if 'user' is maintainer in _all_ request targets:
   def is_target_maintainer?(user = User.current)
-    has_target, is_target_maintainer = false, true
+    has_target = false
+    is_target_maintainer = true
     bs_request_actions.each do |a|
       next unless a.target_project
       if a.target_package
@@ -1067,7 +1071,8 @@ class BsRequest < ApplicationRecord
             action[:forward] << { project: dev_pkg.project.name, package: dev_pkg.name, type: 'devel' }
           end
           if linkinfo
-            lprj, lpkg = linkinfo['project'], linkinfo['package']
+            lprj = linkinfo['project']
+            lpkg = linkinfo['package']
             link_is_already_devel = false
             if action[:forward]
               action[:forward].each do |forward|

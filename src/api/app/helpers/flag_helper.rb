@@ -23,7 +23,7 @@ module FlagHelper
   end
 
   def validate_type(flag)
-    raise InvalidFlag, "Error: unknown flag type '#{flag}' not found." unless TYPES.has_key? flag.to_s
+    raise InvalidFlag, "Error: unknown flag type '#{flag}' not found." unless TYPES.key? flag.to_s
   end
 
   def update_all_flags(xmlhash)

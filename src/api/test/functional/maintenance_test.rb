@@ -1391,7 +1391,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     end
 
     email = ActionMailer::Base.deliveries.last
-    assert_equal %w(dirkmueller@example.com fred@feuerstein.de test_group@testsuite.org), email.to.sort
+    assert_equal %w[dirkmueller@example.com fred@feuerstein.de test_group@testsuite.org], email.to.sort
 
     EventSubscription.create eventtype: 'Event::CommentForRequest', receiver_role: :source_maintainer,
                              user: users(:maintenance_assi), channel: :instant_email
@@ -1404,7 +1404,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     end
 
     email = ActionMailer::Base.deliveries.last
-    assert_equal %w(dirkmueller@example.com fred@feuerstein.de homer@nospam.net test_group@testsuite.org), email.to.sort
+    assert_equal %w[dirkmueller@example.com fred@feuerstein.de homer@nospam.net test_group@testsuite.org], email.to.sort
 
     get comments_request_path(request_number: reqid)
     assert_xml_tag tag: 'comment', attributes: { who: 'king' }, content: 'Release it now!'

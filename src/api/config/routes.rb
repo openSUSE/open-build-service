@@ -4,11 +4,9 @@ class WebuiMatcher
   end
 
   def self.matches?(request)
-    begin
-      request.format.to_sym != :xml
-    rescue ArgumentError => e
-      raise InvalidRequestFormat, e.to_s
-    end
+    request.format.to_sym != :xml
+  rescue ArgumentError => e
+    raise InvalidRequestFormat, e.to_s
   end
 end
 

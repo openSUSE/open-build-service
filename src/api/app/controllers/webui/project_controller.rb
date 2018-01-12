@@ -252,14 +252,14 @@ class Webui::ProjectController < Webui::WebuiController
     @arch = params[:arch]
     @hosts = (params[:hosts] || 40).to_i
     @scheduler = params[:scheduler] || 'needed'
-    unless %w(fifo lifo random btime needed neededb longest_data longested_triedread longest).include? @scheduler
+    unless %w[fifo lifo random btime needed neededb longest_data longested_triedread longest].include? @scheduler
       flash[:error] = 'Invalid scheduler type, check mkdiststats docu - aehm, source'
       redirect_to action: :show, project: @project
       return
     end
     bdep = BuilddepInfo.find(project: @project.name, repository: @repository, arch: @arch)
     jobs = Jobhistory.find(project: @project.name, repository: @repository, arch: @arch,
-            limit: (@packages.size + @ipackages.size) * 3, code: %w(succeeded unchanged))
+            limit: (@packages.size + @ipackages.size) * 3, code: %w[succeeded unchanged])
     unless bdep && jobs
       flash[:error] = "Could not collect infos about repository #{@repository}/#{@arch}"
       redirect_to action: :show, project: @project
@@ -267,13 +267,15 @@ class Webui::ProjectController < Webui::WebuiController
     end
     longest = call_diststats(bdep, jobs)
     @longestpaths = []
-    longest['longestpath'].elements('path') do |path|
-      currentpath = []
-      path.elements('package') do |p|
-        currentpath << p
+    if longest
+      longest['longestpath'].elements('path') do |path|
+        currentpath = []
+        path.elements('package') do |p|
+          currentpath << p
+        end
+        @longestpaths << currentpath
       end
-      @longestpaths << currentpath
-    end if longest
+    end
     # we append 4 empty paths, so there are always at least 4 in the array
     # to simplify the view code
     4.times { @longestpaths << [] }
@@ -289,7 +291,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   def requests
     @requests = @project.open_requests
-    @available_types = %w(all submit delete add_role change_devel maintenance_incident maintenance_release)
+    @available_types = %w[all submit delete add_role change_devel maintenance_incident maintenance_release]
     @default_request_type = params[:type] if params[:type]
     @available_states = ['new or review', 'new', 'review', 'accepted', 'declined', 'revoked', 'superseded']
     @default_request_state = params[:state] if params[:state]
@@ -454,7 +456,7 @@ class Webui::ProjectController < Webui::WebuiController
     end
 
     @buildresult = @buildresult.to_hash
-    unless @buildresult.has_key? 'result'
+    unless @buildresult.key? 'result'
       @buildresult_unavailable = true
       return
     end
@@ -479,7 +481,7 @@ class Webui::ProjectController < Webui::WebuiController
       hash.each do |arch, packages|
         has_packages = false
         packages.each do |p, _|
-          if packagename_hash.has_key? p
+          if packagename_hash.key? p
             has_packages = true
             break
           end
@@ -499,22 +501,24 @@ class Webui::ProjectController < Webui::WebuiController
     @repohash = {}
     @statushash = {}
 
-    @buildresult.elements('result') do |result|
-      repo = result['repository']
-      arch = result['arch']
+    if @buildresult
+      @buildresult.elements('result') do |result|
+        repo = result['repository']
+        arch = result['arch']
 
-      @repohash[repo] ||= []
-      @repohash[repo] << arch
+        @repohash[repo] ||= []
+        @repohash[repo] << arch
 
-      # package status cache
-      @statushash[repo] ||= {}
-      @statushash[repo][arch] = {}
+        # package status cache
+        @statushash[repo] ||= {}
+        @statushash[repo][arch] = {}
 
-      stathash = @statushash[repo][arch]
-      result.elements('status') do |status|
-        stathash[status['package']] = status
+        stathash = @statushash[repo][arch]
+        result.elements('status') do |status|
+          stathash[status['package']] = status
+        end
       end
-    end if @buildresult
+    end
     render layout: false
   end
 
@@ -806,9 +810,9 @@ class Webui::ProjectController < Webui::WebuiController
     return unless @is_incident_project
 
     @open_release_requests = BsRequest.find_for(project: @project.name,
-                                  states: %w(new review),
-                                  types: %w(maintenance_release),
-                                  roles: %w(source)).pluck(:number)
+                                  states: %w[new review],
+                                  types: %w[maintenance_release],
+                                  roles: %w[source]).pluck(:number)
   end
 
   def call_diststats(bdep, jobs)
@@ -863,11 +867,11 @@ class Webui::ProjectController < Webui::WebuiController
 
   def monitor_set_filter(defaults)
     @avail_status_values = Buildresult.avail_status_values
-    @filter_out = %w(disabled excluded unknown)
+    @filter_out = %w[disabled excluded unknown]
     @status_filter = []
     @avail_status_values.each do |s|
       id = s.delete(' ')
-      if params.has_key?(id)
+      if params.key?(id)
         next unless (begin
                        Integer(params[id])
                      rescue ArgumentError
@@ -893,17 +897,13 @@ class Webui::ProjectController < Webui::WebuiController
     @arch_filter = []
     @avail_arch_values.each do |s|
       archid = valid_xml_id('arch_' + s)
-      if defaults || (params.has_key?(archid) && params[archid])
-        @arch_filter << s
-      end
+      @arch_filter << s if defaults || (params.key?(archid) && params[archid])
     end
 
     @repo_filter = []
     @avail_repo_values.each do |s|
       repoid = valid_xml_id('repo_' + s)
-      if defaults || (params.has_key?(repoid) && params[repoid])
-        @repo_filter << s
-      end
+      @repo_filter << s if defaults || (params.key?(repoid) && params[repoid])
     end
   end
 
@@ -950,7 +950,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     currentpack['requests_from'] = []
     key = @api_obj.name + '/' + pname
-    if @submits.has_key? key
+    if @submits.key? key
       return if @ignore_pending
       currentpack['requests_from'].concat(@submits[key])
     end
@@ -986,8 +986,8 @@ class Webui::ProjectController < Webui::WebuiController
       end
     end
 
-    return unless (currentpack['firstfail'] || currentpack['failedcomment'] || currentpack['upstream_version'] ||
-        !currentpack['problems'].empty? || !currentpack['requests_from'].empty? || !currentpack['requests_to'].empty?)
+    return unless currentpack['firstfail'] || currentpack['failedcomment'] || currentpack['upstream_version'] ||
+                  !currentpack['problems'].empty? || !currentpack['requests_from'].empty? || !currentpack['requests_to'].empty?
     if @limit_to_old
       return unless currentpack['upstream_version']
     end
@@ -1071,7 +1071,7 @@ class Webui::ProjectController < Webui::WebuiController
     @submits = {}
     raw_requests.each do |number, state, tproject, tpackage|
       if state == 'declined'
-        next if tproject != @api_obj.name || !@name2id.has_key?(tpackage)
+        next if tproject != @api_obj.name || !@name2id.key?(tpackage)
         @status[@name2id[tpackage]].declined_request = number
         @declined_requests[number] = nil
       else
@@ -1145,10 +1145,8 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def set_project_by_name
-    begin
-      @project = Project.get_by_name(params['project'])
-    rescue Project::UnknownObjectError
-      @project = nil
-    end
+    @project = Project.get_by_name(params['project'])
+  rescue Project::UnknownObjectError
+    @project = nil
   end
 end

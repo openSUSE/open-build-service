@@ -129,7 +129,7 @@ class ApplicationController < ActionController::Base
       end
     end
     opts[:length] = @volleyfile.length
-    opts[:disposition] = 'inline' if %w(text/plain text/xml).include?(opts[:type])
+    opts[:disposition] = 'inline' if %w[text/plain text/xml].include?(opts[:type])
     # streaming makes it very hard for test cases to verify output
     opts[:stream] = false if Rails.env.test?
     send_file(@volleyfile.path, opts)
@@ -141,7 +141,7 @@ class ApplicationController < ActionController::Base
     file = Tempfile.new('volley', "#{Rails.root}/tmp", encoding: 'ascii-8bit')
     b = request.body
     buffer = ''
-    file.write(buffer) while b.read(40960, buffer)
+    file.write(buffer) while b.read(40_960, buffer)
     file.close
     file.open
     file

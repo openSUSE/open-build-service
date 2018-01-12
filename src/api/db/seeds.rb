@@ -3,13 +3,13 @@ require_relative 'attribute_descriptions'
 puts 'Seeding architectures table...'
 # NOTE: armvXel is actually obsolete (because it never exist as official platform),
 # but kept for compatibility reasons. armv7hl is in for compatibility (soft/hard).
-%w(aarch64 aarch64_ilp32 armv4l armv5l armv6l armv7l armv5el armv6el armv7el armv7hl armv8el
+%w[aarch64 aarch64_ilp32 armv4l armv5l armv6l armv7l armv5el armv6el armv7el armv7hl armv8el
    hppa i586 i686 ia64 k1om local m68k mips mips32 mips64 ppc ppc64 ppc64p7 ppc64le
-   s390 s390x sparc sparc64 sparc64v sparcv8 sparcv9 sparcv9v x86_64).each do |arch_name|
+   s390 s390x sparc sparc64 sparc64v sparcv8 sparcv9 sparcv9v x86_64].each do |arch_name|
   Architecture.where(name: arch_name).first_or_create
 end
 # following our default config
-%w(armv7l i586 x86_64).each do |arch_name|
+%w[armv7l i586 x86_64].each do |arch_name|
   a = Architecture.find_by_name(arch_name)
   a.available = true
   a.save
@@ -60,10 +60,10 @@ puts 'Seeding roles_users table...'
 RolesUser.where(user_id: admin.id, role_id: admin_role.id).first_or_create
 
 puts 'Seeding static_permissions table...'
-%w(status_message_create set_download_counters download_binaries
+%w[status_message_create set_download_counters download_binaries
    source_access access global_change_project global_create_project
    global_change_package global_create_package change_project
-   create_project change_package create_package).each do |sp_title|
+   create_project change_package create_package].each do |sp_title|
   StaticPermission.where(title: sp_title).first_or_create
 end
 
@@ -73,19 +73,19 @@ StaticPermission.all.each do |sp|
 end
 
 puts 'Seeding static permissions for maintainer role in roles_static_permissions table...'
-%w(change_project create_project change_package create_package).each do |sp_title|
+%w[change_project create_project change_package create_package].each do |sp_title|
   sp = StaticPermission.find_by_title(sp_title)
   maintainer_role.static_permissions << sp unless maintainer_role.static_permissions.find_by_id(sp.id)
 end
 
 puts 'Seeding static permissions for reader role in roles_static_permissions table...'
-%w(access source_access).each do |sp_title|
+%w[access source_access].each do |sp_title|
   sp = StaticPermission.find_by_title(sp_title)
   reader_role.static_permissions << sp unless reader_role.static_permissions.find_by_id(sp.id)
 end
 
 puts 'Seeding static permissions for downloader role in roles_static_permissions table...'
-%w(download_binaries).each do |sp_title|
+%w[download_binaries].each do |sp_title|
   sp = StaticPermission.find_by_title(sp_title)
   downloader_role.static_permissions << sp unless downloader_role.static_permissions.find_by_id(sp.id)
 end

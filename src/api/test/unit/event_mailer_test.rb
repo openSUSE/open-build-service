@@ -67,7 +67,7 @@ class EventMailerTest < ActionMailer::TestCase
     email = ActionMailer::Base.deliveries.last
 
     assert_equal "Request #{myid} requires review (submit Apache/BranchPack)", email.subject
-    assert_equal %w(test_group@testsuite.org), email.to
+    assert_equal %w[test_group@testsuite.org], email.to
   end
 
   # now check that disabling it for users in groups works too

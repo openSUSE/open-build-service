@@ -16,12 +16,11 @@ class SchemaTest < ActiveSupport::TestCase
           io = IO.popen("xmllint --noout --schema #{f} #{testfile} 2>&1 > /dev/null", 'r')
         end
       end
-      if io
-        testresult = io.read
-        io.close
-        assert $? == 0, "#{testfile} does not validate against #{f} -> #{testresult}"
-        # rubocop:enable Style/NumericPredicate
-      end
+      next unless io
+      testresult = io.read
+      io.close
+      assert $? == 0, "#{testfile} does not validate against #{f} -> #{testresult}"
+      # rubocop:enable Style/NumericPredicate
     end
   end
 end

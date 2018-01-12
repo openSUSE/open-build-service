@@ -59,7 +59,7 @@ RSpec.describe Webui::ProjectHelper, type: :helper do
     end
 
     it 'shows hours and seconds properly' do
-      expect(format_seconds(12000)).to eq('3:20')
+      expect(format_seconds(12_000)).to eq('3:20')
     end
   end
 

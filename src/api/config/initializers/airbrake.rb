@@ -42,9 +42,9 @@ Airbrake.configure do |c|
   # NOTE: This option *does not* work if you don't set the 'environment' option.
   # https://github.com/airbrake/airbrake-ruby#ignore_environments
   if c.host.blank? || c.project_key.blank? || c.project_id.blank?
-    c.ignore_environments = %w(production development test)
+    c.ignore_environments = %w[production development test]
   else
-    c.ignore_environments = %w(development)
+    c.ignore_environments = %w[development]
   end
 
   # A list of parameters that should be filtered out of what is sent to
@@ -75,7 +75,7 @@ def ignore_by_class_and_message?(notice)
 end
 
 def ignore_by_class?(notice)
-  exceptions_to_ignore = %w(
+  exceptions_to_ignore = %w[
     ActiveRecord::RecordNotFound
     ActionController::InvalidAuthenticityToken
     CGI::Session::CookieStore::TamperedWithCookie
@@ -87,7 +87,7 @@ def ignore_by_class?(notice)
     WebuiMatcher::InvalidRequestFormat
     ActionController::UnknownFormat
     ActiveXML::Transport::NotFoundError
-  )
+  ]
 
   (notice[:errors].map { |error| error[:type] } & exceptions_to_ignore).any?
 end

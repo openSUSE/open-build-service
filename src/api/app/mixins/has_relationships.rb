@@ -184,10 +184,10 @@ module HasRelationships
       id = @updater.id(node)
       item = @updater.find!(id)
 
-      if cache.has_key? id
+      if cache.key? id
         # item has already a role in this model
         pcache = cache[id]
-        if pcache.has_key? role.title
+        if pcache.key? role.title
           # role already defined, only remove from cache
           pcache[role.title] = :keep
         else

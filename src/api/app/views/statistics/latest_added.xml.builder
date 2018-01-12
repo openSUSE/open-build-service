@@ -11,11 +11,10 @@ xml.latest_added do
     end
 
     ### item is a project
-    if item.instance_of? Project
-      xml.project(
-        name: item.name,
-        created: item.created_at.xmlschema
-      )
-    end
+    next unless item.instance_of? Project
+    xml.project(
+      name: item.name,
+      created: item.created_at.xmlschema
+    )
   end
 end

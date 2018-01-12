@@ -17,7 +17,7 @@ class Review < ApplicationRecord
   validates :by_project, length: { maximum: 250 }
   validates :by_package, length: { maximum: 250 }
   validates :reviewer, length: { maximum: 250 }
-  validates :reason, length: { maximum: 65534 }
+  validates :reason, length: { maximum: 65_534 }
 
   validate :check_initial, on: [:create]
   # Validate the review is not assigned to a review which is already assigned to this review

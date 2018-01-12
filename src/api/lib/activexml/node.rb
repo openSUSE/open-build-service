@@ -122,7 +122,7 @@ module ActiveXML
           else
             objdata, params = transport.find(self, *args)
           end
-          obj = new(objdata) unless obj
+          obj ||= new(objdata)
           obj.instance_variable_set('@cache_key', cache_key) if cache_key
           obj.instance_variable_set('@init_options', params)
           obj.instance_variable_set('@hash_cache', objhash) if objhash
@@ -267,7 +267,7 @@ module ActiveXML
 
     def find_first(symbol)
       symbol = symbol.to_s
-      return @node_cache[symbol] if @node_cache.has_key?(symbol)
+      return @node_cache[symbol] if @node_cache.key?(symbol)
 
       t0 = Time.now
       e = _data.xpath(symbol)
@@ -330,9 +330,11 @@ module ActiveXML
       raise 'First argument must be an element name' if element.nil?
       el = _data.document.create_element(element)
       _data.add_child(el)
-      attrs.each do |key, value|
-        el[key.to_s] = value.to_s
-      end if attrs.is_a? Hash
+      if attrs.is_a? Hash
+        attrs.each do |key, value|
+          el[key.to_s] = value.to_s
+        end
+      end
       # you never know
       cleanup_cache
       Node.new(el)
@@ -359,9 +361,7 @@ module ActiveXML
     # query can either be an element name, an xpath, or any object
     # whose to_s method evaluates to an element name or xpath
     def has_element?(query)
-      if @hash_cache && query.is_a?(Symbol)
-        return @hash_cache.has_key? query.to_s
-      end
+      return @hash_cache.key? query.to_s if @hash_cache && query.is_a?(Symbol)
       !find_first(query).nil?
     end
 
@@ -370,10 +370,8 @@ module ActiveXML
     end
 
     def has_attribute?(query)
-      if @hash_cache && query.is_a?(Symbol)
-        return @hash_cache.has_key? query.to_s
-      end
-      _data.attributes.has_key?(query.to_s)
+      return @hash_cache.key? query.to_s if @hash_cache && query.is_a?(Symbol)
+      _data.attributes.key?(query.to_s)
     end
 
     def has_attributes?
@@ -423,9 +421,9 @@ module ActiveXML
         ret = @hash_cache[symbols]
         return ret if ret && ret.is_a?(String)
       end
-      return @value_cache[symbols] if @value_cache.has_key?(symbols)
+      return @value_cache[symbols] if @value_cache.key?(symbols)
 
-      if _data.attributes.has_key?(symbols)
+      if _data.attributes.key?(symbols)
         return @value_cache[symbols] = _data.attributes[symbols].value
       end
 

@@ -28,7 +28,7 @@ namespace :db do
   task extract_fixtures: :environment do
     raise 'You only want to run this in test environment' unless ENV['RAILS_ENV'] == 'test'
     sql = 'SELECT * FROM %s'
-    skip_tables = %w(schema_info sessions schema_migrations)
+    skip_tables = %w[schema_info sessions schema_migrations]
     ActiveRecord::Base.establish_connection
     User.current = User.find_by_login('Admin')
     tables = ENV['FIXTURES'] ? ENV['FIXTURES'].split(/,/) : ActiveRecord::Base.connection.tables - skip_tables
@@ -36,7 +36,7 @@ namespace :db do
       i = '000'
       begin
         oldhash = YAML.load_file("#{Rails.root}/test/fixtures/#{table_name}.yml")
-        oldhash = {} unless oldhash
+        oldhash ||= {}
       rescue Errno::ENOENT, TypeError
         oldhash = {}
       rescue => e
@@ -45,11 +45,10 @@ namespace :db do
       end
       idtokey = {}
       force_hash(oldhash).each do |key, record|
-        if record.has_key? 'id'
-          key = key.dup.force_encoding('UTF-8')
-          id = Integer(record['id'])
-          idtokey[id] = key
-        end
+        next unless record.key? 'id'
+        key = key.dup.force_encoding('UTF-8')
+        id = Integer(record['id'])
+        idtokey[id] = key
       end
 
       classname = Event::Base if table_name == 'events'
@@ -59,7 +58,7 @@ namespace :db do
       next if %(architectures_distributions roles_static_permissions).include? table_name
 
       begin
-        classname = table_name.classify.constantize unless classname
+        classname ||= table_name.classify.constantize
       rescue NameError
         # habtm table
         classname = nil
@@ -78,45 +77,44 @@ namespace :db do
           else
             primary = 'id'
           end
-          id = Integer(record[primary]) if record.has_key? primary
-          if record.has_key?('user_id')
+          id = Integer(record[primary]) if record.key? primary
+          if record.key?('user_id')
             user = User.find(record.delete('user_id'))
             record['user'] = user.login
           end
-          if record.has_key?('owner_id')
+          if record.key?('owner_id')
             user = User.find(record.delete('owner_id'))
             record['owner'] = user.login
           end
-          if record.has_key?('role_id')
+          if record.key?('role_id')
             role = Role.find(record.delete('role_id'))
             record['role'] = role.title
           end
-          if record.has_key?('group_id')
+          if record.key?('group_id')
             group = Group.find(record.delete('group_id'))
             record['group'] = group.title
           end
-          if record.has_key?('architecture_id')
+          if record.key?('architecture_id')
             arch = Architecture.find(record.delete('architecture_id'))
             record['architecture'] = arch.name
           end
-          if record.has_key?('static_permission_id')
+          if record.key?('static_permission_id')
             perm = StaticPermission.find(record.delete('static_permission_id'))
             record['static_permission'] = perm.title
           end
-          %w(db_project project develproject maintenance_project).each do |prefix|
-            if record.has_key?(prefix + '_id')
-              p = Project.find(record.delete(prefix + '_id'))
-              prefix = 'project' if prefix == 'db_project'
-              record[prefix] = p.name.tr(':', '_')
-            end
+          %w[db_project project develproject maintenance_project].each do |prefix|
+            next unless record.key?(prefix + '_id')
+            p = Project.find(record.delete(prefix + '_id'))
+            prefix = 'project' if prefix == 'db_project'
+            record[prefix] = p.name.tr(':', '_')
           end
-          %w(package develpackage links_to).each do |prefix|
-            if record.has_key?(prefix + '_id')
+          %w[package develpackage links_to].each do |prefix|
+            if record.key?(prefix + '_id')
               p = Package.find(record.delete(prefix + '_id'))
               record[prefix] = p.fixtures_name
             end
           end
-          if record.has_key?('linked_db_project_id')
+          if record.key?('linked_db_project_id')
             pid = record.delete('linked_db_project_id')
             if pid > 0
               p = Project.find(pid)
@@ -151,13 +149,13 @@ namespace :db do
             key = record['name'].tr(':', '_')
             record.delete(primary)
           end
-          if %w(static_permissions packages).include? table_name
+          if %w[static_permissions packages].include? table_name
             key = classname.find(record.delete(primary)).fixtures_name
           end
           defaultkey = record['package'] if table_name == 'backend_packages'
-          if %w(event_subscriptions ratings package_kinds package_issues
+          if %w[event_subscriptions ratings package_kinds package_issues
                 linked_db_projects relationships watched_projects path_elements groups_users
-                flags taggings bs_request_histories bs_request_actions project_log_entries).include? table_name
+                flags taggings bs_request_histories bs_request_actions project_log_entries].include? table_name
             record.delete(primary)
             t = record.to_a.sort
             # a bit clumpsy but reliable order is important for git diff
@@ -179,7 +177,7 @@ namespace :db do
           end
           # puts "#{table_name} #{record.inspect} -#{key}-"
           key ||= defaultkey
-          raise "duplicated record #{table_name}:#{key}" if hash.has_key? key
+          raise "duplicated record #{table_name}:#{key}" if hash.key? key
           hash[key] = record
         end
         local_to_yaml(hash, file)

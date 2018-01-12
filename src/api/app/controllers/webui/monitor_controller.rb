@@ -7,15 +7,17 @@ class Webui::MonitorController < Webui::WebuiController
     def addarrays(arr1, arr2)
       # we assert that both have the same size
       ret = []
-      arr1.length.times do |i|
-        time1, value1 = arr1[i]
-        time2, value2 = arr2[i]
-        value2 ||= 0
-        value1 ||= 0
-        time1 ||= 0
-        time2 ||= 0
-        ret << [(time1 + time2) / 2, value1 + value2]
-      end if arr1
+      if arr1
+        arr1.length.times do |i|
+          time1, value1 = arr1[i]
+          time2, value2 = arr2[i]
+          value2 ||= 0
+          value1 ||= 0
+          time1 ||= 0
+          time2 ||= 0
+          ret << [(time1 + time2) / 2, value1 + value2]
+        end
+      end
       ret << 0 if ret.length.zero?
       ret
     end
@@ -37,7 +39,7 @@ class Webui::MonitorController < Webui::WebuiController
 
       workers = {}
       workers_list = []
-      %w{idle building away down dead}.each do |state|
+      %w[idle building away down dead].each do |state|
         @workerstatus.elements(state) do |b|
           workers_list << [b['workerid'], b['hostarch']]
         end
@@ -70,7 +72,7 @@ class Webui::MonitorController < Webui::WebuiController
       delta = 5 if delta < 5
       delta = max_time if delta > max_time
       delta = (100 * Math.sin(Math.acos(1 - (Float(delta) / max_time)))).round
-      delta = 100 if (delta > 100)
+      delta = 100 if delta > 100
       workers[id] = { 'delta' => delta, 'project' => b['project'], 'repository' => b['repository'],
                       'package' => b['package'], 'arch' => b['arch'], 'starttime' => b['starttime'] }
     end
@@ -94,10 +96,10 @@ class Webui::MonitorController < Webui::WebuiController
 
     arch = params[:arch]
     range = params[:range]
-    %w{waiting blocked squeue_high squeue_med}.each do |prefix|
+    %w[waiting blocked squeue_high squeue_med].each do |prefix|
       data[prefix] = gethistory(prefix + '_' + arch, range, !discard_cache?).map { |time, value| [time * 1000, value] }
     end
-    %w{idle building away down dead}.each do |prefix|
+    %w[idle building away down dead].each do |prefix|
       data[prefix] = gethistory(prefix + '_' + map_to_workers(arch), range, !discard_cache?).map { |time, value| [time * 1000, value] }
     end
     low = {}

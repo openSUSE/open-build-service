@@ -106,13 +106,12 @@ class Webui::PackageController < Webui::WebuiController
     end
     project_repositories = Project.find_by_name(params[:dproject]).repositories.pluck(:name)
     [:repository, :drepository].each do |repo_key|
-      unless project_repositories.include?(params[repo_key])
-        flash[:error] = "Repository '#{params[repo_key]}' is invalid."
-        redirect_back(fallback_location: project_show_path(project: params[:dproject]))
-        # rubocop:disable Lint/NonLocalExitFromIterator
-        return
-        # rubocop:enable Lint/NonLocalExitFromIterator
-      end
+      next if project_repositories.include?(params[repo_key])
+      flash[:error] = "Repository '#{params[repo_key]}' is invalid."
+      redirect_back(fallback_location: project_show_path(project: params[:dproject]))
+      # rubocop:disable Lint/NonLocalExitFromIterator
+      return
+      # rubocop:enable Lint/NonLocalExitFromIterator
     end
 
     @arch = params[:arch]
@@ -182,7 +181,7 @@ class Webui::PackageController < Webui::WebuiController
     @repository = params[:repository]
     begin
       @buildresult = Buildresult.find_hashed(project: @project, package: @package,
-        repository: @repository, view: %w(binarylist status))
+        repository: @repository, view: %w[binarylist status])
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.message
       redirect_back(fallback_location: { controller: :package, action: :show, project: @project, package: @package })
@@ -202,7 +201,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def requests
     @default_request_type = params[:type] if params[:type]
-    @available_types = %w(all submit delete add_role change_devel maintenance_incident maintenance_release)
+    @available_types = %w[all submit delete add_role change_devel maintenance_incident maintenance_release]
     @default_request_state = params[:state] if params[:state]
     @available_states = ['new or review', 'new', 'review', 'accepted', 'declined', 'revoked', 'superseded']
   end
@@ -793,13 +792,12 @@ class Webui::PackageController < Webui::WebuiController
 
   def set_initial_offset
     # Do not start at the beginning long time ago
-    begin
-      size = get_size_of_log(@project, @package, @repo, @arch)
-      logger.debug("log size is #{size}")
-      @offset = [0, size - 32 * 1024].max
-    rescue => e
-      logger.error "Got #{e.class}: #{e.message}; returning empty log."
-    end
+
+    size = get_size_of_log(@project, @package, @repo, @arch)
+    logger.debug("log size is #{size}")
+    @offset = [0, size - 32 * 1024].max
+  rescue => e
+    logger.error "Got #{e.class}: #{e.message}; returning empty log."
   end
 
   def update_build_log
@@ -936,18 +934,21 @@ class Webui::PackageController < Webui::WebuiController
 
   def rpmlint_result
     check_ajax
-    @repo_list, @repo_arch_hash = [], {}
+    @repo_list = []
+    @repo_arch_hash = {}
     @buildresult = Buildresult.find_hashed(project: @project.to_param, package: @package.to_param, view: 'status')
     repos = [] # Temp var
-    @buildresult.elements('result') do |result|
-      if result.value('repository') != 'images' &&
-         (result.value('status') && result.value('status').value('code') != 'excluded')
-        hash_key = valid_xml_id(elide(result.value('repository'), 30))
-        @repo_arch_hash[hash_key] ||= []
-        @repo_arch_hash[hash_key] << result['arch']
-        repos << result.value('repository')
+    if @buildresult
+      @buildresult.elements('result') do |result|
+        if result.value('repository') != 'images' &&
+           (result.value('status') && result.value('status').value('code') != 'excluded')
+          hash_key = valid_xml_id(elide(result.value('repository'), 30))
+          @repo_arch_hash[hash_key] ||= []
+          @repo_arch_hash[hash_key] << result['arch']
+          repos << result.value('repository')
+        end
       end
-    end if @buildresult
+    end
     repos.uniq.each do |repo_name|
       @repo_list << [repo_name, valid_xml_id(elide(repo_name, 30))]
     end
@@ -1040,21 +1041,19 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def file_available?(url, max_redirects = 5)
-    begin
-      logger.debug "Checking url: #{url}"
-      uri = URI.parse(url)
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.open_timeout = 15
-      http.read_timeout = 15
-      response = http.head uri.path
-      if response.code.to_i == 302 && response['location'] && max_redirects > 0
-        return file_available? response['location'], (max_redirects - 1)
-      end
-      return response.code.to_i == 200
-    rescue Object => e
-      logger.error "Error in checking for file #{url}: #{e.message}"
-      return false
+    logger.debug "Checking url: #{url}"
+    uri = URI.parse(url)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.open_timeout = 15
+    http.read_timeout = 15
+    response = http.head uri.path
+    if response.code.to_i == 302 && response['location'] && max_redirects > 0
+      return file_available? response['location'], (max_redirects - 1)
     end
+    return response.code.to_i == 200
+  rescue Object => e
+    logger.error "Error in checking for file #{url}: #{e.message}"
+    return false
   end
 
   def users_path

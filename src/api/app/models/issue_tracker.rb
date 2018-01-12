@@ -10,7 +10,7 @@ class IssueTracker < ApplicationRecord
 
   validates :name, :regex, :url, :kind, presence: true
   validates :name, :regex, uniqueness: true
-  validates :kind, inclusion: { in: %w(other bugzilla cve fate trac launchpad sourceforge github) }
+  validates :kind, inclusion: { in: %w[other bugzilla cve fate trac launchpad sourceforge github] }
 
   if CONFIG['global_write_through']
     after_save :delayed_write_to_backend
@@ -60,11 +60,11 @@ class IssueTracker < ApplicationRecord
 
   # expands all matches with defined urls
   def get_html(text)
-    text.gsub(Regexp.new(regex)) { show_url_for($1, true) }
+    text.gsub(Regexp.new(regex)) { show_url_for(Regexp.last_match(1), true) }
   end
 
   def get_markdown(text)
-    text.gsub(Regexp.new(regex)) { "[#{$&}](#{show_url_for($1, false)})" }
+    text.gsub(Regexp.new(regex)) { "[#{$&}](#{show_url_for(Regexp.last_match(1), false)})" }
   end
 
   def update_issues_bugzilla
@@ -171,10 +171,7 @@ class IssueTracker < ApplicationRecord
   end
 
   def fetch_issues(issues = nil)
-    unless issues
-      # find all new issues for myself
-      issues = self.issues.stateless
-    end
+    issues ||= self.issues.stateless
 
     ids = issues.map { |x| x.name.to_s }
 

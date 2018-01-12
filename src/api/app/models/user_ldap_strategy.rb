@@ -54,7 +54,7 @@ class UserLdapStrategy
   private_class_method :search_ldap
 
   def self.ldap_group_filter(group)
-    if CONFIG.has_key?('ldap_group_objectclass_attr')
+    if CONFIG.key?('ldap_group_objectclass_attr')
       "(&(#{CONFIG['ldap_group_title_attr']}=#{group})(objectclass=#{CONFIG['ldap_group_objectclass_attr']}))"
     else
       "(#{CONFIG['ldap_group_title_attr']}=#{group})"
@@ -207,7 +207,7 @@ class UserLdapStrategy
         return
       end
 
-      if CONFIG.has_key?('ldap_user_filter')
+      if CONFIG.key?('ldap_user_filter')
         user_filter = "(&(#{CONFIG['ldap_search_attr']}=#{login})#{CONFIG['ldap_user_filter']})"
       else
         user_filter = "(#{CONFIG['ldap_search_attr']}=#{login})"

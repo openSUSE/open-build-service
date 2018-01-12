@@ -95,11 +95,10 @@ class Relationship < ApplicationRecord
     group = Group.find_by_title(group.to_s) unless group.is_a? Group
 
     obj.relationships.each do |r|
-      if r.group_id == group.id && r.role_id == role.id
-        raise SaveError, 'Relationship already exists' if check
-        logger.debug "ignore group #{group.title} - already has role #{role.title}"
-        return
-      end
+      next unless r.group_id == group.id && r.role_id == role.id
+      raise SaveError, 'Relationship already exists' if check
+      logger.debug "ignore group #{group.title} - already has role #{role.title}"
+      return
     end
 
     r = obj.relationships.build(group: group, role: role)

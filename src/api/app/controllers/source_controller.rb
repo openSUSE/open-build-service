@@ -39,7 +39,7 @@ class SourceController < ApplicationController
     # access checks
     #--------------
 
-    if params.has_key? :deleted
+    if params.key? :deleted
       raise NoPermissionForDeleted unless admin_user
       pass_to_backend
     else
@@ -75,7 +75,7 @@ class SourceController < ApplicationController
   # GET /source/:project
   def show_project
     project_name = params[:project]
-    if params.has_key? :deleted
+    if params.key? :deleted
       unless Project.find_by_name project_name
         # project is deleted or not accessable
         validate_visibility_of_deleted_project(project_name)
@@ -93,7 +93,7 @@ class SourceController < ApplicationController
     @project = Project.find_by_name(project_name)
     raise Project::UnknownObjectError, project_name unless @project
     # we let the backend list the packages after we verified the project is visible
-    if params.has_key? :view
+    if params.key? :view
       if params[:view] == 'verboseproductlist'
         @products = Product.all_products(@project, params[:expand])
         render 'source/verboseproductlist'
@@ -115,14 +115,14 @@ class SourceController < ApplicationController
 
   def render_project_packages
     packages = nil
-    if params.has_key? :expand
+    if params.key? :expand
       packages = @project.expand_all_packages
     else
       packages = @project.packages.pluck(:name)
     end
     output = ''
     output << "<directory count='#{packages.length}'>\n"
-    if params.has_key? :expand
+    if params.key? :expand
       output << packages.map { |p| "  <entry name=\"#{p[0]}\" originproject=\"#{p[1]}\"/>\n" }.join
     else
       output << packages.map { |p| "  <entry name=\"#{p}\"/>\n" }.join
@@ -166,10 +166,10 @@ class SourceController < ApplicationController
   def project_command
     # init and validation
     #--------------------
-    valid_commands = %w(
+    valid_commands = %w[
       undelete showlinked remove_flag set_flag createpatchinfo createkey extendkey copy
       createmaintenanceincident lock unlock release addchannels modifychannels move freezelink
-    )
+    ]
 
     if params[:cmd] && !params[:cmd].in?(valid_commands)
       raise IllegalRequest, 'invalid_command'
@@ -219,7 +219,7 @@ class SourceController < ApplicationController
       raise PackageExists, 'the package is not deleted' if tpkg
 
       validate_read_access_of_deleted_package(@target_project_name, @target_package_name)
-    elsif %w(_project _pattern).include? @target_package_name
+    elsif %w[_project _pattern].include? @target_package_name
       Project.get_by_name @target_project_name
     else
       @tpkg = Package.get_by_project_and_name(@target_project_name, @target_package_name, use_source: true, follow_project_links: true)
@@ -282,7 +282,7 @@ class SourceController < ApplicationController
     # init and validation
     #--------------------
     # admin_user = User.current.is_admin?
-    @deleted_package = params.has_key? :deleted
+    @deleted_package = params.key? :deleted
 
     # FIXME: for OBS 3, api of branch and copy calls have target and source in the opossite place
     if params[:cmd].in?(['branch', 'release'])
@@ -302,8 +302,10 @@ class SourceController < ApplicationController
   def verify_can_modify_target_package!
     return if User.current.can_modify_package?(@package)
 
-    raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " +
-                                    'for unspecified package' unless @package.class == Package
+    unless @package.class == Package
+      raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " +
+                                      'for unspecified package'
+    end
     raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " +
                                     "for package #{@package.name} in project #{@package.project.name}"
   end
@@ -317,11 +319,11 @@ class SourceController < ApplicationController
     end
 
     # valid post commands
-    valid_commands = %w(diff branch servicediff linkdiff showlinked copy remove_flag set_flag
+    valid_commands = %w[diff branch servicediff linkdiff showlinked copy remove_flag set_flag
                         undelete runservice waitservice mergeservice commit commitfilelist
                         createSpecFileTemplate deleteuploadrev linktobranch updatepatchinfo
                         getprojectservices unlock release importchannel wipe rebuild
-                        collectbuildenv instantiate addchannels enablechannel)
+                        collectbuildenv instantiate addchannels enablechannel]
 
     @command = params[:cmd]
     raise IllegalRequest, 'invalid_command' unless valid_commands.include?(@command)
@@ -367,12 +369,12 @@ class SourceController < ApplicationController
     dispatch_command(:package_command, @command)
   end
 
-  SOURCE_UNTOUCHED_COMMANDS = %w(branch diff linkdiff servicediff showlinked rebuild wipe
-                                 waitservice remove_flag set_flag getprojectservices).freeze
+  SOURCE_UNTOUCHED_COMMANDS = %w[branch diff linkdiff servicediff showlinked rebuild wipe
+                                 waitservice remove_flag set_flag getprojectservices].freeze
   # list of cammands which create the target package
-  PACKAGE_CREATING_COMMANDS = %w(branch release copy undelete instantiate).freeze
+  PACKAGE_CREATING_COMMANDS = %w[branch release copy undelete instantiate].freeze
   # list of commands which are allowed even when the project has the package only via a project link
-  READ_COMMANDS = %w(branch diff linkdiff servicediff showlinked getprojectservices release).freeze
+  READ_COMMANDS = %w[branch diff linkdiff servicediff showlinked getprojectservices release].freeze
 
   def validate_target_for_package_command_exists!
     @project = nil
@@ -632,7 +634,7 @@ class SourceController < ApplicationController
 
     pack = Package.get_by_project_and_name(@project_name, @package_name, use_source: false)
 
-    if params.has_key?(:meta) || params.has_key?(:rev) || params.has_key?(:view) || pack.nil?
+    if params.key?(:meta) || params.key?(:rev) || params.key?(:view) || pack.nil?
       # check if this comes from a remote project, also true for _project package
       # or if meta is specified we need to fetch the meta from the backend
       path = request.path_info
@@ -699,7 +701,7 @@ class SourceController < ApplicationController
     package_name = params[:package] || '_project'
     file = params[:filename]
 
-    if params.has_key?(:deleted)
+    if params.key?(:deleted)
       if package_name == '_project'
         validate_visibility_of_deleted_project(project_name)
         pass_to_backend
@@ -992,7 +994,7 @@ class SourceController < ApplicationController
       return
     end
 
-    if params.has_key? :nodelay
+    if params.key? :nodelay
       @project.do_project_release(params)
       render_ok
     else
@@ -1071,7 +1073,7 @@ class SourceController < ApplicationController
       raise CmdExecutionNoPermission, "no permission to execute command 'copy'"
     end
     oprj = Project.get_by_name(params[:oproject], includeallpackages: 1)
-    if params.has_key?(:makeolder) || params.has_key?(:makeoriginolder)
+    if params.key?(:makeolder) || params.key?(:makeoriginolder)
       unless User.current.can_modify_project?(oprj)
         raise CmdExecutionNoPermission, "no permission to execute command 'copy', requires modification permission in origin project"
       end
@@ -1095,32 +1097,34 @@ class SourceController < ApplicationController
     end
 
     # create new project object based on oproject
-    Project.transaction do
-      if oprj.is_a? String # remote project
-        rdata = Xmlhash.parse(Backend::Api::Sources::Project.meta(oprj))
-        @project = Project.new name: project_name, title: rdata['title'], description: rdata['description']
-      else # local project
-        @project = Project.new name: project_name, title: oprj.title, description: oprj.description
-        @project.save
-        oprj.flags.each do |f|
-          @project.flags.create(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo) unless f.flag == 'lock'
-        end
-        oprj.repositories.each do |repo|
-          r = @project.repositories.create name: repo.name
-          repo.repository_architectures.each do |ra|
-            r.repository_architectures.create! architecture: ra.architecture, position: ra.position
+    unless @project
+      Project.transaction do
+        if oprj.is_a? String # remote project
+          rdata = Xmlhash.parse(Backend::Api::Sources::Project.meta(oprj))
+          @project = Project.new name: project_name, title: rdata['title'], description: rdata['description']
+        else # local project
+          @project = Project.new name: project_name, title: oprj.title, description: oprj.description
+          @project.save
+          oprj.flags.each do |f|
+            @project.flags.create(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo) unless f.flag == 'lock'
           end
-          position = 0
-          repo.path_elements.each do |pe|
-            position += 1
-            r.path_elements << PathElement.new(link: pe.link, position: position)
+          oprj.repositories.each do |repo|
+            r = @project.repositories.create name: repo.name
+            repo.repository_architectures.each do |ra|
+              r.repository_architectures.create! architecture: ra.architecture, position: ra.position
+            end
+            position = 0
+            repo.path_elements.each do |pe|
+              position += 1
+              r.path_elements << PathElement.new(link: pe.link, position: position)
+            end
           end
         end
+        @project.store
       end
-      @project.store
-    end unless @project
+    end
 
-    if params.has_key? :nodelay
+    if params.key? :nodelay
       @project.do_project_copy(params)
       render_ok
     else

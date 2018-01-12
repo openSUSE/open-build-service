@@ -54,7 +54,7 @@ class Channel < ApplicationRecord
       hasharray << { project: r.project,
                      repository: r, id_template: p['id_template'],
                      requires_issue: p['requires_issue'],
-                     disabled: (p.has_key? 'disabled') }
+                     disabled: (p.key? 'disabled') }
     end
     sync_hash_with_model(ChannelTarget, channel_targets, hasharray)
   end

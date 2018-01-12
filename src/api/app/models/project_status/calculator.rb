@@ -14,7 +14,7 @@ module ProjectStatus
           'verifymd5' => p['verifymd5']
         }
 
-        if p.has_key?('readytime')
+        if p.key?('readytime')
           if p['readytime'].respond_to?(:to_i)
             line['readytime'] = p['readytime'].to_i
           else
@@ -54,7 +54,7 @@ module ProjectStatus
     end
 
     def add_recursively(mypackages, dbpack)
-      return if mypackages.has_key? dbpack.id
+      return if mypackages.key? dbpack.id
       pack = PackInfo.new(dbpack)
       pack.backend_package = dbpack.backend_package
 

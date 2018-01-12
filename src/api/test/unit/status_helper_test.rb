@@ -5,7 +5,7 @@ class StatusHelperTest < ActiveSupport::TestCase
     # it can't do magic
     assert_equal([], StatusHelper.resample([], 1000))
 
-    now = 10000
+    now = 10_000
     testarray = []
     10.times do |i|
       testarray << [now - i * 10, i]

@@ -93,9 +93,9 @@ class SearchController < ApplicationController
   def predicate_from_match_parameter(p)
     pred = case p
            when /^\(\[(.*)\]\)$/
-             $1
+             Regexp.last_match(1)
            when /^\[(.*)\]$/
-             $1
+             Regexp.last_match(1)
            else
              p
     end
@@ -133,7 +133,7 @@ class SearchController < ApplicationController
   # so maximize the keys to query
   def read_multi_workaround(keys)
     ret = {}
-    while !keys.empty?
+    until keys.empty?
       slice = keys.slice!(0, 300)
       ret.merge!(Rails.cache.read_multi(*slice))
     end
@@ -148,7 +148,7 @@ class SearchController < ApplicationController
     search_items = []
     items.each do |i|
       key = id2cache_key[i]
-      if cached.has_key? key
+      if cached.key? key
         xml[i] = cached[key]
       else
         search_items << i
@@ -234,11 +234,13 @@ class SearchController < ApplicationController
 
     # TODO: support sort_by and order parameters?
 
-    relation.each do |item|
-      next if xml[item.id]
-      xml[item.id] = render_all ? item.to_axml(opts) : item.to_axml_id
-      xml[item.id].gsub!(/(..*)/, '  \\1') # indent it by two spaces, if line is not empty
-    end unless items.empty?
+    unless items.empty?
+      relation.each do |item|
+        next if xml[item.id]
+        xml[item.id] = render_all ? item.to_axml(opts) : item.to_axml_id
+        xml[item.id].gsub!(/(..*)/, '  \\1') # indent it by two spaces, if line is not empty
+      end
+    end
 
     items.each do |i|
       output << xml[i]

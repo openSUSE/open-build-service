@@ -3,7 +3,7 @@ module Backend
   class File
     include ActiveModel::Model
 
-    BUFFER_SIZE = 40960
+    BUFFER_SIZE = 40_960
 
     attr_accessor :name
     attr_reader :response

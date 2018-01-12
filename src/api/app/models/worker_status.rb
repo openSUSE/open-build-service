@@ -13,12 +13,11 @@ class WorkerStatus
     end
     ws.each('building') do |b|
       # no prj -> we are not allowed
-      unless names.has_key? b.value(:project)
-        Rails.logger.debug "workerstatus2clean: hiding #{b.value(:project)} for user #{User.current.login}"
-        b.set_attribute('project', '---')
-        b.set_attribute('repository', '---')
-        b.set_attribute('package', '---')
-      end
+      next if names.key? b.value(:project)
+      Rails.logger.debug "workerstatus2clean: hiding #{b.value(:project)} for user #{User.current.login}"
+      b.set_attribute('project', '---')
+      b.set_attribute('repository', '---')
+      b.set_attribute('package', '---')
     end
     ws
   end
@@ -69,16 +68,16 @@ class WorkerStatus
     end
     queue = daemon.get('queue')
     return unless queue
-    %w(high next med low).each { |key| add_squeue("squeue_#{key}_#{arch}", queue[key]) }
+    %w[high next med low].each { |key| add_squeue("squeue_#{key}_#{arch}", queue[key]) }
   end
 
   def parse_worker_infos(wdata)
     allworkers = {}
     workers = {}
-    %w(building idle dead down away).each do |state|
+    %w[building idle dead down away].each do |state|
       wdata.elements(state) do |e|
         id = e['workerid']
-        if workers.has_key? id
+        if workers.key? id
           Rails.logger.debug 'building+idle worker'
           next
         end

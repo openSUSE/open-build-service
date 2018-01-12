@@ -287,13 +287,11 @@ class BsRequestAction < ApplicationRecord
   end
 
   def contains_change?
-    begin
-      return sourcediff.present?
-    rescue BsRequestAction::DiffError
-      # if the diff can'be created we can't say
-      # but let's assume the reason for the problem lies in the change
-      return true
-    end
+    return sourcediff.present?
+  rescue BsRequestAction::DiffError
+    # if the diff can'be created we can't say
+    # but let's assume the reason for the problem lies in the change
+    return true
   end
 
   def sourcediff(_opts = {})

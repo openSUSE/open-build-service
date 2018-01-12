@@ -11,11 +11,12 @@ xml.package(name: my_model.name, project: my_model.project.name) do
 
   FlagHelper.flag_types.each do |flag_name|
     flaglist = my_model.flags.of_type(flag_name)
+    next if flaglist.empty?
     xml.send(flag_name) do
       flaglist.each do |flag|
         flag.to_xml(xml)
       end
-    end unless flaglist.empty?
+    end
   end
 
   xml.url(my_model.url) if my_model.url.present?

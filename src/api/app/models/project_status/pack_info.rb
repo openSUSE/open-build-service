@@ -55,7 +55,7 @@ module ProjectStatus
 
     def failure(repo, arch, time, md5)
       # we only track the first failure time but latest md5 returned
-      time = [@failed[repo][0], time].min if @failed.has_key? repo
+      time = [@failed[repo][0], time].min if @failed.key? repo
       @failed[repo] = [time, arch, md5]
     end
 

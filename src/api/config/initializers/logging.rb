@@ -16,7 +16,9 @@ module APIInstrumentation
 
     module ClassMethods
       def log_process_action(payload)
-        messages, backend_runtime, xml_runtime = super, payload[:backend_runtime], payload[:xml_runtime]
+        messages = super
+        backend_runtime = payload[:backend_runtime]
+        xml_runtime = payload[:xml_runtime]
         messages << format('Backend: %.1fms', backend_runtime.to_f) if backend_runtime
         messages << format('XML: %.1fms', xml_runtime.to_f) if xml_runtime
         messages

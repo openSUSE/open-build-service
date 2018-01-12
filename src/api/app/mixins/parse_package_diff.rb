@@ -13,7 +13,10 @@ module ParsePackageDiff
   def parse_one_diff(sourcediff)
     # Sort files into categories by their ending and add all of them to a hash. We
     # will later use the sorted and concatenated categories as key index into the per action file hash.
-    changes_file_keys, spec_file_keys, patch_file_keys, other_file_keys = [], [], [], []
+    changes_file_keys = []
+    spec_file_keys = []
+    patch_file_keys = []
+    other_file_keys = []
     files_hash = {}
 
     sourcediff.get('files').elements('file') do |file|

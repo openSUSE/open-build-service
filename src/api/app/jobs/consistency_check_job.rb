@@ -172,16 +172,14 @@ class ConsistencyCheckJob < ApplicationJob
     # valid package names?
     package_list_api = project.packages.pluck(:name)
     package_list_api.each do |name|
-      unless Package.valid_name? name
-        errors << "Invalid package name #{name} in project #{project.name}\n"
-        if fix
-          # just remove it, the backend won't accept it anyway
-          pkg = project.packages.find_by(name: name)
-          pkg.commit_opts = { no_backend_write: 1 }
-          pkg.destroy
-          next
-        end
-      end
+      next if Package.valid_name? name
+      errors << "Invalid package name #{name} in project #{project.name}\n"
+      next unless fix
+      # just remove it, the backend won't accept it anyway
+      pkg = project.packages.find_by(name: name)
+      pkg.commit_opts = { no_backend_write: 1 }
+      pkg.destroy
+      next
     end
 
     # compare all packages

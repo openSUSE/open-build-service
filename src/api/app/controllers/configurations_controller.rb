@@ -48,16 +48,15 @@ class ConfigurationsController < ApplicationController
       value = xml[key.to_s] || params[key.to_s]
 
       # is it defined in options.yml
-      if value && value.present?
-        v = ::Configuration.map_value(key, value)
-        ov = ::Configuration.map_value(key, ::Configuration::OPTIONS_YML[key])
-        if ov != v && ov.present?
-          render_error status: 403, errorcode: 'no_permission_to_change',
-                       message: "The api has a different value for #{key} configured in options.yml file. Remove it there first."
-          return
-        end
-        attribs[key] = value
+      next unless value && value.present?
+      v = ::Configuration.map_value(key, value)
+      ov = ::Configuration.map_value(key, ::Configuration::OPTIONS_YML[key])
+      if ov != v && ov.present?
+        render_error status: 403, errorcode: 'no_permission_to_change',
+                     message: "The api has a different value for #{key} configured in options.yml file. Remove it there first."
+        return
       end
+      attribs[key] = value
     end
 
     ret = @configuration.update_attributes(attribs)

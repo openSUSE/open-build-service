@@ -351,13 +351,14 @@ class BsRequestPermissionCheck
       check_newstate_action! action, opts
 
       # abort immediatly if we want to write and can't
-      if opts[:newstate] == 'accepted' && !@write_permission_in_this_action
-        msg = ''
+      next unless opts[:newstate] == 'accepted' && !@write_permission_in_this_action
+      msg = ''
+      unless action.bs_request.new_record?
         msg = 'No permission to modify target of request ' +
-              "#{action.bs_request.number} (type #{action.action_type}): project #{action.target_project}" unless action.bs_request.new_record?
-        msg += ", package #{action.target_package}" if action.target_package
-        raise PostRequestNoPermission, msg
+              "#{action.bs_request.number} (type #{action.action_type}): project #{action.target_project}"
       end
+      msg += ", package #{action.target_package}" if action.target_package
+      raise PostRequestNoPermission, msg
     end
 
     extra_permissions_check_changestate unless permission_granted

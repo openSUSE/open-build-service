@@ -29,7 +29,7 @@ module Event
       @shortenable_key = nil
 
       def notification_events
-        %w(
+        %w[
           Event::BuildFail
           Event::ServiceFail
           Event::ReviewWanted
@@ -38,7 +38,7 @@ module Event
           Event::CommentForProject
           Event::CommentForPackage
           Event::CommentForRequest
-        ).map(&:constantize)
+        ].map(&:constantize)
       end
 
       def classnames
@@ -142,7 +142,7 @@ module Event
         # for internal events it's a symbol, for external ones a string, so try both
         v = attribs.delete k
         k = k.to_s
-        v = attribs.delete k unless v
+        v ||= attribs.delete k
         values[k] = v unless v.nil?
       end
       self.payload = ActiveSupport::JSON.encode(calculate_payload(values))
@@ -290,7 +290,7 @@ module Event
     def calculate_payload(values)
       return values if shortenable_key.nil? # If no shortenable_key is set then we cannot shorten the payload
 
-      overflow_bytes = ActiveSupport::JSON.encode(values).bytesize - 65535
+      overflow_bytes = ActiveSupport::JSON.encode(values).bytesize - 65_535
 
       return values if overflow_bytes <= 0
 

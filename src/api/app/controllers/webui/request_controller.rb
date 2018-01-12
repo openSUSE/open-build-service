@@ -137,8 +137,8 @@ class Webui::RequestController < Webui::WebuiController
 
   def changerequest
     changestate = nil
-    %w(accepted declined revoked new).each do |s|
-      if params.has_key? s
+    %w[accepted declined revoked new].each do |s|
+      if params.key? s
         changestate = s
         break
       end

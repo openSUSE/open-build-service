@@ -8,7 +8,7 @@ module OBSEngine
   def self.load_engines
     dirname = File.dirname(__FILE__)
     Dir.foreach(dirname) do |filename|
-      next unless filename =~ %r(.rb)
+      next unless filename =~ %r{.rb}
       # ignore ourselves
       next if filename == File.basename(__FILE__)
       require File.join(dirname, filename)

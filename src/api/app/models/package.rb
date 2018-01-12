@@ -41,10 +41,10 @@ class Package < ApplicationRecord
   class IllegalFileName < APIException; setup 'invalid_file_name_error'; end
   class PutFileNoPermission < APIException; setup 403; end
 
-  BINARY_EXTENSIONS = %w{.0 .bin .bin_mid .bz .bz2 .ccf .cert .chk .der .dll .exe .fw
+  BINARY_EXTENSIONS = %w[.0 .bin .bin_mid .bz .bz2 .ccf .cert .chk .der .dll .exe .fw
                          .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .otf .oxt .pdf .pk3
                          .png .ps .rpm .sig .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz
-                         .txz .ucode .xpm .xz .z .zip .ttf}.freeze
+                         .txz .ucode .xpm .xz .z .zip .ttf].freeze
 
   belongs_to :project, inverse_of: :packages
   delegate :name, to: :project, prefix: true
@@ -117,7 +117,7 @@ class Package < ApplicationRecord
   validates :name, presence: true, length: { maximum: 200 }
   validates :releasename, length: { maximum: 200 }
   validates :title, length: { maximum: 250 }
-  validates :description, length: { maximum: 65535 }
+  validates :description, length: { maximum: 65_535 }
   validate :valid_name
 
   has_one :backend_package, foreign_key: :package_id, dependent: :destroy, inverse_of: :package
@@ -682,10 +682,10 @@ class Package < ApplicationRecord
   end
 
   def self.detect_package_kinds(directory)
-    raise ArgumentError, 'neh!' if directory.has_key? 'time'
+    raise ArgumentError, 'neh!' if directory.key? 'time'
     ret = []
     directory.elements('entry') do |e|
-      %w{patchinfo aggregate link channel}.each do |kind|
+      %w[patchinfo aggregate link channel].each do |kind|
         ret << kind if e['name'] == '_' + kind
       end
       ret << 'product' if e['name'] =~ /.product$/
@@ -710,7 +710,7 @@ class Package < ApplicationRecord
     if pkg == pkg.develpackage
       raise CycleError, 'Package defines itself as devel package'
     end
-    while (pkg.develpackage || pkg.project.develproject)
+    while pkg.develpackage || pkg.project.develproject
       # logger.debug "resolve_devel_package #{pkg.inspect}"
 
       # cycle detection
@@ -1083,7 +1083,7 @@ class Package < ApplicationRecord
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200
     return false if name == '0'
-    return true if %w(_product _pattern _project _patchinfo).include?(name)
+    return true if %w[_product _pattern _project _patchinfo].include?(name)
     # _patchinfo: is obsolete, just for backward compatibility
     allowed_characters = /[-+\w\.#{ allow_multibuild ? ':' : '' }]/
     reg_exp = /\A([a-zA-Z0-9]|(_product:|_patchinfo:)\w)#{allowed_characters}*\z/
@@ -1112,11 +1112,9 @@ class Package < ApplicationRecord
 
   # just make sure the backend_package is there
   def update_if_dirty
-    begin
-      backend_package
-    rescue Mysql2::Error
-      # the delayed job might have jumped in and created the entry just before us
-    end
+    backend_package
+  rescue Mysql2::Error
+    # the delayed job might have jumped in and created the entry just before us
   end
 
   def linking_packages
@@ -1216,14 +1214,13 @@ class Package < ApplicationRecord
           end
           break
         end
-        if action.target_project == project.name && action.target_package == name
-          begin
-            request.change_state(newstate: 'declined', comment: "The target package '#{name}' has been removed")
-          rescue PostRequestNoPermission
-            logger.debug "#{User.current.login} tried to decline request #{id} but had no permissions"
-          end
-          break
+        next unless action.target_project == project.name && action.target_package == name
+        begin
+          request.change_state(newstate: 'declined', comment: "The target package '#{name}' has been removed")
+        rescue PostRequestNoPermission
+          logger.debug "#{User.current.login} tried to decline request #{id} but had no permissions"
         end
+        break
       end
     end
     # Find open requests which have a review involving this package and remove those reviews
@@ -1237,11 +1234,9 @@ class Package < ApplicationRecord
   end
 
   def patchinfo
-    begin
-      Patchinfo.new(source_file('_patchinfo'))
-    rescue ActiveXML::Transport::NotFoundError
-      nil
-    end
+    Patchinfo.new(source_file('_patchinfo'))
+  rescue ActiveXML::Transport::NotFoundError
+    nil
   end
 
   def delete_file(name, opt = {})
@@ -1317,14 +1312,14 @@ class Package < ApplicationRecord
 
   def self.verify_file!(pkg, name, content)
     # Prohibit dotfiles (files with leading .) and files with a / character in the name
-    raise IllegalFileName, "'#{name}' is not a valid filename" if (name.blank? || !(name =~ /^[^\.\/][^\/]+$/))
+    raise IllegalFileName, "'#{name}' is not a valid filename" if name.blank? || !(name =~ /^[^\.\/][^\/]+$/)
 
     # file is an ActionDispatch::Http::UploadedFile and Suse::Validator.validate
     # will call to_s therefore we have to read the content first
     content = File.open(content.path).read if content.is_a?(ActionDispatch::Http::UploadedFile)
 
     # schema validation, if possible
-    %w{aggregate constraints link service patchinfo channel}.each do |schema|
+    %w[aggregate constraints link service patchinfo channel].each do |schema|
       Suse::Validator.validate(schema, content) if name == '_' + schema
     end
 
@@ -1384,7 +1379,7 @@ class Package < ApplicationRecord
     end
 
     # update package timestamp and reindex sources
-    return if opt[:rev] == 'repository' || %w(_project _pattern).include?(name)
+    return if opt[:rev] == 'repository' || %w[_project _pattern].include?(name)
     sources_changed(wait_for_update: ['_aggregate', '_constraints', '_link', '_service', '_patchinfo', '_channel'].include?(opt[:filename]))
   end
 
@@ -1442,7 +1437,7 @@ class Package < ApplicationRecord
   end
 
   def file_exists?(filename)
-    dir_hash.has_key?('entry') && [dir_hash['entry']].flatten.any? { |item| item['name'] == filename }
+    dir_hash.key?('entry') && [dir_hash['entry']].flatten.any? { |item| item['name'] == filename }
   end
 
   def has_icon?
@@ -1450,12 +1445,10 @@ class Package < ApplicationRecord
   end
 
   def self.what_depends_on(project, package, repository, architecture)
-    begin
-      path = "/build/#{project}/#{repository}/#{architecture}/_builddepinfo?package=#{package}&view=revpkgnames"
-      [Xmlhash.parse(Backend::Connection.get(path).body).try(:[], 'package').try(:[], 'pkgdep')].flatten.compact
-    rescue ActiveXML::Transport::NotFoundError
-      []
-    end
+    path = "/build/#{project}/#{repository}/#{architecture}/_builddepinfo?package=#{package}&view=revpkgnames"
+    [Xmlhash.parse(Backend::Connection.get(path).body).try(:[], 'package').try(:[], 'pkgdep')].flatten.compact
+  rescue ActiveXML::Transport::NotFoundError
+    []
   end
 
   def last_build_reason(repo, arch)
@@ -1494,7 +1487,7 @@ class Package < ApplicationRecord
   # is called before_update
   def update_activity
     # the value we add to the activity, when the object gets updated
-    addon = 10 * (Time.now.to_f - updated_at_was.to_f) / 86400
+    addon = 10 * (Time.now.to_f - updated_at_was.to_f) / 86_400
     addon = 10 if addon > 10
     new_activity = activity + addon
     new_activity > 100 ? 100 : new_activity

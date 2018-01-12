@@ -169,10 +169,10 @@ module Webui::WebuiHelper
     end
     # Ged rid of stuff that shouldn't be part of PCDATA:
     text.gsub(/([^a-zA-Z0-9&;<>\/\n \t()])/) do
-      if $1[0].getbyte(0) < 32
+      if Regexp.last_match(1)[0].getbyte(0) < 32
         ''
       else
-        $1
+        Regexp.last_match(1)
       end
     end
   end
@@ -192,12 +192,12 @@ module Webui::WebuiHelper
   end
 
   def sprite_tag(icon, opts = {})
-    if opts.has_key? :class
+    if opts.key? :class
       opts[:class] += " icons-#{icon}"
     else
       opts[:class] = "icons-#{icon}"
     end
-    unless opts.has_key? :alt
+    unless opts.key? :alt
       alt = icon
       if opts[:title]
         alt = opts[:title]
@@ -273,8 +273,10 @@ module Webui::WebuiHelper
     opts[:project_text] ||= opts[:project]
     opts[:package_text] ||= opts[:package]
 
-    opts[:project_text], opts[:package_text] =
-      elide_two(opts[:project_text], opts[:package_text], opts[:trim_to]) unless opts[:trim_to].nil?
+    unless opts[:trim_to].nil?
+      opts[:project_text], opts[:package_text] =
+        elide_two(opts[:project_text], opts[:package_text], opts[:trim_to])
+    end
 
     if opts[:short]
       out = ''.html_safe

@@ -38,13 +38,13 @@ module ActiveXML
 
       def details
         parse!
-        return @xml['details'] if @xml.has_key? 'details'
+        return @xml['details'] if @xml.key? 'details'
         return
       end
 
       def summary
         parse!
-        return @xml['summary'] if @xml.has_key? 'summary'
+        return @xml['summary'] if @xml.key? 'summary'
         return message
       end
 
@@ -78,18 +78,20 @@ module ActiveXML
       uri = URI(target)
       replace_server_if_needed(uri)
       # logger.debug "setting up transport for model #{model}: #{uri} opts: #{opt}"
-      raise "overwriting #{model}" if @mapping.has_key? model
+      raise "overwriting #{model}" if @mapping.key? model
       @mapping[model] = { target_uri: uri, opt: opt }
     end
 
     def replace_server_if_needed(uri)
       return if uri.host
-      uri.scheme, uri.host, uri.port = @schema, @host, @port
+      uri.scheme = @schema
+      uri.host = @host
+      uri.port = @port
     end
 
     def target_for(model)
       # logger.debug "retrieving target_uri for model '#{model.inspect}' #{@mapping.inspect}"
-      raise "Model #{model.inspect} is not configured" unless @mapping.has_key? model
+      raise "Model #{model.inspect} is not configured" unless @mapping.key? model
       @mapping[model][:target_uri]
     end
 
@@ -132,14 +134,14 @@ module ActiveXML
         if args.length > 1
           #:conditions triggers atm. always a post request, the conditions are
           # transmitted as post-data
-          data = args[1][:conditions] if args[1].has_key? :conditions
+          data = args[1][:conditions] if args[1].key? :conditions
           params = args[1].merge params
         end
       when String
         raise ArgumentError, "find with string is no longer allowed #{args.inspect}"
       when Hash
         # logger.debug "Transport.find: using hash"
-        if args[0].has_key?(:predicate) && args[0].has_key?(:what)
+        if args[0].key?(:predicate) && args[0].key?(:what)
           own_mimetype = 'application/x-www-form-urlencoded'
         end
         params = args[0]
@@ -192,14 +194,14 @@ module ActiveXML
     # defines an additional header that is passed to the REST server on every subsequent request
     # e.g.: set_additional_header( "X-Username", "margarethe" )
     def set_additional_header(key, value)
-      @http_header[key] = nil if value.nil? && @http_header.has_key?(key)
+      @http_header[key] = nil if value.nil? && @http_header.key?(key)
 
       @http_header[key] = value
     end
 
     # delete a header field set with set_additional_header
     def delete_additional_header(key)
-      @http_header.delete key if @http_header.has_key? key
+      @http_header.delete key if @http_header.key? key
     end
 
     # TODO: get rid of this very thin wrapper
@@ -220,15 +222,15 @@ module ActiveXML
 
       u = uri.clone
       u.scheme = uri.scheme
-      u.path = URI.escape(uri.path.split(/\//).map { |x| x =~ /^:(\w+)/ ? params[$1.to_sym] : x }.join('/'))
+      u.path = URI.escape(uri.path.split(/\//).map { |x| x =~ /^:(\w+)/ ? params[Regexp.last_match(1).to_sym] : x }.join('/'))
       if uri.query
         new_pairs = []
         pairs = u.query.split(/&/).map { |x| x.split(/=/, 2) }
         pairs.each do |pair|
           if pair.length == 2
             if pair[1] =~ /:(\w+)/
-              next if !params.has_key?($1.to_sym) || params[$1.to_sym].nil?
-              pair[1] = CGI.escape(params[$1.to_sym])
+              next if !params.key?(Regexp.last_match(1).to_sym) || params[Regexp.last_match(1).to_sym].nil?
+              pair[1] = CGI.escape(params[Regexp.last_match(1).to_sym])
             end
             new_pairs << pair.join('=')
           elsif pair.length == 1
@@ -238,18 +240,18 @@ module ActiveXML
             # when param is array, put multiple params in url
             # when param is a hash, put key=value params in url
             # any other case, stringify param and put it in url
-            next if !params.has_key?($1.to_sym) || params[$1.to_sym].nil?
-            sub_val = params[$1.to_sym]
+            next if !params.key?(Regexp.last_match(1).to_sym) || params[Regexp.last_match(1).to_sym].nil?
+            sub_val = params[Regexp.last_match(1).to_sym]
             if sub_val.is_a? Array
               sub_val.each do |val|
-                new_pairs << $1 + '=' + CGI.escape(val)
+                new_pairs << Regexp.last_match(1) + '=' + CGI.escape(val)
               end
             elsif sub_val.is_a? Hash
               sub_val.each_key do |key|
                 new_pairs << CGI.escape(key) + '=' + CGI.escape(sub_val[key])
               end
             else
-              new_pairs << $1 + '=' + CGI.escape(sub_val.to_s)
+              new_pairs << Regexp.last_match(1) + '=' + CGI.escape(sub_val.to_s)
             end
           else
             raise RuntimeError, "illegal url query pair: #{pair.inspect}"
@@ -264,7 +266,7 @@ module ActiveXML
     def substituted_uri_for(object, path_id = nil, opt = {})
       symbolized_model = symbolize_model(object.class)
       options = options_for(symbolized_model)
-      if path_id && options.has_key?(path_id)
+      if path_id && options.key?(path_id)
         uri = options[path_id]
       else
         uri = target_for(symbolized_model)
@@ -279,7 +281,10 @@ module ActiveXML
       url = URI(url) if url.is_a? String
 
       # set default host if not set in uri
-      url.scheme, url.host = @schema, @host unless url.host
+      unless url.host
+        url.scheme = @schema
+        url.host = @host
+      end
       url.port ||= @port
 
       method = method.downcase.to_sym

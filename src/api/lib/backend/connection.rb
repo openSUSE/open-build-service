@@ -59,16 +59,15 @@ module Backend
     def self.build_query_from_hash(hash, key_list = nil)
       key_list ||= hash.keys
       query = key_list.map do |key|
-        if hash.has_key?(key)
-          str = hash[key].to_s
-          str.toutf8
+        next unless hash.key?(key)
+        str = hash[key].to_s
+        str.toutf8
 
-          if hash[key].nil?
-            # just a boolean argument ?
-            [hash[key]].flat_map { key }.join('&')
-          else
-            [hash[key]].flat_map { "#{key}=#{CGI.escape(hash[key].to_s)}" }.join('&')
-          end
+        if hash[key].nil?
+          # just a boolean argument ?
+          [hash[key]].flat_map { key }.join('&')
+        else
+          [hash[key]].flat_map { "#{key}=#{CGI.escape(hash[key].to_s)}" }.join('&')
         end
       end
       query.empty? ? '' : "?#{query.compact.join('&')}"
@@ -97,7 +96,7 @@ module Backend
       response = Net::HTTP.start(host, port) do |http|
         if method == 'POST'
           # POST requests can be quite complicate and take some time ..
-          http.read_timeout = timeout || 100000
+          http.read_timeout = timeout || 100_000
         else
           http.read_timeout = timeout || 1000
         end

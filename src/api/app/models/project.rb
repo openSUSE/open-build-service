@@ -122,7 +122,7 @@ class Project < ApplicationRecord
   validates :name, presence: true, length: { maximum: 200 }, uniqueness: true
   validates :title, length: { maximum: 250 }
   validate :valid_name
-  validates :kind, inclusion: { in: %w(standard maintenance maintenance_incident maintenance_release) }
+  validates :kind, inclusion: { in: %w[standard maintenance maintenance_incident maintenance_release] }
 
   def self.deleted?(project_name)
     return false if find_by_name(project_name)
@@ -310,14 +310,13 @@ class Project < ApplicationRecord
           end
           break
         end
-        if action.target_project == name
-          begin
-            request.change_state(newstate: 'declined', comment: "The target project '#{name}' has been removed")
-          rescue PostRequestNoPermission
-            logger.debug "#{User.current.login} tried to decline request #{request.number} but had no permissions"
-          end
-          break
+        next unless action.target_project == name
+        begin
+          request.change_state(newstate: 'declined', comment: "The target project '#{name}' has been removed")
+        rescue PostRequestNoPermission
+          logger.debug "#{User.current.login} tried to decline request #{request.number} but had no permissions"
         end
+        break
       end
     end
 
@@ -716,9 +715,11 @@ class Project < ApplicationRecord
     expl = false
 
     flags = []
-    prj_flags.each do |f|
-      flags << f if f.is_relevant_for?(repo, arch)
-    end if prj_flags
+    if prj_flags
+      prj_flags.each do |f|
+        flags << f if f.is_relevant_for?(repo, arch)
+      end
+    end
 
     flags.sort! { |a, b| a.specifics <=> b.specifics }
 
@@ -997,7 +998,7 @@ class Project < ApplicationRecord
       repo_name = opts[:extend_names] ? repo.extended_name : repo.name
       next if skip_repos.include? repo.name
       # copy target repository when operating on a channel
-      targets = repo.release_targets if (pkg_to_enable && pkg_to_enable.is_channel?)
+      targets = repo.release_targets if pkg_to_enable && pkg_to_enable.is_channel?
       # base is a maintenance incident, take its target instead (kgraft case)
       targets = repo.release_targets if repo.project.is_maintenance_incident?
 
@@ -1163,7 +1164,7 @@ class Project < ApplicationRecord
     targets = bsrequest_repos_map(tproj.name)
     sources = bsrequest_repos_map(name)
     sources.each do |key, _|
-      tocheck_repos << sources[key] if targets.has_key?(key)
+      tocheck_repos << sources[key] if targets.key?(key)
     end
 
     tocheck_repos.flatten!
@@ -1283,12 +1284,12 @@ class Project < ApplicationRecord
     all_pkgs = [b_pkg_index.keys, f_pkg_index.keys].flatten.uniq
 
     all_pkgs.each do |pkg|
-      if b_pkg_index.has_key?(pkg) && !f_pkg_index.has_key?(pkg)
+      if b_pkg_index.key?(pkg) && !f_pkg_index.key?(pkg)
         # new autopackage, import in database
         p = packages.new(name: pkg)
         p.update_from_xml(Xmlhash.parse(b_pkg_index[pkg].dump_xml))
         p.store
-      elsif f_pkg_index.has_key?(pkg) && !b_pkg_index.has_key?(pkg)
+      elsif f_pkg_index.key?(pkg) && !b_pkg_index.key?(pkg)
         # autopackage was removed, remove from database
         f_pkg_index[pkg].destroy
       end
@@ -1438,7 +1439,7 @@ class Project < ApplicationRecord
         end
       end
     end
-    if repository && repository_states.has_key?(repository)
+    if repository && repository_states.key?(repository)
       return false if repository_states[repository].empty? # No buildresult is bad
       repository_states[repository].each do |state, _|
         return false if state.in?(['broken', 'failed', 'unresolvable'])
@@ -1499,11 +1500,10 @@ class Project < ApplicationRecord
       rt_name = guess_release_target_from_package(pkg, release_targets_ng)
 
       # Build-disabled packages can't be matched to release targets....
-      if rt_name
-        # Let's silently hope that an incident newer introduces new (sub-)packages....
-        release_targets_ng[rt_name][:packages] << pkg
-        package_count += 1
-      end
+      next unless rt_name
+      # Let's silently hope that an incident newer introduces new (sub-)packages....
+      release_targets_ng[rt_name][:packages] << pkg
+      package_count += 1
     end
 
     release_targets_ng
@@ -1536,8 +1536,8 @@ class Project < ApplicationRecord
     return {} if User.current.is_admin?
 
     # either OBS interconnect or repository "download on demand" feature used
-    if request_data.has_key?('remoteurl') ||
-       request_data.has_key?('remoteproject') ||
+    if request_data.key?('remoteurl') ||
+       request_data.key?('remoteproject') ||
        has_dod_elements?(request_data['repository'])
       return { error: 'Admin rights are required to change projects using remote resources' }
     end
@@ -1673,11 +1673,10 @@ class Project < ApplicationRecord
 
       # remove this repository, but be careful, because we may have done it already.
       repository = project.repositories.find(repo.id)
-      if Repository.exists?(repo.id) && repository
-        logger.info "destroy repo #{repository.name} in '#{project.name}'"
-        repository.destroy
-        project.store(lowprio: true) unless opts[:no_write_to_backend]
-      end
+      next unless Repository.exists?(repo.id) && repository
+      logger.info "destroy repo #{repository.name} in '#{project.name}'"
+      repository.destroy
+      project.store(lowprio: true) unless opts[:no_write_to_backend]
     end
     {}
   end

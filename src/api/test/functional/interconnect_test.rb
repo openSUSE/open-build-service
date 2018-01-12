@@ -282,7 +282,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_match(/no pubkey available/, @response.body)
 
     # access to local project with project link to remote, and via a local indirection
-    %w(UseRemoteInstance UseRemoteInstanceIndirect).each do |project|
+    %w[UseRemoteInstance UseRemoteInstanceIndirect].each do |project|
       get "/source/#{project}"
       assert_response :success
       get "/source/#{project}/_meta"
@@ -302,11 +302,10 @@ class InterConnectTests < ActionDispatch::IntegrationTest
       assert_xml_tag(tag: 'directory', attributes: { count: '0' })
       get "/source/#{project}?expand=1"
       assert_response :success
-      if @ENABLE_BROKEN_TEST
-        # FIXME2.4: remote packages get not added yet.
-        assert_xml_tag(tag: 'directory', attributes: { count: '1' })
-        assert_xml_tag(tag: 'entry', attributes: { name: 'pack1', originproject: 'BaseDistro2.0' })
-      end
+      next unless @ENABLE_BROKEN_TEST
+      # FIXME2.4: remote packages get not added yet.
+      assert_xml_tag(tag: 'directory', attributes: { count: '1' })
+      assert_xml_tag(tag: 'entry', attributes: { name: 'pack1', originproject: 'BaseDistro2.0' })
     end
 
     # check access to binaries of remote instance
@@ -419,7 +418,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
 
     login_tom
     # FIXME: submission from a remote project is not yet supported "RemoteInstance:BaseDistro2.0"
-    %w(LocalProject UseRemoteInstance).each do |prj|
+    %w[LocalProject UseRemoteInstance].each do |prj|
       post '/request?cmd=create', params: '<request>
                                    <action type="submit">
                                      <source project="' + prj + '" package="pack2.linked" rev="1"/>

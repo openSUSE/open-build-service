@@ -51,16 +51,16 @@ class Owner
     owners = []
     projects.each do |project|
       attrib = project.attribs.find_by(attrib_type: at)
-      filter = %w(maintainer bugowner)
+      filter = %w[maintainer bugowner]
       devel  = true
       if params[:filter]
         filter = params[:filter].split(',')
       else
         v = attrib.values.where(value: 'BugownerOnly').exists? if attrib
-        filter = %w(bugowner) if attrib && v
+        filter = %w[bugowner] if attrib && v
       end
       if params[:devel]
-        devel = false if %w(0 false).include? params[:devel]
+        devel = false if %w[0 false].include? params[:devel]
       else
         v = attrib.values.where(value: 'DisableDevel').exists? if attrib
         devel = false if attrib && v
@@ -81,7 +81,7 @@ class Owner
     owners
   end
 
-  def self.find_assignees(rootproject, binary_name, limit = 1, devel = true, filter = %w(maintainer bugowner), webui_mode = false)
+  def self.find_assignees(rootproject, binary_name, limit = 1, devel = true, filter = %w[maintainer bugowner], webui_mode = false)
     projects = rootproject.expand_all_projects(allow_remote_projects: false)
     instances_without_definition = []
     maintainers = []
@@ -134,7 +134,7 @@ class Owner
     maintainers
   end
 
-  def self.find_containers_without_definition(rootproject, devel = true, filter = %w(maintainer bugowner))
+  def self.find_containers_without_definition(rootproject, devel = true, filter = %w[maintainer bugowner])
     projects = rootproject.expand_all_projects(allow_remote_projects: false)
     roles = []
     filter.each do |f|
@@ -194,7 +194,7 @@ class Owner
     maintainers
   end
 
-  def self.find_containers(rootproject, owner, devel = true, filter = %w(maintainer bugowner))
+  def self.find_containers(rootproject, owner, devel = true, filter = %w[maintainer bugowner])
     projects = rootproject.expand_all_projects(allow_remote_projects: false)
 
     roles = []
@@ -239,7 +239,7 @@ class Owner
   def self.find_maintainers(container, filter)
     maintainers = []
     sql = _build_rolefilter_sql(filter)
-    add_owners = Proc.new do |cont|
+    add_owners = proc do |cont|
       m = Owner.new
       m.rootproject = ''
       if cont.is_a? Package
@@ -271,7 +271,7 @@ class Owner
     # optional check for devel package instance first
     m = nil
     m = extract_maintainer(rootproject, pkg.resolve_devel_package, filter, owner) if devel == true
-    m = extract_maintainer(rootproject, pkg, filter, owner) unless m
+    m ||= extract_maintainer(rootproject, pkg, filter, owner)
 
     already_checked[pkg.id] = 1
 
@@ -286,7 +286,7 @@ class Owner
       already_checked[p.id] = 1
 
       m = extract_maintainer(rootproject, p.resolve_devel_package, filter, owner) if devel == true
-      m = extract_maintainer(rootproject, p, filter, owner) unless m
+      m ||= extract_maintainer(rootproject, p, filter, owner)
 
       break if m && !deepest
     end
@@ -327,19 +327,23 @@ class Owner
     usersql  = sql << ' AND user_id = ' << objfilter.id.to_s  if objfilter.class == User
     groupsql = sql << ' AND group_id = ' << objfilter.id.to_s if objfilter.class == Group
 
-    r.users.where(usersql).find_each do |p|
-      next unless p.user.state == 'confirmed'
-      m.users ||= {}
-      m.users[p.role.title] ||= []
-      m.users[p.role.title] << p.user.login
-    end unless objfilter.class == Group
+    unless objfilter.class == Group
+      r.users.where(usersql).find_each do |p|
+        next unless p.user.state == 'confirmed'
+        m.users ||= {}
+        m.users[p.role.title] ||= []
+        m.users[p.role.title] << p.user.login
+      end
+    end
 
-    r.groups.where(groupsql).find_each do |p|
-      next if p.group.users.where(state: 'confirmed').empty?
-      m.groups ||= {}
-      m.groups[p.role.title] ||= []
-      m.groups[p.role.title] << p.group.title
-    end unless objfilter.class == User
+    unless objfilter.class == User
+      r.groups.where(groupsql).find_each do |p|
+        next if p.group.users.where(state: 'confirmed').empty?
+        m.groups ||= {}
+        m.groups[p.role.title] ||= []
+        m.groups[p.role.title] << p.group.title
+      end
+    end
     m
   end
 

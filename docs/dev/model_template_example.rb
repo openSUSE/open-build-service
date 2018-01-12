@@ -9,7 +9,7 @@ class Dog < ApplicationRecord
   NUMBER_OF_LEGS = 4
   NUMBER_OF_QUEUES = 1
   NUMBER_OF_EYES = 2
-  POSSIBLE_COLORS = %w(white black brown vanilla chocolate dotted).freeze
+  POSSIBLE_COLORS = %w[white black brown vanilla chocolate dotted].freeze
 
   #### Self config
   self.table_name = 'OBS_dogs'

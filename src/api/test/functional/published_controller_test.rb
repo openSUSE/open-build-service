@@ -128,16 +128,15 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
         else
           assert nil # unhandled src rpm
         end
-        if File.exist? '/var/adm/fillup-templates'
-          # seems to be a SUSE system
-          if p['format']['rpm:suggests'].nil?
-            print 'createrepo seems not to create week dependencies, we need this at least on SUSE systems'
-          end
-          assert_equal 'pure_optional', p['format']['rpm:suggests']['rpm:entry']['name']
-          assert_equal 'would_be_nice', p['format']['rpm:recommends']['rpm:entry']['name']
-          assert_equal 'other_package_likes_it', p['format']['rpm:supplements']['rpm:entry']['name']
-          assert_equal 'other_package', p['format']['rpm:enhances']['rpm:entry']['name']
+        next unless File.exist? '/var/adm/fillup-templates'
+        # seems to be a SUSE system
+        if p['format']['rpm:suggests'].nil?
+          print 'createrepo seems not to create week dependencies, we need this at least on SUSE systems'
         end
+        assert_equal 'pure_optional', p['format']['rpm:suggests']['rpm:entry']['name']
+        assert_equal 'would_be_nice', p['format']['rpm:recommends']['rpm:entry']['name']
+        assert_equal 'other_package_likes_it', p['format']['rpm:supplements']['rpm:entry']['name']
+        assert_equal 'other_package', p['format']['rpm:enhances']['rpm:entry']['name']
       end
     end
     assert package_seen['package']
