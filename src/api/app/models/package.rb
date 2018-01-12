@@ -1245,10 +1245,9 @@ class Package < ApplicationRecord
   end
 
   def delete_file(name, opt = {})
-    delete_opt = {}
+    delete_opt = opt.slice(:comment)
     delete_opt[:keeplink] = 1 if opt[:expand]
     delete_opt[:user] = User.current.login
-    delete_opt[:comment] = opt[:comment] if opt[:comment]
 
     unless User.current.can_modify_package? self
       raise DeleteFileNoPermission, 'Insufficient permissions to delete file'

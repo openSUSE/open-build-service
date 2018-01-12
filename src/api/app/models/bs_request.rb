@@ -769,15 +769,14 @@ class BsRequest < ApplicationRecord
       self.commenter = User.current.login
       self.comment = opts[:comment] if opts[:comment]
 
-      newreview = reviews.create(
-        reason:     opts[:comment],
-        by_user:    opts[:by_user],
-        by_group:   opts[:by_group],
-        by_project: opts[:by_project],
-        by_package: opts[:by_package],
-        creator:    User.current.try(:login),
-        reviewer:    User.current.try(:login)
-      )
+      attributes = opts.slice(:by_user, :by_group, :by_project, :by_package).
+                   merge(
+                     reason:   opts[:comment],
+                     creator:  User.current.try(:login),
+                     reviewer: User.current.try(:login)
+                   )
+
+      newreview = reviews.create(attributes)
       save!
 
       history_params = {
