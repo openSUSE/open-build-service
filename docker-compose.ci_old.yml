@@ -1,10 +1,7 @@
 version: "2"
 services:
-  old_test_suite:
-    image: openbuildservice/old_test_suite
-    build:
-      context: .
-      dockerfile: Dockerfile.old_test_suite
+  old-test-suite:
+    image: openbuildservice/old-test-suite
     volumes:
       - .:/obs_readonly:ro
     privileged: true

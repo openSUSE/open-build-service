@@ -80,7 +80,7 @@ namespace :docker do
         sh "docker build . -t openbuildservice/backend:#{VERSION} -t openbuildservice/backend -f Dockerfile.backend"
       end
       task 'old-test-suite' do
-        sh "docker build . -t openbuildservice/old_test_suite:#{VERSION} -t openbuildservice/old_test_suite -f Dockerfile.old_test_suite"
+        sh "docker build . -t openbuildservice/old-test-suite:#{VERSION} -t openbuildservice/old-test-suite -f Dockerfile.old-test-suite"
       end
     end
 
