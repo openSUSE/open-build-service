@@ -671,7 +671,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     respond_to do |format|
       format.json do
-        render json: Yajl::Encoder.encode(@packages)
+        render json: ActiveSupport::JSON.encode(@packages)
       end
       format.html
     end

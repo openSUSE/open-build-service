@@ -11,7 +11,7 @@ module APIInstrumentation
       Backend::Logger.reset_runtime
       ActiveXML::Node.reset_runtime
       runtime = { view: payload[:view_runtime], db: payload[:db_runtime], backend: payload[:backend_runtime], xml: payload[:xml_runtime] }
-      response.headers['X-Opensuse-Runtimes'] = Yajl::Encoder.encode(runtime)
+      response.headers['X-Opensuse-Runtimes'] = ActiveSupport::JSON.encode(runtime)
     end
 
     module ClassMethods

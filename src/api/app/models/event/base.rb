@@ -7,7 +7,6 @@ module Event
     self.inheritance_column = 'eventtype'
     self.table_name = 'events'
 
-    before_save :shorten_payload_if_necessary
     after_create :create_project_log_entry_job, if: -> { (PROJECT_CLASSES | PACKAGE_CLASSES).include?(self.class.name) }
 
     EXPLANATION_FOR_NOTIFICATIONS =  {
@@ -146,13 +145,13 @@ module Event
         v = attribs.delete k unless v
         values[k] = v unless v.nil?
       end
-      self.payload = Yajl::Encoder.encode(values)
+      self.payload = ActiveSupport::JSON.encode(calculate_payload(values))
       # now check if anything but the default rails params are left
       check_left_attribs(attribs)
     end
 
     def payload
-      @payload ||= Yajl::Parser.parse(self[:payload])
+      @payload ||= ActiveSupport::JSON.decode(self[:payload])
     end
 
     def create_project_log_entry_job
@@ -288,20 +287,19 @@ module Event
 
     private
 
-    def shorten_payload_if_necessary
-      return if shortenable_key.nil? # If no shortenable_key is set then we cannot shorten the payload
+    def calculate_payload(values)
+      return values if shortenable_key.nil? # If no shortenable_key is set then we cannot shorten the payload
 
-      max_length = 65535
-      payload_length = attributes_before_type_cast['payload'].length
+      overflow_bytes = ActiveSupport::JSON.encode(values).bytesize - 65535
 
-      return if payload_length <= max_length
+      return values if overflow_bytes <= 0
 
       # Shorten the payload so it will fit into the database column
-      char_limit = (payload_length - max_length) + 1
-      payload[shortenable_key.to_s] = payload[shortenable_key.to_s][0..-char_limit]
+      shortenable_content = values[shortenable_key.to_s]
+      new_size = shortenable_content.bytesize - overflow_bytes
+      values[shortenable_key.to_s] = shortenable_content.mb_chars.limit(new_size)
 
-      # Re-serialize the payload now that its been shortened
-      set_payload(payload, payload_keys)
+      values
     end
   end
 end
