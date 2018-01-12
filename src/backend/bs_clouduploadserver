@@ -250,17 +250,18 @@ sub cloudupload_log {
     return undef;
   }
   die("404 no such job\n") unless $job;
-  if (!$BSStdServer::isajax && !$cgi->{'view'} && !($job->{'state'} eq 'succeeded' || $job->{'state'} eq 'failed')) {
-    BSHandoff::handoff("/cloudupload/$jobid/_log", undef, BSRPC::args($cgi, 'start', 'end'));
+  my $state = $job->{'state'};
+  if (!$BSStdServer::isajax && !$cgi->{'view'} && !($state eq 'succeeded' || $state eq 'failed')) {
+    BSHandoff::handoff("/cloudupload/$jobid/_log", undef, BSRPC::args($cgi, 'start', 'end', 'nostream'));
+  }
+  if ($BSStdServer::isajax) {
+    BSWatcher::addfilewatcher("$jobdir/$jobid");
+    BSWatcher::addfilewatcher("$jobdir/$jobid.log");
   }
   my $fd = gensym;
   if (!open($fd, '<', "$jobdir/$jobid.log")) {
     if (!open($fd, '<', "$jobdonedir/$jobid.log")) {
-      if ($BSStdServer::isajax && ($job->{'state'} eq 'created' || $job->{'state'} eq 'receiving')) {
-	BSWatcher::addfilewatcher("$jobdir/$jobid");
-	BSWatcher::addfilewatcher("$jobdir/$jobid.log");
-	return undef;
-      }
+      return undef if $BSStdServer::isajax && $state eq 'created' || $state eq 'receiving';
       die("$jobdir/$jobid.log: $!\n");
     }
   }
@@ -274,25 +275,21 @@ sub cloudupload_log {
   $start = $s[7] + $start if $start < 0;
   $start = 0 if $start < 0;
   die("start out of range: $start\n") if $start > $s[7];
-  if (!$BSStdServer::isajax || $job->{'state'} eq 'succeeded' || $job->{'state'} eq 'failed') {
+  if (!$BSStdServer::isajax || $state eq 'succeeded' || $state eq 'failed') {
     $end = $s[7] if !defined($end) || $end > $s[7];
   }
   $end = $start if defined($end) && $end < $start;
   my $len = defined($end) ? $end - $start : undef;
-  if ($cgi->{'nostream'} && $BSStdServer::isajax && $start == $s[7] && (!defined($len) || $len > 0) && ($job->{'state'} eq 'scheduled' || $job->{'state'} eq 'uploading')) {
-    # no data present, wait
-    BSWatcher::addfilewatcher("$jobdir/$jobid");
-    BSWatcher::addfilewatcher("$jobdir/$jobid.log");
+  if ($cgi->{'nostream'} && $BSStdServer::isajax && $start == $s[7] && (!defined($len) || $len > 0) && ($state eq 'scheduled' || $state eq 'uploading')) {
+    # no new data present, wait
     close $fd;
     return undef;
   }
   defined(sysseek($fd, $start, Fcntl::SEEK_SET)) || die("sysseek: $!\n");
   if ($BSStdServer::isajax) {
     my $param = {'filename' => $fd, 'chunked' => 1};
-    $param->{'filegrows'} = 1 if !$cgi->{'nostream'} && ($job->{'state'} eq 'scheduled' || $job->{'state'} eq 'uploading');
+    $param->{'filegrows'} = 1 if !$cgi->{'nostream'} && ($state eq 'scheduled' || $state eq 'uploading');
     $param->{'maxbytes'} = $len if defined $len;
-    BSWatcher::addfilewatcher("$jobdir/$jobid");
-    BSWatcher::addfilewatcher("$jobdir/$jobid.log");
     BSServerEvents::reply_file($param, 'Content-Type: text/plain');
   } else {
     BSWatcher::reply_file($fd, 'Content-Type: text/plain', "Content-Length: $len");
