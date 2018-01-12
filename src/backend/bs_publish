@@ -1188,7 +1188,7 @@ sub sync_to_stage {
       print "    running rsync to $1 at ".localtime(time)."\n";
       # rsync with a timeout of 1 hour
       # sync first just the binaries without deletion of the old ones, afterwards the rest(esp. meta data) and cleanup
-      qsystem('echo', "$extdirx\0", 'rsync', '-ar0', @binsufsrsync, '--include=*/', '--exclude=*', '--timeout', '7200', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed at ".localtime(time).": $?\n");
+      qsystem('echo', "$extdirx\0", 'rsync', '-ar0', '--fuzzy', @binsufsrsync, '--include=*/', '--exclude=*', '--timeout', '7200', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed at ".localtime(time).": $?\n");
       qsystem('echo', "$extdirx\0", 'rsync', '-ar0', '--delete-after', '--exclude=repocache', '--delete-excluded', '--timeout', '7200', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed at ".localtime(time).": $?\n");
     }
     if ($stageserver =~ /^script:(\/.*)$/) {
