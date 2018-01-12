@@ -956,7 +956,7 @@ sub create {
   # make sure we have the preinstalls and vminstalls
   my @missing = grep {!$ctx->{'dep2pkg'}->{$_}} (@pdeps, @vmdeps);
   if (@missing) {
-    @missing = sort(BSutil::unify(@missing));
+    @missing = sort(BSUtil::unify(@missing));
     return ('unresolvable', "missing pre/vminstalls: ".join(', ', @missing));
   }
 
