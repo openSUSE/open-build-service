@@ -272,6 +272,11 @@ $(document).on('click','.close-dialog', function() {
   }
 });
 
+$(document).on('click', 'a[data-clear-checkboxes]', function(event) {
+  event.preventDefault();
+  $('input:checkbox').prop('checked', false);
+});
+
 // show/hide functionality for text
 $(function() {
   $('.show-hide').on('click', function() {
