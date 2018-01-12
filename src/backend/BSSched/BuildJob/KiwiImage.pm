@@ -265,7 +265,7 @@ sub check {
     return ('blocked', join(', ', @blocked));
   }
   push @new_meta, $cmeta if $cmeta;
-  @new_meta = sort {substr($a, 34) cmp substr($b, 34)} @new_meta;
+  @new_meta = sort {substr($a, 34) cmp substr($b, 34) || $a cmp $b} @new_meta;
   unshift @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
   my ($state, $data) = BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'kiwi-image', \@new_meta, [ $bconf, \@edeps, $pool, \%dep2pkg, $cbdep, $cprp, $unorderedrepos ]);
   if ($BSConfig::enable_download_on_demand && $state eq 'scheduled') {
