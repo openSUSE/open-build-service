@@ -3,11 +3,11 @@ class BsRequestPermissionCheck
     setup 403
   end
 
-  class NotExistingTarget < APIException;
+  class NotExistingTarget < APIException
     setup 404
   end
 
-  class SourceChanged < APIException;
+  class SourceChanged < APIException
   end
 
   class ReleaseTargetNoPermission < APIException
@@ -34,7 +34,7 @@ class BsRequestPermissionCheck
     setup 403
   end
 
-  class ReviewNotSpecified < APIException;
+  class ReviewNotSpecified < APIException
   end
 
   def check_accepted_action(action)

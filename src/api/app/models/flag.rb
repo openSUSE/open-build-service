@@ -112,7 +112,7 @@ class Flag < ApplicationRecord
   end
 
   def to_xml(builder)
-    raise RuntimeError, "FlagError: No flag-status set. \n #{inspect}" if status.nil?
+    raise "FlagError: No flag-status set. \n #{inspect}" if status.nil?
     options = {}
     options['arch'] = architecture.name unless architecture.nil?
     options['repository'] = repo unless repo.nil?

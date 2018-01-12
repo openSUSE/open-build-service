@@ -377,7 +377,7 @@ class XpathEngine
         unless respond_to? fname_int
           raise IllegalXpathError, "unknown xpath function '#{fname}'"
         end
-        __send__ fname_int, root, *(stack.shift)
+        __send__ fname_int, root, *stack.shift
       when :child
         t = stack.shift
         if t == :qname
@@ -405,7 +405,7 @@ class XpathEngine
         unless respond_to? opname_int
           raise IllegalXpathError, "unhandled xpath operator '#{opname}'"
         end
-        __send__ opname_int, root, *(stack)
+        __send__ opname_int, root, *stack
         stack = []
       else
         raise IllegalXpathError, "illegal token X '#{token.inspect}'"

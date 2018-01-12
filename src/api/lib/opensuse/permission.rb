@@ -50,7 +50,7 @@ module Suse
         pkg = package
       else
         if project.nil?
-          raise RuntimeError, 'autofetch of project only works with objects of class Package'
+          raise 'autofetch of project only works with objects of class Package'
         end
 
         project = project if project.is_a? String

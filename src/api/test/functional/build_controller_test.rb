@@ -105,7 +105,11 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/build/home:Iggy/10.2/i586/_repository?binary=rpm&binary=package&view=cpio'
     assert_response :success
-    ret = IO.popen('cpio -t 2>/dev/null', 'r+') { |f| f.puts @response.body; f.close_write; f.gets }
+    ret = IO.popen('cpio -t 2>/dev/null', 'r+') do |f|
+      f.puts @response.body
+      f.close_write
+      f.gets
+    end
     assert_match(/package.rpm/, ret)
     assert_no_match(/_statistics/, ret)
     get '/build/home:Iggy/10.2/i586/_repository/_statistics'

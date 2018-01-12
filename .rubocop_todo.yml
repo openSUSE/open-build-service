@@ -357,58 +357,12 @@ Style/MultipleComparison:
     - 'src/api/lib/tasks/extract.rake'
     - 'src/api/script/reformat_memprof'
 
-# Offense count: 10
-# Cop supports --auto-correct.
-Style/RedundantException:
-  Exclude:
-    - 'src/api/app/models/attrib_namespace.rb'
-    - 'src/api/app/models/attrib_type.rb'
-    - 'src/api/app/models/bs_request.rb'
-    - 'src/api/app/models/flag.rb'
-    - 'src/api/lib/activexml/transport.rb'
-    - 'src/api/lib/opensuse/permission.rb'
-
-# Offense count: 6
-# Cop supports --auto-correct.
-Style/RedundantParentheses:
-  Exclude:
-    - 'src/api/app/models/owner.rb'
-    - 'src/api/lib/xpath_engine.rb'
-    - 'src/api/test/functional/source_controller_test.rb'
-
 # Offense count: 88
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, AllowInnerSlashes.
 # SupportedStyles: slashes, percent_r, mixed
 Style/RegexpLiteral:
   Enabled: false
-
-# Offense count: 14
-# Cop supports --auto-correct.
-# Configuration parameters: AllowAsExpressionSeparator.
-Style/Semicolon:
-  Exclude:
-    - 'src/api/app/models/bs_request_permission_check.rb'
-    - 'src/api/app/models/project.rb'
-    - 'src/api/lib/api_exception.rb'
-    - 'src/api/test/functional/build_controller_test.rb'
-    - 'src/api/test/functional/zzz_post_consistency_test.rb'
-
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: use_perl_names, use_english_names
-Style/SpecialGlobalVars:
-  Exclude:
-    - 'src/api/lib/memory_debugger.rb'
-    - 'src/api/lib/memory_dumper.rb'
-    - 'src/api/test/unit/schema_test.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/StderrPuts:
-  Exclude:
-    - 'src/api/test/functional/webui/spider_test.rb'
 
 # Offense count: 3
 # Cop supports --auto-correct.

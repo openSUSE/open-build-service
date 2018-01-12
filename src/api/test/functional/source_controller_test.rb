@@ -722,7 +722,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # verify data is unchanged:
     get url_for(controller: :source, action: :show_project_meta, project: 'kde4')
     assert_response :success
-    assert_equal(olddoc.to_s, REXML::Document.new((@response.body)).to_s)
+    assert_equal(olddoc.to_s, REXML::Document.new(@response.body).to_s)
   end
 
   def test_remove_myself_from_home_project_and_readd
@@ -927,7 +927,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # verify data is unchanged:
     get url_for(controller: :source, action: :show_package_meta, project: 'kde4', package: 'kdelibs')
     assert_response :success
-    assert_equal(olddoc.to_s, REXML::Document.new((@response.body)).to_s)
+    assert_equal(olddoc.to_s, REXML::Document.new(@response.body).to_s)
 
     # try to trick api via non matching xml attributes
     doc.root.attributes['project'] = 'kde4'
@@ -1458,7 +1458,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # verify data is unchanged:
     get url_for(controller: :source, action: :show_package_meta, project: 'kde4', package: 'kdelibs')
     assert_response :success
-    assert_equal(olddoc.to_s, REXML::Document.new((@response.body)).to_s)
+    assert_equal(olddoc.to_s, REXML::Document.new(@response.body).to_s)
   end
 
   def test_read_file

@@ -76,12 +76,12 @@ class Webui::SpiderTest < Webui::IntegrationTest
     return if url.end_with? '/user/show/deleted'
     return if url =~ %r{/source/}
 
-    $stderr.puts "Found #{message} on #{url}, crawling path"
+    warn "Found #{message} on #{url}, crawling path"
     indent = ' '
     while @pages_visited.key? url
       url, text = @pages_visited[url]
       break if url.blank?
-      $stderr.puts "#{indent}#{url} ('#{text}')"
+      warn "#{indent}#{url} ('#{text}')"
       indent += '  '
     end
     raise "Found #{message}"

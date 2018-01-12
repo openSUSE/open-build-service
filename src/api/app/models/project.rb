@@ -1263,7 +1263,7 @@ class Project < ApplicationRecord
 
   def self.valid_name?(name)
     return false unless name.is_a? String
-    return false if name == '0';
+    return false if name == '0'
     return false if name =~ /::/
     return false if name.end_with?(':')
     return true if name =~ /\A[a-zA-Z0-9][-+\w\.:]{0,199}\z/
@@ -1277,9 +1277,15 @@ class Project < ApplicationRecord
   # updates packages automatically generated in the backend after submitting a product file
   def update_product_autopackages
     backend_pkgs = Collection.find :id, what: 'package', match: "@project='#{name}' and starts-with(@name,'_product:')"
-    b_pkg_index = backend_pkgs.each(:package).each_with_object({}) { |elem, hash| hash[elem.value(:name)] = elem; hash }
+    b_pkg_index = backend_pkgs.each(:package).each_with_object({}) do |elem, hash|
+      hash[elem.value(:name)] = elem
+      hash
+    end
     frontend_pkgs = packages.where("`packages`.name LIKE '_product:%'")
-    f_pkg_index = frontend_pkgs.each_with_object({}) { |elem, hash| hash[elem.name] = elem; hash }
+    f_pkg_index = frontend_pkgs.each_with_object({}) do |elem, hash|
+      hash[elem.name] = elem
+      hash
+    end
 
     all_pkgs = [b_pkg_index.keys, f_pkg_index.keys].flatten.uniq
 
