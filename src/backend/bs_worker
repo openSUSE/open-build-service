@@ -2398,6 +2398,7 @@ sub getbinaries {
 	}
       }
     }
+    BSBuild::setgenmetaalgo($buildinfo->{'genmetaalgo'}) if $buildinfo->{'genmetaalgo'};
     @meta = BSBuild::gen_meta($buildinfo->{'subpack'} || [], @meta);
   } else {
     # simply sort the meta

@@ -526,6 +526,7 @@ our $buildinfo = [
       [ 'imagetype' ],	# kiwi
 	'nodbgpkgs',	# kiwi
 	'nosrcpkgs',	# kiwi
+	'genmetaalgo',	# internal
       [ 'dep' ],
      [[ 'bdep' =>
 	'name',

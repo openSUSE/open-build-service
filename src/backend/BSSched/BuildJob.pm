@@ -292,6 +292,7 @@ sub writejob {
   my ($ctx, $job, $binfo, $reason) = @_;
 
   # jay! ready for building, write status, reason, and job info
+  my $gctx = $ctx->{'gctx'};
   $binfo->{'job'} = $job if $job;
   $binfo->{'readytime'} = time();
   if ($reason) {
@@ -307,11 +308,12 @@ sub writejob {
 
   $binfo->{'srcserver'} ||= $workersrcserver;
   $binfo->{'reposerver'} ||= $workerreposerver;
+  $binfo->{'genmetaalgo'} = $gctx->{'genmetaalgo'} if $gctx->{'genmetaalgo'};
 
-  my $myjobsdir = $ctx->{gctx}->{'myjobsdir'};
+  my $myjobsdir = $gctx->{'myjobsdir'};
   $ctx->{'otherjobscache'} ||= [ grep {/-[0-9a-f]{32}$/} grep {!/^\./} ls($myjobsdir) ];
   writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
-  add_crossmarker($ctx->{gctx}, $binfo->{'hostarch'}, $job) if $binfo->{'hostarch'};
+  add_crossmarker($gctx, $binfo->{'hostarch'}, $job) if $binfo->{'hostarch'};
   $ourjobs{$1}->{$job} = 1 if $job =~ /^(:.+?|[^:].*?::.+?)::/s;
   push @{$ctx->{'otherjobscache'}}, $job;
 }

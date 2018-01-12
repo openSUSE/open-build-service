@@ -24,6 +24,8 @@ package BSBuild;
 
 use strict;
 
+my $genmetaalgo = 0;
+
 sub add_meta {
   my ($new_meta, $m, $bin, $packid) = @_;
   my $oldlen = @$new_meta;
@@ -55,9 +57,11 @@ sub gen_meta {
     $subpackre = substr($subpackre, 1);
     $subpackre = qr/$subpackre/;
   }
+
+  # setup helpers
   my (%helper1, %helper2, %helper3, %cycle);
   for (@deps) {
-    $helper1{$_} = tr/\///;     # count '/'
+    $helper1{$_} = tr/\///;	# count '/'
     /^([^ ]+  )((?:.*\/)?([^\/]*))$/ or die("bad dependency line: $_\n");
     $helper2{$_} = $2;		# path
     $helper3{$_} = "$1$3";	# md5  lastpkg
@@ -66,17 +70,39 @@ sub gen_meta {
       $cycle{$1} = 1; # detected a cycle!
     }
   }
+
+  # sort
+  @deps = sort {$helper1{$a} <=> $helper1{$b} || $helper2{$a} cmp $helper2{$b} || $a cmp $b} @deps;
+
+  # handle cycles
   if (%cycle) {
     my $cyclere = '';
     for (sort keys %cycle) {
       $cyclere .= "|\Q/$_/\E";
+    }
+    if ($genmetaalgo) {
+      my %cyclemd5;
+      my %cycle2;
+      for (@deps) {
+        my $h3 = $helper3{$_};
+	if ($h3 eq $_) {
+	  $cyclemd5{substr($h3, 0, 32)} = 1 if $cycle{substr($h3, 34)};
+	} else {
+	  $cycle2{substr($h3, 34)} = 1 if $cyclemd5{substr($h3, 0, 32)};
+	}
+      }
+      delete $cycle2{$_} for keys %cycle;
+      for (sort keys %cycle2) {
+	$cyclere .= "|\Q/$_/\E.";
+      }
     }
     $cyclere = substr($cyclere, 1);
     $cyclere = qr/$cyclere/;
     # kill all deps that use a package that we see directly
     @deps = grep {"$_/" !~ /$cyclere/} @deps;
   }
-  @deps = sort {$helper1{$a} <=> $helper1{$b} || $helper2{$a} cmp $helper2{$b} || $a cmp $b} @deps;
+
+  # prune
   my @meta;
   for my $d (@deps) {
     next if $depseen{$helper3{$d}};	# skip if we already have this pkg with this md5
@@ -85,6 +111,14 @@ sub gen_meta {
     push @meta, $d;
   }
   return @meta;
+}
+
+sub setgenmetaalgo {
+  my ($algo) = @_;
+  $algo = 1 if $algo < 0;
+  die("BSBuild::setgenmetaalgo: unsupported algo $algo\n") if $algo > 1;
+  $genmetaalgo = $algo;
+  return $algo;
 }
 
 1;
