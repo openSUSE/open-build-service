@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile.old_test_suite
     volumes:
-      - .:/obs
+      - .:/obs_readonly:ro
     privileged: true
     depends_on:
       - db
