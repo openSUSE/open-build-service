@@ -719,22 +719,22 @@ RSpec.describe Webui::PackageController, vcr: true do
 
   describe 'POST #save_meta' do
     let(:valid_meta) do
-      "<package name=\"#{source_package.name}\" project=\"#{source_project.name}\">" +
+      "<package name=\"#{source_package.name}\" project=\"#{source_project.name}\">" \
         '<title>My Test package Updated via Webui</title><description/></package>'
     end
 
     let(:invalid_meta_because_package_name) do
-      "<package name=\"whatever\" project=\"#{source_project.name}\">" +
+      "<package name=\"whatever\" project=\"#{source_project.name}\">" \
         '<title>Invalid meta PACKAGE NAME</title><description/></package>'
     end
 
     let(:invalid_meta_because_project_name) do
-      "<package name=\"#{source_package.name}\" project=\"whatever\">" +
+      "<package name=\"#{source_package.name}\" project=\"whatever\">" \
         '<title>Invalid meta PROJECT NAME</title><description/></package>'
     end
 
     let(:invalid_meta_because_xml) do
-      "<package name=\"#{source_package.name}\" project=\"#{source_project.name}\">" +
+      "<package name=\"#{source_package.name}\" project=\"#{source_project.name}\">" \
         '<title>Invalid meta WRONG XML</title><description/></paaaaackage>'
     end
 

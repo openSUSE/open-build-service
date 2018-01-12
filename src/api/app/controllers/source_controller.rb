@@ -303,10 +303,10 @@ class SourceController < ApplicationController
     return if User.current.can_modify_package?(@package)
 
     unless @package.class == Package
-      raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " +
+      raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " \
                                       'for unspecified package'
     end
-    raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " +
+    raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " \
                                     "for package #{@package.name} in project #{@package.project.name}"
   end
 
@@ -614,7 +614,7 @@ class SourceController < ApplicationController
     if User.current.is_admin?
       pass_to_backend path
     else
-      raise DeleteProjectPubkeyNoPermission, "No permission to delete public key for project '#{params[:project]}'. " +
+      raise DeleteProjectPubkeyNoPermission, "No permission to delete public key for project '#{params[:project]}'. " \
                                              'Either maintainer permissions by upper project or admin permissions is needed.'
     end
   end
@@ -1016,7 +1016,7 @@ class SourceController < ApplicationController
           raise CmdExecutionNoPermission, "no permission to write in project #{releasetarget.target_repository.project.name}"
         end
         unless releasetarget.trigger == 'manual'
-          raise CmdExecutionNoPermission, 'Trigger is not set to manual in repository' +
+          raise CmdExecutionNoPermission, 'Trigger is not set to manual in repository' \
                                           " #{releasetarget.repository.project.name}/#{releasetarget.repository.name}"
         end
         repo_matches = true

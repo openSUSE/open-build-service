@@ -410,10 +410,10 @@ RSpec.describe Package, vcr: true do
 
     context 'with one build dependency' do
       let(:one_dependency) do
-        '<builddepinfo>' +
-          '<package name="gcc6">' +
-          '<pkgdep>gcc</pkgdep>' +
-          '</package>' +
+        '<builddepinfo>' \
+          '<package name="gcc6">' \
+          '<pkgdep>gcc</pkgdep>' \
+          '</package>' \
           '</builddepinfo>'
       end
 
@@ -428,11 +428,11 @@ RSpec.describe Package, vcr: true do
 
     context 'with more than one build dependency' do
       let(:two_dependencies) do
-        '<builddepinfo>' +
-          '<package name="gcc">' +
-          '<pkgdep>gcc6</pkgdep>' +
-          '<pkgdep>xz</pkgdep>' +
-          '</package>' +
+        '<builddepinfo>' \
+          '<package name="gcc">' \
+          '<pkgdep>gcc6</pkgdep>' \
+          '<pkgdep>xz</pkgdep>' \
+          '</package>' \
           '</builddepinfo>'
       end
 

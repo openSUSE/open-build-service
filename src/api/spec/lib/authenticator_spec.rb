@@ -89,7 +89,7 @@ RSpec.describe Authenticator do
 
           it 'does not authenticate the user' do
             expect { authenticator.extract_user }.to raise_error(Authenticator::UnconfirmedUserError,
-                                                                 'User is registered but not yet approved. Your account is a registered account, ' +
+                                                                 'User is registered but not yet approved. Your account is a registered account, ' \
                                                                  'but it is not yet approved for the OBS by admin.')
           end
         end

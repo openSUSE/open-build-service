@@ -145,9 +145,9 @@ RSpec.describe Webui::WebuiHelper do
 
   describe '#sprited_text' do
     it 'returns a img element with a matching icon class and title attribute and text' do
-      expect(sprited_text('brick_edit', 'Edit description')).to eq('<img title="Edit description" ' +
+      expect(sprited_text('brick_edit', 'Edit description')).to eq('<img title="Edit description" ' \
                        'class="icons-brick_edit" alt="Edit description" src="/images/s.gif" /> Edit description')
-      expect(sprited_text('user_add', 'Request role addition')).to eq('<img title="Request role addition" ' +
+      expect(sprited_text('user_add', 'Request role addition')).to eq('<img title="Request role addition" ' \
                        'class="icons-user_add" alt="Request role addition" src="/images/s.gif" /> Request role addition')
     end
   end
@@ -365,7 +365,7 @@ RSpec.describe Webui::WebuiHelper do
 
       it 'does not link to user profiles' do
         expect(user_and_role(user.login)).to eq(
-          "<img width=\"20\" height=\"20\" alt=\"#{CGI.escapeHTML(user.realname)}\" " + \
+          "<img width=\"20\" height=\"20\" alt=\"#{CGI.escapeHTML(user.realname)}\" " \
           "src=\"/user/icon/#{user.login}?size=20\" />#{CGI.escapeHTML(user.realname)} (#{user.login})"
         )
       end

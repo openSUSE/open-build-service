@@ -428,7 +428,7 @@ class Package < ApplicationRecord
     data.elements.each('collection/package') do |e|
       p = Package.find_by_project_and_name(e.attributes['project'], e.attributes['name'])
       if p.nil?
-        logger.error 'read permission or data inconsistency, backend delivered package as linked package ' +
+        logger.error 'read permission or data inconsistency, backend delivered package as linked package ' \
                      "where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
       else
         result << p
@@ -863,8 +863,8 @@ class Package < ApplicationRecord
     # this is the algorithm (sql) we use for calculating activity of packages
     # NOTE: We use Time.now.to_i instead of UNIX_TIMESTAMP() so we can test with frozen ruby time in the old tests suite,
     # change it when removing the tests
-    '( packages.activity_index * ' +
-      "POWER( 2.3276, (UNIX_TIMESTAMP(packages.updated_at) - #{Time.now.to_i})/10000000 ) " +
+    '( packages.activity_index * ' \
+      "POWER( 2.3276, (UNIX_TIMESTAMP(packages.updated_at) - #{Time.now.to_i})/10000000 ) " \
       ') as activity_value'
   end
 
@@ -874,7 +874,7 @@ class Package < ApplicationRecord
   end
 
   def activity
-    package = Package.find_by_sql("SELECT packages.*, #{Package.activity_algorithm} " +
+    package = Package.find_by_sql("SELECT packages.*, #{Package.activity_algorithm} " \
                                       "FROM `packages` WHERE id = #{id} LIMIT 1")
     package.shift.activity_value.to_f
   end

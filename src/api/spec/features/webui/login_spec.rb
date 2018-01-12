@@ -115,7 +115,7 @@ RSpec.feature 'Login', type: :feature, js: true do
 
         it 'informs users about failed kerberos authentication and possible cause' do
           expect(page).to have_text('Kerberos authentication required')
-          expect(page).to have_text('You are seeing this page, because you are ' +
+          expect(page).to have_text('You are seeing this page, because you are ' \
                                     "not authenticated in the kerberos realm ('test_realm.com').")
         end
       end

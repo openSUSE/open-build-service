@@ -132,7 +132,7 @@ RSpec.describe Kiwi::Repository, type: :model do
       subject { create(:kiwi_repository, username: 'my_user', password: 'my_password').to_xml }
 
       it do
-        expect(subject).to eq("<repository type=\"rpm-md\" username=\"my_user\" password=\"my_password\">\n  " +
+        expect(subject).to eq("<repository type=\"rpm-md\" username=\"my_user\" password=\"my_password\">\n  " \
                               "<source path=\"http://example.com/\"/>\n</repository>\n")
       end
     end
@@ -141,7 +141,7 @@ RSpec.describe Kiwi::Repository, type: :model do
       subject { create(:kiwi_repository, prefer_license: true).to_xml }
 
       it do
-        expect(subject).to eq("<repository type=\"rpm-md\" prefer-license=\"true\">\n  " +
+        expect(subject).to eq("<repository type=\"rpm-md\" prefer-license=\"true\">\n  " \
                               "<source path=\"http://example.com/\"/>\n</repository>\n")
       end
     end
@@ -150,7 +150,7 @@ RSpec.describe Kiwi::Repository, type: :model do
       subject { create(:kiwi_repository, imageinclude: true).to_xml }
 
       it do
-        expect(subject).to eq("<repository type=\"rpm-md\" imageinclude=\"true\">\n  " +
+        expect(subject).to eq("<repository type=\"rpm-md\" imageinclude=\"true\">\n  " \
                               "<source path=\"http://example.com/\"/>\n</repository>\n")
       end
     end
@@ -159,7 +159,7 @@ RSpec.describe Kiwi::Repository, type: :model do
       subject { create(:kiwi_repository, alias: 'example').to_xml }
 
       it do
-        expect(subject).to eq("<repository type=\"rpm-md\" alias=\"example\">\n  " +
+        expect(subject).to eq("<repository type=\"rpm-md\" alias=\"example\">\n  " \
                               "<source path=\"http://example.com/\"/>\n</repository>\n")
       end
     end

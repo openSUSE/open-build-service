@@ -263,7 +263,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       end
     end
     unless invalid_format.empty?
-      error += "#{invalid_format} has no valid format. (Correct formats are e.g. " +
+      error += "#{invalid_format} has no valid format. (Correct formats are e.g. " \
                'boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)'
     end
     render json: { error: error, issues: issue_collection }

@@ -564,15 +564,15 @@ class BsRequestAction < ApplicationRecord
           repo = result.attributes['repository']
           arch = result.attributes['arch']
           if result.attributes['dirty']
-            raise BuildNotFinished, "The repository '#{pkg.project.name}' / '#{repo}' / #{arch} " +
+            raise BuildNotFinished, "The repository '#{pkg.project.name}' / '#{repo}' / #{arch} " \
                                     'needs recalculation by the schedulers'
           end
           if result.attributes['state'].in?(['finished', 'publishing'])
-            raise BuildNotFinished, "The repository '#{pkg.project.name}' / '#{repo}' / #{arch}" +
+            raise BuildNotFinished, "The repository '#{pkg.project.name}' / '#{repo}' / #{arch}" \
                                     'did not finish the publish yet'
           end
           unless result.attributes['state'].in?(['published', 'unpublished'])
-            raise BuildNotFinished, "The repository '#{pkg.project.name}' / '#{repo}' / #{arch} " +
+            raise BuildNotFinished, "The repository '#{pkg.project.name}' / '#{repo}' / #{arch} " \
                                     'did not finish the build yet'
           end
 
@@ -668,8 +668,8 @@ class BsRequestAction < ApplicationRecord
         else # non-channel package
           next if ReleaseTarget.where(repository: pkg.project.repositories, target_repository: tprj.repositories, trigger: 'maintenance').empty?
           unless pkg.project.can_be_released_to_project?(tprj)
-            raise WrongLinkedPackageSource, 'According to the source link of package ' +
-                                            "#{pkg.project.name}/#{pkg.name} it would go to project" +
+            raise WrongLinkedPackageSource, 'According to the source link of package ' \
+                                            "#{pkg.project.name}/#{pkg.name} it would go to project" \
                                             "#{tprj.name} which is not specified as release target."
           end
         end
@@ -824,7 +824,7 @@ class BsRequestAction < ApplicationRecord
     tprj = Project.get_by_name target_project
     if tprj.is_a? Project
       if tprj.is_maintenance_release? && action_type == :submit
-        raise SubmitRequestRejected, "The target project #{target_project} is a maintenance release project, " +
+        raise SubmitRequestRejected, "The target project #{target_project} is a maintenance release project, " \
                                      'a submit self is not possible, please use the maintenance workflow instead.'
       end
       a = tprj.find_attribute('OBS', 'RejectRequests')
@@ -842,7 +842,7 @@ class BsRequestAction < ApplicationRecord
       a = tpkg.find_attribute('OBS', 'RejectRequests') if defined?(tpkg) && tpkg
       if defined?(a) && a && a.values.first
         if a.values.length < 2 || a.values.find_by_value(action_type)
-          raise RequestRejected, "The target package #{target_project} / #{target_package} is not accepting " +
+          raise RequestRejected, "The target package #{target_project} / #{target_package} is not accepting " \
                                  "requests because: #{a.values.first.value}"
         end
       end

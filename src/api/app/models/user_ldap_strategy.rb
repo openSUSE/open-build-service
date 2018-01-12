@@ -259,7 +259,7 @@ class UserLdapStrategy
         user_con.unbind
       end
     else # If no CONFIG['ldap_authenticate'] is given do not return the ldap_info !
-      Rails.logger.error("Unknown ldap_authenticate setting: '#{CONFIG['ldap_authenticate']}' " +
+      Rails.logger.error("Unknown ldap_authenticate setting: '#{CONFIG['ldap_authenticate']}' " \
                          "so #{user['dn']} not authenticated. Ensure ldap_authenticate uses a valid symbol")
       return
     end

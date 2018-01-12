@@ -33,16 +33,16 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
 
     releaseproject = target_releaseproject ? Project.get_by_name(target_releaseproject) : tprj
     if releaseproject.try(:name).blank?
-      raise NoMaintenanceReleaseTarget, 'Maintenance incident request contains no defined release' +
+      raise NoMaintenanceReleaseTarget, 'Maintenance incident request contains no defined release' \
                                         " target project for package #{pkg.name}"
     end
 
     # Automatically switch to update project
     releaseproject = releaseproject.update_instance
     unless releaseproject.is_maintenance_release?
-      raise NoMaintenanceReleaseTarget, 'Maintenance incident request contains release target ' +
-                                        "project #{releaseproject.name} with invalid project " +
-                                        "kind \"#{releaseproject.kind}\" (should be " +
+      raise NoMaintenanceReleaseTarget, 'Maintenance incident request contains release target ' \
+                                        "project #{releaseproject.name} with invalid project " \
+                                        "kind \"#{releaseproject.kind}\" (should be " \
                                         "\"maintenance_release\") for package #{pkg.name}"
     end
     releaseproject

@@ -287,7 +287,7 @@ class BranchPackage
       data.elements.each('collection/package') do |e|
         ipkg = Package.find_by_project_and_name(e.attributes['project'], e.attributes['name'])
         if ipkg.nil?
-          logger.error 'read permission or data inconsistency, backend delivered package ' +
+          logger.error 'read permission or data inconsistency, backend delivered package ' \
                        "as linked package where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
         elsif ipkg.project.is_maintenance_incident? && ipkg.project.is_unreleased? # is incident ?
           # is a newer incident ?
@@ -459,7 +459,7 @@ class BranchPackage
         found = true if ep[:package] == ap
       end
       next if found
-      logger.debug "found local linked package in project #{p[:package].project.name}/#{ap.name}, " +
+      logger.debug "found local linked package in project #{p[:package].project.name}/#{ap.name}, " \
                    "adding it as well, pointing it to #{p[:package].name} for #{target_package}"
       @packages.push(base_project: p[:base_project],
                      link_target_project: p[:link_target_project],
@@ -545,7 +545,7 @@ class BranchPackage
           ltprj = lprj
           pkg2 = lprj.find_package(params[:package])
           next if pkg2.nil? || @packages.map { |p| p[:package] }.include?(pkg2) # avoid double instances
-          logger.info "Found package instance via project link in #{pkg2.project.name}/#{pkg2.name}" +
+          logger.info "Found package instance via project link in #{pkg2.project.name}/#{pkg2.name}" \
                       "for attribute #{at.name} and given package name #{params[:package]}"
           if ltprj.find_attribute('OBS', 'BranchTarget').nil?
             ltprj = pkg2.project
