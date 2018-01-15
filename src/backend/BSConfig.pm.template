@@ -33,9 +33,10 @@ my $frontend = undef; # FQDN of the WebUI/API server if it's not $hostname
 
 # If defined, restrict access to the backend servers (bs_repserver, bs_srcserver, bs_service)
 our $ipaccess = {
-   '127\..*' => 'rw', # only the localhost can write to the backend
-   "^$ip" => 'rw',    # Permit IP of FQDN
-   '.*' => 'worker',  # build results can be delivered from any client in the network
+   '^::1$' => 'rw',    # only the localhost can write to the backend
+   '^127\..*' => 'rw', # only the localhost can write to the backend
+   "^$ip\$" => 'rw',   # Permit IP of FQDN
+   '.*' => 'worker',   # build results can be delivered from any client in the network
 };
 
 # IP of the WebUI/API Server (only used for $ipaccess)
