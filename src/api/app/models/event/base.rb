@@ -8,6 +8,8 @@ module Event
     self.table_name = 'events'
 
     after_create :create_project_log_entry_job, if: -> { (PROJECT_CLASSES | PACKAGE_CLASSES).include?(self.class.name) }
+    after_create :perform_create_jobs
+    after_create :send_event_emails_job
 
     EXPLANATION_FOR_NOTIFICATIONS =  {
       'Event::BuildFail'          => 'Receive notifications of build failures for packages for which you are...',
@@ -151,8 +153,6 @@ module Event
       CreateProjectLogEntryJob.perform_later(payload, created_at.to_s, self.class.name)
     end
 
-    after_create :perform_create_jobs
-
     def perform_create_jobs
       self.undone_jobs = 0
       save
@@ -168,6 +168,10 @@ module Event
         self.undone_jobs += 1
       end
       save if self.undone_jobs > 0
+    end
+
+    def send_event_emails_job
+      SendEventEmailsJob.perform_later(id)
     end
 
     # to be overwritten in subclasses
