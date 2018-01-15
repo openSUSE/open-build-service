@@ -4,6 +4,7 @@ module Webui
       before_action :require_login
       before_action -> { feature_active?(:cloud_upload) }
       before_action :validate_configuration_presence, :set_breadcrump
+      before_action :validate_uploadable, only: [:new]
       before_action :set_package, only: :new
       before_action :set_upload_job, only: :destroy
 
@@ -15,10 +16,11 @@ module Webui
         xml_object = OpenStruct.new(params.slice(:project, :package, :repository, :arch, :filename))
         @upload_job = ::Cloud::Backend::UploadJob.new(xml_object: xml_object)
         @ec2_regions = ::Cloud::Ec2::Configuration::REGIONS
+        @ec2_virtualization_types = ::Cloud::Ec2::Configuration::VIRTUALIZATION_TYPES
       end
 
       def create
-        @upload_job = ::Cloud::UploadJob.create(User.current, permitted_params)
+        @upload_job = ::Cloud::UploadJob.create(permitted_params.merge(user: User.current))
         if @upload_job.valid?
           flash[:success] = "Successfully created upload job #{@upload_job.id}."
           redirect_to cloud_upload_index_path
@@ -46,12 +48,20 @@ module Webui
         @crumb_list = ['Cloud Upload']
       end
 
+      def validate_uploadable
+        return if ::Cloud::UploadJob.new(filename: params[:filename], arch: params[:arch]).uploadable?
+        flash[:error] = "File '#{params[:filename]}' with architecture '#{params[:arch]}' is not a valid cloud image."
+        redirect_to cloud_upload_index_path
+      end
+
       def validate_configuration_presence
         redirect_to cloud_ec2_configuration_path if User.current.ec2_configuration.blank?
       end
 
       def permitted_params
-        params.require(:cloud_backend_upload_job).permit(:project, :package, :repository, :arch, :filename, :region)
+        params.require(:cloud_backend_upload_job).permit(
+          :project, :package, :repository, :arch, :filename, :region, :virtualization_type, :ami_name, :target
+        )
       end
 
       def set_upload_job

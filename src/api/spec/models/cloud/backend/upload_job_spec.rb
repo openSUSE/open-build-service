@@ -8,12 +8,16 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
   describe '.create' do
     let(:params) do
       {
-        project:    'Cloud',
-        package:    'aws',
-        repository: 'standard',
-        arch:       'x86_64',
-        filename:   'appliance.raw.gz',
-        region:     'us-east-1'
+        project:             'Cloud',
+        package:             'aws',
+        repository:          'standard',
+        arch:                'x86_64',
+        filename:            'appliance.raw.gz',
+        region:              'us-east-1',
+        user:                user,
+        target:              'ec2',
+        virtualization_type: 'hvm',
+        ami_name:            'myami'
       }
     end
     let(:xml_response) do
@@ -34,10 +38,11 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
       HEREDOC
     end
     let(:backend_params) do
-      params.merge(target: 'ec2', user: user.login).except(:region)
+      params.except(:region, :virtualization_type, :ami_name)
     end
     let(:post_body) do
-      user.ec2_configuration.attributes.except('id', 'created_at', 'updated_at').merge(region: 'us-east-1').to_json
+      user.ec2_configuration.attributes.except('id', 'created_at', 'updated_at').
+        merge(region: 'us-east-1', virtualization_type: 'hvm', ami_name: 'myami').to_json
     end
     let(:path) { "#{CONFIG['source_url']}/cloudupload?#{backend_params.to_param}" }
 
@@ -46,14 +51,14 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
         stub_request(:post, path).with(body: post_body).and_return(body: xml_response)
       end
 
-      subject { Cloud::Backend::UploadJob.create(user, params) }
+      subject { Cloud::Backend::UploadJob.create(params) }
 
       it { expect(subject.valid?).to be_truthy }
       it { expect(subject.id).to eq('6') }
       it { expect(subject.state).to eq('created') }
       it { expect(subject.details).to eq('waiting to receive image') }
       it { expect(subject.user).to eq('mlschroe') }
-      it { expect(subject.platform).to eq('ec2') }
+      it { expect(subject.target).to eq('ec2') }
       it { expect(subject.project).to eq('Base:System') }
       it { expect(subject.package).to eq('rpm') }
       it { expect(subject.repository).to eq('openSUSE_Factory') }
@@ -65,7 +70,7 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
     end
 
     context 'with an invalid backend response' do
-      subject { Cloud::Backend::UploadJob.create(user, params) }
+      subject { Cloud::Backend::UploadJob.create(params) }
 
       it { expect(subject.valid?).to be_falsy }
       it 'has the correct error message' do
@@ -76,9 +81,9 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
 
     context 'with Timeout::Error' do
       before do
-        allow(Backend::Api::Cloud).to receive(:upload).with(user, params).and_raise(Timeout::Error, 'boom')
+        allow(Backend::Api::Cloud).to receive(:upload).with(params).and_raise(Timeout::Error, 'boom')
       end
-      subject { Cloud::Backend::UploadJob.create(user, params) }
+      subject { Cloud::Backend::UploadJob.create(params) }
 
       it { expect(subject.valid?).to be_falsy }
       it 'has the correct error message' do

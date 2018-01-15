@@ -22,14 +22,14 @@ data_path = ARGV[3]
 filename = ARGV[4]
 data = JSON.parse(File.read(data_path))
 
-def get_ec2_credentials(arn, external_id)
+def get_ec2_credentials(data)
   # Credentials are stored in  ~/.aws/credentials
   out, err, status = Open3.capture3(
     'aws',
     'sts',
     'assume-role',
-    "--role-arn=#{arn}",
-    "--external-id=#{external_id}",
+    "--role-arn=#{data['arn']}",
+    "--external-id=#{data['external_id']}",
     '--role-session-name=obs',
     "--duration-seconds=#{ONE_HOUR}"
   )
@@ -47,21 +47,21 @@ def get_ec2_credentials(arn, external_id)
   end
 end
 
-def upload_image_to_ec2(image, credentials, region, filename)
+def upload_image_to_ec2(image, credentials, filename, data)
   STDOUT.write("Start uploading image #{filename}.\n")
-  name = File.basename(filename)
 
   Open3.popen2e(
     'ec2uploadimg',
     "--description='obs uploader'",
     '--machine=x86_64',
-    "--name=#{name}",
-    "--region=#{region}",
+    "--name=#{data['ami_name']}",
+    "--region=#{data['region']}",
     "--secret-key=#{credentials.secret_access_key}",
     "--access-id=#{credentials.access_key_id}",
     "--ssh-key-pair=#{KEY_NAME}",
     "--private-key-file=#{PRIVATE_KEY}",
     "--session-token=#{credentials.session_token}",
+    "--virt-type=#{data['virtualization_type']}",
     "--target-filename=#{filename}",
     '--verbose',
     image
@@ -73,12 +73,8 @@ def upload_image_to_ec2(image, credentials, region, filename)
 end
 
 if platform == 'ec2'
-  region = data['region']
-  arn = data['arn']
-  external_id = data['external_id']
-
-  credentials = get_ec2_credentials(arn, external_id)
-  upload_image_to_ec2(image_path, credentials, region, filename)
+  credentials = get_ec2_credentials(data)
+  upload_image_to_ec2(image_path, credentials, filename, data)
 else
   abort('No valid platform. Valid platforms is ec2.')
 end

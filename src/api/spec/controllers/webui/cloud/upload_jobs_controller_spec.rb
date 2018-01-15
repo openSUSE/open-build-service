@@ -82,50 +82,137 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
   end
 
   describe 'GET #new' do
-    before do
-      Feature.run_with_activated(:cloud_upload) do
-        get :new, params: { project: 'Apache', package: 'apache2', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz' }
-      end
-    end
-
-    it { expect(response).to be_success }
-    it {
-      expect(assigns(:upload_job)).
-        to have_attributes(project: 'Apache', package: 'apache2', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz')
-    }
-  end
-
-  describe 'POST #create' do
-    context 'without backend response' do
+    context 'with valid parameters' do
       before do
         Feature.run_with_activated(:cloud_upload) do
-          post :create, params: { cloud_backend_upload_job: {
-            project: 'Apache', package: 'apache2', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz', region: 'us-east-1'
-          } }
+          get :new, params: { project: 'Apache', package: 'apache2', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz' }
         end
       end
 
-      it { expect(flash[:error]).not_to be_nil }
+      it { expect(response).to be_success }
+      it {
+        expect(assigns(:upload_job)).
+          to have_attributes(project: 'Apache', package: 'apache2', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz')
+      }
+    end
+
+    context 'with invalid parameters' do
+      shared_context 'it redirects and assigns flash error' do
+        before do
+          Feature.run_with_activated(:cloud_upload) do
+            get :new, params: params
+          end
+        end
+
+        it { expect(flash[:error]).not_to be_nil }
+        it { expect(response).to be_redirect }
+      end
+
+      context 'with a not existing package' do
+        let(:params) { { project: 'Apache', package: 'not-existent', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz' } }
+        include_context 'it redirects and assigns flash error'
+      end
+
+      context 'with an invalid filename' do
+        let(:params) { { project: 'Apache', package: 'apache2', repository: 'standard', arch: 'x86_64', filename: 'appliance.rpm' } }
+        include_context 'it redirects and assigns flash error'
+      end
+
+      context 'with an invalid architecture' do
+        let(:params) { { project: 'Apache', package: 'apache2', repository: 'standard', arch: 'i386', filename: 'appliance.raw.xz' } }
+        include_context 'it redirects and assigns flash error'
+      end
+    end
+  end
+
+  describe 'POST #create' do
+    let(:params) do
+      {
+        project:             'Cloud',
+        package:             'aws',
+        repository:          'standard',
+        arch:                'x86_64',
+        filename:            'appliance.raw.xz',
+        region:              'us-east-1',
+        virtualization_type: 'hvm',
+        ami_name:            'my-image',
+        target:              'ec2'
+      }
+    end
+
+    shared_context 'it redirects and assigns flash error' do
+      before do
+        Feature.run_with_activated(:cloud_upload) do
+          post :create, params: { cloud_backend_upload_job: params }
+        end
+      end
+
+      it { expect(flash[:error]).to match(/#{subject}/) }
       it { expect(response).to be_redirect }
+    end
+
+    context 'without backend configured' do
+      let(:regex) { 'no cloud upload server configurated.' }
+      subject { regex }
+      include_context 'it redirects and assigns flash error'
+    end
+
+    context 'with invalid parameters' do
+      context 'with an invalid filename' do
+        subject { 'apache2.rpm' }
+        before do
+          params[:filename] = subject
+        end
+        include_context 'it redirects and assigns flash error'
+      end
+
+      context 'with an invalid architecture' do
+        subject { 'i386' }
+        before do
+          params[:arch] = subject
+        end
+        include_context 'it redirects and assigns flash error'
+      end
+
+      context 'with an invalid virtualization type' do
+        subject { 'kvm' }
+        before do
+          params[:virtualization_type] = subject
+        end
+        include_context 'it redirects and assigns flash error'
+      end
+
+      context 'with an invalid ami_name' do
+        subject { 'lorem ipsum' }
+        before do
+          params[:ami_name] = subject
+        end
+        include_context 'it redirects and assigns flash error'
+      end
+
+      context 'with an invalid region' do
+        subject { 'nuernberg-southside' }
+        before do
+          params[:region] = subject
+        end
+        include_context 'it redirects and assigns flash error'
+      end
     end
 
     context 'with a backend response' do
       let(:path) { "#{CONFIG['source_url']}/cloudupload?#{backend_params.to_param}" }
-      let(:params) do
+      let(:backend_params) do
+        params.merge(target: 'ec2', user: user_with_ec2_configuration.login).except(:region, :virtualization_type, :ami_name)
+      end
+      let(:additional_data) do
         {
-          project:    'Cloud',
-          package:    'aws',
-          repository: 'standard',
-          arch:       'x86_64',
-          filename:   'appliance.raw.gz',
-          region:     'us-east-1'
+          region:              'us-east-1',
+          virtualization_type: 'hvm',
+          ami_name:            'my-image'
         }
       end
-      let(:backend_params) do
-        params.merge(target: 'ec2', user: user_with_ec2_configuration.login).except(:region)
-      end
       let(:post_body) do
-        user_with_ec2_configuration.ec2_configuration.attributes.except('id', 'created_at', 'updated_at').merge(region: 'us-east-1').to_json
+        user_with_ec2_configuration.ec2_configuration.attributes.except('id', 'created_at', 'updated_at').merge(additional_data).to_json
       end
 
       before do

@@ -4,12 +4,16 @@ RSpec.describe Cloud::UploadJob, type: :model, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tom', ec2_configuration: create(:ec2_configuration)) }
   let(:params) do
     {
-      project:    'Cloud',
-      package:    'aws',
-      repository: 'standard',
-      arch:       'x86_64',
-      filename:   'appliance.raw.gz',
-      region:     'us-east-1'
+      project:             'Cloud',
+      package:             'aws',
+      repository:          'standard',
+      arch:                'x86_64',
+      filename:            'appliance.raw.xz',
+      region:              'us-east-1',
+      virtualization_type: 'hvm',
+      ami_name:            'my-image',
+      user:                user,
+      target:              'ec2'
     }
   end
   let(:response) do
@@ -30,39 +34,50 @@ RSpec.describe Cloud::UploadJob, type: :model, vcr: true do
     HEREDOC
   end
 
+  describe 'validations' do
+    it { is_expected.to validate_inclusion_of(:arch).in_array(['x86_64']) }
+    it { is_expected.to validate_inclusion_of(:target).in_array(['ec2']) }
+    it { is_expected.to validate_presence_of :user }
+    it { is_expected.to allow_value('foo.raw.xz').for(:filename) }
+    it { is_expected.to allow_value('foo.vhdfixed.xz').for(:filename) }
+    it { is_expected.not_to allow_value('foo.rpm').for(:filename) }
+    it { is_expected.not_to allow_value('foo.vhdfixed').for(:filename) }
+    it { is_expected.not_to allow_value('foo.raw').for(:filename) }
+  end
+
   describe '.create' do
     context 'with a valid backend response' do
       before do
-        allow(Backend::Api::Cloud).to receive(:upload).with(user, params).and_return(response)
+        allow(Backend::Api::Cloud).to receive(:upload).with(params).and_return(response)
       end
 
-      subject { Cloud::UploadJob.create(user, params) }
+      subject { Cloud::UploadJob.create(params) }
 
       it { expect(subject.valid?).to be_truthy }
     end
 
     context 'with an invalid Backend::UploadJob' do
-      subject { Cloud::UploadJob.create(user, params) }
+      subject { Cloud::UploadJob.create(params) }
 
       it { expect(subject.valid?).to be_falsy }
       it 'has the correct error message' do
         subject.valid?
-        expect(subject.errors.full_messages.to_sentence).to eq('Backend upload job no cloud upload server configurated')
+        expect(subject.errors.full_messages.to_sentence).to match(/no cloud upload server configurated/)
       end
     end
 
     context 'with an invalid User::UploadJob' do
       let!(:job) { create(:upload_job, job_id: 6) }
       before do
-        allow(Backend::Api::Cloud).to receive(:upload).with(user, params).and_return(response)
+        allow(Backend::Api::Cloud).to receive(:upload).with(params).and_return(response)
       end
 
-      subject { Cloud::UploadJob.create(user, params) }
+      subject { Cloud::UploadJob.create(params) }
 
       it { expect(subject.valid?).to be_falsy }
       it 'has the correct error message' do
         subject.valid?
-        expect(subject.errors.full_messages.to_sentence).to eq('User upload job Job has already been taken')
+        expect(subject.errors.full_messages.to_sentence).to match(/already been taken/)
       end
     end
   end

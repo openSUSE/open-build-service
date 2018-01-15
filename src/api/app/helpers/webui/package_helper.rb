@@ -87,7 +87,7 @@ module Webui::PackageHelper
     [repository.repo_type, repository.priority].compact.join(', Priority: ')
   end
 
-  def cloud_image_file?(filename)
-    filename.end_with?('.raw.xz', '.vhdfixed.xz')
+  def uploadable?(filename, architecture)
+    ::Cloud::UploadJob.new(filename: filename, arch: architecture).uploadable?
   end
 end

@@ -21,12 +21,11 @@ module Cloud
                      :size,
                      :backend_response
       alias_method :id, :name
-      alias_method :platform, :target
       alias_method :architecture, :arch
       validate :validate_xml
 
-      def self.create(user, params)
-        xml = ::Backend::Api::Cloud.upload(user, params)
+      def self.create(params)
+        xml = ::Backend::Api::Cloud.upload(params)
 
         new(xml: xml)
       rescue ActiveXML::Transport::Error, Timeout::Error => exception

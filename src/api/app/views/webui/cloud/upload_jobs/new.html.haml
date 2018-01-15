@@ -8,19 +8,32 @@
   = link_to "Amazon EC2 configuration", cloud_ec2_configuration_path
   for more information.
 
+%h3
+  Upload image
+
 = form_for @upload_job, url: cloud_upload_index_path, method: :post do |upload_job_form|
   %p
-    Upload image
+    Filename:
     %b
       = @upload_job.filename
-    to region
+  %p
+    = upload_job_form.label 'cloud_backend_upload_job[ami_name]', "AMI Name:"
+    = upload_job_form.text_field :filename, size: 35, name: 'cloud_backend_upload_job[ami_name]'
+  %p
+    = upload_job_form.label 'cloud_backend_upload_job[region]', "Region:"
     = select_tag('cloud_backend_upload_job[region]', options_for_select(@ec2_regions))
+  %p
+    = upload_job_form.label 'cloud_backend_upload_job[virtualization_type]', "Virtualization Type:"
+    = select_tag('cloud_backend_upload_job[virtualization_type]', options_for_select(@ec2_virtualization_types))
+  %p
     = upload_job_form.hidden_field :project
     = upload_job_form.hidden_field :package
     = upload_job_form.hidden_field :arch
     = upload_job_form.hidden_field :repository
     = upload_job_form.hidden_field :filename
-    = submit_tag 'Upload'
+    = upload_job_form.hidden_field :target, value: 'ec2'
+  %p
+    = submit_tag 'Upload Image'
 
 %p
   = link_to "All Cloud Uploads", cloud_upload_index_path
