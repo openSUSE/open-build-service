@@ -72,10 +72,8 @@ class EventTest < ActionDispatch::IntegrationTest
     User.current = users(:Iggy)
     req = bs_requests(:submit_from_home_project)
     myid = req.number
-    SendEventEmailsJob.new.perform # empty queue
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       req.addreview by_user: 'tom', comment: 'Can you check that?'
-      SendEventEmailsJob.new.perform
     end
     email = ActionMailer::Base.deliveries.last
 
@@ -87,17 +85,6 @@ class EventTest < ActionDispatch::IntegrationTest
       should.gsub!(/\n@@ -0,0 \+1,1 @@\n/, "\n@@ -0,0 +1 @@\n")
     end
     assert_equal should, email.encoded.lines.map(&:chomp).reject { |l| l =~ %r{^Date:} }.join("\n")
-  end
-
-  test 'cleanup job' do
-    firstcount = Event::Base.count
-    CleanupEvents.new.perform
-    assert Event::Base.count == firstcount, 'all our fixtures are fresh, mail must be sent first'
-    f = Event::Base.first
-    f.mails_sent = true
-    f.save
-    CleanupEvents.new.perform
-    assert Event::Base.count != firstcount, 'now its gone'
   end
 
   test 'maintainer mails for build failure' do
@@ -135,10 +122,8 @@ class EventTest < ActionDispatch::IntegrationTest
     User.current = users(:Iggy)
     req = bs_requests(:submit_from_home_project)
     myid = req.number
-    SendEventEmailsJob.new.perform # empty queue
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       req.addreview by_project: 'home:Iggy', by_package: 'TestPack', comment: 'Can you check that?'
-      SendEventEmailsJob.new.perform
     end
     email = ActionMailer::Base.deliveries.last
 
@@ -151,7 +136,6 @@ class EventTest < ActionDispatch::IntegrationTest
     ActionMailer::Base.deliveries.clear
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       req.addreview by_project: 'Apache', by_package: 'apache2', comment: 'Can you check that?'
-      SendEventEmailsJob.new.perform
     end
     email = ActionMailer::Base.deliveries.last
 
