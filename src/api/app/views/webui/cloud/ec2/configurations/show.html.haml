@@ -41,10 +41,13 @@
         AmazonEC2FullAccess
       permission policy and create the role.
 
-= form_for @ec2_configuration, url: cloud_ec2_configuration_path, method: :put do
-  %p
-    Please enter now the obtained
-    %b
-      Amazon Resouce Name (ARN):
-    = text_field :ec2_configuration, :arn, value: @ec2_configuration.arn, size: 40
-    = submit_tag "Submit"
+.container
+  .row.grid_8
+    = form_for @ec2_configuration, url: cloud_ec2_configuration_path, method: :put do
+      = label_tag(:ec2_configuration, 'Please enter now the obtained')
+      %b
+        Amazon Resouce Name (ARN):
+      .row.grid_12{ style: "margin-top: 8px;margin-bottom: 8px;" }
+        = text_field :ec2_configuration, :arn, value: @ec2_configuration.arn, size: 40
+      .row
+        = submit_tag "Submit"
