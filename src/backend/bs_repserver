@@ -1940,6 +1940,27 @@ sub putjob {
   mkdir_p($tmpdir);
   my $uploaded = BSServer::read_cpio($tmpdir);
 
+  # make sure the meta file is well-formed
+  if (-f "$tmpdir/meta") {
+    local *F;
+    eval {
+      open (F, '<', "$tmpdir/meta") || die("$tmpdir/meta: $!\n");
+      die("empty meta file\n") unless -s F;
+      while (<F>) {
+	chomp;
+	die("bad meta line: $_\n") unless /^[0-9a-f]{32}  .+/s;
+      }
+    };
+    if ($@) {
+      my $err = $@;
+      unlink("$jobsdir/$arch/$job:status");
+      sendbadhostevent($info, $idlename);
+      BSUtil::cleandir($tmpdir);
+      rmdir($tmpdir);
+      die($err);
+    }
+  }
+
   # now get the lock again
   my $jobstatus;
   my $kiwitree_tosign;
