@@ -466,17 +466,22 @@ my $gctx = {
   'prplastcheck' => {},			# XXX: currently not used
 };
 
-my $genmetaalgo = BSBuild::setgenmetaalgo(-1);
-if ($genmetaalgo) {
+my $genmetaalgo = 0;
+
+if (defined($BSConfig::genmetaalgo)) {
+  $genmetaalgo = $BSConfig::genmetaalgo;
+} elsif (0) {
+  $genmetaalgo = BSBuild::setgenmetaalgo(-1);
   my $solvgenmetaalgo = 0;
   $solvgenmetaalgo = BSSolv::setgenmetaalgo(-1) if defined &BSSolv::setgenmetaalgo;
   if ($solvgenmetaalgo < $genmetaalgo) {
-    warn("downgraded genmetaalgo to $solvgenmetaalgo because of old perl-BSSolv\n");
+    warn("downgraded genmetaalgo from $genmetaalgo to $solvgenmetaalgo because of old perl-BSSolv\n");
     $genmetaalgo = $solvgenmetaalgo;
   }
 }
 
 BSSolv::setgenmetaalgo($genmetaalgo) if defined &BSSolv::setgenmetaalgo;
+BSBuild::setgenmetaalgo($genmetaalgo);
 $gctx->{'genmetaalgo'} = $genmetaalgo;
 
 my $rctx = BSSched::RPC->new(
