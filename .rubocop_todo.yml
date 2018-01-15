@@ -330,11 +330,6 @@ Style/InverseMethods:
     - 'src/api/test/functional/request_events_test.rb'
     - 'src/api/test/unit/event_mailer_test.rb'
 
-# Offense count: 80
-# Cop supports --auto-correct.
-Style/LineEndConcatenation:
-  Enabled: false
-
 # Offense count: 2
 Style/MethodMissing:
   Exclude:

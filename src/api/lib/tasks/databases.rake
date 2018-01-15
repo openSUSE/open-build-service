@@ -89,7 +89,7 @@ namespace :db do
       puts 'Diffing the db/structure.sql'
       sh %(git diff --quiet db/structure.sql) do |ok, _|
         unless ok
-          abort 'Generated structure.sql differs from structure.sql stored in git. ' +
+          abort 'Generated structure.sql differs from structure.sql stored in git. ' \
                 'Please run rake db:migrate and check the differences.'
         end
       end

@@ -43,12 +43,12 @@ RSpec.describe Webui::BuildresultHelper do
         let(:key) { key }
         let(:encoded_description) { description.gsub("'", '&#39;') } # ' is encoded as &#39;
         let(:result) do
-          "<td class=\"status_#{key} buildstatus nowrap\"><a title=\"#{encoded_description}\" rel=\"nofollow\" " +
-            "href=\"/package/live_build_log/#{project}/#{package}/#{repo}/#{arch}\">#{key}</a> <img title=\"#{encoded_description}\" class=" +
+          "<td class=\"status_#{key} buildstatus nowrap\"><a title=\"#{encoded_description}\" rel=\"nofollow\" " \
+            "href=\"/package/live_build_log/#{project}/#{package}/#{repo}/#{arch}\">#{key}</a> <img title=\"#{encoded_description}\" class=" \
             "\"icons-help\" alt=\"#{encoded_description}\" src=\"/images/s.gif\" /></td>"
         end
         let(:result2) do
-          "<td class=\"status_#{key} buildstatus nowrap\"><a title=\"#{encoded_description}\" rel=\"nofollow\" " +
+          "<td class=\"status_#{key} buildstatus nowrap\"><a title=\"#{encoded_description}\" rel=\"nofollow\" " \
             "href=\"/package/live_build_log/#{project}/#{package}/#{repo}/#{arch}\">#{key}</a></td>"
         end
 
@@ -60,11 +60,11 @@ RSpec.describe Webui::BuildresultHelper do
       context "with #{key}" do
         let(:key) { key }
         let(:result) do
-          "<td class=\"status_#{key} buildstatus nowrap\"><a title=\"#{description}\" id=\"id-#{package}_#{repo}_#{arch}\" class=\"#{key}\" " +
+          "<td class=\"status_#{key} buildstatus nowrap\"><a title=\"#{description}\" id=\"id-#{package}_#{repo}_#{arch}\" class=\"#{key}\" " \
             "href=\"#\">#{key}</a> <img title=\"#{description}\" class=\"icons-help\" alt=\"#{description}\" src=\"/images/s.gif\" /></td>"
         end
         let(:result2) do
-          "<td class=\"status_#{key} buildstatus nowrap\"><a title=\"#{description}\" id=\"id-#{package}_#{repo}_#{arch}\" class=\"#{key}\" " +
+          "<td class=\"status_#{key} buildstatus nowrap\"><a title=\"#{description}\" id=\"id-#{package}_#{repo}_#{arch}\" class=\"#{key}\" " \
             "href=\"#\">#{key}</a></td>"
         end
 
@@ -75,13 +75,13 @@ RSpec.describe Webui::BuildresultHelper do
     context 'with scheduled' do
       let(:key) { 'scheduled' }
       let(:result) do
-        "<td class=\"status_scheduled_warning buildstatus nowrap\"><a title=\"#{description}\" id=\"id-#{package}_#{repo}_#{arch}\" class=" +
-          '"scheduled" href="#">scheduled</a>' +
-          " <img title=\"#{description}\" class=\"icons-help\" alt=\"#{description}\" src=\"/images/s.gif\" />" +
+        "<td class=\"status_scheduled_warning buildstatus nowrap\"><a title=\"#{description}\" id=\"id-#{package}_#{repo}_#{arch}\" class=" \
+          '"scheduled" href="#">scheduled</a>' \
+          " <img title=\"#{description}\" class=\"icons-help\" alt=\"#{description}\" src=\"/images/s.gif\" />" \
           '</td>'
       end
       let(:result2) do
-        "<td class=\"status_scheduled_warning buildstatus nowrap\"><a title=\"#{description}\" id=\"id-#{package}_#{repo}_#{arch}\" class=" +
+        "<td class=\"status_scheduled_warning buildstatus nowrap\"><a title=\"#{description}\" id=\"id-#{package}_#{repo}_#{arch}\" class=" \
           '"scheduled" href="#">scheduled</a></td>'
       end
 

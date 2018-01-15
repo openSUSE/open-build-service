@@ -220,7 +220,7 @@ class Authenticator
     end
 
     if @http_user.state == 'unconfirmed'
-      raise UnconfirmedUserError, 'User is registered but not yet approved. Your account ' +
+      raise UnconfirmedUserError, 'User is registered but not yet approved. Your account ' \
                                   'is a registered account, but it is not yet approved for the OBS by admin.'
     end
 
@@ -232,7 +232,7 @@ class Authenticator
       return true
     end
 
-    raise InactiveUserError, 'User is registered but not in confirmed state. Your account ' +
+    raise InactiveUserError, 'User is registered but not in confirmed state. Your account ' \
                              'is a registered account, but it is in a not active state.'
   end
 

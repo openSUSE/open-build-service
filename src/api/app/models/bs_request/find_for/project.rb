@@ -37,7 +37,7 @@ class BsRequest
               inner_or << "(bs_request_actions.#{source_or_target}_project like #{quote(project + ':%')})"
             end
           else
-            inner_or << "(bs_request_actions.#{source_or_target}_project=#{quote(project)} and " +
+            inner_or << "(bs_request_actions.#{source_or_target}_project=#{quote(project)} and " \
                         "bs_request_actions.#{source_or_target}_package=#{quote(package)})"
           end
         end

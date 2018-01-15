@@ -802,7 +802,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it do
-        expect(flash[:success]).to eq("Created <a href='http://test.host/request/show/#{BsRequest.last.number}'>repository delete " +
+        expect(flash[:success]).to eq("Created <a href='http://test.host/request/show/#{BsRequest.last.number}'>repository delete " \
                                       "request #{BsRequest.last.number}</a>")
       end
       it { is_expected.to redirect_to(controller: :request, action: :show, number: BsRequest.last.number) }
@@ -968,7 +968,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
         it { is_expected.to redirect_to(action: :show, project: user.home_project) }
         it do
-          expect(flash[:notice]).to eq("Project can't be unlocked: Unlock of maintenance incident #{user.home_project.name} is not possible," +
+          expect(flash[:notice]).to eq("Project can't be unlocked: Unlock of maintenance incident #{user.home_project.name} is not possible," \
                                             " because there is a running release request: #{bs_request.id}")
         end
       end

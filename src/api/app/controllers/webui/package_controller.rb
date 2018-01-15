@@ -1088,7 +1088,7 @@ class Webui::PackageController < Webui::WebuiController
                                                                              follow_project_links: true)
     rescue Package::UnknownObjectError
       redirect_to project_show_path(@project.to_param),
-                  error: "Couldn't find package '#{params[:package]}' in " +
+                  error: "Couldn't find package '#{params[:package]}' in " \
                          "project '#{@project.to_param}'. Are you sure it exists?"
       return false
     end

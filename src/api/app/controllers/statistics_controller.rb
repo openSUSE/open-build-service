@@ -22,7 +22,7 @@ class StatisticsController < ApplicationController
     # set automatic action_cache expiry time limit
     # response.time_to_live = 10.minutes
 
-    ratings = Rating.select('db_object_id, db_object_type, count(score) as count,' +
+    ratings = Rating.select('db_object_id, db_object_type, count(score) as count,' \
                                 'sum(score)/count(score) as score_calculated').group('db_object_id, db_object_type').order('score_calculated DESC')
     ratings = ratings.to_a.delete_if { |r| r.count.to_i < min_votes_for_rating }
     if @limit

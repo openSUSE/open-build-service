@@ -80,7 +80,7 @@ class BsRequestPermissionCheck
     originpkg = Package.get_by_project_and_name action.target_project, action.target_package
     return if User.current.can_modify_package?(originpkg, true)
 
-    raise PostRequestNoPermission, 'Package target can not get initialized using makeoriginolder.' +
+    raise PostRequestNoPermission, 'Package target can not get initialized using makeoriginolder.' \
                                    "No permission in project #{originpkg.project.name}"
   end
 
@@ -104,7 +104,7 @@ class BsRequestPermissionCheck
       c = Backend::Api::Sources::Package.files(action.source_project, action.source_package, expand: 1)
       data = REXML::Document.new(c)
       unless action.source_rev == data.elements['directory'].attributes['srcmd5']
-        raise SourceChanged, "The current source revision in #{action.source_project}/#{action.source_package}" +
+        raise SourceChanged, "The current source revision in #{action.source_project}/#{action.source_package}" \
                              "are not on revision #{action.source_rev} anymore."
       end
     end
@@ -287,7 +287,7 @@ class BsRequestPermissionCheck
       raise ReviewChangeStateNoPermission, "review state change for group #{by_group.title} is not permitted for #{User.current.login}"
     end
     if by_package && !User.current.can_modify_package?(by_package, true)
-      raise ReviewChangeStateNoPermission, "review state change for package #{opts[:by_project]}/#{opts[:by_package]} " +
+      raise ReviewChangeStateNoPermission, "review state change for package #{opts[:by_project]}/#{opts[:by_package]} " \
                                            "is not permitted for #{User.current.login}"
     end
 
@@ -354,7 +354,7 @@ class BsRequestPermissionCheck
       next unless opts[:newstate] == 'accepted' && !@write_permission_in_this_action
       msg = ''
       unless action.bs_request.new_record?
-        msg = 'No permission to modify target of request ' +
+        msg = 'No permission to modify target of request ' \
               "#{action.bs_request.number} (type #{action.action_type}): project #{action.target_project}"
       end
       msg += ", package #{action.target_package}" if action.target_package

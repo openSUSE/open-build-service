@@ -60,7 +60,7 @@ class Patchinfo < ActiveXML::Node
         return if is_repository_matching?(prt.target_repository, rt)
       end
     end
-    raise ReleasetargetNotFound, "Release target '#{rt['project']}/#{rt['repository']}' is not defined " +
+    raise ReleasetargetNotFound, "Release target '#{rt['project']}/#{rt['repository']}' is not defined " \
                                  "in this project '#{@project.name}'. Please ask your OBS administrator to add it."
   end
 
@@ -174,10 +174,10 @@ class Patchinfo < ActiveXML::Node
     @pkg = Package.get_by_project_and_name project, pkg_name
     return if force
     if @pkg.is_patchinfo?
-      raise PatchinfoFileExists, "createpatchinfo command: the patchinfo #{pkg_name} exists already. " +
+      raise PatchinfoFileExists, "createpatchinfo command: the patchinfo #{pkg_name} exists already. " \
                                  'Either use force=1 re-create the _patchinfo or use updatepatchinfo for updating.'
     else
-      raise PackageAlreadyExists, "createpatchinfo command: the package #{pkg_name} exists already, " +
+      raise PackageAlreadyExists, "createpatchinfo command: the package #{pkg_name} exists already, " \
                                   'but is  no patchinfo. Please create a new package instead.'
     end
   end
