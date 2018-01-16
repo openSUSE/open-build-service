@@ -36,6 +36,12 @@ module Backend
           get(['/source/:project/_project/_meta', project_name], params: options, accepted: [:revision, :deleted], rename: { revision: :rev })
         end
 
+        # Writes a Project meta
+        # @return [String]
+        def self.write_meta(project_name, meta, options = {})
+          put(['/source/:project/_meta', project_name], data: meta, params: options, accepted: [:user, :comment, :requestid, :lowprio])
+        end
+
         # Writes a Project configuration
         # @return [String]
         def self.write_configuration(project_name, configuration)

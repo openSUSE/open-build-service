@@ -608,13 +608,13 @@ class Project < ApplicationRecord
 
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       login = @commit_opts[:login] || User.current.login
-      query = { user: login }
-      query[:comment] = @commit_opts[:comment] if @commit_opts[:comment].present?
+      options = { user: login }
+      options[:comment] = @commit_opts[:comment] if @commit_opts[:comment].present?
       # api request number is requestid in backend
-      query[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
-      query[:lowprio] = '1' if @commit_opts[:lowprio]
+      options[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
+      options[:lowprio] = 1 if @commit_opts[:lowprio]
       logger.debug "Writing #{name} to backend"
-      Backend::Connection.put(source_path('_meta', query), to_axml)
+      Backend::Api::Sources::Project.write_meta(name, to_axml, options)
       logger.tagged('backend_sync') { logger.debug "Saved Project #{name}" }
     elsif @commit_opts[:no_backend_write]
       logger.tagged('backend_sync') { logger.warn "Not saving Project #{name}, backend_write is off " }
