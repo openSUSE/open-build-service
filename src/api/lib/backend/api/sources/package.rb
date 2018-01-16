@@ -27,7 +27,7 @@ module Backend
         # @param options [Hash] Parameters to pass to the backend.
         # @return [String]
         def self.files(project_name, package_name, options = {})
-          get(['/source/:project/:package', project_name, package_name], params: options)
+          get(['/source/:project/:package', project_name, package_name], params: options, accepted: [:expand, :rev, :view])
         end
 
         # Returns the revisions (mrev) list for a package
