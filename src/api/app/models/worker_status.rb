@@ -68,13 +68,13 @@ class WorkerStatus
     end
     queue = daemon.get('queue')
     return unless queue
-    %w[high next med low].each { |key| add_squeue("squeue_#{key}_#{arch}", queue[key]) }
+    ['high', 'next', 'med', 'low'].each { |key| add_squeue("squeue_#{key}_#{arch}", queue[key]) }
   end
 
   def parse_worker_infos(wdata)
     allworkers = {}
     workers = {}
-    %w[building idle dead down away].each do |state|
+    ['building', 'idle', 'dead', 'down', 'away'].each do |state|
       wdata.elements(state) do |e|
         id = e['workerid']
         if workers.key? id

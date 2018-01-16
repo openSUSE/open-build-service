@@ -1731,7 +1731,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   def test_submit_cleanup_in_not_writable_source
     login_Iggy
-    %w[cleanup update].each do |modify|
+    ['cleanup', 'update'].each do |modify|
       req = "<request>
               <action type='submit'>
                 <source project='Apache' package='apache2' rev='1' />
@@ -1811,7 +1811,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_reopen_a_review_declined_request
-    %w[new review].each do |newstate|
+    ['new', 'review'].each do |newstate|
       login_Iggy
       post '/source/Apache/apache2', params: { cmd: :branch }
       assert_response :success
@@ -3128,7 +3128,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'package', attributes: { project: 'BaseDistro' }) # it appears via project link
 
     # and create a request to wrong target
-    %w[delete set_bugowner add_role change_devel].each do |at|
+    ['delete', 'set_bugowner', 'add_role', 'change_devel'].each do |at|
       rq = '<request>
              <action type="' + at + '">'
       rq += "  <source project='BaseDistro' package='pack1'/>" if at == 'change_devel'

@@ -28,7 +28,7 @@ namespace :db do
   task extract_fixtures: :environment do
     raise 'You only want to run this in test environment' unless ENV['RAILS_ENV'] == 'test'
     sql = 'SELECT * FROM %s'
-    skip_tables = %w[schema_info sessions schema_migrations]
+    skip_tables = ['schema_info', 'sessions', 'schema_migrations']
     ActiveRecord::Base.establish_connection
     User.current = User.find_by_login('Admin')
     tables = ENV['FIXTURES'] ? ENV['FIXTURES'].split(/,/) : ActiveRecord::Base.connection.tables - skip_tables
@@ -102,13 +102,13 @@ namespace :db do
             perm = StaticPermission.find(record.delete('static_permission_id'))
             record['static_permission'] = perm.title
           end
-          %w[db_project project develproject maintenance_project].each do |prefix|
+          ['db_project', 'project', 'develproject', 'maintenance_project'].each do |prefix|
             next unless record.key?(prefix + '_id')
             p = Project.find(record.delete(prefix + '_id'))
             prefix = 'project' if prefix == 'db_project'
             record[prefix] = p.name.tr(':', '_')
           end
-          %w[package develpackage links_to].each do |prefix|
+          ['package', 'develpackage', 'links_to'].each do |prefix|
             if record.key?(prefix + '_id')
               p = Package.find(record.delete(prefix + '_id'))
               record[prefix] = p.fixtures_name
@@ -149,13 +149,15 @@ namespace :db do
             key = record['name'].tr(':', '_')
             record.delete(primary)
           end
-          if %w[static_permissions packages].include? table_name
+          if ['static_permissions', 'packages'].include? table_name
             key = classname.find(record.delete(primary)).fixtures_name
           end
           defaultkey = record['package'] if table_name == 'backend_packages'
-          if %w[event_subscriptions ratings package_kinds package_issues
-                linked_db_projects relationships watched_projects path_elements groups_users
-                flags taggings bs_request_histories bs_request_actions project_log_entries].include? table_name
+          if ['event_subscriptions', 'ratings', 'package_kinds', 'package_issues',
+              'linked_db_projects', 'relationships', 'watched_projects', 'path_elements',
+              'groups_users', 'flags', 'taggings', 'bs_request_histories',
+              'bs_request_actions', 'project_log_entries'].include? table_name
+
             record.delete(primary)
             t = record.to_a.sort
             # a bit clumpsy but reliable order is important for git diff

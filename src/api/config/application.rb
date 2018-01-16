@@ -3,7 +3,7 @@ require_relative 'boot'
 require 'rails/all'
 
 # Assets should be precompiled for production (so we don't need the gems loaded then)
-Bundler.require(*Rails.groups(assets: %w[development test]))
+Bundler.require(*Rails.groups(assets: ['development', 'test']))
 require_relative '../lib/engines/base.rb'
 OBSEngine.load_engines
 
@@ -88,24 +88,22 @@ module OBSApi
 
     config.assets.js_compressor = :uglifier
 
-    config.assets.precompile +=
-      %w[ webui/application/cm2/index.js
-          webui/application/cm2/index-diff.js
-          webui/application/cm2/index-xml.js
-          webui/application/cm2/index-prjconf.js ]
+    config.assets.precompile += ['webui/application/cm2/index.js',
+                                 'webui/application/cm2/index-diff.js',
+                                 'webui/application/cm2/index-xml.js',
+                                 'webui/application/cm2/index-prjconf.js']
 
-    config.assets.precompile +=
-      %w[ dataTables/back_disabled.png
-          dataTables/back_enabled_hover.png
-          dataTables/back_enabled.png
-          dataTables/forward_disabled.png
-          dataTables/forward_enabled_hover.png
-          dataTables/forward_enabled.png
-          dataTables/sort_asc_disabled.png
-          dataTables/sort_asc.png
-          dataTables/sort_both.png
-          dataTables/sort_desc_disabled.png
-          dataTables/sort_desc.png ]
+    config.assets.precompile += ['dataTables/back_disabled.png',
+                                 'dataTables/back_enabled_hover.png',
+                                 'dataTables/back_enabled.png',
+                                 'dataTables/forward_disabled.png',
+                                 'dataTables/forward_enabled_hover.png',
+                                 'dataTables/forward_enabled.png',
+                                 'dataTables/sort_asc_disabled.png',
+                                 'dataTables/sort_asc.png',
+                                 'dataTables/sort_both.png',
+                                 'dataTables/sort_desc_disabled.png',
+                                 'dataTables/sort_desc.png']
 
     config.action_controller.action_on_unpermitted_parameters = :raise
 

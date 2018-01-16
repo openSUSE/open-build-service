@@ -29,16 +29,9 @@ module Event
       @shortenable_key = nil
 
       def notification_events
-        %w[
-          Event::BuildFail
-          Event::ServiceFail
-          Event::ReviewWanted
-          Event::RequestCreate
-          Event::RequestStatechange
-          Event::CommentForProject
-          Event::CommentForPackage
-          Event::CommentForRequest
-        ].map(&:constantize)
+        ['Event::BuildFail', 'Event::ServiceFail', 'Event::ReviewWanted', 'Event::RequestCreate',
+         'Event::RequestStatechange', 'Event::CommentForProject', 'Event::CommentForPackage',
+         'Event::CommentForRequest'].map(&:constantize)
       end
 
       def classnames

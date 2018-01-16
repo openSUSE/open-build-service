@@ -111,7 +111,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     end
 
     email = ActionMailer::Base.deliveries.last
-    assert_equal %w[adrian@example.com tschmidt@example.com], email.to.sort
+    assert_equal ['adrian@example.com', 'tschmidt@example.com'], email.to.sort
 
     # now to something fancy
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
@@ -121,7 +121,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     end
 
     email = ActionMailer::Base.deliveries.last
-    assert_equal %w[adrian@example.com fred@feuerstein.de tschmidt@example.com], email.to.sort
+    assert_equal ['adrian@example.com', 'fred@feuerstein.de', 'tschmidt@example.com'], email.to.sort
 
     # and check if @fred becomes a 'commenter' for ever
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
@@ -131,7 +131,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     end
 
     email = ActionMailer::Base.deliveries.last
-    assert_equal %w[adrian@example.com fred@feuerstein.de tschmidt@example.com], email.to.sort
+    assert_equal ['adrian@example.com', 'fred@feuerstein.de', 'tschmidt@example.com'], email.to.sort
   end
 
   def test_create_project_comment

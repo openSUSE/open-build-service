@@ -166,10 +166,9 @@ class SourceController < ApplicationController
   def project_command
     # init and validation
     #--------------------
-    valid_commands = %w[
-      undelete showlinked remove_flag set_flag createpatchinfo createkey extendkey copy
-      createmaintenanceincident lock unlock release addchannels modifychannels move freezelink
-    ]
+    valid_commands = ['undelete', 'showlinked', 'remove_flag', 'set_flag', 'createpatchinfo',
+                      'createkey', 'extendkey', 'copy', 'createmaintenanceincident', 'lock',
+                      'unlock', 'release', 'addchannels', 'modifychannels', 'move', 'freezelink']
 
     if params[:cmd] && !params[:cmd].in?(valid_commands)
       raise IllegalRequest, 'invalid_command'
@@ -219,7 +218,7 @@ class SourceController < ApplicationController
       raise PackageExists, 'the package is not deleted' if tpkg
 
       validate_read_access_of_deleted_package(@target_project_name, @target_package_name)
-    elsif %w[_project _pattern].include? @target_package_name
+    elsif ['_project', '_pattern'].include? @target_package_name
       Project.get_by_name @target_project_name
     else
       @tpkg = Package.get_by_project_and_name(@target_project_name, @target_package_name, use_source: true, follow_project_links: true)
@@ -319,11 +318,12 @@ class SourceController < ApplicationController
     end
 
     # valid post commands
-    valid_commands = %w[diff branch servicediff linkdiff showlinked copy remove_flag set_flag
-                        undelete runservice waitservice mergeservice commit commitfilelist
-                        createSpecFileTemplate deleteuploadrev linktobranch updatepatchinfo
-                        getprojectservices unlock release importchannel wipe rebuild
-                        collectbuildenv instantiate addchannels enablechannel]
+    valid_commands = ['diff', 'branch', 'servicediff', 'linkdiff', 'showlinked', 'copy',
+                      'remove_flag', 'set_flag', 'undelete', 'runservice', 'waitservice',
+                      'mergeservice', 'commit', 'commitfilelist', 'createSpecFileTemplate',
+                      'deleteuploadrev', 'linktobranch', 'updatepatchinfo', 'getprojectservices',
+                      'unlock', 'release', 'importchannel', 'wipe', 'rebuild', 'collectbuildenv',
+                      'instantiate', 'addchannels', 'enablechannel']
 
     @command = params[:cmd]
     raise IllegalRequest, 'invalid_command' unless valid_commands.include?(@command)
@@ -369,12 +369,12 @@ class SourceController < ApplicationController
     dispatch_command(:package_command, @command)
   end
 
-  SOURCE_UNTOUCHED_COMMANDS = %w[branch diff linkdiff servicediff showlinked rebuild wipe
-                                 waitservice remove_flag set_flag getprojectservices].freeze
+  SOURCE_UNTOUCHED_COMMANDS = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'rebuild', 'wipe',
+                               'waitservice', 'remove_flag', 'set_flag', 'getprojectservices'].freeze
   # list of cammands which create the target package
-  PACKAGE_CREATING_COMMANDS = %w[branch release copy undelete instantiate].freeze
+  PACKAGE_CREATING_COMMANDS = ['branch', 'release', 'copy', 'undelete', 'instantiate'].freeze
   # list of commands which are allowed even when the project has the package only via a project link
-  READ_COMMANDS = %w[branch diff linkdiff servicediff showlinked getprojectservices release].freeze
+  READ_COMMANDS = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'getprojectservices', 'release'].freeze
 
   def validate_target_for_package_command_exists!
     @project = nil

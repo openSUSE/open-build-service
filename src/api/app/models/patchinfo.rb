@@ -225,7 +225,7 @@ class Patchinfo < ActiveXML::Node
     if data.empty?
       raise IncompletePatchinfo, 'The _patchinfo file is not parseble'
     end
-    %w[rating category summary].each do |field|
+    ['rating', 'category', 'summary'].each do |field|
       if data[field].blank?
         raise IncompletePatchinfo, "The _patchinfo has no #{field} set"
       end

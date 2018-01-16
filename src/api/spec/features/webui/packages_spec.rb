@@ -169,7 +169,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
 
     scenario 'via binaries view' do
       allow(Buildresult).to receive(:find_hashed).
-        with(project: user.home_project, package: package, repository: repository.name, view: %w[binarylist status]).
+        with(project: user.home_project, package: package, repository: repository.name, view: ['binarylist', 'status']).
         and_return(Xmlhash.parse(fake_buildresult))
 
       visit package_binaries_path(project: user.home_project, package: package, repository: repository.name)

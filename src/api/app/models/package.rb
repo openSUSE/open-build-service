@@ -41,10 +41,12 @@ class Package < ApplicationRecord
   class IllegalFileName < APIException; setup 'invalid_file_name_error'; end
   class PutFileNoPermission < APIException; setup 403; end
 
-  BINARY_EXTENSIONS = %w[.0 .bin .bin_mid .bz .bz2 .ccf .cert .chk .der .dll .exe .fw
-                         .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .otf .oxt .pdf .pk3
-                         .png .ps .rpm .sig .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz
-                         .txz .ucode .xpm .xz .z .zip .ttf].freeze
+  BINARY_EXTENSIONS = ['.0', '.bin', '.bin_mid', '.bz', '.bz2', '.ccf', '.cert',
+                       '.chk', '.der', '.dll', '.exe', '.fw', '.gem', '.gif', '.gz',
+                       '.jar', '.jpeg', '.jpg', '.lzma', '.ogg', '.otf', '.oxt',
+                       '.pdf', '.pk3', '.png', '.ps', '.rpm', '.sig', '.svgz', '.tar',
+                       '.taz', '.tb2', '.tbz', '.tbz2', '.tgz', '.tlz', '.txz', '.ucode',
+                       '.xpm', '.xz', '.z', '.zip', '.ttf'].freeze
 
   belongs_to :project, inverse_of: :packages
   delegate :name, to: :project, prefix: true
@@ -685,7 +687,7 @@ class Package < ApplicationRecord
     raise ArgumentError, 'neh!' if directory.key? 'time'
     ret = []
     directory.elements('entry') do |e|
-      %w[patchinfo aggregate link channel].each do |kind|
+      ['patchinfo', 'aggregate', 'link', 'channel'].each do |kind|
         ret << kind if e['name'] == '_' + kind
       end
       ret << 'product' if e['name'] =~ /.product$/
@@ -1083,7 +1085,7 @@ class Package < ApplicationRecord
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200
     return false if name == '0'
-    return true if %w[_product _pattern _project _patchinfo].include?(name)
+    return true if ['_product', '_pattern', '_project', '_patchinfo'].include?(name)
     # _patchinfo: is obsolete, just for backward compatibility
     allowed_characters = /[-+\w\.#{ allow_multibuild ? ':' : '' }]/
     reg_exp = /\A([a-zA-Z0-9]|(_product:|_patchinfo:)\w)#{allowed_characters}*\z/
@@ -1319,7 +1321,7 @@ class Package < ApplicationRecord
     content = File.open(content.path).read if content.is_a?(ActionDispatch::Http::UploadedFile)
 
     # schema validation, if possible
-    %w[aggregate constraints link service patchinfo channel].each do |schema|
+    ['aggregate', 'constraints', 'link', 'service', 'patchinfo', 'channel'].each do |schema|
       Suse::Validator.validate(schema, content) if name == '_' + schema
     end
 
@@ -1379,7 +1381,7 @@ class Package < ApplicationRecord
     end
 
     # update package timestamp and reindex sources
-    return if opt[:rev] == 'repository' || %w[_project _pattern].include?(name)
+    return if opt[:rev] == 'repository' || ['_project', '_pattern'].include?(name)
     sources_changed(wait_for_update: ['_aggregate', '_constraints', '_link', '_service', '_patchinfo', '_channel'].include?(opt[:filename]))
   end
 

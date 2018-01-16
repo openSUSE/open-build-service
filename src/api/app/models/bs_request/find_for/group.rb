@@ -13,7 +13,7 @@ class BsRequest
         if roles.empty? || roles.include?('reviewer')
           @relation = @relation.includes(:reviews).references(:reviews)
           # requests where the user is reviewer or own requests that are in review by someone else
-          or_in_and = %W[reviews.by_group=#{quote(group.title)}]
+          or_in_and = ["reviews.by_group=#{quote(group.title)}"]
 
           @relation, inner_or = extend_query_for_involved_reviews(group, or_in_and, @relation, review_states, inner_or)
         end

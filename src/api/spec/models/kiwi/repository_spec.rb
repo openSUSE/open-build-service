@@ -79,7 +79,7 @@ RSpec.describe Kiwi::Repository, type: :model do
           index = range(0, (string.length - 4))
           string[index] = ':'
           string[index + 1] = string[index + 2] = '/'
-          guard !%w[ftp http https plain dir iso smb this obs].include?(string[0..index - 1])
+          guard !['ftp', 'http', 'https', 'plain', 'dir', 'iso', 'smb', 'this', 'obs'].include?(string[0..index - 1])
           string
         end.check(3) do |string|
           is_expected.not_to allow_value(string).for(:source_path)
