@@ -16,7 +16,7 @@
         %tr
           %td= job.id
           %td= job.filename
-          %td= job.platform.upcase
+          %td= job.target.upcase
           %td= job.state
           %td= time_tag(job.created_at)
           %td
