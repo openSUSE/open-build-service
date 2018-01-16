@@ -49,9 +49,13 @@ namespace :docker do
 
     namespace :old do
       desc 'Run our frontend api old test suite in the docker container'
-      task :api do
+      task :api, :test do |_t, args|
         begin
-          sh 'docker-compose -f docker-compose.ci_old.yml up --abort-on-container-exit'
+          if args[:test]
+            sh "docker-compose -f docker-compose.ci_old.yml run --rm --entrypoint '/obs/contrib/start_old_tests #{args[:test]}' old-test-suite"
+          else
+            sh 'docker-compose -f docker-compose.ci_old.yml up --no-recreate --abort-on-container-exit'
+          end
         ensure
           sh 'docker-compose -f docker-compose.ci_old.yml stop'
         end
