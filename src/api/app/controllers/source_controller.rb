@@ -1419,11 +1419,11 @@ class SourceController < ApplicationController
   end
 
   def reparse_backend_package(spackage, sproject)
-    answer = Backend::Connection.get("/source/#{CGI.escape(sproject)}/#{CGI.escape(spackage)}/_meta")
+    answer = Backend::Api::Sources::Package.meta(sproject, spackage)
     raise UnknownPackage, "Unknown package #{spackage} in project #{sproject}" unless answer
 
     Package.transaction do
-      adata = Xmlhash.parse(answer.body)
+      adata = Xmlhash.parse(answer)
       adata['name'] = params[:package]
       p = @project.packages.new(name: params[:package])
       p.update_from_xml(adata)

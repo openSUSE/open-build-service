@@ -1197,9 +1197,8 @@ class Project < ApplicationRecord
     backend_pkgs = Collection.find :package, match: "@project='#{name}'"
     backend_pkgs.each('package') do |package|
       pname = package.value('name')
-      path = "/source/#{URI.escape(name)}/#{pname}/_meta"
       p = packages.where(name: pname).first_or_initialize
-      p.update_from_xml(Xmlhash.parse(Backend::Connection.get(path).body))
+      p.update_from_xml(Xmlhash.parse(Backend::Api::Sources::Package.meta(name, pname)))
       p.save! # do not store
     end
     all_sources_changed

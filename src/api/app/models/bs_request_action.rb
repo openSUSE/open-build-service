@@ -476,9 +476,7 @@ class BsRequestAction < ApplicationRecord
     # check that we did not skip a source change of patchinfo
     data = Directory.hashed(project: pkg.project.name, package: pkg.name, expand: 1)
     verifymd5 = data['srcmd5']
-    # rubocop:disable Metrics/LineLength
-    history = Xmlhash.parse(Backend::Connection.get("/build/#{URI.escape(pkg.project.name)}/#{URI.escape(repo.name)}/#{URI.escape(arch.name)}/#{URI.escape(pkg.name)}/_history").body)
-    # rubocop:enable Metrics/LineLength
+    history = Xmlhash.parse(Backend::Api::BuildResults::Binaries.history(pkg.project.name, repo.name, pkg.name, arch.name))
     last = history.elements('entry').last
     return if last && last['srcmd5'].to_s == verifymd5.to_s
 
@@ -554,7 +552,7 @@ class BsRequestAction < ApplicationRecord
       # do not allow release requests without binaries
       if is_maintenance_release? && pkg.is_patchinfo? && data && !opts[:ignore_build_state]
         # check for build state and binaries
-        state = REXML::Document.new(Backend::Connection.get("/build/#{URI.escape(pkg.project.name)}/_result?view=versrel").body)
+        state = REXML::Document.new(Backend::Api::BuildResults::Status.version_releases(pkg.project.name))
         results = state.get_elements("/resultlist/result[@project='#{pkg.project.name}'')]")
         unless results
           raise BuildNotFinished, "The project'#{pkg.project.name}' has no building repositories"

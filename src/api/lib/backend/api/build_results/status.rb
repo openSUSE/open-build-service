@@ -37,6 +37,11 @@ module Backend
         def self.build_problems(project_name)
           get(['/build/:project/_result', project_name], params: { view: :status, code: [:failed, :broken, :unresolvable] }, expand: [:code])
         end
+
+        # Returns the versions of the releases for the project
+        def self.version_releases(project_name)
+          get(['/build/:project/_result', project_name], params: { view: :versrel })
+        end
       end
     end
   end

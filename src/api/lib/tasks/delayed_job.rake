@@ -6,10 +6,10 @@ task(updatepackagemeta: :environment) { UpdatePackageMetaJob.new.perform }
 
 desc 'Import all requests from the backend now'
 task(importrequests: :environment) do
-  lastrq = Backend::Connection.get('/request/_lastid').body.to_i
+  lastrq = Backend::Api::Request.last_id
   while lastrq > 0
     begin
-      xml = Backend::Connection.get("/request/#{lastrq}").body
+      xml = Backend::Api::Request.info(lastrq)
     rescue ActiveXML::Transport::Error
       lastrq -= 1
       next

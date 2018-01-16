@@ -11,6 +11,11 @@ module Backend
           get(['/build/:project/:repository/:architecture/:package', project_name, repository_name, architecture_name, package_name])
         end
 
+        # Returns the history file of a package
+        def self.history(project, repository, package, architecture)
+          get(['/build/:project/:repository/:architecture/:package/_history', project, repository, architecture, package])
+        end
+
         # Returns the jobs history for a project
         # @return [String]
         def self.job_history(project_name, repository_name, architecture_name)
