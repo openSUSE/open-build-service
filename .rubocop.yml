@@ -58,9 +58,8 @@ Style/MultilineBlockChain:
 Style/RedundantReturn:
   Enabled: false
 
-# TODO: Disabled until we reach an agreement
 Style/SymbolArray:
-  Enabled: false
+  EnforcedStyle: brackets
 
 Style/WordArray:
   EnforcedStyle: brackets
