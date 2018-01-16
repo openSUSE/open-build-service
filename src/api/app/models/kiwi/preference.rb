@@ -1,7 +1,8 @@
 class Kiwi::Preference < ApplicationRecord
   belongs_to :image, inverse_of: :preference
 
-  enum type_image: %i[btrfs clicfs cpio docker ext2 ext3 ext4 iso lxc oem product pxe reiserfs split squashfs tbz vmx xfs zfs]
+  enum type_image: [:btrfs, :clicfs, :cpio, :docker, :ext2, :ext3, :ext4, :iso, :lxc, :oem,
+                    :product, :pxe, :reiserfs, :split, :squashfs, :tbz, :vmx, :xfs, :zfs]
 
   validates :type_image, inclusion: { in: type_images.keys }, allow_nil: true
 
