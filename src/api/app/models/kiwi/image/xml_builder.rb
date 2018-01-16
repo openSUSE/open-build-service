@@ -75,7 +75,7 @@ module Kiwi
         return document if @image.description.blank?
 
         if document.xpath('image/description[@type="system"]').first
-          %w[author contact specification].each do |element_name|
+          ['author', 'contact', 'specification'].each do |element_name|
             description_xml_element = find_or_create_description_xml_element(document, element_name)
             document.xpath('image/description[@type="system"]').first.add_child(description_xml_element)
           end

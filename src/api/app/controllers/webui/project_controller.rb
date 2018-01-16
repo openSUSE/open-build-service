@@ -252,14 +252,14 @@ class Webui::ProjectController < Webui::WebuiController
     @arch = params[:arch]
     @hosts = (params[:hosts] || 40).to_i
     @scheduler = params[:scheduler] || 'needed'
-    unless %w[fifo lifo random btime needed neededb longest_data longested_triedread longest].include? @scheduler
+    unless ['fifo', 'lifo', 'random', 'btime', 'needed', 'neededb', 'longest_data', 'longested_triedread', 'longest'].include? @scheduler
       flash[:error] = 'Invalid scheduler type, check mkdiststats docu - aehm, source'
       redirect_to action: :show, project: @project
       return
     end
     bdep = BuilddepInfo.find(project: @project.name, repository: @repository, arch: @arch)
     jobs = Jobhistory.find(project: @project.name, repository: @repository, arch: @arch,
-            limit: (@packages.size + @ipackages.size) * 3, code: %w[succeeded unchanged])
+            limit: (@packages.size + @ipackages.size) * 3, code: ['succeeded', 'unchanged'])
     unless bdep && jobs
       flash[:error] = "Could not collect infos about repository #{@repository}/#{@arch}"
       redirect_to action: :show, project: @project
@@ -291,7 +291,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   def requests
     @requests = @project.open_requests
-    @available_types = %w[all submit delete add_role change_devel maintenance_incident maintenance_release]
+    @available_types = ['all', 'submit', 'delete', 'add_role', 'change_devel', 'maintenance_incident', 'maintenance_release']
     @default_request_type = params[:type] if params[:type]
     @available_states = ['new or review', 'new', 'review', 'accepted', 'declined', 'revoked', 'superseded']
     @default_request_state = params[:state] if params[:state]
@@ -810,9 +810,9 @@ class Webui::ProjectController < Webui::WebuiController
     return unless @is_incident_project
 
     @open_release_requests = BsRequest.find_for(project: @project.name,
-                                  states: %w[new review],
-                                  types: %w[maintenance_release],
-                                  roles: %w[source]).pluck(:number)
+                                  states: ['new', 'review'],
+                                  types: ['maintenance_release'],
+                                  roles: ['source']).pluck(:number)
   end
 
   def call_diststats(bdep, jobs)
@@ -867,7 +867,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   def monitor_set_filter(defaults)
     @avail_status_values = Buildresult.avail_status_values
-    @filter_out = %w[disabled excluded unknown]
+    @filter_out = ['disabled', 'excluded', 'unknown']
     @status_filter = []
     @avail_status_values.each do |s|
       id = s.delete(' ')

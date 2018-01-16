@@ -297,7 +297,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_invalid_project_and_package_name
     login_king
-    %w[_invalid ..].each do |n|
+    ['_invalid', '..'].each do |n|
       put url_for(controller: :source, action: :update_project_meta, project: n), params: "<project name='#{n}'> <title /> <description /> </project>"
       assert_response 400
       assert_xml_tag tag: 'status', attributes: { code: 'invalid_project_name' }
@@ -3674,7 +3674,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     get '/source/home:tom:branches:home:Iggy/_meta'
-    assert_equal({ 'name' => '10.2', 'path' => { 'project' => 'home:Iggy', 'repository' => '10.2' }, 'arch' => %w[i586 x86_64] }, Xmlhash.parse(@response.body)['repository'])
+    assert_equal({ 'name' => '10.2', 'path' => { 'project' => 'home:Iggy', 'repository' => '10.2' }, 'arch' => ['i586', 'x86_64'] }, Xmlhash.parse(@response.body)['repository'])
 
     # check source link
     get '/source/home:tom:branches:home:Iggy/TestPack/_link'

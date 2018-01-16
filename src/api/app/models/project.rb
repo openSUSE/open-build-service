@@ -122,7 +122,7 @@ class Project < ApplicationRecord
   validates :name, presence: true, length: { maximum: 200 }, uniqueness: true
   validates :title, length: { maximum: 250 }
   validate :valid_name
-  validates :kind, inclusion: { in: %w[standard maintenance maintenance_incident maintenance_release] }
+  validates :kind, inclusion: { in: ['standard', 'maintenance', 'maintenance_incident', 'maintenance_release'] }
 
   def self.deleted?(project_name)
     return false if find_by_name(project_name)

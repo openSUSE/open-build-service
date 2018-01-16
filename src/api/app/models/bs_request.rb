@@ -29,7 +29,7 @@ class BsRequest < ApplicationRecord
     'bs_request_actions.type'
   ].freeze
 
-  FINAL_REQUEST_STATES = %w[accepted declined superseded revoked].freeze
+  FINAL_REQUEST_STATES = ['accepted', 'declined', 'superseded', 'revoked'].freeze
 
   VALID_REQUEST_STATES = [:new, :deleted, :declined, :accepted, :review, :revoked, :superseded].freeze
 
@@ -835,7 +835,7 @@ class BsRequest < ApplicationRecord
   end
 
   def send_state_change
-    intermediate_state = %w[new review]
+    intermediate_state = ['new', 'review']
     return if state_was.to_s == state.to_s
     # new->review && review->new are not worth an event - it's just spam
     return if state.to_s.in?(intermediate_state) && state_was.to_s.in?(intermediate_state)

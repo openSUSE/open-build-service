@@ -4,7 +4,7 @@ class Webui::DogsController < ApplicationController
   include AnimalControl
 
   #### Constants
-  BASIC_DOG_NAMES = %w[Tobby Thor Rambo Dog Blacky].freeze
+  BASIC_DOG_NAMES = ['Tobby', 'Thor', 'Rambo', 'Dog', 'Blacky'].freeze
 
   #### Self config
 

@@ -34,7 +34,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     email = ActionMailer::Base.deliveries.last
 
     assert_equal "Request #{myid} created by Iggy (add_role home:tom)", email.subject
-    assert_equal %w[tschmidt@example.com], email.to # tom is maintainer
+    assert_equal ['tschmidt@example.com'], email.to # tom is maintainer
     verify_email('request_event', myid, email)
   end
 
@@ -62,7 +62,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     email = ActionMailer::Base.deliveries.last
 
     assert_match(/^Request #{myid} created by Iggy \(add_role home:tom, /, email.subject)
-    assert_equal %w[tschmidt@example.com], email.to # tom is maintainer
+    assert_equal ['tschmidt@example.com'], email.to # tom is maintainer
   end
 
   def test_set_bugowner_event
@@ -81,7 +81,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     email = ActionMailer::Base.deliveries.last
 
     assert_equal "Request #{myid} created by Iggy (set_bugowner home:tom)", email.subject
-    assert_equal %w[tschmidt@example.com], email.to
+    assert_equal ['tschmidt@example.com'], email.to
     verify_email('set_bugowner_event', myid, email)
 
     ActionMailer::Base.deliveries.clear
