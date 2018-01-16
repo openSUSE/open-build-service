@@ -342,7 +342,7 @@ class XpathEngine
 
       @joins = ['LEFT JOIN repositories AS release_repositories ON binary_releases.repository_id = release_repositories.id',
                 'LEFT JOIN projects AS release_projects ON release_repositories.db_project_id = release_projects.id',
-                'LEFT join product_media on (product_media.repository_id=release_repositories.id AND product_media.name=binary_releases.medium)',
+                'LEFT join product_media on (product_media.repository_id=release_repositories.id AND product_media.name=binary_releases.medium COLLATE utf8_unicode_ci)',
                 'LEFT join products product_ga on product_ga.id=product_media.product_id ',
                 'LEFT join product_update_repositories product_update_repository on product_update_repository.repository_id=release_repositories.id',
                 'LEFT join products product_update on product_update.id=product_update_repository.product_id '] << @joins
