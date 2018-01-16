@@ -419,4 +419,39 @@ http_interactions:
         </projpack>
     http_version: 
   recorded_at: Wed, 02 Aug 2017 08:35:21 GMT
-recorded_with: VCR 3.0.3
+- request:
+    method: get
+    uri: http://backend:5352/source/Apache/apache2?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'Apache' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '140'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'Apache' does not exist</summary>
+          <details>404 project 'Apache' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:33:52 GMT
+recorded_with: VCR 4.0.0

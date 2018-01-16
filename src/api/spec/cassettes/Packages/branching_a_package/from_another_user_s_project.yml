@@ -1599,4 +1599,75 @@ http_interactions:
         </package>
     http_version: 
   recorded_at: Wed, 03 Jan 2018 13:14:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home other_package_test_user' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '184'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:other_package_test_user' does not exist</summary>
+          <details>404 project 'home:other_package_test_user' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:11:57 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user:branches:home:other_package_test_user/branch_test_package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home package_test_user branches home other_package_test_user'
+        does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '248'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:package_test_user:branches:home:other_package_test_user' does not exist</summary>
+          <details>404 project 'home:package_test_user:branches:home:other_package_test_user' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:11:58 GMT
 recorded_with: VCR 4.0.0

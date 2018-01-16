@@ -7999,4 +7999,611 @@ http_interactions:
         </resultlist>
     http_version: 
   recorded_at: Tue, 22 Aug 2017 12:31:30 GMT
-recorded_with: VCR 3.0.3
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject/patchinfo?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'MaintenanceProject' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '164'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'MaintenanceProject' does not exist</summary>
+          <details>404 project 'MaintenanceProject' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:33:55 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'ProjectWithRepo' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'ProjectWithRepo' does not exist</summary>
+          <details>404 project 'ProjectWithRepo' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:33:57 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom branches ProjectWithRepo Update' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '208'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom:branches:ProjectWithRepo:Update' does not exist</summary>
+          <details>404 project 'home:tom:branches:ProjectWithRepo:Update' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:33:57 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&tarlimit=10000
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom branches ProjectWithRepo Update' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '208'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom:branches:ProjectWithRepo:Update' does not exist</summary>
+          <details>404 project 'home:tom:branches:ProjectWithRepo:Update' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:33:59 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&rev=6d8b4e042078d289ced39a1738e21c95&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom branches ProjectWithRepo Update' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '208'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom:branches:ProjectWithRepo:Update' does not exist</summary>
+          <details>404 project 'home:tom:branches:ProjectWithRepo:Update' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:34:01 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'MaintenanceProject 0' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'MaintenanceProject:0' does not exist</summary>
+          <details>404 project 'MaintenanceProject:0' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:34:01 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'MaintenanceProject 0' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'MaintenanceProject:0' does not exist</summary>
+          <details>404 project 'MaintenanceProject:0' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:34:02 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'MaintenanceProject 0' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'MaintenanceProject:0' does not exist</summary>
+          <details>404 project 'MaintenanceProject:0' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:34:02 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'MaintenanceProject 0' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'MaintenanceProject:0' does not exist</summary>
+          <details>404 project 'MaintenanceProject:0' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:34:03 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'MaintenanceProject 0' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'MaintenanceProject:0' does not exist</summary>
+          <details>404 project 'MaintenanceProject:0' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:34:03 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&tarlimit=10000
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom branches ProjectWithRepo Update' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '208'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom:branches:ProjectWithRepo:Update' does not exist</summary>
+          <details>404 project 'home:tom:branches:ProjectWithRepo:Update' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:34:05 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&rev=6d8b4e042078d289ced39a1738e21c95&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom branches ProjectWithRepo Update' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '208'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom:branches:ProjectWithRepo:Update' does not exist</summary>
+          <details>404 project 'home:tom:branches:ProjectWithRepo:Update' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:34:07 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&rev=6d8b4e042078d289ced39a1738e21c95&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom branches ProjectWithRepo Update' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '208'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom:branches:ProjectWithRepo:Update' does not exist</summary>
+          <details>404 project 'home:tom:branches:ProjectWithRepo:Update' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:34:07 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&rev=6d8b4e042078d289ced39a1738e21c95&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom branches ProjectWithRepo Update' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '208'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom:branches:ProjectWithRepo:Update' does not exist</summary>
+          <details>404 project 'home:tom:branches:ProjectWithRepo:Update' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:34:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom branches ProjectWithRepo Update' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '208'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom:branches:ProjectWithRepo:Update' does not exist</summary>
+          <details>404 project 'home:tom:branches:ProjectWithRepo:Update' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:34:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'MaintenanceProject 0' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'MaintenanceProject:0' does not exist</summary>
+          <details>404 project 'MaintenanceProject:0' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:34:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'MaintenanceProject 0' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'MaintenanceProject:0' does not exist</summary>
+          <details>404 project 'MaintenanceProject:0' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:34:09 GMT
+recorded_with: VCR 4.0.0
