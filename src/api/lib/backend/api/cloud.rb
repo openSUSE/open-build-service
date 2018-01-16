@@ -5,9 +5,9 @@ module Backend
       # Triggers a cloud upload job
       # @return [String]
       def self.upload(params)
-        data = params.slice(:region, :virtualization_type, :ami_name)
+        data = params.slice(:region, :ami_name)
         user = params[:user]
-        params = params.except(:region, :virtualization_type, :ami_name).merge(user: user.login, target: params[:target])
+        params = params.except(:region, :ami_name).merge(user: user.login, target: params[:target])
         data = user.ec2_configuration.attributes.except('id', 'created_at', 'updated_at').merge(data).to_json
         post('/cloudupload', params: params, data: data)
       end

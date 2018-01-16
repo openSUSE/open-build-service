@@ -128,15 +128,14 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
   describe 'POST #create' do
     let(:params) do
       {
-        project:             'Cloud',
-        package:             'aws',
-        repository:          'standard',
-        arch:                'x86_64',
-        filename:            'appliance.raw.xz',
-        region:              'us-east-1',
-        virtualization_type: 'hvm',
-        ami_name:            'my-image',
-        target:              'ec2'
+        project:    'Cloud',
+        package:    'aws',
+        repository: 'standard',
+        arch:       'x86_64',
+        filename:   'appliance.raw.xz',
+        region:     'us-east-1',
+        ami_name:   'my-image',
+        target:     'ec2'
       }
     end
 
@@ -174,14 +173,6 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
         include_context 'it redirects and assigns flash error'
       end
 
-      context 'with an invalid virtualization type' do
-        subject { 'kvm' }
-        before do
-          params[:virtualization_type] = subject
-        end
-        include_context 'it redirects and assigns flash error'
-      end
-
       context 'with an invalid ami_name' do
         subject { 'lorem ipsum' }
         before do
@@ -202,13 +193,12 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
     context 'with a backend response' do
       let(:path) { "#{CONFIG['source_url']}/cloudupload?#{backend_params.to_param}" }
       let(:backend_params) do
-        params.merge(target: 'ec2', user: user_with_ec2_configuration.login).except(:region, :virtualization_type, :ami_name)
+        params.merge(target: 'ec2', user: user_with_ec2_configuration.login).except(:region, :ami_name)
       end
       let(:additional_data) do
         {
-          region:              'us-east-1',
-          virtualization_type: 'hvm',
-          ami_name:            'my-image'
+          region:   'us-east-1',
+          ami_name: 'my-image'
         }
       end
       let(:post_body) do
