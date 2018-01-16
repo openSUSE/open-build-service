@@ -5,8 +5,6 @@ require 'open3'
 
 start = Time.now
 ONE_HOUR = 3600
-KEY_NAME = 'obs'.freeze
-PRIVATE_KEY = '/etc/clouduploader.pem'.freeze
 HOME = '/etc/obs/cloudupload'.freeze
 ENV['HOME'] = HOME
 ENV['PYTHONUNBUFFERED'] = '1'
@@ -58,8 +56,6 @@ def upload_image_to_ec2(image, credentials, filename, data)
     "--region=#{data['region']}",
     "--secret-key=#{credentials.secret_access_key}",
     "--access-id=#{credentials.access_key_id}",
-    "--ssh-key-pair=#{KEY_NAME}",
-    "--private-key-file=#{PRIVATE_KEY}",
     "--session-token=#{credentials.session_token}",
     "--virt-type=#{data['virtualization_type']}",
     "--target-filename=#{filename}",
