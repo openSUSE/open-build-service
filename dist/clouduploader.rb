@@ -4,9 +4,7 @@ require 'ostruct'
 require 'open3'
 
 start = Time.now
-ONE_HOUR = 3600
-KEY_NAME = 'obs'.freeze
-PRIVATE_KEY = '/etc/clouduploader.pem'.freeze
+THIRTY_MINUTES = 1800
 HOME = '/etc/obs/cloudupload'.freeze
 ENV['HOME'] = HOME
 ENV['PYTHONUNBUFFERED'] = '1'
@@ -31,7 +29,7 @@ def get_ec2_credentials(data)
     "--role-arn=#{data['arn']}",
     "--external-id=#{data['external_id']}",
     '--role-session-name=obs',
-    "--duration-seconds=#{ONE_HOUR}"
+    "--duration-seconds=#{THIRTY_MINUTES}"
   )
 
   if status.success?
@@ -58,8 +56,6 @@ def upload_image_to_ec2(image, credentials, filename, data)
     "--region=#{data['region']}",
     "--secret-key=#{credentials.secret_access_key}",
     "--access-id=#{credentials.access_key_id}",
-    "--ssh-key-pair=#{KEY_NAME}",
-    "--private-key-file=#{PRIVATE_KEY}",
     "--session-token=#{credentials.session_token}",
     "--target-filename=#{filename}",
     '--verbose',
@@ -68,6 +64,8 @@ def upload_image_to_ec2(image, credentials, filename, data)
     while line = stdout_stderr.gets
       STDOUT.write(line)
     end
+    status = wait_thr.value
+    abort unless status.success?
   end
 end
 
