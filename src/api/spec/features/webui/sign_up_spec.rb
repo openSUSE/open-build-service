@@ -9,6 +9,7 @@ RSpec.feature 'Sign up', type: :feature do
     fill_in 'login', with: 'eisendieter'
     fill_in 'email', with: 'dieter.eilts@werder.de'
     fill_in 'pwd', with: 'alemao'
+    fill_in 'pwd_confirmation', with: 'alemao'
     click_button('Sign Up')
 
     expect(page).to have_text("The account 'eisendieter' is now active.")
@@ -24,6 +25,7 @@ RSpec.feature 'Sign up', type: :feature do
     fill_in 'login', with: user.login
     fill_in 'email', with: user.email
     fill_in 'pwd', with: 'alemao'
+    fill_in 'pwd_confirmation', with: 'alemao'
     click_button('Sign Up')
 
     expect(page).to have_text('Thank you for signing up! An admin has to confirm your account now. Please be patient.')

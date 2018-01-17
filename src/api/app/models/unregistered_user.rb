@@ -48,12 +48,13 @@ class UnregisteredUser < User
     state = ::Configuration.registration == 'allow' ? 'confirmed' : 'unconfirmed'
 
     newuser = User.new(
-      realname:  (opts[:realname] || ''),
-      login:     opts[:login],
-      password:  opts[:password],
-      email:     opts[:email],
-      state:     state,
-      adminnote: opts[:note]
+      realname:              (opts[:realname] || ''),
+      login:                 opts[:login],
+      password:              opts[:password],
+      password_confirmation: opts[:password_confirmation],
+      email:                 opts[:email],
+      state:                 state,
+      adminnote:             opts[:note]
     )
 
     unless newuser.save
