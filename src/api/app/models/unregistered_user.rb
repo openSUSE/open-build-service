@@ -50,14 +50,13 @@ class UnregisteredUser < User
     newuser = User.create(
       login:                 opts[:login],
       password:              opts[:password],
-      email:                 opts[:email]
+      password_confirmation: opts[:password_confirmation],
+      email:                 opts[:email],
+      email_confirmation:    opts[:email_confirmation],
+      realname:              opts[:realname] || '',
+      state:                 stats,
+      adminnote:             opts[:note]
     )
-
-    newuser.realname = opts[:realname] || ''
-    newuser.state = state
-    newuser.adminnote = opts[:note]
-    logger.debug("Saving new user #{newuser.login}")
-    newuser.save
 
     unless newuser.errors.empty?
       raise ErrRegisterSave, "Could not save the registration, details: #{newuser.errors.full_messages.to_sentence}"
