@@ -653,13 +653,17 @@ sub checkpkgs {
 
   # now build cychash mapping packages to all other cycle members
   for my $cyc (@{$ctx->{'cycles'} || []}) {
-    my %nc = map {$_ => 1} @$cyc;
-    for my $p (@$cyc) {
-      next unless $cychash{$p};
-      $nc{$_} = 1 for @{$cychash{$p}};
+    next if @$cyc < 2;	# just in case
+    my @c = map {@{$cychash{$_} || [ $_ ]}} @$cyc;
+    @c = BSUtil::unify(sort(@c));
+    $cychash{$_} = \@c for @c;
+  }
+
+  if (%cychash) {
+    print "      cycle components:\n";
+    for (BSUtil::unify(sort(map {$_->[0]} values %cychash))) {
+      print "        - @{$cychash{$_}}\n";
     }
-    my $c = [ sort keys %nc ];
-    $cychash{$_} = $c for @$c;
   }
 
   # copy old data over if we have missing packages
