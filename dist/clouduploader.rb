@@ -65,6 +65,8 @@ def upload_image_to_ec2(image, credentials, filename, data)
     while line = stdout_stderr.gets
       STDOUT.write(line)
     end
+    status = wait_thr.value
+    abort unless status.success?
   end
 end
 
