@@ -4,16 +4,15 @@ RSpec.describe Cloud::UploadJob, type: :model, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tom', ec2_configuration: create(:ec2_configuration)) }
   let(:params) do
     {
-      project:             'Cloud',
-      package:             'aws',
-      repository:          'standard',
-      arch:                'x86_64',
-      filename:            'appliance.raw.xz',
-      region:              'us-east-1',
-      virtualization_type: 'hvm',
-      ami_name:            'my-image',
-      user:                user,
-      target:              'ec2'
+      project:    'Cloud',
+      package:    'aws',
+      repository: 'standard',
+      arch:       'x86_64',
+      filename:   'appliance.raw.xz',
+      region:     'us-east-1',
+      ami_name:   'my-image',
+      user:       user,
+      target:     'ec2'
     }
   end
   let(:response) do

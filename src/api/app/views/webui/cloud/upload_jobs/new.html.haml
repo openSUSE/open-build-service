@@ -23,9 +23,6 @@
     = upload_job_form.label 'cloud_backend_upload_job[region]', "Region:"
     = select_tag('cloud_backend_upload_job[region]', options_for_select(@ec2_regions))
   %p
-    = upload_job_form.label 'cloud_backend_upload_job[virtualization_type]', "Virtualization Type:"
-    = select_tag('cloud_backend_upload_job[virtualization_type]', options_for_select(@ec2_virtualization_types))
-  %p
     = upload_job_form.hidden_field :project
     = upload_job_form.hidden_field :package
     = upload_job_form.hidden_field :arch

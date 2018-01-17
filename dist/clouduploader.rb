@@ -61,7 +61,6 @@ def upload_image_to_ec2(image, credentials, filename, data)
     "--ssh-key-pair=#{KEY_NAME}",
     "--private-key-file=#{PRIVATE_KEY}",
     "--session-token=#{credentials.session_token}",
-    "--virt-type=#{data['virtualization_type']}",
     "--target-filename=#{filename}",
     '--verbose',
     image

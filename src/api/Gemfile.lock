@@ -427,7 +427,7 @@ DEPENDENCIES
   bcrypt
   bullet
   bundler
-  bunny
+  bunny (= 2.8.0)
   capybara
   capybara_minitest_spec
   chunky_png

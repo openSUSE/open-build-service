@@ -8,16 +8,15 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
   describe '.create' do
     let(:params) do
       {
-        project:             'Cloud',
-        package:             'aws',
-        repository:          'standard',
-        arch:                'x86_64',
-        filename:            'appliance.raw.gz',
-        region:              'us-east-1',
-        user:                user,
-        target:              'ec2',
-        virtualization_type: 'hvm',
-        ami_name:            'myami'
+        project:    'Cloud',
+        package:    'aws',
+        repository: 'standard',
+        arch:       'x86_64',
+        filename:   'appliance.raw.gz',
+        region:     'us-east-1',
+        user:       user,
+        target:     'ec2',
+        ami_name:   'myami'
       }
     end
     let(:xml_response) do
@@ -38,11 +37,11 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
       HEREDOC
     end
     let(:backend_params) do
-      params.except(:region, :virtualization_type, :ami_name)
+      params.except(:region, :ami_name)
     end
     let(:post_body) do
       user.ec2_configuration.attributes.except('id', 'created_at', 'updated_at').
-        merge(region: 'us-east-1', virtualization_type: 'hvm', ami_name: 'myami').to_json
+        merge(region: 'us-east-1', ami_name: 'myami').to_json
     end
     let(:path) { "#{CONFIG['source_url']}/cloudupload?#{backend_params.to_param}" }
 
