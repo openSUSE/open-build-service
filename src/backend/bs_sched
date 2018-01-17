@@ -79,7 +79,7 @@ $startupmode = $BSConfig::sched_startupmode if $BSConfig::sched_startupmode;
 
 my $maxserverload = 1;
 $maxserverload = $BSConfig::sched_maxserverload if $BSConfig::sched_maxserverload;
-
+my $genmetaalgo = 0;
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
 
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
@@ -360,17 +360,18 @@ if (!$testprojid) {
   utime undef, undef, "$_rundir/bs_sched.$_myarch.lock";
 }
 
+# create directories
 for my $d ("$_eventdir/$_myarch", "$_jobsdir/$_myarch", $_infodir) {
   next if -d $d;
   mkdir_p($d) || die("$d: $!\n");
 }
+
 # setup event mechanism
 my $_myeventdir = "$_eventdir/$_myarch";
 if (!-p "$_myeventdir/.ping") {
   POSIX::mkfifo("$_myeventdir/.ping", 0666) || die("$_myeventdir/.ping: $!");
   chmod(0666, "$_myeventdir/.ping");
 }
-
 sysopen(PING, "$_myeventdir/.ping", POSIX::O_RDWR) || die("$_myeventdir/.ping: $!");
 fcntl(PING, F_SETFL, POSIX::O_NONBLOCK);
 
@@ -466,12 +467,11 @@ my $gctx = {
   'prplastcheck' => {},			# XXX: currently not used
 };
 
-my $genmetaalgo = 0;
-
+# configure gen_meta algorithm
 if (defined($BSConfig::genmetaalgo)) {
   $genmetaalgo = $BSConfig::genmetaalgo;
-} elsif (0) {
-  $genmetaalgo = BSBuild::setgenmetaalgo(-1);
+} else {
+  $genmetaalgo = BSBuild::setgenmetaalgo($genmetaalgo);
   my $solvgenmetaalgo = 0;
   $solvgenmetaalgo = BSSolv::setgenmetaalgo(-1) if defined &BSSolv::setgenmetaalgo;
   if ($solvgenmetaalgo < $genmetaalgo) {
@@ -479,16 +479,15 @@ if (defined($BSConfig::genmetaalgo)) {
     $genmetaalgo = $solvgenmetaalgo;
   }
 }
-
 BSSolv::setgenmetaalgo($genmetaalgo) if defined &BSSolv::setgenmetaalgo;
 BSBuild::setgenmetaalgo($genmetaalgo);
 $gctx->{'genmetaalgo'} = $genmetaalgo;
 
+# create rpc context
 my $rctx = BSSched::RPC->new(
   'maxserverload' => $maxserverload,
   'wakeupfunction' => \&BSSched::Checker::setchanged,
 );
-
 $gctx->{'rctx'} = $rctx;
 
 $gctx->{'testmode'} = 1 if $testmode;
