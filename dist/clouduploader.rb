@@ -4,7 +4,7 @@ require 'ostruct'
 require 'open3'
 
 start = Time.now
-ONE_HOUR = 3600
+THIRTY_MINUTES = 1800
 HOME = '/etc/obs/cloudupload'.freeze
 ENV['HOME'] = HOME
 ENV['PYTHONUNBUFFERED'] = '1'
@@ -29,7 +29,7 @@ def get_ec2_credentials(data)
     "--role-arn=#{data['arn']}",
     "--external-id=#{data['external_id']}",
     '--role-session-name=obs',
-    "--duration-seconds=#{ONE_HOUR}"
+    "--duration-seconds=#{THIRTY_MINUTES}"
   )
 
   if status.success?
