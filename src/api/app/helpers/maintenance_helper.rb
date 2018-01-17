@@ -344,25 +344,34 @@ module MaintenanceHelper
     pkg = project.packages.create(name: pkg_name, title: opkg.title, description: opkg.description)
     pkg.store
 
-    arguments = '&noservice=1'
-    arguments << '&requestid=' << opts[:request].number.to_s if opts[:request]
-    arguments << '&comment=' << CGI.escape(opts[:comment]) if opts[:comment]
+    copyopts = { noservice: '1' }
+    copyopts[:requestid] = opts[:request].number.to_s if opts[:request]
+    copyopts[:comment] << CGI.escape(opts[:comment]) if opts[:comment]
+    # makeoriginolder is a poorly choosen name meanwhile, because it is no longer used in backend
+    # call. We should replace it by a "service_pack" project kind or attribute.
     if opts[:makeoriginolder]
-      # rubocop:disable Metrics/LineLength
       # versioned copy
-      path = pkg.source_path + "?cmd=copy&withvrev=1&oproject=#{CGI.escape(opkg.project.name)}&opackage=#{CGI.escape(opkg.name)}#{arguments}&user=#{CGI.escape(User.current.login)}&comment=initialize+package"
-      # rubocop:enable Metrics/LineLength
-      if Package.exists_by_project_and_name(project.name, opkg.name, allow_remote_packages: true)
-        # a package exists via project link, make it older in any case
-        path << '+and+make+source+instance+older&makeoriginolder=1'
-      end
-      Backend::Connection.post path
+      copyopts[:cmd] = 'copy'
+      copyopts[:instantiate] = '1'
+      copyopts[:withvrev]    = '1'
+      copyopts[:vrevbump]    = '2'
+      copyopts[:oproject]    = opkg.project.name
+      copyopts[:opackage]    = opkg.name
+      copyopts[:user]        = User.current.login
+      copyopts[:comment]     = 'initialize package'
     else
-      # rubocop:disable Metrics/LineLength
       # simple branch
-      Backend::Connection.post pkg.source_path + "?cmd=branch&oproject=#{CGI.escape(opkg.project.name)}&opackage=#{CGI.escape(opkg.name)}#{arguments}&user=#{CGI.escape(User.current.login)}&comment=initialize+package+as+branch"
-      # rubocop:enable Metrics/LineLength
+      copyopts[:cmd] = 'branch'
+      copyopts[:oproject] = opkg.project.name
+      copyopts[:opackage] = opkg.name
+      copyopts[:user]     = User.current.login
+      copyopts[:comment]  = 'initialize package as branch'
     end
+    path = pkg.source_path
+    path << Backend::Connection.build_query_from_hash(copyopts, [:user, :comment, :cmd, :noservice, :requestid,
+                                                                 :makeoriginolder, :withvrev, :vrevbump,
+                                                                 :instantiate, :oproject, :opackage])
+    Backend::Connection.post(path)
     pkg.sources_changed
 
     # and create the needed local links
@@ -380,10 +389,14 @@ module MaintenanceHelper
         lpkg.store
       end
 
-      # rubocop:disable Metrics/LineLength
       # copy project local linked packages
-      Backend::Connection.post "/source/#{pkg.project.name}/#{lpkg.name}?cmd=copy&oproject=#{CGI.escape(p.project.name)}&opackage=#{CGI.escape(p.name)}#{arguments}&user=#{CGI.escape(User.current.login)}"
-      # rubocop:enable Metrics/LineLength
+      path = lpkg.source_path
+      copyopts[:cmd] = 'copy'
+      copyopts[:oproject] = p.project.name
+      copyopts[:opackage] = p.name
+      path << Backend::Connection.build_query_from_hash(copyopts, [:user, :cmd, :noservice, :requestid,
+                                                                   :oproject, :opackage])
+      Backend::Connection.post path
       # and fix the link
       ret = ActiveXML::Node.new(lpkg.source_file('_link'))
       ret.delete_attribute('project') # its a local link, project name not needed

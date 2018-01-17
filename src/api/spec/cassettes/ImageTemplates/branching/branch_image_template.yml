@@ -40,46 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:54 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/my_project/_meta?user=admin
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="my_project">
-          <title>The Wealth of Nations</title>
-          <description/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '108'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="my_project">
-          <title>The Wealth of Nations</title>
-          <description></description>
-        </project>
-    http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:54 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:43 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/_meta
@@ -87,7 +48,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="my_project">
-          <title>The Wealth of Nations</title>
+          <title>Far From the Madding Crowd</title>
           <description/>
         </project>
     headers:
@@ -109,24 +70,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '108'
+      - '113'
     body:
       encoding: UTF-8
       string: |
         <project name="my_project">
-          <title>The Wealth of Nations</title>
+          <title>Far From the Madding Crowd</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:54 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:43 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/_config
     body:
       encoding: UTF-8
-      string: Laboriosam suscipit est dolorum minima ratione. Ipsam omnis tempore
-        aut voluptatem. Saepe voluptates est corrupti quia asperiores fuga. Sit sapiente
-        et tenetur ut qui.
+      string: Sunt praesentium assumenda. Sit in minus omnis aut distinctio. Accusantium
+        dolores modi dolorem repellat sint porro quae. Autem ut est deleniti odio
+        fuga.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -153,16 +114,16 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:43 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/my_project/first_package/_meta?user=admin
+    uri: http://backend:5352/source/my_project/first_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="first_package" project="my_project">
-          <title>Blue Remembered Earth</title>
-          <description>Nulla sequi cupiditate vero at eligendi.</description>
+          <title>a</title>
+          <description>Illo doloremque vitae corporis quibusdam impedit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -183,16 +144,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <package name="first_package" project="my_project">
-          <title>Blue Remembered Earth</title>
-          <description>Nulla sequi cupiditate vero at eligendi.</description>
+          <title>a</title>
+          <description>Illo doloremque vitae corporis quibusdam impedit.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:43 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/first_package/_meta
@@ -200,8 +161,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="first_package" project="my_project">
-          <title>Blue Remembered Earth</title>
-          <description>Nulla sequi cupiditate vero at eligendi.</description>
+          <title>a</title>
+          <description>Illo doloremque vitae corporis quibusdam impedit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -222,24 +183,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <package name="first_package" project="my_project">
-          <title>Blue Remembered Earth</title>
-          <description>Nulla sequi cupiditate vero at eligendi.</description>
+          <title>a</title>
+          <description>Illo doloremque vitae corporis quibusdam impedit.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:43 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/first_package/_config
     body:
       encoding: UTF-8
-      string: Illo hic optio officia. Sequi asperiores facere. Sint aut sed ex iusto
-        nesciunt. Et omnis cumque enim vero perspiciatis. Amet sint qui quas sapiente
-        doloribus vel.
+      string: Possimus quidem sunt saepe itaque. Aspernatur sit quos enim exercitationem
+        et error fugiat. Laborum asperiores itaque natus totam.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -263,23 +223,23 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>d372f928d74c3afc24e7682fd4357543</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>65c13728d335958dc996714b1dfd16a1</srcmd5>
           <version>unknown</version>
-          <time>1502292655</time>
+          <time>1516110523</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:43 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/first_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Nisi ab cupiditate quibusdam ipsum cum. Sed dolor cum qui esse hic.
-        Quibusdam nam mollitia ipsa quam.
+      string: Autem laborum ratione. Porro ipsa provident et. Explicabo ipsa ipsum
+        odio quia. Rem ut eos animi non sit cupiditate nihil.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -303,25 +263,25 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
-          <srcmd5>9cac2d547ab86ade39a4906e28752ada</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>269bbef83a23062aa9992a03d512861f</srcmd5>
           <version>unknown</version>
-          <time>1502292655</time>
+          <time>1516110523</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:43 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/my_project/second_package/_meta?user=admin
+    uri: http://backend:5352/source/my_project/second_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="second_package" project="my_project">
-          <title>Some Buried Caesar</title>
-          <description>Sint quis deleniti quibusdam.</description>
+          <title>c</title>
+          <description>Aut rerum ut sunt velit voluptates eius quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -342,16 +302,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="second_package" project="my_project">
-          <title>Some Buried Caesar</title>
-          <description>Sint quis deleniti quibusdam.</description>
+          <title>c</title>
+          <description>Aut rerum ut sunt velit voluptates eius quia.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:43 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/second_package/_meta
@@ -359,8 +319,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="second_package" project="my_project">
-          <title>Some Buried Caesar</title>
-          <description>Sint quis deleniti quibusdam.</description>
+          <title>c</title>
+          <description>Aut rerum ut sunt velit voluptates eius quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -381,24 +341,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="second_package" project="my_project">
-          <title>Some Buried Caesar</title>
-          <description>Sint quis deleniti quibusdam.</description>
+          <title>c</title>
+          <description>Aut rerum ut sunt velit voluptates eius quia.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:43 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/second_package/_config
     body:
       encoding: UTF-8
-      string: Qui molestias iure ipsum. Voluptatem exercitationem aut maxime excepturi.
-        Omnis minus debitis. Aliquam quo voluptas dolores illum. Saepe quas aut deleniti
-        aut eos atque.
+      string: Quas eius nobis facilis in qui voluptas. At mollitia ad tenetur corrupti.
+        Aut soluta maxime repudiandae autem dolores laborum eum. Et iure non soluta
+        voluptatem et non. Repellat ut voluptates alias.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -422,23 +382,23 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>46e181b0ab81eeea98b966bbce13032c</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>ba4f96f0bfb2e437319571ab1c1cb2a5</srcmd5>
           <version>unknown</version>
-          <time>1502292655</time>
+          <time>1516110523</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:43 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/second_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Ipsam illo dolore deserunt occaecati qui consequuntur. Totam quia occaecati
-        et quidem. Ut eaque tempore. Commodi cumque in deleniti esse rerum in totam.
+      string: Autem laborum ratione. Porro ipsa provident et. Explicabo ipsa ipsum
+        odio quia. Rem ut eos animi non sit cupiditate nihil.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -462,16 +422,368 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
-          <srcmd5>4c02f372ddcd5ea37fa6b9f87093cb44</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>01194bd0c7190247902e6b6194c8e78f</srcmd5>
           <version>unknown</version>
-          <time>1502292655</time>
+          <time>1516110523</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/third_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="third_package" project="my_project">
+          <title>b</title>
+          <description>Fugiat dignissimos sequi qui est iure porro non.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="third_package" project="my_project">
+          <title>b</title>
+          <description>Fugiat dignissimos sequi qui est iure porro non.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 13:48:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/third_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="third_package" project="my_project">
+          <title>b</title>
+          <description>Fugiat dignissimos sequi qui est iure porro non.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="third_package" project="my_project">
+          <title>b</title>
+          <description>Fugiat dignissimos sequi qui est iure porro non.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 13:48:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/third_package/_config
+    body:
+      encoding: UTF-8
+      string: Quibusdam ut ut eius non enim assumenda omnis. Itaque quidem ipsum aspernatur
+        quo. Ipsam repellat enim voluptates qui laborum est iste. Saepe dolore mollitia
+        quam assumenda natus ut et. Consequatur excepturi quo sed a dolores.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>1b11e4c0066d29a6bc2219bf06a8d934</srcmd5>
+          <version>unknown</version>
+          <time>1516110523</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 13:48:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/third_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Autem laborum ratione. Porro ipsa provident et. Explicabo ipsa ipsum
+        odio quia. Rem ut eos animi non sit cupiditate nihil.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>068171cebc6f0c3de1417feff046b786</srcmd5>
+          <version>unknown</version>
+          <time>1516110523</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 13:48:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="my_project">
+          <title>Absalom, Absalom!</title>
+          <description>Repudiandae laborum molestiae ut cumque.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '178'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="my_project">
+          <title>Absalom, Absalom!</title>
+          <description>Repudiandae laborum molestiae ut cumque.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 13:48:44 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="my_project">
+          <title>Absalom, Absalom!</title>
+          <description>Repudiandae laborum molestiae ut cumque.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '178'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="my_project">
+          <title>Absalom, Absalom!</title>
+          <description>Repudiandae laborum molestiae ut cumque.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 13:48:44 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image/package_with_kiwi_image.kiwi
+    body:
+      encoding: UTF-8
+      string: "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n  <image schemaversion=\"6.2\"
+        name=\"suse-13.2-live\">\n    <description type=\"system\">\n    </description>\n
+        \   <preferences>\n      <type image=\"oem\" primary=\"true\" boot=\"oemboot/suse-13.2\"/>\n
+        \   </preferences>\n  </image>\n  "
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>e79574ec95865487aedacea760376ee3</srcmd5>
+          <version>unknown</version>
+          <time>1516110524</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 13:48:44 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="my_project">
+          <title>Absalom, Absalom!</title>
+          <description>Repudiandae laborum molestiae ut cumque.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '178'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="my_project">
+          <title>Absalom, Absalom!</title>
+          <description>Repudiandae laborum molestiae ut cumque.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 13:48:44 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="e79574ec95865487aedacea760376ee3">
+          <entry name="package_with_kiwi_image.kiwi" md5="5f2d7b5465fbb78bd2d0a30c224f4254" size="258" mtime="1516110524" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 13:48:44 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/first_package
@@ -501,12 +813,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="first_package" rev="4" vrev="4" srcmd5="9cac2d547ab86ade39a4906e28752ada">
-          <entry name="_config" md5="14a142b8c8ec8157ef3b2fd7f17edec1" size="163" mtime="1502292655" />
-          <entry name="somefile.txt" md5="c83630db713cfc2eeee8b1b8eb1ef574" size="101" mtime="1502292655" />
+        <directory name="first_package" rev="2" vrev="2" srcmd5="269bbef83a23062aa9992a03d512861f">
+          <entry name="_config" md5="b67a253069bb6d1f80ea8e3168aaf6d1" size="130" mtime="1516110523" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
         </directory>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:44 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/first_package
@@ -536,12 +848,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="first_package" rev="4" vrev="4" srcmd5="9cac2d547ab86ade39a4906e28752ada">
-          <entry name="_config" md5="14a142b8c8ec8157ef3b2fd7f17edec1" size="163" mtime="1502292655" />
-          <entry name="somefile.txt" md5="c83630db713cfc2eeee8b1b8eb1ef574" size="101" mtime="1502292655" />
+        <directory name="first_package" rev="2" vrev="2" srcmd5="269bbef83a23062aa9992a03d512861f">
+          <entry name="_config" md5="b67a253069bb6d1f80ea8e3168aaf6d1" size="130" mtime="1516110523" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
         </directory>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:44 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/second_package
@@ -571,12 +883,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="second_package" rev="4" vrev="4" srcmd5="4c02f372ddcd5ea37fa6b9f87093cb44">
-          <entry name="_config" md5="11e44aa1c2a2e366b85a5db50ac7a716" size="169" mtime="1502292655" />
-          <entry name="somefile.txt" md5="c1e0265cf291873d2d6e86092f1e1138" size="152" mtime="1502292655" />
+        <directory name="second_package" rev="2" vrev="2" srcmd5="01194bd0c7190247902e6b6194c8e78f">
+          <entry name="_config" md5="27e7ef04c01f0aab8e5faac8aab0dfce" size="198" mtime="1516110523" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
         </directory>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:45 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/second_package
@@ -606,12 +918,206 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="second_package" rev="4" vrev="4" srcmd5="4c02f372ddcd5ea37fa6b9f87093cb44">
-          <entry name="_config" md5="11e44aa1c2a2e366b85a5db50ac7a716" size="169" mtime="1502292655" />
-          <entry name="somefile.txt" md5="c1e0265cf291873d2d6e86092f1e1138" size="152" mtime="1502292655" />
+        <directory name="second_package" rev="2" vrev="2" srcmd5="01194bd0c7190247902e6b6194c8e78f">
+          <entry name="_config" md5="27e7ef04c01f0aab8e5faac8aab0dfce" size="198" mtime="1516110523" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
         </directory>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/third_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '302'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="third_package" rev="2" vrev="2" srcmd5="068171cebc6f0c3de1417feff046b786">
+          <entry name="_config" md5="e57827649b5995ba90890d95b056f7d1" size="226" mtime="1516110523" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 13:48:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/third_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '302'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="third_package" rev="2" vrev="2" srcmd5="068171cebc6f0c3de1417feff046b786">
+          <entry name="_config" md5="e57827649b5995ba90890d95b056f7d1" size="226" mtime="1516110523" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 13:48:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="e79574ec95865487aedacea760376ee3">
+          <entry name="package_with_kiwi_image.kiwi" md5="5f2d7b5465fbb78bd2d0a30c224f4254" size="258" mtime="1516110524" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 13:48:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="e79574ec95865487aedacea760376ee3">
+          <entry name="package_with_kiwi_image.kiwi" md5="5f2d7b5465fbb78bd2d0a30c224f4254" size="258" mtime="1516110524" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 13:48:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/_workerstatus
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1207'
+    body:
+      encoding: UTF-8
+      string: |
+        <workerstatus clients="2">
+          <idle workerid="ffe1e8f4c02a:1" hostarch="x86_64" />
+          <idle workerid="ffe1e8f4c02a:2" hostarch="x86_64" />
+          <waiting arch="i586" jobs="0" />
+          <waiting arch="x86_64" jobs="0" />
+          <blocked arch="i586" jobs="0" />
+          <blocked arch="x86_64" jobs="0" />
+          <buildavg arch="i586" buildavg="1200" />
+          <buildavg arch="x86_64" buildavg="1200" />
+          <partition>
+            <daemon type="srcserver" state="running" starttime="1516110322" />
+            <daemon type="servicedispatch" state="running" starttime="1516110328" />
+            <daemon type="service" state="running" starttime="1516110328" />
+            <daemon type="scheduler" arch="i586" state="running" starttime="1516110328">
+              <queue high="0" med="0" low="22" next="0" />
+            </daemon>
+            <daemon type="scheduler" arch="x86_64" state="running" starttime="1516110328">
+              <queue high="0" med="0" low="22" next="0" />
+            </daemon>
+            <daemon type="repserver" state="running" starttime="1516110326" />
+            <daemon type="dispatcher" state="running" starttime="1516110328" />
+            <daemon type="publisher" state="running" starttime="1516110328" />
+            <daemon type="signer" state="running" starttime="1516110328" />
+          </partition>
+        </workerstatus>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 13:48:46 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/first_package
@@ -641,12 +1147,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="first_package" rev="4" vrev="4" srcmd5="9cac2d547ab86ade39a4906e28752ada">
-          <entry name="_config" md5="14a142b8c8ec8157ef3b2fd7f17edec1" size="163" mtime="1502292655" />
-          <entry name="somefile.txt" md5="c83630db713cfc2eeee8b1b8eb1ef574" size="101" mtime="1502292655" />
+        <directory name="first_package" rev="2" vrev="2" srcmd5="269bbef83a23062aa9992a03d512861f">
+          <entry name="_config" md5="b67a253069bb6d1f80ea8e3168aaf6d1" size="130" mtime="1516110523" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
         </directory>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:57 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:46 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/first_package
@@ -676,12 +1182,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="first_package" rev="4" vrev="4" srcmd5="9cac2d547ab86ade39a4906e28752ada">
-          <entry name="_config" md5="14a142b8c8ec8157ef3b2fd7f17edec1" size="163" mtime="1502292655" />
-          <entry name="somefile.txt" md5="c83630db713cfc2eeee8b1b8eb1ef574" size="101" mtime="1502292655" />
+        <directory name="first_package" rev="2" vrev="2" srcmd5="269bbef83a23062aa9992a03d512861f">
+          <entry name="_config" md5="b67a253069bb6d1f80ea8e3168aaf6d1" size="130" mtime="1516110523" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
         </directory>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:58 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:46 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/second_package
@@ -711,12 +1217,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="second_package" rev="4" vrev="4" srcmd5="4c02f372ddcd5ea37fa6b9f87093cb44">
-          <entry name="_config" md5="11e44aa1c2a2e366b85a5db50ac7a716" size="169" mtime="1502292655" />
-          <entry name="somefile.txt" md5="c1e0265cf291873d2d6e86092f1e1138" size="152" mtime="1502292655" />
+        <directory name="second_package" rev="2" vrev="2" srcmd5="01194bd0c7190247902e6b6194c8e78f">
+          <entry name="_config" md5="27e7ef04c01f0aab8e5faac8aab0dfce" size="198" mtime="1516110523" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
         </directory>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:58 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:46 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/second_package
@@ -746,12 +1252,150 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="second_package" rev="4" vrev="4" srcmd5="4c02f372ddcd5ea37fa6b9f87093cb44">
-          <entry name="_config" md5="11e44aa1c2a2e366b85a5db50ac7a716" size="169" mtime="1502292655" />
-          <entry name="somefile.txt" md5="c1e0265cf291873d2d6e86092f1e1138" size="152" mtime="1502292655" />
+        <directory name="second_package" rev="2" vrev="2" srcmd5="01194bd0c7190247902e6b6194c8e78f">
+          <entry name="_config" md5="27e7ef04c01f0aab8e5faac8aab0dfce" size="198" mtime="1516110523" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
         </directory>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:58 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/third_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '302'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="third_package" rev="2" vrev="2" srcmd5="068171cebc6f0c3de1417feff046b786">
+          <entry name="_config" md5="e57827649b5995ba90890d95b056f7d1" size="226" mtime="1516110523" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 13:48:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/third_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '302'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="third_package" rev="2" vrev="2" srcmd5="068171cebc6f0c3de1417feff046b786">
+          <entry name="_config" md5="e57827649b5995ba90890d95b056f7d1" size="226" mtime="1516110523" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 13:48:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="e79574ec95865487aedacea760376ee3">
+          <entry name="package_with_kiwi_image.kiwi" md5="5f2d7b5465fbb78bd2d0a30c224f4254" size="258" mtime="1516110524" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 13:48:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="e79574ec95865487aedacea760376ee3">
+          <entry name="package_with_kiwi_image.kiwi" md5="5f2d7b5465fbb78bd2d0a30c224f4254" size="258" mtime="1516110524" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 13:48:46 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/second_package?expand=1
@@ -781,15 +1425,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="second_package" rev="4" vrev="4" srcmd5="4c02f372ddcd5ea37fa6b9f87093cb44">
-          <entry name="_config" md5="11e44aa1c2a2e366b85a5db50ac7a716" size="169" mtime="1502292655" />
-          <entry name="somefile.txt" md5="c1e0265cf291873d2d6e86092f1e1138" size="152" mtime="1502292655" />
+        <directory name="second_package" rev="2" vrev="2" srcmd5="01194bd0c7190247902e6b6194c8e78f">
+          <entry name="_config" md5="27e7ef04c01f0aab8e5faac8aab0dfce" size="198" mtime="1516110523" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
         </directory>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:58 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/my_project/second_package?rev=4
+    uri: http://backend:5352/source/my_project/second_package?rev=2
     body:
       encoding: US-ASCII
       string: ''
@@ -818,12 +1462,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="second_package" rev="4" vrev="4" srcmd5="4c02f372ddcd5ea37fa6b9f87093cb44">
-          <entry name="_config" md5="11e44aa1c2a2e366b85a5db50ac7a716" size="169" mtime="1502292655" />
-          <entry name="somefile.txt" md5="c1e0265cf291873d2d6e86092f1e1138" size="152" mtime="1502292655" />
+        <directory name="second_package" rev="2" vrev="2" srcmd5="01194bd0c7190247902e6b6194c8e78f">
+          <entry name="_config" md5="27e7ef04c01f0aab8e5faac8aab0dfce" size="198" mtime="1516110523" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
         </directory>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:58 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22second_package%22%20and%20linkinfo/@project=%22my_project%22%20and%20@project=%22my_project%22)
@@ -858,7 +1502,7 @@ http_interactions:
         <collection>
         </collection>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:58 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:my_project/_meta?user=tom
@@ -899,7 +1543,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:58 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name/_meta?user=tom
@@ -907,8 +1551,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="custom_name" project="home:tom:branches:my_project">
-          <title>Some Buried Caesar</title>
-          <description>Sint quis deleniti quibusdam.</description>
+          <title>c</title>
+          <description>Aut rerum ut sunt velit voluptates eius quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -929,19 +1573,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '173'
     body:
       encoding: UTF-8
       string: |
         <package name="custom_name" project="home:tom:branches:my_project">
-          <title>Some Buried Caesar</title>
-          <description>Sint quis deleniti quibusdam.</description>
+          <title>c</title>
+          <description>Aut rerum ut sunt velit voluptates eius quia.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:59 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?cmd=branch&opackage=second_package&oproject=my_project&orev=4c02f372ddcd5ea37fa6b9f87093cb44&user=tom
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?cmd=branch&noservice=1&opackage=second_package&oproject=my_project&orev=01194bd0c7190247902e6b6194c8e78f&user=tom
     body:
       encoding: UTF-8
       string: ''
@@ -970,16 +1614,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
-          <srcmd5>c6281b321c53e45f4e7b27837f13db44</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>b2d194240ea2c7d223a28557d86c86c2</srcmd5>
           <version>unknown</version>
-          <time>1502292659</time>
+          <time>1516110527</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:59 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name/_meta?user=tom
@@ -987,8 +1631,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="custom_name" project="home:tom:branches:my_project">
-          <title>Some Buried Caesar</title>
-          <description>Sint quis deleniti quibusdam.</description>
+          <title>c</title>
+          <description>Aut rerum ut sunt velit voluptates eius quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -1009,16 +1653,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '173'
     body:
       encoding: UTF-8
       string: |
         <package name="custom_name" project="home:tom:branches:my_project">
-          <title>Some Buried Caesar</title>
-          <description>Sint quis deleniti quibusdam.</description>
+          <title>c</title>
+          <description>Aut rerum ut sunt velit voluptates eius quia.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:59 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
@@ -1048,14 +1692,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="custom_name" rev="2" vrev="2" srcmd5="c6281b321c53e45f4e7b27837f13db44">
-          <linkinfo project="my_project" package="second_package" rev="4c02f372ddcd5ea37fa6b9f87093cb44" srcmd5="4c02f372ddcd5ea37fa6b9f87093cb44" baserev="4c02f372ddcd5ea37fa6b9f87093cb44" xsrcmd5="320921ea456ac54fc662cd37c6d6b5a5" lsrcmd5="c6281b321c53e45f4e7b27837f13db44" />
-          <entry name="_config" md5="11e44aa1c2a2e366b85a5db50ac7a716" size="169" mtime="1502292655" />
-          <entry name="_link" md5="06fbed7764b8a646ffcbf2a34dbcc7c6" size="182" mtime="1502292659" />
-          <entry name="somefile.txt" md5="c1e0265cf291873d2d6e86092f1e1138" size="152" mtime="1502292655" />
+        <directory name="custom_name" rev="1" vrev="1" srcmd5="b2d194240ea2c7d223a28557d86c86c2">
+          <linkinfo project="my_project" package="second_package" rev="01194bd0c7190247902e6b6194c8e78f" srcmd5="01194bd0c7190247902e6b6194c8e78f" baserev="01194bd0c7190247902e6b6194c8e78f" xsrcmd5="72faca690753c4fea207c633cc47939a" lsrcmd5="b2d194240ea2c7d223a28557d86c86c2" />
+          <entry name="_config" md5="27e7ef04c01f0aab8e5faac8aab0dfce" size="198" mtime="1516110523" />
+          <entry name="_link" md5="fddf5d7ba78517188703272b436dc500" size="182" mtime="1516110527" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
         </directory>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:59 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?nofilename=1&view=info&withchangesmd5=1
@@ -1085,12 +1729,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="custom_name" rev="2" vrev="2" srcmd5="320921ea456ac54fc662cd37c6d6b5a5" lsrcmd5="c6281b321c53e45f4e7b27837f13db44" verifymd5="4c02f372ddcd5ea37fa6b9f87093cb44">
+        <sourceinfo package="custom_name" rev="1" vrev="1" srcmd5="72faca690753c4fea207c633cc47939a" lsrcmd5="b2d194240ea2c7d223a28557d86c86c2" verifymd5="01194bd0c7190247902e6b6194c8e78f">
           <linked project="my_project" package="second_package" />
-          <revtime>1502292659</revtime>
+          <revtime>1516110527</revtime>
         </sourceinfo>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:59 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
@@ -1120,14 +1764,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="custom_name" rev="2" vrev="2" srcmd5="c6281b321c53e45f4e7b27837f13db44">
-          <linkinfo project="my_project" package="second_package" rev="4c02f372ddcd5ea37fa6b9f87093cb44" srcmd5="4c02f372ddcd5ea37fa6b9f87093cb44" baserev="4c02f372ddcd5ea37fa6b9f87093cb44" xsrcmd5="320921ea456ac54fc662cd37c6d6b5a5" lsrcmd5="c6281b321c53e45f4e7b27837f13db44" />
-          <entry name="_config" md5="11e44aa1c2a2e366b85a5db50ac7a716" size="169" mtime="1502292655" />
-          <entry name="_link" md5="06fbed7764b8a646ffcbf2a34dbcc7c6" size="182" mtime="1502292659" />
-          <entry name="somefile.txt" md5="c1e0265cf291873d2d6e86092f1e1138" size="152" mtime="1502292655" />
+        <directory name="custom_name" rev="1" vrev="1" srcmd5="b2d194240ea2c7d223a28557d86c86c2">
+          <linkinfo project="my_project" package="second_package" rev="01194bd0c7190247902e6b6194c8e78f" srcmd5="01194bd0c7190247902e6b6194c8e78f" baserev="01194bd0c7190247902e6b6194c8e78f" xsrcmd5="72faca690753c4fea207c633cc47939a" lsrcmd5="b2d194240ea2c7d223a28557d86c86c2" />
+          <entry name="_config" md5="27e7ef04c01f0aab8e5faac8aab0dfce" size="198" mtime="1516110523" />
+          <entry name="_link" md5="fddf5d7ba78517188703272b436dc500" size="182" mtime="1516110527" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
         </directory>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:59 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -1159,15 +1803,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="07b37b675e90553360d2bdb239b8035d">
+        <sourcediff key="6e922c84584cf7d033ed0c7c422671ae">
           <old project="home:tom:branches:my_project" package="custom_name" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tom:branches:my_project" package="custom_name" rev="2" srcmd5="c6281b321c53e45f4e7b27837f13db44" />
+          <new project="home:tom:branches:my_project" package="custom_name" rev="1" srcmd5="b2d194240ea2c7d223a28557d86c86c2" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:59 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -1199,13 +1843,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="168d62a2cb20149f1ddbe999a475f910">
-          <old project="my_project" package="second_package" rev="4c02f372ddcd5ea37fa6b9f87093cb44" srcmd5="4c02f372ddcd5ea37fa6b9f87093cb44" />
-          <new project="home:tom:branches:my_project" package="custom_name" rev="320921ea456ac54fc662cd37c6d6b5a5" srcmd5="320921ea456ac54fc662cd37c6d6b5a5" />
+        <sourcediff key="00583c98c246bbd217fd7249477742f1">
+          <old project="my_project" package="second_package" rev="01194bd0c7190247902e6b6194c8e78f" srcmd5="01194bd0c7190247902e6b6194c8e78f" />
+          <new project="home:tom:branches:my_project" package="custom_name" rev="72faca690753c4fea207c633cc47939a" srcmd5="72faca690753c4fea207c633cc47939a" />
           <files />
         </sourcediff>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:30:59 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:my_project/_meta?user=tom
@@ -1252,7 +1896,44 @@ http_interactions:
           </publish>
         </project>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:31:00 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '665'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="custom_name" rev="1" vrev="1" srcmd5="b2d194240ea2c7d223a28557d86c86c2">
+          <linkinfo project="my_project" package="second_package" rev="01194bd0c7190247902e6b6194c8e78f" srcmd5="01194bd0c7190247902e6b6194c8e78f" baserev="01194bd0c7190247902e6b6194c8e78f" xsrcmd5="72faca690753c4fea207c633cc47939a" lsrcmd5="b2d194240ea2c7d223a28557d86c86c2" />
+          <entry name="_config" md5="27e7ef04c01f0aab8e5faac8aab0dfce" size="198" mtime="1516110523" />
+          <entry name="_link" md5="fddf5d7ba78517188703272b436dc500" size="182" mtime="1516110527" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/second_package?nofilename=1&view=info&withchangesmd5=1
@@ -1282,11 +1963,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="second_package" rev="4" vrev="4" srcmd5="4c02f372ddcd5ea37fa6b9f87093cb44" verifymd5="4c02f372ddcd5ea37fa6b9f87093cb44">
-          <revtime>1502292655</revtime>
+        <sourceinfo package="second_package" rev="2" vrev="2" srcmd5="01194bd0c7190247902e6b6194c8e78f" verifymd5="01194bd0c7190247902e6b6194c8e78f">
+          <revtime>1516110523</revtime>
         </sourceinfo>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:31:00 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/second_package
@@ -1316,12 +1997,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="second_package" rev="4" vrev="4" srcmd5="4c02f372ddcd5ea37fa6b9f87093cb44">
-          <entry name="_config" md5="11e44aa1c2a2e366b85a5db50ac7a716" size="169" mtime="1502292655" />
-          <entry name="somefile.txt" md5="c1e0265cf291873d2d6e86092f1e1138" size="152" mtime="1502292655" />
+        <directory name="second_package" rev="2" vrev="2" srcmd5="01194bd0c7190247902e6b6194c8e78f">
+          <entry name="_config" md5="27e7ef04c01f0aab8e5faac8aab0dfce" size="198" mtime="1516110523" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
         </directory>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:31:00 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: post
     uri: http://backend:5352/source/my_project/second_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -1353,15 +2034,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="dec838dd1562943ab4969157921db775">
+        <sourcediff key="fd4995a0f8dd68c0eb7e5e2045e11108">
           <old project="my_project" package="second_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="my_project" package="second_package" rev="4" srcmd5="4c02f372ddcd5ea37fa6b9f87093cb44" />
+          <new project="my_project" package="second_package" rev="2" srcmd5="01194bd0c7190247902e6b6194c8e78f" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:31:00 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
@@ -1391,17 +2072,17 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="custom_name" rev="2" vrev="2" srcmd5="c6281b321c53e45f4e7b27837f13db44">
-          <linkinfo project="my_project" package="second_package" rev="4c02f372ddcd5ea37fa6b9f87093cb44" srcmd5="4c02f372ddcd5ea37fa6b9f87093cb44" baserev="4c02f372ddcd5ea37fa6b9f87093cb44" xsrcmd5="320921ea456ac54fc662cd37c6d6b5a5" lsrcmd5="c6281b321c53e45f4e7b27837f13db44" />
-          <entry name="_config" md5="11e44aa1c2a2e366b85a5db50ac7a716" size="169" mtime="1502292655" />
-          <entry name="_link" md5="06fbed7764b8a646ffcbf2a34dbcc7c6" size="182" mtime="1502292659" />
-          <entry name="somefile.txt" md5="c1e0265cf291873d2d6e86092f1e1138" size="152" mtime="1502292655" />
+        <directory name="custom_name" rev="1" vrev="1" srcmd5="b2d194240ea2c7d223a28557d86c86c2">
+          <linkinfo project="my_project" package="second_package" rev="01194bd0c7190247902e6b6194c8e78f" srcmd5="01194bd0c7190247902e6b6194c8e78f" baserev="01194bd0c7190247902e6b6194c8e78f" xsrcmd5="72faca690753c4fea207c633cc47939a" lsrcmd5="b2d194240ea2c7d223a28557d86c86c2" />
+          <entry name="_config" md5="27e7ef04c01f0aab8e5faac8aab0dfce" size="198" mtime="1516110523" />
+          <entry name="_link" md5="fddf5d7ba78517188703272b436dc500" size="182" mtime="1516110527" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
         </directory>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:31:00 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?expand=1&rev=2
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?expand=1&rev=1
     body:
       encoding: US-ASCII
       string: ''
@@ -1428,13 +2109,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="custom_name" rev="320921ea456ac54fc662cd37c6d6b5a5" vrev="2" srcmd5="320921ea456ac54fc662cd37c6d6b5a5">
-          <linkinfo project="my_project" package="second_package" rev="4c02f372ddcd5ea37fa6b9f87093cb44" srcmd5="4c02f372ddcd5ea37fa6b9f87093cb44" baserev="4c02f372ddcd5ea37fa6b9f87093cb44" lsrcmd5="c6281b321c53e45f4e7b27837f13db44" />
-          <entry name="_config" md5="11e44aa1c2a2e366b85a5db50ac7a716" size="169" mtime="1502292655" />
-          <entry name="somefile.txt" md5="c1e0265cf291873d2d6e86092f1e1138" size="152" mtime="1502292655" />
+        <directory name="custom_name" rev="72faca690753c4fea207c633cc47939a" vrev="1" srcmd5="72faca690753c4fea207c633cc47939a">
+          <linkinfo project="my_project" package="second_package" rev="01194bd0c7190247902e6b6194c8e78f" srcmd5="01194bd0c7190247902e6b6194c8e78f" baserev="01194bd0c7190247902e6b6194c8e78f" lsrcmd5="b2d194240ea2c7d223a28557d86c86c2" />
+          <entry name="_config" md5="27e7ef04c01f0aab8e5faac8aab0dfce" size="198" mtime="1516110523" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
         </directory>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:31:00 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
@@ -1466,14 +2147,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="custom_name" rev="2" vrev="2" srcmd5="c6281b321c53e45f4e7b27837f13db44">
-          <linkinfo project="my_project" package="second_package" rev="4c02f372ddcd5ea37fa6b9f87093cb44" srcmd5="4c02f372ddcd5ea37fa6b9f87093cb44" baserev="4c02f372ddcd5ea37fa6b9f87093cb44" xsrcmd5="320921ea456ac54fc662cd37c6d6b5a5" lsrcmd5="c6281b321c53e45f4e7b27837f13db44" />
-          <entry name="_config" md5="11e44aa1c2a2e366b85a5db50ac7a716" size="169" mtime="1502292655" />
-          <entry name="_link" md5="06fbed7764b8a646ffcbf2a34dbcc7c6" size="182" mtime="1502292659" />
-          <entry name="somefile.txt" md5="c1e0265cf291873d2d6e86092f1e1138" size="152" mtime="1502292655" />
+        <directory name="custom_name" rev="1" vrev="1" srcmd5="b2d194240ea2c7d223a28557d86c86c2">
+          <linkinfo project="my_project" package="second_package" rev="01194bd0c7190247902e6b6194c8e78f" srcmd5="01194bd0c7190247902e6b6194c8e78f" baserev="01194bd0c7190247902e6b6194c8e78f" xsrcmd5="72faca690753c4fea207c633cc47939a" lsrcmd5="b2d194240ea2c7d223a28557d86c86c2" />
+          <entry name="_config" md5="27e7ef04c01f0aab8e5faac8aab0dfce" size="198" mtime="1516110523" />
+          <entry name="_link" md5="fddf5d7ba78517188703272b436dc500" size="182" mtime="1516110527" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
         </directory>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:31:00 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name/_service
@@ -1510,7 +2191,7 @@ http_interactions:
           <details>404 _service: no such file</details>
         </status>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:31:00 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
@@ -1540,14 +2221,51 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="custom_name" rev="2" vrev="2" srcmd5="c6281b321c53e45f4e7b27837f13db44">
-          <linkinfo project="my_project" package="second_package" rev="4c02f372ddcd5ea37fa6b9f87093cb44" srcmd5="4c02f372ddcd5ea37fa6b9f87093cb44" baserev="4c02f372ddcd5ea37fa6b9f87093cb44" xsrcmd5="320921ea456ac54fc662cd37c6d6b5a5" lsrcmd5="c6281b321c53e45f4e7b27837f13db44" />
-          <entry name="_config" md5="11e44aa1c2a2e366b85a5db50ac7a716" size="169" mtime="1502292655" />
-          <entry name="_link" md5="06fbed7764b8a646ffcbf2a34dbcc7c6" size="182" mtime="1502292659" />
-          <entry name="somefile.txt" md5="c1e0265cf291873d2d6e86092f1e1138" size="152" mtime="1502292655" />
+        <directory name="custom_name" rev="1" vrev="1" srcmd5="b2d194240ea2c7d223a28557d86c86c2">
+          <linkinfo project="my_project" package="second_package" rev="01194bd0c7190247902e6b6194c8e78f" srcmd5="01194bd0c7190247902e6b6194c8e78f" baserev="01194bd0c7190247902e6b6194c8e78f" xsrcmd5="72faca690753c4fea207c633cc47939a" lsrcmd5="b2d194240ea2c7d223a28557d86c86c2" />
+          <entry name="_config" md5="27e7ef04c01f0aab8e5faac8aab0dfce" size="198" mtime="1516110523" />
+          <entry name="_link" md5="fddf5d7ba78517188703272b436dc500" size="182" mtime="1516110527" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
         </directory>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:31:00 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '665'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="custom_name" rev="1" vrev="1" srcmd5="b2d194240ea2c7d223a28557d86c86c2">
+          <linkinfo project="my_project" package="second_package" rev="01194bd0c7190247902e6b6194c8e78f" srcmd5="01194bd0c7190247902e6b6194c8e78f" baserev="01194bd0c7190247902e6b6194c8e78f" xsrcmd5="72faca690753c4fea207c633cc47939a" lsrcmd5="b2d194240ea2c7d223a28557d86c86c2" />
+          <entry name="_config" md5="27e7ef04c01f0aab8e5faac8aab0dfce" size="198" mtime="1516110523" />
+          <entry name="_link" md5="fddf5d7ba78517188703272b436dc500" size="182" mtime="1516110527" />
+          <entry name="somefile.txt" md5="de916512f7577e6a70f2b9971456a7ab" size="122" mtime="1516110523" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name/_history
@@ -1573,26 +2291,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '387'
+      - '209'
     body:
       encoding: UTF-8
       string: |
         <revisionlist>
           <revision rev="1" vrev="1">
-            <srcmd5>d1ca3b0f141c7e99c87ef485612a388f</srcmd5>
+            <srcmd5>b2d194240ea2c7d223a28557d86c86c2</srcmd5>
             <version>unknown</version>
-            <time>1502292599</time>
-            <user>tom</user>
-          </revision>
-          <revision rev="2" vrev="2">
-            <srcmd5>c6281b321c53e45f4e7b27837f13db44</srcmd5>
-            <version>unknown</version>
-            <time>1502292659</time>
+            <time>1516110527</time>
             <user>tom</user>
           </revision>
         </revisionlist>
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:31:00 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:47 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:my_project/_result?package=custom_name&view=status
@@ -1627,810 +2339,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 09 Aug 2017 15:31:01 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/my_project/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="my_project">
-          <title>Absalom, Absalom!</title>
-          <description/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '104'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="my_project">
-          <title>Absalom, Absalom!</title>
-          <description></description>
-        </project>
-    http_version: 
-  recorded_at: Thu, 10 Aug 2017 05:56:21 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/my_project/first_package/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="first_package" project="my_project">
-          <title>In a Glass Darkly</title>
-          <description>Consequuntur est minima deserunt sed et ipsam accusamus amet.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '189'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="first_package" project="my_project">
-          <title>In a Glass Darkly</title>
-          <description>Consequuntur est minima deserunt sed et ipsam accusamus amet.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 10 Aug 2017 05:56:22 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/my_project/second_package/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="second_package" project="my_project">
-          <title>Clouds of Witness</title>
-          <description>Quia officia laborum praesentium et itaque aspernatur.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '183'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="second_package" project="my_project">
-          <title>Clouds of Witness</title>
-          <description>Quia officia laborum praesentium et itaque aspernatur.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 10 Aug 2017 05:56:22 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/_workerstatus
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '927'
-    body:
-      encoding: UTF-8
-      string: |
-        <workerstatus clients="1">
-          <idle workerid="worker:1" hostarch="x86_64" />
-          <waiting arch="i586" jobs="1" />
-          <waiting arch="x86_64" jobs="0" />
-          <blocked arch="i586" jobs="0" />
-          <blocked arch="x86_64" jobs="0" />
-          <buildavg arch="i586" buildavg="1200" />
-          <buildavg arch="x86_64" buildavg="1200" />
-          <partition>
-            <daemon type="srcserver" state="running" starttime="1502344528" />
-            <daemon type="servicedispatch" state="running" starttime="1502344529" />
-            <daemon type="service" state="running" starttime="1502344529" />
-            <daemon type="scheduler" arch="i586" state="dead">
-              <queue high="0" med="0" low="3" next="0" />
-            </daemon>
-            <daemon type="scheduler" arch="x86_64" state="dead">
-              <queue high="39" med="0" low="7" next="0" />
-            </daemon>
-            <daemon type="repserver" state="running" starttime="1502344528" />
-            <daemon type="publisher" state="dead" />
-          </partition>
-        </workerstatus>
-    http_version: 
-  recorded_at: Thu, 10 Aug 2017 05:56:27 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/my_project/third_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'my_project' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '148'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'my_project' does not exist</summary>
-          <details>404 project 'my_project' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Tue, 10 Oct 2017 12:36:05 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/my_project/third_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'my_project' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '148'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'my_project' does not exist</summary>
-          <details>404 project 'my_project' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Tue, 10 Oct 2017 12:36:11 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home tom branches my_project' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '184'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:tom:branches:my_project' does not exist</summary>
-          <details>404 project 'home:tom:branches:my_project' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Thu, 19 Oct 2017 08:13:54 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/my_project/third_package/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="third_package" project="my_project">
-          <title>b</title>
-          <description>Provident a sed earum molestiae repellat.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '153'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="third_package" project="my_project">
-          <title>b</title>
-          <description>Provident a sed earum molestiae repellat.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 19 Oct 2017 10:56:35 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/my_project/third_package/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="third_package" project="my_project">
-          <title>b</title>
-          <description>Provident a sed earum molestiae repellat.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '153'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="third_package" project="my_project">
-          <title>b</title>
-          <description>Provident a sed earum molestiae repellat.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 19 Oct 2017 10:56:35 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/my_project/third_package/_config
-    body:
-      encoding: UTF-8
-      string: Qui earum quaerat asperiores recusandae. Delectus illum quia eius architecto
-        voluptatem dolorem. Molestiae voluptas quia.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '207'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>cef744a0d29b4f4a09dc6ee18414479d</srcmd5>
-          <version>unknown</version>
-          <time>1508410595</time>
-          <user>unknown</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-    http_version: 
-  recorded_at: Thu, 19 Oct 2017 10:56:36 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/my_project/third_package/somefile.txt
-    body:
-      encoding: UTF-8
-      string: Molestiae voluptatem et voluptatem maiores rerum recusandae. Quasi rerum
-        dolorem et iusto. Tempora est vitae iure assumenda ea consectetur. Sequi vitae
-        est quibusdam dolor eos odit. Magni sed eveniet ut iure.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '207'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="4" vrev="4">
-          <srcmd5>be4fc691a25643abeac0ab5e41142c4e</srcmd5>
-          <version>unknown</version>
-          <time>1508410596</time>
-          <user>unknown</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-    http_version: 
-  recorded_at: Thu, 19 Oct 2017 10:56:36 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/my_project/package_with_kiwi_image/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_kiwi_image" project="my_project">
-          <title>His Dark Materials</title>
-          <description>Et molestiae voluptatem aperiam aliquid laboriosam.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '190'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_kiwi_image" project="my_project">
-          <title>His Dark Materials</title>
-          <description>Et molestiae voluptatem aperiam aliquid laboriosam.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 19 Oct 2017 10:56:37 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/my_project/package_with_kiwi_image/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_kiwi_image" project="my_project">
-          <title>His Dark Materials</title>
-          <description>Et molestiae voluptatem aperiam aliquid laboriosam.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '190'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_kiwi_image" project="my_project">
-          <title>His Dark Materials</title>
-          <description>Et molestiae voluptatem aperiam aliquid laboriosam.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 19 Oct 2017 10:56:37 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/my_project/package_with_kiwi_image/package_with_kiwi_image.kiwi
-    body:
-      encoding: UTF-8
-      string: |
-        <?xml version="1.0" encoding="utf-8"?>
-        <image schemaversion="6.2" name="suse-13.2-live">
-          <description type="system">
-          </description>
-          <preferences>
-            <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
-          </preferences>
-        </image>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '207'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="2" vrev="2">
-          <srcmd5>82f39606fd3c729f7f16de7d227e6dae</srcmd5>
-          <version>unknown</version>
-          <time>1508410597</time>
-          <user>unknown</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-    http_version: 
-  recorded_at: Thu, 19 Oct 2017 10:56:37 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/my_project/package_with_kiwi_image/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_kiwi_image" project="my_project">
-          <title>His Dark Materials</title>
-          <description>Et molestiae voluptatem aperiam aliquid laboriosam.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '190'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_kiwi_image" project="my_project">
-          <title>His Dark Materials</title>
-          <description>Et molestiae voluptatem aperiam aliquid laboriosam.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 19 Oct 2017 10:56:37 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/my_project/package_with_kiwi_image
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '232'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="package_with_kiwi_image" rev="2" vrev="2" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
-          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1508410506" />
-        </directory>
-    http_version: 
-  recorded_at: Thu, 19 Oct 2017 10:56:37 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/my_project/package_with_kiwi_image
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '232'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="package_with_kiwi_image" rev="2" vrev="2" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
-          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1508410506" />
-        </directory>
-    http_version: 
-  recorded_at: Thu, 19 Oct 2017 10:56:37 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/my_project/package_with_kiwi_image
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '232'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="package_with_kiwi_image" rev="2" vrev="2" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
-          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1508410506" />
-        </directory>
-    http_version: 
-  recorded_at: Thu, 19 Oct 2017 10:56:37 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/my_project/package_with_kiwi_image
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '232'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="package_with_kiwi_image" rev="2" vrev="2" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
-          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1508410506" />
-        </directory>
-    http_version: 
-  recorded_at: Thu, 19 Oct 2017 10:56:39 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/my_project/package_with_kiwi_image
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '232'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="package_with_kiwi_image" rev="2" vrev="2" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
-          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1508410506" />
-        </directory>
-    http_version: 
-  recorded_at: Thu, 19 Oct 2017 10:56:39 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home tom branches my_project' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '184'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:tom:branches:my_project' does not exist</summary>
-          <details>404 project 'home:tom:branches:my_project' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Wed, 03 Jan 2018 14:29:21 GMT
+  recorded_at: Tue, 16 Jan 2018 13:48:48 GMT
 recorded_with: VCR 4.0.0

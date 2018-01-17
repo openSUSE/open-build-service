@@ -715,6 +715,7 @@ CREATE TABLE `linked_projects` (
   `linked_db_project_id` int(11) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `linked_remote_project_name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `vrevmode` enum('standard','unextend','extend') COLLATE utf8_bin DEFAULT 'standard',
   PRIMARY KEY (`id`),
   UNIQUE KEY `linked_projects_index` (`db_project_id`,`linked_db_project_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -1271,6 +1272,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20170323123236'),
 ('20170412121601'),
 ('20170412121957'),
+('20170413212201'),
 ('20170426153510'),
 ('20170509123922'),
 ('20170511120355'),

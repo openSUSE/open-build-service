@@ -1,331 +1,6 @@
 ---
 http_interactions:
 - request:
-    method: get
-    uri: http://backend:5352/source/home:package_test_user/test.json?nofilename=1&view=info&withchangesmd5=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Thu, 04 May 2017 10:24:20 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:package_test_user/test.json
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Thu, 04 May 2017 10:24:20 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/home:package_test_user/test.json?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Thu, 04 May 2017 10:24:20 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:package_test_user/test.json
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Thu, 04 May 2017 10:24:20 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:package_test_user/test.json?expand=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Thu, 04 May 2017 10:24:20 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:package_test_user/test.json
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Thu, 04 May 2017 10:24:20 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:package_test_user/test.json/_service
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Thu, 04 May 2017 10:24:20 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/home:package_test_user/_result?package=test.json&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Thu, 04 May 2017 10:24:23 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:package_test_user/test.json?expand=0
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Tue, 16 May 2017 15:09:26 GMT
-- request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/_meta?user=package_test_user
     body:
@@ -365,7 +40,7 @@ http_interactions:
           <person userid="package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 03 Jan 2018 13:13:53 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=package_test_user
@@ -373,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>Ego Dominus Tuus</title>
-          <description>Odio odit ratione commodi debitis non cumque molestias vero.</description>
+          <title>All the King's Men</title>
+          <description>Repudiandae et qui perferendis qui similique.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -395,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '198'
+      - '185'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>Ego Dominus Tuus</title>
-          <description>Odio odit ratione commodi debitis non cumque molestias vero.</description>
+          <title>All the King's Men</title>
+          <description>Repudiandae et qui perferendis qui similique.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 03 Jan 2018 13:13:53 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_meta
@@ -412,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>Ego Dominus Tuus</title>
-          <description>Odio odit ratione commodi debitis non cumque molestias vero.</description>
+          <title>All the King's Men</title>
+          <description>Repudiandae et qui perferendis qui similique.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -434,23 +109,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '198'
+      - '185'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>Ego Dominus Tuus</title>
-          <description>Odio odit ratione commodi debitis non cumque molestias vero.</description>
+          <title>All the King's Men</title>
+          <description>Repudiandae et qui perferendis qui similique.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 03 Jan 2018 13:13:53 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_config
     body:
       encoding: UTF-8
-      string: Dicta odio et nihil nostrum totam nihil. Quia minima ab molestiae. In
-        suscipit distinctio error ad labore est.
+      string: Placeat sit aut aliquid eum est est dolore. Voluptatem autem aspernatur
+        dolorum excepturi quo. Maiores omnis nobis occaecati.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -470,27 +145,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
-          <srcmd5>c849a1d9be425bd3c83769b5f2ca7c9f</srcmd5>
+        <revision rev="14" vrev="14">
+          <srcmd5>a4f8f316e23070dcf46b14d8c0922332</srcmd5>
           <version>unknown</version>
-          <time>1514985233</time>
+          <time>1516111267</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 03 Jan 2018 13:13:53 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Consequatur ab nostrum. Blanditiis rerum eaque voluptates officiis sint
-        architecto. Quam consequuntur autem. Ut delectus omnis.
+      string: Officia quia repellendus quis. Velit ullam et. Praesentium dolorem quos
+        quae dolorum illum libero sit. Culpa officia autem voluptatem assumenda. Officiis
+        repudiandae et in.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -510,20 +186,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>f69d66eae19594b626fe6cc073afcde5</srcmd5>
+        <revision rev="15" vrev="15">
+          <srcmd5>a4f8f316e23070dcf46b14d8c0922332</srcmd5>
           <version>unknown</version>
-          <time>1514985233</time>
+          <time>1516111267</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 03 Jan 2018 13:13:53 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/_meta?user=other_package_test_user
@@ -564,7 +240,7 @@ http_interactions:
           <person userid="other_package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 03 Jan 2018 13:13:53 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=package_test_user
@@ -572,8 +248,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>To Your Scattered Bodies Go</title>
-          <description>Unde qui id aut sint ex.</description>
+          <title>Time To Murder And Create</title>
+          <description>Facilis occaecati et consequatur a voluptate enim autem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -594,16 +270,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '216'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>To Your Scattered Bodies Go</title>
-          <description>Unde qui id aut sint ex.</description>
+          <title>Time To Murder And Create</title>
+          <description>Facilis occaecati et consequatur a voluptate enim autem.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 03 Jan 2018 13:13:53 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta
@@ -611,8 +287,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>To Your Scattered Bodies Go</title>
-          <description>Unde qui id aut sint ex.</description>
+          <title>Time To Murder And Create</title>
+          <description>Facilis occaecati et consequatur a voluptate enim autem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -633,23 +309,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '216'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>To Your Scattered Bodies Go</title>
-          <description>Unde qui id aut sint ex.</description>
+          <title>Time To Murder And Create</title>
+          <description>Facilis occaecati et consequatur a voluptate enim autem.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 03 Jan 2018 13:13:53 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_config
     body:
       encoding: UTF-8
-      string: Magnam qui commodi est nam fuga. Omnis voluptas praesentium excepturi
-        alias magnam omnis. Tenetur accusamus placeat autem sint autem.
+      string: Quo nostrum dolor itaque eum. Quasi esse ipsum sunt laborum necessitatibus
+        voluptates. Nam numquam eos et. Deleniti consequatur neque eveniet unde. Corporis
+        quia officiis repellat sit assumenda.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -673,23 +350,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
-          <srcmd5>61e2ab4eb2fa044c631926c905a877f3</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>619ac57717db09d80315922eb57bb66a</srcmd5>
           <version>unknown</version>
-          <time>1514985233</time>
+          <time>1516111268</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 03 Jan 2018 13:13:53 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Consequatur ab nostrum. Blanditiis rerum eaque voluptates officiis sint
-        architecto. Quam consequuntur autem. Ut delectus omnis.
+      string: Officia quia repellendus quis. Velit ullam et. Praesentium dolorem quos
+        quae dolorum illum libero sit. Culpa officia autem voluptatem assumenda. Officiis
+        repudiandae et in.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -713,16 +391,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5" vrev="5">
-          <srcmd5>6e2fdcf66f8c0db09adf9aa631781ab7</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>ea03fd8941ae34f72f68033de00a0b2e</srcmd5>
           <version>unknown</version>
-          <time>1514985233</time>
+          <time>1516111268</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 03 Jan 2018 13:13:53 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test.json/_meta?user=package_test_user
@@ -730,7 +408,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test.json" project="home:package_test_user">
-          <title>Françoise Sagan</title>
+          <title>If I Forget Thee Jerusalem</title>
           <description>A package with a mime type suffix</description>
         </package>
     headers:
@@ -752,13 +430,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '178'
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PHBhY2thZ2UgbmFtZT0idGVzdC5qc29uIiBwcm9qZWN0PSJob21lOnBhY2thZ2VfdGVzdF91c2VyIj4KICA8dGl0bGU+RnJhbsOnb2lzZSBTYWdhbjwvdGl0bGU+CiAgPGRlc2NyaXB0aW9uPkEgcGFja2FnZSB3aXRoIGEgbWltZSB0eXBlIHN1ZmZpeDwvZGVzY3JpcHRpb24+CjwvcGFja2FnZT4K
+      encoding: UTF-8
+      string: |
+        <package name="test.json" project="home:package_test_user">
+          <title>If I Forget Thee Jerusalem</title>
+          <description>A package with a mime type suffix</description>
+        </package>
     http_version: 
-  recorded_at: Wed, 03 Jan 2018 13:13:54 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test.json/_meta
@@ -766,7 +447,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test.json" project="home:package_test_user">
-          <title>Françoise Sagan</title>
+          <title>If I Forget Thee Jerusalem</title>
           <description>A package with a mime type suffix</description>
         </package>
     headers:
@@ -788,11 +469,292 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '178'
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PHBhY2thZ2UgbmFtZT0idGVzdC5qc29uIiBwcm9qZWN0PSJob21lOnBhY2thZ2VfdGVzdF91c2VyIj4KICA8dGl0bGU+RnJhbsOnb2lzZSBTYWdhbjwvdGl0bGU+CiAgPGRlc2NyaXB0aW9uPkEgcGFja2FnZSB3aXRoIGEgbWltZSB0eXBlIHN1ZmZpeDwvZGVzY3JpcHRpb24+CjwvcGFja2FnZT4K
+      encoding: UTF-8
+      string: |
+        <package name="test.json" project="home:package_test_user">
+          <title>If I Forget Thee Jerusalem</title>
+          <description>A package with a mime type suffix</description>
+        </package>
     http_version: 
-  recorded_at: Wed, 03 Jan 2018 13:13:54 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/test.json?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '147'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="test.json" srcmd5="d41d8cd98f00b204e9800998ecf8427e" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+          <revtime/>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:01:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/test.json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '84'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test.json" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:01:08 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:package_test_user/test.json?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '304'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="04429e5eb3523e7cb3e15ee88d1605d6">
+          <old project="home:package_test_user" package="test.json" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:package_test_user" package="test.json" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <files />
+        </sourcediff>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:01:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/test.json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '84'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test.json" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:01:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/test.json?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '84'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test.json" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:01:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/test.json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '84'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test.json" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:01:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/test.json/_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: _service  no such file
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '122'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>_service: no such file</summary>
+          <details>404 _service: no such file</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:01:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:package_test_user/_result?package=test.json&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:01:08 GMT
 recorded_with: VCR 4.0.0

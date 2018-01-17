@@ -346,7 +346,7 @@ http_interactions:
   recorded_at: Wed, 25 May 2016 17:07:15 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:Jane/some_different_name?cmd=branch&opackage=branch_test_package&oproject=home:other_user&user=Jane
+    uri: http://backend:5352/source/home:Jane/some_different_name?cmd=branch&noservice=1&opackage=branch_test_package&oproject=home:other_user&user=Jane
     body:
       encoding: UTF-8
       string: ''

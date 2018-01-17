@@ -63,8 +63,8 @@ Bugfixes:
  * Fixed generation of the breadcrumb for the Image Editor (Kiwi)
  * Using ActiveSupport::JSON as encoder everywhere prevent to fail on Notification creation with events that have a very big payload
 
-Wanted changes:
-===============
+Intentional changes:
+====================
 
  * creating of repositories on branching has changed if repositories of the
    source refer each other. This gets recreated in new project.
@@ -81,6 +81,9 @@ Wanted changes:
    - ldap_entry_base
    - ldap_sn_attr_required
 
+ * extended build number scheme is enforced for maintenance updates via new project link
+   attribute extendvrev now
+
  * dropping of the project/package tag functionality/api
 
  * password hashing algorithm was changed to bcrypt (blowfish)
@@ -88,6 +91,7 @@ Wanted changes:
  * The backend notification plugin system is not used anymore.
    The RabbitMQ plugin is replaced with a RabbitMQ message bus implementation in the frontend, you can find details about this in the admin manual.
    The Hermes plugin is dropped without replacement as it was only used for notifications which the OBS is doing on it's own since quite some time.
+
 
 Other changes
 =============
