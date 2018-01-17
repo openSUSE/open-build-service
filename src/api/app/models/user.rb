@@ -81,7 +81,7 @@ class User < ApplicationRecord
   validates :email,
             format: { with:        %r{\A([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+\z},
                       message:     'must be a valid email address',
-                      allow_blank: true }
+                      allow_blank: true }, confirmation: true
 
   # we disabled has_secure_password's validations. therefore we need to do manual validations
   validate :password_validation
