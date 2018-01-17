@@ -69,7 +69,7 @@ gem 'peek-mysql2'
 # for kerberos authentication
 gem 'gssapi', require: false
 # for sending events to rabbitmq
-gem 'bunny'
+gem 'bunny', '= 2.8.0'
 # for making changes to existing data
 gem 'data_migrate', '= 3.2.2'
 # for URI encoding
