@@ -53,6 +53,8 @@ sub archivejob {
   unlink("$jobdir/$jobid.log");
   unlink("$jobdir/$jobid.data");
   unlink("$jobdir/$jobid.file");
+  BSUtil::cleandir("$jobdir/$jobid.dir");
+  rmdir("$jobdir/$jobid.dir");
   unlink("$jobdir/$jobid");
 }
 
@@ -62,6 +64,13 @@ sub startupload {
   my $pid;
   BSUtil::printlog("uploading job $job->{'name'} [$job->{'user'}, $job->{'target'}]\n");
   if (!($pid = xfork())) {
+    if (-e "$jobdir/$jobid.dir") {
+      BSUtil::cleandir("$jobdir/$jobid.dir");
+      rmdir("$jobdir/$jobid.dir");
+      rename("$jobdir/$jobid.dir", "$jobdir/$jobid.dir.gone$$") if -e "$jobdir/$jobid.dir";
+    }
+    mkdir_p("$jobdir/$jobid.dir");
+    chdir("$jobdir/$jobid.dir") || die("chdir $jobdir/$jobid.dir: $!\n");
     my @args = ($job->{'user'}, $job->{'target'}, "$jobdir/$jobid.file", "$jobdir/$jobid.data", $job->{'filename'});
     print "calling $INC[0]/clouduploader @args\n";
     open(STDIN, '<', '/dev/null') || die("/dev/null: $!\n");

@@ -195,6 +195,8 @@ sub archivejob {
   unlink("$jobdir/$jobid.log");
   unlink("$jobdir/$jobid.data");
   unlink("$jobdir/$jobid.file");
+  BSUtil::cleandir("$jobdir/$jobid.dir");
+  rmdir("$jobdir/$jobid.dir");
   unlink("$jobdir/$jobid");
 }
 
