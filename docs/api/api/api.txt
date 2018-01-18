@@ -156,13 +156,13 @@ Parameters:
 
 GET /person/<userid>/token
   
-  Lists all authentification token for a user
+  Lists all authentication token for a user
 
 XmlResult: tokenlist
 
 POST /person/<userid>/token
 
-  Create a new authentification token for this user. It may be limited for a specific package
+  Create a new authentication token for this user. It may be limited for a specific package
   via optional project&package parameters.
 
   cmd: create
@@ -173,7 +173,7 @@ XmlResult: status
 
 DELETE /person/<userid>/token/<id>
 
-  Delete a specific authentification token. The <id> is listed in GET call.
+  Delete a specific authentication token. The <id> is listed in GET call.
 
 XmlResult: status
 

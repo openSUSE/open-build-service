@@ -264,7 +264,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       login(user)
     end
 
-    describe 'authentification' do
+    describe 'authentication' do
       let(:target_package) { create(:package, name: 'forbidden_package', project: target_project) }
 
       it 'does not allow other users than the owner to delete a package' do

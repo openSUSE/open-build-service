@@ -1,4 +1,4 @@
-module FeaturesAuthentification
+module FeaturesAuthentication
   def login(user, password = 'buildservice')
     visit user_login_path
     expect(page).to have_text 'Please Log In'
@@ -17,5 +17,5 @@ module FeaturesAuthentification
 end
 
 RSpec.configure do |c|
-  c.include FeaturesAuthentification, type: :feature
+  c.include FeaturesAuthentication, type: :feature
 end

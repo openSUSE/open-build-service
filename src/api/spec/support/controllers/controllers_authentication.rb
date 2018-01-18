@@ -1,4 +1,4 @@
-module ControllersAuthentification
+module ControllersAuthentication
   def login(user)
     request.session[:login] = user.login
     User.current = user
@@ -10,5 +10,5 @@ module ControllersAuthentification
 end
 
 RSpec.configure do |c|
-  c.include ControllersAuthentification, type: :controller
+  c.include ControllersAuthentication, type: :controller
 end
