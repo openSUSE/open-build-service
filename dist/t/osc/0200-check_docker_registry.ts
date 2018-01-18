@@ -38,7 +38,7 @@ SKIP: {
   ok($? == 0,"Checking result code");
 
   my $last_upload="";
-  my $timeout=600;
+  my $timeout=1800;
   # waiting for publishing to start
   sleep 10;
   # Waiting for publishing
