@@ -47,19 +47,16 @@ class UnregisteredUser < User
     opts[:note] = nil unless User.current && User.current.is_admin?
     state = ::Configuration.registration == 'allow' ? 'confirmed' : 'unconfirmed'
 
-    newuser = User.create(
-      login:                 opts[:login],
-      password:              opts[:password],
-      email:                 opts[:email]
+    newuser = User.new(
+      realname:  (opts[:realname] || ''),
+      login:     opts[:login],
+      password:  opts[:password],
+      email:     opts[:email],
+      state:     state,
+      adminnote: opts[:note]
     )
 
-    newuser.realname = opts[:realname] || ''
-    newuser.state = state
-    newuser.adminnote = opts[:note]
-    logger.debug("Saving new user #{newuser.login}")
-    newuser.save
-
-    unless newuser.errors.empty?
+    unless newuser.save
       raise ErrRegisterSave, "Could not save the registration, details: #{newuser.errors.full_messages.to_sentence}"
     end
 
