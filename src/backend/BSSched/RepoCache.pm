@@ -33,11 +33,10 @@ sub setcache {
 
   my $repodata = $self->{"$prp/$arch"};
   $self->{"$prp/$arch"} = $repodata = {} unless $repodata;
-  delete $repodata->{$_} for qw{solv solvfile error lastscan random};
-  my $isremote = delete $conf{'isremote'};
+  delete $repodata->{$_} for qw{solv solvfile error lastscan random isremote};
   $repodata->{$_} = $conf{$_} for keys %conf;
   # we don't cache local alien repos
-  if ($isremote || $arch eq $self->{'arch'}) {
+  if ($arch eq $self->{'arch'} || $repodata->{'isremote'}) {
     $repodata->{'lastscan'} = time();
     $repodata->{'random'} = rand();
   }
@@ -74,11 +73,7 @@ sub addrepo {
   # nope, can't use it
   if ($repodata) {
     # free some mem
-    delete $repodata->{'solv'};
-    delete $repodata->{'solvfile'};
-    delete $repodata->{'lastscan'};
-    delete $repodata->{'random'};
-    delete $repodata->{'error'};
+    delete $repodata->{$_} for qw{solv solvfile error lastscan random isremote};
   }
   return 0;	# not in cache
 }
@@ -100,6 +95,12 @@ sub dropmeta {
 sub dropsolv {
   my ($self, $prp, $arch) = @_;
   delete $self->{"$prp/$arch"}->{'solv'} if $self->{"$prp/$arch"};
+}
+
+sub getremote {
+  my ($self) = @_;
+  my @remote = grep {/\// && $self->{$_}->{'isremote'}} keys %$self;
+  return sort(@remote);
 }
 
 1;

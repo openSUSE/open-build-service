@@ -80,6 +80,7 @@ sub beginwatchcollection {
   %{$gctx->{'watchremote'}} = ();	# reset all watches
   $gctx->{'needremoteproj'} = {};	# tmp
   $gctx->{'watchremote_cache'} = {};	# tmp
+  $gctx->{'watchremote_repos'} = {};	# tmp
 }
 
 =head2 endwatchcollection - TODO: add summary
@@ -93,6 +94,15 @@ sub endwatchcollection {
   delete $gctx->{'watchremote_cache'};
   my $needremoteproj = delete $gctx->{'needremoteproj'};
   updateremoteprojs($gctx, $needremoteproj);
+
+  # drop unwatched remote repos
+  my $watchremote_repos = delete $gctx->{'watchremote_repos'};
+  my $repocache = $gctx->{'repodatas'};
+  for my $prpa (grep {!$watchremote_repos->{$_}} $repocache->getremote()) {
+    print "droping remote cache for $prpa\n";
+    my ($projid, $repoid, $arch) = split('/', $prpa, 3);
+    $repocache->drop("$projid/$repoid", $arch);
+  }
 }
 
 =head2 addwatchremote -  register for a possibly remote resource
@@ -125,6 +135,7 @@ sub addwatchremote {
   } else {
     $watchremote->{$proj->{'remoteurl'}}->{"$type/$proj->{'remoteproject'}$watch"} = $projid;
   }
+  $gctx->{'watchremote_repos'}->{"$projid$watch"} = 1 if $type eq 'repository';
   return $proj;
 }
 
