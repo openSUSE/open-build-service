@@ -436,4 +436,39 @@ http_interactions:
         dWJ1bnR1MTIuMDQgcm9vdOeZu+W9lQox5YWI6K6+5a6a5LiA5Liqcm9vdOeahOWvhuegge+8jHN1ZG8gcGFzc3dkIHJvb3QKCjIgcm9vdCDnmbvpmYbvvIxzdSByb290CgozIOWkh+S7veS4gOS4i2xpZ2h0Z2RtCmNwIC1wIC9ldGMvbGlnaHRkbS9saWdodGRtLmNvbmYgL2V0Yy9saWdodGRtL2xpZ2h0ZG0uY29uZi5iYWsKCjQgdmkgL2V0Yy9saWdodGRtL2xpZ2h0ZG0uY29uZgoKNSDlop7liqDvvJpncmVldGVyLXNob3ctbWFudWFsLWxvZ2luPXRydWUKICDkv67mlLnlkI7kuLrvvJoKICBbU2VhdERlZmF1bHRzXQogIGdyZWV0ZXItc2Vzc2lvbj11bml0eS1ncmVldGVyCiAgdXNlci1zZXNzaW9uPXVidW50dQogIGdyZWV0ZXItc2hvdy1tYW51YWwtbG9naW49dHJ1ZQoKICDph43lkK/nmbvpmYbljbPlj6/jgILlt7Lnu4/lj6/ku6XovpPlhaVyb2905LqGCgoKcm9vdOeZu+mZhuWQjui/mOayoeWjsOmfs++8jOWPiOafpeS6huafpe+8jOWmguS4i+aWueazlToKVWJ1bnR1IHJvb3TnmbvlvZXmsqHmnInlo7Dpn7Pov5nkuKrpl67popjnmoTmoLnmnKzljp/lm6DmmK/kvb/nlKhyb29055m75b2V5ZCOcHVsc2VhdWRpb+ayoeacieWQr+WKqOOAggrlsIZyb2905Yqg5YiwcHVsc2UtYWNjZXNz57uE77yaCnN1ZG8gdXNlcm1vZCAtYSAtRyBwdWxzZS1hY2Nlc3Mgcm9vdArnhLblkI7kv67mlLnphY3nva7mlofku7YvZXRjL2RlZmF1bHQvcHVsc2VhdWRpb++8jOWwhlBVTFNFQVVESU9fU1lTVEVNX1NUQVJU6K6+5Li6Me+8jAoKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0K5a6J6KOFbGludXjniYjmnKznmoRiZXlvbmQgY29tcGFyZQpiZXlvbmQgY29tcGFyZeeahOazqOWGjOegge+8mgpIbUI1b0FOeWdRT2hhU3RUSE5hK3pPS2dPZVdIT2tlQXA2ZDErUXdJZWJ6Nno5a3dZQ205LU8wakY5Rjc5enZ6ZWQ5djVVVkM0VnJEa0RNbVRNOG5CKwoKCgo=
     http_version: 
   recorded_at: Tue, 02 May 2017 10:53:45 GMT
-recorded_with: VCR 3.0.3
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/my_package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom' does not exist</summary>
+          <details>404 project 'home:tom' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:58:40 GMT
+recorded_with: VCR 4.0.0

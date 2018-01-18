@@ -7,19 +7,19 @@ module Backend
       # Get a list of requests
       # @return [String]
       def self.list
-        get('/request')
+        http_get('/request')
       end
 
       # Returns the request info based on the id provided
       # @return [String]
       def self.info(request_id)
-        get(['/request/:id', request_id])
+        http_get(['/request/:id', request_id])
       end
 
       # Returns the request id of the last one
       # @return [Integer]
       def self.last_id
-        get('/request/_lastid').to_i
+        http_get('/request/_lastid').to_i
       end
     end
   end

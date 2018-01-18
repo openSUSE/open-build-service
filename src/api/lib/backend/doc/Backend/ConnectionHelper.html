@@ -76,7 +76,7 @@
   
   <dl>
     <dt>Included in:</dt>
-    <dd><span class='object_link'><a href="Api/Build/Project.html" title="Backend::Api::Build::Project (class)">Api::Build::Project</a></span>, <span class='object_link'><a href="Api/BuildResults/Binaries.html" title="Backend::Api::BuildResults::Binaries (class)">Api::BuildResults::Binaries</a></span>, <span class='object_link'><a href="Api/BuildResults/Status.html" title="Backend::Api::BuildResults::Status (class)">Api::BuildResults::Status</a></span>, <span class='object_link'><a href="Api/BuildResults/Worker.html" title="Backend::Api::BuildResults::Worker (class)">Api::BuildResults::Worker</a></span>, <span class='object_link'><a href="Api/Cloud.html" title="Backend::Api::Cloud (module)">Api::Cloud</a></span>, <span class='object_link'><a href="Api/IssueTrackers.html" title="Backend::Api::IssueTrackers (class)">Api::IssueTrackers</a></span>, <span class='object_link'><a href="Api/Published.html" title="Backend::Api::Published (class)">Api::Published</a></span>, <span class='object_link'><a href="Api/Search.html" title="Backend::Api::Search (class)">Api::Search</a></span>, <span class='object_link'><a href="Api/Server.html" title="Backend::Api::Server (class)">Api::Server</a></span>, <span class='object_link'><a href="Api/Sources/Package.html" title="Backend::Api::Sources::Package (module)">Api::Sources::Package</a></span>, <span class='object_link'><a href="Api/Sources/Project.html" title="Backend::Api::Sources::Project (class)">Api::Sources::Project</a></span></dd>
+    <dd><span class='object_link'><a href="Api/Build/Project.html" title="Backend::Api::Build::Project (class)">Api::Build::Project</a></span>, <span class='object_link'><a href="Api/BuildResults/Binaries.html" title="Backend::Api::BuildResults::Binaries (class)">Api::BuildResults::Binaries</a></span>, <span class='object_link'><a href="Api/BuildResults/Status.html" title="Backend::Api::BuildResults::Status (class)">Api::BuildResults::Status</a></span>, <span class='object_link'><a href="Api/BuildResults/Worker.html" title="Backend::Api::BuildResults::Worker (class)">Api::BuildResults::Worker</a></span>, <span class='object_link'><a href="Api/Cloud.html" title="Backend::Api::Cloud (module)">Api::Cloud</a></span>, <span class='object_link'><a href="Api/IssueTrackers.html" title="Backend::Api::IssueTrackers (class)">Api::IssueTrackers</a></span>, <span class='object_link'><a href="Api/Published.html" title="Backend::Api::Published (class)">Api::Published</a></span>, <span class='object_link'><a href="Api/Request.html" title="Backend::Api::Request (class)">Api::Request</a></span>, <span class='object_link'><a href="Api/Search.html" title="Backend::Api::Search (class)">Api::Search</a></span>, <span class='object_link'><a href="Api/Server.html" title="Backend::Api::Server (class)">Api::Server</a></span>, <span class='object_link'><a href="Api/Sources/Package.html" title="Backend::Api::Sources::Package (module)">Api::Sources::Package</a></span>, <span class='object_link'><a href="Api/Sources/Project.html" title="Backend::Api::Sources::Project (class)">Api::Sources::Project</a></span></dd>
   </dl>
   
 
@@ -94,8 +94,8 @@
 <p>Module that holds the wrapping methods for http requests, are mainly used
 for simplify the calculation of urls.</p>
 
-<p>The methods get, put, post and delete always will return the body of the
-response encoded in UTF-8.</p>
+<p>The methods http_get, http_put, http_post and http_delete always will
+return the body of the response encoded in UTF-8.</p>
 
 <h2 id="label-Parameters">Parameters</h2>
 
@@ -109,7 +109,7 @@ placeholders that will be replaced in the order provided starting with the
 second element of the array. The placeholders have the same style as ruby
 symbols.</p>
 
-<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/:package/_result</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Apache</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>apache2</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_http_get'>http_get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/:package/_result</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Apache</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>apache2</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
 <span class='comment'># =&gt; HTTP GET &quot;/build/Apache/apache2/_result&quot;
 </span></code></pre>
 </li></ul>
@@ -121,7 +121,7 @@ options available.</p>
 <p>Hash with the parameters to be sent as part of the query in the url.</p>
 </dd></dl>
 
-<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/Apache/_meta</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>revision:</span> <span class='int'>42</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_http_get'>http_get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/Apache/_meta</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>revision:</span> <span class='int'>42</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
 <span class='comment'># =&gt; HTTP GET &quot;/source/Apache/_meta?revision=42&quot;
 </span></code></pre>
 <dl class="rdoc-list note-list"><dt><code>:defaults</code>
@@ -130,7 +130,7 @@ options available.</p>
 <code>options[:params]</code>.</p>
 </dd></dl>
 
-<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/Apache</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>defaults:</span> <span class='lbrace'>{</span> <span class='label'>cmd:</span> <span class='symbol'>:copy</span><span class='comma'>,</span> <span class='label'>revision:</span> <span class='int'>1</span> <span class='rbrace'>}</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>revision:</span> <span class='int'>42</span><span class='comma'>,</span> <span class='label'>target:</span> <span class='const'>Nginx</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_http_get'>http_get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/Apache</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>defaults:</span> <span class='lbrace'>{</span> <span class='label'>cmd:</span> <span class='symbol'>:copy</span><span class='comma'>,</span> <span class='label'>revision:</span> <span class='int'>1</span> <span class='rbrace'>}</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>revision:</span> <span class='int'>42</span><span class='comma'>,</span> <span class='label'>target:</span> <span class='const'>Nginx</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
 <span class='comment'># =&gt; HTTP GET &quot;/source/Apache?cmd=copy&amp;revision=42&amp;target=Nginx&quot;
 </span></code></pre>
 <dl class="rdoc-list note-list"><dt><code>:rename</code>
@@ -138,7 +138,7 @@ options available.</p>
 <p>Hash with the pairs of params keys to rename before converting the url.</p>
 </dd></dl>
 
-<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/Apache/_meta</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>revision:</span> <span class='int'>42</span> <span class='rbrace'>}</span><span class='comma'>,</span> <span class='label'>rename:</span> <span class='lbrace'>{</span> <span class='label'>revision:</span> <span class='symbol'>:rev</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_http_get'>http_get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/Apache/_meta</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>revision:</span> <span class='int'>42</span> <span class='rbrace'>}</span><span class='comma'>,</span> <span class='label'>rename:</span> <span class='lbrace'>{</span> <span class='label'>revision:</span> <span class='symbol'>:rev</span><span class='rbrace'>}</span><span class='rparen'>)</span>
 <span class='comment'># =&gt; HTTP GET &quot;/source/Apache/_meta?rev=42&quot;
 </span></code></pre>
 <dl class="rdoc-list note-list"><dt><code>:accepted</code>
@@ -146,7 +146,7 @@ options available.</p>
 <p>Array with the whitelist of keys for the params.</p>
 </dd></dl>
 
-<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/Apache/_meta</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>revision:</span> <span class='int'>42</span><span class='comma'>,</span> <span class='label'>fake:</span> <span class='int'>2</span> <span class='rbrace'>}</span><span class='comma'>,</span> <span class='label'>accepted:</span> <span class='lbracket'>[</span><span class='symbol'>:revision</span><span class='comma'>,</span> <span class='symbol'>:comment</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_http_get'>http_get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/Apache/_meta</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>revision:</span> <span class='int'>42</span><span class='comma'>,</span> <span class='label'>fake:</span> <span class='int'>2</span> <span class='rbrace'>}</span><span class='comma'>,</span> <span class='label'>accepted:</span> <span class='lbracket'>[</span><span class='symbol'>:revision</span><span class='comma'>,</span> <span class='symbol'>:comment</span><span class='rbracket'>]</span><span class='rparen'>)</span>
 <span class='comment'># =&gt; HTTP GET &quot;/source/Apache/_meta?revision=42&quot;
 </span></code></pre>
 <dl class="rdoc-list note-list"><dt><code>:expand</code>
@@ -154,7 +154,7 @@ options available.</p>
 <p>Array of keys to expand using the same name (no [] are used).</p>
 </dd></dl>
 
-<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/Apache/_meta</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>revision:</span> <span class='int'>42</span><span class='comma'>,</span> <span class='label'>package:</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pack1</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pack2</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='rbrace'>}</span><span class='comma'>,</span> <span class='label'>expand:</span> <span class='lbracket'>[</span><span class='symbol'>:package</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_http_get'>http_get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/Apache/_meta</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>revision:</span> <span class='int'>42</span><span class='comma'>,</span> <span class='label'>package:</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pack1</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pack2</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='rbrace'>}</span><span class='comma'>,</span> <span class='label'>expand:</span> <span class='lbracket'>[</span><span class='symbol'>:package</span><span class='rbracket'>]</span><span class='rparen'>)</span>
 <span class='comment'># =&gt; HTTP GET &quot;/source/Apache/_meta?revision=42&amp;package=pack1&amp;package=pack2&quot;
 </span></code></pre>
 <dl class="rdoc-list note-list"><dt><code>:data</code>
@@ -184,9 +184,9 @@ that will be sent.</p>
 </div>
 
       <div id="footer">
-  Generated on Tue Jan  9 16:26:15 2018 by
+  Generated on Thu Jan 18 15:16:10 2018 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.12 (ruby-2.1.9).
+  0.9.12 (ruby-2.4.3).
 </div>
 
     </div>

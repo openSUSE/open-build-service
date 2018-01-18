@@ -8,13 +8,13 @@ module Backend
       # @return [String]
       def self.binary(project_names, binary_name)
         project_list = project_names.map { |project_name| "@project='#{CGI.escape(project_name)}'" }.join('+or+')
-        post("/search/published/binary/id?match=(@name='#{CGI.escape(binary_name)}'+and+(#{project_list}))")
+        http_post("/search/published/binary/id?match=(@name='#{CGI.escape(binary_name)}'+and+(#{project_list}))")
       end
 
       # Performs a search of packages with a link
       def self.packages_with_link(package_names)
         packages_list = package_names.map { |name| "linkinfo/@package='#{CGI.escape(name)}'" }.join('+or+')
-        get("/search/package/id?match=(#{packages_list})")
+        http_get("/search/package/id?match=(#{packages_list})")
       end
 
       # Performs a search of incident packages for a maintenance project
@@ -22,7 +22,7 @@ module Backend
         conditions = ["linkinfo/@package=\"#{CGI.escape(package_name)}\""]
         conditions << "linkinfo/@project=\"#{CGI.escape(project_name)}\""
         conditions << "starts-with(@project,\"#{CGI.escape(maintenance_project_name)}%3A\")"
-        post("/search/package/id?match=(#{conditions.join('+and+')})")
+        http_post("/search/package/id?match=(#{conditions.join('+and+')})")
       end
     end
   end

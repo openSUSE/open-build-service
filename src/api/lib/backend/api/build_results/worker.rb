@@ -8,7 +8,7 @@ module Backend
         # Returns the worker status
         # @return [String]
         def self.status
-          get('/build/_workerstatus')
+          http_get('/build/_workerstatus')
         end
       end
     end

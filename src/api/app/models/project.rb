@@ -608,13 +608,13 @@ class Project < ApplicationRecord
 
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       login = @commit_opts[:login] || User.current.login
-      query = { user: login }
-      query[:comment] = @commit_opts[:comment] if @commit_opts[:comment].present?
+      options = { user: login }
+      options[:comment] = @commit_opts[:comment] if @commit_opts[:comment].present?
       # api request number is requestid in backend
-      query[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
-      query[:lowprio] = '1' if @commit_opts[:lowprio]
+      options[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
+      options[:lowprio] = 1 if @commit_opts[:lowprio]
       logger.debug "Writing #{name} to backend"
-      Backend::Connection.put(source_path('_meta', query), to_axml)
+      Backend::Api::Sources::Project.write_meta(name, to_axml, options)
       logger.tagged('backend_sync') { logger.debug "Saved Project #{name}" }
     elsif @commit_opts[:no_backend_write]
       logger.tagged('backend_sync') { logger.warn "Not saving Project #{name}, backend_write is off " }
@@ -1048,10 +1048,10 @@ class Project < ApplicationRecord
       if repository == 'images'
         path_elements = remote_project_meta.xpath("//repository[@name='images']/path")
 
-        prjconf = source_file('_config')
-        unless prjconf =~ /^Type:/
-          prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
-          Backend::Connection.put(source_path('_config'), prjconf)
+        new_configuration = source_file('_config')
+        unless new_configuration =~ /^Type:/
+          new_configuration = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << new_configuration
+          Backend::Api::Sources::Project.write_configuration(name, new_configuration)
         end
       else
         path_elements = local_project_meta.create_element('path')
@@ -1531,10 +1531,10 @@ class Project < ApplicationRecord
 
   # FIXME: will be cleaned up after implementing FATE #308899
   def prepend_kiwi_config
-    prjconf = source_file('_config')
-    return if prjconf =~ /^Type:/
-    prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
-    Backend::Connection.put(source_path('_config'), prjconf)
+    new_configuration = source_file('_config')
+    return if new_configuration =~ /^Type:/
+    new_configuration = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << new_configuration
+    Backend::Api::Sources::Project.write_configuration(name, new_configuration)
   end
 
   def self.validate_remote_permissions(request_data)

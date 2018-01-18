@@ -7,15 +7,15 @@ module Backend
 
         # lock the project for the scheduler for atomic change when using multiple operations
         def self.suspend_scheduler(project_name)
-          post(['/build/:project', project_name], params: { cmd: :suspendproject })
+          http_post(['/build/:project', project_name], params: { cmd: :suspendproject })
         end
 
         def self.resume_scheduler(project_name)
-          post(['/build/:project', project_name], params: { cmd: :resumeproject })
+          http_post(['/build/:project', project_name], params: { cmd: :resumeproject })
         end
 
         def self.wipe_binaries(project_name)
-          post(['/build/:project', project_name], params: { cmd: :wipe })
+          http_post(['/build/:project', project_name], params: { cmd: :wipe })
         end
       end
     end

@@ -338,4 +338,39 @@ http_interactions:
         </revision>
     http_version: 
   recorded_at: Wed, 16 Aug 2017 08:26:55 GMT
-recorded_with: VCR 3.0.3
+- request:
+    method: get
+    uri: http://backend:5352/source/apache/mod_ssl?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'apache' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '140'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'apache' does not exist</summary>
+          <details>404 project 'apache' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 16 Jan 2018 14:16:38 GMT
+recorded_with: VCR 4.0.0

@@ -465,9 +465,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def check_maintenance_release(pkg, repo, arch)
-    # rubocop:disable Metrics/LineLength
-    binaries = Xmlhash.parse(Backend::Connection.get("/build/#{URI.escape(pkg.project.name)}/#{URI.escape(repo.name)}/#{URI.escape(arch.name)}/#{URI.escape(pkg.name)}").body)
-    # rubocop:enable Metrics/LineLength
+    binaries = Xmlhash.parse(Backend::Api::BuildResults::Binaries.files(pkg.project.name, repo.name, arch.name, pkg.name))
     l = binaries.elements('binary')
     unless l && l.count > 0
       raise BuildNotFinished, "patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'"
@@ -928,13 +926,10 @@ class BsRequestAction < ApplicationRecord
     # validate that the sources are not broken
     begin
       query = {}
-      query[:expand] = '1' unless updatelink
+      query[:expand] = 1 unless updatelink
       query[:rev] = source_rev if source_rev
-      # FIXME: we have a Directory model
-      url = Package.source_path(source_project, source_package, nil, query)
-      c = Backend::Connection.get(url).body
+      dir = Xmlhash.parse(Backend::Api::Sources::Package.files(source_project, source_package, query))
       if add_revision && !source_rev
-        dir = Xmlhash.parse(c)
         if action_type == :maintenance_release && dir['entry']
           # patchinfos in release requests get not frozen to allow to modify meta data
           return if dir['entry'].is_a?(Array) && dir['entry'].map { |e| e['name'] }.include?('_patchinfo')
@@ -944,7 +939,6 @@ class BsRequestAction < ApplicationRecord
       end
     rescue ActiveXML::Transport::Error
       raise ExpandError, "The source of package #{source_project}/#{source_package}#{source_rev ? " for revision #{source_rev}" : ''} is broken"
-      # rubocop:enable Metrics/LineLength
     end
   end
 

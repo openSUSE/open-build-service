@@ -8,45 +8,46 @@ module Backend
         # Returns a file list of binaries
         # @return [String]
         def self.files(project_name, repository_name, architecture_name, package_name)
-          get(['/build/:project/:repository/:architecture/:package', project_name, repository_name, architecture_name, package_name])
+          http_get(['/build/:project/:repository/:architecture/:package', project_name, repository_name, architecture_name, package_name])
         end
 
         # Returns the history file of a package
         def self.history(project, repository, package, architecture)
-          get(['/build/:project/:repository/:architecture/:package/_history', project, repository, architecture, package])
+          http_get(['/build/:project/:repository/:architecture/:package/_history', project, repository, architecture, package])
         end
 
         # Returns the jobs history for a project
         # @return [String]
         def self.job_history(project_name, repository_name, architecture_name)
-          get(['/build/:project/:repository/:architecture/_jobhistory', project_name, repository_name, architecture_name],
-              params: { code: :lastfailures })
+          http_get(['/build/:project/:repository/:architecture/_jobhistory', project_name, repository_name, architecture_name],
+                   params: { code: :lastfailures })
         end
 
         # Returns the download url (published path) for a file of a package
         # @return [String]
         def self.download_url_for_file(project_name, repository_name, package_name, architecture_name, file_name)
-          get(['/build/:project/:repository/:architecture/:package/:file', project_name, repository_name, architecture_name, package_name, file_name],
-              params: { view: :publishedpath })
+          http_get(['/build/:project/:repository/:architecture/:package/:file',
+                    project_name, repository_name, architecture_name, package_name, file_name],
+                   params: { view: :publishedpath })
         end
 
         # Returns the RPMlint log
         # @return [String]
         def self.rpmlint_log(project_name, package_name, repository_name, architecture_name)
-          get(['/build/:project/:repository/:architecture/:package/rpmlint.log', project_name, repository_name, architecture_name, package_name])
+          http_get(['/build/:project/:repository/:architecture/:package/rpmlint.log', project_name, repository_name, architecture_name, package_name])
         end
 
         # Returns the build dependency information
         # @return [String]
         def self.build_dependency_info(project_name, package_name, repository_name, architecture_name)
-          get(['/build/:project/:repository/:architecture/_builddepinfo', project_name, repository_name, architecture_name],
-              params: { package: package_name, view: :pkgnames })
+          http_get(['/build/:project/:repository/:architecture/_builddepinfo', project_name, repository_name, architecture_name],
+                   params: { package: package_name, view: :pkgnames })
         end
 
         # Returns the available binaries for the project
         # @return [Hash]
         def self.available_in_project(project_name)
-          transform_binary_packages_response(get(['/build/:project/_availablebinaries', project_name]))
+          transform_binary_packages_response(http_get(['/build/:project/_availablebinaries', project_name]))
         end
 
         # Returns the available binaries for the repositories given
@@ -55,13 +56,13 @@ module Backend
         # @return [Hash]
         def self.available_in_repositories(project_name, repository_urls, repository_paths)
           return {} if repository_paths.empty? && repository_urls.empty?
-          transform_binary_packages_response(get(['/build/:project/_availablebinaries', project_name],
-                                                 params: { url: repository_urls, path: repository_paths }, expand: [:url, :path]))
+          transform_binary_packages_response(http_get(['/build/:project/_availablebinaries', project_name],
+                                                      params: { url: repository_urls, path: repository_paths }, expand: [:url, :path]))
         end
 
         # Runs the command wipepublishedlocked for that project to cleanup published binaries
         def self.wipe_published_locked(project_name)
-          post(['/build/:project', project_name], params: { cmd: :wipepublishedlocked })
+          http_post(['/build/:project', project_name], params: { cmd: :wipepublishedlocked })
         end
 
         # TODO: Move this method that transforms the output into another module
