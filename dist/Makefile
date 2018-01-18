@@ -49,6 +49,7 @@ install_obs_bin: system_dirs
 
 install_crontabs:
 	$(INSTALL) -m 644 cleanup_scm_cache.cron $(DESTDIR)/etc/cron.d/cleanup_scm_cache
+	$(INSTALL) -m 644 obs_api_delayed_jobs_monitor.cron $(DESTDIR)/etc/cron.d/obs_api_delayed_jobs_monitor
 
 system_dirs:
 	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_BACKEND_PREFIX)

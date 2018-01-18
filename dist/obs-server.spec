@@ -385,7 +385,7 @@ make -C src/backend test
 make -C src/api test
 %endif
 
-#### 
+####
 # distribution tests
 %if 0%{?disable_obs_dist_test_suite:1} < 1
 make -C dist test
@@ -592,6 +592,7 @@ usermod -a -G docker obsservicerun
 /srv/www/obs/overview
 
 /srv/www/obs/api/config/thinking_sphinx.yml.example
+/etc/cron.d/obs_api_delayed_jobs_monitor
 %config(noreplace) /srv/www/obs/api/config/thinking_sphinx.yml
 %attr(-,%{apache_user},%{apache_group}) %config(noreplace) /srv/www/obs/api/config/production.sphinx.conf
 
@@ -711,10 +712,10 @@ Requires:       docker-distribution-registry
 
 %description -n obs-container-registry
 The OBS Container Registry, based on the docker registry, which allows
-    
+
 * anonymous pulls from anywhere
 * anonymous pushes from localhost.
-    
+
 This is done by proxying access to the registry through
 apache and restricting any other http method than GET and HEAD
 to localhost.
