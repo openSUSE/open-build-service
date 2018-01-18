@@ -1,7 +1,7 @@
 module Backend
   # Module that holds the wrapping methods for http requests, are mainly used for simplify the calculation of urls.
   #
-  # The methods get, put, post and delete always will return the body of the response encoded in UTF-8.
+  # The methods http_get, http_put, http_post and http_delete always will return the body of the response encoded in UTF-8.
   #
   # == Parameters
   # All the methods need a valid +endpoint+ to connect to, and it can be provided in two different ways:
@@ -9,28 +9,28 @@ module Backend
   # * As an array. In this case the first element needs to be a string with placeholders that will be replaced in the order provided
   #   starting with the second element of the array.
   #   The placeholders have the same style as ruby symbols.
-  #     get(["/build/:project/:package/_result", "Apache", "apache2"])
+  #     http_get(["/build/:project/:package/_result", "Apache", "apache2"])
   #     # => HTTP GET "/build/Apache/apache2/_result"
   #
   # The +options+ hash is used for providing the params and other options available.
   # +:params+:: Hash with the parameters to be sent as part of the query in the url.
-  #      get("/source/Apache/_meta", params: { revision: 42 })
+  #      http_get("/source/Apache/_meta", params: { revision: 42 })
   #      # => HTTP GET "/source/Apache/_meta?revision=42"
   #
   # +:defaults+:: Hash with the default parameters values that will be merged with <tt>options[:params]</tt>.
-  #     get("/source/Apache", defaults: { cmd: :copy, revision: 1 }, params: { revision: 42, target: Nginx })
+  #     http_get("/source/Apache", defaults: { cmd: :copy, revision: 1 }, params: { revision: 42, target: Nginx })
   #     # => HTTP GET "/source/Apache?cmd=copy&revision=42&target=Nginx"
   #
   # +:rename+:: Hash with the pairs of params keys to rename before converting the url.
-  #     get("/source/Apache/_meta", params: { revision: 42 }, rename: { revision: :rev})
+  #     http_get("/source/Apache/_meta", params: { revision: 42 }, rename: { revision: :rev})
   #     # => HTTP GET "/source/Apache/_meta?rev=42"
   #
   # +:accepted+:: Array with the whitelist of keys for the params.
-  #     get("/source/Apache/_meta", params: { revision: 42, fake: 2 }, accepted: [:revision, :comment])
+  #     http_get("/source/Apache/_meta", params: { revision: 42, fake: 2 }, accepted: [:revision, :comment])
   #     # => HTTP GET "/source/Apache/_meta?revision=42"
   #
   # +:expand+:: Array of keys to expand using the same name (no [] are used).
-  #     get("/source/Apache/_meta", params: { revision: 42, package: ['pack1', 'pack2'] }, expand: [:package])
+  #     http_get("/source/Apache/_meta", params: { revision: 42, package: ['pack1', 'pack2'] }, expand: [:package])
   #     # => HTTP GET "/source/Apache/_meta?revision=42&package=pack1&package=pack2"
   #
   # +:data+:: In the case of +put+ or +post+ requests is the data that will be sent.
@@ -44,25 +44,25 @@ module Backend
 
     # Performs a http get request to the configured OBS Backend server.
     # @return [String]
-    def get(endpoint, options = {})
+    def http_get(endpoint, options = {})
       Backend::Connection.get(calculate_url(endpoint, options), options[:headers] || {}).body.force_encoding('UTF-8')
     end
 
     # Performs a http post request to the configured OBS Backend server.
     # @return [String]
-    def post(endpoint, options = {})
+    def http_post(endpoint, options = {})
       Backend::Connection.post(calculate_url(endpoint, options), options[:data], options[:headers] || {}).body.force_encoding('UTF-8')
     end
 
     # Performs a http put request to the configured OBS Backend server.
     # @return [String]
-    def put(endpoint, options = {})
+    def http_put(endpoint, options = {})
       Backend::Connection.put(calculate_url(endpoint, options), options[:data], options[:headers] || {}).body.force_encoding('UTF-8')
     end
 
     # Performs a http delete request to the configured OBS Backend server.
     # @return [String]
-    def delete(endpoint, options = {})
+    def http_delete(endpoint, options = {})
       Backend::Connection.delete(calculate_url(endpoint, options), options[:headers] || {}).body.force_encoding('UTF-8')
     end
 

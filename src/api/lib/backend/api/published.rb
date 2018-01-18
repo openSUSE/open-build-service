@@ -7,7 +7,7 @@ module Backend
       # Returns the download url for a repository
       # @return [String]
       def self.download_url_for_repository(project_name, repository_name)
-        get(['/published/:project/:repository', project_name, repository_name], params: { view: :publishedpath })
+        http_get(['/published/:project/:repository', project_name, repository_name], params: { view: :publishedpath })
       end
     end
   end
