@@ -399,7 +399,7 @@ GEM
     vcr (4.0.0)
     voight_kampff (1.1.1)
       rack (>= 1.4, < 3.0)
-    webmock (3.2.1)
+    webmock (3.3.0)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff
