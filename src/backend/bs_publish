@@ -568,7 +568,7 @@ sub createrepo_rpmmd {
   if ($downloadurl) {
     local *FILE;
     open(FILE, '>', "$extrep/$projid.repo$$") || die("$extrep/$projid.repo$$: $!\n");
-    my $projidHeader = $projid;
+    my $projidHeader = $data->{'dbgsplit'} ? "$projid$data->{'dbgsplit'}" : $projid;
     $projidHeader =~ s/:/_/g;
     print FILE "[$projidHeader]\n";
     print FILE "name=$title\n";
