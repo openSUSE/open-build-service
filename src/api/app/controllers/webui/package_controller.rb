@@ -462,7 +462,7 @@ class Webui::PackageController < Webui::WebuiController
     filenames = sorted_filenames_from_sourcediff(@rdiff)[0]
 
     @files = filenames['files']
-    @not_full_diff = @files.any? { |file| file[1]['diff']['shown'] }
+    @not_full_diff = @files.any? { |file| file[1]['diff'].try(:[], 'shown') }
     @filenames = filenames['filenames']
   end
 
