@@ -98,10 +98,12 @@ sub endwatchcollection {
   # drop unwatched remote repos
   my $watchremote_repos = delete $gctx->{'watchremote_repos'};
   my $repocache = $gctx->{'repodatas'};
-  for my $prpa (grep {!$watchremote_repos->{$_}} $repocache->getremote()) {
-    print "droping remote cache for $prpa\n";
-    my ($projid, $repoid, $arch) = split('/', $prpa, 3);
-    $repocache->drop("$projid/$repoid", $arch);
+  if ($repocache) {
+    for my $prpa (grep {!$watchremote_repos->{$_}} $repocache->getremote()) {
+      print "droping remote cache for $prpa\n";
+      my ($projid, $repoid, $arch) = split('/', $prpa, 3);
+      $repocache->drop("$projid/$repoid", $arch);
+    }
   }
 }
 
