@@ -13,11 +13,11 @@ class UnregisteredUser < User
       raise ErrRegisterSave, 'Sorry, new users can only sign up via LDAP'
     end
 
-    # No registering if we use an authentification proxy
+    # No registering if we use an authentication proxy
     if CONFIG['proxy_auth_mode'] == :on || CONFIG['ichain_mode'] == :on
       logger.debug 'Someone tried to register with "proxy_auth_mode" turned on'
       if CONFIG['proxy_auth_register_page'].blank?
-        err_msg = 'Sorry, please sign up using the authentification proxy'
+        err_msg = 'Sorry, please sign up using the authentication proxy'
       else
         err_msg = "Sorry, please sign up using #{CONFIG['proxy_auth_register_page']}"
       end

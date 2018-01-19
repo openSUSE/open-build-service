@@ -359,7 +359,7 @@ class User < ApplicationRecord
     "#{home_project_name}:branches:#{branch}"
   end
 
-  # updates users email address and real name using data transmitted by authentification proxy
+  # updates users email address and real name using data transmitted by authentication proxy
   def update_user_info_from_proxy_env(env)
     proxy_email = env['HTTP_X_EMAIL']
     if proxy_email.present? && email != proxy_email

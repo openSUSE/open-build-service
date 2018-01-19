@@ -55,11 +55,11 @@ require 'support/backend'
 # support shoulda matcher
 require 'support/shoulda_matchers'
 
-# helper methods for authentification in controllers tests
-require 'support/controllers/controllers_authentification'
+# helper methods for authentication in controllers tests
+require 'support/controllers/controllers_authentication'
 
-# helper methods for authentification in models tests
-require 'support/models/models_authentification'
+# helper methods for authentication in models tests
+require 'support/models/models_authentication'
 
 # support feature switch testing
 require 'feature/testing'
