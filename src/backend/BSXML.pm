@@ -1160,6 +1160,7 @@ our $binary_id = [
 	'filepath',
 	'baseproject',
 	'type',
+	'downloadurl',
 ];
 
 our $pattern_id = [
@@ -1172,6 +1173,7 @@ our $pattern_id = [
 	'filepath',
 	'baseproject',
 	'type',
+	'downloadurl',
 ];
 
 our $request = [

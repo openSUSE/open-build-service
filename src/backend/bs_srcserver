@@ -4790,6 +4790,17 @@ sub published_projectindexfunc {
   return sort keys %bins;
 }
 
+sub search_add_downloadurl {
+  my ($data) = @_;
+  for my $d (@$data) {
+    my @p = split('/', $d->{'filepath'});
+    my $downloadurl = BSUrlmapper::get_downloadurl("$d->{'project'}/$d->{'repository'}");
+    next unless $downloadurl;
+    $downloadurl =~ s/\/$//;
+    $d->{'downloadurl'} = "$downloadurl/".join('/', splice(@p, -2));
+  }
+}
+
 sub search_published_binary_id {
   my ($cgi, $match) = @_;
   my $binarydb = BSDB::opendb($extrepodb, 'binary');
@@ -4810,6 +4821,7 @@ sub search_published_binary_id {
   $res->{'limited'} = 'true' if $limit && @$data > $limit;
   splice(@$data, $limit) if $limit && @$data > $limit;
   delete $_->{'path'} for @$data;
+  search_add_downloadurl($data) if $cgi->{'withdownloadurl'};
   $res->{'binary'} = $data;
   return ($res, $BSXML::collection);
 }
@@ -4831,6 +4843,7 @@ sub search_published_pattern_id {
     delete $_->{'description'};
     delete $_->{'summary'};
   }
+  search_add_downloadurl($data) if $cgi->{'withdownloadurl'};
   $res->{'pattern'} = $data;
   return ($res, $BSXML::collection);
 }
@@ -6304,8 +6317,8 @@ my $dispatches = [
   '/search/package/id $match:' => \&search_pack_id,
 
   'POST:/search/published cmd:' => \&search_published_updatedb,
-  '/search/published/binary/id $match: limit:num?' => \&search_published_binary_id,
-  '/search/published/pattern/id $match: limit:num?' => \&search_published_pattern_id,
+  '/search/published/binary/id $match: limit:num? withdownloadurl:bool?' => \&search_published_binary_id,
+  '/search/published/pattern/id $match: limit:num? withdownloadurl:bool?' => \&search_published_pattern_id,
 
   # service interface, just for listing for now
   '/service' => \&listservices,
