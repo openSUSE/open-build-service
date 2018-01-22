@@ -48,8 +48,10 @@ def get_ec2_credentials(data)
   end
 end
 
-def upload_image_to_ec2(image, credentials, data)
+def upload_image_to_ec2(image, data)
   STDOUT.write("Start uploading image #{image}.\n")
+
+  credentials = get_ec2_credentials(data)
 
   Open3.popen2e(
     'ec2uploadimg',
@@ -72,8 +74,7 @@ def upload_image_to_ec2(image, credentials, data)
 end
 
 if platform == 'ec2'
-  credentials = get_ec2_credentials(data)
-  upload_image_to_ec2(filename, credentials, data)
+  upload_image_to_ec2(filename, data)
 else
   abort('No valid platform. Valid platforms is ec2.')
 end
