@@ -17,6 +17,6 @@ class Webui::SubscriptionsController < Webui::WebuiController
   private
 
   def subscriptions_form
-    EventSubscription::Form.new(nil)
+    EventSubscription::Form.new
   end
 end

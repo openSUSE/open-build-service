@@ -18,10 +18,11 @@
 
     %h3 Events
     %p.description Choose from which events you want to get an email
-    = render partial: 'webui/subscriptions/subscriptions_form'
+    #subscriptions-form
+      = render partial: 'webui/subscriptions/subscriptions_form'
     %p
       = submit_tag 'Update'
-      = link_to('Reset to default', '#', data: { 'clear-checkboxes': true })
+      = link_to('Reset to default', user_notifications_path(default_form: true), remote: true)
 .grid_16.alpha.omega.box.box-shadow
   %h2 RSS Feed
   = form_tag(user_rss_token_path, id: 'generate_rss_token_form', method: :post) do

@@ -2,7 +2,7 @@ class EventSubscription
   class Form
     attr_reader :subscriber
 
-    def initialize(subscriber)
+    def initialize(subscriber = nil)
       @subscriber = subscriber
     end
 
