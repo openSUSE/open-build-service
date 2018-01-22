@@ -16,3 +16,4 @@ function trigger_run {
 
 trigger_run Unstable Server:/Unstable/images
 trigger_run 2.8 Server:/2.8:/Staging/images
+trigger_run 2.9 Server:/2.9:/Staging/images
