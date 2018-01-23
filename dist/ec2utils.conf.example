@@ -1,0 +1,166 @@
+# One can configure as many accounts as one chooses. Configured accounts
+# start with the "account-" prefix. Account information is retrieved by any
+# of the ec2utils tools by combining the prefix "account-" with the name
+# specified with the --account command line option
+#
+# For example the information for the "account-servers" configuration is
+# used by specifying --account servers on the command line of any of the
+# tools
+[account-servers]
+access_key_id =
+secret_access_key =
+ssh_key_name =
+ssh_private_key =
+subnet_id_us-east-1 = subnet-123456
+
+# The aki IDs are published by Amazon on the following page:
+# http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/UserProvidedKernels.html#AmazonKernelImageIDs
+# The ami, instance_type, and user are needed for those utilities that require
+# a running instance in Amazon EC2 to perform their operations.
+[region-ap-northeast-1]
+ami = ami-383c1956
+instance_type = t2.micro
+aki_i386 = aki-136bf512
+aki_x86_64 = aki-176bf516
+g2_aki_x86_64 = aki-f1ad9bf0
+user = ec2-user
+# Allow a region to overwrite the account key
+# ssk_key_name =
+# ssh_private_key =
+
+[region-ap-northeast-2]
+ami = ami-249b554a
+instance_type = t2.micro
+aki_i386 = aki-01a66b6f
+aki_x86_64 = aki-01a66b6f
+g2_aki_x86_64 = aki-0ea66b60
+user = ec2-user
+# Allow a region to overwrite the account key
+# ssk_key_name =
+# ssh_private_key =
+
+[region-ap-southeast-1]
+ami = ami-c9b572aa
+instance_type = t2.micro
+aki_i386 = aki-ae3973fc
+aki_x86_64 = aki-503e7402
+g2_aki_x86_64 = aki-ca755498
+user = ec2-user
+# Allow a region to overwrite the account key
+# ssk_key_name =
+# ssh_private_key =
+
+[region-ap-southeast-2]
+ami = ami-48d38c2b
+instance_type = t2.micro
+aki_i386 = aki-cd62fff7
+aki_x86_64 = aki-c362fff9
+g2_aki_x86_64 = aki-8faec3b5
+user = ec2-user
+# Allow a region to overwrite the account key
+# ssk_key_name =
+# ssh_private_key =
+
+[region-cn-north-1]
+ami = ami-bcc45885
+instance_type = t2.micro
+aki_i386 = aki-908f1da9
+aki_x86_64 = aki-9e8f1da7
+g2_aki_x86_64 = aki-9c4ad8a5
+user = ec2-user
+# Allow a region to overwrite the account key
+# ssk_key_name =
+# ssh_private_key =
+
+[region-eu-central-1]
+ami = ami-bc5b48d0
+instance_type = t2.micro
+aki_i386 = aki-3e4c7a23
+aki_x86_64 = aki-184c7a05
+g2_aki_x86_64 = aki-e23f09ff
+user = ec2-user
+# Allow a region to overwrite the account key
+# ssk_key_name =
+# ssh_private_key =
+
+[region-eu-west-1]
+ami = ami-bff32ccc
+instance_type = t2.micro
+aki_i386 = aki-68a3451f
+aki_x86_64 = aki-52a34525
+g2_aki_x86_64 = aki-fce8478b
+user = ec2-user
+# Allow a region to overwrite the account key
+# ssk_key_name =
+# ssh_private_key =
+
+[region-sa-east-1]
+ami = ami-6817af04
+instance_type = t2.micro
+aki_i386 = aki-5b53f446
+aki_x86_64 = aki-5553f448
+g2_aki_x86_64 = aki-b99024a4
+user = ec2-user
+# Allow a region to overwrite the account key
+# ssk_key_name =
+# ssh_private_key =
+
+[region-us-east-1]
+#Amazon Linux
+#ami = ami-4b814f22
+# SLES 12
+ami = ami-60b6c60a
+instance_type = t2.micro
+aki_i386 = aki-8f9dcae6
+aki_x86_64 = aki-919dcaf8
+g2_aki_x86_64 = aki-f4bc469c
+user = ec2-user
+backing-store = mag,ssd
+# Allow a region to overwrite the account key
+# ssk_key_name =
+# ssh_private_key =
+
+[region-us-east-2]
+ami = ami-71ca9114
+instance_type = t2.micro
+aki_i386 = aki-da055ebf
+aki_x86_64 = aki-d83a61bd
+user = ec2-user
+backing-store = ssd
+# Allow a region to overwrite the account key
+# ssk_key_name =
+# ssh_private_key =
+
+[region-us-gov-west-1]
+ami = ami-c2b5d7e1
+instance_type = t2.micro
+aki_i386 = aki-1fe98d3c
+aki_x86_64 = aki-1de98d3e
+g2_aki_x86_64 = aki-07026424
+user = ec2-user
+# Allow a region to overwrite the account key
+# ssk_key_name =
+# ssh_private_key =
+
+[region-us-west-1]
+ami = ami-d5ea86b5
+instance_type = t2.micro
+aki_i386 = aki-8e0531cb
+aki_x86_64 = aki-880531cd
+g2_aki_x86_64 = aki-f9786dbc
+user = ec2-user
+# Allow a region to overwrite the account key
+# ssk_key_name =
+# ssh_private_key =
+
+[region-us-west-2]
+ami = ami-f0091d91
+instance_type = t2.micro
+aki_i386 = aki-f08f11c0
+aki_x86_64 = aki-fc8f11cc
+g2_aki_x86_64 = aki-5f125d6f
+user = ec2-user
+# Allow a region to overwrite the account key
+# ssk_key_name =
+# ssh_private_key =
+
