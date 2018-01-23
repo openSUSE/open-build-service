@@ -75,7 +75,7 @@ GEM
     capybara_minitest_spec (1.0.6)
       capybara (>= 2)
       minitest (>= 4)
-    chunky_png (1.3.8)
+    chunky_png (1.3.9)
     cliver (0.3.2)
     clockwork (2.0.2)
       activesupport
