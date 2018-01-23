@@ -154,7 +154,7 @@ class Webui::PackageController < Webui::WebuiController
     begin
       @fileinfo = Fileinfo.find(project: @project, package: @package, repository: @repository, arch: @arch,
         filename: @filename, view: 'fileinfo_ext')
-    rescue ActiveXML::Transport::ForbiddenError => e
+    rescue ActiveXML::Transport::ForbiddenError, ActiveXML::Transport::Error => e
       flash[:error] = "File #{@filename} can not be downloaded from #{@project}: #{e.summary}"
     end
     unless @fileinfo
@@ -579,7 +579,7 @@ class Webui::PackageController < Webui::WebuiController
   rescue CreateProjectNoPermission
     flash[:error] = 'Sorry, you are not authorized to create this Project.'
     redirect_back(fallback_location: root_path)
-  rescue APIException, ActiveRecord::RecordInvalid => exception
+  rescue APIException, ActiveRecord::RecordInvalid, ActiveXML::Transport::Error => exception
     flash[:error] = "Failed to branch: #{exception.message}"
     redirect_back(fallback_location: root_path)
   end
@@ -1005,9 +1005,14 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     if errors.empty?
-      @package.update_from_xml(meta_xml)
-      flash.now[:success] = 'The Meta file has been successfully saved.'
-      render layout: false, partial: 'layouts/webui/flash', object: flash
+      begin
+        @package.update_from_xml(meta_xml)
+        flash.now[:success] = 'The Meta file has been successfully saved.'
+        render layout: false, partial: 'layouts/webui/flash', object: flash
+      rescue ActiveXML::Transport::Error => e
+        flash.now[:error] = "Error while saving the Meta file: #{e}."
+        render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
+      end
     else
       flash.now[:error] = "Error while saving the Meta file: #{errors.compact.join("\n")}."
       render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
