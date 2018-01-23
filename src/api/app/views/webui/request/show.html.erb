@@ -232,7 +232,9 @@
 
     <div class="grid_10 box box-shadow alpha omega">
       <h2 class="box-header">Comments for request <%= @number %> (<%= @comments.length %>)</h2>
-      <%= render :partial => 'webui/comment/show', locals: { commentable: @bs_request } %>
+      <div id="comments">
+        <%= render :partial => 'webui/comment/show', locals: { commentable: @bs_request } %>
+      </div>
     </div>
 
     <div class="grid_10 alpha">

@@ -176,7 +176,9 @@
 
 <div class="grid_16 box box-shadow alpha omega">
   <h2 class="box-header">Comments for <%= @project.name %> (<%= @comments.length %>)</h2>
-  <%= render :partial => 'webui/comment/show', locals: { commentable: @package } %>
+  <div id="comments">
+    <%= render :partial => 'webui/comment/show', locals: { commentable: @package } %>
+  </div>
 </div>
 
 <%= render partial: 'webui/package/branch_dialog' %>

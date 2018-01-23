@@ -10,7 +10,7 @@ function sz(t) {
     if (b > t.rows) t.rows = b;
 }
 
-$(document).ready(function(){
+function reloadCommentBindings() {
     $('a.delete_link').on('ajax:success', function(event, data, status, xhr){
         $('#flash-messages').remove();
         $(data.flash).filter('#flash-messages').insertAfter('#subheader').fadeIn('slow');
@@ -34,4 +34,15 @@ $(document).ready(function(){
   $('.comment_new').submit(function() {
       $(this).find('input[type="submit"]').prop('disabled', true);
   });
+
+  $('.comment_new').on('ajax:complete', function(event, data, status, xhr) {
+    $('#comments').html(data.responseText);
+
+    // as the comments get loaded again, the jQuery bindings are lost. We need to reload them.
+    reloadCommentBindings();
+  });
+}
+
+$(document).ready(function(){
+  reloadCommentBindings();
 });
