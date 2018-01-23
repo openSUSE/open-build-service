@@ -16,10 +16,6 @@ module Clockwork
     WorkerStatus.new.update_workerstatus_cache
   end
 
-  every(30.seconds, 'send notifications') do
-    SendEventEmailsJob.perform_later
-  end
-
   every(49.minutes, 'rescale history') do
     StatusHistoryRescalerJob.perform_later
   end
