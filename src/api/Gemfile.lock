@@ -327,6 +327,8 @@ GEM
       rainbow (>= 2.2.2, < 3.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (~> 1.0, >= 1.0.1)
+    rubocop-rspec (1.20.1)
+      rubocop (>= 0.51.0)
     ruby-ldap (0.9.19)
     ruby-progressbar (1.9.0)
     ruby_parser (3.9.0)
@@ -483,6 +485,7 @@ DEPENDENCIES
   responders (~> 2.0)
   rspec-rails (~> 3.5.0)
   rubocop
+  rubocop-rspec
   ruby-ldap
   sanitize
   sass-rails (~> 5.0.1)
