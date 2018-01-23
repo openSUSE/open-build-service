@@ -1,0 +1,39 @@
+<project name="OBS:Server:$VERSION">
+  <title>$VERSION version of the Open Build Service Server</title>
+  <description>This is the maintained version $VERSION of OBS.</description>
+  <build>
+    <disable/>
+  </build>
+  <publish>
+    <enable/>
+  </publish>
+  <debuginfo>
+    <enable/>
+  </debuginfo>
+  <repository name="xUbuntu_14.04">
+    <path project="Ubuntu:14.04" repository="universe"/>
+    <arch>x86_64</arch>
+  </repository>
+  <repository name="openSUSE_42.3">
+    <path project="openSUSE:Leap:42.3:Update" repository="standard"/>
+    <arch>x86_64</arch>
+  </repository>
+  <repository name="images" block="local">
+    <path project="OBS:Server:$VERSION" repository="openSUSE_42.3"/>
+    <path project="openSUSE:Tools" repository="openSUSE_42.3"/>
+    <path project="openSUSE:Leap:42.3:Update" repository="standard"/>
+    <arch>x86_64</arch>
+  </repository>
+  <repository name="containment" block="local">
+    <path project="OBS:Server:$VERSION" repository="openSUSE_42.3"/>
+    <path project="openSUSE:Tools" repository="openSUSE_42.3"/>
+    <path project="openSUSE:Leap:42.3:Update" repository="standard"/>
+    <path project="openSUSE:Leap:42.3:NonFree" repository="standard"/>
+    <arch>x86_64</arch>
+  </repository>
+  <repository name="SLE_12_SP3">
+    <path project="openSUSE:Tools" repository="SLE_12_SP3"/>
+    <path project="SUSE:SLE-12-SP3:Update" repository="standard"/>
+    <arch>x86_64</arch>
+  </repository>
+</project>
