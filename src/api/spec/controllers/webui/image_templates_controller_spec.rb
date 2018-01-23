@@ -2,6 +2,16 @@ require 'rails_helper'
 
 RSpec.describe Webui::ImageTemplatesController, type: :controller do
   describe 'GET #index' do
+    context 'image_templates feature is disabled' do
+      before do
+        Feature.run_with_deactivated(:image_templates) do
+          get :index
+        end
+      end
+
+      it { is_expected.to respond_with(:not_found) }
+    end
+
     context 'without image templates' do
       before do
         get :index
