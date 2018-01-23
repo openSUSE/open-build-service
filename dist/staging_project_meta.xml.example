@@ -1,0 +1,38 @@
+<project name="OBS:Server:$VERSION:Staging">
+  <title>$VERSION version of the Open Build Service Server</title>
+  <description>This is the maintained version $VERSION of OBS.</description>
+  <repository name="xUbuntu_14.04">
+    <releasetarget project="OBS:Server:$VERSION" repository="xUbuntu_14.04" trigger="manual"/>
+    <path project="Ubuntu:14.04" repository="universe"/>
+    <arch>x86_64</arch>
+  </repository>
+  <repository name="openSUSE_42.3">
+    <releasetarget project="OBS:Server:$VERSION" repository="openSUSE_42.3" trigger="manual"/>
+    <path project="openSUSE:Leap:42.3:Update" repository="standard"/>
+    <arch>x86_64</arch>
+  </repository>
+  <repository name="images">
+    <releasetarget project="OBS:Server:$VERSION" repository="images" trigger="manual"/>
+    <path project="OBS:Server:$VERSION:Staging" repository="openSUSE_42.3"/>
+    <path project="OBS:Server:$VERSION" repository="openSUSE_42.3"/>
+    <path project="openSUSE:Tools" repository="openSUSE_42.3"/>
+    <path project="openSUSE:Leap:42.3:Update" repository="standard"/>
+    <path project="openSUSE:Leap:42.3:NonFree" repository="standard"/>
+    <arch>x86_64</arch>
+  </repository>
+  <repository name="containment">
+    <releasetarget project="OBS:Server:$VERSION" repository="containment" trigger="manual"/>
+    <path project="OBS:Server:$VERSION:Staging" repository="openSUSE_42.3"/>
+    <path project="OBS:Server:$VERSION" repository="openSUSE_42.3"/>
+    <path project="openSUSE:Tools" repository="openSUSE_42.3"/>
+    <path project="openSUSE:Leap:42.3:Update" repository="standard"/>
+    <path project="openSUSE:Leap:42.3:NonFree" repository="standard"/>
+    <arch>x86_64</arch>
+  </repository>
+  <repository name="SLE_12_SP3">
+    <path project="SUSE:SLE-12-SP3:GA" repository="standard"/>
+    <path project="openSUSE:Tools" repository="SLE_12_SP3"/>
+    <arch>x86_64</arch>
+  </repository>
+</project>
+
