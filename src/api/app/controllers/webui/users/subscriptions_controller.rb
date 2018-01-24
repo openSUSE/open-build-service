@@ -5,7 +5,12 @@ class Webui::Users::SubscriptionsController < Webui::WebuiController
     @user = User.current
     @groups_users = User.current.groups_users
 
-    @subscriptions_form = subscriptions_form
+    @subscriptions_form = subscriptions_form(default_form: params[:default_form])
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
   end
 
   def update
@@ -24,7 +29,11 @@ class Webui::Users::SubscriptionsController < Webui::WebuiController
 
   private
 
-  def subscriptions_form
-    EventSubscription::Form.new(User.current)
+  def subscriptions_form(options = {})
+    if options[:default_form]
+      EventSubscription::Form.new
+    else
+      EventSubscription::Form.new(User.current)
+    end
   end
 end
