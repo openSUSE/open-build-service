@@ -42,8 +42,6 @@ gem 'pundit'
 gem 'bcrypt'
 #
 gem 'responders', '~> 2.0'
-# needed for travis-ci.org, must be global for scripts
-gem 'bundler'
 # for threaded comments
 gem 'acts_as_tree'
 # js plotting (OBS monitor)

@@ -16,7 +16,7 @@ require 'bundler'
 # rubygem-phantomjs
 # rubygem-phantomjs-2_2
 
-Bundler.definition.specs_for([:default, :production, :assets]).any? do |s|
+Bundler.definition.resolve.any? do |s|
   min_version = s.version.to_s.split(/\./)[0..1].join('_')
   print "rubygem-#{s.name} rubygem-#{s.name}-#{min_version} "
 end

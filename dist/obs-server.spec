@@ -210,9 +210,6 @@ Requires:       apache2 apache2-mod_xforward rubygem-passenger-apache2 ruby2.4-r
 Requires:       memcached
 Conflicts:      memcached < 1.4
 
-# For local runs
-BuildRequires:  rubygem(sqlite3)
-
 Requires:       mysql
 
 Requires:       ruby(abi) >= 2.0
@@ -228,7 +225,6 @@ BuildRequires:  curl
 BuildRequires:  memcached >= 1.4
 BuildRequires:  mysql
 BuildRequires:  netcfg
-BuildRequires:  rubygem(ci_reporter)
 BuildRequires:  xorg-x11-Xvnc
 BuildRequires:  xorg-x11-server
 BuildRequires:  xorg-x11-server-extra
