@@ -426,7 +426,6 @@ DEPENDENCIES
   annotate
   bcrypt
   bullet
-  bundler
   bunny
   capybara
   capybara_minitest_spec
