@@ -20,6 +20,9 @@ data_path = ARGV[3]
 filename = ARGV[4]
 data = JSON.parse(File.read(data_path))
 
+# link file into working directory
+FileUtils.ln_s(image_path, File.join(Dir.pwd, filename))
+
 def get_ec2_credentials(data)
   # Credentials are stored in  ~/.aws/credentials
   out, err, status = Open3.capture3(
@@ -45,8 +48,8 @@ def get_ec2_credentials(data)
   end
 end
 
-def upload_image_to_ec2(image, credentials, filename, data)
-  STDOUT.write("Start uploading image #{filename}.\n")
+def upload_image_to_ec2(image, credentials, data)
+  STDOUT.write("Start uploading image #{image}.\n")
 
   Open3.popen2e(
     'ec2uploadimg',
@@ -57,7 +60,6 @@ def upload_image_to_ec2(image, credentials, filename, data)
     "--secret-key=#{credentials.secret_access_key}",
     "--access-id=#{credentials.access_key_id}",
     "--session-token=#{credentials.session_token}",
-    "--target-filename=#{filename}",
     '--verbose',
     image
   ) do |_stdin, stdout_stderr, _wait_thr|
@@ -71,7 +73,7 @@ end
 
 if platform == 'ec2'
   credentials = get_ec2_credentials(data)
-  upload_image_to_ec2(image_path, credentials, filename, data)
+  upload_image_to_ec2(filename, credentials, data)
 else
   abort('No valid platform. Valid platforms is ec2.')
 end
