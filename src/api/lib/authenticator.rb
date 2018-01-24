@@ -179,7 +179,7 @@ class Authenticator
       unless @http_user
         if ::Configuration.registration == 'deny'
           Rails.logger.debug('No user found in database, creation disabled')
-          raise AuthenticationRequiredError, "User '#{login}' does not exist"
+          raise AuthenticationRequiredError, "User '#{proxy_user}' does not exist"
         end
 
         @http_user = User.create_user_with_fake_pw!(login: proxy_user, state: User.default_user_state)
