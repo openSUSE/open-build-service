@@ -12,10 +12,32 @@ RSpec.describe Authenticator do
     end
 
     context 'in proxy mode' do
+      before do
+        stub_const('CONFIG', CONFIG.merge('proxy_auth_mode' => :on))
+      end
+
       it_behaves_like 'a confirmed user logs in' do
         let(:request_mock) { double(:request, env: { 'HTTP_X_USERNAME' => user.login }) }
+      end
 
-        before { stub_const('CONFIG', CONFIG.merge('proxy_auth_mode' => :on)) }
+      context 'and registration is disabled' do
+        before do
+          allow(::Configuration).to receive(:registration).and_return('deny')
+        end
+
+        context 'and the user already registered to OBS' do
+          it_behaves_like 'a confirmed user logs in' do
+            let(:request_mock) { double(:request, env: { 'HTTP_X_USERNAME' => user.login }) }
+          end
+        end
+
+        context 'and the user is not registered to OBS' do
+          let(:request_mock) { double(:request, env: { 'HTTP_X_USERNAME' => 'new_user' }) }
+
+          subject { Authenticator.new(request_mock, session_mock, response_mock) }
+
+          it { expect { subject.extract_user }.to raise_error(Authenticator::AuthenticationRequiredError, "User 'new_user' does not exist") }
+        end
       end
     end
 
