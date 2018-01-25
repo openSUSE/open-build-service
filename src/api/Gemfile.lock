@@ -197,7 +197,7 @@ GEM
     middleware (0.1.0)
     mini_mime (1.0.0)
     mini_portile2 (2.3.0)
-    minitest (5.10.3)
+    minitest (5.11.2)
     minitest-fail-fast (0.1.0)
       minitest (~> 5)
     minitest-reporters (1.1.19)
