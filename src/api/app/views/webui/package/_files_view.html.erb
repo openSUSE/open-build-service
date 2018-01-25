@@ -24,7 +24,7 @@
             </td>
             <!-- limit download for anonymous user to avoid getting killed by crawlers -->
             <td><%= if !User.current.is_nobody? || file[:size].to_i < (4 * 1024 * 1024)
-                      link_to sprite_tag('page_white_get', title: 'Download File'),
+                      link_to sprite_tag('page_white_put', title: 'Download File'),
                               file_url(@project.name, @package.name, file[:name], file[:srcmd5])
                     end %>
               <% unless file[:name] =~ /^_service:/ %>
