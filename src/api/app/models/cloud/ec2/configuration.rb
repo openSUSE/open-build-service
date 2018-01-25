@@ -22,7 +22,8 @@ module Cloud
       has_secure_token :external_id
       belongs_to :user, required: true
 
-      validates :external_id, :arn, uniqueness: true
+      validates :external_id, uniqueness: true
+      validates :arn, uniqueness: true, allow_nil: true
       # http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html
       validates :arn, format: { with: /\Aarn:([\w\-\/:])+\z/, message: 'not a valid format', allow_blank: true }
 
