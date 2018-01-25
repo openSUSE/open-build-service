@@ -149,11 +149,10 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def register
-    opts = { login:    params[:login],
-             email:    params[:email],
-             realname: params[:realname],
-             password: params[:password],
-             state:    params[:state] }
+    opts = { realname: params[:realname], login: params[:login], state: params[:state],
+             password: params[:password], password_confirmation: params[:password_confirmation],
+             email: params[:email] }
+
     begin
       UnregisteredUser.register(opts)
     rescue APIException => e

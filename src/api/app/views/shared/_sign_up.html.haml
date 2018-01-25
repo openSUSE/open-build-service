@@ -8,9 +8,13 @@
     %p
       = text_field_tag 'login', nil, placeholder: 'Username', autocomplete: 'off'
       %br/
+      %br/
       = text_field_tag 'email', nil, placeholder: 'Email address', autocomplete: 'off'
       %br/
+      %br/
       = password_field_tag :password, nil, id: 'pwd', placeholder: 'Enter a password', autocomplete: 'off'
+      %br/
+      = password_field_tag :password_confirmation, nil, id: 'pwd_confirmation', placeholder: 'Password confirmation', autocomplete: 'off'
       %br/
       = hidden_field_tag 'register', 'true'
     %p= submit_tag 'Sign Up'
