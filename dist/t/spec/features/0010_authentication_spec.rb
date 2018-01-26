@@ -10,6 +10,7 @@ RSpec.describe "Authentication" do
     fill_in 'login', with: 'test_user'
     fill_in 'email', with: 'test_user@openqa.com'
     fill_in 'pwd', with: 'opensuse'
+    fill_in 'pwd_confirmation', with: 'opensuse'
     click_button('Sign Up')
     expect(page).to have_content("The account 'test_user' is now active.")
     expect(page).to have_link('link-to-user-home')
