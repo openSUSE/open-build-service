@@ -77,6 +77,7 @@ copy $themedir/bento/images/icons/page_save.png ./app/assets/icons/page_save.png
 copy $themedir/bento/images/icons/page_white_add.png ./app/assets/icons/page_white_add.png
 copy $themedir/bento/images/icons/page_white_delete.png ./app/assets/icons/page_white_delete.png
 copy $themedir/bento/images/icons/page_white_get.png ./app/assets/icons/page_white_get.png
+copy $themedir/bento/images/icons/page_white_put.png ./app/assets/icons/page_white_put.png
 copy $themedir/bento/images/icons/plugin_add.png ./app/assets/icons/plugin_add.png
 copy $themedir/bento/images/icons/script.png ./app/assets/icons/script.png
 copy $themedir/bento/images/icons/script_lightning.png ./app/assets/icons/script_lightning.png
