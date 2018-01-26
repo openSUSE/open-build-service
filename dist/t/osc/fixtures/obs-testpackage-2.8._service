@@ -1,0 +1,13 @@
+<services>
+  <service name="tar_scm">
+    <param name="versionformat">%ad</param>
+    <param name="url">git://github.com/M0ses/obs-testpackage.git</param>
+    <param name="scm">git</param>
+    <param name="extract">dist/obs-testpackage.spec</param>
+  </service>
+  <service name="recompress">
+    <param name="compression">xz</param>
+    <param name="file">*.tar</param>
+  </service>
+  <service name="set_version"/>
+</services>

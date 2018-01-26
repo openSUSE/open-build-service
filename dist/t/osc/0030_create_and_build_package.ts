@@ -30,7 +30,12 @@ eval {
   die "Could not add package 'obs-testpackage' via osc" if ($?);
   chdir("obs-testpackage") || die "Could not change to directory '".cwd()."/obs-testpackage': $!";
 
+  my @pkg_ver = `rpm -q --qf '%{version}' obs-server`;
   my $src="$FindBin::Bin/fixtures/obs-testpackage._service";
+  if ( $pkg_ver[0] =~ /^2\.8\./ ) {
+    $src = "$FindBin::Bin/fixtures/obs-testpackage-2.8._service";
+  }
+
   my $dst="./_service";
   copy($src,$dst) or die "Copy '$src' -> '$dst' failed: $!";
   system("osc ar");
@@ -78,9 +83,9 @@ while (1) {
 
   if (! $recalculation) {
     # if all have succeeded and no recalculation is needed the test succeed
-    $succeed = 1 if ($states->{succeeded} == @result);
+    $succeed = 1 if (($states->{succeeded} + $states->{failed}) == @result);
     # if any of the results is failed/broken the whole test is failed
-    my $bad_results = $states->{failed} + $states->{broken} + $states->{unresolvable};
+    my $bad_results = $states->{broken} + $states->{unresolvable};
     if ($bad_results > 0) {
       $succeed = 0;
       print STDERR "@result";
