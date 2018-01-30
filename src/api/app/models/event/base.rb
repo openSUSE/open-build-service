@@ -171,7 +171,7 @@ module Event
     end
 
     def send_event_emails_job
-      SendEventEmailsJob.perform_later(id)
+      SendEventEmailsJob.perform_later(id) if id.present?
     end
 
     # to be overwritten in subclasses
