@@ -1321,7 +1321,7 @@ class Package < ApplicationRecord
     content = File.open(content.path).read if content.is_a?(ActionDispatch::Http::UploadedFile)
 
     # schema validation, if possible
-    ['aggregate', 'constraints', 'link', 'service', 'patchinfo', 'channel'].each do |schema|
+    ['aggregate', 'constraints', 'link', 'service', 'patchinfo', 'channel', 'multibuild'].each do |schema|
       Suse::Validator.validate(schema, content) if name == '_' + schema
     end
 
