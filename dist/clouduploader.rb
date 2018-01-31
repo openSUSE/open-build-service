@@ -5,98 +5,82 @@ require 'json'
 require 'ostruct'
 require 'open3'
 
-start = Time.now
-THIRTY_MINUTES = 1800
-HOME = '/etc/obs/cloudupload'.freeze
-ENV['HOME'] = "/etc/obs/cloudupload"
-ENV['PYTHONUNBUFFERED'] = '1'
-STDOUT.sync = true
+module CloudUploader
+  class EC2
+    def self.credentials(data)
+      # Credentials are stored in  ~/.aws/credentials
+      out, err, status = Open3.capture3(
+        'aws',
+        'sts',
+        'assume-role',
+        "--role-arn=#{data['arn']}",
+        "--external-id=#{data['external_id']}",
+        '--role-session-name=obs',
+        "--duration-seconds=#{THIRTY_MINUTES}"
+      )
 
-if ARGV.length != 6
-  raise 'Wrong number of arguments, please provide: user platform upload_file targetdata filename result_path'
-end
-
-platform = ARGV[1]
-image_path = ARGV[2]
-data_path = ARGV[3]
-filename = ARGV[4]
-result_path = ARGV[5]
-data = JSON.parse(File.read(data_path))
-
-# link file into working directory
-FileUtils.ln_s(image_path, File.join(Dir.pwd, filename))
-
-def get_ec2_credentials(data)
-  command = [
-    'aws',
-    'sts',
-    'assume-role',
-    "--role-arn=#{data['arn']}",
-    "--external-id=#{data['external_id']}",
-    '--role-session-name=obs',
-    "--duration-seconds=#{THIRTY_MINUTES}"
-  ]
-
-  # Credentials are stored in  ~/.aws/credentials
-  out, err, status = Open3.capture3(*command)
-
-  if status.success?
-    STDOUT.write("Successfully authenticated.\n")
-    json = JSON.parse(out)
-    OpenStruct.new(
-      access_key_id: json['Credentials']['AccessKeyId'],
-      secret_access_key: json['Credentials']['SecretAccessKey'],
-      session_token: json['Credentials']['SessionToken']
-    )
-  else
-    abort(err)
-  end
-end
-
-def upload_image_to_ec2(image, data, result_path)
-  STDOUT.write("Start uploading image #{image}.\n")
-
-  credentials = get_ec2_credentials(data)
-  command = [
-    'ec2uploadimg',
-    "--description='obs uploader'",
-    '--machine=x86_64',
-    "--name=#{data['ami_name']}",
-    "--region=#{data['region']}",
-    "--secret-key=#{credentials.secret_access_key}",
-    "--access-id=#{credentials.access_key_id}",
-    "--session-token=#{credentials.session_token}",
-    '--verbose'
-  ]
-
-  if data['vpc_subnet_id']
-    command << "--vpc-subnet-id=#{data['vpc_subnet_id']}"
-  end
-  command << image
-
-  Open3.popen2e(*command) do |_stdin, stdout_stderr, wait_thr|
-    Signal.trap("TERM") {
-      # We just omit the SIGTERM because otherwise we would not get logs from ec2uploadimg
-      STDOUT.write("Received abort signal, waiting for ec2uploadimg to properly clean up.\n")
-    }
-    while line = stdout_stderr.gets
-      STDOUT.write(line)
-      write_result($1, result_path) if line =~ /^Created\simage:\s+(ami-[\w]+)$/
+      if status.success?
+        STDOUT.write("Successfully authenticated.\n")
+        json = JSON.parse(out)
+        OpenStruct.new(
+          access_key_id: json['Credentials']['AccessKeyId'],
+          secret_access_key: json['Credentials']['SecretAccessKey'],
+          session_token: json['Credentials']['SessionToken']
+        )
+      else
+        abort(err)
+      end
     end
-    status = wait_thr.value
-    abort unless status.success?
+
+    def self.upload(image, data)
+      STDOUT.write("Start uploading image #{image}.\n")
+
+      credentials = credentials(data)
+
+      Open3.popen2e(
+        'ec2uploadimg',
+        "--description='obs uploader'",
+        '--machine=x86_64',
+        "--name=#{data['ami_name']}",
+        "--region=#{data['region']}",
+        "--secret-key=#{credentials.secret_access_key}",
+        "--access-id=#{credentials.access_key_id}",
+        "--session-token=#{credentials.session_token}",
+        '--verbose',
+        image
+      ) do |_stdin, stdout_stderr, _wait_thr|
+        while line = stdout_stderr.gets
+          STDOUT.write(line)
+        end
+        status = wait_thr.value
+        abort unless status.success?
+      end
+    end
+  end
+
+  def self.upload(platform, image_path, job_data_file, image_filename)
+    STDOUT.sync = true
+    start = Time.now
+
+    job_data = JSON.parse(File.read(job_data_file))
+    FileUtils.ln_s(image_path, File.join(Dir.pwd, image_filename)) # link file into working directory
+
+    case platform
+    when 'ec2'
+      THIRTY_MINUTES = 1800
+      ENV['PYTHONUNBUFFERED'] = '1'
+      CloudUploader::EC2.upload(image_filename, job_data)
+    when 'azure'
+      # TODO: Add the Azure upload code here
+    else
+      abort('No valid platform. Valid platforms are ec2 and azure.')
+    end
+
+    diff = Time.now - start
+    STDOUT.write("Upload took: #{Time.at(diff).utc.strftime("%H:%M:%S")}\n")
   end
 end
 
-def write_result(result, result_path)
-  File.open(result_path, "w+") { |file| file.write(result) }
-end
-
-if platform == 'ec2'
-  upload_image_to_ec2(filename, data, result_path)
-else
-  abort('No valid platform. Valid platforms is ec2.')
-end
-
-diff = Time.now - start
-STDOUT.write("Upload took: #{Time.at(diff).utc.strftime("%H:%M:%S")}")
+ENV['HOME'] = '/etc/obs/cloudupload'
+raise 'Wrong number of arguments, please provide: user platform upload_file targetdata filename result_path' unless ARGV.length == 6
+CloudUploader.upload(*ARGV)
