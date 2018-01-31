@@ -35,7 +35,7 @@ http_interactions:
           <summary>project 'foo++bar' does not exist</summary>
           <details>404 project 'foo++bar' does not exist</details>
         </status>
-    http_version: 
+    http_version:
   recorded_at: Tue, 25 Apr 2017 15:22:28 GMT
 - request:
     method: get
@@ -72,7 +72,7 @@ http_interactions:
           <summary>project 'foo++bar' does not exist</summary>
           <details>404 project 'foo++bar' does not exist</details>
         </status>
-    http_version: 
+    http_version:
   recorded_at: Tue, 25 Apr 2017 15:22:28 GMT
 - request:
     method: put
@@ -113,8 +113,8 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer" />
         </project>
-    http_version: 
-  recorded_at: Wed, 14 Mar 2018 10:18:04 GMT
+    http_version:
+  recorded_at: Wed, 14 Mar 2018 09:57:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
@@ -160,8 +160,8 @@ http_interactions:
             <arch>i586</arch>
           </repository>
         </project>
-    http_version: 
-  recorded_at: Wed, 14 Mar 2018 10:18:04 GMT
+    http_version:
+  recorded_at: Wed, 14 Mar 2018 09:57:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo++bar/_meta
@@ -169,7 +169,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="foo++bar">
-          <title>The Violent Bear It Away</title>
+          <title>The Yellow Meads of Asphodel</title>
           <description/>
         </project>
     headers:
@@ -191,24 +191,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '113'
     body:
       encoding: UTF-8
       string: |
         <project name="foo++bar">
-          <title>The Violent Bear It Away</title>
+          <title>The Yellow Meads of Asphodel</title>
           <description></description>
         </project>
-    http_version: 
-  recorded_at: Wed, 14 Mar 2018 10:18:04 GMT
+    http_version:
+  recorded_at: Wed, 14 Mar 2018 09:57:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo++bar/_config
     body:
       encoding: UTF-8
-      string: Vel quia reprehenderit aut omnis aut. Quia qui nobis doloribus fugit
-        omnis sed. Nihil debitis unde ut. Mollitia voluptas dolorum dolor quae odit.
-        At molestiae quidem reprehenderit omnis eveniet.
+      string: Ad maiores voluptatem nobis nihil vel ea. Et delectus sequi vitae. Commodi
+        velit et. Occaecati recusandae voluptatum cumque voluptas.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -234,8 +233,8 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-    http_version: 
-  recorded_at: Wed, 14 Mar 2018 10:18:04 GMT
+    http_version:
+  recorded_at: Wed, 14 Mar 2018 09:57:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo++bar/_meta?user=tom
@@ -243,7 +242,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="foo++bar">
-          <title>The Violent Bear It Away</title>
+          <title>The Yellow Meads of Asphodel</title>
           <description/>
           <repository name="leap_45.1">
             <arch>i586</arch>
@@ -268,19 +267,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '179'
+      - '183'
     body:
       encoding: UTF-8
       string: |
         <project name="foo++bar">
-          <title>The Violent Bear It Away</title>
+          <title>The Yellow Meads of Asphodel</title>
           <description></description>
           <repository name="leap_45.1">
             <arch>i586</arch>
           </repository>
         </project>
-    http_version: 
-  recorded_at: Wed, 14 Mar 2018 10:18:04 GMT
+    http_version:
+  recorded_at: Wed, 14 Mar 2018 09:57:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo++bar/some_package/_meta?user=tom
@@ -288,8 +287,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="some_package" project="foo++bar">
-          <title>Dying of the Light</title>
-          <description>Excepturi voluptatibus aut architecto.</description>
+          <title>Look to Windward</title>
+          <description>Maiores exercitationem nostrum itaque.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -310,16 +309,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="some_package" project="foo++bar">
-          <title>Dying of the Light</title>
-          <description>Excepturi voluptatibus aut architecto.</description>
+          <title>Look to Windward</title>
+          <description>Maiores exercitationem nostrum itaque.</description>
         </package>
-    http_version: 
-  recorded_at: Wed, 14 Mar 2018 10:18:04 GMT
+    http_version:
+  recorded_at: Wed, 14 Mar 2018 09:57:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo++bar/some_package/_meta
@@ -327,8 +326,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="some_package" project="foo++bar">
-          <title>Dying of the Light</title>
-          <description>Excepturi voluptatibus aut architecto.</description>
+          <title>Look to Windward</title>
+          <description>Maiores exercitationem nostrum itaque.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -349,14 +348,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="some_package" project="foo++bar">
-          <title>Dying of the Light</title>
-          <description>Excepturi voluptatibus aut architecto.</description>
+          <title>Look to Windward</title>
+          <description>Maiores exercitationem nostrum itaque.</description>
         </package>
-    http_version: 
-  recorded_at: Wed, 14 Mar 2018 10:18:04 GMT
+    http_version:
+  recorded_at: Wed, 14 Mar 2018 09:57:52 GMT
 recorded_with: VCR 4.0.0

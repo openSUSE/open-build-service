@@ -35,7 +35,7 @@ http_interactions:
           <summary>project 'home:tom' has no repository 'leap_42.2'</summary>
           <details>404 project 'home:tom' has no repository 'leap_42.2'</details>
         </status>
-    http_version: 
+    http_version:
   recorded_at: Tue, 25 Apr 2017 15:22:29 GMT
 - request:
     method: get
@@ -70,7 +70,7 @@ http_interactions:
           <summary>unknown repository 'leap_42.2'</summary>
           <details>404 unknown repository 'leap_42.2'</details>
         </status>
-    http_version: 
+    http_version:
   recorded_at: Wed, 14 Mar 2018 10:17:44 GMT
 - request:
     method: put
@@ -111,7 +111,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer" />
         </project>
-    http_version: 
+    http_version:
   recorded_at: Wed, 14 Mar 2018 10:18:05 GMT
 - request:
     method: put
@@ -150,7 +150,7 @@ http_interactions:
           <title>Nine Coaches Waiting</title>
           <description>Quia eius beatae ex laborum quod ratione accusamus sed.</description>
         </package>
-    http_version: 
+    http_version:
   recorded_at: Wed, 14 Mar 2018 10:18:05 GMT
 - request:
     method: put
@@ -189,6 +189,5 @@ http_interactions:
           <title>Nine Coaches Waiting</title>
           <description>Quia eius beatae ex laborum quod ratione accusamus sed.</description>
         </package>
-    http_version: 
+    http_version:
   recorded_at: Wed, 14 Mar 2018 10:18:05 GMT
-recorded_with: VCR 4.0.0
