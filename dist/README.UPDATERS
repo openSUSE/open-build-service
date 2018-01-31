@@ -1,8 +1,8 @@
 For Updaters to OBS 2.9 from OBS 2.8
 ====================================
 
-Note: Update from OBS 2.5 should also work, but is untested.
-      A direct update from OBS 2.4 or older will not work.
+Note: Update from OBS 2.7 should also work, but is untested.
+      A direct update from OBS 2.6 or older will not work.
 
   1) Remove the OBS 2.8 Repository
 
@@ -44,8 +44,8 @@ Note: Update from OBS 2.5 should also work, but is untested.
 For Updaters to OBS 2.8 from OBS 2.7
 ====================================
 
-Note: Update from OBS 2.5 should also work, but is untested.
-      A direct update from OBS 2.4 or older will not work.
+Note: Update from OBS 2.6 should also work, but is untested.
+      A direct update from OBS 2.5 or older will not work.
 
   1) Remove the OBS 2.7 Repository
 
