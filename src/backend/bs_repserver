@@ -523,6 +523,24 @@ sub processavailable {
   return \@res;
 }
 
+sub mapannotationurls {
+  my ($p) = @_;
+  my $annotation = BSUtil::fromxml($p->{'annotation'}, $BSXML::binannotation, 1);
+  return unless $annotation && $annotation->{'repo'};
+  for my $r (@{$annotation->{'repo'}}) {
+    my $url = $r->{'url'};
+    next unless $url;
+     my $urlprp;
+     if ($url =~ /^obs:\/{1,3}([^\/]+)\/([^\/]+)\/?$/) {
+       $urlprp = "$1/$2";
+     } else {
+       $urlprp = BSUrlmapper::urlmapper($url);
+     }
+     ($r->{'project'}, $r->{'repository'}) = split('/', $urlprp, 2) if $urlprp;
+  }
+  $p->{'annotation'} = BSUtil::toxml($annotation, $BSXML::binannotation);
+}
+
 sub getbinarylist_repository {
   my ($cgi, $projid, $repoid, $arch) = @_;
 
@@ -609,6 +627,7 @@ sub getbinarylist_repository {
         my %data = $repo->pkgnames();
         for my $p (values %data) {
 	  $p = $pool->pkg2data($p);
+	  mapannotationurls($p) if $p->{'annotation'};
         }
 	if (keys(%data) < 100 && $s[7] < 10000) {
 	  # small repo, feed from memory
