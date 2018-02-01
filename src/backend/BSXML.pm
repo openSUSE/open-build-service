@@ -1837,8 +1837,10 @@ our $keyinfo = [
 our $binannotation = [
     'annotation' =>
      [[ 'repo' =>
-	'url',
-	'priority',
+	    'url',
+	    'project',
+	    'repository',
+	    'priority',
      ]],
 	'disturl',
 	'package',		# only in build job annotation
