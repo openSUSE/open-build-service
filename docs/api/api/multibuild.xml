@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <multibuild>
-    <package>gcc</package>
-    <package>gcc-testsuite</package>
+    <flavor>gcc</flavor>
+    <flavor>gcc-testsuite</flavor>
 </multibuild>

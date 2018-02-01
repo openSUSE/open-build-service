@@ -101,15 +101,15 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     post "/request/#{id1}?cmd=diff&view=xml"
     assert_response :success
     # the diffed packages
-    assert_xml_tag(tag: 'old', attributes: { project: 'BaseDistro3', package: 'pack2', srcmd5: 'eb6705ddf47af932b8332e16ab2ed8b3' })
-    assert_xml_tag(tag: 'new', attributes: { project: 'home:tom:branches:OBS_Maintained:pack2', package: 'pack2.BaseDistro3', rev: '7da33eb2a263a2f91d019a42eb28dae9', srcmd5: '7da33eb2a263a2f91d019a42eb28dae9' })
+    assert_xml_tag(tag: 'old', attributes: { project: 'BaseDistro3', package: 'pack2', srcmd5: 'c3f6b2ae46cbc4cfb495774733c842f0' })
+    assert_xml_tag(tag: 'new', attributes: { project: 'home:tom:branches:OBS_Maintained:pack2', package: 'pack2.BaseDistro3', rev: '33fed2157de2517bc62894b3fdfd485c', srcmd5: '33fed2157de2517bc62894b3fdfd485c' })
     # the diffed files
     assert_xml_tag(tag: 'old', attributes: { name: 'file', md5: '722d122e81cbbe543bd5520bb8678c0e', size: '4' },
                     parent: { tag: 'file', attributes: { state: 'changed' } })
     assert_xml_tag(tag: 'new', attributes: { name: 'file', md5: '6c7c49c0d7106a1198fb8f1b3523c971', size: '16' },
                     parent: { tag: 'file', attributes: { state: 'changed' } })
     # the expected file transfer
-    assert_xml_tag(tag: 'source', attributes: { project: 'home:tom:branches:OBS_Maintained:pack2', package: 'pack2.BaseDistro3', rev: '7da33eb2a263a2f91d019a42eb28dae9' })
+    assert_xml_tag(tag: 'source', attributes: { project: 'home:tom:branches:OBS_Maintained:pack2', package: 'pack2.BaseDistro3', rev: '33fed2157de2517bc62894b3fdfd485c' })
     assert_xml_tag(tag: 'target', attributes: { project: 'My:Maintenance', releaseproject: 'BaseDistro3' })
     # diff contains the critical lines
     assert_match(/^\-NOOP/, @response.body)
@@ -656,7 +656,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'action', attributes: { type: 'maintenance_release' } },
                    tag: 'target', attributes: { project: 'BaseDistro3', package: 'pack2.0' }
     assert_xml_tag parent: { tag: 'action', attributes: { type: 'maintenance_release' } },
-                   tag: 'acceptinfo', attributes: { rev: '1', oproject: 'BaseDistro3', opackage: 'pack2', oxsrcmd5: 'eb6705ddf47af932b8332e16ab2ed8b3', osrcmd5: 'eb6705ddf47af932b8332e16ab2ed8b3' }
+                   tag: 'acceptinfo', attributes: { rev: '1', oproject: 'BaseDistro3', opackage: 'pack2', oxsrcmd5: 'c3f6b2ae46cbc4cfb495774733c842f0', osrcmd5: 'c3f6b2ae46cbc4cfb495774733c842f0' }
 
     # diffing works
     post "/request/#{reqid}?cmd=diff&view=xml"

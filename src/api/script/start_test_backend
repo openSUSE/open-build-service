@@ -253,7 +253,7 @@ Backend::Connection.put('/source/BaseDistro2.0/pack2.linked/_link?user=king', "<
 Backend::Connection.put('/source/BaseDistro2.0:LinkedUpdateProject/_config?user=king', 'cicntstart: 42.1')
 Backend::Connection.put('/source/BaseDistro3/_config?user=king', "Type: spec\nRepotype: rpm-md suse")
 Backend::Connection.put('/source/BaseDistro3/pack2/pack2.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
-Backend::Connection.put('/source/BaseDistro3/pack2/_multibuild?user=king', '<multibuild><package>package_multibuild</package></multibuild>')
+Backend::Connection.put('/source/BaseDistro3/pack2/_multibuild?user=king', '<multibuild><flavor>package_multibuild</flavor></multibuild>')
 Backend::Connection.put('/source/BaseDistro3/pack2/package_multibuild.spec?user=king',
                         File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
 Backend::Connection.put('/source/BaseDistro:Update/pack2/_link?user=king', '<link project="BaseDistro" package="pack2" />')

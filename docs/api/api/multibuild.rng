@@ -9,12 +9,20 @@
     <element>
       <name ns="">multibuild</name>
 
-      <oneOrMore>
-        <element>
-          <name ns="">package</name>
-          <text/>
-        </element>
-      </oneOrMore>
+      <choice>
+        <oneOrMore>
+          <element>
+            <name ns="">flavor</name>
+            <text/>
+          </element>
+        </oneOrMore>
+        <oneOrMore> <!-- obsolete, but needs to stay for compability -->
+          <element>
+            <name ns="">package</name>
+            <text/>
+          </element>
+        </oneOrMore>
+      </choice>
 
     </element>
   </define>
