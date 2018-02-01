@@ -211,27 +211,31 @@ sub signisofiles {
   return $signed;
 }
 
-sub retagmd5iso {
+sub retagiso {
   my ($fd) = @_;
   my $blk = readblk($fd, 0, 17);
   die("primary volume descriptor missing\n") if substr($blk, 0x8000, 6) ne "\001CD001";
   my $tags = ';'.substr($blk, 0x8373, 0x200);
-  return unless $tags =~ /;md5sum=[0-9a-fA-F]{32}/;
-  print "updating md5sum tag\n";
+  return unless $tags =~ /;(md5sum=[0-9a-fA-F]{32}|sha1sum=[0-9a-fA-F]{40}|sha256sum=[0-9a-fA-F]{64})/;
+  my $sum = $1;
+  my $sumtype = (split('=', $sum, 2))[0];
+  print "updating $sumtype tag\n";
   substr($blk, 0x0000, 0x200) = "\0" x 0x200;
   substr($blk, 0x8373, 0x200) = ' ' x 0x200;
   my $numblks = unpack("V", substr($blk, 0x8050, 4));
   die("bad block number\n") if $numblks < 17;
-  my $md5 = Digest::MD5->new;
-  $md5->add($blk);
+  my $chkmap = { 'md5sum' => 'MD5', 'sha1sum' => 'SHA-1', 'sha256sum' => 'SHA-256' };
+  my $ctx = Digest->new($chkmap->{$sumtype});
+  $ctx->add($blk);
   $numblks -= 17;
   my $blkno = 16;
   while ($numblks-- > 0) {
     my $b = readblk($fd, ++$blkno);
-    $md5->add($b);
+    $ctx->add($b);
   }
-  $md5 = $md5->hexdigest;
-  $tags =~ s/;md5sum=[0-9a-fA-F]{32}/;md5sum=$md5/;
+  my $newsum = "$sumtype=".$ctx->hexdigest;
+  die unless length($sum) == length($newsum);
+  $tags =~ s/;\Q$sum\E/;$newsum/;
   substr($blk, 0x8373, 0x200) = substr($tags, 1);
   writeblk($fd, 16, substr($blk, 0x8000, 0x800));
 }
@@ -241,7 +245,7 @@ sub signiso {
   local *ISO;
   open(ISO, '+<', $file) || die("$file: $!\n");
   my $signed = signisofiles(\*ISO, $pubkey, @signargs);
-  retagmd5iso(\*ISO) if $signed;
+  retagiso(\*ISO) if $signed;
   close(ISO) || die("close $file: $!\n");
 }
 
