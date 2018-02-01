@@ -27,6 +27,10 @@ happen automatically.
 Features
 ========
 
+Generic:
+ * image and container maintenance support, including binary tracking
+ * riscv64 hardware architecture support
+
 Frontend:
  * New Kerberos authentication mode. Read how to setup Kerberos in the OBS Admin Guide: http://openbuildservice.org/help/manuals/obs-admin-guide/
  * New job history page to see why a package was built.
@@ -41,10 +45,36 @@ Frontend:
  * Improved UI/UX for configuration of notifications page. Now it shows a better layout and explanations to make this complex page easy to understand.
  * Allow users to view the full diff of large changes.
  * Remove the unused api_relative_url_root option from the options.yml file.
+ * release mechanism improvements:
+   - manual maintenance release support (avoiding requests)
+   - operation happen atomic for entire project now
+   - support release of single multibuild container
 
 Backend:
  * support showing source files in blame view (works also via links)
  * support project copy with makeoriginolder option
+
+Backend:
+ * New build formats:
+   - native container build based on DockerFile (beside exiting kiwi support)
+   - FISSILE build format
+   - AppImage build format
+ * freezelink command to freeze current sources accessed via project link
+ * support showing source files in blame view (works also via links)
+ * support project copy with makeoriginolder option
+ * support automatic vrev extending via project links
+ * Improved container support:
+   - support build of layered containers by reusing existing contaienrs
+   - support publishing to docker registry server
+   - support container signing via notary server
+ * cloud upload server supporting Amazon EC2 and Microsoft Azure
+ * improved bootstrap cycle handling
+ * additional SHA256 checksum in source commit handling for security
+ * projects can be temporary suspended to avoid scheduling between multiple changes
+ * support AirBrake for reporting problems
+ * support new debian repository format
+ * support for building in openstack cloud
+ * Many smaller improvements in DownloadOnDemand and multibuild handling
 
 Shipment:
  *
@@ -81,6 +111,9 @@ Wanted changes:
  * The backend notification plugin system is not used anymore.
    The RabbitMQ plugin is replaced with a RabbitMQ message bus implementation in the frontend, you can find details about this in the admin manual.
    The Hermes plugin is dropped without replacement as it was only used for notifications which the OBS is doing on it's own since quite some time.
+
+ * publish hook failures are handled as fatal failures now.
+   => publisher will retry to publish
 
 Other changes
 =============
