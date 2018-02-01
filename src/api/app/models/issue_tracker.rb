@@ -72,7 +72,7 @@ class IssueTracker < ApplicationRecord
 
     begin
       result = bugzilla_server.search(last_change_time: self.issues_updated)
-    rescue Net::ReadTimeout
+    rescue Net::ReadTimeout, Errno::ECONNRESET
       if (self.issues_updated + 2.days).past?
         # failures since two days?
         # => enforce a full update in small steps to avoid over load at bugzilla side
