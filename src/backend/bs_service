@@ -138,6 +138,7 @@ sub run_source_update {
   $::ENV{'OBS_SERVICE_PROJECT'} = $projid;
   $::ENV{'OBS_SERVICE_PACKAGE'} = $packid;
   $::ENV{'OBS_SERVICE_APIURL'} = $BSConfig::api_url if $BSConfig::api_url;
+  $::ENV{'OBS_NAME'} = $BSConfig::obsname if $BSConfig::obsname;
   $::ENV{'no_proxy'} = $noproxy if $noproxy;
 
   # run all services
