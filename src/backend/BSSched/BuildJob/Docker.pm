@@ -72,6 +72,15 @@ sub expand {
 
 =cut
 
+sub maptoremote {
+  my ($proj, $projid, $repoid) = @_; 
+  $repoid = defined($repoid) ? "/$repoid" : '';
+  return "$proj->{'root'}:$projid$repoid" unless $proj->{'remoteroot'};
+  return "$proj->{'root'}$repoid" if $projid eq $proj->{'remoteroot'};
+  return undef if $projid !~ /^\Q$proj->{'remoteroot'}\E:(.*)$/;
+  return "$proj->{'root'}:$1$repoid";
+}
+
 sub check {
   my ($self, $ctx, $packid, $pdata, $info, $buildtype) = @_;
 
@@ -134,6 +143,9 @@ sub check {
     my $annotation = BSSched::BuildJob::getcontainerannotation($cpool, $p, $cbdep);
     if ($annotation) {
       # map all repos and add to path
+      my $remoteprojs = $gctx->{'remoteprojs'} || {};
+      my $rproj = $remoteprojs->{(split('/', $cprp, 2))[0]};
+      undef $rproj if $rproj && !defined($rproj->{'root'});	# no partitions
       for my $r (@{$annotation->{'repo'} || []}) {
 	my $url = $r->{'url'};
 	next unless $url;
@@ -141,6 +153,7 @@ sub check {
 	my $urlprp;
 	if ($url =~ /^obs:\/{1,3}([^\/]+)\/([^\/]+)\/?$/) {
 	  $urlprp = "$1/$2";
+	  $urlprp = maptoremote($rproj, $1, $2) if $rproj;
 	} else {
 	  if ($Build::Kiwi::urlmapper) {
 	    $urlprp = $Build::Kiwi::urlmapper->($url);
@@ -148,8 +161,13 @@ sub check {
 	    $ctx->{'urlmappercache'} ||= {};
 	    $urlprp = BSUrlmapper::urlmapper($url, $ctx->{'urlmappercache'});
 	  }
-	  return ('broken', "repository url '$url' cannot be handled") unless $urlprp;
 	}
+	# if we can't map fall back to project/repository element from annotation
+	if (!$urlprp && $r->{'project'} && $r->{'repository'}) {
+	  $urlprp = "$r->{'project'}/$r->{'repository'}";
+	  $urlprp = maptoremote($rproj, $r->{'project'}, $r->{'repository'}) if $rproj;
+	}
+	return ('broken', "repository url '$url' cannot be handled") unless $urlprp;
 	my ($pr, $rp) = split('/', $urlprp, 2);
 	push @newpath, {'project' => $pr, 'repository' => $rp};
 	$newpath[-1]->{'priority'} = $r->{'priority'} if defined $r->{'priority'};
