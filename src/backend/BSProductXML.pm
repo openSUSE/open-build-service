@@ -148,6 +148,12 @@ our $product = [
                 ]],
               ], # this is for prod file export only, not used for SLE 12/openSUSE 13.2 media style anymore
            ],
+           [ 'repositories' =>
+             [[ 'repository' =>
+                'type',
+                'repoid',
+             ]],
+           ], # this is for prod file export only since Leap 15
            [ 'upgrades' =>     # to announce service pack releases
               [[ 'upgrade' =>
                  [],
