@@ -1009,7 +1009,7 @@ class Webui::PackageController < Webui::WebuiController
         @package.update_from_xml(meta_xml)
         flash.now[:success] = 'The Meta file has been successfully saved.'
         render layout: false, partial: 'layouts/webui/flash', object: flash
-      rescue ActiveXML::Transport::Error => e
+      rescue ActiveXML::Transport::Error, NotFoundError => e
         flash.now[:error] = "Error while saving the Meta file: #{e}."
         render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
       end
