@@ -664,6 +664,7 @@ ARCH.ppc64p7 ppc64p7 noarch
 ARCH.ppc64 ppc64 ppc noarch
 ARCH.ppc64le ppc64le noarch
 ARCH.ppc ppc noarch
+ARCH.riscv64 riscv64 noarch
 ARCH.sh4 sh4 noarch
 ARCH.m68k m68k noarch
 ARCH.aarch64 aarch64 aarch64_ilp32 noarch
