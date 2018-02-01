@@ -43,8 +43,8 @@ Frontend:
  * Remove the unused api_relative_url_root option from the options.yml file.
 
 Backend:
- * support showing source files in blame view (works also via links)
- * support project copy with makeoriginolder option
+ * Support showing source files in blame view (works also via links).
+ * Support project copy with makeoriginolder option.
 
 Shipment:
  *
@@ -59,14 +59,13 @@ Bugfixes:
 Wanted changes:
 ===============
 
- * creating of repositories on branching has changed if repositories of the
-   source refer each other. This gets recreated in new project.
+ * Creating of repositories on branching has changed if repositories of the source refer each other. This gets recreated in new project.
 
- * project copy is not adding the user anymore
+ * Project copy is not adding the user anymore.
 
- * service dispatcher is used by default now
+ * Service dispatcher is used by default now.
 
- * The editing of a user's realname, email adress or password is no longer possible if LDAP mode is activated
+ * The editing of a user's realname, email adress or password is no longer possible if LDAP mode is activated.
 
  * Unused ldap options in options.yml were dropped:
    - ldap_update_support
@@ -74,16 +73,15 @@ Wanted changes:
    - ldap_entry_base
    - ldap_sn_attr_required
 
- * dropping of the project/package tag functionality/api
+ * Dropping of the project/package tag functionality/api.
 
- * password hashing algorithm was changed to bcrypt (blowfish)
+ * Password hashing algorithm was changed to bcrypt (blowfish).
 
- * The backend notification plugin system is not used anymore.
-   The RabbitMQ plugin is replaced with a RabbitMQ message bus implementation in the frontend, you can find details about this in the admin manual.
-   The Hermes plugin is dropped without replacement as it was only used for notifications which the OBS is doing on it's own since quite some time.
+ * The backend notification plugin system is not used anymore:
+   - The RabbitMQ plugin is replaced with a RabbitMQ message bus implementation in the frontend, you can find details about this in the admin manual.
+   - The Hermes plugin is dropped without replacement as it was only used for notifications which the OBS is doing on it's own since quite some time.
 
- * _multibuild files have a changed syntax, but OBS stays backward compatible.
-   Use <flavor> instead of <package> elements in future.
+ * _multibuild files have a changed syntax, but OBS stays backward compatible.  Use <flavor> instead of <package> elements in the future.
 
 Other changes
 =============
@@ -97,7 +95,7 @@ OBS is using init scripts, not systemd style .service files. This will stay unti
 we will switch from SLES 11 to SLES 12 as default production platform.
 
 openSUSE installations may use systemd (instead of sysvinit) and it should work
-in general. Not working are usages like
+in general. Not working are usages like:
 
  # rcobssrcserver status
 
