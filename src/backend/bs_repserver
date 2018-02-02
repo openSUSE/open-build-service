@@ -69,6 +69,7 @@ use BSSolv;
 use BSRepServer;
 use BSRepServer::BuildInfo;
 use BSRepServer::Containerinfo;
+use BSRepServer::Remote;
 use BSDispatcher::Constraints;
 use BSCando;
 use Build;
@@ -1186,7 +1187,7 @@ sub getbinary_info {
       my ($rprojid, $rrepoid) = split('/', $prp, 2);
       my $r;
       if ($remotemap{$rprojid}) {
-	$r = BSRepServer::addrepo_remote($pool, $prp, $arch, $remotemap{$rprojid});
+	$r = BSRepServer::Remote::addrepo_remote($pool, $prp, $arch, $remotemap{$rprojid});
       } else {
 	$r = BSRepServer::addrepo_scan($pool, $prp, $arch);
       }

@@ -21,6 +21,7 @@ use BSUtil;
 use BSRPC;
 use BSXML;
 use BSConfiguration;
+use BSRepServer::Remote;
 
 use strict;
 
@@ -73,7 +74,7 @@ sub get_path_projpacks {
     next if $proj->{'name'} eq $projid;
     $projpacks->{delete $proj->{'name'}} = $proj;
   }
-  remotemap2remoteprojs($gctx, $projpacksin->{'remotemap'}) if $projpacksin->{'remotemap'};
+  BSRepServer::Remote::remotemap2remoteprojs($gctx, $projpacksin->{'remotemap'}) if $projpacksin->{'remotemap'};
 }
 
 sub update_projpacks {
@@ -89,18 +90,7 @@ sub update_projpacks {
     $proj->{'package'} = $packages;
     delete $proj->{'package'} unless %$packages;
   }
-  remotemap2remoteprojs($gctx, $projpacksin->{'remotemap'}) if $projpacksin->{'remotemap'};
-}
-
-sub remotemap2remoteprojs {
-  my ($gctx, $remotemap) = @_;
-
-  my $remoteprojs = $gctx->{'remoteprojs'} || {};
-  $gctx->{'remoteprojs'} = $remoteprojs;
-  for my $proj (@{$remotemap || []}) {
-    my $projid = delete $proj->{'project'};
-    $remoteprojs->{$projid} = $proj;
-  }
+  BSRepServer::Remote::remotemap2remoteprojs($gctx, $projpacksin->{'remotemap'}) if $projpacksin->{'remotemap'};
 }
 
 sub expandsearchpath {

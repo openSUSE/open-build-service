@@ -28,7 +28,7 @@ use Test::OBS::Utils;
   my $remoteprojs = $gctx->{'remoteprojs'};
   my $r;
   if ($remoteprojs->{$projid}) {
-    $r = BSRepServer::addrepo_remote($pool, $prp, $arch, $remoteprojs->{$projid});
+    $r = BSRepServer::Remote::addrepo_remote($pool, $prp, $arch, $remoteprojs->{$projid});
   } else {
     my $d = Test::OBS::Utils::readstrxz("$gctx->{'reporoot'}/$prp/$arch/:full.solv", 1);
     if ($d) {

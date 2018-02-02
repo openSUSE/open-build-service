@@ -22,6 +22,8 @@ use Build;
 
 use strict;
 
+use BSRepServer::Remote;
+
 use BSSched::BuildJob;
 use BSSched::BuildJob::Package;
 use BSSched::BuildJob::KiwiImage;
@@ -165,7 +167,7 @@ sub addrepo {
   my $remoteprojs = $gctx->{'remoteprojs'};
   my $r;
   if ($remoteprojs->{$projid}) {
-    $r = BSRepServer::addrepo_remote($pool, $prp, $arch, $remoteprojs->{$projid});
+    $r = BSRepServer::Remote::addrepo_remote($pool, $prp, $arch, $remoteprojs->{$projid});
   } else {
     $r = BSRepServer::addrepo_scan($pool, $prp, $arch);
   }
@@ -180,7 +182,7 @@ sub read_gbininfo {
   my ($projid, $repoid) = split('/', $prp, 2);
   my $remoteprojs = $gctx->{'remoteprojs'};
   if ($remoteprojs->{$projid}) {
-    return BSRepServer::read_gbininfo_remote("$prp/$arch", $remoteprojs->{$projid}, $withevr);
+    return BSRepServer::Remote::read_gbininfo_remote("$prp/$arch", $remoteprojs->{$projid}, $withevr);
   }
   my $reporoot = $gctx->{'reporoot'};
   return BSRepServer::read_gbininfo("$reporoot/$prp/$arch");

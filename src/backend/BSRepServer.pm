@@ -1,18 +1,11 @@
 package BSRepServer;
 
 use strict;
-use warnings;
 
 use BSConfiguration;
 use BSRPC ':https';
 use BSUtil;
-use BSHTTP;
-use BSXML;
 use Build;
-use BSSolv;
-
-my $proxy;
-$proxy = $BSConfig::proxy if defined($BSConfig::proxy);
 
 my $reporoot = "$BSConfig::bsdir/build";
 
@@ -27,37 +20,6 @@ sub getconfig {
   my $bconf = Build::read_config($arch, [split("\n", $config)]);
   $bconf->{'binarytype'} ||= 'UNDEFINED';
   return $bconf;
-}
-
-sub addrepo_remote {
-  my ($pool, $prp, $arch, $remoteproj) = @_;
-  my ($projid, $repoid) = split('/', $prp, 2);
-  return undef unless $remoteproj;
-  print "fetching remote repository state for $prp\n";
-  my $param = {
-    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch/_repository",
-    'timeout' => 200, 
-    'receiver' => \&BSHTTP::cpio_receiver,
-    'proxy' => $proxy,
-  };
-  my $cpio = BSRPC::rpc($param, undef, "view=cache");
-  my %cpio = map {$_->{'name'} => $_->{'data'}} @{$cpio || []}; 
-  if (exists $cpio{'repositorycache'}) {
-    my $cache = BSUtil::fromstorable($cpio{'repositorycache'}, 2);
-    delete $cpio{'repositorycache'};	# free mem
-    return undef unless $cache;
-    # free some unused entries to save mem
-    for (values %$cache) {
-      delete $_->{'path'};
-      delete $_->{'id'};
-    }
-    delete $cache->{'/external/'};
-    delete $cache->{'/url'};
-    return $pool->repofromdata($prp, $cache);
-  } else {
-    # return empty repo
-    return $pool->repofrombins($prp, '');
-  }
 }
 
 sub addrepo_scan {
@@ -161,34 +123,6 @@ sub read_bininfo {
     }
   }
   return $bininfo;
-}
-
-sub read_gbininfo_remote {
-  my ($prpa, $remoteproj, $withevr) = @_;
-  my ($projid, $repoid, $arch) = split('/', $prpa, 3);
-  print "fetching remote project binary state for $prpa\n";
-  my $param = { 
-    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch",
-    'timeout' => 200,
-    'proxy' => $proxy,
-  };
-  my $packagebinarylist = BSRPC::rpc($param, $BSXML::packagebinaryversionlist, "view=binaryversions");
-  my $gbininfo = {};
-  for my $binaryversionlist (@{$packagebinarylist->{'binaryversionlist'} || []}) {
-   my %bins;
-   for my $binary (@{$binaryversionlist->{'binary'} || []}) {
-     if ($withevr) {
-       # XXX: rpm filenames don't have the epoch...
-       next unless $binary->{'name'} =~ /^(?:::import::.*::)?(.+)-(?:(\d+?):)?([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
-       $bins{$binary->{'name'}} = {'filename' => $binary->{'name'}, 'name' => $1, 'arch' => $5, 'epoch' => $2, 'version' => $3, 'release' => $4, 'hdrmd5' => $binary->{'hdrmd5'}};
-     } else {
-       next unless $binary->{'name'} =~ /^(?:::import::.*::)?(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
-       $bins{$binary->{'name'}} = {'filename' => $binary->{'name'}, 'name' => $1, 'arch' => $2};
-     }
-   }
-   $gbininfo->{$binaryversionlist->{'package'}} = \%bins;
-  }
-  return $gbininfo;
 }
 
 sub getpreinstallimages {
