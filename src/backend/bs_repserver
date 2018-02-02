@@ -2195,7 +2195,7 @@ sub copybuild {
       $needsign = 1 if $bin =~ /\.(?:d?rpm|sha256|iso)$/;
       my $nbin = $bin;
       my $setrelease = $cgi->{'setrelease'};
-      # directories get stripped the build/release number by default
+      # directories are stripped of the build/release number by default
       if (!defined($setrelease)) {
         $setrelease = '' if -d "$odir/$bin";
         $setrelease = '' if $bin =~ /^(.*)\.report$/ && -d "$odir/$1";	# need to keep report in sync with dir
@@ -2209,6 +2209,26 @@ sub copybuild {
       $renamed{$bin} = $nbin if $bin ne $nbin;
       if (-d "$odir/$bin") {
         $delayed_linking{"$dir/$nbin"} = "$odir/$bin";
+      } elsif ($bin =~ /\.containerinfo$/) {
+	# update file path in containerinfo
+	my $containerinfo = readstr("$odir/$bin");
+	my $from = $bin;
+	my $to = $nbin;
+	$from =~ s/\.containerinfo$//;
+	$to =~ s/\.containerinfo$//;
+	# the hacky way to change json
+	$containerinfo =~ s/(\"file\": [^\n]*)\Q$from\E/$1$to/s;
+	writestr("$dir/$nbin", undef, $containerinfo);
+      } elsif ($bin =~ /\.obsbinlnk$/) {
+	my $obsbinlnk = BSUtil::retrieve("$odir/$bin");
+	my $from = $bin;
+	my $to = $nbin;
+	$from =~ s/\.obsbinlnk$//;
+	$to =~ s/\.obsbinlnk$//;
+	$obsbinlnk->{'path'} =~ s/.*\///;
+	$obsbinlnk->{'path'} =~ s/\Q$from\E/$to/;
+	$obsbinlnk->{'path'} = "../$packid/$obsbinlnk->{'path'}";
+	BSUtil::store("$dir/$nbin", undef, $obsbinlnk);
       } else {
 	# patch in new file name if we renamed files
 	if (%renamed && $bin =~ /\.sha256$/ && (((-s "$odir/$bin") || 0) <= 65536)) {
