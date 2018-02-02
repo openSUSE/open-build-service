@@ -726,7 +726,8 @@ usermod -a -G docker obsservicerun
 /usr/lib/obs/server/bs_clouduploadserver
 /usr/lib/obs/server/bs_clouduploadworker
 %{_bindir}/clouduploader.rb
-%dir /etc/obs/cloudupload/
+%dir /etc/obs
+%dir /etc/obs/cloudupload
 %config(noreplace) /etc/obs/cloudupload/ec2utils.conf
 
 %package -n obs-container-registry
