@@ -38,7 +38,7 @@
 . /etc/rc.status
 
 API_ROOT=/srv/www/obs/api
-CLOCKWORKD=/usr/bin/clockworkd.ruby2.4
+CLOCKWORKD=/usr/bin/clockworkd.ruby2.5
 
 # If you are using newrelic_rpm you need this
 # to fix detection of our delay_job.api daemons
@@ -48,7 +48,7 @@ function run_in_api
 {
   export RAILS_ENV="production"
   # startproc only works for classical daemons
-  chroot --userspec=wwwrun:www / /bin/bash -c "cd $API_ROOT && /usr/bin/bundle.ruby2.4 exec $*"
+  chroot --userspec=wwwrun:www / /bin/bash -c "cd $API_ROOT && /usr/bin/bundle.ruby2.5 exec $*"
 }
 
 # number of parallel delayed jobs
@@ -72,9 +72,9 @@ case "$1" in
         echo -n "Starting OBS searchd daemon "
         FILE_SIZE=`stat -c '%s' /srv/www/obs/api/config/production.sphinx.conf`
         if [ $FILE_SIZE -eq 0 ];then
-          run_in_api rails.ruby2.4 ts:rebuild
+          run_in_api rails.ruby2.5 ts:rebuild
         else
-          run_in_api rails.ruby2.4 ts:start
+          run_in_api rails.ruby2.5 ts:start
         fi
         rc_status -v
         echo -n "Starting OBS api clock daemon "
@@ -95,7 +95,7 @@ case "$1" in
         run_in_api $CLOCKWORKD -l -c config/clock.rb stop
         rc_status -v
         echo -n "Shutting down OBS searchd daemon "
-        run_in_api rails.ruby2.4 ts:stop
+        run_in_api rails.ruby2.5 ts:stop
         rc_status -v
         ;;
     try-restart|condrestart)
@@ -114,7 +114,7 @@ case "$1" in
         $0 stop
         rm -f $API_ROOT/db/sphinx/production/*
         $0 start
-        run_in_api rails.ruby2.4 ts:index
+        run_in_api rails.ruby2.5 ts:index
 
         rc_status
         ;;

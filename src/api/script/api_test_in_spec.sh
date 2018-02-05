@@ -64,19 +64,19 @@ EOF
 
 # migration test
 export RAILS_ENV=development
-bundle.ruby2.4 exec rake.ruby2.4 db:create || exit 1
+bundle.ruby2.5 exec rake.ruby2.5 db:create || exit 1
 mv db/structure.sql db/structure.sql.git
 xzcat test/dump_2.5.sql.xz | mysql  -u root --socket=$MYSQL_SOCKET
-bundle.ruby2.4 exec rake.ruby2.4 db:migrate:with_data db:structure:dump db:drop || exit 1
+bundle.ruby2.5 exec rake.ruby2.5 db:migrate:with_data db:structure:dump db:drop || exit 1
 ./script/compare_structure_sql.sh db/structure.sql.git db/structure.sql || exit 1
 
 # entire test suite
 export RAILS_ENV=test
-bundle.ruby2.4 exec rake.ruby2.4 db:create db:setup || exit 1
+bundle.ruby2.5 exec rake.ruby2.5 db:create db:setup || exit 1
 
-for suite in "rake.ruby2.4 test:api" "rake.ruby2.4 test:spider" "rspec"; do
+for suite in "rake.ruby2.5 test:api" "rake.ruby2.5 test:spider" "rspec"; do
   rm -f log/test.log
-  bundle.ruby2.4 exec rails assets:precompile
+  bundle.ruby2.5 exec rails assets:precompile
 
   # Configure the frontend<->backend connection settings
   if [ "$suite" = "rspec" ]; then
@@ -86,7 +86,7 @@ for suite in "rake.ruby2.4 test:api" "rake.ruby2.4 test:spider" "rspec"; do
     perl -pi -e 's/source_host: backend/source_host: localhost/' config/options.yml
     perl -pi -e 's/source_port: 5352/source_port: 3200/' config/options.yml
   fi
-  if ! (set -x; bundle.ruby2.4 exec $suite); then
+  if ! (set -x; bundle.ruby2.5 exec $suite); then
     # dump log only in package builds
     [[ -n "$RPM_BUILD_ROOT" ]] && cat log/test.log
     kill_memcached
