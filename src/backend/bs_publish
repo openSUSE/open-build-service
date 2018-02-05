@@ -906,7 +906,7 @@ sub createrepo_staticlinks {
       } elsif (/^(.*)-Build\d\d\d\d(-Media\d)(\.iso?(\.sha256)?)$/s) {
         # product builds
         $link = "$1$2$3"; # no support for versioned links
-      } elsif (/^(.*)-(\d+\.\d+\.\d+)?(-\w+)?(\.(libvirt|virtualbox))?-Build\d+\..*(\.(raw.install.raw.xz|raw.xz|tar.xz|box|json|install.iso|tbz|tgz|vmx|vmdk|vhdx|vdi|vhdfixed.xz|iso|qcow2|qcow2.xz|ova)?(?:\.sha256)?)$/s) {
+      } elsif (/^(.*)-(\d+\.\d+\.\d+)?(-\w+)?(\.(?:libvirt|virtualbox))?-Build\d+\..*(\.(raw.install.raw.xz|raw.xz|tar.xz|box|json|install.iso|tbz|tgz|vmx|vmdk|vhdx|vdi|vhdfixed.xz|iso|qcow2|qcow2.xz|ova)?(?:\.sha256)?)$/s) {
         # kiwi appliance
         my $profile = $3 || "";
         $link = "$1$profile$4";
