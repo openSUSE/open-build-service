@@ -1,7 +1,6 @@
 module PrettyNestedErrors
   class KeyAndMessagesParser
-    DOUBLE_NESTED_ERROR_REGEX = /(\w+)\[(\d+)\]\.(\w+)\[(\d+)\]\.(\w+)/
-    NESTED_ERROR_REGEX = /(\w+)\[(\d+)\]\.(\w+)/
+    NESTED_ERROR_REGEX = /(\w+\[\d+\]\.)+(\w+)/
     HAS_ONE_ERROR_REGEX = /(\w+)\.(\w+)/
 
     def initialize(base_model, key, messages, nested_error_messages, nested_error_groupings)
@@ -12,29 +11,25 @@ module PrettyNestedErrors
       @nested_error_groupings = nested_error_groupings
     end
 
-    # This method hard codes the behaviour for validations errors on 4 different types of associations:
-    # 1. errors on a double nested has_many association
-    # 2. errors on a nested has_many association
-    # 3. errors on a has_one associations
-    # 4. errors on the base model
-    # TODO: Make it so that the method uses regex to recursivley parse the validation key (i.e.
-    # "package_groups[0].packages[0].name") so that it can handle n-level nested assoications
+    # Parse the errors on the model into a nested hash based with keys based on the lambda
+    # set in the base model for each association
     def parse
-      # Matches an error on a has_many nested resource of a has_many nested resource
-      # like: {:"package_groups[0].packages[0].name"=>["can't be blank"]}
-      if @key.match(DOUBLE_NESTED_ERROR_REGEX)
-        parse_error_message_for_double_nested
+      if @key.match(NESTED_ERROR_REGEX)
+        parsed_key = @key.match(NESTED_ERROR_REGEX)
 
-      # Matches an error on a has_many nested resource
-      # like {:"repositories[0].source_path"=>["can't be blank"]}
-      elsif @key.match(NESTED_ERROR_REGEX)
-        parse_error_message_for_nested
+        association_invalid_column = parsed_key.to_a.last
+        nested_resources_and_indexes = @key.to_s.scan(/(\w+)\[(\d+)\]\./)
 
-      # Matches an error on a has_one nested resource like: {:"preference.type_containerconfig_tag"=>["can't be blank"]}
+        parse_error_message_for_nested(nested_resources_and_indexes, association_invalid_column)
+
       elsif @key.match(HAS_ONE_ERROR_REGEX)
-        parse_error_message_for_has_one
+        parsed_key = @key.match(HAS_ONE_ERROR_REGEX)
 
-      # Matches an error on the base resource like: {:"name"=>["can't be blank"]}
+        association_name = parsed_key[1].to_sym
+        association_invalid_column = parsed_key[2].to_sym
+
+        parse_error_message_for_has_one(association_name, association_invalid_column)
+
       else
         parse_error_message_for_base
       end
@@ -44,50 +39,26 @@ module PrettyNestedErrors
 
     private
 
-    def parse_error_message_for_double_nested
-      parsed_key = @key.match(DOUBLE_NESTED_ERROR_REGEX)
+    def parse_error_message_for_nested(nested_resources_and_indexes, association_invalid_column)
+      record = @base_model
+      group_by_key = ''
+      i = 1
 
-      association_name = parsed_key[1].to_sym
-      association_index = parsed_key[2].to_i
-      sub_association_name = parsed_key[3].to_sym
-      sub_association_index = parsed_key[4].to_i
-      association_invalid_column = parsed_key[5]
+      nested_resources_and_indexes.each do |association_name, association_index|
+        record = record.send(association_name.to_sym)[association_index.to_i]
+        group_by_key += association_name
+        group_by_key += '_' unless i == nested_resources_and_indexes.count
+        i += 1
+      end
 
-      # Find the association record
-      record = @base_model.send(association_name)[association_index].send(sub_association_name)[sub_association_index]
-
-      # Call the lambda method to determine the grouping
-      group_by = @nested_error_groupings["#{association_name}_#{sub_association_name}".to_sym].call(record)
-
-      @nested_error_messages[group_by] ||= []
-      @nested_error_messages[group_by] +=
-        @messages.map { |message| @base_model.errors.full_message(association_invalid_column, message) }
-    end
-
-    def parse_error_message_for_nested
-      parsed_key = @key.match(NESTED_ERROR_REGEX)
-
-      association_name = parsed_key[1].to_sym
-      association_index = parsed_key[2].to_i
-      association_invalid_column = parsed_key[3]
-
-      # Find the association record
-      record = @base_model.send(association_name)[association_index]
-
-      # Call the lambda method to determine the grouping
-      group_by = @nested_error_groupings[association_name].call(record)
+      group_by = @nested_error_groupings[group_by_key.to_sym].call(record)
 
       @nested_error_messages[group_by] ||= []
       @nested_error_messages[group_by] +=
         @messages.map { |message| @base_model.errors.full_message(association_invalid_column, message) }
     end
 
-    def parse_error_message_for_has_one
-      parsed_key = @key.match(HAS_ONE_ERROR_REGEX)
-
-      association_name = parsed_key[1].to_sym
-      association_invalid_column = parsed_key[2].to_sym
-
+    def parse_error_message_for_has_one(association_name, association_invalid_column)
       # Call the lambda method to determine the grouping
       group_by = @nested_error_groupings[association_name].call
 
