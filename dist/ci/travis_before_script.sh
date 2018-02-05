@@ -34,4 +34,4 @@ rm -rf log/* tmp/cache tmp/sessions tmp/sockets
 popd
 
 # travis rvm can not deal with our extended executable names
-sed -i 1,1s,\.ruby2\.4,, src/api/{script,bin}/* docs/api/restility/bin/*
+sed -i 1,1s,\.ruby2\.5,, src/api/{script,bin}/* docs/api/restility/bin/*
