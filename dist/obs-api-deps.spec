@@ -26,8 +26,8 @@ Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        open-build-service-%version.tar.xz
 Source1:        find-requires.sh
-BuildRequires:  ruby2.4
-BuildRequires:  ruby2.4-rubygem-bundler
+BuildRequires:  ruby2.5
+BuildRequires:  ruby2.5-rubygem-bundler
 %if 0%{?suse_version} < 1210
 BuildRequires:  xz
 %endif
@@ -72,7 +72,7 @@ Requires:       perl(GD)
 Requires:       sphinx >= 2.1.8
 
 %description -n obs-api-testsuite-deps
-This is the API server instance, and the web client for the 
+This is the API server instance, and the web client for the
 OBS.
 
 %prep
