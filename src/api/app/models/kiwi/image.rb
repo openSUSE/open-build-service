@@ -97,7 +97,7 @@ module Kiwi
         if use_project_repositories
           Backend::Api::BuildResults::Binaries.available_in_project(project)
         else
-          return [] if repositories.blank?
+          return {} if repositories.blank?
           obs_repository_paths = repositories.select { |url| url.starts_with?('obs://') }.map { |url| url[6..-1] }
           non_obs_repository_urls = repositories.reject { |url| url.starts_with?('obs://') }
           Backend::Api::BuildResults::Binaries.available_in_repositories(project, non_obs_repository_urls, obs_repository_paths)
