@@ -4,9 +4,12 @@ use strict;
 use warnings;
 use Test::More tests => 4;
 use FindBin;
+use lib "$FindBin::Bin/../lib";
 use File::Path qw(make_path remove_tree);
 use File::Copy;
 use Cwd;
+
+use OBS::Test::Utils;
 
 my $RCODE=0;
 
@@ -30,9 +33,9 @@ eval {
   die "Could not add package 'obs-testpackage' via osc" if ($?);
   chdir("obs-testpackage") || die "Could not change to directory '".cwd()."/obs-testpackage': $!";
 
-  my @pkg_ver = `rpm -q --qf '%{version}' obs-server`;
   my $src="$FindBin::Bin/fixtures/obs-testpackage._service";
-  if ( $pkg_ver[0] =~ /^2\.8\./ ) {
+  my $pkg_ver = OBS::Test::Utils::get_package_version('obs-server', 2);
+  if ( $pkg_ver eq "2.8" ) {
     $src = "$FindBin::Bin/fixtures/obs-testpackage-2.8._service";
   }
 
@@ -42,7 +45,7 @@ eval {
   die "Could not add files to package via osc!" if ($?);
 };
 
-ok(!$@,"Checking preparation of package");
+ok(!$@,"Checking preparation of package") || print STDERR $@;
 
 # commit package
 system('osc ci -m "initial version"');
