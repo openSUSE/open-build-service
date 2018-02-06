@@ -2,11 +2,20 @@
 
 use strict;
 use warnings;
-use Test::More 'tests' => 8;
+use FindBin;
+use lib "$FindBin::Bin/lib";
+use OBS::Test::Utils;
+use Test::More 'tests' => 6;
 
 my $max_wait = 300;
 
-my @daemons = qw/obsdodup obssigner obsdeltastore obsservicedispatch/;
+my @daemons = qw/obsdodup obssigner obsdeltastore/;
+my $pkg_ver = OBS::Test::Utils::get_package_version('obs-server', 2);
+
+if ( $pkg_ver > 2.8) {
+  plan tests => 8;
+  push (@daemons, 'obsservicedispatcher');
+}
 
 foreach my $srv (@daemons) {
 	my @state=`systemctl is-enabled $srv\.service 2>/dev/null`;
