@@ -35,6 +35,14 @@
       <attribute name="project">
         <data type="string" />
       </attribute>
+      <optional>
+        <attribute name="vrevmode">
+         <choice>
+           <value>unextend</value>
+           <value>extend</value>
+         </choice>
+        </attribute>
+      </optional>
       <empty/>
     </element>
   </define>

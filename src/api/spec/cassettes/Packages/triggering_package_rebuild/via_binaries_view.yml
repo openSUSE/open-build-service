@@ -40,16 +40,16 @@ http_interactions:
           <person userid="package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:37 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:45 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>To Say Nothing of the Dog</title>
-          <description>Id ullam quaerat dolor fuga consequatur dolores occaecati.</description>
+          <title>Stranger in a Strange Land</title>
+          <description>Odio voluptas quam qui aspernatur quia qui.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '191'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>To Say Nothing of the Dog</title>
-          <description>Id ullam quaerat dolor fuga consequatur dolores occaecati.</description>
+          <title>Stranger in a Strange Land</title>
+          <description>Odio voluptas quam qui aspernatur quia qui.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:38 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>To Say Nothing of the Dog</title>
-          <description>Id ullam quaerat dolor fuga consequatur dolores occaecati.</description>
+          <title>Stranger in a Strange Land</title>
+          <description>Odio voluptas quam qui aspernatur quia qui.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,23 +109,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '191'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>To Say Nothing of the Dog</title>
-          <description>Id ullam quaerat dolor fuga consequatur dolores occaecati.</description>
+          <title>Stranger in a Strange Land</title>
+          <description>Odio voluptas quam qui aspernatur quia qui.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:38 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_config
     body:
       encoding: UTF-8
-      string: Voluptatum cum possimus facere inventore. Dolores eaque accusamus quia
-        suscipit praesentium magnam et. Placeat ducimus et et dolores.
+      string: Impedit illum sequi. Nam accusantium architecto amet quia ipsum. Iusto
+        fuga quos harum officiis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -145,29 +145,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
-          <srcmd5>9ff386f2bb4706133109a554088cd402</srcmd5>
+        <revision rev="22" vrev="22">
+          <srcmd5>0c34e1b7d3a302b69119c838aacb2e22</srcmd5>
           <version>unknown</version>
-          <time>1504010498</time>
+          <time>1516111305</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:38 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Perferendis rerum alias est recusandae non. Fugiat qui voluptatem molestiae
-        nulla iste porro. Ut qui voluptatem dolor soluta ut autem sequi. Explicabo
-        ex qui voluptatem omnis ut. Sapiente dolore nulla consectetur omnis reprehenderit
-        officia iusto.
+      string: Officia quia repellendus quis. Velit ullam et. Praesentium dolorem quos
+        quae dolorum illum libero sit. Culpa officia autem voluptatem assumenda. Officiis
+        repudiandae et in.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -187,20 +186,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
-          <srcmd5>89e9a957a6fd56e5e236e394a47ec370</srcmd5>
+        <revision rev="23" vrev="23">
+          <srcmd5>0c34e1b7d3a302b69119c838aacb2e22</srcmd5>
           <version>unknown</version>
-          <time>1504010498</time>
+          <time>1516111305</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:38 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/_meta?user=other_package_test_user
@@ -241,16 +240,16 @@ http_interactions:
           <person userid="other_package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:38 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:45 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>Little Hands Clapping</title>
-          <description>Cumque aut vel nam quas porro.</description>
+          <title>Arms and the Man</title>
+          <description>Non commodi id voluptatem at optio maiores.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -271,16 +270,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '194'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>Little Hands Clapping</title>
-          <description>Cumque aut vel nam quas porro.</description>
+          <title>Arms and the Man</title>
+          <description>Non commodi id voluptatem at optio maiores.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:38 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:46 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta
@@ -288,8 +287,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>Little Hands Clapping</title>
-          <description>Cumque aut vel nam quas porro.</description>
+          <title>Arms and the Man</title>
+          <description>Non commodi id voluptatem at optio maiores.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -310,24 +309,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '194'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>Little Hands Clapping</title>
-          <description>Cumque aut vel nam quas porro.</description>
+          <title>Arms and the Man</title>
+          <description>Non commodi id voluptatem at optio maiores.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:38 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:46 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_config
     body:
       encoding: UTF-8
-      string: Dignissimos neque nobis ea. Delectus necessitatibus labore a error id
-        omnis assumenda. Aspernatur facere quia similique accusamus omnis. Velit numquam
-        eos neque et itaque.
+      string: Fugit architecto inventore libero ut excepturi. Quo perspiciatis iure
+        numquam voluptatem. Sed cum quibusdam temporibus dolor velit. Quod occaecati
+        repudiandae atque et. Excepturi ad non consectetur similique debitis quis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -351,23 +350,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
-          <srcmd5>720d1a1638489c0c0341720e02dc2159</srcmd5>
+        <revision rev="9" vrev="9">
+          <srcmd5>2a982c28559dd8aad6fbe7e46836e458</srcmd5>
           <version>unknown</version>
-          <time>1504010498</time>
+          <time>1516111306</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:38 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:46 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: A exercitationem fuga at et error. Voluptatem in debitis et dolores
-        ratione et. Qui deleniti natus cum ad accusamus.
+      string: Officia quia repellendus quis. Velit ullam et. Praesentium dolorem quos
+        quae dolorum illum libero sit. Culpa officia autem voluptatem assumenda. Officiis
+        repudiandae et in.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -387,20 +387,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
-          <srcmd5>e8d9dd7e680d0d628e4e6852abadb486</srcmd5>
+        <revision rev="10" vrev="10">
+          <srcmd5>2a982c28559dd8aad6fbe7e46836e458</srcmd5>
           <version>unknown</version>
-          <time>1504010498</time>
+          <time>1516111306</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:38 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:46 GMT
 - request:
     method: post
     uri: http://backend:5352/build/home:package_test_user?arch=x86_64&cmd=rebuild&package=test_package&repository=package_test_repository
@@ -436,83 +436,5 @@ http_interactions:
           <summary>no repository defined</summary>
         </status>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:42 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=package_test_user
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test_package" project="home:package_test_user">
-          <title>The Other Side of Silence</title>
-          <description>Magnam et laudantium recusandae.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '179'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test_package" project="home:package_test_user">
-          <title>The Other Side of Silence</title>
-          <description>Magnam et laudantium recusandae.</description>
-        </package>
-    http_version: 
-  recorded_at: Wed, 03 Jan 2018 13:17:12 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=package_test_user
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="branch_test_package" project="home:other_package_test_user">
-          <title>The Monkey's Raincoat</title>
-          <description>Eligendi animi explicabo et nemo in ut.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '195'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="branch_test_package" project="home:other_package_test_user">
-          <title>The Monkey's Raincoat</title>
-          <description>Eligendi animi explicabo et nemo in ut.</description>
-        </package>
-    http_version: 
-  recorded_at: Wed, 03 Jan 2018 13:17:13 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:47 GMT
 recorded_with: VCR 4.0.0

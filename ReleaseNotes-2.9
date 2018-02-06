@@ -86,8 +86,8 @@ Bugfixes:
  * Fix huge bottleneck in notification emails.
  * Fix setting of new attributes to a project or package.
 
-Wanted changes:
-===============
+Intentional changes:
+====================
 
  * Creating of repositories on branching has changed if repositories of the source refer each other. This gets recreated in new project.
 
@@ -103,7 +103,10 @@ Wanted changes:
    - ldap_entry_base
    - ldap_sn_attr_required
 
- * Dropping of the project/package tag functionality/api.
+ * Extended build number scheme is enforced for maintenance updates via new project link
+   attribute extendvrev now
+
+ * Dropping of the project/package tag functionality/api
 
  * Password hashing algorithm was changed to bcrypt (blowfish).
 
