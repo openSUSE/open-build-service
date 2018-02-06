@@ -79,10 +79,6 @@ module Webui::PackageHelper
     end.compact.reverse.join(' ')
   end
 
-  def binaries?(xml_hash)
-    [xml_hash.dig('result')].flatten.compact.any? { |result| result.dig('binarylist', 'binary').present? }
-  end
-
   def repo_type_and_priority(repository)
     [repository.repo_type, repository.priority].compact.join(', Priority: ')
   end
