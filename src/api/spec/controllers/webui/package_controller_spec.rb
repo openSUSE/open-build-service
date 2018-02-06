@@ -21,16 +21,17 @@ RSpec.describe Webui::PackageController, vcr: true do
     repo
   end
   let(:fake_build_results) do
-    Buildresult.new('<resultlist state="2b71f05ecb8742e3cd7f6066a5097c72">
-                      <result project="home:tom" repository="fake_repo_name" arch="i586" code="unknown" state="unknown" dirty="true">
+    Buildresult.new("<resultlist state=\"2b71f05ecb8742e3cd7f6066a5097c72\">
+                      <result project=\"home:tom\" repository=\"#{repo_for_source_project.name}\" arch=\"i586\"
+                        code=\"unknown\" state=\"unknown\" dirty=\"true\">
                        <binarylist>
-                          <binary filename="fake_binary_001"/>
-                          <binary filename="fake_binary_002"/>
-                          <binary filename="updateinfo.xml"/>
-                          <binary filename="rpmlint.log"/>
+                          <binary filename=\"image_binary.vhdfixed.xz\" size=\"123312217\"/>
+                          <binary filename=\"image_binary.xz.sha256\" size=\"1531\"/>
+                          <binary filename=\"updateinfo.xml\" size=\"4231\"/>
+                          <binary filename=\"rpmlint.log\" size=\"121\"/>
                         </binarylist>
                       </result>
-                    </resultlist>')
+                    </resultlist>")
   end
   let(:fake_build_results_without_binaries) do
     Buildresult.new('<resultlist state="2b71f05ecb8742e3cd7f6066a5097c72">
@@ -335,7 +336,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     context 'with a failure in the backend' do
       before do
         allow(Buildresult).to receive(:find_hashed).and_raise(ActiveXML::Transport::Error, 'fake message')
-        post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project }
+        post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
       end
 
       it { expect(flash[:error]).to eq('fake message') }
@@ -345,10 +346,10 @@ RSpec.describe Webui::PackageController, vcr: true do
     context 'without build results' do
       before do
         allow(Buildresult).to receive(:find_hashed)
-        post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project }
+        post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
       end
 
-      it { expect(flash[:error]).to eq("Package \"#{source_package}\" has no build result for repository #{repo_for_source_project.to_param}") }
+      it { expect(flash[:error]).to eq("Package \"#{source_package}\" has no build result for repository #{repo_for_source_project.name}") }
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package, nextstatus: 404)) }
     end
 
@@ -357,7 +358,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       before do
         allow(Buildresult).to receive(:find).and_return(fake_build_results_without_binaries)
-        post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project }
+        post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
       end
 
       it { expect(response).to have_http_status(:success) }
@@ -369,12 +370,13 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       before do
         allow(Buildresult).to receive(:find).and_return(fake_build_results)
-        post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project }
+        allow_any_instance_of(Webui::PackageController).to receive(:download_url_for_file_in_repo).and_return('http://fake.com')
+        post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
       end
 
       it { expect(response).to have_http_status(:success) }
-      it { expect(response.body).to match(/fake_binary_001/) }
-      it { expect(response.body).to match(/fake_binary_002/) }
+      it { expect(response.body).to match(/image_binary.vhdfixed.xz/) }
+      it { expect(response.body).to match(/image_binary.xz.sha256/) }
       it { expect(response.body).to match(/updateinfo.xml/) }
       it { expect(response.body).to match(/rpmlint.log/) }
     end

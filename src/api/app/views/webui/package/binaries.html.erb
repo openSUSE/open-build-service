@@ -3,53 +3,46 @@
    package_bread_crumb 'Repository State'
 -%>
 
-<%= render :partial => "tabs" %>
+<%= render partial: "tabs" %>
 
 <h3><%= @pagetitle %></h3>
 
 <p>
-  <%= render :partial => "shared/download_repository_link", :locals => {:project => @project, :repository => @repository} %>
-  <% if binaries?(@buildresult) %>
+  <%= render partial: "shared/download_repository_link", locals: { project: @project, repository: @repository} %>
+  <% if @buildresult[:binaries?] %>
     <%= link_to sprited_text('drive_burn', 'Delete'), { controller: :package, action: :wipe_binaries, project: @project, package: @package, repository: @repository }, { method: :delete} %> all built binaries
   <% end %>
 </p>
 
-<% @buildresult.elements('result') do |result|
-     repocode='unknown'
-     repocode=result['state'] %>
-
-  <h3><%= repo_status_icon repocode %> Architecture: <%= result['arch'] %></h3>
-
-  <% found_statistics = false %>
-
-  <% unless result.get( 'binarylist')['binary'] %>
+<% @buildresult[:results].each do |result| %>
+  <h3><%= repo_status_icon(result[:repocode]) %> Architecture: <%= result[:arch] %></h3>
+  <% if result[:binaries].empty? %>
     <p><i>No built binaries</i></p>
   <% else %>
     <ul>
-      <% result.get('binarylist').elements('binary') do |binary| %>
-        <% if binary['filename'] == '_statistics' %>
-          <% found_statistics = true %>
-        <% elsif binary['filename'] == 'rpmlint.log' %>
-          <li><%= binary['filename'] %></li>
-        <% else %>
-          <li><%= link_to binary.value('filename'), :action => 'binary', :project => @project, :package => @package,
-            :repository => @repository, :arch => result['arch'], :filename => binary['filename'] %></li>
-        <% end %>
+      <% result[:binaries].each do |binary| %>
+        <li class="binaries_list_item">
+          <%= "#{binary[:filename]} (#{number_to_human_size(binary[:size])})" %>
+          <span class="binaries_links">
+            <%= link_to(sprited_text('page_white_get', 'Cloud Upload'), new_cloud_upload_path(project: @project, package: @package, repository: @repository, arch: result[:arch], filename: binary[:filename])) if binary[:cloud_upload?] %>
+            <%= link_to(sprited_text('page_white_put', 'Download'), binary[:download_url]) if binary[:download_url] %>
+            <%= link_to(sprited_text('information', 'Details'), action: 'binary', project: @project, package: @package, repository: @repository, arch: result[:arch], filename: binary[:filename]) if binary[:details?] %>
+          </span>
+        </li>
       <% end %>
     </ul>
   <% end %>
   <p>
-    <% if User.current.can_modify_package? @package %>
-      <%= link_to sprited_text('rebuild', 'Trigger'),{ :controller => :package, :action => :trigger_rebuild, :arch => result['arch'], :project => @project, :package => @package, :repository => @repository }, { :method => :post} %> rebuild
-
-      <% if result.get('binarylist')['binary'] %>
-        <%= link_to sprited_text('drive_burn', 'Delete'), { :controller => :package, :action => :wipe_binaries, :arch => result['arch'], :project => @project, :package => @package, :repository => @repository }, { :method => :delete} %> built binaries
+    <% if User.current.can_modify_package?(@package) %>
+      <%= link_to sprited_text('rebuild', 'Trigger'), { controller: :package, action: :trigger_rebuild, arch: result[:arch], project: @project, package: @package, repository: @repository }, { method: :post } %> rebuild
+      <% unless result[:binaries].empty? %>
+        <%= link_to sprited_text('drive_burn', 'Delete'), { controller: :package, action: :wipe_binaries, arch: result[:arch], project: @project, package: @package, repository: @repository }, { method: :delete} %> built binaries
       <% end %>
     <% end %>
-    <% if found_statistics %>
-      <%= link_to sprited_text('server_chart', 'Show'), { :action => 'statistics', :project => @project, :package => @package, :repository => @repository, :arch => result['arch'] } %> used resources
+    <% if result[:statistics] %>
+      <%= link_to sprited_text('server_chart', 'Show'), { action: 'statistics', project: @project, package: @package, repository: @repository, arch: result[:arch] } %> used resources
     <% end %>
-    <%= link_to sprited_text('text_indent','Job history'), index_package_job_history_path(project: @project, package_name: @package, repository: @repository, arch: result['arch']), class: '' %> list
-    <%= link_to sprited_text('information','Build Reason'), index_package_build_reason_path(project: @project, package_name: @package, repository: @repository, arch: result['arch']), class: '' %>
+    <%= link_to sprited_text('text_indent', 'Job history'), index_package_job_history_path(project: @project, package_name: @package, repository: @repository, arch: result[:arch]), class: '' %> list
+    <%= link_to sprited_text('information', 'Build Reason'), index_package_build_reason_path(project: @project, package_name: @package, repository: @repository, arch: result[:arch]), class: '' %>
   </p>
 <% end %>
