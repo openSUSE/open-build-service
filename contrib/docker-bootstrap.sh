@@ -10,11 +10,11 @@ do
       nodejs6 npm6 \
       mariadb-client \
       git-core \
-      ruby2.4-devel cyrus-sasl-devel openldap2-devel libxml2-devel zlib-devel libxslt-devel \
+      ruby2.5-devel cyrus-sasl-devel openldap2-devel libxml2-devel zlib-devel libxslt-devel \
       perl-XML-Parser \
       libffi48-devel autoconf \
-      ruby2.4-rubygem-mysql2 \
-      ruby2.4-rubygem-bundler
+      ruby2.5-rubygem-mysql2 \
+      ruby2.5-rubygem-bundler
     ;;
 
   backend)

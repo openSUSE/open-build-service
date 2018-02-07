@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby.ruby2.4
+#!/usr/bin/env ruby.ruby2.5
 
 require 'bundler'
 

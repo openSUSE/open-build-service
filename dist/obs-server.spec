@@ -204,7 +204,7 @@ Requires(pre):  group(www)
 %endif
 
 #For apache
-Requires:       apache2 apache2-mod_xforward rubygem-passenger-apache2 ruby2.4-rubygem-passenger
+Requires:       apache2 apache2-mod_xforward rubygem-passenger-apache2 ruby2.5-rubygem-passenger
 
 # memcache is required for session data
 Requires:       memcached
@@ -491,7 +491,7 @@ done
 if [ ! -e %{secret_key_file} ]; then
   pushd .
   cd /srv/www/obs/api/config
-  ( umask 0077; RAILS_ENV=production bundle.ruby2.4 exec rails.ruby2.4 secret > %{secret_key_file} ) || exit 1
+  ( umask 0077; RAILS_ENV=production bundle.ruby2.5 exec rails.ruby2.5 secret > %{secret_key_file} ) || exit 1
   popd
 fi
 chmod 0640 %{secret_key_file}
