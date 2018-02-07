@@ -17,7 +17,7 @@ RUN chown -R frontend /obs/src/api
 USER frontend
 WORKDIR /obs/src/api
 
-# Set up some convenience ruby binaries...
+# Ensure there are ruby, gem and irb commands without ruby suffix
 RUN for i in ruby gem irb; do ln -s /usr/bin/$i.ruby2.5 ~/bin/$i; done
 
 # Install our bundle
