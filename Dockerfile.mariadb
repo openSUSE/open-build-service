@@ -1,8 +1,5 @@
 FROM openbuildservice/base
 
-# FIXME: https://bugzilla.opensuse.org/show_bug.cgi?id=957818
-RUN rm -rf /var/cache/zypp/*
-
 # Install mariadb and dependencies
 RUN zypper -n install --no-recommends --replacefiles mariadb hostname
 
