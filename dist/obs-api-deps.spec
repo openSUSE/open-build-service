@@ -39,7 +39,7 @@ This package serves one purpose only: to list the dependencies in Gemfile.lock
 Summary:        The Open Build Service -- The Testsuite dependencies
 Group:          Productivity/Networking/Web/Utilities
 # dependencies not needed in production
-Requires:       %(echo `bash %{S:1} %{S:0} "ruby:2.4.0"`)
+Requires:       %(echo `bash %{S:1} %{S:0} "ruby:2.5.0"`)
 
 Requires:       perl-BSSolv >= 0.18.0
 # Required by source server
