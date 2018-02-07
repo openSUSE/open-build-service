@@ -1321,6 +1321,17 @@ Parameters:
   see cmd=rebuild
 
 
+POST /build/<project>?cmd=sendsysrq
+
+  Send a single sysrq char to the kernel of a running build
+  Only a subset of debugging requests a are supported (eg. 9, t or w)
+
+Parameters:
+
+  see cmd=rebuild
+  sysrq: for specifing the sysrq
+
+
 POST /build/<project>?cmd=wipe
 
   Delete all binary packages from build area

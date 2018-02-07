@@ -217,6 +217,24 @@ sub kill_job {
   return 1;
 }
 
+sub sysrq_job {
+  my ($sysrq) = @_;
+  my @args;
+  if ($vm =~ /(xen|kvm|zvm|emulator|pvm|openstack)/) {
+    push @args, '--root', "$buildroot/.mount";
+    push @args, '--vm-type', $vm;
+    push @args, '--vm-disk', $vm_root;
+    push @args, '--vm-swap', $vm_swap;
+  } else {
+    # can not work for for chroot and container builds
+    return 1;
+  }
+  if (system("$statedir/build/build", @args, "--sysrq", $sysrq)) {
+    return 0;
+  }
+  return 1;
+}
+
 sub wipe_all {
   my @args;
   if ($vm =~ /(xen|kvm|zvm|emulator|pvm|openstack)/) {
@@ -3263,6 +3281,14 @@ sub discardjob {
   return "<status=\"ok\" />\n";
 }
 
+sub sysrqjob {
+  my ($cgi, $jobid) = @_;
+  my $state = getstate($jobid, 1);
+  die("could not send sysrq\n") unless sysrq_job($cgi->{'sysrq'});
+  BSUtil::appendstr("$buildroot/.build.log", "\n\nSend sysrq $cgi->{'sysrq'} to Job\n");
+  return "<status=\"ok\" />\n";
+}
+
 sub startbuild {
   my ($cgi, $jobid) = @_;
 
@@ -3521,6 +3547,7 @@ my $dispatches = [
   '/logfile $jobid:? nostream:? start:? end:? view:?' => \&getlogfile,
   '/kill $jobid:?' => \&killjob,
   '/discard $jobid:?' => \&discardjob,
+  '/sysrq $jobid:? sysrq:?' => \&sysrqjob,
   'PUT:/build $jobid:? buildcode:? workercode:? port:? registerserver:? nobadhost:? *:?' => \&startbuild,
 ];
 
