@@ -2888,6 +2888,7 @@ sub getbuildinfo_post {
       $packid =~ /^(.*):(.*?)$/;
       $bconf->{'obspackage'} = $1;
       $bconf->{'buildflavor'} = $2;
+      undef $packid if $1 eq '_repository';
     }
   }
   my $d = Build::parse_typed($bconf, $fn, $bconf->{'type'});
