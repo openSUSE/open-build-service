@@ -13,7 +13,7 @@ do
       ruby2.4-devel cyrus-sasl-devel openldap2-devel libxml2-devel zlib-devel libxslt-devel \
       perl-XML-Parser \
       ruby2.4-rubygem-mysql2 \
-      ruby2.4-rubygem-bundler ruby2.4-rubygem-thor-0_19 ruby2.4-rubygem-foreman
+      ruby2.4-rubygem-bundler ruby2.4-rubygem-thor ruby2.4-rubygem-foreman
     ;;
 
   backend)
