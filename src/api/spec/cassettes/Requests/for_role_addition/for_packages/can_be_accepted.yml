@@ -40,7 +40,7 @@ http_interactions:
           <person userid="kugelblitz" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 12 Apr 2016 15:07:17 GMT
+  recorded_at: Mon, 05 Feb 2018 12:07:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:titan/_meta?user=titan
@@ -81,7 +81,7 @@ http_interactions:
           <person userid="titan" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 12 Apr 2016 15:07:17 GMT
+  recorded_at: Mon, 05 Feb 2018 12:07:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:titan/goal/_meta?user=_nobody_
@@ -89,8 +89,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="goal" project="home:titan">
-          <title/>
-          <description/>
+          <title>A Farewell to Arms</title>
+          <description>Rerum eaque qui nihil voluptas fugiat laudantium nemo et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -111,25 +111,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '102'
+      - '177'
     body:
       encoding: UTF-8
       string: |
         <package name="goal" project="home:titan">
-          <title></title>
-          <description></description>
+          <title>A Farewell to Arms</title>
+          <description>Rerum eaque qui nihil voluptas fugiat laudantium nemo et.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 12 Apr 2016 15:07:17 GMT
+  recorded_at: Mon, 05 Feb 2018 12:07:58 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:kugelblitz/ball/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:titan/goal/_meta
     body:
       encoding: UTF-8
       string: |
-        <package name="ball" project="home:kugelblitz">
-          <title/>
-          <description/>
+        <package name="goal" project="home:titan">
+          <title>A Farewell to Arms</title>
+          <description>Rerum eaque qui nihil voluptas fugiat laudantium nemo et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -150,16 +150,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '107'
+      - '177'
     body:
       encoding: UTF-8
       string: |
-        <package name="ball" project="home:kugelblitz">
-          <title></title>
-          <description></description>
+        <package name="goal" project="home:titan">
+          <title>A Farewell to Arms</title>
+          <description>Rerum eaque qui nihil voluptas fugiat laudantium nemo et.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 12 Apr 2016 15:07:17 GMT
+  recorded_at: Mon, 05 Feb 2018 12:07:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:titan/goal/_meta?comment=add_role%20request%201&requestid=1&user=titan
@@ -167,8 +167,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="goal" project="home:titan">
-          <title/>
-          <description/>
+          <title>A Farewell to Arms</title>
+          <description>Rerum eaque qui nihil voluptas fugiat laudantium nemo et.</description>
           <person userid="kugelblitz" role="maintainer"/>
         </package>
     headers:
@@ -190,15 +190,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '228'
     body:
       encoding: UTF-8
       string: |
         <package name="goal" project="home:titan">
-          <title></title>
-          <description></description>
+          <title>A Farewell to Arms</title>
+          <description>Rerum eaque qui nihil voluptas fugiat laudantium nemo et.</description>
           <person userid="kugelblitz" role="maintainer" />
         </package>
     http_version: 
-  recorded_at: Tue, 12 Apr 2016 15:07:19 GMT
-recorded_with: VCR 3.0.1
+  recorded_at: Mon, 05 Feb 2018 12:08:00 GMT
+recorded_with: VCR 4.0.0

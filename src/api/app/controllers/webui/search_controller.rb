@@ -111,12 +111,12 @@ class Webui::SearchController < Webui::WebuiController
     @search_text = @search_text.delete("'[]\n")
 
     @search_what = []
-    @search_what << 'package' if params[:package] == '1' || params[:package].nil?
-    @search_what << 'project' if params[:project] == '1' || params[:project].nil? && !@search_issue
+    @search_what << 'package' if params[:package] == '1'
+    @search_what << 'project' if params[:project] == '1' || !@search_issue
     @search_what << 'owner' if params[:owner] == '1' && !@search_issue
 
     @search_where = []
-    @search_where << 'name' if params[:name] == '1' || params[:name].nil?
+    @search_where << 'name' if params[:name] == '1'
     @search_where << 'title' if params[:title] == '1'
     @search_where << 'description' if params[:description] == '1'
 

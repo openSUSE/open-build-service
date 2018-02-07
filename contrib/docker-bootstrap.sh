@@ -12,8 +12,9 @@ do
       git-core \
       ruby2.5-devel cyrus-sasl-devel openldap2-devel libxml2-devel zlib-devel libxslt-devel \
       perl-XML-Parser \
+      libffi48-devel autoconf \
       ruby2.5-rubygem-mysql2 \
-      ruby2.5-rubygem-bundler ruby2.5-rubygem-thor-0_19 ruby2.5-rubygem-foreman
+      ruby2.5-rubygem-bundler
     ;;
 
   backend)

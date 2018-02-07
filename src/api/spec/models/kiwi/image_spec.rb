@@ -498,16 +498,20 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
           'Order is not a number',
           'Replaceable has to be a boolean'
         ],
+        'Package: '                       => [
+          "Name can't be blank"
+        ],
         'Image Errors:'                   => [
-          'Multiple package groups with same type are not allowed'
+          "Name can't be blank"
         ]
       }
     end
 
     before do
+      kiwi_image.name = nil
       kiwi_image.repositories << Kiwi::Repository.new(alias: 'example')
       kiwi_image.package_groups << create(:kiwi_package_group_non_empty, kiwi_type: :image)
-      kiwi_image.package_groups << create(:kiwi_package_group_non_empty, kiwi_type: :image)
+      kiwi_image.package_groups[0].packages[0].name = nil
       kiwi_image.valid?
     end
 

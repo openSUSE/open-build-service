@@ -40,7 +40,7 @@ http_interactions:
           <person userid="package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:44 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=package_test_user
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>O Pioneers!</title>
-          <description>Repellendus nisi quisquam similique.</description>
+          <title>In Dubious Battle</title>
+          <description>Alias nulla dignissimos deserunt enim accusamus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '187'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>O Pioneers!</title>
-          <description>Repellendus nisi quisquam similique.</description>
+          <title>In Dubious Battle</title>
+          <description>Alias nulla dignissimos deserunt enim accusamus.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:44 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>O Pioneers!</title>
-          <description>Repellendus nisi quisquam similique.</description>
+          <title>In Dubious Battle</title>
+          <description>Alias nulla dignissimos deserunt enim accusamus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,23 +109,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '187'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>O Pioneers!</title>
-          <description>Repellendus nisi quisquam similique.</description>
+          <title>In Dubious Battle</title>
+          <description>Alias nulla dignissimos deserunt enim accusamus.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:44 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_config
     body:
       encoding: UTF-8
-      string: Et sint maiores. Nulla minus fugiat sed esse autem. Commodi magni error
-        facere.
+      string: Ex provident velit dignissimos. Expedita velit est. Quidem qui laboriosam
+        iste.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -145,27 +145,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>7e01aedaf0a2d170443e532710a970f0</srcmd5>
+        <revision rev="24" vrev="24">
+          <srcmd5>6971a68e85941fe035670cab7224fa2b</srcmd5>
           <version>unknown</version>
-          <time>1504010504</time>
+          <time>1516111308</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:44 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Et ratione qui soluta est. Voluptas qui ratione dicta et repellendus.
-        Mollitia dolor cupiditate.
+      string: Officia quia repellendus quis. Velit ullam et. Praesentium dolorem quos
+        quae dolorum illum libero sit. Culpa officia autem voluptatem assumenda. Officiis
+        repudiandae et in.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,20 +186,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
-          <srcmd5>b276f9d3417285f84032fc7eab4c0cae</srcmd5>
+        <revision rev="25" vrev="25">
+          <srcmd5>6971a68e85941fe035670cab7224fa2b</srcmd5>
           <version>unknown</version>
-          <time>1504010504</time>
+          <time>1516111308</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:44 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/_meta?user=other_package_test_user
@@ -239,7 +240,7 @@ http_interactions:
           <person userid="other_package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:44 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=package_test_user
@@ -247,8 +248,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>The Widening Gyre</title>
-          <description>Neque placeat necessitatibus delectus quis voluptatem.</description>
+          <title>The Stars' Tennis Balls</title>
+          <description>Est dolorem corrupti veniam sed.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -269,16 +270,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '206'
+      - '190'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>The Widening Gyre</title>
-          <description>Neque placeat necessitatibus delectus quis voluptatem.</description>
+          <title>The Stars' Tennis Balls</title>
+          <description>Est dolorem corrupti veniam sed.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:44 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta
@@ -286,8 +287,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>The Widening Gyre</title>
-          <description>Neque placeat necessitatibus delectus quis voluptatem.</description>
+          <title>The Stars' Tennis Balls</title>
+          <description>Est dolorem corrupti veniam sed.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -308,24 +309,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '206'
+      - '190'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>The Widening Gyre</title>
-          <description>Neque placeat necessitatibus delectus quis voluptatem.</description>
+          <title>The Stars' Tennis Balls</title>
+          <description>Est dolorem corrupti veniam sed.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:44 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_config
     body:
       encoding: UTF-8
-      string: Error fugit ut odio a. Veniam optio labore est in. Dolorem sit officia
-        hic. Iusto laborum aut odit reiciendis accusamus optio autem. Quos ducimus
-        odio quas soluta.
+      string: Nesciunt ducimus fugit et et qui mollitia. Asperiores quibusdam et.
+        Adipisci vero dolor cumque ut eos. Eos ut ipsa unde earum ut quis. Itaque
+        natus beatae perferendis facilis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -345,27 +346,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>41067ab8bc8b37552536e0f5abe691c2</srcmd5>
+        <revision rev="11" vrev="11">
+          <srcmd5>036a47ea8b014dc89ec1544921b9ad4c</srcmd5>
           <version>unknown</version>
-          <time>1504010504</time>
+          <time>1516111308</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:44 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Fugiat autem aspernatur illum a in. Amet ratione dolor a quo. Ipsum
-        magnam incidunt. Perferendis at eos sit. Nemo deserunt nihil molestiae.
+      string: Officia quia repellendus quis. Velit ullam et. Praesentium dolorem quos
+        quae dolorum illum libero sit. Culpa officia autem voluptatem assumenda. Officiis
+        repudiandae et in.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -385,20 +387,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
-          <srcmd5>86949eda263372da87396df95092f9be</srcmd5>
+        <revision rev="12" vrev="12">
+          <srcmd5>036a47ea8b014dc89ec1544921b9ad4c</srcmd5>
           <version>unknown</version>
-          <time>1504010504</time>
+          <time>1516111308</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:44 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:48 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/package_test_repository/x86_64/test_package/_jobstatus
@@ -406,10 +408,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -435,7 +435,7 @@ http_interactions:
           <details>404 project 'home:package_test_user' has no repository 'package_test_repository'</details>
         </status>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:45 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:48 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/package_test_repository/x86_64/test_package/_log?view=entry
@@ -443,10 +443,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -472,7 +470,7 @@ http_interactions:
           <details>404 project 'home:package_test_user' has no repository 'package_test_repository'</details>
         </status>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:45 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:49 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/package_test_repository/x86_64/test_package/_log?end=65536&nostream=1&start=0
@@ -480,10 +478,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -509,7 +505,7 @@ http_interactions:
           <details>404 project 'home:package_test_user' has no repository 'package_test_repository'</details>
         </status>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:45 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:49 GMT
 - request:
     method: post
     uri: http://backend:5352/build/home:package_test_user?arch=x86_64&cmd=rebuild&package=test_package&repository=package_test_repository
@@ -545,7 +541,7 @@ http_interactions:
           <summary>no repository defined</summary>
         </status>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:45 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:49 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/_result?package=test_package&repository=package_test_repository&view=status
@@ -582,83 +578,5 @@ http_interactions:
           <details>404 unknown repository 'package_test_repository'</details>
         </status>
     http_version: 
-  recorded_at: Tue, 29 Aug 2017 12:41:45 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=user_tab_user
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test_package" project="home:package_test_user">
-          <title>Brandy of the Damned</title>
-          <description>Voluptas vel nihil error.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '167'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test_package" project="home:package_test_user">
-          <title>Brandy of the Damned</title>
-          <description>Voluptas vel nihil error.</description>
-        </package>
-    http_version: 
-  recorded_at: Wed, 03 Jan 2018 13:17:01 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=user_tab_user
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="branch_test_package" project="home:other_package_test_user">
-          <title>Paths of Glory</title>
-          <description>Qui soluta reiciendis ex fuga.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '179'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="branch_test_package" project="home:other_package_test_user">
-          <title>Paths of Glory</title>
-          <description>Qui soluta reiciendis ex fuga.</description>
-        </package>
-    http_version: 
-  recorded_at: Wed, 03 Jan 2018 13:17:01 GMT
+  recorded_at: Tue, 16 Jan 2018 14:01:49 GMT
 recorded_with: VCR 4.0.0

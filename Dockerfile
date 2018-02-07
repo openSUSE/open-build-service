@@ -17,6 +17,9 @@ RUN chown -R frontend /obs/src/api
 # builds this container
 USER frontend
 WORKDIR /obs/src/api
+# foreman, which we only run in docker, needs a different thor version than OBS.
+# Installing the gem directly spares us from having to rpm package two different thor versions.
+RUN gem install thor:0.19 foreman
 
 # FIXME: Retrying bundler if it fails is a workaround for https://github.com/moby/moby/issues/783
 #        which seems to happen on openSUSE (< Tumbleweed 20171001)...

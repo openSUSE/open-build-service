@@ -123,6 +123,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_project 'Devel:BaseDistro:Update'
 
     # branch a package which does not exist in update project, but update project is linked
+    get '/source/BaseDistro2.0:LinkedUpdateProject/pack2/_meta'
+    assert_response :success
+    assert_xml_tag(tag: 'package', attributes: { project: 'BaseDistro2.0' })
     post '/source/BaseDistro2.0/pack2', params: { cmd: :branch }
     assert_response :success
     # check source link
@@ -454,15 +457,29 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     incident_project = data.elements['/status/data'].text
     assert_equal 'My:Maintenance:100', incident_project
 
+    get '/source/ServicePack:Update/pack2/_meta'
+    assert_response :success
+    assert_xml_tag tag: 'package', attributes: { project: 'BaseDistro2.0' } # not in :Update yet
+    get '/source/BaseDistro2.0/pack2'
+    assert_response :success
+    assert_xml_tag(tag: 'directory', attributes: { vrev: '2.5' })
+
     post '/source/ServicePack:Update/pack2', params: { cmd: 'branch', maintenance: 1, newinstance: 1, target_project: incident_project }
     assert_response :success
 
     get "/source/#{incident_project}/pack2.ServicePack_Update/_link"
     assert_response :success
-    assert_xml_tag tag: 'link', attributes: { project: 'ServicePack:Update' }
+    # origin package vrev increased by 1 and extended
+    assert_xml_tag(tag: 'link', attributes: { vrev: '3.1', project: 'ServicePack:Update' })
     get "/source/#{incident_project}/pack2.linked.ServicePack_Update/_link"
     assert_response :success
     assert_xml_tag tag: 'link', attributes: { project: nil, package: 'pack2.ServicePack_Update' }
+    get '/source/BaseDistro2.0/pack2'
+    assert_response :success
+    get "/source/#{incident_project}/pack2.ServicePack_Update/_history"
+    assert_response :success
+    get "/source/#{incident_project}/pack2.ServicePack_Update"
+    assert_response :success
     put "/source/#{incident_project}/pack2.ServicePack_Update/some_new_file", params: 'content change'
     assert_response :success
     put "/source/#{incident_project}/pack2.ServicePack_Update/myfile", params: 'modify existing file'
@@ -877,6 +894,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_create_maintenance_project_and_release_packages
+    # Backup
+    system("for i in #{Rails.root}/tmp/backend_data/projects/BaseDistro2.0.pkg/*.rev; do cp $i $i.backup; done")
     # the birthday of J.K.
     Timecop.freeze(2010, 7, 12)
 
@@ -948,7 +967,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # correct vrev ?
     get '/source/' + incident_project + '/pack2.BaseDistro2.0_LinkedUpdateProject?expand=1'
     assert_response :success
-    assert_xml_tag(tag: 'directory', attributes: { vrev: '2.6' })
+    assert_xml_tag(tag: 'directory', attributes: { vrev: '4.2' })
     # validate package meta
     get '/source/' + incident_project + '/pack2.BaseDistro2.0_LinkedUpdateProject/_meta'
     assert_response :success
@@ -1470,10 +1489,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'link', attributes: { project: nil, package: "pack2.#{incident_id}" }
     get '/source/BaseDistro2.0:LinkedUpdateProject/pack2?expand=1'
     assert_response :success
-    assert_xml_tag(tag: 'directory', attributes: { vrev: '2.9' })
+    assert_xml_tag(tag: 'directory', attributes: { vrev: '4.5' })
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2.#{incident_id}"
     assert_response :success
-    assert_xml_tag(tag: 'directory', attributes: { vrev: '2.9' })
+    assert_xml_tag(tag: 'directory', attributes: { vrev: '4.5' })
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2.#{incident_id}/_link"
     assert_response 404
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2.linked.#{incident_id}/_link"
@@ -1672,7 +1691,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'releasetarget', attributes: { trigger: 'maintenance' }
 
     # create a service pack on top of it
-    put '/source/BaseDistro2.0:ServicePack1/_meta', params: '<project name="BaseDistro2.0:ServicePack1"> <title/><description/><link project="BaseDistro2.0"/></project>'
+    put '/source/BaseDistro2.0:ServicePack1/_meta', params: '<project name="BaseDistro2.0:ServicePack1"> <title/><description/><link project="BaseDistro2.0:LinkedUpdateProject" vrevmode="extend"/></project>'
     assert_response :success
     # get current vrev
     get '/source/BaseDistro2.0:LinkedUpdateProject/pack2?view=info'
@@ -1691,14 +1710,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:vrev)
-    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i + 1)}.1" # got increased and extended by .1
+    assert_equal node.value(:vrev), "#{vrev1}.#{vrev2}" # untouched
     get '/source/BaseDistro2.0:ServicePack1/pack2?view=info'
     assert_response :success
     get '/source/BaseDistro2.0:ServicePack1/pack2.linked?view=info'
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:vrev)
-    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i + 2)}" # got increased by 2
+    assert_equal "#{vrev1.to_i + 1}.#{(1 + 2)}", node.value(:vrev) # X gets increased by one, Y set back and used withrevbump=2
 
     # new packages in Update project found, even we just project-link only to GA
     post '/source/BaseDistro2.0:LinkedUpdateProject/packNEW?cmd=copy&oproject=BaseDistro2.0&opackage=pack2'
@@ -1712,7 +1731,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/BaseDistro2.0:ServicePack1/packNEW/_link'
     assert_response :success
-    delete '/source/BaseDistro2.0:LinkedUpdateProject/packNEW'
+    get '/source/BaseDistro2.0:LinkedUpdateProject/packNEW'
+    assert_response :success
+    assert_xml_tag tag: 'directory', attributes: { vrev: '42.1' } # X.Y scheme
+    delete '/source/BaseDistro2.0:ServicePack1/packNEW'
     assert_response :success
 
     # create a new package instance via submit request the right way
@@ -1745,12 +1767,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:vrev)
-    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i + 1)}.4" # is higher
+    assert_equal "#{vrev1.to_i + 1}.#{(1 + 1 + 2)}", node.value(:vrev) # extendvrev . reset + link + vrevbump=2
     get '/source/BaseDistro2.0:LinkedUpdateProject/pack2?view=info'
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:vrev)
-    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i + 1)}.2.1" # got extended again
+    assert_equal node.value(:vrev), "#{vrev1}.#{vrev2}" # untouched
     delete '/source/BaseDistro2.0:ServicePack1/pack2.linked'
     assert_response :success
     delete '/source/BaseDistro2.0:ServicePack1/pack2'
@@ -1786,9 +1808,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:vrev)
-    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i + 1)}.2.1" # untouched
+    assert_equal node.value(:vrev), "#{vrev1}.#{vrev2}" # untouched
 
     # cleanup
+    system("for i in #{Rails.root}/tmp/backend_data/projects/BaseDistro2.0.pkg/*.rev; do mv $i.backup $i; done")
     get "/published/#{incident_project}"
     assert_response :success
     delete '/source/home:king:branches:BaseDistro2.0:LinkedUpdateProject'

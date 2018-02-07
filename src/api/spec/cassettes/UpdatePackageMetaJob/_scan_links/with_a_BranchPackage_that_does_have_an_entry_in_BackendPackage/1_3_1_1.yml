@@ -236,7 +236,7 @@ http_interactions:
   recorded_at: Mon, 14 Aug 2017 13:16:58 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom:branches:home:tom/package_1?cmd=branch&opackage=package_1&oproject=home:tom&user=tom
+    uri: http://backend:5352/source/home:tom:branches:home:tom/package_1?cmd=branch&noservice=1&opackage=package_1&oproject=home:tom&user=tom
     body:
       encoding: UTF-8
       string: ''

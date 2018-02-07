@@ -542,7 +542,7 @@ http_interactions:
   recorded_at: Wed, 28 Dec 2016 12:37:21 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:Jane/branch_test_package?cmd=branch&opackage=branch_test_package&oproject=home:other_user&orev=2b2438f74ba72c60e01836dadcfd8b71&user=Jane
+    uri: http://backend:5352/source/home:Jane/branch_test_package?cmd=branch&noservice=1&opackage=branch_test_package&oproject=home:other_user&orev=2b2438f74ba72c60e01836dadcfd8b71&user=Jane
     body:
       encoding: UTF-8
       string: ''
