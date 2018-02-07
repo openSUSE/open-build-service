@@ -18,6 +18,7 @@ module Cloud
                      :repository,
                      :arch,
                      :filename,
+                     :vpc_subnet_id,
                      :size,
                      :backend_response
       alias_method :id, :name
