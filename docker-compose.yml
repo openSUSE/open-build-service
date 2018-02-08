@@ -24,6 +24,9 @@ services:
     image: openbuildservice/frontend
     build:
       context: .
+    # Workaround to be able to use our shorthand links to ruby, gem & Co
+    environment:
+      - PATH=/home/frontend/bin/:$PATH
     volumes:
       - .:/obs
     ports:
