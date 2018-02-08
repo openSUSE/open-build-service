@@ -2,7 +2,7 @@ FROM openbuildservice/base
 
 RUN /root/bin/docker-bootstrap.sh frontend
 
-# Install other requirements
+# Install other requirements and change permissions
 RUN npm install -g jshint
 
 ADD --chown=frontend:users src/api/Gemfile* /obs/src/api/

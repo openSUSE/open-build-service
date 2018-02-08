@@ -1,8 +1,6 @@
 FROM openbuildservice/base
 
-RUN /root/bin/docker-bootstrap.sh memcached
-RUN /root/bin/docker-bootstrap.sh backend
-RUN /root/bin/docker-bootstrap.sh frontend
+RUN /root/bin/docker-bootstrap.sh memcached backend frontend
 
 ADD --chown=frontend:users src/api/Gemfile* /obs/src/api/
 ADD contrib/start_old_tests /obs/contrib/start_old_tests
