@@ -876,9 +876,7 @@ class Package < ApplicationRecord
   end
 
   def activity
-    package = Package.find_by_sql("SELECT packages.*, #{Package.activity_algorithm} " \
-                                      "FROM `packages` WHERE id = #{id} LIMIT 1")
-    package.shift.activity_value.to_f
+    activity_index * 2.3276**((updated_at_was.to_f - Time.now.to_f) / 10_000_000)
   end
 
   def expand_flags
