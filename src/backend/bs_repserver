@@ -2684,6 +2684,13 @@ sub docommand {
 	}
 	BSUtil::ping("$eventdir/$arch/.ping") if -d "$eventdir/$arch";
       }
+    } elsif ($cmd eq 'sendsysrq') {
+      for my $packid (@packids) {
+	eval {
+	  sendsysrqtobuild($cgi, $projid, $repoid, $arch, $packid);
+	};
+	warn("$@") if $@;
+      }
     } elsif ($cmd eq 'killbuild' || $cmd eq 'abortbuild') {
       for my $packid (@packids) {
 	eval {
@@ -3067,6 +3074,23 @@ sub abortbuild {
     'timeout' => 30,
   };
   BSRPC::rpc($req, undef, "jobid=$js->{'jobid'}");
+  return $BSStdServer::return_ok;
+}
+
+sub sendsysrqtobuild {
+  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+
+  my $job = findjob($projid, $repoid, $arch, $packid);
+  die("not building\n") unless $job;
+  local *F;
+  my $js = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus);
+  die("not building\n") if $js->{'code'} ne 'building';
+  my $req = {
+    'uri' => "$js->{'uri'}/sysrq",
+    'timeout' => 30,
+  };
+  die("Unsupported sysrq\n") unless $cgi->{'sysrq'} =~ /^[0123456789cltwz ]$/;
+  BSRPC::rpc($req, undef, "jobid=$js->{'jobid'}", "sysrq=$cgi->{'sysrq'}");
   return $BSStdServer::return_ok;
 }
 
@@ -3934,7 +3958,7 @@ my $dispatches = [
   '/configuration' => \&getconfiguration,
 
   '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? withstats:bool? summary:bool? withversrel:bool?' => \&getresult,
-  'POST:/_command $cmd: $prpa+ package* code:*' => \&docommand,
+  'POST:/_command $cmd: $prpa+ package* code:* sysrq:?' => \&docommand,
 
   '/serverstatus' => \&BSStdServer::serverstatus,
   '/ajaxstatus' => \&getajaxstatus,

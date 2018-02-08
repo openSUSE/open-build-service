@@ -1412,6 +1412,10 @@ class Package < ApplicationRecord
     backend_build_command(:abortbuild, params[:project], params.slice(:package, :arch, :repository))
   end
 
+  def send_sysrq(params)
+    backend_build_command(:sendsysrq, params[:project], params.slice(:package, :arch, :repository, :sysrq))
+  end
+
   def release_target_name
     # usually used in maintenance incidents
     return releasename if releasename
