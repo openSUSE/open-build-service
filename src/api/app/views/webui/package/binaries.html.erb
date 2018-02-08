@@ -9,12 +9,12 @@
 
 <p>
   <%= render partial: "shared/download_repository_link", locals: { project: @project, repository: @repository} %>
-  <% if @buildresult[:binaries?] %>
+  <% unless @buildresults.empty? %>
     <%= link_to sprited_text('drive_burn', 'Delete'), { controller: :package, action: :wipe_binaries, project: @project, package: @package, repository: @repository }, { method: :delete} %> all built binaries
   <% end %>
 </p>
 
-<% @buildresult[:results].each do |result| %>
+<% @buildresults.each do |result| %>
   <h3><%= repo_status_icon(result[:repocode]) %> Architecture: <%= result[:arch] %></h3>
   <% if result[:binaries].empty? %>
     <p><i>No built binaries</i></p>
@@ -24,9 +24,9 @@
         <li class="binaries_list_item">
           <%= "#{binary[:filename]} (#{number_to_human_size(binary[:size])})" %>
           <span class="binaries_links">
-            <%= link_to(sprited_text('page_white_get', 'Cloud Upload'), new_cloud_upload_path(project: @project, package: @package, repository: @repository, arch: result[:arch], filename: binary[:filename])) if binary[:cloud_upload?] %>
-            <%= link_to(sprited_text('page_white_put', 'Download'), binary[:download_url]) if binary[:download_url] %>
-            <%= link_to(sprited_text('information', 'Details'), action: 'binary', project: @project, package: @package, repository: @repository, arch: result[:arch], filename: binary[:filename]) if binary[:details?] %>
+            <%= link_to(sprited_text('page_white_get', 'Cloud Upload'), new_cloud_upload_path(project: @project, package: @package, repository: @repository, arch: result[:arch], filename: binary[:filename])) if binary[:links][:cloud_upload?] %>
+            <%= link_to(sprited_text('page_white_put', 'Download'), binary[:links][:download_url]) if binary[:links][:download_url] %>
+            <%= link_to(sprited_text('information', 'Details'), action: 'binary', project: @project, package: @package, repository: @repository, arch: result[:arch], filename: binary[:filename]) if binary[:links][:details?] %>
           </span>
         </li>
       <% end %>

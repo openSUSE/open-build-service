@@ -27,6 +27,7 @@ RSpec.describe Webui::PackageController, vcr: true do
                        <binarylist>
                           <binary filename=\"image_binary.vhdfixed.xz\" size=\"123312217\"/>
                           <binary filename=\"image_binary.xz.sha256\" size=\"1531\"/>
+                          <binary filename=\"_statistics\" size=\"4231\"/>
                           <binary filename=\"updateinfo.xml\" size=\"4231\"/>
                           <binary filename=\"rpmlint.log\" size=\"121\"/>
                         </binarylist>
@@ -378,6 +379,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       it { expect(response.body).to match(/image_binary.vhdfixed.xz/) }
       it { expect(response.body).to match(/image_binary.xz.sha256/) }
       it { expect(response.body).to match(/updateinfo.xml/) }
+      it { expect(response.body).not_to match(/_statistics/) }
       it { expect(response.body).to match(/rpmlint.log/) }
     end
   end
