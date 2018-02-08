@@ -1,17 +1,9 @@
 FROM openbuildservice/base
 
-# FIXME: https://bugzilla.opensuse.org/show_bug.cgi?id=957818
-RUN rm -rf /var/cache/zypp/*
-
 RUN /root/bin/docker-bootstrap.sh backend
 
 # Add our sign configuration
-ADD dist/obs-signd-conf.tar.bz2 sign
-RUN rm -rf /root/.gnupg; \
-    mv -v /sign/root/.gnupg /root/.gnupg; \
-    mv -v /sign/root/.phrases /root/.phrases; \
-    mv -v /sign/etc/ourkeyfile.asc /sign/etc/sign.conf /etc/; \
-    mv -v /sign/etc/sysconfig/signd /etc/sysconfig/signd
+ADD dist/obs-signd-conf.tar.bz2 /
 
 # Run our command
 WORKDIR /obs
