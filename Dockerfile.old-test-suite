@@ -4,10 +4,8 @@ RUN /root/bin/docker-bootstrap.sh memcached
 RUN /root/bin/docker-bootstrap.sh backend
 RUN /root/bin/docker-bootstrap.sh frontend
 
-ADD src/api/Gemfile /obs/src/api/Gemfile
-ADD src/api/Gemfile.lock /obs/src/api/Gemfile.lock
+ADD --chown=frontend:users src/api/Gemfile* /obs/src/api/
 ADD contrib/start_old_tests /obs/contrib/start_old_tests
-RUN chown -R frontend:users /obs/
 
 # Set up some convenience ruby binaries...
 RUN for i in ruby gem irb; do ln -s /usr/bin/$i.ruby2.5 /usr/local/bin/$i; done
