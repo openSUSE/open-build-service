@@ -55,13 +55,7 @@ class BuildController < ApplicationController
       end
 
       if !allowed && !params[:package].nil?
-        package_names = nil
-        if params[:package].is_a? Array
-          package_names = params[:package]
-        else
-          package_names = [params[:package]]
-        end
-        package_names.each do |pack_name|
+        [params[:package]].flatten.each do |pack_name|
           pkg = Package.find_by_project_and_name(prj.name, pack_name)
           if pkg.nil?
             allowed = permissions.project_change? prj
