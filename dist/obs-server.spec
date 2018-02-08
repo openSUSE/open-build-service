@@ -230,7 +230,7 @@ BuildRequires:  xorg-x11-server
 BuildRequires:  xorg-x11-server-extra
 # write down dependencies for production
 BuildRequires:  rubygem(bundler)
-Requires:       %(echo `bash %{S:1} %{S:0} "ruby:2.4.0" "production"`)
+Requires:       %(echo `bash %{S:1} %{S:0} "ruby:2.5.0" "production"`)
 # for rebuild_time
 Requires:       perl(GD)
 
