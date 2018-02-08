@@ -13,15 +13,16 @@ ADD src/api/Gemfile /obs/src/api/Gemfile
 ADD src/api/Gemfile.lock /obs/src/api/Gemfile.lock
 RUN chown -R frontend /obs/src/api
 
+# foreman, which we only run in docker, needs a different thor version than OBS.
+# Installing the gem directly spares us from having to rpm package two different thor versions.
+RUN gem.ruby2.5 install thor:0.19 foreman
+# Ensure there is a foreman command without ruby suffix
+RUN ln -s /usr/bin/foreman.ruby2.5 /usr/local/bin/foreman
+
 # Now do the rest as the user with the same ID as the user who
 # builds this container
 USER frontend
 WORKDIR /obs/src/api
-# foreman, which we only run in docker, needs a different thor version than OBS.
-# Installing the gem directly spares us from having to rpm package two different thor versions.
-RUN sudo gem.ruby2.5 install thor:0.19 foreman
-# Ensure there is a foreman command without ruby suffix
-RUN sudo ln -s /usr/bin/foreman.ruby2.5 /usr/bin/foreman
 
 # FIXME: Retrying bundler if it fails is a workaround for https://github.com/moby/moby/issues/783
 #        which seems to happen on openSUSE (< Tumbleweed 20171001)...
