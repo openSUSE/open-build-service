@@ -171,7 +171,13 @@ module Event
     end
 
     def send_event_emails_job
-      SendEventEmailsJob.perform_later(id) if id.present?
+      return if id.blank?
+
+      if subscribers.empty?
+        update_attributes(mails_sent: true)
+      else
+        SendEventEmailsJob.perform_later(id)
+      end
     end
 
     # to be overwritten in subclasses
