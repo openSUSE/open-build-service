@@ -3089,7 +3089,7 @@ sub sendsysrqtobuild {
     'uri' => "$js->{'uri'}/sysrq",
     'timeout' => 30,
   };
-  die("Unsupported sysrq\n") unless $cgi->{'sysrq'} =~ /^[0123456789cltwz ]$/;
+  die("Unsupported sysrq\n") unless $cgi->{'sysrq'} =~ /^[0123456789clptwz ]$/;
   BSRPC::rpc($req, undef, "jobid=$js->{'jobid'}", "sysrq=$cgi->{'sysrq'}");
   return $BSStdServer::return_ok;
 }
