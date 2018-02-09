@@ -1725,17 +1725,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
     it { expect(assigns[:maintained_projects]).to eq([maintained_project.project.name]) }
   end
 
-  describe 'GET #save_person' do
-    let(:new_user) { create(:user) }
-
-    before do
-      login user
-      post :save_person, params: { project: user.home_project, role: 'maintainer', userid: new_user.login }
-    end
-
-    it { expect(response).to redirect_to(users_path) }
-  end
-
   describe '#filter_matches?' do
     let(:input) { 'ThisIsAPackage' }
 
