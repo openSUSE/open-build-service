@@ -3,6 +3,7 @@ class SendEventEmailsJob < ApplicationJob
 
   def perform(event_id)
     event = Event::Base.find(event_id)
+    return if event.mails_sent
     subscribers = event.subscribers
 
     if subscribers.empty?
