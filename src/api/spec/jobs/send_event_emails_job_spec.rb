@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe SendEventEmailsJob, type: :job do
+  include ActiveJob::TestHelper
+
   describe '#perform' do
     before do
       ActionMailer::Base.deliveries = []
@@ -13,18 +15,16 @@ RSpec.describe SendEventEmailsJob, type: :job do
     let!(:project) { create(:project, name: 'comment_project', maintainer: [user, group]) }
 
     let!(:comment_author) { create(:confirmed_user) }
-    let!(:user_maintainer) { create(:group) }
 
-    let(:comment) do
-      create(:comment_project, commentable: project, body: "Hey @#{user.login} how are things?", user: comment_author)
-    end
+    let!(:comment) { create(:comment_project, commentable: project, body: "Hey @#{user.login} how are things?", user: comment_author) }
+    let!(:user_maintainer) { create(:group) }
 
     context 'with no errors being raised' do
       let!(:subscription1) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user) }
       let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group) }
       let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'commenter', user: comment_author) }
 
-      subject! { comment }
+      subject! { SendEventEmailsJob.new.perform }
 
       it 'sends an email to the subscribers' do
         email = ActionMailer::Base.deliveries.first
@@ -76,7 +76,7 @@ RSpec.describe SendEventEmailsJob, type: :job do
         allow(Airbrake).to receive(:notify)
       end
 
-      subject! { comment }
+      subject! { SendEventEmailsJob.new.perform }
 
       it 'updates the event mails_sent = true' do
         event = Event::CommentForProject.first
@@ -89,7 +89,7 @@ RSpec.describe SendEventEmailsJob, type: :job do
     end
 
     context 'with no subscriptions for the event' do
-      subject! { comment }
+      subject! { SendEventEmailsJob.new.perform }
 
       it 'updates the event mails_sent = true' do
         event = Event::CommentForProject.first
