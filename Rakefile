@@ -69,22 +69,22 @@ namespace :docker do
     end
     namespace :rebuild do
       task :base do
-        sh "docker build . -t openbuildservice/base:#{VERSION} -t openbuildservice/base -f Dockerfile.#{VERSION}"
+        sh "docker build docker-files/base/ -t openbuildservice/base:#{VERSION} -t openbuildservice/base -f docker-files/base/Dockerfile.#{VERSION}"
       end
       task :mariadb do
-        sh "docker build . -t openbuildservice/mariadb:#{VERSION} -t openbuildservice/mariadb -f Dockerfile.mariadb"
+        sh "docker build docker-files/mariadb/ -t openbuildservice/mariadb:#{VERSION} -t openbuildservice/mariadb -f docker-files/mariadb/Dockerfile.mariadb"
       end
       task :memcached do
-        sh "docker build . -t openbuildservice/memcached:#{VERSION} -t openbuildservice/memcached -f Dockerfile.memcached"
+        sh "docker build docker-files/memcached/ -t openbuildservice/memcached:#{VERSION} -t openbuildservice/memcached -f docker-files/memcached/Dockerfile.memcached"
       end
       task 'frontend-base' do
-        sh "docker build . -t openbuildservice/frontend-base:#{VERSION} -t openbuildservice/frontend-base -f Dockerfile.frontend-base"
+        sh "docker build src/api/ -t openbuildservice/frontend-base:#{VERSION} -t openbuildservice/frontend-base -f src/api/docker-files/Dockerfile.frontend-base"
       end
       task :backend do
-        sh "docker build . -t openbuildservice/backend:#{VERSION} -t openbuildservice/backend -f Dockerfile.backend"
+        sh "docker build src/backend/ -t openbuildservice/backend:#{VERSION} -t openbuildservice/backend -f src/backend/docker-files/Dockerfile.backend"
       end
       task 'old-test-suite' do
-        sh "docker build . -t openbuildservice/old-test-suite:#{VERSION} -t openbuildservice/old-test-suite -f Dockerfile.old-test-suite"
+        sh "docker build src/api/ -t openbuildservice/old-test-suite:#{VERSION} -t openbuildservice/old-test-suite -f src/api/docker-files/Dockerfile.old-test-suite"
       end
     end
 

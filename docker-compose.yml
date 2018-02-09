@@ -23,7 +23,7 @@ services:
   frontend:
     image: openbuildservice/frontend
     build:
-      context: .
+      context: src/api
     volumes:
       - .:/obs
     ports:
