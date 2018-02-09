@@ -21,6 +21,12 @@ In particular, this community seeks the following types of contributions:
 * Fork the repository and make a pull-request with your changes
   * Please make sure to mind what our test suite in [travis](https://travis-ci.org/openSUSE/open-build-service) tells you
   * Please always increase our [code coverage](https://codeclimate.com/github/openSUSE/open-build-service) by your pull request
+  * To help to write better commit messages we use a [template](https://github.com/openSUSE/open-build-service/blob/master/.gitmessage).
+    Copy this to your home (`cp .gitmessage ~/.gitmessage`) and add this to your `~/.gitconfig`:
+    ```
+    [commit]
+      template = ~/.gitmessage
+    ```
 
 * A developer of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) will review your pull-request
   * If the pull request gets a positive review the reviewer will merge it
