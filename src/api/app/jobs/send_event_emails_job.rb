@@ -1,23 +1,25 @@
 class SendEventEmailsJob < ApplicationJob
   queue_as :mailers
 
-  def perform(event_id)
-    event = Event::Base.find(event_id)
-    subscribers = event.subscribers
+  def perform
+    Event::Base.where(mails_sent: false).order(created_at: :asc).limit(1000).each do |event|
+      subscribers = event.subscribers
 
-    if subscribers.empty?
-      event.update_attributes(mails_sent: true)
-      return
-    end
+      if subscribers.empty?
+        event.update_attributes(mails_sent: true)
+        next
+      end
 
-    begin
-      create_rss_notifications(event)
-      EventMailer.event(subscribers, event).deliver_now
-    rescue StandardError => e
-      Airbrake.notify(e, event_id: event.id)
-    ensure
-      event.update_attributes(mails_sent: true)
+      begin
+        create_rss_notifications(event)
+        EventMailer.event(subscribers, event).deliver_now
+      rescue StandardError => e
+        Airbrake.notify(e, event_id: event.id)
+      ensure
+        event.update_attributes(mails_sent: true)
+      end
     end
+    true
   end
 
   private
