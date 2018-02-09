@@ -734,7 +734,7 @@ class SourceController < ApplicationController
   end
 
   # add channel packages and extend repository list
-  # POST /source/<project>?cmd=addchannels
+  # POST /source/<project>/<package>?cmd=addchannels
   def package_command_addchannels
     mode = :add_disabled
     mode = :skip_disabled if params[:mode] == 'skip_disabled'
@@ -746,7 +746,7 @@ class SourceController < ApplicationController
   end
 
   # add containers using the origin of this package (docker in first place, but not limited to it)
-  # POST /source/<project>?cmd=addcontainers
+  # POST /source/<project>/<package>?cmd=addcontainers
   def package_command_addcontainers
     @package.add_containers
 
