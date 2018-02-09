@@ -63,7 +63,7 @@ case "$1" in
         run_in_api script/delayed_job.api.rb --queue=quick start -n $NUM
         run_in_api script/delayed_job.api.rb --queue=releasetracking start -i 1000
         run_in_api script/delayed_job.api.rb --queue=issuetracking start -i 1010
-        run_in_api script/delayed_job.api.rb --queue=mailers start -i 1020
+        run_in_api script/delayed_job.api.rb --queue=mailers start -n 30 -i 1020
         # The default queue used by ActiveJob (jobs scheduled with .perform_later)
         run_in_api script/delayed_job.api.rb --queue=default start -i 1030
         run_in_api script/delayed_job.api.rb --queue=project_log_rotate start -i 1040
