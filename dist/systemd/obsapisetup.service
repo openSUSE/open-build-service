@@ -1,0 +1,11 @@
+Description=OBS API Setup
+After=network.target
+         
+[Service]
+EnvironmentFile=/etc/sysconfig/obs-server
+Type=oneshot
+ExecStart=/usr/lib/obs/server/setup-appliance.sh --non-interactive --setup-only
+ExecReload=/bin/kill -HUP $MAINPID
+         
+[Install]
+WantedBy=multi-user.target
