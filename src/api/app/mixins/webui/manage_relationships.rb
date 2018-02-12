@@ -50,7 +50,7 @@ module Webui::ManageRelationships
       main_object.remove_role(load_obj, Role.find_by_title(params[:role]))
       main_object.store
     rescue NotFoundError => e
-      flash[:error] = e.summary
+      flash[:error] = e.to_s
     end
     respond_to do |format|
       format.js { render json: 'ok' }

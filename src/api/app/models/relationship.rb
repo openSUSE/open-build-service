@@ -64,7 +64,7 @@ class Relationship < ApplicationRecord
     role = Role.find_by_title!(role) unless role.is_a? Role
     if role.global
       # only nonglobal roles may be set in an object
-      raise SaveError, "tried to set global role '#{role.title}' for user '#{user}' in #{obj.class} '#{name}'"
+      raise SaveError, "tried to set global role '#{role.title}' for user '#{user}' in #{obj.class} '#{obj.name}'"
     end
 
     user = User.find_by_login!(user) unless user.is_a? User
@@ -89,7 +89,7 @@ class Relationship < ApplicationRecord
 
     if role.global
       # only nonglobal roles may be set in an object
-      raise SaveError, "tried to set global role '#{role_title}' for group '#{group}' in #{obj.class} '#{name}'"
+      raise SaveError, "tried to set global role '#{role.title}' for group '#{group}' in #{obj.class} '#{obj.name}'"
     end
 
     group = Group.find_by_title(group.to_s) unless group.is_a? Group
