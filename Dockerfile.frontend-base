@@ -9,13 +9,13 @@ ADD src/api/Gemfile /obs/src/api/Gemfile
 ADD src/api/Gemfile.lock /obs/src/api/Gemfile.lock
 RUN chown -R frontend /obs/src/api
 
+# Ensure there are ruby, gem and irb commands without ruby suffix
+RUN for i in ruby gem irb; do ln -s /usr/bin/$i.ruby2.5 /usr/local/bin/$i; done
+
 # Now do the rest as the user with the same ID as the user who
 # builds this container
 USER frontend
 WORKDIR /obs/src/api
-
-# Ensure there are ruby, gem and irb commands without ruby suffix
-RUN for i in ruby gem irb; do ln -s /usr/bin/$i.ruby2.5 ~/bin/$i; done
 
 # Install our bundle
 # FIXME: Retrying bundler if it fails is a workaround for https://github.com/moby/moby/issues/783

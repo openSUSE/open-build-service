@@ -9,11 +9,11 @@ ADD src/api/Gemfile.lock /obs/src/api/Gemfile.lock
 ADD contrib/start_old_tests /obs/contrib/start_old_tests
 RUN chown -R frontend:users /obs/
 
+# Set up some convenience ruby binaries...
+RUN for i in ruby gem irb; do ln -s /usr/bin/$i.ruby2.5 /usr/local/bin/$i; done
+
 USER frontend
 WORKDIR /obs/src/api
-
-# Set up some convenience ruby binaries...
-RUN for i in ruby gem irb; do ln -s /usr/bin/$i.ruby2.5 ~/bin/$i; done
 
 # Install our bundle
 # FIXME: Retrying bundler if it fails is a workaround for https://github.com/moby/moby/issues/783
