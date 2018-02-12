@@ -1,6 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe Relationship do
+  let(:admin_user) { create(:admin_user, login: 'admin') }
+  let(:global_role) { create(:role, title: 'global_role', global: true) }
+  let(:normal_role) { create(:role, title: 'normal_role', global: false) }
+
   before(:all) do
     @caching_state = ActionController::Base.perform_caching
     ActionController::Base.perform_caching = true
@@ -10,12 +14,81 @@ RSpec.describe Relationship do
     ActionController::Base.perform_caching = @caching_state
   end
 
-  it '.add_user' do
-    skip
+  describe '.add_user' do
+    let(:role) { normal_role }
+    let(:user) { create(:confirmed_user, login: 'other_user') }
+    let(:project) { user.home_project }
+
+    before do
+      login(admin_user)
+    end
+
+    subject { Relationship.add_user(project, user, role, true, true) }
+
+    context 'with a global role' do
+      let(:role) { global_role }
+
+      it { expect { subject }.to raise_error(Relationship::SaveError, /tried to set global role/) }
+    end
+
+    context 'with an already existing relationship' do
+      before do
+        project.relationships.create(user: user, role: role)
+      end
+
+      it { expect { subject }.to raise_error(Relationship::SaveError, 'Relationship already exists') }
+    end
+
+    context 'with invalid relationship data' do
+      skip('This is imposible to happen with the actual validations and how the object is created')
+    end
+
+    context 'with valid data' do
+      before do
+        subject
+      end
+
+      it { expect { project.store }.to change { Relationship.count }.by(1) }
+    end
   end
 
-  it '.add_group' do
-    skip
+  describe '.add_group' do
+    let(:role) { normal_role }
+    let(:user) { admin_user }
+    let(:project) { user.home_project }
+    let(:group) { create(:group) }
+
+    before do
+      login(admin_user)
+    end
+
+    subject { Relationship.add_group(project, group, role, true, true) }
+
+    context 'with a global role' do
+      let(:role) { global_role }
+
+      it { expect { subject }.to raise_error(Relationship::SaveError, /tried to set global role/) }
+    end
+
+    context 'with an already existing relationship' do
+      before do
+        project.relationships.create(group: group, role: role)
+      end
+
+      it { expect { subject }.to raise_error(Relationship::SaveError, 'Relationship already exists') }
+    end
+
+    context 'with invalid relationship data' do
+      skip('This is imposible to happen with the actual validations and how the object is created')
+    end
+
+    context 'with valid data' do
+      before do
+        subject
+      end
+
+      it { expect { project.store }.to change { Relationship.count }.by(1) }
+    end
   end
 
   describe '.forbidden_project_ids' do
@@ -23,8 +96,6 @@ RSpec.describe Relationship do
     let(:project) { create(:forbidden_project) }
 
     context 'for admins' do
-      let(:admin_user) { create(:admin_user) }
-
       before do
         login(admin_user)
       end
