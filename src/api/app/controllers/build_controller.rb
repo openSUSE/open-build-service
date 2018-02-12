@@ -55,13 +55,7 @@ class BuildController < ApplicationController
       end
 
       if !allowed && !params[:package].nil?
-        package_names = nil
-        if params[:package].is_a? Array
-          package_names = params[:package]
-        else
-          package_names = [params[:package]]
-        end
-        package_names.each do |pack_name|
+        [params[:package]].flatten.each do |pack_name|
           pkg = Package.find_by_project_and_name(prj.name, pack_name)
           if pkg.nil?
             allowed = permissions.project_change? prj
@@ -171,15 +165,12 @@ class BuildController < ApplicationController
     bs = PackageBuildStatus.new(pkg).result(target_project: tprj, srcmd5: params[:srcmd5], multibuild_pkg: multibuild_package)
     @result = []
     bs.each do |repo, status|
-      archs = []
-      status.each do |arch, archstat|
-        oneline = [arch, archstat[:result]]
+      archs = status.map do |arch, archstat|
         if archstat[:missing].blank?
-          oneline << nil
+          [arch, archstat[:result], nil]
         else
-          oneline << archstat[:missing].join(',')
+          [arch, archstat[:result], archstat[:missing].join(',')]
         end
-        archs << oneline
       end
       @result << [repo, archs]
     end
