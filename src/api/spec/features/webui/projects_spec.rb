@@ -432,4 +432,122 @@ RSpec.feature 'Projects', type: :feature, js: true do
       expect(find('table#maintained_projects_table td:first-child')).to have_text(project.name)
     end
   end
+
+  describe 'monitor' do
+    let!(:project) { create(:project, name: 'TestProject') }
+    let!(:package1) { create(:package, project: project, name: 'TestPackage') }
+    let!(:package2) { create(:package, project: project, name: 'SecondPackage') }
+    let!(:repository1) { create(:repository, project: project, name: 'openSUSE_Tumbleweed', architectures: ['x86_64', 'i586']) }
+    let!(:repository2) { create(:repository, project: project, name: 'openSUSE_Leap_42.3', architectures: ['x86_64', 'i586']) }
+    let!(:repository3) { create(:repository, project: project, name: 'openSUSE_Leap_42.2', architectures: ['x86_64', 'i586']) }
+
+    let(:build_results_xml) do
+      <<-XML
+      <resultlist state="dc66a487ea4d97b4f157d075a0e747b9">
+        <result project="TestProject" repository="openSUSE_Tumbleweed" arch="x86_64" code="published" state="published">
+          <status package="SecondPackage" code="broken">
+            <details>no source uploaded</details>
+          </status>
+          <status package="TestPackage" code="broken">
+            <details>no source uploaded</details>
+          </status>
+        </result>
+        <result project="TestProject" repository="openSUSE_Leap_42.3" arch="x86_64" code="published" state="published">
+          <status package="SecondPackage" code="broken">
+            <details>no source uploaded</details>
+          </status>
+          <status package="TestPackage" code="broken">
+            <details>no source uploaded</details>
+          </status>
+        </result>
+        <result project="TestProject" repository="openSUSE_Leap_42.2" arch="x86_64" code="published" state="published">
+          <status package="SecondPackage" code="broken">
+            <details>no source uploaded</details>
+          </status>
+          <status package="TestPackage" code="broken">
+            <details>no source uploaded</details>
+          </status>
+        </result>
+        <result project="TestProject" repository="openSUSE_Tumbleweed" arch="i586" code="published" state="published">
+          <status package="SecondPackage" code="broken">
+            <details>no source uploaded</details>
+          </status>
+          <status package="TestPackage" code="broken">
+            <details>no source uploaded</details>
+          </status>
+        </result>
+        <result project="TestProject" repository="openSUSE_Leap_42.3" arch="i586" code="published" state="published">
+          <status package="SecondPackage" code="broken">
+            <details>no source uploaded</details>
+          </status>
+          <status package="TestPackage" code="broken">
+            <details>no source uploaded</details>
+          </status>
+        </result>
+        <result project="TestProject" repository="openSUSE_Leap_42.2" arch="i586" code="published" state="published">
+          <status package="SecondPackage" code="broken">
+            <details>no source uploaded</details>
+          </status>
+          <status package="TestPackage" code="broken">
+            <details>no source uploaded</details>
+          </status>
+        </result>
+      </resultlist>
+      XML
+    end
+
+    let(:build_result) { Buildresult.new(build_results_xml) }
+
+    before do
+      login admin_user
+      allow(Buildresult).to receive(:find).and_return(build_result)
+      visit project_monitor_path(project.name)
+      expect(page).to have_text('Monitor')
+    end
+
+    scenario 'filtering build results by package name' do
+      fill_in 'pkgname', with: package1.name
+      click_button 'Filter:'
+
+      build_status_table = find('table.buildstatus')
+      expect(build_status_table).to have_text(package1.name)
+      expect(build_status_table).not_to have_text(package2.name)
+    end
+
+    scenario 'filtering build results by architecture' do
+      find('#archlink').click
+      uncheck 'arch_x86_64'
+      click_button 'Filter:'
+
+      build_status_table = find('table.buildstatus')
+      expect(build_status_table).to have_text('i586')
+      expect(build_status_table).not_to have_text('x86_64')
+    end
+
+    scenario 'filtering build results by repository' do
+      find('#repolink').click
+      uncheck 'repo_openSUSE_Leap_42_2'
+      uncheck 'repo_openSUSE_Leap_42_3'
+      click_button 'Filter:'
+
+      build_status_table = find('table.buildstatus')
+      expect(build_status_table).not_to have_text('openSUSE_Leap_42.2')
+      expect(build_status_table).not_to have_text('openSUSE_Leap_42.3')
+      expect(build_status_table).to have_text('openSUSE_Tumbleweed')
+    end
+
+    scenario 'filtering build results by last build' do
+      check 'lastbuild'
+      click_button 'Filter:'
+
+      build_status_table = find('table.buildstatus')
+      expect(build_status_table).to have_text('openSUSE_Leap_42.2')
+      expect(build_status_table).to have_text('openSUSE_Leap_42.3')
+      expect(build_status_table).to have_text('openSUSE_Tumbleweed')
+      expect(build_status_table).to have_text('i586')
+      expect(build_status_table).to have_text('x86_64')
+      expect(build_status_table).to have_text(package1.name)
+      expect(build_status_table).to have_text(package2.name)
+    end
+  end
 end
