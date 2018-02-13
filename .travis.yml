@@ -8,7 +8,7 @@ services:
 language: ruby
 cache: bundler
 gemfile: src/api/Gemfile
-rvm: 2.4.1
+rvm: 2.5.0
 
 # Github config
 branches:

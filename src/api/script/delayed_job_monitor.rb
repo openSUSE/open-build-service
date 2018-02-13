@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby.ruby2.4
+#!/usr/bin/env ruby.ruby2.5
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
 
 output = %x(service obsapidelayed status | grep "active")

@@ -34,7 +34,7 @@ function check_service {
     echo "$srv daemon not started. Trying to start"
     execute_silently systemctl start $srv\.service
     if [[ $? -gt 0 ]];then
-      echo -n "Starting $srv daemon failed." 
+      echo -n "Starting $srv daemon failed."
       if [[ $service_critical == 1 ]];then
         echo " Exiting ..."
         exit 1
@@ -55,15 +55,15 @@ function check_server_cert {
     DETECTED_CERT_CHANGE=1
     # hostname specific certs - survive intermediate hostname changes
     if [ ! -e $backenddir/certs/server.${FQHOSTNAME}.crt ] ; then
-      # This is just a dummy SSL certificate, but it has a valid hostname. 
+      # This is just a dummy SSL certificate, but it has a valid hostname.
       # Admin can replace it with his version.
       create_selfsigned_certificate
       echo "$OPENSSL_CONFIG" | openssl req -new -nodes -config /dev/stdin \
           -x509 -days 365 -batch \
           -key $backenddir/certs/server.key \
           -out $backenddir/certs/server.${FQHOSTNAME}.crt
-     
-      if [[ $? == 0 ]];then 
+
+      if [[ $? == 0 ]];then
         echo "Do not remove this file or new SSL CAs will get created." > $backenddir/certs/server.${FQHOSTNAME}.created
       fi
     else
@@ -227,9 +227,9 @@ function adapt_worker_jobs {
 }
 ###############################################################################
 function prepare_database_setup {
- 
-  cd /srv/www/obs/api 
-  RAILS_ENV=production rails.ruby2.4 db:migrate:status > /dev/null
+
+  cd /srv/www/obs/api
+  RAILS_ENV=production rails.ruby2.5 db:migrate:status > /dev/null
 
   if [[ $? > 0 ]];then
     echo "Initialize MySQL databases (first time only)"
@@ -270,8 +270,8 @@ function prepare_database_setup {
   logline "Setting up rails environment"
   for cmd in $RAKE_COMMANDS
   do
-    logline " - Doing 'rails.ruby2.4 $cmd'"
-    RAILS_ENV=production bundle exec rails.ruby2.4 $cmd >> $apidir/log/db_migrate.log
+    logline " - Doing 'rails.ruby2.5 $cmd'"
+    RAILS_ENV=production bundle exec rails.ruby2.5 $cmd >> $apidir/log/db_migrate.log
     if [[ $? > 0 ]];then
       (>&2 echo "Command $cmd FAILED")
       exit 1  
@@ -509,7 +509,7 @@ function prepare_apache2 {
 function prepare_passenger {
 
   perl -p -i -e \
-    's#^(\s*)PassengerRuby "/usr/bin/ruby"#$1\PassengerRuby "/usr/bin/ruby.ruby2.4"#' \
+    's#^(\s*)PassengerRuby "/usr/bin/ruby"#$1\PassengerRuby "/usr/bin/ruby.ruby2.5"#' \
       /etc/apache2/conf.d/mod_passenger.conf
  
 
