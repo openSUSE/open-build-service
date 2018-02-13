@@ -30,6 +30,10 @@ module Cloud
       def self.table_name_prefix
         'cloud_ec2_'
       end
+
+      def upload_parameters
+        attributes.except('id', 'created_at', 'updated_at')
+      end
     end
   end
 end

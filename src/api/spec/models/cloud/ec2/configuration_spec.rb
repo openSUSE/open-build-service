@@ -8,4 +8,15 @@ RSpec.describe Cloud::Ec2::Configuration, type: :model, vcr: true do
     it { is_expected.to allow_value('arn:123:456/tom').for(:arn) }
     it { is_expected.not_to allow_value('123:456/tom').for(:arn) }
   end
+
+  describe 'upload_parameters' do
+    let(:ec2_config) { create(:ec2_configuration) }
+
+    subject { ec2_config.upload_parameters }
+
+    it { expect(subject.keys.count).to be 3 }
+    it { expect(subject['arn']).to eq ec2_config.arn }
+    it { expect(subject['user_id']).to eq ec2_config.user_id }
+    it { expect(subject['external_id']).to eq ec2_config.external_id }
+  end
 end
