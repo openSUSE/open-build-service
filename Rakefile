@@ -69,25 +69,27 @@ namespace :docker do
     end
 
     desc 'Rebuild all our static containers'
-    task rebuild: ['rebuild:base', 'rebuild:backend', 'rebuild:frontend-base', 'rebuild:mariadb', 'rebuild:memcached', 'rebuild:old-test-suite'] do
+    multitask rebuild: ['rebuild:all'] do
     end
     namespace :rebuild do
+      multitask all: [:base, :backend, 'frontend-base', :mariadb, :memcached, 'old-test-suite'] do
+      end
       task :base do
         sh "docker build docker-files/base/ #{tags_for(:base)} -f docker-files/base/Dockerfile.#{VERSION}"
       end
-      task :mariadb do
+      task mariadb: [:base] do
         sh "docker build docker-files/mariadb/ #{tags_for(:mariadb)} -f docker-files/mariadb/Dockerfile.mariadb"
       end
-      task :memcached do
+      task memcached: [:base] do
         sh "docker build docker-files/memcached/ #{tags_for(:memcached)} -f docker-files/memcached/Dockerfile.memcached"
       end
-      task 'frontend-base' do
+      task 'frontend-base' => [:base] do
         sh "docker build src/api/ #{tags_for('frontend-base')} -f src/api/docker-files/Dockerfile.frontend-base"
       end
-      task :backend do
+      task backend: [:base] do
         sh "docker build src/backend/ #{tags_for(:backend)} -f src/backend/docker-files/Dockerfile.backend"
       end
-      task 'old-test-suite' do
+      task 'old-test-suite' => [:base] do
         sh "docker build src/api/ #{tags_for('old-test-suite')} -f src/api/docker-files/Dockerfile.old-test-suite"
       end
     end
