@@ -9,8 +9,8 @@ ARG CONTAINER_USERID
 # Configure our user
 RUN usermod -u $CONTAINER_USERID frontend
 
-ADD src/api/Gemfile /obs/src/api/Gemfile
-ADD src/api/Gemfile.lock /obs/src/api/Gemfile.lock
+ADD Gemfile /obs/src/api/Gemfile
+ADD Gemfile.lock /obs/src/api/Gemfile.lock
 RUN chown -R frontend /obs/src/api
 
 # foreman, which we only run in docker, needs a different thor version than OBS.
