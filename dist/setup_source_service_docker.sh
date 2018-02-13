@@ -6,7 +6,9 @@ DAEMON_GID=2
 SUSE=$( . /etc/os-release; echo $ID )
 VERSION=$( . /etc/os-release; echo $VERSION )
 
-docker_image="suse/obs-source-service:latest"
+if [ -z "$DOCKER_IMAGE" ];then
+  DOCKER_IMAGE="obs-source-service:latest"
+fi
 
 if [ $UID != 0 ];then
   echo "You must be root!"
@@ -109,7 +111,7 @@ fi
 echo "Setting docker image"
 if ! grep -q "^our \$docker_image =.*" /usr/lib/obs/server/BSConfig.pm; then
   echo "No docker image configured. Will configure the docker image..."
-  echo "our \$docker_image = 'suse/obs-source-service:latest';1;" >> /usr/lib/obs/server/BSConfig.pm
+  echo "our \$docker_image = '$DOCKER_IMAGE';1;" >> /usr/lib/obs/server/BSConfig.pm
 fi
 
 echo "Altering default docker opts"
