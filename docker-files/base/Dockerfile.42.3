@@ -12,7 +12,7 @@ RUN zypper -n install --no-recommends --replacefiles \
   timezone ack glibc-locale sudo aaa_base
 
 # Add our bootstrap script
-ADD contrib/docker-bootstrap.sh /root/bin/docker-bootstrap.sh
+ADD docker-bootstrap.sh /root/bin/docker-bootstrap.sh
 
 # Add our user
 RUN useradd -m frontend

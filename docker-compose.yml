@@ -23,7 +23,8 @@ services:
   frontend:
     image: openbuildservice/frontend
     build:
-      context: .
+      dockerfile: docker-files/Dockerfile
+      context: src/api
     volumes:
       - .:/obs
     ports:

@@ -3,7 +3,7 @@ FROM openbuildservice/base
 RUN /root/bin/docker-bootstrap.sh backend
 
 # Add our sign configuration
-ADD dist/obs-signd-conf.tar.bz2 /
+ADD docker-files/obs-signd-conf.tar.bz2 /
 
 # Run our command
 WORKDIR /obs

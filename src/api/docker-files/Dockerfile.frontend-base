@@ -5,8 +5,8 @@ RUN /root/bin/docker-bootstrap.sh frontend
 # Install other requirements
 RUN npm install -g jshint
 
-ADD src/api/Gemfile /obs/src/api/Gemfile
-ADD src/api/Gemfile.lock /obs/src/api/Gemfile.lock
+ADD Gemfile /obs/src/api/Gemfile
+ADD Gemfile.lock /obs/src/api/Gemfile.lock
 RUN chown -R frontend /obs/src/api
 
 # Ensure there are ruby, gem and irb commands without ruby suffix

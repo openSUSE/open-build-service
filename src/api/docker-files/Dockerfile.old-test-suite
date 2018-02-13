@@ -4,9 +4,9 @@ RUN /root/bin/docker-bootstrap.sh memcached
 RUN /root/bin/docker-bootstrap.sh backend
 RUN /root/bin/docker-bootstrap.sh frontend
 
-ADD src/api/Gemfile /obs/src/api/Gemfile
-ADD src/api/Gemfile.lock /obs/src/api/Gemfile.lock
-ADD contrib/start_old_tests /obs/contrib/start_old_tests
+ADD Gemfile /obs/src/api/Gemfile
+ADD Gemfile.lock /obs/src/api/Gemfile.lock
+ADD docker-files/start_old_tests /obs/contrib/start_old_tests
 RUN chown -R frontend:users /obs/
 
 # Set up some convenience ruby binaries...
