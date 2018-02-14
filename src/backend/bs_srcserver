@@ -6162,6 +6162,11 @@ sub cloudupload_status {
   return undef;
 }
 
+sub cloudupload_pubkey {
+  my ($cgi) = @_;
+  return cloudupload_status($cgi, '_pubkey');
+}
+
 sub cloudupload_kill {
   my ($cgi, $jobid) = @_;
   die("no cloud upload server configurated\n") unless $BSConfig::clouduploadserver;
@@ -6372,6 +6377,7 @@ my $dispatches = [
   # cloud upload calls
   'POST:/cloudupload $project $repository $arch $package $filename user: target:' => \&cloudupload_create,
   'POST:/cloudupload/$job cmd=kill' => \&cloudupload_kill,
+  '/cloudupload/_pubkey' => \&cloudupload_pubkey,
   '/cloudupload/$job' => \&cloudupload_status,
   '/cloudupload/$job/_log nostream:bool? start:intnum? end:num? view:?' => \&cloudupload_log,
   '/cloudupload name:num*' => \&cloudupload_joblist,

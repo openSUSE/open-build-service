@@ -51,6 +51,8 @@ my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $jobdir = "$BSConfig::bsdir/cloudupload";
 my $eventdir = "$BSConfig::bsdir/events";
 
+my $pubkeyfile = "/etc/obs/cloudupload/_pubkey";
+
 my $ajaxsocket = "$rundir/bs_clouduploadserver.ajax";
 
 my $maxchild = $BSConfig::cloudupload_maxchild || $BSConfig::cloudupload_maxchild || 5;
@@ -300,6 +302,11 @@ sub cloudupload_log {
   return undef;
 }
 
+sub cloudupload_pubkey {
+  my ($cgi) = @_;
+  BSWatcher::reply_file($pubkeyfile, 'Content-Type: text/plain');
+}
+
 sub workerstatus {
   my ($cgi) = @_;
   my @daemonarchs = qw{clouduploadserver clouduploadworker};
@@ -363,6 +370,7 @@ my $dispatches = [
   '!- POST:/cloudupload' => \&cloudupload_create,
   '!- PUT:/cloudupload/$job' => \&cloudupload_upload,
   'POST:/cloudupload/$job cmd=kill' => \&cloudupload_kill,
+  '/cloudupload/_pubkey' => \&cloudupload_pubkey,
   '/cloudupload/$job' => \&cloudupload_status,
   '/cloudupload/$job/_log nostream:bool? start:intnum? end:num? view:?' => \&cloudupload_log,
   '/cloudupload name:num*' => \&cloudupload_joblist,
