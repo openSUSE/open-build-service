@@ -297,6 +297,10 @@ This package contains all the necessary tools for upload images to the cloud.
 
 %setup -q -n open-build-service-%version
 
+# We don't need our docker files in our packages
+rm -r src/{api,backend}/docker-files
+rm src/api/Dockerfile.frontend-base
+
 # drop build script, we require the installed one from own package
 rm -rf src/backend/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
