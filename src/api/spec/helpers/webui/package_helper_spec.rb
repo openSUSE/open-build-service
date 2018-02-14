@@ -210,69 +210,6 @@ RSpec.describe Webui::PackageHelper, type: :helper do
     skip
   end
 
-  describe '#binaries?' do
-    context 'with a buildresult with one result' do
-      let(:subject) do
-        {
-          result: {
-            binarylist: {
-              binary: [
-                { filename: '_buildenv', size: '13722', mtime: '1493898933' }
-              ]
-            }
-          }
-        }.with_indifferent_access
-      end
-
-      it 'returns true' do
-        expect(binaries?(subject)).to eq(true)
-      end
-    end
-
-    context 'with a buildresult with more than one result' do
-      let(:subject) do
-        {
-          result: [
-            {
-              binarylist: {
-                binary: [
-                  { filename: '_buildenv', size: '13722', mtime: '1493898933' }
-                ]
-              }
-            },
-            {
-              binarylist: {
-                binary: [
-                  { filename: '_buildenv', size: '13722', mtime: '1493898933' }
-                ]
-              }
-            }
-          ]
-        }.with_indifferent_access
-      end
-
-      it 'returns true' do
-        expect(binaries?(subject)).to eq(true)
-      end
-    end
-
-    context 'with a buildresult without any result' do
-      let(:subject) { ActiveSupport::HashWithIndifferentAccess.new }
-
-      it 'returns false' do
-        expect(binaries?(subject)).to eq(false)
-      end
-    end
-
-    context 'with a buildresult without a binarylist' do
-      let(:subject) { { result: ActiveSupport::HashWithIndifferentAccess.new } }
-
-      it 'returns false' do
-        expect(binaries?(subject)).to eq(false)
-      end
-    end
-  end
-
   describe '#uploadable?' do
     it { expect(uploadable?('image.raw.xz', 'x86_64')).to be_truthy }
     it { expect(uploadable?('image.vhdfixed.xz', 'x86_64')).to be_truthy }

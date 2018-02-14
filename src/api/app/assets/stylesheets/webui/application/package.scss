@@ -74,3 +74,13 @@ table.repostatus td {
   font-size: 1em;
   margin-top: 0;
 }
+
+.binaries_list_item {
+  margin-bottom: 5px;
+  list-style-type: none;
+
+  .binaries_links {
+    float: right;
+    margin-right: 10px;
+  }
+}

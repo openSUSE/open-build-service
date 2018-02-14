@@ -164,13 +164,9 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
 
-    repo = Repository.find_by_project_and_name(@project.to_s, @repository.to_s)
-    @durl = repo.download_url_for_file(@package, @arch, @filename)
-    @durl = nil if @durl && !file_available?(@durl) # ignore files not available
-    unless User.current.is_nobody? || @durl
-      # only use API for logged in users if the mirror is not available
-      @durl = rpm_url(@project, @package, @repository, @arch, @filename)
-    end
+    repository = Repository.find_by_project_and_name(@project.to_s, @repository.to_s)
+    @durl = download_url_for_file_in_repo(@project, @package, repository, @arch, @filename)
+
     logger.debug "accepting #{request.accepts.join(',')} format:#{request.format}"
     # little trick to give users eager to download binaries a single click
     redirect_to @durl && return if request.format != Mime[:html] && @durl
@@ -179,18 +175,33 @@ class Webui::PackageController < Webui::WebuiController
   def binaries
     required_parameters :repository
     @repository = params[:repository]
-    begin
-      @buildresult = Buildresult.find_hashed(project: @project, package: @package,
-        repository: @repository, view: ['binarylist', 'status'])
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.message
-      redirect_back(fallback_location: { controller: :package, action: :show, project: @project, package: @package })
+
+    results_from_backend = Buildresult.find_hashed(project: @project, package: @package, repository: @repository, view: ['binarylist', 'status'])
+    unless results_from_backend
+      flash[:error] = "Package \"#{@package}\" has no build result for repository #{@repository}"
+      redirect_to(controller: :package, action: :show, project: @project, package: @package, nextstatus: 404)
       return
     end
-    return if @buildresult
 
-    flash[:error] = "Package \"#{@package}\" has no build result for repository #{@repository}"
-    redirect_to controller: :package, action: :show, project: @project, package: @package, nextstatus: 404
+    @buildresults = []
+    repository = Repository.find_by_project_and_name(@project.to_s, @repository)
+    results_from_backend.elements('result') do |result|
+      build_results_set = { arch: result['arch'], statistics: false, repocode: result['state'], binaries: [] }
+
+      result.get('binarylist').try(:elements, 'binary') do |binary|
+        if binary['filename'] == '_statistics'
+          build_results_set[:statistics] = true
+        else
+          links = links_for_binaries_action(@project, @package, repository, result['arch'], binary['filename'])
+          build_results_set[:binaries] << { filename: binary['filename'], size: binary['size'], links: links }
+        end
+      end
+
+      @buildresults << build_results_set
+    end
+  rescue ActiveXML::Transport::Error => e
+    flash[:error] = e.message
+    redirect_back(fallback_location: { controller: :package, action: :show, project: @project, package: @package })
   end
 
   def users
@@ -1111,5 +1122,20 @@ class Webui::PackageController < Webui::WebuiController
     @package = params[:package] if @package.try(:name) != params[:package]
 
     true
+  end
+
+  def links_for_binaries_action(project, package, repository, architecture, filename)
+    download_url = download_url_for_file_in_repo(project, package, repository, architecture, filename)
+    cloud_upload = filename != 'rpmlint.log' && Feature.active?(:cloud_upload) && !User.current.is_nobody? && uploadable?(filename, architecture)
+    { details?: filename != 'rpmlint.log', download_url: download_url, cloud_upload?: cloud_upload }
+  end
+
+  def download_url_for_file_in_repo(project, package, repository, architecture, filename)
+    return nil if filename == 'rpmlint.log'
+    download_url = repository.download_url_for_file(package, architecture, filename)
+    download_url = nil if download_url && !file_available?(download_url) # ignore files not available
+    # only use API for logged in users if the mirror is not available
+    download_url = rpm_url(project, package, repository.name, architecture, filename) unless User.current.is_nobody? || download_url
+    download_url
   end
 end

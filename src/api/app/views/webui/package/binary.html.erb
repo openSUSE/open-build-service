@@ -33,19 +33,6 @@
   <p><strong>Size:</strong> <%= human_readable_fsize(@fileinfo.value(:size).to_i) %></p>
   <p><strong>Build Time:</strong> <%= btime = Time.at(@fileinfo.value(:mtime).to_i)
   btime.to_s + " (" + fuzzy_time_string(btime.ctime) + ")" %></p>
-  <% if Feature.active?(:cloud_upload) && !User.current.is_nobody? && uploadable?(@filename, @arch) %>
-    <p><strong>Cloud Upload</strong></p>
-    <p>
-      The Open Build Service can upload appliances to Cloud providers like Amazon EC2 or Microsoft Azure.
-    </p>
-    <p>
-      <%= button_tag(type: 'button') do
-        link_to "Upload to EC2", new_cloud_upload_path(project: @project, package: @package, repository: @repository, arch: @arch, filename: @filename)
-      end
-      %>
-    </p>
-  <% end %>
-
 </div>
 
 <%= render :partial => "deps" %>
