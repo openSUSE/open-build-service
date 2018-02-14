@@ -235,37 +235,35 @@ class Webui::RepositoriesController < Webui::WebuiController
     cycles = []
     # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
     deps = BuilddepInfo.find(project: @project.name, package: '-', repository: @repository.name, arch: arch)
-    nr_cycles = 0
     if deps && deps.has_element?(:cycle)
-      packages = {}
+      packagecycles = {}
       deps.each(:cycle) do |cycle|
-        current_cycles = []
-        cycle.each(:package) do |p|
-          p = p.text
-          current_cycles << packages[p] if packages.key?(p)
-        end
-        current_cycles.uniq!
-        if current_cycles.empty?
-          nr_cycles += 1
-          nr_cycle = nr_cycles
-        elsif current_cycles.length == 1
-          nr_cycle = current_cycles[0]
-        else
-          logger.debug "HELP! #{current_cycles.inspect}"
-        end
-        cycle.each(:package) do |p|
-          packages[p.text] = nr_cycle
+        package_cycle = cycle.each(:package).map(&:text)
+
+        # no cycle with another package
+        next if package_cycle.length <= 1
+
+        # find all existing cycles of the packages or create a new one
+        new_cycle = package_cycle.map do |package|
+          if packagecycles.key? package
+            packagecycles[package]
+          else
+            [package]
+          end
+        end.flatten.sort.uniq
+
+        # every package in the cycle has this cycle
+        new_cycle.sort.each do |package|
+          packagecycles[package] = new_cycle
         end
       end
-    end
-    cycles = []
-    1.upto(nr_cycles) do |i|
-      list = []
-      packages.each do |package, cycle|
-        list.push(package) if cycle == i
+
+      # take only the first item of each cycle, the rest are duplicates since they are identical
+      packagecycles.keys.map { |p| packagecycles[p][0] }.sort.uniq.each do |key|
+        cycles << packagecycles[key]
       end
-      cycles << list.sort
     end
+
     @repocycles[arch] = cycles unless cycles.empty?
   end
 
