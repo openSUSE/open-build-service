@@ -95,10 +95,11 @@ namespace :docker do
     end
 
     desc 'Rebuild and publish all our static containers'
-    task publish: [:rebuild, 'publish:base', 'publish:mariadb', 'publish:memcached', 'publish:backend', 'publish:frontend-base', \
-                   'publish:old-test-suite'] do
+    task publish: [:rebuild, 'publish:all'] do
     end
     namespace :publish do
+      multitask all: [:base, :mariadb, :memcached, :backend, 'frontend-base', 'old-test-suite'] do
+      end
       task :base do
         sh "docker push openbuildservice/base:#{VERSION}"
         sh 'docker push openbuildservice/base'
