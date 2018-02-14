@@ -24,8 +24,7 @@ data = JSON.parse(File.read(data_path))
 FileUtils.ln_s(image_path, File.join(Dir.pwd, filename))
 
 def get_ec2_credentials(data)
-  # Credentials are stored in  ~/.aws/credentials
-  out, err, status = Open3.capture3(
+  command = [
     'aws',
     'sts',
     'assume-role',
@@ -33,7 +32,14 @@ def get_ec2_credentials(data)
     "--external-id=#{data['external_id']}",
     '--role-session-name=obs',
     "--duration-seconds=#{THIRTY_MINUTES}"
-  )
+  ]
+
+  if data['vpc_subnet_id']
+    command << "--vpc-subnet-id=#{data['vpc_subnet_id']}"
+  end
+
+  # Credentials are stored in  ~/.aws/credentials
+  out, err, status = Open3.capture3(command)
 
   if status.success?
     STDOUT.write("Successfully authenticated.\n")
