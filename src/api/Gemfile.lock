@@ -330,7 +330,7 @@ GEM
       rubocop (>= 0.51.0)
     ruby-ldap (0.9.19)
     ruby-progressbar (1.9.0)
-    ruby_parser (3.10.1)
+    ruby_parser (3.11.0)
       sexp_processor (~> 4.9)
     runcom (1.4.0)
       refinements (~> 4.2)
