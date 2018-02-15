@@ -147,8 +147,9 @@ TODO
 =cut
 
 sub calculate_exportfilter {
-  my ($gctx, $prp, $prpsearchpath, $fullcache) = @_;
+  my ($gctx, $prp, $prpsearchpath, $dstcache) = @_;
 
+  my $fullcache = $dstcache ? $dstcache->{'fullcache'} : undef;
   my $myarch = $gctx->{'arch'};
   my $filter;
   # argh, need a bconf, this slows us down a bit
@@ -227,7 +228,7 @@ sub set_suf_and_filter_exports {
 =cut
 
 sub update_bininfo_merge {
-  my ($gdst, $packid, $bininfo) = @_;
+  my ($gdst, $packid, $bininfo, $dstcache) = @_;
   my $gbininfo = {};
   if (-e "$gdst/:bininfo.merge") {
     if (-s _ > 100000) {
@@ -300,7 +301,7 @@ sub repofromfiles {
 =cut
 
 sub update_dst_full {
-  my ($gctx, $prp, $packid, $jobdir, $meta, $useforbuildenabled, $prpsearchpath, $fullcache, $importarch) = @_;
+  my ($gctx, $prp, $packid, $jobdir, $meta, $useforbuildenabled, $prpsearchpath, $dstcache, $importarch) = @_;
 
   my $myarch = $gctx->{'arch'};
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
@@ -331,7 +332,7 @@ sub update_dst_full {
   # matches the current setting, so make sure they are in sync.
   my $prpcheckuseforbuild = $gctx->{'prpcheckuseforbuild'};
   if ($prpcheckuseforbuild->{$prp}) {
-    BSSched::BuildRepo::checkuseforbuild($gctx, $prp, $prpsearchpath, $fullcache);
+    BSSched::BuildRepo::checkuseforbuild($gctx, $prp, $prpsearchpath, $dstcache);
     delete $prpcheckuseforbuild->{$prp};
   }
 
@@ -461,18 +462,15 @@ sub update_dst_full {
     } else {
       unlink("$dst/.bininfo");
     }
-    update_bininfo_merge($gdst, $packid, defined($jobdir) ? $bininfo : undef);
+    update_bininfo_merge($gdst, $packid, defined($jobdir) ? $bininfo : undef, $dstcache);
     delete $bininfo->{'.bininfo'} if $bininfo;
   }
 
   ##################################################################
   # part 2: link needed binaries into :full tree
 
-  if ($fullcache) {
-    BSSched::BuildRepo::sync_fullcache($gctx, $fullcache) if $fullcache->{'prp'} && $fullcache->{'prp'} ne $prp;
-    $fullcache->{'prp'} = $prp;
-  }
-  my $filter = calculate_exportfilter($gctx, $prp, $prpsearchpath, $fullcache);
+  set_dstcache_prp($gctx, $dstcache, $prp) if $dstcache;
+  my $filter = calculate_exportfilter($gctx, $prp, $prpsearchpath, $dstcache);
   my %oldexports;
   my %newexports;
   my %old = set_suf_and_filter_exports($gctx, $oldrepo, $filter, \%oldexports);
@@ -514,7 +512,7 @@ sub update_dst_full {
     'meta' => $meta,
     'filter' => $filter,
     'importarch' => $importarch,
-    'fullcache' => $fullcache,
+    'dstcache' => $dstcache,
   };
   if ($new_full_handling) {
     BSSched::BuildRepo::move_into_full($fctx, \%old, \%new);
@@ -695,7 +693,7 @@ sub findmeta {
 =cut
 
 sub remove_from_volatile {
-  my ($gdst, $del) = @_;
+  my ($gdst, $del, $dstcache) = @_;
   for my $r (@$del) {
     my $bin = $r->{'filename'};
     next unless $bin =~ /^(.*)\.($binsufsre_binlnk)$/; # hmm?
@@ -705,7 +703,7 @@ sub remove_from_volatile {
   }
   unlink("$gdst/_volatile/.bininfo");
   my $bininfo = read_bininfo("$gdst/_volatile", 1);
-  update_bininfo_merge($gdst, '_volatile', $bininfo);
+  update_bininfo_merge($gdst, '_volatile', $bininfo, $dstcache);
 }
 
 =head2 wipe - remove a built result
@@ -713,7 +711,7 @@ sub remove_from_volatile {
 =cut
 
 sub wipe {
-  my ($gctx, $prp, $packid, $fullcache) = @_;
+  my ($gctx, $prp, $packid, $dstcache) = @_;
 
   my ($projid, $repoid) = split('/', $prp, 2);
   my $myarch = $gctx->{'arch'};
@@ -730,7 +728,7 @@ sub wipe {
   $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
   my $importarch = '';  # keep those imports
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
-  update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath, $fullcache, $importarch);
+  update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath, $dstcache, $importarch);
   delete $gctx->{'repounchanged'}->{$prp};
   # delete other files
   unlink("$gdst/:logfiles.success/$packid");
@@ -746,6 +744,19 @@ sub wipe {
     }
   }
   rmdir("$gdst/$packid");       # in case there is no history
+}
+
+sub set_dstcache_prp {
+  my ($gctx, $dstcache, $prp) = @_;
+  my $fullcache = $dstcache->{'fullcache'};
+  if ($fullcache) {
+    if ($prp) {
+      BSSched::BuildRepo::sync_fullcache($gctx, $fullcache) if $fullcache->{'prp'} && $fullcache->{'prp'} ne $prp;
+      $fullcache->{'prp'} = $prp;
+    } else {
+      BSSched::BuildRepo::sync_fullcache($gctx, $fullcache) if %$fullcache;
+    }
+  }
 }
 
 1;

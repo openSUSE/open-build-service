@@ -430,7 +430,6 @@ sub jobfinished {
   my ($ectx, $job, $js) = @_;
 
   my $gctx = $ectx->{'gctx'};
-  my $fullcache = $ectx->{'fullcache'};
 
   my $changed = $gctx->{'changed_med'};
   my $myjobsdir = $gctx->{'myjobsdir'};
@@ -468,7 +467,8 @@ sub jobfinished {
   $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
   $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
-  BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath, $fullcache);
+  my $dstcache = $ectx->{'dstcache'};
+  BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath, $dstcache);
   $changed->{$prp} = 2 if $useforbuildenabled;
   my $repounchanged = $gctx->{'repounchanged'};
   delete $repounchanged->{$prp} if $useforbuildenabled;

@@ -73,7 +73,7 @@ package BSSched::BuildJob;
 #
 # ectx usage
 #   gctx
-#   fullcache
+#   dstcache
 
 use strict;
 use warnings;
@@ -376,7 +376,7 @@ sub update_buildavg {
         $js        - job status information (BSXML::jobstatus)
         $changed   - reference to changed hash, mark prp if
                      we changed the repository
-        $fullcache - store data for delayed writing of :full.solv
+        $dstcache  - store data for delayed writing of :full.solv/bininfo
 
 =cut
 
@@ -517,8 +517,8 @@ sub jobfinished {
   $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
   $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
-  my $fullcache = $ectx->{'fullcache'};
-  BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath, $fullcache);
+  my $dstcache = $ectx->{'dstcache'};
+  BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath, $dstcache);
   $changed->{$prp} = 2 if $useforbuildenabled;
   my $repounchanged = $gctx->{'repounchanged'};
   delete $repounchanged->{$prp} if $useforbuildenabled;

@@ -243,7 +243,7 @@ sub wipeobsolete {
   my $projpacks = $gctx->{'projpacks'};
   my $myarch = $gctx->{'arch'};
   my $pdatas = $projpacks->{$projid}->{'package'} || {};
-  my $fullcache = {};
+  my $dstcache = { 'fullcache' => {} };
   my $hadobsolete;
   for my $packid (grep {!/^[:\.]/} ls($gdst)) {
     next if $packid eq '_volatile';
@@ -279,7 +279,7 @@ sub wipeobsolete {
     $useforbuildenabled = 0 if -s "$gdst/$packid/.updateinfodata";
     # don't wipe imports if we're excluded
     my $importarch = $pdatas->{$packid} && @ifiles ? '' : undef;
-    BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $ctx->{'prpsearchpath'}, $fullcache, $importarch);
+    BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $ctx->{'prpsearchpath'}, $dstcache, $importarch);
     # delete other files
     unlink("$gdst/:logfiles.success/$packid");
     unlink("$gdst/:logfiles.fail/$packid");
@@ -297,7 +297,7 @@ sub wipeobsolete {
     BSSched::BuildJob::killbuilding($gctx, $prp, $packid);
   }
   if ($hadobsolete) {
-    BSSched::BuildRepo::sync_fullcache($gctx, $fullcache);
+    BSSched::BuildResult::set_dstcache_prp($gctx, $dstcache);
     $gctx->{'changed_med'}->{$prp} = 2;
     BSSched::EventSource::Directory::sendrepochangeevent($gctx, $prp);
     unlink("$gdst/:repodone");

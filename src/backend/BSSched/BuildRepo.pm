@@ -57,7 +57,7 @@ package BSSched::BuildRepo;
 #   filter
 #   olduseforbuild
 #   newuseforbuild
-#   fullcache
+#   dstcache
 #
 # gctx usage
 #   arch
@@ -396,7 +396,7 @@ sub fctx_rebuild_full {
       my $r = $bininfo->{$_};
       push @del, $r if $r->{'name'} && $newfull->{$r->{'name'}} != $r;
     }
-    BSSched::BuildResult::remove_from_volatile($fctx->{'gdst'}, \@del) if @del;
+    BSSched::BuildResult::remove_from_volatile($fctx->{'gdst'}, \@del, $fctx->{'dstcache'}) if @del;
   }
 }
 
@@ -474,7 +474,7 @@ sub fctx_migrate_full {
   if ($dirty) {
     unlink("$gdst/_volatile/.bininfo");
     my $bininfo = BSSched::BuildResult::read_bininfo("$gdst/_volatile", 1);
-    BSSched::BuildResult::update_bininfo_merge($gdst, '_volatile', $bininfo);
+    BSSched::BuildResult::update_bininfo_merge($gdst, '_volatile', $bininfo, $fctx->{'dstcache'});
     delete $bininfo->{'.bininfo'};
     $gbininfo->{'_volatile'} = $bininfo;
   }
@@ -626,7 +626,7 @@ sub fctx_integrate_package_into_full {
       fctx_del_binary_from_full($fctx, $or) unless $nr;
       push @volrm, $or if $or->{'packid'} eq '_volatile' && !($nr && $nr == $or);
     }
-    BSSched::BuildResult::remove_from_volatile($fctx->{'gdst'}, \@volrm) if @volrm;
+    BSSched::BuildResult::remove_from_volatile($fctx->{'gdst'}, \@volrm, $fctx->{'dstcache'}) if @volrm;
     return;
   }
 
@@ -673,7 +673,7 @@ sub move_into_full {
   my $prp = $fctx->{'prp'};
   my $gdst = $fctx->{'gdst'};
   my $gctx = $fctx->{'gctx'};
-  my $fullcache = $fctx->{'fullcache'};
+  my $fullcache = ($fctx->{'dstcache'} || {})->{'fullcache'};
   my $prpa = "$prp/$gctx->{'arch'}";
   my $repodatas = $gctx->{'repodatas'};
   my $pool;
@@ -801,7 +801,7 @@ sub writesolv {
 =cut
 
 sub checkuseforbuild {
-  my ($gctx, $prp, $prpsearchpath, $fullcache, $forcerebuild) = @_;
+  my ($gctx, $prp, $prpsearchpath, $dstcache, $forcerebuild) = @_;
   return unless $BSSched::BuildResult::new_full_handling;
   my $myarch = $gctx->{'arch'};
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
@@ -854,17 +854,14 @@ sub checkuseforbuild {
       $olduseforbuild{$_} = 1 if ! -d "$gdst/$_";       # did not exist before
     }
   }
-  if ($fullcache) {
-    sync_fullcache($gctx, $fullcache) if $fullcache->{'prp'} && $fullcache->{'prp'} ne $prp;
-    $fullcache->{'prp'} = $prp;
-  }
-  my $filter = BSSched::BuildResult::calculate_exportfilter($gctx, $prp, $prpsearchpath, $fullcache);
+  BSSched::BuildResult::set_dstcache_prp($gctx, $dstcache, $prp) if $dstcache; 
+  my $filter = BSSched::BuildResult::calculate_exportfilter($gctx, $prp, $prpsearchpath, $dstcache);
   my $fctx = {
     'gctx' => $gctx,
     'gdst' => $gdst,
     'prp' => $prp,
     'filter' => $filter,
-    'fullcache' => $fullcache,
+    'dstcache' => $dstcache,
   };
   if ($olduseforbuild) {
     $fctx->{'olduseforbuild'} = \%olduseforbuild;

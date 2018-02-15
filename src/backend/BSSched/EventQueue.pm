@@ -81,7 +81,7 @@ sub new {
     'fetchprojpacks_nodelay'  => {},
     'deepcheck'               => {},
     'lowprioproject'          => {},
-    'fullcache'               => undef,
+    'dstcache'                => undef,
     '_events'                 => [],
     @conf
   };
@@ -138,19 +138,20 @@ sub process_events {
     unlink($ev->{'evfilename'}) if $ev->{'evfilename'};
     delete $ev->{'evfilename'};
 
-    if ($ev->{'type'} ne 'built' && $ectx->{'fullcache'}) {
-      BSSched::BuildRepo::sync_fullcache($gctx, $ectx->{'fullcache'});
-      $ectx->{'fullcache'} = undef;
+    if ($ev->{'type'} ne 'built' && $ectx->{'dstcache'}) {
+      BSSched::BuildResult::set_dstcache_prp($gctx, $ectx->{'dstcache'});
+      $ectx->{'dstcache'} = undef;
     }
-    if ($ev->{'type'} eq 'built' && !$ectx->{'fullcache'}) {
-      # turn on fullcache if the next event is also of type built
-      $ectx->{'fullcache'} = {} if $ectx->{_events}->[0] && $ectx->{_events}->[0]->{'type'} eq 'built';
+    if ($ev->{'type'} eq 'built' && !$ectx->{'dstcache'}) {
+      # turn on dstcache if the next event is also of type built
+      my $nextev = $ectx->{_events}->[0];
+      $ectx->{'dstcache'} = { 'fullcache' => {} } if $nextev && $nextev->{'type'} eq 'built';
     }
     $ectx->process_one($ev);
   }
 
-  BSSched::BuildRepo::sync_fullcache($gctx, $ectx->{'fullcache'}) if $ectx->{'fullcache'} && $ectx->{'fullcache'}->{'prp'};
-  $ectx->{'fullcache'} = undef;
+  BSSched::BuildResult::set_dstcache_prp($gctx, $ectx->{'dstcache'}) if $ectx->{'dstcache'};
+  $ectx->{'dstcache'} = undef;
 
   # postprocess
   if (%{$ectx->{'fetchprojpacks'}}) {
