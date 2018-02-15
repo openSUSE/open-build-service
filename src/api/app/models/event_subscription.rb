@@ -1,6 +1,6 @@
 class EventSubscription < ApplicationRecord
   RECEIVER_ROLE_TEXTS = {
-    maintainer:        'Mantainer',
+    maintainer:        'Maintainer',
     bugowner:          'Bugowner',
     reader:            'Reader',
     source_maintainer: 'Maintainer of the source',
