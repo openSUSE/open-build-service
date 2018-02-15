@@ -9,22 +9,6 @@ class ProjectRemoveTest < ActiveSupport::TestCase
     Backend::Test.start
   end
 
-  def test_cleanup_linking_projects
-    skip "LinkedProject.linked_db_project = self are replaced with links to the 'deleted' project"
-  end
-
-  def test_cleanup_linking_repos
-    skip "Project.repository.links.repository to this project repositories are replaced with links to the 'deleted' repository"
-  end
-
-  def test_cleanup_linking_targets
-    skip "Project.repository.targetlinks.target_repository to this project repositories are replaced with links to the 'deleted' repository"
-  end
-
-  def test_cleanup_local_devel_packages
-    skip 'nullify the Packages in this Project that have develpackage_id'
-  end
-
   def test_destroy_source_revokes_request
     User.current = users(:Iggy)
     branch_package
@@ -118,14 +102,6 @@ class ProjectRemoveTest < ActiveSupport::TestCase
 
     # cleanup
     @package.project.destroy
-  end
-
-  def test_cleanup_packages
-    skip 'Project.packages get removed but not on the backend'
-  end
-
-  def test_delete_on_backend
-    skip 'Project is also deleted on the backend'
   end
 
   private
