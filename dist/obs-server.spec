@@ -350,7 +350,7 @@ if ! test -L %{buildroot}/usr/lib/obs/server/build; then
   exit 1
 fi
 
-install -m 755 $RPM_BUILD_DIR/open-build-service-%version/dist/clouduploader.rb $RPM_BUILD_ROOT/%{_bindir}
+install -m 755 $RPM_BUILD_DIR/open-build-service-%version/dist/clouduploader.rb $RPM_BUILD_ROOT/%{_bindir}/clouduploader
 mkdir -p $RPM_BUILD_ROOT/etc/obs/cloudupload
 install -m 644 $RPM_BUILD_DIR/open-build-service-%version/dist/ec2utils.conf.example $RPM_BUILD_ROOT/etc/obs/cloudupload/ec2utils.conf
 
@@ -725,7 +725,7 @@ usermod -a -G docker obsservicerun
 /usr/sbin/rcobsclouduploadserver
 /usr/lib/obs/server/bs_clouduploadserver
 /usr/lib/obs/server/bs_clouduploadworker
-%{_bindir}/clouduploader.rb
+%{_bindir}/clouduploader
 %dir /etc/obs
 %dir /etc/obs/cloudupload
 %config(noreplace) /etc/obs/cloudupload/ec2utils.conf
