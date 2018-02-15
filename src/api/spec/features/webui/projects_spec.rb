@@ -302,8 +302,8 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'an existing package' do
-      fill_in('Name of original project:', with: other_user.home_project_name)
-      fill_in('Name of package in original project:', with: package_of_another_project.name)
+      fill_in('Original project name', with: other_user.home_project_name)
+      fill_in('Original package name', with: package_of_another_project.name)
       # This needs global write through
       click_button('Create Branch')
 
@@ -312,9 +312,9 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'an existing package, but chose a different target package name' do
-      fill_in('Name of original project:', with: other_user.home_project_name)
-      fill_in('Name of package in original project:', with: package_of_another_project.name)
-      fill_in('New package name:', with: 'some_different_name')
+      fill_in('Original project name', with: other_user.home_project_name)
+      fill_in('Original package name', with: package_of_another_project.name)
+      fill_in('Branch package name', with: 'some_different_name')
       # This needs global write through
       click_button('Create Branch')
 
@@ -323,9 +323,9 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'an existing package to an invalid target package or project' do
-      fill_in('Name of original project:', with: other_user.home_project_name)
-      fill_in('Name of package in original project:', with: package_of_another_project.name)
-      fill_in('New package name:', with: 'something/illegal')
+      fill_in('Original project name', with: other_user.home_project_name)
+      fill_in('Original package name', with: package_of_another_project.name)
+      fill_in('Branch package name', with: 'something/illegal')
       # This needs global write through
       click_button('Create Branch')
 
@@ -336,8 +336,8 @@ RSpec.feature 'Projects', type: :feature, js: true do
     scenario 'an existing package were the target package already exists' do
       create(:package_with_file, name: package_of_another_project.name, project: user.home_project)
 
-      fill_in('Name of original project:', with: other_user.home_project_name)
-      fill_in('Name of package in original project:', with: package_of_another_project.name)
+      fill_in('Original project name', with: other_user.home_project_name)
+      fill_in('Original package name', with: package_of_another_project.name)
       # This needs global write through
       click_button('Create Branch')
 
@@ -346,8 +346,8 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'a non-existing package' do
-      fill_in('Name of original project:', with: 'non-existing_package')
-      fill_in('Name of package in original project:', with: package_of_another_project.name)
+      fill_in('Original project name', with: 'non-existing_package')
+      fill_in('Original package name', with: package_of_another_project.name)
       # This needs global write through
       click_button('Create Branch')
 
@@ -358,9 +358,9 @@ RSpec.feature 'Projects', type: :feature, js: true do
     scenario 'a package with disabled access flag' do
       create(:access_flag, status: 'disable', project: other_user.home_project)
 
-      fill_in('Name of original project:', with: other_user.home_project_name)
-      fill_in('Name of package in original project:', with: package_of_another_project.name)
-      fill_in('New package name:', with: 'some_different_name')
+      fill_in('Original project name', with: other_user.home_project_name)
+      fill_in('Original package name', with: package_of_another_project.name)
+      fill_in('Branch package name', with: 'some_different_name')
       # This needs global write through
       click_button('Create Branch')
 
@@ -371,9 +371,9 @@ RSpec.feature 'Projects', type: :feature, js: true do
     scenario 'a package with disabled sourceaccess flag' do
       create(:sourceaccess_flag, status: 'disable', project: other_user.home_project)
 
-      fill_in('Name of original project:', with: other_user.home_project_name)
-      fill_in('Name of package in original project:', with: package_of_another_project.name)
-      fill_in('New package name:', with: 'some_different_name')
+      fill_in('Original project name', with: other_user.home_project_name)
+      fill_in('Original package name', with: package_of_another_project.name)
+      fill_in('Branch package name', with: 'some_different_name')
       # This needs global write through
       click_button('Create Branch')
 
@@ -382,8 +382,8 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'a package and select current revision' do
-      fill_in('Name of original project:', with: other_user.home_project_name)
-      fill_in('Name of package in original project:', with: package_of_another_project.name)
+      fill_in('Original project name', with: other_user.home_project_name)
+      fill_in('Original package name', with: package_of_another_project.name)
 
       find("input[id='current_revision']").set(true)
 
