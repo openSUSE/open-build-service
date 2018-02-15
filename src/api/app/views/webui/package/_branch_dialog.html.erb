@@ -1,23 +1,24 @@
   <div class="dialog darkgrey_box hidden" id="package_branch_dialog">
     <div class="box box-shadow">
       <h2 class="box-header">Branch Confirmation</h2>
-      <div class="dialog-content">
-        <p>
-        Do you want to branch <%= package_link(@package) %> into
-        <%= project_or_package_link(
-              project: User.current.branch_project_name(@package.project.name),
-              short: true) %>?<br /><br />
-         <a data-target="#branching-options" data-hidetext="[-] Hide options" data-showtext="[+] More options" class="show-hide">[+] More options</a>
-        </p>
+      <div class="dialog-content branching-details">
+        <% branch_project = User.current.branch_project_name(@project.name) %>
+        <p><strong>Source</strong></p>
+        <p><%= package_link(@package, short: true) %></p>
+        <p><strong>Destination</strong></p>
+        <p><%= project_or_package_link(project: branch_project, short: true) %></p>
+        <p><a data-target="#branching-options" data-hidetext="[-] Hide options" data-showtext="[+] More options" class="show-hide">[+] More options</a></p>
       </div>
 
       <%= form_tag({controller: :package, action: :branch}, method: :post) do %>
-        <div id="branching-options" class="hidden">
-          <%= render partial: 'shared/package_branch_form', locals: {show_source_fields: false, target_project: nil} %>
+        <div id="branching-options" class="hidden branching-details">
+          <%= hidden_field_tag :linked_project, @project.name %>
+          <%= hidden_field_tag :linked_package, @package.name %>
+          <%= render partial: 'shared/package_branch_form', locals: {show_project_field: true, target_project: branch_project} %>
         </div>
 
         <div class="dialog-buttons">
-          <%= link_to('Close', '#', title: 'Close', class: 'close-dialog', data: { target: '#package_branch_dialog' }) %>
+          <%= link_to('Cancel', '#', title: 'Close', class: 'close-dialog', data: { target: '#package_branch_dialog' }) %>
           <%= submit_tag('Ok') %>
         </div>
       <% end %>

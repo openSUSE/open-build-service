@@ -22,8 +22,19 @@ package.</p>
   </ul>
 <% end %>
 <%= form_tag controller: :package, action: :branch do %>
-  <%= render partial: 'shared/package_branch_form', locals: {show_source_fields: true, target_project: @project} %>
-  <p><%= submit_tag "Create Branch" %></p>
+  <div class="branching-details">
+    <p>
+      <label for="linked_project"><strong>Original project name</strong></label>
+      <%= text_field_tag 'linked_project', nil, size: 80, id: 'linked_project', required: true %>
+    </p>
+    <p>
+      <label for="linked_package"><strong>Original package name</strong></label>
+      <%= text_field_tag 'linked_package', nil, size: 80, id: 'linked_package', required: true %>
+    </p>
+    <%= hidden_field_tag 'target_project', @project %>
+    <%= render partial: 'shared/package_branch_form', locals: {show_project_field: false, target_project: @project} %>
+    <p><%= submit_tag "Create Branch" %></p>
+  </div>
 <% end %>
 
 <%= javascript_tag do %>
