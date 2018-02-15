@@ -324,10 +324,6 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  def test_branch_using_olinkrev_parameter
-    skip('IMPLEMENT ME: test that branching from a package with merge conflicts is working using olinkrev=base')
-  end
-
   def test_branch_use_missingok_to_existing_package_fails
     login_king
     # package exists

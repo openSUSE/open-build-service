@@ -69,7 +69,7 @@ gem 'gssapi', require: false
 # for sending events to rabbitmq
 gem 'bunny'
 # for making changes to existing data
-gem 'data_migrate', '= 3.2.2'
+gem 'data_migrate', '= 3.4.0'
 # for URI encoding
 gem 'addressable'
 

@@ -8,14 +8,6 @@ class PackageRemoveTest < ActiveSupport::TestCase
     Backend::Test.start
   end
 
-  def test_delete_on_backend
-    skip 'Removing a package should remove the package on the backend'
-  end
-
-  def test_delete_on_backend_no_backend_write
-    skip 'Removing a package with commit_opts[:no_backend_write] should not remove the package on the backend'
-  end
-
   def test_destroy_source_revokes_request
     User.current = users(:Iggy)
     branch_package
@@ -74,20 +66,6 @@ class PackageRemoveTest < ActiveSupport::TestCase
     assert_equal 1, HistoryElement::RequestDeclined.where(op_object_id: @request.id).count
 
     @package.project.destroy
-  end
-
-  def test_update_project_for_product
-    skip 'No idea what Project.update_product_autopackages is supposed to do, Adrian?'
-  end
-
-  def test_remove_linked_packages
-    skip 'to be done'
-    # remove all BackendPackage.where(links_to_id: self.id)
-  end
-
-  def test_remove_devel_packages
-    skip 'to be done'
-    # nullify all Package.where(develpackage: self)
   end
 
   private
