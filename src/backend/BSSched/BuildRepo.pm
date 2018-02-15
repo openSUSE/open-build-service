@@ -57,6 +57,7 @@ package BSSched::BuildRepo;
 #   filter
 #   olduseforbuild
 #   newuseforbuild
+#   fullcache
 #
 # gctx usage
 #   arch
@@ -667,11 +668,12 @@ sub fctx_integrate_package_into_full_old {
 =cut
 
 sub move_into_full {
-  my ($fctx, $old, $new, $fullcache) = @_;
+  my ($fctx, $old, $new) = @_;
 
   my $prp = $fctx->{'prp'};
   my $gdst = $fctx->{'gdst'};
   my $gctx = $fctx->{'gctx'};
+  my $fullcache = $fctx->{'fullcache'};
   my $prpa = "$prp/$gctx->{'arch'}";
   my $repodatas = $gctx->{'repodatas'};
   my $pool;
@@ -862,13 +864,14 @@ sub checkuseforbuild {
     'gdst' => $gdst,
     'prp' => $prp,
     'filter' => $filter,
+    'fullcache' => $fullcache,
   };
   if ($olduseforbuild) {
     $fctx->{'olduseforbuild'} = \%olduseforbuild;
     $fctx->{'newuseforbuild'} = \%newuseforbuild;
   }
   # this will also remove no longer existing packages from the :full tree
-  move_into_full($fctx, undef, undef, $fullcache);
+  move_into_full($fctx, undef, undef);
   BSUtil::store("$gdst/.:full.useforbuild", "$gdst/:full.useforbuild", $newuseforbuild);
 }
 

@@ -514,13 +514,14 @@ sub update_dst_full {
     'meta' => $meta,
     'filter' => $filter,
     'importarch' => $importarch,
+    'fullcache' => $fullcache,
   };
   if ($new_full_handling) {
-    BSSched::BuildRepo::move_into_full($fctx, \%old, \%new, $fullcache);
+    BSSched::BuildRepo::move_into_full($fctx, \%old, \%new);
   } else {
     $fctx->{'dst'} = $jobdir if $importarch;    # override source dir for imports
     # note that we use oldrepo here instead of \%old
-    BSSched::BuildRepo::move_into_full($fctx, $oldrepo, \%new, $fullcache);
+    BSSched::BuildRepo::move_into_full($fctx, $oldrepo, \%new);
   }
 }
 
