@@ -232,39 +232,27 @@ class Webui::RepositoriesController < Webui::WebuiController
 
   # TODO: Move to model
   def calculate_repo_cycle(arch)
-    cycles = []
     # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
     deps = BuilddepInfo.find(project: @project.name, package: '-', repository: @repository.name, arch: arch)
-    if deps && deps.has_element?(:cycle)
-      packagecycles = {}
-      deps.each(:cycle) do |cycle|
-        package_cycle = cycle.each(:package).map(&:text)
+    cycles = deps.each(:cycle).map { |cycle| cycle.each(:package).map(&:text) }
 
-        # no cycle with another package
-        next if package_cycle.length <= 1
-
-        # find all existing cycles of the packages or create a new one
-        new_cycle = package_cycle.map do |package|
-          if packagecycles.key? package
-            packagecycles[package]
-          else
-            [package]
-          end
-        end.flatten.sort.uniq
-
-        # every package in the cycle has this cycle
-        new_cycle.sort.each do |package|
-          packagecycles[package] = new_cycle
-        end
+    merged_cycles = []
+    cycles.each do |cycle|
+      # We look up all other cycles that intersect with this cycle
+      intersecting_cycles = merged_cycles.select { |another_cycle| (cycle & another_cycle).any? }
+      intersecting_cycles.each do |intersecting_cycle|
+        # We remove the intersecting cycle from the merged cycles
+        deleted = merged_cycles.delete(intersecting_cycle)
+        # We merge the intersecting cycle with this cycle
+        cycle.concat(deleted)
       end
-
-      # take only the first item of each cycle, the rest are duplicates since they are identical
-      packagecycles.keys.map { |p| packagecycles[p][0] }.sort.uniq.each do |key|
-        cycles << packagecycles[key]
-      end
+      # We remove duplicates from the cycle
+      cycle.uniq!
+      # We add it to the merged cycles
+      merged_cycles.push(cycle)
     end
 
-    @repocycles[arch] = cycles unless cycles.empty?
+    @repocycles[arch] = merged_cycles unless merged_cycles.empty?
   end
 
   def find_repository_parent
