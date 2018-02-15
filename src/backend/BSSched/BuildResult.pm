@@ -653,6 +653,17 @@ sub read_gbininfo {
   return $gbininfo;
 }
 
+=head2 rebuild_gbininfo - force a rebuild of the bininfo data
+
+=cut
+
+sub rebuild_gbininfo {
+  my ($gdst) = @_;
+  unlink("$gdst/:bininfo");
+  unlink("$gdst/:bininfo.merge");
+  return read_gbininfo($gdst);
+}
+
 =head2 findmeta - find the correct meta for a binary in a package directory
 
 =cut

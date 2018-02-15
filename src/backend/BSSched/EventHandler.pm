@@ -318,10 +318,8 @@ sub event_scanprjbinaries {
       }
     }
     my $reporoot = $gctx->{'reporoot'};
-    unlink("$reporoot/$prp/$myarch/:bininfo");
-    unlink("$reporoot/$prp/$myarch/:bininfo.merge");
     print "reading project binary state of repository $projid/$repoid\n";
-    BSSched::BuildResult::read_gbininfo("$reporoot/$prp/$myarch");
+    BSSched::BuildResult::rebuild_gbininfo("$reporoot/$prp/$myarch");
     $changed_high->{$prp} = 1;
   }
 }

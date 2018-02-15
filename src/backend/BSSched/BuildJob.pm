@@ -658,14 +658,7 @@ sub fakejobfinished_nouseforbuild {
     BSUtil::store("$dst/.bininfo.new", "$dst/.bininfo", $bininfo);
     my @bininfo_s = stat("$dst/.bininfo");
     $bininfo->{'.bininfo'} = {'id' => "$bininfo_s[9]/$bininfo_s[7]/$bininfo_s[1]"} if @bininfo_s;
-    my $gbininfo = {};
-    $gbininfo = BSUtil::retrieve("$gdst/:bininfo.merge", 1) if -e "$gdst/:bininfo.merge";
-    if ($gbininfo) {
-      $gbininfo->{$packid} = $bininfo;
-      BSUtil::store("$gdst/.:bininfo.merge", "$gdst/:bininfo.merge", $gbininfo);
-    } else {
-      writestr("$gdst/.:bininfo.merge", "$gdst/:bininfo.merge", '');    # corrupt file, mark
-    }
+    BSSched::BuildResult::update_bininfo_merge($gdst, $packid, $bininfo);
     delete $bininfo->{'.bininfo'};
     # write history file
     my $h = {'versrel' => $pdata->{'versrel'}, 'bcnt' => "0", 'time' => time(), 'srcmd5' => $pdata->{'srcmd5'}, 'rev' => $pdata->{'rev'}, 'reason' => "", 'duration' => "0"};

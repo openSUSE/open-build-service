@@ -381,9 +381,7 @@ sub fctx_rebuild_full {
 
   if ($out_of_sync) {
     print "detected out-of-sync condition for $out_of_sync, rebuilding bad bininfos\n";
-    unlink("$gdst/:bininfo");
-    unlink("$gdst/:bininfo.merge");
-    $gbininfo = BSSched::BuildResult::read_gbininfo($gdst);
+    $gbininfo = BSSched::BuildResult::rebuild_gbininfo($gdst);
     my %newfull = fctx_gbininfo2full($fctx, $gbininfo, undef, undef, $fctx->{'newuseforbuild'});
     fctx_rebuild_full($fctx, \%newfull, $gbininfo);
     return;
