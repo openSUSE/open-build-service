@@ -398,7 +398,7 @@ GEM
     uniform_notifier (1.10.0)
     url (0.3.2)
     vcr (4.0.0)
-    voight_kampff (1.1.1)
+    voight_kampff (1.1.2)
       rack (>= 1.4, < 3.0)
     webmock (3.3.0)
       addressable (>= 2.3.6)
