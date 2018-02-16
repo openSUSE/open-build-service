@@ -1600,13 +1600,10 @@ sub getprojpack {
 	    }
             # add all source services to be used at build time
 	    if ($files->{'_service'}) {
-              my $services = BSRevision::revreadxml($rev, '_service', $files->{'_service'}, $BSXML::services, 1);
+              my $services = BSRevision::revreadxml($rev, '_service', $files->{'_service'}, $BSXML::services, 1) || {};
               for my $service (@{$services->{'service'} || []}) {
                 next unless $service->{'mode'} && $service->{'mode'} eq 'buildtime';
-                my $pkgname = "obs-service-$service->{'name'}";
-                # debian does not allow _ in package name
-                $pkgname =~ s/_/-/g if $conf->{'binarytype'} eq 'deb';
-                push @{$rinfo->{'dep'}}, $pkgname;
+                push @{$rinfo->{'buildtimeservice'}}, $service->{'name'};
               }
             }
 	    # KIWI Products support debugmedium and sourcemedium filters

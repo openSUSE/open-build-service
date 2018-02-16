@@ -896,13 +896,28 @@ sub create {
 
   my $expanddebug = $ctx->{'expanddebug'};
 
+  # calculate build time service debs
+  my @btdeps;
+  if ($info->{'buildtimeservice'}) {
+    for my $service (@{$info->{'buildtimeservice'} || []}) {
+      if ($bconf->{'substitute'}->{"obs-service:$service"}) {
+	push @btdeps, @{$bconf->{'substitute'}->{"obs-service:$service"}};
+      } else {
+	my $pkgname = "obs-service-$service";
+	$pkgname =~ s/_/-/g if $bconf->{'binarytype'} eq 'deb';
+	push @btdeps, $pkgname;
+      }
+    }
+    @btdeps = BSUtil::unify(@btdeps);
+  }
+
   # calculate sysdeps (cannot cache in the kiwi case)
   my @sysdeps;
   if ($buildtype eq 'kiwi') {
     my $kiwitype = '';
     $kiwitype = $info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product' ? 'kiwi-product' : 'kiwi-image';
     @sysdeps = grep {/^kiwi-.*:/} @{$info->{'dep'} || []};
-    @sysdeps = Build::get_sysbuild($bconf, $kiwitype, [ @sysdeps,  @{$ctx->{'extradeps'} || []} ]);
+    @sysdeps = Build::get_sysbuild($bconf, $kiwitype, [ @sysdeps, @btdeps, @{$ctx->{'extradeps'} || []} ]);
   } else {
     $ctx->{"sysbuild_$buildtype"} ||= [ Build::get_sysbuild($bconf, $buildtype) ];
     @sysdeps = @{$ctx->{"sysbuild_$buildtype"}};
@@ -912,7 +927,7 @@ sub create {
   # calculate packages needed for building
   my @bdeps = grep {!/^\// || $bconf->{'fileprovides'}->{$_}} @{$info->{'prereq'} || []};
   unshift @bdeps, '--directdepsend--' if @bdeps;
-  unshift @bdeps, @{$info->{'dep'} || []}, @{$ctx->{'extradeps'} || []};
+  unshift @bdeps, @{$info->{'dep'} || []}, @btdeps, @{$ctx->{'extradeps'} || []};
   push @bdeps, '--ignoreignore--' if @sysdeps;
 
   if ($kiwimode || $buildtype eq 'buildenv') {
