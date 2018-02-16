@@ -235,6 +235,7 @@ sub setup {
 
 sub wipeobsolete {
   my ($ctx) = @_;
+
   my $gctx = $ctx->{'gctx'};
   my $gdst = $ctx->{'gdst'};
   my $prp = $ctx->{'prp'};
@@ -243,7 +244,7 @@ sub wipeobsolete {
   my $projpacks = $gctx->{'projpacks'};
   my $myarch = $gctx->{'arch'};
   my $pdatas = $projpacks->{$projid}->{'package'} || {};
-  my $dstcache = { 'fullcache' => {} };
+  my $dstcache = { 'fullcache' => {}, 'bininfocache' => {} };
   my $hadobsolete;
   for my $packid (grep {!/^[:\.]/} ls($gdst)) {
     next if $packid eq '_volatile';
@@ -296,8 +297,9 @@ sub wipeobsolete {
     rmdir("$gdst/$packid");
     BSSched::BuildJob::killbuilding($gctx, $prp, $packid);
   }
+  BSSched::BuildResult::set_dstcache_prp($gctx, $dstcache);
+
   if ($hadobsolete) {
-    BSSched::BuildResult::set_dstcache_prp($gctx, $dstcache);
     $gctx->{'changed_med'}->{$prp} = 2;
     BSSched::EventSource::Directory::sendrepochangeevent($gctx, $prp);
     unlink("$gdst/:repodone");

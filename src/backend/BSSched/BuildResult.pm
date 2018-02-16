@@ -229,31 +229,75 @@ sub set_suf_and_filter_exports {
 
 sub update_bininfo_merge {
   my ($gdst, $packid, $bininfo, $dstcache) = @_;
-  my $gbininfo = {};
+
+  # delete currently not needed values from bininfo, maybe later
+  if ($bininfo) {
+    for (values %$bininfo) {
+      delete $_->{'provides'};
+      delete $_->{'requires'};
+    }
+  }
+
+  my $bininfocache = $dstcache ? $dstcache->{'bininfocache'} : undef;
+
+  if ($bininfocache && $bininfocache->{'gdst'}) {
+    # sync to disk if from another gdst
+    sync_bininfocache($gdst, $bininfocache) if $bininfocache->{'gdst'} ne $gdst;
+
+    # just update the cache and return
+    if ($bininfocache->{'merge'}) {
+      $bininfocache->{'merge'}->{$packid} = $bininfo;
+      return;
+    }
+  }
+
+  my $merge = {};
   if (-e "$gdst/:bininfo.merge") {
     if (-s _ > 100000) {
       # quite big. better merge now.
-      read_gbininfo($gdst);
-      $gbininfo = BSUtil::retrieve("$gdst/:bininfo.merge", 1) if -e "$gdst/:bininfo.merge";
+      read_gbininfo($gdst);	# this will also merge
+      $merge = BSUtil::retrieve("$gdst/:bininfo.merge", 1) if -e "$gdst/:bininfo.merge";
     } else {
-      $gbininfo = BSUtil::retrieve("$gdst/:bininfo.merge", 1);
+      $merge = BSUtil::retrieve("$gdst/:bininfo.merge", 1);
     }
+    if ($merge && $merge->{'/outdated'}) {
+      # hey! need to rebuild gbininfo!
+      read_gbininfo($gdst);	# this will also merge
+      $merge = {};
+      $merge = BSUtil::retrieve("$gdst/:bininfo.merge", 1) if -e "$gdst/:bininfo.merge";
+    }
+    undef $merge if $merge && $merge->{'/outdated'};
   }
-  if ($gbininfo) {
-    if ($bininfo) {
-      # currently not needed, maybe later
-      for (values %$bininfo) {
-        delete $_->{'provides'};
-        delete $_->{'requires'};
-      }
-      $gbininfo->{$packid} = $bininfo;
-    } else {
-      $gbininfo->{$packid} = undef;
-    }
-    BSUtil::store("$gdst/.:bininfo.merge", "$gdst/:bininfo.merge", $gbininfo);
-  } else {
+
+  if (!$merge) {
     writestr("$gdst/.:bininfo.merge", "$gdst/:bininfo.merge", '');      # corrupt file, mark
+    return;
   }
+
+  $merge->{$packid} = $bininfo;
+
+  if ($bininfocache) {
+    # start caching this file
+    $bininfocache->{'merge'} = $merge;
+    $bininfocache->{'gdst'} = $gdst;
+
+    # write a "not up-to-date marker" so that we rebuild when there is a crash
+    $merge->{'/outdated'} = 1;
+    BSUtil::store("$gdst/.:bininfo.merge", "$gdst/:bininfo.merge", $merge);
+    delete $merge->{'/outdated'};
+
+  } else {
+    BSUtil::store("$gdst/.:bininfo.merge", "$gdst/:bininfo.merge", $merge);
+  }
+}
+
+sub sync_bininfocache {
+  my ($gctx, $bininfocache) = @_;
+  my $gdst = $bininfocache->{'gdst'};
+  return unless $gdst;
+  BSUtil::store("$gdst/.:bininfo.merge", "$gdst/:bininfo.merge", $bininfocache->{'merge'});
+  delete $bininfocache->{'merge'};
+  delete $bininfocache->{'gdst'};
 }
 
 =head2 repofromfiles - create repo from a file list
@@ -615,6 +659,7 @@ sub read_gbininfo {
   if ($gbininfo) {
     return $gbininfo unless -e "$dir/:bininfo.merge";
     $gbininfo_m = BSUtil::retrieve("$dir/:bininfo.merge", 1);
+    $gbininfo_m = undef if $gbininfo_m && $gbininfo_m->{'/outdated'};
   }
   if ($gbininfo && $gbininfo_m) {
     for (keys %$gbininfo_m) {
@@ -755,6 +800,15 @@ sub set_dstcache_prp {
       $fullcache->{'prp'} = $prp;
     } else {
       BSSched::BuildRepo::sync_fullcache($gctx, $fullcache) if %$fullcache;
+    }
+  }
+  my $bininfocache = $dstcache->{'bininfocache'};
+  if ($bininfocache) {
+    if ($prp) {
+      my $gdst = "$gctx->{'reporoot'}/$prp/$gctx->{'arch'}";
+      sync_bininfocache($gctx, $bininfocache) if $bininfocache->{'gdst'} && $bininfocache->{'gdst'} ne $gdst;
+    } else {
+      sync_bininfocache($gctx, $bininfocache) if $bininfocache->{'gdst'};
     }
   }
 }
