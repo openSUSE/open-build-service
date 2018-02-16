@@ -184,6 +184,7 @@ our $packinfo = [
 	'error',
 	  [ 'dep' ],
 	  [ 'prereq' ],
+	  [ 'buildtimeservice' ],
 	  [ 'imagetype' ],	# kiwi
 	  [ 'imagearch' ],	# kiwi
 	    'nodbgpkgs',	# kiwi
