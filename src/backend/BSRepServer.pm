@@ -64,6 +64,7 @@ sub read_gbininfo {
   if ($gbininfo) {
     my $gbininfo_m = BSUtil::retrieve("$dir/:bininfo.merge", 1);
     if ($gbininfo_m) {
+      delete $gbininfo_m->{'/outdated'};
       for (keys %$gbininfo_m) {
 	if ($gbininfo_m->{$_}) {
 	  $gbininfo->{$_} = $gbininfo_m->{$_};
