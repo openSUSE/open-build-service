@@ -68,6 +68,8 @@ if [ -n "$REDIR_LOG" ]; then
   APPEND_ARR[7]=">$REDIR_LOG/bs_signer.log 2>&1"
   APPEND_ARR[8]=">$REDIR_LOG/signd.log 2>&1"
   APPEND_ARR[9]=">$REDIR_LOG/bs_servicedispatch.log 2>&1"
+  APPEND_ARR[10]=">$REDIR_LOG/bs_clouduploadserver.log 2>&1"
+  APPEND_ARR[11]=">$REDIR_LOG/bs_clouduploadworker.log 2>&1"
 fi
 
 #check if GIT_HOME exists. If not it does not make any sense to continue.
@@ -120,6 +122,12 @@ COMMAND_STRING="sudo /usr/sbin/signd ${APPEND_ARR[8]} &"
 eval $COMMAND_STRING
 echo "Starting bs_servicedispatch"
 COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_servicedispatch ${APPEND_ARR[9]} &"
+eval $COMMAND_STRING
+echo "Starting bs_clouduploadserver"
+COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_clouduploadserver ${APPEND_ARR[10]} &"
+eval $COMMAND_STRING
+echo "Starting bs_clouduploadworker"
+COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_clouduploadworker ${APPEND_ARR[11]} &"
 eval $COMMAND_STRING
 
 #Cleanup function to terminate all backend services
