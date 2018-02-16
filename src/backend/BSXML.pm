@@ -1821,17 +1821,20 @@ our $multibuild = [
 	  [ 'flavor' ],
 ];
 
+our $pubkeyinfo = [
+    'pubkey' =>
+	'keyid',
+	'algo',
+	'keysize',
+	'expires',
+	'fingerprint',
+	'_content',
+];
+
 our $keyinfo = [
     'keyinfo' =>
 	'project',
-      [ 'pubkey' =>
-	    'keyid',
-	    'algo',
-	    'keysize',
-	    'expires',
-	    'fingerprint',
-	    '_content',
-      ],
+        $pubkeyinfo,
 	'sslcert',
 ];
 
