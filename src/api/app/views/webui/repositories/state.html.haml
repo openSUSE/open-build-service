@@ -8,22 +8,19 @@
     State of Repository #{@repository} for #{@project}
   %p
     = render partial: 'shared/download_repository_link', locals: { project: @project, repository: @repository }
-  %div{style: "margin-top: 1em"}
-    %h4 Build Dependency Cycles
-    - @archs.each do |arch|
-      - unless @repocycles[arch]
-        %p
-          %i
-            There are no cycles for #{arch}
-      - else
+  %h4 Build Dependency Cycles
+  - @repository.architectures.each do |arch|
+    - cycles = @repository.cycles(arch.name)
+    - cycles.each_with_index do |cycle, index|
+      - if index == 0
         %h5
-          Cycles for #{arch} (##{@repocycles[arch].length})
-        %ul
-          - @repocycles[arch].each do |cycle|
-            %li
-              - cycle.each do |package|
-                = link_to package, project: @project, package: package, controller: :package, action: :show
-                - unless package == cycle.last
-                  ,
+          Cycles for #{arch.name} (##{cycle.length})
+      %ul
+        %li
+          = cycle.map { |package| link_to(package, package_show_path(project: @project, package: package)) }.join(', ').html_safe
+    - if cycles.empty?
       %p
-        Check the rebuild time for #{link_to arch, { action: :rebuild_time, project: @project, arch: arch, repository: @repository.name, controller: :project }, { rel: 'nofollow' }}
+        %i
+          There are no cycles for #{arch}
+    %p
+      Check the rebuild time for #{link_to arch, { action: :rebuild_time, project: @project, arch: arch.name, repository: @repository.name, controller: :project }, { rel: 'nofollow' }}

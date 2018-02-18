@@ -123,6 +123,26 @@ class Repository < ApplicationRecord
     repositories.uniq
   end
 
+  # returns an array of arrays with package names that have circular dependencies with each other
+  # [['firefox', 'gtk3'], ['kde', 'qt4']]
+  def cycles(arch)
+    # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
+    deps = BuilddepInfo.find(project: project.name, package: '-', repository: name, arch: arch)
+    cycles = deps.each(:cycle).map { |cycle| cycle.each(:package).map(&:text) }
+
+    merged_cycles = []
+    cycles.each do |cycle|
+      intersecting_cycles = merged_cycles.select { |another_cycle| (cycle & another_cycle).any? }
+      intersecting_cycles.each do |intersecting_cycle|
+        deleted = merged_cycles.delete(intersecting_cycle)
+        cycle.concat(deleted)
+      end
+      merged_cycles.push(cycle.sort.uniq)
+    end
+
+    merged_cycles
+  end
+
   # returns a list of repositories that include path_elements linking to this one
   # or empty list
   def linking_repositories

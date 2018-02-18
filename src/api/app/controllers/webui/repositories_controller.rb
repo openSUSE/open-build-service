@@ -1,5 +1,6 @@
 class Webui::RepositoriesController < Webui::WebuiController
   before_action :set_project
+  before_action :set_repository, only: [:state]
   before_action :find_repository_parent, only: [:index, :create_flag, :remove_flag, :toggle_flag]
   after_action :verify_authorized, except: [:index, :distributions, :state]
 
@@ -106,25 +107,7 @@ class Webui::RepositoriesController < Webui::WebuiController
   end
 
   # GET project/repository_state/:project/:repository
-  def state
-    required_parameters :repository
-
-    # Get cycles of the repository build dependency information
-    @repocycles = {}
-
-    @repository = @project.repositories.where(name: params[:repository]).first
-
-    unless @repository
-      redirect_back(fallback_location: root_path, alert: "Repository '#{params[:repository]}' not found")
-      return
-    end
-
-    @archs = []
-    @repository.architectures.each do |arch|
-      @archs << arch.name
-      calculate_repo_cycle(arch.name)
-    end
-  end
+  def state; end
 
   # POST /project/create_dod_repository
   def create_dod_repository
@@ -230,29 +213,8 @@ class Webui::RepositoriesController < Webui::WebuiController
 
   private
 
-  # TODO: Move to model
-  def calculate_repo_cycle(arch)
-    # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
-    deps = BuilddepInfo.find(project: @project.name, package: '-', repository: @repository.name, arch: arch)
-    cycles = deps.each(:cycle).map { |cycle| cycle.each(:package).map(&:text) }
-
-    merged_cycles = []
-    cycles.each do |cycle|
-      # We look up all other cycles that intersect with this cycle
-      intersecting_cycles = merged_cycles.select { |another_cycle| (cycle & another_cycle).any? }
-      intersecting_cycles.each do |intersecting_cycle|
-        # We remove the intersecting cycle from the merged cycles
-        deleted = merged_cycles.delete(intersecting_cycle)
-        # We merge the intersecting cycle with this cycle
-        cycle.concat(deleted)
-      end
-      # We remove duplicates from the cycle
-      cycle.uniq!
-      # We add it to the merged cycles
-      merged_cycles.push(cycle)
-    end
-
-    @repocycles[arch] = merged_cycles unless merged_cycles.empty?
+  def set_repository
+    @repository = @project.repositories.find_by!(name: params[:repository])
   end
 
   def find_repository_parent
