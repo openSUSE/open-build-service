@@ -284,9 +284,11 @@ This package contains test cases for testing a installed appliances.
 %package -n obs-cloud-uploader
 Summary:       The Open Build Service -- Image Cloud Uploader
 Requires:      obs-server
-Requires:      python3-boto3
+%if 0%{?suse_version} > 1315
 Requires:      python3-ec2uploadimg
-Requires:      python3-ec2utilsbase
+%else
+Requires:      python-ec2uploadimg
+%endif
 Group:         Productivity/Networking/Web/Utilities
 
 %description -n obs-cloud-uploader
