@@ -33,6 +33,17 @@ module Backend
       def self.destroy(id)
         http_post(['/cloudupload/:id', id], params: { cmd: :kill })
       end
+
+      # Retrieves the public key of the cloud upload server. The public key is being used
+      # to encrypt sensitive data, such as the managed certificate for Azure.
+      #
+      # possible views:
+      #  * :info => returns an xml structure with the keyid, algorithm, keysize, fingerprint and the public key itself
+      #
+      # @return [String]
+      def self.public_key(params = {})
+        http_get('/cloudupload/_pubkey', params: { view: params[:view] })
+      end
     end
   end
 end
