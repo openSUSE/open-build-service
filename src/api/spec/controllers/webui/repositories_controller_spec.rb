@@ -25,20 +25,12 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
         get :state, params: { project: user.home_project, repository: repo_for_user_home.name }
       end
 
-      it { expect(assigns(:repocycles)).to be_a(Hash) }
       it { expect(assigns(:repository)).to eq(repo_for_user_home) }
-      it { expect(assigns(:archs)).to match_array(repo_for_user_home.architectures.pluck(:name)) }
     end
 
     context 'with a non valid repository param' do
-      before do
-        request.env['HTTP_REFERER'] = root_url # Needed for the redirect_to :back
-        get :state, params: { project: user.home_project, repository: 'non_valid_repo_name' }
-      end
-
-      it { expect(assigns(:repocycles)).to be_a(Hash) }
+      it { expect { get :state, params: { project: user.home_project, repository: 'not_valid' } }.to raise_error ActiveRecord::RecordNotFound }
       it { expect(assigns(:repository)).to be_falsey }
-      it { is_expected.to redirect_to(root_url) }
     end
   end
 

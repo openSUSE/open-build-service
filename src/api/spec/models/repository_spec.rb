@@ -38,5 +38,66 @@ RSpec.describe Repository do
         end
       end
     end
+    describe '.cycles' do
+      let(:repository) { create(:repository) }
+      subject { repository.cycles('x64_64') }
+
+      before do
+        class_double('BuilddepInfo', find: BuilddepInfo.new(cycles_xml)).as_stubbed_const
+      end
+
+      context 'with no cycle' do
+        let(:cycles_xml) do
+          <<-XML_DATA
+            <builddepinfo>
+            </builddepinfo>
+          XML_DATA
+        end
+
+        it do
+          expect(subject).to eq([])
+        end
+      end
+
+      context 'with one cycle and one intersection' do
+        let(:cycles_xml) do
+          file_fixture('builddepinfo_one_cycle_one_intersection.xml').read
+        end
+
+        it do
+          expect(subject).to eq([['a', 'b', 'c']])
+        end
+      end
+
+      context 'with one cycle and multiple intersections' do
+        let(:cycles_xml) do
+          file_fixture('builddepinfo_one_cycle_multiple_intersections.xml').read
+        end
+
+        it do
+          expect(subject).to eq([['a', 'b', 'c', 'd']])
+        end
+      end
+
+      context 'with multiple cycles, each with one intersection' do
+        let(:cycles_xml) do
+          file_fixture('builddepinfo_multiple_cycles_one_intersection.xml').read
+        end
+
+        it do
+          expect(subject).to eq([['a', 'b', 'c'], ['x', 'y', 'z']])
+        end
+      end
+
+      context 'with multiple cycles, each with multiple intersections' do
+        let(:cycles_xml) do
+          file_fixture('builddepinfo_multiple_cycles_multiple_intersections.xml').read
+        end
+
+        it do
+          expect(subject).to eq([['a', 'b', 'c', 'd'], ['w', 'x', 'y', 'z'], ['m', 'n', 'o', 'p']])
+        end
+      end
+    end
   end
 end

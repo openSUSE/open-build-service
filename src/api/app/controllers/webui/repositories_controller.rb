@@ -1,5 +1,6 @@
 class Webui::RepositoriesController < Webui::WebuiController
   before_action :set_project
+  before_action :set_repository, only: [:state]
   before_action :find_repository_parent, only: [:index, :create_flag, :remove_flag, :toggle_flag]
   after_action :verify_authorized, except: [:index, :distributions, :state]
 
@@ -106,25 +107,7 @@ class Webui::RepositoriesController < Webui::WebuiController
   end
 
   # GET project/repository_state/:project/:repository
-  def state
-    required_parameters :repository
-
-    # Get cycles of the repository build dependency information
-    @repocycles = {}
-
-    @repository = @project.repositories.where(name: params[:repository]).first
-
-    unless @repository
-      redirect_back(fallback_location: root_path, alert: "Repository '#{params[:repository]}' not found")
-      return
-    end
-
-    @archs = []
-    @repository.architectures.each do |arch|
-      @archs << arch.name
-      calculate_repo_cycle(arch.name)
-    end
-  end
+  def state; end
 
   # POST /project/create_dod_repository
   def create_dod_repository
@@ -230,41 +213,8 @@ class Webui::RepositoriesController < Webui::WebuiController
 
   private
 
-  # TODO: Move to model
-  def calculate_repo_cycle(arch)
-    cycles = []
-    # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
-    deps = BuilddepInfo.find(project: @project.name, package: '-', repository: @repository.name, arch: arch)
-    if deps && deps.has_element?(:cycle)
-      packagecycles = {}
-      deps.each(:cycle) do |cycle|
-        package_cycle = cycle.each(:package).map(&:text)
-
-        # no cycle with another package
-        next if package_cycle.length <= 1
-
-        # find all existing cycles of the packages or create a new one
-        new_cycle = package_cycle.map do |package|
-          if packagecycles.key? package
-            packagecycles[package]
-          else
-            [package]
-          end
-        end.flatten.sort.uniq
-
-        # every package in the cycle has this cycle
-        new_cycle.sort.each do |package|
-          packagecycles[package] = new_cycle
-        end
-      end
-
-      # take only the first item of each cycle, the rest are duplicates since they are identical
-      packagecycles.keys.map { |p| packagecycles[p][0] }.sort.uniq.each do |key|
-        cycles << packagecycles[key]
-      end
-    end
-
-    @repocycles[arch] = cycles unless cycles.empty?
+  def set_repository
+    @repository = @project.repositories.find_by!(name: params[:repository])
   end
 
   def find_repository_parent
