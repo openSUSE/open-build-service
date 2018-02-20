@@ -755,6 +755,18 @@ RSpec.describe Webui::PackageController, vcr: true do
       it { expect(response).to have_http_status(:ok) }
     end
 
+    context 'without admin rights to raise protection level' do
+      before do
+        allow_any_instance_of(Package).to receive(:disabled_for?).with('sourceaccess', nil, nil).and_return(false)
+        allow(FlagHelper).to receive(:xml_disabled_for?).with(Xmlhash.parse(valid_meta), 'sourceaccess').and_return(true)
+
+        post :save_meta, params: { project: source_project, package: source_package, meta: valid_meta }
+      end
+
+      it { expect(flash[:error]).to eq('Error while saving the Meta file: admin rights are required to raise the protection level of a package.') }
+      it { expect(response).to have_http_status(:bad_request) }
+    end
+
     context 'with an invalid package name' do
       before do
         post :save_meta, params: { project: source_project, package: source_package, meta: invalid_meta_because_package_name }
@@ -791,6 +803,28 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it { expect(flash[:error]).to eq("Error while saving the Meta file: Package doesn't exists in that project..") }
+      it { expect(response).to have_http_status(:bad_request) }
+    end
+
+    context 'when connection with the backend fails' do
+      before do
+        allow_any_instance_of(Package).to receive(:update_from_xml).and_raise(ActiveXML::Transport::Error, 'fake message')
+
+        post :save_meta, params: { project: source_project, package: source_package, meta: valid_meta }
+      end
+
+      it { expect(flash[:error]).to eq('Error while saving the Meta file: fake message.') }
+      it { expect(response).to have_http_status(:bad_request) }
+    end
+
+    context 'when not found the User or Group' do
+      before do
+        allow_any_instance_of(Package).to receive(:update_from_xml).and_raise(NotFoundError, 'fake message')
+
+        post :save_meta, params: { project: source_project, package: source_package, meta: valid_meta }
+      end
+
+      it { expect(flash[:error]).to eq('Error while saving the Meta file: fake message.') }
       it { expect(response).to have_http_status(:bad_request) }
     end
   end
