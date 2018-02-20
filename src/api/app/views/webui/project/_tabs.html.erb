@@ -38,6 +38,7 @@
         <%= tab 'attribute', 'Attributes', :controller => :attribute, :project => @project, :action => 'index' %>
         <%= tab 'meta', "Meta", :controller => :project, :action => :meta %>
         <%= tab 'status', 'Status', :controller => :project, :action => :status unless @project.defines_remote_instance? || @is_maintenance_project %>
+        <%= tab 'pulse', 'Pulse', :controller => :project, :action => :pulse %>
       <% end -%>
     </ul>
   </div>

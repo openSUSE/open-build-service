@@ -188,7 +188,7 @@ module Webui::WebuiHelper
   end
 
   def is_advanced_tab?
-    action_name.in?(['prjconf', 'index', 'meta', 'status'])
+    action_name.in?(['prjconf', 'index', 'meta', 'status', 'pulse'])
   end
 
   def sprite_tag(icon, opts = {})
