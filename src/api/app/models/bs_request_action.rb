@@ -624,7 +624,9 @@ class BsRequestAction < ApplicationRecord
 
       # Will this be a new package ?
       unless missing_ok_link
-        unless e && tprj && tprj.exists_package?(tpkg, follow_project_links: true, allow_remote_packages: false)
+        # check if the main package container exists in target.
+        # take into account that an additional local link with spec file might got added
+        unless e && tprj && tprj.exists_package?(ltpkg, follow_project_links: true, allow_remote_packages: false)
           if is_maintenance_release?
             pkg.project.repositories.includes(:release_targets).each do |repo|
               repo.release_targets.each do |rt|

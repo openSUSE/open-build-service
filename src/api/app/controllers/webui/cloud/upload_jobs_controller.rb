@@ -13,7 +13,7 @@ module Webui
       end
 
       def new
-        xml_object = OpenStruct.new(params.slice(:project, :package, :repository, :arch, :filename))
+        xml_object = OpenStruct.new(params.slice(:project, :package, :repository, :arch, :filename, :vpc_subnet_id))
         @upload_job = ::Cloud::Backend::UploadJob.new(xml_object: xml_object)
         @ec2_regions = ::Cloud::Ec2::Configuration::REGIONS
       end
@@ -59,7 +59,7 @@ module Webui
 
       def permitted_params
         params.require(:cloud_backend_upload_job).permit(
-          :project, :package, :repository, :arch, :filename, :region, :ami_name, :target
+          :project, :package, :repository, :arch, :filename, :region, :ami_name, :target, :vpc_subnet_id
         )
       end
 

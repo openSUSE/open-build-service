@@ -281,6 +281,17 @@ This package contains test cases for testing a installed appliances.
  * checks if database setup worked correctly
  * checks if required service came up properly
 
+%package -n obs-cloud-uploader
+Summary:       The Open Build Service -- Image Cloud Uploader
+Requires:      obs-server
+Requires:      python3-boto3
+Requires:      python3-ec2uploadimg
+Requires:      python3-ec2utilsbase
+Group:         Productivity/Networking/Web/Utilities
+
+%description -n obs-cloud-uploader
+This package contains all the necessary tools for upload images to the cloud.
+
 #--------------------------------------------------------------------------------
 %prep
 
@@ -338,6 +349,10 @@ if ! test -L %{buildroot}/usr/lib/obs/server/build; then
   echo "/usr/lib/obs/server/build is not a symlink!"
   exit 1
 fi
+
+install -m 755 $RPM_BUILD_DIR/open-build-service-%version/dist/clouduploader.rb $RPM_BUILD_ROOT/%{_bindir}/clouduploader
+mkdir -p $RPM_BUILD_ROOT/etc/obs/cloudupload
+install -m 644 $RPM_BUILD_DIR/open-build-service-%version/dist/ec2utils.conf.example $RPM_BUILD_ROOT/etc/obs/cloudupload/.ec2utils.conf
 
 %check
 %if 0%{?disable_obs_test_suite}
@@ -405,22 +420,32 @@ getent passwd obsrun >/dev/null || \
 exit 0
 
 %preun
-%stop_on_removal obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice obsclouduploadworker obsclouduploadserver
+%stop_on_removal obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice
 
 %service_del_preun obsdeltastore
 
 %preun -n obs-worker
 %stop_on_removal obsworker
 
+%preun -n obs-cloud-uploader
+%stop_on_removal obsclouduploadworker obsclouduploadserver
+
 %post
 %if 0%{?suse_version} >= 1315
-%reload_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice obsclouduploadworker obsclouduploadserver
+%reload_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice
 %else
-%restart_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice obsclouduploadworker obsclouduploadserver
+%restart_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice
 %endif
 # systemd kills the init script executing the reload first on reload....
 %restart_on_update obsscheduler
 %service_add_post obsdeltastore
+
+%post -n obs-cloud-uploader
+%if 0%{?suse_version} >= 1315
+%reload_on_update obsservice obsclouduploadworker obsclouduploadserver
+%else
+%restart_on_update obsservice obsclouduploadworker obsclouduploadserver
+%endif
 
 %posttrans
 [ -d /srv/obs ] || install -d -o obsrun -g obsrun /srv/obs
@@ -502,8 +527,6 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 %{_unitdir}/obsdeltastore.service
 /etc/init.d/obsservicedispatch
 /etc/init.d/obssigner
-/etc/init.d/obsclouduploadworker
-/etc/init.d/obsclouduploadserver
 /usr/sbin/obs_admin
 /usr/sbin/obs_serverstatus
 /usr/sbin/rcobsdispatcher
@@ -516,8 +539,6 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/sbin/rcobsdeltastore
 /usr/sbin/rcobsservicedispatch
 /usr/sbin/rcobssigner
-/usr/sbin/rcobsclouduploadworker
-/usr/sbin/rcobsclouduploadserver
 /usr/lib/obs/server/plugins
 /usr/lib/obs/server/BSDispatcher
 /usr/lib/obs/server/BSRepServer
@@ -549,8 +570,6 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/lib/obs/server/bs_worker
 /usr/lib/obs/server/bs_signer
 /usr/lib/obs/server/bs_warden
-/usr/lib/obs/server/bs_clouduploadserver
-/usr/lib/obs/server/bs_clouduploadworker
 /usr/lib/obs/server/worker
 /usr/lib/obs/server/worker-deltagen.spec
 %config(noreplace) /usr/lib/obs/server/BSConfig.pm
@@ -698,6 +717,18 @@ usermod -a -G docker obsservicerun
 %dir /usr/lib/obs/tests/appliance
 /usr/lib/obs/tests/appliance/*
 
+%files -n obs-cloud-uploader
+%defattr(-,root,root)
+/etc/init.d/obsclouduploadworker
+/etc/init.d/obsclouduploadserver
+/usr/sbin/rcobsclouduploadworker
+/usr/sbin/rcobsclouduploadserver
+/usr/lib/obs/server/bs_clouduploadserver
+/usr/lib/obs/server/bs_clouduploadworker
+%{_bindir}/clouduploader
+%dir /etc/obs
+%dir /etc/obs/cloudupload
+%config(noreplace) /etc/obs/cloudupload/.ec2utils.conf
 
 %package -n obs-container-registry
 Summary:        The Open Build Service -- container registry

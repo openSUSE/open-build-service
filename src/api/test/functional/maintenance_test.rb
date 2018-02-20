@@ -1380,12 +1380,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(parent: { tag: 'state' }, tag: 'comment', content: 'blahfasel')
 
+    SendEventEmailsJob.new.perform
     ActionMailer::Base.deliveries.clear
 
     # leave a comment
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post create_request_comment_path(request_number: reqid), params: 'Release it now!'
       assert_response :success
+      SendEventEmailsJob.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
@@ -1398,6 +1400,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post create_request_comment_path(request_number: reqid), params: 'Slave, can you release it? The master is gone'
       assert_response :success
+      SendEventEmailsJob.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
