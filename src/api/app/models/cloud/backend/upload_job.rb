@@ -19,8 +19,7 @@ module Cloud
                      :arch,
                      :filename,
                      :vpc_subnet_id,
-                     :size,
-                     :backend_response
+                     :size
       alias_method :id, :name
       alias_method :architecture, :arch
       validate :validate_xml
