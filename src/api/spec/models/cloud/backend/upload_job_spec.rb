@@ -146,7 +146,7 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
                 <pid>18788</pid>
               </clouduploadjob>
               <clouduploadjob name="3">
-                <state>uploading</state>
+                <state>succeeded</state>
                 <created>1513603663</created>
                 <user>mlschroe</user>
                 <target>ec2</target>
@@ -155,6 +155,7 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
                 <package>rpm</package>
                 <arch>x86_64</arch>
                 <filename>rpm-4.14.0-504.2.x86_64.rpm</filename>
+                <details>ami-09348234</details>
                 <size>1690860</size>
                 <pid>18790</pid>
               </clouduploadjob>
