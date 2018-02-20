@@ -27,42 +27,67 @@ happen automatically.
 Features
 ========
 
-UI:
- * Kerberos authentication mode. Allow OBS admins to setup their instance for
-   kerberos authentication. Read more in the OBS Admin Guide.
- * Users can see the job history list of a specific package via the package binaries page
- * New GPG key details dialog
- * RSS Feeds for User's Notifications is now available
- * Kiwi image editor feature:
-   * Repositories of a kiwi file can be updated. Also the packages list.
-   * A basic and expert mode for adding repositories is available.
-   * obsrepositories:/ source_path can be added easily using 'use project repositories' checkbox.
-   * Only `apt-deb` and `rpm-md` are allowed as repo_type. Other values will be replaced by `rpm-md`.
-   * Added autocompletion for binary packages names.
-   * Kiwi Editor tab now appears as "Image Editor", the rest of the tabs are under "Advanced".
-   * After an image template is branched the user will be redirected to the Image Editor.
- * Job history: 'source change' rows now link to the diff
- * RabbitMQ support. OBS admins can configure their instance to send messages to a RabbitMQ server.
-   Read more in the OBS Admin Guide.
+Generic:
+ * image and container maintenance support, including binary tracking
+ * riscv64 hardware architecture support
+
+Frontend:
+ * New Kerberos authentication mode. Read how to setup Kerberos in the OBS Admin Guide: http://openbuildservice.org/help/manuals/obs-admin-guide/
+ * New job history page to see why a package was built.
+ * New GPG key details dialog.
+ * RSS Feeds for User's Notifications is now available.
+ * New Studio Express feature:
+   * New central page to branch image templates from.
+   * Add and edit repository and package lists in kiwi files.
+   * Edit kiwi image details: name, author, contact, specification.
+ * RabbitMQ support. OBS admins can configure their instance to send messages to a RabbitMQ server. Read more in the OBS Admin Guide.
  * Receive email notifications for projects that are in your watchlist. Configure at /user/notifications.
  * Improved UI/UX for configuration of notifications page. Now it shows a better layout and explanations to make this complex page easy to understand.
-
-API:
- * Kerberos authentication mode
- * api_relative_url_root option was removed
- * An error is raised if delayed_jobs is down
+ * Allow users to view the full diff of large changes.
+ * Remove the unused api_relative_url_root option from the options.yml file.
+ * release mechanism improvements:
+   - manual maintenance release support (avoiding requests)
+   - operation happen atomic for entire project now
+   - support release of single multibuild container
+ * Ec2 cloud upload support for ec2 images
 
 Backend:
  * support showing source files in blame view (works also via links)
  * support project copy with makeoriginolder option
 
-Shipment:
- *
+Backend:
+ * New build formats:
+   - native container build based on DockerFile (beside exiting kiwi support)
+   - FISSILE build format
+   - AppImage build format
+ * freezelink command to freeze current sources accessed via project link
+ * support showing source files in blame view (works also via links)
+ * support project copy with makeoriginolder option
+ * support automatic vrev extending via project links
+ * Improved container support:
+   - support build of layered containers by reusing existing contaienrs
+   - support publishing to docker registry server
+   - support container signing via notary server
+ * cloud upload server supporting Amazon EC2 and Microsoft Azure
+ * improved bootstrap cycle handling
+ * additional SHA256 checksum in source commit handling for security
+ * projects can be temporary suspended to avoid scheduling between multiple changes
+ * support AirBrake for reporting problems
+ * support new debian repository format
+ * support for building in openstack cloud
+ * Many smaller improvements in DownloadOnDemand and multibuild handling
 
-Bugfixes:
- * Deletion of groups with users was not working
- * Fixed generation of the breadcrumb for the Image Editor (Kiwi)
- * Using ActiveSupport::JSON as encoder everywhere prevent to fail on Notification creation with events that have a very big payload
+Shipment:
+ * To make use of the ec2 cloud upload feature you need to:
+   - Enable the Public Cloud module (only needed for SLE12 systems).
+   - Install the obs-cloud-uploader package.
+
+Major bugfixes:
+ * Fix deletion of groups with users.
+ * Fix notification generation with very big payloads.
+ * Create history element on priority raise of request.
+ * Fix huge bottleneck in notification emails.
+ * Fix setting of new attributes to a project or package.
 
 Wanted changes:
 ===============
@@ -89,6 +114,9 @@ Wanted changes:
  * The backend notification plugin system is not used anymore.
    The RabbitMQ plugin is replaced with a RabbitMQ message bus implementation in the frontend, you can find details about this in the admin manual.
    The Hermes plugin is dropped without replacement as it was only used for notifications which the OBS is doing on it's own since quite some time.
+
+ * publish hook failures are handled as fatal failures now.
+   => publisher will retry to publish
 
 Other changes
 =============
