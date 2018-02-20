@@ -7,7 +7,7 @@ module Backend
       def self.upload(params)
         data = params.slice(:region, :ami_name, :vpc_subnet_id)
         user = params[:user]
-        params = params.except(:region, :ami_name).merge(user: user.login, target: params[:target])
+        params = params.except(:region, :ami_name, :vpc_subnet_id).merge(user: user.login, target: params[:target])
         data = user.ec2_configuration.upload_parameters.merge(data).to_json
         http_post('/cloudupload', params: params, data: data)
       end
