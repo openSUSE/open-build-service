@@ -75,6 +75,10 @@ def upload_image_to_ec2(image, data, jobid)
   command << image
 
   Open3.popen2e(command) do |_stdin, stdout_stderr, _wait_thr|
+    Signal.trap("TERM") {
+      # We just omit the SIGTERM because otherwise we would not get logs from ec2uploadimg
+      STDOUT.write("Received abort signal, waiting for ec2uploadimg to properly clean up.\n")
+    }
     while line = stdout_stderr.gets
       STDOUT.write(line)
       write_result($1, jobid) if line =~ /^Created\simage:\s+(ami-[\w]+)$/
