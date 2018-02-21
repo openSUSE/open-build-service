@@ -223,6 +223,7 @@ our $product = [
            [[ 'productdependency' =>
               'relationship',
               'name',
+              'version',
               'baseversion',
               'patchlevel',
               'release',
