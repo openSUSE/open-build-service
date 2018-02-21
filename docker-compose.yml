@@ -29,6 +29,7 @@ services:
       - .:/obs
     ports:
       - "3000:3000"
+      - "1080:1080"
     depends_on:
       - db
       - cache
