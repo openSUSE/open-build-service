@@ -19,6 +19,7 @@ image_path = ARGV[2]
 data_path = ARGV[3]
 filename = ARGV[4]
 data = JSON.parse(File.read(data_path))
+jobid = File.basename(image_path, '.file')
 
 # link file into working directory
 FileUtils.ln_s(image_path, File.join(Dir.pwd, filename))
@@ -54,7 +55,7 @@ def get_ec2_credentials(data)
   end
 end
 
-def upload_image_to_ec2(image, data)
+def upload_image_to_ec2(image, data, jobid)
   STDOUT.write("Start uploading image #{image}.\n")
 
   credentials = get_ec2_credentials(data)
@@ -73,14 +74,19 @@ def upload_image_to_ec2(image, data)
   ) do |_stdin, stdout_stderr, _wait_thr|
     while line = stdout_stderr.gets
       STDOUT.write(line)
+      write_result($1, jobid) if line =~ /^Created\simage:\s(ami-[\w]+)$/
     end
     status = wait_thr.value
     abort unless status.success?
   end
 end
 
+def write_result(result, jobid)
+  File.open("#{jobid}.result", "w+") { |file| file.write(result) }
+end
+
 if platform == 'ec2'
-  upload_image_to_ec2(filename, data)
+  upload_image_to_ec2(filename, data, jobid)
 else
   abort('No valid platform. Valid platforms is ec2.')
 end
