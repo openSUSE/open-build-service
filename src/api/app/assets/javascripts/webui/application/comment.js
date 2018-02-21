@@ -22,7 +22,7 @@ function reloadCommentBindings() {
     });
   $('a.supersed_comments_link').on('click', function(){
     var link = $(this).text();
-    $(this).text(link == 'Show outdated comments' ? 'Hide outdated comments' : 'Show outdated comments');
+    $(this).text(link === 'Show outdated comments' ? 'Hide outdated comments' : 'Show outdated comments');
     $(this).parent().siblings('.superseded_comments').toggle();
   });
   $('.togglable_comment').click(function () {

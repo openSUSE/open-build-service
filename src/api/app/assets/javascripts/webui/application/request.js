@@ -1,6 +1,6 @@
 function updateSupersedeAndDevelPackageDisplay() {
     if ($('#targetproject').length > 0 && $('#targetproject')[0].value.length > 2) {
-        if ($('#targetproject')[0].value == $('#sourceproject')[0].value) {
+        if ($('#targetproject')[0].value === $('#sourceproject')[0].value) {
             $('#sourceupdate-display').hide();
             $('#sourceupdate').prop('disabled', true); // hide 'sourceupdate' from Ruby
         } else {
@@ -17,7 +17,7 @@ function updateSupersedeAndDevelPackageDisplay() {
                 states: ['new', 'review', 'declined']
             },
             success: function (data) {
-                if (data.indexOf('No requests') == -1) {
+                if (data.indexOf('No requests') === -1) {
                     $('#supersede-display').show();
                     $('#supersede-requests').html(data);
                 } else {
