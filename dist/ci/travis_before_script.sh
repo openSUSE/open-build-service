@@ -8,10 +8,6 @@ sed -i -e "s|my \$hostname = .*$|my \$hostname = 'localhost';|" \
 cp src/backend/BSConfig.pm.template src/backend/BSConfig.pm
 chmod a+x src/api/script/start_test_backend
 
-echo "Configuring git-cop"
-mkdir -p ~/.config/git-cop
-cp dist/git-cop_configuration.yml ~/.config/git-cop/configuration.yml
-
 pushd src/api
 echo "Creating database"
 mysql -e 'create database ci_api_test;'
