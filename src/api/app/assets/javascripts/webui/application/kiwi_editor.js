@@ -80,7 +80,7 @@ function editRepositoryDialog(){
 }
 
 function addRepositoryErrorMessage(source_path, field) {
-  if (source_path == 'obsrepositories:/') {
+  if (source_path === 'obsrepositories:/') {
     field.text('If you want use obsrepositories:/ as source_path, please check the checkbox "use project repositories".');
   }
   else {
@@ -153,7 +153,7 @@ function closePreferencesDialog() {
 
 function closeDialog() {
   var fields = $(this).parents('.nested-fields');
-  var is_repository = fields.parents('#kiwi-repositories-list').size() == 1;
+  var is_repository = fields.parents('#kiwi-repositories-list').size() === 1;
   var name = fields.find('.kiwi_element_name');
   var dialog = fields.find('.dialog');
 
@@ -179,7 +179,7 @@ function closeDialog() {
       name.text(namePackage);
 
       arch = dialog.find("[id$='arch']").val();
-      if(arch != '') {
+      if(arch !== '') {
         name.append(" <small>(" + arch + ")</small>");
       }
     }
