@@ -196,6 +196,7 @@ RSpec.feature 'Requests', type: :feature, js: true do
   end
 
   describe 'project with list of requests' do
+    skip('FIXME: This test is flickering hard. The feature is also very weird.')
     let(:project) { create(:project, name: 'my_project') }
     let!(:request_1) { create(:bs_request, source_project: project, type: 'submit', created_at: Time.now + 1) }
     let!(:request_2) { create(:bs_request, source_project: project, type: 'submit', created_at: Time.now + 2) }
