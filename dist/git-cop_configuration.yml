@@ -18,8 +18,6 @@
 :commit_body_leading_line:
   :enabled: true
   :severity: :error
-:commit_body_leading_space:
-  :enabled: false
 :commit_body_line_length:
   :enabled: true
   :severity: :warn
