@@ -1876,12 +1876,12 @@ our $clouduploadjob = [
 	'name',
 	[],
 	'state',		# created, receiving, scheduled, uploading, succeeded, waiting, failed
-	'details',		# error messages
+	'details',		# error messages, upload result string
 	'progress',		# percentage completed
-	'try',		# retry count
+	'try',			# retry count
 	'created',		# when was this job created
 
-	'user',		# who did this
+	'user',			# who did this
 	'target',		# where to upload to
 
 	'project',
