@@ -78,9 +78,16 @@ table.repostatus td {
 .binaries_list_item {
   margin-bottom: 5px;
   list-style-type: none;
+  padding: 0 5px;
 
   .binaries_links {
     float: right;
     margin-right: 10px;
   }
+}
+.binaries_list_item:nth-child(odd) {
+  background: #f6f6f6;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  padding: 3px 5px;
 }
