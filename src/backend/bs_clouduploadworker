@@ -93,10 +93,13 @@ sub startupload {
   if ($job) {
     if ($job->{'state'} eq 'uploading') {
       if ($ex) {
-        $job->{'state'} = 'failed';
-        $job->{'details'} = "exit status ".($ex >> 8);
+	$job->{'state'} = 'failed';
+	$job->{'details'} = "exit status ".($ex >> 8);
       } else {
-        $job->{'state'} = 'succeeded';
+	my $result = readstr("$jobdir/$jobid.result", 1);
+	delete $job->{'details'};
+	$job->{'details'} = $result if defined $result;
+	$job->{'state'} = 'succeeded';
       }
       delete $job->{'pid'};
       archivejob($jobid, $job);
