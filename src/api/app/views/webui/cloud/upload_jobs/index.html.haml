@@ -7,6 +7,7 @@
       %tr
         %th #
         %th Filename
+        %th Details
         %th Platform
         %th Status
         %th Created
@@ -15,7 +16,8 @@
       - @upload_jobs.each do |job|
         %tr
           %td= job.id
-          %td= job.filename
+          %td= link_to(job.filename, controller: '/webui/package', action: :binaries, project: job.project, package: job.package, repository: job.repository)
+          %td= job.details
           %td= job.target.upcase
           %td= job.state
           %td= time_tag(job.created_at)
