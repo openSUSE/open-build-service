@@ -2,12 +2,13 @@ version: "2"
 services:
   old-test-suite:
     image: openbuildservice/old-test-suite
-    volumes:
-      - .:/obs_readonly:ro
     privileged: true
     depends_on:
       - db
-    command: /obs/contrib/start_old_tests
+    command: /obs/contrib/start_minitest
+    build:
+      context: .
+      dockerfile: src/api/docker-files/Dockerfile.old-test-suite
   db:
     image: openbuildservice/mariadb
     volumes:

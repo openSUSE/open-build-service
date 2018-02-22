@@ -21,8 +21,13 @@ namespace :dev do
     options_yml = YAML.load_file('config/options.yml') || {}
     options_yml['source_host'] = args.old_test_suite ? 'localhost' : 'backend'
     options_yml['memcached_host'] = args.old_test_suite ? 'localhost' : 'cache'
+    options_yml['source_port'] = args.old_test_suite ? '3200' : '5352'
     File.open('config/options.yml', 'w') do |f|
       f.write(YAML.dump(options_yml))
+    end
+    if args.old_test_suite
+      puts 'Old test suite. Copying thinking sphinx example...'
+      copy_example_file('config/thinking_sphinx.yml')
     end
   end
 
