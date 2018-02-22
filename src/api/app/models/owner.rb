@@ -101,8 +101,10 @@ class Owner
       data.elements('binary').each do |b| # no order
         next unless b['project'] == prj.name
 
-        pkg = prj.packages.find_by_name(b['package'])
-        next if pkg.nil?
+        package_name = b['package']
+        package_name.gsub!(/\.[^\.]*$/, '') if prj.is_maintenance_release?
+        pkg = prj.packages.find_by_name(package_name)
+        next if pkg.nil? || pkg.is_patchinfo?
 
         # the "" means any matching relationships will get taken
         m, limit, already_checked = lookup_package_owner(rootproject, pkg, '', limit, devel, filter, deepest, already_checked)
