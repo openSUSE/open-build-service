@@ -68,7 +68,7 @@ namespace :dev do
     Rake::Task['haml_lint'].invoke
     sh 'rubocop -D -F -S --fail-level convention ../..'
     Rake::Task['git_cop'].invoke
-    sh 'jshint .'
+    sh 'jshint ./app/assets/javascripts/'
   end
 end
 
