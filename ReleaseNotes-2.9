@@ -49,6 +49,7 @@ Frontend:
    - manual maintenance release support (avoiding requests)
    - operation happen atomic for entire project now
    - support release of single multibuild container
+ * Ec2 cloud upload support for ec2 images
 
 Backend:
  * Support showing source files in blame view (works also via links).
@@ -77,7 +78,9 @@ Backend:
  * Many smaller improvements in DownloadOnDemand and multibuild handling
 
 Shipment:
- *
+ * To make use of the ec2 cloud upload feature you need to:
+   - Enable the Public Cloud module (only needed for SLE12 systems).
+   - Install the obs-cloud-uploader package.
 
 Bugfixes:
  * Fix deletion of groups with users.
