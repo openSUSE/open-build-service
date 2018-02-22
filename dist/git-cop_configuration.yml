@@ -8,7 +8,7 @@
 :commit_body_bullet:
   :enabled: true
   :severity: :warn
-  :blacklist:
+  :excludes:
     - "\\*"
     - "•"
 :commit_body_bullet_capitalization:
@@ -47,7 +47,7 @@
 :commit_subject_prefix:
   :enabled: true
   :severity: :error
-  :whitelist:
+  :includes:
     # Commit header is allowed to start with either
     #   * api, backend, ci, dist, doc, frontend and webui tags in edgy brackets in any order
     # or
