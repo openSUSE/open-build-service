@@ -11,7 +11,7 @@ function saveImage() {
       dataType: 'json',
       success: function(json) {
         var is_outdated = json.is_outdated;
-        if (is_outdated && !confirm("This image has been modified while you were editing it.\nDo you want to apply the changes anyway?"))
+        if (is_outdated && !window.confirm("This image has been modified while you were editing it.\nDo you want to apply the changes anyway?"))
           return;
         $('#kiwi-image-update-form').submit();
       }
@@ -152,10 +152,11 @@ function closePreferencesDialog() {
 
 
 function closeDialog() {
-  var fields = $(this).parents('.nested-fields');
-  var is_repository = fields.parents('#kiwi-repositories-list').size() === 1;
-  var name = fields.find('.kiwi_element_name');
-  var dialog = fields.find('.dialog');
+  var fields = $(this).parents('.nested-fields'),
+      is_repository = fields.parents('#kiwi-repositories-list').size() === 1,
+      name = fields.find('.kiwi_element_name'),
+      dialog = fields.find('.dialog'),
+      arch;
 
   if(is_repository) {
     var source_path = dialog.find("[id$='source_path']");
@@ -371,8 +372,8 @@ $(document).ready(function(){
   // Revert image
   $('#kiwi-image-update-form-revert').click(function(){
     if ($(this).hasClass('enabled')) {
-      if (confirm('Attention! All unsaved data will be lost! Continue?')) {
-        location.reload();
+      if (window.confirm('Attention! All unsaved data will be lost! Continue?')) {
+        window.location.reload();
       }
     }
   });
