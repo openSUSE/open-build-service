@@ -46,6 +46,7 @@ use strict;
 use warnings;
 
 use Build;
+use Storable;
 
 use BSUtil;
 use BSXML;
@@ -246,6 +247,7 @@ sub update_bininfo_merge {
 
     # just update the cache and return
     if ($bininfocache->{'merge'}) {
+      print "updating bininfo cache for $gdst\n";
       $bininfocache->{'merge'}->{$packid} = $bininfo;
       return;
     }
@@ -255,6 +257,7 @@ sub update_bininfo_merge {
   if (-e "$gdst/:bininfo.merge") {
     if (-s _ > 100000) {
       # quite big. better merge now.
+      print "merge bininfo cache for $gdst because of the size\n";
       read_gbininfo($gdst);	# this will also merge
       $merge = BSUtil::retrieve("$gdst/:bininfo.merge", 1) if -e "$gdst/:bininfo.merge";
     } else {
@@ -267,6 +270,9 @@ sub update_bininfo_merge {
       $merge = BSUtil::retrieve("$gdst/:bininfo.merge", 1) if -e "$gdst/:bininfo.merge";
     }
     undef $merge if $merge && $merge->{'/outdated'};
+  } elsif (! -e "$gdst/:bininfo") {
+    # hmm, no bininfo yet? better create it.
+    read_gbininfo($gdst);
   }
 
   if (!$merge) {
@@ -277,6 +283,7 @@ sub update_bininfo_merge {
   $merge->{$packid} = $bininfo;
 
   if ($bininfocache) {
+    print "start bininfo cache for $gdst\n";
     # start caching this file
     $bininfocache->{'merge'} = $merge;
     $bininfocache->{'gdst'} = $gdst;
@@ -295,6 +302,14 @@ sub sync_bininfocache {
   my ($gctx, $bininfocache) = @_;
   my $gdst = $bininfocache->{'gdst'};
   return unless $gdst;
+  print "sync bininfo cache for $gdst\n";
+  if (! -e "$gdst/:bininfo.merge") {
+    # wait, something is wrong! There should be the .merge file with the /outdated marker.
+    delete $bininfocache->{'merge'};
+    delete $bininfocache->{'gdst'};
+    rebuild_gbininfo($gdst);
+    return;
+  }
   BSUtil::store("$gdst/.:bininfo.merge", "$gdst/:bininfo.merge", $bininfocache->{'merge'});
   delete $bininfocache->{'merge'};
   delete $bininfocache->{'gdst'};
@@ -644,22 +659,27 @@ sub read_bininfo {
 }
 
 
-=head2 read_gbininfo -
+=head2 read_gbininfo - get "global" bininfo data for all packages
 
  alien: gbininfo is from another scheduler
 
 =cut
 
 sub read_gbininfo {
-  my ($dir, $alien, $dontmerge) = @_;
+  my ($dir, $alien, $dontmerge, $dstcache) = @_;
 
   return {} unless -d $dir;
   my $gbininfo = BSUtil::retrieve("$dir/:bininfo", 1);
   my $gbininfo_m;
   if ($gbininfo) {
     return $gbininfo unless -e "$dir/:bininfo.merge";
-    $gbininfo_m = BSUtil::retrieve("$dir/:bininfo.merge", 1);
-    $gbininfo_m = undef if $gbininfo_m && $gbininfo_m->{'/outdated'};
+    my $bininfocache = $dstcache ? $dstcache->{'bininfocache'} : undef;
+    if ($bininfocache && ($bininfocache->{'gdst'} || '') eq $dir && $bininfocache->{'merge'}) {
+      $gbininfo_m = Storable::dclone($bininfocache->{'merge'});
+    } else {
+      $gbininfo_m = BSUtil::retrieve("$dir/:bininfo.merge", 1);
+      $gbininfo_m = undef if $gbininfo_m && $gbininfo_m->{'/outdated'};
+    }
   }
   if ($gbininfo && $gbininfo_m) {
     for (keys %$gbininfo_m) {

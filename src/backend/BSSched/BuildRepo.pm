@@ -555,7 +555,7 @@ sub fctx_integrate_package_into_full {
   }
 
   # could not do easy integration, read gbininfo
-  my $gbininfo = BSSched::BuildResult::read_gbininfo($gdst, undef, 1);
+  my $gbininfo = BSSched::BuildResult::read_gbininfo($gdst, undef, 1, $fctx->{'dstcache'});
   my $olduseforbuild = $fctx->{'olduseforbuild'};
   my $newuseforbuild = $fctx->{'newuseforbuild'};
   %oldfull = fctx_gbininfo2full($fctx, $gbininfo, $packid, $old, $olduseforbuild);
