@@ -10,7 +10,7 @@ RUN for i in ruby gem irb; do ln -s /usr/bin/$i.ruby2.5 /usr/local/bin/$i; done
 
 # foreman, which we only run in docker, needs a different thor version than OBS.
 # Installing the gem directly spares us from having to rpm package two different thor versions.
-RUN gem.ruby2.5 install --no-format-executable thor:0.19 foreman
+RUN gem.ruby2.5 install --no-format-executable thor:0.19 foreman mailcatcher
 
 # We copy the Gemfiles into this intermediate build stage so it's checksum
 # changes and all the subsequent stages (a.k.a. the bundle install call below)

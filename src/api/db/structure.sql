@@ -385,7 +385,7 @@ CREATE TABLE `configurations` (
   `http_proxy` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `no_proxy` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `theme` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `obs_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `obs_url` varchar(255) COLLATE utf8_bin DEFAULT 'https://unconfigured.openbuildservice.org',
   `cleanup_after_days` int(11) DEFAULT NULL,
   `admin_email` varchar(255) COLLATE utf8_bin DEFAULT 'unconfigured@openbuildservice.org',
   `cleanup_empty_projects` tinyint(1) DEFAULT '1',
@@ -1315,6 +1315,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20171218160607'),
 ('20171219122451'),
 ('20180109115548'),
-('20180110074142');
+('20180110074142'),
+('20180221175514');
 
 
