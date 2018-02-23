@@ -34,7 +34,7 @@ function renderPackagesTable(wrapper, packages, length) { // jshint ignore:line
   });
 }
 
-function renderProjectsTable(length) { // jshint ignore:line 
+function renderProjectsTable(length) { // jshint ignore:line
   length = (typeof length === "undefined") ? 25 : length;
   var projects = main_projects;
   if (!$('#excludefilter').is(":checked"))
