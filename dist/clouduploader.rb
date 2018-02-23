@@ -35,10 +35,6 @@ def get_ec2_credentials(data)
     "--duration-seconds=#{THIRTY_MINUTES}"
   ]
 
-  if data['vpc_subnet_id']
-    command << "--vpc-subnet-id=#{data['vpc_subnet_id']}"
-  end
-
   # Credentials are stored in  ~/.aws/credentials
   out, err, status = Open3.capture3(command)
 
@@ -59,8 +55,7 @@ def upload_image_to_ec2(image, data, jobid)
   STDOUT.write("Start uploading image #{image}.\n")
 
   credentials = get_ec2_credentials(data)
-
-  Open3.popen2e(
+  command = [
     'ec2uploadimg',
     "--description='obs uploader'",
     '--machine=x86_64',
@@ -69,9 +64,15 @@ def upload_image_to_ec2(image, data, jobid)
     "--secret-key=#{credentials.secret_access_key}",
     "--access-id=#{credentials.access_key_id}",
     "--session-token=#{credentials.session_token}",
-    '--verbose',
-    image
-  ) do |_stdin, stdout_stderr, _wait_thr|
+    '--verbose'
+  ]
+
+  if data['vpc_subnet_id']
+    command << "--vpc-subnet-id=#{data['vpc_subnet_id']}"
+  end
+  command << image
+
+  Open3.popen2e(command) do |_stdin, stdout_stderr, _wait_thr|
     while line = stdout_stderr.gets
       STDOUT.write(line)
       write_result($1, jobid) if line =~ /^Created\simage:\s(ami-[\w]+)$/
