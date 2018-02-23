@@ -92,15 +92,15 @@ sub startupload {
   $job = BSUtil::lockopenxml(\*JOBLOCK, '<', "$jobdir/$jobid", $BSXML::clouduploadjob, 1);
   if ($job) {
     if ($job->{'state'} eq 'uploading') {
+      my $result = readstr("$jobdir/$jobid.result", 1);
       if ($ex) {
 	$job->{'state'} = 'failed';
-	$job->{'details'} = "exit status ".($ex >> 8);
+        $result ||= "exit status ".($ex >> 8);
       } else {
-	my $result = readstr("$jobdir/$jobid.result", 1);
-	delete $job->{'details'};
-	$job->{'details'} = $result if defined $result;
 	$job->{'state'} = 'succeeded';
       }
+      delete $job->{'details'};
+      $job->{'details'} = $result if defined $result;
       delete $job->{'pid'};
       archivejob($jobid, $job);
     }
