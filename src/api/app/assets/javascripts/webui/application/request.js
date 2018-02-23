@@ -186,7 +186,7 @@ function requestAddReviewAutocomplete() {
         response: function(event, ui) {
           $(this).removeClass('loading-spinner');
         },
-        min_length: 2,
+        minLength: 2,
         minChars: 0,
         matchCase: true,
         max: 50
