@@ -149,7 +149,7 @@ $( document ).ready(function() {
   $('.btn-more').click(function() {
     var link = $(this);
     $('.more_info').toggle(0, function() {
-      link_text = $(this).is(':visible') ? 'less info' : 'more info';
+      var link_text = $(this).is(':visible') ? 'less info' : 'more info';
       link.text(link_text);
     });
   });
