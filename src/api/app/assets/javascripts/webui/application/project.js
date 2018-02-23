@@ -1,4 +1,4 @@
-function renderPackagesTable(wrapper, packages, length) {
+function renderPackagesTable(wrapper, packages, length) { // jshint ignore:line
   length = (typeof length === "undefined") ? 25 : length;
   var packageurl = $("#" + wrapper).data("url");
   $("#" + wrapper).html('<table cellpadding="0" cellspacing="0" border="0" class="compact stripe" id="' + wrapper + '_table"></table>');
@@ -34,7 +34,7 @@ function renderPackagesTable(wrapper, packages, length) {
   });
 }
 
-function renderProjectsTable(length) {
+function renderProjectsTable(length) { // jshint ignore:line 
   length = (typeof length === "undefined") ? 25 : length;
   var projects = main_projects;
   if (!$('#excludefilter').is(":checked"))
@@ -48,7 +48,7 @@ function renderProjectsTable(length) {
     "columns": [
       {
         "title": "Name",
-        "render": function (obj, type, data_row, meta) {
+        "render": function (obj, type, data_row) {
           var url = projecturl.replace(/REPLACEIT/, data_row[0]);
           return '<a href="' + url + '">' + data_row[0] + '</a>';
         }
@@ -60,7 +60,7 @@ function renderProjectsTable(length) {
   });
 }
 
-function renderPackagesProjectsTable(options) {
+function renderPackagesProjectsTable(options) { // jshint ignore:line
   var length = options.length || 25;
   var name = options.name || "packages_projects_wrapper";
 
@@ -74,7 +74,7 @@ function renderPackagesProjectsTable(options) {
       "columns": [
         {
           "title": "Package",
-          "render": function (obj, type, data_row, meta) {
+          "render": function (obj, type, data_row) {
             var url1 = packageurl.replace(/REPLACEPKG/, data_row[0]);
             var url = url1.replace(/REPLACEPRJ/, data_row[1]);
             return '<a href="' + url + '">' + data_row[0] + '</a>';
@@ -115,26 +115,26 @@ function autocomplete_repositories(project_name) {
       if (!foundoptions)
         $('#target_repo').append(new Option('No repos found'));
     },
-    complete: function (data) {
+    complete: function() {
       $('#loader-repo').hide();
     }
   });
 }
 
-function repositories_setup_autocomplete() {
+function repositories_setup_autocomplete() { // jshint ignore:line
   $("#target_project").autocomplete({
     source: $('#target_project').data('ajaxurl'),
     minLength: 2,
-    select: function (event, ui) {
+    select: function() {
       autocomplete_repositories(ui.item.value);
     },
-    change: function () {
+    change: function() {
       autocomplete_repositories($('#target_project').attr('value'));
     },
-    search: function(event, ui) {
+    search: function() {
       $(this).addClass('loading-spinner');
     },
-    response: function(event, ui) {
+    response: function() {
       $(this).removeClass('loading-spinner');
     }
   });
@@ -148,7 +148,7 @@ function repositories_setup_autocomplete() {
   });
 }
 
-function setup_subprojects_tables() {
+function setup_subprojects_tables() { // jshint ignore:line
   $('#parentprojects-table').dataTable({
     'paging': false,
     'searching': false,

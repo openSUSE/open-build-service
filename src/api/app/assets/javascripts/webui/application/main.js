@@ -1,4 +1,4 @@
-function plotbusyworkers(data) {
+function plotbusyworkers(data) { // jshint ignore:line
   $.plot($("#overallgraph"), [
     { data: data, label: "Busy workers", color: 3}
   ],

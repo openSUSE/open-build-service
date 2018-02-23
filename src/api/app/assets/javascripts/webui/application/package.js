@@ -1,4 +1,4 @@
-function makeServicesDragable() {
+function makeServicesDragable() { // jshint ignore:line
   $("#services").sortable( {
     placeholder: "empty_service",
     update: function(event, ui) {
@@ -37,7 +37,7 @@ function makeServicesDragable() {
 var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-function addChangesEntryTemplate() {
+function addChangesEntryTemplate() { // jshint ignore:line
   var date = new Date(),
     day = date.getUTCDate().toString(),
     hours,
@@ -77,7 +77,7 @@ function autoscroll() {
   lw.data("lastScroll", window.pageYOffset);
 }
 
-function build_finished() {
+function build_finished() { // jshint ignore:line
   stop_refresh();
   $('#status').html('Build finished');
 }
@@ -92,7 +92,7 @@ function start_refresh() {
   return false;
 }
 
-function remove_ajaxreq() {
+function remove_ajaxreq() { // jshint ignore:line
   var lw = $('#log_space_wrapper');
   lw.data("ajaxreq", 0);
 }
@@ -125,17 +125,17 @@ function refresh(newoffset, initial) {
   }
 }
 
-function show_abort() {
+function show_abort() { // jshint ignore:line
   $(".link_abort_build").show();
   $(".link_trigger_rebuild").hide();
 }
 
-function hide_abort() {
+function hide_abort() { // jshint ignore:line
   $(".link_abort_build").hide();
   $(".link_trigger_rebuild").show();
 }
 
-function live_build_log_ready() {
+function live_build_log_ready() { // jshint ignore:line, unused:true
   var lw = $('#log_space_wrapper');
   lw.data("autorefresh", 1);
   lw.data("lastScroll", 0);

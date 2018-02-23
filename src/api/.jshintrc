@@ -1,0 +1,8 @@
+{
+  "eqeqeq" : true, // true: Require triple equals (===) for comparison
+  "unused" : true, // Unused variables: true : all variables, last function parameter
+
+  "globals": {
+    "$": false
+  }
+}
