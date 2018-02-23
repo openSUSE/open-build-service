@@ -167,6 +167,7 @@ sub prpfinished {
     $seen_binary = {};
   }
 
+  my %newchecksums;
   # sort like in the full tree
   for my $packid (BSSched::ProjPacks::orderpackids($projpacks->{$projid}, @$packs)) {
     if ($pubenabled && !$pubenabled->{$packid}) {
@@ -196,6 +197,7 @@ sub prpfinished {
     my $debian = grep {/\.dsc$/} @all;
     my $nosourceaccess = $all{'.nosourceaccess'};
     @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'rpmlint.log' && $_ ne '_statistics' && $_ ne '_buildenv' && $_ ne '_channel' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && !/^\./} @all;
+    my $taken;
     for my $bin (@all) {
       next if $bin =~ /^::import::/;
       next if $bin =~ /\.obsbinlnk$/;
@@ -257,6 +259,7 @@ sub prpfinished {
         print "      + :repo/$rbin ($packid)\n";
         mkdir_p($rdir) unless -d $rdir;
       }
+      $taken = 1;
       if (! -l "$pdir/$bin" && -d _) {
         BSUtil::linktree("$pdir/$bin", "$rdir/$rbin");
       } else {
@@ -269,10 +272,17 @@ sub prpfinished {
       }
       $changed = 1;
     }
+
+    # merge checksums if we took at least one binary
+    if ($taken && $all{'.checksums'}) {
+      my $nc = readstr("$pdir/.checksums", 1);
+      $newchecksums{$packid} = $nc if defined $nc;
+    }
   }
   undef $rinfo_packid2bins;     # no longer needed
   for my $rbin (sort(ls($rdir))) {
     next if exists $origin{$rbin};
+    next if $rbin eq '.newchecksums' || $rbin eq '.newchecksums.new' || $rbin eq '.checksums' || $rbin eq '.checksums.new';
     print "      - :repo/$rbin\n";
     if (! -l "$rdir/$rbin" && -d _) {
       BSUtil::cleandir("$rdir/$rbin");
@@ -288,6 +298,19 @@ sub prpfinished {
   # write new rpminfo
   $rinfo = {'binaryorigins' => \%origin};
   BSUtil::store("${rdir}info.new", "${rdir}info", $rinfo);
+
+  # update checksums
+  if (%newchecksums) {
+    if (-e "$rdir/.newchecksums") {
+      print "    merging new checksums...\n";
+      my $oldchecksums = BSUtil::retrieve("$rdir/.newchecksums", 1) || {};
+      my %knownpackids = map {$_ => 1} @$packs;
+      for my $packid (keys %$oldchecksums) {
+	$newchecksums{$packid} = $oldchecksums->{$packid} if !exists($newchecksums{$packid}) && $knownpackids{$packid};
+      }
+    }
+    BSUtil::store("$rdir/.newchecksums.new", "$rdir/.newchecksums", \%newchecksums);
+  }
 
   # release lock and ping publisher
   close(F);

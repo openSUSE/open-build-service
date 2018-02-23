@@ -445,6 +445,21 @@ sub createrepo_rpmmd {
   qsystem('rm', '-rf', "$extrep/repodata/.olddata") if -d "$extrep/repodata/.olddata";
   qsystem('rm', '-f', "$extrep/repodata/patterns*");
 
+  # run createrepo
+  unlink("$extrep/.chksums");
+  if (@{$data->{'chksumfiles'} || []}) {
+    local *CHKSUMS;
+    if (open(CHKSUMS, '>', "$extrep/.chksums")) {
+      for my $chksumfile (@{$data->{'chksumfiles'} || []}) {
+        my $chksums = BSUtil::retrieve($chksumfile, 1) || {};
+        for my $packid (sort keys %$chksums) {
+          print CHKSUMS $chksums->{$packid};
+        }
+      }
+      close CHKSUMS;
+      $ENV{'CREATEREPO_CHECKSUMS'} = "$extrep/.chksums";
+    }
+  }
   # create generic rpm-md meta data
   # --update requires a newer createrepo version, tested with version 0.4.10
   my @createrepoargs;
@@ -473,6 +488,12 @@ sub createrepo_rpmmd {
     print "    re-running without extra options\n";
     qsystem($createrepo_bin, '-q', '-c', "$extrep/repocache", @createrepoargs, @legacyargs, $extrep) && die("    createrepo failed again: $?\n");
   }
+  unlink("$extrep/.chksums");
+  if (@{$data->{'chksumfiles'} || []}) {
+    delete $ENV{'CREATEREPO_CHECKSUMS'};
+  }
+
+  # add updateinfos
   unlink("$extrep/repodata/$_") for grep {/updateinfo\.xml/} @oldrepodata;
   if (@{$data->{'updateinfos'} || []}) {
     print "    adding updateinfo.xml to repodata\n";
@@ -488,6 +509,8 @@ sub createrepo_rpmmd {
     qsystem($modifyrepo_bin, "$extrep/repodata/updateinfo.xml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
     unlink("$extrep/repodata/updateinfo.xml");
   }
+
+  # add appdata
   unlink("$extrep/repodata/$_") for grep {/appdata\.xml/ || /app-icons/} @oldrepodata;
   if (%{$data->{'appdatas'} || {}}) {
     create_appdata_files("$extrep/repodata", $data->{'appdatas'});
@@ -502,6 +525,8 @@ sub createrepo_rpmmd {
       unlink("$extrep/repodata/app-icons.tar");
     }
   }
+
+  # add deltainfo
   unlink("$extrep/repodata/$_") for grep {/(?:deltainfo|prestodelta)\.xml/} @oldrepodata;
   if (%{$data->{'deltainfos'} || {}} && ($options{'deltainfo'} || $options{'prestodelta'})) {
     print "    adding deltainfo.xml to repodata\n" if $options{'deltainfo'};
@@ -530,6 +555,8 @@ sub createrepo_rpmmd {
       unlink("$extrep/repodata/prestodelta.xml");
     }
   }
+
+  # prune repocache
   if (-d "$extrep/repocache") {
     my $now = time;
     for (map { "$extrep/repocache/$_" } ls("$extrep/repocache")) {
@@ -546,9 +573,11 @@ sub createrepo_rpmmd {
     print "    running repoview\n";
     qsystem('repoview', '-f', @downloadurlarg, "-t$title", $extrep) && print("    repoview failed: $?\n");
   }
+
   if ($BSConfig::createrepo_rpmmd_hook) {
     $BSConfig::createrepo_rpmmd_hook->($projid, $repoid, $extrep, \%options, $data);
   }
+
   if ($options{'rsyncable'}) {
     if (-x '/usr/bin/rezip_repo_rsyncable') {
       print "    re-compressing metadata with --rsyncable\n";
@@ -558,6 +587,7 @@ sub createrepo_rpmmd {
       print "    /usr/bin/rezip_repo_rsyncable not installed, ignoring the rsyncable option\n";
     }
   }
+
   if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
@@ -1452,6 +1482,7 @@ sub publish {
     }
   }
 
+  my @chksumfiles;
   for my $arch (@archs) {
     my $r = "$reporoot/$prp/$arch/:repo";
     my $repoinfo = {};
@@ -1459,7 +1490,30 @@ sub publish {
       $repoinfo = BSUtil::retrieve("${r}info") || {};
     }
     $repoinfo->{'binaryorigins'} ||= {};
+
+    # merge and process checksums
+    if (-s "$r/.newchecksums") {
+      print "    merging new checksums in $arch\n";
+      my $checksums = BSUtil::retrieve("$r/.checksums", 1) || {};
+      my $newchecksums = BSUtil::retrieve("$r/.newchecksums", 1) || {};
+      my %knownpackids = map {$_ => 1} values(%{$repoinfo->{'binaryorigins'}});
+      $checksums->{$_} = delete $newchecksums->{$_} for keys %$newchecksums;
+      for my $packid (keys %$checksums) {
+        delete $checksums->{$packid} unless $knownpackids{$packid};
+      }
+      if (%$checksums) {
+        BSUtil::store("$r/.checksums.new", "$r/.checksums", $checksums);
+        push @chksumfiles, "$r/.checksums";
+      } else {
+        unlink("$r/.checksums");
+      }
+      unlink("$r/.newchecksums");
+    } elsif (-s "$r/.checksums") {
+      push @chksumfiles, "$r/.checksums";
+    }
+
     for my $rbin (sort(ls($r))) {
+      next if $rbin eq '.newchecksums' || $rbin eq '.newchecksums.new' || $rbin eq '.checksums' || $rbin eq '.checksums.new';
       my $bin = $rbin;
       if ($bin =~ /:updateinfo.xml$/) {
         # collect updateinfo data
@@ -2110,6 +2164,7 @@ sub publish {
     'dbgsplit' => $dbgsplit,
     'packtrack' => $packtrack,
     'repotags' => \@repotags,
+    'chksumfiles' => \@chksumfiles,
   };
 
   if ($repotype{'rpm-md'}) {
