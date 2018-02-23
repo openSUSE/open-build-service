@@ -835,10 +835,8 @@ class BsRequest < ApplicationRecord
   end
 
   def send_state_change
-    intermediate_state = ['new', 'review']
     return if state_was.to_s == state.to_s
     # new->review && review->new are not worth an event - it's just spam
-    return if state.to_s.in?(intermediate_state) && state_was.to_s.in?(intermediate_state)
     Event::RequestStatechange.create(notify_parameters)
   end
 
