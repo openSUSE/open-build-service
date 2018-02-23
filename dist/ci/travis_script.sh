@@ -27,7 +27,7 @@ if test -z "$SUBTEST"; then
       bundle exec rake db:structure:verify_no_bigint
       make -C ../../ rubocop
       bundle exec rake haml_lint
-      jshint .
+      jshint app/assets/javascripts/
       bundle exec git-cop --police
       ;;
     rspec)
