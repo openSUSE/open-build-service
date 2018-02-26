@@ -1,4 +1,6 @@
 #!/usr/bin/ruby
+
+require 'fileutils'
 require 'json'
 require 'ostruct'
 require 'open3'
