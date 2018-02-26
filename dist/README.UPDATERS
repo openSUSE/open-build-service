@@ -17,10 +17,19 @@ Note: Update from OBS 2.5 should also work, but is untested.
 
         zypper dup --from OBS_Server_2.9
 
+     You will be asked to deinstall ruby2.4-rubygem-passenger, since OBS 2.9 is using ruby 2.5
+     instead of ruby 2.4. Agree to it.
+
+  5) Change to ruby2.5
+
+        edit /etc/apache2/conf.d/mod_passenger.conf:
+
+        PassengerRuby "/usr/bin/ruby.ruby2.5"
+
   4) Migrate database
 
         cd /srv/www/obs/api/
-        RAILS_ENV="production" rails.ruby2.4 db:migrate:with_data
+        RAILS_ENV="production" rails.ruby2.5 db:migrate:with_data
 
   5) Make sure that log and tmp are owned by wwwrun
 
