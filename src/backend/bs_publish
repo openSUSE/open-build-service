@@ -1589,11 +1589,20 @@ sub publish {
 	} elsif ($bin =~ /\.raw(?:\.install)?(?:\.(?:gz|bz2|xz))?(?:\.sha256)?$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /(.*-Build\d.*)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256)?$/) {
+          # kiwi case
 	  $kiwimedium{$bin} = $1 if !$2 && -e "$r/$1.packages";
-	  upload_container($r, "$1.containerinfo", $bin, $projid, $repoid, $arch, $notary_uploads) if !$2 && -e "$r/$1.containerinfo";
+          if ($BSConfig::publish_containers && !$3 && -e "$r/$1.containerinfo") {
+  	    upload_container($r, "$1.containerinfo", $bin, $projid, $repoid, $arch, $notary_uploads)
+            next;
+          }
 	  $p = "$bin";
 	} elsif ($bin =~ /(.*)\.tar(?:\.(?:gz|bz2|xz))?(\.sha256)?$/) {
+          # Dockerfile case
 	  $kiwimedium{$bin} = $1 if !$2 && -e "$r/$1.packages";
+          if ($BSConfig::publish_containers && !$3 && -e "$r/$1.containerinfo") {
+  	    upload_container($r, "$1.containerinfo", $bin, $projid, $repoid, $arch, $notary_uploads)
+            next;
+          }
 	  $p = "$bin";
         } elsif ($bin =~ /\.(?:tgz|zip)?(?:\.sha256)?$/) {
           # esp. for Go builds
