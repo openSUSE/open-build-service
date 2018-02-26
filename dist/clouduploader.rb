@@ -6,7 +6,7 @@ require 'open3'
 start = Time.now
 THIRTY_MINUTES = 1800
 HOME = '/etc/obs/cloudupload'.freeze
-ENV['HOME'] = HOME
+ENV['HOME'] = "/etc/obs/cloudupload"
 ENV['PYTHONUNBUFFERED'] = '1'
 STDOUT.sync = true
 
