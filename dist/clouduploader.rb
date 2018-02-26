@@ -36,7 +36,7 @@ def get_ec2_credentials(data)
   ]
 
   # Credentials are stored in  ~/.aws/credentials
-  out, err, status = Open3.capture3(command)
+  out, err, status = Open3.capture3(*command)
 
   if status.success?
     STDOUT.write("Successfully authenticated.\n")
@@ -72,7 +72,7 @@ def upload_image_to_ec2(image, data, jobid)
   end
   command << image
 
-  Open3.popen2e(command) do |_stdin, stdout_stderr, wait_thr|
+  Open3.popen2e(*command) do |_stdin, stdout_stderr, wait_thr|
     Signal.trap("TERM") {
       # We just omit the SIGTERM because otherwise we would not get logs from ec2uploadimg
       STDOUT.write("Received abort signal, waiting for ec2uploadimg to properly clean up.\n")
