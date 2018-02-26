@@ -317,8 +317,8 @@ function kiwiRepositoriesSetupAutocomplete(fields) {
     }
     var source_path = fields.find("[id$='source_path']");
     source_path.val("obs://" + project_field.val() + '/' + repo_field.val());
-    alias_field.val(repo_field_value + '@' + project_field.val());
-    alias_field.trigger("change");
+    alias_field.val(repo_field_value + '@' + project_field.val()).
+      trigger("change");
     var repo_type_field = fields.find("[id$='repo_type']");
     repo_type_field.val('rpm-md');
   });
