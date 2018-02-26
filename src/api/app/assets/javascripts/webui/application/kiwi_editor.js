@@ -244,18 +244,17 @@ function addDefault(dialog) {
 function repositoryModeToggle() {
   var fields = $(this).parents('.nested-fields');
 
-  var normal_mode = fields.find('.normal-mode');
-  var expert_mode = fields.find('.expert-mode');
-  normal_mode.toggle();
-  expert_mode.toggle();
+  fields.find('.normal-mode').toggle();
+  fields.find('.expert-mode').toggle();
 
   updateModeButton(fields);
 }
 
 function updateModeButton(fields) {
-  var toggle_mode_button = fields.find('.kiwi-repository-mode-toggle');
   var expert_mode = fields.find('.expert-mode');
-  toggle_mode_button.text(expert_mode.is(":visible") ? "Basic Mode" : "Expert Mode");
+
+  fields.find('.kiwi-repository-mode-toggle').
+    text(expert_mode.is(":visible") ? "Basic Mode" : "Expert Mode");
 }
 
 function hoverListItem() {
@@ -325,8 +324,7 @@ function kiwiRepositoriesSetupAutocomplete(fields) {
   });
 
   alias_field.change(function () {
-    var expert_repo_alias = fields.find("[id$='alias']");
-    expert_repo_alias.val($(this).val());
+    fields.find("[id$='alias']").val($(this).val());
   });
 }
 
