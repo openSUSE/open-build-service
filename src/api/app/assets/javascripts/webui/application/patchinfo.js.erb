@@ -1,148 +1,148 @@
 function append_bug(issue) {
-    if (issue.length > 0) {
-        $("#issue_spinner").show();
-        var issues = new Array();
-        issue = issue.replace(/ /g, "");
-        issues = issue.split(",");
-        jQuery.unique(issues);
-        $.ajax({
-            url: "new_tracker",
-            type: "get",
-            dataType: "json",
-            data: {
-                issues: issues,
-                project: $("#project").val(),
-                package: $("#package").val()
-            },
-            success: function (data) {
-                if (data.error != "") {
-                    alert(data.error);
-                }
-                ;
-                jQuery.each(data.issues, function () {
-                    if ($("div#issue_" + this[0] + "_" + this[1]).length > 0) {
-                        return;
-                    }
-                    else {
-                        $("#issuelist").append("<div id='issue_" + this[0] + "_" + this[1] + "'>" +
-                            "<a id='remove_" + this[0] + "_" + this[1] + "' onclick='$(\"#issue_" + this[0] + "_" + this[1] + "\").remove(); return false;' href='#'> " +
-                            "<img src='<%= asset_path('bug_delete.png') %>' title='Remove Bug' alt='Remove Bug'></a> " +
-                            "<input type='hidden' name='issueid[]' id='issueid_" + this[0] + "_" + this[1] + "' value='" + this[1] + "'/>" +
-                            "<input type='hidden' name='issuetracker[]' id='issuetracker_" + this[0] + "_" + this[1] + "' value='" + this[0] + "'/>" +
-                            "<input type='hidden' name='issueurl[]' id='issueurl_" + this[0] + "_" + this[1] + "' value='" + this[2] + "'/>" +
-                            "<input type='hidden' name='issuesum[]' id='issuesum_" + this[0] + "_" + this[1] + "' value='" + this[3] + "'/>" +
-                            "<a href=\"" + this[2] + "\" target='_blank'>" + this[0] + "#" + this[1] + "</a>" + ":<br/>" +
-                            "<div id='issue_desc_" + this[0] + "_" + this[1] + "' onclick='change_issue_desc(\"" + this[0] +
-                            "_" + this[1] + "\");'>" + this[3] + "</div>" +
-                            "<div id='change_desc_" + this[0] + "_" + this[1] + "' style='display:none;'>" +
-                            "<input id='desc_" + this[0] + "_" + this[1] + "' type='text' value='" + this[3] + "' size=" + this[3].length +
-                            " name='desc_" + this[0] + "_" + this[1] + "'/><a onclick='changeDesc(\"ok\", \"" + this[0] + "_" + this[1] + "\"); return false;' href='#'>" +
-                            "<img title='Change description' src='<%=asset_path('ok.png')%>', alt='Ok'></a>" +
-                            "<a onclick='changeDesc(\"cancel\", \"" + this[0] + "_" + this[1] + "\"); return false;' href='#'>" +
-                            "<img title='Cancel changes' src='<%=asset_path('req-decline.png')%>', alt='Cancel'></a></div></div>");
+  if (issue.length > 0) {
+    $("#issue_spinner").show();
+    var issues = new Array();
+    issue = issue.replace(/ /g, "");
+    issues = issue.split(",");
+    jQuery.unique(issues);
+    $.ajax({
+      url: "new_tracker",
+      type: "get",
+      dataType: "json",
+      data: {
+        issues: issues,
+        project: $("#project").val(),
+        package: $("#package").val()
+      },
+      success: function (data) {
+        if (data.error != "") {
+          alert(data.error);
+        }
+        ;
+        jQuery.each(data.issues, function () {
+          if ($("div#issue_" + this[0] + "_" + this[1]).length > 0) {
+            return;
+          }
+          else {
+            $("#issuelist").append("<div id='issue_" + this[0] + "_" + this[1] + "'>" +
+              "<a id='remove_" + this[0] + "_" + this[1] + "' onclick='$(\"#issue_" + this[0] + "_" + this[1] + "\").remove(); return false;' href='#'> " +
+              "<img src='<%= asset_path('bug_delete.png') %>' title='Remove Bug' alt='Remove Bug'></a> " +
+              "<input type='hidden' name='issueid[]' id='issueid_" + this[0] + "_" + this[1] + "' value='" + this[1] + "'/>" +
+              "<input type='hidden' name='issuetracker[]' id='issuetracker_" + this[0] + "_" + this[1] + "' value='" + this[0] + "'/>" +
+              "<input type='hidden' name='issueurl[]' id='issueurl_" + this[0] + "_" + this[1] + "' value='" + this[2] + "'/>" +
+              "<input type='hidden' name='issuesum[]' id='issuesum_" + this[0] + "_" + this[1] + "' value='" + this[3] + "'/>" +
+              "<a href=\"" + this[2] + "\" target='_blank'>" + this[0] + "#" + this[1] + "</a>" + ":<br/>" +
+              "<div id='issue_desc_" + this[0] + "_" + this[1] + "' onclick='change_issue_desc(\"" + this[0] +
+              "_" + this[1] + "\");'>" + this[3] + "</div>" +
+              "<div id='change_desc_" + this[0] + "_" + this[1] + "' style='display:none;'>" +
+              "<input id='desc_" + this[0] + "_" + this[1] + "' type='text' value='" + this[3] + "' size=" + this[3].length +
+              " name='desc_" + this[0] + "_" + this[1] + "'/><a onclick='changeDesc(\"ok\", \"" + this[0] + "_" + this[1] + "\"); return false;' href='#'>" +
+              "<img title='Change description' src='<%=asset_path('ok.png')%>', alt='Ok'></a>" +
+              "<a onclick='changeDesc(\"cancel\", \"" + this[0] + "_" + this[1] + "\"); return false;' href='#'>" +
+              "<img title='Cancel changes' src='<%=asset_path('req-decline.png')%>', alt='Cancel'></a></div></div>");
 
-                    }
-                });
-                $("#issue").val("");
-                $("#issue_spinner").hide();
-            }
+          }
         });
-    }
-    return false;
+        $("#issue").val("");
+        $("#issue_spinner").hide();
+      }
+    });
+  }
+  return false;
 }
 
 function update_patchinfo() {
-    $("#update_spinner").show();
-    $.ajax({
-        url: "updatepatchinfo",
-        type: "get",
-        data: {
-            project: $("input#project").val(),
-            package: $("input#package").val()
-        },
-        complete: function () {
-            $("#update_spinner").hide();
-        }
-    });
+  $("#update_spinner").show();
+  $.ajax({
+    url: "updatepatchinfo",
+    type: "get",
+    data: {
+      project: $("input#project").val(),
+      package: $("input#package").val()
+    },
+    complete: function () {
+      $("#update_spinner").hide();
+    }
+  });
 }
 
 function change_issue_desc(issue) {
-    var issuedesc = "#issue_desc_" + issue;
-    var changedesc = "#change_desc_" + issue;
-    $(issuedesc).hide();
-    $("#remove_" + issue).hide();
-    $(changedesc).show();
-    $("#desc_" + issue).val($(issuedesc).text().trim());
+  var issuedesc = "#issue_desc_" + issue;
+  var changedesc = "#change_desc_" + issue;
+  $(issuedesc).hide();
+  $("#remove_" + issue).hide();
+  $(changedesc).show();
+  $("#desc_" + issue).val($(issuedesc).text().trim());
 }
 
 function changeDesc(state, issue) {
-    var issuedesc = "#issue_desc_" + issue;
-    var changedesc = "#change_desc_" + issue;
-    var desctext = $("#desc_" + issue).val();
-    if (state == "ok") {
-        $(issuedesc).text(desctext);
-        $("#issuesum_" + issue).val(desctext);
-    }
-    $(issuedesc).show();
-    $("#remove_" + issue).show();
-    $(changedesc).hide();
+  var issuedesc = "#issue_desc_" + issue;
+  var changedesc = "#change_desc_" + issue;
+  var desctext = $("#desc_" + issue).val();
+  if (state == "ok") {
+    $(issuedesc).text(desctext);
+    $("#issuesum_" + issue).val(desctext);
+  }
+  $(issuedesc).show();
+  $("#remove_" + issue).show();
+  $(changedesc).hide();
 }
 
 function moveSelectedItems(source, destination) {
-    var selected = $(source + ' option:selected').remove();
-    var sorted = $.makeArray($(destination + ' option').add(selected)).sort(function (a, b) {
-        return $(a).text() > $(b).text() ? 1 : -1;
-    });
-    $(destination).empty().append(sorted);
+  var selected = $(source + ' option:selected').remove();
+  var sorted = $.makeArray($(destination + ' option').add(selected)).sort(function (a, b) {
+    return $(a).text() > $(b).text() ? 1 : -1;
+  });
+  $(destination).empty().append(sorted);
 }
 
 function stopRKey(evt) {
-    var evt = (evt) ? evt : ((event) ? event : null);
-    var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
-    if ((evt.keyCode == 13) && (node.type == "text")) {
-        return false;
-    }
+  var evt = (evt) ? evt : ((event) ? event : null);
+  var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+  if ((evt.keyCode == 13) && (node.type == "text")) {
+    return false;
+  }
 }
 
 function toggle_blockreason(){
-    if (!$("#block").is(":checked")) {
-        $("#block_reason").prop('disabled', true);
-    } else {
-        $("#block_reason").prop('disabled', false);
-    }
+  if (!$("#block").is(":checked")) {
+    $("#block_reason").prop('disabled', true);
+  } else {
+    $("#block_reason").prop('disabled', false);
+  }
 }
 
 function patchinfoReady() {
-    document.onkeypress = stopRKey;
+  document.onkeypress = stopRKey;
+  toggle_blockreason();
+  $("form").submit(function () {
+    $('#selected_binaries option').attr('selected', true);
+    $('#available_binaries option').attr('selected', true);
+  });
+
+  $('#add').click(function () {
+    $("#selected_binaries option[value='']").remove();
+    moveSelectedItems('#available_binaries', '#selected_binaries');
+  });
+  $('#add-all').click(function () {
+    $("#selected_binaries option[value='']").remove();
+    $('#available_binaries option').attr('selected', 'true');
+    moveSelectedItems('#available_binaries', '#selected_binaries');
+  });
+  $('#remove').click(function () {
+    moveSelectedItems('#selected_binaries', '#available_binaries');
+  });
+  $('#remove-all').click(function () {
+    $('#selected_binaries option').attr('selected', 'true');
+    moveSelectedItems('#selected_binaries', '#available_binaries');
+  });
+
+  $("#summary").keypress(function (event) {
+    if (event.keyCode == 13) {
+      event.preventDefault();
+    }
+  });
+  $('#block').change(function(){
     toggle_blockreason();
-    $("form").submit(function () {
-        $('#selected_binaries option').attr('selected', true);
-        $('#available_binaries option').attr('selected', true);
-    });
-
-    $('#add').click(function () {
-        $("#selected_binaries option[value='']").remove();
-        moveSelectedItems('#available_binaries', '#selected_binaries');
-    });
-    $('#add-all').click(function () {
-        $("#selected_binaries option[value='']").remove();
-        $('#available_binaries option').attr('selected', 'true');
-        moveSelectedItems('#available_binaries', '#selected_binaries');
-    });
-    $('#remove').click(function () {
-        moveSelectedItems('#selected_binaries', '#available_binaries');
-    });
-    $('#remove-all').click(function () {
-        $('#selected_binaries option').attr('selected', 'true');
-        moveSelectedItems('#selected_binaries', '#available_binaries');
-    });
-
-    $("#summary").keypress(function (event) {
-        if (event.keyCode == 13) {
-            event.preventDefault();
-        }
-    });
-    $('#block').change(function(){
-        toggle_blockreason();
-    });
+  });
 }
