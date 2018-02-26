@@ -75,7 +75,7 @@ def upload_image_to_ec2(image, data, jobid)
   Open3.popen2e(command) do |_stdin, stdout_stderr, _wait_thr|
     while line = stdout_stderr.gets
       STDOUT.write(line)
-      write_result($1, jobid) if line =~ /^Created\simage:\s(ami-[\w]+)$/
+      write_result($1, jobid) if line =~ /^Created\simage:\s+(ami-[\w]+)$/
     end
     status = wait_thr.value
     abort unless status.success?
