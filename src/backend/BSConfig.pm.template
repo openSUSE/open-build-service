@@ -150,6 +150,7 @@ our $relsync_pool = {
 #No extra stage server sync
 #our $stageserver = 'rsync://127.0.0.1/put-repos-main';
 #our $stageserver_sync = 'rsync://127.0.0.1/trigger-repos-sync';
+#our $stageserver_port = 873
 
 #No package signing server
 #our $sign = '/usr/bin/sign';
