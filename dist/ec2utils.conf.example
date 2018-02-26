@@ -164,3 +164,35 @@ user = ec2-user
 # ssk_key_name =
 # ssh_private_key =
 
+[region-ca-central-1]
+ami = ami-a954d1cd
+instance_type = t2.micro
+user = ec2-user
+# Allow a region to overwrite the account key
+# ssk_key_name =
+# ssh_private_key =
+
+[region-eu-west-2]
+ami = ami-403e2524
+instance_type = t2.micro
+user = ec2-user
+# Allow a region to overwrite the account key
+# ssk_key_name =
+# ssh_private_key =
+
+[region-eu-west-3]
+ami = ami-8ee056f3
+instance_type = t2.micro
+user = ec2-user
+# Allow a region to overwrite the account key
+# ssk_key_name =
+# ssh_private_key =
+
+[region-ap-south-1]
+ami = ami-531a4c3c
+instance_type = t2.micro
+user = ec2-user
+# Allow a region to overwrite the account key
+# ssk_key_name =
+# ssh_private_key =
+
