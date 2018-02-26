@@ -44,17 +44,17 @@ function updateSupersedeAndDevelPackageDisplay() {
   }
 }
 
-function setup_request_dialog() {
+function setup_request_dialog() { // jshint ignore:line
   $('#devel-project-name').click(function () {
     $('#targetproject').attr('value', $('#devel-project-name').html());
   });
 
   $('#targetproject').autocomplete({
     source: $('#targetproject').data('autocomplete-url'),
-    search: function(event, ui) {
+    search: function() {
       $(this).addClass('loading-spinner');
     },
-    response: function(event, ui) {
+    response: function() {
       $(this).removeClass('loading-spinner');
     },
     minLength: 2,
@@ -70,8 +70,8 @@ function setup_request_dialog() {
  minChars: 0, matchCase: true, max: 50, extraParams: {project: function() { return $("#target_project").val(); }}
  });*/
 
-function requestAddAcceptRequestButton() {
-  $('#accept_request_button').click(function (data) {
+function requestAddAcceptRequestButton() { // jshint ignore:line
+  $('#accept_request_button').click(function () {
     var additional_element;
 
     /* Add some hidden elements to carry HTML form data that is found at other DOM places for design reasons.  */
@@ -94,7 +94,7 @@ function requestAddAcceptRequestButton() {
   });
 }
 
-function requestShowReview() {
+function requestShowReview() { // jshint ignore:line
   var index;
   $('.review_descision_link').click(function (event) {
     $('#review_descision_select li.selected').attr('class', '');
@@ -106,7 +106,7 @@ function requestShowReview() {
   });
 }
 
-function requestAddReviewAutocomplete() {
+function requestAddReviewAutocomplete() { // jshint ignore:line
 
   $('#review_type').change(function () {
     switch ($('#review_type option:selected').attr('value')) {
@@ -146,24 +146,24 @@ function requestAddReviewAutocomplete() {
   });
 
   $("#review_group").autocomplete({source: '/group/autocomplete', minChars: 2, matchCase: true, max: 50,
-  search: function(event, ui) {
+  search: function() {
     $(this).addClass('loading-spinner');
   },
-  response: function(event, ui) {
+  response: function() {
     $(this).removeClass('loading-spinner');
   }});
   $("#review_user").autocomplete({source: '/user/autocomplete', minChars: 2, matchCase: true, max: 50,
-  search: function(event, ui) {
+  search: function() {
     $(this).addClass('loading-spinner');
   },
-  response: function(event, ui) {
+  response: function() {
     $(this).removeClass('loading-spinner');
   }});
   $("#review_project").autocomplete({source: '/project/autocomplete_projects', minChars: 2, matchCase: true, max: 50,
-  search: function(event, ui) {
+  search: function() {
     $(this).addClass('loading-spinner');
   },
-  response: function(event, ui) {
+  response: function() {
     $(this).removeClass('loading-spinner');
   }});
   $("#review_package").autocomplete({
@@ -180,10 +180,10 @@ function requestAddReviewAutocomplete() {
         }
       });
     },
-    search: function(event, ui) {
+    search: function() {
       $(this).addClass('loading-spinner');
     },
-    response: function(event, ui) {
+    response: function() {
       $(this).removeClass('loading-spinner');
     },
     minLength: 2,
@@ -193,7 +193,7 @@ function requestAddReviewAutocomplete() {
   });
 }
 
-function setupActionLink() {
+function setupActionLink() { // jshint ignore:line
   var index;
   $('.action_select_link').click(function (event) {
     $('#action_select li.selected').attr('class', '');

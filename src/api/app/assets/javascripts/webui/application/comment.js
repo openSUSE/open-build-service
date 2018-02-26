@@ -1,6 +1,6 @@
 // Expand the comment textarea to fit the text
 // as it's being typed.
-function sz(t) {
+function sz(t) { // jshint ignore:line
   var a = t.value.split('\n');
   var b = 1;
   for (var x = 0; x < a.length; x++) {
@@ -11,11 +11,11 @@ function sz(t) {
 }
 
 function reloadCommentBindings() {
-  $('a.delete_link').on('ajax:success', function(event, data, status, xhr){
+  $('a.delete_link').on('ajax:success', function(event, data){
     $('#flash-messages').remove();
     $(data.flash).filter('#flash-messages').insertAfter('#subheader').fadeIn('slow');
     $(this).parent().parent().parent().fadeOut("slow");
-  }).on('ajax:error',function(event, xhr, status, error){
+  }).on('ajax:error',function(event, xhr){
     var response = $.parseJSON(xhr.responseText);
     $('#flash-messages').remove();
     $(response.flash).filter('#flash-messages').insertAfter('#subheader').fadeIn('slow');
@@ -35,7 +35,7 @@ function reloadCommentBindings() {
       $(this).find('input[type="submit"]').prop('disabled', true);
   });
 
-  $('.comment_new').on('ajax:complete', function(event, data, status, xhr) {
+  $('.comment_new').on('ajax:complete', function(event, data) {
     $('#comments').html(data.responseText);
 
     // as the comments get loaded again, the jQuery bindings are lost. We need to reload them.

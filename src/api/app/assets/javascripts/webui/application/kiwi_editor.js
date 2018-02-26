@@ -106,7 +106,7 @@ function closeDescriptionDialog() {
   var elements = fields.find('.fill');
   for(var i=0; i < elements.length; i++) {
     var object = dialog.find("[id$='" + $(elements[i]).data('tag') + "']");
-    if ( object.val() != "") {
+    if ( object.val() !== "") {
       $(elements[i]).text(object.val());
     }
   }
@@ -130,8 +130,8 @@ function closePreferencesDialog() {
   var elements = fields.find('.fill');
   for(var i=0; i < elements.length; i++) {
     var object = dialog.find("[id$='" + $(elements[i]).data('tag') + "']");
-    if ( object.val() != "") {
-      if ( $(elements[i]).data('tag') == 'type_image' ) {
+    if ( object.val() !== "") {
+      if ( $(elements[i]).data('tag') === 'type_image' ) {
         $(elements[i]).text(object.find(":selected").text());
       }
       else {
@@ -280,7 +280,7 @@ function autocompleteKiwiRepositories(project, repo_field) {
         if (!foundoptions)
           repo_field.append(new Option('No repos found'));
       },
-      complete: function (data) {
+      complete: function () {
         $('.ui-autocomplete-loading').hide();
         repo_field.trigger("change");
       }
@@ -298,10 +298,10 @@ function kiwiRepositoriesSetupAutocomplete(fields) {
     select: function (event, ui) {
       autocompleteKiwiRepositories(ui.item.value, repo_field);
     },
-    search: function(event, ui) {
+    search: function() {
       $(this).addClass('loading-spinner');
     },
-    response: function(event, ui) {
+    response: function() {
       $(this).removeClass('loading-spinner');
     }
   });
@@ -312,7 +312,7 @@ function kiwiRepositoriesSetupAutocomplete(fields) {
 
   repo_field.change(function () {
     var repo_field_value = repo_field.val();
-    if (repo_field.val() == 'No repos found') {
+    if (repo_field.val() === 'No repos found') {
       repo_field_value = '';
     }
     var source_path = fields.find("[id$='source_path']");
@@ -337,7 +337,7 @@ function kiwiPackagesSetupAutocomplete(fields) {
       var repository_destroy_fields = $("#kiwi-repositories-list [id$='_destroy']");
       var using_project_repositories =  $('#kiwi_image_use_project_repositories').prop('checked');
       repository_destroy_fields.each(function(index, input){ // remove destroyed repositories from the payload
-        if ($(input).val() == "1") {
+        if ($(input).val() === "1") {
           repositories.splice(index, 1);
         }
       });
@@ -350,10 +350,10 @@ function kiwiPackagesSetupAutocomplete(fields) {
           response(data);
         });
     },
-    search: function(event, ui) {
+    search: function() {
       $(this).addClass('loading-spinner');
     },
-    response: function(event, ui) {
+    response: function() {
       $(this).removeClass('loading-spinner');
     },
     minLength: 2
