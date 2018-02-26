@@ -12,16 +12,16 @@ ENV['HOME'] = "/etc/obs/cloudupload"
 ENV['PYTHONUNBUFFERED'] = '1'
 STDOUT.sync = true
 
-if ARGV.length != 5
-  raise 'Wrong number of arguments, please provide: user platform upload_file targetdata filename'
+if ARGV.length != 6
+  raise 'Wrong number of arguments, please provide: user platform upload_file targetdata filename result_path'
 end
 
 platform = ARGV[1]
 image_path = ARGV[2]
 data_path = ARGV[3]
 filename = ARGV[4]
+result_path = ARGV[5]
 data = JSON.parse(File.read(data_path))
-jobid = File.basename(image_path, '.file')
 
 # link file into working directory
 FileUtils.ln_s(image_path, File.join(Dir.pwd, filename))
@@ -53,7 +53,7 @@ def get_ec2_credentials(data)
   end
 end
 
-def upload_image_to_ec2(image, data, jobid)
+def upload_image_to_ec2(image, data, result_path)
   STDOUT.write("Start uploading image #{image}.\n")
 
   credentials = get_ec2_credentials(data)
@@ -81,19 +81,19 @@ def upload_image_to_ec2(image, data, jobid)
     }
     while line = stdout_stderr.gets
       STDOUT.write(line)
-      write_result($1, jobid) if line =~ /^Created\simage:\s+(ami-[\w]+)$/
+      write_result($1, result_path) if line =~ /^Created\simage:\s+(ami-[\w]+)$/
     end
     status = wait_thr.value
     abort unless status.success?
   end
 end
 
-def write_result(result, jobid)
-  File.open("#{jobid}.result", "w+") { |file| file.write(result) }
+def write_result(result, result_path)
+  File.open(result_path, "w+") { |file| file.write(result) }
 end
 
 if platform == 'ec2'
-  upload_image_to_ec2(filename, data, jobid)
+  upload_image_to_ec2(filename, data, result_path)
 else
   abort('No valid platform. Valid platforms is ec2.')
 end
