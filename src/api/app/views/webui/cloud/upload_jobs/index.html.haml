@@ -25,7 +25,7 @@
             = link_to "Log", cloud_upload_log_path(job.id)
             - unless ["succeeded", "failed"].include?(job.state)
               |
-              = link_to 'Abort', cloud_upload_path(job.id),  method: :delete, data: { confirm: "Do you really want to abort job #{job.id}? Please note that we do NOT clean up AWS (e.g. removing the helper instance)!" }
+              = link_to 'Abort', cloud_upload_path(job.id),  method: :delete, data: { confirm: "Do you really want to abort job #{job.id}?" }
 
 %div
   %p
