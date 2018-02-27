@@ -20,29 +20,29 @@ Note: Update from OBS 2.5 should also work, but is untested.
      You will be asked to deinstall ruby2.4-rubygem-passenger, since OBS 2.9 is using ruby 2.5
      instead of ruby 2.4. Agree to it.
 
-  5) Change to ruby2.5
+  4) Change to ruby2.5
 
         edit /etc/apache2/conf.d/mod_passenger.conf:
 
         PassengerRuby "/usr/bin/ruby.ruby2.5"
 
-  4) Migrate database
+  5) Migrate database
 
         cd /srv/www/obs/api/
         RAILS_ENV="production" rails.ruby2.5 db:migrate:with_data
 
-  5) Make sure that log and tmp are owned by wwwrun
+  6) Make sure that log and tmp are owned by wwwrun
 
         chown -R wwwrun.www /srv/www/obs/api/log
         chown -R wwwrun.www /srv/www/obs/api/tmp
 
-  6) Restart following services in this order
+  7) Restart following services in this order
 
         systemctl restart apache2
         systemctl restart obsapidelayed
         systemctl restart memcached
 
-  7) Enable and start the new services
+  8) Enable and start the new services
 
         systemctl enable obsservicedispatch
         systemctl start obsservicedispatch
