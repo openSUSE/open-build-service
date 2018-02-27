@@ -31,10 +31,10 @@ If that is not for you because you have some special needs for your setup (e.g. 
 
 After finishing the installation of your base system, follow these steps:
 
-1. Add the OBS software repository with zypper. Please be aware, that the needed URL differs, depending on your Base Operating System. We use openSUSE Leap 42.1 in this example.
+1. Add the OBS software repository with zypper. Please be aware, that the needed URL differs, depending on your Base Operating System. We use openSUSE Leap 42.3 in this example.
 
     ```shell
-    zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/2.7/openSUSE_42.1/OBS:Server:2.7.repo
+    zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/2.9/openSUSE_42.3/OBS:Server:2.9.repo
     ```
 
 2. Install the package
