@@ -7,11 +7,11 @@ function hideOverlay(dialog) {
 
 function saveImage() {
   if (canSave) {
-    $.ajax({ url: is_outdated_url,
+    $.ajax({ url: isOutdatedUrl,
       dataType: 'json',
       success: function(json) {
-        var is_outdated = json.is_outdated;
-        if (is_outdated && !window.confirm("This image has been modified while you were editing it.\nDo you want to apply the changes anyway?"))
+        var isOutdated = json.isOutdated;
+        if (isOutdated && !window.confirm("This image has been modified while you were editing it.\nDo you want to apply the changes anyway?"))
           return;
         $('#kiwi-image-update-form').submit();
       }
@@ -46,31 +46,31 @@ function editPackageDialog(){
 function editRepositoryDialog(){
   var fields = $(this).parents('.nested-fields');
   var dialog = fields.find('.dialog');
-  var normal_mode = fields.find('.normal-mode');
-  var expert_mode = fields.find('.expert-mode');
-  var source_path = fields.find("[id$='source_path']");
+  var normalMode = fields.find('.normal-mode');
+  var expertMode = fields.find('.expert-mode');
+  var sourcePath = fields.find("[id$='source_path']");
 
   dialog.removeClass('hidden');
-  var matched_obs_source_path = source_path.val().match(/^obs:\/\/([^\/]+)\/([^\/]+)$/);
-  if (matched_obs_source_path) {
-    var project_field = fields.find('[name=target_project]');
-    var repo_field = fields.find('[name=target_repo]');
-    var alias_field = fields.find('[name=alias_for_repo]');
-    var expert_repo_alias = fields.find("[id$='alias']");
-    var repo_type_field = fields.find("[id$='repo_type']");
-    alias_field.val(expert_repo_alias.val());
-    project_field.val(matched_obs_source_path[1]);
-    repo_field.html('');
-    repo_field.append(new Option(matched_obs_source_path[2]));
-    repo_field.val(matched_obs_source_path[2]);
-    repo_type_field.val('rpm-md');
+  var matchedObsSourcePath = sourcePath.val().match(/^obs:\/\/([^\/]+)\/([^\/]+)$/);
+  if (matchedObsSourcePath) {
+    var projectField = fields.find('[name=target_project]');
+    var repoField = fields.find('[name=target_repo]');
+    var aliasField = fields.find('[name=alias_for_repo]');
+    var expertRepoAlias = fields.find("[id$='alias']");
+    var repoTypeField = fields.find("[id$='repo_type']");
+    aliasField.val(expertRepoAlias.val());
+    projectField.val(matchedObsSourcePath[1]);
+    repoField.html('');
+    repoField.append(new Option(matchedObsSourcePath[2]));
+    repoField.val(matchedObsSourcePath[2]);
+    repoTypeField.val('rpm-md');
 
-    normal_mode.show();
-    expert_mode.hide();
+    normalMode.show();
+    expertMode.hide();
   }
   else {
-    normal_mode.hide();
-    expert_mode.show();
+    normalMode.hide();
+    expertMode.show();
   }
   updateModeButton(fields);
 
@@ -79,8 +79,8 @@ function editRepositoryDialog(){
   $('.overlay').show();
 }
 
-function addRepositoryErrorMessage(source_path, field) {
-  if (source_path === 'obsrepositories:/') {
+function addRepositoryErrorMessage(sourcePath, field) {
+  if (sourcePath === 'obsrepositories:/') {
     field.text('If you want use obsrepositories:/ as source_path, please check the checkbox "use project repositories".');
   }
   else {
@@ -153,24 +153,24 @@ function closePreferencesDialog() {
 
 function closeDialog() {
   var fields = $(this).parents('.nested-fields'),
-      is_repository = fields.parents('#kiwi-repositories-list').size() === 1,
+      isRepository = fields.parents('#kiwi-repositories-list').size() === 1,
       name = fields.find('.kiwi_element_name'),
       dialog = fields.find('.dialog'),
       arch;
 
-  if(is_repository) {
-    var source_path = dialog.find("[id$='source_path']");
-    if(source_path.val() !== '' && source_path.val() !== 'obsrepositories:/') {
+  if(isRepository) {
+    var sourcePath = dialog.find("[id$='source_path']");
+    if(sourcePath.val() !== '' && sourcePath.val() !== 'obsrepositories:/') {
       var alias = dialog.find("[id$='alias']");
       if (alias.val() !== '') {
         name.text(alias.val());
       }
       else {
-        name.text(source_path.val().replace(/\//g, '_'));
+        name.text(sourcePath.val().replace(/\//g, '_'));
       }
     }
     else {
-      addRepositoryErrorMessage(source_path.val(), fields.find(".ui-state-error"));
+      addRepositoryErrorMessage(sourcePath.val(), fields.find(".ui-state-error"));
       return false;
     }
   }
@@ -252,52 +252,52 @@ function repositoryModeToggle() {
 }
 
 function updateModeButton(fields) {
-  var expert_mode = fields.find('.expert-mode');
+  var expertMode = fields.find('.expert-mode');
 
   fields.find('.kiwi-repository-mode-toggle').
-    text(expert_mode.is(":visible") ? "Basic Mode" : "Expert Mode");
+    text(expertMode.is(":visible") ? "Basic Mode" : "Expert Mode");
 }
 
 function hoverListItem() {
   $(this).find('.kiwi_actions').toggle();
 }
 
-function autocompleteKiwiRepositories(project, repo_field) {
+function autocompleteKiwiRepositories(project, repoField) {
   if (project === "")
       return;
   $('.ui-autocomplete-loading').show();
-  repo_field.attr('disabled', 'true');
+  repoField.attr('disabled', 'true');
   $.ajax({
-      url: repo_field.data('ajaxurl'),
+      url: repoField.data('ajaxurl'),
       data: {project: project},
       success: function (data) {
-        repo_field.html('');
+        repoField.html('');
         var foundoptions = false;
         $.each(data, function (idx, val) {
-          repo_field.append(new Option(val));
-          repo_field.removeAttr('disabled');
+          repoField.append(new Option(val));
+          repoField.removeAttr('disabled');
           foundoptions = true;
         });
         if (!foundoptions)
-          repo_field.append(new Option('No repos found'));
+          repoField.append(new Option('No repos found'));
       },
       complete: function () {
         $('.ui-autocomplete-loading').hide();
-        repo_field.trigger("change");
+        repoField.trigger("change");
       }
   });
 }
 
 function kiwiRepositoriesSetupAutocomplete(fields) {
-  var project_field = fields.find('[name=target_project]');
-  var repo_field = fields.find('[name=target_repo]');
-  var alias_field = fields.find('[name=alias_for_repo]');
+  var projectField = fields.find('[name=target_project]');
+  var repoField = fields.find('[name=target_repo]');
+  var aliasField = fields.find('[name=alias_for_repo]');
 
-  project_field.autocomplete({
-    source: project_field.data('ajaxurl'),
+  projectField.autocomplete({
+    source: projectField.data('ajaxurl'),
     minLength: 2,
     select: function (event, ui) {
-      autocompleteKiwiRepositories(ui.item.value, repo_field);
+      autocompleteKiwiRepositories(ui.item.value, repoField);
     },
     search: function() {
       $(this).addClass('loading-spinner');
@@ -307,46 +307,46 @@ function kiwiRepositoriesSetupAutocomplete(fields) {
     }
   });
 
-  project_field.change(function () {
-    autocompleteKiwiRepositories(project_field.val(), repo_field);
+  projectField.change(function () {
+    autocompleteKiwiRepositories(projectField.val(), repoField);
   });
 
-  repo_field.change(function () {
-    var repo_field_value = repo_field.val();
-    if (repo_field.val() === 'No repos found') {
-      repo_field_value = '';
+  repoField.change(function () {
+    var repoFieldValue = repoField.val();
+    if (repoField.val() === 'No repos found') {
+      repoFieldValue = '';
     }
-    var source_path = fields.find("[id$='source_path']");
-    source_path.val("obs://" + project_field.val() + '/' + repo_field.val());
-    alias_field.val(repo_field_value + '@' + project_field.val()).
+    var sourcePath = fields.find("[id$='source_path']");
+    sourcePath.val("obs://" + projectField.val() + '/' + repoField.val());
+    aliasField.val(repoFieldValue + '@' + projectField.val()).
       trigger("change");
-    var repo_type_field = fields.find("[id$='repo_type']");
-    repo_type_field.val('rpm-md');
+    var repoTypeField = fields.find("[id$='repo_type']");
+    repoTypeField.val('rpm-md');
   });
 
-  alias_field.change(function () {
+  aliasField.change(function () {
     fields.find("[id$='alias']").val($(this).val());
   });
 }
 
 function kiwiPackagesSetupAutocomplete(fields) {
-  var package_field = fields.find('[id$=name]');
+  var packageField = fields.find('[id$=name]');
 
-  package_field.autocomplete({
+  packageField.autocomplete({
     source: function (request, response) {
       var repositories = $("#kiwi-repositories-list [id$='source_path']").map(function() { return this.value;}).get();
-      var repository_destroy_fields = $("#kiwi-repositories-list [id$='_destroy']");
-      var using_project_repositories =  $('#kiwi_image_use_project_repositories').prop('checked');
-      repository_destroy_fields.each(function(index, input){ // remove destroyed repositories from the payload
+      var repositoryDestroyFields = $("#kiwi-repositories-list [id$='_destroy']");
+      var usingProjectRepositories =  $('#kiwi_image_use_project_repositories').prop('checked');
+      repositoryDestroyFields.each(function(index, input){ // remove destroyed repositories from the payload
         if ($(input).val() === "1") {
           repositories.splice(index, 1);
         }
       });
       var payload = { term: request.term, repositories: repositories };
-      if (using_project_repositories) {
-        payload.use_project_repositories = true;
+      if (usingProjectRepositories) {
+        payload.useProjectRepositories = true;
       }
-      $.getJSON(package_field.data('ajaxurl'), payload,
+      $.getJSON(packageField.data('ajaxurl'), payload,
         function (data) {
           response(data);
         });

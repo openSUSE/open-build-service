@@ -1,7 +1,8 @@
 {
-  "eqeqeq" : true, // true: Require triple equals (===) for comparison
-  "undef" :  true, // true: Require all non-global variables to be declared (prevents global leaks)
-  "unused" : true, // Unused variables: true : all variables, last function parameter
+  "camelcase" : true, // true: Identifiers must be in camelCase
+  "eqeqeq"    : true, // true: Require triple equals (===) for comparison
+  "undef"     : true, // true: Require all non-global variables to be declared (prevents global leaks)
+  "unused"    : true, // Unused variables: true : all variables, last function parameter
 
   "globals" : {
     "$" :        false,
@@ -12,8 +13,8 @@
     "ui" :       false,
     "window" :   false,
     // Defined in our views. FIXME: We might be able to solve these by not having inline js
-    "is_outdated_url" : false,
-    "main_projects" :   false,
-    "excl_projects" :   false
+    "isOutdatedUrl" : false,
+    "mainProjects"  : false,
+    "exclProjects"  : false
   }
 }
