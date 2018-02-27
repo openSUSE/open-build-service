@@ -852,19 +852,12 @@ sub deleterepo_susetags {
   qsystem('rm', '-rf', "$extrep/descr") if -d "$extrep/descr";
 }
 
-sub compress_and_rename {
-  my ($tmpfile, $file) =@_;
-  if (-s $tmpfile) {
-    unlink($file);
-    link($tmpfile, $file);
-    qsystem('gzip', '-9', '-n', '-f', $tmpfile) && print "    gzip $tmpfile failed: $?\n";
-    unlink($tmpfile);
-    unlink("$file.gz");
-    rename("$tmpfile.gz", "$file.gz");
+sub copy_compress {
+  my ($file) =@_;
+  if (-s $file) {
+    qsystem('gzip', '-k', '-9', '-n', '-f', $file) && print "    gzip $file failed: $?\n";
   } else {
-    unlink($tmpfile);
     unlink($file);
-    unlink("$file.gz");
   }
 }
 
@@ -875,13 +868,13 @@ sub createrepo_debian {
   if (qsystem('chdir', $extrep, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-m', '.', '/dev/null')) {
     die("    dpkg-scanpackages failed: $?\n");
   }
-  compress_and_rename("$extrep/Packages.new", "$extrep/Packages");
+  copy_compress("Packages.new");
 
   print "    running dpkg-scansources\n";
   if (qsystem('chdir', $extrep, 'stdout', 'Sources.new', 'dpkg-scansources', '.', '/dev/null')) {
     die("    dpkg-scansources failed: $?\n");
   }
-  compress_and_rename("$extrep/Sources.new", "$extrep/Sources");
+  copy_compress("Sources.new");
   createrelease_debian($extrep, $projid, $repoid, $data, $options);
 
   my $udebs = "$extrep/debian-installer";
@@ -889,9 +882,9 @@ sub createrepo_debian {
   if (qsystem('chdir', $udebs, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-t', 'udeb', '-m', '..', '/dev/null')) {
     die("    dpkg-scanpackages for udebs failed: $?\n");
   }
-  compress_and_rename("$udebs/Packages.new", "$udebs/Packages");
+  copy_compress("$udebs/Packages.new");
 
-  if ( -e "$udebs/Packages") {
+  if ( -e "$udebs/Packages.new") {
     createrelease_debian($udebs, $projid, $repoid, $data, $options);
   } else {
     rmdir($udebs);
@@ -926,18 +919,19 @@ Description: $data->{'repoinfo'}->{'title'}
 MD5Sum:
 EOL
 
-  open(OUT, '>', "$extrep/Release") || die("$extrep/Release: $!\n");
+  open(OUT, '>', "$extrep/Release.new") || die("$extrep/Release.new: $!\n");
   print OUT $str;
   close(OUT) || die("close: $!\n");
 
   # append checksums
   my $sha1sums = "SHA1:\n";
   my $sha256sums = "SHA256:\n";
-  open(OUT, '>>', "$extrep/Release") || die("$extrep/Release: $!\n");
-  for my $f ( "Packages", "Packages.gz", "Sources", "Sources.gz" ) {
-    my @s = stat("$extrep/$f");
+  open(OUT, '>>', "$extrep/Release.new") || die("$extrep/Release.new: $!\n");
+  for my $fnew ( "Packages.new", "Packages.new.gz", "Sources.new", "Sources.new.gz" ) {
+    my $f = $fnew =~ s/\.new//r;
+    my @s = stat("$extrep/$fnew");
     next unless @s;
-    my $fdata = readstr("$extrep/$f");
+    my $fdata = readstr("$extrep/$fnew");
     my $md5  = Digest::MD5::md5_hex($fdata);
     my $size = $s[7];
     print OUT " $md5 $size $f\n";
@@ -950,16 +944,20 @@ EOL
   print OUT $sha256sums;
   close(OUT) || die("close: $!\n");
 
-  unlink("$extrep/Release.gpg");
-  unlink("$extrep/Release.key");
-
   # re-sign changed Release file
-  if ($BSConfig::sign && -e "$extrep/Release") {
+  if ($BSConfig::sign && -e "$extrep/Release.new") {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, @{$data->{'signargs'} || []};
-    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/Release") && die("    sign failed: $?\n");
-    rename("$extrep/Release.asc","$extrep/Release.gpg");
+    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/Release.new") && die("    sign failed: $?\n");
+    rename("$extrep/Release.new.asc","$extrep/Release.gpg");
+  }
+  # Update the repository with generated files
+  for my $fnew ( "Release.new", "Packages.new.gz", "Sources.new.gz", "Packages.new", "Sources.new" ) {
+    my $f = $fnew =~ s/\.new//r;
+    my @s = stat("$extrep/$fnew");
+    next unless @s;
+    rename("$extrep/$fnew","$extrep/$f");
   }
   if ($BSConfig::sign) {
     writestr("$extrep/Release.key", undef, $data->{'pubkey'}) if $data->{'pubkey'};
@@ -2132,7 +2130,7 @@ sub publish {
     next if $arch =~ /^\./;
     next if $arch eq 'repodata' || $arch eq 'repocache' || $arch eq 'media.1' || $arch eq 'descr' || $arch eq 'boxes';
     next if $arch =~ /\.repo$/;
-    next if $arch eq 'Packages' || $arch eq 'Packages.gz' || $arch eq 'Sources' || $arch eq 'Sources.gz' || $arch eq 'Release' || $arch eq 'Release.gz' || $arch eq 'Release.key';
+    next if $arch eq 'Packages' || $arch eq 'Packages.gz' || $arch eq 'Sources' || $arch eq 'Sources.gz' || $arch eq 'Release' || $arch eq 'Release.gz' || $arch eq 'Release.key' || $arch eq 'Release.gpg';
     next if $containerextras{$arch};		# keep the old readme/symlink
     my $r = "$extrep/$arch";
     if (-f $r) {
