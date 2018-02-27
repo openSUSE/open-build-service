@@ -8,10 +8,6 @@
   margin-left: -13em;
 
   input[type='text'] { width: 95%; }
-  /* TODO: Agree on a common way to use dialogs. Without this adjustment the width of 95% gets applied to the branching dialog and this looks weird */
-  input[name="target_package"] {
-    width: 220px;
-  }
 
   .dialog-content {
     overflow: auto;
@@ -51,6 +47,12 @@
 }
 
 #package_branch_dialog { font-size: 16px; }
+
+.branching-details p {
+  line-height: 125%; 
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
 
 .overlay {
   display: none;
