@@ -2,7 +2,7 @@ production:
   features: &default
     image_templates: true
     kiwi_image_editor: true
-    cloud_upload: false
+    cloud_upload: true
 
 development:
   features:
