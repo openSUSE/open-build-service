@@ -11,7 +11,7 @@ function updateSupersedeAndDevelPackageDisplay() {
       url: $('#targetproject').data('requests-url'),
       data: {
         project: $('#targetproject')[0].value,
-        source_project: $('#project')[0].value,
+        source_project: $('#project')[0].value, // jshint ignore:line
         package: $('#package')[0].value,
         types: 'submit',
         states: ['new', 'review', 'declined']
@@ -72,23 +72,23 @@ function setup_request_dialog() { // jshint ignore:line
 
 function requestAddAcceptRequestButton() { // jshint ignore:line
   $('#accept_request_button').click(function () {
-    var additional_element;
+    var additionalElement;
 
     /* Add some hidden elements to carry HTML form data that is found at other DOM places for design reasons.  */
     if ($('.submitter_is_maintainer_checkbox').size() !== 0 &&
       $('.submitter_is_maintainer_checkbox').is(':checked')) {
-      additional_element = '<input id="' + $('.submitter_is_maintainer_checkbox').attr('id') +
+      additionalElement = '<input id="' + $('.submitter_is_maintainer_checkbox').attr('id') +
         '" name="' + $('.submitter_is_maintainer_checkbox').attr('name') +
         '" type="hidden" value="' + $('.submitter_is_maintainer_checkbox').attr('value') + '"/>';
-      $('#request_handle_form p:last').append(additional_element);
+      $('#request_handle_form p:last').append(additionalElement);
     }
     if ($('.forward_checkbox').size() !== 0 &&
       $('.forward_checkbox').is(':checked')) {
       $('.forward_checkbox').each(function () {
-        additional_element = '<input id="' + $(this).attr('id') +
+        additionalElement = '<input id="' + $(this).attr('id') +
           '" name="' + $(this).attr('name') +
           '" type="hidden" value="' + $(this).attr('value') + '"/>';
-        $('#request_handle_form p:last').append(additional_element);
+        $('#request_handle_form p:last').append(additionalElement);
       });
     }
   });

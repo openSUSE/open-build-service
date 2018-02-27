@@ -71,18 +71,18 @@ function autoscroll() {
   // just return in case the user scrolled up
   if (lastScroll > window.pageYOffset) { return; }
   // stop refresh if the user scrolled down
-  if (lastScroll < window.pageYOffset && lastScroll) { stop_refresh(); return; }
+  if (lastScroll < window.pageYOffset && lastScroll) { stopRefresh(); return; }
   var targetOffset = $('#footer').offset().top - window.innerHeight;
   window.scrollTo( 0, targetOffset );
   lw.data("lastScroll", window.pageYOffset);
 }
 
 function build_finished() { // jshint ignore:line
-  stop_refresh();
+  stopRefresh();
   $('#status').html('Build finished');
 }
 
-function start_refresh() {
+function startRefresh() {
   var lw = $('#log_space_wrapper');
   lw.data("autorefresh", 1);
   lw.data("lastScroll", 0);
@@ -97,7 +97,7 @@ function remove_ajaxreq() { // jshint ignore:line
   lw.data("ajaxreq", 0);
 }
 
-function stop_refresh() {
+function stopRefresh() {
   var lw = $('#log_space_wrapper');
   lw.data("autorefresh", 0);
   if (lw.data("ajaxreq") !== 0)
@@ -115,7 +115,7 @@ function refresh(newoffset, initial) {
   if (lw.data("autorefresh")) {
     var options = { type: 'GET',
       data: null,
-      error: 'stop_refresh()',
+      error: 'stopRefresh()',
       completed: 'remove_ajaxreq()',
       cache: false };
 
@@ -141,16 +141,15 @@ function live_build_log_ready() { // jshint ignore:line, unused:true
   lw.data("lastScroll", 0);
 
   refresh(lw.data("offset"), 1);
-  $('.start_refresh').click(start_refresh);
-  $('.stop_refresh').click(stop_refresh);
+  $('.start_refresh').click(startRefresh);
+  $('.stop_refresh').click(stopRefresh);
 }
 
 $( document ).ready(function() {
   $('.btn-more').click(function() {
     var link = $(this);
     $('.more_info').toggle(0, function() {
-      var link_text = $(this).is(':visible') ? 'less info' : 'more info';
-      link.text(link_text);
+      link.text($(this).is(':visible') ? 'less info' : 'more info');
     });
   });
 

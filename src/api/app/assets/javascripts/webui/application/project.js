@@ -36,9 +36,9 @@ function renderPackagesTable(wrapper, packages, length) { // jshint ignore:line
 
 function renderProjectsTable(length) { // jshint ignore:line
   length = (typeof length === "undefined") ? 25 : length;
-  var projects = main_projects;
+  var projects = mainProjects;
   if (!$('#excludefilter').is(":checked"))
-    projects = projects.concat(excl_projects);
+    projects = projects.concat(exclProjects);
   var projecturl = $("#projects-table-wrapper").data("url");
   $("#projects-table-wrapper").html('<table cellpadding="0" cellspacing="0" border="0" class="compact stripe" id="projects_table"></table>');
   $("#projects_table").dataTable({
@@ -48,9 +48,9 @@ function renderProjectsTable(length) { // jshint ignore:line
     "columns": [
       {
         "title": "Name",
-        "render": function (obj, type, data_row) {
-          var url = projecturl.replace(/REPLACEIT/, data_row[0]);
-          return '<a href="' + url + '">' + data_row[0] + '</a>';
+        "render": function (obj, type, dataRow) {
+          var url = projecturl.replace(/REPLACEIT/, dataRow[0]);
+          return '<a href="' + url + '">' + dataRow[0] + '</a>';
         }
       },
       { "title": "Title" }
@@ -74,10 +74,10 @@ function renderPackagesProjectsTable(options) { // jshint ignore:line
       "columns": [
         {
           "title": "Package",
-          "render": function (obj, type, data_row) {
-            var url1 = packageurl.replace(/REPLACEPKG/, data_row[0]);
-            var url = url1.replace(/REPLACEPRJ/, data_row[1]);
-            return '<a href="' + url + '">' + data_row[0] + '</a>';
+          "render": function (obj, type, dataRow) {
+            var url1 = packageurl.replace(/REPLACEPKG/, dataRow[0]);
+            var url = url1.replace(/REPLACEPRJ/, dataRow[1]);
+            return '<a href="' + url + '">' + dataRow[0] + '</a>';
           }
         },
         {
@@ -90,8 +90,8 @@ function renderPackagesProjectsTable(options) { // jshint ignore:line
 }
 
 
-function autocomplete_repositories(project_name) {
-  if (project_name === "")
+function autocompleteRepositories(projectName) {
+  if (projectName === "")
     return;
   $('#loader-repo').show();
   $('#add_repository_button').attr('disabled', 'true');
@@ -99,11 +99,11 @@ function autocomplete_repositories(project_name) {
   $('#repo_name').attr('disabled', 'true');
   $.ajax({
     url: $('#target_repo').data('ajaxurl'),
-    data: {project: project_name},
+    data: {project: projectName},
     success: function (data) {
       $('#target_repo').html('');
       // suggest a name:
-      $('#repo_name').attr('value', project_name.replace(/:/g, '_') + '_' + data[0]);
+      $('#repo_name').attr('value', projectName.replace(/:/g, '_') + '_' + data[0]);
       var foundoptions = false;
       $.each(data, function (idx, val) {
         $('#target_repo').append(new Option(val));
@@ -121,15 +121,15 @@ function autocomplete_repositories(project_name) {
   });
 }
 
-function repositories_setup_autocomplete() { // jshint ignore:line
+function repositoriesSetupAutocomplete() { // jshint ignore:line
   $("#target_project").autocomplete({
     source: $('#target_project').data('ajaxurl'),
     minLength: 2,
     select: function() {
-      autocomplete_repositories(ui.item.value);
+      autocompleteRepositories(ui.item.value);
     },
     change: function() {
-      autocomplete_repositories($('#target_project').attr('value'));
+      autocompleteRepositories($('#target_project').attr('value'));
     },
     search: function() {
       $(this).addClass('loading-spinner');
@@ -140,7 +140,7 @@ function repositories_setup_autocomplete() { // jshint ignore:line
   });
 
   $("#target_project").change(function () {
-    autocomplete_repositories($('#target_project').attr('value'));
+    autocompleteRepositories($('#target_project').attr('value'));
   });
 
   $('#target_repo').select(function () {
@@ -148,7 +148,7 @@ function repositories_setup_autocomplete() { // jshint ignore:line
   });
 }
 
-function setup_subprojects_tables() { // jshint ignore:line
+function setupSubprojectsTables() { // jshint ignore:line
   $('#parentprojects-table').dataTable({
     'paging': false,
     'searching': false,
