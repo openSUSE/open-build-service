@@ -1,4 +1,6 @@
 #!/usr/bin/ruby
+
+require 'fileutils'
 require 'json'
 require 'ostruct'
 require 'open3'
@@ -6,7 +8,7 @@ require 'open3'
 start = Time.now
 THIRTY_MINUTES = 1800
 HOME = '/etc/obs/cloudupload'.freeze
-ENV['HOME'] = HOME
+ENV['HOME'] = "/etc/obs/cloudupload"
 ENV['PYTHONUNBUFFERED'] = '1'
 STDOUT.sync = true
 
@@ -19,6 +21,7 @@ image_path = ARGV[2]
 data_path = ARGV[3]
 filename = ARGV[4]
 data = JSON.parse(File.read(data_path))
+jobid = File.basename(image_path, '.file')
 
 # link file into working directory
 FileUtils.ln_s(image_path, File.join(Dir.pwd, filename))
@@ -34,12 +37,8 @@ def get_ec2_credentials(data)
     "--duration-seconds=#{THIRTY_MINUTES}"
   ]
 
-  if data['vpc_subnet_id']
-    command << "--vpc-subnet-id=#{data['vpc_subnet_id']}"
-  end
-
   # Credentials are stored in  ~/.aws/credentials
-  out, err, status = Open3.capture3(command)
+  out, err, status = Open3.capture3(*command)
 
   if status.success?
     STDOUT.write("Successfully authenticated.\n")
@@ -54,12 +53,11 @@ def get_ec2_credentials(data)
   end
 end
 
-def upload_image_to_ec2(image, data)
+def upload_image_to_ec2(image, data, jobid)
   STDOUT.write("Start uploading image #{image}.\n")
 
   credentials = get_ec2_credentials(data)
-
-  Open3.popen2e(
+  command = [
     'ec2uploadimg',
     "--description='obs uploader'",
     '--machine=x86_64',
@@ -68,19 +66,34 @@ def upload_image_to_ec2(image, data)
     "--secret-key=#{credentials.secret_access_key}",
     "--access-id=#{credentials.access_key_id}",
     "--session-token=#{credentials.session_token}",
-    '--verbose',
-    image
-  ) do |_stdin, stdout_stderr, _wait_thr|
+    '--verbose'
+  ]
+
+  if data['vpc_subnet_id']
+    command << "--vpc-subnet-id=#{data['vpc_subnet_id']}"
+  end
+  command << image
+
+  Open3.popen2e(*command) do |_stdin, stdout_stderr, wait_thr|
+    Signal.trap("TERM") {
+      # We just omit the SIGTERM because otherwise we would not get logs from ec2uploadimg
+      STDOUT.write("Received abort signal, waiting for ec2uploadimg to properly clean up.\n")
+    }
     while line = stdout_stderr.gets
       STDOUT.write(line)
+      write_result($1, jobid) if line =~ /^Created\simage:\s+(ami-[\w]+)$/
     end
     status = wait_thr.value
     abort unless status.success?
   end
 end
 
+def write_result(result, jobid)
+  File.open("#{jobid}.result", "w+") { |file| file.write(result) }
+end
+
 if platform == 'ec2'
-  upload_image_to_ec2(filename, data)
+  upload_image_to_ec2(filename, data, jobid)
 else
   abort('No valid platform. Valid platforms is ec2.')
 end

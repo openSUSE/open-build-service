@@ -7,6 +7,7 @@
       %tr
         %th #
         %th Filename
+        %th Details
         %th Platform
         %th Status
         %th Created
@@ -15,7 +16,8 @@
       - @upload_jobs.each do |job|
         %tr
           %td= job.id
-          %td= job.filename
+          %td= link_to(job.filename, controller: '/webui/package', action: :binaries, project: job.project, package: job.package, repository: job.repository)
+          %td= job.details
           %td= job.target.upcase
           %td= job.state
           %td= time_tag(job.created_at)
@@ -23,7 +25,7 @@
             = link_to "Log", cloud_upload_log_path(job.id)
             - unless ["succeeded", "failed"].include?(job.state)
               |
-              = link_to 'Abort', cloud_upload_path(job.id),  method: :delete, data: { confirm: "Do you really want to abort job #{job.id}? Please note that we do NOT clean up AWS (e.g. removing the helper instance)!" }
+              = link_to 'Abort', cloud_upload_path(job.id),  method: :delete, data: { confirm: "Do you really want to abort job #{job.id}?" }
 
 %div
   %p
