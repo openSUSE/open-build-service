@@ -201,6 +201,8 @@ OBSApi::Application.routes.draw do
     end
 
     resource :cloud, only: [] do
+      resources :configuration, only: [:index], controller: 'webui/cloud/configurations'
+
       resources :upload, only: [:index, :create, :destroy], controller: 'webui/cloud/upload_jobs' do
         new do
           get ':project/:package/:repository/:arch/:filename', to: 'webui/cloud/upload_jobs#new', as: '', constraints: cons

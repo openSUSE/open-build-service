@@ -338,6 +338,10 @@ class User < ApplicationRecord
     end
   end
 
+  def cloud_configurations?
+    ec2_configuration.present?
+  end
+
   def to_axml(_opts = {})
     render_axml
   end
