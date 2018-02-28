@@ -10,7 +10,7 @@ Note: Update from OBS 2.5 should also work, but is untested.
 
   2) Add the OBS 2.9 Repository and update repository cache
 
-        zypper ar http://download.opensuse.org/repositories/OBS:/Server:/2.9/$YOUR_DISTRIBUTION/OBS:Server:2.8.repo
+        zypper ar http://download.opensuse.org/repositories/OBS:/Server:/2.9/$YOUR_DISTRIBUTION/OBS:Server:2.9.repo
         zypper ref
 
   3) Update packages
