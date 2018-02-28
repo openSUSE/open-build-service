@@ -22,7 +22,8 @@
     = upload_job_form.label 'cloud_backend_upload_job[region]', "Region:"
     = select_tag('cloud_backend_upload_job[region]', options_for_select(@ec2_regions))
   %p
-    = upload_job_form.label 'cloud_backend_upload_job[vpc_subnet_id]', 'VPC Subnet ID (optional):'
+    = upload_job_form.label 'cloud_backend_upload_job[vpc_subnet_id]', 'VPC Subnet ID (eg. subnet-12345678, optional):'
+    = sprite_tag('help', title: "We create a temporary subnet, if you don't provide one.")
     = upload_job_form.text_field(:vpc_subnet_id, size: 35, name: 'cloud_backend_upload_job[vpc_subnet_id]')
   %p
     = upload_job_form.hidden_field :project
