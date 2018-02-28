@@ -69,7 +69,7 @@ RSpec.describe BranchPackage, vcr: true do
         it 'is not set' do
           branch_apache_package.branch
           project = Project.find_by_name(user.branch_project_name('openSUSE_Leap'))
-          expect(project.attribs.length).to be(0)
+          expect(project.attribs.length).to eq(0)
         end
       end
     end
