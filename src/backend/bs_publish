@@ -1588,10 +1588,10 @@ sub publish {
 	  $kiwimedium{$p} = $1 if $bin =~ /(.+)ONIE\.bin$/;
 	} elsif ($bin =~ /\.raw(?:\.install)?(?:\.(?:gz|bz2|xz))?(?:\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /((.*-Build\d.*)(?:\.docker)?)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256)?$/) {
+	} elsif ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256)?$/) {
           # kiwi case
-	  $kiwimedium{$bin} = $1 if !$2 && -e "$r/$1.packages";
-          if ($BSConfig::publish_containers && !$2 && -e "$r/$1.containerinfo") {
+	  $kiwimedium{$bin} = $2 if !$3 && -e "$r/$2.packages";
+          if ($BSConfig::publish_containers && !$3 && -e "$r/$1.containerinfo") {
   	    upload_container($r, "$1.containerinfo", $bin, $projid, $repoid, $arch, $notary_uploads);
             next;
           }
