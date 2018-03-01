@@ -20,10 +20,8 @@ module Cloud
       # a new record has no application id and application key, so we only validate if the user
       # tries to update these fields.
       def presence_of_fields
-        return if application_id && application_key
-
-        errors.add(:application_id, 'ID must not be blank') if application_id.blank?
-        errors.add(:application_key, 'must not be blank') if application_key.blank?
+        errors.add(:application_id, 'ID must not be blank') if application_id.blank? && application_key
+        errors.add(:application_key, 'must not be blank') if application_key.blank? && application_id
       end
     end
   end
