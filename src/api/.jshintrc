@@ -1,8 +1,20 @@
 {
-  "eqeqeq" : true, // true: Require triple equals (===) for comparison
-  "unused" : true, // Unused variables: true : all variables, last function parameter
+  "camelcase" : true, // true: Identifiers must be in camelCase
+  "eqeqeq"    : true, // true: Require triple equals (===) for comparison
+  "undef"     : true, // true: Require all non-global variables to be declared (prevents global leaks)
+  "unused"    : true, // Unused variables: true : all variables, last function parameter
 
-  "globals": {
-    "$": false
+  "globals" : {
+    "$" :        false,
+    "document" : false,
+    "editors" :  false, // Set by codemirror
+    "moment" :   false, // Defined by Moment.js
+    "Option" :   false, // Constructor for creating an HTMLOptionElement.
+    "ui" :       false,
+    "window" :   false,
+    // Defined in our views. FIXME: We might be able to solve these by not having inline js
+    "isOutdatedUrl" : false,
+    "mainProjects"  : false,
+    "exclProjects"  : false
   }
 }
