@@ -7,12 +7,10 @@ module Crypto
   end
 
   module PublicKeys
-    @@cloud_upload_key = nil
-
     def self.cloud_upload
       import_cloud_upload_key
-      raise 'could not find public key for cloud upload' unless @@cloud_upload_key
-      @@cloud_upload_key
+      raise 'could not find public key for cloud upload' unless Thread.current[:cloud_upload_key]
+      Thread.current[:cloud_upload_key]
     end
 
     def self.find_by_fingerprint(fingerprint)
@@ -26,11 +24,11 @@ module Crypto
     end
 
     def self.import_cloud_upload_key
-      return if @@cloud_upload_key
+      return if Thread.current[:cloud_upload_key]
 
       public_key = Nokogiri::XML(Backend::Api::Cloud.public_key(view: :info))
       GPGME::Key.import(public_key.children.first.children.to_s)
-      @@cloud_upload_key = find_by_fingerprint(public_key.children.first.attributes['fingerprint'].to_s)
+      Thread.current[:cloud_upload_key] = find_by_fingerprint(public_key.children.first.attributes['fingerprint'].to_s)
     end
   end
 end
