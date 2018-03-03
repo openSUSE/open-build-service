@@ -11,7 +11,7 @@ The OBS consists of a backend and a frontend. The backend implements all the cor
 The Open Build Service is Free Software and is released under the terms of the GPL, except where noted. Additionally, 3rd-party content (like, but not exclusively, the webui icon theme) may be released under a different license. Please check the respective files for details.
 
 ## Community
-You can discuss with the OBS Team via IRC on the channel [#opensuse-buildservice](irc://freenode.net/opensuse-buildservice). Or you can use our mailing list [opensuse-buildservice@opensuse.org](mailto:opensuse-buildservice+subscribe@opensuse.org).
+You can discuss with the OBS Team via IRC on the channel [#opensuse-buildservice](irc://freenode.net/opensuse-buildservice). Or you can use our mailing list [opensuse-buildservice@opensuse.org](mailto:opensuse-buildservice+subscribe@opensuse.org). Please refer to the openSUSE Mailing Lists [page](https://en.opensuse.org/openSUSE:Mailing_lists_subscription#Subscribing) to learn about our mailing lists (un)subscription and more.
 
 ### Development / Contribution
 If you want to contribute to the OBS please checkout our [contribution readme](CONTRIBUTING.md):-)
