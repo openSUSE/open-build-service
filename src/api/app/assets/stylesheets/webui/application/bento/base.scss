@@ -1,4 +1,4 @@
-html, body{background:#f6f6f6;color:#444;font:1em "Lucida Grande", Arial, "DejaVu Sans", Verdana, sans-serif;height:99%;margin:0;padding:0;width:100%;}
+html, body{background:#f6f6f6;color:#000;font:1em "Lucida Grande", Arial, "DejaVu Sans", Verdana, sans-serif;height:99%;margin:0;padding:0;width:100%;}
 body > div{margin-bottom:0px;}
 h1{font-size:1.7em;margin-bottom:1.2em;}
 h2{font-size:1.5em;margin-bottom:1.1em;}
@@ -16,7 +16,7 @@ ul, ol{list-style:disc inside;}
 ul li, ol li{margin-left:25px;line-height:150%;}
 ul ul, ol ul, ul ol , ol ol{margin-top:0em;margin-bottom:0em;}
 ol{list-style-type:decimal;}
-input, button, textarea, pre{border:1px solid #666;background-color:#eee;color:#333;padding:2px 3px;}
+input, button, textarea, pre{border:1px solid #666;background-color:#eee;color:#000;padding:2px 3px;}
 input:focus, textarea:focus{border-color:#690;background-color:#f6f6f6;}
 img{border:0;}
 strong{font-weight:bold;}
