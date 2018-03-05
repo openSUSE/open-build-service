@@ -1127,7 +1127,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def links_for_binaries_action(project, package, repository, architecture, filename)
     download_url = download_url_for_file_in_repo(project, package, repository, architecture, filename)
-    cloud_upload = filename != 'rpmlint.log' && Feature.active?(:cloud_upload) && !User.current.is_nobody? && uploadable?(filename, architecture)
+    cloud_upload = Feature.active?(:cloud_upload) && !User.current.is_nobody? && uploadable?(filename, architecture)
     { details?: filename != 'rpmlint.log', download_url: download_url, cloud_upload?: cloud_upload }
   end
 
