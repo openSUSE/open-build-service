@@ -73,6 +73,11 @@ use BSDispatcher::Constraints;
 use BSCando;
 use Build;
 
+# configure Build module for buildinfo queries
+$Build::Rpm::unfilteredprereqs = 1 if defined $Build::Rpm::unfilteredprereqs;
+$Build::Rpm::conflictdeps = 1 if defined $Build::Rpm::conflictdeps;
+$Build::Kiwi::repoextras = 1 if defined $Build::Kiwi::repoextras;
+
 use strict;
 
 my $port = 5252;	#'RR'
