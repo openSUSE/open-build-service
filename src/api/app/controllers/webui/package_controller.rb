@@ -1132,7 +1132,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def download_url_for_file_in_repo(project, package, repository, architecture, filename)
-    return nil if filename == 'rpmlint.log'
     download_url = repository.download_url_for_file(package, architecture, filename)
     download_url = nil if download_url && !file_available?(download_url) # ignore files not available
     # only use API for logged in users if the mirror is not available
