@@ -1,3 +1,10 @@
+## Path:        Applications/OBS
+## Description: enable worker instances
+## Type:        integer
+## Default:     0
+## Config:      OBS
+#
+# 0 is disabled worker; 1 is enabled worker.
 ENABLED=0
 
 # Nice level
