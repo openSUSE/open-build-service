@@ -1,3 +1,10 @@
+open-build-service (2.7.4-3) UNRELEASED; urgency=medium
+
+  * worker: document enable switch
+  * worker: use /var/lib/obsworker as OBS_RUN_DIR
+
+ -- Héctor Orón Martínez <zumbi@debian.org>  Tue, 06 Mar 2018 14:30:19 +0100
+
 open-build-service (2.7.4-2) unstable; urgency=medium
 
   * debian/obs-server.postinst: make sure multi-user.target.wants
