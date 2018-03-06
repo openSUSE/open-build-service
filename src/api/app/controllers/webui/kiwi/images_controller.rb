@@ -47,7 +47,7 @@ module Webui
 
         respond_to do |format|
           format.html
-          format.json { render json: { is_outdated: @image.outdated? } }
+          format.json { render json: { isOutdated: @image.outdated? } }
         end
       end
 

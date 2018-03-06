@@ -32,6 +32,10 @@
 
 %define secret_key_file /srv/www/obs/api/config/secret.key
 
+%if ! %{defined _fillupdir}
+  %define _fillupdir %{_localstatedir}/adm/fillup-templates
+%endif
+
 %if 0%{?suse_version} >= 1315
 %define reload_on_update() %{?nil:
 	test -n "$FIRST_ARG" || FIRST_ARG=$1
@@ -284,6 +288,7 @@ This package contains test cases for testing a installed appliances.
 %package -n obs-cloud-uploader
 Summary:       The Open Build Service -- Image Cloud Uploader
 Requires:      obs-server
+Requires:      aws-cli
 %if 0%{?suse_version} > 1315
 Requires:      python3-ec2uploadimg
 %else
@@ -331,7 +336,7 @@ export DESTDIR=$RPM_BUILD_ROOT
 %endif
 
 export OBS_VERSION="%{version}"
-DESTDIR=%{buildroot} make install
+DESTDIR=%{buildroot} make install FILLUPDIR=%{_fillupdir}
 
 #
 # turn duplicates into hard links
@@ -359,6 +364,8 @@ fi
 install -m 755 $RPM_BUILD_DIR/open-build-service-%version/dist/clouduploader.rb $RPM_BUILD_ROOT/%{_bindir}/clouduploader
 mkdir -p $RPM_BUILD_ROOT/etc/obs/cloudupload
 install -m 644 $RPM_BUILD_DIR/open-build-service-%version/dist/ec2utils.conf.example $RPM_BUILD_ROOT/etc/obs/cloudupload/.ec2utils.conf
+mkdir -p $RPM_BUILD_ROOT/etc/obs/cloudupload/.aws
+install -m 644 $RPM_BUILD_DIR/open-build-service-%version/dist/aws_credentials.example $RPM_BUILD_ROOT/etc/obs/cloudupload/.aws/credentials
 
 %check
 %if 0%{?disable_obs_test_suite}
@@ -702,7 +709,7 @@ usermod -a -G docker obsservicerun
 
 %files -n obs-common
 %defattr(-,root,root)
-/var/adm/fillup-templates/sysconfig.obs-server
+%{_fillupdir}/sysconfig.obs-server
 /usr/lib/obs/server/setup-appliance.sh
 /etc/init.d/obsstoragesetup
 /usr/sbin/rcobsstoragesetup
@@ -734,7 +741,9 @@ usermod -a -G docker obsservicerun
 %{_bindir}/clouduploader
 %dir /etc/obs
 %dir /etc/obs/cloudupload
-%config(noreplace) /etc/obs/cloudupload/.ec2utils.conf
+%dir /etc/obs/cloudupload/.aws
+%config(noreplace) /etc/obs/cloudupload/.aws/credentials
+%config /etc/obs/cloudupload/.ec2utils.conf
 
 %package -n obs-container-registry
 Summary:        The Open Build Service -- container registry

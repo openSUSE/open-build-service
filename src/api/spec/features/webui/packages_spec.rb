@@ -59,7 +59,13 @@ RSpec.feature 'Packages', type: :feature, js: true do
     end
   end
 
-  describe 'branching a package' do
+  describe 'branching a package from another users project' do
+    before do
+      allow(Configuration).to receive(:cleanup_after_days).and_return(14)
+      login user
+      visit package_show_path(project: other_user.home_project, package: other_users_package)
+      click_link('Branch package')
+    end
     after do
       # Cleanup backend
       if CONFIG['global_write_through']
@@ -68,17 +74,27 @@ RSpec.feature 'Packages', type: :feature, js: true do
       end
     end
 
-    scenario "from another user's project" do
-      login user
-      visit package_show_path(project: other_user.home_project, package: other_users_package)
-
-      click_link('Branch package')
+    scenario 'with AutoCleanup' do
       click_button('Ok')
 
       expect(page).to have_text('Successfully branched package')
       expect(page.current_path).to eq(
         package_show_path(project: user.branch_project_name(other_user.home_project_name), package: other_users_package)
       )
+      visit index_attribs_path(project: user.branch_project_name(other_user.home_project_name))
+      expect(page).to have_text('OBS:AutoCleanup')
+    end
+    scenario 'without AutoCleanup' do
+      find('.show-hide', visible: false).click
+      check('Disable Autocleanup')
+      click_button('Ok')
+
+      expect(page).to have_text('Successfully branched package')
+      expect(page.current_path).to eq(
+        package_show_path(project: user.branch_project_name(other_user.home_project_name), package: other_users_package)
+      )
+      visit index_attribs_path(project: user.branch_project_name(other_user.home_project_name))
+      expect(page).to have_text('No attributes set')
     end
   end
 

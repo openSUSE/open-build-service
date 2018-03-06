@@ -1,3 +1,54 @@
+For Updaters from OBS 2.9 to OBS 3.0
+====================================
+
+Note: Update from OBS 2.5 should also work, but is untested.
+      A direct update from OBS 2.4 or older will not work.
+
+  1) Remove the OBS 2.9 Repository
+
+        zypper rs OBS:Server:2.9
+
+  2) Add the OBS 3.0 Repository and update repository cache
+
+        zypper ar http://download.opensuse.org/repositories/OBS:/Server:/3.0/$YOUR_DISTRIBUTION/OBS:Server:3.0.repo
+        zypper ref
+
+  3) Update packages
+
+        zypper dup --from OBS_Server_3.0
+
+# Needed in case of a ruby update
+#
+# 4) Change to ruby2.5
+#
+#       edit /etc/apache2/conf.d/mod_passenger.conf:
+#
+#       PassengerRuby "/usr/bin/ruby.ruby2.5"
+
+  5) Migrate database
+
+        cd /srv/www/obs/api/
+        RAILS_ENV="production" rails.ruby2.5 db:migrate:with_data
+
+  6) Make sure that log and tmp are owned by wwwrun
+
+        chown -R wwwrun.www /srv/www/obs/api/log
+        chown -R wwwrun.www /srv/www/obs/api/tmp
+
+  7) Restart following services in this order
+
+        systemctl restart apache2
+        systemctl restart obsapidelayed
+        systemctl restart memcached
+
+  8) Enable and start the new services
+
+        systemctl enable obsservicedispatch
+        systemctl start obsservicedispatch
+
+     obsservicedispatch must run on the host where the src server is running.
+
+
 For Updaters to OBS 2.9 from OBS 2.8
 ====================================
 
@@ -10,30 +61,39 @@ Note: Update from OBS 2.5 should also work, but is untested.
 
   2) Add the OBS 2.9 Repository and update repository cache
 
-        zypper ar http://download.opensuse.org/repositories/OBS:/Server:/2.9/$YOUR_DISTRIBUTION/OBS:Server:2.8.repo
+        zypper ar http://download.opensuse.org/repositories/OBS:/Server:/2.9/$YOUR_DISTRIBUTION/OBS:Server:2.9.repo
         zypper ref
 
   3) Update packages
 
         zypper dup --from OBS_Server_2.9
 
-  4) Migrate database
+     You will be asked to deinstall ruby2.4-rubygem-passenger, since OBS 2.9 is using ruby 2.5
+     instead of ruby 2.4. Agree to it.
+
+  4) Change to ruby2.5
+
+        edit /etc/apache2/conf.d/mod_passenger.conf:
+
+        PassengerRuby "/usr/bin/ruby.ruby2.5"
+
+  5) Migrate database
 
         cd /srv/www/obs/api/
-        RAILS_ENV="production" rails.ruby2.4 db:migrate:with_data
+        RAILS_ENV="production" rails.ruby2.5 db:migrate:with_data
 
-  5) Make sure that log and tmp are owned by wwwrun
+  6) Make sure that log and tmp are owned by wwwrun
 
         chown -R wwwrun.www /srv/www/obs/api/log
         chown -R wwwrun.www /srv/www/obs/api/tmp
 
-  6) Restart following services in this order
+  7) Restart following services in this order
 
         systemctl restart apache2
         systemctl restart obsapidelayed
         systemctl restart memcached
 
-  7) Enable and start the new services
+  8) Enable and start the new services
 
         systemctl enable obsservicedispatch
         systemctl start obsservicedispatch

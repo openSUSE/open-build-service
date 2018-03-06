@@ -561,6 +561,7 @@ class Webui::PackageController < Webui::WebuiController
     branch_params[:target_project] = params[:target_project] if params[:target_project].present?
     branch_params[:target_package] = params[:target_package] if params[:target_package].present?
     branch_params[:add_repositories_rebuild] = params[:add_repositories_rebuild] if params[:add_repositories_rebuild].present?
+    branch_params[:autocleanup] = params[:autocleanup] if params[:autocleanup].present?
 
     branched_package = BranchPackage.new(branch_params).branch
     created_project_name = branched_package[:data][:targetproject]

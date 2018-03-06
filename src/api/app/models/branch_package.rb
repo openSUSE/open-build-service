@@ -572,6 +572,7 @@ class BranchPackage
   def set_target_project
     if params[:target_project]
       @target_project = params[:target_project]
+      @auto_cleanup = ::Configuration.cleanup_after_days if params[:autocleanup] == 'true'
     else
       if params[:request]
         @target_project = User.current.branch_project_name("REQUEST_#{params[:request]}")

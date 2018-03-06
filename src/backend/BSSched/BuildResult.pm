@@ -251,13 +251,10 @@ sub update_bininfo_merge {
       if (!$bininfocache->{'outdated'}) {
         # start caching 
 	$bininfocache->{'outdated'} = 1;
-        print "start bininfo cache for $gdst\n";
         # write a "not-up-to-date marker" so that we rebuild when there is a crash
         $merge->{'/outdated'} = 1;
         BSUtil::store("$gdst/.:bininfo.merge", "$gdst/:bininfo.merge", $merge);
         delete $merge->{'/outdated'};
-      } else {
-        print "updating bininfo cache for $gdst\n";
       }
       return;
     }
@@ -267,7 +264,7 @@ sub update_bininfo_merge {
   if (-e "$gdst/:bininfo.merge") {
     if (-s _ > 100000) {
       # quite big. better merge now.
-      print "merge bininfo cache for $gdst because of the size\n";
+      print "merging bininfo for $gdst because of the size\n";
       read_gbininfo($gdst);	# this will also merge
       $merge = BSUtil::retrieve("$gdst/:bininfo.merge", 1) if -e "$gdst/:bininfo.merge";
     } else {
@@ -305,7 +302,6 @@ sub sync_bininfocache {
   my $gdst = $bininfocache->{'gdst'};
   return unless $gdst;
   if ($bininfocache->{'outdated'}) {
-    print "sync bininfo cache for $gdst\n";
     if (! -e "$gdst/:bininfo.merge") {
       # wait, something is wrong! There should be the .merge file with the /outdated marker.
       delete $bininfocache->{'merge'};
