@@ -61,7 +61,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
 
   describe 'branching a package from another users project' do
     before do
-      Configuration.update_attributes(cleanup_after_days: 14)
+      allow(Configuration).to receive(:cleanup_after_days).and_return(14)
       login user
       visit package_show_path(project: other_user.home_project, package: other_users_package)
       click_link('Branch package')
