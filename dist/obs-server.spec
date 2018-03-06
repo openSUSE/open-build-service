@@ -743,7 +743,7 @@ usermod -a -G docker obsservicerun
 %dir /etc/obs/cloudupload
 %dir /etc/obs/cloudupload/.aws
 %config(noreplace) /etc/obs/cloudupload/.aws/credentials
-%config(noreplace) /etc/obs/cloudupload/.ec2utils.conf
+%config /etc/obs/cloudupload/.ec2utils.conf
 
 %package -n obs-container-registry
 Summary:        The Open Build Service -- container registry
