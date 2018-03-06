@@ -337,7 +337,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     context 'with a failure in the backend' do
       before do
         allow(Buildresult).to receive(:find_hashed).and_raise(ActiveXML::Transport::Error, 'fake message')
-        post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
+        get :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
       end
 
       it { expect(flash[:error]).to eq('fake message') }
@@ -347,7 +347,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     context 'without build results' do
       before do
         allow(Buildresult).to receive(:find_hashed)
-        post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
+        get :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
       end
 
       it { expect(flash[:error]).to eq("Package \"#{source_package}\" has no build result for repository #{repo_for_source_project.name}") }
@@ -359,7 +359,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       before do
         allow(Buildresult).to receive(:find).and_return(fake_build_results_without_binaries)
-        post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
+        get :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
       end
 
       it { expect(response).to have_http_status(:success) }
@@ -372,7 +372,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       before do
         allow(Buildresult).to receive(:find).and_return(fake_build_results)
         allow_any_instance_of(Webui::PackageController).to receive(:download_url_for_file_in_repo).and_return('http://fake.com')
-        post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
+        get :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
       end
 
       it { expect(response).to have_http_status(:success) }
