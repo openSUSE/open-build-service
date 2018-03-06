@@ -32,6 +32,10 @@
 
 %define secret_key_file /srv/www/obs/api/config/secret.key
 
+%if ! %{defined _fillupdir}
+  %define _fillupdir %{_localstatedir}/adm/fillup-templates
+%endif
+
 %if 0%{?suse_version} >= 1315
 %define reload_on_update() %{?nil:
 	test -n "$FIRST_ARG" || FIRST_ARG=$1
@@ -331,7 +335,7 @@ export DESTDIR=$RPM_BUILD_ROOT
 %endif
 
 export OBS_VERSION="%{version}"
-DESTDIR=%{buildroot} make install
+DESTDIR=%{buildroot} make install FILLUPDIR=%{_fillupdir}
 
 #
 # turn duplicates into hard links
@@ -702,7 +706,7 @@ usermod -a -G docker obsservicerun
 
 %files -n obs-common
 %defattr(-,root,root)
-/var/adm/fillup-templates/sysconfig.obs-server
+%{_fillupdir}/sysconfig.obs-server
 /usr/lib/obs/server/setup-appliance.sh
 /etc/init.d/obsstoragesetup
 /usr/sbin/rcobsstoragesetup
