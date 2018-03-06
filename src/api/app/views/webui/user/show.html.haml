@@ -78,8 +78,8 @@
       - else
         #projects-table-wrapper{"data-url" => "#{url_for(controller: 'project', action: 'show', project: 'REPLACEIT')}"}
           - content_for :head_javascript do
-            var main_projects = [ #{escape_nested_list(@iprojects)} ];
-            var excl_projects = [];
+            var mainProjects = [ #{escape_nested_list(@iprojects)} ];
+            var exclProjects = [];
           - content_for :ready_function do
             renderProjectsTable(length=10);
             $('#excludefilter').change(renderProjectsTable);

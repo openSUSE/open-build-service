@@ -12,7 +12,7 @@ module Cloud
     }
     validates :arch, inclusion: { in: ['x86_64'], message: "'%{value}' is not a valid cloud architecture" }
     validates :target, inclusion: { in: ['ec2'] }
-    validates :vpc_subnet_id, format: { with: /\Avpc-[-\w]+\z/, message: 'not a valid format', allow_blank: true }
+    validates :vpc_subnet_id, format: { with: /\Asubnet-[-\w]+\z/, message: 'not a valid format', allow_blank: true }
 
     def_delegator :backend_upload_job, :id
 

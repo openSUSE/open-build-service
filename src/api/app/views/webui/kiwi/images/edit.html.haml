@@ -1,6 +1,6 @@
 - @layouttype = 'custom'
 = content_for :ready_function do
-  is_outdated_url = '#{url_for(controller: 'kiwi/images', action: :show, id: @image)}'
+  isOutdatedUrl = '#{url_for(controller: 'kiwi/images', action: :show, id: @image)}'
 
 = form_for @image, html: { id: 'kiwi-image-update-form' } do |f|
   .grid_16.alpha.omega.box.box-shadow

@@ -41,8 +41,8 @@
 
         <% content_for :head_javascript do %>
             <% cache ['list_public_arrays', cachekey] do %>
-                var main_projects = [ <%= escape_nested_list(@projects) %> ];
-                var excl_projects = [];
+                var mainProjects = [ <%= escape_nested_list(@projects) %> ];
+                var exclProjects = [];
             <% end %>
         <% end %>
         <% content_for :ready_function do %>

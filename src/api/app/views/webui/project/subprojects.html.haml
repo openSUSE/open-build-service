@@ -54,6 +54,6 @@
 
 - if @subprojects.present? || @parentprojects.present?
   - content_for :ready_function do
-    setup_subprojects_tables();
+    setupSubprojectsTables();
 - content_for :ready_function do
   $("#create_subproject_link").click(function() { $('#create-subproject').show(); $('#create_subproject_link').hide() });

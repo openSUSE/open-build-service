@@ -44,7 +44,7 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
           end
         end
 
-        it { expect(response).to redirect_to(cloud_ec2_configuration_path) }
+        it { expect(response).to redirect_to(cloud_configuration_index_path) }
       end
 
       context 'with an EC2 configuration' do

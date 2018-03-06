@@ -53,6 +53,7 @@ sub archivejob {
   unlink("$jobdir/$jobid.log");
   unlink("$jobdir/$jobid.data");
   unlink("$jobdir/$jobid.file");
+  unlink("$jobdir/$jobid.result");
   BSUtil::cleandir("$jobdir/$jobid.dir");
   rmdir("$jobdir/$jobid.dir");
   unlink("$jobdir/$jobid");
@@ -71,14 +72,14 @@ sub startupload {
     }
     mkdir_p("$jobdir/$jobid.dir");
     chdir("$jobdir/$jobid.dir") || die("chdir $jobdir/$jobid.dir: $!\n");
-    my @args = ($job->{'user'}, $job->{'target'}, "$jobdir/$jobid.file", "$jobdir/$jobid.data", $job->{'filename'});
-    print "calling $INC[0]/clouduploader @args\n";
+    my @args = ($job->{'user'}, $job->{'target'}, "$jobdir/$jobid.file", "$jobdir/$jobid.data", $job->{'filename'}, "$jobdir/$jobid.result");
+    print "calling clouduploader @args\n";
     open(STDIN, '<', '/dev/null') || die("/dev/null: $!\n");
     open(STDOUT, '>&', $logfp);
     open(STDERR, '>&STDOUT');
     close($logfp);
-    exec("$INC[0]/clouduploader", @args);
-    die("$INC[0]/clouduploader: $!\n");
+    exec("clouduploader", @args);
+    die("clouduploader: $!\n");
   }
   my $ex = 1;	# assume fail
   while (1) {

@@ -80,7 +80,7 @@ sub asn1_pack {
   my $ret = pack("C", $tag);
   my $data = join('', @data);
   my $l = length($data);
-  return pack("CC", $tag, $l) . $data if $l < 127;
+  return pack("CC", $tag, $l) . $data if $l < 128;
   my $ll = $l >> 8 ? $l >> 16 ? $l >> 24 ? 4 : 3 : 2 : 1;
   return pack("CCa*", $tag, $ll | 0x80,  substr(pack("N", $l), -$ll)) . $data;
 }
