@@ -288,6 +288,7 @@ This package contains test cases for testing a installed appliances.
 %package -n obs-cloud-uploader
 Summary:       The Open Build Service -- Image Cloud Uploader
 Requires:      obs-server
+Requires:      aws-cli
 %if 0%{?suse_version} > 1315
 Requires:      python3-ec2uploadimg
 %else
@@ -363,6 +364,8 @@ fi
 install -m 755 $RPM_BUILD_DIR/open-build-service-%version/dist/clouduploader.rb $RPM_BUILD_ROOT/%{_bindir}/clouduploader
 mkdir -p $RPM_BUILD_ROOT/etc/obs/cloudupload
 install -m 644 $RPM_BUILD_DIR/open-build-service-%version/dist/ec2utils.conf.example $RPM_BUILD_ROOT/etc/obs/cloudupload/.ec2utils.conf
+mkdir -p $RPM_BUILD_ROOT/etc/obs/cloudupload/.aws
+install -m 644 $RPM_BUILD_DIR/open-build-service-%version/dist/aws_credentials.example $RPM_BUILD_ROOT/etc/obs/cloudupload/.aws/credentials
 
 %check
 %if 0%{?disable_obs_test_suite}
@@ -738,6 +741,8 @@ usermod -a -G docker obsservicerun
 %{_bindir}/clouduploader
 %dir /etc/obs
 %dir /etc/obs/cloudupload
+%dir /etc/obs/cloudupload/.aws
+%config(noreplace) /etc/obs/cloudupload/.aws/credentials
 %config(noreplace) /etc/obs/cloudupload/.ec2utils.conf
 
 %package -n obs-container-registry
