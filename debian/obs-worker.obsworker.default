@@ -83,9 +83,9 @@ OBS_WORKER_TEST_MODE=""
 ## Default:     ""
 ## Config:      OBS
 #
-# This is /run by default
+# This is /var/lib/obsworker by default
 #
-OBS_RUN_DIR="/run/obs"
+OBS_RUN_DIR="/var/lib/obsworker"
 
 ## Path:        Applications/OBS
 ## Description: The base for OBS logging directory
