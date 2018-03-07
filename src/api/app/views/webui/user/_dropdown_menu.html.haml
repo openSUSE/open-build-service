@@ -21,6 +21,11 @@
       = sprite_tag('cog_add')
       = link_to('Make user admin', {controller: "user", action: "admin", user: user.login }, |
               method: :post, data: { confirm: "Are you sure?" }) |
+    - if Configuration.ldap_enabled? && !user.ignore_auth_services
+      %li
+        = sprite_tag('cog_add')
+        = link_to('Make this a local user', { controller: "user", action: "make_user_local", user: user.login }, |
+                  method: :post, data: { confirm: "Are you sure?" }) |
     %li
       = sprite_tag('email')
       = mail_to(user.email, 'Contact user')

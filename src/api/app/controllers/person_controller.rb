@@ -51,7 +51,7 @@ class PersonController < ApplicationController
     if params[:cmd] == 'change_password'
       login ||= User.current.login
       password = request.raw_post.to_s.chomp
-      if (login != User.current.login && !User.current.is_admin?) || !::Configuration.passwords_changable?
+      if (login != User.current.login && !User.current.is_admin?) || !::Configuration.passwords_changable?(User.current)
         render_error status: 403, errorcode: 'change_password_no_permission',
                      message: "No permission to change password for user #{login}"
         return
@@ -87,7 +87,7 @@ class PersonController < ApplicationController
     login = params[:login]
     user = User.find_by_login(login) if login
 
-    unless ::Configuration.accounts_editable?
+    unless ::Configuration.accounts_editable?(user)
       render_error(status: 403, errorcode: 'change_userinfo_no_permission',
                    message: "no permission to change userinfo for user #{user.login}")
       return
@@ -117,6 +117,7 @@ class PersonController < ApplicationController
       # only admin is allowed to change these, ignore for others
       user.state = xml.value('state')
       update_globalroles(user, xml)
+      user.update(ignore_auth_services: xml.value('ignore_auth_services').to_s == 'true')
 
       if xml['owner']
         user.state = :subaccount
@@ -241,6 +242,7 @@ class PersonController < ApplicationController
       @errorcode = 401
       @summary = 'No user logged in, permission to changing password denied'
       render template: 'error', status: 401
+      return
     end
 
     if login.blank? || password.blank?
@@ -251,7 +253,7 @@ class PersonController < ApplicationController
     user = User.get_by_login(login)
 
     # change password to LDAP if LDAP is enabled
-    if CONFIG['ldap_mode'] == :on
+    unless ::Configuration.passwords_changable?(User.current)
       render_error status: 404, errorcode: 'change_passwd_failure',
                                 message: 'LDAP passwords can not be changed in OBS. Please refer to your LDAP server to change it.'
       return

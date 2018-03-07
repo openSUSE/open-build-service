@@ -134,7 +134,8 @@ RSpec.describe Webui::UserController do
       context 'with valid data' do
         before do
           login user
-          post :save, params: { user: { login: user.login, realname: 'another real name', email: 'new_valid@email.es', state: 'locked' } }
+          post :save, params: { user: { login: user.login, realname: 'another real name', email: 'new_valid@email.es', state: 'locked',
+                                        ignore_auth_services: true } }
           user.reload
         end
 
@@ -142,6 +143,7 @@ RSpec.describe Webui::UserController do
         it { expect(user.realname).to eq('another real name') }
         it { expect(user.email).to eq('new_valid@email.es') }
         it { expect(user.state).to eq('confirmed') }
+        it { expect(user.ignore_auth_services).to be false }
         it { is_expected.to redirect_to user_show_path(user) }
       end
 
@@ -185,7 +187,12 @@ RSpec.describe Webui::UserController do
         login admin_user
         post :save, params: {
           user: {
-            login: user.login, realname: 'another real name', email: 'new_valid@email.es', state: 'locked', role_ids: new_global_roles.pluck(:id)
+            login:                user.login,
+            realname:             'another real name',
+            email:                'new_valid@email.es',
+            state:                'locked',
+            role_ids:             new_global_roles.pluck(:id),
+            ignore_auth_services: 'true'
           }
         }
         user.reload
@@ -194,6 +201,7 @@ RSpec.describe Webui::UserController do
       it { expect(user.realname).to eq('another real name') }
       it { expect(user.email).to eq('new_valid@email.es') }
       it { expect(user.state).to eq('locked') }
+      it { expect(user.ignore_auth_services).to be true }
       it { is_expected.to redirect_to user_show_path(user) }
       it "updates the user's roles" do
         expect(user.roles).not_to include(old_global_role)
@@ -278,11 +286,50 @@ RSpec.describe Webui::UserController do
         it { expect(user.realname).to eq(old_realname) }
         it { expect(user.email).to eq(old_email) }
       end
+
+      describe 'but user is configured to authorize locally' do
+        before do
+          user.update(ignore_auth_services: true)
+          login user
+
+          http_request
+          user.reload
+        end
+
+        it { expect(user.realname).to eq('another real name') }
+        it { expect(user.email).to eq('new_valid@email.es') }
+      end
     end
   end
 
   describe 'GET #delete' do
     skip
+  end
+
+  describe 'POST #make_user_local' do
+    context 'called by an admin user' do
+      before do
+        login(admin_user)
+      end
+
+      it 'marks users to be ignored from LDAP authentication' do
+        post :make_user_local, params: { user: user.login }
+        expect(user.reload.ignore_auth_services).to be true
+      end
+    end
+
+    context 'called by a user that is not admin' do
+      let(:non_admin_user) { create(:confirmed_user) }
+
+      before do
+        login(non_admin_user)
+      end
+
+      it 'does not update a user' do
+        post :make_user_local, params: { user: user.login }
+        expect(user.reload.ignore_auth_services).to be false
+      end
+    end
   end
 
   describe 'GET #confirm' do
