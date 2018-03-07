@@ -97,10 +97,6 @@ class Webui::WebuiController < ActionController::Base
     raise ActiveRecord::RecordNotFound unless @project
   end
 
-  def set_project_by_id
-    @project = Project.find(params[:id])
-  end
-
   def require_login
     if CONFIG['kerberos_mode']
       kerberos_auth
