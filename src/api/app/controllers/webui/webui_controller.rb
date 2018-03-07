@@ -129,14 +129,6 @@ class Webui::WebuiController < ActionController::Base
     end
   end
 
-  def discard_cache?
-    cc = request.headers['HTTP_CACHE_CONTROL']
-    return false if cc.blank?
-    return true if cc == 'max-age=0'
-    return false unless cc == 'no-cache'
-    !request.xhr?
-  end
-
   def instantiate_controller_and_action_names
     @current_action = action_name
     @current_controller = controller_name
