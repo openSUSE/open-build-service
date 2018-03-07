@@ -20,7 +20,7 @@ Name:           obs-api-deps
 Summary:        The Open Build Service -- Gem dependencies
 License:        MIT
 Group:          Productivity/Networking/Web/Utilities
-Version:        2.7.5020140303
+Version:        2.10~pre
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build

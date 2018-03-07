@@ -58,7 +58,7 @@ License:        GPL-2.0 and GPL-3.0
 %if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 Group:          Productivity/Networking/Web/Utilities
 %endif
-Version:        2.7.50_113_g117c617
+Version:        2.10~pre
 Release:        0
 Url:            http://www.openbuildservice.org
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build

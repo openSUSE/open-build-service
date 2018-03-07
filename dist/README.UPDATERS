@@ -1,5 +1,5 @@
-For Updaters from OBS 2.9 to OBS 3.0
-====================================
+For Updaters from OBS 2.9 to OBS 2.10
+=====================================
 
 Note: Update from OBS 2.5 should also work, but is untested.
       A direct update from OBS 2.4 or older will not work.
@@ -8,14 +8,14 @@ Note: Update from OBS 2.5 should also work, but is untested.
 
         zypper rs OBS:Server:2.9
 
-  2) Add the OBS 3.0 Repository and update repository cache
+  2) Add the OBS 2.10 Repository and update repository cache
 
-        zypper ar http://download.opensuse.org/repositories/OBS:/Server:/3.0/$YOUR_DISTRIBUTION/OBS:Server:3.0.repo
+        zypper ar http://download.opensuse.org/repositories/OBS:/Server:/2.10/$YOUR_DISTRIBUTION/OBS:Server:2.10.repo
         zypper ref
 
   3) Update packages
 
-        zypper dup --from OBS_Server_3.0
+        zypper dup --from OBS_Server_2.10
 
 # Needed in case of a ruby update
 #
