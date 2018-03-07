@@ -41,6 +41,7 @@ class ApplicationController < ActionController::Base
     return User.current unless User.current.is_nobody?
   end
 
+  # Don't show performance of database queries to users
   def peek_enabled?
     User.current && (User.current.is_admin? || User.current.is_staff?)
   end
