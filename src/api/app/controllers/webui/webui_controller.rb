@@ -19,13 +19,6 @@ class Webui::WebuiController < ActionController::Base
   before_action :set_tasks
   after_action :clean_cache
 
-  # We execute both strategies here. The default rails strategy (resetting the session)
-  # and throwing an exception if the session is handled elswhere (e.g. proxy_auth_mode: :on)
-  def handle_unverified_request
-    super
-    raise ActionController::InvalidAuthenticityToken
-  end
-
   # :notice and :alert are default, we add :success and :error
   add_flash_types :success, :error
 
@@ -84,6 +77,20 @@ class Webui::WebuiController < ActionController::Base
     render file: Rails.root.join('public/404'), status: 404, layout: false, formats: [:html]
   end
 
+  def valid_xml_id(rawid)
+    rawid = "_#{rawid}" if rawid !~ /^[A-Za-z_]/ # xs:ID elements have to start with character or '_'
+    CGI.escapeHTML(rawid.gsub(/[+&: .\/\~\(\)@#]/, '_'))
+  end
+
+  protected
+
+  # We execute both strategies here. The default rails strategy (resetting the session)
+  # and throwing an exception if the session is handled elswhere (e.g. proxy_auth_mode: :on)
+  def handle_unverified_request
+    super
+    raise ActionController::InvalidAuthenticityToken
+  end
+
   def set_project
     # We've started to use project_name for new routes...
     @project = Project.find_by(name: params[:project_name] || params[:project])
@@ -93,13 +100,6 @@ class Webui::WebuiController < ActionController::Base
   def set_project_by_id
     @project = Project.find(params[:id])
   end
-
-  def valid_xml_id(rawid)
-    rawid = "_#{rawid}" if rawid !~ /^[A-Za-z_]/ # xs:ID elements have to start with character or '_'
-    CGI.escapeHTML(rawid.gsub(/[+&: .\/\~\(\)@#]/, '_'))
-  end
-
-  protected
 
   def require_login
     if CONFIG['kerberos_mode']
@@ -133,13 +133,6 @@ class Webui::WebuiController < ActionController::Base
     @current_action = action_name
     @current_controller = controller_name
   end
-
-  # Needed to hide/render some views to well known spider bots
-  # FIXME: We should get rid of it
-  def check_spiders
-    @spider_bot = request.bot?
-  end
-  private :check_spiders
 
   def lockout_spiders
     check_spiders
@@ -273,6 +266,12 @@ class Webui::WebuiController < ActionController::Base
   end
 
   private
+
+  # Needed to hide/render some views to well known spider bots
+  # FIXME: We should get rid of it
+  def check_spiders
+    @spider_bot = request.bot?
+  end
 
   def set_tasks
     @tasks = User.current.tasks unless User.current.is_nobody?
