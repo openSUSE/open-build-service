@@ -152,24 +152,14 @@ class User < ApplicationRecord
     end
 
     user = find_by_login(login)
-
-    if user.try(:authenticate, password)
-      user.mark_login!
-      return user
-    end
-
-    # Otherwise increase the login count - if the user could be found - and return nil
-    if user
-      user.login_failure_count = user.login_failure_count + 1
-      user.save!
-    end
-
-    return
+    user.try(:authenticate_via_password, password)
   end
 
   def self.find_with_credentials_via_ldap(login, password)
     user = find_by_login(login)
     ldap_info = nil
+
+    return user.authenticate_via_password(password) if user.try(:ignore_auth_services?)
 
     if CONFIG['ldap_mode'] == :on
       begin
@@ -255,6 +245,16 @@ class User < ApplicationRecord
     User.find_by_login!(login).realname
   rescue NotFoundError
     ''
+  end
+
+  def authenticate_via_password(password)
+    if authenticate(password)
+      mark_login!
+      self
+    else
+      update_attributes!(login_failure_count: login_failure_count + 1)
+      nil
+    end
   end
 
   # Overriding this method to do some more validation:
@@ -908,6 +908,7 @@ end
 #  adminnote                     :text(65535)
 #  state                         :string(11)       default("unconfirmed")
 #  owner_id                      :integer
+#  ignore_auth_services          :boolean          default(FALSE)
 #
 # Indexes
 #

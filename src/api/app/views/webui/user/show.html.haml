@@ -32,14 +32,14 @@
   / edit
   - if @is_displayed_user
     %p
-      - if @configuration.accounts_editable?
+      - if @configuration.accounts_editable?(@displayed_user)
         - if @account_edit_link.present?
           = link_to sprited_text('user_edit', 'Edit your account'), @account_edit_link
           %br/
         - else
           = link_to(sprited_text('user_edit', 'Edit your account'), { controller: 'user', action: 'save_dialog', user: User.current }, {id: 'save_dialog', remote: true})
         %br/
-      - if @configuration.passwords_changable?
+      - if @configuration.passwords_changable?(User.current)
         = link_to(sprited_text('key', 'Change your password'), { controller: 'user', action: 'password_dialog', user: User.current }, {id: 'password_dialog', remote: true})
         %br/
       = link_to(sprited_text('email', 'Change your notifications'), user_notifications_path)

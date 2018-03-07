@@ -7,7 +7,8 @@ class Webui::UserController < Webui::WebuiController
   skip_before_action :check_anonymous, only: [:do_login]
 
   def index
-    @users = User.all_without_nobody.includes(:owner).select(:id, :login, :email, :state, :realname, :owner_id, :updated_at)
+    @users = User.all_without_nobody.includes(:owner).
+             select(:id, :login, :email, :state, :realname, :owner_id, :updated_at, :ignore_auth_services)
   end
 
   def logout
@@ -73,19 +74,19 @@ class Webui::UserController < Webui::WebuiController
     @displayed_user = User.find_by_login(params[:user][:login])
 
     unless User.current.is_admin?
-      if User.current != @displayed_user || !@configuration.accounts_editable?
+      if User.current != @displayed_user || !@configuration.accounts_editable?(@displayed_user)
         flash[:error] = "Can't edit #{@displayed_user.login}"
         redirect_back(fallback_location: root_path)
         return
       end
     end
 
-    if @configuration.accounts_editable?
+    if @configuration.accounts_editable?(@displayed_user)
       @displayed_user.assign_attributes(params[:user].slice(:realname, :email).permit!)
     end
 
     if User.current.is_admin?
-      @displayed_user.assign_attributes(params[:user].slice(:state).permit!)
+      @displayed_user.assign_attributes(params[:user].slice(:state, :ignore_auth_services).permit!)
       @displayed_user.update_globalroles(Role.global.where(id: params[:user][:role_ids])) unless params[:user][:role_ids].nil?
     end
 
@@ -107,8 +108,7 @@ class Webui::UserController < Webui::WebuiController
       redirect_to(users_path, error: "Couldn't find user '#{user_params[:login]}'.")
       return
     end
-
-    other_user.update_attributes(state: user_params[:state])
+    other_user.update(user_params.slice(:state, :ignore_auth_services))
     other_user.add_globalrole(Role.where(title: 'Admin')) if user_params[:make_admin]
     if other_user.save
       flash[:notice] = "Updated user '#{other_user}'."
@@ -187,13 +187,13 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def change_password
-    unless @configuration.passwords_changable?
+    user = User.current
+
+    unless @configuration.passwords_changable?(user)
       flash[:error] = "You're not authorized to change your password."
       redirect_back fallback_location: root_path
       return
     end
-
-    user = User.current
 
     if user.authenticate(params[:password])
       user.password = params[:new_password]
@@ -241,6 +241,6 @@ class Webui::UserController < Webui::WebuiController
   private
 
   def user_params
-    params.require(:user).permit(:login, :state, :make_admin)
+    params.require(:user).permit(:login, :state, :ignore_auth_services, :make_admin)
   end
 end

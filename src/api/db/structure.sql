@@ -1171,6 +1171,7 @@ CREATE TABLE `users` (
   `adminnote` text CHARACTER SET utf8,
   `state` enum('unconfirmed','confirmed','locked','deleted','subaccount') COLLATE utf8_bin DEFAULT 'unconfirmed',
   `owner_id` int(11) DEFAULT NULL,
+  `ignore_auth_services` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_login_index` (`login`(255)) USING BTREE,
   KEY `users_password_index` (`deprecated_password`) USING BTREE
@@ -1316,6 +1317,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20171219122451'),
 ('20180109115548'),
 ('20180110074142'),
-('20180221175514');
+('20180221175514'),
+('20180307074538');
 
 
