@@ -22,7 +22,7 @@ RSpec.describe Webui::PackageController, vcr: true do
   end
   let(:fake_build_results) do
     Buildresult.new("<resultlist state=\"2b71f05ecb8742e3cd7f6066a5097c72\">
-                      <result project=\"home:tom\" repository=\"#{repo_for_source_project.name}\" arch=\"i586\"
+                      <result project=\"home:tom\" repository=\"#{repo_for_source_project.name}\" arch=\"x86_64\"
                         code=\"unknown\" state=\"unknown\" dirty=\"true\">
                        <binarylist>
                           <binary filename=\"image_binary.vhdfixed.xz\" size=\"123312217\"/>
@@ -337,7 +337,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     context 'with a failure in the backend' do
       before do
         allow(Buildresult).to receive(:find_hashed).and_raise(ActiveXML::Transport::Error, 'fake message')
-        post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
+        get :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
       end
 
       it { expect(flash[:error]).to eq('fake message') }
@@ -347,7 +347,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     context 'without build results' do
       before do
         allow(Buildresult).to receive(:find_hashed)
-        post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
+        get :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
       end
 
       it { expect(flash[:error]).to eq("Package \"#{source_package}\" has no build result for repository #{repo_for_source_project.name}") }
@@ -359,7 +359,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       before do
         allow(Buildresult).to receive(:find).and_return(fake_build_results_without_binaries)
-        post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
+        get :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
       end
 
       it { expect(response).to have_http_status(:success) }
@@ -372,15 +372,40 @@ RSpec.describe Webui::PackageController, vcr: true do
       before do
         allow(Buildresult).to receive(:find).and_return(fake_build_results)
         allow_any_instance_of(Webui::PackageController).to receive(:download_url_for_file_in_repo).and_return('http://fake.com')
-        post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
+        get :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
       end
 
       it { expect(response).to have_http_status(:success) }
-      it { expect(response.body).to match(/image_binary.vhdfixed.xz/) }
-      it { expect(response.body).to match(/image_binary.xz.sha256/) }
-      it { expect(response.body).to match(/updateinfo.xml/) }
-      it { expect(response.body).not_to match(/_statistics/) }
-      it { expect(response.body).to match(/rpmlint.log/) }
+
+      it "excludes the '_statistics' files from the binaries page" do
+        assert_select 'li.binaries_list_item', text: /_statistics/, count: 0
+      end
+
+      it "lists all binaries returned as build result with a 'Download' link" do
+        assert_select 'li.binaries_list_item', count: 4 do
+          assert_select 'a', text: 'Download', count: 4
+          assert_select 'a', text: 'Details', count: 3
+        end
+      end
+
+      it 'does not show the details link for the rpmlint.log' do
+        assert_select 'li.binaries_list_item', text: /rpmlint.log/ do
+          assert_select 'a', text: 'Details', count: 0
+        end
+      end
+
+      it "shows the name of each binary together with it's size" do
+        assert_select 'li.binaries_list_item', text: /image_binary.vhdfixed.xz \(118 MB\)/
+        assert_select 'li.binaries_list_item', text: /image_binary.xz.sha256 \(1.5 KB\)/
+        assert_select 'li.binaries_list_item', text: /updateinfo.xml \(4.13 KB\)/
+        assert_select 'li.binaries_list_item', text: /rpmlint.log \(121 Bytes\)/
+      end
+
+      it 'shows a cloud upload link for binaries that can be uploaded to the cloud' do
+        assert_select 'li.binaries_list_item', text: /image_binary.vhdfixed.xz/ do
+          assert_select 'a', text: 'Cloud Upload', count: 1
+        end
+      end
     end
   end
 
