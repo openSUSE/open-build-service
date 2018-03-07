@@ -1,10 +1,11 @@
 .grid_6.omega{ style: 'text-align: right' }
   - if User.current && !User.current.is_nobody?
-    - if @tasks > 0
+    - tasks = User.current.tasks
+    - if tasks > 0
       = link_to(user_show_path(User.current), id: 'link-to-user-home') do
         = User.current.login
       = link_to(user_show_path(User.current), title: 'where an action is requested from you') do
-        = '(' + pluralize(@tasks, 'task') + ')'
+        = '(' + pluralize(tasks, 'task') + ')'
     - else
       = link_to(user_show_path(User.current), id: 'link-to-user-home') do
         = User.current

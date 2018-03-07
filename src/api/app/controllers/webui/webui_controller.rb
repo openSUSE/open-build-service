@@ -15,7 +15,6 @@ class Webui::WebuiController < ActionController::Base
   before_action :check_user
   before_action :check_anonymous
   before_action :require_configuration
-  before_action :set_tasks
   after_action :clean_cache
 
   # :notice and :alert are default, we add :success and :error
@@ -261,10 +260,6 @@ class Webui::WebuiController < ActionController::Base
   # FIXME: We should get rid of it
   def check_spiders
     @spider_bot = request.bot?
-  end
-
-  def set_tasks
-    @tasks = User.current.tasks unless User.current.is_nobody?
   end
 
   def require_configuration
