@@ -40,7 +40,7 @@
       <% end %>
     <% end %>
     <% if result[:statistics] %>
-      <%= link_to sprited_text('server_chart', 'Show'), { action: 'statistics', project: @project, package: @package, repository: @repository, arch: result[:arch] } %> used resources
+      <%= link_to sprited_text('server_chart', 'Show'), package_statistics_path(project: @project, package: @package, repository: @repository, arch: result[:arch]) %> used resources
     <% end %>
     <%= link_to sprited_text('text_indent', 'Job history'), index_package_job_history_path(project: @project, package_name: @package, repository: @repository, arch: result[:arch]), class: '' %> list
     <%= link_to sprited_text('information', 'Build Reason'), index_package_build_reason_path(project: @project, package_name: @package, repository: @repository, arch: result[:arch]), class: '' %>
