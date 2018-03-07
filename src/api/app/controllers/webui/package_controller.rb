@@ -257,8 +257,6 @@ class Webui::PackageController < Webui::WebuiController
 
   # FIXME: This should be in Webui::RequestController
   def submit_request
-    required_parameters :project, :package
-
     target_project_name = params[:targetproject].try(:strip)
     package_name = params[:package].strip
     project_name = params[:project].strip
@@ -902,7 +900,6 @@ class Webui::PackageController < Webui::WebuiController
 
   def devel_project
     check_ajax
-    required_parameters :package, :project
     tgt_pkg = Package.find_by_project_and_name(params[:project], params[:package])
 
     render plain: tgt_pkg.try(:develpackage).try(:project).to_s
