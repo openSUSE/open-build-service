@@ -12,7 +12,6 @@ class Webui::WebuiController < ActionController::Base
   protect_from_forgery
 
   before_action :setup_view_path
-  before_action :instantiate_controller_and_action_names
   before_action :check_user
   before_action :check_anonymous
   before_action :require_configuration
@@ -123,11 +122,6 @@ class Webui::WebuiController < ActionController::Base
         raise MissingParameterError, "Required Parameter #{parameter} missing"
       end
     end
-  end
-
-  def instantiate_controller_and_action_names
-    @current_action = action_name
-    @current_controller = controller_name
   end
 
   def lockout_spiders
@@ -318,7 +312,7 @@ class Webui::WebuiController < ActionController::Base
   # dialog_init is a function name called before dialog is shown
   def render_dialog(dialog_init = nil)
     check_ajax
-    @dialog_html = ActionController::Base.helpers.escape_javascript(render_to_string(partial: @current_action.to_s))
+    @dialog_html = ActionController::Base.helpers.escape_javascript(render_to_string(partial: action_name))
     @dialog_init = dialog_init
     render partial: 'dialog', content_type: 'application/javascript'
   end
