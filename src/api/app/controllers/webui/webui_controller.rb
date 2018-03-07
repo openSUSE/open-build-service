@@ -124,16 +124,12 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def lockout_spiders
-    check_spiders
+    @spider_bot = request.bot?
     if @spider_bot
       head :ok
       return true
     end
     false
-  end
-
-  def authenticator
-    @authenticator ||= Authenticator.new(request, session, response)
   end
 
   def kerberos_auth
@@ -164,7 +160,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def check_user
-    check_spiders
+    @spider_bot = request.bot?
     User.current = nil # reset old users hanging around
     if CONFIG['proxy_auth_mode'] == :on
       logger.debug 'Authenticating with proxy auth mode'
@@ -256,10 +252,8 @@ class Webui::WebuiController < ActionController::Base
 
   private
 
-  # Needed to hide/render some views to well known spider bots
-  # FIXME: We should get rid of it
-  def check_spiders
-    @spider_bot = request.bot?
+  def authenticator
+    @authenticator ||= Authenticator.new(request, session, response)
   end
 
   def require_configuration
