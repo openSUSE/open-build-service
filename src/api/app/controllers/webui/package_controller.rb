@@ -126,7 +126,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def statistics
-    required_parameters :arch, :repository
     @arch = params[:arch]
     @repository = params[:repository]
     @statistics = nil
