@@ -22,6 +22,9 @@ end
 class User < ApplicationRecord
   include CanRenderModel
 
+  # Keep in sync with states defined in db/structure.sql
+  STATES = ['unconfirmed', 'confirmed', 'locked', 'deleted', 'subaccount'].freeze
+
   # disable validations because there can be users which don't have a bcrypt
   # password yet. this is for backwards compatibility
   has_secure_password validations: false
