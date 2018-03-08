@@ -48,7 +48,6 @@ if ($frontend) {
 our $srcserver = "http://$hostname:5352";
 our $reposerver = "http://$hostname:5252";
 our $serviceserver = "http://$hostname:5152";
-our $clouduploadserver = "http://$hostname:5452"; 
 
 # you can use different ports for worker connections
 #our $workersrcserver = "http://$hostname:5353";
