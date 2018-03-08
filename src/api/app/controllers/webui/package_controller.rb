@@ -168,7 +168,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def binaries
-    required_parameters :repository
     @repository = params[:repository]
 
     results_from_backend = Buildresult.find_hashed(project: @project, package: @package, repository: @repository, view: ['binarylist', 'status'])
