@@ -118,6 +118,16 @@ class Webui::MonitorController < Webui::WebuiController
     render json: data
   end
 
+  protected
+
+  def discard_cache?
+    cc = request.headers['HTTP_CACHE_CONTROL']
+    return false if cc.blank?
+    return true if cc == 'max-age=0'
+    return false unless cc == 'no-cache'
+    !request.xhr?
+  end
+
   private
 
   def fetch_workerstatus

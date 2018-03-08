@@ -12,19 +12,10 @@ class Webui::WebuiController < ActionController::Base
   protect_from_forgery
 
   before_action :setup_view_path
-  before_action :instantiate_controller_and_action_names
   before_action :check_user
   before_action :check_anonymous
   before_action :require_configuration
-  before_action :set_tasks
   after_action :clean_cache
-
-  # We execute both strategies here. The default rails strategy (resetting the session)
-  # and throwing an exception if the session is handled elswhere (e.g. proxy_auth_mode: :on)
-  def handle_unverified_request
-    super
-    raise ActionController::InvalidAuthenticityToken
-  end
 
   # :notice and :alert are default, we add :success and :error
   add_flash_types :success, :error
@@ -84,22 +75,25 @@ class Webui::WebuiController < ActionController::Base
     render file: Rails.root.join('public/404'), status: 404, layout: false, formats: [:html]
   end
 
-  def set_project
-    # We've started to use project_name for new routes...
-    @project = Project.find_by(name: params[:project_name] || params[:project])
-    raise ActiveRecord::RecordNotFound unless @project
-  end
-
-  def set_project_by_id
-    @project = Project.find(params[:id])
-  end
-
   def valid_xml_id(rawid)
     rawid = "_#{rawid}" if rawid !~ /^[A-Za-z_]/ # xs:ID elements have to start with character or '_'
     CGI.escapeHTML(rawid.gsub(/[+&: .\/\~\(\)@#]/, '_'))
   end
 
   protected
+
+  # We execute both strategies here. The default rails strategy (resetting the session)
+  # and throwing an exception if the session is handled elswhere (e.g. proxy_auth_mode: :on)
+  def handle_unverified_request
+    super
+    raise ActionController::InvalidAuthenticityToken
+  end
+
+  def set_project
+    # We've started to use project_name for new routes...
+    @project = Project.find_by(name: params[:project_name] || params[:project])
+    raise ActiveRecord::RecordNotFound unless @project
+  end
 
   def require_login
     if CONFIG['kerberos_mode']
@@ -129,37 +123,13 @@ class Webui::WebuiController < ActionController::Base
     end
   end
 
-  def discard_cache?
-    cc = request.headers['HTTP_CACHE_CONTROL']
-    return false if cc.blank?
-    return true if cc == 'max-age=0'
-    return false unless cc == 'no-cache'
-    !request.xhr?
-  end
-
-  def instantiate_controller_and_action_names
-    @current_action = action_name
-    @current_controller = controller_name
-  end
-
-  # Needed to hide/render some views to well known spider bots
-  # FIXME: We should get rid of it
-  def check_spiders
-    @spider_bot = request.bot?
-  end
-  private :check_spiders
-
   def lockout_spiders
-    check_spiders
+    @spider_bot = request.bot?
     if @spider_bot
       head :ok
       return true
     end
     false
-  end
-
-  def authenticator
-    @authenticator ||= Authenticator.new(request, session, response)
   end
 
   def kerberos_auth
@@ -190,7 +160,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def check_user
-    check_spiders
+    @spider_bot = request.bot?
     User.current = nil # reset old users hanging around
     if CONFIG['proxy_auth_mode'] == :on
       logger.debug 'Authenticating with proxy auth mode'
@@ -248,6 +218,7 @@ class Webui::WebuiController < ActionController::Base
     end
   end
 
+  # Don't show performance of database queries to users
   def peek_enabled?
     User.current && (User.current.is_admin? || User.current.is_staff?)
   end
@@ -281,8 +252,8 @@ class Webui::WebuiController < ActionController::Base
 
   private
 
-  def set_tasks
-    @tasks = User.current.tasks unless User.current.is_nobody?
+  def authenticator
+    @authenticator ||= Authenticator.new(request, session, response)
   end
 
   def require_configuration
@@ -330,7 +301,7 @@ class Webui::WebuiController < ActionController::Base
   # dialog_init is a function name called before dialog is shown
   def render_dialog(dialog_init = nil)
     check_ajax
-    @dialog_html = ActionController::Base.helpers.escape_javascript(render_to_string(partial: @current_action.to_s))
+    @dialog_html = ActionController::Base.helpers.escape_javascript(render_to_string(partial: action_name))
     @dialog_init = dialog_init
     render partial: 'dialog', content_type: 'application/javascript'
   end

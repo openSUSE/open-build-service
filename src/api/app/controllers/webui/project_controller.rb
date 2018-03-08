@@ -733,6 +733,10 @@ class Webui::ProjectController < Webui::WebuiController
 
   private
 
+  def set_project_by_id
+    @project = Project.find(params[:id])
+  end
+
   def main_object
     @project # used by mixins
   end

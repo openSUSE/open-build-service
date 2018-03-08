@@ -41,9 +41,14 @@ class Webui::PackageController < Webui::WebuiController
   prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
   def show
-    if lockout_spiders
+    if request.bot?
       params.delete(:rev)
       params.delete(:srcmd5)
+      @expand = 0
+    elsif params[:expand]
+      @expand = params[:expand].to_i
+    else
+      @expand = 1
     end
 
     @srcmd5 = params[:srcmd5]
@@ -52,14 +57,6 @@ class Webui::PackageController < Webui::WebuiController
     @bugowners_mail = (@package.bugowner_emails + @project.api_obj.bugowner_emails).uniq
     @revision = params[:rev]
     @failures = 0
-
-    if @spider_bot
-      @expand = 0
-    elsif params[:expand]
-      @expand = params[:expand].to_i
-    else
-      @expand = 1
-    end
 
     @is_current_rev = false
     if set_file_details
