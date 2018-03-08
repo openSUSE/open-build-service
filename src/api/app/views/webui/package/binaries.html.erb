@@ -26,7 +26,7 @@
           <span class="binaries_links">
             <%= link_to(sprited_text('page_white_get', 'Cloud Upload'), new_cloud_upload_path(project: @project, package: @package, repository: @repository, arch: result[:arch], filename: binary[:filename])) if binary[:links][:cloud_upload?] %>
             <%= link_to(sprited_text('page_white_put', 'Download'), binary[:links][:download_url]) if binary[:links][:download_url] %>
-            <%= link_to(sprited_text('information', 'Details'), action: 'binary', project: @project, package: @package, repository: @repository, arch: result[:arch], filename: binary[:filename]) if binary[:links][:details?] %>
+            <%= link_to(sprited_text('information', 'Details'), package_binary_path(project: @project, package: @package, repository: @repository, arch: result[:arch], filename: binary[:filename])) if binary[:links][:details?] %>
           </span>
         </li>
       <% end %>
