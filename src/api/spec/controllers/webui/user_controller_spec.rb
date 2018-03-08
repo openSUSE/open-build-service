@@ -281,26 +281,81 @@ RSpec.describe Webui::UserController do
     end
   end
 
-  describe 'GET #delete' do
-    skip
-  end
+  describe 'PATCH #update' do
+    let(:deleted_user) { create(:user, state: 'deleted') }
 
-  describe 'GET #confirm' do
-    skip
-  end
+    context 'called by an admin user' do
+      before do
+        login(admin_user)
+      end
 
-  describe 'GET #lock' do
-    skip
-  end
+      it 'updates the state of a user' do
+        patch :update, params: { user: user.login, state: 'locked' }
+        expect(user.reload.state).to eq('locked')
+      end
 
-  describe 'POST #admin' do
-    before do
-      login admin_user
-      post :admin, params: { user: user.login }
+      it 'updates deleted users' do
+        patch :update, params: { user: deleted_user.login, state: 'confirmed' }
+        expect(user.reload.state).to eq('confirmed')
+      end
+
+      it 'handles validation errors' do
+        patch :update, params: { user: user.login, state: 'foo' }
+        expect(user.reload.state).to eq('confirmed')
+        expect(flash[:error]).to eq("Updating user '#{user.login}' failed: State is not included in the list")
+      end
+
+      it 'applies the Admin role properly' do
+        patch :update, params: { user: user.login, make_admin: true }
+        expect(user.roles.find_by(title: 'Admin')).to_not be_nil
+      end
     end
 
-    it 'applies the Admin role properly' do
-      expect(user.roles.find_by(title: 'Admin')).to_not be_nil
+    context 'called by a user that is not admin' do
+      let(:non_admin_user) { create(:confirmed_user) }
+
+      before do
+        login(non_admin_user)
+      end
+
+      it 'does not update a user' do
+        patch :update, params: { user: user.login, state: 'locked' }
+        expect(user.reload.state).to eq('confirmed')
+      end
+    end
+  end
+
+  describe 'DELETE #delete' do
+    context 'called by an admin user' do
+      before do
+        login(admin_user)
+      end
+
+      it "changes the state to 'deleted'" do
+        delete :delete, params: { user: user.login }
+        expect(user.reload.state).to eq('deleted')
+      end
+
+      it 'handles validation errors' do
+        user.update_attributes(email: 'invalid')
+        user.save!(validate: false)
+        delete :delete, params: { user: user.login }
+        expect(user.reload.state).to eq('confirmed')
+        expect(flash[:error]).to eq("Marking user '#{user.login}' as deleted failed: Email must be a valid email address")
+      end
+    end
+
+    context 'called by a user that is not admin' do
+      let(:non_admin_user) { create(:confirmed_user) }
+
+      before do
+        login(non_admin_user)
+      end
+
+      it "does not changes the state to 'deleted'" do
+        delete :delete, params: { user: user.login }
+        expect(user.reload.state).to eq('confirmed')
+      end
     end
   end
 

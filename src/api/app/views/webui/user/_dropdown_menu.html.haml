@@ -4,23 +4,23 @@
 %ul.dropdown-menu-content(id="actions-trigger-#{user.login.gsub('.', '-')}-content" style="z-index:1;")
   %li
     = sprite_tag('accessories-text-editor')
-    = link_to('Edit user', controller: "user", action: "edit", user: user.login)
+    = link_to('Edit user', user_edit_path(user.login))
   %li
     = sprite_tag('accept')
-    = link_to('Confirm user', {controller: "user", action: "confirm", user: user.login }, |
-                method: :post, data: { confirm: "Are you sure?" }) |
+    = link_to('Confirm user', user_update_path(user: user.login, state: 'confirmed'), |
+                method: :patch, data: { confirm: "Are you sure?" }) |
     %li
       = sprite_tag('lock')
-      = link_to('Lock user', {controller: "user", action: "lock", user: user.login }, |
-                method: :post, data: { confirm: "Are you sure?" }) |
+      = link_to('Lock user', user_update_path(user: user.login, state: 'locked'), |
+                method: :patch, data: { confirm: "Are you sure?" }) |
     %li
       = sprite_tag('cancel')
-      = link_to('Delete user', {controller: "user", action: "delete", user: user.login }, |
+      = link_to('Delete user', user_delete_path(user: user.login), |
                 method: :delete, data: { confirm: "Are you sure?" }) |
     %li
       = sprite_tag('cog_add')
-      = link_to('Make user admin', {controller: "user", action: "admin", user: user.login }, |
-              method: :post, data: { confirm: "Are you sure?" }) |
+      = link_to('Make user admin', user_update_path(user: user.login, mark_as_admin: true), |
+              method: :patch, data: { confirm: "Are you sure?" }) |
     %li
       = sprite_tag('email')
       = mail_to(user.email, 'Contact user')
