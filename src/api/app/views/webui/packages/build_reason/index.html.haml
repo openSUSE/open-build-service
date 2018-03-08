@@ -10,7 +10,7 @@
   Repository / Architecture: #{params[:repository]} / #{params[:arch]}
 
 %p
-  = link_to("<= Go back to binaries", { action: :binaries, controller: '/webui/package', project: @project, package: @package, repository: @repository.name })
+  = link_to("<= Go back to binaries", package_binaries_path(controller: '/webui/package', project: @project, package: @package, repository: @repository.name ))
 
 %p
   %strong

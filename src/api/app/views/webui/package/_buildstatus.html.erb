@@ -8,7 +8,7 @@
         <tr>
           <td title="<%= result.repository %>" class="no_border_bottom <%= (result.repository == previous_repo) ? " no_border_top" : " "%>">
           <% if result.repository != previous_repo %>
-            <%= link_to(word_break(result.repository, 22), { action: :binaries, controller: :package, project: @project, package: package, repository: result.repository }, { title: "Binaries for #{result.repository}" }) %>
+            <%= link_to(word_break(result.repository, 22), package_binaries_path(project: @project, package: package, repository: result.repository), { title: "Binaries for #{result.repository}" }) %>
           <% end %>
           </td>
           <td class="arch">
