@@ -102,14 +102,14 @@ class Webui::UserController < Webui::WebuiController
   def edit; end
 
   def update
-    other_user = User.find_by(login: params[:user])
+    other_user = User.find_by(login: user_params[:login])
     unless other_user
-      redirect_to(users_path, error: "Couldn't find user '#{params[:user]}'.")
+      redirect_to(users_path, error: "Couldn't find user '#{user_params[:login]}'.")
       return
     end
 
-    other_user.update_attributes(state: params[:state])
-    other_user.add_globalrole(Role.where(title: 'Admin')) if params[:make_admin]
+    other_user.update_attributes(state: user_params[:state])
+    other_user.add_globalrole(Role.where(title: 'Admin')) if user_params[:make_admin]
     if other_user.save
       flash[:notice] = "Updated user '#{other_user}'."
     else
@@ -119,7 +119,7 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def delete
-    other_user = User.find_by(login: params[:user])
+    other_user = User.find_by(login: user_params[:login])
     other_user.update_attributes(state: 'deleted')
     if other_user.save
       flash[:notice] = "Marked user '#{other_user}' as deleted."
@@ -236,5 +236,11 @@ class Webui::UserController < Webui::WebuiController
       end
     end
     names
+  end
+
+  private
+
+  def user_params
+    params.require(:user).permit(:login, :state, :make_admin)
   end
 end
