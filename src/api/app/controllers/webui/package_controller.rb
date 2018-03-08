@@ -213,11 +213,6 @@ class Webui::PackageController < Webui::WebuiController
     @available_states = ['new or review', 'new', 'review', 'accepted', 'declined', 'revoked', 'superseded']
   end
 
-  def commit
-    required_parameters :revision
-    render partial: 'commit_item', locals: { rev: params[:revision] }
-  end
-
   def revisions
     unless @package.check_source_access?
       flash[:error] = 'Could not access revisions'
