@@ -141,7 +141,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def binary
-    required_parameters :arch, :repository, :filename
     @arch = params[:arch]
     @repository = params[:repository]
     # Ensure it really is just a file name, no '/..', etc.

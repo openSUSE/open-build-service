@@ -99,7 +99,7 @@ OBSApi::Application.routes.draw do
       controller 'webui/package' do
         get 'package/show/:project/:package' => :show, as: 'package_show', constraints: cons
         get 'package/dependency/:project/:package' => :dependency, constraints: cons
-        get 'package/binary/:project/:package' => :binary, constraints: cons, as: 'package_binary'
+        get 'package/binary/:project/:package/:repository/:arch/:filename' => :binary, constraints: cons, as: 'package_binary'
         get 'package/binaries/:project/:package' => :binaries, constraints: cons, as: 'package_binaries'
         get 'package/users/:project/:package' => :users, as: 'package_users', constraints: cons
         get 'package/requests/:project/:package' => :requests, as: 'package_requests', constraints: cons
