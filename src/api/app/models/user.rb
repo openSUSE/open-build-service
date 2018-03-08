@@ -76,6 +76,8 @@ class User < ApplicationRecord
             too_long: 'must have less than 100 characters',
             too_short: 'must have more than two characters' }
 
+  validates :state, inclusion: { in: STATES }
+
   # We want a valid email address. Note that the checking done here is very
   # rough. Email adresses are hard to validate now domain names may include
   # language specific characters and user names can be about anything anyway.
