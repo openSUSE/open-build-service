@@ -358,6 +358,8 @@ OBSApi::Application.routes.draw do
     get 'user/notifications' => :index, constraints: cons, controller: 'webui/users/subscriptions'
     put 'user/notifications' => :update, constraints: cons, controller: 'webui/users/subscriptions'
 
+    get 'user/tasks' => :index, constraints: cons, controller: 'webui/users/tasks', as: 'user_tasks'
+
     # Hardcoding this routes is necessary because we rely on the :user parameter
     # in check_display_user before filter. Overwriting of the parameter is not
     # possible for nested resources atm.

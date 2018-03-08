@@ -1,0 +1,79 @@
+- @pagetitle = "Tasks for #{User.current}"
+- @layouttype = 'custom'
+- @crumb_list = [@pagetitle]
+
+.grid_16.alpha.omega.box.box-shadow
+  #reviews
+    .box-header.header-tabs
+      %ul
+        %li
+          %a{href: "#reviews-in", title: "Requests that #{User.current.login} has to review"} Incoming Reviews
+          = sprite_tag('reload', title: 'Reload', class: 'result_reload', data: { table: 'reviews_in_table' })
+          = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
+    .tab#reviews-in
+      = render(partial: 'webui/shared/requests_table', locals: { id: 'reviews_in_table', source_url: user_requests_path(User.current) })
+.grid_16.alpha.omega.box.box-shadow
+  #requests
+    .box-header.header-tabs
+      %ul
+        %li
+          %a#requests-in-tab{href: "#requests-in", title: "Requests that #{User.current.login} has to merge"} Incoming Requests
+          = sprite_tag('reload', title: 'Reload', class: 'result_reload', data: { table: 'requests_in_table' })
+          = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
+        %li
+          %a#requests-out-tab{href: "#requests-out", title: "Requests that #{User.current.login} has sent"} Outgoing Requests
+          = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'requests_out_table' })
+          = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
+        %li
+          %a#requests-declined-tab{href: "#requests-declined", title: "Requests from #{User.current.login} that are declined"} Declined Requests
+          = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'requests_declined_table' })
+          = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
+        %li
+          %a#all-requests-tab{href: "#all-requests", title: "All Requests from #{User.current.login}"} All Requests
+          = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'all_requests_table' })
+          = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
+    .tab#requests-in
+      = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_in_table', source_url: user_requests_path(User.current) })
+    .tab#requests-out
+      = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_out_table', source_url: user_requests_path(User.current) })
+    .tab#requests-declined
+      = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_declined_table', source_url: user_requests_path(User.current) })
+    .tab#all-requests
+      = render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: user_requests_path(User.current) })
+
+- if User.current.involved_patchinfos.present?
+  .grid_16.alpha.omega.box.box-shadow
+    #patchinfos
+      .box-header.header-tabs
+        %ul
+          %li
+            %a{href: "#patchinfos-in", title: "Requests that #{User.current.login} has to merge"} Maintenance Requests
+      .tab#patchinfos-in
+        %table.compact#open-patchinfos-table{title: "Running Maintenance Updates"}
+          %thead
+            %tr
+              %th Project
+              %th Package
+              %th Issues
+              %th{style: "width: 1%"} Actions
+          %tbody
+            - User.current.involved_patchinfos.each do |pi|
+              %tr
+                - shortened_prj, shortened_pkg = elide_two(pi[:package][:project], pi[:package][:name], 60)
+                %td= link_to(shortened_prj, project_show_path(pi[:package][:project]))
+                %td= link_to(shortened_pkg, package_show_path(pi[:package][:project], pi[:package][:name]))
+                %td
+                  - pi[:issues].each do |i|
+                    = link_to i[:label], i[:url], title: i[:summary]
+                    ,
+                %td= link_to(sprite_tag('monitor', title: 'Monitor'), project_monitor_path(pi[:package][:project], pkgname: pi[:package][:name]))
+
+  = javascript_tag do
+    :plain
+      $(function() {
+        $('#open-patchinfos-table').dataTable();
+      });
+- content_for :ready_function do
+  $( "#reviews" ).tabs();
+  $( "#requests" ).tabs();
+  $( "#patchinfos" ).tabs();

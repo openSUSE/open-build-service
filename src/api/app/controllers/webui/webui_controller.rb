@@ -207,6 +207,7 @@ class Webui::WebuiController < ActionController::Base
       @displayed_user = User.current
       @displayed_user ||= User.find_nobody!
     end
+    @is_displayed_user = User.current == @displayed_user
   end
 
   def map_to_workers(arch)
