@@ -322,6 +322,17 @@ CREATE TABLE `channels` (
   CONSTRAINT `channels_ibfk_1` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+CREATE TABLE `cloud_azure_configurations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `application_id` text,
+  `application_key` text,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_cloud_azure_configurations_on_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `cloud_ec2_configurations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) DEFAULT NULL,
@@ -1317,6 +1328,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20171219122451'),
 ('20180109115548'),
 ('20180110074142'),
+('20180216082148'),
 ('20180221175514'),
 ('20180307074538');
 

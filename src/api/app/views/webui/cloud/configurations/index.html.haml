@@ -7,3 +7,6 @@
 %ul
   %li
     = link_to 'Configure Amazon EC2', cloud_ec2_configuration_path
+  - if Feature.active?(:cloud_upload_azure)
+    %li
+      = link_to 'Configure Microsoft Azure', cloud_azure_configuration_path

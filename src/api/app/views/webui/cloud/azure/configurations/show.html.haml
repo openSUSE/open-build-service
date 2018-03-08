@@ -1,0 +1,90 @@
+%h1
+  Microsoft Azure Configuration
+
+%p
+  You need to provide an application id and an application key in order to allow OBS to upload images to your Azure account.
+  We will encrypt your configuration before it get stored in our database.
+
+%h2 How to Generate an Application ID and an Application Key
+
+%p
+  %ol
+    %li
+      Log in to the
+      = link_to 'Azure Portal', 'https://portal.azure.com', target: '_blank'
+    %li
+      Click on the left side
+      %strong
+        All services
+    %li
+      Open the
+      %strong
+        App registrations
+      resource
+    %li
+      Click
+      %strong
+        New application registration
+    %li
+      Give the application a name like
+      %strong
+        OBS
+      and the application type is
+      %strong
+        Web app / API
+      (and the Sign-on URL is not relevant and can be anything. You could use the address of this Build Service instance for example.)
+    %li
+      Once the application has been created, copy its
+      %strong
+        Application ID
+      and paste it in the form below in the OBS UI.
+    %li
+      Click
+      %strong
+        Settings
+    %li
+      Click
+      %strong
+        Keys
+    %li
+      Create a new password: Enter a
+      %strong
+        description
+      and set an expiration date. Keep the
+      %strong
+        Value
+      field empty.
+    %li
+      Click the
+      %strong
+        Save
+      button and copy the content of the
+      %strong
+        Value
+      field to the
+      %strong
+        Application Key
+      field below in the OBS UI.
+
+%h2 Configuration for OBS
+
+- if @azure_configuration.available?
+  %div{ class: 'grid_16 alpha omega box-invisible' }
+    %div{ class: 'ui-state-info ui-corner-all ui-widget-shadow padding-10pt' }
+      %span{ class: 'ui-icon ui-icon-info' }
+        The current configuration is encrypted and cannot be shown.
+        = link_to 'Click here to delete it', cloud_azure_configuration_path, method: :delete, data: { confirm: 'Do you really want to delete the current configuration?' }
+- else
+  .container
+    .row.grid_8
+      = form_for @azure_configuration, url: cloud_azure_configuration_path, method: :put do |f|
+        .row.grid_12
+          = label_tag(:application_id, 'Application ID:')
+        .row.grid_12{ style: "margin-top: 8px;" }
+          = password_field_tag 'cloud_azure_configuration[application_id]', nil, style: 'width: 100%'
+        .row.grid_12{ style: "margin-top: 8px;" }
+          = label_tag(:application_key, 'Application Key:')
+        .row.grid_12{ style: "margin-top: 8px;" }
+          = password_field_tag 'cloud_azure_configuration[application_key]', nil, style: 'width: 100%'
+        .row.grid_12{ style: "margin-top: 8px;" }
+          = submit_tag "Submit"

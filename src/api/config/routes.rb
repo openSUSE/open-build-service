@@ -209,6 +209,9 @@ OBSApi::Application.routes.draw do
 
         resource :log, only: :show, controller: 'webui/cloud/upload_job/logs'
       end
+      resource :azure, only: [] do
+        resource :configuration, only: [:show, :update, :destroy], controller: 'webui/cloud/azure/configurations'
+      end
       resource :ec2, only: [] do
         resource :configuration, only: [:show, :update], controller: 'webui/cloud/ec2/configurations'
       end

@@ -3,15 +3,18 @@ production:
     image_templates: true
     kiwi_image_editor: false
     cloud_upload: false
+    cloud_upload_azure: false
 
 development:
   features:
     <<: *default
     kiwi_image_editor: true
     cloud_upload: true
+    cloud_upload_azure: true
 
 test:
   features:
     <<: *default
     kiwi_image_editor: true
     cloud_upload: true
+    cloud_upload_azure: true
