@@ -336,10 +336,8 @@ OBSApi::Application.routes.draw do
       post 'user/change_password' => :change_password
       get 'user/password_dialog' => :password_dialog
 
-      post 'user/confirm' => :confirm
-      post 'user/lock' => :lock
-      post 'user/admin' => :admin
-      delete 'user/delete' => :delete
+      patch 'user' => :update, as: 'user_update'
+      delete 'user' => :delete, as: 'user_delete'
 
       get 'user/autocomplete' => :autocomplete
       get 'user/tokens' => :tokens
