@@ -617,13 +617,6 @@ RSpec.describe Webui::PackageController, vcr: true do
       it { expect(flash[:notice]).to eq("Failed to remove file 'the_file'") }
     end
 
-    context 'without filename parameter' do
-      it 'renders 404' do
-        post :remove_file, params: { project: user.home_project, package: source_package }
-        expect(response.status).to eq(404)
-      end
-    end
-
     it 'calls delete_file method' do
       allow_any_instance_of(Package).to receive(:delete_file).with('the_file')
       remove_file_post
@@ -1166,7 +1159,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'when triggering a rebuild fails' do
       before do
-        post :trigger_rebuild, params: { project: source_project, package: source_package }
+        post :trigger_rebuild, params: { project: source_project, package: source_package, repository: 'non_existant_repository' }
       end
 
       it 'lets the user know there was an error' do
@@ -1174,10 +1167,8 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it 'redirects to the package binaries path' do
-        expect(response).to redirect_to(controller: :package,
-                                        action: :binaries,
-                                        project: source_project,
-                                        package: source_package)
+        expect(response).to redirect_to(package_binaries_path(project: source_project, package: source_package,
+                                                              repository: 'non_existant_repository'))
       end
     end
 
@@ -1201,26 +1192,30 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'when wiping binaries fails' do
       before do
-        post :wipe_binaries, params: { project: source_project, package: source_package }
+        post :wipe_binaries, params: { project: source_project, package: source_package, repository: 'non_existant_repository' }
       end
 
       it 'lets the user know there was an error' do
         expect(flash[:error]).to match('Error while triggering wipe binaries for home:tom/my_package')
         expect(flash[:error]).to match('no repository defined')
       end
-      it { expect(response).to redirect_to(package_binaries_path(project: source_project, package: source_package)) }
+      it 'redirects to package binaries' do
+        expect(response).to redirect_to(package_binaries_path(project: source_project, package: source_package,
+                                                              repository: 'non_existant_repository'))
+      end
     end
 
     context 'when wiping binaries succeeds' do
+      let!(:repository) { create(:repository, name: 'my_repository', project: source_project, architectures: ['i586']) }
+
       before do
-        create(:repository, project: source_project, architectures: ['i586'])
         source_project.store
 
-        post :wipe_binaries, params: { project: source_project, package: source_package }
+        post :wipe_binaries, params: { project: source_project, package: source_package, repository: repository.name }
       end
 
       it { expect(flash[:notice]).to eq("Triggered wipe binaries for #{source_project.name}/#{source_package.name} successfully.") }
-      it { expect(response).to redirect_to(package_binaries_path(project: source_project, package: source_package)) }
+      it { expect(response).to redirect_to(package_binaries_path(project: source_project, package: source_package, repository: repository.name)) }
     end
   end
 
