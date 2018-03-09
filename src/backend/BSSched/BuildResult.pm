@@ -829,15 +829,8 @@ sub wipe {
 
 sub set_dstcache_prp {
   my ($gctx, $dstcache, $prp) = @_;
-  my $fullcache = $dstcache->{'fullcache'};
-  if ($fullcache) {
-    if ($prp) {
-      BSSched::BuildRepo::sync_fullcache($gctx, $fullcache) if $fullcache->{'prp'} && $fullcache->{'prp'} ne $prp;
-      $fullcache->{'prp'} = $prp;
-    } else {
-      BSSched::BuildRepo::sync_fullcache($gctx, $fullcache) if %$fullcache;
-    }
-  }
+  # sync the bininfocache before the fullcache so that we have the correct
+  # data in case we need to rebuild the full tree in sync_fullcache
   my $bininfocache = $dstcache->{'bininfocache'};
   if ($bininfocache) {
     if ($prp) {
@@ -845,6 +838,15 @@ sub set_dstcache_prp {
       sync_bininfocache($gctx, $bininfocache) if $bininfocache->{'gdst'} && $bininfocache->{'gdst'} ne $gdst;
     } else {
       sync_bininfocache($gctx, $bininfocache) if $bininfocache->{'gdst'};
+    }
+  }
+  my $fullcache = $dstcache->{'fullcache'};
+  if ($fullcache) {
+    if ($prp) {
+      BSSched::BuildRepo::sync_fullcache($gctx, $fullcache) if $fullcache->{'prp'} && $fullcache->{'prp'} ne $prp;
+      $fullcache->{'prp'} = $prp;
+    } else {
+      BSSched::BuildRepo::sync_fullcache($gctx, $fullcache) if %$fullcache;
     }
   }
 }
