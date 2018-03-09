@@ -281,7 +281,6 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def rebuild_time_png
-    required_parameters :key
     key = params[:key]
     png = Rails.cache.read("rebuild-#{key}.png")
     headers['Content-Type'] = 'image/png'
