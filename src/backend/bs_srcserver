@@ -5144,33 +5144,6 @@ sub getsslcert {
   return ('', 'Content-Type: text/plain');
 }
 
-sub pubkeyinfo {
-  my ($pk) = @_;
-
-  my $algo;
-  my $keysize;
-  my $fingerprint;
-  my $expire;
-  eval {
-    my $pku = BSPGP::unarmor($pk);
-    eval { $algo = BSPGP::pk2algo($pku) };
-    eval { $keysize = BSPGP::pk2keysize($pku) };
-    eval { $fingerprint = BSPGP::pk2fingerprint($pku) };
-    eval { $expire = BSPGP::pk2expire($pku) };
-  };
-  my $pubkey = { '_content' => $pk };
-  $pubkey->{'algo'} = $algo if $algo;
-  $pubkey->{'keysize'} = $keysize if $keysize;
-  if ($fingerprint) {
-    $pubkey->{'keyid'} = substr($fingerprint, -8, 8);
-    $fingerprint =~ s/(....)/$1 /g;
-    $fingerprint =~ s/ $//;
-    $pubkey->{'fingerprint'} = $fingerprint;
-  }
-  $pubkey->{'expires'} = $expire if $expire;
-  return $pubkey;
-}
-
 sub getkeyinfo {
   my ($cgi, $projid) = @_;
 
@@ -5208,8 +5181,32 @@ sub getkeyinfo {
   }
   my $keyinfo = {};
   $keyinfo->{'project'} = $projid if $projid;
-  $keyinfo->{'pubkey'} = pubkeyinfo($pk) if $pk;
-  $keyinfo->{'sslcert'} = $cert if $cert;
+  if ($pk) {
+    my $algo;
+    my $keysize;
+    my $fingerprint;
+    my $expire;
+    eval {
+      my $pku = BSPGP::unarmor($pk);
+      eval { $algo = BSPGP::pk2algo($pku) };
+      eval { $keysize = BSPGP::pk2keysize($pku) };
+      eval { $fingerprint = BSPGP::pk2fingerprint($pku) };
+      eval { $expire = BSPGP::pk2expire($pku) };
+    };
+    $keyinfo->{'pubkey'} = { '_content' => $pk };
+    $keyinfo->{'pubkey'}->{'algo'} = $algo if $algo;
+    $keyinfo->{'pubkey'}->{'keysize'} = $keysize if $keysize;
+    if ($fingerprint) {
+      $keyinfo->{'pubkey'}->{'keyid'} = substr($fingerprint, -8, 8);
+      $fingerprint =~ s/(....)/$1 /g;
+      $fingerprint =~ s/ $//;
+      $keyinfo->{'pubkey'}->{'fingerprint'} = $fingerprint;
+    }
+    $keyinfo->{'pubkey'}->{'expires'} = $expire if $expire;
+  }
+  if ($cert) {
+    $keyinfo->{'sslcert'} = $cert;
+  }
   return ($keyinfo, $BSXML::keyinfo);
 }
 
@@ -6168,13 +6165,7 @@ sub cloudupload_status {
 
 sub cloudupload_pubkey {
   my ($cgi) = @_;
-  die("no cloud upload server configurated\n") unless $BSConfig::clouduploadserver;
-  return cloudupload_status($cgi, '_pubkey') unless $cgi->{'view'};
-  die("unsupported view '$cgi->{'view'}'\n") if $cgi->{'view'} ne 'info';
-  my $pk = BSWatcher::rpc("$BSConfig::clouduploadserver/cloudupload/_pubkey");
-  die("no pubkey configured\n") unless $pk;
-  my $pubkey = pubkeyinfo($pk);
-  return ($pubkey, $BSXML::pubkeyinfo);
+  return cloudupload_status($cgi, '_pubkey');
 }
 
 sub cloudupload_kill {
@@ -6387,7 +6378,7 @@ my $dispatches = [
   # cloud upload calls
   'POST:/cloudupload $project $repository $arch $package $filename user: target:' => \&cloudupload_create,
   'POST:/cloudupload/$job cmd=kill' => \&cloudupload_kill,
-  '/cloudupload/_pubkey view:?' => \&cloudupload_pubkey,
+  '/cloudupload/_pubkey' => \&cloudupload_pubkey,
   '/cloudupload/$job' => \&cloudupload_status,
   '/cloudupload/$job/_log nostream:bool? start:intnum? end:num? view:?' => \&cloudupload_log,
   '/cloudupload name:num*' => \&cloudupload_joblist,
