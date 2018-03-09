@@ -44,9 +44,8 @@ class Webui::GroupsController < Webui::WebuiController
   end
 
   def autocomplete
-    required_parameters :term
-    groups = Group.where('title LIKE ?', "#{params[:term]}%").pluck(:title)
-    render json: groups
+    groups = Group.where('title LIKE ?', "#{params[:term]}%").pluck(:title) if params[:term]
+    render json: groups || []
   end
 
   def tokens
