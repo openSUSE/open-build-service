@@ -883,11 +883,11 @@ class Webui::PackageController < Webui::WebuiController
 
     if @package.wipe_binaries(params)
       flash[:notice] = "Triggered wipe binaries for #{@project.name}/#{@package.name} successfully."
-      redirect_to package_binaries_path(project: @project, package: @package, repository: params[:repository])
     else
       flash[:error] = "Error while triggering wipe binaries for #{@project.name}/#{@package.name}: #{@package.errors.full_messages.to_sentence}."
-      redirect_to package_binaries_path(project: @project, package: @package, repository: params[:repository])
     end
+
+    redirect_to package_binaries_path(project: @project, package: @package, repository: params[:repository])
   end
 
   def devel_project
