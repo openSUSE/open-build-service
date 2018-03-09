@@ -20,6 +20,6 @@
   %p
     = f.collection_check_boxes(:role_ids, Role.global, :id, :title)
   %p
-    = f.collection_radio_buttons(:state, user_states_for_edit, :to_s, :to_s)
+    = f.collection_radio_buttons(:state, User::STATES - ['subaccount'], :to_s, :to_s)
   %p
     = f.submit("Update")
