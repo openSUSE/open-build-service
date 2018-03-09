@@ -247,7 +247,6 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def rebuild_time
-    required_parameters :repository, :arch
     @repository = params[:repository]
     @arch = params[:arch]
     @hosts = (params[:hosts] || 40).to_i

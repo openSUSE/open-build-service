@@ -246,7 +246,7 @@ OBSApi::Application.routes.draw do
       post 'project/restore' => :restore, constraints: cons, as: 'projects_restore'
       patch 'project/update' => :update, constraints: cons
       delete 'project/destroy' => :destroy
-      get 'project/rebuild_time/:project' => :rebuild_time, constraints: cons, as: 'project_rebuild_time'
+      get 'project/rebuild_time/:project/:repository/:arch' => :rebuild_time, constraints: cons, as: 'project_rebuild_time'
       get 'project/rebuild_time_png/:project' => :rebuild_time_png, constraints: cons
       get 'project/packages/:project' => :packages, constraints: cons
       get 'project/requests/:project' => :requests, constraints: cons, as: 'project_requests'
