@@ -22,8 +22,5 @@ RUN chown -R frontend /obs/src/api
 USER frontend
 WORKDIR /obs/src/api
 
-# Refresh our bundle
-RUN export NOKOGIRI_USE_SYSTEM_LIBRARIES=1; bundle install --jobs=3 --retry=3 || bundle install --jobs=3 --retry=3
-
-# Run our command
-CMD ["foreman", "start", "-f", "Procfile"]
+# Install/Refresh our gems and start OBS
+CMD bundle install --clean && foreman start -f Procfile
