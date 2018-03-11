@@ -15,6 +15,7 @@ RUN usermod -u $CONTAINER_USERID frontend
 # docker would use it's cache for this and the following stages.
 ADD Gemfile /obs/src/api/Gemfile
 ADD Gemfile.lock /obs/src/api/Gemfile.lock
+ADD .bundle /obs/src/api/
 RUN chown -R frontend /obs/src/api
 
 # Now do the rest as the user with the same ID as the user who
