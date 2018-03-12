@@ -1521,7 +1521,7 @@ sub publish {
 	if ($bin =~ /\.iso(?:\.sha256)?$/) {
 	  $p = "iso/$bin";
 	  $kiwimedium{$p} = $1 if $bin =~ /(.+)\.iso$/;
-	} elsif ($bin =~ /ONIE\.bin$/) {
+	} elsif ($bin =~ /ONIE\.bin(?:\.sha256)?$/) {
 	  $p = "onie/$bin";
 	  $kiwimedium{$p} = $1 if $bin =~ /(.+)ONIE\.bin$/;
 	} elsif ($bin =~ /\.raw(?:\.install)?(?:\.(?:gz|bz2|xz))?(?:\.sha256)?$/) {
