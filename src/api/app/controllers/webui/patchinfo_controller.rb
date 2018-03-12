@@ -99,7 +99,6 @@ class Webui::PatchinfoController < Webui::WebuiController
   end
 
   def save
-    required_parameters :project, :package
     flash[:error] = nil
     # Note: At this point a patchinfo already got created by
     #       Patchinfo.new.create_patchinfo in the new_patchinfo action
