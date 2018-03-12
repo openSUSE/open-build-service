@@ -88,8 +88,7 @@ class Configuration < ApplicationRecord
 
   def accounts_editable?(user = nil)
     (
-      CONFIG['proxy_auth_mode'] != :on ||
-        CONFIG['proxy_auth_mode'] == :on && CONFIG['proxy_auth_account_page'].present?
+      CONFIG['proxy_auth_mode'] != :on || CONFIG['proxy_auth_account_page'].present?
     ) && (
       user.try(:ignore_auth_services?) || CONFIG['ldap_mode'] != :on
     )
