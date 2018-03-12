@@ -23,4 +23,4 @@
         %i
           There are no cycles for #{arch}
     %p
-      Check the rebuild time for #{link_to arch, { action: :rebuild_time, project: @project, arch: arch.name, repository: @repository.name, controller: :project }, { rel: 'nofollow' }}
+      Check the rebuild time for #{link_to arch, project_rebuild_time_path(project: @project, arch: arch.name, repository: @repository.name), { rel: 'nofollow' }}
