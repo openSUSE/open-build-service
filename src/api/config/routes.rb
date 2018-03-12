@@ -380,8 +380,8 @@ OBSApi::Application.routes.draw do
       get 'group/show/:title' => :show, constraints: { title: /[^\/]*/ }, as: 'group_show'
       get 'group/new' => :new
       post 'group/create' => :create
-      get 'group/edit/title' => :edit, constraints: { title: /[^\/]*/ }
-      post 'group/update' => :update
+      get 'group/edit/:title' => :edit, constraints: { title: /[^\/]*/ }, as: :group_edit_title
+      post 'group/update/:title' => :update, constraints: { title: /[^\/]*/ }
       get 'group/autocomplete' => :autocomplete
     end
 

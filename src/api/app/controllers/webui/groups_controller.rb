@@ -55,7 +55,6 @@ class Webui::GroupsController < Webui::WebuiController
   end
 
   def set_group
-    required_parameters :title
     @group = Group.find_by_title(params[:title])
 
     # Group.find_by_title! is self implemented and would raise an 500 error
