@@ -92,7 +92,6 @@ class Webui::MonitorController < Webui::WebuiController
   def events
     check_ajax
     data = {}
-    required_parameters :arch, :range
 
     arch = params[:arch]
     range = params[:range]

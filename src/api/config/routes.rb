@@ -92,7 +92,7 @@ OBSApi::Application.routes.draw do
       get 'monitor/' => :index
       get 'monitor/old' => :old
       get 'monitor/update_building' => :update_building
-      get 'monitor/events' => :events
+      get 'monitor/events' => :events, as: :monitor_events
     end
 
     defaults format: 'html' do
