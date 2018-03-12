@@ -341,7 +341,7 @@ RSpec.describe Webui::WebuiHelper do
       it 'does not link to user profiles' do
         expect(user_and_role(user.login)).to eq(
           "<img width=\"20\" height=\"20\" alt=\"#{CGI.escapeHTML(user.realname)}\" " \
-          "src=\"/user/icon/#{user.login}?size=20\" />#{CGI.escapeHTML(user.realname)} (#{user.login})"
+          "src=\"/user/#{user.login}/icon?size=20\" />#{CGI.escapeHTML(user.realname)} (#{user.login})"
         )
       end
     end

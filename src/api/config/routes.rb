@@ -344,13 +344,12 @@ OBSApi::Application.routes.draw do
       get 'user/edit/:user' => :edit, constraints: cons, as: 'user_edit'
 
       get 'user/show/:user' => :show, constraints: cons, as: 'user_show'
-      get 'user/icon/:icon' => :user_icon, constraints: cons, as: 'user_icon'
       # Only here to make old /home url's work
       get 'home/' => :home, as: 'home'
       get 'home/my_work' => :home
       get 'home/list_my' => :home
       get 'home/home_project' => :home_project
-      get 'user/:user/icon' => :icon, constraints: cons
+      get 'user/:user/icon' => :icon, constraints: cons, as: :icon_user
     end
 
     controller 'webui/session' do
