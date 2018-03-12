@@ -10,6 +10,8 @@ class PersonController < ApplicationController
   skip_before_action :extract_user, only: [:command, :register]
   skip_before_action :require_login, only: [:command, :register]
 
+  before_action :set_user, only: [:post_userinfo, :change_my_password, :tokenlist, :command_token, :delete_token]
+
   def show
     if params[:prefix]
       @list = User.where('login LIKE ?', params[:prefix] + '%')
@@ -44,6 +46,8 @@ class PersonController < ApplicationController
   end
 
   def post_userinfo
+    authorize @user, :update?
+
     login = params[:login]
     # just for permission checking
     User.find_by_login!(login)
@@ -152,9 +156,6 @@ class PersonController < ApplicationController
   class ErrRegisterSave < APIException
   end
 
-  class NoPermission < APIException
-  end
-
   def internal_register
     if ::Configuration.ldap_enabled?
       render_error(
@@ -223,6 +224,7 @@ class PersonController < ApplicationController
   private :update_globalroles
 
   def change_my_password
+    authorize @user, :update?
     # FIXME3.0: remove this function
     xml = REXML::Document.new(request.raw_post)
 
@@ -250,7 +252,6 @@ class PersonController < ApplicationController
             message: 'Failed to change password: missing parameter'
       return
     end
-    user = User.get_by_login(login)
 
     # change password to LDAP if LDAP is enabled
     unless ::Configuration.passwords_changable?(User.current)
@@ -260,20 +261,21 @@ class PersonController < ApplicationController
     end
 
     # update password in users db
-    user.password = password
-    user.save!
+    @user.password = password
+    @user.save!
   end
   private :change_password
 
   # GET /person/<login>/token
   def tokenlist
-    user = User.get_by_login(params[:login])
-    @list = user.service_tokens
+    authorize @user, :show?
+
+    @list = @user.service_tokens
   end
 
   # POST /person/<login>/token
   def command_token
-    user = User.get_by_login(params[:login])
+    authorize @user, :update?
 
     unless params[:cmd] == 'create'
       raise UnknownCommandError, "Allowed commands are 'create'"
@@ -282,7 +284,7 @@ class PersonController < ApplicationController
     if params[:project] || params[:package]
       pkg = Package.get_by_project_and_name(params[:project], params[:package])
     end
-    @token = Token::Service.create(user: user, package: pkg)
+    @token = Token::Service.create(user: @user, package: pkg)
   end
 
   class TokenNotFound < APIException
@@ -291,11 +293,17 @@ class PersonController < ApplicationController
 
   # DELETE /person/<login>/token/<id>
   def delete_token
-    user = User.get_by_login(params[:login])
+    authorize @user, :update?
 
-    token = Token::Service.where(user_id: user.id, id: params[:id]).first
+    token = Token::Service.where(user_id: @user.id, id: params[:id]).first
     raise TokenNotFound, "Specified token \"#{params[:id]}\" got not found" unless token
     token.destroy
     render_ok
+  end
+
+  private
+
+  def set_user
+    @user = User.find_by(login: params[:login])
   end
 end

@@ -105,9 +105,6 @@ class UserTest < ActiveSupport::TestCase
     assert_raise NotFoundError do
       User.find_by_login! 'deleted'
     end
-    assert_raise NotFoundError do
-      User.get_by_login 'deleted'
-    end
   end
 
   def test_user_requests

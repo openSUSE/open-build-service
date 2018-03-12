@@ -65,6 +65,8 @@ class User < ApplicationRecord
 
   scope :all_without_nobody, -> { where('login != ?', NOBODY_LOGIN) }
 
+  scope :not_deleted, -> { where.not(state: 'deleted') }
+
   validates :login, :state, presence: { message: 'must be given' }
 
   validates :login,
@@ -207,8 +209,8 @@ class User < ApplicationRecord
 
   def self.get_default_admin
     admin = CONFIG['default_admin'] || 'Admin'
-    user = find_by_login(admin)
-    raise NotFoundError, "Admin not found, user #{admin} has not admin permissions" unless user.is_admin?
+    user = not_deleted.find_by(login: admin)
+    raise NotFoundError, "Admin not found, user #{admin} ha no admin permissions" unless user.is_admin?
     user
   end
 
@@ -220,20 +222,9 @@ class User < ApplicationRecord
   end
 
   def self.find_by_login!(login)
-    user = find_by_login(login)
-    if user.nil? || user.state == 'deleted'
-      raise NotFoundError, "Couldn't find User with login = #{login}"
-    end
-    user
-  end
-
-  def self.get_by_login(login)
-    user = find_by_login!(login)
-    # FIXME: Move permission checks to controller level
-    unless User.current.is_admin? || user == User.current
-      raise NoPermission, "User #{login} can not be accessed by #{User.current.login}"
-    end
-    user
+    user = not_deleted.find_by(login: login)
+    return user if user
+    raise NotFoundError, "Couldn't find User with login = #{login}"
   end
 
   def self.realname_for_login(login)
@@ -450,6 +441,10 @@ class User < ApplicationRecord
     return true if has_global_permission? 'change_package'
     return true if has_local_permission? 'change_package', package
     false
+  end
+
+  def can_modify_user?(user)
+    is_admin? || self == user
   end
 
   # project is instance of Project

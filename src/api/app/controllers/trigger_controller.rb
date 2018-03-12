@@ -30,7 +30,10 @@ class TriggerController < ApplicationController
     if pkg
       # check if user has still access
       unless token.user.is_active? && token.user.can_modify_package?(pkg)
-        raise NoPermission, "no permission for package #{pkg.name} in project #{pkg.project.name}"
+        render_error message:   "no permission for package #{pkg.name} in project #{pkg.project.name}",
+                     status:    403,
+                     errorcode: 'no_permission'
+        return
       end
     end
 
@@ -38,7 +41,10 @@ class TriggerController < ApplicationController
       # token is not bound to a package, but event may have specified it
       pkg = Package.get_by_project_and_name(params[:project].to_s, params[:package].to_s, use_source: true)
       unless token.user.is_active? && token.user.can_modify_package?(pkg)
-        raise NoPermission, "no permission for package #{pkg.name} in project #{pkg.project.name}"
+        render_error message:   "no permission for package #{pkg.name} in project #{pkg.project.name}",
+                     status:    403,
+                     errorcode: 'no_permission'
+        return
       end
     end
 

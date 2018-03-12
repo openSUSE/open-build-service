@@ -21,6 +21,22 @@ RSpec.describe User do
     it { expect(create(:user)).to validate_uniqueness_of(:login).with_message('is the name of an already existing user') }
   end
 
+  describe '#find_by_login!' do
+    it 'returns a user if it exists' do
+      expect(User.find_by_login!(user.login)).to eq user
+    end
+
+    it 'raises an exception if user does not exist' do
+      expect { User.find_by_login!('foo') }.to raise_error(NotFoundError, "Couldn't find User with login = foo")
+    end
+  end
+
+  describe '#can_modify_user?' do
+    it { expect(admin_user.can_modify_user?(confirmed_user)).to be true }
+    it { expect(user.can_modify_user?(confirmed_user)).to be false }
+    it { expect(user.can_modify_user?(user)).to be true }
+  end
+
   describe 'user creation' do
     it "sets the 'last_logged_in_at' attribute" do
       user = User.new
