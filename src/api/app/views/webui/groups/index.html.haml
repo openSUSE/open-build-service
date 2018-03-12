@@ -16,11 +16,11 @@
         - @groups.each do |group|
           %tr{ id: "group-#{valid_xml_id(group.title)}" }
             %td
-              = link_to(group.title, { controller: 'groups', action: 'show', title: group.title }, { id: group.title })
+              = link_to(group.title, group_show_path(title: group.title), { id: group.title })
             %td.users
               = safe_join(group.users.map { |user| link_to(user, user_show_path(user)) }, ', ')
             %td.nowrap
-              = link_to(sprited_text('accessories-text-editor', 'Edit Group'), { controller: 'groups', action: 'edit', title: group.title })
+              = link_to(sprited_text('accessories-text-editor', 'Edit Group'), group_edit_title_path(title: group.title))
   - else
     %p
       %i There are no groups configured
