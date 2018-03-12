@@ -33,9 +33,8 @@
       %i
         There are no users configured
 
-:javascript
-  $(function() {
-    // We use count(:all) because of a bug: https://github.com/rails/rails/pull/27561
-    if ("#{@users.count(:all)}" !== "0")
+- if @users.exists?
+  :javascript
+    $(function() {
       $('#user-table').dataTable();
-  });
+    });
