@@ -109,7 +109,6 @@ class Webui::MainController < Webui::WebuiController
   end
 
   def delete_message
-    required_parameters :message_id
     StatusMessage.find(params[:message_id]).delete
     redirect_to(action: 'index')
   end

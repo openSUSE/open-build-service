@@ -49,7 +49,7 @@ OBSApi::Application.routes.draw do
       get 'main/add_news_dialog' => :add_news_dialog
       post 'main/add_news' => :add_news
       get 'main/delete_message_dialog' => :delete_message_dialog
-      post 'main/delete_message' => :delete_message
+      delete 'main/delete_message/:message_id' => :delete_message, as: :main_delete_message
     end
 
     controller 'webui/feeds' do
