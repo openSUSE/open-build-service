@@ -176,7 +176,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def list_small
-    required_parameters :project # the minimum
     redirect_to(user_show_path(User.current)) && return unless request.xhr? # non ajax request
     requests = BsRequest.list(params)
     render partial: 'requests_small', locals: { requests: requests }
