@@ -416,12 +416,12 @@ sub jobfinished {
   }
   my $projpacks = $gctx->{'projpacks'};
   if (!$projpacks->{$projid}) {
-    print "  - $job belongs to an unknown project\n";
+    print "  - $job belongs to an unknown project ($projid/$packid)\n";
     return;
   }
   my $pdata = ($projpacks->{$projid}->{'package'} || {})->{$packid};
   if (!$pdata) {
-    print "  - $job belongs to an unknown package, discard\n";
+    print "  - $job belongs to an unknown package ($projid/$packid)\n";
     return;
   }
   my $reporoot = $gctx->{'reporoot'};
