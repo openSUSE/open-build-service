@@ -225,7 +225,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def add_role_request
-    required_parameters :project, :role
     req = nil
     begin
       BsRequest.transaction do

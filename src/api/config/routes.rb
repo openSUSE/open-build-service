@@ -309,7 +309,7 @@ OBSApi::Application.routes.draw do
       get 'request/delete_request_dialog' => :delete_request_dialog
       post 'request/delete_request/:project' => :delete_request, constraints: cons
       get 'request/add_role_request_dialog' => :add_role_request_dialog
-      post 'request/add_role_request' => :add_role_request
+      post 'request/add_role_request/:project' => :add_role_request, constraints: cons
       get 'request/set_bugowner_request_dialog' => :set_bugowner_request_dialog
       post 'request/set_bugowner_request' => :set_bugowner_request
       get 'request/change_devel_request_dialog' => :change_devel_request_dialog
