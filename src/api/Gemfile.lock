@@ -142,6 +142,8 @@ GEM
       thor (~> 0.20)
     globalid (0.4.1)
       activesupport (>= 4.2.0)
+    gpgme (2.0.16)
+      mini_portile2 (~> 2.3)
     gssapi (1.2.0)
       ffi (>= 1.0.1)
     haml (5.0.4)
@@ -451,6 +453,7 @@ DEPENDENCIES
   flot-rails
   font-awesome-rails
   git-cop (>= 1.5.0)
+  gpgme
   gssapi
   haml
   haml_lint

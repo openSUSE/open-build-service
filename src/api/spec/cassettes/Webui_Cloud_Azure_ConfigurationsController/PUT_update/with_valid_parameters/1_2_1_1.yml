@@ -1,0 +1,108 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 02 Mar 2018 09:22:01 GMT
+- request:
+    method: get
+    uri: http://backend:5352/cloudupload/_pubkey?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1965'
+    body:
+      encoding: UTF-8
+      string: |
+        <pubkey keyid="fe959b41" algo="rsa" keysize="2048" fingerprint="7ed8 1556 722d bdd1 6544 d97e a416 5ec0 fe95 9b41">-----BEGIN PGP PUBLIC KEY BLOCK-----
+        Version: GnuPG v2
+
+        mQENBFqG2HwBCACt4lNV20O5fO/z87/d8ZJjwtlFIVZhY+u5XfCYJBcseRRzdhz0
+        YzfcnHZq1HedZXmEbFC940lnv50raTS8QVeDx6n0M57cMiDKt5L1sVQdmOAT43T5
+        /rx/hu/Uszi/u0at2Rt4MRiPn+dJh1ht/ivEvOcnW2nJNCAW5HG8kjZxn596iVDu
+        fBqMX8EfiYsl6kXulfGb+LKDLxUZct+YldRSRR/8dMHJ8Z5KPgI3PgytFMDMkGIW
+        Fz/07pzLVS1peT/NlIWdig272ENFqE1KZVySaGzPqurv+JjrV4f+JeV0qegHcBk1
+        LNX8zdHk2EVBjvtNq2vJnsAaJVn5KR4S1/0TABEBAAG0hk9CUyBEZXZlbG9wbWVu
+        dCBDbG91ZCBVcGxvYWRlciAoVGhpcyBpcyBhIGRldmVsb3BtZW50IGtleSBhbmQg
+        c2hvdWxkIG5vdCBiZSB1c2VkIGluIHByb2R1Y3Rpb24hKSA8b2JzLWNsb3VkLXVw
+        bG9hZGVyLWRldkBvcGVuc3VzZS5vcmc+iQE5BBMBAgAjBQJahth8AhsDBwsJCAcD
+        AgEGFQgCCQoLBBYCAwECHgECF4AACgkQpBZewP6Vm0FCXwf/as9r3ktHrpM+EKAf
+        shRHCoFU25ut40H9wxMfYyyGyz/F0lbFrm6drZKkAfzZ2BuFU+T6p/Ti/N7FCFuU
+        5lLoEWqU7vcG7/g5wySlyBdjk1TwZWkV77xw2Ka+6Y9lZ0znNvVO6AsSdhUtcp6q
+        /hsrOCUf/VlZkCIiBl/3YUvEOXhXBuM+T5deIazbf9+USoUiC8BohLW6C9yl4aO1
+        yvk+1sX0y3JmpR3oPgeP7WgpCoQqWAQkLr4YDPIZwi2QC6AVKDunu+iQLygip4My
+        U8VJiWC9nQfSdVvnEHsnsTJg3qg5ftnFeGbgxmSYh4POaXteiEbNqJEiQxmn7e5x
+        lyCfFLkBDQRahth8AQgAy1XvlPy6ljJ75lBV2c4y4mImd5bOpg4G3gC5vgyhT8gv
+        fNOGRgHW+1SbXZIsitpdL0yMYGel6G+iK2JpN01Icmf987enzDMo4ccQiH3fOvuy
+        woCg6S33ju7sV13fqLRuhq2cSmtTOsPwOjub6jbylDFITzjjt1Xsx3s5h8z29uFs
+        mYI3gcnpR1k3GSGSGBPzrpeFBdceBCD7uuX7IknNMg06yxrFUewPiwz4TQ+DuZ1L
+        PbCEOnGt145ShJmIH7xZjWucTTZLiDdW2Q8dfsXFvWNMFAFjWU2hih5jRvz15Por
+        NPKNeyugZwJWVoUXb8gHTnpDZNaERqpFprdshq+d1QARAQABiQEfBBgBAgAJBQJa
+        hth8AhsMAAoJEKQWXsD+lZtBrycH/1SxDZbwibUHGOyDm3mXSa530nFF6Y1wh93y
+        oVvp5y1AAxprwxt3EMxICLz2WYr0+7ZlvTOwyNJQeHWCvKQ9e70EV7H9+JpuKLxm
+        io4v40els9xPVWPjUPsRk2p/qvk8lut2SotIZksJhyfRb1yVBKb5uXdt2x16lhyZ
+        Bnei3Htz2yj1Q6nH8Ao/CUjMagWKjpyq7/79dY4T4aB7dZREh5w6OtnsjWPo3GZF
+        qO5dnPYHjoBBVBi1IdxhMMZblFFS7QSFCIPEbJtezhq+JR0pY0H94I6lD/g09/q4
+        N3cT8p2p34NmsmudLQbqwNeMvm6O+k1wC1DJNcL38tK7owbh2UE=
+        =hoBQ
+        -----END PGP PUBLIC KEY BLOCK-----
+        </pubkey>
+    http_version: 
+  recorded_at: Fri, 02 Mar 2018 09:23:48 GMT
+recorded_with: VCR 4.0.0

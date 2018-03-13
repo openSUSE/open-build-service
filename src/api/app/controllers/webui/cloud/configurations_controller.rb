@@ -5,6 +5,7 @@ module Webui
 
       def index
         @crumb_list.push << 'Configuration'
+        @azure_feature_active = Feature.active?(:cloud_upload_azure)
       end
 
       private

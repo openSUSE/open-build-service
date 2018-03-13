@@ -15,7 +15,8 @@ do
       perl-XML-Parser \
       libffi48-devel autoconf \
       ruby2.5-rubygem-mysql2 \
-      ruby2.5-rubygem-bundler
+      ruby2.5-rubygem-bundler \
+      tar
     ;;
 
   backend)

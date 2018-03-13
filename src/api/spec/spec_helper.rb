@@ -96,3 +96,7 @@ require 'support/logging'
 
 Dir['./spec/support/shared_contexts/*.rb'].each { |file| require file }
 Dir['./spec/support/shared_examples/*.rb'].each { |file| require file }
+
+# gpgme directory
+require 'gpgme'
+GPGME::Engine.home_dir = "#{__dir__}/.gnupg"

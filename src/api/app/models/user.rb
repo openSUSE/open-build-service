@@ -57,6 +57,7 @@ class User < ApplicationRecord
   has_one :user_registration
 
   has_one :ec2_configuration, class_name: 'Cloud::Ec2::Configuration', dependent: :destroy
+  has_one :azure_configuration, class_name: 'Cloud::Azure::Configuration', dependent: :destroy
   has_many :upload_jobs, class_name: 'Cloud::User::UploadJob', dependent: :destroy
 
   has_many :rss_feed_items, -> { order(created_at: :desc) }, class_name: 'Notification::RssFeedItem', as: :subscriber, dependent: :destroy

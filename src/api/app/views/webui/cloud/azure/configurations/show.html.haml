@@ -1,0 +1,35 @@
+%h1
+  Microsoft Azure Configuration
+
+%p
+  You need to provide an application id and an application key in order to allow OBS to upload images to your Azure account.
+  We will encrypt your configuration before it get stored in our database.
+
+%h2 How to Generate an Application ID and an Application Key
+
+%p
+  We've described all steps on our
+  = link_to 'Wiki page', 'https://github.com/openSUSE/open-build-service/wiki/Microsoft-Azure:-How-to-Generate-an-Application-ID-and-an-Application-Key', target: '_blank'
+
+%h2 Configuration for OBS
+
+- if @configuration_available
+  %div{ class: 'grid_16 alpha omega box-invisible' }
+    %div{ class: 'ui-state-info ui-corner-all ui-widget-shadow padding-10pt' }
+      %span{ class: 'ui-icon ui-icon-info' }
+        The current configuration is encrypted and cannot be shown.
+        = link_to 'Click here to delete it', cloud_azure_configuration_path, method: :delete, data: { confirm: 'Do you really want to delete the current configuration?' }
+- else
+  .container
+    .row.grid_8
+      = form_for @azure_configuration, url: cloud_azure_configuration_path, method: :put do |f|
+        .row.grid_12
+          = label_tag(:application_id, 'Application ID:')
+        .row.grid_12{ style: "margin-top: 8px;" }
+          = password_field_tag 'cloud_azure_configuration[application_id]', nil, style: 'width: 100%'
+        .row.grid_12{ style: "margin-top: 8px;" }
+          = label_tag(:application_key, 'Application Key:')
+        .row.grid_12{ style: "margin-top: 8px;" }
+          = password_field_tag 'cloud_azure_configuration[application_key]', nil, style: 'width: 100%'
+        .row.grid_12{ style: "margin-top: 8px;" }
+          = submit_tag "Submit"

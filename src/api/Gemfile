@@ -72,6 +72,8 @@ gem 'bunny'
 gem 'data_migrate', '= 3.4.0'
 # for URI encoding
 gem 'addressable'
+# gpg encryption/decryption
+gem 'gpgme'
 
 group :development, :production do
   # to have the delayed job daemon

@@ -38,6 +38,8 @@
 /src/api/mkmf.log
 /src/api/tmp
 /src/api/spec/examples.txt
+!/src/api/spec/.gnupg/.keep
+/src/api/spec/.gnupg/*
 /src/backend/blib
 /src/backend/BSConfig.pm
 /src/backend/BSSolv.bs
