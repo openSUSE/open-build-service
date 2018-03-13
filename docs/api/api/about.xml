@@ -3,5 +3,6 @@
   <title>Open Build Service API</title>
   <description>API to the Open Build Service</description>
   <revision>0.1</revision>
+  <last_deployment>Thu 01 Mar 2018 10:13:11 AM UTC</last_deployment>
   <documentation type="text/html" url="http://localhost:3001/apidocs"/>
 </about>
