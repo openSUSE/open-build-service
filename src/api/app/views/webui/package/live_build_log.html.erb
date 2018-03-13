@@ -1,15 +1,11 @@
 <% @pagetitle = "Live Build Log"
    @metarobots = 'noindex,nofollow'
-   package_bread_crumb 'Build Log' 
+   package_bread_crumb 'Build Log'
 -%>
 
 <% if @package.kind_of?(Package)%>
   <%= render :partial => "tabs" %>
 <% end %>
-
-<%= content_for :ready_function do %>
-  live_build_log_ready();
-<% end -%>
 
 <h2>Build Log for Package <%= @package %> (Project <%= @project %>)</h2>
 
@@ -25,8 +21,7 @@
 
 <%= render :partial => "live_log_controls" %>
 
-<div id="log_space_wrapper" 
-     data-offset="<%= @offset %>"
+<div id="log_space_wrapper"
      data-url="<%= url_for(action: :update_build_log,
 		   package: @package, project: @project,
                    status: @status,
@@ -37,3 +32,7 @@
 <% unless @workerid %>
   <%= render :partial => "live_log_controls" %>
 <% end %>
+
+<%= content_for :ready_function do %>
+  liveLog = new LiveLog('#log_space_wrapper', '.start_refresh', '.stop_refresh', '#status', <%= @finished %>).initialize();
+<% end -%>
