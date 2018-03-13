@@ -49,7 +49,7 @@ OBSApi::Application.routes.draw do
       get 'main/add_news_dialog' => :add_news_dialog
       post 'main/add_news' => :add_news
       get 'main/delete_message_dialog' => :delete_message_dialog
-      post 'main/delete_message' => :delete_message
+      delete 'main/delete_message/:message_id' => :delete_message, as: :main_delete_message
     end
 
     controller 'webui/feeds' do
@@ -92,7 +92,7 @@ OBSApi::Application.routes.draw do
       get 'monitor/' => :index
       get 'monitor/old' => :old
       get 'monitor/update_building' => :update_building
-      get 'monitor/events' => :events
+      get 'monitor/events' => :events, as: :monitor_events
     end
 
     defaults format: 'html' do
@@ -165,7 +165,7 @@ OBSApi::Application.routes.draw do
       get 'patchinfo/edit_patchinfo' => :edit_patchinfo
       get 'patchinfo/show/:project/:package' => :show, as: 'patchinfo_show', constraints: cons, defaults: { format: 'html' }
       get 'patchinfo/read_patchinfo' => :read_patchinfo
-      post 'patchinfo/save' => :save
+      post 'patchinfo/save/:project/:package' => :save, constraints: cons, as: :patchinfo_save
       post 'patchinfo/remove' => :remove
       get 'patchinfo/new_tracker' => :new_tracker
       get 'patchinfo/delete_dialog' => :delete_dialog

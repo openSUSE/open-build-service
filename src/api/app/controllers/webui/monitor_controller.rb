@@ -92,9 +92,8 @@ class Webui::MonitorController < Webui::WebuiController
   def events
     check_ajax
     data = {}
-    required_parameters :arch, :range
 
-    arch = params[:arch]
+    arch = params[:arch] || ''
     range = params[:range]
     ['waiting', 'blocked', 'squeue_high', 'squeue_med'].each do |prefix|
       data[prefix] = gethistory(prefix + '_' + arch, range, !discard_cache?).map { |time, value| [time * 1000, value] }

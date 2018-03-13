@@ -77,7 +77,6 @@ class Webui::AttributeController < Webui::WebuiController
   private
 
   def set_container
-    required_parameters :project
     begin
       @project = Project.get_by_name(params[:project])
     rescue APIException
