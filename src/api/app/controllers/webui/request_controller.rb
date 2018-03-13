@@ -188,7 +188,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def delete_request
-    required_parameters :project
     req = nil
     begin
       BsRequest.transaction do
