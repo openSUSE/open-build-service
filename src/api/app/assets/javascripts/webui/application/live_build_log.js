@@ -1,80 +1,86 @@
-function live_build_log_ready() { // jshint ignore:line, unused:true
-  var lw = $('#log_space_wrapper');
-  lw.data("autorefresh", 1);
-  lw.data("lastScroll", 0);
+var LiveLog = function(wrapperId, startButton, stopButton, status, finished) {
+  this.wrapper = $(wrapperId);
+  this.startButton = $(startButton);
+  this.stopButton = $(stopButton);
+  this.status = $(status);
+  this.initial = true;
+  this.lastScroll = 0;
+  this.ajaxRequest = 0;
+  this.offset = 0;
+  this.finished = finished;
+};
 
-  refresh(lw.data("offset"), 1);
-  $('.start_refresh').click(startRefresh);
-  $('.stop_refresh').click(stopRefresh);
-}
+$.extend(LiveLog.prototype, {
+  initialize: function() {
+    this.startButton.click($.proxy(this.start, this));
+    this.stopButton.click($.proxy(this.stop, this));
+    this.start();
+    this.initial = false;
+    return this;
+  },
 
-function build_finished() { // jshint ignore:line
-  stopRefresh();
-  $('#status').html('Build finished');
-}
+  start: function() {
+    if (!this.finished) {
+      this.autoRefresh = true;
+      this.lastScroll = 0;
+      this.loadContent();
+      this.startButton.hide();
+      this.stopButton.show();
+    }
+    return false;
+  },
 
-function startRefresh() {
-  var lw = $('#log_space_wrapper');
-  lw.data("autorefresh", 1);
-  lw.data("lastScroll", 0);
-  refresh(lw.data("offset"), 0);
-  $('.start_refresh').hide();
-  $('.stop_refresh').show();
-  return false;
-}
+  stop: function() {
+    this.autoRefresh = false;
+    this.stopAjaxRequest();
+    this.stopButton.hide();
+    this.startButton.show();
+    return false;
+  },
 
-function stopRefresh() {
-  var lw = $('#log_space_wrapper');
-  lw.data("autorefresh", 0);
-  if (lw.data("ajaxreq") !== 0)
-    lw.data("ajaxreq").abort();
-  lw.data("ajaxreq", 0);
-  $('.stop_refresh').hide();
-  $('.start_refresh').show();
-  return false;
-}
+  loadContent: function() {
+    if (this.autoRefresh) {
+      var url = this.wrapper.data('url') + '&offset=' + this.offset + ';&' + 'initial=' + (this.initial ? '1' : '0');
+      this.ajaxRequest = $.ajax({
+        type: 'GET',
+        url: url,
+        data: null,
+        error: this.stop,
+        cache: false
+      });
+    }
+  },
 
-function refresh(newoffset, initial) {
-  autoscroll();
-  var lw = $('#log_space_wrapper');
-  lw.data("offset", newoffset);
-  if (lw.data("autorefresh")) {
-    var options = { type: 'GET',
-      data: null,
-      error: 'stopRefresh()',
-      completed: 'remove_ajaxreq()',
-      cache: false };
+  autoScroll: function() {
+    // just return in case the user scrolled up
+    if (this.lastScroll > window.pageYOffset) { return; }
+    // stop loadContent if the user scrolled down
+    if (this.lastScroll < window.pageYOffset && this.lastScroll) { this.stop(); return; }
+    var targetOffset = $('#footer').offset().top - window.innerHeight;
+    window.scrollTo(0, targetOffset);
+    this.lastScroll = window.pageYOffset;
+  },
 
-    var baseurl = lw.data('url');
-    options.url = baseurl + '&offset=' + lw.data("offset") + ';&' + 'initial=' + initial;
-    lw.data("ajaxreq", $.ajax(options));
+  finish: function() { // jshint ignore:line
+    this.finished = true;
+    this.stop();
+    this.status.html('Build finished');
+    this.hideAbort();
+  },
+
+  stopAjaxRequest: function() { // jshint ignore:line
+    if (this.ajaxRequest !== 0)
+      this.ajaxRequest.abort();
+    this.ajaxRequest = 0;
+  },
+
+  showAbort: function() { // jshint ignore:line
+    $(".link_abort_build").show();
+    $(".link_trigger_rebuild").hide();
+  },
+
+  hideAbort: function() { // jshint ignore:line
+    $(".link_abort_build").hide();
+    $(".link_trigger_rebuild").show();
   }
-}
-
-function autoscroll() {
-  var lw = $('#log_space_wrapper');
-  if (!lw.data("autorefresh")) { return; }
-  var lastScroll = lw.data("lastScroll");
-  // just return in case the user scrolled up
-  if (lastScroll > window.pageYOffset) { return; }
-  // stop refresh if the user scrolled down
-  if (lastScroll < window.pageYOffset && lastScroll) { stopRefresh(); return; }
-  var targetOffset = $('#footer').offset().top - window.innerHeight;
-  window.scrollTo( 0, targetOffset );
-  lw.data("lastScroll", window.pageYOffset);
-}
-
-function remove_ajaxreq() { // jshint ignore:line
-  var lw = $('#log_space_wrapper');
-  lw.data("ajaxreq", 0);
-}
-
-function show_abort() { // jshint ignore:line
-  $(".link_abort_build").show();
-  $(".link_trigger_rebuild").hide();
-}
-
-function hide_abort() { // jshint ignore:line
-  $(".link_abort_build").hide();
-  $(".link_trigger_rebuild").show();
-}
+});
