@@ -162,12 +162,10 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def autocomplete
-    required_parameters :term
     render json: User.autocomplete_login(params[:term])
   end
 
   def tokens
-    required_parameters :q
     render json: User.autocomplete_token(params[:q])
   end
 
