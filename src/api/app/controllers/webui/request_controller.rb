@@ -17,7 +17,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def add_reviewer
-    required_parameters :review_type
     begin
       opts = {}
       case params[:review_type]
