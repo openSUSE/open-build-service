@@ -45,7 +45,7 @@ $.extend(LiveLog.prototype, {
         type: 'GET',
         url: url,
         data: null,
-        error: this.stop,
+        error: $.proxy(this.stop, this),
         cache: false
       });
     }
