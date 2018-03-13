@@ -1340,8 +1340,6 @@ sub runningfetchprojpacks {
     my $meta;
     my $all;
     for my $async ($handle, map {$_->{'async'}} $gctx->{'rctx'}->xrpc_nextparams($handle)) {
-      # workaround for rpcs that are delayed due to server load
-      $async = $async->{'_xrpc_data'}->[2]->{'async'} if $async && $async->{'_xrpc_data'};
       next if !$async || ($async->{'_projid'} || '') ne $projid;
       $good = 1;
       if ($async->{'_packids'}) {

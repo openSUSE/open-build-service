@@ -304,7 +304,9 @@ sub xrpc_resume {
 
 sub xrpc_nextparams {
   my ($rctx, $handle) = @_;
-  return map {$_->{'_xrpc_data'}->[2]} @{$handle->{'_nextxrpc'} || []};
+  my @next = @{$handle->{'_nextxrpc'} || []};
+  unshift @next, $handle if $handle->{'_xrpc_data'};	# waiting because of server load
+  return map {$_->{'_xrpc_data'}->[2]} @next;		# map to param argument
 }
 
 1;
