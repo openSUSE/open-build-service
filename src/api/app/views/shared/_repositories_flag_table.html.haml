@@ -16,7 +16,7 @@
       %td.reponame
         %strong{ title: repository.name }
           - if @package
-            = link_to(elide(repository.name, 18), action: 'binaries', controller: :package, project: @project, package: @package, repository: repository.name)
+            = link_to(elide(repository.name, 18), package_binaries_path(project: @project, package: @package, repository: repository.name))
           - else
             = link_to(elide(repository.name, 18), action: :state, project: @project, repository: repository.name)
       - flags[repository.name].each_with_index do |flag, index|

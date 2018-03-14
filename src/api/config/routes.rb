@@ -99,12 +99,11 @@ OBSApi::Application.routes.draw do
       controller 'webui/package' do
         get 'package/show/:project/:package' => :show, as: 'package_show', constraints: cons
         get 'package/dependency/:project/:package' => :dependency, constraints: cons
-        get 'package/binary/:project/:package' => :binary, constraints: cons, as: 'package_binary'
-        get 'package/binaries/:project/:package' => :binaries, constraints: cons, as: 'package_binaries'
+        get 'package/binary/:project/:package/:repository/:arch/:filename' => :binary, constraints: cons, as: 'package_binary'
+        get 'package/binaries/:project/:package/:repository' => :binaries, constraints: cons, as: 'package_binaries'
         get 'package/users/:project/:package' => :users, as: 'package_users', constraints: cons
         get 'package/requests/:project/:package' => :requests, as: 'package_requests', constraints: cons
-        get 'package/statistics/:project/:package' => :statistics, as: 'package_statistics', constraints: cons
-        get 'package/commit/:project/:package' => :commit, as: 'package_commit', constraints: cons
+        get 'package/statistics/:project/:package/:repository/:arch' => :statistics, as: 'package_statistics', constraints: cons
         get 'package/revisions/:project/:package' => :revisions, constraints: cons, as: 'package_view_revisions'
         post 'package/submit_request/:project/:package' => :submit_request, constraints: cons
         get 'package/add_person/:project/:package' => :add_person, constraints: cons
@@ -116,7 +115,7 @@ OBSApi::Application.routes.draw do
         post 'package/remove/:project/:package' => :remove, constraints: cons
         get 'package/add_file/:project/:package' => :add_file, constraints: cons
         post 'package/save_file/:project/:package' => :save_file, constraints: cons
-        post 'package/remove_file/:project/:package' => :remove_file, constraints: cons
+        post 'package/remove_file/:project/:package/:filename' => :remove_file, constraints: cons
         post 'package/save_person/:project/:package' => :save_person, constraints: cons
         post 'package/save_group/:project/:package' => :save_group, constraints: cons
         post 'package/remove_role/:project/:package' => :remove_role, constraints: cons
@@ -135,7 +134,7 @@ OBSApi::Application.routes.draw do
         get 'package/devel_project/:project/:package' => :devel_project, constraints: cons
         get 'package/buildresult' => :buildresult, constraints: cons
         get 'package/rpmlint_result' => :rpmlint_result, constraints: cons
-        get 'package/rpmlint_log' => :rpmlint_log, constraints: cons
+        get 'package/rpmlint_log/:project/:package/:repository/:arch' => :rpmlint_log, constraints: cons
         get 'package/meta/:project/:package' => :meta, constraints: cons, as: 'package_meta'
         post 'package/save_meta/:project/:package' => :save_meta, constraints: cons
         # compat route

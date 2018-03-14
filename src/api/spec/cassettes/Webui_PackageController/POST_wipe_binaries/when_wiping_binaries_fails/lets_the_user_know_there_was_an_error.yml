@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 27 Apr 2017 14:24:16 GMT
+  recorded_at: Fri, 09 Mar 2018 15:23:44 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Ring of Bright Water</title>
-          <description>Molestiae ut sit ut iusto.</description>
+          <title>Françoise Sagan</title>
+          <description>Quis molestiae qui quibusdam nihil aliquid porro harum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '177'
     body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title>Ring of Bright Water</title>
-          <description>Molestiae ut sit ut iusto.</description>
-        </package>
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0ibXlfcGFja2FnZSIgcHJvamVjdD0iaG9tZTp0b20iPgogIDx0aXRsZT5GcmFuw6dvaXNlIFNhZ2FuPC90aXRsZT4KICA8ZGVzY3JpcHRpb24+UXVpcyBtb2xlc3RpYWUgcXVpIHF1aWJ1c2RhbSBuaWhpbCBhbGlxdWlkIHBvcnJvIGhhcnVtLjwvZGVzY3JpcHRpb24+CjwvcGFja2FnZT4K
     http_version: 
-  recorded_at: Thu, 27 Apr 2017 14:24:16 GMT
+  recorded_at: Fri, 09 Mar 2018 15:23:44 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta
@@ -87,8 +84,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Ring of Bright Water</title>
-          <description>Molestiae ut sit ut iusto.</description>
+          <title>Françoise Sagan</title>
+          <description>Quis molestiae qui quibusdam nihil aliquid porro harum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,19 +106,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '177'
     body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title>Ring of Bright Water</title>
-          <description>Molestiae ut sit ut iusto.</description>
-        </package>
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0ibXlfcGFja2FnZSIgcHJvamVjdD0iaG9tZTp0b20iPgogIDx0aXRsZT5GcmFuw6dvaXNlIFNhZ2FuPC90aXRsZT4KICA8ZGVzY3JpcHRpb24+UXVpcyBtb2xlc3RpYWUgcXVpIHF1aWJ1c2RhbSBuaWhpbCBhbGlxdWlkIHBvcnJvIGhhcnVtLjwvZGVzY3JpcHRpb24+CjwvcGFja2FnZT4K
     http_version: 
-  recorded_at: Thu, 27 Apr 2017 14:24:16 GMT
+  recorded_at: Fri, 09 Mar 2018 15:23:44 GMT
 - request:
     method: post
-    uri: http://backend:5352/build/home:tom?cmd=wipe&package=my_package
+    uri: http://backend:5352/build/home:tom?cmd=wipe&package=my_package&repository=non_existant_repository
     body:
       encoding: UTF-8
       string: ''
@@ -154,5 +148,5 @@ http_interactions:
           <summary>no repository defined</summary>
         </status>
     http_version: 
-  recorded_at: Thu, 27 Apr 2017 14:24:16 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Fri, 09 Mar 2018 15:23:44 GMT
+recorded_with: VCR 4.0.0

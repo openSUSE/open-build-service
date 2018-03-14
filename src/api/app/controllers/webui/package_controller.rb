@@ -126,7 +126,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def statistics
-    required_parameters :arch, :repository
     @arch = params[:arch]
     @repository = params[:repository]
     @statistics = nil
@@ -142,7 +141,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def binary
-    required_parameters :arch, :repository, :filename
     @arch = params[:arch]
     @repository = params[:repository]
     # Ensure it really is just a file name, no '/..', etc.
@@ -170,7 +168,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def binaries
-    required_parameters :repository
     @repository = params[:repository]
 
     results_from_backend = Buildresult.find_hashed(project: @project, package: @package, repository: @repository, view: ['binarylist', 'status'])
@@ -214,11 +211,6 @@ class Webui::PackageController < Webui::WebuiController
     @available_states = ['new or review', 'new', 'review', 'accepted', 'declined', 'revoked', 'superseded']
   end
 
-  def commit
-    required_parameters :revision
-    render partial: 'commit_item', locals: { rev: params[:revision] }
-  end
-
   def revisions
     unless @package.check_source_access?
       flash[:error] = 'Could not access revisions'
@@ -257,8 +249,6 @@ class Webui::PackageController < Webui::WebuiController
 
   # FIXME: This should be in Webui::RequestController
   def submit_request
-    required_parameters :project, :package
-
     target_project_name = params[:targetproject].try(:strip)
     package_name = params[:package].strip
     project_name = params[:project].strip
@@ -703,7 +693,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def remove_file
-    required_parameters :filename
     filename = params[:filename]
     begin
       @package.delete_file filename
@@ -894,16 +883,15 @@ class Webui::PackageController < Webui::WebuiController
 
     if @package.wipe_binaries(params)
       flash[:notice] = "Triggered wipe binaries for #{@project.name}/#{@package.name} successfully."
-      redirect_to package_binaries_path(project: @project, package: @package, repository: params[:repository])
     else
       flash[:error] = "Error while triggering wipe binaries for #{@project.name}/#{@package.name}: #{@package.errors.full_messages.to_sentence}."
-      redirect_to package_binaries_path(project: @project, package: @package, repository: params[:repository])
     end
+
+    redirect_to package_binaries_path(project: @project, package: @package, repository: params[:repository])
   end
 
   def devel_project
     check_ajax
-    required_parameters :package, :project
     tgt_pkg = Package.find_by_project_and_name(params[:project], params[:package])
 
     render plain: tgt_pkg.try(:develpackage).try(:project).to_s
@@ -969,14 +957,11 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def rpmlint_log
-    required_parameters :project, :package, :repository, :architecture
-    begin
-      @log = Backend::Api::BuildResults::Binaries.rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
-      @log.encode!(xml: :text)
-      render partial: 'rpmlint_log'
-    rescue ActiveXML::Transport::NotFoundError
-      render plain: 'No rpmlint log'
-    end
+    @log = Backend::Api::BuildResults::Binaries.rpmlint_log(params[:project], params[:package], params[:repository], params[:arch])
+    @log.encode!(xml: :text)
+    render partial: 'rpmlint_log'
+  rescue ActiveXML::Transport::NotFoundError
+    render plain: 'No rpmlint log'
   end
 
   def meta

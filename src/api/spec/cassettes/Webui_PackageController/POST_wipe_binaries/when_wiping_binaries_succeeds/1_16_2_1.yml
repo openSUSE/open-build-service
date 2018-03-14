@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 27 Apr 2017 14:24:15 GMT
+  recorded_at: Fri, 09 Mar 2018 15:56:36 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
@@ -51,7 +51,7 @@ http_interactions:
           <title/>
           <description/>
           <person userid="tom" role="maintainer"/>
-          <repository name="repository_2">
+          <repository name="my_repository">
             <arch>i586</arch>
           </repository>
         </project>
@@ -74,7 +74,7 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '202'
+      - '203'
     body:
       encoding: UTF-8
       string: |
@@ -82,12 +82,12 @@ http_interactions:
           <title></title>
           <description></description>
           <person userid="tom" role="maintainer" />
-          <repository name="repository_2">
+          <repository name="my_repository">
             <arch>i586</arch>
           </repository>
         </project>
     http_version: 
-  recorded_at: Thu, 27 Apr 2017 14:24:15 GMT
+  recorded_at: Fri, 09 Mar 2018 15:56:36 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -95,8 +95,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Dolores odit facere dicta.</description>
+          <title>East of Eden</title>
+          <description>Fuga voluptas provident dolorem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -117,16 +117,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Dolores odit facere dicta.</description>
+          <title>East of Eden</title>
+          <description>Fuga voluptas provident dolorem.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 27 Apr 2017 14:24:15 GMT
+  recorded_at: Fri, 09 Mar 2018 15:56:36 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta
@@ -134,8 +134,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Dolores odit facere dicta.</description>
+          <title>East of Eden</title>
+          <description>Fuga voluptas provident dolorem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -156,19 +156,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Dolores odit facere dicta.</description>
+          <title>East of Eden</title>
+          <description>Fuga voluptas provident dolorem.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 27 Apr 2017 14:24:15 GMT
+  recorded_at: Fri, 09 Mar 2018 15:56:36 GMT
 - request:
     method: post
-    uri: http://backend:5352/build/home:tom?cmd=wipe&package=my_package
+    uri: http://backend:5352/build/home:tom?cmd=wipe&package=my_package&repository=my_repository
     body:
       encoding: UTF-8
       string: ''
@@ -200,5 +200,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Thu, 27 Apr 2017 14:24:15 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Fri, 09 Mar 2018 15:56:36 GMT
+recorded_with: VCR 4.0.0

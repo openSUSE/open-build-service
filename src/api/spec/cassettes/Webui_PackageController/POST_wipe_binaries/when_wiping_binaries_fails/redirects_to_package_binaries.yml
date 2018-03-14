@@ -1,0 +1,39 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://backend:5352/build/home:tom?cmd=wipe&package=my_package&repository=non_existant_repository
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: no repository defined
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '73'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="400">
+          <summary>no repository defined</summary>
+        </status>
+    http_version: 
+  recorded_at: Fri, 09 Mar 2018 15:31:54 GMT
+recorded_with: VCR 4.0.0

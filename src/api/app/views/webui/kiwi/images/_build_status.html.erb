@@ -22,7 +22,7 @@
   </div>
 <% end %>
 <p style="padding: 0 1ex">
-  <%= link_to(sprite_tag("package_go", alt: "Download Image", title: "Download Image") + ' Download images', { action: :binaries, controller: '/webui/package', project: @project, package: @image.package, repository: 'images' }, { title: 'Download images' }) %>
+  <%= link_to(sprite_tag("package_go", alt: "Download Image", title: "Download Image") + ' Download images', package_binaries_path(project: @project, package: @image.package, repository: 'images'), { title: 'Download images' }) %>
 </p>
 <%= javascript_tag do %>
   $('.unresolvable, .blocked').click(function() {
