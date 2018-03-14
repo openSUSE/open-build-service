@@ -153,7 +153,7 @@ end
 #  http_proxy                           :string(255)
 #  no_proxy                             :string(255)
 #  theme                                :string(255)
-#  obs_url                              :string(255)
+#  obs_url                              :string(255)      default("https://unconfigured.openbuildservice.org")
 #  cleanup_after_days                   :integer
 #  admin_email                          :string(255)      default("unconfigured@openbuildservice.org")
 #  cleanup_empty_projects               :boolean          default(TRUE)
