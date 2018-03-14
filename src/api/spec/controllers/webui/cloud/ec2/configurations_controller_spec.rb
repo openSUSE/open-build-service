@@ -15,7 +15,7 @@ RSpec.describe Webui::Cloud::Ec2::ConfigurationsController, type: :controller do
       end
 
       it 'creates an EC2 configuration' do
-        expect(user.ec2_configuration).not_to be_nil
+        expect(user.ec2_configuration).to_not be_nil
       end
     end
 
@@ -44,7 +44,7 @@ RSpec.describe Webui::Cloud::Ec2::ConfigurationsController, type: :controller do
       end
 
       it { expect(ec2_configuration.arn).to eq('arn:123:456') }
-      it { expect(flash[:success]).not_to be_nil }
+      it { expect(flash[:success]).to_not be_nil }
     end
 
     context 'with invalid parameters' do
@@ -54,8 +54,8 @@ RSpec.describe Webui::Cloud::Ec2::ConfigurationsController, type: :controller do
         end
       end
 
-      it { expect(ec2_configuration.arn).not_to eq('123') }
-      it { expect(flash[:error]).not_to be_nil }
+      it { expect(ec2_configuration.arn).to_not eq('123') }
+      it { expect(flash[:error]).to_not be_nil }
     end
   end
 end

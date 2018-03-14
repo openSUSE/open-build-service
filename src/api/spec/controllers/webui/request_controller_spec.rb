@@ -362,7 +362,7 @@ RSpec.describe Webui::RequestController, vcr: true do
           post :changerequest, params: { number: bs_request.number, accepted: 'accepted',
                                          forward_devel_0: "#{devel_package.project}_#_#{devel_package}",
                                          description: 'blah blah blah' }
-        end.not_to change(BsRequest, :count)
+        end.to_not change(BsRequest, :count)
         expect(bs_request.reload.state).to eq(:accepted)
         expect(flash[:notice]).to match('Request \\d accepted')
         expect(flash[:error]).to eq('Unable to forward submit request: some error')
@@ -383,7 +383,7 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       it { expect(response).to redirect_to(request_show_path(number: @bs_request)) }
       it { expect(flash[:success]).to be nil }
-      it { expect(@bs_request).not_to be nil }
+      it { expect(@bs_request).to_not be nil }
       it { expect(@bs_request.description).to eq('change it!') }
 
       it 'creates a request action with correct data' do

@@ -121,7 +121,7 @@ RSpec.describe Relationship do
         create(:relationship_project_user, project: project, user: confirmed_user)
       end
 
-      it { expect(Relationship.forbidden_project_ids).not_to include(project.id) }
+      it { expect(Relationship.forbidden_project_ids).to_not include(project.id) }
     end
   end
 

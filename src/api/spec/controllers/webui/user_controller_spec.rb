@@ -169,8 +169,8 @@ RSpec.describe Webui::UserController do
         non_admin_user.reload
       end
 
-      it { expect(non_admin_user.realname).not_to eq('another real name') }
-      it { expect(non_admin_user.email).not_to eq('new_valid@email.es') }
+      it { expect(non_admin_user.realname).to_not eq('another real name') }
+      it { expect(non_admin_user.email).to_not eq('new_valid@email.es') }
       it { expect(flash[:error]).to eq("Can't edit #{non_admin_user.login}") }
       it { is_expected.to redirect_to(root_url) }
     end
@@ -204,7 +204,7 @@ RSpec.describe Webui::UserController do
       it { expect(user.ignore_auth_services).to be true }
       it { is_expected.to redirect_to user_show_path(user) }
       it "updates the user's roles" do
-        expect(user.roles).not_to include(old_global_role)
+        expect(user.roles).to_not include(old_global_role)
         expect(user.roles).to include(*new_global_roles)
       end
       it 'does not remove non global roles' do
@@ -406,7 +406,7 @@ RSpec.describe Webui::UserController do
         post :register, params: { login: already_registered_user.login, email: already_registered_user.email, password: 'buildservice' }
       end
 
-      it { expect(flash[:error]).not_to be nil }
+      it { expect(flash[:error]).to_not be nil }
       it { expect(response).to redirect_to root_path }
     end
 

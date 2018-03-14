@@ -60,7 +60,7 @@ RSpec.describe Webui::AttributeController do
         end
 
         it { expect(assigns(:attribute).values.length).to be(assigns(:attribute).attrib_type.value_count) }
-        it { expect(assigns(:attribute).values.last.value).not_to be_empty }
+        it { expect(assigns(:attribute).values.last.value).to_not be_empty }
       end
 
       context 'with more values, nothing changes' do
@@ -75,7 +75,7 @@ RSpec.describe Webui::AttributeController do
         end
 
         it { expect(assigns(:attribute).values.length).to be(assigns(:attribute).attrib_type.value_count + 1) }
-        it { expect(assigns(:attribute).values.last.value).not_to be_empty }
+        it { expect(assigns(:attribute).values.last.value).to_not be_empty }
       end
 
       context 'with less values, it fills up values till value_count' do
@@ -140,7 +140,7 @@ RSpec.describe Webui::AttributeController do
       end
 
       it { expect(response).to redirect_to(root_path) }
-      it { expect(flash[:error]).not_to be_nil }
+      it { expect(flash[:error]).to_not be_nil }
     end
   end
 
@@ -169,7 +169,7 @@ RSpec.describe Webui::AttributeController do
       end
 
       it { expect(response).to redirect_to(root_path) }
-      it { expect(flash[:error]).not_to be_nil }
+      it { expect(flash[:error]).to_not be_nil }
     end
   end
 

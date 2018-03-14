@@ -133,7 +133,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       it { expect(flash[:error]).to eq('Unable to submit: The source of package home:tom/my_package is broken') }
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
-      it { expect(BsRequestActionSubmit.where(target_project: target_project.name, target_package: source_package.name)).not_to exist }
+      it { expect(BsRequestActionSubmit.where(target_project: target_project.name, target_package: source_package.name)).to_not exist }
     end
 
     context 'a submit request that fails due to validation errors' do
@@ -146,7 +146,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       it { expect(flash[:error]).to eq("Unable to submit: Validation failed: Creator Login #{unconfirmed_user.login} is not an active user") }
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: package)) }
-      it { expect(BsRequestActionSubmit.where(target_project: target_project.name, target_package: package.name)).not_to exist }
+      it { expect(BsRequestActionSubmit.where(target_project: target_project.name, target_package: package.name)).to_not exist }
     end
 
     context 'unchanged sources' do
@@ -156,7 +156,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       it { expect(flash[:error]).to eq('Unable to submit, sources are unchanged') }
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: package)) }
-      it { expect(BsRequestActionSubmit.where(target_project: source_project.name, target_package: package.name)).not_to exist }
+      it { expect(BsRequestActionSubmit.where(target_project: source_project.name, target_package: package.name)).to_not exist }
     end
 
     context 'invalid request (missing parameters)' do
@@ -166,7 +166,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       it { expect(flash[:error]).to eq("Unable to submit: #{source_project}/") }
       it { expect(response).to redirect_to(project_show_path(project: source_project)) }
-      it { expect(BsRequestActionSubmit.where(target_project: source_project.name)).not_to exist }
+      it { expect(BsRequestActionSubmit.where(target_project: source_project.name)).to_not exist }
     end
 
     context 'sending a submit request without target' do
@@ -179,7 +179,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it { expect(response).to redirect_to(root_path) }
-      it { expect(BsRequestActionSubmit.where(target_project: target_project, target_package: target_package)).not_to exist }
+      it { expect(BsRequestActionSubmit.where(target_project: target_project, target_package: target_package)).to_not exist }
     end
   end
 
@@ -273,7 +273,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         post :remove, params: { project: target_project, package: target_package }
 
         expect(flash[:error]).to eq('Sorry, you are not authorized to delete this Package.')
-        expect(target_project.packages).not_to be_empty
+        expect(target_project.packages).to_not be_empty
       end
 
       it "allows admins to delete other user's packages" do
@@ -308,7 +308,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         post :remove, params: { project: user.home_project, package: source_package }
 
         expect(flash[:notice]).to eq "Package can't be removed: used as devel package by #{target_project}/#{devel_project}"
-        expect(user.home_project.packages).not_to be_empty
+        expect(user.home_project.packages).to_not be_empty
       end
 
       context 'forcing the deletion' do
@@ -455,7 +455,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         it { expect(response).to have_http_status(expected_success_status) }
         it { expect(flash[:success]).to eq("The file '学习总结' has been successfully saved.") }
         it 'creates the file' do
-          expect { source_package.source_file('学习总结') }.not_to raise_error
+          expect { source_package.source_file('学习总结') }.to_not raise_error
           expect(URI.encode(source_package.source_file('学习总结'))).to eq(URI.encode(file_to_upload))
         end
       end
@@ -475,7 +475,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         it { expect(flash[:success]).to eq("The file 'remote_file' has been successfully saved.") }
         # Uploading a remote file creates a service instead of downloading it directly!
         it 'creates a valid service file' do
-          expect { source_package.source_file('_service') }.not_to raise_error
+          expect { source_package.source_file('_service') }.to_not raise_error
           expect { source_package.source_file('remote_file') }.to raise_error ActiveXML::Transport::NotFoundError
 
           created_service = source_package.source_file('_service')
@@ -1048,7 +1048,7 @@ RSpec.describe Webui::PackageController, vcr: true do
           do_request project: source_project, package: source_package, repository: 'nonrepository', arch: 'i586'
         end
 
-        it { expect(flash[:error]).not_to be_nil }
+        it { expect(flash[:error]).to_not be_nil }
         it { expect(response).to redirect_to(package_show_path(source_project, source_package)) }
       end
 
@@ -1057,7 +1057,7 @@ RSpec.describe Webui::PackageController, vcr: true do
           do_request project: source_project, package: source_package, repository: repo_leap_42_2.name, arch: 'i566'
         end
 
-        it { expect(flash[:error]).not_to be_nil }
+        it { expect(flash[:error]).to_not be_nil }
         it { expect(response).to redirect_to(package_show_path(source_project, source_package)) }
       end
 
@@ -1116,7 +1116,7 @@ RSpec.describe Webui::PackageController, vcr: true do
           do_request project: source_project, package: source_package, repository: 'nonrepository', arch: 'i586'
         end
 
-        it { expect(assigns(:errors)).not_to be_nil }
+        it { expect(assigns(:errors)).to_not be_nil }
         it { expect(response).to have_http_status(:ok) }
       end
 
@@ -1125,7 +1125,7 @@ RSpec.describe Webui::PackageController, vcr: true do
           do_request project: source_project, package: source_package, repository: repo_leap_42_2.name, arch: 'i566'
         end
 
-        it { expect(assigns(:errors)).not_to be_nil }
+        it { expect(assigns(:errors)).to_not be_nil }
         it { expect(response).to have_http_status(:ok) }
       end
 
@@ -1144,7 +1144,7 @@ RSpec.describe Webui::PackageController, vcr: true do
           do_request params
         end
 
-        it { expect(assigns(:log_chunk)).not_to be_nil }
+        it { expect(assigns(:log_chunk)).to_not be_nil }
         it { expect(assigns(:package)).to eq("#{source_package}:multibuild-package") }
         it { expect(assigns(:project)).to eq(source_project) }
         it { expect(assigns(:offset)).to eq(0) }
@@ -1332,10 +1332,10 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     it { expect(response).to have_http_status(:success) }
     it { expect(assigns(:repo_list)).to include(['openSUSE_Leap_42.1', 'openSUSE_Leap_42_1']) }
-    it { expect(assigns(:repo_list)).not_to include(['images', 'images']) }
-    it { expect(assigns(:repo_list)).not_to include(['openSUSE_Tumbleweed', 'openSUSE_Tumbleweed']) }
+    it { expect(assigns(:repo_list)).to_not include(['images', 'images']) }
+    it { expect(assigns(:repo_list)).to_not include(['openSUSE_Tumbleweed', 'openSUSE_Tumbleweed']) }
     it { expect(assigns(:repo_arch_hash)['openSUSE_Leap_42_1']).to include('x86_64') }
-    it { expect(assigns(:repo_arch_hash)['openSUSE_Leap_42_1']).not_to include('armv7l') }
+    it { expect(assigns(:repo_arch_hash)['openSUSE_Leap_42_1']).to_not include('armv7l') }
   end
 
   describe 'GET #submit_request_dialog' do

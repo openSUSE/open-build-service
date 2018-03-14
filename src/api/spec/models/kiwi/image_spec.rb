@@ -212,8 +212,8 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
 
         it 'output the xml for the preferences type' do
           expect(subject.xpath('.//image/preferences').length).to be(1)
-          expect(subject.xpath('.//image/preferences/type/containerconfig').first).not_to be_nil
-          expect(subject.xpath('.//image/preferences/version').first).not_to be_nil
+          expect(subject.xpath('.//image/preferences/type/containerconfig').first).to_not be_nil
+          expect(subject.xpath('.//image/preferences/version').first).to_not be_nil
         end
       end
 
@@ -235,7 +235,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
         subject { kiwi_image.to_xml }
 
         it 'output the xml without any mention of containerconfig' do
-          expect(subject).not_to include('<containerconfig')
+          expect(subject).to_not include('<containerconfig')
         end
       end
     end
@@ -349,7 +349,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
     context 'without a package' do
       it { expect(kiwi_image.write_to_backend).to be(false) }
       it 'will not call save! method' do
-        expect(kiwi_image).not_to receive(:save!)
+        expect(kiwi_image).to_not receive(:save!)
         kiwi_image.write_to_backend
       end
     end

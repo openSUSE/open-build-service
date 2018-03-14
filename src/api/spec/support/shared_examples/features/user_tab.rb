@@ -32,9 +32,9 @@ RSpec.shared_examples 'user tab' do
       expect(page).to have_text('User Roles')
       expect(find('#user_maintainer_user_tab_user')).to be_checked
       expect(find('#user_bugowner_user_tab_user')).to be_checked
-      expect(find('#user_reviewer_user_tab_user')).not_to be_checked
-      expect(find('#user_downloader_user_tab_user')).not_to be_checked
-      expect(find('#user_reader_user_tab_user')).not_to be_checked
+      expect(find('#user_reviewer_user_tab_user')).to_not be_checked
+      expect(find('#user_downloader_user_tab_user')).to_not be_checked
+      expect(find('#user_reader_user_tab_user')).to_not be_checked
       expect(page).to have_selector("a > img[title='Remove user']")
     end
 
@@ -67,7 +67,7 @@ RSpec.shared_examples 'user tab' do
       expect(page).to have_css('a', text: "#{reader.realname} (reader_user)")
       find('#user-reader_user a.remove-user').click
       expect(page).to have_text('Removed user reader_user')
-      expect(page).not_to have_css('a', text: "#{reader.realname} (reader_user)")
+      expect(page).to_not have_css('a', text: "#{reader.realname} (reader_user)")
     end
 
     scenario 'Add role to user' do
@@ -85,7 +85,7 @@ RSpec.shared_examples 'user tab' do
 
       visit project_path
       click_link('Users')
-      expect(find('#user_bugowner_user_tab_user')).not_to be_checked
+      expect(find('#user_bugowner_user_tab_user')).to_not be_checked
     end
   end
 
@@ -111,9 +111,9 @@ RSpec.shared_examples 'user tab' do
       expect(page).to have_text('Group Roles')
       expect(find('#group_maintainer_existing_group')).to be_checked
       expect(find('#group_bugowner_existing_group')).to be_checked
-      expect(find('#group_reviewer_existing_group')).not_to be_checked
-      expect(find('#group_downloader_existing_group')).not_to be_checked
-      expect(find('#group_reader_existing_group')).not_to be_checked
+      expect(find('#group_reviewer_existing_group')).to_not be_checked
+      expect(find('#group_downloader_existing_group')).to_not be_checked
+      expect(find('#group_reader_existing_group')).to_not be_checked
       expect(page).to have_selector("a > img[title='Remove group']")
     end
 
@@ -157,7 +157,7 @@ RSpec.shared_examples 'user tab' do
 
       visit project_path
       click_link('Users')
-      expect(find('#group_bugowner_existing_group')).not_to be_checked
+      expect(find('#group_bugowner_existing_group')).to_not be_checked
     end
   end
 end

@@ -23,7 +23,7 @@ RSpec.describe Cloud::User::UploadJobPolicy do
     end
 
     it 'does not allow users to see logs of other user' do
-      expect(subject).not_to permit(user, upload_job)
+      expect(subject).to_not permit(user, upload_job)
     end
   end
 

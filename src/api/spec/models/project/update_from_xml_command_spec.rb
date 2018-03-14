@@ -224,7 +224,7 @@ RSpec.describe Project::UpdateFromXmlCommand do
           expect(repository_1.download_repositories).to be_empty
 
           dod_repo = project.repositories.find_by(name: 'dod_repo')
-          expect(dod_repo).not_to be_nil
+          expect(dod_repo).to_not be_nil
           expect(dod_repo.download_repositories.count).to eq 1
         end
 

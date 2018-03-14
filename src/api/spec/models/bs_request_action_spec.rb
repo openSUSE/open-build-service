@@ -17,7 +17,7 @@ RSpec.describe BsRequestAction do
 
     it 'validates uniqueness of type among bs requests, target_project and target_package' do
       duplicated_bs_request_action = build(:bs_request_action, action_attributes)
-      expect(duplicated_bs_request_action).not_to be_valid
+      expect(duplicated_bs_request_action).to_not be_valid
       expect(duplicated_bs_request_action.errors.full_messages.to_sentence).to eq('Type has already been taken')
     end
 

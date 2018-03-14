@@ -104,7 +104,7 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
           end
         end
 
-        it { expect(flash[:error]).not_to be_nil }
+        it { expect(flash[:error]).to_not be_nil }
         it { expect(response).to be_redirect }
       end
 
@@ -213,7 +213,7 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
         end
       end
 
-      it { expect(flash[:success]).not_to be_nil }
+      it { expect(flash[:success]).to_not be_nil }
       it { expect(Cloud::User::UploadJob.last.job_id).to eq(6) }
       it { expect(Cloud::User::UploadJob.last.user).to eq(user_with_ec2_configuration) }
       it { expect(response).to redirect_to(cloud_upload_index_path) }
@@ -234,7 +234,7 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
       end
 
       it { expect(response).to redirect_to(cloud_upload_index_path) }
-      it { expect(flash[:success]).not_to be_nil }
+      it { expect(flash[:success]).to_not be_nil }
     end
 
     context 'of a not existing upload job' do
@@ -245,7 +245,7 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
       end
 
       it { expect(response).to redirect_to(cloud_upload_index_path) }
-      it { expect(flash[:error]).not_to be_nil }
+      it { expect(flash[:error]).to_not be_nil }
     end
 
     context 'with an backend error response' do
@@ -257,7 +257,7 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
       end
 
       it { expect(response).to redirect_to(cloud_upload_index_path) }
-      it { expect(flash[:error]).not_to be_nil }
+      it { expect(flash[:error]).to_not be_nil }
     end
   end
 end

@@ -99,7 +99,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       it { expect(assigns(:binarylist)).to match_array(['fake_binary_002']) }
       it { expect(assigns(:binaries)).to match_array(['fake_binary_001']) }
       it { expect(assigns(:packager)).to eq(user.login) }
-      it { expect(assigns(:file)).not_to be_nil }
+      it { expect(assigns(:file)).to_not be_nil }
     end
   end
 

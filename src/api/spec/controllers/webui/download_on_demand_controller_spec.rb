@@ -46,7 +46,7 @@ RSpec.describe Webui::DownloadOnDemandController do
 
       it { is_expected.to redirect_to(root_path) }
       it { expect(flash[:error]).to eq('Sorry, you are not authorized to create this DownloadRepository.') }
-      it { expect(DownloadRepository.where(dod_parameters[:download_repository])).not_to exist }
+      it { expect(DownloadRepository.where(dod_parameters[:download_repository])).to_not exist }
     end
 
     context 'valid requests' do
@@ -71,7 +71,7 @@ RSpec.describe Webui::DownloadOnDemandController do
       it { is_expected.to redirect_to(root_path) }
       it { expect(flash[:error]).to eq("Download on Demand can't be created: Validation failed: Architecture can't be blank") }
       it { expect(assigns(:download_on_demand)).to be_kind_of(DownloadRepository) }
-      it { expect(DownloadRepository.where(dod_parameters[:download_repository])).not_to exist }
+      it { expect(DownloadRepository.where(dod_parameters[:download_repository])).to_not exist }
     end
   end
 
@@ -99,7 +99,7 @@ RSpec.describe Webui::DownloadOnDemandController do
 
       it { is_expected.to redirect_to(project_repositories_path(project)) }
       it { expect(flash[:notice]).to eq('Successfully removed Download on Demand') }
-      it { expect(DownloadRepository.where(id: dod_repository.id)).not_to exist }
+      it { expect(DownloadRepository.where(id: dod_repository.id)).to_not exist }
     end
 
     context 'invalid requests' do

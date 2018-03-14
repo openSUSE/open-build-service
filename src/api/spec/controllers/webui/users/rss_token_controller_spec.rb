@@ -16,7 +16,7 @@ RSpec.describe Webui::Users::RssTokensController do
 
       it { expect(flash[:success]).to eq('Successfully re-generated your RSS feed url') }
       it { is_expected.to redirect_to(user_notifications_path) }
-      it { expect(user.reload.rss_token.string).not_to eq(@last_token) }
+      it { expect(user.reload.rss_token.string).to_not eq(@last_token) }
     end
 
     context 'with a user without a token' do
@@ -27,7 +27,7 @@ RSpec.describe Webui::Users::RssTokensController do
 
       it { expect(flash[:success]).to eq('Successfully generated your RSS feed url') }
       it { is_expected.to redirect_to(user_notifications_path) }
-      it { expect(user.reload.rss_token).not_to be_nil }
+      it { expect(user.reload.rss_token).to_not be_nil }
       it { expect(@last_token).to be_nil }
     end
   end

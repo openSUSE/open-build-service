@@ -24,19 +24,19 @@ RSpec.describe DB::Checker do
 
     it 'shows nothing if in production environment' do
       ENV['RAILS_ENV'] = 'production'
-      expect { checker.warn_for_environment }.not_to output.to_stdout
+      expect { checker.warn_for_environment }.to_not output.to_stdout
     end
   end
 
   describe '#initialize' do
     it "can't be failed before runnig" do
-      expect(checker.failed).not_to be_truthy
+      expect(checker.failed).to_not be_truthy
     end
   end
 
   describe '#contraints_to_check' do
     it { expect(checker.contraints_to_check).to be_a Array }
-    it { expect(checker.contraints_to_check).not_to be_empty }
+    it { expect(checker.contraints_to_check).to_not be_empty }
     it 'constraints are well defined' do
       checker.contraints_to_check.each do |constraint|
         expect(constraint).to be_a Array
@@ -56,7 +56,7 @@ RSpec.describe DB::Checker do
       end
 
       it { expect { checker.check_foreign_keys }.to output(/OK/).to_stdout }
-      it { expect { checker.check_foreign_keys }.not_to output(/Trying to fix/).to_stdout }
+      it { expect { checker.check_foreign_keys }.to_not output(/Trying to fix/).to_stdout }
     end
 
     context 'with inconsistent records' do
@@ -87,7 +87,7 @@ RSpec.describe DB::Checker do
       before { package_without_cycle }
 
       it { expect { checker.resolve_devel_packages }.to output(/OK/).to_stdout }
-      it { expect { checker.resolve_devel_packages }.not_to output(/Errors detected at project/).to_stdout }
+      it { expect { checker.resolve_devel_packages }.to_not output(/Errors detected at project/).to_stdout }
     end
 
     context 'with problematic packages' do

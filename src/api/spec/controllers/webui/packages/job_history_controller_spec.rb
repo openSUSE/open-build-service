@@ -21,7 +21,7 @@ RSpec.describe Webui::Packages::JobHistoryController, type: :controller, vcr: tr
         get :index, params: { package_name: package, project: source_project, repository: 'fake_repo', arch: 'i586' }
       end
 
-      it { expect(flash[:error]).not_to be_empty }
+      it { expect(flash[:error]).to_not be_empty }
       it { expect(response).to redirect_to(package_binaries_path(package: package, project: source_project, repository: 'fake_repo')) }
     end
 
@@ -31,7 +31,7 @@ RSpec.describe Webui::Packages::JobHistoryController, type: :controller, vcr: tr
         get :index, params: { package_name: package, project: source_project, repository: repo_for_source_project.name, arch: 'i58' }
       end
 
-      it { expect(flash[:error]).not_to be_empty }
+      it { expect(flash[:error]).to_not be_empty }
       it 'should redirect to package_binaries_path' do
         expect(response).to redirect_to(package_binaries_path(package: package,
                                                               project: source_project, repository: repo_for_source_project.name))
