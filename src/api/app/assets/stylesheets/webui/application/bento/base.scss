@@ -141,7 +141,7 @@ blockquote{border-left:5px solid #690;color:#666;font-style:italic;}
     z-index:3;
     font-size:0.7em;
     position:absolute;
-    top:31px;
+    top:32px;
     right:0;
     padding-bottom:10px;
     color:#f6f6f6;
@@ -177,6 +177,23 @@ blockquote{border-left:5px solid #690;color:#666;font-style:italic;}
         }
     }
 }
+#login-form {
+border-radius: 5px;
+margin-top: 40px;
+opacity: 1;
+}
+
+#login-form::before {
+content: '';
+display: block;
+border-width: 0 20px 15px 20px;
+border-color: #333 transparent;
+border-style: solid;
+position: absolute;
+top: -16px;
+right: 17px;
+}
+
 #local-user-actions ul{margin:0;list-style:none inside;}
 #flash-messages {
     margin-bottom: 10px;
@@ -464,4 +481,3 @@ span.global-navigation-icon
 .dropdown-menu-content li{padding:0.2em 0.5em;}
 /* for news.o.o */
 .trackback-note { display: none; }
-
