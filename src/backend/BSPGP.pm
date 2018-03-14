@@ -141,7 +141,8 @@ sub pk2keydata {
     push @mpis, { 'bits' => $bits, 'data' => substr($pack, 2, $bytes) };
     $pack = substr($pack, $bytes + 2);
   }
-  return { 'algo' => $algo, 'mpis' => \@mpis };
+  my $keysize = ($mpis[0]->{'bits'} + 31) & ~31;
+  return { 'algo' => $algo, 'mpis' => \@mpis, 'keysize' => $keysize };
 }
 
 sub pk2algo {
@@ -153,7 +154,7 @@ sub pk2algo {
 sub pk2keysize {
   my ($pk) = @_;
   my $d = pk2keydata($pk);
-  return ($d->{'mpis'}->[0]->{'bits'} + 15) & ~15;
+  return $d->{'keysize'};
 }
 
 
