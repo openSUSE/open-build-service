@@ -516,6 +516,7 @@ touch /srv/www/obs/api/log/production.log
 chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
 %restart_on_update memcached
+touch /srv/www/obs/api/last_deploy
 
 %postun -n obs-api
 %insserv_cleanup

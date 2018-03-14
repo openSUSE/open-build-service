@@ -6,5 +6,14 @@ class AboutController < ApplicationController
 
   def index
     @api_revision = CONFIG['version'].to_s
+    @last_deployment = last_deployment
+  end
+
+  private
+
+  def last_deployment
+    File.new('last_deploy').atime
+  rescue Errno::ENOENT
+    ''
   end
 end
