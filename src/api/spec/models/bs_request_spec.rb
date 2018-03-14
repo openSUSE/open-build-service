@@ -125,7 +125,7 @@ RSpec.describe BsRequest do
         user.reload
       end
 
-      it { expect(user.cache_key).not_to eq(@cache_key) }
+      it { expect(user.cache_key).to_not eq(@cache_key) }
     end
 
     context 'creator of bs_request' do
@@ -350,7 +350,7 @@ RSpec.describe BsRequest do
       end
 
       it 'does not change the priority of the bs request' do
-        expect { bs_request.sanitize! }.not_to(change { HistoryElement::RequestPriorityChange.count })
+        expect { bs_request.sanitize! }.to_not(change { HistoryElement::RequestPriorityChange.count })
         expect(bs_request.priority).to eq('moderate')
       end
     end

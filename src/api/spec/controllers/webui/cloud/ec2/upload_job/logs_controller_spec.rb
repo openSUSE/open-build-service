@@ -51,7 +51,7 @@ RSpec.describe Webui::Cloud::UploadJob::LogsController, type: :controller, vcr: 
           end
 
           it { expect(response).to be_redirect }
-          it { expect(flash[:error]).not_to be_nil }
+          it { expect(flash[:error]).to_not be_nil }
         end
       end
     end

@@ -34,7 +34,7 @@ RSpec.describe Webui::Projects::PublicKeyController, type: :controller do
       let(:keyinfo_response) { '<keyinfo />' }
 
       it { is_expected.to redirect_to(project_show_path(project)) }
-      it { expect(flash[:error]).not_to be_empty }
+      it { expect(flash[:error]).to_not be_empty }
     end
   end
 end

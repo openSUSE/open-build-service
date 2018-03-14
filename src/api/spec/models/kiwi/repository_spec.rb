@@ -70,7 +70,7 @@ RSpec.describe Kiwi::Repository, type: :model do
       end
 
       [nil, 3].each do |format|
-        it { is_expected.not_to allow_value(format).for(:source_path) }
+        it { is_expected.to_not allow_value(format).for(:source_path) }
       end
 
       it 'not valid when protocol is not valid' do
@@ -82,7 +82,7 @@ RSpec.describe Kiwi::Repository, type: :model do
           guard !['ftp', 'http', 'https', 'plain', 'dir', 'iso', 'smb', 'this', 'obs'].include?(string[0..index - 1])
           string
         end.check(3) do |string|
-          is_expected.not_to allow_value(string).for(:source_path)
+          is_expected.to_not allow_value(string).for(:source_path)
         end
       end
 
@@ -95,7 +95,7 @@ RSpec.describe Kiwi::Repository, type: :model do
             string[index] = uri_character
             protocol + '://' + string
           end.check(3) do |string|
-            is_expected.not_to allow_value(string).for(:source_path)
+            is_expected.to_not allow_value(string).for(:source_path)
           end
         end
       end
@@ -104,7 +104,7 @@ RSpec.describe Kiwi::Repository, type: :model do
         it { expect(obs_kiwi_repository).to allow_value('rpm-md').for(:repo_type) }
 
         Kiwi::Repository::REPO_TYPES.reject { |repo| repo == 'rpm-md' }.each do |type|
-          it { expect(obs_kiwi_repository).not_to allow_value(type).for(:repo_type) }
+          it { expect(obs_kiwi_repository).to_not allow_value(type).for(:repo_type) }
         end
       end
     end

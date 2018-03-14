@@ -73,7 +73,7 @@ RSpec.describe Package, vcr: true do
     end
 
     it 'does not call #addKiwiImport if filename ends not with kiwi.txz' do
-      expect_any_instance_of(Service).not_to receive(:addKiwiImport)
+      expect_any_instance_of(Service).to_not receive(:addKiwiImport)
       package.save_file(filename: 'foo.spec')
     end
   end
@@ -241,7 +241,7 @@ RSpec.describe Package, vcr: true do
       it { expect(package_with_service.service_error).to be_nil }
     end
     context 'with error' do
-      it { expect(package_with_broken_service.service_error).not_to be_empty }
+      it { expect(package_with_broken_service.service_error).to_not be_empty }
     end
   end
 
@@ -367,7 +367,7 @@ RSpec.describe Package, vcr: true do
     it { expect(results_test_package_image.first.architecture).to eq('i586') }
     it { expect(results_test_package_image.first.code).to eq('broken') }
     it { expect(results_test_package_image.first.state).to eq('published') }
-    it { expect(results_test_package_image.first.details).not_to be_nil }
+    it { expect(results_test_package_image.first.details).to_not be_nil }
   end
 
   context '#source_path' do
@@ -691,10 +691,10 @@ Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
       subject { package.commit_message(target_project, target_package) }
 
       it { expect(subject).to include('- Testing the submit diff') }
-      it { expect(subject).not_to include('- Temporary hack') }
-      it { expect(subject).not_to include('Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org') }
-      it { expect(subject).not_to include('Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org') }
-      it { expect(subject).not_to include('-------------------------------------------------------------------') }
+      it { expect(subject).to_not include('- Temporary hack') }
+      it { expect(subject).to_not include('Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org') }
+      it { expect(subject).to_not include('Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org') }
+      it { expect(subject).to_not include('-------------------------------------------------------------------') }
     end
 
     context 'with no diff to the target package changes file' do
@@ -702,9 +702,9 @@ Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
 
       it { expect(subject).to include('- Testing the submit diff') }
       it { expect(subject).to include('- Temporary hack') }
-      it { expect(subject).not_to include('Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org') }
-      it { expect(subject).not_to include('Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org') }
-      it { expect(subject).not_to include('-------------------------------------------------------------------') }
+      it { expect(subject).to_not include('Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org') }
+      it { expect(subject).to_not include('Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org') }
+      it { expect(subject).to_not include('-------------------------------------------------------------------') }
     end
 
     context 'of a package without a changes file' do

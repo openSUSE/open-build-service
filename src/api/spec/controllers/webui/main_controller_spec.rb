@@ -40,7 +40,7 @@ RSpec.describe Webui::MainController do
       it 'does not create a status message' do
         expect(response).to redirect_to(root_path)
         message = StatusMessage.where(user: admin_user, message: 'Some message', severity: 'Green')
-        expect(message).not_to exist
+        expect(message).to_not exist
       end
     end
 
@@ -69,7 +69,7 @@ RSpec.describe Webui::MainController do
         post :add_news, params: { message: 'Some message', severity: 'Green' }
       end
 
-      it { expect(flash[:error]).not_to be nil }
+      it { expect(flash[:error]).to_not be nil }
     end
   end
 
@@ -162,7 +162,7 @@ RSpec.describe Webui::MainController do
       it "doesn't have packages's urls for non home subprojects" do
         Project.where("name not like 'home:%'").each do |project|
           project.packages.each do |package|
-            expect(@package_paths).not_to include("/package/show/#{package.project.name}/#{package.name}")
+            expect(@package_paths).to_not include("/package/show/#{package.project.name}/#{package.name}")
           end
         end
       end
@@ -188,7 +188,7 @@ RSpec.describe Webui::MainController do
       it "doesn't have packages's urls for non openSUSE subprojects" do
         Project.where("name not like 'openSUSE:%'").each do |project|
           project.packages.each do |package|
-            expect(@package_paths).not_to include("/package/show/#{package.project.name}/#{package.name}")
+            expect(@package_paths).to_not include("/package/show/#{package.project.name}/#{package.name}")
           end
         end
       end

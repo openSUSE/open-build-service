@@ -29,7 +29,7 @@ RSpec.shared_context 'it returns subscriptions for an event' do
       end
 
       it 'does not include that user/group' do
-        expect(subject.map(&:subscriber)).not_to include(maintainer)
+        expect(subject.map(&:subscriber)).to_not include(maintainer)
       end
     end
   end
@@ -54,7 +54,7 @@ RSpec.shared_context 'it returns subscriptions for an event' do
       end
 
       it 'does not include that user/group' do
-        expect(subject.map(&:subscriber)).not_to include(maintainer)
+        expect(subject.map(&:subscriber)).to_not include(maintainer)
       end
     end
   end
@@ -81,7 +81,7 @@ RSpec.shared_context 'it returns subscriptions for an event' do
       end
 
       it 'does not include that user/group' do
-        expect(subject.map(&:subscriber)).not_to include(maintainer)
+        expect(subject.map(&:subscriber)).to_not include(maintainer)
       end
     end
   end
@@ -144,7 +144,7 @@ RSpec.describe EventSubscription::FindForEvent do
         let!(:comment) { create(:comment_project, commentable: project) }
 
         it 'does not include the author of the comment' do
-          expect(subject.map(&:subscriber)).not_to include(comment.user)
+          expect(subject.map(&:subscriber)).to_not include(comment.user)
         end
       end
 
@@ -238,7 +238,7 @@ RSpec.describe EventSubscription::FindForEvent do
               end
 
               it 'does not include that user' do
-                expect(subject.map(&:subscriber)).not_to include(user)
+                expect(subject.map(&:subscriber)).to_not include(user)
               end
             end
           end
@@ -249,7 +249,7 @@ RSpec.describe EventSubscription::FindForEvent do
             end
 
             it 'does not include that user/group' do
-              expect(subject.map(&:subscriber)).not_to include(user)
+              expect(subject.map(&:subscriber)).to_not include(user)
             end
           end
         end
@@ -271,7 +271,7 @@ RSpec.describe EventSubscription::FindForEvent do
             end
 
             it 'does not include that user/group' do
-              expect(subject.map(&:subscriber)).not_to include(user)
+              expect(subject.map(&:subscriber)).to_not include(user)
             end
           end
         end

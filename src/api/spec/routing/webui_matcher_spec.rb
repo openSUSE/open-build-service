@@ -6,6 +6,6 @@ RSpec.describe 'WebuiMatcher' do
   end
 
   it 'monitor in xml format should not be routable' do
-    expect(get('/monitor.xml')).not_to be_routable
+    expect(get('/monitor.xml')).to_not be_routable
   end
 end

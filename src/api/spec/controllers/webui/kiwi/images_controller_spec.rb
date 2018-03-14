@@ -53,7 +53,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
                                                                     package: package_with_kiwi_file,
                                                                     filename: "#{package_with_kiwi_file.name}.kiwi"))
         end
-        it { expect(flash[:error]).not_to be_nil }
+        it { expect(flash[:error]).to_not be_nil }
       end
 
       context 'with source_path' do

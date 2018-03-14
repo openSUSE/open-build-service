@@ -42,7 +42,7 @@ RSpec.describe EventMailer, vcr: true do
         end
 
         it 'does not get delivered' do
-          expect(ActionMailer::Base.deliveries).not_to include(mail)
+          expect(ActionMailer::Base.deliveries).to_not include(mail)
         end
       end
 
@@ -93,7 +93,7 @@ RSpec.describe EventMailer, vcr: true do
         let(:mail) { EventMailer.event(Event::CommentForProject.last.subscribers, Event::CommentForProject.last).deliver_now }
 
         it 'does not send to the originator' do
-          expect(mail.to).not_to include(originator.email)
+          expect(mail.to).to_not include(originator.email)
         end
       end
     end

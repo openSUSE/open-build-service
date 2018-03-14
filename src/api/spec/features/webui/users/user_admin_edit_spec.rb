@@ -11,11 +11,11 @@ RSpec.feature "User's admin edit page", type: :feature, js: true do
     expect(page).to have_field('Name:', with: 'John Doe')
     expect(page).to have_field('e-Mail:', with: 'john@suse.de')
 
-    expect(find_field('Admin')).not_to be_checked
+    expect(find_field('Admin')).to_not be_checked
     expect(find_field('confirmed')).to be_checked
-    expect(find_field('unconfirmed')).not_to be_checked
-    expect(find_field('deleted')).not_to be_checked
-    expect(find_field('locked')).not_to be_checked
+    expect(find_field('unconfirmed')).to_not be_checked
+    expect(find_field('deleted')).to_not be_checked
+    expect(find_field('locked')).to_not be_checked
   end
 
   scenario 'make user admin' do

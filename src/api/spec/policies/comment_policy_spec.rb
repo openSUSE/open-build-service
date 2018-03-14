@@ -18,7 +18,7 @@ RSpec.describe CommentPolicy do
 
   permissions :destroy? do
     it 'Not logged users cannot destroy comments' do
-      expect(subject).not_to permit(nil, comment)
+      expect(subject).to_not permit(nil, comment)
     end
 
     it 'Admin can destroy any comments' do
@@ -34,7 +34,7 @@ RSpec.describe CommentPolicy do
     end
 
     it 'User cannot destroy comments of other user' do
-      expect(subject).not_to permit(user, comment)
+      expect(subject).to_not permit(user, comment)
     end
 
     context 'with a comment of a Package' do
@@ -44,7 +44,7 @@ RSpec.describe CommentPolicy do
       end
 
       it { expect(subject).to permit(user, comment_on_package) }
-      it { expect(subject).not_to permit(other_user, comment_on_package) }
+      it { expect(subject).to_not permit(other_user, comment_on_package) }
     end
 
     context 'with a comment of a Project' do
@@ -54,7 +54,7 @@ RSpec.describe CommentPolicy do
       end
 
       it { expect(subject).to permit(user, comment) }
-      it { expect(subject).not_to permit(other_user, comment) }
+      it { expect(subject).to_not permit(other_user, comment) }
     end
 
     context 'with a comment of a Request' do
@@ -64,7 +64,7 @@ RSpec.describe CommentPolicy do
       end
 
       it { expect(subject).to permit(user, comment_on_request) }
-      it { expect(subject).not_to permit(other_user, comment_on_request) }
+      it { expect(subject).to_not permit(other_user, comment_on_request) }
     end
   end
 end

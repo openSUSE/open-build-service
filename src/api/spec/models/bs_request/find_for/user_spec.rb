@@ -16,8 +16,8 @@ RSpec.describe BsRequest::FindFor::User do
 
       it { expect(klass.new(user: user.login).all).to include(request) }
       it { expect(klass.new(user: user.login, roles: role).all).to include(request) }
-      it { expect(klass.new(user: user.login, roles: :not_existent).all).not_to include(request) }
-      it { expect(klass.new(user: user.login).all).not_to include(another_request) }
+      it { expect(klass.new(user: user.login, roles: :not_existent).all).to_not include(request) }
+      it { expect(klass.new(user: user.login).all).to_not include(another_request) }
     end
 
     context 'with a not existing user' do
@@ -131,7 +131,7 @@ RSpec.describe BsRequest::FindFor::User do
         context 'submitted as symbol' do
           subject { klass.new(user: user.login, review_states: :accepted).all }
           it { expect(subject).to include(request) }
-          it { expect(subject).not_to include(another_request) }
+          it { expect(subject).to_not include(another_request) }
         end
 
         context 'does not include not matching reviews' do
@@ -139,7 +139,7 @@ RSpec.describe BsRequest::FindFor::User do
           subject { klass.new(user: user.login, review_states: :accepted).all }
 
           it { expect(subject.first.reviews).to include(review) }
-          it { expect(subject.first.reviews).not_to include(another_review) }
+          it { expect(subject.first.reviews).to_not include(another_review) }
         end
       end
 

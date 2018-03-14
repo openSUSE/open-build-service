@@ -263,6 +263,6 @@ RSpec.feature 'Packages', type: :feature, js: true do
     expect(page).to have_text("Error while creating 'inv/alid' file: 'inv/alid' is not a valid filename.")
 
     click_link(package.name)
-    expect(page).not_to have_link('inv/alid')
+    expect(page).to_not have_link('inv/alid')
   end
 end

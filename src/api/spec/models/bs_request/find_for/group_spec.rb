@@ -16,8 +16,8 @@ RSpec.describe BsRequest::FindFor::Group do
 
       it { expect(klass.new(group: group.title).all).to include(request) }
       it { expect(klass.new(group: group.title, roles: role).all).to include(request) }
-      it { expect(klass.new(group: group.title, roles: :not_existent).all).not_to include(request) }
-      it { expect(klass.new(group: group.title).all).not_to include(another_request) }
+      it { expect(klass.new(group: group.title, roles: :not_existent).all).to_not include(request) }
+      it { expect(klass.new(group: group.title).all).to_not include(another_request) }
     end
 
     context 'with a not existing group' do

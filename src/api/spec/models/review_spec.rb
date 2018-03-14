@@ -327,7 +327,7 @@ RSpec.describe Review do
         subject.reload
       end
 
-      it { expect(subject.cache_key).not_to eq(@cache_key) }
+      it { expect(subject.cache_key).to_not eq(@cache_key) }
     end
 
     context 'by_user' do

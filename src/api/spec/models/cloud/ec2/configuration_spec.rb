@@ -6,7 +6,7 @@ RSpec.describe Cloud::Ec2::Configuration, type: :model, vcr: true do
     it { is_expected.to validate_uniqueness_of(:external_id) }
     it { is_expected.to validate_uniqueness_of(:arn) }
     it { is_expected.to allow_value('arn:123:45.6/*/tom tom/test-role+=,.@-_').for(:arn) }
-    it { is_expected.not_to allow_value('123:456/tom').for(:arn) }
+    it { is_expected.to_not allow_value('123:456/tom').for(:arn) }
   end
 
   describe 'upload_parameters' do

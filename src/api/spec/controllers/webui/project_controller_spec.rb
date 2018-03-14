@@ -127,7 +127,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(@json_response).to contain_exactly(apache_project.name, apache2_project.name, openSUSE_project.name) }
-      it { expect(@json_response).not_to include(apache_maintenance_incident_project.name) }
+      it { expect(@json_response).to_not include(apache_maintenance_incident_project.name) }
     end
 
     context 'with search term' do
@@ -137,8 +137,8 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(@json_response).to contain_exactly(apache_project.name, apache2_project.name) }
-      it { expect(@json_response).not_to include(apache_maintenance_incident_project.name) }
-      it { expect(@json_response).not_to include(openSUSE_project.name) }
+      it { expect(@json_response).to_not include(apache_maintenance_incident_project.name) }
+      it { expect(@json_response).to_not include(openSUSE_project.name) }
     end
 
     context 'with a subprojects' do
@@ -150,7 +150,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           @json_response = JSON.parse(response.body)
         end
 
-        it { expect(@json_response).not_to include(apache_subproject.name) }
+        it { expect(@json_response).to_not include(apache_subproject.name) }
       end
 
       context 'and searching for parent project' do
@@ -173,7 +173,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
 
     it { expect(@json_response).to contain_exactly(apache_maintenance_incident_project.name) }
-    it { expect(@json_response).not_to include(apache_project.name) }
+    it { expect(@json_response).to_not include(apache_project.name) }
   end
 
   describe 'GET #autocomplete_packages' do
@@ -199,7 +199,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(@json_response).to contain_exactly('Apache_Package', 'Apache2_Package') }
-      it { expect(@json_response).not_to include('Apache_Package_Another_Project') }
+      it { expect(@json_response).to_not include('Apache_Package_Another_Project') }
     end
 
     context 'with search term' do
@@ -209,8 +209,8 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(@json_response).to contain_exactly('Apache2_Package') }
-      it { expect(@json_response).not_to include('Apache_Package') }
-      it { expect(@json_response).not_to include('Apache_Package_Another_Project') }
+      it { expect(@json_response).to_not include('Apache_Package') }
+      it { expect(@json_response).to_not include('Apache_Package_Another_Project') }
     end
   end
 
@@ -856,7 +856,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     it 'with a project already whatched' do
       create(:watched_project, project: user.home_project, user: user)
       get :toggle_watch, params: { project: user.home_project }
-      expect(user.watched_project_names).not_to include(user.home_project_name)
+      expect(user.watched_project_names).to_not include(user.home_project_name)
     end
 
     it 'with a project not whatched' do
@@ -893,7 +893,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           post :save_meta, params: { project: user.home_project, meta: '<project name="home:tom"><title/></project>' }, xhr: true
         end
 
-        it { expect(flash.now[:error]).not_to be_nil }
+        it { expect(flash.now[:error]).to_not be_nil }
         it { expect(response).to have_http_status(400) }
       end
 
@@ -912,7 +912,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           post :save_meta, params: { project: user.home_project, meta: '<project name="home:tom"><title/><description/></project>' }, xhr: true
         end
 
-        it { expect(flash.now[:success]).not_to be_nil }
+        it { expect(flash.now[:success]).to_not be_nil }
         it { expect(response).to have_http_status(200) }
       end
 
@@ -1003,7 +1003,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           post :remove_maintained_project, params: { project: user.home_project, maintained_project: maintained_project.project.name }
         end
 
-        it { expect(user.home_project.maintained_projects.where(project: user.home_project)).not_to exist }
+        it { expect(user.home_project.maintained_projects.where(project: user.home_project)).to_not exist }
         it { expect(flash[:notice]).to eq("Removed #{maintained_project.project.name} from maintenance") }
         it { is_expected.to redirect_to(action: 'maintained_projects', project: user.home_project) }
       end
@@ -1062,7 +1062,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           post :add_maintained_project, params: { project: user.home_project, maintained_project: 'invalid project' }
         end
 
-        it { expect(user.home_project.maintained_projects.where(project_id: user.home_project.id)).not_to exist }
+        it { expect(user.home_project.maintained_projects.where(project_id: user.home_project.id)).to_not exist }
         it { expect(flash[:error]).to eq('Failed to add invalid project to maintenance') }
         it { is_expected.to redirect_to(root_path) }
       end
@@ -1073,7 +1073,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         post :add_maintained_project, params: { project: user.home_project, maintained_project: user.home_project.name }
       end
 
-      it { expect(user.home_project.maintained_projects.where(project: user.home_project)).not_to exist }
+      it { expect(user.home_project.maintained_projects.where(project: user.home_project)).to_not exist }
       it { is_expected.to redirect_to(action: :show, project: user.home_project) }
     end
   end
@@ -1147,7 +1147,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(flash[:error]).to eq(nil) }
-      it { expect(response).not_to redirect_to(controller: :project, nextstatus: 404) }
+      it { expect(response).to_not redirect_to(controller: :project, nextstatus: 404) }
     end
 
     context 'Can not load project config' do
@@ -1156,7 +1156,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         get :prjconf, params: { project: apache_project }
       end
 
-      it { expect(flash[:error]).not_to eq(nil) }
+      it { expect(flash[:error]).to_not eq(nil) }
       it { expect(response).to redirect_to(controller: 'project', nextstatus: 404) }
     end
   end
@@ -1181,7 +1181,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         post :save_prjconf, params: { project: user.home_project.name, config: '' }
       end
 
-      it { expect(flash[:error]).not_to be_nil }
+      it { expect(flash[:error]).to_not be_nil }
       it { expect(response.status).to eq(400) }
     end
 
@@ -1347,7 +1347,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           context 'elements position' do
             it { expect { move }.to change { path_elements[0].reload.position }.by(1) }
             it { expect { move }.to change { path_elements[1].reload.position }.by(-1) }
-            it { expect { move }.not_to(change { path_elements[2].reload.position }) }
+            it { expect { move }.to_not(change { path_elements[2].reload.position }) }
           end
         end
 
@@ -1366,7 +1366,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           end
 
           context 'elements position' do
-            it { expect { move }.not_to(change { path_elements[0].reload.position }) }
+            it { expect { move }.to_not(change { path_elements[0].reload.position }) }
             it { expect { move }.to change { path_elements[1].reload.position }.by(1) }
             it { expect { move }.to change { path_elements[2].reload.position }.by(-1) }
           end
@@ -1392,7 +1392,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           get :monitor, params: { project: user.home_project, defaults: '1' }
         end
 
-        it { expect(flash[:warning]).not_to be_nil }
+        it { expect(flash[:warning]).to_not be_nil }
         it { expect(response).to redirect_to(project_show_path(user.home_project)) }
       end
 
@@ -1498,7 +1498,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           post :monitor, params: { project: user.home_project, defaults: 'abc' }
         end
 
-        it { expect(flash[:warning]).not_to be_nil }
+        it { expect(flash[:warning]).to_not be_nil }
         it { expect(response).to redirect_to(project_show_path(user.home_project)) }
       end
     end

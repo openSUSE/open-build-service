@@ -30,7 +30,7 @@ RSpec.describe UpdateReleasedBinariesJob, vcr: true do
 
       subject! { UpdateReleasedBinariesJob.perform_now(event_without_repo.id) }
 
-      it { expect(BinaryRelease).not_to have_received(:update_binary_releases) }
+      it { expect(BinaryRelease).to_not have_received(:update_binary_releases) }
     end
 
     context 'when perform raises an exception' do

@@ -48,7 +48,7 @@ RSpec.describe UpdatePackageMetaJob, type: :job, vcr: true do
         Package.last.update_backendinfo
       end
 
-      it { expect { subject }.not_to change(BackendPackage, :count) }
+      it { expect { subject }.to_not change(BackendPackage, :count) }
     end
 
     context "with a BranchPackage that doesn't have an entry in BackendPackage" do

@@ -395,7 +395,7 @@ RSpec.describe Webui::WebuiHelper do
 
     context 'option border' do
       it 'does not remove border' do
-        expect(codemirror_style).not_to include('border-width')
+        expect(codemirror_style).to_not include('border-width')
       end
 
       it 'removes the border if in read-only mode' do

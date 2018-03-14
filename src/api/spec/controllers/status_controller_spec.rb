@@ -25,7 +25,7 @@ RSpec.describe StatusController, vcr: true do
       it { expect(response.body).to include('changesmd5=') }
       it { expect(response.body).to include('maxmtime=') }
       it { expect(response.body).to include('release=') }
-      it { expect(response.body).not_to include('verifymd5=') }
+      it { expect(response.body).to_not include('verifymd5=') }
     end
 
     context 'with verifymd5 attribute' do
@@ -127,7 +127,7 @@ RSpec.describe StatusController, vcr: true do
           get :project, params: { project: project.name, format: :xml }
         end
 
-        it { expect(response.body).not_to include("<link project=\"#{package_link.project.name}\" package=\"#{package_link.name}\"/>\n") }
+        it { expect(response.body).to_not include("<link project=\"#{package_link.project.name}\" package=\"#{package_link.name}\"/>\n") }
       end
     end
   end

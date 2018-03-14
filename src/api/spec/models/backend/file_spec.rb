@@ -111,7 +111,7 @@ RSpec.describe Backend::File, vcr: true do
         it { expect(subject.response[:type]).to eq('application/octet-stream') }
         it { expect(subject.response[:status]).to eq('200') }
         it { expect(subject.response[:size]).to be > 0 }
-        it { expect(File.open(subject.file.path).read).not_to be_empty }
+        it { expect(File.open(subject.file.path).read).to_not be_empty }
       end
     end
 
@@ -145,7 +145,7 @@ RSpec.describe Backend::File, vcr: true do
       end
 
       it { expect(subject.to_s.class).to eq(String) }
-      it { expect(subject.to_s).not_to be_empty }
+      it { expect(subject.to_s).to_not be_empty }
     end
 
     context 'without an existing file in the backend' do
@@ -170,7 +170,7 @@ RSpec.describe Backend::File, vcr: true do
         subject.save({}, 'hello') # Change the content of the file
       end
 
-      it { expect(File.open(subject.reload.path).read).not_to eq(@previous_content) }
+      it { expect(File.open(subject.reload.path).read).to_not eq(@previous_content) }
     end
   end
 
@@ -181,7 +181,7 @@ RSpec.describe Backend::File, vcr: true do
         subject.save!({}, 'hello') # Change the content of the file with a string
       end
 
-      it { expect(File.open(subject.file.path).read).not_to eq(@previous_content) }
+      it { expect(File.open(subject.file.path).read).to_not eq(@previous_content) }
       it { expect(File.open(subject.file.path).read).to eq('hello') }
     end
 
@@ -193,7 +193,7 @@ RSpec.describe Backend::File, vcr: true do
         subject.save!
       end
 
-      it { expect(File.open(subject.file.path).read).not_to eq(@previous_content) }
+      it { expect(File.open(subject.file.path).read).to_not eq(@previous_content) }
       it { expect(File.open(subject.file.path).read).to eq("hello\n") }
     end
   end

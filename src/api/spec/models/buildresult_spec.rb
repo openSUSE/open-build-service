@@ -11,7 +11,7 @@ RSpec.describe Buildresult, vcr: true do
     end
 
     it 'returns an explanation for a status' do
-      expect(Buildresult.status_description('succeeded')).not_to eq('status explanation not found')
+      expect(Buildresult.status_description('succeeded')).to_not eq('status explanation not found')
     end
   end
 

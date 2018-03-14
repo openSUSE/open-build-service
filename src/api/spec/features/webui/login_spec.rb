@@ -90,7 +90,7 @@ RSpec.feature 'Login', type: :feature, js: true do
       click_link('Logout')
     end
 
-    expect(page).not_to have_css('a#link-to-user-home')
+    expect(page).to_not have_css('a#link-to-user-home')
     expect(page).to have_link('Log')
   end
 
@@ -155,7 +155,7 @@ RSpec.feature 'Login', type: :feature, js: true do
         page.driver.add_header('AUTHORIZATION', "Negotiate #{Base64.strict_encode64('ticket')}")
 
         click_link('Log In')
-        expect(page).not_to have_content '| Home Project | Logout'
+        expect(page).to_not have_content '| Home Project | Logout'
         expect(find('.flash-content')).to have_text "Authentication failed: 'Received a GSSAPI exception"
         expect(find('.flash-content')).to have_text "couldn't validate ticket"
       end

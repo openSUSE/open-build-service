@@ -83,7 +83,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     scenario 'as non-admin user' do
       login other_user
       visit project_show_path(project: global_project)
-      expect(page).not_to have_link('Create package')
+      expect(page).to_not have_link('Create package')
 
       # Use direct path instead
       visit "/project/new_package/#{global_project}"
@@ -156,7 +156,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       expect(page).to have_text('Successfully unlocked project')
 
       visit project_show_path(project: locked_project.name)
-      expect(page).not_to have_text('is locked')
+      expect(page).to_not have_text('is locked')
     end
 
     scenario 'unlock project' do
@@ -511,7 +511,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
       build_status_table = find('table.buildstatus')
       expect(build_status_table).to have_text(package1.name)
-      expect(build_status_table).not_to have_text(package2.name)
+      expect(build_status_table).to_not have_text(package2.name)
     end
 
     scenario 'filtering build results by architecture' do
@@ -521,7 +521,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
       build_status_table = find('table.buildstatus')
       expect(build_status_table).to have_text('i586')
-      expect(build_status_table).not_to have_text('x86_64')
+      expect(build_status_table).to_not have_text('x86_64')
     end
 
     scenario 'filtering build results by repository' do
@@ -531,8 +531,8 @@ RSpec.feature 'Projects', type: :feature, js: true do
       click_button 'Filter:'
 
       build_status_table = find('table.buildstatus')
-      expect(build_status_table).not_to have_text('openSUSE_Leap_42.2')
-      expect(build_status_table).not_to have_text('openSUSE_Leap_42.3')
+      expect(build_status_table).to_not have_text('openSUSE_Leap_42.2')
+      expect(build_status_table).to_not have_text('openSUSE_Leap_42.3')
       expect(build_status_table).to have_text('openSUSE_Tumbleweed')
     end
 

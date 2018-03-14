@@ -29,7 +29,7 @@ RSpec.feature "User's home project creation", type: :feature, js: true do
     expect(page).to have_link('Declined Requests')
     expect(page).to have_link('All Requests')
 
-    expect(page).not_to have_link('Maintenance Requests')
+    expect(page).to_not have_link('Maintenance Requests')
   end
 
   scenario 'edit account information' do

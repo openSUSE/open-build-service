@@ -53,6 +53,6 @@ RSpec.describe UpdateBackendInfosJob, vcr: true do
 
     subject! { event_without_package } # UpdateBackendInfosJob gets called when the event is created
 
-    it { expect(package).not_to have_received(:update_backendinfo) }
+    it { expect(package).to_not have_received(:update_backendinfo) }
   end
 end

@@ -23,7 +23,7 @@ RSpec.describe GroupController, vcr: false do
 
       it 'deletes the record' do
         expect(Group.find_by(id: group.id)).to be_nil
-        expect(GroupsUser.where(group_id: group.id)).not_to exist
+        expect(GroupsUser.where(group_id: group.id)).to_not exist
       end
     end
 

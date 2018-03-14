@@ -34,7 +34,7 @@ RSpec.describe User do
     it 'creates a home project by default if allow_user_to_create_home_project is enabled' do
       allow(Configuration).to receive(:allow_user_to_create_home_project).and_return(true)
       user = create(:confirmed_user, login: 'random_name')
-      expect(user.home_project).not_to be_nil
+      expect(user.home_project).to_not be_nil
     end
 
     it "doesn't creates a home project if allow_user_to_create_home_project is disabled" do
@@ -149,7 +149,7 @@ RSpec.describe User do
       let(:user) { User.create_user_with_fake_pw!(login: 'tux', email: 'some@email.com') }
 
       it 'creates a user with a fake password' do
-        expect(user.password).not_to eq(User.create_user_with_fake_pw!(login: 'tux2', email: 'some@email.com').password)
+        expect(user.password).to_not eq(User.create_user_with_fake_pw!(login: 'tux2', email: 'some@email.com').password)
       end
 
       it 'creates a user from given attributes' do
@@ -214,15 +214,15 @@ RSpec.describe User do
     end
 
     it 'does not include requests with not matching search parameter' do
-      expect(confirmed_user.declined_requests('not-existent')).not_to include(declined_bs_request)
+      expect(confirmed_user.declined_requests('not-existent')).to_not include(declined_bs_request)
     end
 
     it 'does not include requests created by any other user' do
-      expect(subject).not_to include(admin_bs_request)
+      expect(subject).to_not include(admin_bs_request)
     end
 
     it 'does not include requests in any other state except :declined' do
-      expect(subject).not_to include(new_bs_request)
+      expect(subject).to_not include(new_bs_request)
     end
   end
 
@@ -272,15 +272,15 @@ RSpec.describe User do
     end
 
     it 'does not include requests with not matching search parameter' do
-      expect(confirmed_user.outgoing_requests('not-existent')).not_to include(new_bs_request)
+      expect(confirmed_user.outgoing_requests('not-existent')).to_not include(new_bs_request)
     end
 
     it 'does not include requests created by any other user' do
-      expect(subject).not_to include(admin_bs_request)
+      expect(subject).to_not include(admin_bs_request)
     end
 
     it 'does not include requests in any other state except :new or :review' do
-      expect(subject).not_to include(declined_bs_request)
+      expect(subject).to_not include(declined_bs_request)
     end
   end
 
@@ -315,13 +315,13 @@ RSpec.describe User do
       end
 
       it 'does not include requests of not maintained subject' do
-        expect(subject).not_to include(not_maintained_request)
+        expect(subject).to_not include(not_maintained_request)
       end
 
       it 'does not include requests in any other state expect new' do
         maintained_request.state = :review
         maintained_request.save
-        expect(subject).not_to include(maintained_request)
+        expect(subject).to_not include(maintained_request)
       end
 
       it 'does include requests if search does match' do
@@ -329,7 +329,7 @@ RSpec.describe User do
       end
 
       it 'does nots include requests if search does not match' do
-        expect(confirmed_user.incoming_requests('does not exist')).not_to include(maintained_request)
+        expect(confirmed_user.incoming_requests('does not exist')).to_not include(maintained_request)
       end
     end
 
@@ -381,11 +381,11 @@ RSpec.describe User do
     end
 
     it 'does not include packages where user is maintainer of the project' do
-      expect(subject).not_to include(project_maintained_package)
+      expect(subject).to_not include(project_maintained_package)
     end
 
     it 'does not include packages where user is maintainer of the project by group' do
-      expect(subject).not_to include(group_project_maintained_package)
+      expect(subject).to_not include(group_project_maintained_package)
     end
   end
 
@@ -414,11 +414,11 @@ RSpec.describe User do
       end
 
       it 'does not include reviews where the user is the creator of the request' do
-        expect(subject).not_to include(request_with_same_creator_and_reviewer)
+        expect(subject).to_not include(request_with_same_creator_and_reviewer)
       end
 
       it 'does not include reviews where the user is not the reviewer' do
-        expect(subject).not_to include(request_of_another_subject)
+        expect(subject).to_not include(request_of_another_subject)
       end
     end
 
@@ -514,7 +514,7 @@ RSpec.describe User do
       end
 
       it 'returns no request if the search does not match' do
-        expect(confirmed_user.involved_reviews('does not exist')).not_to include(request)
+        expect(confirmed_user.involved_reviews('does not exist')).to_not include(request)
       end
     end
   end
@@ -572,7 +572,7 @@ RSpec.describe User do
       end
 
       it 'does not include requests of not maintained subject' do
-        expect(subject).not_to include(not_maintained_request)
+        expect(subject).to_not include(not_maintained_request)
       end
 
       it 'does include requests of not maintained subject by created by the same' do
@@ -584,7 +584,7 @@ RSpec.describe User do
       end
 
       it 'returns no request if the search does not match' do
-        expect(confirmed_user.requests('does not exist')).not_to include(subject_request)
+        expect(confirmed_user.requests('does not exist')).to_not include(subject_request)
       end
 
       it 'does include requests if search does match' do
@@ -592,7 +592,7 @@ RSpec.describe User do
       end
 
       it 'does nots include requests if search does not match' do
-        expect(confirmed_user.requests('does not exist')).not_to include(maintained_request)
+        expect(confirmed_user.requests('does not exist')).to_not include(maintained_request)
       end
     end
 

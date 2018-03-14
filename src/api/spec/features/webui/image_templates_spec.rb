@@ -99,7 +99,7 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
       scenario 'disabled' do
         Feature.run_with_deactivated(:image_templates) do
           visit root_path
-          expect(page).not_to have_link('New Image')
+          expect(page).to_not have_link('New Image')
           visit image_templates_path
           expect(page.status_code).to eq(404)
         end

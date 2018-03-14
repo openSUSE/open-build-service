@@ -28,14 +28,14 @@ RSpec.feature 'Requests', type: :feature, js: true do
       visit request_show_path(bs_request)
       within(element) do
         expect(page).to have_text('a long text - ' * valid_word_count)
-        expect(page).not_to have_text('a long text - ' * invalid_word_count)
+        expect(page).to_not have_text('a long text - ' * invalid_word_count)
 
         click_link('[+]')
         expect(page).to have_text('a long text - ' * 200)
 
         click_link('[-]')
         expect(page).to have_text('a long text - ' * valid_word_count)
-        expect(page).not_to have_text('a long text - ' * invalid_word_count)
+        expect(page).to_not have_text('a long text - ' * invalid_word_count)
       end
     end
   end
@@ -219,14 +219,14 @@ RSpec.feature 'Requests', type: :feature, js: true do
 
       click_link("Show request ##{request_1.id}")
       expect(page).to have_text("Request #{request_1.id} (new)")
-      expect(page).not_to have_link('>>')
+      expect(page).to_not have_link('>>')
 
       click_link('<<')
       expect(page).to have_text("Request #{request_2.id} (new)")
 
       click_link('<<')
       expect(page).to have_text("Request #{request_3.id} (new)")
-      expect(page).not_to have_link('<<')
+      expect(page).to_not have_link('<<')
 
       click_link('>>')
       expect(page).to have_text("Request #{request_2.id} (new)")
