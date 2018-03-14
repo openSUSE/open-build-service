@@ -30,24 +30,6 @@ RSpec.describe Webui::GroupsController do
     end
   end
 
-  describe 'GET tokens' do
-    it 'returns a hash with one group for a match' do
-      get :tokens, params: { q: group.title }
-      expect(response.body).to eq([{ name: group.title }].to_json)
-    end
-
-    it 'returns a hash with more than one group for a match' do
-      another_group # necessary for initialization
-      get :tokens, params: { q: group.title }
-      expect(response.body).to eq([{ name: group.title }, { name: another_group.title }].to_json)
-    end
-
-    it 'returns empty hash if no match' do
-      get :tokens, params: { q: 'no_group' }
-      expect(response.body).to eq([].to_json)
-    end
-  end
-
   describe 'GET autocomplete' do
     it 'returns list with one group for a match' do
       get :autocomplete, params: { term: group.title }

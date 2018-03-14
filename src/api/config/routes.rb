@@ -383,7 +383,6 @@ OBSApi::Application.routes.draw do
       get 'group/edit/title' => :edit, constraints: { title: /[^\/]*/ }
       post 'group/update' => :update
       get 'group/autocomplete' => :autocomplete
-      get 'group/tokens' => :tokens
     end
 
     resources :comments, constraints: cons, only: [:create, :destroy], controller: 'webui/comments'
