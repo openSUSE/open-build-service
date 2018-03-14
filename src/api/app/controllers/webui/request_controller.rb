@@ -290,7 +290,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def change_devel_request
-    required_parameters :devel_project, :package, :project
     req = nil
     begin
       BsRequest.transaction do
