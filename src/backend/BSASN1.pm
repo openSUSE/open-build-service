@@ -55,6 +55,9 @@ our $oid_email_address = asn1_obj_id(1, 2, 840, 113549, 1, 9, 1);
 our $oid_sha1   = asn1_obj_id(1, 3, 14, 3, 2, 26);
 our $oid_sha256 = asn1_obj_id(2, 16, 840, 1, 101, 3, 4, 2, 1);
 our $oid_sha512 = asn1_obj_id(2, 16, 840, 1, 101, 3, 4, 2, 3);
+our $oid_id_dsa                  = asn1_obj_id(1, 2, 840, 10040, 4, 1);
+our $oid_id_ec_public_key        = asn1_obj_id(1, 2, 840, 10045, 2, 1);
+our $oid_prime256v1              = asn1_obj_id(1, 2, 840, 10045, 3, 1, 7);
 our $oid_rsaencryption           = asn1_obj_id(1, 2, 840, 113549, 1, 1, 1);
 our $oid_sha1withrsaencryption   = asn1_obj_id(1, 2, 840, 113549, 1, 1, 5);
 our $oid_sha256withrsaencryption = asn1_obj_id(1, 2, 840, 113549, 1, 1, 11);
@@ -103,7 +106,7 @@ sub asn1_unpack {
   if ($l >= 128) {
     $l -= 128;
     $off += $l;
-    die("unsupported ans1 length $l\n") if $l < 1 || $l > 4;
+    die("unsupported asn1 length $l\n") if $l < 1 || $l > 4;
     $l = unpack("\@${l}N", pack('xxxx').substr($in, 2, 4));
   }
   die("unexpected end of string\n") if length($in) < $off + $l;
