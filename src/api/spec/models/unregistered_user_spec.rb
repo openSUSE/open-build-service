@@ -32,12 +32,63 @@ RSpec.describe UnregisteredUser do
       }
     end
 
+    context 'when not in LDAP mode' do
+      context 'when registration is allowed' do
+        let(:attributes_for_query) { user_attributes.slice(:login, :realname, :email).merge(state: 'confirmed', ignore_auth_services: false) }
+
+        before do
+          allow(::Configuration).to receive(:registration).and_return('allow')
+        end
+
+        subject! { UnregisteredUser.register(user_attributes) }
+
+        it 'creates a new confirmed user' do
+          expect(User.where(attributes_for_query)).to exist
+        end
+      end
+
+      context 'when registration requires confirmation' do
+        let(:attributes_for_query) { user_attributes.slice(:login, :realname, :email).merge(state: 'unconfirmed', ignore_auth_services: false) }
+
+        before do
+          allow(::Configuration).to receive(:registration).and_return('confirmation')
+        end
+
+        subject { UnregisteredUser.register(user_attributes) }
+
+        it 'throws an exception that confirms the user registration... and creates an unconfirmed user' do
+          expect { subject }.to raise_error(UnregisteredUser::ErrRegisterSave,
+                                            'Thank you for signing up! An admin has to confirm your account now. Please be patient.')
+          expect(User.where(attributes_for_query)).to exist
+        end
+      end
+    end
+
+    context 'when registration is denied' do
+      let(:user_count_before) { User.count }
+
+      before do
+        allow(::Configuration).to receive(:registration).and_return('deny')
+      end
+
+      subject { UnregisteredUser.register(user_attributes) }
+
+      it 'throws an exception' do
+        expect { subject }.to raise_error(UnregisteredUser::ErrRegisterSave, 'Sorry, sign up is disabled')
+        expect(User.count).to eq user_count_before
+      end
+    end
+
     context 'in LDAP mode' do
+      let(:attributes_for_query) { user_attributes.slice(:login, :realname, :email).merge(state: 'confirmed') }
+
       before do
         stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
       end
 
       context 'when normal user is logged in' do
+        let(:user_count_before) { User.count }
+
         before do
           User.current = user
         end
@@ -46,12 +97,11 @@ RSpec.describe UnregisteredUser do
 
         it 'throws an exception' do
           expect { subject }.to raise_error(UnregisteredUser::ErrRegisterSave, 'Sorry, new users can only sign up via LDAP')
+          expect(User.count).to eq user_count_before
         end
       end
 
       context 'when admin user is logged in' do
-        let(:attributes_for_query) { user_attributes.slice(:login, :realname, :email).merge(state: 'confirmed') }
-
         before do
           User.current = admin_user
         end
