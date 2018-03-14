@@ -312,7 +312,7 @@ OBSApi::Application.routes.draw do
       post 'request/add_role_request/:project' => :add_role_request, constraints: cons
       get 'request/set_bugowner_request_dialog' => :set_bugowner_request_dialog
       post 'request/set_bugowner_request' => :set_bugowner_request
-      get 'request/change_devel_request_dialog' => :change_devel_request_dialog
+      get 'request/change_devel_request_dialog/:project/:package' => :change_devel_request_dialog, constraints: cons
       post 'request/change_devel_request' => :change_devel_request
       get 'request/set_incident_dialog' => :set_incident_dialog
       post 'request/set_incident' => :set_incident

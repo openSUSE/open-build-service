@@ -281,7 +281,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def change_devel_request_dialog
-    required_parameters :package, :project
     @package = Package.find_by_project_and_name(params[:project], params[:package])
     if @package.develpackage
       @current_devel_package = @package.develpackage.name

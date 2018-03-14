@@ -142,7 +142,7 @@
             <%# TODO: only users w/o rights should see this, maintainers should get a different dialog: %>
             <% if @package.develpackage %>
                 <li>
-                  <%= link_to(sprited_text('arrow_switch', 'Request devel project change'), { :controller => 'request', :action => 'change_devel_request_dialog', :project => @project, :package => @package }, :remote => true) %>
+                  <%= link_to(sprited_text('arrow_switch', 'Request devel project change'), { controller: :request, action: :change_devel_request_dialog, project: @project, package: @package }, remote: true) %>
                 </li>
             <% end %>
         <% end %>
