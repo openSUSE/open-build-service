@@ -133,7 +133,7 @@ RSpec.describe Package, vcr: true do
       it 'does not delete file' do
         expect do
           package_with_file.source_file('somefile.txt')
-        end.to_not raise_error
+        end.not_to raise_error
       end
     end
 

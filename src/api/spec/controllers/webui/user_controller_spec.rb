@@ -333,7 +333,7 @@ RSpec.describe Webui::UserController do
 
       it 'applies the Admin role properly' do
         patch :update, params: { user: { login: user.login, make_admin: true } }
-        expect(user.roles.find_by(title: 'Admin')).to_not be_nil
+        expect(user.roles.find_by(title: 'Admin')).not_to be_nil
       end
     end
 

@@ -381,23 +381,6 @@ RSpec/NamedSubject:
 RSpec/NestedGroups:
   Enabled: false
 
-# Offense count: 18
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: not_to, to_not
-RSpec/NotToNot:
-  Exclude:
-    - 'src/api/spec/controllers/person_controller_spec.rb'
-    - 'src/api/spec/controllers/public_controller_spec.rb'
-    - 'src/api/spec/controllers/webui/main_controller_spec.rb'
-    - 'src/api/spec/controllers/webui/repositories_controller_spec.rb'
-    - 'src/api/spec/controllers/webui/user_controller_spec.rb'
-    - 'src/api/spec/helpers/validation_helper_spec.rb'
-    - 'src/api/spec/helpers/webui/webui_helper_spec.rb'
-    - 'src/api/spec/models/comment_spec.rb'
-    - 'src/api/spec/models/package_spec.rb'
-    - 'src/api/spec/models/user_spec.rb'
-    - 'src/api/spec/routing/api_matcher_spec.rb'
-
 # Offense count: 44
 # Configuration parameters: Strict, EnforcedStyle, SupportedStyles.
 # SupportedStyles: inflected, explicit

@@ -14,7 +14,7 @@ RSpec.describe User do
     it { is_expected.to validate_inclusion_of(:state).in_array(User::STATES) }
 
     it { is_expected.to allow_value('king@opensuse.org').for(:email) }
-    it { is_expected.to_not allow_values('king.opensuse.org', 'opensuse.org', 'opensuse').for(:email) }
+    it { is_expected.not_to allow_values('king.opensuse.org', 'opensuse.org', 'opensuse').for(:email) }
 
     it { expect(user.state).to eq('unconfirmed') }
 
@@ -632,7 +632,7 @@ RSpec.describe User do
         let!(:review_of_another_subject) { create(:review, by_group: other_group.title, bs_request: request_of_another_subject) }
 
         it 'not include reviews where the user is the creator of the request' do
-          expect(subject).to_not include(request_of_another_subject)
+          expect(subject).not_to include(request_of_another_subject)
         end
       end
     end
@@ -653,7 +653,7 @@ RSpec.describe User do
         let!(:review_of_another_subject) { create(:review, by_project: other_project.name, bs_request: request_of_another_subject) }
 
         it 'not include reviews where the user is the creator of the request' do
-          expect(subject).to_not include(request_of_another_subject)
+          expect(subject).not_to include(request_of_another_subject)
         end
       end
     end
@@ -678,7 +678,7 @@ RSpec.describe User do
         end
 
         it 'not include reviews where the user is the creator of the request' do
-          expect(subject).to_not include(request_of_another_subject)
+          expect(subject).not_to include(request_of_another_subject)
         end
       end
     end

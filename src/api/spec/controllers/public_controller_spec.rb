@@ -84,7 +84,7 @@ RSpec.describe PublicController, vcr: true do
         end
 
         it { is_expected.to respond_with(400) }
-        it { expect(a_request(:get, /.*\/source\/public_controller_project\?nofilename=1&view=info/)).to_not have_been_made }
+        it { expect(a_request(:get, /.*\/source\/public_controller_project\?nofilename=1&view=info/)).not_to have_been_made }
       end
 
       context "and nofilename is equal '1'" do

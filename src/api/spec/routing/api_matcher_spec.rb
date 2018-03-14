@@ -4,9 +4,9 @@ RSpec.describe 'APIMatcher' do
   it { expect(get('/distributions?format=xml')).to route_to(controller: 'distributions', action: 'index', format: 'xml') }
 
   context '/public and /about path use API routes with html format' do
-    it { expect(get('/distributions?format=html')).to_not route_to(controller: 'distributions', action: 'index', format: 'html') }
-    it { expect(get('/distributions/about?format=html')).to_not route_to(controller: 'distributions', action: 'show', id: 'about', format: 'html') }
-    it { expect(get('/distributions/public?format=html')).to_not route_to(controller: 'distributions', action: 'show', id: 'public', format: 'html') }
+    it { expect(get('/distributions?format=html')).not_to route_to(controller: 'distributions', action: 'index', format: 'html') }
+    it { expect(get('/distributions/about?format=html')).not_to route_to(controller: 'distributions', action: 'show', id: 'about', format: 'html') }
+    it { expect(get('/distributions/public?format=html')).not_to route_to(controller: 'distributions', action: 'show', id: 'public', format: 'html') }
   end
 
   RSpec.shared_examples '/public routes to PublicController independent of format' do |format|
