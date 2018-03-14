@@ -19,13 +19,13 @@ RSpec.describe Webui::MainController do
 
       expect do
         post :add_news, params: { message: 'Some message' }
-      end.to_not change(StatusMessage, :count)
+      end.not_to change(StatusMessage, :count)
       expect(response).to redirect_to(root_path)
       expect(flash[:error]).to eq('Please provide a message and severity')
 
       expect do
         post :add_news, params: { severity: 'Green' }
-      end.to_not change(StatusMessage, :count)
+      end.not_to change(StatusMessage, :count)
       expect(response).to redirect_to(root_path)
       expect(flash[:error]).to eq('Please provide a message and severity')
     end

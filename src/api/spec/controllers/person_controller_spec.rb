@@ -83,7 +83,7 @@ RSpec.describe PersonController, vcr: false do
       end
 
       it 'changes the password' do
-        expect(old_password_digest).to_not eq(user.reload.password_digest)
+        expect(old_password_digest).not_to eq(user.reload.password_digest)
       end
     end
 
@@ -108,7 +108,7 @@ RSpec.describe PersonController, vcr: false do
           post :post_userinfo, params: { login: user.login, cmd: 'change_password', format: :xml }
         end
 
-        it { expect(old_password_digest).to_not eq(user.reload.password_digest) }
+        it { expect(old_password_digest).not_to eq(user.reload.password_digest) }
       end
     end
   end

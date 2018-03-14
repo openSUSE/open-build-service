@@ -375,7 +375,7 @@ RSpec.describe Webui::WebuiHelper do
   describe '#codemirror_style' do
     context 'option height' do
       it 'uses auto as default value' do
-        expect(codemirror_style).to_not include('height')
+        expect(codemirror_style).not_to include('height')
       end
 
       it 'get set properly' do
@@ -385,7 +385,7 @@ RSpec.describe Webui::WebuiHelper do
 
     context 'option width' do
       it 'uses auto as default value' do
-        expect(codemirror_style).to_not include('width')
+        expect(codemirror_style).not_to include('width')
       end
 
       it 'get set properly' do
