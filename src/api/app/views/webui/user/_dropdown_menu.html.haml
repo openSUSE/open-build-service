@@ -20,7 +20,12 @@
     %li
       = sprite_tag('cog_add')
       = link_to('Make user admin', user_update_path(user: { login: user.login, mark_as_admin: true }), |
-              method: :patch, data: { confirm: "Are you sure?" }) |
+                method: :patch, data: { confirm: "Are you sure?" }) |
+    - if Configuration.ldap_enabled?
+      %li
+        = sprite_tag('cog_add')
+        = link_to('Make this a local user', user_update_path(user: { login: user.login, ignore_auth_services: true }), |
+                  method: :patch, data: { confirm: "Are you sure?" }) |
     %li
       = sprite_tag('email')
       = mail_to(user.email, 'Contact user')
