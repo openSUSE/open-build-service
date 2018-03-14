@@ -899,6 +899,7 @@ end
 #  adminnote                     :text(65535)
 #  state                         :string(11)       default("unconfirmed")
 #  owner_id                      :integer
+#  ignore_auth_services          :boolean          default(FALSE)
 #
 # Indexes
 #
