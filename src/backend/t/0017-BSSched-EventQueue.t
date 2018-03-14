@@ -127,10 +127,11 @@ $eq->add_events({});
 	$eq->process_events();
 }
 
-$expected = "remote event unknown
+$expected = qr"remote event unknown
 unknown event type 'unknown'
 ";
-is($out,$expected,"Checking output one unknown event");
+
+like($out, $expected, "Checking output one unknown event");
 
 # check for empty event queue
 {
