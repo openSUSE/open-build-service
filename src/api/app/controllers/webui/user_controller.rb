@@ -1,7 +1,7 @@
 class Webui::UserController < Webui::WebuiController
-  before_action :check_display_user, only: [:show, :edit, :list_my, :delete, :confirm, :admin, :lock]
-  before_action :require_login, only: [:edit, :save, :index]
-  before_action :require_admin, only: [:edit, :delete, :lock, :confirm, :admin, :index]
+  before_action :check_display_user, only: [:show, :edit, :list_my]
+  before_action :require_login, only: [:edit, :save, :index, :update, :delete]
+  before_action :require_admin, only: [:edit, :index, :update, :delete]
   before_action :kerberos_auth, only: [:login]
 
   skip_before_action :check_anonymous, only: [:do_login]
@@ -101,28 +101,32 @@ class Webui::UserController < Webui::WebuiController
 
   def edit; end
 
+  def update
+    other_user = User.find_by(login: user_params[:login])
+    unless other_user
+      redirect_to(users_path, error: "Couldn't find user '#{user_params[:login]}'.")
+      return
+    end
+
+    other_user.update_attributes(state: user_params[:state])
+    other_user.add_globalrole(Role.where(title: 'Admin')) if user_params[:make_admin]
+    if other_user.save
+      flash[:notice] = "Updated user '#{other_user}'."
+    else
+      flash[:error] = "Updating user '#{other_user}' failed: #{other_user.errors.full_messages.to_sentence}"
+    end
+    redirect_back(fallback_location: user_show_path(other_user))
+  end
+
   def delete
-    @displayed_user.state = 'deleted'
-    @displayed_user.save
-    redirect_back(fallback_location: { action: 'show', user: @displayed_user })
-  end
-
-  def confirm
-    @displayed_user.state = 'confirmed'
-    @displayed_user.save
-    redirect_back(fallback_location: { action: 'show', user: @displayed_user })
-  end
-
-  def lock
-    @displayed_user.state = 'locked'
-    @displayed_user.save
-    redirect_back(fallback_location: { action: 'show', user: @displayed_user })
-  end
-
-  def admin
-    @displayed_user.add_globalrole(Role.where(title: 'Admin'))
-    @displayed_user.save
-    redirect_back(fallback_location: { action: 'show', user: @displayed_user })
+    other_user = User.find_by(login: user_params[:login])
+    other_user.update_attributes(state: 'deleted')
+    if other_user.save
+      flash[:notice] = "Marked user '#{other_user}' as deleted."
+    else
+      flash[:error] = "Marking user '#{other_user}' as deleted failed: #{other_user.errors.full_messages.to_sentence}"
+    end
+    redirect_to(users_path)
   end
 
   def save_dialog
@@ -232,5 +236,11 @@ class Webui::UserController < Webui::WebuiController
       end
     end
     names
+  end
+
+  private
+
+  def user_params
+    params.require(:user).permit(:login, :state, :make_admin)
   end
 end

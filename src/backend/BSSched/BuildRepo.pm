@@ -31,6 +31,7 @@ package BSSched::BuildRepo;
 # gctx functions
 #   sync_fullcache
 #   checkuseforbuild
+#   forcefullrebuild
 #
 # ctx functions
 #   addrepo
@@ -681,6 +682,27 @@ sub move_into_full {
   my %oldids;   # maps path => id
   my $metacache;
   my $metacache_ismerge;
+
+  if ($fullcache && $fullcache->{'old'} && $BSSched::BuildResult::new_full_handling) {
+    my $move_into_full_cnt = $fullcache->{'move_into_full_cnt'} || 0;
+    if ($move_into_full_cnt > 20) {
+      # a lot of integration work, go into "rebuild full tree later" mode
+      if (!$fullcache->{'rebuild_full_tree'}) {
+	print "too much integration work, switching into 'rebuild full tree' mode...\n";
+	# write a "rebuild full tree" event in case we crash
+	my ($projid, $repoid) = split('/', $prp, 2);
+	my $ev = {'type' => 'useforbuild', 'project' => $projid, 'repository' => $repoid};
+	my $myeventdir = $gctx->{'myeventdir'};
+	my $evname = "rebuild_full_tree:$projid:$repoid";
+	writexml("$myeventdir/.$evname$$", "$myeventdir/$evname", $ev, $BSXML::event);
+	$fullcache->{'rebuild_full_tree'} = "$myeventdir/$evname";
+      }
+      delete $repodatas->{$prpa}->{'solv'};
+      return;
+    }
+    $fullcache->{'move_into_full_cnt'} = $move_into_full_cnt + 1;
+  }
+
   if ($fullcache && $fullcache->{'old'}) {
     $pool = $fullcache->{'pool'};
     $satrepo = $fullcache->{'satrepo'};
@@ -768,6 +790,12 @@ sub sync_fullcache {
     } else {
       BSUtil::store("$gdst/.:full.metacache", "$gdst/:full.metacache", $fullcache->{'metacache'});
     }
+  }
+  if ($fullcache->{'rebuild_full_tree'}) {
+    die unless $BSSched::BuildResult::new_full_handling;
+    unlink($fullcache->{'rebuild_full_tree'});	# delete dummy event
+    %$fullcache = (); 
+    forcefullrebuild($gctx, $prp);
   }
   %$fullcache = ();
 }
@@ -867,11 +895,34 @@ sub checkuseforbuild {
     $fctx->{'olduseforbuild'} = \%olduseforbuild;
     $fctx->{'newuseforbuild'} = \%newuseforbuild;
   }
+  # setup metacache
+  if (((-s "$gdst/:full.metacache") || 0) < 16384 && ! -e "$gdst/:full.metacache.merge") {
+    $fctx->{'metacache'} = BSUtil::retrieve("$gdst/:full.metacache", 1) || {};
+  } else {
+    $fctx->{'metacache'} = BSUtil::retrieve("$gdst/:full.metacache.merge", 1) || {};
+    $fctx->{'metacache_ismerge'} = 1;
+  }
   # this will also remove no longer existing packages from the :full tree
   move_into_full($fctx, undef, undef);
   BSUtil::store("$gdst/.:full.useforbuild", "$gdst/:full.useforbuild", $newuseforbuild);
+  # flush updated metacache
+  if ($fctx->{'metacache_ismerge'}) {
+    BSUtil::store("$gdst/.:full.metacache.merge", "$gdst/:full.metacache.merge", $fctx->{'metacache'});
+  } else {
+    BSUtil::store("$gdst/.:full.metacache", "$gdst/:full.metacache", $fctx->{'metacache'});
+  }
 }
 
+=head2 forcefullrebuild - force the rebuild of the full repo
+
+ TODO: add description
+
+=cut
+
+sub forcefullrebuild {
+  my ($gctx, $prp) = @_;
+  checkuseforbuild($gctx, $prp, $gctx->{'prpsearchpath'}->{$prp}, undef, 1); 
+}
 
 =head2 addrepo_scan - add :full repo to pool, make sure repo is up-to-data by scanning the directory
 

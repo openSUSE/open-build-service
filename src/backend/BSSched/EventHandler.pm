@@ -418,9 +418,7 @@ sub event_useforbuild {
     @packs = ($ev->{'package'});
   } else {
     if ($BSSched::BuildResult::new_full_handling) {
-      # force a rebuild of the full tree
-      my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
-      BSSched::BuildRepo::checkuseforbuild($gctx, $prp, $prpsearchpath, undef, 1);
+      BSSched::BuildRepo::forcefullrebuild($gctx, $prp);
     } else {
       @packs = sort keys %$packs;
       @packs = reverse(BSSched::ProjPacks::orderpackids($proj, @packs));

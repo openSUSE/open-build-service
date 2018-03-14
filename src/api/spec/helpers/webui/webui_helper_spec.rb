@@ -217,26 +217,18 @@ RSpec.describe Webui::WebuiHelper do
   describe '#is_advanced_tab?' do
     advanced_tabs = ['prjconf', 'index', 'meta', 'status']
     advanced_tabs.each do |action|
-      context "@current_action is '#{action}'" do
+      context "current action is '#{action}'" do
         before do
-          @current_action = action
+          allow(controller).to receive(:action_name).and_return(action)
         end
 
         it { expect(is_advanced_tab?).to be true }
       end
     end
 
-    context "@current_action is not within #{advanced_tabs}" do
+    context "current action is not within #{advanced_tabs}" do
       before do
-        @current_action = 'something'
-      end
-
-      it { expect(is_advanced_tab?).to be false }
-    end
-
-    context '@current_action is an empty string' do
-      before do
-        @current_action = ''
+        allow(controller).to receive(:action_name).and_return('some_action')
       end
 
       it { expect(is_advanced_tab?).to be false }

@@ -5,6 +5,7 @@ LOGROTATE_CONFIGS     := obs-api obs-server obs-source_service
 OBS_BIN_SCRIPTS       := obs_productconvert
 OBS_SBIN_SCRIPTS      := obs_admin obs_serverstatus
 SYSTEMD_SERVICE_FILES := obsdeltastore
+FILLUPDIR             := /var/adm/fillup-templates
 
 UNITDIR=/usr/lib/systemd/system/
 
@@ -37,7 +38,7 @@ install_logrotate: system_dirs
 	$(foreach config,$(LOGROTATE_CONFIGS),$(shell $(INSTALL) -m 644 $(config).logrotate $(DESTDIR)/etc/logrotate.d/$(config)) )
 
 install_fillups: system_dirs
-	$(INSTALL) -m 0644 sysconfig.obs-server $(DESTDIR)/var/adm/fillup-templates/
+	$(INSTALL) -m 0644 sysconfig.obs-server $(DESTDIR)$(FILLUPDIR)
 
 install_slp: system_dirs
 	$(INSTALL) -m 644 obs.source_server.reg $(DESTDIR)/etc/slp.reg.d/
@@ -59,7 +60,7 @@ system_dirs:
 	$(INSTALL) -d -m 755 $(DESTDIR)/etc/cron.d/
 	$(INSTALL) -d -m 755 $(DESTDIR)/usr/bin/
 	$(INSTALL) -d -m 755 $(DESTDIR)/usr/sbin/
-	$(INSTALL) -d -m 755 $(DESTDIR)/var/adm/fillup-templates
+	$(INSTALL) -d -m 755 $(DESTDIR)$(FILLUPDIR)
 	$(INSTALL) -d -m 755 $(DESTDIR)/usr/share/doc/packages/obs-devel
 	$(INSTALL) -d -m 755 $(DESTDIR)/usr/lib/obs/tests/appliance
 	$(INSTALL) -d -m 755 $(DESTDIR)$(UNITDIR)

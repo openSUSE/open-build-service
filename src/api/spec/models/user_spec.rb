@@ -11,6 +11,7 @@ RSpec.describe User do
     it { is_expected.to validate_presence_of(:login).with_message('must be given') }
     it { is_expected.to validate_length_of(:login).is_at_least(2).with_message('must have more than two characters') }
     it { is_expected.to validate_length_of(:login).is_at_most(100).with_message('must have less than 100 characters') }
+    it { is_expected.to validate_inclusion_of(:state).in_array(User::STATES) }
 
     it { is_expected.to allow_value('king@opensuse.org').for(:email) }
     it { is_expected.to_not allow_values('king.opensuse.org', 'opensuse.org', 'opensuse').for(:email) }

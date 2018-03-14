@@ -22,6 +22,9 @@ end
 class User < ApplicationRecord
   include CanRenderModel
 
+  # Keep in sync with states defined in db/structure.sql
+  STATES = ['unconfirmed', 'confirmed', 'locked', 'deleted', 'subaccount'].freeze
+
   # disable validations because there can be users which don't have a bcrypt
   # password yet. this is for backwards compatibility
   has_secure_password validations: false
@@ -72,6 +75,8 @@ class User < ApplicationRecord
             length: { in: 2..100, allow_nil: true,
             too_long: 'must have less than 100 characters',
             too_short: 'must have more than two characters' }
+
+  validates :state, inclusion: { in: STATES }
 
   # We want a valid email address. Note that the checking done here is very
   # rough. Email adresses are hard to validate now domain names may include

@@ -53,6 +53,7 @@ sub archivejob {
   unlink("$jobdir/$jobid.log");
   unlink("$jobdir/$jobid.data");
   unlink("$jobdir/$jobid.file");
+  unlink("$jobdir/$jobid.result");
   BSUtil::cleandir("$jobdir/$jobid.dir");
   rmdir("$jobdir/$jobid.dir");
   unlink("$jobdir/$jobid");
@@ -185,6 +186,8 @@ sub run {
 
       if (!($pid = xfork())) {
 	POSIX::setsid() > 0 || die("setsid: $!\n");	# creates new session and process group
+        close JOBLOCK;
+        close($conf->{'runlock'});
 	startupload($job, \*LOGLOCK);
 	BSUtil::ping($ping);	# trigger process reap
 	exit(0);
