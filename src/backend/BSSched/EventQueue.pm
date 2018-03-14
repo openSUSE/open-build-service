@@ -132,7 +132,7 @@ sub process_events {
       for (qw{type project repository arch package}) {
 	$estr .= " $ev->{$_}" if $ev->{$_};
       }
-      print "$estr\n";
+      BSUtil::printlog($estr);
     }
 
     unlink($ev->{'evfilename'}) if $ev->{'evfilename'};

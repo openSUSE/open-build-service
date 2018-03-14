@@ -350,7 +350,7 @@ if ($testmode && ($testmode eq 'exit' || $testmode eq 'restart')) {
   }
   exit(0);
 }
-print "starting build service scheduler\n";
+BSUtil::printlog("starting build service scheduler");
 
 # get lock
 mkdir_p($_rundir);
@@ -726,6 +726,8 @@ my %remotewatchers;	# XXX: put in gctx?
 
 my $reporoot = $gctx->{'reporoot'};
 my $myarch = $gctx->{'arch'};
+
+BSUtil::printlog("startup complete, entering event loop");
 
 eval {
 

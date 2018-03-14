@@ -500,7 +500,7 @@ sub event_exit {
   $statefile = "$rundir/bs_sched.$myarch.dead" if $ev->{'type'} eq 'emergencydump';
   BSUtil::store("$statefile.new", $statefile, $schedstate);
   if ($ev->{'type'} eq 'exit' || $ev->{'type'} eq 'exitcomplete') {
-    print "bye.\n";
+    BSUtil::printlog("bye.");
     exit(0);
   }
   if ($ev->{'type'} eq 'restart') {
