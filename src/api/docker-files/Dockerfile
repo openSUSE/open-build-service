@@ -15,6 +15,7 @@ RUN usermod -u $CONTAINER_USERID frontend
 # docker would use it's cache for this and the following stages.
 ADD Gemfile /obs/src/api/Gemfile
 ADD Gemfile.lock /obs/src/api/Gemfile.lock
+ADD .bundle /obs/src/api/
 RUN chown -R frontend /obs/src/api
 
 # Now do the rest as the user with the same ID as the user who
@@ -22,8 +23,5 @@ RUN chown -R frontend /obs/src/api
 USER frontend
 WORKDIR /obs/src/api
 
-# Refresh our bundle
-RUN export NOKOGIRI_USE_SYSTEM_LIBRARIES=1; bundle install --jobs=3 --retry=3 || bundle install --jobs=3 --retry=3
-
-# Run our command
-CMD ["foreman", "start", "-f", "Procfile"]
+# Install/Refresh our gems and start OBS
+CMD bundle install --clean && foreman start -f Procfile

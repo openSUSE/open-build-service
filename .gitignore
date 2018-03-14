@@ -38,6 +38,10 @@
 /src/api/mkmf.log
 /src/api/tmp
 /src/api/spec/examples.txt
+/src/api/.bundle/*
+!/src/api/.bundle/.keep
+/src/api/gems/*
+!/src/api/gems/.keep
 /src/backend/blib
 /src/backend/BSConfig.pm
 /src/backend/BSSolv.bs

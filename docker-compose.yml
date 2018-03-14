@@ -30,6 +30,8 @@ services:
     ports:
       - "3000:3000"
       - "1080:1080"
+    environment:
+      NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
     depends_on:
       - db
       - cache

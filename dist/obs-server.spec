@@ -307,6 +307,7 @@ This package contains all the necessary tools for upload images to the cloud.
 # We don't need our docker files in our packages
 rm -r src/{api,backend}/docker-files
 rm src/api/Dockerfile.frontend-base
+rmdir src/api/{.bundle,gems}
 
 # drop build script, we require the installed one from own package
 rm -rf src/backend/build
