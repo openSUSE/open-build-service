@@ -1,6 +1,6 @@
 <% @pagetitle = "Detailed Informations About #{@filename}" %>
 <% package_bread_crumb(
-  link_to( 'Binaries', :controller => 'package', package_binaries_path(:project => @project, :package => @package, :repository => @repository, :arch => @arch )),
+  link_to( 'Binaries', package_binaries_path(:project => @project, :package => @package, :repository => @repository, :arch => @arch )),
   link_to(truncate(@filename, :length => 30), :controller => 'package',
           :project => @project,
     :package => @package, :repository => @repository, :arch => @arch ),
