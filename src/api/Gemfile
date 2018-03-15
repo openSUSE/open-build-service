@@ -115,8 +115,6 @@ group :test do
   gem 'timecop'
   # to fake backend replies
   gem 'webmock', '>= 2.3.0'
-  # for code quality checks
-  gem 'flog', '> 4.1.0'
   # for mocking and stubbing
   gem 'mocha', '> 0.13.0', require: false
   # for testing common Rails functionality with simple one-liners
