@@ -959,7 +959,7 @@ class Webui::PackageController < Webui::WebuiController
   def rpmlint_log
     required_parameters :project, :package, :repository, :architecture
     begin
-      @log = Backend::Api::BuildResults::Binaries.rpmlint_log(params[:project], params[:package], params[:repository], params[:arch])
+      @log = Backend::Api::BuildResults::Binaries.rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
       @log.encode!(xml: :text)
       render partial: 'rpmlint_log'
     rescue ActiveXML::Transport::NotFoundError
