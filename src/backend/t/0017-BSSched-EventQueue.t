@@ -127,7 +127,7 @@ $eq->add_events({});
 	$eq->process_events();
 }
 
-$out =~ s/.*?\] //;
+$out =~ s/.*?\] +//;
 $expected = "remote event unknown
 unknown event type 'unknown'
 ";
