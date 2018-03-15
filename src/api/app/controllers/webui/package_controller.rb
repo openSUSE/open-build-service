@@ -957,11 +957,14 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def rpmlint_log
-    @log = Backend::Api::BuildResults::Binaries.rpmlint_log(params[:project], params[:package], params[:repository], params[:arch])
-    @log.encode!(xml: :text)
-    render partial: 'rpmlint_log'
-  rescue ActiveXML::Transport::NotFoundError
-    render plain: 'No rpmlint log'
+    required_parameters :project, :package, :repository, :architecture
+    begin
+      @log = Backend::Api::BuildResults::Binaries.rpmlint_log(params[:project], params[:package], params[:repository], params[:arch])
+      @log.encode!(xml: :text)
+      render partial: 'rpmlint_log'
+    rescue ActiveXML::Transport::NotFoundError
+      render plain: 'No rpmlint log'
+    end
   end
 
   def meta
