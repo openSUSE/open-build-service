@@ -23,6 +23,10 @@ RSpec.feature "User's home project creation", type: :feature, js: true do
     expect(page).to have_link('Involved Packages')
     expect(page).to have_link('Involved Projects')
     expect(page).to have_link('Owned Project/Packages')
+  end
+
+  scenario 'view tasks page' do
+    visit user_tasks_path(user)
 
     expect(page).to have_link('Incoming Requests')
     expect(page).to have_link('Outgoing Requests')

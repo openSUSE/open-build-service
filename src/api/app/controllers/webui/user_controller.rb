@@ -55,10 +55,6 @@ class Webui::UserController < Webui::WebuiController
     @owned = @displayed_user.owned_packages
     @groups = @displayed_user.groups
     @role_titles = @displayed_user.roles.global.pluck(:title)
-
-    return unless User.current == @displayed_user
-    @is_displayed_user = User.current == @displayed_user
-    @patchinfos = @displayed_user.involved_patchinfos
     @account_edit_link = CONFIG['proxy_auth_account_page']
   end
 
