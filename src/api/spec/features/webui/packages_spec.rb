@@ -199,7 +199,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
 
     before do
       login(user)
-      stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/#{package}/_log?end=65536&nostream=1&start=0")
+      stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/#{package}/_log?end=1&nostream=1&start=0")
         .and_return(body: '[1] this is my dummy logfile -> ümlaut')
       result = %(<resultlist state="8da2ae1e32481175f43dc30b811ad9b5">
                               <result project="#{user.home_project}" repository="#{repository.name}" arch="i586" code="published" state="published">
@@ -222,6 +222,8 @@ RSpec.feature 'Packages', type: :feature, js: true do
 
     scenario 'live build finishes succesfully' do
       visit package_live_build_log_path(project: user.home_project, package: package, repository: repository.name, arch: 'i586')
+
+      find('#status', text: 'Build finished') # to wait until it loads
       expect(page).to have_text('Build finished')
       expect(page).to have_text('[1] this is my dummy logfile -> ümlaut')
     end
