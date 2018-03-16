@@ -1337,6 +1337,7 @@ our $person = [
         ],
 	'state',
       [ 'globalrole' ],
+	'ignore_auth_services',
       [ 'watchlist' =>
 	 [[ 'project' =>
 		'name',
