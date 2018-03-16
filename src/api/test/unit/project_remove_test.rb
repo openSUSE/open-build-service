@@ -123,7 +123,6 @@ class ProjectRemoveTest < ActiveSupport::TestCase
                                        target_package: package,
                                        sourceupdate: 'update')
     request.bs_request_actions << action
-    action.bs_request = request
     request.set_add_revision
     request.save!
     @request = request.reload
