@@ -202,7 +202,6 @@ class Webui::RequestController < Webui::WebuiController
         opts[:target_repository] = params[:repository] if params[:repository]
         action = BsRequestActionDelete.new(opts)
         req.bs_request_actions << action
-        action.bs_request = req
 
         req.save!
       end
@@ -243,7 +242,6 @@ class Webui::RequestController < Webui::WebuiController
         opts[:group_name] = params[:group] if params[:group]
         action = BsRequestActionAddRole.new(opts)
         req.bs_request_actions << action
-        action.bs_request = req
 
         req.save!
       end
@@ -274,7 +272,6 @@ class Webui::RequestController < Webui::WebuiController
         opts[:group_name] = params[:group] if params[:group]
         action = BsRequestActionSetBugowner.new(opts)
         req.bs_request_actions << action
-        action.bs_request = req
 
         req.save!
       end
@@ -308,7 +305,6 @@ class Webui::RequestController < Webui::WebuiController
           source_package: params[:devel_package] || params[:package])
 
         req.bs_request_actions << action
-        action.bs_request = req
         req.save!
       end
     rescue BsRequestAction::UnknownProject,
@@ -422,7 +418,6 @@ class Webui::RequestController < Webui::WebuiController
           opts[:sourceupdate] = params[:sourceupdate] if params[:sourceupdate]
           action = BsRequestActionSubmit.new(opts)
           req.bs_request_actions << action
-          action.bs_request = req
 
           req.save!
         end
