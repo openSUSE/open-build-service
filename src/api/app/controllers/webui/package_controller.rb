@@ -283,7 +283,6 @@ class Webui::PackageController < Webui::WebuiController
         opts[:source_rev] = params[:rev] if params[:rev]
         action = BsRequestActionSubmit.new(opts)
         req.bs_request_actions << action
-        action.bs_request = req
 
         req.set_add_revision
         req.save!

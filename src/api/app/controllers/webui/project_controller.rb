@@ -133,7 +133,6 @@ class Webui::ProjectController < Webui::WebuiController
 
         action = BsRequestActionMaintenanceIncident.new(source_project: params[:project])
         req.bs_request_actions << action
-        action.bs_request = req
 
         req.set_add_revision
         req.save!
@@ -164,7 +163,6 @@ class Webui::ProjectController < Webui::WebuiController
 
           action = BsRequestActionMaintenanceRelease.new(source_project: params[:project])
           req.bs_request_actions << action
-          action.bs_request = req
 
           req.save!
         end
@@ -378,7 +376,6 @@ class Webui::ProjectController < Webui::WebuiController
         opts[:target_repository] = params[:repository] if params[:repository]
         action = BsRequestActionDelete.new(opts)
         req.bs_request_actions << action
-        action.bs_request = req
 
         req.save!
       end
