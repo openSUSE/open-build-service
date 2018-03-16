@@ -1,6 +1,6 @@
 .grid_6.omega{ style: 'text-align: right' }
   - if User.current && !User.current.is_nobody?
-    = link_to(home_path, id: 'link-to-user-home') do
+    = link_to(user_show_path(User.current), id: 'link-to-user-home') do
       = User.current.login
     - tasks = User.current.tasks
     - if tasks > 0
