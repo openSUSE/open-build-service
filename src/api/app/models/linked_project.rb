@@ -28,7 +28,6 @@ end
 #  linked_db_project_id       :integer          indexed => [db_project_id]
 #  position                   :integer
 #  linked_remote_project_name :string(255)
-#  vrevmode                   :string(8)        default("standard")
 #
 # Indexes
 #

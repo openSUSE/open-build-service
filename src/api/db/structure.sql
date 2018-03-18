@@ -385,7 +385,7 @@ CREATE TABLE `configurations` (
   `http_proxy` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `no_proxy` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `theme` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `obs_url` varchar(255) COLLATE utf8_bin DEFAULT 'https://unconfigured.openbuildservice.org',
+  `obs_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `cleanup_after_days` int(11) DEFAULT NULL,
   `admin_email` varchar(255) COLLATE utf8_bin DEFAULT 'unconfigured@openbuildservice.org',
   `cleanup_empty_projects` tinyint(1) DEFAULT '1',
@@ -715,7 +715,6 @@ CREATE TABLE `linked_projects` (
   `linked_db_project_id` int(11) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `linked_remote_project_name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `vrevmode` enum('standard','unextend','extend') COLLATE utf8_bin DEFAULT 'standard',
   PRIMARY KEY (`id`),
   UNIQUE KEY `linked_projects_index` (`db_project_id`,`linked_db_project_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -1273,7 +1272,6 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20170323123236'),
 ('20170412121601'),
 ('20170412121957'),
-('20170413212201'),
 ('20170426153510'),
 ('20170509123922'),
 ('20170511120355'),
@@ -1317,7 +1315,6 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20171219122451'),
 ('20180109115548'),
 ('20180110074142'),
-('20180221175514'),
 ('20180307074538');
 
 
