@@ -57,6 +57,16 @@ namespace :docker do
         sh 'docker-compose -f docker-compose.ci.yml -p minitest stop'
       end
     end
+
+    desc 'Run the spider test to crawl all pages and fail for exceptions'
+    task :spider do
+      begin
+        cmd = '../../contrib/start_spider'
+        sh "docker-compose -f docker-compose.ci.yml run --rm minitest /bin/bash -c '#{cmd}'"
+      ensure
+        sh 'docker-compose -f docker-compose.ci.yml stop'
+      end
+    end
   end
 
   namespace :maintainer do
