@@ -2,12 +2,10 @@
 dist: trusty
 sudo: required
 services:
-  - memcached
+  - docker
 
 # Language and app config
 language: ruby
-cache: bundler
-gemfile: src/api/Gemfile
 
 # Github config
 branches:
@@ -16,10 +14,6 @@ branches:
     - /^depfu\/.*/
 
 # Scripts
-install:
-  - bundle install --jobs=3 --retry=3 --deployment --path=${BUNDLE_PATH:-vendor/bundle} --without=development
-before_install: dist/ci/travis_before_install.sh
-before_script: dist/ci/travis_before_script.sh
 after_failure: dist/ci/travis_after_failure.sh
 script: "dist/ci/travis_script.sh $TEST_SUITE"
 
@@ -40,11 +34,6 @@ jobs:
         bundler: true
         directories:
           - tmp/rubocop_cache
-      before_install:
-        - npm install -g jshint
-        # These lines are needed to run rubocop in the root directory as we install gems with `bundle install` under `src/api/`
-        - gem install rubocop -v 0.54.0
-        - gem install rubocop-rspec -v 1.25.1
     - stage: test
       env: TEST_SUITE=rspec
     - env: TEST_SUITE=api
