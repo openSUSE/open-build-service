@@ -2,4 +2,4 @@
 echo "Preparing application..."
 bundle exec rake dev:bootstrap RAILS_ENV=test &> /dev/null
 echo "Running rspec..."
-bundle exec rspec --format doc
+bundle exec rspec
