@@ -25,7 +25,7 @@ do
       obs-service-download_src_package obs-service-download_files \
       obs-service-download_url \
       obs-service-format_spec_file obs-service-kiwi_import \
-      perl-Devel-Cover perl-Diff-LibXDiff \
+      perl-Devel-Cover perl-Diff-LibXDiff perl-GD \
       osc
     ;;
 
