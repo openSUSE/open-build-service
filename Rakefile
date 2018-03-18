@@ -41,7 +41,12 @@ namespace :docker do
     desc 'Scan the code base for syntax/code problems'
     task :lint do
       begin
-        sh 'docker-compose -f docker-compose.ci.yml run --rm rspec bundle exec rake dev:bootstrap dev:lint'
+        cmd = '/bin/bash -c "bundle exec rake --tasks && bundle exec rake dev:bootstrap && bundle exec rake dev:lint"'
+        environment = "-e TRAVIS_BRANCH=#{ENV['TRAVIS_BRANCH']} "
+        environment << "-e TRAVIS_PULL_REQUEST_BRANCH=#{ENV['TRAVIS_PULL_REQUEST_BRANCH']} "
+        environment << "-e TRAVIS_PULL_REQUEST_SLUG=#{ENV['TRAVIS_PULL_REQUEST_SLUG']} "
+        environment << "-e TRAVIS=#{ENV['TRAVIS']} "
+        sh "docker-compose -f docker-compose.ci.yml run #{environment} --rm rspec #{cmd}"
       ensure
         sh 'docker-compose -f docker-compose.ci.yml stop'
       end
