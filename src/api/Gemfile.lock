@@ -60,7 +60,7 @@ GEM
     ast (2.4.0)
     bcrypt (3.1.11)
     builder (3.2.3)
-    bullet (5.7.3)
+    bullet (5.7.5)
       activesupport (>= 3.0.0)
       uniform_notifier (~> 1.11.0)
     bunny (2.9.2)
