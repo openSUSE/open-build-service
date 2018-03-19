@@ -32,8 +32,19 @@ module Cloud
         new(exception: exception.message)
       end
 
-      def self.all(user)
+      def self.find(job_id, options = {})
+        xml = ::Backend::Api::Cloud.upload_jobs([job_id])
+        return xml if options[:format] == :xml
+        xml_hash = Xmlhash.parse(xml)['clouduploadjob']
+        return if xml_hash.blank?
+        new(xml_object: OpenStruct.new(xml_hash))
+      rescue ActiveXML::Transport::Error, Timeout::Error
+        nil
+      end
+
+      def self.all(user, options = {})
         xml = ::Backend::Api::Cloud.upload_jobs(user.upload_jobs.pluck(:job_id))
+        return xml if options[:format] == :xml
         [Xmlhash.parse(xml)['clouduploadjob']].flatten.compact.map do |xml_hash|
           new(xml_object: OpenStruct.new(xml_hash))
         end

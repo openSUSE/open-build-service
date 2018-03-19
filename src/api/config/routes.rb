@@ -674,6 +674,12 @@ OBSApi::Application.routes.draw do
 
     put '/mail_handler' => 'mail_handler#upload'
 
+    ### /cloud/upload
+
+    scope :cloud, as: :cloud do
+      resources :upload, only: [:index, :create], controller: 'cloud/upload_jobs'
+    end
+
     ### /public
     controller :public do
       get 'public' => :index

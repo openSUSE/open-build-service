@@ -92,6 +92,69 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
     end
   end
 
+  describe '.find' do
+    let(:upload_job) { create(:upload_job, job_id: 1000, user: user) }
+    let(:path) { "#{CONFIG['source_url']}/cloudupload?name=#{upload_job.job_id}" }
+
+    context 'with a valid backend response' do
+      context 'with an upload job' do
+        let(:xml_response) do
+          <<-HEREDOC
+            <clouduploadjoblist>
+              <clouduploadjob name="2">
+                <state>uploading</state>
+                <created>1513603428</created>
+                <user>mlschroe</user>
+                <target>ec2</target>
+                <project>Base:System</project>
+                <repository>openSUSE_Factory</repository>
+                <package>rpm</package>
+                <arch>x86_64</arch>
+                <filename>rpm-4.14.0-504.2.x86_64.rpm</filename>
+                <size>1690860</size>
+                <pid>18788</pid>
+              </clouduploadjob>
+            </clouduploadjoblist>
+          HEREDOC
+        end
+
+        before do
+          stub_request(:get, path).and_return(body: xml_response)
+        end
+
+        it { expect(Cloud::Backend::UploadJob.find(upload_job.job_id)).to be_kind_of Cloud::Backend::UploadJob }
+        it { expect(Cloud::Backend::UploadJob.find(upload_job.job_id).id).to eq('2') }
+      end
+
+      context 'with no upload job' do
+        let(:xml_response) do
+          <<-HEREDOC
+            <clouduploadjoblist>
+            </clouduploadjoblist>
+          HEREDOC
+        end
+
+        before do
+          stub_request(:get, path).and_return(body: xml_response)
+        end
+
+        it { expect(Cloud::Backend::UploadJob.find(upload_job.job_id)).to be_nil }
+      end
+    end
+
+    context 'with an invalid backend response' do
+      it { expect(Cloud::Backend::UploadJob.find(upload_job.job_id)).to be_nil }
+    end
+
+    context 'with Timeout::Error' do
+      before do
+        allow(Backend::Api::Cloud).to receive(:status).with(user).and_raise(Timeout::Error, 'boom')
+      end
+
+      it { expect(Cloud::Backend::UploadJob.find(upload_job.job_id)).to be_nil }
+    end
+  end
+
   describe '.all' do
     context 'with a valid backend response' do
       let(:upload_job) { create(:upload_job, user: user) }
