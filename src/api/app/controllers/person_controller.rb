@@ -10,7 +10,7 @@ class PersonController < ApplicationController
   skip_before_action :extract_user, only: [:command, :register]
   skip_before_action :require_login, only: [:command, :register]
 
-  before_action :set_user, only: [:post_userinfo, :change_my_password, :tokenlist, :command_token, :delete_token]
+  before_action :set_user, only: [:post_userinfo, :change_my_password]
 
   def show
     if params[:prefix]
@@ -265,41 +265,6 @@ class PersonController < ApplicationController
     @user.save!
   end
   private :change_password
-
-  # GET /person/<login>/token
-  def tokenlist
-    authorize @user, :show?
-
-    @list = @user.service_tokens
-  end
-
-  # POST /person/<login>/token
-  def command_token
-    authorize @user, :update?
-
-    unless params[:cmd] == 'create'
-      raise UnknownCommandError, "Allowed commands are 'create'"
-    end
-    pkg = nil
-    if params[:project] || params[:package]
-      pkg = Package.get_by_project_and_name(params[:project], params[:package])
-    end
-    @token = Token::Service.create(user: @user, package: pkg)
-  end
-
-  class TokenNotFound < APIException
-    setup 404
-  end
-
-  # DELETE /person/<login>/token/<id>
-  def delete_token
-    authorize @user, :update?
-
-    token = Token::Service.where(user_id: @user.id, id: params[:id]).first
-    raise TokenNotFound, "Specified token \"#{params[:id]}\" got not found" unless token
-    token.destroy
-    render_ok
-  end
 
   private
 
