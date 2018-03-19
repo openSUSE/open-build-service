@@ -90,7 +90,7 @@ sub readProductFile( $ )
     if( defined($xml) ) {
 	print "success!\n";
     } else {
-	die("FAILED: Unable to parse $filename");
+	die("FAILED: Unable to parse $filename: $@");
     }
     return $xml;
 }
