@@ -1,7 +1,7 @@
 class Webui::GroupsController < Webui::WebuiController
-  before_action :require_login, except: [:show, :tokens, :autocomplete]
+  before_action :require_login, except: [:show, :autocomplete]
   before_action :set_group, only: [:show, :update, :edit]
-  after_action :verify_authorized, except: [:show, :autocomplete, :tokens]
+  after_action :verify_authorized, except: [:show, :autocomplete]
 
   def index
     authorize Group, :index?
@@ -44,15 +44,8 @@ class Webui::GroupsController < Webui::WebuiController
   end
 
   def autocomplete
-    required_parameters :term
-    groups = Group.where('title LIKE ?', "#{params[:term]}%").pluck(:title)
-    render json: groups
-  end
-
-  def tokens
-    required_parameters :q
-    groups = Group.where('title LIKE ?', "#{params[:q]}%").pluck(:title).map { |title| { name: title } }
-    render json: groups
+    groups = Group.where('title LIKE ?', "#{params[:term]}%").pluck(:title) if params[:term]
+    render json: groups || []
   end
 
   private
@@ -62,7 +55,6 @@ class Webui::GroupsController < Webui::WebuiController
   end
 
   def set_group
-    required_parameters :title
     @group = Group.find_by_title(params[:title])
 
     # Group.find_by_title! is self implemented and would raise an 500 error

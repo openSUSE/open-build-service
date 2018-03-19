@@ -2,9 +2,8 @@
 - @crumb_list = [group_management_label, link_to(@group.title, group_show_path(@group.title,))]
 %h2
   Edit Group #{@group.title}
-= form_tag({ action: 'update' }, { id: 'group_add_form' }) do
+= form_tag({ action: 'update', title: @group.title }, { id: 'group_add_form' }) do
   %p
-    %input#title{ name: "title", type: "hidden", value: "#{@group.title}" }/
     = label_tag :members, 'Members:'
     %br/
     %input#members{ name: "group[members]", style: "display: none;", type: "text" }/
