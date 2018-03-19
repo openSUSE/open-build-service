@@ -1,3 +1,5 @@
+require 'builder'
+
 module Cloud
   module Params
     class Ec2
@@ -13,6 +15,14 @@ module Cloud
 
       def self.build(params)
         new(params.slice(:region, :ami_name))
+      end
+
+      def to_xml(options = {})
+        builder = options[:builder] || Builder::XmlMarkup.new(options)
+        builder.cloud_upload_params do |xml|
+          xml.ami_name ami_name
+          xml.region region
+        end
       end
 
       private

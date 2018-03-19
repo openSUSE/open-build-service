@@ -1,3 +1,5 @@
+require 'builder'
+
 module Cloud
   class UploadJob
     include ActiveModel::Validations
@@ -37,6 +39,16 @@ module Cloud
 
     def target_validator_class
       @target_validator_class ||= "::Cloud::Params::#{target.capitalize}".constantize
+    end
+
+    def to_xml(options = {})
+      builder = Builder::XmlMarkup.new(options)
+      builder.cloud_upload_job(id: id) do |xml|
+        xml.target target
+        xml.filename filename
+        xml.vpc_subnet_id vpc_subnet_id
+        target_params.to_xml(options.merge(builder: xml))
+      end
     end
 
     private

@@ -11,8 +11,13 @@ module Webui
       before_action :set_upload_job, only: :destroy
 
       def index
-        @upload_jobs = ::Cloud::Backend::UploadJob.all(User.current)
-        @crumb_list.push << 'Overview'
+        respond_to do |format|
+          format.html do
+            @upload_jobs = ::Cloud::Backend::UploadJob.all(User.current)
+            @crumb_list.push << 'Overview'
+          end
+          format.xml { render xml: ::Cloud::Backend::UploadJob.all(User.current, format: :xml) }
+        end
       end
 
       def new
@@ -23,12 +28,22 @@ module Webui
 
       def create
         @upload_job = ::Cloud::UploadJob.create(permitted_params.merge(user: User.current))
-        if @upload_job.valid?
-          flash[:success] = "Successfully created upload job #{@upload_job.id}."
-          redirect_to cloud_upload_index_path
-        else
-          flash[:error] = "Failed to create upload job: #{@upload_job.errors.full_messages.to_sentence}."
-          redirect_back(fallback_location: root_path)
+        respond_to do |format|
+          if @upload_job.valid?
+            format.html { redirect_to cloud_upload_index_path, success: "Successfully created upload job #{@upload_job.id}." }
+            format.xml { render xml: @upload_job }
+          else
+            format.html do
+              redirect_back(fallback_location: root_path,
+                                        error: "Failed to create upload job: #{@upload_job.errors.full_messages.to_sentence}.")
+            end
+            format.xml do
+              response.headers['X-Opensuse-Errorcode'] = 'cloud_upload_job_invalid'
+              render template: 'status', status: 400,
+                                         errorcode: 'cloud_upload_job_invalid',
+                                         summary: "Failed to create upload job: #{@upload_job.errors.full_messages.to_sentence}."
+            end
+          end
         end
       end
 

@@ -673,6 +673,18 @@ OBSApi::Application.routes.draw do
 
     put '/mail_handler' => 'mail_handler#upload'
 
+    ### /cloud/upload
+
+    scope :cloud, as: :cloud do
+      resources :upload, only: [:index, :create, :destroy], controller: 'webui/cloud/upload_jobs' do
+        new do
+          get ':project/:package/:repository/:arch/:filename', to: redirect('webui/cloud/upload_jobs#new')
+        end
+
+        resource :log, only: :show, controller: 'webui/cloud/upload_job/logs'
+      end
+    end
+
     ### /public
     controller :public do
       get 'public' => :index
