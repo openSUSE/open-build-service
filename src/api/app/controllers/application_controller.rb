@@ -86,6 +86,11 @@ class ApplicationController < ActionController::Base
 
   protected
 
+  def feature_active?(feature)
+    return if Feature.active?(feature)
+    render file: Rails.root.join('public/404'), status: :not_found, layout: false
+  end
+
   def validate_params
     params.each do |key, value|
       next if value.nil?
