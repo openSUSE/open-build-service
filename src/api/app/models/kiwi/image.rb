@@ -11,6 +11,7 @@ module Kiwi
     <description type="system">
     </description>
     <preferences>
+      <version>0.0.1</version>
       <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
     </preferences>
   </image>
