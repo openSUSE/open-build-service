@@ -209,8 +209,8 @@ class User < ApplicationRecord
 
   def self.get_default_admin
     admin = CONFIG['default_admin'] || 'Admin'
-    user = not_deleted.find_by(login: admin)
-    raise NotFoundError, "Admin not found, user #{admin} ha no admin permissions" unless user.is_admin?
+    user = User.find_by_login(admin)
+    raise NotFoundError, "Admin not found, user #{admin} has not admin permissions" unless user.is_admin?
     user
   end
 
