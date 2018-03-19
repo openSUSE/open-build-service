@@ -227,12 +227,6 @@ class User < ApplicationRecord
     raise NotFoundError, "Couldn't find User with login = #{login}"
   end
 
-  def self.realname_for_login(login)
-    User.find_by_login!(login).realname
-  rescue NotFoundError
-    ''
-  end
-
   def authenticate_via_password(password)
     if authenticate(password)
       mark_login!
