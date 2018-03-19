@@ -102,15 +102,14 @@ class User < ApplicationRecord
     return unless can_create_project?(home_project_name)
     # find or create the project
     project = Project.find_by(name: home_project_name)
-    unless project
-      project = Project.create(name: home_project_name)
-      # make the user maintainer
-      project.relationships.create(user: self,
-                                   role: Role.find_by_title('maintainer'))
-      project.store(login: login)
-      @home_project = project
-    end
-    true
+    return if project
+
+    project = Project.create(name: home_project_name)
+    # make the user maintainer
+    project.relationships.create(user: self,
+                                 role: Role.find_by_title('maintainer'))
+    project.store(login: login)
+    @home_project = project
   end
 
   # Inform ActiveModel::Dirty that changes are persistent now
