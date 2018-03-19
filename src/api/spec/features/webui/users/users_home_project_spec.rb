@@ -10,7 +10,6 @@ RSpec.feature "User's home project creation", type: :feature, js: true do
 
     click_button('Create Project')
     expect(page).to have_content("Project '#{user.home_project_name}' was created successfully")
-    expect(page).to have_content "#{user.login} | Home Project | Logout"
     expect(user.home_project).not_to be_nil
   end
 end
