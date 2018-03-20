@@ -645,13 +645,12 @@ sub get_projpacks_postprocess {
   my ($gctx) = @_;
 
   delete $gctx->{'get_projpacks_postprocess_needed'};
-  BSSched::Remote::beginwatchcollection($gctx);
 
   #print Dumper($projpacks);
-  calc_projpacks_linked($gctx); # modifies watchremote/needremoteproj
-  calc_prps($gctx);             # modifies watchremote/needremoteproj
+  calc_projpacks_linked($gctx);
+  calc_prps($gctx);
 
-  BSSched::Remote::endwatchcollection($gctx);
+  BSSched::Remote::setup_watches($gctx);
 }
 
 =head2 calc_projpacks_linked  - generate projpacks_linked helper hash
@@ -663,40 +662,30 @@ sub get_projpacks_postprocess {
 sub calc_projpacks_linked {
   my ($gctx) = @_;
   delete $gctx->{'projpacks_linked'};
+  delete $gctx->{'expandedprojlink'};
   my %projpacks_linked;
+  my %expandedprojlink;
   my $projpacks = $gctx->{'projpacks'};
-  my %watched;
   for my $projid (sort keys %$projpacks) {
     my $proj = $projpacks->{$projid};
     my ($mypackid, $pack);
     while (($mypackid, $pack) = each %{$proj->{'package'} || {}}) {
       next unless $pack->{'linked'};
       for my $lil (@{$pack->{'linked'}}) {
-	my $li = { %$lil };         # clone so that we don't change projpack
+	my $li = { %$lil, 'myproject' => $projid, 'mypackage' => $mypackid };
 	my $lprojid = delete $li->{'project'};
-	if (!$watched{"$lprojid/$li->{'package'}"}) {
-	  BSSched::Remote::addwatchremote($gctx, 'package', $lprojid, "/$li->{'package'}");
-	  $watched{"$lprojid/$li->{'package'}"} = 1;
-	}
-	$li->{'myproject'} = $projid;
-	$li->{'mypackage'} = $mypackid;
 	push @{$projpacks_linked{$lprojid}}, $li;
       }
     }
     if ($proj->{'link'}) {
-      for my $li (expandprojlink($gctx, $projid)) {
-	my $lprojid = delete $li->{'project'};
-	if (!$watched{$lprojid}) {
-	  BSSched::Remote::addwatchremote($gctx, 'package', $lprojid, '');        # watch all packages
-	  $watched{$lprojid} = 1;
-	}
-	$li->{'package'} = ':*';
-	$li->{'myproject'} = $projid;
-	push @{$projpacks_linked{$lprojid}}, $li;
+      $expandedprojlink{$projid} = [ expandprojlink($gctx, $projid) ];
+      for my $lprojid (@{$expandedprojlink{$projid}}) {
+	push @{$projpacks_linked{$lprojid}}, { 'package' => ':*', 'myproject' => $projid };
       }
     }
   }
   $gctx->{'projpacks_linked'} = \%projpacks_linked;
+  $gctx->{'expandedprojlink'} = \%expandedprojlink;
   #print Dumper(\%projpacks_linked);
 }
 
@@ -746,6 +735,7 @@ sub expandsearchpath {
 
   my $myarch = $gctx->{'arch'};
   my $projpacks = $gctx->{'projpacks'};
+  my $remoteprojs = $gctx->{'remoteprojs'};
   my %done;
   my @ret;
   my @path = @{$repository->{'path'} || []};
@@ -757,15 +747,17 @@ sub expandsearchpath {
     my $prp = "$t->{'project'}/$t->{'repository'}";
     push @ret, $t unless $done{$prp};
     $done{$prp} = 1;
-    BSSched::Remote::addwatchremote($gctx, 'repository', $t->{'project'}, "/$t->{'repository'}/$myarch") unless $t->{'repository'} eq '_unavailable';
     if (!@path) {
       last if $done{"/$prp"};
       my ($pid, $rid) = ($t->{'project'}, $t->{'repository'});
-      my $proj = BSSched::Remote::addwatchremote($gctx, 'project', $pid, '');
-      if ($proj) {
-        $proj = BSSched::Remote::fetchremoteproj($gctx, $proj, $pid);
-      } else {
-        $proj = $projpacks->{$pid};
+      my $proj = $projpacks->{$pid};
+      if (!$proj || $proj->{'remoteurl'}) {
+	$proj = $remoteprojs->{$pid};
+	if (!$proj) {
+	  $proj = BSSched::Remote::remoteprojid($gctx, $pid);
+	  next unless $proj;
+	  $proj = BSSched::Remote::fetchremoteproj($gctx, $proj, $pid);
+        }
       }
       next unless $proj;
       $done{"/$prp"} = 1;       # mark expanded
@@ -786,6 +778,7 @@ sub expandprojlink {
   my ($gctx, $projid) = @_;
 
   my $projpacks = $gctx->{'projpacks'};
+  my $remoteprojs = $gctx->{'remoteprojs'};
   my @ret;
   my $proj = $projpacks->{$projid};
   my @todo = map {$_->{'project'}} @{$proj->{'link'} || []};
@@ -793,14 +786,18 @@ sub expandprojlink {
   while (@todo) {
     my $lprojid = shift @todo;
     next if $seen{$lprojid};
-    push @ret, {'project' => $lprojid};
+    push @ret, $lprojid;
     $seen{$lprojid} = 1;
-    my $lproj = BSSched::Remote::addwatchremote($gctx, 'project', $lprojid, '');
-    if ($lproj) {
-      $lproj = BSSched::Remote::fetchremoteproj($gctx, $lproj, $lprojid);
-    } else {
-      $lproj = $projpacks->{$lprojid};
+    my $lproj = $projpacks->{$lprojid};
+    if (!$lproj || $lproj->{'remoteurl'}) {
+      $lproj = $remoteprojs->{$lprojid};
+      if (!$lproj) {
+	$lproj = BSSched::Remote::remoteprojid($gctx, $lprojid);
+        next unless $lproj;
+        $lproj = BSSched::Remote::fetchremoteproj($gctx, $lproj, $lprojid);
+      }
     }
+    next unless $lproj;
     unshift @todo, map {$_->{'project'}} @{$lproj->{'link'} || []};
   }
   return @ret;
@@ -916,14 +913,7 @@ sub calc_prps {
       }
 
       if (@xsp) {
-	# found some repos, join extra deps with project deps
-	for my $xsp (@xsp) {
-	  next if $xsp eq $prp;
-	  my ($aprojid, $arepoid) = split('/', $xsp, 2);
-	  # we just watch the repository as it costs too much to
-	  # watch every single package
-	  BSSched::Remote::addwatchremote($gctx, 'repository', $aprojid, "/$arepoid/$myarch");
-	}
+	# found some repos, merge extra deps with project deps
 	my %xsp = map {$_ => 1} (@sp, @xsp);
 	delete $xsp{$prp};
 	$prpdeps{$prp} = [ sort keys %xsp ];
@@ -1339,8 +1329,8 @@ sub runningfetchprojpacks {
         $packids{$_} = 1 for @{$async->{'_lpackids'} || []};
 	$all = 1 if $async->{'_resume'} == \&get_projpacks_resume;
         $meta = 1;
-      }   
-    }   
+      }
+    }
     next unless $good;
     my @packids = sort keys %packids;
     push @packids, '/all' if $all;
