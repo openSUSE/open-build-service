@@ -113,12 +113,12 @@ sub setup_watches {
   my ($gctx) = @_;
 
   # clear old data
-  %{$gctx->{'watchremote'}} = ();      # reset all watches
+  %{$gctx->{'watchremote'}} = ();	# reset all watches
 
   # init tmp hashes
-  $gctx->{'needremoteproj'} = {};      # tmp
-  $gctx->{'watchremote_cache'} = {};   # tmp
-  $gctx->{'watchremote_repos'} = {};   # tmp
+  $gctx->{'needremoteproj'} = {};	# tmp
+  $gctx->{'watchremote_cache'} = {};	# tmp
+  $gctx->{'watchremote_repos'} = {};	# tmp
 
   # add watches for all linked packages
   my $projpacks_linked = $gctx->{'projpacks_linked'};
@@ -126,10 +126,10 @@ sub setup_watches {
     my %watched;
     for my $lprojid (sort keys %$projpacks_linked) {
       for my $li (@{$projpacks_linked->{$lprojid}}) {
-       my $lpackid = $li->{'package'};
-       next if $watched{"$lprojid/$lpackid"};
-       addwatchremote($gctx, 'package', $lprojid, $lpackid eq ':*' ? '' : $lpackid);
-       $watched{"$lprojid/$lpackid"} = 1;
+	my $lpackid = $li->{'package'};
+	next if $watched{"$lprojid/$lpackid"};
+	addwatchremote($gctx, 'package', $lprojid, $lpackid eq ':*' ? '' : $lpackid);
+	$watched{"$lprojid/$lpackid"} = 1;
       }
     }
   }
@@ -140,9 +140,9 @@ sub setup_watches {
     my %watched;
     for my $projid (sort keys %$expandedprojlink) {
       for my $aprojid (@{$expandedprojlink->{$projid}}) {
-       next if $watched{$aprojid};
-       addwatchremote($gctx, 'project', $aprojid, '');
-       $watched{$aprojid} = 1;
+	next if $watched{$aprojid};
+	addwatchremote($gctx, 'project', $aprojid, '');
+	$watched{$aprojid} = 1;
       }
     }
   }
@@ -157,18 +157,18 @@ sub setup_watches {
     my %watched;
     for my $prp (sort keys %$prpdeps) {
       for my $aprp (@{$prpdeps->{$prp}}) {
-       next if $watched{$aprp} || $prp eq $aprp;
-       my ($aprojid, $arepoid) = split('/', $aprp, 2);
-       addwatchremote($gctx, 'repository', $aprojid, "/$arepoid/$myarch");
-       # we need the config for all path elements, so we also add a project watch
-       addwatchremote($gctx, 'project', $aprojid, '') unless $watched{$aprojid};
-       $watched{$aprp} = 1;
-       $watched{$aprojid} = 1;
+	next if $watched{$aprp} || $prp eq $aprp;
+	my ($aprojid, $arepoid) = split('/', $aprp, 2);
+	addwatchremote($gctx, 'repository', $aprojid, "/$arepoid/$myarch");
+	# we need the config for all path elements, so we also add a project watch
+	addwatchremote($gctx, 'project', $aprojid, '') unless $watched{$aprojid};
+	$watched{$aprp} = 1;
+	$watched{$aprojid} = 1;
       }
     }
   }
 
-  delete $gctx->{'watchremote_cache'}; # free mem
+  delete $gctx->{'watchremote_cache'};	# free mem
 
   # make sure we have the needed project data and delete the entries
   # we no longer need
@@ -186,8 +186,6 @@ sub setup_watches {
     }
   }
 }
-
-
 
 =head2 updateremoteprojs - sync remoteprojs with data from watch collection
 
