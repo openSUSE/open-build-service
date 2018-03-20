@@ -814,7 +814,6 @@ class Package < ApplicationRecord
     else
       logger.tagged('backend_sync') { logger.warn "Not saving Package #{project.name}/#{name}, global_write_through is off" }
     end
-    true
   end
 
   def delete_on_backend
@@ -824,8 +823,8 @@ class Package < ApplicationRecord
 
     # not really packages...
     # everything below _product:
-    return true if name =~ /\A_product:\w[-+\w\.]*\z/ && master_product_object != self
-    return true if name == '_project'
+    return if name =~ /\A_product:\w[-+\w\.]*\z/ && master_product_object != self
+    return if name == '_project'
 
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       path = source_path
@@ -847,7 +846,6 @@ class Package < ApplicationRecord
     else
       logger.tagged('backend_sync') { logger.warn "Not deleting Package #{project.name}/#{name}, global_write_through is off" }
     end
-    true
   end
 
   def to_axml_id
