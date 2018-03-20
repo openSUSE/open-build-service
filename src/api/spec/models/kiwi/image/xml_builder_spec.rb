@@ -16,6 +16,7 @@ RSpec.describe Kiwi::Image::XmlBuilder do
       </type>
       <bootsplash-theme>gnome</bootsplash-theme>
       <bootloader-theme>gnome-dark</bootloader-theme>
+      <version>1.2.3</version>
     </preferences>
   </image>
       XML
@@ -31,6 +32,7 @@ RSpec.describe Kiwi::Image::XmlBuilder do
       </type>
       <bootsplash-theme>gnome</bootsplash-theme>
       <bootloader-theme>gnome-dark</bootloader-theme>
+      <version>1.2.3</version>
     </preferences>
   </image>
       XML

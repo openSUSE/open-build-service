@@ -124,6 +124,10 @@ Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
     <contact>noemail@example.com</contact>
     <specification>Tiny, minimalistic appliances</specification>
   </description>
+  <preferences>
+    <type image="docker" boot="grub"/>
+    <version>2.0.0</version>
+  </preferences>
 </image>'
         kiwi_file_name { "#{name}.kiwi" }
       end

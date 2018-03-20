@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>The Wealth of Nations</title>
+          <title>Infinite Jest</title>
           <description/>
         </project>
     headers:
@@ -29,23 +29,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '110'
+      - '102'
     body:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>The Wealth of Nations</title>
+          <title>Infinite Jest</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
+  recorded_at: Mon, 19 Mar 2018 15:50:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/_config
     body:
       encoding: UTF-8
-      string: Harum natus excepturi perspiciatis deleniti amet. Beatae vel qui vero
-        et consequatur. Quas voluptatem tempore dolor.
+      string: Nesciunt officia est et. Sit et repellat perspiciatis nisi cupiditate
+        qui eligendi. Sed aut maxime tenetur asperiores. Ut reprehenderit quisquam
+        molestiae dolorum aut.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -72,7 +73,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
+  recorded_at: Mon, 19 Mar 2018 15:50:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/_meta?user=_nobody_
@@ -80,8 +81,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_a_kiwi_file" project="fake_project">
-          <title>Recalled to Life</title>
-          <description>Atque aut maxime ea culpa magnam recusandae quis.</description>
+          <title>Many Waters</title>
+          <description>Sit aut beatae quasi provident dignissimos.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -102,16 +103,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '189'
+      - '178'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_a_kiwi_file" project="fake_project">
-          <title>Recalled to Life</title>
-          <description>Atque aut maxime ea culpa magnam recusandae quis.</description>
+          <title>Many Waters</title>
+          <description>Sit aut beatae quasi provident dignissimos.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
+  recorded_at: Mon, 19 Mar 2018 15:50:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/_meta
@@ -119,8 +120,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_a_kiwi_file" project="fake_project">
-          <title>Recalled to Life</title>
-          <description>Atque aut maxime ea culpa magnam recusandae quis.</description>
+          <title>Many Waters</title>
+          <description>Sit aut beatae quasi provident dignissimos.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -141,16 +142,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '189'
+      - '178'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_a_kiwi_file" project="fake_project">
-          <title>Recalled to Life</title>
-          <description>Atque aut maxime ea culpa magnam recusandae quis.</description>
+          <title>Many Waters</title>
+          <description>Sit aut beatae quasi provident dignissimos.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
+  recorded_at: Mon, 19 Mar 2018 15:50:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/package_with_a_kiwi_file.kiwi
@@ -195,6 +196,7 @@ http_interactions:
           </repository>
           <preferences>
             <type image="docker" boot="grub"/>
+            <version>2.0.0</version>
           </preferences>
         </image>
     headers:
@@ -221,15 +223,15 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="1" vrev="1">
-          <srcmd5>ffac8feb048e1b26f53436c15e6a82c9</srcmd5>
+          <srcmd5>b7a6e8f3d8eb6f018faca857359eed87</srcmd5>
           <version>unknown</version>
-          <time>1509969972</time>
+          <time>1521474604</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
+  recorded_at: Mon, 19 Mar 2018 15:50:04 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file
@@ -259,11 +261,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_a_kiwi_file" rev="1" vrev="1" srcmd5="ffac8feb048e1b26f53436c15e6a82c9">
-          <entry name="package_with_a_kiwi_file.kiwi" md5="363dc3edd83746bef4b3433f338cabae" size="1374" mtime="1509969972" />
+        <directory name="package_with_a_kiwi_file" rev="1" vrev="1" srcmd5="b7a6e8f3d8eb6f018faca857359eed87">
+          <entry name="package_with_a_kiwi_file.kiwi" md5="c38370593c38dcc2632f2d19af116afb" size="1403" mtime="1521474604" />
         </directory>
     http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
+  recorded_at: Mon, 19 Mar 2018 15:50:04 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/package_with_a_kiwi_file.kiwi
@@ -285,7 +287,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       Content-Length:
-      - '1374'
+      - '1403'
       Cache-Control:
       - no-cache
       Connection:
@@ -331,10 +333,11 @@ http_interactions:
           </repository>
           <preferences>
             <type image="docker" boot="grub"/>
+            <version>2.0.0</version>
           </preferences>
         </image>
     http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
+  recorded_at: Mon, 19 Mar 2018 15:50:04 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file
@@ -364,11 +367,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_a_kiwi_file" rev="1" vrev="1" srcmd5="ffac8feb048e1b26f53436c15e6a82c9">
-          <entry name="package_with_a_kiwi_file.kiwi" md5="363dc3edd83746bef4b3433f338cabae" size="1374" mtime="1509969972" />
+        <directory name="package_with_a_kiwi_file" rev="1" vrev="1" srcmd5="b7a6e8f3d8eb6f018faca857359eed87">
+          <entry name="package_with_a_kiwi_file.kiwi" md5="c38370593c38dcc2632f2d19af116afb" size="1403" mtime="1521474604" />
         </directory>
     http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
+  recorded_at: Mon, 19 Mar 2018 15:50:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/_meta?user=_nobody_
@@ -376,8 +379,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_a_kiwi_file" project="fake_project">
-          <title>Recalled to Life</title>
-          <description>Atque aut maxime ea culpa magnam recusandae quis.</description>
+          <title>Many Waters</title>
+          <description>Sit aut beatae quasi provident dignissimos.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -398,14 +401,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '189'
+      - '178'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_a_kiwi_file" project="fake_project">
-          <title>Recalled to Life</title>
-          <description>Atque aut maxime ea culpa magnam recusandae quis.</description>
+          <title>Many Waters</title>
+          <description>Sit aut beatae quasi provident dignissimos.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Mon, 19 Mar 2018 15:50:04 GMT
+recorded_with: VCR 4.0.0

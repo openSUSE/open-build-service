@@ -118,7 +118,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
 
       it 'parses the preference type' do
         expect(subject.preference).to have_attributes(
-          version: '2.0',
+          version: '2.0.0',
           type_image: 'docker',
           type_containerconfig_name: 'my_container',
           type_containerconfig_tag: 'latest'

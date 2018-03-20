@@ -5,6 +5,7 @@ class Kiwi::Preference < ApplicationRecord
                     :product, :pxe, :reiserfs, :split, :squashfs, :tbz, :vmx, :xfs, :zfs]
 
   validates :type_image, inclusion: { in: type_images.keys }, allow_nil: true
+  validates :version, format: { with: /\A\d+\.\d+\.\d+\z/ }
 
   def containerconfig_xml
     builder = Nokogiri::XML::Builder.new do |xml|
