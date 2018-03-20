@@ -423,7 +423,6 @@ my $gctx = {
   'prpdeps' => {},			# searchpath plus aggregate deps plus kiwi deps
   'rprpdeps' => {},			# reverse prpdeps
 					# maps prp => [ prp, prp ... ], used for sorting
-  'prpnoleaf' => {},			# is this prp referenced by another prp?
   'prpsearchpath' => {},		# which prps to use for building
 					# maps prp => [ prp, prp ... ]
   'haveinterrepodep' => {},		# projid => bool: some repos prpdeps contain another repo of the same project
@@ -1049,7 +1048,7 @@ eval {
       # delete pkg meta cache
       $gctx->{'repodatas'}->dropmeta($prp, $myarch);
 
-      if (!$gctx->{'prpnoleaf'}->{$prp}) {
+      if (!$gctx->{'rprpdeps'}->{$prp}) {
         # only free repo data if all projects we depend on are finished, too.
         # (we always have to do the expansion if something changes)
         my @unfinishedprps;

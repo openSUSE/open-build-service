@@ -58,7 +58,6 @@ package BSSched::ProjPacks;
 #   projpacks_linked
 #   prpsearchpath
 #   prpdeps
-#   prpnoleaf
 #   asyncmode
 #   prpcheckuseforbuild
 
@@ -819,7 +818,6 @@ sub expandprojlink {
  output: @prps          (global)
          %prpsearchpath (global)
          %prpdeps       (global)
-         %prpnoleaf     (global)
 
 =cut
 
@@ -832,11 +830,9 @@ sub calc_prps {
   delete $gctx->{'prps'};
   delete $gctx->{'prpsearchpath'};
   delete $gctx->{'prpdeps'};
-  delete $gctx->{'prpnoleaf'};
   my @prps;
   my %prpsearchpath;
   my %prpdeps;
-  my %prpnoleaf;
   my %haveinterrepodep;
 
   my %newchanneldata;
@@ -932,10 +928,6 @@ sub calc_prps {
 	delete $xsp{$prp};
 	$prpdeps{$prp} = [ sort keys %xsp ];
       }
-      # set noleaf info
-      for (@{$prpdeps{$prp}}) {
-	$prpnoleaf{$_} = 1 if $_ ne $prp;
-      }
     }
     # check for inter-repository project dependencies
     for my $prp (keys %myprps) {
@@ -972,7 +964,6 @@ sub calc_prps {
   $gctx->{'prpsearchpath'} = \%prpsearchpath;
   $gctx->{'prpdeps'} = \%prpdeps;
   $gctx->{'rprpdeps'} = \%rprpdeps;
-  $gctx->{'prpnoleaf'} = \%prpnoleaf;
   $gctx->{'haveinterrepodep'} = \%haveinterrepodep;
 }
 

@@ -896,7 +896,7 @@ sub checkpkgs {
   }
 
   # put local notready into prpnotready if not a leaf
-  if (%$notready && $gctx->{'prpnoleaf'}->{$prp}) {
+  if (%$notready && $gctx->{'rprpdeps'}->{$prp}) {
     $gctx->{'prpnotready'}->{$prp} = $notready;
   } else {
     delete $gctx->{'prpnotready'}->{$prp};
