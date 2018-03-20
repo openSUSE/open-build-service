@@ -19,6 +19,7 @@ package BSSched::Remote;
 # gctx functions
 #   addwatchremote
 #   updateremoteprojs
+#   getchangedremoteprojs
 #   remoteprojid
 #   fetchremote_sync
 #   fetchremoteproj
@@ -357,12 +358,13 @@ sub remotemap2remoteprojs {
   my $remoteprojs = $gctx->{'remoteprojs'};
   for my $proj (@{$remotemap || []}) {
     my $projid = delete $proj->{'project'};
+    my $oproj = $remoteprojs->{$projid};
     if (!$proj->{'remoteurl'} && !$proj->{'error'}) {
       # remote project is gone (partition case)
       delete $remoteprojs->{$projid};
+      $gctx->{'remoteprojs_changed'}->{$projid} = 1 if $oproj;
       next;
     }
-    my $oproj = $remoteprojs->{$projid};
     undef $oproj if $oproj && ($oproj->{'remoteurl'} ne $proj->{'remoteurl'} || $oproj->{'remoteproject'} ne $proj->{'remoteproject'});
     my $c = $proj->{'config'};
     $c = $oproj->{'config'} if !defined($c) && $oproj;
@@ -374,6 +376,9 @@ sub remotemap2remoteprojs {
     if ($error) {
       $proj->{'error'} = $error;
       $gctx->{'retryevents'}->addretryevent({'type' => 'project', 'project' => $projid}) if $error =~ /interconnect error:/;
+    }
+    if (!$proj->{'proto'} && !BSUtil::identical($proj, $oproj, {'error' => 1, 'person' => 1, 'group' => 1})) {
+      $gctx->{'remoteprojs_changed'}->{$projid} = 1;
     }
     $remoteprojs->{$projid} = $proj;
   }
@@ -390,6 +395,14 @@ sub remotemap2remoteprojs {
       delete $remotemissing->{$projid};		# no longer missing
     }
   }
+}
+
+sub getchangedremoteprojs {
+  my ($gctx, $clear) = @_;
+  return () unless %{$gctx->{'remoteprojs_changed'} || {}};
+  my @changed = sort keys %{$gctx->{'remoteprojs_changed'}};
+  %{$gctx->{'remoteprojs_changed'}} = () if $clear;
+  return @changed;
 }
 
 ###########################################################################

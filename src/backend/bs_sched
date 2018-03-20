@@ -411,6 +411,7 @@ my $gctx = {
   'channeldata' => {},			# global channel data unificator to save memory
   'remoteprojs' => {},			# remote project cache
   'remotemissing' => {},		# missing remote projects cache
+  'remoteprojs_changed' => {},		# entries changed in remoteprojs hash
   'projsuspended' => {},		# project is suspended for now
 
   # lastcheck cache

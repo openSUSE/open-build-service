@@ -646,6 +646,9 @@ sub get_projpacks_postprocess {
 
   delete $gctx->{'get_projpacks_postprocess_needed'};
 
+  # clear changed remoteproj list
+  BSSched::Remote::getchangedremoteprojs($gctx, 1);
+
   #print Dumper($projpacks);
   calc_projpacks_linked($gctx);
   calc_prps($gctx);
