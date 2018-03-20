@@ -95,6 +95,7 @@ class User < ApplicationRecord
   validates :password, confirmation: true, allow_blank: true
 
   after_create :create_home_project
+
   def create_home_project
     # avoid errors during seeding
     return if login.in?(['_nobody_', 'Admin'])
@@ -125,6 +126,18 @@ class User < ApplicationRecord
     self.last_logged_in_at = Time.now
 
     self.login_failure_count = 0 if login_failure_count.nil?
+  end
+
+  # autocomplete method
+  # return either an array of users or an array of hashes
+  def self.autocomplete(prefix = nil, is_token = false)
+    User.where('login LIKE ?', "#{prefix}%").pluck(:login).collect do |user|
+      if is_token
+        { 'name' => user }
+      else
+        user
+      end
+    end
   end
 
   # the default state of a user based on the api configuration
