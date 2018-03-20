@@ -64,8 +64,8 @@ class User < ApplicationRecord
   has_many :rss_feed_items, -> { order(created_at: :desc) }, class_name: 'Notification::RssFeedItem', as: :subscriber, dependent: :destroy
 
   scope :all_without_nobody, -> { where('login != ?', NOBODY_LOGIN) }
-
   scope :not_deleted, -> { where.not(state: 'deleted') }
+  scope :with_login_prefix, ->(prefix) { where('login LIKE ?', "#{prefix}%") }
 
   validates :login, :state, presence: { message: 'must be given' }
 
@@ -98,6 +98,7 @@ class User < ApplicationRecord
   validates :password, confirmation: true, allow_blank: true
 
   after_create :create_home_project
+
   def create_home_project
     # avoid errors during seeding
     return if login.in?([NOBODY_LOGIN, 'Admin'])
@@ -127,6 +128,14 @@ class User < ApplicationRecord
     self.last_logged_in_at = Time.now
 
     self.login_failure_count = 0 if login_failure_count.nil?
+  end
+
+  def self.autocomplete_token(prefix = '')
+    autocomplete_login(prefix).collect { |user| { name: user } }
+  end
+
+  def self.autocomplete_login(prefix = '')
+    with_login_prefix(prefix).pluck(:login)
   end
 
   # the default state of a user based on the api configuration
