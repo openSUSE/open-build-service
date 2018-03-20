@@ -28,7 +28,6 @@ package BSSched::ProjPacks;
 #   clone_projpacks_part
 #   postprocess_needed_check
 #   get_projpacks_postprocess
-#   calc_projpacks_linked
 #   find_linked_sources
 #   expandsearchpath
 #   expandprojlink
@@ -650,46 +649,9 @@ sub get_projpacks_postprocess {
   BSSched::Remote::getchangedremoteprojs($gctx, 1);
 
   #print Dumper($projpacks);
-  calc_projpacks_linked($gctx);
   calc_prps($gctx);
 
   BSSched::Remote::setup_watches($gctx);
-}
-
-=head2 calc_projpacks_linked  - generate projpacks_linked helper hash
-
- TODO: add description
-
-=cut
-
-sub calc_projpacks_linked {
-  my ($gctx) = @_;
-  delete $gctx->{'projpacks_linked'};
-  delete $gctx->{'expandedprojlink'};
-  my %projpacks_linked;
-  my %expandedprojlink;
-  my $projpacks = $gctx->{'projpacks'};
-  for my $projid (sort keys %$projpacks) {
-    my $proj = $projpacks->{$projid};
-    my ($mypackid, $pack);
-    while (($mypackid, $pack) = each %{$proj->{'package'} || {}}) {
-      next unless $pack->{'linked'};
-      for my $lil (@{$pack->{'linked'}}) {
-	my $li = { %$lil, 'myproject' => $projid, 'mypackage' => $mypackid };
-	my $lprojid = delete $li->{'project'};
-	push @{$projpacks_linked{$lprojid}}, $li;
-      }
-    }
-    if ($proj->{'link'}) {
-      $expandedprojlink{$projid} = [ expandprojlink($gctx, $projid) ];
-      for my $lprojid (@{$expandedprojlink{$projid}}) {
-	push @{$projpacks_linked{$lprojid}}, { 'package' => ':*', 'myproject' => $projid };
-      }
-    }
-  }
-  $gctx->{'projpacks_linked'} = \%projpacks_linked;
-  $gctx->{'expandedprojlink'} = \%expandedprojlink;
-  #print Dumper(\%projpacks_linked);
 }
 
 =head2 find_linked_sources - find which projects/packages link to the specified project/packages
@@ -760,7 +722,7 @@ sub expandsearchpath {
 	  $proj = BSSched::Remote::remoteprojid($gctx, $pid);
 	  next unless $proj;
 	  $proj = BSSched::Remote::fetchremoteproj($gctx, $proj, $pid);
-        }
+	}
       }
       next unless $proj;
       $done{"/$prp"} = 1;       # mark expanded
@@ -796,8 +758,8 @@ sub expandprojlink {
       $lproj = $remoteprojs->{$lprojid};
       if (!$lproj) {
 	$lproj = BSSched::Remote::remoteprojid($gctx, $lprojid);
-        next unless $lproj;
-        $lproj = BSSched::Remote::fetchremoteproj($gctx, $lproj, $lprojid);
+	next unless $lproj;
+	$lproj = BSSched::Remote::fetchremoteproj($gctx, $lproj, $lprojid);
       }
     }
     next unless $lproj;
@@ -830,6 +792,8 @@ sub calc_prps {
   delete $gctx->{'prps'};
   delete $gctx->{'prpsearchpath'};
   delete $gctx->{'prpdeps'};
+  $gctx->{'projpacks_linked'} = {};
+  $gctx->{'expandedprojlink'} = {};
   my @prps;
   my %prpsearchpath;
   my %prpdeps;
@@ -839,6 +803,31 @@ sub calc_prps {
   my $projpacks = $gctx->{'projpacks'};
   for my $projid (sort keys %$projpacks) {
     my $proj = $projpacks->{$projid};
+
+    # generate package link information
+    if ($proj->{'package'}) {
+      my $projpacks_linked = $gctx->{'projpacks_linked'};
+      my ($mypackid, $pack);
+      while (($mypackid, $pack) = each %{$proj->{'package'} || {}}) {
+	next unless $pack->{'linked'};
+	for my $lil (@{$pack->{'linked'}}) {
+	  my $li = { %$lil, 'myproject' => $projid, 'mypackage' => $mypackid };
+	  my $lprojid = delete $li->{'project'};
+	  push @{$projpacks_linked->{$lprojid}}, $li;
+	}
+      }
+    }
+
+    # generate project link information
+    if ($proj->{'link'}) {
+      my $expandedprojlink = $gctx->{'expandedprojlink'};
+      $expandedprojlink->{$projid} = [ expandprojlink($gctx, $projid) ];
+      my $projpacks_linked = $gctx->{'projpacks_linked'};
+      for my $lprojid (@{$expandedprojlink->{$projid}}) {
+	push @{$projpacks_linked->{$lprojid}}, { 'package' => ':*', 'myproject' => $projid };
+      }
+    }
+
     my $repos = $proj->{'repository'} || [];
     my @myrepos;        # repos which include my arch
     for my $repo (@$repos) {
