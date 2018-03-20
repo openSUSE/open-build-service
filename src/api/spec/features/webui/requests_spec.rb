@@ -201,10 +201,8 @@ RSpec.feature 'Requests', type: :feature, js: true do
     let!(:request_2) { create(:bs_request, source_project: project, type: 'submit', created_at: Time.now + 2) }
     let!(:request_3) { create(:bs_request, source_project: project, type: 'submit', created_at: Time.now + 3) }
 
-    skip('FIXME: This test is flickering hard. The feature is also very weird.') do
-    end
-
     before do
+      skip('FIXME: This test is flickering hard. The feature is also very weird.')
       project.relationships.create(user: submitter, role: Role.where(title: 'maintainer').first)
     end
 
@@ -212,6 +210,7 @@ RSpec.feature 'Requests', type: :feature, js: true do
       login(submitter)
       visit project_requests_path(project: project)
 
+      find('#all_requests_table')
       expect(page).to have_text("Requests for #{project}")
       expect(page).to have_link("Show request ##{request_1.id}")
       expect(page).to have_link("Show request ##{request_2.id}")
