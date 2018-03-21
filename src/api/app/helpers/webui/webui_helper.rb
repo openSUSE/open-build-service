@@ -237,7 +237,7 @@ module Webui::WebuiHelper
   # @param [Hash]   options boolean flags :short, :no_icon
   def user_and_role(user, role = nil, options = {})
     opt = { short: false, no_icon: false }.merge(options)
-    real_name = User.realname_for_login(user)
+    real_name = User.not_deleted.find_by(login: user).try(:realname)
 
     if opt[:no_icon]
       icon = ''
