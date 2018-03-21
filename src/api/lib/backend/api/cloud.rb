@@ -12,12 +12,11 @@ module Backend
         http_post('/cloudupload', params: params, data: data)
       end
 
-      # Returns the status of the cloud upload jobs of a user
+      # Returns the backend data associated to a given list of cloud upload job ids
       # @return [String]
-      def self.upload_jobs(user)
-        jobs = user.upload_jobs.pluck(:job_id)
-        return "<clouduploadjoblist>\n</clouduploadjoblist>\n" if jobs.empty?
-        http_get('/cloudupload', params: { name: jobs }, expand: [:name])
+      def self.upload_jobs(job_ids = [])
+        return "<clouduploadjoblist>\n</clouduploadjoblist>\n" if job_ids.empty?
+        http_get('/cloudupload', params: { name: job_ids }, expand: [:name])
       end
 
       # Returns the log file of the cloud upload job
