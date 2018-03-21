@@ -24,6 +24,7 @@ class User < ApplicationRecord
 
   # Keep in sync with states defined in db/structure.sql
   STATES = ['unconfirmed', 'confirmed', 'locked', 'deleted', 'subaccount'].freeze
+  NOBODY_LOGIN = '_nobody_'.freeze
 
   # disable validations because there can be users which don't have a bcrypt
   # password yet. this is for backwards compatibility
@@ -62,8 +63,9 @@ class User < ApplicationRecord
 
   has_many :rss_feed_items, -> { order(created_at: :desc) }, class_name: 'Notification::RssFeedItem', as: :subscriber, dependent: :destroy
 
-  scope :all_without_nobody, -> { where('login != ?', nobody_login) }
+  scope :all_without_nobody, -> { where('login != ?', NOBODY_LOGIN) }
   scope :with_login_prefix, ->(prefix) { where('login LIKE ?', "#{prefix}%") }
+  scope :not_deleted, -> { where.not(state: 'deleted') }
 
   validates :login, :state, presence: { message: 'must be given' }
 
@@ -99,20 +101,19 @@ class User < ApplicationRecord
 
   def create_home_project
     # avoid errors during seeding
-    return if login.in?(['_nobody_', 'Admin'])
+    return if login.in?([NOBODY_LOGIN, 'Admin'])
     # may be disabled via Configuration setting
     return unless can_create_project?(home_project_name)
     # find or create the project
     project = Project.find_by(name: home_project_name)
-    unless project
-      project = Project.create(name: home_project_name)
-      # make the user maintainer
-      project.relationships.create(user: self,
-                                   role: Role.find_by_title('maintainer'))
-      project.store(login: login)
-      @home_project = project
-    end
-    true
+    return if project
+
+    project = Project.create(name: home_project_name)
+    # make the user maintainer
+    project.relationships.create(user: self,
+                                 role: Role.find_by_title('maintainer'))
+    project.store(login: login)
+    @home_project = project
   end
 
   # Inform ActiveModel::Dirty that changes are persistent now
@@ -219,19 +220,13 @@ class User < ApplicationRecord
     Thread.current[:user] = user
   end
 
-  def self.nobody_login
-    '_nobody_'
-  end
-
-  private_class_method :nobody_login
-
   def self.current_login
-    current.try(:login) || nobody_login
+    current.try(:login) || NOBODY_LOGIN
   end
 
   def self.get_default_admin
     admin = CONFIG['default_admin'] || 'Admin'
-    user = find_by_login(admin)
+    user = User.find_by_login(admin)
     raise NotFoundError, "Admin not found, user #{admin} has not admin permissions" unless user.is_admin?
     user
   end
@@ -240,30 +235,13 @@ class User < ApplicationRecord
     User.create_with(email: 'nobody@localhost',
                      realname: 'Anonymous User',
                      state: 'locked',
-                     password: '123456').find_or_create_by(login: nobody_login)
+                     password: '123456').find_or_create_by(login: NOBODY_LOGIN)
   end
 
   def self.find_by_login!(login)
-    user = find_by_login(login)
-    if user.nil? || user.state == 'deleted'
-      raise NotFoundError, "Couldn't find User with login = #{login}"
-    end
-    user
-  end
-
-  def self.get_by_login(login)
-    user = find_by_login!(login)
-    # FIXME: Move permission checks to controller level
-    unless User.current.is_admin? || user == User.current
-      raise NoPermission, "User #{login} can not be accessed by #{User.current.login}"
-    end
-    user
-  end
-
-  def self.realname_for_login(login)
-    User.find_by_login!(login).realname
-  rescue NotFoundError
-    ''
+    user = not_deleted.find_by(login: login)
+    return user if user
+    raise NotFoundError, "Couldn't find User with login = #{login}"
   end
 
   def authenticate_via_password(password)
@@ -416,7 +394,7 @@ class User < ApplicationRecord
   end
 
   def is_nobody?
-    login == '_nobody_'
+    login == NOBODY_LOGIN
   end
 
   def is_active?
@@ -474,6 +452,10 @@ class User < ApplicationRecord
     return true if has_global_permission? 'change_package'
     return true if has_local_permission? 'change_package', package
     false
+  end
+
+  def can_modify_user?(user)
+    is_admin? || self == user
   end
 
   # project is instance of Project

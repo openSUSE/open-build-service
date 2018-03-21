@@ -259,6 +259,7 @@ sub update_doddata_prp {
 
 sub update_doddata {
   my ($gctx, $projid, $proj) = @_;
+  return unless $gctx->{'dodsdir'};
   my $myarch = $gctx->{'arch'};
   my $dodprps = $gctx->{'dodprps'};
   my $changed;

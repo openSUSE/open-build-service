@@ -100,7 +100,7 @@ sub check {
   $markerdir = "$reporoot/$projid/$repoid/$buildarch/$packid" unless $ctx->{'isreposerver'};
 
   my %imagearch = map {$_ => 1} @{$info->{'imagearch'} || []};
-  return ('broken', 'no architectures for packages') unless grep {$imagearch{$_}} @{$repo->{'arch'} || []};
+  return ('excluded', 'no architectures for packages') unless grep {$imagearch{$_}} @{$repo->{'arch'} || []};
   my @archs = grep {$imagearch{$_}} @{$repo->{'arch'} || []};
 
   if ($myarch ne $buildarch && $myarch ne $localbuildarch) {

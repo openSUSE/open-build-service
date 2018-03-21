@@ -440,7 +440,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     login_adrian
     post '/person/adrianSuSE?cmd=change_password', params: data
     assert_response 403
-    assert_xml_tag tag: 'status', attributes: { code: 'change_password_no_permission' }
+    assert_xml_tag tag: 'status', attributes: { code: 'update_user_not_authorized' }
 
     # admin
     login_king

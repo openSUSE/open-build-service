@@ -645,7 +645,6 @@ class Project < ApplicationRecord
     end
 
     self.commit_opts = {}
-    true
   end
   private :delete_on_backend
 
