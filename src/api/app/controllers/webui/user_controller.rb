@@ -211,12 +211,12 @@ class Webui::UserController < Webui::WebuiController
 
   def autocomplete
     required_parameters :term
-    render json: User.autocomplete(params[:term])
+    render json: User.autocomplete_login(params[:term])
   end
 
   def tokens
     required_parameters :q
-    render json: User.autocomplete(params[:q], true)
+    render json: User.autocomplete_token(params[:q], true)
   end
 
   private

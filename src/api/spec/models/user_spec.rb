@@ -489,6 +489,7 @@ RSpec.describe User do
     context 'autocomplete_backend with nil as parameter' do
       subject { User.autocomplete_backend(nil) }
 
+      it { expect { subject }.not_to raise_error }
       it { expect(subject).to match_array([]) }
     end
 
