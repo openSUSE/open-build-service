@@ -315,6 +315,14 @@ class BsRequestAction < ApplicationRecord
     end
   end
 
+  def find_action_with_same_target(other_bs_request)
+    return nil if other_bs_request.blank?
+    other_bs_request.bs_request_actions.find do |other_bs_request_action|
+      target_project == other_bs_request_action.target_project &&
+        target_package == other_bs_request_action.target_package
+    end
+  end
+
   def default_reviewers
     reviews = []
     return reviews unless target_project

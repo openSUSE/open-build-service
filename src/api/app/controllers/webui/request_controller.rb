@@ -9,6 +9,8 @@ class Webui::RequestController < Webui::WebuiController
 
   before_action :set_project, only: [:change_devel_request_dialog]
 
+  before_action :set_superseded_request, only: :show
+
   def add_reviewer_dialog
     @request_number = params[:number]
     render_dialog 'requestAddReviewAutocomplete'
@@ -80,8 +82,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def show
     diff_limit = params[:full_diff] ? 0 : nil
-
-    @req = @bs_request.webui_infos(filelimit: diff_limit, tarlimit: diff_limit)
+    @req = @bs_request.webui_infos(filelimit: diff_limit, tarlimit: diff_limit, diff_to_superseded: @diff_to_superseded)
     @id = @req['id']
     @number = @req['number']
     @state = @req['state'].to_s
@@ -351,6 +352,14 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   private
+
+  def set_superseded_request
+    return unless params[:diff_to_superseded]
+    @diff_to_superseded = @bs_request.superseding.find_by(number: params[:diff_to_superseded])
+    return if @diff_to_superseded
+    flash[:error] = "Request #{params[:diff_to_superseded]} does not exist or is not superseded by request #{@bs_request.number}."
+    return
+  end
 
   def require_request
     required_parameters :number

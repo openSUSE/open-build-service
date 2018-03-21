@@ -161,6 +161,12 @@ class RequestController < ApplicationController
 
   def request_command_diff
     req = BsRequest.find_by_number!(params[:id])
+    superseded_request = req.superseding.find_by_number(params[:diff_to_superseded])
+    if params[:diff_to_superseded].present? && superseded_request.blank?
+      msg = "Request #{params[:diff_to_superseded]} does not exist or is not superseded by request #{req.number}."
+      render_error(message: msg, status: 404)
+      return
+    end
 
     diff_text = ''
     xml_request = if params[:view] == 'xml'
@@ -169,7 +175,11 @@ class RequestController < ApplicationController
 
     req.bs_request_actions.each do |action|
       withissues = params[:withissues].to_s.in?(['1', 'true'])
-      action_diff = action.sourcediff(view: params[:view], withissues: withissues)
+      action_diff = action.sourcediff(
+        view: params[:view],
+        withissues: withissues,
+        superseded_bs_request_action: action.find_action_with_same_target(superseded_request)
+      )
 
       if xml_request
         # Inject backend-provided XML diff into action XML:

@@ -175,6 +175,27 @@ RSpec.describe Webui::RequestController, vcr: true do
         it_behaves_like 'a full diff requested for', 'bigfile_archive.tar.gz/bigfile.txt'
       end
     end
+
+    context 'with :diff_to_superseded set' do
+      let(:superseded_bs_request) { create(:bs_request) }
+      context 'and the superseded request is superseded' do
+        before do
+          superseded_bs_request.update(state: :superseded, superseded_by: bs_request.number)
+          get :show, params: { number: bs_request.number, diff_to_superseded: superseded_bs_request.number }
+        end
+
+        it { expect(assigns(:diff_to_superseded)).to eq(superseded_bs_request) }
+      end
+
+      context 'and the superseded request is not superseded' do
+        before do
+          get :show, params: { number: bs_request.number, diff_to_superseded: superseded_bs_request.number }
+        end
+
+        it { expect(assigns(:diff_to_superseded)).to be_nil }
+        it { expect(flash[:error]).not_to be_nil }
+      end
+    end
   end
 
   describe 'POST #delete_request' do

@@ -49,4 +49,67 @@ RSpec.describe BsRequestAction do
       expect(action.target_project_object).to eq(project)
     end
   end
+
+  describe '#find_action_with_same_target' do
+    let(:target_package) { create(:package) }
+    let(:target_project) { target_package.project }
+    let(:source_package) { create(:package) }
+    let(:source_project) { source_package.project }
+    let(:bs_request) do
+      create(:bs_request_with_submit_action,
+             source_package: source_package.name,
+             source_project: source_project.name,
+             target_project: target_project.name,
+             target_package: target_package.name)
+    end
+    let(:bs_request_action) { bs_request.bs_request_actions.first }
+
+    context 'with a non existing bs request' do
+      it { expect(bs_request_action.find_action_with_same_target(nil)).to be_nil }
+    end
+
+    context 'with no matching action' do
+      let!(:another_bs_request) { create(:bs_request) }
+
+      it { expect(bs_request_action.find_action_with_same_target(another_bs_request)).to be_nil }
+    end
+
+    context 'with matching action' do
+      let!(:another_bs_request) do
+        create(:bs_request_with_submit_action,
+               source_package: source_package.name,
+               source_project: source_project.name,
+               target_project: target_project.name,
+               target_package: target_package.name)
+      end
+      let(:another_bs_request_action) { another_bs_request.bs_request_actions.first }
+
+      it { expect(bs_request_action.find_action_with_same_target(another_bs_request)).to eq(another_bs_request_action) }
+
+      context 'with more than one action' do
+        let(:another_target_package) { create(:package) }
+        let(:another_target_project) { another_target_package.project }
+        let(:another_bs_request) do
+          create(:bs_request_with_submit_action,
+                 source_package: source_package.name,
+                 source_project: source_project.name,
+                 target_project: another_target_project.name,
+                 target_package: another_target_package.name)
+        end
+        let(:another_bs_request_action) do
+          create(:bs_request_action_submit,
+                 source_package: source_package.name,
+                 source_project: source_project.name,
+                 target_project: target_project.name,
+                 target_package: target_package.name)
+        end
+
+        before do
+          another_bs_request.bs_request_actions << another_bs_request_action
+        end
+
+        it { expect(bs_request_action.find_action_with_same_target(another_bs_request)).to eq(another_bs_request_action) }
+      end
+    end
+  end
 end
