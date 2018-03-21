@@ -409,6 +409,7 @@ my $gctx = {
   # project data
   'projpacks' => undef,			# data of all local projects
   'channeldata' => {},			# global channel data unificator to save memory
+  'channelids' => {},			# projid => [id ...] channels used in project
   'remoteprojs' => {},			# remote project cache
   'remotemissing' => {},		# missing remote projects cache
   'remoteprojs_changed' => {},		# entries changed in remoteprojs hash
@@ -420,7 +421,9 @@ my $gctx = {
 
   # postprocessed project data
   'projpacks_linked' => {},		# data of all linked sources
+  'linked_projids' => {},		# projid => [projid, projid] projects our packages link to
   'prps' => [],				# sorted list of all local prps (project repos)
+  'project_prps' => {},			# projid => [ prp, prp ...]
   'prpdeps' => {},			# searchpath plus aggregate deps plus kiwi deps
   'rprpdeps' => {},			# reverse prpdeps
 					# maps prp => [ prp, prp ... ], used for sorting
@@ -1128,7 +1131,10 @@ eval {
       $lastschedinfo = $now;
     }
 
-    BSSched::ProjPacks::get_projpacks_postprocess($gctx) if $gctx->{'get_projpacks_postprocess_needed'};
+    if ($gctx->{'get_projpacks_postprocess_needed'}) {
+      delete $gctx->{'get_projpacks_postprocess_needed'};
+      BSSched::ProjPacks::get_projpacks_postprocess_projects($gctx, $projid);
+    }
   }
 
 };

@@ -31,7 +31,8 @@ package BSSched::ProjPacks;
 #   find_linked_sources
 #   expandsearchpath
 #   expandprojlink
-#   calc_prps
+#   setup_projects
+#   print_project_stats
 #   do_delayedprojpackfetches
 #   do_fetchprojpacks
 #   getconfig
@@ -69,12 +70,14 @@ our $testprojid;
 
 use Build;	# for read_config
 use Data::Dumper;
+use Time::HiRes;
 
 use BSUtil;
 use BSSolv;	# for depsort
 use Storable;
 use BSConfiguration;
 use BSSched::Remote;
+use BSSched::DoD;	# for update_doddata
 
 =head2 checkbuildrepoid - TODO: add summary
 
@@ -86,6 +89,7 @@ sub checkbuildrepoid {
   my ($gctx, $projpacksin) = @_;
   die("ERROR: source server did not report a repoid") unless $projpacksin->{'repoid'};
   my $reporoot = $gctx->{'reporoot'};
+  return unless defined $reporoot;
   my $buildrepoid = readstr("$reporoot/_repoid", 1);
   if (!$buildrepoid) {
     # set the repoid on first run
@@ -283,7 +287,7 @@ sub get_projpacks_resume {
 
   # commit the update
   update_projpacks($gctx, $projpacksin, $projid, $packids);
-  get_projpacks_postprocess($gctx) if !$packids || postprocess_needed_check($gctx, $projid, $oldprojdata);
+  get_projpacks_postprocess_projects($gctx, $projid) if !$packids || postprocess_needed_check($gctx, $projid, $oldprojdata);
 
   # do some upgrades if the project is gone and we fetched all packages
   # (i.e. project event case as someone deleted a project)
@@ -371,8 +375,8 @@ sub update_projpacks {
     $channeldata->{$md5} = $channel;
   }
   for my $proj (@{$projpacksin->{'project'} || []}) {
+    die("bad projpack answer\n") if defined($projid) && $proj->{'name'} ne $projid;
     if ($packids && @$packids) {
-      die("bad projpack answer\n") unless $proj->{'name'} eq $projid;
       if ($projpacks->{$projid}) {
         # do not delete the missingpackages flag if we just update single packages
         $proj->{'missingpackages'} = 1 if $projpacks->{$projid}->{'missingpackages'};
@@ -582,6 +586,7 @@ sub clone_projpacks_part {
 
   my $projpacks = $gctx->{'projpacks'};
   return undef unless $projpacks->{$projid};
+  # just clone the specified packages + multibuild packages
   my $oldprojdata = { %{$projpacks->{$projid} || {}} };
   delete $oldprojdata->{'package'};
   $oldprojdata = Storable::dclone($oldprojdata);
@@ -643,15 +648,51 @@ sub postprocess_needed_check {
 sub get_projpacks_postprocess {
   my ($gctx) = @_;
 
+  my $t1 = Time::HiRes::time();
   delete $gctx->{'get_projpacks_postprocess_needed'};
-
   # clear changed remoteproj list
   BSSched::Remote::getchangedremoteprojs($gctx, 1);
-
   #print Dumper($projpacks);
-  calc_prps($gctx);
-
+  setup_projects($gctx);
+  my $t2 = Time::HiRes::time();
   BSSched::Remote::setup_watches($gctx);
+  my $t3 = Time::HiRes::time();
+  printf "get_projpacks_postprocess done, %.3fs + %.3fs\n", $t2 - $t1, $t3 - $t2;
+}
+
+sub get_projpacks_postprocess_projects {
+  my ($gctx, @projids) = @_;
+
+  my %todo = map {$_ => 1} @projids;
+
+  # find out which project need an update
+  my $projpacks = $gctx->{'projpacks'};
+  my %changed = map {$_ => 1} BSSched::Remote::getchangedremoteprojs($gctx, 1);
+  $changed{$_} = 1 for @projids;
+
+  # first prp deps
+  my $rprpdeps = $gctx->{'rprpdeps'};
+  for my $rprp (keys %$rprpdeps) {
+    next unless $changed{(split('/', $rprp, 2))[0]};
+    for my $prp (@{$rprpdeps->{$rprp}}) {
+      my ($aprojid) = split('/', $prp, 2);
+      $todo{$aprojid} = 1 if $projpacks->{$aprojid};
+    }
+  }
+
+  # then project deps
+  my $expandedprojlink = $gctx->{'expandedprojlink'};
+  for my $aprojid (keys %$expandedprojlink) {
+    $todo{$aprojid} = 1 if grep {$changed{$_}} @{$expandedprojlink->{$aprojid}};
+  }
+
+  # now update all projects on the todo list
+  my $t1 = Time::HiRes::time();
+  setup_projects($gctx, [ sort keys %todo ]) if %todo;
+  my $t2 = Time::HiRes::time();
+  BSSched::Remote::setup_watches($gctx);
+  my $t3 = Time::HiRes::time();
+  printf "get_projpacks_postprocess_projects done, %.3fs + %.3fs\n", $t2 - $t1, $t3 - $t2;
 }
 
 =head2 find_linked_sources - find which projects/packages link to the specified project/packages
@@ -768,43 +809,97 @@ sub expandprojlink {
   return @ret;
 }
 
-=head2 calc_prps - TODO
+=head2 setup_projects - TODO
 
  find all prps we have to schedule, expand search path for every prp,
  set up inter-prp dependency graph, sort prps using this graph.
 
  also gets rid of no longer used channeldata
 
- input:  $projpacks     (global)
+ input:  %projpacks
 
- output: @prps          (global)
-         %prpsearchpath (global)
-         %prpdeps       (global)
-
+ output: @prps
+         %prpsearchpath
+         %prpdeps
+         %rprpdeps
+         %haveinterrepodep
+         %channeldata
+         %channelids
 =cut
 
-sub calc_prps {
-  my ($gctx) = @_;
+sub setup_projects {
+  my ($gctx, $projids_todo) = @_;
 
-  print "calculating project dependencies...\n";
   my $myarch = $gctx->{'arch'};
-  # calculate prpdeps dependency hash
-  delete $gctx->{'prps'};
-  delete $gctx->{'prpsearchpath'};
-  delete $gctx->{'prpdeps'};
-  $gctx->{'projpacks_linked'} = {};
-  $gctx->{'expandedprojlink'} = {};
-  my @prps;
-  my %prpsearchpath;
-  my %prpdeps;
-  my %haveinterrepodep;
-
-  my %newchanneldata;
   my $projpacks = $gctx->{'projpacks'};
-  for my $projid (sort keys %$projpacks) {
+
+  my $t1 = Time::HiRes::time();
+  undef $projids_todo if $projids_todo && @$projids_todo > 200;	# removing old stuff takes too long
+
+  my @projids_todo;
+  if ($projids_todo) {
+    print "updating project dependencies for ".scalar(@$projids_todo)." projects...\n";
+    @projids_todo = BSUtil::unify(@$projids_todo);
+  } else {
+    print "calculating project dependencies...\n";
+    @projids_todo = sort keys %$projpacks;
+  }
+
+  # free some mem, we'll recreate those at the end
+  $gctx->{'prps'} = [];
+  $gctx->{'rprpdeps'} = {};
+
+  my %old_channelids;	# for post-process
+  if (!$projids_todo) {
+    # going to redo all project dependencies, so start from scratch
+    $gctx->{'projpacks_linked'} = {};
+    $gctx->{'prpsearchpath'} = {};
+    $gctx->{'prpdeps'} = {};
+    $gctx->{'haveinterrepodep'} = {};
+    $gctx->{'expandedprojlink'} = {};
+    $gctx->{'linked_projids'} = {};
+    $gctx->{'channeldata'} = {};
+    $gctx->{'channelids'} = {};
+    $gctx->{'project_prps'} = {};
+  } else {
+    for my $projid (@$projids_todo) {
+      # just updating some projects, delete all the entries we currently have
+
+      # save old_channelids for post-processing
+      $old_channelids{$projid} = $gctx->{'channelids'}->{$projid} if $gctx->{'channelids'}->{$projid};
+      # remove project from projpacks_linked
+      my %lprojids = map {$_ => 1} (@{$gctx->{'expandedprojlink'}->{$projid} || []}, @{$gctx->{'linked_projids'}->{$projid} || []});
+      my $projpacks_linked = $gctx->{'projpacks_linked'};
+      for my $lprojid (sort keys %lprojids) {
+	next unless $projpacks_linked->{$lprojid};
+	my @l = grep {$_->{'myproject'} ne $projid} @{$projpacks_linked->{$lprojid}};
+	if (@l) {
+	  $projpacks_linked->{$lprojid} = \@l;
+	} else {
+	  delete $projpacks_linked->{$lprojid};
+	}
+      }
+      # remove project from various prp indexed hashes
+      for my $prp (@{$gctx->{'project_prps'}->{$projid} || []}) {
+	delete $gctx->{'prpsearchpath'}->{$prp};
+	delete $gctx->{'prpdeps'}->{$prp};
+      }
+      # remove project from various projid indexed hashes
+      delete $gctx->{'haveinterrepodep'}->{$projid};
+      delete $gctx->{'expandedprojlink'}->{$projid};
+      delete $gctx->{'linked_projids'}->{$projid};
+      delete $gctx->{'project_prps'}->{$projid};
+      delete $gctx->{'channelids'}->{$projid};
+    }
+  }
+  my $t2 = Time::HiRes::time();
+
+  for my $projid (@projids_todo) {
     my $proj = $projpacks->{$projid};
+    next if !$proj || $proj->{'remoteurl'};
 
     # generate package link information
+    my %lprojids;
     if ($proj->{'package'}) {
       my $projpacks_linked = $gctx->{'projpacks_linked'};
       my ($mypackid, $pack);
@@ -813,10 +908,12 @@ sub calc_prps {
 	for my $lil (@{$pack->{'linked'}}) {
 	  my $li = { %$lil, 'myproject' => $projid, 'mypackage' => $mypackid };
 	  my $lprojid = delete $li->{'project'};
+	  $lprojids{$lprojid} = 1;
 	  push @{$projpacks_linked->{$lprojid}}, $li;
 	}
       }
     }
+    $gctx->{'linked_projids'}->{$projid} = [ sort keys %lprojids ] if %lprojids;
 
     # generate project link information
     if ($proj->{'link'}) {
@@ -833,47 +930,59 @@ sub calc_prps {
     for my $repo (@$repos) {
       push @myrepos, $repo if grep {$_ eq $myarch} @{$repo->{'arch'} || []};
     }
+
     next unless @myrepos;       # not for us
+
     my @pdatas = values(%{$proj->{'package'} || {}});
     my @aggs = grep {$_->{'aggregatelist'}} @pdatas;
     my @channels = grep {$_->{'channel'}} @pdatas;
     my @kiwiinfos = grep {$_->{'path'} || $_->{'containerpath'}} map {@{$_->{'info'} || []}} @pdatas;
     @pdatas = ();               # free mem
     my %channelrepos;
-    for my $channel (map {$_->{'channel'}} @channels) {
-      $newchanneldata{$channel->{'_md5'} || ''} ||= $channel;
-      next unless $channel->{'target'};
-      # calculate list targeted tepos
-      my %targets;
-      for my $rt (@{$channel->{'target'}}) {
-	if ($rt->{'project'}) {
-	  if ($rt->{'repository'}) {
-	    $targets{"$rt->{'project'}/$rt->{'repository'}"} = 1;
-	  } else {
-	    $targets{$rt->{'project'}} = 1;
+    if (@channels) {
+      my %channelids;
+      my $channeldata = $gctx->{'channeldata'};
+      my $channelids = $gctx->{'channelids'};
+      for my $channel (map {$_->{'channel'}} @channels) {
+	if ($channel->{'_md5'}) {
+	  $channeldata->{$channel->{'_md5'}} ||= $channel;
+	  $channelids{$channel->{'_md5'}} = 1;
+	}
+	next unless $channel->{'target'};
+	# calculate list targeted repos
+	my %targets;
+	for my $rt (@{$channel->{'target'}}) {
+	  if ($rt->{'project'}) {
+	    if ($rt->{'repository'}) {
+	      $targets{"$rt->{'project'}/$rt->{'repository'}"} = 1;
+	    } else {
+	      $targets{$rt->{'project'}} = 1;
+	    }
+	  } elsif ($rt->{'repository'}) {
+	    $targets{"$projid/$rt->{'repository'}"} = 1;
 	  }
-	} elsif ($rt->{'repository'}) {
-	  $targets{"$projid/$rt->{'repository'}"} = 1;
+	}
+	for my $repo (@myrepos) {
+	  for my $rt (@{$repo->{'releasetarget'} || []}) {
+	    $channelrepos{$repo->{'name'}} = 1 if $targets{$rt->{'project'}} || $targets{"$rt->{'project'}/$rt->{'repository'}"};
+	  }
+	  $channelrepos{$repo->{'name'}} = 1 if $targets{"$projid/$repo->{'name'}"};
 	}
       }
-      for my $repo (@myrepos) {
-	for my $rt (@{$repo->{'releasetarget'} || []}) {
-	  $channelrepos{$repo->{'name'}} = 1 if $targets{$rt->{'project'}} || $targets{"$rt->{'project'}/$rt->{'repository'}"};
-	}
-	$channelrepos{$repo->{'name'}} = 1 if $targets{"$projid/$repo->{'name'}"};
-      }
+      $gctx->{'channelids'}->{$projid} = [ sort keys %channelids ] if %channelids;
     }
     my %myprps;
+    my $prpsearchpath = $gctx->{'prpsearchpath'};
+    my $prpdeps = $gctx->{'prpdeps'};
     for my $repo (@myrepos) {
       my $repoid = $repo->{'name'};
       my $prp = "$projid/$repoid";
       $myprps{$prp} = 1;
-      push @prps, $prp;
       my @searchpath = expandsearchpath($gctx, $projid, $repo);
       # map searchpath to internal prp representation
       my @sp = map {"$_->{'project'}/$_->{'repository'}"} @searchpath;
-      $prpsearchpath{$prp} = \@sp;
-      $prpdeps{$prp} = \@sp;
+      $prpsearchpath->{$prp} = \@sp;
+      $prpdeps->{$prp} = \@sp;
 
       # Find extra dependencies due to aggregate/kiwi description files
       my @xsp;
@@ -896,7 +1005,7 @@ sub calc_prps {
 	for my $info (grep {$_->{'repository'} eq $repoid} @kiwiinfos) {
 	  push @xsp, map {"$_->{'project'}/$_->{'repository'}"} grep {$_->{'project'} ne '_obsrepositories'} @{$info->{'path'} || []};
 	  push @xsp, map {"$_->{'project'}/$_->{'repository'}"} grep {$_->{'project'} ne '_obsrepositories'} @{$info->{'containerpath'} || []};
-        }
+	}
       }
       if ($channelrepos{$repoid}) {
 	# let a channel repo target all non-channel repos
@@ -905,51 +1014,94 @@ sub calc_prps {
       }
 
       if (@xsp) {
-	# found some repos, merge extra deps with project deps
+	# found some repos, join extra deps with project deps
 	my %xsp = map {$_ => 1} (@sp, @xsp);
 	delete $xsp{$prp};
-	$prpdeps{$prp} = [ sort keys %xsp ];
+	$prpdeps->{$prp} = [ sort keys %xsp ];
       }
     }
+    $gctx->{'project_prps'}->{$projid} = [ sort keys %myprps ] if %myprps;
     # check for inter-repository project dependencies
+    my $haveinterrepodep = $gctx->{'haveinterrepodep'};
     for my $prp (keys %myprps) {
-      $haveinterrepodep{$projid} = 1 if grep {$myprps{$_} && $_ ne $prp} @{$prpdeps{$prp}};
+      $haveinterrepodep->{$projid} = 1 if grep {$myprps{$_} && $_ ne $prp} @{$prpdeps->{$prp}};
     }
   }
-  # good bye no longer used entries!
-  delete $newchanneldata{''};
-  %{$gctx->{'channeldata'}} = %newchanneldata;
 
-  # print statistics
-  print "have ".scalar(keys %newchanneldata)." unique channel configs\n" if %newchanneldata;
-  print "have ".scalar(keys %haveinterrepodep)." inter-repo dependencies\n" if %haveinterrepodep;
+  # all projects done, now some post processing
+  my $t3 = Time::HiRes::time();
 
-  # do the real sorting
-  print "sorting projects and repositories...\n";
-  if (@prps >= 2) {
-    my @cycs;
-    @prps = BSSolv::depsort(\%prpdeps, undef, \@cycs, @prps);
-    print "cycle: ".join(' -> ', @$_)."\n" for @cycs;
+  if (%old_channelids) {
+    my $channelids = $gctx->{'channelids'};
+    # check if they are identical
+    for my $projid (keys %old_channelids) {
+      next if BSUtil::identical($old_channelids{$projid}, $channelids->{$projid});
+      # not identical, delete no longer used entries from channeldata
+      my %used;
+      for my $projid (keys %{$channelids || {}}) {
+        $used{$_} = 1 for @{$channelids->{$projid}};
+      }
+      for (keys %{$gctx->{'channeldata'} || {}}) {
+        delete $gctx->{'channeldata'}->{$_} unless $used{$_};
+      }
+      last;
+    }
   }
 
+  print "have ".scalar(keys %{$gctx->{'channeldata'}})." unique channel configs\n" if %{$gctx->{'channeldata'}};
+  print "have ".scalar(keys %{$gctx->{'haveinterrepodep'}})." inter-repo dependencies\n" if %{$gctx->{'haveinterrepodep'}};
+
+  # create list of prps and sort them
+  print "sorting projects and repositories...\n";
+  my @prps = sort keys %{$gctx->{'prpsearchpath'}};
+  if (@prps >= 2) {
+    my @cycs;
+    @prps = BSSolv::depsort($gctx->{'prpdeps'}, undef, \@cycs, @prps);
+    print "cycle: ".join(' -> ', @$_)."\n" for @cycs;
+  }
+  $gctx->{'prps'} = \@prps;
+
   # create reverse deps to speed up changed2lookat
+  my $prpdeps = $gctx->{'prpdeps'};
   my %rprpdeps;
-  for my $prp (keys %prpdeps) {
-    push @{$rprpdeps{$_}}, $prp for @{$prpdeps{$prp}};
+  for my $prp (keys %$prpdeps) {
+    push @{$rprpdeps{$_}}, $prp for @{$prpdeps->{$prp}};
   }
   # free some mem
   for my $prp (keys %rprpdeps) {
     delete $rprpdeps{$prp} if @{$rprpdeps{$prp}} == 1 && $rprpdeps{$prp}->[0] eq $prp;
   }
-
-  $gctx->{'prps'} = \@prps;
-  $gctx->{'prpsearchpath'} = \%prpsearchpath;
-  $gctx->{'prpdeps'} = \%prpdeps;
   $gctx->{'rprpdeps'} = \%rprpdeps;
-  $gctx->{'haveinterrepodep'} = \%haveinterrepodep;
+  my $t4 = Time::HiRes::time();
+  printf "setup_projects done, %.3fs + %.3fs + %.3fs\n", $t2 - $t1, $t3 - $t2, $t4 - $t3;
 }
 
-=head2 do_delayedprojpackfetches - TODO
+=head2 print_project_stats - print statistics about our project data
+
+ TODO: add description
+
+=cut
+
+sub print_project_stats {
+  my ($gctx) = @_;
+  print "project data statistics:\n";
+  my $projpacks = $gctx->{'projpacks'} || {};
+  printf "  projects: %d\n", scalar(keys %$projpacks);
+  my $pkg = 0;
+  $pkg += keys(%{$projpacks->{$_}->{'package'} || {}}) for keys %$projpacks;
+  printf "  packages: %d\n", $pkg;
+  printf "  prps: %d\n", scalar(@{$gctx->{'prps'} || []});
+  for my $what (qw{projpacks_linked prpsearchpath prpdeps rprpdeps expandedprojlink linked_projids channelids project_prps}) {
+    my $w = $gctx->{$what};
+    next unless $w;
+    my $e = 0;
+    $e += @{$w->{$_}} for keys %$w;
+    printf "  %s: %d %d\n", $what, scalar(keys %$w), $e;
+  }
+  printf "  haveinterrepodep: %d\n", scalar(keys %{$gctx->{'haveinterrepodep'} || {}});
+}
+
+=head2 do_delayedprojpackfetches - do delayed projpack fetches caused by source changes
 
  Do all the delayed projpack fetches caused by source changes
 
@@ -968,7 +1120,7 @@ sub do_delayedprojpackfetches {
       return 0;		# in progress
     }
     get_projpacks($gctx, undef, $projid);
-    get_projpacks_postprocess($gctx);
+    get_projpacks_postprocess_projects($gctx, $projid);
   } elsif (%packids) {
     @packids = sort keys %packids;
     if ($doasync) {
@@ -977,12 +1129,12 @@ sub do_delayedprojpackfetches {
     }
     my $oldprojdata = clone_projpacks_part($gctx, $projid, \@packids);
     get_projpacks($gctx, undef, $projid, @packids);
-    get_projpacks_postprocess($gctx) if BSSched::ProjPacks::postprocess_needed_check($gctx, $projid, $oldprojdata);
+    get_projpacks_postprocess_projects($gctx, $projid) if BSSched::ProjPacks::postprocess_needed_check($gctx, $projid, $oldprojdata);
   }
   return 1;		# all done
 }
 
-=head2 do_fetchprojpacks - TODO
+=head2 do_fetchprojpacks - process cummulated projpacks fetches
 
 Do all the cummulated projpacks fetching. Done after all events are processed.
 
