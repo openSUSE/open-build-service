@@ -881,6 +881,12 @@ RSpec.describe User do
       it { expect(subject).to match_array(['foobar']) }
     end
 
+    context 'autocomplete with nil as parameter' do
+      subject { User.autocomplete(nil) }
+
+      it { expect(subject).to match_array([]) }
+    end
+
     context 'tokens' do
       subject { User.autocomplete('foo', true) }
 

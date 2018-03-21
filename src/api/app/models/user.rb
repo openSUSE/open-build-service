@@ -63,7 +63,7 @@ class User < ApplicationRecord
   has_many :rss_feed_items, -> { order(created_at: :desc) }, class_name: 'Notification::RssFeedItem', as: :subscriber, dependent: :destroy
 
   scope :all_without_nobody, -> { where('login != ?', nobody_login) }
-  scope :autocomplete_login, ->(prefix) { where('login LIKE ?', "#{prefix}%") if prefix.present? }
+  scope :autocomplete_login, ->(prefix) { prefix.present? ? where('login LIKE ?', "#{prefix}%") : User.none }
 
   validates :login, :state, presence: { message: 'must be given' }
 
