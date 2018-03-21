@@ -180,7 +180,7 @@ sub setup_watches {
   my $repocache = $gctx->{'repodatas'};
   if ($repocache) {
     for my $prpa (grep {!$watchremote_repos->{$_}} $repocache->getremote()) {
-      print "droping remote cache for $prpa\n";
+      print "dropping remote cache for $prpa\n";
       my ($projid, $repoid, $arch) = split('/', $prpa, 3);
       $repocache->drop("$projid/$repoid", $arch);
     }
