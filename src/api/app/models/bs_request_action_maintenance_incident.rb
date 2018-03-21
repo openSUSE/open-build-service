@@ -1,7 +1,7 @@
 #
 class BsRequestActionMaintenanceIncident < BsRequestAction
   #### Includes and extends
-  include RequestSourceDiff
+  include BsRequestAction::Differ
 
   #### Constants
 
