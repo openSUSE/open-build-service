@@ -5,7 +5,6 @@ require 'rails_helper'
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
 
-# rubocop:disable Metrics/BlockLength
 RSpec.describe Webui::PackageController, vcr: true do
   let(:admin) { create(:admin_user, login: 'admin') }
   let(:user) { create(:confirmed_user, login: 'tom') }

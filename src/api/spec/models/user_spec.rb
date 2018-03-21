@@ -1,5 +1,5 @@
 require 'rails_helper'
-# rubocop:disable Metrics/BlockLength
+
 RSpec.describe User do
   let(:admin_user) { create(:admin_user, login: 'king') }
   let(:user) { create(:user, login: 'eisendieter') }
@@ -872,17 +872,20 @@ RSpec.describe User do
   end
 
   describe '#autocomplete' do
-    let(:user) { create(:confirmed_user, login: 'foobar') }
+    let!(:foobar) { create(:confirmed_user, login: 'foobar') }
+    let!(:fobaz) { create(:confirmed_user, login: 'fobaz') }
 
     context 'autocomplete' do
       subject { User.autocomplete('foo') }
 
       it { expect(subject).to include('foobar') }
+      it { expect(subject).not_to include('fozbar') }
     end
     context 'tokens' do
       subject { User.autocomplete('foo', true) }
 
       it { expect(subject).to include('name' => 'foobar') }
+      it { expect(subject).not_to include('name' => 'fozbar') }
     end
   end
 end

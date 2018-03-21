@@ -68,6 +68,11 @@ Style/WordArray:
 
 ##################### Metrics ##################################
 
+# Block Length check disabled just for specs
+Metrics/BlockLength:
+  Exclude:
+    - "**/*_spec.rb"
+
 # Checks if the length a class exceeds some maximum value
 Metrics/ClassLength:
   Severity: refactor
