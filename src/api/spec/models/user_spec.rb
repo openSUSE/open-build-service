@@ -871,24 +871,24 @@ RSpec.describe User do
     end
   end
 
-  describe '#autocomplete' do
+  describe '#autocomplete methods' do
     let!(:foobar) { create(:confirmed_user, login: 'foobar') }
     let!(:fobaz) { create(:confirmed_user, login: 'fobaz') }
 
-    context 'autocomplete' do
-      subject { User.autocomplete('foo') }
+    context 'autocomplete_login' do
+      subject { User.autocomplete_login('foo') }
 
       it { expect(subject).to match_array(['foobar']) }
     end
 
-    context 'autocomplete with nil as parameter' do
-      subject { User.autocomplete(nil) }
+    context 'autocomplete_backend with nil as parameter' do
+      subject { User.autocomplete_backend(nil) }
 
       it { expect(subject).to match_array([]) }
     end
 
     context 'tokens' do
-      subject { User.autocomplete('foo', true) }
+      subject { User.autocomplete_token('foo') }
 
       it { expect(subject).to match_array([name: 'foobar']) }
     end

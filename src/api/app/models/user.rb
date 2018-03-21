@@ -63,7 +63,7 @@ class User < ApplicationRecord
   has_many :rss_feed_items, -> { order(created_at: :desc) }, class_name: 'Notification::RssFeedItem', as: :subscriber, dependent: :destroy
 
   scope :all_without_nobody, -> { where('login != ?', nobody_login) }
-  scope :autocomplete_login, ->(prefix) { prefix.present? ? where('login LIKE ?', "#{prefix}%") : User.none }
+  scope :with_login_prefix, ->(prefix) { where('login LIKE ?', "#{prefix}%") }
 
   validates :login, :state, presence: { message: 'must be given' }
 
@@ -129,11 +129,20 @@ class User < ApplicationRecord
     self.login_failure_count = 0 if login_failure_count.nil?
   end
 
-  # autocomplete method
-  # return either an array of users or an array of hashes
-  def self.autocomplete(prefix = nil, is_token = false)
-    result = autocomplete_login(prefix).pluck(:login)
-    is_token ? result.collect { |user| { name: user } } : result
+  def self.autocomplete_login(prefix = '')
+    autocomplete_backend(prefix)
+  end
+
+  def self.autocomplete_token(prefix = '')
+    autocomplete_backend(prefix).collect { |user| { name: user } }
+  end
+
+  def self.autocomplete_backend(prefix = '')
+    if prefix.present?
+      with_login_prefix(prefix).pluck(:login)
+    else
+      User.none
+    end
   end
 
   # the default state of a user based on the api configuration
