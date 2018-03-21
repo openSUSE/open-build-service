@@ -131,7 +131,7 @@ sub setup_watches {
       for my $li (@{$projpacks_linked->{$lprojid}}) {
 	my $lpackid = $li->{'package'};
 	next if $watched{"$lprojid/$lpackid"};
-	addwatchremote($gctx, 'package', $lprojid, $lpackid eq ':*' ? '' : $lpackid);
+	addwatchremote($gctx, 'package', $lprojid, $lpackid eq ':*' ? '' : "/$lpackid");
 	$watched{"$lprojid/$lpackid"} = 1;
       }
     }
@@ -141,12 +141,12 @@ sub setup_watches {
   my $expandedprojlink = $gctx->{'expandedprojlink'};
   if (%$expandedprojlink) {
     my %watched;
-    for my $projid (sort keys %$expandedprojlink) {
-      for my $aprojid (@{$expandedprojlink->{$projid}}) {
-	next if $watched{$aprojid};
-	addwatchremote($gctx, 'project', $aprojid, '');
-	$watched{$aprojid} = 1;
-      }
+    for my $projid (keys %$expandedprojlink) {
+      $watched{$_} = 1 for @{$expandedprojlink->{$projid}};
+    }
+    for my $projid (sort keys %watched) {
+      next if $projpacks->{$projid} && !$projpacks->{$projid}->{'remoteurl'};
+      addwatchremote($gctx, 'project', $projid, '');
     }
   }
 
@@ -154,19 +154,21 @@ sub setup_watches {
   # this includes the prpsearchpath plus the extra deps from kiwi/aggregates/...
   # (we just watch the repository for the extra deps as it costs too much to
   # watch every single package)
-  my $prpdeps = $gctx->{'prpdeps'};
-  if (%$prpdeps) {
+  my $rprpdeps = $gctx->{'rprpdeps'};
+  if (%$rprpdeps) {
     my $myarch = $gctx->{'arch'};
-    my %watched;
-    for my $prp (sort keys %$prpdeps) {
-      for my $aprp (@{$prpdeps->{$prp}}) {
-	next if $watched{$aprp} || $prp eq $aprp;
-	my ($aprojid, $arepoid) = split('/', $aprp, 2);
-	addwatchremote($gctx, 'repository', $aprojid, "/$arepoid/$myarch");
-	# we need the config for all path elements, so we also add a project watch
-	addwatchremote($gctx, 'project', $aprojid, '') unless $watched{$aprojid};
-	$watched{$aprp} = 1;
-	$watched{$aprojid} = 1;
+    my %projdeps;
+    for my $prp (keys %$rprpdeps) {
+      my ($projid, $repoid) = split('/', $prp, 2);
+      push @{$projdeps{$projid}}, $repoid;
+    }
+    for my $projid (sort keys %projdeps) {
+      next if $projpacks->{$projid} && !$projpacks->{$projid}->{'remoteurl'};
+      next unless remoteprojid($gctx, $projid);
+      # we need the config for all path elements, so we also add a project watch
+      addwatchremote($gctx, 'project', $projid, '');
+      for my $repoid (sort @{$projdeps{$projid}}) {
+	addwatchremote($gctx, 'repository', $projid, "/$repoid/$myarch");
       }
     }
   }
