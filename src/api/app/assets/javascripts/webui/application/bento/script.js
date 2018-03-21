@@ -18,7 +18,7 @@ $(function() {
   $('#login-trigger').click(function() { // display login form
     var offsetSubheader = $('#subheader').offset(); // get position of #subheader
     var posX = parseInt(offsetSubheader.left) + $('#subheader').width() - $('#login-form').width(); // calculate position for login-form
-    $('#login-form').css('left', posX).slideDown('fast', function() { // slide down and set position in callback
+    $('#login-form').css('left', posX).slideToggle('fast', function() { // slide down and set position in callback
        var rbPos = $('.position-br').offset();
        x1 = posX; // left
        x2 = rbPos.left; // right
