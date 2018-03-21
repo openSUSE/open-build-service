@@ -112,6 +112,7 @@ sub addwatchremote {
 sub setup_watches {
   my ($gctx) = @_;
 
+  my $projpacks = $gctx->{'projpacks'};
   # clear old data
   %{$gctx->{'watchremote'}} = ();	# reset all watches
 
@@ -125,6 +126,8 @@ sub setup_watches {
   if (%$projpacks_linked) {
     my %watched;
     for my $lprojid (sort keys %$projpacks_linked) {
+      next if $projpacks->{$lprojid} && !$projpacks->{$lprojid}->{'remoteurl'};
+      next unless remoteprojid($gctx, $lprojid);
       for my $li (@{$projpacks_linked->{$lprojid}}) {
 	my $lpackid = $li->{'package'};
 	next if $watched{"$lprojid/$lpackid"};
