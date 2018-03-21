@@ -14,7 +14,14 @@ class BsRequestAction
       private
 
       def diff(source_package_name)
-        if accepted?
+        if superseded_bs_request_action.present?
+          query_builder = QueryBuilderForSuperseded.new(
+            superseded_bs_request_action: superseded_bs_request_action,
+            bs_request_action: bs_request_action,
+            source_package_name: source_package_name
+          )
+          source_diff(query_builder.project_name, query_builder.package_name, query.merge(query_builder.build))
+        elsif accepted?
           query_builder = QueryBuilderForAccepted.new(
             bs_request_action_accept_info: bs_request_action.bs_request_action_accept_info
           )
@@ -45,6 +52,10 @@ class BsRequestAction
         raise DiffError, "Timeout while diffing #{project_name}/#{package_name}"
       rescue ActiveXML::Transport::Error => e
         raise DiffError, "The diff call for #{project_name}/#{package_name} failed: #{e.summary}"
+      end
+
+      def superseded_bs_request_action
+        options[:superseded_bs_request_action]
       end
 
       def accepted?

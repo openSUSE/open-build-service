@@ -2,12 +2,12 @@ require 'rails_helper'
 require 'webmock/rspec'
 
 RSpec.describe BsRequestAction::Differ::ForSource, vcr: true do
-  let!(:user) { create(:confirmed_user, login: 'moi') }
-  let!(:source_project) { create(:project, name: 'source_project', maintainer: user) }
-  let!(:source_package) { create(:package, name: 'source_package', project: source_project) }
-  let!(:target_project) { create(:project, name: 'target_project') }
-  let!(:target_package) { create(:package, name: 'target_package', project: target_project) }
-  let!(:bs_request_action) do
+  let(:user) { create(:confirmed_user, login: 'moi') }
+  let(:source_project) { create(:project, name: 'source_project', maintainer: user) }
+  let(:source_package) { create(:package, name: 'source_package', project: source_project) }
+  let(:target_project) { create(:project, name: 'target_project') }
+  let(:target_package) { create(:package, name: 'target_package', project: target_project) }
+  let(:bs_request_action) do
     create(:bs_request_action,
            source_project: source_project,
            source_package: source_package,
@@ -15,7 +15,7 @@ RSpec.describe BsRequestAction::Differ::ForSource, vcr: true do
            target_package: target_package,
            source_rev: 2)
   end
-  let!(:bs_request) { create(:bs_request, bs_request_actions: [bs_request_action]) }
+  let(:bs_request) { create(:bs_request, bs_request_actions: [bs_request_action]) }
   let(:xml_response) do
     <<-RESPONSE
     <sourcediff key="caaa0df4ce0789d73c0f5abcf1947efd">
@@ -72,6 +72,36 @@ RSpec.describe BsRequestAction::Differ::ForSource, vcr: true do
 
     context 'with error' do
       it { expect { subject.perform }.to raise_error(BsRequestAction::DiffError) }
+    end
+
+    context 'with superseded request' do
+      let!(:superseded_bs_request_action) do
+        create(:bs_request_action,
+               source_project: source_project,
+               source_package: source_package,
+               target_project: target_project,
+               target_package: target_package,
+               source_rev: 8)
+      end
+      let!(:superseded_bs_request) { create(:bs_request, bs_request_actions: [bs_request_action]) }
+      let(:params) do
+        {
+          cmd:        'diff',
+          filelimit:  options[:filelimit],
+          tarlimit:   options[:tarlimit],
+          rev:        bs_request_action.source_rev,
+          orev:       superseded_bs_request_action.source_rev,
+          view:       :xml,
+          withissues: 1
+        }
+      end
+      let(:path) { "#{CONFIG['source_url']}/source/#{source_project}/#{source_package}?#{params.to_param}" }
+      before do
+        options[:superseded_bs_request_action] = superseded_bs_request_action
+        stub_request(:post, path).and_return(body: xml_response)
+      end
+
+      it { expect(subject.perform).to eq(xml_response) }
     end
 
     context 'with accepted requests' do

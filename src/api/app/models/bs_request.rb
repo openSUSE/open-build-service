@@ -1043,7 +1043,6 @@ class BsRequest < ApplicationRecord
     with_diff = opts.delete(:diffs)
     bs_request_actions.each do |xml|
       action = { type: xml.action_type }
-
       if xml.source_project
         action[:sprj] = xml.source_project
         action[:spkg] = xml.source_package if xml.source_package
@@ -1061,7 +1060,8 @@ class BsRequest < ApplicationRecord
       case xml.action_type # All further stuff depends on action type...
       when :submit then
         action[:name] = "Submit #{action[:spkg]}"
-        action[:sourcediff] = xml.webui_infos(opts) if with_diff
+        superseded_bs_request_action = xml.find_action_with_same_target(opts[:diff_to_superseded])
+        action[:sourcediff] = xml.webui_infos(opts.merge(superseded_bs_request_action: superseded_bs_request_action)) if with_diff
         creator = User.find_by_login(self.creator)
         target_package = Package.find_by_project_and_name(action[:tprj], action[:tpkg])
         action[:creator_is_target_maintainer] = true if creator.has_local_role?(Role.hashed['maintainer'], target_package)
@@ -1116,10 +1116,10 @@ class BsRequest < ApplicationRecord
         action[:group] = xml.group_name
       when :maintenance_incident then
         action[:name] = "Incident #{action[:spkg]}"
-        action[:sourcediff] = xml.webui_infos if with_diff
+        action[:sourcediff] = xml.webui_infos(superseded_bs_request_action: xml.find_action_with_same_target(opts[:diff_to_superseded])) if with_diff
       when :maintenance_release then
         action[:name] = "Release #{action[:spkg]}"
-        action[:sourcediff] = xml.webui_infos if with_diff
+        action[:sourcediff] = xml.webui_infos(superseded_bs_request_action: xml.find_action_with_same_target(opts[:diff_to_superseded])) if with_diff
       end
       actions << action
     end
