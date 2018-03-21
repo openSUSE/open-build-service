@@ -33,7 +33,7 @@ module Cloud
       end
 
       def self.all(user)
-        xml = ::Backend::Api::Cloud.status(user)
+        xml = ::Backend::Api::Cloud.upload_jobs(user)
         [Xmlhash.parse(xml)['clouduploadjob']].flatten.compact.map do |xml_hash|
           new(xml_object: OpenStruct.new(xml_hash))
         end

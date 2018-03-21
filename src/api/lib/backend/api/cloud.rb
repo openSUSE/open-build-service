@@ -14,7 +14,7 @@ module Backend
 
       # Returns the status of the cloud upload jobs of a user
       # @return [String]
-      def self.status(user)
+      def self.upload_jobs(user)
         jobs = user.upload_jobs.pluck(:job_id)
         return "<clouduploadjoblist>\n</clouduploadjoblist>\n" if jobs.empty?
         http_get('/cloudupload', params: { name: jobs }, expand: [:name])
