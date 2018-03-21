@@ -32,7 +32,7 @@ my $packid = '_product:OBS-Addon-cd-cd-x86_64_i586';
 my $projpacksin = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/projpacks/projects", $BSXML::projpack);
 BSSched::ProjPacks::update_projpacks($gctx, $projpacksin);
 $projpacksin = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/projpacks/package", $BSXML::projpack);
-BSSched::ProjPacks::update_projpacks($gctx, $projpacksin, $packid);
+BSSched::ProjPacks::update_projpacks($gctx, $projpacksin, $projid, [ $packid ]);
 BSSched::ProjPacks::get_projpacks_postprocess($gctx);
 
 
