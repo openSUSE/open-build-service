@@ -63,6 +63,7 @@ class User < ApplicationRecord
   has_many :rss_feed_items, -> { order(created_at: :desc) }, class_name: 'Notification::RssFeedItem', as: :subscriber, dependent: :destroy
 
   scope :all_without_nobody, -> { where('login != ?', nobody_login) }
+  scope :autocomplete_login, ->(prefix) { where('login LIKE ?', "#{prefix}%") if prefix.present? }
 
   validates :login, :state, presence: { message: 'must be given' }
 
@@ -131,13 +132,8 @@ class User < ApplicationRecord
   # autocomplete method
   # return either an array of users or an array of hashes
   def self.autocomplete(prefix = nil, is_token = false)
-    User.where('login LIKE ?', "#{prefix}%").pluck(:login).collect do |user|
-      if is_token
-        { 'name' => user }
-      else
-        user
-      end
-    end
+    result = autocomplete_login(prefix).pluck(:login)
+    is_token ? result.collect { |user| { name: user } } : result
   end
 
   # the default state of a user based on the api configuration

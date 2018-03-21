@@ -878,14 +878,13 @@ RSpec.describe User do
     context 'autocomplete' do
       subject { User.autocomplete('foo') }
 
-      it { expect(subject).to include('foobar') }
-      it { expect(subject).not_to include('fozbar') }
+      it { expect(subject).to match_array(['foobar']) }
     end
+
     context 'tokens' do
       subject { User.autocomplete('foo', true) }
 
-      it { expect(subject).to include('name' => 'foobar') }
-      it { expect(subject).not_to include('name' => 'fozbar') }
+      it { expect(subject).to match_array([name: 'foobar']) }
     end
   end
 end
