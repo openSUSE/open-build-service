@@ -145,6 +145,23 @@
                 wants the role <b><%= action[:role] %></b> for
                 <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
               </b>
+          <% elsif action[:type] == :set_bugowner %>
+              <b>
+                <%= user_with_realname_and_icon @bs_request.creator %>
+                <% if @bs_request.creator == action[:user] %>
+                  wants to
+                <% else %>
+                  wants that the
+                  <% if action[:user] %>
+                    user
+                    <%= user_with_realname_and_icon(action[:user], { no_icon: true }) %>
+                  <% else %>
+                    "group #{action[:group]}"
+                  <% end %>
+                <% end %>
+                become bugowner for
+                <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
+              </b>
           <% elsif action[:type] == :change_devel %>
               <b>
                 Set the devel project to
