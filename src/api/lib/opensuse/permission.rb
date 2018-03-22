@@ -53,8 +53,6 @@ module Suse
           raise 'autofetch of project only works with objects of class Package'
         end
 
-        project = project if project.is_a? String
-
         pkg = Package.find_by_project_and_name(project, package)
         if pkg.nil?
           raise ArgumentError, "unable to find package object for #{project} / #{package}"
