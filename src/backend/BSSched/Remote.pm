@@ -17,7 +17,7 @@
 package BSSched::Remote;
 
 # gctx functions
-#   addwatchremote
+#   setup_watches
 #   updateremoteprojs
 #   getchangedremoteprojs
 #   remoteprojid
@@ -25,8 +25,6 @@ package BSSched::Remote;
 #   fetchremoteproj
 #   fetchremoteconfig
 #   remotemap2remoteprojs
-#   setupremotewatcher
-#   getremoteevents
 #   addrepo_remote_unpackcpio
 #   convertpackagebinarylist
 #   cleanup_remotepackstatus
@@ -39,7 +37,6 @@ package BSSched::Remote;
 #
 # gctx usage
 #   watchremote
-#   needremoteproj	(tmp)
 #   projpacks
 #   remoteprojs
 #   arch
@@ -47,6 +44,7 @@ package BSSched::Remote;
 #   obsname
 #   asyncmode
 #   rctx
+#   repodatas
 #   remotecache
 #   prpnotready
 #   remotegbininfos
@@ -68,41 +66,6 @@ use BSRPC;
 use BSSched::RPC;
 use BSConfiguration;
 
-=head2 addwatchremote -  register for a possibly remote resource
-
- input:  $type: type of resource (project/package/repository)
-	 $projid: local name of the project
-	 $watch: extra data to match
-=cut
-
-sub addwatchremote {
-  my ($gctx, $type, $projid, $watch) = @_;
-
-  my $projpacks = $gctx->{'projpacks'};
-  return undef if $projpacks->{$projid} && !$projpacks->{$projid}->{'remoteurl'};
-  my $proj;
-  my $watchremote_cache = $gctx->{'watchremote_cache'} || {};
-  if (exists($watchremote_cache->{$projid})) {
-    $proj = $watchremote_cache->{$projid};
-  } else {
-    $proj = remoteprojid($gctx, $projid);
-    $watchremote_cache->{$projid} = $proj;
-  }
-  # we don't need the project data for package watches
-  $gctx->{'needremoteproj'}->{$projid} = $proj if $type ne 'package';
-  return undef unless $proj;
-  my $watchremote = $gctx->{'watchremote'};
-  if ($proj->{'partition'}) {
-    $watchremote->{$BSConfig::srcserver}->{"$type/$proj->{'remoteproject'}$watch"} = $projid;
-  } else {
-    $watchremote->{$proj->{'remoteurl'}}->{"$type/$proj->{'remoteproject'}$watch"} = $projid;
-  }
-  # also set watchremote_repos so that we can free no longer needed
-  # repository data
-  $gctx->{'watchremote_repos'}->{"$projid$watch"} = 1 if $type eq 'repository';
-  return $proj;
-}
-
 =head2 setup_watches - create watches for all dependencies on remote projects
 
  TODO: add description
@@ -113,26 +76,32 @@ sub setup_watches {
   my ($gctx) = @_;
 
   my $projpacks = $gctx->{'projpacks'};
-  # clear old data
-  %{$gctx->{'watchremote'}} = ();	# reset all watches
+  my $watchremote = $gctx->{'watchremote'};
 
-  # init tmp hashes
-  $gctx->{'needremoteproj'} = {};	# tmp
-  $gctx->{'watchremote_cache'} = {};	# tmp
-  $gctx->{'watchremote_repos'} = {};	# tmp
+  # clear old data
+  %{$watchremote} = ();	# reset all watches
+
+  my %needremoteproj;		# we need those projects
+  my %needremoterepo;		# we need those repos
 
   # add watches for all linked packages
   my $projpacks_linked = $gctx->{'projpacks_linked'};
   if (%$projpacks_linked) {
-    my %watched;
-    for my $lprojid (sort keys %$projpacks_linked) {
-      next if $projpacks->{$lprojid} && !$projpacks->{$lprojid}->{'remoteurl'};
-      next unless remoteprojid($gctx, $lprojid);
-      for my $li (@{$projpacks_linked->{$lprojid}}) {
-	my $lpackid = $li->{'package'};
-	next if $watched{"$lprojid/$lpackid"};
-	addwatchremote($gctx, 'package', $lprojid, $lpackid eq ':*' ? '' : "/$lpackid");
-	$watched{"$lprojid/$lpackid"} = 1;
+    for my $projid (sort keys %$projpacks_linked) {
+      next if $projpacks->{$projid} && !$projpacks->{$projid}->{'remoteurl'};
+      my $rproj = remoteprojid($gctx, $projid);
+      next unless $rproj;			# not remote, so nothing to watch
+      my $remoteurl = $rproj->{'partition'} ? $BSConfig::srcserver : $rproj->{'remoteurl'};
+
+      $needremoteproj{$projid} = $rproj if $rproj->{'partition'};	# we need to keep partition entries
+      my %packids = map {$_->{'package'} => 1} @{$projpacks_linked->{$projid}};
+      if ($packids{':*'}) {
+	# we watch all packages
+        $watchremote->{$remoteurl}->{"package/$rproj->{'remoteproject'}"} = $projid;
+      } else {
+        for my $packid (sort keys %packids) {
+          $watchremote->{$remoteurl}->{"package/$rproj->{'remoteproject'}/$packid"} = $projid;
+	}
       }
     }
   }
@@ -140,13 +109,15 @@ sub setup_watches {
   # add watches for project links
   my $expandedprojlink = $gctx->{'expandedprojlink'};
   if (%$expandedprojlink) {
-    my %watched;
-    for my $projid (keys %$expandedprojlink) {
-      $watched{$_} = 1 for @{$expandedprojlink->{$projid}};
-    }
+    my %watched = map {$_ => 1} map {@$_} values %$expandedprojlink;
     for my $projid (sort keys %watched) {
       next if $projpacks->{$projid} && !$projpacks->{$projid}->{'remoteurl'};
-      addwatchremote($gctx, 'project', $projid, '');
+      my $rproj = remoteprojid($gctx, $projid);
+      next unless $rproj;			# not remote, so nothing to watch
+      my $remoteurl = $rproj->{'partition'} ? $BSConfig::srcserver : $rproj->{'remoteurl'};
+
+      $needremoteproj{$projid} = $rproj;	# we need this one in remoteprojs
+      $watchremote->{$remoteurl}->{"project/$rproj->{'remoteproject'}"} = $projid;
     }
   }
 
@@ -164,27 +135,38 @@ sub setup_watches {
     }
     for my $projid (sort keys %projdeps) {
       next if $projpacks->{$projid} && !$projpacks->{$projid}->{'remoteurl'};
-      next unless remoteprojid($gctx, $projid);
+      my $rproj = remoteprojid($gctx, $projid);
+      next unless $rproj;		# not remote, so nothing to watch
+      my $remoteurl = $rproj->{'partition'} ? $BSConfig::srcserver : $rproj->{'remoteurl'};
+
       # we need the config for all path elements, so we also add a project watch
-      addwatchremote($gctx, 'project', $projid, '');
+      # XXX: should make this implicit with the repository watch
+      $needremoteproj{$projid} = $rproj;	# we need this one in remoteprojs
+      $watchremote->{$remoteurl}->{"project/$rproj->{'remoteproject'}"} = $projid;
+
+      # add watches for the repositories
       for my $repoid (sort @{$projdeps{$projid}}) {
-	addwatchremote($gctx, 'repository', $projid, "/$repoid/$myarch");
+	$needremoterepo{"$projid/$repoid/$myarch"} = 1;
+        $watchremote->{$remoteurl}->{"repository/$rproj->{'remoteproject'}/$repoid/$myarch"} = $projid;
+      }
+      # watch localarch for building kiwi products on the 'local' scheduler
+      if ($myarch eq 'local' && $BSConfig::localarch) {
+        for my $repoid (sort @{$projdeps{$projid}}) {
+	  $needremoterepo{"$projid/$repoid/$BSConfig::localarch"} = 1;
+          $watchremote->{$remoteurl}->{"repository/$rproj->{'remoteproject'}/$repoid/$BSConfig::localarch"} = $projid;
+        }
       }
     }
   }
 
-  delete $gctx->{'watchremote_cache'};	# free mem
-
   # make sure we have the needed project data and delete the entries
   # we no longer need
-  my $needremoteproj = delete $gctx->{'needremoteproj'};
-  updateremoteprojs($gctx, $needremoteproj);
+  updateremoteprojs($gctx, \%needremoteproj);
 
   # drop unwatched remote repos
-  my $watchremote_repos = delete $gctx->{'watchremote_repos'};
   my $repocache = $gctx->{'repodatas'};
   if ($repocache) {
-    for my $prpa (grep {!$watchremote_repos->{$_}} $repocache->getremote()) {
+    for my $prpa (grep {!$needremoterepo{$_}} $repocache->getremote()) {
       print "dropping remote cache for $prpa\n";
       my ($projid, $repoid, $arch) = split('/', $prpa, 3);
       $repocache->drop("$projid/$repoid", $arch);
@@ -208,18 +190,19 @@ sub updateremoteprojs {
   my $remotemissing = $gctx->{'remotemissing'};
   for my $projid (keys %$remoteprojs) {
     my $or = $remoteprojs->{$projid};
-    next if $or && $or->{'partition'};  # XXX how do we update them?
     my $r = $needremoteproj->{$projid};
-    if (!$r) {
-      delete $remoteprojs->{$projid};	# no longer needed
+    if (!$or || !$r) {
+      print "dropping no longer needed remote $projid entry\n";
+      delete $remoteprojs->{$projid};
       next;
     }
-    next if $or && $or->{'remoteurl'} eq $r->{'remoteurl'} && $or->{'remoteproject'} eq $r->{'remoteproject'};
+    next if $r->{'partition'};
+    next if $or->{'remoteurl'} eq $r->{'remoteurl'} && $or->{'remoteproject'} eq $r->{'remoteproject'};
     delete $remoteprojs->{$projid};	# changed, need to refetch
   }
   for my $projid (sort keys %$needremoteproj) {
-    my $r = $needremoteproj->{$projid};
-    fetchremoteproj($gctx, $r, $projid) if $r && !$remoteprojs->{$projid} && !exists($remotemissing->{$projid});
+    my $rproj = $needremoteproj->{$projid};
+    fetchremoteproj($gctx, $rproj, $projid) if !$remoteprojs->{$projid} && !exists($remotemissing->{$projid});
   }
 }
 
