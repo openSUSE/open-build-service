@@ -115,6 +115,36 @@ sub isobsolete {
   return 0;
 }
 
+=head2 create_resync_events - create synthetic events for all watches
+
+ called when some events are no longer available.
+
+=cut
+
+sub create_resync_events {
+  my ($watchremote) = @_;
+
+  my @remoteevents;
+  for my $watch (sort keys %$watchremote) {
+    next if $watch eq 'watchlist';
+    my $projid = $watchremote->{$watch};
+    next unless defined $projid;
+    my @s = split('/', $watch);
+    if ($s[0] eq 'project') {
+      push @remoteevents, {'type' => 'project', 'project' => $projid};
+    } elsif ($s[0] eq 'package') {
+      if (!$s[2]) {
+	push @remoteevents, {'type' => 'package', 'project' => $projid};	# watched all packages
+      } else {
+	push @remoteevents, {'type' => 'package', 'project' => $projid, 'package' => $s[2]};
+      }
+    } elsif ($s[0] eq 'repository' || $s[0] eq 'repoinfo') {
+      push @remoteevents, {'type' => $s[0], 'project' => $projid, 'repository' => $s[2], 'arch' => $s[3]};
+    }
+  }
+  return @remoteevents;
+}
+
 =head2 getevents - TODO: add summary
 
  TODO: add description
@@ -147,25 +177,7 @@ sub getevents {
     if ($start) {
       print "lost sync with server, was at $start\n";
       print "next: $ret->{'next'}\n" if $ret->{'next'};
-      # synthesize all events we watch
-      for my $watch (sort keys %$watchremote) {
-	next if $watch eq 'watchlist';
-	my $projid = $watchremote->{$watch};
-	next unless defined $projid;
-	my @s = split('/', $watch);
-	if ($s[0] eq 'project') {
-	  push @remoteevents, {'type' => 'project', 'project' => $projid};
-	} elsif ($s[0] eq 'package') {
-	  if (!$s[2]) {
-	    # watched all packages
-	    push @remoteevents, {'type' => 'package', 'project' => $projid};
-	  } else {
-	    push @remoteevents, {'type' => 'package', 'project' => $projid, 'package' => $s[2]};
-	  }
-	} elsif ($s[0] eq 'repository' || $s[0] eq 'repoinfo') {
-	  push @remoteevents, {'type' => $s[0], 'project' => $projid, 'repository' => $s[2], 'arch' => $s[3]};
-	}
-      }
+      push @remoteevents, create_resync_events($watchremote);
     }
   }
   for my $ev (@{$ret->{'event'} || []}) {
