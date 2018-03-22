@@ -786,18 +786,9 @@ class Webui::PackageController < Webui::WebuiController
     @offset = 0
     @status = get_status(@project, @package, @repo, @arch)
     @what_depends_on = Package.what_depends_on(@project, @package, @repo, @arch)
+    @finished = Buildresult.final_status?(status)
 
     set_job_status
-  end
-
-  def set_initial_offset
-    # Do not start at the beginning long time ago
-
-    size = get_size_of_log(@project, @package, @repo, @arch)
-    logger.debug("log size is #{size}")
-    @offset = [0, size - 32 * 1024].max
-  rescue => e
-    logger.error "Got #{e.class}: #{e.message}; returning empty log."
   end
 
   def update_build_log
@@ -816,28 +807,32 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
 
-    @initial = params[:initial]
-    @offset = params[:offset].to_i
-    @status = params[:status]
-    @maxsize = 1024 * 64
-
-    @finished = Buildresult.final_status?(@status)
-    @offset = 0 if @finished
-
-    set_initial_offset if @offset.zero?
-
     begin
-      chunk = get_log_chunk(@project, @package, @repo, @arch, @offset, @offset + @maxsize)
+      @maxsize = 1024 * 64
+      @first_request = params[:initial] == '1'
+      @offset = params[:offset].to_i
+      @status = get_status(@project, @package, @repo, @arch)
+      @finished = Buildresult.final_status?(@status)
+      @size = get_size_of_log(@project, @package, @repo, @arch)
 
-      if chunk.length.zero? && @initial == '0' && !@finished
-        # reset offset and fetch the last chunk again, because build compare overwrites last log lines
-        set_initial_offset
-        @log_chunk = get_log_chunk(@project, @package, @repo, @arch, @offset, @offset + @maxsize)
-        @finished = true
-      else
-        @log_chunk = chunk
-        @offset += ActiveXML.backend.last_body_length
+      chunk_start = @offset
+      chunk_end = @offset + @maxsize
+
+      # Start at the most recent part to not get the full log from the begining just the last 64k
+      if @first_request && (@finished || @size >= @maxsize)
+        chunk_start = [0, @size - @maxsize].max
+        chunk_end = @size
       end
+
+      @log_chunk = get_log_chunk(@project, @package, @repo, @arch, chunk_start, chunk_end)
+      # retry the last chunk again, because build compare overwrites last log lines
+      if @log_chunk.length.zero? && !@first_request && !@finished
+        @log_chunk = get_log_chunk(@project, @package, @repo, @arch, chunk_start, chunk_end)
+        @finished = true
+      end
+
+      old_offset = @offset
+      @offset = [chunk_end, @size].min
     rescue Timeout::Error, IOError
       @log_chunk = ''
     rescue ActiveXML::Transport::Error => e
@@ -846,7 +841,7 @@ class Webui::PackageController < Webui::WebuiController
       elsif e.summary =~ /start out of range/
         # probably build compare has cut log and offset is wrong, reset offset
         @log_chunk = ''
-        @offset = 0
+        @offset = old_offset
       else
         @log_chunk = "No live log available: #{e.summary}\n"
         @finished = true

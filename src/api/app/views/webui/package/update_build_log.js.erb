@@ -2,21 +2,18 @@
   $('#flash-messages').
     replaceWith("<%= escape_javascript(render(partial: "layouts/webui/flash", locals: { flash: { error: @errors } })) %>");
   $("html, body").scrollTop(0);
-  build_finished();
+  liveLog.finish();
 <% else %>
   <% if @finished %>
-    $('#log_space').html('<%= escape_javascript(@log_chunk) %>');
-    autoscroll();
-    build_finished();
-    hide_abort();
-  <% else %>
-    show_abort();
-    $('#log_space').append('<%= escape_javascript(@log_chunk) %>');
-    <% if @log_chunk.length < @maxsize || @initial == 0 %>
-      autoscroll();
-      setTimeout(function() { refresh(<%= @offset %>, 0); },2000);
-    <% else %>
-      refresh(<%= @offset %>, <%= @initial %> );
+    <% if @first_request %>
+      $('#log_space').html('<%= escape_javascript(@log_chunk) %>');
     <% end %>
+    liveLog.finish();
+  <% else %>
+    $('#log_space').append('<%= escape_javascript(@log_chunk) %>');
+    liveLog.showAbort();
+    liveLog.offset = <%= @offset %>;
+    setTimeout($.proxy(liveLog.loadContent, liveLog), 2000);
   <% end %>
+  liveLog.autoScroll();
 <% end %>
