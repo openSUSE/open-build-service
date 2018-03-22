@@ -32,8 +32,9 @@ module Cloud
         new(exception: exception.message)
       end
 
-      def self.all(user)
+      def self.all(user, options = {})
         xml = ::Backend::Api::Cloud.status(user)
+        return xml if options[:format] == :xml
         [Xmlhash.parse(xml)['clouduploadjob']].flatten.compact.map do |xml_hash|
           new(xml_object: OpenStruct.new(xml_hash))
         end

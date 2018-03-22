@@ -31,6 +31,15 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
 
   describe '#index' do
     context 'with cloud_upload feature enabled' do
+      let(:path) { "#{CONFIG['source_url']}/cloudupload?name=#{upload_job.job_id}" }
+      let(:xml_response_list) do
+        <<-HEREDOC
+        <clouduploadjoblist>
+          #{xml_response}
+        </clouduploadjoblist>
+        HEREDOC
+      end
+
       context 'without an EC2 configuration' do
         let(:user) { create(:user) }
 
@@ -48,15 +57,6 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
       end
 
       context 'with an EC2 configuration' do
-        let(:path) { "#{CONFIG['source_url']}/cloudupload?name=#{upload_job.job_id}" }
-        let(:xml_response_list) do
-          <<-HEREDOC
-          <clouduploadjoblist>
-            #{xml_response}
-          </clouduploadjoblist>
-          HEREDOC
-        end
-
         before do
           stub_request(:get, path).and_return(body: xml_response_list)
           Feature.run_with_activated(:cloud_upload) do
@@ -66,6 +66,18 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
 
         it { expect(assigns(:upload_jobs).length).to eq(1) }
         it { expect(assigns(:upload_jobs).first.id).to eq('6') }
+        it { expect(response).to be_success }
+      end
+
+      context 'when xml format is requested' do
+        before do
+          stub_request(:get, path).and_return(body: xml_response_list)
+          get :index, format: 'xml'
+        end
+
+        it 'returns an xml response with all cloud upload jobs listed' do
+          expect(Xmlhash.parse(response.body)).to eq(Xmlhash.parse(xml_response_list))
+        end
         it { expect(response).to be_success }
       end
     end
@@ -190,6 +202,15 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
       end
     end
 
+    context 'requested as xml with invalid data' do
+      before do
+        post :create, params: { cloud_backend_upload_job: { region: 'nuernberg-southside' }, format: 'xml' }
+      end
+
+      it { expect(response.header['X-Opensuse-Errorcode']).to eq('cloud_upload_job_invalid') }
+      it { expect(response).to have_http_status(:bad_request) }
+    end
+
     context 'with a backend response' do
       let(:path) { "#{CONFIG['source_url']}/cloudupload?#{backend_params.to_param}" }
       let(:backend_params) do
@@ -205,19 +226,43 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
         user_with_ec2_configuration.ec2_configuration.attributes.except('id', 'created_at', 'updated_at').merge(additional_data).to_json
       end
 
-      before do
-        stub_request(:post, path).with(body: post_body).and_return(body: xml_response)
+      context 'when html format is requested' do
+        before do
+          stub_request(:post, path).with(body: post_body).and_return(body: xml_response)
 
-        Feature.run_with_activated(:cloud_upload) do
-          post :create, params: { cloud_backend_upload_job: params }
+          Feature.run_with_activated(:cloud_upload) do
+            post :create, params: { cloud_backend_upload_job: params }
+          end
         end
+
+        it { expect(flash[:success]).not_to be_nil }
+        it { expect(Cloud::User::UploadJob.last.job_id).to eq(6) }
+        it { expect(Cloud::User::UploadJob.last.user).to eq(user_with_ec2_configuration) }
+        it { expect(response).to redirect_to(cloud_upload_index_path) }
+        it { expect(response).to be_redirect }
       end
 
-      it { expect(flash[:success]).not_to be_nil }
-      it { expect(Cloud::User::UploadJob.last.job_id).to eq(6) }
-      it { expect(Cloud::User::UploadJob.last.user).to eq(user_with_ec2_configuration) }
-      it { expect(response).to redirect_to(cloud_upload_index_path) }
-      it { expect(response).to be_redirect }
+      context 'when xml format is requested' do
+        before do
+          stub_request(:post, path).with(body: post_body).and_return(body: xml_response)
+          post :create, format: 'xml', params: { cloud_backend_upload_job: params }
+        end
+
+        it { expect(Cloud::User::UploadJob.last.job_id).to eq(6) }
+        it { expect(Cloud::User::UploadJob.last.user).to eq(user_with_ec2_configuration) }
+        it { expect(response).to be_success }
+        it 'returns an xml response of the created cloud upload job' do
+          assert_select "cloud_upload_job[id='6']" do
+            assert_select 'target', text: 'ec2'
+            assert_select 'filename', text: 'appliance.raw.xz'
+            assert_select 'vpc_subnet_id'
+            assert_select 'cloud_upload_params' do
+              assert_select 'ami_name', text: 'my-image'
+              assert_select 'region', text: 'us-east-1'
+            end
+          end
+        end
+      end
     end
   end
 
