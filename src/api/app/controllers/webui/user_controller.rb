@@ -216,7 +216,7 @@ class Webui::UserController < Webui::WebuiController
 
   def tokens
     required_parameters :q
-    render json: User.autocomplete_token(params[:q], true)
+    render json: User.autocomplete_token(params[:q])
   end
 
   private
