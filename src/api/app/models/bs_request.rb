@@ -1111,6 +1111,8 @@ class BsRequest < ApplicationRecord
         action[:name] = 'Change Devel'
       when :set_bugowner then
         action[:name] = 'Set Bugowner'
+        action[:user] = xml.person_name
+        action[:group] = xml.group_name
       when :maintenance_incident then
         action[:name] = "Incident #{action[:spkg]}"
         action[:sourcediff] = xml.webui_infos if with_diff
