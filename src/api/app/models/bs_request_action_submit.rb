@@ -1,6 +1,6 @@
 class BsRequestActionSubmit < BsRequestAction
   #### Includes and extends
-  include RequestSourceDiff
+  include BsRequestAction::Differ
 
   #### Constants
 

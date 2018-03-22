@@ -1,0 +1,73 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/source/source_package/the_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'source_package' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'source_package' does not exist</summary>
+          <details>404 project 'source_package' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Thu, 22 Mar 2018 11:13:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/maintenance_project/the_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'maintenance_project' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'maintenance_project' does not exist</summary>
+          <details>404 project 'maintenance_project' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Thu, 22 Mar 2018 11:13:12 GMT
+recorded_with: VCR 4.0.0

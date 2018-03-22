@@ -114,8 +114,8 @@ module Backend
         # @option options [String] :filelimit Sets the maximum lines of the diff which will be returned (0 = all lines)
         # @return [String]
         def self.source_diff(project_name, package_name, options = {})
-          http_post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :diff, view: :xml, withissues: 1 },
-                    params: options, accepted: [:rev, :orev, :opackage, :oproject, :linkrev, :olinkrev, :expand, :filelimit, :tarlimit])
+          accepted = [:rev, :orev, :opackage, :oproject, :linkrev, :olinkrev, :expand, :filelimit, :tarlimit, :withissues, :view]
+          http_post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :diff }, params: options, accepted: accepted)
         end
 
         # Runs the command rebuild for that package
