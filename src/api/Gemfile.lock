@@ -281,7 +281,7 @@ GEM
     rainbow (2.2.2)
       rake
     raindrops (0.18.0)
-    rake (12.3.0)
+    rake (12.3.1)
     rantly (1.1.0)
     rb-fsevent (0.10.3)
     rb-inotify (0.9.10)
