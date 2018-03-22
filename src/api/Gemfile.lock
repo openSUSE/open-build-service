@@ -211,8 +211,6 @@ GEM
       mini_portile2 (~> 2.3.0)
     nokogumbo (1.5.0)
       nokogiri
-    nyan-cat-formatter (0.12.0)
-      rspec (>= 2.99, >= 2.14.2, < 4)
     parallel (1.12.1)
     parser (2.5.1.0)
       ast (~> 2.4.0)
@@ -459,7 +457,6 @@ DEPENDENCIES
   mousetrap-rails
   mysql2
   nokogiri
-  nyan-cat-formatter
   peek
   peek-dalli
   peek-mysql2
