@@ -3,7 +3,7 @@
 - project_bread_crumb @pagetitle
 = render partial: "webui/project/tabs"
 = content_for :ready_function do
-  repositories_setup_autocomplete();
+  repositoriesSetupAutocomplete();
 %h2
   Add Repository to #{@project}
 = form_tag({ action: :create, project: @project }) do
