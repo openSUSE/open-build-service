@@ -1162,12 +1162,11 @@ sub append_info_path {
   for my $pe (@$path) {
     my $pr = $pe->{'project'};
     next if $projpacks->{$pr} || ($remoteprojs->{$pr} && defined($remoteprojs->{$pr}->{'config'})) || $remotemissing->{$pr};
-    $ret = 0;
-    next if defined $remotemissing->{$pr};
+    $ret = 0;					# entry unknown, delay
+    next if defined $remotemissing->{$pr};	# 0: fetch is already in progress
     push @missing, $pr;
   }
-  @missing = BSUtil::unify(@missing);
-  for my $projid (@missing) {
+  for my $projid (BSUtil::unify(@missing)) {
     my $asyncmode = $gctx->{'asyncmode'};
     my $async;
     if ($asyncmode) {
@@ -1177,6 +1176,7 @@ sub append_info_path {
 	'_changelevel' => $ctx->{'changelevel'} || 1,
       };
     }
+    $remotemissing->{$projid} = 0;	# now in progress
     BSSched::ProjPacks::get_remoteproject($gctx, $async, $projid);
   }
   return $ret;

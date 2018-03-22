@@ -669,6 +669,7 @@ sub get_projpacks_postprocess_projects {
   my $projpacks = $gctx->{'projpacks'};
   my %changed = map {$_ => 1} BSSched::Remote::getchangedremoteprojs($gctx, 1);
   $changed{$_} = 1 for @projids;
+  return unless %changed;
 
   # first prp deps
   my $rprpdeps = $gctx->{'rprpdeps'};
@@ -1494,6 +1495,7 @@ sub get_remoteproject_resume {
     return;
   }
   BSSched::Remote::remotemap2remoteprojs($gctx, $projpacksin->{'remotemap'});
+  get_projpacks_postprocess_projects($gctx);
   $gctx->{'remotemissing'}->{$projid} = 1 if !$gctx->{'projpacks'}->{$projid} && !$gctx->{'remoteprojs'}->{$projid};
   BSSched::Lookat::setchanged($gctx, $handle->{'_changeprp'}, $handle->{'_changetype'}, $handle->{'_changelevel'});
 }
@@ -1502,7 +1504,7 @@ sub get_remoteproject {
   my ($gctx, $doasync, $projid) = @_;
 
   my $myarch = $gctx->{'arch'};
-  print "getting data for remote project '$projid' from $BSConfig::srcserver\n";
+  print "getting data for missing project '$projid' from $BSConfig::srcserver\n";
   my @args;
   push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
   push @args, "project=$projid";
@@ -1527,6 +1529,7 @@ sub get_remoteproject {
     return;
   }
   BSSched::Remote::remotemap2remoteprojs($gctx, $projpacksin->{'remotemap'});
+  get_projpacks_postprocess_projects($gctx);
   $gctx->{'remotemissing'}->{$projid} = 1 if !$gctx->{'projpacks'}->{$projid} && !$gctx->{'remoteprojs'}->{$projid};
 }
 
