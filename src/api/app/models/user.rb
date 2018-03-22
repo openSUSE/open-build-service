@@ -139,11 +139,8 @@ class User < ApplicationRecord
   end
 
   def self.autocomplete_backend(prefix = '')
-    if prefix.present?
-      with_login_prefix(prefix).pluck(:login)
-    else
-      User.none
-    end
+    return [] if prefix.blank?
+    with_login_prefix(prefix).pluck(:login)
   end
 
   # the default state of a user based on the api configuration
