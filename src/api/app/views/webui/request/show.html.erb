@@ -139,27 +139,14 @@
                 <% end %>
                 <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
               </b>
-          <% elsif action[:type] == :add_role %>
-              <b>
-                <%= user_with_realname_and_icon action[:user] %>
-                wants the role <b><%= action[:role] %></b> for
-                <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
-              </b>
-          <% elsif action[:type] == :set_bugowner %>
+          <% elsif [:add_role, :set_bugowner].include? action[:type]  %>
               <b>
                 <%= user_with_realname_and_icon @bs_request.creator %>
-                <% if @bs_request.creator == action[:user] %>
-                  wants to
-                <% else %>
-                  wants that the
-                  <% if action[:user] %>
-                    user
-                    <%= user_with_realname_and_icon(action[:user], { no_icon: true }) %>
-                  <% else %>
-                    "group #{action[:group]}"
-                  <% end %>
-                <% end %>
-                become bugowner for
+                wants
+                <%= requester_str(@bs_request.creator, action[:user], action[:group]) %>
+                to
+                <%= creator_intentions(action[:role]) %>
+                for
                 <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
               </b>
           <% elsif action[:type] == :change_devel %>
