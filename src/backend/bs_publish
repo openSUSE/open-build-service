@@ -1447,7 +1447,7 @@ sub publish {
   my %kiwimedium;	# maps published name to original name
   my $kiwiindex = '';	# store collected index parts
 
-  my $notary_uploads = {};
+  my %containers;
 
   if ($archorder) {
     my %archorder = map {$_ => 1} @$archorder;
@@ -1515,6 +1515,7 @@ sub publish {
     for my $rbin (sort(ls($r))) {
       next if $rbin eq '.newchecksums' || $rbin eq '.newchecksums.new' || $rbin eq '.checksums' || $rbin eq '.checksums.new';
       my $bin = $rbin;
+      my $containerinfo;
       if ($bin =~ /:updateinfo.xml$/) {
         # collect updateinfo data
         my $updateinfoxml = readstr("$r/$bin", 1) || '';
@@ -1584,16 +1585,18 @@ sub publish {
           # kiwi case
 	  $kiwimedium{$bin} = $2 if !$3 && -e "$r/$2.packages";
           if ($BSConfig::publish_containers && !$3 && -e "$r/$1.containerinfo") {
-  	    upload_container($r, "$1.containerinfo", $bin, $projid, $repoid, $arch, $notary_uploads);
-            next;
+	    eval { $containerinfo = BSRepServer::Containerinfo::readcontainerinfo($r, "$1.containerinfo") };
+	    warn("$@") if $@;
+	    $containerinfo->{'arch'} = $arch if $containerinfo;
           }
 	  $p = "$bin";
 	} elsif ($bin =~ /(.*)\.tar(?:\.(?:gz|bz2|xz))?(\.sha256)?$/) {
           # Dockerfile case
 	  $kiwimedium{$bin} = $1 if !$2 && -e "$r/$1.packages";
           if ($BSConfig::publish_containers && !$2 && -e "$r/$1.containerinfo") {
-  	    upload_container($r, "$1.containerinfo", $bin, $projid, $repoid, $arch, $notary_uploads);
-            next;
+	    eval { $containerinfo = BSRepServer::Containerinfo::readcontainerinfo($r, "$1.containerinfo") };
+	    warn("$@") if $@;
+	    $containerinfo->{'arch'} = $arch if $containerinfo;
           }
 	  $p = "$bin";
         } elsif ($bin =~ /\.(?:tgz|zip)?(?:\.sha256)?$/) {
@@ -1670,6 +1673,7 @@ sub publish {
       $bins{$p} = "$r/$rbin";
       $bins_id{$p} = "$s[9]/$s[7]/$s[1]";
       $binaryorigins->{$p} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
+      $containers{$p} = $containerinfo if $containerinfo;
       if ($rbin =~ /^(.*)\.drpm$/) {
 	# we took a delta rpm. collect desq if possible
 	my $dseq = "$r/$1.dseq";
@@ -1904,6 +1908,15 @@ sub publish {
     $changed = 1;
   }
 
+  my $notary_uploads = {};
+  for my $p (sort keys %containers) {
+    next unless -f "$extrep/$p";
+    my $containerinfo = $containers{$p};
+    upload_container($extrep, $p, $containerinfo, $projid, $repoid, $containerinfo->{'arch'}, $notary_uploads);
+    # delete container... FIXME
+    unlink("$extrep/$p");
+    delete $binaryorigins->{$p};
+  }
   $changed = 1 if %$notary_uploads;	# FIXME
 
   if (!$changed && !$dbgsplit) {
@@ -2555,7 +2568,7 @@ check if build result is valid container and upload if configured
 =cut
 
 sub upload_container {
-  my ($dir, $containerinfo, $file, $projid, $repoid, $arch, $notary_uploads) = @_;
+  my ($dir, $file, $info, $projid, $repoid, $arch, $notary_uploads) = @_;
 
   # jump out if no config
   return unless $BSConfig::publish_containers;
@@ -2580,12 +2593,8 @@ sub upload_container {
 
   return if !@registries;
 
-  # check if containerinfo is valid and get info for container
-  BSUtil::printlog("Checking containerinfo for $dir/$containerinfo");
-  my $info = BSRepServer::Containerinfo::readcontainerinfo($dir, $containerinfo);
-
   if (!$info) {
-    BSUtil::printlog("No valid containerinfo found");
+    BSUtil::printlog("$file: no valid containerinfo found");
     return;
   }
 
@@ -2594,8 +2603,7 @@ sub upload_container {
     return;
   }
 
-  my $src = "$dir/$file";
-  my $tempfile = decompress_container($src);
+  my $tempfile = decompress_container("$dir/$file");
 
   eval {
     for my $config (@registries) {
