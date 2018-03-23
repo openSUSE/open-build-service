@@ -41,7 +41,23 @@ namespace :docker do
     desc 'Scan the code base for syntax/code problems'
     task :lint do
       begin
-        sh 'docker-compose -f docker-compose.ci.yml run --rm rspec bundle exec rake dev:bootstrap dev:lint'
+        cmd = '/bin/bash -c "bundle exec rake --tasks && bundle exec rake dev:bootstrap && bundle exec rake dev:lint"'
+        environment = "-e TRAVIS_BRANCH=#{ENV['TRAVIS_BRANCH']} "
+        environment << "-e TRAVIS_PULL_REQUEST_BRANCH=#{ENV['TRAVIS_PULL_REQUEST_BRANCH']} "
+        environment << "-e TRAVIS_PULL_REQUEST_SLUG=#{ENV['TRAVIS_PULL_REQUEST_SLUG']} "
+        environment << "-e TRAVIS=#{ENV['TRAVIS']} "
+        sh "docker-compose -f docker-compose.ci.yml run #{environment} --rm rspec #{cmd}"
+      ensure
+        sh 'docker-compose -f docker-compose.ci.yml stop'
+      end
+    end
+
+    desc 'Run the spider test to crawl all pages and fail for exceptions'
+    task :spider do
+      begin
+        cmd = 'bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test &> /dev/null; '
+        cmd << 'bundle exec rails test:spider'
+        sh "docker-compose -f docker-compose.ci_old.yml run --rm old-test-suite /bin/bash -c '#{cmd}'"
       ensure
         sh 'docker-compose -f docker-compose.ci.yml stop'
       end
