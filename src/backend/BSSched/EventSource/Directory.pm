@@ -113,7 +113,7 @@ sub sendrepochangeevent {
     'repository' => $repoid,
     'arch' => $myarch,
   };
-  sendevent($gctx, $ev, 'repository', "${projid}::${repoid}::${myarch}");
+  sendevent($gctx, $ev, 'repository', "$ev->{'type'}::${projid}::${repoid}::${myarch}");
 }
 
 =head2 sendunblockedevent - send an unblocked event to another scheduler

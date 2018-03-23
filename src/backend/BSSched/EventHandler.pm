@@ -171,14 +171,17 @@ sub event_repository {
   my $changed_med = $gctx->{'changed_med'};
   my $projid = $ev->{'project'};
   my $repoid = $ev->{'repository'};
+  my $arch = $ev->{'arch'} || $gctx->{'arch'};
   my $prp = "$projid/$repoid";
   $changed_med->{$prp} = 2;
   my $repounchanged = $gctx->{'repounchanged'};
   if ($ev->{'type'} eq 'repository') {
-    $gctx->{'repodatas'}->drop($prp, $gctx->{'arch'});
-    delete $repounchanged->{$prp};
+    # full tree and maybe bininfo changed
+    $gctx->{'repodatas'}->drop($prp, $arch);
+    delete $repounchanged->{$prp} if $arch eq $gctx->{'arch'};
   } elsif ($ev->{'type'} eq 'repoinfo') {
-    $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
+    # only bininfo changed
+    $repounchanged->{$prp} = 2 if $repounchanged->{$prp} && $arch eq $gctx->{'arch'};
   }
 }
 
