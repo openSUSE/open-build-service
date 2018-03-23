@@ -40,8 +40,6 @@ OBSApi::Application.configure do
   # Print deprecation notices to the stderr.
   #  config.active_support.deprecation = :stderr
 
-  config.eager_load = false
-
   # Expands the lines which load the assets
   config.assets.debug = false
   config.assets.log = nil
