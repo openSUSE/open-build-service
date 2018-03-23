@@ -17,98 +17,76 @@ RSpec.describe BsRequestAction::Differ::QueryBuilder, vcr: true do
   let!(:bs_request) { create(:bs_request, bs_request_actions: [bs_request_action]) }
 
   describe '#build' do
-    before do
+    context 'with target package and project' do
+      let(:differ) do
+        BsRequestAction::Differ::QueryBuilder.new(
+          target_project: target_project.name,
+          target_package: target_package.name,
+          action: bs_request_action,
+          source_package: source_package.name
+        ).build
+      end
+
+      it { expect(differ[:oproject]).to eq('target_project') }
+      it { expect(differ[:opackage]).to eq('the_package') }
+      it { expect(differ[:expand]).to eq(1) }
+      it { expect(differ[:rev]).to eq('revision') }
+      it { expect(differ.keys.length).to eq(4) }
     end
-    context 'for submit action' do
-      context 'with target package and project' do
-        let(:differ) do
-          BsRequestAction::Differ::QueryBuilder.new(
-            target_project: target_project.name,
-            target_package: target_package.name,
-            action: bs_request_action,
-            source_package: source_package.name
-          ).build
-        end
 
-        it { expect(differ[:filelimit]).to eq(10_000) }
-        it { expect(differ[:tarlimit]).to eq(10_000) }
-        it { expect(differ[:oproject]).to eq('target_project') }
-        it { expect(differ[:opackage]).to eq('the_package') }
-        it { expect(differ[:expand]).to eq(1) }
-        it { expect(differ[:rev]).to eq('revision') }
-        it { expect(differ.keys.length).to eq(6) }
+    context 'without a target package' do
+      let(:differ) do
+        BsRequestAction::Differ::QueryBuilder.new(
+          target_project: target_project.name,
+          action: bs_request_action,
+          source_package: source_package.name
+        ).build
       end
 
-      context 'with options' do
-        let(:differ) do
-          BsRequestAction::Differ::QueryBuilder.new(
-            target_project: target_project.name,
-            target_package: target_package.name,
-            action: bs_request_action,
-            source_package: source_package.name,
-            options: { filelimit: 42, tarlimit: 43 }
-          ).build
-        end
+      it { expect(differ[:opackage]).to eq('the_package') }
+      it { expect(differ.keys.length).to eq(4) }
+    end
 
-        it { expect(differ[:filelimit]).to eq(42) }
-        it { expect(differ[:tarlimit]).to eq(43) }
-        it { expect(differ.keys.length).to eq(6) }
+    context 'with a target releaseproject' do
+      let!(:release_project) { create(:project, maintainer: user, name: 'release_project_name') }
+      let!(:release_package) { create(:package, name: 'the_package', project: release_project) }
+      let!(:bs_request_action) do
+        create(:bs_request_action,
+               source_project: source_project,
+               source_package: source_package,
+               target_project: target_project,
+               target_package: target_package,
+               target_releaseproject: release_project.name,
+               source_rev: 'revision')
       end
+      let!(:bs_request) { create(:bs_request, bs_request_actions: [bs_request_action]) }
 
-      context 'without a target package' do
-        let(:differ) do
-          BsRequestAction::Differ::QueryBuilder.new(
-            target_project: target_project.name,
-            action: bs_request_action,
-            source_package: source_package.name
-          ).build
-        end
-
-        it { expect(differ[:opackage]).to eq('the_package') }
-        it { expect(differ.keys.length).to eq(6) }
+      let(:differ) do
+        BsRequestAction::Differ::QueryBuilder.new(
+          target_project: target_project.name,
+          action: bs_request_action,
+          source_package: source_package.name
+        ).build
       end
+      it { expect(differ[:oproject]).to eq('release_project_name') }
+      it { expect(differ.keys.length).to eq(4) }
+    end
 
-      context 'with a target releaseproject' do
-        let!(:release_project) { create(:project, maintainer: user, name: 'release_project_name') }
-        let!(:release_package) { create(:package, name: 'the_package', project: release_project) }
-        let!(:bs_request_action) do
-          create(:bs_request_action,
-                 source_project: source_project,
-                 source_package: source_package,
-                 target_project: target_project,
-                 target_package: target_package,
-                 target_releaseproject: release_project.name,
-                 source_rev: 'revision')
-        end
-        let!(:bs_request) { create(:bs_request, bs_request_actions: [bs_request_action]) }
+    context 'with a maintenance release target project' do
+      let!(:maintenance_release_project) { create(:update_project, name: 'maintenance_project') }
+      let!(:maintenance_package) { create(:package, project: maintenance_release_project, name: 'the_package') }
 
-        let(:differ) do
-          BsRequestAction::Differ::QueryBuilder.new(
-            target_project: target_project.name,
-            action: bs_request_action,
-            source_package: source_package.name
-          ).build
-        end
-        it { expect(differ[:oproject]).to eq('release_project_name') }
-        it { expect(differ.keys.length).to eq(6) }
+      let(:differ) do
+        BsRequestAction::Differ::QueryBuilder.new(
+          target_project: maintenance_release_project.name,
+          target_package: 'the_package.42',
+          action: bs_request_action,
+          source_package: source_package.name
+        ).build
       end
-
-      context 'with a maintenance release target project' do
-        let!(:maintenance_release_project) { create(:update_project, name: 'maintenance_project') }
-        let!(:maintenance_package) { create(:package, project: maintenance_release_project, name: 'the_package') }
-
-        let(:differ) do
-          BsRequestAction::Differ::QueryBuilder.new(
-            target_project: maintenance_release_project.name,
-            target_package: 'the_package.42',
-            action: bs_request_action,
-            source_package: source_package.name
-          ).build
-        end
-        it { expect(differ[:oproject]).to eq('maintenance_project') }
-        it { expect(differ[:opackage]).to eq('the_package') }
-        it { expect(differ.keys.length).to eq(6) }
-      end
+      it { expect(differ[:oproject]).to eq('maintenance_project') }
+      it { expect(differ[:opackage]).to eq('the_package') }
+      it { expect(differ.keys.length).to eq(4) }
     end
   end
 end

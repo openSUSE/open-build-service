@@ -24,8 +24,7 @@ class BsRequestAction
             action: bs_request_action,
             target_project: target_project_name,
             target_package: target_package_name,
-            source_package: source_package_name,
-            options: options
+            source_package: source_package_name
           )
           source_diff(bs_request_action.source_project, source_package_name, query.merge(query_builder.build))
         end
@@ -35,6 +34,8 @@ class BsRequestAction
         query = {}
         query[:view] = :xml if options[:view].to_s == 'xml'
         query[:withissues] = 1 if options[:withissues].present?
+        query[:filelimit] = options[:filelimit] ? options[:filelimit].to_i : 10_000
+        query[:tarlimit] = options[:tarlimit] ? options[:tarlimit].to_i : 10_000
         query
       end
 
