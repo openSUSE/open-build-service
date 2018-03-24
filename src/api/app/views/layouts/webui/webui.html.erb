@@ -96,7 +96,7 @@
           <% else %>
             <li><%= link_to "Create Home Project", new_project_path(name: User.current.home_project_name) %></li>
           <% end %>
-          <li><%= link_to 'Logout', user_logout_path, method: :post %></li>
+          <li><%= link_to 'Logout', session_destroy_path, method: :delete %></li>
         </ul>
       </div>
     <% end -%>

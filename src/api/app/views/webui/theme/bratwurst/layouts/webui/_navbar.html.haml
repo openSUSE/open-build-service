@@ -15,7 +15,7 @@
       - if User.current.is_nobody?
         %ul.nav.navbar-nav.navbar-right
           %li
-            = link_to(user_login_path) do
+            = link_to(session_new_path) do
               %i.icon-signin
               Sign In
       - else
@@ -30,7 +30,7 @@
                   %i.icon-home
                   = User.current
               %li
-                = link_to(user_logout_path, method: :post) do
+                = link_to(session_destroy_path, method: :delete) do
                   %i.icon-off
                   Log out
         %ul.nav.navbar-nav.navbar-right.visible-xs
@@ -39,6 +39,6 @@
               %i.icon-home
               = User.current
           %li
-            = link_to(user_logout_path, method: :post) do
+            = link_to(session_destroy_path, method: :delete) do
               %i.icon-off
               Log out

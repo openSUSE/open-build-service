@@ -53,7 +53,7 @@ RSpec.feature 'Login', type: :feature, js: true do
   end
 
   scenario 'login via login page' do
-    visit user_login_path
+    visit session_new_path
     fill_in 'Username', with: user.login
     fill_in 'Password', with: 'buildservice'
     click_button('Log In')
@@ -193,7 +193,7 @@ RSpec.feature 'Login', type: :feature, js: true do
     end
 
     it 'allows the user to login via the webui' do
-      visit user_login_path
+      visit session_new_path
       fill_in 'Username', with: 'tux'
       fill_in 'Password', with: 'tux_password'
       click_button('Log In')
