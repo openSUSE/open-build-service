@@ -329,10 +329,6 @@ OBSApi::Application.routes.draw do
       post 'user/register' => :register
       get 'user/register_user' => :register_user
 
-      get 'user/login' => :login
-      post 'user/logout' => :logout
-      get 'user/logout' => :logout
-
       post 'user/save' => :save, constraints: cons
       get 'user/save_dialog' => :save_dialog
 
@@ -345,7 +341,6 @@ OBSApi::Application.routes.draw do
       get 'user/autocomplete' => :autocomplete
       get 'user/tokens' => :tokens
 
-      post 'user/do_login' => :do_login
       get 'user/edit/:user' => :edit, constraints: cons, as: 'user_edit'
 
       get 'user/show/:user' => :show, constraints: cons, as: 'user_show'
@@ -356,6 +351,12 @@ OBSApi::Application.routes.draw do
       get 'home/list_my' => :home
       get 'home/home_project' => :home_project
       get 'user/:user/icon' => :icon, constraints: cons
+    end
+
+    controller 'webui/session' do
+      get 'session/new' => :new
+      post 'session/create' => :create
+      delete 'session/destroy' => :destroy
     end
 
     get 'user/notifications' => :index, constraints: cons, controller: 'webui/users/subscriptions'

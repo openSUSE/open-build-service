@@ -83,7 +83,7 @@ RSpec.describe Webui::WebuiController do
   describe 'require_login before filter' do
     it 'redirects to main page for new users' do
       get :show, params: { id: 1 }
-      expect(response).to redirect_to(user_login_path)
+      expect(response).to redirect_to(session_new_path)
       expect(flash[:error]).to eq('Please login to access the requested page.')
     end
 
