@@ -74,9 +74,10 @@ bundle.ruby2.5 exec rake.ruby2.5 db:migrate:with_data db:structure:dump db:drop 
 export RAILS_ENV=test
 bundle.ruby2.5 exec rake.ruby2.5 db:create db:setup || exit 1
 
+bundle.ruby2.5 exec rails assets:precompile
+
 for suite in "rake.ruby2.5 test:api" "rake.ruby2.5 test:spider" "rspec"; do
   rm -f log/test.log
-  bundle.ruby2.5 exec rails assets:precompile
 
   # Configure the frontend<->backend connection settings
   if [ "$suite" = "rspec" ]; then
