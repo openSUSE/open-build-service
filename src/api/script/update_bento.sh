@@ -1,3 +1,5 @@
+#!/bin/bash
+
 dir=$(mktemp -d )
 pushd $dir
 git clone git://github.com/openSUSE/opensuse-themes.git
