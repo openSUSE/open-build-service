@@ -13,7 +13,7 @@ gem 'delayed_job_active_record', '>= 4.0.0'
 # to fill errbit
 gem 'airbrake', '<= 7.1.0'
 # Due to a bug in Errbit we need to use 2.5.0 -> https://github.com/errbit/errbit/pull/1237
-gem 'airbrake-ruby', '<= 2.5.0'
+gem 'airbrake-ruby', '<= 2.8.3'
 # as JSON library - the default json conflicts with activerecord (by means of vice-versa monkey patching)
 gem 'yajl-ruby', require: 'yajl/json_gem'
 # to search the database
