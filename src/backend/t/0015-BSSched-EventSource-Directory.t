@@ -171,22 +171,22 @@ BSSched::EventSource::Directory::sendrepochangeevent($gctx, $prp, $type);
 
 $file_name = $prp;
 $file_name =~ s/\//::/;
-$file_name .= "::" . $gctx->{arch};
+$file_name = "repository::${file_name}::$gctx->{arch}";
 $ev_dir = "$eventdir_base/repository/";
 $got = readxml("$ev_dir/$file_name",$BSXML::event);
 
 is_deeply($got,$expected,"Checking sendrepochangeevent without type");
+push(@files_to_remove,"$ev_dir/$file_name",$ev_dir);
 
-$type = "package";
+$type = "repoinfo";
 $expected->{type}=$type;
 BSSched::EventSource::Directory::sendrepochangeevent($gctx, $prp, $type);
 
 $file_name = $prp;
 $file_name =~ s/\//::/;
-$file_name .= "::" . $gctx->{arch};
+$file_name = "repoinfo::${file_name}::$gctx->{arch}";
 $ev_dir = "$eventdir_base/repository/";
 $got = readxml("$ev_dir/$file_name",$BSXML::event);
-
 
 is_deeply($got,$expected,"Checking sendrepochangeevent");
 push(@files_to_remove,"$ev_dir/$file_name",$ev_dir);
@@ -257,7 +257,7 @@ push(@files_to_remove,"$ev_dir/$file_name");
 # CLEANUP
 unshift(@files_to_remove,"$eventdir_base/$arch/$evname");
 
-for (@files_to_remove) {
+for (BSUtil::unify(sort {$b cmp $a} @files_to_remove)) {
   ( -d $_ ) ? rmdir $_ : unlink $_;
   warn "$_: $!" if $!;
 }
@@ -280,4 +280,4 @@ print "$file\n";
 	while (<FH>) { $rv .= $_ }
 	return $rv
 }
-	
+
