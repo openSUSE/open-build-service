@@ -5,7 +5,6 @@ require 'webmock/rspec'
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
 
-# rubocop:disable Metrics/BlockLength
 RSpec.describe Webui::ProjectController, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:admin_user) { create(:admin_user, login: 'admin') }

@@ -475,4 +475,28 @@ RSpec.describe User do
       end
     end
   end
+
+  describe '#autocomplete methods' do
+    let!(:foobar) { create(:confirmed_user, login: 'foobar') }
+    let!(:fobaz) { create(:confirmed_user, login: 'fobaz') }
+
+    context 'autocomplete_login' do
+      subject { User.autocomplete_login('foo') }
+
+      it { expect(subject).to match_array(['foobar']) }
+    end
+
+    context 'autocomplete_backend with nil as parameter' do
+      subject { User.autocomplete_backend(nil) }
+
+      it { expect { subject }.not_to raise_error }
+      it { expect(subject).to match_array([]) }
+    end
+
+    context 'tokens' do
+      subject { User.autocomplete_token('foo') }
+
+      it { expect(subject).to match_array([name: 'foobar']) }
+    end
+  end
 end
