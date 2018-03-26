@@ -3,7 +3,6 @@ class BsRequestAction
     class QueryBuilder
       include ActiveModel::Model
       attr_accessor :target_project, :target_package, :action, :source_package
-      attr_writer :options
 
       def build
         # the target is by default the _link target
@@ -35,8 +34,6 @@ class BsRequestAction
         end
 
         query = {}
-        query[:filelimit] = options[:filelimit] ? options[:filelimit].to_i : 10_000
-        query[:tarlimit] = options[:tarlimit] ? options[:tarlimit].to_i : 10_000
 
         if !provided_in_other_action && !action.updatelink
           # do show the same diff multiple times, so just diff unexpanded so we see possible link changes instead
@@ -62,10 +59,6 @@ class BsRequestAction
       end
 
       private
-
-      def options
-        @options || {}
-      end
 
       def check_for_local_linked_packages(spkg)
         # the target is by default the _link target
