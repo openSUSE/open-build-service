@@ -1055,11 +1055,27 @@ sub getprojpack {
 	  $repo->{'base'} = $base;
 	}
       } elsif ($remotemap) {
+	# we always need the expanded search path with the configs so that
+	# we know about the publishfilter
 	for my $repo (@{$jinfo->{'repository'}}) {
 	  next if $repoids && !$repoids->{$repo->{'name'}};
+	  if (!$cgi->{'ignoredisable'} && defined($cgi->{'arch'})) {
+	    next unless grep {$_ eq $arch} @{$repo->{'arch'} || []};
+	  }
 	  eval {
 	    my @prps = expandsearchpath($projid, $repo->{'name'}, $remotemap);
             $expandedrepos{"$projid/$repo->{'name'}"} = [ @prps ];
+	    for my $prp (@prps) {
+	      my ($aprojid) = split('/', $prp, 2);
+	      my $aproj = $remotemap->{$aprojid};
+	      next if !$aproj || $aproj->{'error'} || defined($aproj->{'config'});
+	      if ($aproj->{'partition'}) {
+		$aproj->{'config'} = readstr("$projectsdir/$aprojid.conf");
+		$aproj->{'config'} = '' unless defined $aproj->{'config'};
+	      } else {
+		eval { BSSrcServer::Remote::fetchremoteconfig($aproj, $aprojid, $remotemap) };
+	      }
+	    }
 	  };
 	  $expandedrepos{"$projid/$repo->{'name'}"} = $@ if $@;
 	}
