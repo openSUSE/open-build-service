@@ -93,7 +93,7 @@ sub setup_watches {
       next unless $rproj;			# not remote, so nothing to watch
       my $remoteurl = $rproj->{'partition'} ? $BSConfig::srcserver : $rproj->{'remoteurl'};
 
-      $needremoteproj{$projid} = $rproj if $rproj->{'partition'};	# we need to keep partition entries
+      $needremoteproj{$projid} = $rproj if $rproj->{'partition'};	# we need to keep partition entries so we know where to watch
       my %packids = map {$_->{'package'} => 1} @{$projpacks_linked->{$projid}};
       if ($packids{':*'}) {
 	# we watch all packages
@@ -196,14 +196,34 @@ sub updateremoteprojs {
       delete $remoteprojs->{$projid};
       next;
     }
-    next if $r->{'partition'};
-    next if $or->{'remoteurl'} eq $r->{'remoteurl'} && $or->{'remoteproject'} eq $r->{'remoteproject'};
-    delete $remoteprojs->{$projid};	# changed, need to refetch
   }
-  for my $projid (sort keys %$needremoteproj) {
-    my $rproj = $needremoteproj->{$projid};
-    fetchremoteproj($gctx, $rproj, $projid) if !$remoteprojs->{$projid} && !exists($remotemissing->{$projid});
+  for my $projid (keys %$remotemissing) {
+    if ($remoteprojs->{$projid} && defined($remoteprojs->{$projid}->{'config'})) {
+      print "dropping wrong remotemissing $projid entry\n";
+      delete $remotemissing->{$projid};
+      next;
+    }
+    next if $needremoteproj->{$projid};
+    print "dropping no longer needed remotemissing $projid entry\n";
+    delete $remotemissing->{$projid};
   }
+}
+
+=head2 print_remote_stats - print some statistics about the remote projects
+
+ TODO: add description
+
+=cut
+
+sub print_remote_stats {
+  my ($gctx) = @_;
+  print "remote project data statistics:\n";
+  printf "  remote projects: %d\n", scalar(keys %{$gctx->{'remoteprojs'} || {}});
+  printf "  remote projects missing: %d\n", scalar(keys %{$gctx->{'remotemissing'} || {}});
+  my $watchremote = $gctx->{'watchremote'};
+  my $wsum = 0;
+  $wsum += keys(%{$watchremote->{$_} || {}} ) for keys %{$watchremote || {}};
+  printf "  remote watches: %d %d\n", scalar(keys %{$watchremote || {}}), $wsum;
 }
 
 =head2 remoteprojid - TODO: add summary
@@ -262,74 +282,6 @@ sub remoteprojid {
 
   # nope, not a remote project
   return undef;
-}
-
-=head2 fetchremote_sync - add a missing remoteprojs entry with a synchronous call
-
- TODO: add description
-
-=cut
-
-sub fetchremote_sync {
-  my ($gctx, $projid) = @_;
-  print "WARNING: fetching remote project data for $projid\n";
-  my @args;
-  push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
-  push @args, "project=$projid";
-  my $param = {
-    'uri' => "$BSConfig::srcserver/getprojpack",
-    'timeout' => 60,
-  };
-  my $projpacksin;
-  eval {
-    $projpacksin = BSRPC::rpc($param, $BSXML::projpack, 'withconfig', 'withremotemap', "arch=$gctx->{'arch'}", @args);
-  };
-  my $remoteprojs = $gctx->{'remoteprojs'};
-  if ($@) {
-    warn($@);
-    my $error = $@;
-    $error =~ s/\n$//s;
-    $remoteprojs->{$projid} = {'error' => $error};
-    $gctx->{'retryevents'}->addretryevent({'type' => 'project', 'project' => $projid}) if BSSched::RPC::is_transient_error($error);
-  } else {
-    remotemap2remoteprojs($gctx, $projpacksin->{'remotemap'});
-  }
-  return $remoteprojs->{$projid};
-}
-
-=head2 fetchremoteproj - add missing entries to the remoteprojs hash
-
- TODO: add description
-
-=cut
-
-sub fetchremoteproj {
-  my ($gctx, $proj, $projid) = @_;
-  return undef unless $proj && $proj->{'remoteurl'} && $proj->{'remoteproject'};
-  my $remoteprojs = $gctx->{'remoteprojs'};
-  return $remoteprojs->{$projid} if exists $remoteprojs->{$projid};
-  my $remotemissing = $gctx->{'remotemissing'};
-  return undef if $remotemissing->{$projid};
-  return fetchremote_sync($gctx, $projid);	# force in missing entry
-}
-
-=head2 fetchremoteconfig - TODO: add summary
-
- TODO: add description
-
-=cut
-
-sub fetchremoteconfig {
-  my ($gctx, $projid) = @_;
-
-  my $remoteprojs = $gctx->{'remoteprojs'};
-  my $proj = $remoteprojs->{$projid};
-  return undef if !$proj || $proj->{'error'};
-  return $proj->{'config'} if exists $proj->{'config'};
-  return '' if $proj->{'partition'};
-  $proj = fetchremote_sync($gctx, $projid);	# force in missing entry
-  return undef if !$proj || $proj->{'error'};
-  return $proj->{'config'};
 }
 
 =head2 remotemap2remoteprojs - update remoteprojs with the remotemap data

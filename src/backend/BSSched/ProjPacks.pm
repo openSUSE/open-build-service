@@ -758,14 +758,7 @@ sub expandsearchpath {
       last if $done{"/$prp"};
       my ($pid, $rid) = ($t->{'project'}, $t->{'repository'});
       my $proj = $projpacks->{$pid};
-      if (!$proj || $proj->{'remoteurl'}) {
-	$proj = $remoteprojs->{$pid};
-	if (!$proj) {
-	  $proj = BSSched::Remote::remoteprojid($gctx, $pid);
-	  next unless $proj;
-	  $proj = BSSched::Remote::fetchremoteproj($gctx, $proj, $pid);
-	}
-      }
+      $proj = $remoteprojs->{$pid} if !$proj || $proj->{'remoteurl'};
       next unless $proj;
       $done{"/$prp"} = 1;       # mark expanded
       my @repo = grep {$_->{'name'} eq $rid} @{$proj->{'repository'} || []};
@@ -796,14 +789,7 @@ sub expandprojlink {
     push @ret, $lprojid;
     $seen{$lprojid} = 1;
     my $lproj = $projpacks->{$lprojid};
-    if (!$lproj || $lproj->{'remoteurl'}) {
-      $lproj = $remoteprojs->{$lprojid};
-      if (!$lproj) {
-	$lproj = BSSched::Remote::remoteprojid($gctx, $lprojid);
-	next unless $lproj;
-	$lproj = BSSched::Remote::fetchremoteproj($gctx, $lproj, $lprojid);
-      }
-    }
+    $lproj = $remoteprojs->{$lprojid} if !$lproj || $lproj->{'remoteurl'};
     next unless $lproj;
     unshift @todo, map {$_->{'project'}} @{$lproj->{'link'} || []};
   }
@@ -938,6 +924,10 @@ sub setup_projects {
     my @aggs = grep {$_->{'aggregatelist'}} @pdatas;
     my @channels = grep {$_->{'channel'}} @pdatas;
     my @kiwiinfos = grep {$_->{'path'} || $_->{'containerpath'}} map {@{$_->{'info'} || []}} @pdatas;
+    # filter out disabled/excluded/locked/broken entries
+    @aggs = grep {!$_->{'error'}} @aggs;
+    @channels = grep {!$_->{'error'}} @channels;
+    @kiwiinfos = grep {!$_->{'error'}} @kiwiinfos;
     @pdatas = ();               # free mem
     my %channelrepos;
     if (@channels) {
@@ -1348,20 +1338,13 @@ sub getconfig {
   for my $prp (reverse @$path) {
     my ($p, $r) = split('/', $prp, 2);
     my $c;
-    my $rproj = $remoteprojs->{$p};
-    if ($rproj) {
-      return undef if $rproj->{'error'};
-      if (exists($rproj->{'config'})) {
-        $c = $rproj->{'config'};
-      } elsif ($rproj->{'partition'}) {
-        $c = '';
-      } else {
-        $c = BSSched::Remote::fetchremoteconfig($gctx, $p);
-        return undef unless defined $c;
-      }
-    } elsif ($projpacks->{$p}) {
-      $c = $projpacks->{$p}->{'config'};
+    my $proj = $projpacks->{$p};
+    if (!$proj || $proj->{'remoteurl'}) {
+      $proj = $remoteprojs->{$p};
+      next unless $proj;
+      return undef if $proj->{'error'};
     }
+    $c = $proj->{'config'};
     next unless defined $c;
     $config .= "\n### from $p\n";
     $config .= "%define _repository $r\n";
