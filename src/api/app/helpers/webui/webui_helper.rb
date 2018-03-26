@@ -355,6 +355,20 @@ module Webui::WebuiHelper
     end
   end
 
+  def requester_str(creator, requester_user, requester_group)
+    # we don't need to show the requester if he is the same as the creator
+    return if creator == requester_user
+    if requester_user
+      "the user #{user_with_realname_and_icon(requester_user, no_icon: true)}".html_safe
+    elsif requester_group
+      "the group #{requester_group}"
+    end
+  end
+
+  def creator_intentions(role = nil)
+    role.blank? ? 'become bugowner' : "get the role #{role}"
+  end
+
   # If there is any content add the ul tag
   def possibly_empty_ul(html_opts, &block)
     content = capture(&block)

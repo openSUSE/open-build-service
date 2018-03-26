@@ -1107,6 +1107,7 @@ class BsRequest < ApplicationRecord
         action[:name] = 'Add Role'
         action[:role] = xml.role
         action[:user] = xml.person_name
+        action[:group] = xml.group_name
       when :change_devel then
         action[:name] = 'Change Devel'
       when :set_bugowner then
