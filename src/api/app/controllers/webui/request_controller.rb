@@ -423,7 +423,10 @@ class Webui::RequestController < Webui::WebuiController
         end
       end
     rescue APIException, ActiveRecord::RecordInvalid => e
-      Airbrake.notify("Failed to forward BsRequest: #{@bs_request.number}: #{req} #{e}")
+      error_string = "Failed to forward BsRequest: #{@bs_request.number}, error: #{e}, request: #{req.inspect}, params: #{params.inspect}"
+      error_string << ", action: #{action.inspect}" if defined?(action)
+      error_string << ", Record errors: #{e.record.errors}" if e.respond_to?(:record)
+      Airbrake.notify(error_string)
       flash[:error] = "Unable to forward submit request: #{e.message}"
       return
     end
