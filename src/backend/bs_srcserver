@@ -1717,6 +1717,23 @@ sub getprojectlist {
 
 sub getproject {
   my ($cgi, $projid) = @_;
+  if ($cgi->{'withconfig'}) {
+    my $config;
+    die("withconfig does not support a 'rev' parameter\n") if defined $cgi->{'rev'};
+    my $proj = BSRevision::readproj_local($projid, 1);
+    if (!$proj || ($proj->{'remoteurl'} && $proj->{'remoteproject'})) {
+      $proj = BSSrcServer::Remote::remoteprojid($projid);
+      die("404 project '$projid' does not exist\n") unless $proj;
+      $proj = BSSrcServer::Remote::readproject_remote($projid, $proj);
+      $config = BSSrcServer::Remote::readconfig_remote($projid, $proj);
+    } else {
+      die("404 project '$projid' does not exist\n") unless $proj;
+      $config = readstr("$projectsdir/$projid.conf", 1);
+    }
+    $proj->{'name'} = $projid;
+    $proj->{'config'} = defined($config) ? $config : '';
+    return ($proj, $BSXML::proj);
+  }
   my $proj = readproject($projid, undef, $cgi->{'rev'});
   return ($proj, $BSXML::proj);
 }
@@ -2287,7 +2304,7 @@ sub getprojectconfig {
   my ($cgi, $projid) = @_;
   my $proj = checkprojrepoarch($projid, undef, undef, 1);
   if ($proj->{'remoteurl'}) {
-    my $config = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_config", 'proxy' => $proxy}, undef);
+    my $config = BSSrcServer::Remote::readconfig_remote($projid, $proj);
     return ($config, 'Content-Type: text/plain');
   }
   my $config;
@@ -6259,7 +6276,7 @@ my $dispatches = [
   '/source/$project deleted:bool? expand:bool? noorigins:bool?' => \&getpackagelist,
 
   'DELETE:/source/$project user:? comment:? requestid:num?' => \&delproject,
-  '/source/$project/_meta rev?' => \&getproject,
+  '/source/$project/_meta rev? withconfig:bool?' => \&getproject,
   'PUT:/source/$project/_meta user:? comment:? requestid:num? lowprio:bool?' => \&putproject,
 
   '/source/$project/_pubkey rev?' => \&getpubkey,

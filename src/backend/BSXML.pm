@@ -141,6 +141,7 @@ our $proj = [
         'title',
         'description',
         'url',
+	'config',	# for 'withconfig' option
      [[	'link' =>
 	    'project',
 	    'vrevmode',
