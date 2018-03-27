@@ -211,27 +211,12 @@ class Webui::UserController < Webui::WebuiController
 
   def autocomplete
     required_parameters :term
-    render json: list_users(params[:term])
+    render json: User.autocomplete_login(params[:term])
   end
 
   def tokens
     required_parameters :q
-    render json: list_users(params[:q], true)
-  end
-
-  protected
-
-  def list_users(prefix = nil, hash = nil)
-    names = []
-    users = User.arel_table
-    User.where(users[:login].matches("#{prefix}%")).pluck(:login).each do |user|
-      if hash
-        names << { 'name' => user }
-      else
-        names << user
-      end
-    end
-    names
+    render json: User.autocomplete_token(params[:q])
   end
 
   private
