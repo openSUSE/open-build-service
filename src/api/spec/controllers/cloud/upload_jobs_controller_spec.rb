@@ -36,6 +36,55 @@ RSpec.describe Cloud::UploadJobsController, vcr: true do
     login(user_with_ec2_configuration)
   end
 
+  describe '#show' do
+    context 'with cloud_upload feature enabled' do
+      let(:path) { "#{CONFIG['source_url']}/cloudupload?name=#{upload_job.job_id}" }
+      let(:xml_response_list) do
+        <<-HEREDOC
+        <clouduploadjoblist>
+          #{xml_response}
+        </clouduploadjoblist>
+        HEREDOC
+      end
+
+      context 'requesting upload jobs of another user' do
+        let(:user) { create(:confirmed_user) }
+
+        before do
+          login(user)
+          Feature.run_with_activated(:cloud_upload) do
+            get :show, params: { id: upload_job.job_id }, format: 'xml'
+          end
+        end
+
+        it { expect(response.header['X-Opensuse-Errorcode']).to eq('not_found') }
+        it { expect(response).to have_http_status(:not_found) }
+      end
+
+      context 'with an EC2 configuration' do
+        before do
+          stub_request(:get, path).and_return(body: xml_response_list)
+          get :show, params: { id: upload_job.job_id }, format: 'xml'
+        end
+
+        it 'returns an xml response with all cloud upload jobs listed' do
+          expect(Xmlhash.parse(response.body)).to eq(Xmlhash.parse(xml_response_list))
+        end
+        it { expect(response).to be_success }
+      end
+    end
+
+    context 'with cloud_upload feature disabled' do
+      before do
+        Feature.run_with_deactivated(:cloud_upload) do
+          get :show, params: { id: upload_job.job_id }, format: 'xml'
+        end
+      end
+
+      it { expect(response).to be_not_found }
+    end
+  end
+
   describe '#index' do
     context 'with cloud_upload feature enabled' do
       let(:path) { "#{CONFIG['source_url']}/cloudupload?name=#{upload_job.job_id}" }
