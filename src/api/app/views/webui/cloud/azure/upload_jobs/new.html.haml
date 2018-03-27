@@ -1,0 +1,24 @@
+- @pagetitle = "Azure Cloud Upload"
+- @layouttype = 'custom'
+
+.grid_16.alpha.omega.box.box-shadow
+  %h1
+    Upload to Microsoft Azure
+
+  = form_for @upload_job, url: cloud_azure_upload_path, method: :post do |upload_job_form|
+    %p
+      Filename:
+      %b
+        = @upload_job.filename
+    %p
+      = upload_job_form.hidden_field :project
+      = upload_job_form.hidden_field :package
+      = upload_job_form.hidden_field :arch
+      = upload_job_form.hidden_field :repository
+      = upload_job_form.hidden_field :filename
+      = upload_job_form.hidden_field :target, value: 'azure'
+    %p
+      = submit_tag 'Upload Image'
+
+  %p
+    = link_to "All Cloud Uploads", cloud_upload_index_path

@@ -1,0 +1,39 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://backend:5352/cloudupload?arch=x86_64&filename=appliance.raw.xz&package=azure&project=Cloud&repository=standard&target=azure&user=tom
+    body:
+      encoding: UTF-8
+      string: '{"user_id":4,"application_id":"gi3CrNM/sLy/cn2C/0AXvJTnAv9knKa0gXw3BFU9JMDo2AtKBAJ+pycIP4ZT\n/PsI0vjJRVubtHPhyU6em1a0kLekX6XsOvAvtHYUKBvmW9dsJvUo4AzED5/G\ngITC+/q8ZT2eXVD104kPmdhjNKeuKSakBSJLMdl6BGD6Ic19wbVf+6bzgnb9\nTGiSTlStn2eJxlCzMFlx97y0ptDCaEDy+vCj5N8QW/V8nkEBFv6GoYC4G59O\nJ+JYuA8n8CeZfeUQlA07plEXZ5/eaziNxUCTDSPUj2B7pnNsYo0mVpfC0/Yk\nFuHHWVB1vOZV5t7srBL8WScZ32yuA4ti1OTIehZ76A==\n","application_key":"XPbRBjlQLYJeWuNoVD/mHhKDRSaqOr35t1NUdgpTia+3vwIv+cCvbIcQ5Vvt\nktjusaPRBkJ3vcsVQQYWJlqmvnnte8uiuweoOAWY+9LCtsXGl/AC+ylw8UHM\no4SoGmywybxA0oWoNUPkfbceWCHxk28vVT7SuBBDWRyDBhG+kXbGrzHS5PdV\nsr8w3shlLwj5ajQdKC/tVuEzCfm48bDpxjulTJedHQfk3DaybjAtRv3MIFLN\neuJRoI+4XnmMcrbfEzuztG6ktw9Hoz1ZpzQK0aABFMFCNyRyP+GJQayjh8mX\n99BhNhweKHkC3vrtJmpVtBL5jV1CDnINFlgK4JCOmg==\n","image_name":"image001","subscription":"myemailataws","container":"container001","storage_account":"mystorage","resource_group":"mygroup"}'
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: no cloud upload server configurated
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '87'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="400">
+          <summary>no cloud upload server configurated</summary>
+        </status>
+    http_version:
+  recorded_at: Mon, 09 Apr 2018 15:03:03 GMT
+recorded_with: VCR 4.0.0

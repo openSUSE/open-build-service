@@ -17,7 +17,9 @@ module Webui
       def new
         @crumb_list.push << 'Choose your Cloud'
         @ec2_configured = Feature.active?(:cloud_upload)
+        @azure_configured = Feature.active?(:cloud_upload_azure)
         @user_ec2_configured = User.current.ec2_configuration.present?
+        @user_azure_configured = User.current.azure_configuration.present?
       end
 
       def create

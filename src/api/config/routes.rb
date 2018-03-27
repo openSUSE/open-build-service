@@ -214,6 +214,11 @@ OBSApi::Application.routes.draw do
       end
       scope :azure, as: :azure do
         resource :configuration, only: [:show, :update, :destroy], controller: 'webui/cloud/azure/configurations'
+        resource :upload, only: [:create], controller: 'webui/cloud/azure/upload_jobs' do
+          new do
+            get ':project/:package/:repository/:arch/:filename', to: 'webui/cloud/azure/upload_jobs#new', as: '', constraints: cons
+          end
+        end
       end
       scope :ec2, as: :ec2 do
         resource :configuration, only: [:show, :update], controller: 'webui/cloud/ec2/configurations'
