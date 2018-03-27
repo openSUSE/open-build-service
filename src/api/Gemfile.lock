@@ -286,7 +286,7 @@ GEM
     rb-fsevent (0.10.3)
     rb-inotify (0.9.10)
       ffi (>= 0.5.0, < 2)
-    rdoc (6.0.2)
+    rdoc (6.0.3)
     redcarpet (3.4.0)
     refinements (5.0.2)
     responders (2.4.0)
