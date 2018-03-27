@@ -366,7 +366,7 @@ module Webui::WebuiHelper
   end
 
   def creator_intentions(role = nil)
-    role.blank? ? 'become bugowner' : "get the role #{role}"
+    role.blank? ? 'become bugowner (previous bugowners will be deleted)' : "get the role #{role}"
   end
 
   # If there is any content add the ul tag
