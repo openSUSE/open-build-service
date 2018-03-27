@@ -1,39 +1,36 @@
-%h1
-  EC2 Uploader
+- @pagetitle = "Choose your Cloud"
+- @layouttype = 'custom'
 
-%p
-  Select the Amazon EC2 region to which you want to upload your cloud image.
-  Please make sure your
-  = link_to "Amazon EC2 configuration", cloud_ec2_configuration_path
-  is set up properly.
-
-%h3
-  Upload image
-
-= form_for @upload_job, url: cloud_upload_index_path, method: :post do |upload_job_form|
-  %p
-    Filename:
-    %b
-      = @upload_job.filename
-  %p
-    = upload_job_form.label 'cloud_backend_upload_job[ami_name]', "AMI Name:"
-    = upload_job_form.text_field :filename, size: 35, name: 'cloud_backend_upload_job[ami_name]'
-  %p
-    = upload_job_form.label 'cloud_backend_upload_job[region]', "Region:"
-    = select_tag('cloud_backend_upload_job[region]', options_for_select(@ec2_regions))
-  %p
-    = upload_job_form.label 'cloud_backend_upload_job[vpc_subnet_id]', 'VPC Subnet ID (eg. subnet-12345678, optional):'
-    = sprite_tag('help', title: "We create a temporary subnet, if you don't provide one.")
-    = upload_job_form.text_field(:vpc_subnet_id, size: 35, name: 'cloud_backend_upload_job[vpc_subnet_id]')
-  %p
-    = upload_job_form.hidden_field :project
-    = upload_job_form.hidden_field :package
-    = upload_job_form.hidden_field :arch
-    = upload_job_form.hidden_field :repository
-    = upload_job_form.hidden_field :filename
-    = upload_job_form.hidden_field :target, value: 'ec2'
-  %p
-    = submit_tag 'Upload Image'
-
-%p
-  = link_to "All Cloud Uploads", cloud_upload_index_path
+.grid_16.box.box-shadow
+  %h1
+    Choose your Cloud
+  - if @ec2_configured
+    .grid_4.prefix_4.cloud_item
+      %p
+      - if @user_ec2_configured
+        %h2
+          = link_to('Amazon EC2', new_cloud_ec2_upload_path(project: params[:project],
+                    package: @package, repository: params[:repository], arch: params[:arch], filename: params[:filename]),
+                    class: 'cloud_button', title: "Upload to Amazon EC2")
+      - else
+        %h2
+          %span.cloud_button.disabled
+            Amazon EC2
+        %p.red
+          Configure your credentials
+          = link_to('here', cloud_ec2_configuration_path, title: "Configure the credentials for your Amazon EC2")
+  - if @azure_configured
+    .grid_4.omega.cloud_item
+      %p
+      - if @user_azure_configured
+        %h2
+          = link_to('Microsoft Azure', new_cloud_azure_upload_path(project: params[:project],
+                    package: @package, repository: params[:repository], arch: params[:arch], filename: params[:filename]),
+                    class: 'cloud_button', title: "Upload to Microsoft Azure" )
+      - else
+        %h2
+          %span.cloud_button.disabled
+            Microsoft Azure
+        %p.red
+          Configure your credentials
+          = link_to('here', cloud_azure_configuration_path, title: "Configure the credentials for your Microsoft Azure")
