@@ -1,0 +1,547 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:07:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>The House of Mirth</title>
+          <description>Officiis odit aut voluptatum vel est reiciendis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '172'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>The House of Mirth</title>
+          <description>Officiis odit aut voluptatum vel est reiciendis.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:07:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/my_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>The House of Mirth</title>
+          <description>Officiis odit aut voluptatum vel est reiciendis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '172'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>The House of Mirth</title>
+          <description>Officiis odit aut voluptatum vel est reiciendis.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:07:41 GMT
+- request:
+    method: post
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22my_package%22%20and%20linkinfo/@project=%22home:tom%22%20and%20@project=%22home:tom%22)
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '27'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+        </collection>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:07:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:home:tom">
+          <title>Branch project for package my_package</title>
+          <description>This project was created for package my_package via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '260'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:home:tom">
+          <title>Branch project for package my_package</title>
+          <description>This project was created for package my_package via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:07:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="new_package_name" project="home:tom:branches:home:tom">
+          <title>The House of Mirth</title>
+          <description>Officiis odit aut voluptatum vel est reiciendis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '196'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="new_package_name" project="home:tom:branches:home:tom">
+          <title>The House of Mirth</title>
+          <description>Officiis odit aut voluptatum vel est reiciendis.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:07:41 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name?cmd=branch&noservice=1&opackage=my_package&oproject=home:tom&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '205'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="20" vrev="20">
+          <srcmd5>49bd231e56677e1dfd80e906f4f5dbe4</srcmd5>
+          <version>unknown</version>
+          <time>1522220861</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:07:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="new_package_name" project="home:tom:branches:home:tom">
+          <title>The House of Mirth</title>
+          <description>Officiis odit aut voluptatum vel est reiciendis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '196'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="new_package_name" project="home:tom:branches:home:tom">
+          <title>The House of Mirth</title>
+          <description>Officiis odit aut voluptatum vel est reiciendis.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:07:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '430'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="new_package_name" rev="20" vrev="20" srcmd5="49bd231e56677e1dfd80e906f4f5dbe4">
+          <linkinfo project="home:tom" package="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="0a2e3813e4d7ad4b6b72066efa8587cc" lsrcmd5="49bd231e56677e1dfd80e906f4f5dbe4" />
+          <entry name="_link" md5="324a67e2c9fe0d6cdc38c625b1c416f5" size="137" mtime="1522151960" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:07:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '332'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="new_package_name" rev="20" vrev="20" srcmd5="0a2e3813e4d7ad4b6b72066efa8587cc" lsrcmd5="49bd231e56677e1dfd80e906f4f5dbe4" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+          <error>bad build configuration, no build type defined or detected</error>
+          <linked project="home:tom" package="my_package" />
+        </sourceinfo>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:07:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '430'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="new_package_name" rev="20" vrev="20" srcmd5="49bd231e56677e1dfd80e906f4f5dbe4">
+          <linkinfo project="home:tom" package="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="0a2e3813e4d7ad4b6b72066efa8587cc" lsrcmd5="49bd231e56677e1dfd80e906f4f5dbe4" />
+          <entry name="_link" md5="324a67e2c9fe0d6cdc38c625b1c416f5" size="137" mtime="1522151960" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:07:41 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '349'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="d12586925d02b3c1e65fb60b76b2b943">
+          <old project="home:tom:branches:home:tom" package="new_package_name" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom:branches:home:tom" package="new_package_name" rev="1" srcmd5="49bd231e56677e1dfd80e906f4f5dbe4" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:07:41 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '364'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="d0a679bbe9896b24825fb8cdab1894be">
+          <old project="home:tom" package="my_package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom:branches:home:tom" package="new_package_name" rev="0a2e3813e4d7ad4b6b72066efa8587cc" srcmd5="0a2e3813e4d7ad4b6b72066efa8587cc" />
+          <files />
+        </sourcediff>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:07:42 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:home:tom">
+          <title>Branch project for package my_package</title>
+          <description>This project was created for package my_package via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '301'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:home:tom">
+          <title>Branch project for package my_package</title>
+          <description>This project was created for package my_package via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer" />
+          <publish>
+            <disable />
+          </publish>
+        </project>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:07:42 GMT
+recorded_with: VCR 4.0.0

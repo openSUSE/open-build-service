@@ -1,0 +1,697 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:08:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_revisions/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_revisions" project="home:tom">
+          <title>Beyond the Mexique Bay</title>
+          <description>Aut non ea reprehenderit doloremque eos nobis rem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '190'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_revisions" project="home:tom">
+          <title>Beyond the Mexique Bay</title>
+          <description>Aut non ea reprehenderit doloremque eos nobis rem.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:08:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_revisions/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_revisions" project="home:tom">
+          <title>Beyond the Mexique Bay</title>
+          <description>Aut non ea reprehenderit doloremque eos nobis rem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '190'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_revisions" project="home:tom">
+          <title>Beyond the Mexique Bay</title>
+          <description>Aut non ea reprehenderit doloremque eos nobis rem.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:08:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_revisions/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '0'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="21" vrev="21">
+          <srcmd5>cabf9a1f9a0b7c19d4f7ff46166f4ee0</srcmd5>
+          <version>unknown</version>
+          <time>1522220886</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:08:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_revisions/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '1'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="22" vrev="22">
+          <srcmd5>efbe5f0a5dd48df5129b4319df43aa45</srcmd5>
+          <version>unknown</version>
+          <time>1522220887</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:08:07 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_revisions?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '215'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_revisions" rev="22" vrev="22" srcmd5="efbe5f0a5dd48df5129b4319df43aa45">
+          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1522153904" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:08:07 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_revisions?rev=22
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '215'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_revisions" rev="22" vrev="22" srcmd5="efbe5f0a5dd48df5129b4319df43aa45">
+          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1522153904" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:08:07 GMT
+- request:
+    method: post
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22package_with_revisions%22%20and%20linkinfo/@project=%22home:tom%22%20and%20@project=%22home:tom%22)
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '27'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+        </collection>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:08:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:home:tom">
+          <title>Branch project for package package_with_revisions</title>
+          <description>This project was created for package package_with_revisions via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '284'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:home:tom">
+          <title>Branch project for package package_with_revisions</title>
+          <description>This project was created for package package_with_revisions via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:08:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_revisions/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_revisions" project="home:tom:branches:home:tom">
+          <title>Beyond the Mexique Bay</title>
+          <description>Aut non ea reprehenderit doloremque eos nobis rem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '208'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_revisions" project="home:tom:branches:home:tom">
+          <title>Beyond the Mexique Bay</title>
+          <description>Aut non ea reprehenderit doloremque eos nobis rem.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:08:07 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_revisions?cmd=branch&noservice=1&opackage=package_with_revisions&oproject=home:tom&orev=efbe5f0a5dd48df5129b4319df43aa45&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '205'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="12" vrev="12">
+          <srcmd5>b40e9cce84f2c67bd45ff4667726a62f</srcmd5>
+          <version>unknown</version>
+          <time>1522220887</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:08:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_revisions/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_revisions" project="home:tom:branches:home:tom">
+          <title>Beyond the Mexique Bay</title>
+          <description>Aut non ea reprehenderit doloremque eos nobis rem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '208'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_revisions" project="home:tom:branches:home:tom">
+          <title>Beyond the Mexique Bay</title>
+          <description>Aut non ea reprehenderit doloremque eos nobis rem.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:08:07 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_revisions
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '586'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_revisions" rev="12" vrev="12" srcmd5="b40e9cce84f2c67bd45ff4667726a62f">
+          <linkinfo project="home:tom" package="package_with_revisions" rev="efbe5f0a5dd48df5129b4319df43aa45" srcmd5="efbe5f0a5dd48df5129b4319df43aa45" baserev="efbe5f0a5dd48df5129b4319df43aa45" xsrcmd5="d83b1df8a7dcda9ddd21113b898a835f" lsrcmd5="b40e9cce84f2c67bd45ff4667726a62f" />
+          <entry name="_link" md5="7190e2d17317df95c397ad7f48dac06a" size="155" mtime="1522153907" />
+          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1522153904" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:08:07 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_revisions?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '350'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="package_with_revisions" rev="12" vrev="12" srcmd5="d83b1df8a7dcda9ddd21113b898a835f" lsrcmd5="b40e9cce84f2c67bd45ff4667726a62f" verifymd5="efbe5f0a5dd48df5129b4319df43aa45">
+          <error>bad build configuration, no build type defined or detected</error>
+          <linked project="home:tom" package="package_with_revisions" />
+        </sourceinfo>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:08:07 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_revisions
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '586'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_revisions" rev="12" vrev="12" srcmd5="b40e9cce84f2c67bd45ff4667726a62f">
+          <linkinfo project="home:tom" package="package_with_revisions" rev="efbe5f0a5dd48df5129b4319df43aa45" srcmd5="efbe5f0a5dd48df5129b4319df43aa45" baserev="efbe5f0a5dd48df5129b4319df43aa45" xsrcmd5="d83b1df8a7dcda9ddd21113b898a835f" lsrcmd5="b40e9cce84f2c67bd45ff4667726a62f" />
+          <entry name="_link" md5="7190e2d17317df95c397ad7f48dac06a" size="155" mtime="1522153907" />
+          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1522153904" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:08:07 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_revisions?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '361'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="9ee74e03fc6370e9eb594c20fdb6e3b4">
+          <old project="home:tom:branches:home:tom" package="package_with_revisions" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom:branches:home:tom" package="package_with_revisions" rev="1" srcmd5="b40e9cce84f2c67bd45ff4667726a62f" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:08:07 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_revisions?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '382'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="0d0b88fffab999583b488ddd4b8c7566">
+          <old project="home:tom" package="package_with_revisions" rev="efbe5f0a5dd48df5129b4319df43aa45" srcmd5="efbe5f0a5dd48df5129b4319df43aa45" />
+          <new project="home:tom:branches:home:tom" package="package_with_revisions" rev="d83b1df8a7dcda9ddd21113b898a835f" srcmd5="d83b1df8a7dcda9ddd21113b898a835f" />
+          <files />
+        </sourcediff>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:08:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:home:tom">
+          <title>Branch project for package package_with_revisions</title>
+          <description>This project was created for package package_with_revisions via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '325'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:home:tom">
+          <title>Branch project for package package_with_revisions</title>
+          <description>This project was created for package package_with_revisions via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer" />
+          <publish>
+            <disable />
+          </publish>
+        </project>
+    http_version: 
+  recorded_at: Wed, 28 Mar 2018 07:08:07 GMT
+recorded_with: VCR 4.0.0
