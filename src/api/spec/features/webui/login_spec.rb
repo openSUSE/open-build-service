@@ -39,13 +39,17 @@ RSpec.feature 'Login', type: :feature, js: true do
 
   scenario 'login with home project shows a link to it' do
     login user
-    expect(page).to have_content "#{user.login} | Home Project | Logout"
+    within('#subheader') do
+      expect(page).to have_link('Home Project')
+    end
   end
 
   scenario 'login without home project shows a link to create it' do
     user.home_project.destroy
     login user
-    expect(page).to have_content "#{user.login} | Create Home | Logout"
+    within('#subheader') do
+      expect(page).to have_link('Create Home')
+    end
   end
 
   scenario 'login via login page' do
@@ -133,7 +137,9 @@ RSpec.feature 'Login', type: :feature, js: true do
         page.driver.add_header('AUTHORIZATION', "Negotiate #{Base64.strict_encode64(ticket)}")
 
         click_link('Log In')
-        expect(page).to have_content "#{login} | Home Project | Logout"
+        within('#subheader') do
+          expect(page).to have_link('Home Project')
+        end
       end
     end
 
@@ -155,7 +161,9 @@ RSpec.feature 'Login', type: :feature, js: true do
         page.driver.add_header('AUTHORIZATION', "Negotiate #{Base64.strict_encode64('ticket')}")
 
         click_link('Log In')
-        expect(page).not_to have_content '| Home Project | Logout'
+        within('#subheader') do
+          expect(page).not_to have_link('Home Project')
+        end
         expect(find('.flash-content')).to have_text "Authentication failed: 'Received a GSSAPI exception"
         expect(find('.flash-content')).to have_text "couldn't validate ticket"
       end

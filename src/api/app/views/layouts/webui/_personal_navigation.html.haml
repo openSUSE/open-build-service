@@ -2,11 +2,14 @@
   - if User.current && !User.current.is_nobody?
     = link_to(home_path, id: 'link-to-user-home') do
       = User.current.login
+    |
     - tasks = User.current.tasks
     - if tasks > 0
-      |
-      = link_to(user_tasks_path, title: 'where an action is requested from you') do
-        = pluralize(tasks, 'Task')
+      = link_to(user_tasks_path) do
+        %span{title: 'where an action is requested from you' }
+          = pluralize(tasks, 'Task')
+    - else
+      Tasks
     |
     - if User.current.home_project
       = link_to 'Home Project', project_show_path(User.current.home_project)
