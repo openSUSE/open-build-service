@@ -268,12 +268,13 @@ sub verify_proj {
   for my $f ('build', 'publish', 'debuginfo', 'useforbuild', 'lock', 'binarydownload', 'sourceaccess', 'access') {
     verify_disableenable($proj->{$f}) if $proj->{$f};
   }
-  die('project must not have a mountproject\n') if exists $proj->{'mountproject'};
+  die("project must not have a mountproject\n") if exists $proj->{'mountproject'};
   if ($proj->{'maintenance'}) {
     for my $m (@{$proj->{'maintenance'}->{'maintains'} || []}) {
       verify_projid($m->{'project'});
     }
   }
+  die("project must not have a 'config' element\n") if exists $proj->{'config'};
 }
 
 sub verify_pack {
