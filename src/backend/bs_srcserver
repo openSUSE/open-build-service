@@ -1070,7 +1070,7 @@ sub getprojpack {
 	      my $aproj = $remotemap->{$aprojid};
 	      next if !$aproj || $aproj->{'error'} || defined($aproj->{'config'});
 	      if ($aproj->{'partition'}) {
-		$aproj->{'config'} = readstr("$projectsdir/$aprojid.conf");
+		$aproj->{'config'} = readstr("$projectsdir/$aprojid.conf", 1);
 		$aproj->{'config'} = '' unless defined $aproj->{'config'};
 	      } else {
 		eval { BSSrcServer::Remote::fetchremoteconfig($aproj, $aprojid, $remotemap) };
