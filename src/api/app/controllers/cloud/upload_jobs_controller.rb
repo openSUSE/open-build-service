@@ -2,10 +2,18 @@ module Cloud
   class UploadJobsController < ApplicationController
     before_action :require_login
     before_action -> { feature_active?(:cloud_upload) }
-    before_action :validate_configuration_presence
+    before_action :validate_configuration_presence, only: [:index, :create]
 
     def index
       render xml: ::Cloud::Backend::UploadJob.all(::User.current, format: :xml)
+    end
+
+    def show
+      if ::User.current.upload_jobs.where(job_id: params[:id]).exists?
+        render xml: ::Cloud::Backend::UploadJob.find(params[:id], format: :xml)
+      else
+        render_error status: 404
+      end
     end
 
     def create
