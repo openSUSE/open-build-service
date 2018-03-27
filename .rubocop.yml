@@ -32,6 +32,10 @@ Layout/AlignHash:
 Layout/DotPosition:
   Enabled: false
 
+# Align ends correctly.
+Layout/EndAlignment:
+  EnforcedStyleAlignWith: variable
+
 #################### Style ###########################
 
 # Find uses of alias where alias_method would be more appropriate (or is simply preferred due to configuration), and vice versa.
@@ -80,12 +84,6 @@ Metrics/LineLength:
 # Checks if the length a module exceeds some maximum value
 Metrics/ModuleLength:
   Severity: refactor
-
-##################### Lint ##################################
-
-# Align ends correctly.
-Lint/EndAlignment:
-  EnforcedStyleAlignWith: variable
 
 ##################### Rails ##################################
 
