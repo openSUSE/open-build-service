@@ -217,6 +217,15 @@ sub fetchremoteconfig {
   return $c;
 }
 
+sub readconfig_remote {
+  my ($projid, $proj) = @_;
+  my $param = {
+    'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_config",
+    'timeout' => 600,
+    'proxy' => $proj->{'remoteproxy'},
+  }; 
+  return BSRPC::rpc($param, undef);
+}
 
 # returns undef if the project does not exist
 sub readproject_remote {
