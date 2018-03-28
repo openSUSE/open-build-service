@@ -36,7 +36,7 @@ module Cloud
     end
 
     def target_validator_class
-      @target_validator_class ||= "::Cloud::Params::#{target.capitalize}".constantize
+      @target_validator_class ||= "::Cloud::#{target.capitalize}::Params".constantize
     end
 
     private
