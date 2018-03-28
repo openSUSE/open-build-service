@@ -71,9 +71,19 @@ namespace :dev do
     Rake::Task['db:structure:verify'].invoke
     Rake::Task['db:structure:verify_no_bigint'].invoke
     Rake::Task['haml_lint'].invoke
-    sh 'rubocop -D -F -S --fail-level convention ../..'
+    Rake::Task['rubocop_lint'].invoke
     Rake::Task['git_cop'].invoke
     sh 'jshint ./app/assets/javascripts/'
+  end
+  namespace :lint do
+    desc 'Run the ruby linter'
+    task :ruby do
+      sh 'rubocop -D -F -S --fail-level convention ../..'
+    end
+    desc 'Run the haml linter'
+    task :haml do
+      Rake::Task['haml_lint'].invoke
+    end
   end
 end
 
