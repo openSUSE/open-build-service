@@ -10,6 +10,10 @@ class BsRequestActionWebuiInfosJob < ApplicationJob
 
   def perform(request_action)
     # FIXME: This should work for BsRequest with a source on a remote instance.
-    request_action.webui_infos unless request_action.is_from_remote?
+    return if request_action.is_from_remote?
+    request_action.superseding.each do |superseded|
+      request_action.webui_infos(diff_to_superseded: superseded.number)
+    end
+    request_action.webui_infos
   end
 end
