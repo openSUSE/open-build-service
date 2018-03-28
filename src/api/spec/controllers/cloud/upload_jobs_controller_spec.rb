@@ -176,4 +176,43 @@ RSpec.describe Cloud::UploadJobsController, vcr: true do
       it { expect(Xmlhash.parse(response.body)).to eq(Xmlhash.parse(xml_response_list)) }
     end
   end
+
+  describe 'DELETE #destroy' do
+    let(:upload_job) { create(:upload_job, user: user_with_ec2_configuration) }
+    let(:path) { "#{CONFIG['source_url']}/cloudupload/#{upload_job.job_id}?cmd=kill" }
+
+    context 'of an existing upload job' do
+      before do
+        stub_request(:post, path).and_return(body: xml_response)
+        Feature.run_with_activated(:cloud_upload) do
+          delete :destroy, params: { id: upload_job.job_id }, format: 'xml'
+        end
+      end
+
+      it { expect(response).to be_success }
+    end
+
+    context 'of a not existing upload job' do
+      before do
+        Feature.run_with_activated(:cloud_upload) do
+          delete :destroy, params: { id: 42 }, format: 'xml'
+        end
+      end
+
+      it { expect(response.header['X-Opensuse-Errorcode']).to eq('not_found') }
+      it { expect(response).to have_http_status(:not_found) }
+    end
+
+    context 'with a backend error response' do
+      before do
+        stub_request(:post, path).and_return(status: 404, body: 'not found')
+        Feature.run_with_activated(:cloud_upload) do
+          delete :destroy, params: { id: upload_job.job_id }, format: 'xml'
+        end
+      end
+
+      it { expect(response.header['X-Opensuse-Errorcode']).to eq('cloud_upload_job_error') }
+      it { expect(response).to have_http_status(:internal_server_error) }
+    end
+  end
 end
