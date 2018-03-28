@@ -259,6 +259,38 @@ RSpec.describe Webui::PackageController, vcr: true do
       expect(flash[:error]).to eq('Failed to branch: Linked Project parameter missing')
       expect(response).to redirect_to(root_path)
     end
+
+    it "shows an error if current revision parameter is provided, but there wasn't any revision before" do
+      post :branch, params: { linked_project: source_project, linked_package: source_package, current_revision: '3' }
+      expect(flash[:error]).to eq('Package has no source revision yet')
+      expect(response).to redirect_to(root_path)
+    end
+
+    context 'with target package name' do
+      before do
+        post :branch, params: { linked_project: source_project, linked_package: source_package, target_package: 'new_package_name' }
+      end
+
+      it { expect(flash[:notice]).to eq('Successfully branched package') }
+      it 'redirects to the branched package' do
+        expect(response).to redirect_to(package_show_path(project: "#{source_project.name}:branches:#{source_project.name}",
+                                                          package: 'new_package_name'))
+      end
+    end
+
+    context 'with currrent revision parameter' do
+      let(:source_package) { create(:package_with_revisions, name: 'package_with_revisions', project: source_project) }
+
+      before do
+        post :branch, params: { linked_project: source_project, linked_package: source_package, current_revision: '3' }
+      end
+
+      it { expect(flash[:notice]).to eq('Successfully branched package') }
+      it 'redirects to the branched package' do
+        expect(response).to redirect_to(package_show_path(project: "#{source_project.name}:branches:#{source_project.name}",
+                                                          package: source_package.name))
+      end
+    end
   end
 
   describe 'POST #remove' do
