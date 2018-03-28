@@ -3,10 +3,6 @@ module Person
   class TokenController < ApplicationController
     before_action :set_user
 
-    class TokenNotFound < APIException
-      setup 404
-    end
-
     # GET /person/<login>/token
     def index
       authorize @user, :show?
@@ -30,7 +26,9 @@ module Person
       authorize @user, :update?
 
       token = Token::Service.where(user_id: @user.id, id: params[:id]).first
-      raise TokenNotFound, "Specified token \"#{params[:id]}\" got not found" unless token
+
+      render_error status: 404 && return unless token
+
       token.destroy
       render_ok
     end
