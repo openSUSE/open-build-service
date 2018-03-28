@@ -8,6 +8,8 @@ RSpec.describe Cloud::Ec2::Params, type: :model, vcr: true do
     it { is_expected.not_to allow_value('lorem ipsum').for(:ami_name) }
     it { is_expected.to allow_value('us-east-1').for(:region) }
     it { is_expected.not_to allow_value('nuernberg-soutside').for(:region) }
+    it { is_expected.to allow_value('subnet-23sdfg54').for(:vpc_subnet_id) }
+    it { is_expected.not_to allow_value('subnet-2$sdfg54').for(:vpc_subnet_id) }
   end
 
   describe '.build' do

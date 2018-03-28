@@ -42,8 +42,6 @@ RSpec.describe Cloud::UploadJob, type: :model, vcr: true do
     it { is_expected.not_to allow_value('foo.rpm').for(:filename) }
     it { is_expected.not_to allow_value('foo.vhdfixed').for(:filename) }
     it { is_expected.not_to allow_value('foo.raw').for(:filename) }
-    it { is_expected.to allow_value('subnet-23sdfg54').for(:vpc_subnet_id) }
-    it { is_expected.not_to allow_value('subnet-2$sdfg54').for(:vpc_subnet_id) }
   end
 
   describe '.create' do
