@@ -7,7 +7,7 @@ module Webui
       before_action :set_architecture
 
       def index
-        @details = @package.last_build_reason(@repository, @architecture.name)
+        @details = @package.last_build_reason(@project.name, @repository, @architecture.name)
 
         return if @details.explain
 
