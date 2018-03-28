@@ -67,6 +67,8 @@ class ProjectLogEntry < ApplicationRecord
   def self.username_from(payload)
     USERNAME_KEYS.each do |key|
       username = payload[key]
+      # FIXME: Why is commenter `id`` when everything else is `login`?
+      username = User.find_by(id: payload[key]).try(:login) if key == 'commenter'
       return username unless username.blank? || username == 'unknown'
     end
     return

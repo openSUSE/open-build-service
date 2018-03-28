@@ -19,7 +19,7 @@ class Webui::ProjectController < Webui::WebuiController
                                      :status, :maintained_projects,
                                      :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
                                      :maintenance_incidents, :unlock_dialog, :unlock, :save_person, :save_group, :remove_role,
-                                     :move_path, :save_prjconf, :clear_failed_comment]
+                                     :move_path, :save_prjconf, :clear_failed_comment, :pulse]
 
   # TODO: check if get_by_name or set_by_name is used for save_prjconf
   before_action :set_project_by_name, only: [:save_meta, :save_prjconf]
@@ -90,6 +90,10 @@ class Webui::ProjectController < Webui::WebuiController
     parent = @project.parent
     @parent_name = parent.name unless parent.nil?
     @siblings = @project.siblingprojects
+  end
+
+  def pulse
+    @pulse = @project.project_log_entries.page(params[:page])
   end
 
   def new
