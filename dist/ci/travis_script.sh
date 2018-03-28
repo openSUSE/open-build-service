@@ -9,7 +9,6 @@ pushd src/api
 
 if test -z "$SUBTEST"; then
   export DO_COVERAGE=1
-  export EAGER_LOAD=1
   export TESTOPTS="-v"
   case $TEST_SUITE in
     api)
