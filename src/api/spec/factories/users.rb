@@ -21,6 +21,12 @@ FactoryBot.define do
           create(:group, users: [user])
         end
       end
+
+      factory :user_with_service_token do
+        after(:create) do |user|
+          create(:service_token, user: user)
+        end
+      end
     end
 
     factory :user_deprecated_password do

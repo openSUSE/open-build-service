@@ -432,9 +432,9 @@ OBSApi::Application.routes.draw do
     post 'person' => 'person#command'
     get 'person' => 'person#show'
     post 'person/:login/login' => 'person#login', constraints: cons # temporary hack for webui, do not use, to be removed
-    get 'person/:login/token' => 'person#tokenlist', constraints: cons
-    post 'person/:login/token' => 'person#command_token', constraints: cons
-    delete 'person/:login/token/:id' => 'person#delete_token', constraints: { id: %r{[^\/]*}, login: %r{[^\/]*} }
+    get 'person/:login/token' => 'person/token#index', constraints: cons
+    post 'person/:login/token' => 'person/token#create', constraints: cons
+    delete 'person/:login/token/:id' => 'person/token#delete', constraints: cons
 
     # FIXME3.0: this is no clean namespace, a person "register" or "changepasswd" could exist ...
     #           remove these for OBS 3.0
