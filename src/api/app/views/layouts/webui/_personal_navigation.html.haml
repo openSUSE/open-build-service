@@ -4,12 +4,12 @@
       = User.current.login
     |
     - tasks = User.current.tasks
-    - if tasks > 0
-      = link_to(user_tasks_path) do
+    = link_to(user_tasks_path) do
+      - if tasks > 0
         %span{title: 'where an action is requested from you' }
           = pluralize(tasks, 'Task')
-    - else
-      Tasks
+      - else
+        Tasks
     |
     - if User.current.home_project
       = link_to 'Home Project', project_show_path(User.current.home_project)
