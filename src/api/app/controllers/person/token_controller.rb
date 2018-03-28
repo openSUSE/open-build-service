@@ -25,7 +25,7 @@ module Person
     def delete
       authorize @user, :update?
 
-      token = Token::Service.where(user_id: @user.id, id: params[:id]).first
+      token = @user.service_tokens.find(params[:id])
 
       render_error status: 404 && return unless token
 
