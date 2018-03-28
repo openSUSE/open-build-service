@@ -337,6 +337,7 @@ OBSApi::Application.routes.draw do
       post 'user/confirm' => :confirm
       post 'user/lock' => :lock
       post 'user/admin' => :admin
+      post 'user/make_user_local' => :make_user_local
       delete 'user/delete' => :delete
 
       get 'user/autocomplete' => :autocomplete

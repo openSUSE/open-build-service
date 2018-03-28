@@ -818,11 +818,9 @@ RSpec.describe User do
     end
 
     context 'when user exist but password was incorrect' do
-      before do
-        @found_user = User.find_with_credentials(user.login, '_buildservice')
-      end
+      subject! { User.find_with_credentials(user.login, '_buildservice') }
 
-      it { expect(@found_user).to be nil }
+      it { is_expected.to be nil }
       it { expect(user.reload.login_failure_count).to eq 8 }
     end
 

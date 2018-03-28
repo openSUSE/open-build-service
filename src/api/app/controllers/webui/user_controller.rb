@@ -1,13 +1,14 @@
 class Webui::UserController < Webui::WebuiController
-  before_action :check_display_user, only: [:show, :edit, :list_my, :delete, :confirm, :admin, :lock]
+  before_action :check_display_user, only: [:show, :edit, :list_my, :delete, :confirm, :admin, :lock, :make_user_local]
   before_action :require_login, only: [:edit, :save, :index]
-  before_action :require_admin, only: [:edit, :delete, :lock, :confirm, :admin, :index]
+  before_action :require_admin, only: [:edit, :delete, :lock, :confirm, :admin, :make_user_local, :index]
   before_action :kerberos_auth, only: [:login]
 
   skip_before_action :check_anonymous, only: [:do_login]
 
   def index
-    @users = User.all_without_nobody.includes(:owner).select(:id, :login, :email, :state, :realname, :owner_id, :updated_at)
+    @users = User.all_without_nobody.includes(:owner).
+             select(:id, :login, :email, :state, :realname, :owner_id, :updated_at, :ignore_auth_services)
   end
 
   def logout
@@ -73,19 +74,19 @@ class Webui::UserController < Webui::WebuiController
     @displayed_user = User.find_by_login(params[:user][:login])
 
     unless User.current.is_admin?
-      if User.current != @displayed_user || !@configuration.accounts_editable?
+      if User.current != @displayed_user || !@configuration.accounts_editable?(@displayed_user)
         flash[:error] = "Can't edit #{@displayed_user.login}"
         redirect_back(fallback_location: root_path)
         return
       end
     end
 
-    if @configuration.accounts_editable?
+    if @configuration.accounts_editable?(@displayed_user)
       @displayed_user.assign_attributes(params[:user].slice(:realname, :email).permit!)
     end
 
     if User.current.is_admin?
-      @displayed_user.assign_attributes(params[:user].slice(:state).permit!)
+      @displayed_user.assign_attributes(params[:user].slice(:state, :ignore_auth_services).permit!)
       @displayed_user.update_globalroles(Role.global.where(id: params[:user][:role_ids])) unless params[:user][:role_ids].nil?
     end
 
@@ -111,6 +112,16 @@ class Webui::UserController < Webui::WebuiController
     @displayed_user.state = 'confirmed'
     @displayed_user.save
     redirect_back(fallback_location: { action: 'show', user: @displayed_user })
+  end
+
+  def make_user_local
+    @displayed_user.update(ignore_auth_services: true)
+    if @displayed_user.save
+      flash[:notice] = "Updated user '#{@displayed_user.login}'."
+    else
+      flash[:error] = "Updating user '#{@displayed_user.login}' failed: #{@displayed_user.errors.full_messages.to_sentence}"
+    end
+    redirect_back(fallback_location: user_show_path(@displayed_user))
   end
 
   def lock
@@ -183,13 +194,13 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def change_password
-    unless @configuration.passwords_changable?
+    user = User.current
+
+    unless @configuration.passwords_changable?(user)
       flash[:error] = "You're not authorized to change your password."
       redirect_back fallback_location: root_path
       return
     end
-
-    user = User.current
 
     if user.authenticate(params[:password])
       user.password = params[:new_password]

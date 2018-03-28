@@ -8,7 +8,7 @@ class UnregisteredUser < User
   # Returns true if a user can register
   def self.can_register?
     # No registering if LDAP is on
-    if CONFIG['ldap_mode'] == :on
+    if CONFIG['ldap_mode'] == :on && !User.current.is_admin?
       logger.debug 'Someone tried to register with "ldap_mode" turned on'
       raise ErrRegisterSave, 'Sorry, new users can only sign up via LDAP'
     end
@@ -54,7 +54,8 @@ class UnregisteredUser < User
       password_confirmation: opts[:password_confirmation],
       email:                 opts[:email],
       state:                 state,
-      adminnote:             opts[:note]
+      adminnote:             opts[:note],
+      ignore_auth_services:  Configuration.ldap_enabled?
     )
 
     unless newuser.save

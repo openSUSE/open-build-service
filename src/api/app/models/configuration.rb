@@ -82,13 +82,17 @@ class Configuration < ApplicationRecord
     CONFIG['amqp_namespace'] || 'opensuse.obs'
   end
 
-  def passwords_changable?
-    change_password && CONFIG['proxy_auth_mode'] != :on && CONFIG['ldap_mode'] != :on
+  def passwords_changable?(user = nil)
+    change_password && CONFIG['proxy_auth_mode'] != :on && (user.try(:ignore_auth_services?) || CONFIG['ldap_mode'] != :on)
   end
 
-  def accounts_editable?
-    (CONFIG['proxy_auth_mode'] != :on || (CONFIG['proxy_auth_mode'] == :on && CONFIG['proxy_auth_account_page'].present?)) && \
-      CONFIG['ldap_mode'] != :on
+  def accounts_editable?(user = nil)
+    (
+      CONFIG['proxy_auth_mode'] != :on ||
+        CONFIG['proxy_auth_mode'] == :on && CONFIG['proxy_auth_account_page'].present?
+    ) && (
+      user.try(:ignore_auth_services?) || CONFIG['ldap_mode'] != :on
+    )
   end
 
   def update_from_options_yml

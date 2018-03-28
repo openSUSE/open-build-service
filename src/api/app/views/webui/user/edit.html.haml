@@ -12,14 +12,18 @@
   %p
     = f.label(:realname, "Name:")
     %br
-    = f.text_field(:realname, disabled: @configuration.ldap_enabled?)
+    = f.text_field(:realname, disabled: @configuration.ldap_enabled? && !@displayed_user.ignore_auth_services?)
   %p
     = f.label(:email, "e-Mail:")
     %br
-    = f.text_field(:email, required: true, email: true, disabled: @configuration.ldap_enabled?)
+    = f.text_field(:email, required: true, email: true, disabled: @configuration.ldap_enabled? && !@displayed_user.ignore_auth_services?)
   %p
     = f.collection_check_boxes(:role_ids, Role.global, :id, :title)
   %p
     = f.collection_radio_buttons(:state, user_states_for_edit, :to_s, :to_s)
+  - if Configuration.ldap_enabled? && User.current.is_admin?
+    %p
+      = f.check_box(:ignore_auth_services, {}, checked_value = true)
+      = f.label(:ignore_auth_services, 'Local user')
   %p
     = f.submit("Update")
