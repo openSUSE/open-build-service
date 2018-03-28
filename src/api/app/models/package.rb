@@ -1454,8 +1454,6 @@ class Package < ApplicationRecord
   end
 
   def last_build_reason(project, repo, arch)
-    repo = repo.name if repo.is_a? Repository
-
     xml_data = Nokogiri::XML(BuildReasonFile.new(
       project_name: project,
       package_name: name,
