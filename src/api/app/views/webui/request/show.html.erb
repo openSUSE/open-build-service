@@ -78,6 +78,10 @@
   </div>
 <% end %>
 
+<div class="grid_16 alpha omega box-invisible">
+  <%= render partial: 'superseded_by_message', locals: { superseded_by: @superseded_by, number: @number, diff_to_superseded: @diff_to_superseded } %>
+</div>
+
 <div class="grid_16 alpha omega box box-shadow">
 
   <div class="box-header header-tabs">
