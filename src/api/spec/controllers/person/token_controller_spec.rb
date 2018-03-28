@@ -87,6 +87,15 @@ RSpec.describe Person::TokenController, vcr: false do
       end
     end
 
+    context 'requesting deletion of a non-existant token' do
+      before do
+        login user
+        delete :delete, params: { login: user.login, id: 42 }, format: :xml
+      end
+
+      it { expect(response).to have_http_status(:not_found) }
+    end
+
     context 'called by unauthorized user' do
       before do
         login other_user
