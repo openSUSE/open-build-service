@@ -8,8 +8,14 @@
 class BsRequestActionWebuiInfosJob < ApplicationJob
   queue_as :quick
 
-  def perform(request_action)
-    # FIXME: This should work for BsRequest with a source on a remote instance.
-    request_action.webui_infos unless request_action.is_from_remote?
+  def perform(bs_request_action)
+    # We don't need to do an access check as this is only for warming the cache in the backend
+    source_package_names = SourcePackageFinder.new(bs_request_action: bs_request_action, skip_access_check: true)
+    ForSource.new(
+      bs_request_action: bs_request_action,
+      source_package_names: source_package_names,
+    ).perform
+  rescue DiffError, Project::UnknownObjectError, Package::UnknownObjectError
+    # pass
   end
 end
