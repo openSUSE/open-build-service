@@ -109,6 +109,7 @@
   <% if (!@bugowners_mail.empty? && !CONFIG['bugzilla_host'].nil?) || !User.current.is_nobody? %>
       <div class="grid_16 alpha omega">
         <ul class="horizontal-list">
+          <%= render partial: 'webui/project/show/encryption_key_download_links' %>
           <% if !@bugowners_mail.empty? && !CONFIG['bugzilla_host'].nil? %>
               <li>
                 <%= link_to(sprited_text('tools-report-bug', 'Report bug'), bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>
@@ -143,7 +144,6 @@
                             <%= link_to(sprited_text('brick_go', 'Submit as update'), { controller: 'project', action: 'incident_request_dialog', project: @project }, remote: true) %>
                           </li>
                       <% end %>
-                      <%= render partial: 'webui/project/show/encryption_key_download_links' %>
                   <% end %>
               <% end %>
               <li>
