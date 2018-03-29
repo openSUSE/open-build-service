@@ -1,0 +1,1055 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>It's a Battlefield</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '109'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>It's a Battlefield</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_config
+    body:
+      encoding: UTF-8
+      string: Ratione aperiam consequatur in. Voluptatum est velit qui minima. Quasi
+        et nisi veniam quisquam quia totam.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>Far From the Madding Crowd</title>
+          <description>Repellendus at voluptates doloribus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '178'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>Far From the Madding Crowd</title>
+          <description>Repellendus at voluptates doloribus.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>Far From the Madding Crowd</title>
+          <description>Repellendus at voluptates doloribus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '178'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>Far From the Madding Crowd</title>
+          <description>Repellendus at voluptates doloribus.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/_config
+    body:
+      encoding: UTF-8
+      string: Rerum sit illum praesentium provident. Vitae reprehenderit excepturi
+        voluptas. Earum quod accusamus necessitatibus consequuntur enim incidunt.
+        Eos dicta recusandae nihil ullam aut consequatur.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="55" vrev="55">
+          <srcmd5>9675e86e3e32696f14d3a7ba7edebfa0</srcmd5>
+          <version>unknown</version>
+          <time>1522929826</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: b
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="56" vrev="56">
+          <srcmd5>9675e86e3e32696f14d3a7ba7edebfa0</srcmd5>
+          <version>unknown</version>
+          <time>1522929826</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>A Farewell to Arms</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '109'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>A Farewell to Arms</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/_config
+    body:
+      encoding: UTF-8
+      string: Maxime quasi et architecto quibusdam eveniet non reiciendis. Omnis voluptatem
+        est cumque. Asperiores sed laboriosam.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>The Proper Study</title>
+          <description>Itaque quia et dolore nostrum consequatur eos.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '178'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>The Proper Study</title>
+          <description>Itaque quia et dolore nostrum consequatur eos.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>The Proper Study</title>
+          <description>Itaque quia et dolore nostrum consequatur eos.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '178'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>The Proper Study</title>
+          <description>Itaque quia et dolore nostrum consequatur eos.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/_config
+    body:
+      encoding: UTF-8
+      string: Vero sint quia ut amet. Quia dolor dolore alias illo corporis libero
+        sequi. Omnis sed illo dolor. Animi rerum explicabo sed.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="59" vrev="59">
+          <srcmd5>2341d97bdf191b2362ac4415f2b35d8f</srcmd5>
+          <version>unknown</version>
+          <time>1522929827</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: a
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="60" vrev="60">
+          <srcmd5>2341d97bdf191b2362ac4415f2b35d8f</srcmd5>
+          <version>unknown</version>
+          <time>1522929827</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_5/_meta?user=user_5
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_5">
+          <title/>
+          <description/>
+          <person userid="user_5" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_5">
+          <title></title>
+          <description></description>
+          <person userid="user_5" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/another_source_project/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="another_source_project">
+          <title>Ring of Bright Water</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '119'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="another_source_project">
+          <title>Ring of Bright Water</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/another_source_project/_config
+    body:
+      encoding: UTF-8
+      string: Ea ipsum sint alias deleniti distinctio error. Corrupti quisquam natus.
+        Laudantium corporis eius. Totam consequuntur nobis itaque cumque voluptates.
+        Earum illo nihil reprehenderit.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/another_source_project/another_source_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="another_source_package" project="another_source_project">
+          <title>After Many a Summer Dies the Swan</title>
+          <description>Rerum voluptate mollitia ipsa eos eum consequatur in quod.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '223'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="another_source_package" project="another_source_project">
+          <title>After Many a Summer Dies the Swan</title>
+          <description>Rerum voluptate mollitia ipsa eos eum consequatur in quod.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/another_source_project/another_source_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="another_source_package" project="another_source_project">
+          <title>After Many a Summer Dies the Swan</title>
+          <description>Rerum voluptate mollitia ipsa eos eum consequatur in quod.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '223'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="another_source_package" project="another_source_project">
+          <title>After Many a Summer Dies the Swan</title>
+          <description>Rerum voluptate mollitia ipsa eos eum consequatur in quod.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/another_source_project/another_source_package/_config
+    body:
+      encoding: UTF-8
+      string: Autem ipsam aperiam ab velit velit iure fugit. Qui non cupiditate est.
+        Dolorum accusamus aut distinctio.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="17" vrev="17">
+          <srcmd5>30b181736fa70c5f2481c1011ad2ea85</srcmd5>
+          <version>unknown</version>
+          <time>1522929827</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/another_source_project/another_source_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: c
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="18" vrev="18">
+          <srcmd5>30b181736fa70c5f2481c1011ad2ea85</srcmd5>
+          <version>unknown</version>
+          <time>1522929827</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_6/_meta?user=user_6
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_6">
+          <title/>
+          <description/>
+          <person userid="user_6" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_6">
+          <title></title>
+          <description></description>
+          <person userid="user_6" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:47 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/another_source_project/another_source_package?cmd=diff&filelimit=10000&opackage=source_package&oproject=source_project&orev=0&rev=0&tarlimit=10000
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '0'
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/another_source_project/another_source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '311'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="another_source_package" rev="18" vrev="18" srcmd5="30b181736fa70c5f2481c1011ad2ea85">
+          <entry name="_config" md5="c6e0e1c1c8c559af64e07c585707cb54" size="104" mtime="1522929827" />
+          <entry name="somefile.txt" md5="4a8a08f09d37b73795649038408b5f33" size="1" mtime="1522922005" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:47 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/another_source_project/another_source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '477'
+    body:
+      encoding: UTF-8
+      string: |2
+
+        ++++++ _config
+        --- _config
+        +++ _config
+        @@ -1,1 +1,1 @@
+        -Vero sint quia ut amet. Quia dolor dolore alias illo corporis libero sequi. Omnis sed illo dolor. Animi rerum explicabo sed.
+        \ No newline at end of file
+        +Autem ipsam aperiam ab velit velit iure fugit. Qui non cupiditate est. Dolorum accusamus aut distinctio.
+        \ No newline at end of file
+
+        ++++++ somefile.txt
+        --- somefile.txt
+        +++ somefile.txt
+        @@ -1,1 +1,1 @@
+        -a
+        \ No newline at end of file
+        +c
+        \ No newline at end of file
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:03:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_1/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_1">
+          <title/>
+          <description/>
+          <person userid="user_1" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_1">
+          <title></title>
+          <description></description>
+          <person userid="user_1" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:19:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_2/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_2">
+          <title/>
+          <description/>
+          <person userid="user_2" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_2">
+          <title></title>
+          <description></description>
+          <person userid="user_2" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:19:53 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/another_source_project/another_source_package?cmd=diff&filelimit=10000&opackage=source_package&oproject=source_project&orev=&rev=&tarlimit=10000
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: revision is empty
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '69'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="400">
+          <summary>revision is empty</summary>
+        </status>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:19:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_4/_meta?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_4">
+          <title/>
+          <description/>
+          <person userid="user_4" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_4">
+          <title></title>
+          <description></description>
+          <person userid="user_4" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Apr 2018 12:22:21 GMT
+recorded_with: VCR 4.0.0
