@@ -89,12 +89,13 @@ RSpec.describe Webui::RequestController, vcr: true do
 
     context 'handling diff sizes' do
       let(:diff_header_size) { 4 }
-      let(:ascii_file_size) { 11_000 }
       # Taken from package_with_binary_diff factory files (bigfile_archive.tar.gz and bigfile_archive_2.tar.gz)
-      let(:binary_file_size) { 30_000 }
-      let(:binary_file_changed_size) { 13_000 }
-      # TODO: check if this value, the default diff size, is correct
-      let(:default_diff_size) { 9999 }
+      let(:archive_content_diff_size) { 12 }
+      let(:file_size_threshold) { BsRequestAction::Differ::ForSource::DEFAULT_FILE_LIMIT - 1 }
+
+      before do
+        stub_const('BsRequestAction::Differ::ForSource::DEFAULT_FILE_LIMIT', 5)
+      end
 
       shared_examples 'a full diff not requested for' do |file_name|
         before do
@@ -114,11 +115,11 @@ RSpec.describe Webui::RequestController, vcr: true do
       end
 
       context 'full diff not requested' do
-        let(:expected_diff_size) { default_diff_size + diff_header_size }
+        let(:expected_diff_size) { file_size_threshold + diff_header_size }
         context 'for ASCII files' do
           let(:target_package) do
             create(:package_with_file, name: 'test-package-ascii',
-                   file_content: "a\n" * ascii_file_size, project: target_project)
+                   file_content: "a\n" * (file_size_threshold + 1), project: target_project)
           end
 
           it_behaves_like 'a full diff not requested for', 'somefile.txt'
@@ -156,17 +157,17 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       context 'full diff requested' do
         context 'for ASCII files' do
-          let(:expected_diff_size) { ascii_file_size + diff_header_size }
+          let(:expected_diff_size) { file_size_threshold + 1 + diff_header_size }
           let(:target_package) do
             create(:package_with_file, name: 'test-package-ascii',
-                   file_content: "a\n" * ascii_file_size, project: target_project)
+                   file_content: "a\n" * (file_size_threshold + 1), project: target_project)
           end
 
           it_behaves_like 'a full diff requested for', 'somefile.txt'
         end
 
         context 'for archives' do
-          let(:expected_diff_size) { binary_file_size + binary_file_changed_size + diff_header_size }
+          let(:expected_diff_size) { archive_content_diff_size + diff_header_size }
           let(:target_package) { create(:package_with_binary, name: 'test-package-binary', project: target_project) }
           let(:source_package) do
             create(:package_with_binary, name: 'test-source-package-binary',
