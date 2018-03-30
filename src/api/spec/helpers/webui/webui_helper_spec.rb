@@ -291,14 +291,14 @@ RSpec.describe Webui::WebuiHelper do
     end
 
     context 'with_fulltime' do
-      time = Time.now - 3.hours
-      output = "<span title='#{time.utc.strftime('%Y-%m-%d %H:%M UTC')}' class='fuzzy-time'>about 4 hours ago</span>"
+      time = Time.now.utc - 3.hours
+      output = "<span title='#{time.utc.strftime('%Y-%m-%d %H:%M UTC')}' class='fuzzy-time'>about 3 hours ago</span>"
       it { expect(fuzzy_time(time)).to eq(output) }
     end
 
     context 'without_fulltime' do
-      time = Time.now - 3.hours
-      it { expect(fuzzy_time(time, false)).to eq('about 4 hours ago') }
+      time = Time.now.utc - 3.hours
+      it { expect(fuzzy_time(time, false)).to eq('about 3 hours ago') }
     end
   end
 
