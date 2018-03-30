@@ -3,8 +3,8 @@ require 'builder'
 class Webui::PatchinfoController < Webui::WebuiController
   include Webui::PackageHelper
   before_action :set_project
-  before_action :get_binaries, except: [:show, :delete]
-  before_action :require_exists, except: [:new_patchinfo]
+  before_action :get_binaries, except: [:show, :delete, :new_tracker]
+  before_action :require_exists, except: [:new_patchinfo, :new_tracker]
   before_action :require_login, except: [:show]
 
   def new_patchinfo
