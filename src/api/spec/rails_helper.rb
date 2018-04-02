@@ -1,8 +1,10 @@
 # for generating test coverage
 require 'simplecov'
-# support test coverage
-require 'support/coverage'
-
+# Avoid codecov failures outside of travis
+if ENV['TRAVIS'] == 'true'
+  # support test coverage
+  require 'support/coverage'
+end
 ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../../config/environment', __FILE__)
 # Prevent database truncation if the environment is production
