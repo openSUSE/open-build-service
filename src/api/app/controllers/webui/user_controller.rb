@@ -18,7 +18,7 @@ class Webui::UserController < Webui::WebuiController
     if CONFIG['proxy_auth_mode'] == :on
       redirect_to CONFIG['proxy_auth_logout_page']
     else
-      redirect_to root_path
+      redirect_back(fallback_location: root_path)
     end
   end
 
