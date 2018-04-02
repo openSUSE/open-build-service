@@ -5,11 +5,26 @@
   %h1
     Upload to Microsoft Azure
 
-  = form_for @upload_job, url: cloud_azure_upload_path, method: :post do |upload_job_form|
+  = form_for @upload_job, url: cloud_azure_upload_path, method: :post, html: { class: 'cloud_form' } do |upload_job_form|
     %p
       Filename:
       %b
         = @upload_job.filename
+    %p
+      = upload_job_form.label 'cloud_backend_upload_job[image_name]', "Image Name:", size: 100
+      = text_field('cloud_backend_upload_job', 'image_name',  size: 35, required: true)
+    %p
+      = upload_job_form.label 'cloud_backend_upload_job[subscription]', "Subscription:"
+      = text_field('cloud_backend_upload_job', 'subscription',  size: 35, required: true)
+    %p
+      = upload_job_form.label 'cloud_backend_upload_job[storage_account]', "Storage Account:"
+      = text_field('cloud_backend_upload_job', 'storage_account',  size: 35, required: true)
+    %p
+      = upload_job_form.label 'cloud_backend_upload_job[resource_group]', "Resource Group:"
+      = text_field('cloud_backend_upload_job', 'resource_group',  size: 35, required: true)
+    %p
+      = upload_job_form.label 'cloud_backend_upload_job[container]', "Container:"
+      = text_field('cloud_backend_upload_job', 'container',  size: 35, required: true)
     %p
       = upload_job_form.hidden_field :project
       = upload_job_form.hidden_field :package

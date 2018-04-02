@@ -16,7 +16,8 @@ module Webui
 
         def permitted_params
           params.require(:cloud_backend_upload_job).permit(
-            :project, :package, :repository, :arch, :filename
+            :project, :package, :repository, :arch, :filename, :target,
+            :image_name, :subscription, :container, :storage_account, :resource_group
           )
         end
       end
