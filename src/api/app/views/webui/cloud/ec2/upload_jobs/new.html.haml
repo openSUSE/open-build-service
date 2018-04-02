@@ -5,21 +5,23 @@
   %h1
     Upload to Amazon EC2
 
-  = form_for @upload_job, url: cloud_ec2_upload_path, method: :post do |upload_job_form|
+  = form_for @upload_job, url: cloud_ec2_upload_path, method: :post, html: { class: 'cloud_form' } do |upload_job_form|
     %p
       Filename:
       %b
         = @upload_job.filename
     %p
       = upload_job_form.label 'cloud_backend_upload_job[ami_name]', "AMI Name:"
-      = upload_job_form.text_field :filename, size: 35, name: 'cloud_backend_upload_job[ami_name]'
+      = text_field('cloud_backend_upload_job', 'ami_name',  size: 35, required: true)
     %p
       = upload_job_form.label 'cloud_backend_upload_job[region]', "Region:"
       = select_tag('cloud_backend_upload_job[region]', options_for_select(@regions))
     %p
-      = upload_job_form.label 'cloud_backend_upload_job[vpc_subnet_id]', 'VPC Subnet ID (eg. subnet-12345678, optional):'
-      = sprite_tag('help', title: "We create a temporary subnet, if you don't provide one.")
-      = upload_job_form.text_field(:vpc_subnet_id, size: 35, name: 'cloud_backend_upload_job[vpc_subnet_id]')
+      = upload_job_form.label 'cloud_backend_upload_job[vpc_subnet_id]' do
+        VPC Subnet ID (optional
+        = sprite_tag('help', title: 'We create a temporary subnet, if you don\'t provide one.')
+        ):
+      = text_field('cloud_backend_upload_job', 'vpc_subnet_id',  size: 35, placeholder: 'eg. subnet-12345678')
     %p
       = upload_job_form.hidden_field :project
       = upload_job_form.hidden_field :package
