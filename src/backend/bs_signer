@@ -395,7 +395,7 @@ sub signjob {
     # check for followup files
     if (!$info->{'followupfile'} && ($info->{'file'} || '') ne '_aggregate') {
       if (grep {/\.rsasign$/} @signfiles) {
-        $followupfile = (grep {/\.spec$/} @files)[0];
+        $followupfile = (grep {/\.(spec|dsc)$/} @files)[0];
         @signfiles = grep {/\.rsasign$/} @signfiles if $followupfile;
       }
       if (!$followupfile && grep {/\.followup.spec$/} @files) {
