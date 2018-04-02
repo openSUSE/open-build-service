@@ -18,7 +18,6 @@ module Cloud
                      :repository,
                      :arch,
                      :filename,
-                     :vpc_subnet_id,
                      :size
       alias_method :id, :name
       alias_method :architecture, :arch
