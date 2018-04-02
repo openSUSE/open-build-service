@@ -2101,7 +2101,7 @@ sub putjob {
 
   my $ev = {'type' => 'built', 'arch' => $arch, 'job' => $job};
 
-  if ($BSConfig::sign && (@{$kiwitree_tosign || []} || grep {$_->{'name'} =~ /\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar.xz|AppImage)$/} @$uploaded)) {
+  if ($BSConfig::sign && (@{$kiwitree_tosign || []} || grep {$_->{'name'} =~ /\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar.xz|AppImage|deb)$/} @$uploaded)) {
     # write jobstatus and free lock
     if (@{$kiwitree_tosign || []}) {
       my $c = '';
