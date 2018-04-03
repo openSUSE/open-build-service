@@ -55,9 +55,9 @@ class EventMailer < ActionMailer::Base
           format.text { render template_name, locals: locals }
         end
       end
-    rescue ArgumentError
+    rescue ArgumentError => e
       Rails.logger.error "ArgumentError (catched): template: #{template_name}, locals: #{locals.inspect}, tos: #{tos.inspect}, orig: #{orig}"
-      raise
+      raise e
     end
   end
 end
