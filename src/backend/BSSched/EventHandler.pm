@@ -496,6 +496,8 @@ sub event_exit {
     $schedstate->{'fetchprojpacks'} ||= {};
     $schedstate->{'fetchprojpacks'}->{$projid} = [ @{$schedstate->{'fetchprojpacks'}->{$projid} || []}, @{$running->{$projid}} ];
   }
+  my @retryevents = $gctx->{'retryevents'}->events();
+  $schedstate->{'retryevents'} = \@retryevents if @retryevents;
 
   my $rundir = $gctx->{'rundir'};
   unlink("$rundir/bs_sched.$myarch.state");
