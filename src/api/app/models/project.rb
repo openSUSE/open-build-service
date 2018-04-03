@@ -1622,7 +1622,7 @@ class Project < ApplicationRecord
     result = []
     removed.each do |name|
       repository = repositories.find_by(name: name)
-      result << repository if repository.remote_project_name.blank?
+      result << repository if repository.remote_project_name
     end
     result
   end

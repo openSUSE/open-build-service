@@ -16,8 +16,8 @@ class Repository < ApplicationRecord
   has_many :repository_architectures, -> { order('position') }, dependent: :destroy, inverse_of: :repository
   has_many :architectures, -> { order('position') }, through: :repository_architectures
 
-  scope :not_remote, -> { where(remote_project_name: '') }
-  scope :remote, -> { where.not(remote_project_name: '') }
+  scope :not_remote, -> { where(remote_project_name: nil) }
+  scope :remote, -> { where.not(remote_project_name: nil) }
 
   validates :name, length: { in: 1..200 }
   # Keep in sync with src/backend/BSVerify.pm
