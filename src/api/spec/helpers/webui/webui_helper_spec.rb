@@ -286,18 +286,26 @@ RSpec.describe Webui::WebuiHelper do
   end
 
   describe '#fuzzy_time' do
+    before do
+      Timecop.freeze
+    end
+
+    after do
+      Timecop.return
+    end
+
     context 'with time less than 1 minute' do
-      it { expect(fuzzy_time(Time.now)).to eq('now') }
+      it { expect(fuzzy_time(59.seconds.ago)).to eq('now') }
     end
 
     context 'with_fulltime' do
-      time = Time.now.utc - (3.hours - 2.minutes)
+      time = 3.hours.ago
       output = "<span title='#{time.utc.strftime('%Y-%m-%d %H:%M UTC')}' class='fuzzy-time'>about 3 hours ago</span>"
       it { expect(fuzzy_time(time)).to eq(output) }
     end
 
     context 'without_fulltime' do
-      time = Time.now.utc - (3.hours - 2.minutes)
+      time = 3.hours.ago
       it { expect(fuzzy_time(time, false)).to eq('about 3 hours ago') }
     end
   end
