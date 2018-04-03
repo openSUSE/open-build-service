@@ -29,7 +29,7 @@ RSpec.describe UpdatePackageMetaJob, type: :job, vcr: true do
     end
 
     it 'should remove BackendPackage with links_to_ids is nil and package_kind is patchinfo' do
-      expect { UpdatePackageMetaJob.new.perform }.to change { BackendPackage.count }.by(-1)
+      expect { UpdatePackageMetaJob.new.perform }.to change(BackendPackage, :count).by(-1)
     end
   end
 
@@ -52,7 +52,7 @@ RSpec.describe UpdatePackageMetaJob, type: :job, vcr: true do
     end
 
     context "with a BranchPackage that doesn't have an entry in BackendPackage" do
-      it { expect { subject }.to change { BackendPackage.count }.by(1) }
+      it { expect { subject }.to change(BackendPackage, :count).by(1) }
     end
   end
 end

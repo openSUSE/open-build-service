@@ -359,7 +359,7 @@ RSpec.describe Webui::RequestController, vcr: true do
           post :changerequest, params: { number: bs_request.number, accepted: 'accepted',
                                          forward_devel_0: "#{devel_package.project}_#_#{devel_package}",
                                          description: 'blah blah blah' }
-        end.to change { BsRequest.count }.by(1)
+        end.to change(BsRequest, :count).by(1)
         expect(BsRequest.last.bs_request_actions).to eq(devel_package.project.target_of_bs_request_actions)
       end
     end

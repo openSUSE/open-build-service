@@ -13,7 +13,7 @@ RSpec.describe BackendPackage, vcr: true do
     subject { BackendPackage.refresh_dirty }
 
     it do
-      expect { subject }.to change { BackendPackage.count }.by(1)
+      expect { subject }.to change(BackendPackage, :count).by(1)
     end
   end
 end
