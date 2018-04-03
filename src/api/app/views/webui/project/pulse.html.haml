@@ -4,7 +4,7 @@
 
 = render partial: 'webui/project/tabs'
 %h3 Pulse of #{@project}
-- @pulse.each do |log_entry|
+- @pulse.includes(:bs_request).each do |log_entry|
   %p
     &bull;
     = log_entry.event_type.camelcase.prepend('Event::').constantize.description
