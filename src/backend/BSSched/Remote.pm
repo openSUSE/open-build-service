@@ -306,8 +306,7 @@ sub remotemap2remoteprojs {
     undef $oproj if $oproj && ($oproj->{'remoteurl'} ne $proj->{'remoteurl'} || $oproj->{'remoteproject'} ne $proj->{'remoteproject'});
     my $c = $proj->{'config'};
     $c = $oproj->{'config'} if !defined($c) && $oproj;
-    my $error = $proj->{'error'};
-    delete $proj->{'error'};
+    my $error = delete $proj->{'error'};
     $proj = $oproj if $proj->{'proto'} && $oproj && !$oproj->{'proto'};
     delete $proj->{'config'};
     $proj->{'config'} = $c if defined $c;
@@ -352,8 +351,11 @@ sub addrepo_remote {
   my ($ctx, $pool, $prp, $arch, $remoteproj) = @_;
 
   my ($projid, $repoid) = split('/', $prp, 2);
-  return undef if !$remoteproj || $remoteproj->{'error'};
-
+  return undef unless $remoteproj;
+  if ($remoteproj->{'error'}) {
+    print "    remote project $prp/$arch: $remoteproj->{'error'}\n";
+    return undef;
+  }
   my $gctx = $ctx->{'gctx'};
   print "    fetching remote repository state for $prp\n";
   my $param = {
@@ -492,7 +494,10 @@ sub read_gbininfo_remote {
   my ($ctx, $prpa, $remoteproj, $packstatus) = @_;
 
   return undef unless $remoteproj;
-  return undef if $remoteproj->{'error'};
+  if ($remoteproj->{'error'}) {
+    print "    remote project $prpa: $remoteproj->{'error'}\n";
+    return undef;
+  }
 
   my $gctx = $ctx->{'gctx'};
   my $remotegbininfos = $gctx->{'remotegbininfos'};
@@ -503,6 +508,7 @@ sub read_gbininfo_remote {
 
   # first check error case
   if ($remotegbininfos->{$prpa} && $remotegbininfos->{$prpa}->{'error'} && ($remotegbininfos->{$prpa}->{'lastfetch'} || 0) > $now - 3600) {
+    print "    remote project binary state for $prpa: $remotegbininfos->{$prpa}->{'error'}\n";
     return undef;
   }
 
