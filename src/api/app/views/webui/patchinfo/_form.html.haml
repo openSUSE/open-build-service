@@ -126,6 +126,8 @@
             = text_field_tag('block_reason', @block_reason, style: 'width: 99%', disabled: true)
         %div{style: "margin-left:5px;"}
           = submit_tag 'Save Patchinfo'
+        = hidden_field_tag('project', @project.name)
         = hidden_field_tag "name", @name
+        = hidden_field_tag('package', @package)
 - content_for :ready_function do
   patchinfoReady();
