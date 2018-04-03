@@ -48,7 +48,7 @@ RSpec.describe Relationship do
         subject
       end
 
-      it { expect { project.store }.to change { Relationship.count }.by(1) }
+      it { expect { project.store }.to change(Relationship, :count).by(1) }
     end
   end
 
@@ -87,7 +87,7 @@ RSpec.describe Relationship do
         subject
       end
 
-      it { expect { project.store }.to change { Relationship.count }.by(1) }
+      it { expect { project.store }.to change(Relationship, :count).by(1) }
     end
   end
 

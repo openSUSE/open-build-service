@@ -15,11 +15,11 @@ RSpec.describe PersonController, vcr: false do
     end
 
     it 'does not change users real name' do
-      expect { subject }.not_to(change { user.realname })
+      expect { subject }.not_to(change(user, :realname))
     end
 
     it 'does not change users email address' do
-      expect { subject }.not_to(change { user.email })
+      expect { subject }.not_to(change(user, :email))
     end
   end
 

@@ -894,7 +894,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         end
 
         it { expect(flash.now[:error]).not_to be_nil }
-        it { expect(response).to have_http_status(400) }
+        it { expect(response).to have_http_status(:bad_request) }
       end
 
       context 'with an invalid devel project' do
@@ -904,7 +904,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         end
 
         it { expect(flash.now[:error]).to eq("Project with name 'non-existant' not found") }
-        it { expect(response).to have_http_status(400) }
+        it { expect(response).to have_http_status(:bad_request) }
       end
 
       context 'with a valid meta' do
@@ -913,7 +913,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         end
 
         it { expect(flash.now[:success]).not_to be_nil }
-        it { expect(response).to have_http_status(200) }
+        it { expect(response).to have_http_status(:ok) }
       end
 
       context 'with a non existing repository path' do
@@ -934,7 +934,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         end
 
         it { expect(flash.now[:error]).to eq('A project with the name not-existent does not exist. Please update the repository path elements.') }
-        it { expect(response).to have_http_status(400) }
+        it { expect(response).to have_http_status(:bad_request) }
       end
     end
   end
@@ -1708,7 +1708,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         get :edit, params: { project: user.home_project }
       end
 
-      it { expect(response).to have_http_status(302) }
+      it { expect(response).to have_http_status(:found) }
     end
   end
 

@@ -15,7 +15,7 @@ RSpec.describe PackageUpdateIfDirtyJob, type: :job, vcr: true do
     subject { PackageUpdateIfDirtyJob.new.perform(package.id) }
 
     it 'creates a BackendPackge for the Package' do
-      expect { subject }.to change { BackendPackage.count }.by(1)
+      expect { subject }.to change(BackendPackage, :count).by(1)
     end
   end
 end
