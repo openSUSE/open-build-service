@@ -978,7 +978,7 @@ CREATE TABLE `repositories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_project_id` int(11) NOT NULL,
   `name` varchar(255) COLLATE utf8_bin NOT NULL,
-  `remote_project_name` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `remote_project_name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `rebuild` enum('transitive','direct','local') CHARACTER SET utf8 DEFAULT NULL,
   `block` enum('all','local','never') CHARACTER SET utf8 DEFAULT NULL,
   `linkedbuild` enum('off','localdep','all') CHARACTER SET utf8 DEFAULT NULL,
@@ -1262,7 +1262,6 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20170118091131'),
 ('20170123115500'),
 ('20170215231042'),
-('20170306084558'),
 ('20170306105300'),
 ('20170315190919'),
 ('20170315200936'),
@@ -1315,6 +1314,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20171219122451'),
 ('20180109115548'),
 ('20180110074142'),
-('20180307074538');
+('20180307074538'),
+('20180403084558');
 
 
