@@ -65,7 +65,7 @@ RSpec.feature 'Requests', type: :feature, js: true do
         find(:id, 'role').select('Bugowner')
         fill_in 'description', with: 'I can fix bugs too.'
 
-        expect { click_button 'Ok' }.to change { BsRequest.count }.by 1
+        expect { click_button 'Ok' }.to change(BsRequest, :count).by 1
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants to get the role bugowner for project #{target_project}")
         expect(page).to have_css('#description-text', text: 'I can fix bugs too.')
         expect(page).to have_text('In state new')
@@ -93,7 +93,7 @@ RSpec.feature 'Requests', type: :feature, js: true do
         find(:id, 'role').select('Maintainer')
         fill_in 'description', with: 'I can produce bugs too.'
 
-        expect { click_button 'Ok' }.to change { BsRequest.count }.by 1
+        expect { click_button 'Ok' }.to change(BsRequest, :count).by 1
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants to get the role maintainer \
                                    for package #{target_project} / #{target_package}")
         expect(page).to have_css('#description-text', text: 'I can produce bugs too.')

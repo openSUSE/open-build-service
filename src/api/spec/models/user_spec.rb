@@ -464,7 +464,7 @@ RSpec.describe User do
         subject { User.find_with_credentials('new_user', 'tux_password') }
 
         it 'creates a new user from the data received by the LDAP server' do
-          expect { subject }.to change { User.count }.by 1
+          expect { subject }.to change(User, :count).by 1
           expect(subject.email).to eq 'John@obs.de'
           expect(subject.login).to eq 'new_user'
           expect(subject.realname).to eq 'new_user'
