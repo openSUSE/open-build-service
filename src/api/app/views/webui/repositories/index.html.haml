@@ -28,7 +28,7 @@
     You can configure individual flags for this project here.
 
   #repository-list
-    - @project.repositories.each do |repository|
+    - @project.repositories.includes(:path_elements, :download_repositories).each do |repository|
       = render partial: "repository_entry", locals: { repository: repository }
 
   - if User.current.is_admin?
