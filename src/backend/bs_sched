@@ -605,6 +605,15 @@ if (!$testprojid && -s "$_rundir/bs_sched.$_myarch.state") {
       my %fetchprojpacks_nodelay = map {$_ => 1} keys %{$schedstate->{'fetchprojpacks'}};
       BSSched::ProjPacks::do_fetchprojpacks($gctx, $schedstate->{'fetchprojpacks'}, \%fetchprojpacks_nodelay, {}, {});
     }
+    if ($schedstate->{'retryevents'}) {
+      for my $ev (@{$schedstate->{'retryevents'}}) {
+	if ($ev->{'type'} eq 'project' || ($ev->{'type'} eq 'package' && !$ev->{'package'})) {
+	  $gctx->{'retryevents'}->addretryevent({'type' => $ev->{'type'}, 'project' => $ev->{'project'}});
+	} elsif ($ev->{'type'} eq 'package') {
+	  $gctx->{'retryevents'}->addretryevent({'type' => 'package', 'project' => $ev->{'project'}, 'package' => $ev->{'package'}});
+	}
+      }
+    }
   }
 }
 
