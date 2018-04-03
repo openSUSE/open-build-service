@@ -201,6 +201,8 @@ OBSApi::Application.routes.draw do
     end
 
     resource :cloud, only: [] do
+      resources :configuration, only: [:index], controller: 'webui/cloud/configurations'
+
       resources :upload, only: [:index, :create, :destroy], controller: 'webui/cloud/upload_jobs' do
         new do
           get ':project/:package/:repository/:arch/:filename', to: 'webui/cloud/upload_jobs#new', as: '', constraints: cons
@@ -670,6 +672,12 @@ OBSApi::Application.routes.draw do
     ### /mail_handler
 
     put '/mail_handler' => 'mail_handler#upload'
+
+    ### /cloud/upload
+
+    scope :cloud, as: :cloud do
+      resources :upload, only: [:index, :show, :create, :destroy], controller: 'cloud/upload_jobs'
+    end
 
     ### /public
     controller :public do
