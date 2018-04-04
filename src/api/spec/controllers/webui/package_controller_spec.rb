@@ -137,14 +137,12 @@ RSpec.describe Webui::PackageController, vcr: true do
     end
 
     context 'a submit request that fails due to validation errors' do
-      let(:unconfirmed_user) { create(:user) }
-
       before do
-        login(unconfirmed_user)
-        post :submit_request, params: { project: source_project, package: package, targetproject: target_project }
+        login(user)
+        post :submit_request, params: { project: source_project, package: package, targetproject: target_project, sourceupdate: 'invalid' }
       end
 
-      it { expect(flash[:error]).to eq("Unable to submit: Validation failed: Creator Login #{unconfirmed_user.login} is not an active user") }
+      it { expect(flash[:error]).to eq('Unable to submit: Validation failed: Bs request actions is invalid') }
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: package)) }
       it { expect(BsRequestActionSubmit.where(target_project: target_project.name, target_package: package.name)).not_to exist }
     end
