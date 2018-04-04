@@ -1,0 +1,35 @@
+- unless @buildresults.excluded_counter.zero? && !@buildresults.show_all
+  .show_all_box
+    = check_box_tag :show_all, true, @buildresults.show_all
+    - label_message = @buildresults.excluded_counter.zero? ? 'Hide' :  "Show #{@buildresults.excluded_counter}"
+    = label_tag :show_all, "#{label_message} excluded results"
+
+- @buildresults.results.each_pair do |package, results|
+  %h3= package
+  #package-buildstatus
+    %table
+      - previous_repo = nil
+      - results.each do |result|
+        - repository = @project.repositories.find_by_name(result.repository)
+        %tr
+          %td{ class: "no_border_bottom #{(result.repository == previous_repo) ? " no_border_top" : " "}", title: "#{result.repository}" }
+            - if result.repository != previous_repo
+              = link_to(word_break(result.repository, 22), package_binaries_path(project: @project, package: package, repository: result.repository), { title: "Binaries for #{result.repository}" })
+          %td.arch
+            .nowrap{ style: "margin: 0 0.5ex" }
+              - if !(repository && repository.architectures.pluck(:name).include?(result.architecture))
+                = sprite_tag "time_error", alt: "Outdated result", title: "This result is outdated"
+              - else
+                = repo_status_icon(result.state, result.details)
+              = result.architecture
+          = arch_repo_table_cell(result.repository, result.architecture, package, { "code" => result.code, "details" => result.details })
+        - previous_repo = result.repository
+
+:javascript
+  $('.unresolvable, .blocked').click(function() {
+    var title = $(this).attr('title');
+    alert(title);
+  });
+
+  $('#show_all').change(function(){ update_build_result(); })
+
