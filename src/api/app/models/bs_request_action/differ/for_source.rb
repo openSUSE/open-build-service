@@ -50,7 +50,8 @@ class BsRequestAction
       end
 
       def source_diff(project_name, package_name, query)
-        Backend::Api::Sources::Package.source_diff(project_name, package_name, query)
+        diff = Backend::Api::Sources::Package.source_diff(project_name, package_name, query)
+        diff.valid_encoding? ? diff : diff.encode('UTF-8', 'binary', invalid: :replace, undef: :replace)
       rescue Timeout::Error
         raise DiffError, "Timeout while diffing #{project_name}/#{package_name}"
       rescue ActiveXML::Transport::Error => e
