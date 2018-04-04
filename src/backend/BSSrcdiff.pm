@@ -726,9 +726,12 @@ sub findtarfiles {
   if (@names) {
     # strip first dir if it is the same for all files
     my $l1 = $names[0];
-    if ($l1 =~ s/\/.*//s) {
+    if ($l1 =~ s/\/.*//s || $files->[0]->{'type'} eq 'd') {
       if (!grep {!($_ eq $l1 || $_ =~ /^\Q$l1\E\//)} @names) {
-        s/^[^\/]*\/?// for @names;
+	for (@names) {
+          s/^[^\/]*\/?//;
+	  $_ = '.' if $_ eq '';
+	}
       }
     }
   }
