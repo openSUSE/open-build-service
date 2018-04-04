@@ -138,9 +138,9 @@ class Webui::PatchinfoController < Webui::WebuiController
           issue[0].gsub!(/^(CVE|cve)-/, '') if issue[1] == 'cve'
           node.issue(issue[2], tracker: issue[1], id: issue[0])
         end
-        node.category params[:category]
-        node.rating params[:rating]
-        node.summary params[:summary]
+        node.category params[:category].try(:strip)
+        node.rating params[:rating].try(:strip)
+        node.summary params[:summary].try(:strip)
         node.description params[:description].gsub("\r\n", "\n")
         node.reboot_needed if params[:reboot]
         node.relogin_needed if params[:relogin]
