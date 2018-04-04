@@ -752,6 +752,7 @@ eval {
 
     my $watchremote = $gctx->{'watchremote'};
     my $watchremote_start = $gctx->{'watchremote_start'};
+    delete $gctx->{'watchremote_start_copy'};
 
     # delete no longer needed or outdated remotewatchers
     for my $remoteurl (sort keys %remotewatchers) {
@@ -803,6 +804,7 @@ eval {
             delete $remotewatchers{$remoteurl};
             $gotevent = 1;	# force loop restart
           } else {
+	    $gctx->{'watchremote_start_copy'} ||= { %$watchremote_start };
 	    my @events = $watcher->getevents($watchremote->{$remoteurl}, $watchremote_start);
 	    $ev_queue->add_events(@events);
             delete $remotewatchers{$remoteurl} unless $watcher->{'retry'};	# watcher is finished
