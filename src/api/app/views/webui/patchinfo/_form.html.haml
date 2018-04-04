@@ -69,9 +69,9 @@
                 %br/
                 A list of all supported tracker you can find here:
                 \#{link_to 'Tracker List', 'https://en.opensuse.org/openSUSE:Packaging_Patches_guidelines#Current_set_of_abbreviations'}
-              %input#issue{name: "issuelist", type: "text", value: "#{@issueid}"}/
-              = link_to image_tag('bug_add.png', alt: 'Add Bug', title: "Add additional issues e.g.: \"bnc#123456, bgo#654321\""), '#', onclick: 'append_bug($("#issue").val()); return false;', id: 'add_bug'
-              = image_tag('ajax-loader.gif', id: 'issue_spinner', class: 'hidden')
+              %input#issue{name: "issuelist", type: "text", value: "#{@issueid}"}
+                = link_to image_tag('bug_add.png', alt: 'Add Bug', title: "Add additional issues e.g.: \"bnc#123456, bgo#654321\""), '#', data: { 'add-issue' => true, project: @project.name }
+                = image_tag('ajax-loader.gif', id: 'issue_spinner', class: 'hidden')
           .box.show_left.show_right
             = link_to 'Update issues from sources', { action: 'updatepatchinfo', project: @project, package: @package }, { data: { confirm: 'Attention! All unsaved data will be lost! Continue?' }, method: :post }
         .box.show_left.show_right

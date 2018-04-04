@@ -1,4 +1,5 @@
-function append_bug(issue) {
+$(document).on('click', 'a[data-add-issue]', function() {
+  var issue = $('#issue').val();
   if (issue.length > 0) {
     $("#issue_spinner").show();
     var issues = new Array();
@@ -11,8 +12,7 @@ function append_bug(issue) {
       dataType: "json",
       data: {
         issues: issues,
-        project: $("#project").val(),
-        package: $("#package").val()
+        project: $(this).data('project')
       },
       success: function (data) {
         if (data.error != "") {
@@ -49,7 +49,7 @@ function append_bug(issue) {
     });
   }
   return false;
-}
+});
 
 function update_patchinfo() {
   $("#update_spinner").show();
