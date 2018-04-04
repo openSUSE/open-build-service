@@ -488,7 +488,7 @@ sub event_exit {
   $schedstate->{'repounchanged'} = $gctx->{'repounchanged'};
   $schedstate->{'projsuspended'} = $gctx->{'projsuspended'};
   $schedstate->{'delayedfetchprojpacks'} = $gctx->{'delayedfetchprojpacks'};
-  $schedstate->{'watchremote_start'} = $gctx->{'watchremote_start'};
+  $schedstate->{'watchremote_start'} = $gctx->{'watchremote_start_copy'} || $gctx->{'watchremote_start'};
   $schedstate->{'fetchprojpacks'} = $ectx->{'fetchprojpacks'} if %{$ectx->{'fetchprojpacks'} || {}};
   # collect all running async projpack requests
   my $running = BSSched::ProjPacks::runningfetchprojpacks($gctx);
