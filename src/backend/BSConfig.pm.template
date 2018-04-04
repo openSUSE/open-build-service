@@ -232,7 +232,8 @@ our $servicedispatch = 1;
 
 #our $container_registries = {
 #   'localhost' => {
-#     server => 'https://localhost:444',
+#     server => 'https://my_public_registry',
+#     pushserver => 'https://localhost:444', # optional private push server
 #     user => 'ignored',
 #     password => 'ignored',
 #     # Please be aware of the trailing slash
@@ -244,7 +245,7 @@ our $servicedispatch = 1;
 #     password => '',
 #     repository_base => '',
 #   },
-#   hub.docker.com => {
+#   'hub.docker.com' => {
 #     server => '',
 #     user => '',
 #     password => '',

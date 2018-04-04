@@ -1912,10 +1912,14 @@ sub publish {
   for my $p (sort keys %containers) {
     next unless -f "$extrep/$p";
     my $containerinfo = $containers{$p};
-    upload_container($extrep, $p, $containerinfo, $projid, $repoid, $containerinfo->{'arch'}, $notary_uploads);
-    # delete container... FIXME
-    unlink("$extrep/$p");
-    delete $binaryorigins->{$p};
+    my $readme = upload_container($extrep, $p, $containerinfo, $projid, $repoid, $containerinfo->{'arch'}, $notary_uploads);
+    # replace container with readme file
+    if ($readme && $readme ne '') {
+      unlink("$extrep/$p");
+      delete $binaryorigins->{$p};
+      mkdir_p($extrep) unless -d $extrep;
+      writestr("$extrep/$p.registry.txt", undef, $readme);
+    }
   }
   $changed = 1 if %$notary_uploads;	# FIXME
 
@@ -2604,16 +2608,22 @@ sub upload_container {
   }
 
   my $tempfile = decompress_container("$dir/$file");
+  my $read_me_content = "";
 
   eval {
     for my $config (@registries) {
-      upload_to_registry($config, $info, $tempfile, $projid, $repoid, $arch, $notary_uploads);
+      my $url = upload_to_registry($config, $info, $tempfile, $projid, $repoid, $arch, $notary_uploads);
+      if ($url && $url ne '') {
+        $read_me_content = "Container can be pulled via:\n" if $read_me_content eq '';
+        $read_me_content .= "  docker pull $url\n";
+      }
     }
   };
   my $error = $@;
   BSUtil::printlog("Deleting $tempfile");
   unlink($tempfile);
   die($error) if $error;
+  return $read_me_content;
 }
 
 =head2 upload_to_registry - upload decompressed file
@@ -2624,7 +2634,7 @@ sub upload_container {
   tempfile - path to decompressed container tar file
 
  Returns:
-  nothing
+  public url to registry
 
 =cut
 
@@ -2651,7 +2661,7 @@ sub upload_to_registry {
     $reponame =~ s/:[^\/]+$//;
   }
   
-  my $registryserver = $config->{server};
+  my $registryserver = $config->{pushserver} || $config->{server};
   $registryserver =~ s/^https?:\/\///;
   if ($uploader eq 'skopeo') {
     my $dst = "docker://$registryserver/$reponame:$repotag";
@@ -2676,6 +2686,7 @@ sub upload_to_registry {
     print "adding notary upload for $gun/$reponame: $repotag\n";
     $notary_uploads->{"$gun/$reponame"}->{$repotag} = $config;
   }
+  return "docker://$config->{server}/$reponame:$repotag"
 }
 
 sub upload_to_notary {
