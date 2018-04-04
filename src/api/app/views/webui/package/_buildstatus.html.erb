@@ -1,4 +1,12 @@
-<% @buildresults.each_pair do |package, results| %>
+<%- unless @buildresults.excluded_counter.zero? && !@buildresults.show_all %>
+  <div class='show_excluded_box'>
+    <%= check_box_tag :show_excluded, true, @buildresults.show_all %>
+    <%- label_message = @buildresults.excluded_counter.zero? ? 'Hide' :  "Show #{@buildresults.excluded_counter}" %>
+    <%= label_tag :show_excluded, "#{label_message} excluded results" %>
+  </div>
+<% end %>
+
+<% @buildresults.results.each_pair do |package, results| %>
   <h3><%= package %></h3>
   <div id="package_buildstatus">
     <table>
@@ -33,4 +41,6 @@
     var title = $(this).attr('title');
     alert(title);
   });
+
+  $('#show_excluded').change(function(){ update_build_result(); })
 <% end %>

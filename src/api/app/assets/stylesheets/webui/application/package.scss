@@ -127,3 +127,18 @@ table.repostatus td {
      }
    }
  }
+
+.show_all_box {
+  margin: 0 10px;
+
+  input[type=checkbox] { display: none; }
+  label {
+    color: #069;
+
+    &:hover {
+      color: #693;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  }
+}

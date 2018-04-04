@@ -5,6 +5,7 @@ require 'rantly/rspec_extensions'
 # you uncomment the next line and start a test backend.
 # CONFIG['global_write_through'] = true
 
+# rubocop:disable Metrics/BlockLength
 RSpec.describe Package, vcr: true do
   let(:admin) { create(:admin_user) }
   let(:user) { create(:confirmed_user, login: 'tom') }
@@ -334,40 +335,81 @@ RSpec.describe Package, vcr: true do
   # results = package_locallink.buildresults
   #
   context '#buildresults' do
-    let(:results) { package.buildresults }
     let(:results_test_package) { results['test_package'] }
     let(:results_test_package_source) { results['test_package:test_package-source'] }
     let(:results_test_package_image) { results['test_package_image'] }
-
     before do
       allow(Buildresult).to receive(:find).and_return(fake_multibuild_results)
     end
 
-    it { expect(results.keys).to match_array(['test_package', 'test_package:test_package-source', 'test_package_image']) }
+    context 'without entries in state "excluded"' do
+      let(:results) do
+        results, _excluded_number = package.buildresults(home_project, false)
+        results
+      end
 
-    it { expect(results_test_package.length).to eq(3) }
+      it { expect(results.keys).to match_array(['test_package', 'test_package:test_package-source', 'test_package_image']) }
 
-    it { expect(results_test_package.first.repository).to eq('openSUSE_Leap_42.2') }
-    it { expect(results_test_package.first.architecture).to eq('x86_64') }
-    it { expect(results_test_package.first.code).to eq('succeded') }
-    it { expect(results_test_package.first.state).to eq('finished') }
-    it { expect(results_test_package.first.details).to be_nil }
+      it { expect(results_test_package.length).to eq(2) }
 
-    it { expect(results_test_package_source.length).to eq(3) }
+      it { expect(results_test_package.first.repository).to eq('openSUSE_Leap_42.2') }
+      it { expect(results_test_package.first.architecture).to eq('x86_64') }
+      it { expect(results_test_package.first.code).to eq('succeded') }
+      it { expect(results_test_package.first.state).to eq('finished') }
+      it { expect(results_test_package.first.details).to be_nil }
+      it { expect(results_test_package.last.repository).to eq('openSUSE_Tumbleweed') }
+      it { expect(results_test_package.last.architecture).to eq('x86_64') }
+      it { expect(results_test_package.last.code).to eq('building') }
+      it { expect(results_test_package.last.state).to eq('building') }
+      it { expect(results_test_package.last.details).to be_nil }
 
-    it { expect(results_test_package_source.first.repository).to eq('openSUSE_Leap_42.2') }
-    it { expect(results_test_package_source.first.architecture).to eq('x86_64') }
-    it { expect(results_test_package_source.first.code).to eq('disabled') }
-    it { expect(results_test_package_source.first.state).to eq('finished') }
-    it { expect(results_test_package_source.first.details).to be_nil }
+      it { expect(results_test_package_source.length).to eq(3) }
 
-    it { expect(results_test_package_image.length).to eq(4) }
+      it { expect(results_test_package_source.first.repository).to eq('openSUSE_Leap_42.2') }
+      it { expect(results_test_package_source.first.architecture).to eq('x86_64') }
+      it { expect(results_test_package_source.first.code).to eq('disabled') }
+      it { expect(results_test_package_source.first.state).to eq('finished') }
+      it { expect(results_test_package_source.first.details).to be_nil }
 
-    it { expect(results_test_package_image.first.repository).to eq('home_Admin_images') }
-    it { expect(results_test_package_image.first.architecture).to eq('i586') }
-    it { expect(results_test_package_image.first.code).to eq('broken') }
-    it { expect(results_test_package_image.first.state).to eq('published') }
-    it { expect(results_test_package_image.first.details).not_to be_nil }
+      it { expect(results_test_package_image.length).to eq(4) }
+
+      it { expect(results_test_package_image.first.repository).to eq('home_Admin_images') }
+      it { expect(results_test_package_image.first.architecture).to eq('i586') }
+      it { expect(results_test_package_image.first.code).to eq('broken') }
+      it { expect(results_test_package_image.first.state).to eq('published') }
+      it { expect(results_test_package_image.first.details).not_to be_nil }
+    end
+
+    context 'with entries in state "excluded"' do
+      let(:results) do
+        results, _excluded_number = package.buildresults(home_project, true)
+        results
+      end
+
+      it { expect(results.keys).to match_array(['test_package', 'test_package:test_package-source', 'test_package_image']) }
+      it { expect(results_test_package.length).to eq(3) }
+
+      it { expect(results_test_package.first.repository).to eq('openSUSE_Leap_42.2') }
+      it { expect(results_test_package.first.architecture).to eq('x86_64') }
+      it { expect(results_test_package.first.code).to eq('succeded') }
+      it { expect(results_test_package.first.state).to eq('finished') }
+      it { expect(results_test_package.first.details).to be_nil }
+
+      it { expect(results_test_package.second.repository).to eq('openSUSE_Tumbleweed') }
+      it { expect(results_test_package.second.architecture).to eq('i586') }
+      it { expect(results_test_package.second.code).to eq('excluded') }
+      it { expect(results_test_package.second.state).to eq('finished') }
+      it { expect(results_test_package.second.details).to be_nil }
+
+      it { expect(results_test_package.last.repository).to eq('openSUSE_Tumbleweed') }
+      it { expect(results_test_package.last.architecture).to eq('x86_64') }
+      it { expect(results_test_package.last.code).to eq('building') }
+      it { expect(results_test_package.last.state).to eq('building') }
+      it { expect(results_test_package.last.details).to be_nil }
+
+      it { expect(results_test_package_source.length).to eq(3) }
+      it { expect(results_test_package_image.length).to eq(4) }
+    end
   end
 
   context '#source_path' do
@@ -731,3 +773,4 @@ Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
     it_behaves_like 'makes a user a maintainer of the subject'
   end
 end
+# rubocop:enable Metrics/BlockLength
