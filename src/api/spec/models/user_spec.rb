@@ -4,6 +4,8 @@ RSpec.describe User do
   let(:admin_user) { create(:admin_user, login: 'king') }
   let(:user) { create(:user, login: 'eisendieter') }
   let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
+  let(:user_belongs_to_confirmed_owner) { create(:user, owner: confirmed_user) }
+  let(:user_belongs_to_unconfirmed_owner) { create(:confirmed_user, owner: user) }
   let(:input) { { 'Event::RequestCreate' => { source_maintainer: '1' } } }
   let(:project_with_package) { create(:project_with_package, name: 'project_b') }
 
@@ -19,6 +21,26 @@ RSpec.describe User do
     it { expect(user.state).to eq('unconfirmed') }
 
     it { expect(create(:user)).to validate_uniqueness_of(:login).with_message('is the name of an already existing user') }
+  end
+
+  describe '#is_active?' do
+    it 'returns true if user is confirmed' do
+      expect(confirmed_user.is_active?).to be_truthy
+    end
+
+    it 'returns false if user is NOT confirmed' do
+      expect(user.is_active?).to be_falsey
+    end
+
+    context 'when user has owner' do
+      it 'returns true if owner is confirmed' do
+        expect(user_belongs_to_confirmed_owner.is_active?).to be_truthy
+      end
+
+      it 'returns false if owner not confirmed' do
+        expect(user_belongs_to_unconfirmed_owner.is_active?).to be_falsey
+      end
+    end
   end
 
   describe '#find_by_login!' do

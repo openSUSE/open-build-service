@@ -105,7 +105,7 @@ class Webui::WebuiController < ActionController::Base
         flash[:error] = 'Please login to access the requested page.'
         mode = CONFIG['proxy_auth_mode'] || :off
         if mode == :off
-          redirect_to user_login_path
+          redirect_to session_new_path
         else
           redirect_to root_path
         end
@@ -139,7 +139,7 @@ class Webui::WebuiController < ActionController::Base
     if authorization[0].to_s != 'Negotiate'
       # Demand kerberos negotiation
       response.headers['WWW-Authenticate'] = 'Negotiate'
-      render :login, status: 401
+      render :new, status: 401
       return
     else
       begin

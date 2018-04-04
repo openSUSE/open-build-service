@@ -5,7 +5,7 @@
       %input{name: "context", type: "hidden", value: "default"}/
       %input{name: "proxypath", type: "hidden", value: "reverse"}/
       %input{name: "message", type: "hidden", value: "Please log In"}/
-      = render partial: 'login_form'
+      = render partial: 'form'
 - elsif CONFIG['kerberos_mode']
   %h2
     Kerberos authentication required
@@ -15,5 +15,5 @@
     %p
       Please ensure you have a valid ticket and try again.
 - else
-  = form_tag controller: :user, action: :do_login, method: :post do
-    = render partial: 'login_form'
+  = form_tag controller: :session, action: :create, method: :post do
+    = render partial: 'form'

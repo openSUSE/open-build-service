@@ -2,51 +2,10 @@ class Webui::UserController < Webui::WebuiController
   before_action :check_display_user, only: [:show, :edit, :list_my]
   before_action :require_login, only: [:edit, :save, :index, :update, :delete]
   before_action :require_admin, only: [:edit, :index, :update, :delete]
-  before_action :kerberos_auth, only: [:login]
-
-  skip_before_action :check_anonymous, only: [:do_login]
 
   def index
     @users = User.all_without_nobody.includes(:owner).
              select(:id, :login, :email, :state, :realname, :owner_id, :updated_at, :ignore_auth_services)
-  end
-
-  def logout
-    logger.info "Logging out: #{session[:login]}"
-    reset_session
-    User.current = nil
-    if CONFIG['proxy_auth_mode'] == :on
-      redirect_to CONFIG['proxy_auth_logout_page']
-    else
-      redirect_back(fallback_location: root_path)
-    end
-  end
-
-  def login; end
-
-  def do_login
-    user = User.find_with_credentials(params[:username], params[:password])
-
-    if user && !user.is_active?
-      redirect_to(root_path, error: 'Your account is disabled. Please contact the administrator for details.')
-      return
-    end
-
-    unless user
-      redirect_to(user_login_path, error: 'Authentication failed')
-      return
-    end
-
-    Rails.logger.debug "Authenticated as user '#{user.try(:login)}'"
-
-    session[:login] = user.login
-    User.current = user
-
-    if request.referer && request.referer.end_with?('/user/login')
-      redirect_to user_show_path(User.current)
-    else
-      redirect_back(fallback_location: root_path)
-    end
   end
 
   def show
