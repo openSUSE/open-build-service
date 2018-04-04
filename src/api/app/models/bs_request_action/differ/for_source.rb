@@ -2,6 +2,9 @@ class BsRequestAction
   module Differ
     class ForSource
       include ActiveModel::Model
+
+      DEFAULT_FILE_LIMIT = 10_000
+
       attr_accessor :bs_request_action, :source_package_names
       attr_writer :options
 
@@ -41,8 +44,8 @@ class BsRequestAction
         query = {}
         query[:view] = :xml if options[:view].to_s == 'xml'
         query[:withissues] = 1 if options[:withissues].present?
-        query[:filelimit] = options[:filelimit] ? options[:filelimit].to_i : 10_000
-        query[:tarlimit] = options[:tarlimit] ? options[:tarlimit].to_i : 10_000
+        query[:filelimit] = options[:filelimit] ? options[:filelimit].to_i : DEFAULT_FILE_LIMIT
+        query[:tarlimit] = options[:tarlimit] ? options[:tarlimit].to_i : DEFAULT_FILE_LIMIT
         query
       end
 

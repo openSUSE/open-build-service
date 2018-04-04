@@ -87,113 +87,116 @@ RSpec.describe Webui::RequestController, vcr: true do
       end
     end
 
-    let(:diff_header_size) { 4 }
-    let(:ascii_file_size) { 11_000 }
-    # Taken from package_with_binary_diff factory files (bigfile_archive.tar.gz and bigfile_archive_2.tar.gz)
-    let(:binary_file_size) { 30_000 }
-    let(:binary_file_changed_size) { 13_000 }
-    # TODO: check if this value, the default diff size, is correct
-    let(:default_diff_size) { 9999 }
+    context 'handling diff sizes' do
+      let(:diff_header_size) { 4 }
+      # Taken from package_with_binary_diff factory files (bigfile_archive.tar.gz and bigfile_archive_2.tar.gz)
+      let(:archive_content_diff_size) { 12 }
+      let(:file_size_threshold) { BsRequestAction::Differ::ForSource::DEFAULT_FILE_LIMIT - 1 }
 
-    shared_examples 'a full diff not requested for' do |file_name|
       before do
-        bs_request_submit_action
-        get :show, params: { number: bs_request.number }
+        stub_const('BsRequestAction::Differ::ForSource::DEFAULT_FILE_LIMIT', 5)
       end
 
-      it 'shows a hint' do
-        expect(assigns(:not_full_diff)).to be_truthy
-      end
-
-      it 'shows the truncated diff' do
-        actions = assigns(:actions).select { |action| action[:type] == :submit && action[:sourcediff] }
-        diff_size = actions.first[:sourcediff].first['files'][file_name]['diff']['_content'].split.size
-        expect(diff_size).to eq(expected_diff_size)
-      end
-    end
-
-    context 'full diff not requested' do
-      let(:expected_diff_size) { default_diff_size + diff_header_size }
-      context 'for ASCII files' do
-        let(:target_package) do
-          create(:package_with_file, name: 'test-package-ascii',
-                 file_content: "a\n" * ascii_file_size, project: target_project)
-        end
-
-        it_behaves_like 'a full diff not requested for', 'somefile.txt'
-      end
-
-      context 'for archives' do
-        let(:target_package) do
-          create(:package_with_binary, name: 'test-package-binary', project: target_project)
-        end
-        let(:source_package) do
-          create(:package_with_binary, name: 'test-source-package-binary', project: source_project,
-                 file_name: 'spec/support/files/bigfile_archive_2.tar.gz')
-        end
-
-        it_behaves_like 'a full diff not requested for', 'bigfile_archive.tar.gz/bigfile.txt'
-      end
-    end
-
-    shared_examples 'a full diff requested for' do |file_name|
-      before do
-        bs_request_submit_action
-        get :show, params: { number: bs_request.number, full_diff: true }
-      end
-
-      it 'does not show a hint' do
-        expect(assigns(:not_full_diff)).to be_falsy
-      end
-
-      it 'shows the complete diff' do
-        actions = assigns(:actions).select { |action| action[:type] == :submit && action[:sourcediff] }
-        diff_size = actions.first[:sourcediff].first['files'][file_name]['diff']['_content'].split.size
-        expect(diff_size).to eq(expected_diff_size)
-      end
-    end
-
-    context 'full diff requested' do
-      context 'for ASCII files' do
-        let(:expected_diff_size) { ascii_file_size + diff_header_size }
-        let(:target_package) do
-          create(:package_with_file, name: 'test-package-ascii',
-                 file_content: "a\n" * ascii_file_size, project: target_project)
-        end
-
-        it_behaves_like 'a full diff requested for', 'somefile.txt'
-      end
-
-      context 'for archives' do
-        let(:expected_diff_size) { binary_file_size + binary_file_changed_size + diff_header_size }
-        let(:target_package) { create(:package_with_binary, name: 'test-package-binary', project: target_project) }
-        let(:source_package) do
-          create(:package_with_binary, name: 'test-source-package-binary',
-                 project: source_project, file_name: 'spec/support/files/bigfile_archive_2.tar.gz')
-        end
-
-        it_behaves_like 'a full diff requested for', 'bigfile_archive.tar.gz/bigfile.txt'
-      end
-    end
-
-    context 'with :diff_to_superseded set' do
-      let(:superseded_bs_request) { create(:bs_request) }
-      context 'and the superseded request is superseded' do
+      shared_examples 'a full diff not requested for' do |file_name|
         before do
-          superseded_bs_request.update(state: :superseded, superseded_by: bs_request.number)
-          get :show, params: { number: bs_request.number, diff_to_superseded: superseded_bs_request.number }
+          bs_request_submit_action
+          get :show, params: { number: bs_request.number }
         end
 
-        it { expect(assigns(:diff_to_superseded)).to eq(superseded_bs_request) }
+        it 'shows a hint' do
+          expect(assigns(:not_full_diff)).to be_truthy
+        end
+
+        it 'shows the truncated diff' do
+          actions = assigns(:actions).select { |action| action[:type] == :submit && action[:sourcediff] }
+          diff_size = actions.first[:sourcediff].first['files'][file_name]['diff']['_content'].split.size
+          expect(diff_size).to eq(expected_diff_size)
+        end
       end
 
-      context 'and the superseded request is not superseded' do
-        before do
-          get :show, params: { number: bs_request.number, diff_to_superseded: superseded_bs_request.number }
+      context 'full diff not requested' do
+        let(:expected_diff_size) { file_size_threshold + diff_header_size }
+        context 'for ASCII files' do
+          let(:target_package) do
+            create(:package_with_file, name: 'test-package-ascii',
+                   file_content: "a\n" * (file_size_threshold + 1), project: target_project)
+          end
+
+          it_behaves_like 'a full diff not requested for', 'somefile.txt'
         end
 
-        it { expect(assigns(:diff_to_superseded)).to be_nil }
-        it { expect(flash[:error]).not_to be_nil }
+        context 'for archives' do
+          let(:target_package) do
+            create(:package_with_binary, name: 'test-package-binary', project: target_project)
+          end
+          let(:source_package) do
+            create(:package_with_binary, name: 'test-source-package-binary', project: source_project,
+                   file_name: 'spec/support/files/bigfile_archive_2.tar.gz')
+          end
+
+          it_behaves_like 'a full diff not requested for', 'bigfile_archive.tar.gz/bigfile.txt'
+        end
+      end
+
+      shared_examples 'a full diff requested for' do |file_name|
+        before do
+          bs_request_submit_action
+          get :show, params: { number: bs_request.number, full_diff: true }
+        end
+
+        it 'does not show a hint' do
+          expect(assigns(:not_full_diff)).to be_falsy
+        end
+
+        it 'shows the complete diff' do
+          actions = assigns(:actions).select { |action| action[:type] == :submit && action[:sourcediff] }
+          diff_size = actions.first[:sourcediff].first['files'][file_name]['diff']['_content'].split.size
+          expect(diff_size).to eq(expected_diff_size)
+        end
+      end
+
+      context 'full diff requested' do
+        context 'for ASCII files' do
+          let(:expected_diff_size) { file_size_threshold + 1 + diff_header_size }
+          let(:target_package) do
+            create(:package_with_file, name: 'test-package-ascii',
+                   file_content: "a\n" * (file_size_threshold + 1), project: target_project)
+          end
+
+          it_behaves_like 'a full diff requested for', 'somefile.txt'
+        end
+
+        context 'for archives' do
+          let(:expected_diff_size) { archive_content_diff_size + diff_header_size }
+          let(:target_package) { create(:package_with_binary, name: 'test-package-binary', project: target_project) }
+          let(:source_package) do
+            create(:package_with_binary, name: 'test-source-package-binary',
+                   project: source_project, file_name: 'spec/support/files/bigfile_archive_2.tar.gz')
+          end
+
+          it_behaves_like 'a full diff requested for', 'bigfile_archive.tar.gz/bigfile.txt'
+        end
+      end
+
+      context 'with :diff_to_superseded set' do
+        let(:superseded_bs_request) { create(:bs_request) }
+        context 'and the superseded request is superseded' do
+          before do
+            superseded_bs_request.update(state: :superseded, superseded_by: bs_request.number)
+            get :show, params: { number: bs_request.number, diff_to_superseded: superseded_bs_request.number }
+          end
+
+          it { expect(assigns(:diff_to_superseded)).to eq(superseded_bs_request) }
+        end
+
+        context 'and the superseded request is not superseded' do
+          before do
+            get :show, params: { number: bs_request.number, diff_to_superseded: superseded_bs_request.number }
+          end
+
+          it { expect(assigns(:diff_to_superseded)).to be_nil }
+          it { expect(flash[:error]).not_to be_nil }
+        end
       end
     end
   end
