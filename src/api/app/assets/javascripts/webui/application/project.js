@@ -125,7 +125,7 @@ function repositoriesSetupAutocomplete() { // jshint ignore:line
   $("#target_project").autocomplete({
     source: $('#target_project').data('ajaxurl'),
     minLength: 2,
-    select: function() {
+    select: function(event, ui) {
       autocompleteRepositories(ui.item.value);
     },
     change: function() {
