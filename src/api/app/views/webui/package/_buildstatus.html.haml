@@ -8,22 +8,29 @@
   %h3= package
   #package-buildstatus
     %table
-      - previous_repo = nil
-      - results.each do |result|
-        - repository = @project.repositories.find_by_name(result.repository)
+      - if results.present?
+        - previous_repo = nil
+        - results.each do |result|
+          - repository = @project.repositories.find_by_name(result.repository)
+          %tr
+            %td{ class: "no_border_bottom #{(result.repository == previous_repo) ? " no_border_top" : " "}", title: "#{result.repository}" }
+              - if result.repository != previous_repo
+                = link_to(word_break(result.repository, 22), package_binaries_path(project: @project, package: package, repository: result.repository), { title: "Binaries for #{result.repository}" })
+            %td.arch
+              .nowrap{ style: "margin: 0 0.5ex" }
+                - if !(repository && repository.architectures.pluck(:name).include?(result.architecture))
+                  = sprite_tag "time_error", alt: "Outdated result", title: "This result is outdated"
+                - else
+                  = repo_status_icon(result.state, result.details)
+                = result.architecture
+            = arch_repo_table_cell(result.repository, result.architecture, package, { "code" => result.code, "details" => result.details })
+          - previous_repo = result.repository
+      - else
         %tr
-          %td{ class: "no_border_bottom #{(result.repository == previous_repo) ? " no_border_top" : " "}", title: "#{result.repository}" }
-            - if result.repository != previous_repo
-              = link_to(word_break(result.repository, 22), package_binaries_path(project: @project, package: package, repository: result.repository), { title: "Binaries for #{result.repository}" })
-          %td.arch
-            .nowrap{ style: "margin: 0 0.5ex" }
-              - if !(repository && repository.architectures.pluck(:name).include?(result.architecture))
-                = sprite_tag "time_error", alt: "Outdated result", title: "This result is outdated"
-              - else
-                = repo_status_icon(result.state, result.details)
-              = result.architecture
-          = arch_repo_table_cell(result.repository, result.architecture, package, { "code" => result.code, "details" => result.details })
-        - previous_repo = result.repository
+          %td
+            All the results have state
+            %strong excluded
+
 
 :javascript
   $('.unresolvable, .blocked').click(function() {
