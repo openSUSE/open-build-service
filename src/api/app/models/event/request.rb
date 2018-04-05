@@ -94,11 +94,7 @@ module Event
     end
 
     def reviewers
-      ret = []
-      BsRequest.find_by_number(payload['number']).reviews.each do |r|
-        ret.concat(r.users_and_groups_for_review)
-      end
-      ret.uniq
+      BsRequest.find_by_number(payload['number']).reviews.map(&:users_and_groups_for_review).flatten.uniq
     end
 
     def creators
@@ -106,11 +102,9 @@ module Event
     end
 
     def action_maintainers(prjname, pkgname)
-      ret = []
-      payload['actions'].each do |a|
-        ret.concat _roles('maintainer', a[prjname], a[pkgname])
-      end
-      ret.uniq
+      payload['actions'].map do |action|
+        _roles('maintainer', action[prjname], action[pkgname])
+      end.flatten.uniq
     end
 
     def target_maintainers
