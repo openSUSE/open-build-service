@@ -29,6 +29,8 @@ class Group < ApplicationRecord
   # groups have a n:m relation to groups
   has_and_belongs_to_many :roles, -> { distinct }
 
+  default_scope { order(:title) }
+
   def self.find_by_title!(title)
     find_by_title(title) || (raise NotFoundError, "Couldn't find Group '#{title}'")
   end
