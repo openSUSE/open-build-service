@@ -287,11 +287,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def contains_change?
-    return sourcediff.present?
-  rescue BsRequestAction::DiffError
-    # if the diff can'be created we can't say
-    # but let's assume the reason for the problem lies in the change
-    return true
+    verifymd5_of(target_project, target_package) != verifymd5_of(source_project, source_package, rev: source_rev)
   end
 
   def sourcediff(_opts = {})
@@ -957,7 +953,15 @@ class BsRequestAction < ApplicationRecord
     self.target_project_object = Project.find_by_name(target_project)
   end
 
-  #### Alias of methods
+  private
+
+  def verifymd5_of(project, package, options = {})
+    source_info = Backend::Api::Sources::Package.source_info(project, package, options.reverse_merge(nofilename: 1))
+    Xmlhash.parse(source_info)['verifymd5']
+  rescue Timeout::Error, ActiveXML::Transport::Error
+    # if the diff can'be created we can't say
+    # but let's assume the reason for the problem lies in the change
+  end
 end
 
 # == Schema Information

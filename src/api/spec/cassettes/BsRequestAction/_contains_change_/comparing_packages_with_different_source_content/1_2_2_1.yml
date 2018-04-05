@@ -1,0 +1,875 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/_meta?user=request_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:request_user">
+          <title/>
+          <description/>
+          <person userid="request_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '147'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:request_user">
+          <title></title>
+          <description></description>
+          <person userid="request_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 12:30:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_with_content_/_meta?user=request_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_content_" project="home:request_user">
+          <title>The Parliament of Man</title>
+          <description>Adipisci enim ex quia hic.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '173'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_content_" project="home:request_user">
+          <title>The Parliament of Man</title>
+          <description>Adipisci enim ex quia hic.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 12:30:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_with_content_/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_content_" project="home:request_user">
+          <title>The Parliament of Man</title>
+          <description>Adipisci enim ex quia hic.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '173'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_content_" project="home:request_user">
+          <title>The Parliament of Man</title>
+          <description>Adipisci enim ex quia hic.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 12:30:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_with_content_/_config
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="19" vrev="19">
+          <srcmd5>aa0a758a8dbae787f8a8d25b6c8ed3f0</srcmd5>
+          <version>unknown</version>
+          <time>1523017845</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 12:30:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_with_content_/somefile.txt
+    body:
+      encoding: UTF-8
+      string: foo
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="20" vrev="20">
+          <srcmd5>aa0a758a8dbae787f8a8d25b6c8ed3f0</srcmd5>
+          <version>unknown</version>
+          <time>1523017845</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 12:30:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_with_different_content_/_meta?user=request_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_different_content_" project="home:request_user">
+          <title>The Yellow Meads of Asphodel</title>
+          <description>Labore ea possimus voluptas commodi.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '200'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_different_content_" project="home:request_user">
+          <title>The Yellow Meads of Asphodel</title>
+          <description>Labore ea possimus voluptas commodi.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 12:30:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_with_different_content_/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_different_content_" project="home:request_user">
+          <title>The Yellow Meads of Asphodel</title>
+          <description>Labore ea possimus voluptas commodi.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '200'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_different_content_" project="home:request_user">
+          <title>The Yellow Meads of Asphodel</title>
+          <description>Labore ea possimus voluptas commodi.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 12:30:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_with_different_content_/_config
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="9" vrev="9">
+          <srcmd5>a1500a008fb00854ff9c331a8af0911a</srcmd5>
+          <version>unknown</version>
+          <time>1523017845</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 12:30:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_with_different_content_/somefile.txt
+    body:
+      encoding: UTF-8
+      string: bar
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="10" vrev="10">
+          <srcmd5>a1500a008fb00854ff9c331a8af0911a</srcmd5>
+          <version>unknown</version>
+          <time>1523017845</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 12:30:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:request_user/package_with_content_?nofilename=1&view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '153'
+    body:
+      encoding: UTF-8
+      string: '<sourceinfo package="package_with_content_" rev="20" vrev="20" srcmd5="aa0a758a8dbae787f8a8d25b6c8ed3f0"
+        verifymd5="aa0a758a8dbae787f8a8d25b6c8ed3f0" />
+
+'
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 12:30:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:request_user/package_with_different_content_?nofilename=1&view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '163'
+    body:
+      encoding: UTF-8
+      string: '<sourceinfo package="package_with_different_content_" rev="10" vrev="10"
+        srcmd5="a1500a008fb00854ff9c331a8af0911a" verifymd5="a1500a008fb00854ff9c331a8af0911a"
+        />
+
+'
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 12:30:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_with_content/_meta?user=request_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_content" project="home:request_user">
+          <title>All Passion Spent</title>
+          <description>Libero veniam inventore aperiam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '174'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_content" project="home:request_user">
+          <title>All Passion Spent</title>
+          <description>Libero veniam inventore aperiam.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 16:47:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_with_content/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_content" project="home:request_user">
+          <title>All Passion Spent</title>
+          <description>Libero veniam inventore aperiam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '174'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_content" project="home:request_user">
+          <title>All Passion Spent</title>
+          <description>Libero veniam inventore aperiam.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 16:47:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_with_content/_config
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="13" vrev="13">
+          <srcmd5>aa0a758a8dbae787f8a8d25b6c8ed3f0</srcmd5>
+          <version>unknown</version>
+          <time>1523033256</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 16:47:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_with_content/somefile.txt
+    body:
+      encoding: UTF-8
+      string: foo
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="14" vrev="14">
+          <srcmd5>aa0a758a8dbae787f8a8d25b6c8ed3f0</srcmd5>
+          <version>unknown</version>
+          <time>1523033256</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 16:47:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_with_different_content/_meta?user=request_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_different_content" project="home:request_user">
+          <title>Dance Dance Dance</title>
+          <description>Error sint nulla adipisci cupiditate est.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '193'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_different_content" project="home:request_user">
+          <title>Dance Dance Dance</title>
+          <description>Error sint nulla adipisci cupiditate est.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 16:47:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_with_different_content/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_different_content" project="home:request_user">
+          <title>Dance Dance Dance</title>
+          <description>Error sint nulla adipisci cupiditate est.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '193'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_different_content" project="home:request_user">
+          <title>Dance Dance Dance</title>
+          <description>Error sint nulla adipisci cupiditate est.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 16:47:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_with_different_content/_config
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="5" vrev="5">
+          <srcmd5>a1500a008fb00854ff9c331a8af0911a</srcmd5>
+          <version>unknown</version>
+          <time>1523033256</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 16:47:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_with_different_content/somefile.txt
+    body:
+      encoding: UTF-8
+      string: bar
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="6" vrev="6">
+          <srcmd5>a1500a008fb00854ff9c331a8af0911a</srcmd5>
+          <version>unknown</version>
+          <time>1523033256</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 16:47:36 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:request_user/package_with_content?nofilename=1&view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: '<sourceinfo package="package_with_content" rev="14" vrev="14" srcmd5="aa0a758a8dbae787f8a8d25b6c8ed3f0"
+        verifymd5="aa0a758a8dbae787f8a8d25b6c8ed3f0" />
+
+'
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 16:47:37 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:request_user/package_with_different_content?nofilename=1&view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: '<sourceinfo package="package_with_different_content" rev="6" vrev="6"
+        srcmd5="a1500a008fb00854ff9c331a8af0911a" verifymd5="a1500a008fb00854ff9c331a8af0911a"
+        />
+
+'
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 16:47:37 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:request_user/package_with_content?nofilename=1&view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: '<sourceinfo package="package_with_content" rev="18" vrev="18" srcmd5="aa0a758a8dbae787f8a8d25b6c8ed3f0"
+        verifymd5="aa0a758a8dbae787f8a8d25b6c8ed3f0" />
+
+'
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 16:55:17 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:request_user/package_with_different_content?nofilename=1&view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: '<sourceinfo package="package_with_different_content" rev="6" vrev="6"
+        srcmd5="a1500a008fb00854ff9c331a8af0911a" verifymd5="a1500a008fb00854ff9c331a8af0911a"
+        />
+
+'
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 16:55:17 GMT
+recorded_with: VCR 4.0.0

@@ -4,12 +4,12 @@ require 'rails_helper'
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
 
-RSpec.describe BsRequestAction, vcr: false do
+RSpec.describe BsRequestAction, vcr: true do
   context 'encoding of sourcediffs' do
     let(:user) { create(:confirmed_user, login: 'request_user') }
+    let(:project) { user.home_project }
     let(:file_content) { "-{\xA2:\xFA*\xA3q\u0010\xC2X\\\x9D" }
     let(:utf8_encoded_file_content) { file_content.encode('UTF-8', 'binary', invalid: :replace, undef: :replace) }
-    let(:project) { user.home_project }
     let(:target_package) do
       create(:package_with_file, name: 'package_encoding_1',
              file_content: file_content, project: project)
@@ -37,6 +37,61 @@ RSpec.describe BsRequestAction, vcr: false do
 
     it { expect(bs_request_action.sourcediff.valid_encoding?).to be true }
     it { expect(bs_request_action.sourcediff).to include(utf8_encoded_file_content) }
+  end
+
+  context '#contains_change?' do
+    let(:user) { create(:confirmed_user, login: 'request_user') }
+    let(:project) { user.home_project }
+    let(:bs_request) { build(:bs_request, creator: user.login) }
+    let(:target_package) do
+      create(:package_with_file, name: 'package_with_content',
+             file_content: 'foo', project_config: '', project: project)
+    end
+
+    before do
+      allow(User).to receive(:current).and_return(user)
+    end
+
+    context 'comparing packages with identical source content' do
+      let(:source_package) do
+        create(:package_with_file, name: 'package_with_same_content',
+               file_content: 'foo', project_config: '', project: project)
+      end
+      let(:action_attributes) do
+        {
+          bs_request:     bs_request,
+          type:           'submit',
+          target_project: project.name,
+          target_package: target_package.name,
+          source_project: project.name,
+          source_package: source_package.name
+        }
+      end
+      let(:bs_request_action) { create(:bs_request_action_submit, action_attributes) }
+
+      it { expect(bs_request_action.contains_change?).to be false }
+    end
+
+    context 'comparing packages with different source content' do
+      let(:source_package) do
+        create(:package_with_file, name: 'package_with_different_content',
+               file_content: 'bar', project_config: '', project: project)
+      end
+
+      let(:action_attributes) do
+        {
+          bs_request:     bs_request,
+          type:           'submit',
+          target_project: project.name,
+          target_package: target_package.name,
+          source_project: project.name,
+          source_package: source_package.name
+        }
+      end
+      let(:bs_request_action) { create(:bs_request_action_submit, action_attributes) }
+
+      it { expect(bs_request_action.contains_change?).to be true }
+    end
   end
 
   context 'uniqueness validation of type' do

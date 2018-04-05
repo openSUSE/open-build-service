@@ -118,6 +118,14 @@ module Backend
           http_post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :diff }, params: options, accepted: accepted)
         end
 
+        # Returns source info of a package
+        # @option options [String] :rev Revision Hash/Number.
+        # @option options [String] :nofilename Include names of source files
+        # @return [String]
+        def self.source_info(project_name, package_name, options = {})
+          http_get(['/source/:project/:package', project_name, package_name], defaults: { view: :info }, params: options)
+        end
+
         # Runs the command rebuild for that package
         # @option options [String] :repository Build only for that repository.
         # @option options [String] :arch Build only for that architecture.

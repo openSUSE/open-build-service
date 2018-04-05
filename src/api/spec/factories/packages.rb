@@ -30,13 +30,14 @@ FactoryBot.define do
     factory :package_with_file do
       transient do
         file_content Faker::Lorem.paragraph
+        project_config Faker::Lorem.paragraph
       end
 
       after(:create) do |package, evaluator|
         # NOTE: Enable global write through when writing new VCR cassetes.
         # ensure the backend knows the project
         if CONFIG['global_write_through']
-          Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_config", Faker::Lorem.paragraph)
+          Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_config", evaluator.project_config)
           Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/somefile.txt", evaluator.file_content)
         end
       end
