@@ -213,7 +213,7 @@ class ConsistencyCheckJob < ApplicationJob
         # restore from backend
         diff.each do |package|
           begin
-            meta = Backend::Api::Sources::Project.meta(project.name, package)
+            meta = Backend::Api::Sources::Project.meta(project.name)
             pkg = project.packages.new(name: package)
             pkg.commit_opts = { no_backend_write: 1 }
             pkg.update_from_xml(Xmlhash.parse(meta), true) # ignore locked project
