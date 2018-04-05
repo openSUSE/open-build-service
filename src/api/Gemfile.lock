@@ -104,8 +104,8 @@ GEM
     cssmin (1.0.3)
     daemons (1.2.6)
     dalli (2.7.7)
-    data_migrate (3.4.0)
-      rails (>= 4.0)
+    data_migrate (3.5.0)
+      rails (>= 4.1)
     database_cleaner (1.6.2)
     delayed_job (4.1.4)
       activesupport (>= 3.0, < 5.2)
@@ -431,7 +431,7 @@ DEPENDENCIES
   cssmin (>= 1.0.2)
   daemons
   dalli
-  data_migrate (= 3.4.0)
+  data_migrate (= 3.5.0)
   database_cleaner (>= 1.0.1)
   delayed_job_active_record (>= 4.0.0)
   escape_utils
