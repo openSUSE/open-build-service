@@ -140,6 +140,8 @@ end
 group :development, :test do
   # as testing framework
   gem 'rspec-rails', '~> 3.5.0'
+  # to make tests not fail in package test suite
+  gem 'rspec-retry'
   # for fixtures
   gem 'factory_bot_rails'
   # for mocking the backend
