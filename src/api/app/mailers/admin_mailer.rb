@@ -3,6 +3,7 @@ class AdminMailer < ActionMailer::Base
 
   def set_headers
     @host = ::Configuration.obs_url
+    return unless @host
     @configuration = ::Configuration.first
 
     headers['Precedence'] = 'bulk'
@@ -23,6 +24,7 @@ class AdminMailer < ActionMailer::Base
 
   def warning(message, level = 'Warning')
     set_headers
+    return unless @host
 
     # FIXME/to be implemented:
     # we may want to use the event system to allow to manage subscribers.
