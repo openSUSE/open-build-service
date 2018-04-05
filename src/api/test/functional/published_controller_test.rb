@@ -106,7 +106,6 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
       hashed.elements('package').each do |p|
         next unless (p['name'] == 'package' && p['arch'] == 'i586') || (p['name'] == 'package_newweaktags' && p['arch'] == 'x86_64')
         package_seen[p['name']] = true
-
         assert_not_nil p
         assert_equal 'GPLv2+', p['format']['rpm:license']
         assert_equal 'Development/Tools/Building', p['format']['rpm:group']
@@ -128,7 +127,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
         else
           assert nil # unhandled src rpm
         end
-        next unless File.exist? '/var/adm/fillup-templates'
+        next File.exist?('/var/adm/fillup-templates') || File.exist?('/usr/share/fillup-templates/')
         # seems to be a SUSE system
         if p['format']['rpm:suggests'].nil?
           print 'createrepo seems not to create week dependencies, we need this at least on SUSE systems'
@@ -147,7 +146,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
     IO.popen("cat #{ENV['OBS_BACKEND_TEMP']}/data/repos/BaseDistro3/BaseDistro3_repo/repodata/repomd.xml") do |io|
       hashed = Xmlhash.parse(io.read)
     end
-    if File.exist? '/var/adm/fillup-templates'
+    if File.exist?('/var/adm/fillup-templates') || File.exist?('/usr/share/fillup-templates/')
       # seems to be a SUSE system
       assert_equal hashed['tags']['repo'], 'obsrepository://obstest/BaseDistro3/BaseDistro3_repo'
     else
@@ -156,7 +155,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_suse_format
-    return unless File.exist? '/var/adm/fillup-templates'
+    return unless File.exist?('/var/adm/fillup-templates') || File.exist?('/usr/share/fillup-templates/')
     login_adrian
     get '/published/BaseDistro3/BaseDistro3_repo/content'
     assert_response :success
