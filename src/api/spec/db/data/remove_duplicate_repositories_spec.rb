@@ -35,13 +35,13 @@ RSpec.describe RemoveDuplicateRepositories, type: :migration do
 
     let(:project) { create(:project) }
     let!(:repository) do
-      # we need to bypass the validation
+      # we need to bypass the validation to sneek in the nil value for remote_project_name which this data migration will fix
       r = build(:repository, project: project, name: 'standard', remote_project_name: nil, architectures: ['x86_64', 'i586'])
       r.save(validate: false)
       r
     end
     let!(:duplicate_repository) do
-      # we need to bypass the validation
+      # we need to bypass the validation to sneek in the nil value for remote_project_name which this data migration will fix
       r = build(:repository, project: project, name: 'standard', remote_project_name: nil, architectures: ['x86_64', 'i586'])
       r.save(validate: false)
       r
