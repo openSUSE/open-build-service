@@ -98,7 +98,7 @@ The Open Build Service documentation is hosted in a separated repository called 
 The Open Build Service is part of the openSUSE project. We follow all the [openSUSE Guiding
 Principles!](http://en.opensuse.org/openSUSE:Guiding_principles) If you think
 someone doesn't do that, please let any of the [openSUSE
-owners](https://github.com/orgs/openSUSE/teams/owners) know!
+owners](https:/en.openSUSE.org/openSUSE:Board) know!
 
 # How to setup an OBS development environment
 We are using [docker](https://www.docker.com/) to create our development
