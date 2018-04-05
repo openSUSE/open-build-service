@@ -29,3 +29,7 @@ Bugfixes
 
 Frontend:
   * Fixed issue in live build log that caused parts of the log being duplicated
+  * Upgrading from 2.8 to 2.9 caused remote repositories with same name to get deleted
+    - If the instance got already upgraded and an interconnect is configured, it might be necessary to restore the database 
+      with data from the backend
+    - This can be done with 'rake.ruby2.5 fix_project <project>'
