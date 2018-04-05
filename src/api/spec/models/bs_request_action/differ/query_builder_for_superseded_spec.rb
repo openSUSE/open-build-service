@@ -56,8 +56,8 @@ RSpec.describe BsRequestAction::Differ::QueryBuilderForSuperseded do
                  oxsrcmd5: 'oxsrcmd5')
         end
 
-        it { expect(subject[:rev]).to eq(accept_info.oxsrcmd5) }
-        it { expect(subject[:orev]).to eq(superseded_bs_request_action.source_rev) }
+        it { expect(subject[:rev]).to eq('oxsrcmd5') }
+        it { expect(subject[:orev]).to eq('42') }
         it { expect(subject[:opackage]).to eq(superseded_bs_request_action.source_package) }
         it { expect(subject[:oproject]).to eq(superseded_bs_request_action.source_project) }
         it { expect(subject.keys.length).to eq(4) }
@@ -98,8 +98,8 @@ RSpec.describe BsRequestAction::Differ::QueryBuilderForSuperseded do
           ).build
         end
 
-        it { expect(subject[:orev]).to eq(superseded_bs_request_action.source_rev) }
-        it { expect(subject[:rev]).to eq(bs_request_action.source_rev) }
+        it { expect(subject[:orev]).to eq('0') }
+        it { expect(subject[:rev]).to eq('0') }
         it { expect(subject.keys.length).to eq(2) }
       end
 
@@ -115,10 +115,10 @@ RSpec.describe BsRequestAction::Differ::QueryBuilderForSuperseded do
         end
         let!(:superseded_bs_request_action) { superseded_bs_request.bs_request_actions.first }
 
-        it { expect(subject[:orev]).to eq(superseded_bs_request_action.source_rev) }
+        it { expect(subject[:orev]).to eq('0') }
         it { expect(subject[:oproject]).to eq(superseded_bs_request_action.source_project) }
         it { expect(subject[:opackage]).to eq(superseded_bs_request_action.source_package) }
-        it { expect(subject[:rev]).to eq(bs_request_action.source_rev) }
+        it { expect(subject[:rev]).to eq('0') }
         it { expect(subject.keys.length).to eq(4) }
       end
     end
