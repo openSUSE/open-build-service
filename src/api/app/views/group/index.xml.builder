@@ -1,5 +1,5 @@
 xml.directory(count: @list.length) do
-  @list.each do |group|
+  @list.order(title: :asc).each do |group|
     xml.entry(name: group.title)
   end
 end
