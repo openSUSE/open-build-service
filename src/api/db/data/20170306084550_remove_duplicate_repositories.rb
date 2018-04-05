@@ -41,7 +41,6 @@ class RemoveDuplicateRepositories < ActiveRecord::Migration[5.1]
 
     execute('UPDATE repositories SET remote_project_name = "" WHERE remote_project_name is null')
     CONFIG['global_write_through'] = old
-    nil # rails migrations return nil
   end
 
   def down
