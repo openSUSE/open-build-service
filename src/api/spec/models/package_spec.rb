@@ -5,7 +5,6 @@ require 'rantly/rspec_extensions'
 # you uncomment the next line and start a test backend.
 # CONFIG['global_write_through'] = true
 
-# rubocop:disable Metrics/BlockLength
 RSpec.describe Package, vcr: true do
   let(:admin) { create(:admin_user) }
   let(:user) { create(:confirmed_user, login: 'tom') }
@@ -20,48 +19,6 @@ RSpec.describe Package, vcr: true do
   let(:other_user) { create(:confirmed_user, login: 'other_user') }
   let(:other_user2) { create(:confirmed_user, login: 'other_user2') }
   let(:other_user3) { create(:confirmed_user, login: 'other_user3') }
-  let(:fake_multibuild_results) do
-    Buildresult.new(
-      '<resultlist state="b006a28328744bf1186d2b6fb3006ecb">
-        <result project="home:tom" repository="openSUSE_Tumbleweed" arch="i586" code="finished" state="finished">
-          <status package="test_package" code="excluded" />
-          <status package="test_package:test_package-source" code="succeeded" />
-        </result>
-        <result project="home:tom" repository="openSUSE_Tumbleweed" arch="x86_64" code="building" state="building">
-          <status package="test_package" code="building" />
-          <status package="test_package:test_package-source" code="unresolvable" />
-        </result>
-        <result project="home:tom" repository="openSUSE_Leap_42.2" arch="x86_64" code="finished" state="finished">
-          <status package="test_package" code="succeded" />
-          <status package="test_package:test_package-source" code="disabled" />
-        </result>
-        <result project="home:Admin" repository="images" arch="i586" code="published" state="published">
-          <status package="test_package_image" code="broken">
-            <details>can not parse package name from test_package_image.kiwi because: repo url not using obs:/ scheme: http://download.opensuse.org/update/leap/42.1/oss/
-</details>
-          </status>
-        </result>
-        <result project="home:Admin" repository="images" arch="x86_64" code="published" state="published">
-          <status package="test_package_image" code="broken">
-            <details>can not parse package name from test_package_image.kiwi because: repo url not using obs:/ scheme: http://download.opensuse.org/update/leap/42.1/oss/
-</details>
-          </status>
-        </result>
-        <result project="home:Admin" repository="home_Admin_images" arch="i586" code="published" state="published">
-          <status package="test_package_image" code="broken">
-            <details>can not parse package name from test_package_image.kiwi because: repo url not using obs:/ scheme: http://download.opensuse.org/update/leap/42.1/oss/
-</details>
-          </status>
-        </result>
-        <result project="home:Admin" repository="home_Admin_images" arch="x86_64" code="published" state="published">
-          <status package="test_package_image" code="broken">
-            <details>can not parse package name from test_package_image.kiwi because: repo url not using obs:/ scheme: http://download.opensuse.org/update/leap/42.1/oss/
-</details>
-          </status>
-        </result>
-      </resultlist>'
-    )
-  end
 
   before do
     login(user)
@@ -310,105 +267,9 @@ RSpec.describe Package, vcr: true do
     end
   end
 
-  # WARNING: "#The buildresults" test has been stubbed because,
-  # in order to make it work without stubs it would be needed
-  # to mock the scheduler as it is done in the old test suite.
-  #
-  # The following code would be needed to get this working
-  # once we have a scheduler running in this test suite:
-  #
-  # user2 = create(:confirmed_user, login: 'usuario_prueba')
-  # login user2
-  # user2_home_project = user2.home_project
-  #
-  # home_project_repo = create(:repository, name: 'user2_home_project_repo', project: user2_home_project, architectures: ['i586'])
-  #
-  # project2 = create(:project, name: 'project2')
-  # project2.config.save({}, 'Type: spec')
-  # project2_repo = create(:repository, name: 'project2_repo', project: project2, architectures: ['i586'])
-  #
-  # create(:path_element, repository: home_project_repo, link: project2_repo)
-  # user2_home_project.store
-  #
-  # package_locallink = create(:package, name: 'locallink', project: user2_home_project)
-  #
-  # results = package_locallink.buildresults
-  #
-  context '#buildresults' do
-    let(:results_test_package) { results['test_package'] }
-    let(:results_test_package_source) { results['test_package:test_package-source'] }
-    let(:results_test_package_image) { results['test_package_image'] }
-    before do
-      allow(Buildresult).to receive(:find).and_return(fake_multibuild_results)
-    end
-
-    context 'without entries in state "excluded"' do
-      let(:results) do
-        results, _excluded_number = package.buildresults(home_project, false)
-        results
-      end
-
-      it { expect(results.keys).to match_array(['test_package', 'test_package:test_package-source', 'test_package_image']) }
-
-      it { expect(results_test_package.length).to eq(2) }
-
-      it { expect(results_test_package.first.repository).to eq('openSUSE_Leap_42.2') }
-      it { expect(results_test_package.first.architecture).to eq('x86_64') }
-      it { expect(results_test_package.first.code).to eq('succeded') }
-      it { expect(results_test_package.first.state).to eq('finished') }
-      it { expect(results_test_package.first.details).to be_nil }
-      it { expect(results_test_package.last.repository).to eq('openSUSE_Tumbleweed') }
-      it { expect(results_test_package.last.architecture).to eq('x86_64') }
-      it { expect(results_test_package.last.code).to eq('building') }
-      it { expect(results_test_package.last.state).to eq('building') }
-      it { expect(results_test_package.last.details).to be_nil }
-
-      it { expect(results_test_package_source.length).to eq(3) }
-
-      it { expect(results_test_package_source.first.repository).to eq('openSUSE_Leap_42.2') }
-      it { expect(results_test_package_source.first.architecture).to eq('x86_64') }
-      it { expect(results_test_package_source.first.code).to eq('disabled') }
-      it { expect(results_test_package_source.first.state).to eq('finished') }
-      it { expect(results_test_package_source.first.details).to be_nil }
-
-      it { expect(results_test_package_image.length).to eq(4) }
-
-      it { expect(results_test_package_image.first.repository).to eq('home_Admin_images') }
-      it { expect(results_test_package_image.first.architecture).to eq('i586') }
-      it { expect(results_test_package_image.first.code).to eq('broken') }
-      it { expect(results_test_package_image.first.state).to eq('published') }
-      it { expect(results_test_package_image.first.details).not_to be_nil }
-    end
-
-    context 'with entries in state "excluded"' do
-      let(:results) do
-        results, _excluded_number = package.buildresults(home_project, true)
-        results
-      end
-
-      it { expect(results.keys).to match_array(['test_package', 'test_package:test_package-source', 'test_package_image']) }
-      it { expect(results_test_package.length).to eq(3) }
-
-      it { expect(results_test_package.first.repository).to eq('openSUSE_Leap_42.2') }
-      it { expect(results_test_package.first.architecture).to eq('x86_64') }
-      it { expect(results_test_package.first.code).to eq('succeded') }
-      it { expect(results_test_package.first.state).to eq('finished') }
-      it { expect(results_test_package.first.details).to be_nil }
-
-      it { expect(results_test_package.second.repository).to eq('openSUSE_Tumbleweed') }
-      it { expect(results_test_package.second.architecture).to eq('i586') }
-      it { expect(results_test_package.second.code).to eq('excluded') }
-      it { expect(results_test_package.second.state).to eq('finished') }
-      it { expect(results_test_package.second.details).to be_nil }
-
-      it { expect(results_test_package.last.repository).to eq('openSUSE_Tumbleweed') }
-      it { expect(results_test_package.last.architecture).to eq('x86_64') }
-      it { expect(results_test_package.last.code).to eq('building') }
-      it { expect(results_test_package.last.state).to eq('building') }
-      it { expect(results_test_package.last.details).to be_nil }
-
-      it { expect(results_test_package_source.length).to eq(3) }
-      it { expect(results_test_package_image.length).to eq(4) }
+  context '#buildresult' do
+    it 'returns an object with class LocalBuildResult::ForPackage' do
+      expect(package.buildresult(home_project).class).to eq(LocalBuildResult::ForPackage)
     end
   end
 
@@ -773,4 +634,3 @@ Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
     it_behaves_like 'makes a user a maintainer of the subject'
   end
 end
-# rubocop:enable Metrics/BlockLength
