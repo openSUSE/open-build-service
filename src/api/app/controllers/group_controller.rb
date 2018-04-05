@@ -29,7 +29,7 @@ class GroupController < ApplicationController
     else
       @list = Group.all
     end
-    @list = @list.find_all { |group| group.title.starts_with? params[:prefix] } if params[:prefix]
+    @list = @list.where('title LIKE ?', "#{params[:prefix]}%") if params[:prefix].present?
   end
 
   # DELETE for removing it
