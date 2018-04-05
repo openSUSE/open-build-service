@@ -5,7 +5,7 @@ module Event
     payload_keys :author, :comment, :description, :number, :actions, :state, :when, :who
     shortenable_key :description
 
-    DiffLimit = 120
+    DIFF_LIMIT = 120
 
     def self.message_number(number)
       "<obs-request-#{number}@#{message_domain}>"
@@ -85,9 +85,9 @@ module Event
         next unless diff
         diff = diff.lines
         dl = diff.length
-        if dl > DiffLimit
-          diff = diff[0..DiffLimit]
-          diff << "[cut #{dl - DiffLimit} lines to limit mail size]"
+        if dl > DIFF_LIMIT
+          diff = diff[0..DIFF_LIMIT]
+          diff << "[cut #{dl - DIFF_LIMIT} lines to limit mail size]"
         end
         a['diff'] = diff.join
       end
