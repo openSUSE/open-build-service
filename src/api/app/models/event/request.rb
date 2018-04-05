@@ -81,13 +81,12 @@ module Event
 
       ret = payload
       payload['actions'].each do |a|
-        diff = calculate_diff(a)
+        diff = calculate_diff(a).try(:lines)
         next unless diff
-        diff = diff.lines
-        dl = diff.length
-        if dl > DIFF_LIMIT
+        diff_length = diff.length
+        if diff_length > DIFF_LIMIT
           diff = diff[0..DIFF_LIMIT]
-          diff << "[cut #{dl - DIFF_LIMIT} lines to limit mail size]"
+          diff << "[cut #{diff_length - DIFF_LIMIT} lines to limit mail size]"
         end
         a['diff'] = diff.join
       end
