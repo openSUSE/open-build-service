@@ -85,6 +85,20 @@ namespace :dev do
       Rake::Task['haml_lint'].invoke
     end
   end
+  namespace :ahm do
+    desc 'Configure the rails app to publish application health monitoring stats'
+    task :configure do
+      copy_example_file('config/options.yml')
+      options_yml = YAML.load_file('config/options.yml') || {}
+      options_yml['amqp_namespace'] = 'opensuse.obs'
+      options_yml['amqp_options'] = { host: 'rabbit', port: '5672', user: 'guest', pass: 'guest', vhost: '/' }
+      options_yml['amqp_exchange_name'] = 'pubsub'
+      options_yml['amqp_exchange_options'] = { type: :topic, persistent: 'true', passive: 'true' }
+      File.open('config/options.yml', 'w') do |f|
+        f.write(YAML.dump(options_yml))
+      end
+    end
+  end
 end
 
 def copy_example_file(example_file)

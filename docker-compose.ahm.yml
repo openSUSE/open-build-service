@@ -1,0 +1,35 @@
+version: "2.1"
+services:
+  influx:
+    image: influxdb
+    environment:
+      - INFLUXDB_DB=telegraf
+      - INFLUXDB_USER=telegraf
+      - INFLUXDB_USER_PASSWORD=telegraf
+      - INFLUXDB_READ_USER=grafana
+      - INFLUXDB_READ_USER_PASSWORD=grafana
+  rabbit:
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672"
+    # This is a simple hack to give rabbitmq 10 seconds
+    # to get up and running. Otherwise grafana tries to
+    # connect too soon and crashes.
+    healthcheck:
+      test: sleep 10
+      interval: 12s
+      timeout: 11s
+      retries: 1
+  telegraf:
+    image: telegraf
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    volumes:
+      - ./contrib/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "8000:3000"
+    depends_on:
+      - influx
