@@ -23,9 +23,23 @@
 
 <div id="log_space_wrapper"
      data-url="<%= url_for(action: :update_build_log,
-		   package: @package, project: @project,
-                   status: @status,
-                   arch: @arch, repository: @repo) %>">
+                           package: @package, project: @project,
+                           status: @status,
+                           arch: @arch, repository: @repo) %>">
+  <div id='log-info'>
+    <div class='running stop_refresh hidden'>
+      <%= image_tag 'ajax-loader.gif' %>
+      Running...
+    </div/>
+    <div class='paused start_refresh hidden'>
+      <%= sprite_tag 'time_error' %>
+      Paused
+    </div/>
+    <div class='finished hidden'>
+      <%= sprite_tag 'tick' %>
+      Finished
+    </div/>
+  </div>
   <pre id="log_space"></pre>
 </div>
 
@@ -34,5 +48,5 @@
 <% end %>
 
 <%= content_for :ready_function do %>
-  liveLog = new LiveLog('#log_space_wrapper', '.start_refresh', '.stop_refresh', '#status', <%= @finished %>).initialize();
+  liveLog = new LiveLog('#log_space_wrapper', '.start_refresh', '.stop_refresh', '#status', <%= @finished %>, '#log-info').initialize();
 <% end -%>
