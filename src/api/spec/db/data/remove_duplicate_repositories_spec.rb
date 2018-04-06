@@ -52,7 +52,7 @@ RSpec.describe RemoveDuplicateRepositories, type: :migration do
     it 'removes the local and duplicate repository' do
       expect do
         data_migration.up
-      end.to change { Repository.count }.by(-1)
+      end.to change(Repository, :count).by(-1)
 
       expect(Repository.all).to include(repository)
       expect(Repository.all).to include(remote_repository)
