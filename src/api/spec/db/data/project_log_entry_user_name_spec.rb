@@ -1,5 +1,5 @@
 require 'rails_helper'
-require_relative '../../db/data/20180214132015_project_log_entry_user_name.rb'
+require_relative '../../../db/data/20180214132015_project_log_entry_user_name.rb'
 
 RSpec.feature 'ProjectLogEntryUserName', type: :model do
   let(:user) { create(:confirmed_user) }
