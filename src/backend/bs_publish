@@ -1541,7 +1541,7 @@ sub publish {
   	    upload_container($r, "$1.containerinfo", $bin, $projid, $repoid, $arch, $notary_uploads);
             next;
           }
-	  $p = "$bin" unless $bin =~ /-(?:appstream|desktopfiles)\.tar/;
+	  $p = "$bin" unless $bin =~ /-(?:appstream|desktopfiles|polkitactions|mimetypes)\.tar/;
         } elsif ($bin =~ /\.(?:tgz|zip)?(?:\.sha256)?$/) {
           # esp. for Go builds
           $p = "$bin";
