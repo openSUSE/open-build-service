@@ -1598,7 +1598,7 @@ sub publish {
 	    warn("$@") if $@;
 	    $containerinfo->{'arch'} = $arch if $containerinfo;
           }
-	  $p = "$bin" unless $bin =~ /-(?:appstream|desktopfiles)\.tar/;
+	  $p = "$bin" unless $bin =~ /-(?:appstream|desktopfiles|polkitactions|mimetypes)\.tar/;
         } elsif ($bin =~ /\.(?:tgz|zip)?(?:\.sha256)?$/) {
           # esp. for Go builds
           $p = "$bin";
