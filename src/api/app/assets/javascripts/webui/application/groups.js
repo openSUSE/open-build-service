@@ -2,7 +2,7 @@ $(document).ready(function(){
   $('#group-members-table').dataTable();
   $('.header-tabs li a').click(function() {
     // Select tab
-    $('.header-tabs li').removeClass('selected');
+    $(this).closest('ul').children('li').removeClass('selected');
     $(this).parent().addClass('selected');
     // Show and hide content
     var id = $(this).data("id");
