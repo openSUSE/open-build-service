@@ -1,0 +1,568 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/_meta?user=request_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:request_user">
+          <title/>
+          <description/>
+          <person userid="request_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '147'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:request_user">
+          <title></title>
+          <description></description>
+          <person userid="request_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 07:56:35 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_encoding_1/_meta?user=request_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_encoding_1" project="home:request_user">
+          <title>The Sun Also Rises</title>
+          <description>Ea et sit officiis amet ut.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_encoding_1" project="home:request_user">
+          <title>The Sun Also Rises</title>
+          <description>Ea et sit officiis amet ut.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 07:56:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_encoding_1/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_encoding_1" project="home:request_user">
+          <title>The Sun Also Rises</title>
+          <description>Ea et sit officiis amet ut.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_encoding_1" project="home:request_user">
+          <title>The Sun Also Rises</title>
+          <description>Ea et sit officiis amet ut.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 07:56:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_encoding_1/_config
+    body:
+      encoding: UTF-8
+      string: Culpa maiores molestiae et consequuntur asperiores. Dolorum ut eos laboriosam
+        earum nisi dolorem magnam. Velit quod ea sint in impedit.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3" vrev="3">
+          <srcmd5>0f48369641b2e7198f224f17edac2230</srcmd5>
+          <version>unknown</version>
+          <time>1523001407</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 07:56:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_encoding_1/somefile.txt
+    body:
+      encoding: UTF-8
+      base64_string: 'LXuiOvoqo3EQwlhcnQ==
+
+'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>0f48369641b2e7198f224f17edac2230</srcmd5>
+          <version>unknown</version>
+          <time>1523001407</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 07:56:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_encoding_2/_meta?user=request_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_encoding_2" project="home:request_user">
+          <title>The World, the Flesh and the Devil</title>
+          <description>Pariatur sunt iure dolores voluptatem ut id eveniet temporibus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '220'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_encoding_2" project="home:request_user">
+          <title>The World, the Flesh and the Devil</title>
+          <description>Pariatur sunt iure dolores voluptatem ut id eveniet temporibus.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 07:56:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_encoding_2/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_encoding_2" project="home:request_user">
+          <title>The World, the Flesh and the Devil</title>
+          <description>Pariatur sunt iure dolores voluptatem ut id eveniet temporibus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '220'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_encoding_2" project="home:request_user">
+          <title>The World, the Flesh and the Devil</title>
+          <description>Pariatur sunt iure dolores voluptatem ut id eveniet temporibus.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 07:56:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_encoding_2/_config
+    body:
+      encoding: UTF-8
+      string: Voluptatem dolores fugiat sit molestiae sed necessitatibus. Excepturi
+        eaque itaque odit exercitationem iure quae. Temporibus et doloremque dolor
+        omnis aut ut quos.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3" vrev="3">
+          <srcmd5>7f0345be05d70bf7572c566e466cd1d3</srcmd5>
+          <version>unknown</version>
+          <time>1523001407</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 07:56:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/package_encoding_2/somefile.txt
+    body:
+      encoding: UTF-8
+      string: test
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>7f0345be05d70bf7572c566e466cd1d3</srcmd5>
+          <version>unknown</version>
+          <time>1523001407</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 07:56:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:request_user/package_encoding_2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '305'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_encoding_2" rev="4" vrev="4" srcmd5="7f0345be05d70bf7572c566e466cd1d3">
+          <entry name="_config" md5="01a3ff5fce16b3977f84fc7e5788ac53" size="163" mtime="1523001407" />
+          <entry name="somefile.txt" md5="098f6bcd4621d373cade4e832627b4f6" size="4" mtime="1522934507" />
+        </directory>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 07:56:47 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:request_user/package_encoding_2?cmd=diff&expand=1&filelimit=10000&opackage=package_encoding_1&oproject=home:request_user&tarlimit=10000
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '558'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        CisrKysrKyBfY29uZmlnCi0tLSBfY29uZmlnCisrKyBfY29uZmlnCkBAIC0xLDEgKzEsMSBAQAotQ3VscGEgbWFpb3JlcyBtb2xlc3RpYWUgZXQgY29uc2VxdXVudHVyIGFzcGVyaW9yZXMuIERvbG9ydW0gdXQgZW9zIGxhYm9yaW9zYW0gZWFydW0gbmlzaSBkb2xvcmVtIG1hZ25hbS4gVmVsaXQgcXVvZCBlYSBzaW50IGluIGltcGVkaXQuClwgTm8gbmV3bGluZSBhdCBlbmQgb2YgZmlsZQorVm9sdXB0YXRlbSBkb2xvcmVzIGZ1Z2lhdCBzaXQgbW9sZXN0aWFlIHNlZCBuZWNlc3NpdGF0aWJ1cy4gRXhjZXB0dXJpIGVhcXVlIGl0YXF1ZSBvZGl0IGV4ZXJjaXRhdGlvbmVtIGl1cmUgcXVhZS4gVGVtcG9yaWJ1cyBldCBkb2xvcmVtcXVlIGRvbG9yIG9tbmlzIGF1dCB1dCBxdW9zLgpcIE5vIG5ld2xpbmUgYXQgZW5kIG9mIGZpbGUKCisrKysrKyBzb21lZmlsZS50eHQKLS0tIHNvbWVmaWxlLnR4dAorKysgc29tZWZpbGUudHh0CkBAIC0xICsxIEBACi0te6I6+iqjcRDCWFydClwgTm8gbmV3bGluZSBhdCBlbmQgb2YgZmlsZQordGVzdApcIE5vIG5ld2xpbmUgYXQgZW5kIG9mIGZpbGUK
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 07:56:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:request_user/package_encoding_2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '305'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_encoding_2" rev="4" vrev="4" srcmd5="7f0345be05d70bf7572c566e466cd1d3">
+          <entry name="_config" md5="01a3ff5fce16b3977f84fc7e5788ac53" size="163" mtime="1523001407" />
+          <entry name="somefile.txt" md5="098f6bcd4621d373cade4e832627b4f6" size="4" mtime="1522934507" />
+        </directory>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 07:57:12 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:request_user/package_encoding_2?cmd=diff&expand=1&filelimit=10000&opackage=package_encoding_1&oproject=home:request_user&tarlimit=10000
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Content-Length:
+      - '558'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        CisrKysrKyBfY29uZmlnCi0tLSBfY29uZmlnCisrKyBfY29uZmlnCkBAIC0xLDEgKzEsMSBAQAotQ3VscGEgbWFpb3JlcyBtb2xlc3RpYWUgZXQgY29uc2VxdXVudHVyIGFzcGVyaW9yZXMuIERvbG9ydW0gdXQgZW9zIGxhYm9yaW9zYW0gZWFydW0gbmlzaSBkb2xvcmVtIG1hZ25hbS4gVmVsaXQgcXVvZCBlYSBzaW50IGluIGltcGVkaXQuClwgTm8gbmV3bGluZSBhdCBlbmQgb2YgZmlsZQorVm9sdXB0YXRlbSBkb2xvcmVzIGZ1Z2lhdCBzaXQgbW9sZXN0aWFlIHNlZCBuZWNlc3NpdGF0aWJ1cy4gRXhjZXB0dXJpIGVhcXVlIGl0YXF1ZSBvZGl0IGV4ZXJjaXRhdGlvbmVtIGl1cmUgcXVhZS4gVGVtcG9yaWJ1cyBldCBkb2xvcmVtcXVlIGRvbG9yIG9tbmlzIGF1dCB1dCBxdW9zLgpcIE5vIG5ld2xpbmUgYXQgZW5kIG9mIGZpbGUKCisrKysrKyBzb21lZmlsZS50eHQKLS0tIHNvbWVmaWxlLnR4dAorKysgc29tZWZpbGUudHh0CkBAIC0xICsxIEBACi0te6I6+iqjcRDCWFydClwgTm8gbmV3bGluZSBhdCBlbmQgb2YgZmlsZQordGVzdApcIE5vIG5ld2xpbmUgYXQgZW5kIG9mIGZpbGUK
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 07:57:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:request_user/package_encoding_2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '305'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_encoding_2" rev="4" vrev="4" srcmd5="7f0345be05d70bf7572c566e466cd1d3">
+          <entry name="_config" md5="01a3ff5fce16b3977f84fc7e5788ac53" size="163" mtime="1523001407" />
+          <entry name="somefile.txt" md5="098f6bcd4621d373cade4e832627b4f6" size="4" mtime="1522934507" />
+        </directory>
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 07:57:19 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:request_user/package_encoding_2?cmd=diff&expand=1&filelimit=10000&opackage=package_encoding_1&oproject=home:request_user&tarlimit=10000
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Content-Length:
+      - '558'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        CisrKysrKyBfY29uZmlnCi0tLSBfY29uZmlnCisrKyBfY29uZmlnCkBAIC0xLDEgKzEsMSBAQAotQ3VscGEgbWFpb3JlcyBtb2xlc3RpYWUgZXQgY29uc2VxdXVudHVyIGFzcGVyaW9yZXMuIERvbG9ydW0gdXQgZW9zIGxhYm9yaW9zYW0gZWFydW0gbmlzaSBkb2xvcmVtIG1hZ25hbS4gVmVsaXQgcXVvZCBlYSBzaW50IGluIGltcGVkaXQuClwgTm8gbmV3bGluZSBhdCBlbmQgb2YgZmlsZQorVm9sdXB0YXRlbSBkb2xvcmVzIGZ1Z2lhdCBzaXQgbW9sZXN0aWFlIHNlZCBuZWNlc3NpdGF0aWJ1cy4gRXhjZXB0dXJpIGVhcXVlIGl0YXF1ZSBvZGl0IGV4ZXJjaXRhdGlvbmVtIGl1cmUgcXVhZS4gVGVtcG9yaWJ1cyBldCBkb2xvcmVtcXVlIGRvbG9yIG9tbmlzIGF1dCB1dCBxdW9zLgpcIE5vIG5ld2xpbmUgYXQgZW5kIG9mIGZpbGUKCisrKysrKyBzb21lZmlsZS50eHQKLS0tIHNvbWVmaWxlLnR4dAorKysgc29tZWZpbGUudHh0CkBAIC0xICsxIEBACi0te6I6+iqjcRDCWFydClwgTm8gbmV3bGluZSBhdCBlbmQgb2YgZmlsZQordGVzdApcIE5vIG5ld2xpbmUgYXQgZW5kIG9mIGZpbGUK
+    http_version: 
+  recorded_at: Fri, 06 Apr 2018 07:57:19 GMT
+recorded_with: VCR 4.0.0

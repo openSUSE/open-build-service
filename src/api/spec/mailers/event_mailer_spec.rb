@@ -52,19 +52,6 @@ RSpec.describe EventMailer, vcr: true do
         expect(mail['From'].value).to eq('OBS Notification <unconfigured@openbuildservice.org>')
       end
 
-      context 'using different encodings' do
-        let(:source_package) do
-          create(:package_with_file, name: 'source_package', project: source_project, file_content: 'Some string: áéíóú'.force_encoding('ASCII-8BIT'))
-        end
-        let(:bs_request) do
-          create(:bs_request, bs_request_actions: [bs_request_action_submit], description: 'Some other string: áéíóú.'.force_encoding('UTF-8'))
-        end
-
-        it 'does not throw an "incompatible character encodings" exception' do
-          expect { EventMailer.event(event.subscribers, event).deliver_now }.not_to raise_error
-        end
-      end
-
       it 'uses display name for FROM if originator exists' do
         expect(mail.from).to include(originator.email)
         expect(mail['From'].value).to eq(originator.display_name)
