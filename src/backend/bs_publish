@@ -2686,7 +2686,7 @@ sub upload_to_registry {
     print "adding notary upload for $gun/$reponame: $repotag\n";
     $notary_uploads->{"$gun/$reponame"}->{$repotag} = $config;
   }
-  return "docker://$config->{server}/$reponame:$repotag"
+  return "$config->{server}/$reponame:$repotag"
 }
 
 sub upload_to_notary {
