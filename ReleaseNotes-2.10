@@ -50,6 +50,9 @@ Frontend:
    - operation happen atomic for entire project now
    - support release of single multibuild container
  * Ec2 cloud upload support for ec2 images
+ * Improved UI/UX for package live build log:
+    * Show a hint to know what is happening.
+    * Clicking on the hint can starts or stop the loading of the content.
 
 Backend:
  * Support showing source files in blame view (works also via links).
