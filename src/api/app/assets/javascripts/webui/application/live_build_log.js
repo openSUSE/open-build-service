@@ -1,4 +1,4 @@
-var LiveLog = function(wrapperId, startButton, stopButton, status, finished) {
+var LiveLog = function(wrapperId, startButton, stopButton, status, finished, info) {
   this.wrapper = $(wrapperId);
   this.startButton = $(startButton);
   this.stopButton = $(stopButton);
@@ -8,12 +8,14 @@ var LiveLog = function(wrapperId, startButton, stopButton, status, finished) {
   this.ajaxRequest = 0;
   this.offset = 0;
   this.finished = finished;
+  this.logInfo = $(info);
 };
 
 $.extend(LiveLog.prototype, {
   initialize: function() {
     this.startButton.click($.proxy(this.start, this));
     this.stopButton.click($.proxy(this.stop, this));
+    this.checkScroll();
     this.start();
     this.initial = false;
     return this;
@@ -24,6 +26,7 @@ $.extend(LiveLog.prototype, {
       this.autoRefresh = true;
       this.lastScroll = 0;
       this.loadContent();
+      this.indicatorStatus('running');
       this.startButton.hide();
       this.stopButton.show();
     }
@@ -32,6 +35,7 @@ $.extend(LiveLog.prototype, {
 
   stop: function() {
     this.autoRefresh = false;
+    this.indicatorStatus('paused');
     this.stopAjaxRequest();
     this.stopButton.hide();
     this.startButton.show();
@@ -41,6 +45,7 @@ $.extend(LiveLog.prototype, {
   loadContent: function() {
     if (this.autoRefresh) {
       var url = this.wrapper.data('url') + '&offset=' + this.offset + ';&' + 'initial=' + (this.initial ? '1' : '0');
+
       this.ajaxRequest = $.ajax({
         type: 'GET',
         url: url,
@@ -65,6 +70,7 @@ $.extend(LiveLog.prototype, {
     this.finished = true;
     this.stop();
     this.status.html('Build finished');
+    this.indicatorStatus('finished');
     this.hideAbort();
   },
 
@@ -82,5 +88,19 @@ $.extend(LiveLog.prototype, {
   hideAbort: function() { // jshint ignore:line
     $(".link_abort_build").hide();
     $(".link_trigger_rebuild").show();
+  },
+
+  indicatorStatus: function(status) { // jshint ignore:line
+    this.logInfo.children().hide();
+    this.logInfo.children('.' + status).show();
+  },
+
+  checkScroll: function() {
+    var element = this;
+    $(window).scroll(function() {
+      var cssStyle = $(document).scrollTop() > element.wrapper.offset().top ? 'fixed' : 'initial';
+      element.logInfo.css('position', cssStyle);
+    });
   }
 });
+

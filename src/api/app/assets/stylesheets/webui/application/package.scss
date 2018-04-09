@@ -91,3 +91,39 @@ table.repostatus td {
   border-bottom: 1px solid #eee;
   padding: 3px 5px;
 }
+
+#log_space_wrapper {
+  #log-info {
+    width: 920px;
+    top: 0;
+    display: block;
+    margin: 0 10px;
+    text-align: center;
+    cursor: pointer;
+
+    .running {
+      padding: 10px 0;
+      background: #b0e0e6;
+      border: 1px solid #749ca1;
+      &:hover {
+        background: #92ced5;
+      }
+     }
+
+    .paused {
+      padding: 10px 0;
+      background: #dedede;
+      border: 1px solid #a7a7a7;
+      &:hover {
+        background: #d4d2d2;
+      }
+     }
+
+    .finished {
+      cursor: default;
+      padding: 10px 0;
+      background: #bdffbd;
+      border: 1px solid #83bf83;
+     }
+   }
+ }
