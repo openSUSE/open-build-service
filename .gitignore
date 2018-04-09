@@ -50,6 +50,7 @@
 /src/backend/sat-solver
 /src/backend/t/tmp
 docker-compose.override.yml
+contrib/rabbitmqadmin
 
 # All the other crap that fits nowhere specifically
 *~
