@@ -1,5 +1,5 @@
 <% if a['group'].blank? -%>
 - set the bugowner of <%= project_or_package_text(a['targetproject'], a['targetpackage']) %> to <%= a['person'] -%>
 <% else -%>
-- set the bugowner of <%= project_or_package_text(a['targetproject'], a['targetpackage']) %> to group <%= a[' group'] -%>
+- set the bugowner of <%= project_or_package_text(a['targetproject'], a['targetpackage']) %> to group <%= a['group'] -%>
 <% end -%>
