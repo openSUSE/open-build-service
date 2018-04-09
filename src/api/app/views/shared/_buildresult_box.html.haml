@@ -28,8 +28,6 @@
   - if controller == 'package'
     :plain
       $('.result_select_link_#{index}').click(function (event) {
-        $('#result_select_#{index} li.selected').attr('class', '');
-        $(event.target).parent().attr('class', 'selected')
         $('.result_display_#{index}').hide();
         $('.result_reload_#{index}').hide();
         var tab_index = event.target.id.split('result_select_link_#{index}_')[1];
