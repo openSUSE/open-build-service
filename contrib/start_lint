@@ -1,0 +1,8 @@
+#!/bin/bash
+echo "Installing bundle..."
+export NOKOGIRI_USE_SYSTEM_LIBRARIES=1; bundle install --jobs=3 --retry=3 || bundle install --jobs=3 --retry=3
+sudo npm install -g jshint
+echo "Preparing application..."
+bundle exec rake dev:bootstrap RAILS_ENV=test &> /dev/null
+echo "Running linter..."
+bundle exec rake dev:lint RAILS_ENV=test
