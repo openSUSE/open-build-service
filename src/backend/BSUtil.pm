@@ -101,6 +101,16 @@ sub appendstr {
   close(F) || die("$fn close: $!\n");
 }
 
+=head2 readstr - read file and return content as string
+
+  my $fn = "/path/to/filename.txt";
+
+  my $nonfatal = 1; # will die if cannot open file and nonfatal is not set
+ 
+  my $str = readstr($fn, $nonfatal);
+
+=cut
+
 sub readstr {
   my ($fn, $nonfatal) = @_;
   local *F;
