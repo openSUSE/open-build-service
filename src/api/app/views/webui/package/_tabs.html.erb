@@ -8,14 +8,14 @@
 <div class="box-header header-tabs" id="package_tabs">
   <ul>
     <% if @package.name == "patchinfo" %>
-      <%= tab 'details', 'Details', :controller => '/webui/patchinfo', :action => 'show' %>
+      <%= tab 'details', 'Details', :controller => :patchinfo, :action => 'show' %>
     <% end %>
-    <%= tab 'overview', 'Overview', :controller => '/webui/package', :action => 'show' %>
+    <%= tab 'overview', 'Overview', :controller => :package, :action => 'show' %>
     <% unless @spider_bot -%>
-      <%= tab 'repositories', 'Repositories', :controller => '/webui/repositories', :action => 'index' %>
-      <%= tab 'revisions', 'Revisions', :controller => '/webui/package', :action => 'revisions' %>
-      <%= tab 'requests', "Requests", :controller => '/webui/package', :action => 'requests' %>
-      <%= tab 'users', 'Users', :controller => '/webui/package', :action => 'users' %>
+      <%= tab 'repositories', 'Repositories', :controller => :repositories, :action => 'index' %>
+      <%= tab 'revisions', 'Revisions', :controller => :package, :action => 'revisions' %>
+      <%= tab 'requests', "Requests", :controller => :package, :action => 'requests' %>
+      <%= tab 'users', 'Users', :controller => :package, :action => 'users' %>
     <% end -%>
     <% if is_advanced_tab? %>
       <%= content_for :ready_function do %>
@@ -28,8 +28,8 @@
   <% unless @spider_bot -%>
     <div id="advanced_tabs" class="hidden">
       <ul>
-        <%= tab 'attributes', 'Attributes', controller: '/webui/attribute', :package => @package, :project => @project, :action => 'index' %>
-        <%= tab 'meta', 'Meta', :controller => '/webui/package', :action => 'meta' %>
+        <%= tab 'attributes', 'Attributes', controller: :attribute, :package => @package, :project => @project, :action => 'index' %>
+        <%= tab 'meta', 'Meta', :controller => :package, :action => 'meta' %>
       </ul>
     </div>
   <% end -%>
