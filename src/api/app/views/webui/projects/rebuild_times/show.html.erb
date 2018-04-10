@@ -1,7 +1,7 @@
 <% @pagetitle = "Rebuild time for Project #{@project}" %>
 <% project_bread_crumb( "Rebuild Time of #{@repository}/#{@arch}" ) -%>
 
-<%= render :partial => 'tabs' %>
+<%= render :partial => 'webui/project/tabs' %>
 
 <h3>Rebuildtime: <%= distance_of_time_in_words(Time.now, Time.now - @rebuildtime) %> (<%= format_seconds(@rebuildtime) %>)</h3>
 <p><img class="rebuildgraph" src="<%= url_for(:action => :rebuild_time_png, :key => @pngkey) %>" alt="Rebuild graph" /></p>
