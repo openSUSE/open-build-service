@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class MessageController < ApplicationController
   validate_action show: { response: :messages }
   validate_action list: { response: :messages }

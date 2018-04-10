@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 RSpec.shared_context 'a kiwi image xml' do
   let(:kiwi_xml) do
     <<-XML.strip_heredoc

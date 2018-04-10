@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # define our current api version
 api_version = '2.8.50'
 

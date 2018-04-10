@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Backend
   # Class that implements a logger to write output in the backend logs
   class Logger

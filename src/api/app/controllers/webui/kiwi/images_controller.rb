@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Webui
   module Kiwi
     class ImagesController < WebuiController

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Backend::File model to represent files that belongs to the package in the backend
 class PackageFile < Backend::File
   attr_accessor :project_name, :package_name

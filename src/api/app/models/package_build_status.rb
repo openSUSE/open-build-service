@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class PackageBuildStatus
   class NoRepositoriesFound < APIException
     setup 404, 'No repositories build against target'

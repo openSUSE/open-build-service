@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 namespace :user do
   desc 'Give admin permissions to existing user'
   task give_admin_rights: :environment do

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_dependency 'activexml/activexml'
 
 CONFIG['source_protocol'] ||= 'http'

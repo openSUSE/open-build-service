@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'rantly/rspec_extensions'
 # WARNING: If you need to make a Backend call uncomment the following line

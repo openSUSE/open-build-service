@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class EventSubscription
   class FindForEvent
     attr_reader :event

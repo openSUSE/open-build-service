@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class AddHasSecurePasswordSupport < ActiveRecord::Migration[5.1]
   def change
     rename_column :users, :password, :deprecated_password

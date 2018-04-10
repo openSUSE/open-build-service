@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Build
   class FileController < ApplicationController
     before_action :check_user_has_permission

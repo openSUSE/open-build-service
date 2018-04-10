@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Webui::SearchHelper
   # @param [Hash] names a hash with roles as keys and an array of names as
   #         value. That is {"roletitle1" => ["name1", "name2"]}

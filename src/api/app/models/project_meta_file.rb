@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class ProjectMetaFile < ProjectFile
   def initialize(attributes = {})
     super

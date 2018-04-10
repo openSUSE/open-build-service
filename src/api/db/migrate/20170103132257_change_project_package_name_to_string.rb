@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class ChangeProjectPackageNameToString < ActiveRecord::Migration[5.0]
   def change
     execute 'UPDATE projects SET name = SUBSTR(name, 1, 200)'

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 builder.package(package.header) do
   package.fails.each do |repository, _architecture, time, md5|
     builder.failure(repo: repository, time: time, srcmd5: md5)

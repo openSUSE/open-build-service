@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module GetFlags
   # FIXME: All of this would not be needed if creating an Package/Project would create all
   #        the build, publish, debuginfo and useforbuild Flags. The only reason

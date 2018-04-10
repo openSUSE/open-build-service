@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_relative '../attribute_descriptions'
 
 class PlannedReleaseAttribute < ActiveRecord::Migration[4.2]

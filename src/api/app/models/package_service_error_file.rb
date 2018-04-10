@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class PackageServiceErrorFile < PackageFile
   def initialize(attributes = {})
     super

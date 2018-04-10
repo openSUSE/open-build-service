@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class SplitReviewReferences < ActiveRecord::Migration[5.1]
   def up
     # Migrate by_user reviews

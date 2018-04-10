@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'fileutils'
 
 # Create important directories that are needed at runtime

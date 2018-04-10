@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class CreateEc2Configuration < ActiveRecord::Migration[5.1]
   def change
     create_table :cloud_ec2_configurations, id: :integer do |t|

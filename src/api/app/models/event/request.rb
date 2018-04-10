@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Event
   class Request < Base
     self.description = 'Request was updated'

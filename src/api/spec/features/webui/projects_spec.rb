@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'browser_helper'
 
 RSpec.feature 'Projects', type: :feature, js: true do

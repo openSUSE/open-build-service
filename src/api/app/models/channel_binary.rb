@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class ChannelBinary < ApplicationRecord
   belongs_to :channel_binary_list
   belongs_to :project

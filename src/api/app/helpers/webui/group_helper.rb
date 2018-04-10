@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Webui::GroupHelper
   def group_management_label
     if User.current.is_admin?

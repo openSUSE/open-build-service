@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class ReEncodeEventPayloads < ActiveRecord::Migration[5.1]
   def up
     # Re-encode the events that creates notifications for using only one encoder (ActiveSupport::JSON)

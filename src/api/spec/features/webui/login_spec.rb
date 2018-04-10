@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'browser_helper'
 require 'gssapi'
 require 'ldap'

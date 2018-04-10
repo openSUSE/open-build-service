@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # A project that has a remote url set
 class RemoteProject < Project
   validates :title, :description, :remoteurl, presence: true

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 FactoryBot.define do
   factory :ec2_configuration, class: Cloud::Ec2::Configuration do
     user

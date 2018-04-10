@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Statistics
   class MaintenanceStatistic
     include ActiveModel::Model

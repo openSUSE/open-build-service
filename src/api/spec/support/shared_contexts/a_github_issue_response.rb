@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 RSpec.shared_context 'a github issue response' do
   let(:github_issues_json) do
     <<-JSON

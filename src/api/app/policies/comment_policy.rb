@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class CommentPolicy < ApplicationPolicy
   def initialize(user, record)
     raise Pundit::NotAuthorizedError, 'record does not exist' unless record

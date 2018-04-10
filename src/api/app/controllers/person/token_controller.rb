@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'xmlhash'
 module Person
   class TokenController < ApplicationController

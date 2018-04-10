@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class SimplifyUserStates < ActiveRecord::Migration[4.2]
   def self.up
     # new state enum

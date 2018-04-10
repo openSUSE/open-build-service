@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 namespace :assets do
   desc 'recreate sprite images and css'
   task resprite: :environment do

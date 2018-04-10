@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class BuildController < ApplicationController
   def index
     # for read access and visibility permission check

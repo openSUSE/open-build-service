@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Attribute container inside package meta data. Attribute definitions are inside attrib_type
 class Attrib < ApplicationRecord
   #### Includes and extends

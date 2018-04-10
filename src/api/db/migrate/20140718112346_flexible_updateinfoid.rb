@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class FlexibleUpdateinfoid < ActiveRecord::Migration[4.2]
   def up
     # migration had wrong number first

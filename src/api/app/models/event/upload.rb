@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Event
   class Upload < Base
     self.description = 'Package sources were uploaded'

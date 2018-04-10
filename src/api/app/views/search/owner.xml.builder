@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 xml.collection do
   @owners.each do |o|
     attribs = {}

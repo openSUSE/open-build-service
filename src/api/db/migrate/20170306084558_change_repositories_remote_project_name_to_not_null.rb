@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class ChangeRepositoriesRemoteProjectNameToNotNull < ActiveRecord::Migration[5.0]
   def up
     # We need to run src/api/db/data/20170306084550_remove_duplicate_repositories.rb first,

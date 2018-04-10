@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class AddPackageTracking < ActiveRecord::Migration[4.2]
   def up
     create_table :binary_releases do |t|

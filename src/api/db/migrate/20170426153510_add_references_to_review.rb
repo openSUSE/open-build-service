@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class AddReferencesToReview < ActiveRecord::Migration[5.0]
   def up
     # COLLATE for by_user, by_group, by_package and by_project was utf8_unicode_ci which made it impossible to perform a JOIN on these fields

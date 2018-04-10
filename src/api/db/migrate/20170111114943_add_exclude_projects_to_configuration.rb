@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class AddExcludeProjectsToConfiguration < ActiveRecord::Migration[5.0]
   def self.up
     add_column :configurations, :unlisted_projects_filter, :string, default: '^home:.+'

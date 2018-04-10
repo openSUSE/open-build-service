@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 FactoryBot.define do
   factory :kiwi_repository, class: Kiwi::Repository do
     association :image, factory: :kiwi_image

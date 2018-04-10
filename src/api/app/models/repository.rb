@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class Repository < ApplicationRecord
   belongs_to :project, foreign_key: :db_project_id, inverse_of: :repositories
 

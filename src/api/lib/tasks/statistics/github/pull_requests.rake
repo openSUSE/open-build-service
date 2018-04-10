@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 namespace :statistics do
   namespace :github do
     desc 'Export the number of pull requests merged per week to a file'

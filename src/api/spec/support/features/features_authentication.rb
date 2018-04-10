@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module FeaturesAuthentication
   def login(user, password = 'buildservice')
     visit session_new_path

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # The maintenance incident class represents the entry in the database.
 #
 class MaintenanceIncident < ApplicationRecord

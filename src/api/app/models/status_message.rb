@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class StatusMessage < ApplicationRecord
   belongs_to :user
   validates :user, :severity, :message, presence: true

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class EventSubscription
   class GenerateHashForSubscriber
     attr_reader :subscriber

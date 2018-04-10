@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # This class takes the params from the DataTables javascript plugin and parses
 # them so they can be used by our own ruby classes
 class BsRequest

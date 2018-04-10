@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class RemoveProjectsTags < ActiveRecord::Migration[5.1]
   def change
     drop_table 'db_projects_tags', id: false, force: :cascade, options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8' do |t|

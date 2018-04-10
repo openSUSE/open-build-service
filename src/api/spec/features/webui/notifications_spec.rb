@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'browser_helper'
 
 RSpec.feature 'Notifications', type: :feature, js: true do

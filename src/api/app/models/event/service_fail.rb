@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Event
   class ServiceFail < Base
     self.description = 'Package source service has failed'

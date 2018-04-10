@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # a model that has ratings - e.g. a project and a package
 module HasRatings
   def self.included(base)

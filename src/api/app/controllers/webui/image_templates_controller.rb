@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class Webui::ImageTemplatesController < Webui::WebuiController
   before_action -> { feature_active?(:image_templates) }
 

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class Relationship < ApplicationRecord
   class SaveError < APIException; end
 

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Event
   class UpdatePackage < Base
     self.description = 'Package meta data was updated'

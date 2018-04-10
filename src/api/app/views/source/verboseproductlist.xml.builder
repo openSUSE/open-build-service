@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # avoid to render, parser and re-render here, since it can be a hughe content
 
 output = ''

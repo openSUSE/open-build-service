@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 xml.configuration do
   keys = ::Configuration::OPTIONS_YML.keys
   keys.each do |key|

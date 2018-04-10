@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # OBS spec helper. See README.md in this directory for details.
 #
 # WARNING: Given that it is always loaded, you are strongly encouraged to keep

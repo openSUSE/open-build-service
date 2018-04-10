@@ -1,6 +1,7 @@
 
 
 # frozen_string_literal: true
+
 xml.highest_rated do
   @ratings.each do |rating|
     if rating.object_type == 'Package'

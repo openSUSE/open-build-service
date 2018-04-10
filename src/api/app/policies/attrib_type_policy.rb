@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class AttribTypePolicy < ApplicationPolicy
   def create?
     @user.is_admin? || access_to_type? || access_to_namespace?

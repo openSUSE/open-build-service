@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'browser_helper'
 
 RSpec.feature "User's home project creation", type: :feature, js: true do

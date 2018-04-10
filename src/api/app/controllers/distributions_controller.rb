@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class DistributionsController < ApplicationController
   # Distribution list is insensitive information, no login needed therefore
   before_action :require_admin, except: [:index, :show, :include_remotes]

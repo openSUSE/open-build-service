@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class PackageMetaFile < PackageFile
   def initialize(attributes = {})
     super

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Event
   PROJECT_CLASSES = ['Event::CommentForProject',
                      'Event::CreateProject',

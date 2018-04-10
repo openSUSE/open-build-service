@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_dependency 'api_exception'
 
 # The Group class represents a group record in the database and thus a group

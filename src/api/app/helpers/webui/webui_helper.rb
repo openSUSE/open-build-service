@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # vim: sw=2 et
 module Webui::WebuiHelper
   include ActionView::Helpers::JavaScriptHelper

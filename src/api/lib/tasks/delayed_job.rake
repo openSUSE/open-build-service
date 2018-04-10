@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 desc 'Write configuration to the backend now'
 task(writeconfiguration: :environment) { ::Configuration.first.write_to_backend }
 

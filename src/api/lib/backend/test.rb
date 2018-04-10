@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Backend
   # Class that holds methods for starting the backend server in test mode
   class Test

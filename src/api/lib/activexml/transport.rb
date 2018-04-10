@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module ActiveXML
   def self.api
     @@transport_api

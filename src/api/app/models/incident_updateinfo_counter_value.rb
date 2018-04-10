@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class IncidentUpdateinfoCounterValue < ApplicationRecord
   belongs_to :updateinfo_counter
   belongs_to :project

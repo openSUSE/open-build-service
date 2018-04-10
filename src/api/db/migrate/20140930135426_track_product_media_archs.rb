@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class TrackProductMediaArchs < ActiveRecord::Migration[4.2]
   def self.up
     add_column :product_media, :arch_filter_id, :integer

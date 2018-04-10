@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class AlterNotificationsToUsePolymorphic < ActiveRecord::Migration[5.0]
   def change
     add_reference :notifications, :subscriber, polymorphic: true

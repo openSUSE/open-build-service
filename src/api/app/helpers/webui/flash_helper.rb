@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Webui::FlashHelper
   def flash_content(flash)
     if flash.is_a?(Hash)

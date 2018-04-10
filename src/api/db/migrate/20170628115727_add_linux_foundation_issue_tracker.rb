@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class AddLinuxFoundationIssueTracker < ActiveRecord::Migration[5.1]
   def up
     IssueTracker.where(name: 'lf').first_or_create(description: 'Linux Foundation Bugzilla',

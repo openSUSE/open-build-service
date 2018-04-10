@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require Rails.root.join('db/data/20170306084550_remove_duplicate_repositories.rb')
 require Rails.root.join('db/migrate/20170306084558_change_repositories_remote_project_name_to_not_null.rb')

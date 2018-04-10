@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # a model that has attributes - e.g. a project and a package
 module HasAttributes
   def self.included(base)

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 RSpec.shared_examples 'user tab' do
   let!(:other_user) { create(:confirmed_user, login: 'other_user') }
   let!(:user_tab_user) { create(:confirmed_user, login: 'user_tab_user') }

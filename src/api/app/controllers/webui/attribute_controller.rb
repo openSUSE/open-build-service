@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class Webui::AttributeController < Webui::WebuiController
   helper :all
   before_action :set_container, only: [:index, :new, :edit]

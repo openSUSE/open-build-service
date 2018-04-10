@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Event
   # generate an Event class
   class Factory

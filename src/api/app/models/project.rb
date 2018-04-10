@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_dependency 'has_relationships'
 
 # rubocop:disable Metrics/ClassLength

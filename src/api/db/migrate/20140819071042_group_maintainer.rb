@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class GroupMaintainer < ActiveRecord::Migration[4.2]
   def up
     create_table :group_maintainers do |t|

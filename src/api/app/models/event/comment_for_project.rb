@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Event
   class CommentForProject < Base
     include CommentEvent

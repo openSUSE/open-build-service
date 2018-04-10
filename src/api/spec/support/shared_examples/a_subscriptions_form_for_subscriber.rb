@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 RSpec.shared_examples 'a subscriptions form for subscriber' do
   it 'updates the source_maintainer subscription to channel = disabled' do
     subscription = EventSubscription.for_eventtype('Event::RequestStatechange').for_subscriber(user).find_by(receiver_role: 'source_maintainer')

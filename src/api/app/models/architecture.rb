@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # This class provides all existing architectures known to OBS
 class Architecture < ApplicationRecord
   #### Includes and extends

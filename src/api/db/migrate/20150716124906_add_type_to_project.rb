@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class AddTypeToProject < ActiveRecord::Migration[4.2]
   class TmpProject < ApplicationRecord
     self.table_name = 'projects'

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class BsRequest
   module DataTable
     class Table

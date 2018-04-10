@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class Directory < ActiveXML::Node
   def self.hashed(opts)
     project = opts.delete :project

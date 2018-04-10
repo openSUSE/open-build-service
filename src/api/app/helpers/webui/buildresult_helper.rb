@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Webui::BuildresultHelper
   def arch_repo_table_cell(repo, arch, package_name, status = nil, enable_help = true)
     status ||= @statushash[repo][arch][package_name] || { 'package' => package_name }

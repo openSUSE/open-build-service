@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # for generating test coverage
 require 'simplecov'
 # Avoid codecov failures outside of travis

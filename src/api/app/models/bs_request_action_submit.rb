@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class BsRequestActionSubmit < BsRequestAction
   #### Includes and extends
   include BsRequestAction::Differ

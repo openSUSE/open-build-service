@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class EventMailer < ActionMailer::Base
   helper :comment
 

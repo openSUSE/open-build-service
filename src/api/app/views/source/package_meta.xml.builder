@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 xml.package('name' => @package.name) do
   xml.title @package.title
   xml.description @package.description

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class DisallowNullForGroupIdInGroupsUsers < ActiveRecord::Migration[5.1]
   def up
     # Remove all dangling groups users that got created since 18680d611347d312

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Testing the things that should and shouldn't happen when you remove a Package
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 

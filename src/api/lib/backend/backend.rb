@@ -1,5 +1,6 @@
 
 # frozen_string_literal: true
+
 # This module wraps the library for accessing to the backend server of the Open Build Service
 #
 module Backend

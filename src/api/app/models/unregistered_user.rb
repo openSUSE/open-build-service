@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_dependency 'api_exception'
 
 class UnregisteredUser < User

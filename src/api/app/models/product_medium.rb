@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class ProductMedium < ApplicationRecord
   belongs_to :product, foreign_key: :product_id
   belongs_to :repository, foreign_key: :repository_id
