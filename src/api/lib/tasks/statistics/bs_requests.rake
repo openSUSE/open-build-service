@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 namespace :statistics do
   desc 'Exports the number of bs requests actions per month to a file'
   task number_bs_requests: :environment do

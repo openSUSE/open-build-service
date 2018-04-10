@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class Webui::RepositoriesController < Webui::WebuiController
   before_action :set_project
   before_action :set_repository, only: [:state]

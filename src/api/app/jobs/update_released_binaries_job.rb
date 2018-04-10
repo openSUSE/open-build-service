@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class UpdateReleasedBinariesJob < CreateJob
   queue_as :releasetracking
 

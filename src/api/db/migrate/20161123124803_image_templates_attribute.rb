@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class ImageTemplatesAttribute < ActiveRecord::Migration[5.0]
   class AttribTypeModifiableBy < ApplicationRecord; end
 

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class AdaptCveTracker < ActiveRecord::Migration[4.2]
   def up
     ActiveRecord::Base.transaction do

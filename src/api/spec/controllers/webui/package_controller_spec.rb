@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'webmock/rspec'
 require 'rails_helper'
 # WARNING: If you change owner tests make sure you uncomment this line

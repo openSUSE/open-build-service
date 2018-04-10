@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Event
   class UndeleteProject < Base
     self.description = 'Project was undeleted'

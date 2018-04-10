@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'pretty_nested_errors'
 
 module Kiwi

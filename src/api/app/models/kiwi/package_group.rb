@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Kiwi
   class PackageGroup < ApplicationRecord
     has_many :packages, dependent: :destroy, index_errors: true

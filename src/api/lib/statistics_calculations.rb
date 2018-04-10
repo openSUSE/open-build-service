@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class StatisticsCalculations
   def self.get_latest_updated(limit = 10, timelimit = Time.at(0), prj_filter = '.*', pkg_filter = '.*')
     list = packages(limit, timelimit, prj_filter, pkg_filter) + projects(limit, timelimit, prj_filter)

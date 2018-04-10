@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 #
 class BsRequestActionChangeDevel < BsRequestAction
   #### Includes and extends

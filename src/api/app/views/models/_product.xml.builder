@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 xml.product(name: my_model.name,
             originproject: my_model.package.project.name,
             originpackage: my_model.package.name) do

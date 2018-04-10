@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module FlagHelper
   class InvalidFlag < APIException
     setup 'invalid_flag'

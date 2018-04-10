@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class UpdateinfoCounter < ApplicationRecord
   def self.find_or_create(time, template)
     year  = time.year  if template =~ /%Y/

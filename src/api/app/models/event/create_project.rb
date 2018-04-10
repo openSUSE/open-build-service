@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Event
   class CreateProject < Base
     self.description = 'Project is created'

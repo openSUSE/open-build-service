@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class AttribNamespacePolicy < ApplicationPolicy
   def create?
     @user.is_admin? || access_to_namespace?

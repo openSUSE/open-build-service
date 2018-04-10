@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class UpdatePackageMetaJob < ApplicationJob
   # NOTE: Its important that this job run in queue 'default' in order to avoid concurrency
   queue_as :default

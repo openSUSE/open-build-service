@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module ProjectStatus
   class Calculator
     # parse the jobhistory and put the result in a format we can cache

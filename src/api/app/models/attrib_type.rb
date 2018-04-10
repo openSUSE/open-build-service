@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Attribute definition as part of project meta data. This is always inside of an attribute namespace
 class AttribType < ApplicationRecord
   #### Includes and extends

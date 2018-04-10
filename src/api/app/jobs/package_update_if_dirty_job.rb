@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class PackageUpdateIfDirtyJob < ApplicationJob
   def perform(package_id)
     package = Package.find_by(id: package_id)

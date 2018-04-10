@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 FactoryBot.define do
   factory :issue do
     name Faker::Lorem.words(5).join(' ')

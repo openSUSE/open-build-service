@@ -1,4 +1,5 @@
 
+# frozen_string_literal: true
 xml.latest_updated do
   @list.each do |item|
     ### item is a package

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class AcceptRequestsJob < ApplicationJob
   def perform
     User.current = User.find_by_login('Admin')

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class Webui::CommentsController < Webui::WebuiController
   before_action :require_login
   before_action :find_commentable, only: :create

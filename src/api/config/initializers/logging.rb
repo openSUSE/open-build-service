@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module APIInstrumentation
   module ControllerRuntime
     extend ActiveSupport::Concern

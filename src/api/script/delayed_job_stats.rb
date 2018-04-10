@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 puts '-----------EVENT-STATS------------'
 mails_sent = Event::Base.where(mails_sent: false).count
 undone_jobs = Event::Base.where.not(undone_jobs: 0).count

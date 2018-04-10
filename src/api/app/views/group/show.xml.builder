@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 xml.group do
   xml.title(@group.title)
   xml.email(@group.email) if @group.email

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 FactoryBot.define do
   factory :bs_request do
     description { Faker::Lorem.paragraph }

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class CreateKiwiPackageGroups < ActiveRecord::Migration[5.1]
   def change
     create_table :kiwi_package_groups do |t|

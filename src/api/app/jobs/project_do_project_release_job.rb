@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class ProjectDoProjectReleaseJob < ApplicationJob
   queue_as :quick
 

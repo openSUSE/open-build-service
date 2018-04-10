@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 xml.status do
   @result.each do |repo, archs|
     xml.repository(name: repo) do

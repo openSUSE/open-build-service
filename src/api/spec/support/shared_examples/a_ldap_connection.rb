@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 RSpec.shared_examples 'a ldap connection' do
   context 'when a connection can be established' do
     before do

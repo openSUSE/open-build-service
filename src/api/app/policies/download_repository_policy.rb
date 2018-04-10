@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class DownloadRepositoryPolicy < ApplicationPolicy
   def create?
     @user.is_admin?

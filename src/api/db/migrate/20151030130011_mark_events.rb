@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class MarkEvents < ActiveRecord::Migration[4.2]
   def up
     add_column :events, :mails_sent, :boolean, default: false

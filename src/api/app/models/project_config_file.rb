@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class ProjectConfigFile < ProjectFile
   def initialize(attributes = {})
     super

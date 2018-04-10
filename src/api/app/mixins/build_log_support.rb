@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module BuildLogSupport
   def raw_log_chunk(project, package, repo, arch, start, theend)
     logger.debug "get log chunk #{start}-#{theend}"

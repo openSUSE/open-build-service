@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class CreateKiwiDescriptions < ActiveRecord::Migration[5.1]
   def change
     create_table :kiwi_descriptions, id: :integer do |t|

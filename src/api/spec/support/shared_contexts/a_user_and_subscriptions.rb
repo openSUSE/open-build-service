@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 RSpec.shared_context 'a user and subscriptions' do
   let!(:user) { create(:confirmed_user) }
 

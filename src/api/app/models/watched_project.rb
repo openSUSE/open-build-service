@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # TODO: why not use habtm?
 class WatchedProject < ApplicationRecord
   belongs_to :user, inverse_of: :watched_projects

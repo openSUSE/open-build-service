@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class AddReferencesToBsRequestAction < ActiveRecord::Migration[5.0]
   def up
     add_reference(:bs_request_actions, :target_package, index: true)

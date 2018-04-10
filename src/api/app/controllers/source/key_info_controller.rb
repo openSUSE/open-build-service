@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Source
   class KeyInfoController < ApplicationController
     def show

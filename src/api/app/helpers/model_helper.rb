@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module ModelHelper
   # this method is used in models to sync xml hash lists with the database entries
   # the class needs to define the keys which identifies an entry in the list via an

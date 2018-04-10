@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class Buildresult < ActiveXML::Node
   AVAIL_STATUS_VALUES = {
     succeeded:    0,

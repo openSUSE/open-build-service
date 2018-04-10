@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class Notification < ApplicationRecord
   belongs_to :subscriber, polymorphic: true
 

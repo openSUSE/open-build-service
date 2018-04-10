@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # filter and render them
 issues.each do |i|
   change = nil

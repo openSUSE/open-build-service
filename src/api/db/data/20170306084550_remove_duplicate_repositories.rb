@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class RemoveDuplicateRepositories < ActiveRecord::Migration[5.1]
   def up
     old = CONFIG['global_write_through']

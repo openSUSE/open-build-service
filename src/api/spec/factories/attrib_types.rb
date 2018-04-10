@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 FactoryBot.define do
   factory :attrib_type do
     sequence(:name) { |n| "attribute_factory_#{n}" }

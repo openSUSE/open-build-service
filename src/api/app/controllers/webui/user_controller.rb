@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class Webui::UserController < Webui::WebuiController
   before_action :check_display_user, only: [:show, :edit, :list_my]
   before_action :require_login, only: [:edit, :save, :index, :update, :delete]

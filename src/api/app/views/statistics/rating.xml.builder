@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 if @package && @project
   xml.rating(@rating[:score],
              count: @rating[:count], project: @project, package: @package,

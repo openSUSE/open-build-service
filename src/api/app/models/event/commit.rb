@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Event
   class Commit < Base
     self.description = 'New revision of a package was commited'

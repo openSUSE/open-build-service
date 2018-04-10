@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Everything that needs to be done before you can use this app
 
 require 'fileutils'

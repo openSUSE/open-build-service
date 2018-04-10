@@ -1,4 +1,5 @@
 
+# frozen_string_literal: true
 xml.global_counters do
   xml.packages(@packages)
   xml.projects(@projects)

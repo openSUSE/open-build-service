@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Event
   class RequestStatechange < Request
     self.description = 'Request state was changed'

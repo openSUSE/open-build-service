@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Backend
   # ActiveModel for representing the backend files (special ones and source files too)
   class File

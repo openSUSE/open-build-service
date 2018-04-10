@@ -1,5 +1,6 @@
 
 
+# frozen_string_literal: true
 xml.most_active do
   @projects.each do |project|
     xml.project(

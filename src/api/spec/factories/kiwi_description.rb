@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 FactoryBot.define do
   factory :kiwi_description, class: Kiwi::Description do
     association :image, factory: :kiwi_image

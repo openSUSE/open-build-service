@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # TODO: Please overwrite this comment with something explaining the model target
 module Kiwi
   class Repository < ApplicationRecord

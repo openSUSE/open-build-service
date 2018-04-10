@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class Kiwi::Preference < ApplicationRecord
   belongs_to :image, inverse_of: :preference
 

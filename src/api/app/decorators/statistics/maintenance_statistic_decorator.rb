@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Statistics
   class MaintenanceStatisticDecorator < BaseDecorator
     def to_hash_for_xml

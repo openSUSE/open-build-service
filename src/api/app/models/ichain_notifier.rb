@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class IchainNotifier < ActionMailer::Base
   def reject(recipient)
     subject 'Buildservice account request rejected'

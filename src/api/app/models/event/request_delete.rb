@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Event
   class RequestDelete < Request
     self.description = 'Request was deleted (admin only)'

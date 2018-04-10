@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'browser_helper'
 # WARNING: This test require real backend answers for projects/packages, make
 # sure you uncomment this line and start a test backend.

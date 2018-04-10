@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class CreateProjectLogEntryJob < ApplicationJob
   queue_as :project_log_rotate
 

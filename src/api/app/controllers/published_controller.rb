@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class PublishedController < ApplicationController
   def index
     prj = Project.find_by_name! params[:project]

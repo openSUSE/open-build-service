@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Event
   class RepoPublishState < Base
     self.description = 'Publish State of Repository has changed'

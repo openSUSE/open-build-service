@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Kiwi
   class Image
     class XmlBuilder

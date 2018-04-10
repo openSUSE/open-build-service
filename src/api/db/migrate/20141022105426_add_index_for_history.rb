@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class AddIndexForHistory < ActiveRecord::Migration[4.2]
   def self.up
     add_index :history_elements, [:op_object_id, :type], name: 'index_search'

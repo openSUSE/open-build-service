@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Webui::PackageHelper
   def file_url(project, package, filename, revision = nil)
     opts = {}

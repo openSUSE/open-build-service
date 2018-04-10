@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Event
   class UpdateProjectConfig < Base
     self.description = 'Project _config was updated'

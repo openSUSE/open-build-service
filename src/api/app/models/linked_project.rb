@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class LinkedProject < ApplicationRecord
   belongs_to :project, foreign_key: :db_project_id
   belongs_to :linked_db_project, class_name: 'Project', foreign_key: :linked_db_project_id

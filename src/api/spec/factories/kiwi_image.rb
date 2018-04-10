@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 FactoryBot.define do
   factory :kiwi_image, class: Kiwi::Image do
     name { Faker::Name.name }

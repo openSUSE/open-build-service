@@ -1,4 +1,5 @@
 
+# frozen_string_literal: true
 class TempMI < ApplicationRecord
   self.table_name = 'maintenance_incidents'
 end

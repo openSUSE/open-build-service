@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Event
   class ServiceSuccess < Base
     self.description = 'Package source service has succeeded'

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'kconv'
 require_dependency 'api_exception'
 

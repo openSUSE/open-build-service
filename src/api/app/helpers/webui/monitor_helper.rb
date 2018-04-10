@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Webui::MonitorHelper
   def self.print_statistics_array(array)
     # safe guard

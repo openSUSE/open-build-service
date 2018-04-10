@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Event
   class BuildFail < Build
     include BuildLogSupport

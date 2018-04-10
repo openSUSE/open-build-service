@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class ProjectCreateAutoCleanupRequests < ApplicationJob
   DESCRIPTION = "This is a humble request to remove this project.
 Accepting this request will free resources on our always crowded server.

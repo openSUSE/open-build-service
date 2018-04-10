@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class InitialDatabase < ActiveRecord::Migration[4.2]
   # rubocop:disable Metrics/AbcSize
   # rubocop:disable MethodLength

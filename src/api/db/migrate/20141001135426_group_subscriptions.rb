@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class GroupSubscriptions < ActiveRecord::Migration[4.2]
   def self.up
     add_column :event_subscriptions, :group_id, :integer

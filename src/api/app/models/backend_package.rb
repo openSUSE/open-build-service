@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class BackendPackage < ApplicationRecord
   #### Includes and extends
   #### Constants

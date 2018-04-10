@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class DownloadRepository < ApplicationRecord
   REPOTYPES = ['rpmmd', 'susetags', 'deb', 'arch', 'mdk'].freeze
 

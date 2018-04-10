@@ -1,4 +1,5 @@
 
+# frozen_string_literal: true
 xml.active_request_creators(project: @project.name) do
   @stats.each do |month, monthstats|
     xml.per_month(month: month) do

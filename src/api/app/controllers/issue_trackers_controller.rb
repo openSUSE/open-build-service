@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class IssueTrackersController < ApplicationController
   before_action :require_admin, only: [:create, :update, :destroy]
 

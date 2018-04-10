@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'rabbitmq_bus'
 
 # This class represents some kind of event within the build service

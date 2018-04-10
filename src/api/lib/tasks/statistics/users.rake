@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 namespace :statistics do
   desc 'Exports the number of confirmed users per month to a file'
   task number_users: :environment do

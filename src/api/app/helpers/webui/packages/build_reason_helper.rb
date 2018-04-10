@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Webui::Packages::BuildReasonHelper
   include Webui::ProjectHelper
 

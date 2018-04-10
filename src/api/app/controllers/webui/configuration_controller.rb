@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class Webui::ConfigurationController < Webui::WebuiController
   before_action :require_admin
   before_action :set_configuration, only: [:update]

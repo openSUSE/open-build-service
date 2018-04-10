@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 xml.projectresult('project' => @project) do
   xml.date(Time.now)
   xml.status('code' => @status) do

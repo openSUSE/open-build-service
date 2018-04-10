@@ -1,5 +1,6 @@
 
 
+# frozen_string_literal: true
 xml.activity do
   if @package
 

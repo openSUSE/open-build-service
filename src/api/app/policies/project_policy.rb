@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class ProjectPolicy < ApplicationPolicy
   def create?
     @user.can_create_project?(@record.name)

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Cloud
   module Ec2
     class Configuration < ApplicationRecord

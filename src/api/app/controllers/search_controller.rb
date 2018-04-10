@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class SearchController < ApplicationController
   require_dependency 'xpath_engine'
 

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 xml.package(name: my_model.name, project: my_model.project.name) do
   xml.title(my_model.title)
   xml.description(my_model.description)

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module ControllersAuthentication
   def login(user)
     request.session[:login] = user.login

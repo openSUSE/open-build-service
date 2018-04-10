@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Enabling/Disabling default architectures
 class Webui::ArchitecturesController < Webui::WebuiController
   before_action :require_admin

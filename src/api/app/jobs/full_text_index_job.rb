@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class FullTextIndexJob < ApplicationJob
   queue_as :quick
 

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class EventSubscription
   class Form
     attr_reader :subscriber

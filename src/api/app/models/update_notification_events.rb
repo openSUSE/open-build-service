@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class UpdateNotificationEvents
   cattr_accessor :semaphore
 

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class Webui::SubscriptionsController < Webui::WebuiController
   before_action :require_admin
 

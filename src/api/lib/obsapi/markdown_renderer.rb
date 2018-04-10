@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module OBSApi
   class MarkdownRenderer < Redcarpet::Render::HTML
     include Rails.application.routes.url_helpers

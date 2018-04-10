@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 ThinkingSphinx::Index.define :package, with: :active_record do
   indexes name, title, description
 

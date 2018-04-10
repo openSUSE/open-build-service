@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'api_exception'
 
 # The Role class represents a role in the database. Roles can have permissions

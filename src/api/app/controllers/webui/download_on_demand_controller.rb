@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class Webui::DownloadOnDemandController < Webui::WebuiController
   before_action :set_project
 

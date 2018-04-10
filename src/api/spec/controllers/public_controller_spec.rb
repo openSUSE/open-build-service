@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'rails_helper'
 require 'webmock/rspec'
 # WARNING: If you change tests make sure you uncomment this line

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class EventSubscription < ApplicationRecord
   RECEIVER_ROLE_TEXTS = {
     maintainer:        'Maintainer',

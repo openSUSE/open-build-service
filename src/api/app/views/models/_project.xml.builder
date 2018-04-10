@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 project_attributes = { name: my_model.name }
 # Check if the project has a special type defined (like maintenance)
 project_attributes[:kind] = my_model.kind unless my_model.is_standard?

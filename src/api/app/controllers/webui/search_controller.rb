@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class Webui::SearchController < Webui::WebuiController
   before_action :set_attribute_list
   before_action :set_tracker_list

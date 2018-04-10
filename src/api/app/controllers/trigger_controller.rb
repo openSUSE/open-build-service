@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class TriggerController < ApplicationController
   validate_action runservice: { method: :post, response: :status }
 

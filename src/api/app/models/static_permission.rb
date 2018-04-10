@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # This class represents a "static permission" dataset in the database. A
 # static permission basically only is a string that can be attached to a
 # role. You can then check for it being assigned to a role in your application

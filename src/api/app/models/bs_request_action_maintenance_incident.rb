@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 #
 class BsRequestActionMaintenanceIncident < BsRequestAction
   #### Includes and extends

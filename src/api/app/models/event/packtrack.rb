@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Event
   class Packtrack < Base
     self.description = 'Binary was published'

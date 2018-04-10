@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Webui::PatchinfoHelper
   include Webui::ProjectHelper
   def patchinfo_bread_crumb(*args)

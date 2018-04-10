@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Event
   class UpdateProject < Base
     self.description = 'Project meta was updated'

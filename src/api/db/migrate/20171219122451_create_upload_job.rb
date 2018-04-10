@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class CreateUploadJob < ActiveRecord::Migration[5.1]
   def change
     create_table :cloud_user_upload_jobs, id: :integer do |t|

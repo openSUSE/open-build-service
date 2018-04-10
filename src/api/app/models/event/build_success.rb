@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Event
   class BuildSuccess < Build
     self.description = 'Package has succeeded building'

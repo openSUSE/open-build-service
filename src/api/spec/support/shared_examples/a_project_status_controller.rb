@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 RSpec.shared_examples 'a project status controller' do
   it 'assigns the instance variables' do
     expect(assigns[:no_project]).to eq('_none_')

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module SphinxHelpers
   def reindex_for_search
     ThinkingSphinx::Test.index

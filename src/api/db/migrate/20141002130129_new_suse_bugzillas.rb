@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class NewSuseBugzillas < ActiveRecord::Migration[4.2]
   def up
     t = IssueTracker.find_by_name('bnc')

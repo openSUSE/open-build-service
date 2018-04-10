@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'browser_helper'
 
 RSpec.feature 'Groups', type: :feature, js: true do

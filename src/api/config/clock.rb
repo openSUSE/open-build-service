@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require File.dirname(__FILE__) + '/boot'
 require File.dirname(__FILE__) + '/environment'
 

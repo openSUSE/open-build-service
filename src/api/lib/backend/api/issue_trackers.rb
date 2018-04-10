@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Backend
   module Api
     # Class that connect to endpoints related to issue trackers

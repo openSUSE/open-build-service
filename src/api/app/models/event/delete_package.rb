@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Event
   class DeletePackage < Base
     self.description = 'Package was deleted'
