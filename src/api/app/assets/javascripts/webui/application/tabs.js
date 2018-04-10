@@ -12,3 +12,32 @@ $(document).ready(function(){
     $(this).siblings('.result_reload').show();
   });
 });
+
+/* HTML tags structure for tabs:
+.header-tabs
+  %ul
+    %li
+      %a Tab1
+    %li
+      %a Tab2
+    %li
+      %a Tab3
+.content-tabs
+  .content-tab
+    Content for Tab1
+  .content-tab
+    Content for Tab2 - this has a nexted tab
+    .header-tabs
+      %ul
+        %li
+          %a Tab1
+        %li
+          %a Tab2
+    .content-tabs
+      .content-tab
+        Content for Tab1
+      .content-tab
+        Content for Tab2
+  .content-tab
+    Content for Tab3  
+*/
