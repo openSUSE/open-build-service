@@ -1,6 +1,7 @@
 module Webui
   module Projects
     class RebuildTimesController < WebuiController
+      before_action :require_login
       before_action :lockout_spiders, only: :show
       before_action :set_project, only: :show
       before_action :set_packages, only: :show

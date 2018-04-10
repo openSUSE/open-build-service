@@ -7,6 +7,7 @@ RSpec.describe Webui::Projects::RebuildTimesController do
 
   describe 'GET #show' do
     before do
+      login(user)
       # To not ask backend for build status
       allow_any_instance_of(Project).to receive(:number_of_build_problems).and_return(0)
     end
@@ -103,6 +104,9 @@ RSpec.describe Webui::Projects::RebuildTimesController do
   end
 
   describe 'GET #rebuild_time_png' do
+    before do
+      login(user)
+    end
     context 'with an invalid key' do
       before do
         get :rebuild_time_png, params: { project: user.home_project, key: 'invalid_key' }
