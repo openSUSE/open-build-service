@@ -23,11 +23,11 @@ namespace :docker do
 
   namespace :test do
     desc 'Run our frontend tests in the docker container'
-    task :frontend do
+    task :rspec do
       begin
-        sh 'docker-compose -f docker-compose.ci.yml up --abort-on-container-exit'
+        sh 'docker-compose -f docker-compose.ci.yml -p rspec run --rm rspec'
       ensure
-        sh 'docker-compose -f docker-compose.ci.yml stop'
+        sh 'docker-compose -f docker-compose.ci.yml -p rspec stop'
       end
     end
 
