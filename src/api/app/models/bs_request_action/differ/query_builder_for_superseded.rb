@@ -12,8 +12,8 @@ class BsRequestAction
           query[:oproject] = superseded_bs_request_action.source_project
           query[:opackage] = superseded_bs_request_action.source_package
         else
-          query[:rev] = bs_request_action.source_rev
-          query[:orev] = superseded_bs_request_action.source_rev
+          query[:rev] = bs_request_action.source_rev || '0'
+          query[:orev] = superseded_bs_request_action.source_rev || '0'
           unless same_source_package?
             query[:oproject] = superseded_bs_request_action.source_project
             query[:opackage] = superseded_bs_request_action.source_package
