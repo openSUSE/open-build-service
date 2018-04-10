@@ -7,6 +7,7 @@ module Webui
       before_action :set_packages, only: :show
 
       def show
+        logger.info("Statistics for RebuildTimesController#show: #{User.current.login}")
         @repository = params[:repository]
         @arch = params[:arch]
         @hosts = (params[:hosts] || 40).to_i
