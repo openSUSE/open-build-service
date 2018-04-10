@@ -47,7 +47,6 @@ sub add_meta {
 sub gen_meta {
   my ($subp, @deps) = @_;
 
-  my %depseen;
   my @subp = @{$subp || []};
   my $subpackre = '';
   for (@subp) {
@@ -75,40 +74,36 @@ sub gen_meta {
   @deps = sort {$helper1{$a} <=> $helper1{$b} || $helper2{$a} cmp $helper2{$b} || $a cmp $b} @deps;
 
   # handle cycles
+  my %cycdepseen;
   if (%cycle) {
     my $cyclere = '';
-    for (sort keys %cycle) {
-      $cyclere .= "|\Q/$_/\E";
-    }
-    if ($genmetaalgo) {
-      my %cyclemd5;
-      my %cycle2;
-      for (@deps) {
-        my $h3 = $helper3{$_};
-	if ($h3 eq $_) {
-	  $cyclemd5{substr($h3, 0, 32)} = 1 if $cycle{substr($h3, 34)};
-	} else {
-	  $cycle2{substr($h3, 34)} = 1 if $cyclemd5{substr($h3, 0, 32)};
-	}
-      }
-      delete $cycle2{$_} for keys %cycle;
-      for (sort keys %cycle2) {
-	$cyclere .= "|\Q/$_/\E.";
-      }
-    }
+    $cyclere .= "|\Q/$_/\E" for sort keys %cycle;
     $cyclere = substr($cyclere, 1);
     $cyclere = qr/$cyclere/;
-    # kill all deps that use a package that we see directly
-    @deps = grep {"$_/" !~ /$cyclere/} @deps;
+    if (!$genmetaalgo) {
+      # kill all deps that use a package that we see directly
+      @deps = grep {"$_/" !~ /$cyclere/} @deps;
+    } else {
+      for my $d (grep {"$_/" =~ /$cyclere/} @deps) {
+        $cycdepseen{$helper3{$d}} ||= $helper1{$d};
+      }
+    }
+  } else {
+    undef $subpackre;			# speed things up a bit
   }
 
   # prune
+  my %depseen;
   my @meta;
   for my $d (@deps) {
     next if $depseen{$helper3{$d}};	# skip if we already have this pkg with this md5
     next if $subpackre && "/$helper2{$d}/" =~ /$subpackre/;
     $depseen{$helper3{$d}} = 1;
     push @meta, $d;
+  }
+  # do extra cycle pruning
+  if (%cycdepseen) {
+    @meta = grep {!$cycdepseen{$helper3{$_}} || $helper1{$_} < $cycdepseen{$helper3{$_}}} @meta;
   }
   return @meta;
 }
