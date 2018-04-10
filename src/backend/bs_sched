@@ -471,21 +471,31 @@ my $gctx = {
   'prplastcheck' => {},			# XXX: currently not used
 };
 
-# configure gen_meta algorithm
+# find max gen_meta algorithm
+my $maxgenmetaalgo = 0;
+if (defined(&BSSolv::setgenmetaalgo)) {
+  $maxgenmetaalgo = BSBuild::setgenmetaalgo(-1);
+  my $solvgenmetaalgo = BSSolv::setgenmetaalgo(-1);
+  $maxgenmetaalgo = $solvgenmetaalgo if $solvgenmetaalgo < $maxgenmetaalgo;
+}
+
+# find gen_meta algorithm to use
 if (defined($BSConfig::genmetaalgo)) {
   $genmetaalgo = $BSConfig::genmetaalgo;
 } else {
   $genmetaalgo = BSBuild::setgenmetaalgo($genmetaalgo);
-  my $solvgenmetaalgo = 0;
-  $solvgenmetaalgo = BSSolv::setgenmetaalgo(-1) if defined &BSSolv::setgenmetaalgo;
-  if ($solvgenmetaalgo < $genmetaalgo) {
-    warn("downgraded genmetaalgo from $genmetaalgo to $solvgenmetaalgo because of old perl-BSSolv\n");
-    $genmetaalgo = $solvgenmetaalgo;
+  if ($genmetaalgo > $maxgenmetaalgo) {
+    warn("downgraded genmeta algorithm from $genmetaalgo to $maxgenmetaalgo because of old perl-BSSolv\n");
+    $genmetaalgo = $maxgenmetaalgo;
   }
 }
-BSSolv::setgenmetaalgo($genmetaalgo) if defined &BSSolv::setgenmetaalgo;
+die("perl-BSSolv is too old for meta algo $genmetaalgo\n") if $genmetaalgo && !defined(&BSSolv::setgenmetaalgo);
+
+# configure gen_meta algorithm
 BSBuild::setgenmetaalgo($genmetaalgo);
+BSSolv::setgenmetaalgo($genmetaalgo) if defined(&BSSolv::setgenmetaalgo);
 $gctx->{'genmetaalgo'} = $genmetaalgo;
+$gctx->{'maxgenmetaalgo'} = $maxgenmetaalgo;
 
 # create rpc context
 my $rctx = BSSched::RPC->new(

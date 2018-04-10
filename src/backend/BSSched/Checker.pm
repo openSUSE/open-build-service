@@ -230,6 +230,12 @@ sub setup {
     $gctx->{'lastcheck'}->{$prp} = $oldlastcheck;
   }
   $ctx->{'lastcheck'} = $gctx->{'lastcheck'}->{$prp};
+
+  my $genmetaalgo = $bconf->{'buildflags:genmetaalgo'};
+  $genmetaalgo = $gctx->{'genmetaalgo'} unless defined $genmetaalgo;
+  return ('broken', 'unsupported genmetaalgo') if $genmetaalgo < 0 || $genmetaalgo > $gctx->{'maxgenmetaalgo'};
+  BSBuild::setgenmetaalgo($genmetaalgo);
+  BSSolv::setgenmetaalgo($genmetaalgo) if $gctx->{'maxgenmetaalgo'};
   return ('scheduling', undef);
 }
 
