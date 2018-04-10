@@ -97,9 +97,11 @@ Requires:       diffutils
 PreReq:         git-core
 Requires:       patch
 # require the createrepo and python-yum version which got validated during testsuite run
-Requires:       %(/bin/bash -c 'rpm -q --qf "%%{name} = %%{version}-%%{release}" createrepo')
 %if 0%{?suse_version} < 1500
+Requires:       %(/bin/bash -c 'rpm -q --qf "%%{name} = %%{version}-%%{release}" createrepo')
 Requires:       %(/bin/bash -c 'rpm -q --qf "%%{name} = %%{version}-%%{release}" python-yum')
+%else
+Requires:       /usr/bin/createrepo
 %endif
 
 BuildRequires:  xz
