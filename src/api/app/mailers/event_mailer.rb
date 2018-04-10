@@ -41,23 +41,18 @@ class EventMailer < ActionMailer::Base
       orig = mail_sender
     end
 
-    begin
-      mail(to: tos.sort,
-           subject: e.subject,
-           from: orig,
-           date: e.created_at) do |format|
+    mail(to: tos.sort,
+         subject: e.subject,
+         from: orig,
+         date: e.created_at) do |format|
 
-        if template_exists?("event_mailer/#{template_name}", formats: [:html])
-          format.html { render template_name, locals: locals }
-        end
-
-        if template_exists?("event_mailer/#{template_name}", formats: [:text])
-          format.text { render template_name, locals: locals }
-        end
+      if template_exists?("event_mailer/#{template_name}", formats: [:html])
+        format.html { render template_name, locals: locals }
       end
-    rescue ArgumentError => e
-      Rails.logger.error "ArgumentError (catched): template: #{template_name}, locals: #{locals.inspect}, tos: #{tos.inspect}, orig: #{orig}"
-      raise e
+
+      if template_exists?("event_mailer/#{template_name}", formats: [:text])
+        format.text { render template_name, locals: locals }
+      end
     end
   end
 end
