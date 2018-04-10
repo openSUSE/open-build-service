@@ -129,8 +129,8 @@ GEM
     ffi (1.9.23)
     flot-rails (0.0.7)
       jquery-rails
-    font-awesome-rails (4.7.0.2)
-      railties (>= 3.2, < 5.2)
+    font-awesome-rails (4.7.0.4)
+      railties (>= 3.2, < 6.0)
     git-cop (2.2.0)
       pastel (~> 0.7)
       refinements (~> 5.1)
