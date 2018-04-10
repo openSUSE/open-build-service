@@ -43,7 +43,7 @@ namespace :docker do
     desc 'Scan the code base for syntax/code problems'
     task :lint do
       begin
-        sh 'docker-compose -f docker-compose.ci.yml run --rm rspec bundle exec rake dev:bootstrap dev:lint'
+        sh 'docker-compose -f docker-compose.ci.yml run --rm rspec ../../contrib/start_lint'
       ensure
         sh 'docker-compose -f docker-compose.ci.yml stop'
       end
