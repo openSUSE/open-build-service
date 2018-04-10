@@ -4,7 +4,7 @@ require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'ichain_notifier'
 
 class IchainNotifierTest < ActiveSupport::TestCase
-  CHARSET = 'utf-8'.freeze
+  CHARSET = 'utf-8'
 
   fixtures :users
 

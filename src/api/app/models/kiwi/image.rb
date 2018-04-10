@@ -17,7 +17,7 @@ module Kiwi
       <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
     </preferences>
   </image>
-  '.freeze
+  '
 
     #### Self config
     #### Attributes
