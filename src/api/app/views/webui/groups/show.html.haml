@@ -23,17 +23,17 @@
       %li
         %a#group-members-tab{data: { id: 'group-members' } }
           Group Members
-  .grid_16.alpha
-    .table-container#reviews-in
+  .grid_16.alpha.content-tabs
+    .content-tab#reviews-in
       %h3 Incoming Reviews
       = render(partial: 'webui/shared/requests_table', locals: { id: 'reviews_in_table', source_url: group_requests_path(@group) })
-    .table-container.hidden#requests-in
+    .content-tab.hidden#requests-in
       %h3 Incoming Requests
       = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_in_table', source_url: group_requests_path(@group) })
-    .table-container.hidden#all-requests
+    .content-tab.hidden#all-requests
       %h3 All Requests
       = render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: group_requests_path(@group) })
-    .table-container.hidden#group-members
+    .content-tab.hidden#group-members
       %h3 Group Members
       - if User.current.is_admin? || @group.group_maintainers.where(user: User.current).exists?
         .grid_16{ style: "margin-bottom: 10px;" }

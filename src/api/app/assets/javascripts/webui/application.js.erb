@@ -44,7 +44,7 @@
 //= require webui/application/image_templates
 //= require webui/application/kiwi_editor
 //= require webui/application/live_build_log
-//= require webui/application/groups
+//= require webui/application/tabs
 //= require webui/application/upload_jobs
 
 function remove_dialog() {
@@ -286,4 +286,8 @@ $(function() {
       $(this).text($(this).data('hidetext'));
     }
   });
+});
+
+$(document).ready(function(){
+  $('#group-members-table').dataTable();
 });
