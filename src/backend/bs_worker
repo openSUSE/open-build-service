@@ -3593,6 +3593,7 @@ if ($@) {
   local *F;
   if (open(F, '>>', "$buildroot/.build.log")) {
     print F $@;
+    print F "(worker was $workerid)\n" if $workerid;
     close(F);
   }
   print "$@";
