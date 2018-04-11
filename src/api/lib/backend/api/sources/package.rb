@@ -115,8 +115,8 @@ module Backend
         # @return [String]
         def self.source_diff(project_name, package_name, options = {})
           accepted = [:rev, :orev, :opackage, :oproject, :linkrev, :olinkrev, :expand, :filelimit, :tarlimit, :withissues, :view]
-          http_post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :diff }, params: options, accepted: accepted).
-            encode('UTF-8', 'binary', invalid: :replace, undef: :replace)
+          diff = http_post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :diff }, params: options, accepted: accepted)
+          diff.valid_encoding? ? diff : diff.encode('UTF-8', 'binary', invalid: :replace, undef: :replace)
         end
 
         # Runs the command rebuild for that package
