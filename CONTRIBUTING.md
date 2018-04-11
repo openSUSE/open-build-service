@@ -26,6 +26,7 @@ In particular, this community seeks the following types of contributions:
     ```
     git config commit.template .gitmessage
     ```
+    Alternatively, [setting up the OBS development environment](#how-to-setup-an-obs-development-environment) will take care of this.
 
 * A developer of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) will review your pull-request
   * If the pull request gets a positive review the reviewer will merge it
