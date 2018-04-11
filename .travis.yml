@@ -42,6 +42,7 @@ jobs:
           - tmp/rubocop_cache
       before_install:
         - npm install -g jshint
+        # These lines are needed to run rubocop in the root directory as we install gems with `bundle install` under `src/api/`
         - gem install rubocop -v 0.54.0
         - gem install rubocop-rspec -v 1.25.1
     - stage: test
