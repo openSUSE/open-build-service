@@ -918,7 +918,8 @@ class Webui::PackageController < Webui::WebuiController
   def buildresult
     check_ajax
     if @project.repositories.any?
-      @buildresults = @package.buildresults(@project)
+      show_all = params[:show_all] == 'true'
+      @buildresults = @package.buildresult(@project, show_all)
       render partial: 'buildstatus'
     else
       render partial: 'no_repositories'

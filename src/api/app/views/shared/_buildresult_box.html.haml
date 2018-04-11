@@ -57,7 +57,10 @@
       $('#result_reload_#{index}_0').hide();
       $.ajax({
         url: '#{ url_for(controller: controller, action: 'buildresult') }',
-        data: {#{ajax_data}},
+        data: {
+          'show_all': $('#show_all').is(':checked'),
+          #{ajax_data}
+        },
         success: function(data) {
           $('#result_display_#{index}_0').html(data);
         },

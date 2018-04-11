@@ -924,22 +924,8 @@ class Package < ApplicationRecord
     the_services
   end
 
-  def buildresults(prj = project)
-    results = Buildresult.find_hashed(project: prj, package: name, view: 'status', multibuild: '1', locallink: '1')
-
-    local_build_results = {}
-    results.elements('result').sort_by { |a| a['repository'] }.each do |result|
-      result.elements('status').each do |status|
-        local_build_results[status['package']] ||= []
-        local_build_results[status['package']] << LocalBuildResult.new(repository: result['repository'],
-                                                                       architecture: result['arch'],
-                                                                       code: status['code'],
-                                                                       state: result['state'],
-                                                                       details: status['details'])
-      end
-    end
-
-    local_build_results
+  def buildresult(prj = project, show_all = false)
+    LocalBuildResult::ForPackage.new(package: self, project: prj, show_all: show_all)
   end
 
   def jobhistory_list(project, repository, arch, limit = 100)
