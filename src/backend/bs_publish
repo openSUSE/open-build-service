@@ -2638,14 +2638,14 @@ sub upload_container {
  Returns:
   public url to registry
 
+ TODO: should be more general to implement own upload
+
 =cut
 
 sub upload_to_registry {
   my ($config, $info, $tempfile, $projid, $repoid, $arch, $notary_uploads) = @_;
-  # TODO: should be more general to implement own upload
-  # prepare url for skopeo
-  my $name = lc($info->{name});
 
+  # prepare url for skopeo
   my $delimiter       = $config->{repository_delimiter} || '/';
   my $repository_base = $config->{repository_base} || '/';
 
@@ -2685,7 +2685,7 @@ sub upload_to_registry {
     } else {
       $gun = $registryserver;
     }
-    print "adding notary upload for $gun/$reponame: $repotag\n";
+    BSUtil::printlog("adding notary upload for $gun/$reponame: $repotag\n");
     $notary_uploads->{"$gun/$reponame"}->{$repotag} = $config;
   }
   return "$config->{server}/$reponame:$repotag"
