@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'kconv'
 require_dependency 'api_exception'
 
@@ -24,7 +26,7 @@ class User < ApplicationRecord
 
   # Keep in sync with states defined in db/structure.sql
   STATES = ['unconfirmed', 'confirmed', 'locked', 'deleted', 'subaccount'].freeze
-  NOBODY_LOGIN = '_nobody_'.freeze
+  NOBODY_LOGIN = '_nobody_'
 
   # disable validations because there can be users which don't have a bcrypt
   # password yet. this is for backwards compatibility

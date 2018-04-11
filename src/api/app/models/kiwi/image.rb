@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'pretty_nested_errors'
 
 module Kiwi
@@ -15,7 +17,7 @@ module Kiwi
       <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
     </preferences>
   </image>
-  '.freeze
+  '
 
     #### Self config
     #### Attributes

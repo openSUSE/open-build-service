@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ChangeHandlerToLongtextInDelayedJobs < ActiveRecord::Migration[5.1]
   reversible do |dir|
     dir.up do

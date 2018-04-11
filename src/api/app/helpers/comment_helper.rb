@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'obsapi/markdown_renderer'
 
 module CommentHelper

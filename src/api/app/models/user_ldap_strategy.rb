@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # the purpose of this mixin is to get the user functions having to do with ldap into one file
 class UserLdapStrategy
   @@ldap_search_con = nil

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 class BsRequestActionAcceptInfo < ApplicationRecord
   #### Includes and extends

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddGithubIssueParser < ActiveRecord::Migration[4.2]
   def self.up
     # rubocop:disable Metrics/LineLength

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddChannelToEventSubscriptions < ActiveRecord::Migration[5.0]
   def up
     EventSubscription.transaction do

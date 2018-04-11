@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Webui
   module Projects
     class PublicKeyController < WebuiController

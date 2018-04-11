@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'pretty_nested_errors/key_and_messages_parser'
 #  PrettyNestedErrors
 #

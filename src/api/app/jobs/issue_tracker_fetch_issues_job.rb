@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class IssueTrackerFetchIssuesJob < ApplicationJob
   queue_as :issuetracking
 

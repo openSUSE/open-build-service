@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Webui
   module Groups
     class BsRequestsController < WebuiController

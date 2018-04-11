@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 xml.status('code' => @errorcode) do
   xml.summary @summary
   if @exception

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Statistics
   class MaintenanceStatisticsCollection
     attr_reader :project

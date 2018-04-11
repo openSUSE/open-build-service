@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class BranchPackage
   class InvalidArgument < APIException; end
   class InvalidFilelistError < APIException; end

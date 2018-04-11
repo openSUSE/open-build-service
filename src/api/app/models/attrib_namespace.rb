@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Specifies own namespaces of attributes
 class AttribNamespace < ApplicationRecord
   #### Includes and extends

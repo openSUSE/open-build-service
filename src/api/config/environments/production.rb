@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Settings specified here will take precedence over those in config/environment.rb
 
 OBSApi::Application.configure do

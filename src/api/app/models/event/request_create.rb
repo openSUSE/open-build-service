@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Event
   class RequestCreate < Request
     self.description = 'Request created'

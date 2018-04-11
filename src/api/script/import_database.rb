@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 # This script downloads database dump from a remote server and imports it into your local database.
 # It is a script and not a rake task, because downloading from a remote server usually needs

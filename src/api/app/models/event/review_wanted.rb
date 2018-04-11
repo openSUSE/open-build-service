@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Event
   class ReviewWanted < Request
     self.description = 'Review was created'

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'browser_helper'
 
 RSpec.feature "User's icons", type: :feature, js: true do

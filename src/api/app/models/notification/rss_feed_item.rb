@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Notification::RssFeedItem < Notification
   MAX_ITEMS_PER_USER = 10
   MAX_ITEMS_PER_GROUP = 10

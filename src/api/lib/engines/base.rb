@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module OBSEngine
   # base class for all engine hooks
   class Base

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PackageIssue < ApplicationRecord
   belongs_to :package
   belongs_to :issue

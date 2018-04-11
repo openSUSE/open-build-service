@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 xml.distributions do
   @distributions.each do |d|
     xml.distribution(vendor: d['vendor'], version: d['version'], id: d['id']) do

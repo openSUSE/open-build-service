@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'nyan_cat_formatter'
 
 # Overwritting nyan-cat-formatter class to remove warning '::Fixnum is deprecated'

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class RabbitmqBus
   def self.publish(event_routing_key, event_payload)
     return unless CONFIG['amqp_options']

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ProjectMaintains < ActiveRecord::Migration[4.2]
   class OldProject < ApplicationRecord
     self.table_name = 'projects'

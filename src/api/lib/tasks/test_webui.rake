@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rake/testtask'
 
 # Everything without "webui" in the file name/path is the API test suite

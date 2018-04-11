@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Allow connections to localhost
 WebMock.disable_net_connect!(allow_localhost: true)
 

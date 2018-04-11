@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Project
   class UpdateFromXmlCommand
     attr_reader :project

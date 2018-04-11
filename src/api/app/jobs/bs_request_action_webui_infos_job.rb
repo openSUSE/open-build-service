@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This job requests the source diff from the backend, which
 # can take a long time depending on the differences. The next time a User views
 # this BsRequest it's already available then. Kind of like warming up the diff

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class BsRequestPermissionCheck
   class AddReviewNotPermitted < APIException
     setup 403

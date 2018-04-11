@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby.ruby2.5
+# frozen_string_literal: true
 
 require 'bundler'
 

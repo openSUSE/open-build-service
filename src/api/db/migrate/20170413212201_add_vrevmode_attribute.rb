@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddVrevmodeAttribute < ActiveRecord::Migration[5.1]
   def self.up
     add_column :linked_projects, :vrevmode, :integer

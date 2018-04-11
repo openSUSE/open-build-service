@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ChangeKiwiPackageGroupsColumnsFromBigIntToInt < ActiveRecord::Migration[5.1]
   def up
     change_column :kiwi_package_groups, :id, :integer, auto_increment: true

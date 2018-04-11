@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../attribute_descriptions'
 
 class AddObsBranchSkipRepositoriesAttribute < ActiveRecord::Migration[4.2]

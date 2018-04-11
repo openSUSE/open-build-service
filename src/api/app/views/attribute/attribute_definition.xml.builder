@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 p = {}
 p[:name] = @at.name
 p[:namespace] = @at.attrib_namespace.name

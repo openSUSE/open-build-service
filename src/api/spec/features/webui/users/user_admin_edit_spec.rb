@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'browser_helper'
 
 RSpec.feature "User's admin edit page", type: :feature, js: true do

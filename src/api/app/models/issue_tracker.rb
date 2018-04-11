@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'xmlrpc/client'
 
 class IssueTracker < ApplicationRecord

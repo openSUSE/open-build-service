@@ -1,4 +1,6 @@
 
+# frozen_string_literal: true
+
 xml.latest_updated do
   if @package
 

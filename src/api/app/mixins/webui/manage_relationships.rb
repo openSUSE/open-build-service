@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Webui::ManageRelationships
   def load_obj
     login = params[:userid]

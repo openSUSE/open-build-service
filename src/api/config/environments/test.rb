@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Settings specified here will take precedence over those in config/environment.rb
 
 ENV['CACHENAMESPACE'] ||= "obs-api-test-#{Time.now.to_i}"

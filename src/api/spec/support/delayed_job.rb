@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Disabling the delay on delayed jobs
 RSpec.configure do |config|
   config.before do

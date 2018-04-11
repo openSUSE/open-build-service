@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Webui::Kiwi::ImageHelper
   include Webui::ProjectHelper
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 xml.packageresult('project' => @project, 'repository' => @repository,
                    'package' => @package) do
   xml.date(Time.now)

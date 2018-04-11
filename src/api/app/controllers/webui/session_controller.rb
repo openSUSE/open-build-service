@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Webui::SessionController < Webui::WebuiController
   before_action :kerberos_auth, only: [:new]
 

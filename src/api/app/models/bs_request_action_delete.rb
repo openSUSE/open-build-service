@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 class BsRequestActionDelete < BsRequestAction
   #### Includes and extends

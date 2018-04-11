@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'opensuse/validator'
 
 class ArchitecturesController < ApplicationController

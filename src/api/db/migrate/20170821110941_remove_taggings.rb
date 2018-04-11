@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class RemoveTaggings < ActiveRecord::Migration[5.1]
   def change
     drop_table 'taggings', force: :cascade, options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin' do |t|

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Event
   class RequestChange < Request
     self.description = 'Request XML was updated (admin only)'

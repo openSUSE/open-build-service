@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateJob < ApplicationJob
   def perform(_event_id)
     raise NotImplementedError

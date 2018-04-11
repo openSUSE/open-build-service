@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :db do
   desc 'Deletes sessions not running - run often'
   task cleanup_sessions: :environment do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ChannelTarget < ApplicationRecord
   belongs_to :channel
   belongs_to :repository

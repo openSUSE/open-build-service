@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class DropObsoleteTable < ActiveRecord::Migration[4.2]
   def up
     drop_table :bs_request_histories

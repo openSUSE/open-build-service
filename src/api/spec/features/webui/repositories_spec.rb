@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'browser_helper'
 
 RSpec.feature 'Repositories', type: :feature, js: true do

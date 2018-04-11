@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 xml.history do
   StatusHelper.resample(@values, @samples).each do |time, val|
     xml.value(time: time,

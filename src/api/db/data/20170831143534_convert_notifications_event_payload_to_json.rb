@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ConvertNotificationsEventPayloadToJson < ActiveRecord::Migration[5.1]
   def self.up
     Notification20170831143534.transaction do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PackageKind < ApplicationRecord
   belongs_to :package
 end

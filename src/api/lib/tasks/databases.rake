@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Rake
   module TaskManager
     def redefine_task(task_class, *args, &block)

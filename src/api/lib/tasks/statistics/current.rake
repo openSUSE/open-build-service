@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :statistics do
   desc 'Exports the current number of users, projects, packages, etc. to a file'
   task current_numbers: :environment do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Backend
   # Class that holds basic HTTP methods for connecting to the backend
   class Connection

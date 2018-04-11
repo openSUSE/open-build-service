@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ParsePackageDiff
   def issues_hash(sourcediff)
     ret = {}

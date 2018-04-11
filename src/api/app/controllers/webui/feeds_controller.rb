@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'statistics_calculations'
 
 class Webui::FeedsController < Webui::WebuiController

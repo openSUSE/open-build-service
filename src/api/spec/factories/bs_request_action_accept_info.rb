@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :bs_request_action_accept_info do
     factory :bs_request_action_accept_info_with_action do

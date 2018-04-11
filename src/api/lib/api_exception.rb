@@ -1,4 +1,6 @@
 
+# frozen_string_literal: true
+
 class APIException < RuntimeError
   def self.abstract_class?
     true

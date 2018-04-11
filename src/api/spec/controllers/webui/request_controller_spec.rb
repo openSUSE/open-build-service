@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 # WARNING: If you change changerequest tests make sure you uncomment this line
 # and start a test backend. Some of the methods require real backend answers

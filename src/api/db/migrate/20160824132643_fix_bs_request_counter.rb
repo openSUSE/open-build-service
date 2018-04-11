@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class FixBsRequestCounter < ActiveRecord::Migration[4.2]
   class TempBsRequest < ApplicationRecord
     self.table_name = 'bs_requests'

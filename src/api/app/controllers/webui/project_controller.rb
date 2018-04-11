@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Webui::ProjectController < Webui::WebuiController
   require_dependency 'opensuse/validator'
   include Webui::RequestHelper

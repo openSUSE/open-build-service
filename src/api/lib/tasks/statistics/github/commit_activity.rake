@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :statistics do
   namespace :github do
     desc 'Exports the number of commits per week for the last year to a file'

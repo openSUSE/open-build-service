@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddSeveralFieldsToKiwiRepositories < ActiveRecord::Migration[5.0]
   def change
     add_column :kiwi_repositories, :alias, :string

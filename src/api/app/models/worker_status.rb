@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class WorkerStatus
   def self.hidden
     mydata = Rails.cache.read('workerstatus')

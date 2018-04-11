@@ -1,5 +1,7 @@
 
 
+# frozen_string_literal: true
+
 root_attrs = {}
 root_attrs[:count] = @messages.length if @messages
 root_attrs[:project] = @project.name if @project

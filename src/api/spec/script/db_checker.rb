@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require File.expand_path(File.join(Rails.root, 'db', 'checker'))
 

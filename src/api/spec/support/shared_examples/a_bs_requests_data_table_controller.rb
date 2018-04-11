@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.shared_examples 'a bs requests data table controller' do
   context 'with no :order parameter' do
     it 'defaults to sort by :created_at :desc' do

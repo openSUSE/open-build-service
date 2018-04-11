@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Class to read and write the "_services" file on the Backend
 class Service < ActiveXML::Node
   class InvalidParameter < APIException; end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'webmock/rspec'
 # WARNING: If you change #file_exists or #has_file test make sure

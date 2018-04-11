@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Feature
   module Repository
     # ObsRepository for active and inactive features based on YamlRepository having default values for each key in OBS

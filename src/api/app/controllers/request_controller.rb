@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 include MaintenanceHelper
 
 class RequestController < ApplicationController

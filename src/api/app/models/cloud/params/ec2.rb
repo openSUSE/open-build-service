@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Cloud
   module Params
     class Ec2

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'ldap'
 
 RSpec.shared_context 'setup ldap mock' do |opts|

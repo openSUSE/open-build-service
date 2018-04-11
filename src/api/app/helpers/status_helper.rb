@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module StatusHelper
   def self.resample(values, samples = 400)
     values.sort! { |a, b| a[0] <=> b[0] }

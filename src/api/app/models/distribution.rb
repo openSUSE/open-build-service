@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Distribution < ApplicationRecord
   validates :vendor, :version, :name, :reponame, :repository, :project, presence: true
 

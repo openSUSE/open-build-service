@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class GroupMaintainer < ApplicationRecord
   belongs_to :user
   belongs_to :group

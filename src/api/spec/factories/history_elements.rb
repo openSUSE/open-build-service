@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :history_element_review_assigned, class: 'HistoryElement::ReviewAssigned' do
     type 'HistoryElement::ReviewAssigned'

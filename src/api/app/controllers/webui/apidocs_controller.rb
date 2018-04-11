@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Webui::ApidocsController < Webui::WebuiController
   def index
     filename = File.expand_path(CONFIG['apidocs_location']) + '/index.html'

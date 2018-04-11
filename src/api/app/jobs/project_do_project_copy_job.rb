@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ProjectDoProjectCopyJob < ApplicationJob
   queue_as :quick
 

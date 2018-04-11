@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AttribNamespaceModifiableBy < ApplicationRecord
   belongs_to :attrib_namespaces
   belongs_to :user

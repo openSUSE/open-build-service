@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :kiwi_package, class: Kiwi::Package do
     transient do

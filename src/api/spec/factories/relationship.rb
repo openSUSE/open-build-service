@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :relationship do
     role { Role.find_by_title('maintainer') }

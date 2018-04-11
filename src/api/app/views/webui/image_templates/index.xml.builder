@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 xml.image_template_projects do
   @projects.each do |image_template|
     xml.image_template_project(name: image_template.name) do

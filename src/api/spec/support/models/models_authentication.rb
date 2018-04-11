@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ModelsAuthentication
   def login(user)
     User.current = user

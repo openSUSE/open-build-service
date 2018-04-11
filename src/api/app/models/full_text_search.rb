@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class FullTextSearch
   include ActiveModel::Serializers::JSON
 

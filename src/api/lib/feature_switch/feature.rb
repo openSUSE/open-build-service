@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Feature
   @perform_initial_refresh_for_user = true
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 xml.person do
   xml.login(my_model.login)
   xml.email(my_model.email)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 

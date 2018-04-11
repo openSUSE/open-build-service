@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AttribTypeModifiableBy < ApplicationRecord
   belongs_to :attrib_type
   belongs_to :user

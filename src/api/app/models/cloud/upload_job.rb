@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Cloud
   class UploadJob
     include ActiveModel::Validations

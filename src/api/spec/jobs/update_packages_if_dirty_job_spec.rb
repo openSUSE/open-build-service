@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 # WARNING: If you change tests make sure you uncomment this line

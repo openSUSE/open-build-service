@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class GroupController < ApplicationController
   include ValidationHelper
 

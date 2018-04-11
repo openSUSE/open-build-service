@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class LocalJobHistory
   include ActiveModel::Model
   attr_accessor :revision,

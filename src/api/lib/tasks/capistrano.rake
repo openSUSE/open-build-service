@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # =============================================================================
 # A set of rails tasks for invoking the Capistrano automation utility.
 # =============================================================================

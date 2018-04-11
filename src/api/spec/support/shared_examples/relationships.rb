@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.shared_examples 'makes a user a maintainer of the subject' do
   let(:other_user) { create(:confirmed_user, login: 'bob') }
   let(:maintainer_role) { Role.where(title: 'maintainer') }

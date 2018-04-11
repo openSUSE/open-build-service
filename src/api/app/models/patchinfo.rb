@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # a Patchinfo lives in a Project, but is not a package - it represents a special file
 # in a update package
 

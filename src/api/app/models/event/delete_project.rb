@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Event
   class DeleteProject < Base
     self.description = 'Project was deleted'

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Kiwi::Description < ApplicationRecord
   belongs_to :image, inverse_of: :description
 

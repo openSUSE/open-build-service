@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class BsRequest
   module FindFor
     class Project < Base

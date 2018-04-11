@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Event
   class VersionChange < Base
     self.description = 'Package has changed its version'

@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 
 class PublicHelperTest < ActiveSupport::TestCase
-  YMP_URL = 'http://example.com/ymp'.freeze
+  YMP_URL = 'http://example.com/ymp'
   include PublicHelper
 
   def test_ymp_url

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Event
   class BuildUnchanged < Build
     self.description = 'Package has succeeded building with unchanged result'

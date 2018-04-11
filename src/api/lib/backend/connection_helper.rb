@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Backend
   # Module that holds the wrapping methods for http requests, are mainly used for simplify the calculation of urls.
   #

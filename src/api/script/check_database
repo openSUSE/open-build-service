@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby.ruby2.5
+# frozen_string_literal: true
+
 require File.dirname(__FILE__) + '/../config/boot'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
 require File.expand_path(File.join(Rails.root, 'db', 'checker'))

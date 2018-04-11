@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AttribPolicy < ApplicationPolicy
   def create?
     # Admins can write everything

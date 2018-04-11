@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 xml.person do
   xml.login @render_user.login
   xml.email @render_user.email

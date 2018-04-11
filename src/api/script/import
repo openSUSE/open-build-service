@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby.ruby2.5
+# frozen_string_literal: true
+
 require File.dirname(__FILE__) + '/../config/boot'
 
 # set this to true if you want to create users that appear in metafiles

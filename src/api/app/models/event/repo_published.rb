@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Event
   class RepoPublished < Base
     self.description = 'Repository was published'

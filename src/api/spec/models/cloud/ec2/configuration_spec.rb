@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Cloud::Ec2::Configuration, type: :model, vcr: true do

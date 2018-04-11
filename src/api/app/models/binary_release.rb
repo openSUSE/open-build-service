@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class BinaryRelease < ApplicationRecord
   #### Includes and extends
   #### Constants

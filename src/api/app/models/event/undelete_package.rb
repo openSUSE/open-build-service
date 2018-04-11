@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Event
   class UndeletePackage < Base
     self.description = 'Package was undeleted'

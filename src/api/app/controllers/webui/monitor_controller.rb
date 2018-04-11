@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Webui::MonitorController < Webui::WebuiController
   before_action :require_settings, only: [:old, :index, :filtered_list, :update_building]
   before_action :fetch_workerstatus, only: [:old, :filtered_list, :update_building]

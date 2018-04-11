@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'browser_helper'
 
 RSpec.feature 'OBS main page', type: :feature, js: true do

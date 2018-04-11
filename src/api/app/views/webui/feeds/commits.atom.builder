@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Don't ask me why atom_feed helper does not work. Reimplementing its logic
 feed_opts = { 'xml:lang' => 'en-US',
               'xmlns'    => 'http://www.w3.org/2005/Atom' }
