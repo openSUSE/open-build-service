@@ -4,8 +4,8 @@ require 'webmock/rspec'
 RSpec.describe Webui::Cloud::Ec2::UploadJobsController, type: :controller, vcr: true do
   let!(:ec2_configuration) { create(:ec2_configuration) }
   let!(:user_with_ec2_configuration) { create(:confirmed_user, login: 'tom', ec2_configuration: ec2_configuration) }
-  let(:project) { create(:project, name: 'Apache') }
-  let!(:package) { create(:package, name: 'apache2', project: project) }
+  let(:project) { create(:project, name: 'EC2Images') }
+  let!(:package) { create(:package, name: 'MyEC2Image', project: project) }
   let(:upload_job) { create(:upload_job, user: user_with_ec2_configuration) }
   let(:xml_response) do
     <<-HEREDOC
@@ -33,14 +33,14 @@ RSpec.describe Webui::Cloud::Ec2::UploadJobsController, type: :controller, vcr: 
     context 'with valid parameters' do
       before do
         Feature.run_with_activated(:cloud_upload) do
-          get :new, params: { project: 'Apache', package: 'apache2', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz' }
+          get :new, params: { project: 'EC2Images', package: 'MyEC2Image', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz' }
         end
       end
 
       it { expect(response).to be_success }
       it {
         expect(assigns(:upload_job)).
-          to have_attributes(project: 'Apache', package: 'apache2', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz')
+          to have_attributes(project: 'EC2Images', package: 'MyEC2Image', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz')
       }
     end
 
@@ -57,17 +57,17 @@ RSpec.describe Webui::Cloud::Ec2::UploadJobsController, type: :controller, vcr: 
       end
 
       context 'with a not existing package' do
-        let(:params) { { project: 'Apache', package: 'not-existent', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz' } }
+        let(:params) { { project: 'EC2Images', package: 'not-existent', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz' } }
         include_context 'it redirects and assigns flash error'
       end
 
       context 'with an invalid filename' do
-        let(:params) { { project: 'Apache', package: 'apache2', repository: 'standard', arch: 'x86_64', filename: 'appliance.rpm' } }
+        let(:params) { { project: 'EC2Images', package: 'MyEC2Image', repository: 'standard', arch: 'x86_64', filename: 'appliance.rpm' } }
         include_context 'it redirects and assigns flash error'
       end
 
       context 'with an invalid architecture' do
-        let(:params) { { project: 'Apache', package: 'apache2', repository: 'standard', arch: 'i386', filename: 'appliance.raw.xz' } }
+        let(:params) { { project: 'EC2Images', package: 'MyEC2Image', repository: 'standard', arch: 'i386', filename: 'appliance.raw.xz' } }
         include_context 'it redirects and assigns flash error'
       end
     end
@@ -104,46 +104,14 @@ RSpec.describe Webui::Cloud::Ec2::UploadJobsController, type: :controller, vcr: 
       include_context 'it redirects and assigns flash error'
     end
 
-    context 'with invalid parameters' do
-      context 'with an invalid filename' do
-        subject { 'apache2.rpm' }
+    context 'with an invalid filename' do
+      subject { 'MyEC2Image.rpm' }
 
-        before do
-          params[:filename] = subject
-        end
-
-        include_context 'it redirects and assigns flash error'
+      before do
+        params[:filename] = subject
       end
 
-      context 'with an invalid architecture' do
-        subject { 'i386' }
-
-        before do
-          params[:arch] = subject
-        end
-
-        include_context 'it redirects and assigns flash error'
-      end
-
-      context 'with an invalid ami_name' do
-        subject { 'lorem ipsum' }
-
-        before do
-          params[:ami_name] = subject
-        end
-
-        include_context 'it redirects and assigns flash error'
-      end
-
-      context 'with an invalid region' do
-        subject { 'nuernberg-southside' }
-
-        before do
-          params[:region] = subject
-        end
-
-        include_context 'it redirects and assigns flash error'
-      end
+      include_context 'it redirects and assigns flash error'
     end
 
     context 'with a backend response' do
