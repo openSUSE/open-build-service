@@ -1912,7 +1912,10 @@ sub publish {
   for my $p (sort keys %containers) {
     next unless -f "$extrep/$p";
     my $containerinfo = $containers{$p};
-    my $readme = upload_container($extrep, $p, $containerinfo, $projid, $repoid, $containerinfo->{'arch'}, $notary_uploads);
+    my $tempfile = decompress_container("$extrep/$p");
+    my $readme   = upload_container($extrep, $p, $containerinfo, $projid, $repoid, $containerinfo->{'arch'}, $notary_uploads, $tempfile);
+    BSUtil::printlog("Deleting $tempfile");
+    unlink($tempfile);
     # replace container with readme file
     if ($readme && $readme ne '') {
       unlink("$extrep/$p");
@@ -2574,7 +2577,7 @@ check if build result is valid container and upload if configured
 =cut
 
 sub upload_container {
-  my ($dir, $file, $info, $projid, $repoid, $arch, $notary_uploads) = @_;
+  my ($dir, $file, $info, $projid, $repoid, $arch, $notary_uploads, $tempfile) = @_;
 
   # jump out if no config
   return unless $BSConfig::publish_containers;
@@ -2609,7 +2612,6 @@ sub upload_container {
     return;
   }
 
-  my $tempfile = decompress_container("$dir/$file");
   my $read_me_content = "";
 
   eval {
@@ -2622,8 +2624,6 @@ sub upload_container {
     }
   };
   my $error = $@;
-  BSUtil::printlog("Deleting $tempfile");
-  unlink($tempfile);
   die($error) if $error;
   return $read_me_content;
 }
