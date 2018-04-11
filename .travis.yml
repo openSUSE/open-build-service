@@ -44,7 +44,7 @@ jobs:
       before_install:
         - npm install -g jshint
         - gem install rubocop -v 0.54.0
-        - gem install rubocop-rspec -v 1.20.1
+        - gem install rubocop-rspec -v 1.25.1
     - stage: test
       env: TEST_SUITE=rspec
     - env: TEST_SUITE=api
