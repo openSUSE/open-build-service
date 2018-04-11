@@ -141,7 +141,7 @@ sub check {
       } else {
         $mylastcheck .= Digest::MD5::md5_hex(join("\n", @meta));
       }
-      $mylastcheck .= 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+      $mylastcheck .= 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';	# fake hdrmetamd5
       $mylastcheck .= "$meta_s[9]/$meta_s[7]/$meta_s[1]";
       $lastcheck->{$packid} = $mylastcheck;
     } else {
@@ -187,9 +187,10 @@ sub check {
       # print "        in cycle, no source change...\n";
       return ('done');
     }
-    my $check = substr($mylastcheck, 32, 32);
+    my $check = substr($mylastcheck, 32, 32);	# metamd5
     my $pool = $ctx->{'pool'};
     my $dep2pkg = $ctx->{'dep2pkg'};
+    $check .= $ctx->{'genmetaalgo'} if $ctx->{'genmetaalgo'};
     $check .= $rebuildmethod;
     $check .= $pool->pkg2pkgid($dep2pkg->{$_}) for sort @$edeps;
     $check = Digest::MD5::md5_hex($check);
@@ -198,7 +199,7 @@ sub check {
       # print "        nothing changed\n";
       goto relsynccheck;
     }
-    substr($mylastcheck, 64, 32) = $check;
+    substr($mylastcheck, 64, 32) = $check;	# substitute new hdrmetamd5
     # even more work, generate new meta, check if it changed
     my @new_meta;
     my $repodatas = $gctx->{'repodatas'};

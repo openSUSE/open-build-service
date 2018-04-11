@@ -231,11 +231,14 @@ sub setup {
   }
   $ctx->{'lastcheck'} = $gctx->{'lastcheck'}->{$prp};
 
+  # configure meta algorithm
   my $genmetaalgo = $bconf->{'buildflags:genmetaalgo'};
   $genmetaalgo = $gctx->{'genmetaalgo'} unless defined $genmetaalgo;
   return ('broken', 'unsupported genmetaalgo') if $genmetaalgo < 0 || $genmetaalgo > $gctx->{'maxgenmetaalgo'};
   BSBuild::setgenmetaalgo($genmetaalgo);
   BSSolv::setgenmetaalgo($genmetaalgo) if $gctx->{'maxgenmetaalgo'};
+  $ctx->{'genmetaalgo'} = $genmetaalgo;
+
   return ('scheduling', undef);
 }
 
