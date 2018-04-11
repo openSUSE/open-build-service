@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://backend:5352/build/home:tom/_result?code=unresolvable&view=status
+    uri: http://backend:5352/source/home:tom:my_project/_project/_history?deleted=1
     body:
       encoding: US-ASCII
       string: ''
@@ -25,12 +25,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '56'
+      - '31'
     body:
       encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000" />
-
-'
+      string: |
+        <revisionlist>
+        </revisionlist>
     http_version: 
-  recorded_at: Wed, 11 Apr 2018 16:31:46 GMT
+  recorded_at: Wed, 11 Apr 2018 16:31:44 GMT
 recorded_with: VCR 4.0.0
