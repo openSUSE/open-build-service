@@ -2579,9 +2579,6 @@ check if build result is valid container and upload if configured
 sub upload_container {
   my ($dir, $file, $info, $projid, $repoid, $arch, $notary_uploads, $tempfile) = @_;
 
-  # jump out if no config
-  return unless $BSConfig::publish_containers;
-
   # get registry names for this project
   my @registries;
   my @s = @{$BSConfig::publish_containers};
