@@ -1918,7 +1918,9 @@ sub publish {
       unlink("$extrep/$p");
       delete $binaryorigins->{$p};
       mkdir_p($extrep) unless -d $extrep;
-      writestr("$extrep/$p.registry.txt", undef, $readme);
+      my $reg_txt = "$extrep/$p.registry.txt";
+      BSUtil::printlog("Creating $reg_txt");
+      writestr($reg_txt, undef, $readme);
     }
   }
   $changed = 1 if %$notary_uploads;	# FIXME
