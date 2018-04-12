@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://backend:5352/build/home:tom/_result?code=unresolvable&view=status
+    uri: http://backend:5352/source/Apache/_config
     body:
       encoding: US-ASCII
       string: ''
@@ -19,18 +19,17 @@ http_interactions:
       message: OK
     headers:
       Content-Type:
-      - text/xml
+      - text/plain
       Cache-Control:
       - no-cache
       Connection:
       - close
       Content-Length:
-      - '56'
+      - '97'
     body:
       encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000" />
-
-'
+      string: Qui laudantium ex quos. Non nihil minima sit. Rerum ut architecto adipisci
+        et cumque repudiandae.
     http_version: 
-  recorded_at: Wed, 11 Apr 2018 16:31:46 GMT
+  recorded_at: Wed, 11 Apr 2018 16:31:57 GMT
 recorded_with: VCR 4.0.0

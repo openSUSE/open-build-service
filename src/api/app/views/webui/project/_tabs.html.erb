@@ -7,20 +7,20 @@
 
 <div class="box-header header-tabs" id="project_tabs">
   <ul>
-    <%= tab 'overview', 'Overview', :controller => :project, :action => :show %>
+    <%= tab 'overview', 'Overview', :controller => '/webui/project', :action => :show %>
     <% if @is_maintenance_project && !@spider_bot %>
-      <%= tab 'incidents', 'Incidents', :controller => :project, :action => :maintenance_incidents %>
-      <%= tab 'maintained', 'Maintained Projects', :controller => :project, :action => :maintained_projects %>
+      <%= tab 'incidents', 'Incidents', :controller => '/webui/project', :action => :maintenance_incidents %>
+      <%= tab 'maintained', 'Maintained Projects', :controller => '/webui/project', :action => :maintained_projects %>
     <% else %> <!-- also for incident project -->
-      <%= tab 'repositories', "Repositories", :controller => :repositories, :action => :index unless @project.defines_remote_instance? || @spider_bot %>
+      <%= tab 'repositories', "Repositories", :controller => '/webui/repositories', :action => :index unless @project.defines_remote_instance? || @spider_bot %>
     <% end %>
     <% if @project.repositories.any? && !@spider_bot -%>
-      <%= tab 'monitor', "Monitor", :controller => :project, :action => :monitor %>
+      <%= tab 'monitor', "Monitor", :controller => '/webui/project', :action => :monitor %>
     <% end -%>
     <% unless @spider_bot -%>
-      <%= tab 'requests', "Requests", :controller => :project, :action => 'requests' %>
-      <%= tab 'users', 'Users', :controller => :project, :action => :users unless @project.defines_remote_instance? %>
-      <%= tab 'subprojects', 'Subprojects', :controller => :project, :action => :subprojects unless @project.defines_remote_instance? || @is_maintenance_project %>
+      <%= tab 'requests', "Requests", :controller => '/webui/project', :action => 'requests' %>
+      <%= tab 'users', 'Users', :controller => '/webui/project', :action => :users unless @project.defines_remote_instance? %>
+      <%= tab 'subprojects', 'Subprojects', :controller => '/webui/project', :action => :subprojects unless @project.defines_remote_instance? || @is_maintenance_project %>
     <% end -%>
   
     <% if is_advanced_tab? %>
@@ -33,12 +33,12 @@
   </ul>
   <div id="advanced_tabs" class="hidden">
     <ul>
-      <%= tab 'projectconfig', 'Project Config', :controller => :project, :action => :prjconf unless @project.defines_remote_instance? || @is_maintenance_project %>
+      <%= tab 'projectconfig', 'Project Config', :controller => '/webui/project', :action => :prjconf unless @project.defines_remote_instance? || @is_maintenance_project %>
       <% unless @spider_bot -%>
-        <%= tab 'attribute', 'Attributes', :controller => :attribute, :project => @project, :action => 'index' %>
-        <%= tab 'meta', "Meta", :controller => :project, :action => :meta %>
-        <%= tab 'status', 'Status', :controller => :project, :action => :status unless @project.defines_remote_instance? || @is_maintenance_project %>
-        <%= tab 'pulse', 'Pulse', :controller => :project, :action => :pulse %>
+        <%= tab 'attribute', 'Attributes', :controller => '/webui/attribute', :project => @project, :action => 'index' %>
+        <%= tab 'meta', "Meta", :controller => '/webui/project', :action => :meta %>
+        <%= tab 'status', 'Status', :controller => '/webui/project', :action => :status unless @project.defines_remote_instance? || @is_maintenance_project %>
+        <%= tab 'pulse', 'Pulse', :controller => '/webui/project', :action => :pulse %>
       <% end -%>
     </ul>
   </div>

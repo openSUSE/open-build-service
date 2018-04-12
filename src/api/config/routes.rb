@@ -248,8 +248,6 @@ OBSApi::Application.routes.draw do
       post 'project/restore' => :restore, constraints: cons, as: 'projects_restore'
       patch 'project/update' => :update, constraints: cons
       delete 'project/destroy' => :destroy
-      get 'project/rebuild_time/:project/:repository/:arch' => :rebuild_time, constraints: cons, as: 'project_rebuild_time'
-      get 'project/rebuild_time_png/:project/:key' => :rebuild_time_png, constraints: cons
       get 'project/packages/:project' => :packages, constraints: cons
       get 'project/requests/:project' => :requests, constraints: cons, as: 'project_requests'
       post 'project/save_path_element' => :save_path_element
@@ -286,6 +284,11 @@ OBSApi::Application.routes.draw do
       get 'project/pulse/:project' => :pulse, constraints: cons
       get 'project/unlock_dialog' => :unlock_dialog
       post 'project/unlock' => :unlock
+    end
+
+    controller 'webui/projects/rebuild_times' do
+      get 'project/rebuild_time/:project/:repository/:arch' => :show, constraints: cons, as: 'project_rebuild_time'
+      get 'project/rebuild_time_png/:project/:key' => :rebuild_time_png, constraints: cons
     end
 
     resources :projects, only: [], param: :name do
