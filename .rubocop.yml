@@ -72,6 +72,10 @@ Style/WordArray:
 
 ##################### Metrics ##################################
 
+Metrics/BlockLength:
+  Exclude:
+    - 'src/api/config/routes.rb'
+
 # Checks if the length a class exceeds some maximum value
 Metrics/ClassLength:
   Severity: refactor
