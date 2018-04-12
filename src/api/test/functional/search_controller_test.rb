@@ -302,6 +302,14 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'issue' }, tag: 'label', content: 'bnc#123456'
   end
 
+  def test_search_project_by_repository
+    login_Iggy
+    get "/search/project/id?match=repository/@name='BaseDistro_repo'"
+    assert_response :success
+    assert_xml_tag tag: 'collection'
+    assert_xml_tag tag: 'project', attributes: { name: 'BaseDistro' }
+  end
+
   def test_search_repository
     login_Iggy
     get '/search/repository/id'
