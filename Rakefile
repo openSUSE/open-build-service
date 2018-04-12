@@ -11,8 +11,8 @@ namespace :docker do
       # rubocop:disable Metrics/LineLength
       sh "echo \"version: \'2.1\'\nservices:\n  frontend:\n    build:\n      args:\n        CONTAINER_USERID: #{CONTAINER_USERID}\" >> docker-compose.override.yml"
       # rubocop:enable Metrics/LineLength
-      # Build the frontend container
-      sh 'docker-compose build frontend'
+      # Build the frontend container and pull newer version of the image if available
+      sh 'docker-compose build --pull frontend'
       # Bootstrap the app
       sh 'docker-compose up -d db'
       sh 'docker-compose run --no-deps --rm frontend bundle exec rake dev:bootstrap RAILS_ENV=development'
