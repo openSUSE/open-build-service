@@ -264,6 +264,8 @@ sub check_package_dir {
       # unchecked for now
     } elsif ($ent eq "_buildenv") {
       # unchecked for now
+    } elsif ($ent eq "_channel") {
+      # unchecked for now
     } elsif ($ent =~ /^pesign-/) {
       # unchecked for now
     } elsif ($ent =~ /[-.]appdata\.xml$/) {
@@ -272,11 +274,15 @@ sub check_package_dir {
       # unchecked for now
     } elsif ($ent eq ".meta.success") {
       # unchecked for now
+    } elsif ($ent =~ /^\.meta\.success\.import/) {
+      # unchecked for now
     } elsif ($ent eq ".nosourceaccess") {
       # just a flag file
     } elsif ($ent eq "rpmlint.log") {
       # unchecked for now
-    } elsif ($ent eq ".preinstallimages") {
+    } elsif ($ent eq "preinstallimage.info") {
+      # unchecked for now
+    } elsif ($ent =~ /^\.preinstallimage/) {
       # unchecked for now
     } elsif ($ent =~ /-Build/) {
       # kiwi build result
@@ -585,6 +591,8 @@ if (-d "$buildroot" && $check_build) {
                   } elsif ($prap eq ".checksums") {
                     # unchecked for now
                   } elsif ($prap eq ".preinstallimages") {
+                    # unchecked for now
+                  } elsif ($prap eq ":preinstallimages") {
                     # unchecked for now
                   } elsif ($prap eq ":packstatus.finished") {
                     # unchecked for now
