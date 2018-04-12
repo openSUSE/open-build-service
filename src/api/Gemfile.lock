@@ -205,7 +205,7 @@ GEM
     momentjs-rails (2.20.1)
       railties (>= 3.1)
     mousetrap-rails (1.4.6)
-    mysql2 (0.5.0)
+    mysql2 (0.5.1)
     nio4r (2.3.0)
     nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
