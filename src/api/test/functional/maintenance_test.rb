@@ -1433,7 +1433,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response 400
     assert_xml_tag(tag: 'status', attributes: { code: 'invalid_date' })
-    post "/source/#{incident_project}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{(DateTime.now + 1.day)}</value></attribute></attributes>"
+    post "/source/#{incident_project}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{DateTime.now + 1.day}</value></attribute></attributes>"
     assert_response :success
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response 400
@@ -1720,7 +1720,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:vrev)
-    assert_equal "#{vrev1.to_i + 1}.#{(1 + 2)}", node.value(:vrev) # X gets increased by one, Y set back and used withrevbump=2
+    assert_equal "#{vrev1.to_i + 1}.#{1 + 2}", node.value(:vrev) # X gets increased by one, Y set back and used withrevbump=2
 
     # new packages in Update project found, even we just project-link only to GA
     post '/source/BaseDistro2.0:LinkedUpdateProject/packNEW?cmd=copy&oproject=BaseDistro2.0&opackage=pack2'
@@ -1770,7 +1770,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:vrev)
-    assert_equal "#{vrev1.to_i + 1}.#{(1 + 1 + 2)}", node.value(:vrev) # extendvrev . reset + link + vrevbump=2
+    assert_equal "#{vrev1.to_i + 1}.#{1 + 1 + 2}", node.value(:vrev) # extendvrev . reset + link + vrevbump=2
     get '/source/BaseDistro2.0:LinkedUpdateProject/pack2?view=info'
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
@@ -2484,7 +2484,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # copyrev = last_revision(copyhistory).rev
     copyvrev = last_revision(copyhistory).value(:vrev)
     assert_equal originsrcmd5, copysrcmd5
-    expectedvrev = "#{(originvrev.to_i + 1)}.1" # the copy gets incremented by one, but also extended to avoid that it can become
+    expectedvrev = "#{originvrev.to_i + 1}.1" # the copy gets incremented by one, but also extended to avoid that it can become
     assert_equal expectedvrev, copyvrev # newer than the origin project at any time later.
     assert_equal originversion, copyversion
     assert_not_equal origintime, copytime
@@ -2552,7 +2552,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     vrev = last_revision(history).value(:vrev)
     assert_not_nil srcmd5
     assert_equal originsrcmd5, srcmd5
-    expectedvrev = "#{(originvrev.to_i + 1)}.1" # the origin gets incremented by one, but also extended to avoid that it can become
+    expectedvrev = "#{originvrev.to_i + 1}.1" # the origin gets incremented by one, but also extended to avoid that it can become
     assert_equal expectedvrev, vrev.to_s        # newer than the origin project at any time later.
     assert_equal version, originversion
     assert_not_equal time, origintime

@@ -72,6 +72,10 @@ Style/WordArray:
 
 ##################### Metrics ##################################
 
+Metrics/BlockLength:
+  Exclude:
+    - 'src/api/config/routes.rb'
+
 # Checks if the length a class exceeds some maximum value
 Metrics/ClassLength:
   Severity: refactor
@@ -100,6 +104,10 @@ Rails/Exit:
     - 'src/api/lib/memory_dumper.rb'
 
 Rails/HasAndBelongsToMany:
+  Enabled: false
+
+# FIXME: Disabled due to a bug in Rubocop. Once it is fixed in this PR (https://github.com/bbatsov/rubocop/pull/5707), it could be enabled again
+Rails/HttpStatus:
   Enabled: false
 
 # Checks for the use of output calls like puts and print
