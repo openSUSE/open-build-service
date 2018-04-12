@@ -38,12 +38,12 @@ In particular, this community seeks the following types of contributions:
 
   We tag our commits depending on the area that is affected by the change. All commits should start with at least one tag from:
 
-  * [api]     - Changes in api related parts of app/model/ and lib/ as well as app/controllers/\*.rb and it's views
+  * [api]     - Changes in api related parts of app/model/ and lib/ as well as app/controllers/\*.rb and its views
   * [backend] - Changes in the perl-written backend of OBS
   * [ci]      - Changes that affect our test suite
   * [dist]    - Modifies something inside /dist directory
   * [doc]     - Any documentation related changes
-  * [webui]   - Changes in webui related parts of app/model/ and lib/ as well as app/controllers/webui/ and it's views
+  * [webui]   - Changes in webui related parts of app/model/ and lib/ as well as app/controllers/webui/ and its views
 
   In case of having more than one tag, they should be alphabetically ordered.
   
@@ -68,10 +68,10 @@ In particular, this community seeks the following types of contributions:
   Do not use `*` as it is also used for _emphasis_.
 
 ## How to review code submissions
-We make use of github [pull request reviews](https://help.github.com/articles/about-pull-request-reviews/) and we...
+We make use of GitHub [pull request reviews](https://help.github.com/articles/about-pull-request-reviews/) and we...
 
 - ...mark nitpicks inside the comment somehow (with the 💭 emoji or *nitpick*: blah blah)
-- ...aprove the pull request if our review only contains nitpicks
+- ...approve the pull request if our review only contains nitpicks
 - ...request changes on the pull request if our review contains one non-nitpick
 - ...just submit the review as comment if we can not review all of the code and just want to leave a comment
 
