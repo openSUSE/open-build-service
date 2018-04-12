@@ -1,8 +1,8 @@
 - unless @buildresults.excluded_counter.zero? && !@buildresults.show_all
   .show_all_box
-    = check_box_tag :show_all, true, @buildresults.show_all
+    = check_box_tag "show_all_#{@index}", true, @buildresults.show_all
     - label_message = @buildresults.excluded_counter.zero? ? 'Hide' :  "Show #{@buildresults.excluded_counter}"
-    = label_tag :show_all, "#{label_message} excluded results"
+    = label_tag "show_all_#{@index}", "#{label_message} excluded results"
 
 - @buildresults.results.each_pair do |package, results|
   %h3= package
@@ -38,5 +38,5 @@
     alert(title);
   });
 
-  $('#show_all').change(function(){ update_build_result(); })
+  $("#show_all_#{h @index}").change(function(){ update_build_result_#{h @index}(); })
 
