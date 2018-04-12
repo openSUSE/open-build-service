@@ -2,6 +2,7 @@
 ENV['RAILS_ENV'] ||= 'test'
 ENV['origin_RAILS_ENV'] ||= ENV['RAILS_ENV']
 ENV['LC_ALL'] = 'C'
+no_memcached = ENV['NO_MEMCACHED']
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
 require 'builder'
 
@@ -34,24 +35,26 @@ if File.exist?(backend_config)
   end
 end
 
-# memcached must be running ...
-memcached_pid = %x(ps -C memcached -o pid=).strip
-if memcached_pid.to_i > 0
-  memcached_npid = 0
-  puts "memcached already started (pid=#{memcached_pid})\."
-else
-  puts "memcached not started.\nTrying to start it ..."
-  if Etc.getpwuid(Process::Sys.geteuid).name == 'root'
-    success = system('/usr/sbin/memcached', '-d', '-u', 'wwwrun')
+# if we run the testsuite in a container, we run memcached in a dedicated container
+unless no_memcached
+  memcached_pid = %x(ps -C memcached -o pid=).strip
+  if memcached_pid.to_i > 0
+    memcached_npid = 0
+    puts "memcached already started (pid=#{memcached_pid})\."
   else
-    success = system('/usr/sbin/memcached', '-d')
-  end
-  if success
-    memcached_npid = %x(ps -C memcached -o pid=).strip
-    puts "memcached started (pid=#{memcached_npid})\."
-  else
-    puts "memcached couldn't become started. Abort."
-    exit 1
+    puts "memcached not started.\nTrying to start it ..."
+    if Etc.getpwuid(Process::Sys.geteuid).name == 'root'
+      success = system('/usr/sbin/memcached', '-d', '-u', 'wwwrun')
+    else
+      success = system('/usr/sbin/memcached', '-d')
+    end
+    if success
+      memcached_npid = %x(ps -C memcached -o pid=).strip
+      puts "memcached started (pid=#{memcached_npid})\."
+    else
+      puts "memcached couldn't become started. Abort."
+      exit 1
+    end
   end
 end
 
