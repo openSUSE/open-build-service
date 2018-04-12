@@ -49,14 +49,12 @@ namespace :docker do
       end
     end
 
-    namespace :old do
-      desc 'Run our old api test suite in the docker container'
-      task :api do
-        begin
-          sh 'docker-compose -f docker-compose.ci_old.yml up --build --abort-on-container-exit'
-        ensure
-          sh 'docker-compose -f docker-compose.ci_old.yml stop'
-        end
+    desc 'Run our old api minitest test suite in the docker container'
+    task :minitest do
+      begin
+        sh 'docker-compose -f docker-compose.ci.yml -p minitest run --rm minitest'
+      ensure
+        sh 'docker-compose -f docker-compose.ci.yml -p minitest stop'
       end
     end
   end
