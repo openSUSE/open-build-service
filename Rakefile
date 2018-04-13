@@ -25,7 +25,7 @@ namespace :docker do
     desc 'Run our frontend tests in the docker container'
     task :rspec do
       begin
-        sh 'docker-compose -f docker-compose.ci.yml -p rspec run --rm rspec'
+        sh "docker-compose -f docker-compose.ci.yml -p rspec run #{environment_vars} --rm rspec"
       ensure
         sh 'docker-compose -f docker-compose.ci.yml -p rspec stop'
       end
@@ -43,7 +43,7 @@ namespace :docker do
     desc 'Scan the code base for syntax/code problems'
     task :lint do
       begin
-        sh 'docker-compose -f docker-compose.ci.yml run --rm rspec ../../contrib/start_lint'
+        sh "docker-compose -f docker-compose.ci.yml run #{environment_vars(false)} --rm rspec ../../contrib/start_lint"
       ensure
         sh 'docker-compose -f docker-compose.ci.yml stop'
       end
@@ -52,7 +52,7 @@ namespace :docker do
     desc 'Run our old api minitest test suite in the docker container'
     task :minitest do
       begin
-        sh 'docker-compose -f docker-compose.ci.yml -p minitest run --rm minitest'
+        sh "docker-compose -f docker-compose.ci.yml -p minitest run #{environment_vars} --rm minitest"
       ensure
         sh 'docker-compose -f docker-compose.ci.yml -p minitest stop'
       end
@@ -61,7 +61,7 @@ namespace :docker do
     desc 'Run the spider test to crawl all pages and fail for exceptions'
     task :spider do
       begin
-        sh "docker-compose -f docker-compose.ci.yml run --rm minitest /bin/bash -c ../../contrib/start_spider"
+        sh "docker-compose -f docker-compose.ci.yml run #{environment_vars(false)} --rm minitest /bin/bash -c ../../contrib/start_spider"
       ensure
         sh 'docker-compose -f docker-compose.ci.yml stop'
       end
@@ -140,4 +140,18 @@ namespace :docker do
       end
     end
   end
+end
+
+def environment_vars(with_coverage = true)
+  environment = travis_environment_variables
+  environment << '-e DO_COVERAGE=1 ' if with_coverage && ENV['TRAVIS']
+  environment << '-e EAGER_LOAD=1 '
+  environment << "-e TEST_SUITE='#{ENV['TEST_SUITE']}'"
+  environment
+end
+
+def travis_environment_variables
+  return '' unless ENV['TRAVIS']
+  result = ENV.to_h.keep_if { |key, _value| key.start_with?('TRAVIS') }.map { |key, value| "-e #{key}='#{value}'" }.join(' ')
+  "#{result} -e CI='#{ENV['CI']}' "
 end
