@@ -78,7 +78,7 @@ namespace :docker do
     multitask rebuild: ['rebuild:all'] do
     end
     namespace :rebuild do
-      multitask all: [:base, :backend, 'frontend-base', :mariadb, :memcached, 'old-test-suite'] do
+      multitask all: [:base, :backend, 'frontend-base', :mariadb, :memcached] do
       end
       task :base do
         sh "docker build docker-files/base/ #{tags_for(:base)} -f docker-files/base/Dockerfile.#{VERSION}"
@@ -95,16 +95,13 @@ namespace :docker do
       task backend: [:base] do
         sh "docker build src/backend/ #{tags_for(:backend)} -f src/backend/docker-files/Dockerfile.backend"
       end
-      task 'old-test-suite' => [:base] do
-        sh "docker build src/api/ #{tags_for('old-test-suite')} -f src/api/docker-files/Dockerfile.old-test-suite"
-      end
     end
 
     desc 'Rebuild and publish all our static containers'
     task publish: [:rebuild, 'publish:all'] do
     end
     namespace :publish do
-      multitask all: [:base, :mariadb, :memcached, :backend, 'frontend-base', 'old-test-suite'] do
+      multitask all: [:base, :mariadb, :memcached, :backend, 'frontend-base'] do
       end
       task :base do
         sh "docker push openbuildservice/base:#{VERSION}"
@@ -125,10 +122,6 @@ namespace :docker do
       task 'frontend-base' do
         sh "docker push openbuildservice/frontend-base:#{VERSION}"
         sh 'docker push openbuildservice/frontend-base'
-      end
-      task 'old-test-suite' do
-        sh "docker push openbuildservice/old-test-suite:#{VERSION}"
-        sh 'docker push openbuildservice/old-test-suite'
       end
     end
   end
