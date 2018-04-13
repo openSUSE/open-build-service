@@ -274,6 +274,8 @@ module Event
 
     def send_to_bus
       RabbitmqBus.publish(self.class.message_bus_routing_key, self[:payload])
+      # FIXME: For application health monitoring we would need some more meaningful data like...
+      # RabbitmqBus.publish('opensuse.obs.metrics', "meaning_of_life, value=#{rand(42).to_i}")
     rescue Bunny::Exception, OpenSSL::SSL::SSLError => e
       logger.error "Publishing to RabbitMQ failed: #{e.message}"
     end
