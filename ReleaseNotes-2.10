@@ -33,6 +33,7 @@ Frontend:
  * Improved UI/UX for package live build log:
     * Show a hint to know what is happening.
     * Clicking on the hint can starts or stop the loading of the content.
+ * Do not show excluded entries in package build results by default.
 
 Backend:
 
