@@ -82,10 +82,6 @@ class EventTest < ActionDispatch::IntegrationTest
     assert_equal "Request #{myid} requires review (submit Apache/BranchPack)", email.subject
     assert_equal ['tschmidt@example.com'], email.to
     should = load_fixture('event_mailer/review_wanted').gsub('REQUESTID', myid.to_s).chomp
-    if ENV['TRAVIS']
-      # travis is not using libxdiff and I am too lazy to package it for ubuntu
-      should.gsub!(/\n@@ -0,0 \+1,1 @@\n/, "\n@@ -0,0 +1 @@\n")
-    end
     assert_equal should, email.encoded.lines.map(&:chomp).reject { |l| l =~ %r{^Date:} }.join("\n")
   end
 
