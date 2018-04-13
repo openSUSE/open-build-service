@@ -5,15 +5,11 @@
 set -xe
 
 if test -z "$SUBTEST"; then
-  export DO_COVERAGE=1
-  export EAGER_LOAD=1
-  export TESTOPTS="-v"
   case $TEST_SUITE in
     api)
       rake docker:test:minitest
       ;;
     spider)
-      DO_COVERAGE=1
       rake docker:test:spider
       ;;
     linter)
