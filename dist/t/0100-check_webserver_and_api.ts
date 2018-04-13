@@ -1,40 +1,62 @@
-#!/bin/bash
+#!/usr/bin/perl
 
-export BASH_TAP_ROOT=$(dirname $0)
+use strict;
+use warnings;
+use Test::More tests => 4;
+use Sys::Hostname;
+use Data::Dumper;
+use XML::Structured;
 
-. $(dirname $0)/bash-tap-bootstrap
 
-plan tests 4
+my $oscrc  = "$ENV{HOME}/.oscrc";
+my $apiurl = "http://" . (hostname()||'localhost');
 
-if [ ! -f $HOME/.oscrc ];then
-	
-	cat <<EOF > $HOME/.oscrc
-
+if ( -f $oscrc ) {
+  open(F, '<', $oscrc) || die "Could not open $oscrc: $!";
+  while (<F>) {
+    $apiurl = $1 if (/^\s*apiurl\s*=\s*(.*)$/);
+  }
+  close F;
+} else {
+  open(F, '>', $oscrc) || die "Could not open $oscrc: $!";
+  print F "
 [general]
 apiurl = https://localhost
 [https://localhost]
 user = Admin
 pass = opensuse
+";
+  close F;
+}
 
-EOF
+my $out;
 
-fi
+$out = `osc api about`;
 
-API_VERSION=$(osc api about|grep revision|perl -p -e 's#.*<revision>(.*)</revision>.*#$1#')
-RPM_VERSION=$(rpm -q --qf "%{version}\n" obs-server)
+my $dtd = [
+  about    => 
+    "title",
+    "revision",
+    "description",
+    "last_deployment"
+  ,
+];
 
-is $API_VERSION $RPM_VERSION "Checking api about version"
+my $xml;
+eval {
+  $xml = XMLin($dtd, $out);
+  $out = `rpm -q --qf %{version} obs-server`;
+};
 
-OSC_UNAUHTORIZED=$(osc -A https://localhost ls 2>&1|grep 401)
-[ -z "$OSC_UNAUHTORIZED" ]
-is "$?" 0 "Checking authorization for osc"
+ok($out eq $xml->{revision}, "Checking api about version") || print $?;
 
-# test /apidocs
-HTTP_OK=$(curl -ik https://localhost/apidocs/index 2>/dev/null |grep "200 OK")
-[ -n "$HTTP_OK" ]
-is $? 0 "Checking for https://localhost/apidocs/index"
+$out = `osc -A $apiurl ls 2>&1|grep 401`;
+is($out, "", "Checking authorization for osc");
 
+$out = `curl -ik $apiurl/apidocs/index 2>/dev/null |grep "200 OK"`;
+ok($out, "Checking for $apiurl/apidocs/index");
 
-STATUS_CODE_200=$(curl -I http://localhost 2>/dev/null|head -1|grep -w 200)
-[[ -n $STATUS_CODE_200 ]]
-is "$?" 0 "Checking https://localhost for http status code 200"
+$out = `curl -I $apiurl 2>/dev/null|head -1|grep -w "200 OK"`;
+is($out, "HTTP/1.1 200 OK\r\n", "Checking $apiurl for http status code 200");
+
+exit 0;
