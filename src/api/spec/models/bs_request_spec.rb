@@ -1,14 +1,20 @@
 require 'rails_helper'
 require 'nokogiri'
+# WARNING: If you change tests make sure you uncomment this line
+# and start a test backend. Some of the BsRequestAction methods
+# require real backend answers for projects/packages.
+# CONFIG['global_write_through'] = true
 
-RSpec.describe BsRequest do
-  let(:target_package) { create(:package) }
-  let(:source_package) { create(:package) }
+RSpec.describe BsRequest, vcr: true do
+  let(:target_project) { create(:project, name: 'target_project') }
+  let(:source_project) { create(:project, name: 'source_project') }
+  let(:target_package) { create(:package, name: 'target_package', project: target_project) }
+  let(:source_package) { create(:package, name: 'source_package', project: source_project) }
   let(:submit_request) do
     create(:bs_request_with_submit_action,
-           target_project: target_package.project.name,
+           target_project: target_project.name,
            target_package: target_package.name,
-           source_project: source_package.project.name,
+           source_project: source_project.name,
            source_package: source_package.name)
   end
 
@@ -345,6 +351,76 @@ RSpec.describe BsRequest do
           description_extension: 'moderate => critical'
         )
         expect(history_element).to exist
+      end
+    end
+  end
+
+  context '#forward_to' do
+    let(:user) { create(:confirmed_user, login: 'tux') }
+
+    before do
+      # This avoids failures in the permission validation caused by mocking User.current
+      submit_request
+      allow(User).to receive(:current).and_return(user)
+    end
+
+    context 'with a project as parameter' do
+      subject { submit_request.forward_to(project: user.home_project.name) }
+
+      it 'creates a new submit request open for review' do
+        is_expected.to have_attributes(state: :review, priority: 'moderate')
+      end
+
+      it 'creates a submit request action with the correct target' do
+        expect(subject.bs_request_actions.count).to eq 1
+        expect(subject.bs_request_actions.where(
+                 type:           'submit',
+                 target_project: user.home_project.name,
+                 target_package: target_package.name,
+                 source_project: target_package.project.name,
+                 source_package: target_package.name,
+                 sourceupdate:   nil
+        )).to exist
+      end
+
+      it 'sets the logged in user as creator of the request' do
+        expect(subject.creator).to eq user.login
+      end
+    end
+
+    context 'with project and package as parameter' do
+      subject { submit_request.forward_to(project: user.home_project.name, package: 'my_new_package') }
+
+      it 'creates a submit request action with the correct target' do
+        expect(subject.bs_request_actions.count).to eq 1
+        expect(subject.bs_request_actions.where(type: 'submit', target_project: user.home_project.name,
+                                                target_package: 'my_new_package')).to exist
+      end
+    end
+
+    context 'with options' do
+      before do
+        # For submit requests with 'sourceupdate' the user needs to be able to modify the (forwarded) source package
+        target_package.relationships.create(user: user, role: Role.find_by_title!('maintainer'))
+      end
+
+      subject do
+        submit_request.forward_to(
+          project: user.home_project.name,
+          options: {
+            sourceupdate: 'noupdate',
+            description:  'my description'
+          }
+        )
+      end
+
+      it 'sets the given description' do
+        is_expected.to have_attributes(description: 'my description')
+      end
+
+      it 'creates a submit request action with the correct target' do
+        expect(subject.bs_request_actions.count).to eq 1
+        expect(subject.bs_request_actions.where(type: 'submit', sourceupdate: 'noupdate')).to exist
       end
     end
   end

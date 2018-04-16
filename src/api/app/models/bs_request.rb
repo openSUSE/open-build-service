@@ -1169,6 +1169,28 @@ class BsRequest < ApplicationRecord
     # rubocop:enable Rails/SkipsModelValidations
   end
 
+  def forward_to(project:, package: nil, options: {})
+    new_request = BsRequest.new(state: 'new', description: options[:description])
+    BsRequest.transaction do
+      bs_request_actions.each do |action|
+        rev = Directory.hashed(project: action.target_project, package: action.target_package)['rev']
+
+        opts = { source_project: action.target_project,
+                 source_package: action.target_package,
+                 source_rev:     rev,
+                 target_project: project,
+                 target_package: package }
+        opts[:sourceupdate] = options[:sourceupdate] if options[:sourceupdate]
+        action = BsRequestActionSubmit.new(opts)
+        new_request.bs_request_actions << action
+
+        new_request.save!
+      end
+    end
+
+    new_request
+  end
+
   private
 
   def raisepriority(new_priority)

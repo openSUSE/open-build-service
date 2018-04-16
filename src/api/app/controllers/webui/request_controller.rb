@@ -409,38 +409,20 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def forward_request_to(fwd)
-    tgt_prj, tgt_pkg = params[fwd].split('_#_') # split off 'forward_' and split into project and package
-
-    req = nil
+    # split off 'forward_' and split into project and package
+    tgt_prj, tgt_pkg = params[fwd].split('_#_')
     begin
-      BsRequest.transaction do
-        req = BsRequest.new(state: 'new')
-        req.description = params[:description]
-        @bs_request.bs_request_actions.each do |action|
-          rev = Directory.hashed(project: action.target_project, package: action.target_package)['rev']
-
-          opts = { source_project: action.target_project,
-                   source_package: action.target_package,
-                   source_rev:     rev,
-                   target_project: tgt_prj,
-                   target_package: tgt_pkg }
-          opts[:sourceupdate] = params[:sourceupdate] if params[:sourceupdate]
-          action = BsRequestActionSubmit.new(opts)
-          req.bs_request_actions << action
-
-          req.save!
-        end
-      end
+      forwarded_request = @bs_request.forward_to(project: tgt_prj, package: tgt_pkg, options: params.slice(:description, :sourceupdate))
     rescue APIException, ActiveRecord::RecordInvalid => e
-      error_string = "Failed to forward BsRequest: #{@bs_request.number}, error: #{e}, request: #{req.inspect}, params: #{params.inspect}"
-      error_string << ", Record errors: #{e.record.errors}" if e.respond_to?(:record)
+      error_string = "Failed to forward BsRequest: #{@bs_request.number}, error: #{e}, params: #{params.inspect}"
+      error_string << ", request: #{e.record.inspect}" if e.respond_to?(:record)
       Airbrake.notify(error_string)
       flash[:error] = "Unable to forward submit request: #{e.message}"
       return
     end
 
     target_link = ActionController::Base.helpers.link_to("#{tgt_prj} / #{tgt_pkg}", package_show_url(project: tgt_prj, package: tgt_pkg))
-    request_link = ActionController::Base.helpers.link_to(req.number, request_show_path(req.number))
+    request_link = ActionController::Base.helpers.link_to(forwarded_request.number, request_show_path(forwarded_request.number))
     flash[:notice] += " and forwarded to #{target_link} (request #{request_link})"
   end
 end
