@@ -4,6 +4,13 @@ require 'nokogiri'
 RSpec.describe BsRequest do
   let(:target_package) { create(:package) }
   let(:source_package) { create(:package) }
+  let(:submit_request) do
+    create(:bs_request_with_submit_action,
+           target_project: target_package.project.name,
+           target_package: target_package.name,
+           source_project: source_package.project.name,
+           source_package: source_package.name)
+  end
 
   context '.new_from_xml' do
     let(:user) { create(:user) }
@@ -174,14 +181,7 @@ RSpec.describe BsRequest do
     end
 
     context 'direct maintainer of a target_package' do
-      let!(:request) do
-        create(:bs_request_with_submit_action,
-               target_project: target_package.project.name,
-               target_package: target_package.name,
-               source_project: source_package.project.name,
-               source_package: source_package.name)
-      end
-
+      let!(:request) { submit_request }
       let!(:relationship_package_user) { create(:relationship_package_user, package: target_package) }
       let(:user) { relationship_package_user.user }
 
@@ -189,14 +189,7 @@ RSpec.describe BsRequest do
     end
 
     context 'group maintainer of a target_package' do
-      let!(:request) do
-        create(:bs_request_with_submit_action,
-               target_project: target_package.project.name,
-               target_package: target_package.name,
-               source_project: source_package.project.name,
-               source_package: source_package.name)
-      end
-
+      let!(:request) { submit_request }
       let(:relationship_package_group) { create(:relationship_package_group, package: target_package) }
       let(:group) { relationship_package_group.group }
       let!(:groups_user) { create(:groups_user, group: group) }
