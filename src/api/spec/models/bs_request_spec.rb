@@ -2,19 +2,20 @@ require 'rails_helper'
 require 'nokogiri'
 
 RSpec.describe BsRequest do
+  let(:target_package) { create(:package) }
+  let(:source_package) { create(:package) }
+
   context '.new_from_xml' do
     let(:user) { create(:user) }
-    let(:target) { create(:package) }
-    let(:source) { create(:package) }
-    let(:input) do
+    let(:review_request) do
       create(:review_bs_request,
              reviewer: user.login,
-             target_project: target.project.name,
-             target_package: target.name,
-             source_project: source.project.name,
-             source_package: source.name)
+             target_project: target_package.project.name,
+             target_package: target_package.name,
+             source_project: source_package.project.name,
+             source_package: source_package.name)
     end
-    let(:doc) { Nokogiri::XML(input.to_axml) }
+    let(:doc) { Nokogiri::XML(review_request.to_axml) }
 
     context "'when' attribute provided" do
       let!(:updated_when) { 10.years.ago }
@@ -137,16 +138,12 @@ RSpec.describe BsRequest do
 
     context 'direct maintainer of a target_project' do
       let(:target_project) { create(:project) }
-      let(:source_package) { create(:package) }
-      let(:source_project) { source_package.project }
-
       let!(:request) do
         create(:bs_request_with_submit_action,
                target_project: target_project.name,
-               source_project: source_project.name,
+               source_project: source_package.project.name,
                source_package: source_package.name)
       end
-
       let!(:relationship_project_user) { create(:relationship_project_user, project: target_project) }
       let(:user) { relationship_project_user.user }
 
@@ -155,13 +152,11 @@ RSpec.describe BsRequest do
 
     context 'group maintainer of a target_project' do
       let(:target_project) { create(:project) }
-      let(:source_package) { create(:package) }
-      let(:source_project) { source_package.project }
 
       let!(:request) do
         create(:bs_request_with_submit_action,
                target_project: target_project.name,
-               source_project: source_project.name,
+               source_project: source_package.project.name,
                source_package: source_package.name)
       end
 
@@ -179,16 +174,11 @@ RSpec.describe BsRequest do
     end
 
     context 'direct maintainer of a target_package' do
-      let(:target_package) { create(:package) }
-      let(:target_project) { target_package.project }
-      let(:source_package) { create(:package) }
-      let(:source_project) { source_package.project }
-
       let!(:request) do
         create(:bs_request_with_submit_action,
-               target_project: target_project.name,
+               target_project: target_package.project.name,
                target_package: target_package.name,
-               source_project: source_project.name,
+               source_project: source_package.project.name,
                source_package: source_package.name)
       end
 
@@ -199,16 +189,11 @@ RSpec.describe BsRequest do
     end
 
     context 'group maintainer of a target_package' do
-      let(:target_package) { create(:package) }
-      let(:target_project) { target_package.project }
-      let(:source_package) { create(:package) }
-      let(:source_project) { source_package.project }
-
       let!(:request) do
         create(:bs_request_with_submit_action,
-               target_project: target_project.name,
+               target_project: target_package.project.name,
                target_package: target_package.name,
-               source_project: source_project.name,
+               source_project: source_package.project.name,
                source_package: source_package.name)
       end
 
@@ -306,17 +291,11 @@ RSpec.describe BsRequest do
   describe '.delayed_auto_accept' do
     let!(:project) { create(:project) }
     let!(:admin) { create(:admin_user) }
-
-    let(:target_package) { create(:package) }
-    let(:target_project) { target_package.project }
-    let(:source_package) { create(:package) }
-    let(:source_project) { source_package.project }
-
     let!(:request) do
       create(:bs_request_with_submit_action,
-             target_project: target_project.name,
+             target_project: target_package.project.name,
              target_package: target_package.name,
-             source_project: source_project.name,
+             source_project: source_package.project.name,
              source_package: source_package.name,
              creator: admin.login)
     end
