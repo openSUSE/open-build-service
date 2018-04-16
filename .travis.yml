@@ -43,8 +43,9 @@ jobs:
       before_install:
         - npm install -g jshint
         # These lines are needed to run rubocop in the root directory as we install gems with `bundle install` under `src/api/`
-        - gem install rubocop -v 0.54.0
-        - gem install rubocop-rspec -v 1.25.1
+        # The versions are fetched with bundler and the output is parsed with grep
+        - gem install rubocop -v $(bundle show rubocop | grep -o '[^/rubocop-]*$')
+        - gem install rubocop-rspec -v $(bundle show rubocop-rspec | grep -o '[^/rubocop-rspec-]*$')
     - stage: test
       env: TEST_SUITE=rspec
     - env: TEST_SUITE=api
