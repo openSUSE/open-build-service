@@ -1010,22 +1010,22 @@ class BsRequest < ApplicationRecord
     # apply reviewers
     reviewers.uniq.each do |r|
       if r.class == User
-        next unless reviews.select { |a| a.by_user == r.login }.empty?
+        next if reviews.any? { |a| a.by_user == r.login }
         reviews.new(by_user: r.login, state: :new)
       elsif r.class == Group
-        next unless reviews.select { |a| a.by_group == r.title }.empty?
+        next if reviews.any? { |a| a.by_group == r.title }
         reviews.new(by_group: r.title, state: :new)
       elsif r.class == Project
-        next unless reviews.select { |a| a.by_project == r.name && a.by_package.nil? }.empty?
+        next if reviews.any? { |a| a.by_project == r.name && a.by_package.nil? }
         reviews.new(by_project: r.name, state: :new)
       elsif r.class == Package
-        next unless reviews.select { |a| a.by_project == r.project.name && a.by_package == r.name }.empty?
+        next if reviews.any? { |a| a.by_project == r.project.name && a.by_package == r.name }
         reviews.new(by_project: r.project.name, by_package: r.name, state: :new)
       else
         raise 'Unknown review type'
       end
     end
-    self.state = :review unless reviews.select { |a| a.state == :new }.empty?
+    self.state = :review if reviews.any? { |a| a.state == :new }
   end
 
   def notify
