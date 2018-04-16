@@ -5,7 +5,7 @@ module Event
     payload_keys :author, :comment, :description, :number, :actions, :state, :when, :who
     shortenable_key :description
 
-    DiffLimit = 120
+    DIFF_LIMIT = 120
 
     def self.message_number(number)
       "<obs-request-#{number}@#{message_domain}>"
@@ -81,13 +81,12 @@ module Event
 
       ret = payload
       payload['actions'].each do |a|
-        diff = calculate_diff(a)
+        diff = calculate_diff(a).try(:lines)
         next unless diff
-        diff = diff.lines
-        dl = diff.length
-        if dl > DiffLimit
-          diff = diff[0..DiffLimit]
-          diff << "[cut #{dl - DiffLimit} lines to limit mail size]"
+        diff_length = diff.length
+        if diff_length > DIFF_LIMIT
+          diff = diff[0..DIFF_LIMIT]
+          diff << "[cut #{diff_length - DIFF_LIMIT} lines to limit mail size]"
         end
         a['diff'] = diff.join
       end
@@ -95,11 +94,7 @@ module Event
     end
 
     def reviewers
-      ret = []
-      BsRequest.find_by_number(payload['number']).reviews.each do |r|
-        ret.concat(r.users_and_groups_for_review)
-      end
-      ret.uniq
+      BsRequest.find_by_number(payload['number']).reviews.map(&:users_and_groups_for_review).flatten.uniq
     end
 
     def creators
@@ -107,11 +102,9 @@ module Event
     end
 
     def action_maintainers(prjname, pkgname)
-      ret = []
-      payload['actions'].each do |a|
-        ret.concat _roles('maintainer', a[prjname], a[pkgname])
-      end
-      ret.uniq
+      payload['actions'].map do |action|
+        _roles('maintainer', action[prjname], action[pkgname])
+      end.flatten.uniq
     end
 
     def target_maintainers
