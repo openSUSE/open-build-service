@@ -13,8 +13,11 @@ AllCops:
     - 'docs/api/restility/**/*'
     - 'src/api/test/fixtures/backend/**/*'
     - 'src/api/files/*'
-    - 'dist/**/*'
     - 'src/backend/**/*'
+    # These files are RPM spec files
+    - 'dist/obs-api-deps.spec'
+    - 'dist/obs-server.spec'
+    - 'dist/t/spec/fixtures/ctris.spec'
 
 #################### Layout ###########################
 

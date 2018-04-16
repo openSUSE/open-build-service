@@ -253,21 +253,23 @@ filelist.elements.each("binarylist/binary") { |binary|
     end
   end
 
+  cmd = "osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository/#{fname} > #{dest}/build/#{proj}/#{repo}/#{arch}/:full/#{fname}"
+
   puts "  download:
-  osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository/#{fname} > #{dest}/build/#{proj}/#{repo}/#{arch}/:full/#{fname}" if verbose
+  #{cmd}" if verbose
   if trialrun
     puts "  trialrun: skip download"
-  else
-    # re-try download 3 times
-    for i in 0..2
-      unless system("osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository/#{fname} > #{dest}/build/#{proj}/#{repo}/#{arch}/:full/#{fname}")
-        puts "  retry #{i}: download failure" if verbose
-        puts "  failure: download failure" if i == 2
-        next
-      else
-        puts "  success: download finished" if verbose
-        break
-      end
+    next
+  end
+
+  # re-try download 3 times
+  for i in 0..2
+    if system(cmd)
+      puts "  success: download finished" if verbose
+      break
     end
+
+    puts "  retry #{i}: download failure" if verbose
+    puts "  failure: download failure" if i == 2
   end
 }
