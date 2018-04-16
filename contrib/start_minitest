@@ -1,7 +1,11 @@
 #!/bin/bash
-
+echo "Installing bundle..."
+ls -la /obs/src/api/vendor
+ls -la /obs/src/api/vendor/bundle
+ls -la /obs/src/api/vendor/bundle/ruby/2.5.0/gems
+export NOKOGIRI_USE_SYSTEM_LIBRARIES=1; bundle install --jobs=3 --retry=3 --path vendor/bundle || bundle install --jobs=3 --retry=3 --path vendor/bundle
 echo "Preparing application..."
 bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
-
 echo "Running api test suite..."
+export NO_MEMCACHED=1
 bundle exec rake test:api

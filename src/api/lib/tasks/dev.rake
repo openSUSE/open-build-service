@@ -20,7 +20,7 @@ namespace :dev do
     copy_example_file('config/options.yml')
     options_yml = YAML.load_file('config/options.yml') || {}
     options_yml['source_host'] = args.old_test_suite ? 'localhost' : 'backend'
-    options_yml['memcached_host'] = args.old_test_suite ? 'localhost' : 'cache'
+    options_yml['memcached_host'] = 'cache'
     options_yml['source_port'] = args.old_test_suite ? '3200' : '5352'
     File.open('config/options.yml', 'w') do |f|
       f.write(YAML.dump(options_yml))
@@ -71,7 +71,7 @@ namespace :dev do
     Rake::Task['db:structure:verify'].invoke
     Rake::Task['db:structure:verify_no_bigint'].invoke
     Rake::Task['haml_lint'].invoke
-    Rake::Task['rubocop_lint'].invoke
+    Rake::Task['dev:lint:ruby'].invoke
     Rake::Task['git_cop'].invoke
     sh 'jshint ./app/assets/javascripts/'
   end

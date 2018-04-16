@@ -1,14 +1,25 @@
 version: "2"
 services:
   rspec:
-    image: openbuildservice/frontend
+    image:  registry.opensuse.org/obs/server/unstable/ci/images/x86_64/openbuildservice/frontend-base:latest
     volumes:
       - .:/obs
     depends_on:
       - db
     command: /obs/contrib/start_rspec
+  minitest:
+    image: registry.opensuse.org/obs/server/unstable/ci/images/x86_64/openbuildservice/frontend-backend:latest
+    privileged: true
+    volumes:
+      - .:/obs
+    depends_on:
+      - db
+      - cache
+    command: /obs/contrib/start_minitest
+  cache:
+    image: registry.opensuse.org/obs/server/unstable/ci/images/x86_64/openbuildservice/memcached:latest
   db:
-    image: openbuildservice/mariadb
+    image: registry.opensuse.org/obs/server/unstable/ci/images/x86_64/openbuildservice/mariadb:latest
     volumes:
       - mysql_vol:/var/lib/mysql_tmpfs/
       - .:/obs

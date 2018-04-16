@@ -13,6 +13,3 @@ test:
 
 clean:
 	make -C src/api clean
-
-rubocop:
-	rubocop -D -F --fail-level convention
