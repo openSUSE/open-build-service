@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Installing bundle..."
-export NOKOGIRI_USE_SYSTEM_LIBRARIES=1; bundle install --jobs=3 --retry=3 || bundle install --jobs=3 --retry=3
+export NOKOGIRI_USE_SYSTEM_LIBRARIES=1; bundle install --jobs=3 --retry=3 --path vendor/bundle || bundle install --jobs=3 --retry=3 --path vendor/bundle
 echo "Preparing application..."
 bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
 echo "Running spider test..."
