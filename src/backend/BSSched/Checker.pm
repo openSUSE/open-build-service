@@ -524,9 +524,7 @@ sub expandandsort {
     } else {
       @$packs = emulate_depsort2(\%pdeps, $ctx->{'dep2src'}, \%pkg2src, \@cycles, @$packs);
     }
-    if (@cycles) {
-      print "cycle: ".join(' -> ', @$_)."\n" for @cycles;
-    }
+    # print "cycle: ".join(' -> ', @$_)."\n" for @cycles;
   }
   if (%havepatchinfos) {
     # bring patchinfos to back
