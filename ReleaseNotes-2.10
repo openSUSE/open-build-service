@@ -1,6 +1,6 @@
 
 #
-# Open Build Service 2.9
+# Open Build Service 2.10
 #
 
 WARNING:
@@ -28,107 +28,26 @@ Features
 ========
 
 Generic:
- * image and container maintenance support, including binary tracking
- * riscv64 hardware architecture support
 
 Frontend:
- * New Kerberos authentication mode. Read how to setup Kerberos in the OBS Admin Guide: http://openbuildservice.org/help/manuals/obs-admin-guide/
- * New job history page to see why a package was built.
- * New GPG key details dialog.
- * RSS Feeds for User's Notifications is now available.
- * New Studio Express feature:
-   * New central page to branch image templates from.
-   * Add and edit repository and package lists in kiwi files.
-   * Edit kiwi image details: name, author, contact, specification.
- * RabbitMQ support. OBS admins can configure their instance to send messages to a RabbitMQ server. Read more in the OBS Admin Guide.
- * Receive email notifications for projects that are in your watchlist. Configure at /user/notifications.
- * Improved UI/UX for configuration of notifications page. Now it shows a better layout and explanations to make this complex page easy to understand.
- * Allow users to view the full diff of large changes.
- * Remove the unused api_relative_url_root option from the options.yml file.
- * release mechanism improvements:
-   - manual maintenance release support (avoiding requests)
-   - operation happen atomic for entire project now
-   - support release of single multibuild container
- * Ec2 cloud upload support for ec2 images
  * Improved UI/UX for package live build log:
     * Show a hint to know what is happening.
     * Clicking on the hint can starts or stop the loading of the content.
+ * Do not show excluded entries in package build results by default.
 
 Backend:
- * Support showing source files in blame view (works also via links).
- * Support project copy with makeoriginolder option.
-
-Backend:
- * New build formats:
-   - native container build based on DockerFile (beside exiting kiwi support)
-   - FISSILE build format
-   - AppImage build format
- * freezelink command to freeze current sources accessed via project link
- * support showing source files in blame view (works also via links)
- * support project copy with makeoriginolder option
- * support automatic vrev extending via project links
- * Improved container support:
-   - support build of layered containers by reusing existing contaienrs
-   - support publishing to docker registry server
-   - support container signing via notary server
- * cloud upload server supporting Amazon EC2 and Microsoft Azure
- * improved bootstrap cycle handling
- * additional SHA256 checksum in source commit handling for security
- * projects can be temporary suspended to avoid scheduling between multiple changes
- * support AirBrake for reporting problems
- * support new debian repository format
- * support for building in openstack cloud
- * Many smaller improvements in DownloadOnDemand and multibuild handling
 
 Shipment:
- * To make use of the ec2 cloud upload feature you need to:
-   - Enable the Public Cloud module (only needed for SLE12 systems).
-   - Install the obs-cloud-uploader package.
 
 Bugfixes:
- * Fix deletion of groups with users.
- * Fix notification generation with very big payloads.
- * Create history element on priority raise of request.
- * Fix huge bottleneck in notification emails.
- * Fix setting of new attributes to a project or package.
 
 Intentional changes:
 ====================
 
- * Creating of repositories on branching has changed if repositories of the source refer each other. This gets recreated in new project.
-
- * Project copy is not adding the user anymore.
-
- * Service dispatcher is used by default now.
-
- * The editing of a user's realname, email adress or password is no longer possible if LDAP mode is activated.
-
- * Unused ldap options in options.yml were dropped:
-   - ldap_update_support
-   - ldap_object_class
-   - ldap_entry_base
-   - ldap_sn_attr_required
-
- * Extended build number scheme is enforced for maintenance updates via new project link
-   attribute extendvrev now
-
- * Dropping of the project/package tag functionality/api
-
- * Password hashing algorithm was changed to bcrypt (blowfish).
-
- * The backend notification plugin system is not used anymore:
-   - The RabbitMQ plugin is replaced with a RabbitMQ message bus implementation in the frontend, you can find details about this in the admin manual.
-   - The Hermes plugin is dropped without replacement as it was only used for notifications which the OBS is doing on it's own since quite some time.
-
- * _multibuild files have a changed syntax, but OBS stays backward compatible.  Use <flavor> instead of <package> elements in the future.
-
- * publish hook failures are handled as fatal failures now.
-   => publisher will retry to publish
 
 Other changes
 =============
 
- *  Binaries page now points to the download, cloud upload and details page using links.
 
 Notes for systems using systemd:
 ================================
