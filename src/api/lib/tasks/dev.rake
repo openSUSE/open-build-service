@@ -41,7 +41,6 @@ namespace :dev do
     rescue
       Rake::Task['db:create'].invoke
       Rake::Task['db:setup'].invoke
-      Rake::Task['db:seed'].invoke
       if args.old_test_suite
         puts 'Old test suite. Loading fixtures...'
         Rake::Task['db:fixtures:load'].invoke
