@@ -13,7 +13,7 @@ RSpec.describe Webui::RequestController, vcr: true do
   let(:source_project) { submitter.home_project }
   let(:source_package) { create(:package, name: 'ball', project_id: source_project.id) }
   let(:devel_project) { create(:project, name: 'devel:project') }
-  let(:devel_package) { create(:package, name: 'goal', project: devel_project) }
+  let(:devel_package) { create(:package_with_file, name: 'goal', project: devel_project) }
   let(:bs_request) { create(:bs_request, description: 'Please take this', creator: submitter.login) }
   let(:bs_request_submit_action) do
     create(:bs_request_action_submit, target_project: target_project.name,
