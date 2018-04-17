@@ -579,6 +579,7 @@ touch /srv/www/obs/api/last_deploy
 /usr/lib/obs/server/bs_mergechanges
 /usr/lib/obs/server/bs_mkarchrepo
 /usr/lib/obs/server/bs_notar
+/usr/lib/obs/server/bs_regpush
 /usr/lib/obs/server/bs_dispatch
 /usr/lib/obs/server/bs_publish
 /usr/lib/obs/server/bs_repserver

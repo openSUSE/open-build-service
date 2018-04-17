@@ -1,0 +1,438 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2018 SUSE Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# Registry interfacing
+#
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
+use JSON::XS ();
+use Digest::SHA ();
+use Data::Dumper;
+use Compress::Zlib;
+
+use BSRPC ':https';
+use BSTar;
+use BSUtil;
+use BSBearer;
+
+use strict;
+
+my $registry_timeout = 300;
+
+my $dest_creds;
+my $use_image_tags;
+my $multiarch;
+my $digestfile;
+my @tags;
+
+my $registryserver;
+my $repository;
+my @tarfiles;
+
+my $registry_authenticator;
+
+sub checksum_file {
+  my ($handle, $ent, $ctx) = @_;
+  my $offset = 0;
+  while (1) {
+    my $chunk = BSTar::extract($handle, $ent, $offset, 65536);
+    last unless length($chunk);
+    $ctx->add($chunk);
+    $offset += length($chunk);
+  }
+}
+
+sub compress_file {
+  my ($handle, $ent) = @_;
+  my ($tmp, $tmp2);
+  open($tmp, '+>', undef) || die;
+  open($tmp2, "+>&", $tmp) || die;	# gzclose close the file, grr...
+  my $gz = gzopen($tmp2, 'w') ;
+  my $offset = 0;
+  while (1) {
+    my $chunk = BSTar::extract($handle, $ent, $offset, 65536);
+    last unless length($chunk);
+    $gz->gzwrite($chunk) || die("gzwrite failed\n");
+    $offset += length($chunk);
+  }
+  $gz->gzclose() && die("gzclose failed\n");
+  return $tmp;
+}
+
+sub send_layer {
+  my ($param) = @_;
+  my $sl = $param->{'send_layer_data'}; # [ $handle, $layer_ent, $offset ],
+  my $chunk = BSTar::extract($sl->[1]->{'fd'} || $sl->[0], $sl->[1], $sl->[2], 65536);
+  $sl->[2] += length($chunk);
+  return $chunk;
+}
+
+sub blob_exists {
+  my ($blobid, $size) = @_;
+  my $replyheaders;
+  my $param = {
+    'uri' => "$registryserver/v2/$repository/blobs/$blobid",
+    'request' => 'HEAD',
+    'authenticator' => $registry_authenticator,
+    'timeout' => $registry_timeout,
+    'replyheaders' => \$replyheaders,
+  };
+  $replyheaders = undef;
+  eval { BSRPC::rpc($param) };
+  if ($replyheaders) {
+    die("size mismatch?\n") if $replyheaders->{'content-length'} && $size && $size != $replyheaders->{'content-length'};
+    return 0 if $replyheaders->{'docker-content-digest'} && $blobid ne $replyheaders->{'docker-content-digest'};
+    return 1;
+  }
+  return 0;
+}
+
+sub blob_upload {
+  my ($blobid, $handle, $upload_ent) = @_;
+
+  return $blobid if blob_exists($blobid, $upload_ent->{'size'});
+  print "uploading layer $blobid... ";
+  my $replyheaders;
+  my $param = {
+    'uri' => "$registryserver/v2/$repository/blobs/uploads/",
+    'request' => 'POST',
+    'authenticator' => $registry_authenticator,
+    'timeout' => $registry_timeout,
+    'replyheaders' => \$replyheaders,
+  };
+  BSRPC::rpc($param);
+  my $loc = $replyheaders->{'location'};
+  my @locextra;
+  if ($loc =~ s/\?(.*)$//) {
+    push @locextra, split('&', $1);
+    s/%([a-fA-F0-9]{2})/chr(hex($1))/ge for @locextra;
+  }
+  die("no location in upload reply\n") unless $loc;
+  $loc = "$registryserver$loc" if $loc =~ /^\//;
+  $param = {
+    'headers' => [ "Content-Length: $upload_ent->{'size'}", "Content-Type: application/octet-stream" ],
+    'uri' => $loc,
+    'request' => 'PUT',
+    'authenticator' => $registry_authenticator,
+    'replyheaders' => \$replyheaders,
+    'data' => \&send_layer,
+    'send_layer_data' => [ $handle, $upload_ent, 0 ],
+  };
+  $replyheaders = undef;
+  BSRPC::rpc($param, undef, @locextra, "digest=$blobid");
+  my $id = $replyheaders->{'docker-content-digest'};
+  die("server did not return a content id\n") unless $id;
+  die("server created a different blobid: $blobid $id\n") if $blobid ne $id;
+  print "done.\n";
+  return $blobid;
+}
+
+sub manifest_exists {
+  my ($manifest, $tag, $content_type) = @_;
+
+  $content_type ||= 'application/vnd.docker.distribution.manifest.v2+json';
+  my $maniid = 'sha256:'.Digest::SHA::sha256_hex($manifest);
+  $tag = $maniid unless defined $tag;
+  my $replyheaders;
+  my $param = {
+    'headers' => [ "Accept: $content_type" ],
+    'uri' => "$registryserver/v2/$repository/manifests/$tag",
+    'authenticator' => $registry_authenticator,
+    'replyheaders' => \$replyheaders,
+    'timeout' => $registry_timeout,
+  };
+  my $maniret;
+  eval { $maniret = BSRPC::rpc($param) };
+  if ($maniret) {
+    my $maniretid = $replyheaders->{'docker-content-digest'};
+    $maniretid ||= 'sha256:'.Digest::SHA::sha256_hex($maniret);
+    return 1 if $maniretid eq $maniid;
+  }
+  return 0;
+}
+
+sub manifest_upload {
+  my ($manifest, $tag, $content_type) = @_;
+
+  my $maniid = 'sha256:'.Digest::SHA::sha256_hex($manifest);
+  return $maniid if manifest_exists($manifest, $tag, $content_type);
+  $content_type ||= 'application/vnd.docker.distribution.manifest.v2+json';
+  my $fat = '';
+  $fat = 'fat ' if $content_type eq 'application/vnd.docker.distribution.manifest.list.v2+json';
+  if (defined($tag)) {
+    print "uploading ${fat}manifest $maniid for tag '$tag'... ";
+  } else {
+    print "uploading ${fat}manifest $maniid... ";
+  }
+  $tag = $maniid unless defined $tag;
+  my $replyheaders;
+  my $param = {
+    'headers' => [ "Content-Type: $content_type" ],
+    'uri' => "$registryserver/v2/$repository/manifests/$tag",
+    'request' => 'PUT',
+    'authenticator' => $registry_authenticator,
+    'replyheaders' => \$replyheaders,
+    'data' => $manifest,
+  };
+  BSRPC::rpc($param, undef);
+  my $id = $replyheaders->{'docker-content-digest'};
+  die("server did not return a content id\n") unless $id;
+  die("server created a different manifest id: $maniid $id\n") if $maniid ne $id;
+  print "done.\n";
+  return $maniid;
+}
+
+sub manifest_append {
+  my ($manifest, $tag) = @_;
+  my $maniid = 'sha256:'.Digest::SHA::sha256_hex($manifest);
+  my $str = "$maniid ".length($manifest)." $tag\n";
+  if ($digestfile ne '-') {
+    BSUtil::appendstr($digestfile, "$maniid ".length($manifest)." $tag\n");
+  } else {
+    print $str;
+  }
+}
+
+sub read_tar_manifest {
+  my ($handle, $tar) = @_;
+
+  my $manifest_ent = $tar->{'manifest.json'};
+  die("no manifest.json file found\n") unless $manifest_ent;
+  my $manifest_json = BSTar::extract(\*TAR, $manifest_ent);
+  my $manifest = JSON::XS::decode_json($manifest_json);
+  die("tar contains no image\n") unless @{$manifest || []};
+  die("tar contains more than one image\n") unless @$manifest == 1;
+  $manifest = $manifest->[0];
+  return $manifest;
+}
+
+sub detect_compression {
+  my ($head) = @_;
+  my $comp = '';
+  if (substr($head, 0, 3) eq "\x42\x5a\x68") {
+    $comp = 'bzip2';
+  } elsif (substr($head, 0, 3) eq "\x1f\x8b\x08") {
+    $comp = 'gzip';
+  } elsif (substr($head, 0, 6) eq "\xfd\x37\x7a\x58\x5a\x00") {
+    $comp = 'xz';
+  }
+  return $comp;
+}
+
+
+$| = 1;
+
+while (@ARGV) {
+  if ($ARGV[0] eq '--dest-creds') {
+    $dest_creds = BSBearer::get_credentials($ARGV[1]);
+    splice(@ARGV, 0, 2);
+    next;
+  }
+  if ($ARGV[0] eq '-T') {
+    $use_image_tags = 1;
+    shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '-m') {
+    $multiarch = 1;
+    shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '-t') {
+    push @tags, $ARGV[1];
+    splice(@ARGV, 0, 2);
+    next;
+  }
+  if ($ARGV[0] eq '-F') {
+    $digestfile = $ARGV[1];
+    splice(@ARGV, 0, 2);
+    next;
+  }
+  last;
+}
+
+die("usage: bs_regpush <registryserver> <repository> <tarfile>...\n") unless @ARGV >= 2;
+($registryserver, $repository, @tarfiles) = @ARGV;
+die("No tar file to upload?\n") unless @tarfiles;
+die("more than one tar file specified\n") if @tarfiles > 1 && !$multiarch;
+
+$registry_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => 1);
+
+if ($use_image_tags && @tarfiles > 1) {
+  # make sure all tar files contain the same tags
+  my $imagetags;
+  for my $tarfile (@tarfiles) {
+    local *TAR;
+    open(TAR, '<', $tarfile) || die("$tarfile: $!\n");
+    my $tar = BSTar::list(\*TAR);
+    my %tar = map {$_->{'name'} => $_} @$tar;
+    my $manifest = read_tar_manifest(\*TAR, \%tar);
+    my @imagetags = @{$manifest->{'RepoTags'} || []};
+    s/.*:// for @imagetags;
+    my $it = join(', ', sort(BSUtil::unify(@imagetags)));
+    die("multiarch images contain different tags: $imagetags -- $it\n") if defined($imagetags) && $imagetags ne $it;
+    if (!defined($imagetags)) {
+      $imagetags = $it;
+      push @tags, @imagetags;
+    }
+    close(TAR);
+  }
+  $use_image_tags = 0;
+}
+
+my @multimanifests;
+for my $tarfile (@tarfiles) {
+  local *TAR;
+  open(TAR, '<', $tarfile) || die("$tarfile: $!\n");
+  my $tar = BSTar::list(\*TAR);
+  my %tar = map {$_->{'name'} => $_} @$tar;
+
+  my $manifest = read_tar_manifest(\*TAR, \%tar);
+  #print Dumper($manifest);
+
+  if ($use_image_tags) {
+    my @imagetags = @{$manifest->{'RepoTags'} || []};
+    s/.*:// for @imagetags;
+    push @tags, @imagetags if $use_image_tags;
+  }
+
+  my $config_file = $manifest->{'Config'};
+  die("manifest has no Config\n") unless defined $config_file;
+  my $config_ent = $tar{$config_file};
+  die("Config file $config_file not included in tar\n") unless $config_ent;
+  my $config_json = BSTar::extract(\*TAR, $config_ent);
+  my $config = JSON::XS::decode_json($config_json);
+  #print Dumper($config);
+
+  my @layers = @{$manifest->{'Layers'} || []};
+  die("container has no layers\n") unless @layers;
+  my $config_layers = $config->{'rootfs'}->{'diff_ids'};
+  die("layer number mismatch\n") if @layers != @{$config_layers || []};
+
+  my %layer_datas;
+  my @layer_data;
+  my $config_data;
+
+  for my $layer_file ($config_file, @layers) {
+    if ($layer_file ne $config_file && $layer_datas{$layer_file}) {
+      # already did that one!
+      push @layer_data, $layer_datas{$layer_file};
+      next;
+    }
+    my $layer_ent = $tar{$layer_file};
+    die("File $layer_file not included in tar\n") unless $layer_ent;
+
+    # detect layer compression
+    my $comp = detect_compression(BSTar::extract(\*TAR, $layer_ent, 0, 6));
+    die("unsupported compression $comp\n") if $comp && $comp ne 'gzip';
+
+    my $upload_ent = $layer_ent;
+
+    # find blob id (and compress if necessary)
+    my $ctx = Digest::SHA->new(256);
+    if (!$comp && $layer_file ne $config_file) {
+      print "compressing layer $layer_file... ";
+      my $fd = compress_file(\*TAR, $layer_ent);
+      seek($fd, 0, 0) || die("seek failed\n");
+      $ctx->addfile($fd);
+      my $size = -s $fd;
+      $upload_ent = { %$layer_ent, 'offset' => 0, 'size' => $size, 'fd' => $fd };
+      print "done.\n";
+    } else {
+      checksum_file(\*TAR, $layer_ent, $ctx);
+    }
+    my $blobid = "sha256:".$ctx->hexdigest();
+    #print "$layer_file -> $blobid\n";
+
+    # create layer data
+    my $layer_data = {
+      'xxx1_mediaType' => $layer_file eq $config_file ? 'application/vnd.docker.container.image.v1+json' : 'application/vnd.docker.image.rootfs.diff.tar.gzip',
+      'xxx2_size' => $upload_ent->{'size'},
+      'xxx3_digest' => $blobid,
+    };
+    if ($layer_file eq $config_file) {
+      $config_data = $layer_data;
+    } else {
+      push @layer_data, $layer_data;
+      $layer_datas{$layer_file} = $layer_data;
+    }
+
+    # upload if not available
+    blob_upload($blobid, \*TAR, $upload_ent);
+  }
+
+  my $mani = {
+    'xxx1_schemaVersion' => 2,
+    'xxx2_mediaType' => 'application/vnd.docker.distribution.manifest.v2+json',
+    'xxx3_config' => $config_data,
+    'xxx4_layers' => \@layer_data,
+  };
+  my $mani_json = JSON::XS->new->utf8->canonical->pretty->encode($mani);
+  $mani_json =~ s/xxx\d_//g;
+  $mani_json =~ s/\n$//s;
+
+  if ($multiarch || !@tags) {
+    # upload anonymous image
+    manifest_upload($mani_json, undef);
+  } else {
+    for my $tag (BSUtil::unify(@tags)) {
+      manifest_upload($mani_json, $tag);
+      manifest_append($mani_json, $tag);
+    }
+  }
+
+  if ($multiarch) {
+    my $multimani = {
+      'xxx1_mediaType' => 'application/vnd.docker.image.manifest.v2+json',
+      'xxx2_size' => length($mani_json),
+      'xxx3_digest' => 'sha256:'.Digest::SHA::sha256_hex($mani_json),
+      'xxx4_platform' => {'architecture' => $config->{'architecture'}, 'os' => $config->{'os'}},
+    };
+    push @multimanifests, $multimani;
+  }
+}
+
+if ($multiarch) {
+  my $ct = 'application/vnd.docker.distribution.manifest.list.v2+json';
+  my $mani = {
+    'xxx1_schemaVersion' => 2,
+    'xxx2_mediaType' => $ct,
+    'xxx3_manifests' => \@multimanifests,
+  };
+  my $mani_json = JSON::XS->new->utf8->canonical->pretty->encode($mani);
+  $mani_json =~ s/xxx\d_//g;
+  $mani_json =~ s/\n$//s;
+  if (!@tags) {
+    # upload anonymous image
+    manifest_upload($mani_json, undef, $ct);
+  } else {
+    for my $tag (BSUtil::unify(@tags)) {
+      manifest_upload($mani_json, $tag, $ct);
+      manifest_append($mani_json, $tag);
+    }
+  }
+}
+
