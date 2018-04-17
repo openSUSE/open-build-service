@@ -995,20 +995,9 @@ class BsRequest < ApplicationRecord
   end
 
   def apply_default_reviewers
-    #
-    # Find out about defined reviewers in target
-    #
-    # check targets for defined default reviewers
-    reviewers = []
-
-    bs_request_actions.each do |action|
-      reviewers += action.default_reviewers
-
-      action.create_post_permissions_hook(per_package_locking: @per_package_locking)
-    end
-
+    reviewers = collect_default_reviewers!
     # apply reviewers
-    reviewers.uniq.each do |r|
+    reviewers.each do |r|
       if r.class == User
         next if reviews.any? { |a| a.by_user == r.login }
         reviews.new(by_user: r.login, state: :new)
@@ -1192,6 +1181,18 @@ class BsRequest < ApplicationRecord
   end
 
   private
+
+  #
+  # Find out about defined reviewers in target
+  #
+  # check targets for defined default reviewers and
+  # trigger the create_post_permissions_hook
+  def collect_default_reviewers!
+    bs_request_actions.map do |action|
+      action.create_post_permissions_hook(per_package_locking: @per_package_locking)
+      action.default_reviewers
+    end.uniq.flatten
+  end
 
   def raisepriority(new_priority)
     # rails enums do not support compare and break db constraints :/
