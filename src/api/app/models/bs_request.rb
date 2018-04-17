@@ -1160,7 +1160,7 @@ class BsRequest < ApplicationRecord
   end
 
   def forward_to(project:, package: nil, options: {})
-    new_request = BsRequest.new(state: 'new', description: options[:description])
+    new_request = BsRequest.new(description: options[:description])
     BsRequest.transaction do
       bs_request_actions.each do |action|
         rev = Directory.hashed(project: action.target_project, package: action.target_package)['rev']
@@ -1169,10 +1169,10 @@ class BsRequest < ApplicationRecord
                  source_package: action.target_package,
                  source_rev:     rev,
                  target_project: project,
-                 target_package: package }
+                 target_package: package,
+                 type:           'submit' }
         opts[:sourceupdate] = options[:sourceupdate] if options[:sourceupdate]
-        action = BsRequestActionSubmit.new(opts)
-        new_request.bs_request_actions << action
+        new_request.bs_request_actions.build(opts)
 
         new_request.save!
       end
