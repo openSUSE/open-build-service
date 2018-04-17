@@ -135,6 +135,7 @@ sub check {
       }
       return ('broken', 'no config');
     }
+    $bconf->{'type'} = 'kiwi';
   }
 
   my @blocked;

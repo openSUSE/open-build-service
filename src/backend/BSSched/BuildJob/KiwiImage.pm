@@ -101,6 +101,7 @@ sub check {
     }
     return ('broken', 'no config');
   }
+  $bconf->{'type'} = 'kiwi';
 
   my $pool = BSSolv::pool->new();
   $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
