@@ -1,4 +1,3 @@
-#!/usr/bin/perl -w
 #
 # Copyright (c) 2006-2012 Novell Inc.
 #
