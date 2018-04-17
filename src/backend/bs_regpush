@@ -216,6 +216,15 @@ sub manifest_append {
   }
 }
 
+sub manifest_upload_tags {
+  my ($manifest, $tags, $content_type) = @_;
+  return manifest_upload($manifest, undef, $content_type) unless @{$tags || []};
+  for my $tag (BSUtil::unify(@$tags)) {
+    manifest_upload($manifest, $tag, $content_type);
+    manifest_append($manifest, $tag) if defined $digestfile;
+  }
+}
+
 sub read_tar_manifest {
   my ($handle, $tar) = @_;
 
@@ -304,6 +313,7 @@ if ($use_image_tags && @tarfiles > 1) {
 }
 
 my @multimanifests;
+my %multiplatforms;
 for my $tarfile (@tarfiles) {
   local *TAR;
   open(TAR, '<', $tarfile) || die("$tarfile: $!\n");
@@ -331,6 +341,17 @@ for my $tarfile (@tarfiles) {
   die("container has no layers\n") unless @layers;
   my $config_layers = $config->{'rootfs'}->{'diff_ids'};
   die("layer number mismatch\n") if @layers != @{$config_layers || []};
+
+  if ($multiarch) {
+    # see if a already have this arch/os combination
+    my $platformstr = "architecture:$config->{'architecture'} os:$config->{'os'}";
+    if ($multiplatforms{$platformstr}) {
+      print "ignoring $tarfile, already have $platformstr\n";
+      close TAR;
+      next;
+    }
+    $multiplatforms{$platformstr} = 1;
+  }
 
   my %layer_datas;
   my @layer_data;
@@ -383,6 +404,7 @@ for my $tarfile (@tarfiles) {
     # upload if not available
     blob_upload($blobid, \*TAR, $upload_ent);
   }
+  close TAR;
 
   my $mani = {
     'xxx1_schemaVersion' => 2,
@@ -394,17 +416,8 @@ for my $tarfile (@tarfiles) {
   $mani_json =~ s/xxx\d_//g;
   $mani_json =~ s/\n$//s;
 
-  if ($multiarch || !@tags) {
-    # upload anonymous image
-    manifest_upload($mani_json, undef);
-  } else {
-    for my $tag (BSUtil::unify(@tags)) {
-      manifest_upload($mani_json, $tag);
-      manifest_append($mani_json, $tag);
-    }
-  }
-
   if ($multiarch) {
+    manifest_upload($mani_json, undef);		# upload anonymous image
     my $multimani = {
       'xxx1_mediaType' => 'application/vnd.docker.image.manifest.v2+json',
       'xxx2_size' => length($mani_json),
@@ -412,6 +425,8 @@ for my $tarfile (@tarfiles) {
       'xxx4_platform' => {'architecture' => $config->{'architecture'}, 'os' => $config->{'os'}},
     };
     push @multimanifests, $multimani;
+  } else {
+    manifest_upload_tags($mani_json, \@tags);
   }
 }
 
@@ -425,14 +440,6 @@ if ($multiarch) {
   my $mani_json = JSON::XS->new->utf8->canonical->pretty->encode($mani);
   $mani_json =~ s/xxx\d_//g;
   $mani_json =~ s/\n$//s;
-  if (!@tags) {
-    # upload anonymous image
-    manifest_upload($mani_json, undef, $ct);
-  } else {
-    for my $tag (BSUtil::unify(@tags)) {
-      manifest_upload($mani_json, $tag, $ct);
-      manifest_append($mani_json, $tag);
-    }
-  }
+  manifest_upload_tags($mani_json, \@tags, $ct);
 }
 
