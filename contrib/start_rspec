@@ -1,5 +1,7 @@
 #!/bin/bash
+echo "Installing bundle..."
+export NOKOGIRI_USE_SYSTEM_LIBRARIES=1; bundle install --jobs=3 --retry=3 --path vendor/bundle || bundle install --jobs=3 --retry=3 --path vendor/bundle
 echo "Preparing application..."
 bundle exec rake dev:bootstrap RAILS_ENV=test
 echo "Running rspec..."
-bundle exec rspec --format doc
+bundle exec rspec

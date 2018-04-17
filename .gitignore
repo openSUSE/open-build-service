@@ -70,3 +70,5 @@ nbproject
 *.iws
 .idea/
 .kanku/
+src/api/.bundle/
+src/api/vendor/bundle

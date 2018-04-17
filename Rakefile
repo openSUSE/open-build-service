@@ -23,11 +23,11 @@ namespace :docker do
 
   namespace :test do
     desc 'Run our frontend tests in the docker container'
-    task :frontend do
+    task :rspec do
       begin
-        sh 'docker-compose -f docker-compose.ci.yml up --abort-on-container-exit'
+        sh "docker-compose -f docker-compose.ci.yml -p rspec run #{environment_vars} --rm rspec"
       ensure
-        sh 'docker-compose -f docker-compose.ci.yml stop'
+        sh 'docker-compose -f docker-compose.ci.yml -p rspec stop'
       end
     end
 
@@ -43,20 +43,27 @@ namespace :docker do
     desc 'Scan the code base for syntax/code problems'
     task :lint do
       begin
-        sh 'docker-compose -f docker-compose.ci.yml run --rm rspec bundle exec rake dev:bootstrap dev:lint'
+        sh "docker-compose -f docker-compose.ci.yml run #{environment_vars(false)} --rm rspec ../../contrib/start_lint"
       ensure
         sh 'docker-compose -f docker-compose.ci.yml stop'
       end
     end
 
-    namespace :old do
-      desc 'Run our old api test suite in the docker container'
-      task :api do
-        begin
-          sh 'docker-compose -f docker-compose.ci_old.yml up --build --abort-on-container-exit'
-        ensure
-          sh 'docker-compose -f docker-compose.ci_old.yml stop'
-        end
+    desc 'Run our old api minitest test suite in the docker container'
+    task :minitest do
+      begin
+        sh "docker-compose -f docker-compose.ci.yml -p minitest run #{environment_vars} --rm minitest"
+      ensure
+        sh 'docker-compose -f docker-compose.ci.yml -p minitest stop'
+      end
+    end
+
+    desc 'Run the spider test to crawl all pages and fail for exceptions'
+    task :spider do
+      begin
+        sh "docker-compose -f docker-compose.ci.yml run #{environment_vars(false)} --rm minitest /bin/bash -c ../../contrib/start_spider"
+      ensure
+        sh 'docker-compose -f docker-compose.ci.yml stop'
       end
     end
   end
@@ -70,7 +77,7 @@ namespace :docker do
     multitask rebuild: ['rebuild:all'] do
     end
     namespace :rebuild do
-      multitask all: [:base, :backend, 'frontend-base', :mariadb, :memcached, 'old-test-suite'] do
+      multitask all: [:base, :backend, 'frontend-base', :mariadb, :memcached] do
       end
       task :base do
         sh "docker build docker-files/base/ #{tags_for(:base)} -f docker-files/base/Dockerfile.#{VERSION}"
@@ -87,16 +94,13 @@ namespace :docker do
       task backend: [:base] do
         sh "docker build src/backend/ #{tags_for(:backend)} -f src/backend/docker-files/Dockerfile.backend"
       end
-      task 'old-test-suite' => [:base] do
-        sh "docker build src/api/ #{tags_for('old-test-suite')} -f src/api/docker-files/Dockerfile.old-test-suite"
-      end
     end
 
     desc 'Rebuild and publish all our static containers'
     task publish: [:rebuild, 'publish:all'] do
     end
     namespace :publish do
-      multitask all: [:base, :mariadb, :memcached, :backend, 'frontend-base', 'old-test-suite'] do
+      multitask all: [:base, :mariadb, :memcached, :backend, 'frontend-base'] do
       end
       task :base do
         sh "docker push openbuildservice/base:#{VERSION}"
@@ -118,10 +122,6 @@ namespace :docker do
         sh "docker push openbuildservice/frontend-base:#{VERSION}"
         sh 'docker push openbuildservice/frontend-base'
       end
-      task 'old-test-suite' do
-        sh "docker push openbuildservice/old-test-suite:#{VERSION}"
-        sh 'docker push openbuildservice/old-test-suite'
-      end
     end
   end
   namespace :ahm do
@@ -140,4 +140,18 @@ namespace :docker do
       end
     end
   end
+end
+
+def environment_vars(with_coverage = true)
+  environment = travis_environment_variables
+  environment << '-e DO_COVERAGE=1 ' if with_coverage && ENV['TRAVIS']
+  environment << '-e EAGER_LOAD=1 '
+  environment << "-e TEST_SUITE='#{ENV['TEST_SUITE']}'"
+  environment
+end
+
+def travis_environment_variables
+  return '' unless ENV['TRAVIS']
+  result = ENV.to_h.keep_if { |key, _value| key.start_with?('TRAVIS') }.map { |key, value| "-e #{key}='#{value}'" }.join(' ')
+  "#{result} -e CI='#{ENV['CI']}' "
 end
