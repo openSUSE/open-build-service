@@ -258,6 +258,11 @@ sub rpc {
 
   push @xhdrs, "Content-Length: ".length($data) if defined($data) && !ref($data) && !$chunked && !grep {/^content-length:/i} @xhdrs;
   push @xhdrs, "Transfer-Encoding: chunked" if $chunked;
+  if ($param->{'authenticator'} && !grep {/^authorization:/i} @xhdrs) {
+    # ask authenticator for cached authorization
+    my $auth = $param->{'authenticator'}->($param);
+    push @xhdrs, "Authorization: $auth" if $auth;
+  }
   my $uri = createuri($param, @args);
   my $proxy = $param->{'proxy'};
   my ($proto, $host, $port, $req, $proxytunnel) = createreq($param, $uri, $proxy, \%cookiestore, @xhdrs);
