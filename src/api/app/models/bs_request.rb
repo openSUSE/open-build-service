@@ -88,6 +88,7 @@ class BsRequest < ApplicationRecord
   validate :check_creator, on: [:create, :save!]
   validates :comment, length: { maximum: 65_535 }
   validates :description, length: { maximum: 65_535 }
+  validates_associated :bs_request_actions, message: ->(_, record) { record[:value].map { |r| r.errors.full_messages }.flatten.to_sentence }
 
   after_update :send_state_change
   after_commit :update_cache

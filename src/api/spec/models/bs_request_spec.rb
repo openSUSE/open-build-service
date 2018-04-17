@@ -18,6 +18,20 @@ RSpec.describe BsRequest, vcr: true do
            source_package: source_package.name)
   end
 
+  context 'validations' do
+    let(:bs_request) { create(:bs_request) }
+    let(:bs_request_action) { create(:bs_request_action, bs_request: bs_request) }
+
+    it 'includes validation errors of associated bs_request_actions' do
+      # rubocop:disable Rails/SkipsModelValidations
+      bs_request_action.update_attribute(:sourceupdate, 'foo')
+      # rubocop:enable Rails/SkipsModelValidations
+      expect { bs_request.reload.save! }.to raise_error(
+        ActiveRecord::RecordInvalid, 'Validation failed: Bs request actions Sourceupdate is not included in the list'
+      )
+    end
+  end
+
   context '.new_from_xml' do
     let(:user) { create(:user) }
     let(:review_request) do
