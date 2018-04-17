@@ -33,11 +33,12 @@ use MIME::Base64 ();
 use Digest::SHA ();
 use Data::Dumper;
 
-use BSConfiguration;
+use BSConfiguration;	# for BSConfig::sign
 use BSRPC ':https';
 use BSUtil;
 use BSASN1;
 use BSPGP;
+use BSBearer;
 
 use strict;
 
@@ -146,6 +147,8 @@ sub signedmultipartentry {
 my $pubkeyfile;
 my $dest_creds;
 my $justadd;
+my $digestfile;
+
 while (@ARGV) {
   if ($ARGV[0] eq '-p') {
     (undef, $pubkeyfile) = splice(@ARGV, 0, 2);
@@ -163,6 +166,11 @@ while (@ARGV) {
     splice(@ARGV, 0, 2);	# always sha256
     next;
   }
+  if ($ARGV[0] eq '-F') {
+    $digestfile = $ARGV[1];
+    splice(@ARGV, 0, 2);
+    next;
+  }
   if ($ARGV[0] eq '--just-add') {
     shift @ARGV;
     $justadd = 1;
@@ -171,72 +179,57 @@ while (@ARGV) {
   last;
 }
 
-die("Usage: bs_notar -p pubkeyfile registryserver notaryserver gun tags...\n") unless @ARGV >= 3;
-my ($registryserver, $notaryserver, $gun, @tags) = @ARGV;
+my ($registryserver, $notaryserver, $gun, @tags);
+
+if ($digestfile) {
+  die("Usage: bs_notar -p pubkeyfile -F digestfile notaryserver gun\n") unless @ARGV == 2;
+  ($notaryserver, $gun) = @ARGV;
+} else {
+  die("Usage: bs_notar -p pubkeyfile registryserver notaryserver gun tags...\n") unless @ARGV >= 3;
+  ($registryserver, $notaryserver, $gun, @tags) = @ARGV;
+}
 
 die("Need a pubkey file\n") unless defined $pubkeyfile;
-die("Need a repo f\n") unless defined $pubkeyfile;
 
-# calculate registry repo from notary gun
-my $repo = $gun;
-$repo =~ s/^[^\/]+\///;
-
-
-sub authenticator {
-  my ($cred_header, $param, $wwwauthenticate) = @_;
-  return undef if !$wwwauthenticate;
-  @$cred_header = ();
-  my $auth;
-  my %auth = BSHTTP::parseauthenticate($wwwauthenticate);
-  if ($auth{'basic'} && $dest_creds) {
-    $auth = 'Basic '.MIME::Base64::encode_base64($dest_creds, '');
-  } elsif ($auth{'bearer'}) {
-    my $bearer = $auth{'bearer'};
-    my $realm = ($bearer->{'realm'} || [])->[0];
-    return undef unless $realm && $realm =~ /^https?:\/\//i;
-    my @args = BSRPC::args($bearer, 'service', 'scope');
-    print "requesting bearer auth from $realm [@args]\n";
-    my $bparam = { 'uri' => $realm };
-    push @{$bparam->{'headers'}}, 'Authorization: Basic '.MIME::Base64::encode_base64($dest_creds, '') if $dest_creds;
-    my $reply;
-    eval { $reply = BSRPC::rpc($bparam, \&JSON::XS::decode_json, @args); };
-    warn($@) if $@;
-    return undef unless $reply && $reply->{'token'};
-    $auth = "Bearer ".$reply->{'token'};
-  }
-  push @$cred_header, "Authorization: $auth" if defined $auth;
-  return $auth;
-}
-
-my @registry_cred_header;
-my @notary_cred_header;
-
-sub registry_authenticator {
-  return authenticator(\@registry_cred_header, @_);
-}
-
-sub notary_authenticator {
-  return authenticator(\@notary_cred_header, @_);
-}
+my $notary_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => 1);
 
 #
 # collect stuff to sign
 #
 my $manifests = {};
-for my $tag (@tags) {
-  my $param = {
-    'headers' => [ 'Accept: application/vnd.docker.distribution.manifest.v2+json', @registry_cred_header ],
-    'uri' => "$registryserver/v2/$repo/manifests/$tag",
-    'authenticator' => \&registry_authenticator,
-    'timeout' => $registry_timeout,
-  };
-  my $manifest_json = BSRPC::rpc($param, undef);
-  my $manifest = JSON::XS::decode_json($manifest_json);
-  die("bad manifest for $repo:$tag\n") unless $manifest->{'schemaVersion'} == 2;
-  $manifests->{$tag} = {
-    'hashes' => { 'sha256' => MIME::Base64::encode_base64(Digest::SHA::sha256($manifest_json), '') },
-    'length' => length($manifest_json),
-  };
+if ($digestfile) {
+  local *DIG;
+  open(DIG, '<', $digestfile) || die("$digestfile: $!\n");
+  while(<DIG>) {
+    chomp;
+    next if /^#/;
+    next if /^\s*$/;
+    die("bad line in digest file\n") unless /^([a-z0-9]+):([a-f0-9]+) (\d+) (.+)$/;
+    $manifests->{$4} = { 'hashes' => { $1 => MIME::Base64::encode_base64($2, '') }, 'length' =>  (0 + $3) };
+  }
+  close(DIG) || die("$digestfile: $!\n");
+} else {
+  # calculate registry repo from notary gun
+  my $repo = $gun;
+  $repo =~ s/^[^\/]+\///;
+
+  my $registry_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => 1);
+
+  for my $tag (@tags) {
+    my $param = {
+      'headers' => [ 'Accept: application/vnd.docker.distribution.manifest.v2+json' ],
+      'uri' => "$registryserver/v2/$repo/manifests/$tag",
+      'authenticator' => $registry_authenticator,
+      'timeout' => $registry_timeout,
+    };
+    my $manifest_json = BSRPC::rpc($param, undef);
+    my $manifest = JSON::XS::decode_json($manifest_json);
+    die("bad manifest for $repo:$tag\n") unless $manifest->{'schemaVersion'} == 2;
+    $manifests->{$tag} = {
+      'hashes' => { 'sha256' => MIME::Base64::encode_base64(Digest::SHA::sha256($manifest_json), '') },
+      'length' => length($manifest_json),
+    };
+  }
 }
 
 #
@@ -268,9 +261,8 @@ if (!$dodelete) {
   eval {
     my $param = {
       'uri' => "$notaryserver/v2/$gun/_trust/tuf/root.json",
-      'headers' => [ @notary_cred_header ],
       'timeout' => $notary_timeout,
-      'authenticator' => \&notary_authenticator,
+      'authenticator' => $notary_authenticator,
     };
     my $oldroot = BSRPC::rpc($param, \&JSON::XS::decode_json);
     $root_version = 1 + $oldroot->{'signed'}->{'version'};
@@ -331,18 +323,16 @@ if (!$targets_key) {
 if (!$timestamp_key) {
   my $param = {
     'uri' => "$notaryserver/v2/$gun/_trust/tuf/timestamp.key",
-    'headers' => [ @notary_cred_header ],
     'timeout' => $notary_timeout,
-    'authenticator' => \&notary_authenticator,
+    'authenticator' => $notary_authenticator,
   };
   $timestamp_key = BSRPC::rpc($param, \&JSON::XS::decode_json);
 }
 if (!$snapshot_key) {
   my $param = {
     'uri' => "$notaryserver/v2/$gun/_trust/tuf/snapshot.key",
-    'headers' => [ @notary_cred_header ],
     'timeout' => $notary_timeout,
-    'authenticator' => \&notary_authenticator,
+    'authenticator' => $notary_authenticator,
   };
   $snapshot_key = BSRPC::rpc($param, \&JSON::XS::decode_json);
 }
@@ -384,9 +374,8 @@ my $oldtargets;
 eval {
   my $param = {
     'uri' => "$notaryserver/v2/$gun/_trust/tuf/targets.json",
-    'headers' => [ @notary_cred_header ],
     'timeout' => $notary_timeout,
-    'authenticator' => \&notary_authenticator,
+    'authenticator' => $notary_authenticator,
   };
   $oldtargets = BSRPC::rpc($param, \&JSON::XS::decode_json);
   $targets_version = 1 + $oldtargets->{'signed'}->{'version'};
@@ -418,9 +407,8 @@ if ($dodelete) {
   my $param = {
     'uri' => "$notaryserver/v2/$gun/_trust/tuf/",
     'request' => 'DELETE',
-    'headers' => [ @notary_cred_header ],
     'timeout' => $notary_timeout,
-    'authenticator' => \&notary_authenticator,
+    'authenticator' => $notary_authenticator,
   };
   BSRPC::rpc($param);
 }
@@ -437,9 +425,9 @@ my $param = {
   'uri' => "$notaryserver/v2/$gun/_trust/tuf/",
   'request' => 'POST',
   'data' => BSHTTP::makemultipart($boundary, @parts),
-  'headers' => [ "Content-Type: multipart/form-data; boundary=$boundary", @notary_cred_header ],
+  'headers' => [ "Content-Type: multipart/form-data; boundary=$boundary" ],
   'timeout' => $notary_timeout,
-  'authenticator' => \&notary_authenticator,
+  'authenticator' => $notary_authenticator,
 };
 
 print BSRPC::rpc($param);
