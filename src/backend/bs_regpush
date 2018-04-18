@@ -346,8 +346,8 @@ sub tags_from_digestfile {
     next if /^#/ || /^\s*$/;
     die("bad line in digest file\n") unless /^([a-z0-9]+):([a-f0-9]+) (\d+) (.+?)\s*$/;
     push @ret, $4;
-    close(DIG);
   }
+  close(DIG);
   return @ret;
 }
 
