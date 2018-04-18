@@ -101,14 +101,17 @@ sub qsystem {
       close RH;
       splice(@args, 0, 2);
     }
-    open(STDOUT, ">/dev/null");
     if ($args[0] eq 'chdir') {
       chdir($args[1]) || die("chdir $args[1]: $!\n");
       splice(@args, 0, 2);
     }
     if ($args[0] eq 'stdout') {
-      open(STDOUT, '>', $args[1]) || die("$args[1]: $!\n");
+      if ($args[1] ne '') {
+        open(STDOUT, '>', $args[1]) || die("$args[1]: $!\n");
+      }
       splice(@args, 0, 2);
+    } else {
+      open(STDOUT, ">/dev/null");
     }
     eval {
       exec(@args);
@@ -2641,7 +2644,6 @@ sub upload_container {
 sub upload_to_registry {
   my ($config, $info, $tempfile, $projid, $repoid, $arch, $notary_uploads) = @_;
   # TODO: should be more general to implement own upload
-  # prepare url for skopeo
   my $name = lc($info->{name});
 
   my $delimiter       = $config->{repository_delimiter} || '/';
@@ -2651,31 +2653,17 @@ sub upload_to_registry {
   $repoid =~ s/:/$delimiter/g;
 
   my $tag = $info->{tags}->[0];
-  my $uploader = $config->{uploader} || 'skopeo';
+  $tag = 'latest' unless defined $tag;
 
-  my $reponame = lc("$repository_base$projid/$repoid/$arch/$tag");
+  my $reponame = lc("$repository_base$projid/$repoid/$arch");
   $reponame =~ s/^\///;
-  my $repotag = 'latest';
-  if ($reponame =~ /:([^\/]+)$/) {
-    $repotag = $1;
-    $reponame =~ s/:[^\/]+$//;
-  }
-  
+
   my $registryserver = $config->{pushserver} || $config->{server};
-  $registryserver =~ s/^https?:\/\///;
-  if ($uploader eq 'skopeo') {
-    my $dst = "docker://$registryserver/$reponame:$repotag";
-    ####
-    # FIXME: Find solution to remove credentials from the cli options
-    # HINT:  https://github.com/projectatomic/skopeo/issues/434 must be solved first
-    ####
-    my @cmd = ("skopeo", "copy", "--dest-creds", "$config->{user}:$config->{password}", "docker-archive:$tempfile", $dst);
 
-    BSUtil::printlog("Uploading: '$cmd[0] $cmd[1] $cmd[2] XXX:XXX $cmd[4] $cmd[5]'");
-    my $result = qsystem(@cmd);
-
-    die "Error while uploading\n" if $result;
-  }
+  my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', '-t', $tag, $registryserver, $reponame, $tempfile);
+  BSUtil::printlog("Uploading to registry: @cmd\n");
+  my $result = qsystem('echo', "$config->{user}:$config->{password}\n", 'stdout', '', @cmd);
+  die("Error while uploading to registry: $result\n") if $result;
   if ($config->{'notary'}) {
     my $gun;
     if ($config->{'notary_gunprefix'}) {
@@ -2683,10 +2671,10 @@ sub upload_to_registry {
     } else {
       $gun = $registryserver;
     }
-    print "adding notary upload for $gun/$reponame: $repotag\n";
-    $notary_uploads->{"$gun/$reponame"}->{$repotag} = $config;
+    print "adding notary upload for $gun/$reponame: $tag\n";
+    $notary_uploads->{"$gun/$reponame"}->{$tag} = $config;
   }
-  return "$config->{server}/$reponame:$repotag"
+  return "$config->{server}/$reponame:$tag"
 }
 
 sub upload_to_notary {
@@ -2701,11 +2689,10 @@ sub upload_to_notary {
     my @tags = sort keys %{$notary_uploads->{$gun}};
     next unless @tags;
     my $config = $notary_uploads->{$gun}->{$tags[0]};
-    my @cmd = ("$INC[0]/bs_notar", @signargs, "-p", "$uploaddir/publisher.$$.notarypubkey", $config->{'server'}, $config->{'notary'}, $gun, @tags);
+    my @cmd = ("$INC[0]/bs_notar", '--dest-creds', '-', @signargs, "-p", "$uploaddir/publisher.$$.notarypubkey", $config->{'server'}, $config->{'notary'}, $gun, @tags);
     BSUtil::printlog("Uploading to notary: @cmd\n");
-    splice(@cmd, 1, 0, "--dest-creds", "$config->{user}:$config->{password}");
-    my $result = qsystem(@cmd);
-    die "Error while uploading to notary\n" if $result;
+    my $result = qsystem('echo', "$config->{user}:$config->{password}\n", 'stdout', '', @cmd);
+    die("Error while uploading to notary: $result\n") if $result;
   }
   unlink("$uploaddir/publisher.$$.notarypubkey");
 }
