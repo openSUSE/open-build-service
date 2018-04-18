@@ -142,7 +142,10 @@ RSpec.describe Webui::PackageController, vcr: true do
         post :submit_request, params: { project: source_project, package: package, targetproject: target_project, sourceupdate: 'invalid' }
       end
 
-      it { expect(flash[:error]).to eq('Unable to submit: Validation failed: Bs request actions is invalid') }
+      it do
+        expect(flash[:error]).to eq('Unable to submit: Validation failed: Bs request actions is invalid, ' \
+                                    'Bs request actions Sourceupdate is not included in the list')
+      end
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: package)) }
       it { expect(BsRequestActionSubmit.where(target_project: target_project.name, target_package: package.name)).not_to exist }
     end

@@ -88,6 +88,7 @@ class BsRequest < ApplicationRecord
   validate :check_creator, on: [:create, :save!]
   validates :comment, length: { maximum: 65_535 }
   validates :description, length: { maximum: 65_535 }
+  validates_associated :bs_request_actions, message: ->(_, record) { record[:value].map { |r| r.errors.full_messages }.flatten.to_sentence }
 
   after_update :send_state_change
   after_commit :update_cache
@@ -995,37 +996,26 @@ class BsRequest < ApplicationRecord
   end
 
   def apply_default_reviewers
-    #
-    # Find out about defined reviewers in target
-    #
-    # check targets for defined default reviewers
-    reviewers = []
-
-    bs_request_actions.each do |action|
-      reviewers += action.default_reviewers
-
-      action.create_post_permissions_hook(per_package_locking: @per_package_locking)
-    end
-
+    reviewers = collect_default_reviewers!
     # apply reviewers
-    reviewers.uniq.each do |r|
+    reviewers.each do |r|
       if r.class == User
-        next unless reviews.select { |a| a.by_user == r.login }.empty?
+        next if reviews.any? { |a| a.by_user == r.login }
         reviews.new(by_user: r.login, state: :new)
       elsif r.class == Group
-        next unless reviews.select { |a| a.by_group == r.title }.empty?
+        next if reviews.any? { |a| a.by_group == r.title }
         reviews.new(by_group: r.title, state: :new)
       elsif r.class == Project
-        next unless reviews.select { |a| a.by_project == r.name && a.by_package.nil? }.empty?
+        next if reviews.any? { |a| a.by_project == r.name && a.by_package.nil? }
         reviews.new(by_project: r.name, state: :new)
       elsif r.class == Package
-        next unless reviews.select { |a| a.by_project == r.project.name && a.by_package == r.name }.empty?
+        next if reviews.any? { |a| a.by_project == r.project.name && a.by_package == r.name }
         reviews.new(by_project: r.project.name, by_package: r.name, state: :new)
       else
         raise 'Unknown review type'
       end
     end
-    self.state = :review unless reviews.select { |a| a.state == :new }.empty?
+    self.state = :review if reviews.any? { |a| a.state == :new }
   end
 
   def notify
@@ -1169,7 +1159,41 @@ class BsRequest < ApplicationRecord
     # rubocop:enable Rails/SkipsModelValidations
   end
 
+  def forward_to(project:, package: nil, options: {})
+    new_request = BsRequest.new(description: options[:description])
+    BsRequest.transaction do
+      bs_request_actions.each do |action|
+        rev = Directory.hashed(project: action.target_project, package: action.target_package)['rev']
+
+        opts = { source_project: action.target_project,
+                 source_package: action.target_package,
+                 source_rev:     rev,
+                 target_project: project,
+                 target_package: package,
+                 type:           'submit' }
+        opts[:sourceupdate] = options[:sourceupdate] if options[:sourceupdate]
+        new_request.bs_request_actions.build(opts)
+
+        new_request.save!
+      end
+    end
+
+    new_request
+  end
+
   private
+
+  #
+  # Find out about defined reviewers in target
+  #
+  # check targets for defined default reviewers and
+  # trigger the create_post_permissions_hook
+  def collect_default_reviewers!
+    bs_request_actions.map do |action|
+      action.create_post_permissions_hook(per_package_locking: @per_package_locking)
+      action.default_reviewers
+    end.uniq.flatten
+  end
 
   def raisepriority(new_priority)
     # rails enums do not support compare and break db constraints :/

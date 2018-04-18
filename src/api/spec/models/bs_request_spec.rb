@@ -1,20 +1,48 @@
 require 'rails_helper'
 require 'nokogiri'
+# WARNING: If you change tests make sure you uncomment this line
+# and start a test backend. Some of the BsRequestAction methods
+# require real backend answers for projects/packages.
+# CONFIG['global_write_through'] = true
 
-RSpec.describe BsRequest do
+RSpec.describe BsRequest, vcr: true do
+  let(:target_project) { create(:project, name: 'target_project') }
+  let(:source_project) { create(:project, name: 'source_project') }
+  let(:target_package) { create(:package, name: 'target_package', project: target_project) }
+  let(:source_package) { create(:package, name: 'source_package', project: source_project) }
+  let(:submit_request) do
+    create(:bs_request_with_submit_action,
+           target_project: target_project.name,
+           target_package: target_package.name,
+           source_project: source_project.name,
+           source_package: source_package.name)
+  end
+
+  context 'validations' do
+    let(:bs_request) { create(:bs_request) }
+    let(:bs_request_action) { create(:bs_request_action, bs_request: bs_request) }
+
+    it 'includes validation errors of associated bs_request_actions' do
+      # rubocop:disable Rails/SkipsModelValidations
+      bs_request_action.update_attribute(:sourceupdate, 'foo')
+      # rubocop:enable Rails/SkipsModelValidations
+      expect { bs_request.reload.save! }.to raise_error(
+        ActiveRecord::RecordInvalid, 'Validation failed: Bs request actions Sourceupdate is not included in the list'
+      )
+    end
+  end
+
   context '.new_from_xml' do
     let(:user) { create(:user) }
-    let(:target) { create(:package) }
-    let(:source) { create(:package) }
-    let(:input) do
+    let(:review_request) do
       create(:review_bs_request,
              reviewer: user.login,
-             target_project: target.project.name,
-             target_package: target.name,
-             source_project: source.project.name,
-             source_package: source.name)
+             target_project: target_package.project.name,
+             target_package: target_package.name,
+             source_project: source_package.project.name,
+             source_package: source_package.name)
     end
-    let(:doc) { Nokogiri::XML(input.to_axml) }
+    let(:doc) { Nokogiri::XML(review_request.to_axml) }
 
     context "'when' attribute provided" do
       let!(:updated_when) { 10.years.ago }
@@ -137,16 +165,12 @@ RSpec.describe BsRequest do
 
     context 'direct maintainer of a target_project' do
       let(:target_project) { create(:project) }
-      let(:source_package) { create(:package) }
-      let(:source_project) { source_package.project }
-
       let!(:request) do
         create(:bs_request_with_submit_action,
                target_project: target_project.name,
-               source_project: source_project.name,
+               source_project: source_package.project.name,
                source_package: source_package.name)
       end
-
       let!(:relationship_project_user) { create(:relationship_project_user, project: target_project) }
       let(:user) { relationship_project_user.user }
 
@@ -155,13 +179,11 @@ RSpec.describe BsRequest do
 
     context 'group maintainer of a target_project' do
       let(:target_project) { create(:project) }
-      let(:source_package) { create(:package) }
-      let(:source_project) { source_package.project }
 
       let!(:request) do
         create(:bs_request_with_submit_action,
                target_project: target_project.name,
-               source_project: source_project.name,
+               source_project: source_package.project.name,
                source_package: source_package.name)
       end
 
@@ -179,19 +201,7 @@ RSpec.describe BsRequest do
     end
 
     context 'direct maintainer of a target_package' do
-      let(:target_package) { create(:package) }
-      let(:target_project) { target_package.project }
-      let(:source_package) { create(:package) }
-      let(:source_project) { source_package.project }
-
-      let!(:request) do
-        create(:bs_request_with_submit_action,
-               target_project: target_project.name,
-               target_package: target_package.name,
-               source_project: source_project.name,
-               source_package: source_package.name)
-      end
-
+      let!(:request) { submit_request }
       let!(:relationship_package_user) { create(:relationship_package_user, package: target_package) }
       let(:user) { relationship_package_user.user }
 
@@ -199,19 +209,7 @@ RSpec.describe BsRequest do
     end
 
     context 'group maintainer of a target_package' do
-      let(:target_package) { create(:package) }
-      let(:target_project) { target_package.project }
-      let(:source_package) { create(:package) }
-      let(:source_project) { source_package.project }
-
-      let!(:request) do
-        create(:bs_request_with_submit_action,
-               target_project: target_project.name,
-               target_package: target_package.name,
-               source_project: source_project.name,
-               source_package: source_package.name)
-      end
-
+      let!(:request) { submit_request }
       let(:relationship_package_group) { create(:relationship_package_group, package: target_package) }
       let(:group) { relationship_package_group.group }
       let!(:groups_user) { create(:groups_user, group: group) }
@@ -306,17 +304,11 @@ RSpec.describe BsRequest do
   describe '.delayed_auto_accept' do
     let!(:project) { create(:project) }
     let!(:admin) { create(:admin_user) }
-
-    let(:target_package) { create(:package) }
-    let(:target_project) { target_package.project }
-    let(:source_package) { create(:package) }
-    let(:source_project) { source_package.project }
-
     let!(:request) do
       create(:bs_request_with_submit_action,
-             target_project: target_project.name,
+             target_project: target_package.project.name,
              target_package: target_package.name,
-             source_project: source_project.name,
+             source_project: source_package.project.name,
              source_package: source_package.name,
              creator: admin.login)
     end
@@ -373,6 +365,76 @@ RSpec.describe BsRequest do
           description_extension: 'moderate => critical'
         )
         expect(history_element).to exist
+      end
+    end
+  end
+
+  context '#forward_to' do
+    let(:user) { create(:confirmed_user, login: 'tux') }
+
+    before do
+      # This avoids failures in the permission validation caused by mocking User.current
+      submit_request
+      allow(User).to receive(:current).and_return(user)
+    end
+
+    context 'with a project as parameter' do
+      subject { submit_request.forward_to(project: user.home_project.name) }
+
+      it 'creates a new submit request open for review' do
+        is_expected.to have_attributes(state: :review, priority: 'moderate')
+      end
+
+      it 'creates a submit request action with the correct target' do
+        expect(subject.bs_request_actions.count).to eq 1
+        expect(subject.bs_request_actions.where(
+                 type:           'submit',
+                 target_project: user.home_project.name,
+                 target_package: target_package.name,
+                 source_project: target_package.project.name,
+                 source_package: target_package.name,
+                 sourceupdate:   nil
+        )).to exist
+      end
+
+      it 'sets the logged in user as creator of the request' do
+        expect(subject.creator).to eq user.login
+      end
+    end
+
+    context 'with project and package as parameter' do
+      subject { submit_request.forward_to(project: user.home_project.name, package: 'my_new_package') }
+
+      it 'creates a submit request action with the correct target' do
+        expect(subject.bs_request_actions.count).to eq 1
+        expect(subject.bs_request_actions.where(type: 'submit', target_project: user.home_project.name,
+                                                target_package: 'my_new_package')).to exist
+      end
+    end
+
+    context 'with options' do
+      before do
+        # For submit requests with 'sourceupdate' the user needs to be able to modify the (forwarded) source package
+        target_package.relationships.create(user: user, role: Role.find_by_title!('maintainer'))
+      end
+
+      subject do
+        submit_request.forward_to(
+          project: user.home_project.name,
+          options: {
+            sourceupdate: 'noupdate',
+            description:  'my description'
+          }
+        )
+      end
+
+      it 'sets the given description' do
+        is_expected.to have_attributes(description: 'my description')
+      end
+
+      it 'creates a submit request action with the correct target' do
+        expect(subject.bs_request_actions.count).to eq 1
+        expect(subject.bs_request_actions.where(type: 'submit', sourceupdate: 'noupdate')).to exist
       end
     end
   end

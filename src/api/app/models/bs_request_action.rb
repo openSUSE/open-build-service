@@ -402,26 +402,16 @@ class BsRequestAction < ApplicationRecord
   def find_reviewers(obj)
     # obj can be a project or package object
     reviewers = []
-
     reviewer_id = Role.hashed['reviewer'].id
 
     # check for reviewers in a package first
-    if obj.class == Project
-      obj.relationships.users.where(role_id: reviewer_id).pluck(:user_id).each do |r|
-        reviewers << User.find(r)
-      end
-      obj.relationships.groups.where(role_id: reviewer_id).pluck(:group_id).each do |r|
-        reviewers << Group.find(r)
-      end
-    elsif obj.class == Package
-      obj.relationships.users.where(role_id: reviewer_id).pluck(:user_id).each do |r|
-        reviewers << User.find(r)
-      end
-      obj.relationships.groups.where(role_id: reviewer_id).pluck(:group_id).each do |r|
-        reviewers << Group.find(r)
-      end
-      reviewers += find_reviewers(obj.project)
+    obj.relationships.users.where(role_id: reviewer_id).pluck(:user_id).each do |r|
+      reviewers << User.find(r)
     end
+    obj.relationships.groups.where(role_id: reviewer_id).pluck(:group_id).each do |r|
+      reviewers << Group.find(r)
+    end
+    reviewers += find_reviewers(obj.project) if obj.class == Package
 
     reviewers
   end
