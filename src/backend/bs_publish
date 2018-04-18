@@ -38,7 +38,7 @@ use Fcntl qw(:DEFAULT :flock);
 use Data::Dumper;
 use Storable ();
 use MIME::Base64;
-use File::Temp qw/tempfile/;
+use File::Temp qw/tempfile tempdir/;
 
 use BSConfiguration;
 use BSRPC;
@@ -52,6 +52,7 @@ use BSVerify;
 use BSStdRunner;
 use BSUrlmapper;
 use BSRepServer::Containerinfo;
+use BSRegistry::Internal;
 
 use strict;
 
@@ -66,6 +67,9 @@ my $extrepodir = "$BSConfig::bsdir/repos";
 my $extrepodir_sync = "$BSConfig::bsdir/repos_sync";
 my $uploaddir = "$BSConfig::bsdir/upload";
 my $rundir = $BSConfig::rundir || $BSConfig::rundir || "$BSConfig::bsdir/run";
+
+my $container_dir = "$BSConfig::bsdir/containers/registry";
+BSUtil::mkdir_p_chown($container_dir, $BSConfig::bsuser, $BSConfig::bsgroup);
 
 my $extrepodb = "$BSConfig::bsdir/db/published";
 
@@ -1584,7 +1588,7 @@ sub publish {
 	} elsif ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256)?$/) {
           # kiwi case
 	  $kiwimedium{$bin} = $2 if !$3 && -e "$r/$2.packages";
-          if ($BSConfig::publish_containers && !$3 && -e "$r/$1.containerinfo") {
+          if (($BSConfig::publish_containers || $BSConfig::publish_containers_internal) && !$3 && -e "$r/$1.containerinfo") {
 	    eval { $containerinfo = BSRepServer::Containerinfo::readcontainerinfo($r, "$1.containerinfo") };
 	    warn("$@") if $@;
 	    $containerinfo->{'arch'} = $arch if $containerinfo;
@@ -1593,7 +1597,7 @@ sub publish {
 	} elsif ($bin =~ /(.*)\.tar(?:\.(?:gz|bz2|xz))?(\.sha256)?$/) {
           # Dockerfile case
 	  $kiwimedium{$bin} = $1 if !$2 && -e "$r/$1.packages";
-          if ($BSConfig::publish_containers && !$2 && -e "$r/$1.containerinfo") {
+          if (($BSConfig::publish_containers || $BSConfig::publish_containers_internal) && !$2 && -e "$r/$1.containerinfo") {
 	    eval { $containerinfo = BSRepServer::Containerinfo::readcontainerinfo($r, "$1.containerinfo") };
 	    warn("$@") if $@;
 	    $containerinfo->{'arch'} = $arch if $containerinfo;
@@ -1912,13 +1916,19 @@ sub publish {
   for my $p (sort keys %containers) {
     next unless -f "$extrep/$p";
     my $containerinfo = $containers{$p};
-    my $readme = upload_container($extrep, $p, $containerinfo, $projid, $repoid, $containerinfo->{'arch'}, $notary_uploads);
+    my $tempfile = decompress_container("$extrep/$p");
+    BSRegistry::Internal::publish_container($extrep, $p, $containerinfo, $projid, $repoid, $containerinfo->{'arch'}, $tempfile, $container_dir);
+    my $readme   = upload_container($extrep, $p, $containerinfo, $projid, $repoid, $containerinfo->{'arch'}, $notary_uploads, $tempfile);
+    BSUtil::printlog("Deleting $tempfile");
+    unlink($tempfile);
     # replace container with readme file
     if ($readme && $readme ne '') {
       unlink("$extrep/$p");
       delete $binaryorigins->{$p};
       mkdir_p($extrep) unless -d $extrep;
-      writestr("$extrep/$p.registry.txt", undef, $readme);
+      my $reg_txt = "$extrep/$p.registry.txt";
+      BSUtil::printlog("Creating $reg_txt");
+      writestr($reg_txt, undef, $readme);
     }
   }
   $changed = 1 if %$notary_uploads;	# FIXME
@@ -2572,10 +2582,7 @@ check if build result is valid container and upload if configured
 =cut
 
 sub upload_container {
-  my ($dir, $file, $info, $projid, $repoid, $arch, $notary_uploads) = @_;
-
-  # jump out if no config
-  return unless $BSConfig::publish_containers;
+  my ($dir, $file, $info, $projid, $repoid, $arch, $notary_uploads, $tempfile) = @_;
 
   # get registry names for this project
   my @registries;
@@ -2607,7 +2614,6 @@ sub upload_container {
     return;
   }
 
-  my $tempfile = decompress_container("$dir/$file");
   my $read_me_content = "";
 
   eval {
@@ -2620,8 +2626,6 @@ sub upload_container {
     }
   };
   my $error = $@;
-  BSUtil::printlog("Deleting $tempfile");
-  unlink($tempfile);
   die($error) if $error;
   return $read_me_content;
 }
@@ -2636,14 +2640,14 @@ sub upload_container {
  Returns:
   public url to registry
 
+ TODO: should be more general to implement own upload
+
 =cut
 
 sub upload_to_registry {
   my ($config, $info, $tempfile, $projid, $repoid, $arch, $notary_uploads) = @_;
-  # TODO: should be more general to implement own upload
-  # prepare url for skopeo
-  my $name = lc($info->{name});
 
+  # prepare url for skopeo
   my $delimiter       = $config->{repository_delimiter} || '/';
   my $repository_base = $config->{repository_base} || '/';
 
@@ -2683,7 +2687,7 @@ sub upload_to_registry {
     } else {
       $gun = $registryserver;
     }
-    print "adding notary upload for $gun/$reponame: $repotag\n";
+    BSUtil::printlog("adding notary upload for $gun/$reponame: $repotag");
     $notary_uploads->{"$gun/$reponame"}->{$repotag} = $config;
   }
   return "$config->{server}/$reponame:$repotag"

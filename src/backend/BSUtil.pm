@@ -78,6 +78,17 @@ sub writexml {
   rename($fn, $fnf) || die("rename $fn $fnf: $!\n");
 }
 
+=head2 writestr - write string to file
+
+When $final_file_name given, $str is written to $fn and $fn gets renamed
+to $final_file_name to ensure an "atomic" write operation. If
+$final_file_name is 'undef', a normal write operation is done
+
+
+  writestr($filename, $final_file_name, $str);
+
+=cut
+
 sub writestr {
   my ($fn, $fnf, $d) = @_;
   local *F;
@@ -100,6 +111,16 @@ sub appendstr {
   }
   close(F) || die("$fn close: $!\n");
 }
+
+=head2 readstr - read file and return content as string
+
+  my $fn = "/path/to/filename.txt";
+
+  my $nonfatal = 1; # will die if cannot open file and nonfatal is not set
+ 
+  my $str = readstr($fn, $nonfatal);
+
+=cut
 
 sub readstr {
   my ($fn, $nonfatal) = @_;
