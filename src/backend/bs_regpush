@@ -46,6 +46,9 @@ my $dest_creds;
 my $use_image_tags;
 my $multiarch;
 my $digestfile;
+my $delete_mode;
+my $delete_except_mode;
+my $list_mode;
 my @tags;
 
 my $registryserver;
@@ -175,17 +178,19 @@ sub manifest_exists {
 }
 
 sub manifest_upload {
-  my ($manifest, $tag, $content_type) = @_;
+  my ($manifest, $tag, $content_type, $quiet) = @_;
 
   my $maniid = 'sha256:'.Digest::SHA::sha256_hex($manifest);
   return $maniid if manifest_exists($manifest, $tag, $content_type);
   $content_type ||= 'application/vnd.docker.distribution.manifest.v2+json';
   my $fat = '';
   $fat = 'fat ' if $content_type eq 'application/vnd.docker.distribution.manifest.list.v2+json';
-  if (defined($tag)) {
-    print "uploading ${fat}manifest $maniid for tag '$tag'... ";
-  } else {
-    print "uploading ${fat}manifest $maniid... ";
+  if (!$quiet) {
+    if (defined($tag)) {
+      print "uploading ${fat}manifest $maniid for tag '$tag'... ";
+    } else {
+      print "uploading ${fat}manifest $maniid... ";
+    }
   }
   $tag = $maniid unless defined $tag;
   my $replyheaders;
@@ -201,7 +206,7 @@ sub manifest_upload {
   my $id = $replyheaders->{'docker-content-digest'};
   die("server did not return a content id\n") unless $id;
   die("server created a different manifest id: $maniid $id\n") if $maniid ne $id;
-  print "done.\n";
+  print "done.\n" unless $quiet;
   return $maniid;
 }
 
@@ -251,6 +256,100 @@ sub detect_compression {
   return $comp;
 }
 
+sub get_all_tags {
+  my @regtags;
+  my $replyheaders;
+  my $param = {
+    'uri' => "$registryserver/v2/$repository/tags/list",
+    'authenticator' => $registry_authenticator,
+    'timeout' => $registry_timeout,
+    'replyheaders' => \$replyheaders,
+  };
+  my $r = BSRPC::rpc($param, \&JSON::XS::decode_json);
+  die("pagination not supported yet\n") if $replyheaders->{'link'};
+  push @regtags, @{$r->{'tags'}};
+  return BSUtil::unify(@regtags);
+}
+
+sub get_manifest_for_tag {
+  my ($tag) = @_;
+  my $replyheaders;
+  my $param = {
+    'uri' => "$registryserver/v2/$repository/manifests/$tag",
+    'headers' => [ "Accept: application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.docker.distribution.manifest.v2+json" ],
+    'authenticator' => $registry_authenticator,
+    'replyheaders' => \$replyheaders,
+    'timeout' => $registry_timeout,
+  };
+  my $mani_json;
+  eval { $mani_json = BSRPC::rpc($param); };
+  if ($@) {
+    return () if $@ =~ /^404/;	# tag does not exist
+    die($@);
+  }
+  my $mani = JSON::XS::decode_json($mani_json);
+  my $maniid = $replyheaders->{'docker-content-digest'};
+  die("$tag: no docker-content-digest\n") unless $maniid;
+  return ($mani, $maniid, $mani_json);
+}
+
+sub delete_tag {
+  my ($tag) = @_;
+
+  my ($mani, $maniid, $mani_json) = get_manifest_for_tag($tag);
+  return unless $maniid;
+  print "deleting tag $tag [$maniid]\n";
+
+  # now mangle and upload so that we get a new unique image id for that tag
+  my $mani_json_mangled = "\n\n".JSON::XS->new->utf8->canonical->encode($mani)."\n\n";
+  my $newmaniid = manifest_upload($mani_json_mangled, $tag, $mani->{'mediaType'}, 1);
+
+  # then delete the new unique image id, thus deleting the tag as well
+  my $param = {
+    'uri' => "$registryserver/v2/$repository/manifests/$newmaniid",
+    'request' => 'DELETE',
+    'authenticator' => $registry_authenticator,
+    'timeout' => $registry_timeout,
+  };
+  eval { BSRPC::rpc($param, undef); };
+  my $err = $@;
+
+  if ($err) {
+    # delete failed, switch tag back to the old image
+    eval { manifest_upload($mani_json, $tag, $mani->{'mediaType'}, 1) if $newmaniid ne $maniid; };
+    die($err);
+  }
+}
+
+sub list_tag {
+  my ($tag) = @_;
+  
+  my ($mani, $maniid) = get_manifest_for_tag($tag);
+  if (!$mani) {
+    printf "%-20s -\n", $tag;
+  } elsif ($mani->{'mediaType'} eq 'application/vnd.docker.distribution.manifest.list.v2+json') {
+    printf "%-20s %s %s\n", $tag, $maniid, 'list';
+  } elsif ($mani->{'mediaType'} eq 'application/vnd.docker.distribution.manifest.v2+json') {
+    printf "%-20s %s %s\n", $tag, $maniid, 'image';
+  } else {
+    printf "%-20s %s %s\n", $tag, $maniid, 'unknown';
+  }
+}
+
+sub tags_from_digestfile {
+  return () unless $digestfile;
+  my @ret;
+  local *DIG;
+  open(DIG, '<', $digestfile) || die("$digestfile: $!\n");
+  while (<DIG>) {
+    chomp;
+    next if /^#/ || /^\s*$/;
+    die("bad line in digest file\n") unless /^([a-z0-9]+):([a-f0-9]+) (\d+) (.+?)\s*$/;
+    push @ret, $4;
+    close(DIG);
+  }
+  return @ret;
+}
 
 $| = 1;
 
@@ -258,37 +357,61 @@ while (@ARGV) {
   if ($ARGV[0] eq '--dest-creds') {
     $dest_creds = BSBearer::get_credentials($ARGV[1]);
     splice(@ARGV, 0, 2);
-    next;
-  }
-  if ($ARGV[0] eq '-T') {
+  } elsif ($ARGV[0] eq '-T') {
     $use_image_tags = 1;
     shift @ARGV;
-    next;
-  }
-  if ($ARGV[0] eq '-m') {
+  } elsif ($ARGV[0] eq '-m') {
     $multiarch = 1;
     shift @ARGV;
-    next;
-  }
-  if ($ARGV[0] eq '-t') {
+  } elsif ($ARGV[0] eq '-t') {
     push @tags, $ARGV[1];
     splice(@ARGV, 0, 2);
-    next;
-  }
-  if ($ARGV[0] eq '-F') {
+  } elsif ($ARGV[0] eq '-F') {
     $digestfile = $ARGV[1];
     splice(@ARGV, 0, 2);
-    next;
+  } elsif ($ARGV[0] eq '-D') {
+    $delete_mode = 1;
+    shift @ARGV;
+  } elsif ($ARGV[0] eq '-l') {
+    $list_mode = 1;
+    shift @ARGV;
+  } elsif ($ARGV[0] eq '-X') {
+    $delete_except_mode = 1;
+    shift @ARGV;
+  } else {
+    last;
   }
-  last;
 }
 
 die("usage: bs_regpush <registryserver> <repository> <tarfile>...\n") unless @ARGV >= 2;
 ($registryserver, $repository, @tarfiles) = @ARGV;
-die("No tar file to upload?\n") unless @tarfiles;
-die("more than one tar file specified\n") if @tarfiles > 1 && !$multiarch;
 
 $registry_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => 1);
+
+if ($delete_mode || $delete_except_mode || $list_mode) {
+  die("cannot do both delete and delete-except\n") if $delete_mode && $delete_except_mode;
+  my %tags;
+  $tags{$_} = 1 for @tags;
+  $tags{$_} = 1 for tags_from_digestfile();
+
+  if ($list_mode) {
+    %tags = map {$_ => 1} get_all_tags() unless %tags;
+    list_tag($_) for sort keys %tags;
+    exit;
+  } elsif ($delete_mode) {
+    for my $tag (sort keys %tags) {
+      delete_tag($tag);
+    }
+  } elsif ($delete_except_mode) {
+    for my $tag (grep {!$tags{$_}} get_all_tags()) {
+      delete_tag($tag);
+    }
+  }
+  exit;
+}
+
+die("No tar file to upload?\n") if !@tarfiles;
+die("more than one tar file specified\n") if @tarfiles > 1 && !$multiarch;
 
 if ($use_image_tags && @tarfiles > 1) {
   # make sure all tar files contain the same tags
