@@ -150,7 +150,7 @@ GEM
       rubocop (>= 0.50.0)
       sysexits (~> 1.1)
     hashdiff (0.3.7)
-    i18n (1.0.0)
+    i18n (1.0.1)
       concurrent-ruby (~> 1.0)
     innertube (1.1.0)
     joiner (0.3.4)
