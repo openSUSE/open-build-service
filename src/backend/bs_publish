@@ -2611,14 +2611,14 @@ sub upload_container {
   }
 
   my $tempfile = decompress_container("$dir/$file");
-  my $read_me_content = "";
+  my $read_me_content = '';
 
   eval {
     for my $config (@registries) {
-      my $url = upload_to_registry($config, $info, $tempfile, $projid, $repoid, $arch, $notary_uploads);
-      if ($url && $url ne '') {
+      my $reference = upload_to_registry($config, $info, $tempfile, $projid, $repoid, $arch, $notary_uploads);
+      if ($reference) {
         $read_me_content = "Container can be pulled via:\n" if $read_me_content eq '';
-        $read_me_content .= "  docker pull $url\n";
+        $read_me_content .= "  docker pull $reference\n";
       }
     }
   };
@@ -2644,57 +2644,74 @@ sub upload_container {
 sub upload_to_registry {
   my ($config, $info, $tempfile, $projid, $repoid, $arch, $notary_uploads) = @_;
   # TODO: should be more general to implement own upload
-  my $name = lc($info->{name});
 
   my $delimiter       = $config->{repository_delimiter} || '/';
   my $repository_base = $config->{repository_base} || '/';
-
   $projid =~ s/:/$delimiter/g;
   $repoid =~ s/:/$delimiter/g;
 
-  my $tag = $info->{tags}->[0];
-  $tag = 'latest' unless defined $tag;
-
+  my @tags = BSUtil::unify(@{$info->{tags} || []});
+  @tags = ('latest') unless @tags;	# hmm
+  
   my $reponame = lc("$repository_base$projid/$repoid/$arch");
   $reponame =~ s/^\///;
 
   my $registryserver = $config->{pushserver} || $config->{server};
+  my $pullserver = $config->{server};
+  $pullserver =~ s/https?:\/\///;
+  $pullserver =~ s/\/?$/\//;
+  $pullserver = '' if $pullserver =~ /docker.io\/$/;
+  $reponame = "library/$reponame" if $pullserver eq '' && $reponame !~ /\//;
 
-  my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', '-t', $tag, $registryserver, $reponame, $tempfile);
+  mkdir_p($uploaddir);
+  my $containerdigestfile = "$uploaddir/publisher.$$.containerdigests";
+  unlink($containerdigestfile);
+  my @tagopts = map {('-t', $_)} @tags;
+  my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @tagopts, '-F', $containerdigestfile, $registryserver, $reponame, $tempfile);
   BSUtil::printlog("Uploading to registry: @cmd\n");
   my $result = qsystem('echo', "$config->{user}:$config->{password}\n", 'stdout', '', @cmd);
+  my $containerdigests = readstr($containerdigestfile, 1);
+  unlink($containerdigestfile);
   die("Error while uploading to registry: $result\n") if $result;
+
   if ($config->{'notary'}) {
-    my $gun;
-    if ($config->{'notary_gunprefix'}) {
-      $gun = "$config->{'notary_gunprefix'}";
-    } else {
-      $gun = $registryserver;
-    }
-    print "adding notary upload for $gun/$reponame: $tag\n";
-    $notary_uploads->{"$gun/$reponame"}->{$tag} = $config;
+    my $gun = $config->{'notary_gunprefix'} || $registryserver;
+    $gun =~ s/^https?:\/\///;
+    print "adding notary upload for $gun/$reponame: @tags\n";
+    $notary_uploads->{"$gun/$reponame"} ||= {'config' => $config, 'digests' => '', 'gun' => "$gun/$reponame"};
+    $notary_uploads->{"$gun/$reponame"}->{'digests'} .= $containerdigests if $containerdigests;
   }
-  return "$config->{server}/$reponame:$tag"
+
+  # return public reference (XXX: only first tag?)
+  $reponame =~ s/^library\/([^\/]+)$/$1/ if $pullserver eq '';
+  return "$pullserver$reponame:$tags[0]";
 }
 
 sub upload_to_notary {
   my ($projid, $notary_uploads, $signargs, $pubkey) = @_;
 
-  unlink("$uploaddir/publisher.$$.notarypubkey");
-  writestr("$uploaddir/publisher.$$.notarypubkey", undef, $pubkey);
+  mkdir_p($uploaddir);
+  my $pubkeyfile = "$uploaddir/publisher.$$.notarypubkey";
+  unlink($pubkeyfile);
+  writestr($pubkeyfile, undef, $pubkey);
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
   push @signargs, @{$signargs || []};
-  for my $gun (sort keys %$notary_uploads) {
-    my @tags = sort keys %{$notary_uploads->{$gun}};
-    next unless @tags;
-    my $config = $notary_uploads->{$gun}->{$tags[0]};
-    my @cmd = ("$INC[0]/bs_notar", '--dest-creds', '-', @signargs, "-p", "$uploaddir/publisher.$$.notarypubkey", $config->{'server'}, $config->{'notary'}, $gun, @tags);
+  for my $uploadkey (sort keys %$notary_uploads) {
+    my $uploaddata = $notary_uploads->{'uploadkey'};
+    my $config = $uploaddata->{'config'};
+    my $containerdigestfile = "$uploaddir/publisher.$$.containerdigests";
+    writestr($containerdigestfile, undef, $uploaddata->{'digests'} || '');
+    my @cmd = ("$INC[0]/bs_notar", '--dest-creds', '-', @signargs, "-p", $pubkeyfile, '-F', $containerdigestfile, $config->{'notary'}, $uploaddata->{'gun'});
     BSUtil::printlog("Uploading to notary: @cmd\n");
     my $result = qsystem('echo', "$config->{user}:$config->{password}\n", 'stdout', '', @cmd);
-    die("Error while uploading to notary: $result\n") if $result;
+    unlink($containerdigestfile);
+    if ($result) {
+      unlink($pubkeyfile);
+      die("Error while uploading to notary: $result\n");
+    }
   }
-  unlink("$uploaddir/publisher.$$.notarypubkey");
+  unlink($pubkeyfile);
 }
 
 =head2 get_registry_config - check for valid registry config and set default values
