@@ -260,7 +260,7 @@ function prepare_database_setup {
   else
     logline "Migrate OBS api database"
     cd $apidir
-    RAKE_COMMANDS="db:migrate"
+    RAKE_COMMANDS="db:migrate:with_data"
     echo
   fi
 
