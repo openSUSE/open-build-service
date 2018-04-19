@@ -34,7 +34,7 @@ namespace :docker do
     desc 'Run our backend tests in the docker container'
     task :backend do
       begin
-        sh 'docker-compose run --rm -w /obs backend make -C src/backend test'
+        sh 'docker-compose -f docker-compose.ci.yml run --rm backend'
       ensure
         sh 'docker-compose stop'
       end

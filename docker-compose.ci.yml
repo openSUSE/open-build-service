@@ -24,6 +24,12 @@ services:
       - mysql_vol:/var/lib/mysql_tmpfs/
       - .:/obs
     command: /obs/contrib/start_test_db
+  backend:
+    image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/x86_64/openbuildservice/backend:latest
+    volumes:
+      - .:/obs
+    working_dir: /obs
+    command: make -C src/backend test
 volumes:
   mysql_vol:
     driver_opts:
