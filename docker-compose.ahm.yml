@@ -16,10 +16,10 @@ services:
     # to get up and running. Otherwise grafana tries to
     # connect too soon and crashes.
     healthcheck:
-      test: sleep 10
-      interval: 12s
-      timeout: 11s
-      retries: 1
+      test: rabbitmqctl list_queues
+      interval: 10s
+      timeout: 15s
+      retries: 5
   telegraf:
     image: telegraf
     depends_on:
