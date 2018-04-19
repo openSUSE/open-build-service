@@ -89,7 +89,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
 
   def crawl
     until @pages_to_visit.empty?
-      theone = @pages_to_visit.keys.sort.first
+      theone = @pages_to_visit.keys.min
       @pages_visited[theone] = @pages_to_visit[theone]
       @pages_to_visit.delete theone
 
@@ -100,7 +100,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
           raiseit("Status code #{page.status_code}", theone)
           return
         end
-        if page.response_headers['Content-Type'] !~ %r{text/html}
+        unless %r{text/html}.match?(page.response_headers['Content-Type'])
           # puts "ignoring #{page.response_headers.inspect}"
           next
         end
