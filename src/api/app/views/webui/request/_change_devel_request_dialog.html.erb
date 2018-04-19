@@ -9,16 +9,14 @@
         <% else %>
           <p>Do you want to request to set the devel project for <%= package_link @package %>?</p>
         <% end %>
-        <%= form_tag(:action => 'change_devel_request', :method => 'post') do %>
-          <%= hidden_field_tag(:project, @project.name) %>
-          <%= hidden_field_tag(:package, @package.name) %>
+        <%= form_tag({ action: :change_devel_request, project: @project, package: @package }, :method => 'post') do %>
           <p>
             <% if @current_devel_project && @current_devel_package %>
               <%= label_tag(:devel_project, 'New Devel project (leave free to delete the current one):') %><br/>
             <% else %>
               <%= label_tag(:devel_project, 'Devel project:') %><br/>
             <% end %>
-            <%= text_field_tag(:devel_project, '', :size => 40) %><br/>
+            <%= text_field_tag(:devel_project, '', :size => 40, required: true) %><br/>
             <%= label_tag(:description, 'Description:') %><br/>
             <%= text_area_tag(:description, '', :size => '40x3') %>
           </p>

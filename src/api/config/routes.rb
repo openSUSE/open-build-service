@@ -310,13 +310,13 @@ OBSApi::Application.routes.draw do
       get 'request/diff/:number' => :diff
       get 'request/list_small' => :list_small
       get 'request/delete_request_dialog' => :delete_request_dialog
-      post 'request/delete_request' => :delete_request
+      post 'request/delete_request/:project' => :delete_request, constraints: cons
       get 'request/add_role_request_dialog' => :add_role_request_dialog
-      post 'request/add_role_request' => :add_role_request
+      post 'request/add_role_request/:project' => :add_role_request, constraints: cons
       get 'request/set_bugowner_request_dialog' => :set_bugowner_request_dialog
       post 'request/set_bugowner_request' => :set_bugowner_request
-      get 'request/change_devel_request_dialog' => :change_devel_request_dialog
-      post 'request/change_devel_request' => :change_devel_request
+      get 'request/change_devel_request_dialog/:project/:package' => :change_devel_request_dialog, constraints: cons
+      post 'request/change_devel_request/:project/:package' => :change_devel_request, constraints: cons
       get 'request/set_incident_dialog' => :set_incident_dialog
       post 'request/set_incident' => :set_incident
     end
@@ -347,13 +347,12 @@ OBSApi::Application.routes.draw do
       get 'user/edit/:user' => :edit, constraints: cons, as: 'user_edit'
 
       get 'user/show/:user' => :show, constraints: cons, as: 'user_show'
-      get 'user/icon/:icon' => :user_icon, constraints: cons, as: 'user_icon'
       # Only here to make old /home url's work
       get 'home/' => :home, as: 'home'
       get 'home/my_work' => :home
       get 'home/list_my' => :home
       get 'home/home_project' => :home_project
-      get 'user/:user/icon' => :icon, constraints: cons
+      get 'user/:user/icon' => :icon, constraints: cons, as: :icon_user
     end
 
     controller 'webui/session' do

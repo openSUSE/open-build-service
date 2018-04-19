@@ -88,14 +88,7 @@ class Webui::UserController < Webui::WebuiController
     render_dialog
   end
 
-  def user_icon
-    required_parameters :icon
-    params[:user] = params[:icon].gsub(/.png$/, '')
-    icon
-  end
-
   def icon
-    required_parameters :user
     size = params[:size].to_i || '20'
     user = User.find_by_login(params[:user])
     if user.nil? || (content = user.gravatar_image(size)) == :none
@@ -169,12 +162,10 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def autocomplete
-    required_parameters :term
     render json: User.autocomplete_login(params[:term])
   end
 
   def tokens
-    required_parameters :q
     render json: User.autocomplete_token(params[:q])
   end
 

@@ -337,10 +337,6 @@ RSpec.describe Webui::UserController do
     skip
   end
 
-  describe 'GET #user_icon' do
-    skip
-  end
-
   describe 'GET #icon' do
     skip
   end

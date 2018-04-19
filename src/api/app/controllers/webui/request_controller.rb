@@ -17,7 +17,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def add_reviewer
-    required_parameters :review_type
     begin
       opts = {}
       case params[:review_type]
@@ -177,7 +176,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def list_small
-    required_parameters :project # the minimum
     redirect_to(user_show_path(User.current)) && return unless request.xhr? # non ajax request
     requests = BsRequest.list(params)
     render partial: 'requests_small', locals: { requests: requests }
@@ -190,7 +188,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def delete_request
-    required_parameters :project
     req = nil
     begin
       BsRequest.transaction do
@@ -228,7 +225,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def add_role_request
-    required_parameters :project, :role
     req = nil
     begin
       BsRequest.transaction do
@@ -285,7 +281,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def change_devel_request_dialog
-    required_parameters :package, :project
     @package = Package.find_by_project_and_name(params[:project], params[:package])
     if @package.develpackage
       @current_devel_package = @package.develpackage.name
@@ -295,7 +290,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def change_devel_request
-    required_parameters :devel_project, :package, :project
     req = nil
     begin
       BsRequest.transaction do
