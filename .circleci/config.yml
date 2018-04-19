@@ -1,0 +1,100 @@
+version: 2
+jobs:
+  rspec:
+    docker:
+      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/frontend-base:latest
+        environment:
+          NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
+      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/mariadb:latest
+        command: /usr/lib/mysql/mysql-systemd-helper start
+        name: db
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+      - run:
+          name: install dependencies
+          command: |
+            cd ./src/api && bundle install --jobs=4 --retry=3 --path vendor/bundle
+      - save_cache:
+          paths:
+            - ./src/api/vendor/bundle
+          key: v1-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
+      - run:
+          name: Wait for DB
+          command: mysqladmin ping -h db
+      - run:
+          name: Setup application
+          command: cd src/api; bundle exec rake dev:bootstrap RAILS_ENV=test
+      - run:
+          name: Run rspec
+          command: cd src/api; bundle exec rspec
+      - store_artifacts:
+          path: ./src/api/log
+          destination: rspec
+  minitest:
+    docker:
+      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/frontend-backend:latest
+        environment:
+          NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
+          NO_MEMCACHED: 1
+      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/mariadb:latest
+        command: /usr/lib/mysql/mysql-systemd-helper start
+        name: db
+      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/memcached:latest
+        name: cache
+    steps:
+      - checkout
+      - run:
+          name: Init submodule
+          command: git submodule update --init --recursive --remote
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+      - run:
+          name: install dependencies
+          command: |
+            cd ./src/api && bundle install --jobs=4 --retry=3 --path vendor/bundle
+      - save_cache:
+          paths:
+            - ./src/api/vendor/bundle
+          key: v1-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
+      - run:
+          name: Wait for DB
+          command: mysqladmin ping -h db
+      - run:
+          name: Setup application
+          command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
+      - run:
+          name: Run minitest
+          command: cd src/api; bundle exec rake test:api
+      - run:
+          name: Run spider
+          command: cd src/api; bundle exec rake test:spider
+      - store_artifacts:
+          path: ./src/api/log/
+          destination: minitest
+  backend:
+    docker:
+      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/backend:latest
+    steps:
+      - checkout
+      - run:
+          name: Init submodule
+          command: git submodule update --init --recursive --remote
+      - run:
+          name: backend
+          command: make -C src/backend test
+
+workflows:
+  version: 2
+  test_all:
+    jobs:
+      - rspec
+      - minitest
+      - backend
