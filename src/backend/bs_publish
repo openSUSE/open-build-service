@@ -2650,7 +2650,12 @@ sub upload_to_registry {
   $projid =~ s/:/$delimiter/g;
   $repoid =~ s/:/$delimiter/g;
 
-  my @tags = BSUtil::unify(@{$info->{tags} || []});
+  my @tags = @{$info->{tags} || []};
+  for (@tags) {
+    $_ = 'latest' unless /:[^\/]+$/;
+    s/.*://;
+  }
+  @tags = BSUtil::unify(@tags);
   @tags = ('latest') unless @tags;	# hmm
   
   my $reponame = lc("$repository_base$projid/$repoid/$arch");
