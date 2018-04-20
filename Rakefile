@@ -34,18 +34,18 @@ namespace :docker do
     desc 'Run our backend tests in the docker container'
     task :backend do
       begin
-        sh 'docker-compose -f docker-compose.ci.yml run --rm backend'
+        sh 'docker-compose -f docker-compose.ci.yml -p backend run --rm backend'
       ensure
-        sh 'docker-compose stop'
+        sh 'docker-compose -f docker-compose.ci.yml -p backend stop'
       end
     end
 
     desc 'Scan the code base for syntax/code problems'
     task :lint do
       begin
-        sh "docker-compose -f docker-compose.ci.yml run #{environment_vars(false)} --rm rspec ../../contrib/start_lint"
+        sh "docker-compose -f docker-compose.ci.yml -p lint run #{environment_vars(false)} --rm rspec ../../contrib/start_lint"
       ensure
-        sh 'docker-compose -f docker-compose.ci.yml stop'
+        sh 'docker-compose -f docker-compose.ci.yml -p lint stop'
       end
     end
 
@@ -61,9 +61,9 @@ namespace :docker do
     desc 'Run the spider test to crawl all pages and fail for exceptions'
     task :spider do
       begin
-        sh "docker-compose -f docker-compose.ci.yml run #{environment_vars(false)} --rm minitest /bin/bash -c ../../contrib/start_spider"
+        sh "docker-compose -f docker-compose.ci.yml -p spider run #{environment_vars(false)} --rm minitest /bin/bash -c ../../contrib/start_spider"
       ensure
-        sh 'docker-compose -f docker-compose.ci.yml stop'
+        sh 'docker-compose -f docker-compose.ci.yml -p spider stop'
       end
     end
   end
