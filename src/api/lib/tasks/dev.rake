@@ -67,12 +67,12 @@ namespace :dev do
 
   desc 'Run all linters we use'
   task :lint do
-    Rake::Task['db:structure:verify'].invoke
-    Rake::Task['db:structure:verify_no_bigint'].invoke
     Rake::Task['haml_lint'].invoke
     Rake::Task['dev:lint:ruby'].invoke
     Rake::Task['git_cop'].invoke
     sh 'jshint ./app/assets/javascripts/'
+    Rake::Task['db:structure:verify'].invoke
+    Rake::Task['db:structure:verify_no_bigint'].invoke
   end
   namespace :lint do
     desc 'Run the ruby linter'

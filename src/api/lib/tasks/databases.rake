@@ -84,8 +84,11 @@ namespace :db do
 
     desc 'Verify that structure.sql in git is up to date'
     task verify: :environment do
+      puts 'Dropping database...'
+      Rake::Task['db:drop'].invoke
+      Rake::Task['db:create'].invoke
       puts 'Running rails db:migrate'
-      Rake::Task['db:migrate'].invoke
+      Rake::Task['db:migrate:with_data'].invoke
       puts 'Diffing the db/structure.sql'
       sh %(git diff --quiet db/structure.sql) do |ok, _|
         unless ok
