@@ -52,7 +52,7 @@ GEM
       airbrake-ruby (~> 2.5)
     airbrake-ruby (2.5.0)
     amq-protocol (2.3.0)
-    annotate (2.7.2)
+    annotate (2.7.3)
       activerecord (>= 3.2, < 6.0)
       rake (>= 10.4, < 13.0)
     ansi (1.5.0)
