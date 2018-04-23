@@ -1,5 +1,3 @@
-require 'rabbitmq_bus'
-
 # This class represents some kind of event within the build service
 # that users (or services) would like to know about
 module Event
@@ -273,14 +271,30 @@ module Event
     end
 
     def send_to_bus
-      RabbitmqBus.publish(self.class.message_bus_routing_key, self[:payload])
-      # FIXME: For application health monitoring we would need some more meaningful data like...
-      # RabbitmqBus.publish('opensuse.obs.metrics', "meaning_of_life, value=#{rand(42).to_i}")
-    rescue Bunny::Exception, OpenSSL::SSL::SSLError => e
-      logger.error "Publishing to RabbitMQ failed: #{e.message}"
+      RabbitmqBus.send_to_bus(self.class.message_bus_routing_key, self[:payload])
+      RabbitmqBus.send_to_bus("metrics.#{self.class.message_bus_routing_key}", to_metric) if metric_fields.present?
     end
 
     private
+
+    def metric_tags
+      {}
+    end
+
+    def metric_fields
+      {}
+    end
+
+    def metric_measurement
+      self.class.message_bus_routing_key
+    end
+
+    def to_metric
+      tags = metric_tags.map { |k, v| "#{k}=#{v}" }.join(',')
+      tags = ",#{tags}" if tags.present?
+      fields = metric_fields.map { |k, v| "#{k}=#{v}" }.join(',')
+      "#{metric_measurement}#{tags} #{fields}"
+    end
 
     def calculate_payload(values)
       return values if shortenable_key.nil? # If no shortenable_key is set then we cannot shorten the payload

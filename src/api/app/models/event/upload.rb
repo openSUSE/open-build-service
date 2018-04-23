@@ -5,7 +5,7 @@ module Event
     after_create_commit :send_to_bus
 
     def self.message_bus_routing_key
-      "#{Configuration.amqp_namespace}.package.upload"
+      'package.upload'
     end
   end
 end

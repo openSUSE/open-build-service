@@ -7,7 +7,7 @@ module Event
     payload_keys :project, :package, :sender
 
     def self.message_bus_routing_key
-      "#{Configuration.amqp_namespace}.package.comment"
+      'package.comment'
     end
 
     self.description = 'New comment for package created'

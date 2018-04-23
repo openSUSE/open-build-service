@@ -6,11 +6,21 @@ module Event
     after_create_commit :send_to_bus
 
     def self.message_bus_routing_key
-      "#{Configuration.amqp_namespace}.request.state_change"
+      'request.state_change'
     end
 
     def subject
       "Request #{payload['number']} changed to #{payload['state']} (#{actions_summary})"
+    end
+
+    private
+
+    def metric_tags
+      payload.slice('oldstate', 'state')
+    end
+
+    def metric_fields
+      payload.slice('number')
     end
   end
 end
