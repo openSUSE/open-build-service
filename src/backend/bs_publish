@@ -2708,7 +2708,8 @@ sub upload_all_containers {
       unlink("$extrep/$p");
       my @r = sort(BSUtil::unify(@{$allrefs_pp{$p}}));
       my $readme = "This container can be pulled via:\n";
-      $readme .= "  docker pull $_\n" for @{$allrefs{$p}};
+      my $notary_prefix = $notary_uploads ? "DOCKER_CONTENT_TRUST=1 " : "";
+      $readme .= " $notary_prefix docker pull $_\n" for @{$allrefs{$p}};
       writestr("$extrep/$p.registry.txt", undef, $readme);
     } elsif ($multicontainer && $allrefs_pp_lastp{$p} ne $p) {
       # create symlink to last arch
