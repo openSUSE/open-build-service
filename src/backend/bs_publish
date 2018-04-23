@@ -2709,7 +2709,8 @@ sub upload_all_containers {
       my @r = sort(BSUtil::unify(@{$allrefs_pp{$p}}));
       my $readme = "This container can be pulled via:\n";
       my $notary_prefix = $notary_uploads ? "DOCKER_CONTENT_TRUST=1 " : "";
-      $readme .= " $notary_prefix docker pull $_\n" for @{$allrefs{$p}};
+      $readme .= "  docker pull $_\n" for @{$allrefs{$p}};
+      $readme .= "\nSet DOCKER_CONTENT_TRUST=1 to enable image tag verification.\n" if %{$notary_uploads || []};
       writestr("$extrep/$p.registry.txt", undef, $readme);
     } elsif ($multicontainer && $allrefs_pp_lastp{$p} ne $p) {
       # create symlink to last arch
