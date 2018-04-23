@@ -1614,7 +1614,7 @@ sub publish {
 	      $p = "$arch/$bin" if $multicontainer;
 	      $containerinfo->{'arch'} = $arch;
 	      $containerinfo->{'publishfile'} = "$extrep/$p";
-	      undef $containerinfo if $3;
+	      undef $containerinfo if $2;
 	    }
 	  }
 	  next if $bin =~ /-(?:appstream|desktopfiles|polkitactions|mimetypes)\.tar/;
