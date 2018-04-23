@@ -2710,7 +2710,7 @@ sub upload_all_containers {
       my $readme = "This container can be pulled via:\n";
       my $notary_prefix = $notary_uploads ? "DOCKER_CONTENT_TRUST=1 " : "";
       $readme .= "  docker pull $_\n" for @{$allrefs{$p}};
-      $readme .= "\nSet DOCKER_CONTENT_TRUST=1 to enable image tag verification.\n" if %{$notary_uploads || []};
+      $readme .= "\nSet DOCKER_CONTENT_TRUST=1 to enable image tag verification.\n" if %{$notary_uploads || {}};
       writestr("$extrep/$p.registry.txt", undef, $readme);
     } elsif ($multicontainer && $allrefs_pp_lastp{$p} ne $p) {
       # create symlink to last arch
@@ -2813,9 +2813,11 @@ sub upload_to_notary {
   for my $uploadkey (sort keys %$notary_uploads) {
     my $uploaddata = $notary_uploads->{$uploadkey};
     my $registry = $uploaddata->{'registry'};
+    my @pubkeyargs = ('-p', $pubkeyfile);
+    @pubkeyargs = @{$registry->{'notary_pubkey_args'}} if $registry->{'notary_pubkey_args'};
     my $containerdigestfile = "$uploaddir/publisher.$$.containerdigests";
     writestr($containerdigestfile, undef, $uploaddata->{'digests'} || '');
-    my @cmd = ("$INC[0]/bs_notar", '--dest-creds', '-', @signargs, "-p", $pubkeyfile, '-F', $containerdigestfile, $registry->{'notary'}, $uploaddata->{'gun'});
+    my @cmd = ("$INC[0]/bs_notar", '--dest-creds', '-', @signargs, @pubkeyargs, '-F', $containerdigestfile, $registry->{'notary'}, $uploaddata->{'gun'});
     BSUtil::printlog("Uploading to notary: @cmd\n");
     my $result = qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', '', @cmd);
     unlink($containerdigestfile);
