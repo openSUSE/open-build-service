@@ -412,10 +412,22 @@ while (@ARGV) {
 
 $registry_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => 1);
 
-if ($list_mode && @ARGV == 1) {
-  $registryserver = $ARGV[0];
-  for my $repo (sort(get_all_repositories())) {
-    print "$repo\n";
+if ($list_mode) {
+  ($registryserver, $repository) = @ARGV;
+  if (@ARGV == 1) {
+    for my $repo (sort(get_all_repositories())) {
+      print "$repo\n";
+    }
+  } elsif (@ARGV == 2) {
+    my %tags = map {$_ => 1} @tags;
+    $tags{$_} = 1 for tags_from_digestfile();
+    %tags = map {$_ => 1} get_all_tags() unless %tags;
+    list_tag($_) for sort keys %tags;
+  } elsif (@ARGV == 3) {
+    my ($mani, $maniid, $mani_json) = get_manifest_for_tag($ARGV[2]);
+    print "$mani_json\n" if $mani_json;
+  } else {
+    die("usage: bs_regpush -l  <registryserver> [repository [tag]]\n");
   }
   exit(0);
 }
@@ -423,17 +435,13 @@ if ($list_mode && @ARGV == 1) {
 die("usage: bs_regpush <registryserver> <repository> <tarfile>...\n") unless @ARGV >= 2;
 ($registryserver, $repository, @tarfiles) = @ARGV;
 
-if ($delete_mode || $delete_except_mode || $list_mode) {
+if ($delete_mode || $delete_except_mode) {
   die("cannot do both delete and delete-except\n") if $delete_mode && $delete_except_mode;
   my %tags;
   $tags{$_} = 1 for @tags;
   $tags{$_} = 1 for tags_from_digestfile();
 
-  if ($list_mode) {
-    %tags = map {$_ => 1} get_all_tags() unless %tags;
-    list_tag($_) for sort keys %tags;
-    exit;
-  } elsif ($delete_mode) {
+  if ($delete_mode) {
     for my $tag (sort keys %tags) {
       delete_tag($tag);
     }
