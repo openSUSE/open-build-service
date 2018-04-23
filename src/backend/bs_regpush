@@ -265,10 +265,37 @@ sub get_all_tags {
     'timeout' => $registry_timeout,
     'replyheaders' => \$replyheaders,
   };
-  my $r = BSRPC::rpc($param, \&JSON::XS::decode_json);
-  die("pagination not supported yet\n") if $replyheaders->{'link'};
-  push @regtags, @{$r->{'tags'}};
+  while (1) {
+    undef $replyheaders;
+    my $r = BSRPC::rpc($param, \&JSON::XS::decode_json);
+    push @regtags, @{$r->{'tags'}};
+    last unless $replyheaders->{'link'};
+    die unless $replyheaders->{'link'} =~ /^<(\/v2\/_catalog\?.*)>/;
+    $param->{'uri'} = "$registryserver$1";
+    $param->{'verbatim_uri'} = 1;
+  }
   return BSUtil::unify(@regtags);
+}
+
+sub get_all_repositories {
+  my @repos;
+  my $replyheaders;
+  my $param = {
+    'uri' => "$registryserver/v2/_catalog",
+    'authenticator' => $registry_authenticator,
+    'timeout' => $registry_timeout,
+    'replyheaders' => \$replyheaders,
+  };
+  while (1) {
+    undef $replyheaders;
+    my $r = BSRPC::rpc($param, \&JSON::XS::decode_json);
+    push @repos, @{$r->{'repositories'}};
+    last unless $replyheaders->{'link'};
+    die unless $replyheaders->{'link'} =~ /^<(\/v2\/_catalog\?.*)>/;
+    $param->{'uri'} = "$registryserver$1";
+    $param->{'verbatim_uri'} = 1;
+  }
+  return BSUtil::unify(@repos);
 }
 
 sub get_manifest_for_tag {
@@ -383,10 +410,18 @@ while (@ARGV) {
   }
 }
 
+$registry_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => 1);
+
+if ($list_mode && @ARGV == 1) {
+  $registryserver = $ARGV[0];
+  for my $repo (sort(get_all_repositories())) {
+    print "$repo\n";
+  }
+  exit(0);
+}
+
 die("usage: bs_regpush <registryserver> <repository> <tarfile>...\n") unless @ARGV >= 2;
 ($registryserver, $repository, @tarfiles) = @ARGV;
-
-$registry_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => 1);
 
 if ($delete_mode || $delete_except_mode || $list_mode) {
   die("cannot do both delete and delete-except\n") if $delete_mode && $delete_except_mode;
