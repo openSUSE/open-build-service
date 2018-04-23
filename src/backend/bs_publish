@@ -2773,7 +2773,7 @@ sub upload_to_registry {
   die("Error while uploading to registry: $result\n") if $result;
 
   if ($registry->{'notary'}) {
-    my $gun = $registry->{'notary_gunprefix'} || $registryserver;
+    my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
     $gun =~ s/^https?:\/\///;
     print "adding notary upload for $gun/$repository: @$tags\n";
     $notary_uploads->{"$gun/$repository"} ||= {'registry' => $registry, 'digests' => '', 'gun' => "$gun/$repository"};
