@@ -1485,6 +1485,10 @@ sub publish {
     }
   }
 
+  # put containers in arch subdir?
+  my $multicontainer = 0;
+  $multicontainer = 1 if @archs > 1;
+
   my @chksumfiles;
   for my $arch (@archs) {
     my $r = "$reporoot/$prp/$arch/:repo";
@@ -1519,6 +1523,8 @@ sub publish {
       next if $rbin eq '.newchecksums' || $rbin eq '.newchecksums.new' || $rbin eq '.checksums' || $rbin eq '.checksums.new';
       my $bin = $rbin;
       my $containerinfo;
+      my $kiwimedium;
+
       if ($bin =~ /:updateinfo.xml$/) {
         # collect updateinfo data
         my $updateinfoxml = readstr("$r/$bin", 1) || '';
@@ -1546,7 +1552,6 @@ sub publish {
 	}
       }
       $bin =~ s/^.*?:://;	# strip package name for now
-      #next unless $bin =~ /\.(?:$binsufsre)$/;
       my $p;
       if ($bin =~ /^.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.d?rpm$/) {
 	$p = "$1/$bin";
@@ -1578,30 +1583,41 @@ sub publish {
       } else {
 	if ($bin =~ /\.iso(?:\.sha256)?$/) {
 	  $p = "iso/$bin";
-	  $kiwimedium{$p} = $1 if $bin =~ /(.+)\.iso$/;
+	  $kiwimedium = $1 if $bin =~ /(.+)\.iso$/;
 	} elsif ($bin =~ /ONIE\.bin(?:\.sha256)?$/) {
 	  $p = "onie/$bin";
-	  $kiwimedium{$p} = $1 if $bin =~ /(.+)ONIE\.bin$/;
+	  $kiwimedium = $1 if $bin =~ /(.+)ONIE\.bin$/;
 	} elsif ($bin =~ /\.raw(?:\.install)?(?:\.(?:gz|bz2|xz))?(?:\.sha256)?$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256)?$/) {
-          # kiwi case
-	  $kiwimedium{$bin} = $2 if !$3 && -e "$r/$2.packages";
-          if ($BSConfig::publish_containers && !$3 && -e "$r/$1.containerinfo") {
+          # kiwi image case
+          $p = $bin;
+	  $kiwimedium = $2 if !$3 && -e "$r/$2.packages";
+          if (-e "$r/$1.containerinfo") {
 	    eval { $containerinfo = BSRepServer::Containerinfo::readcontainerinfo($r, "$1.containerinfo") };
 	    warn("$@") if $@;
-	    $containerinfo->{'arch'} = $arch if $containerinfo;
-          }
-	  $p = "$bin";
+	    if ($containerinfo) {
+	      $p = "$arch/$bin" if $multicontainer;
+	      $containerinfo->{'arch'} = $arch;
+	      $containerinfo->{'publishfile'} = "$extrep/$p";
+	      undef $containerinfo if $3;
+	    }
+	  }
 	} elsif ($bin =~ /(.*)\.tar(?:\.(?:gz|bz2|xz))?(\.sha256)?$/) {
           # Dockerfile case
-	  $kiwimedium{$bin} = $1 if !$2 && -e "$r/$1.packages";
-          if ($BSConfig::publish_containers && !$2 && -e "$r/$1.containerinfo") {
+          $p = $bin;
+	  $kiwimedium = $1 if !$2 && -e "$r/$1.packages";
+          if (-e "$r/$1.containerinfo") {
 	    eval { $containerinfo = BSRepServer::Containerinfo::readcontainerinfo($r, "$1.containerinfo") };
 	    warn("$@") if $@;
-	    $containerinfo->{'arch'} = $arch if $containerinfo;
-          }
-	  $p = "$bin" unless $bin =~ /-(?:appstream|desktopfiles|polkitactions|mimetypes)\.tar/;
+	    if ($containerinfo) {
+	      $p = "$arch/$bin" if $multicontainer;
+	      $containerinfo->{'arch'} = $arch;
+	      $containerinfo->{'publishfile'} = "$extrep/$p";
+	      undef $containerinfo if $3;
+	    }
+	  }
+	  next if $bin =~ /-(?:appstream|desktopfiles|polkitactions|mimetypes)\.tar/;
         } elsif ($bin =~ /\.(?:tgz|zip)?(?:\.sha256)?$/) {
           # esp. for Go builds
           $p = "$bin";
@@ -1647,7 +1663,7 @@ sub publish {
 	    }
 	    $p = $bin if $kiwimedium{$p};	# what???
 	  }
-	  $kiwimedium{$p} = $bin;
+	  $kiwimedium = $bin;
 	} else {
 	  next;
 	}
@@ -1673,10 +1689,13 @@ sub publish {
 	  }
         }
       }
+
       $bins{$p} = "$r/$rbin";
       $bins_id{$p} = "$s[9]/$s[7]/$s[1]";
       $binaryorigins->{$p} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
+      $kiwimedium{$p} = $kiwimedium if $kiwimedium;
       $containers{$p} = $containerinfo if $containerinfo;
+
       if ($rbin =~ /^(.*)\.drpm$/) {
 	# we took a delta rpm. collect desq if possible
 	my $dseq = "$r/$1.dseq";
@@ -1912,18 +1931,11 @@ sub publish {
   }
 
   my $notary_uploads = {};
-  for my $p (sort keys %containers) {
-    next unless -f "$extrep/$p";
-    my $containerinfo = $containers{$p};
-    my $readme = upload_container($extrep, $p, $containerinfo, $projid, $repoid, $containerinfo->{'arch'}, $notary_uploads);
-    # replace container with readme file
-    if ($readme && $readme ne '') {
-      unlink("$extrep/$p");
-      delete $binaryorigins->{$p};
-      mkdir_p($extrep) unless -d $extrep;
-      writestr("$extrep/$p.registry.txt", undef, $readme);
-    }
+  if (%containers) {
+    # found some containers. upload if requested
+    upload_all_containers($extrep, $projid, $repoid, \%containers, $notary_uploads, $multicontainer, $binaryorigins);
   }
+
   $changed = 1 if %$notary_uploads;	# FIXME
 
   if (!$changed && !$dbgsplit) {
@@ -2568,19 +2580,20 @@ $conf->{'getflavor'} = $BSConfig::publish_getflavor if $BSConfig::publish_getfla
 BSStdRunner::run('publisher', \@ARGV, $conf);
 
 
-=head2 upload_container
+=head2 registries_for_prp - find registries for this project/repository
+ 
+ Parameters:
+  projid - published project
+  repoid - published repository
 
-check if build result is valid container and upload if configured
+ Returns:
+  Array of registries
 
 =cut
 
-sub upload_container {
-  my ($dir, $file, $info, $projid, $repoid, $arch, $notary_uploads) = @_;
-
-  # jump out if no config
-  return unless $BSConfig::publish_containers;
-
-  # get registry names for this project
+sub registries_for_prp {
+  my ($projid, $repoid) = @_;
+  return () unless $BSConfig::publish_containers && $BSConfig::container_registries;
   my @registries;
   my @s = @{$BSConfig::publish_containers};
   while (@s) {
@@ -2591,105 +2604,198 @@ sub upload_container {
       last;
     }
   }
-
   # convert registry names to configs
-  for my $registry (splice @registries) {
-    my $config = get_registry_config($registry);
-    push @registries, $config if $config;
-  }
-
-  return if !@registries;
-
-  if (!$info) {
-    BSUtil::printlog("$file: no valid containerinfo found");
-    return;
-  }
-
-  if (!@{$info->{tags} || []}) {
-    BSUtil::printlog("container is not tagged, skipping upload");
-    return;
-  }
-
-  my $tempfile = decompress_container("$dir/$file");
-  my $read_me_content = '';
-
-  eval {
-    for my $config (@registries) {
-      my $reference = upload_to_registry($config, $info, $tempfile, $projid, $repoid, $arch, $notary_uploads);
-      if ($reference) {
-        $read_me_content = "Container can be pulled via:\n" if $read_me_content eq '';
-        $read_me_content .= "  docker pull $reference\n";
-      }
+  for my $registry (BSUtil::unify(splice @registries)) {
+    my $cr = $BSConfig::container_registries->{$registry};
+    if (!$cr || (!$cr->{'server'} && !$cr->{'pushserver'})) {
+      BSUtil::printlog("no valid registry config for '$registry'\n");
+      next;
     }
-  };
-  my $error = $@;
-  BSUtil::printlog("Deleting $tempfile");
-  unlink($tempfile);
-  die($error) if $error;
-  return $read_me_content;
+    push @registries, $cr;
+  }
+  return @registries;
 }
 
-=head2 upload_to_registry - upload decompressed file
+=head2 default_container_mapper - map container data to registry repository/tags
+ 
+=cut
+
+sub default_container_mapper {
+  my ($registry, $containerinfo, $projid, $repoid, $arch) = @_;
+
+  my $repository_base = $registry->{repository_base} || '/';
+  my $delimiter       = $registry->{repository_delimiter} || '/';
+  $projid =~ s/:/$delimiter/g;
+  $repoid =~ s/:/$delimiter/g;
+  my $repository = lc("$repository_base$projid/$repoid");
+  $repository =~ s/^\///;
+  return map {"$repository/$_"} @{$containerinfo->{'tags'} || []};
+}
+
+=head2 upload_all_containers - upload found containers to the configured registries
+ 
+=cut
+
+sub upload_all_containers {
+  my ($extrep, $projid, $repoid, $containers, $notary_uploads, $multicontainer, $binaryorigins) = @_;
+
+  return unless %{$containers || {}};
+  my @registries = registries_for_prp($projid, $repoid);
+  my %allrefs;
+  for my $registry (@registries) {
+    # collect uploads over all containers
+    my %uploads;
+    my $mapper = $registry->{'mapper'} || \&default_container_mapper;
+    for my $p (sort keys %$containers) {
+      my $containerinfo = $containers->{$p};
+      my $arch = $containerinfo->{'arch'};
+      my @tags = $mapper->($registry, $containerinfo, $projid, $repoid, $arch);
+      for my $tag (@tags) {
+	if ($tag =~ /^(.*):([^:\/]+)$/) {
+          $uploads{$1}->{$2}->{$arch} = $p;
+	} else {
+          $uploads{$tag}->{'latest'}->{$arch} = $p;
+	}
+      }
+    }
+
+    # ok, now go through every repository and upload all tags
+    my $containerdigests = '';
+    for my $repository (sort keys %uploads) {
+      # find common containerinfos so that we can push multiple tags in one go
+      my $uptags = $uploads{$repository};
+      my %todo;
+      my %todo_p;
+      for my $tag (sort keys %$uptags) {
+	my @p = sort(values %{$uptags->{$tag}});
+	my $joinp = join('///', @p);
+	push @{$todo{$joinp}}, $tag;
+	$todo_p{$joinp} = \@p;
+      }
+      # now do the upload
+      for my $joinp (sort keys %todo) {
+	my @tags = @{$todo{$joinp}};
+	my @containerinfos = map {$containers->{$_}} @{$todo_p{$joinp}};
+	my ($digest, @refs) = upload_to_registry($registry, \@containerinfos, $repository, \@tags, $notary_uploads);
+	$containerdigests .= $digest;
+	push @{$allrefs{$_}}, @refs for @{$todo_p{$joinp}};
+      }
+      # all is pushed, now clean the rest
+      delete_obsolete_tags_from_registry($registry, $repository, $containerdigests);
+    }
+  }
+
+  # now the postprocessing: delete containers, write readme, create links
+  my %allrefs_pp;
+  my %allrefs_pp_lastp;
+  for my $p (sort keys %$containers) {
+    my $pp = $p;
+    $pp =~ s/.*?\/// if $multicontainer;
+    $allrefs_pp_lastp{$pp} = $p;	# for link creation
+    # delete container if uploaded
+    if (@{$allrefs{$p} || []}) {
+      delete $binaryorigins->{$p};
+      unlink("$extrep/$p");
+      unlink("$extrep/$p.sha256");
+      rmdir($1) if $multicontainer && $p =~ /(.*)\//;
+      push @{$allrefs_pp{$pp}}, @{$allrefs{$p} || []};
+    }
+  }
+
+  for my $p (sort keys %allrefs_pp_lastp) {
+    if (@{$allrefs_pp{$p} || []}) {
+      # write readme file where to find the container
+      unlink("$extrep/$p");
+      my @r = sort(BSUtil::unify(@{$allrefs_pp{$p}}));
+      my $readme = "This container can be pulled via:\n";
+      $readme .= "  docker pull $_\n" for @{$allrefs{$p}};
+      writestr("$extrep/$p.registry.txt", undef, $readme);
+    } elsif ($multicontainer && $allrefs_pp_lastp{$p} ne $p) {
+      # create symlink to last arch
+      unlink("$extrep/$p");
+      symlink("$allrefs_pp_lastp{$p}", "$extrep/$p");
+    }
+  }
+}
+
+=head2 upload_to_registry - upload containers
 
  Parameters:
-  config   - validated config for registry
-  info     - content of containerinfo file
-  tempfile - path to decompressed container tar file
+  registry       - validated config for registry
+  containerinfos - array of containers to upload
+  repository     - registry repository name
+  tags           - array of tags to upload to
+  notary_uploads - hash to store notary information
 
  Returns:
-  public url to registry
+  containerdigests + public references to uploaded containers
 
 =cut
 
 sub upload_to_registry {
-  my ($config, $info, $tempfile, $projid, $repoid, $arch, $notary_uploads) = @_;
-  # TODO: should be more general to implement own upload
+  my ($registry, $containerinfos, $repository, $tags, $notary_uploads) = @_;
 
-  my $delimiter       = $config->{repository_delimiter} || '/';
-  my $repository_base = $config->{repository_base} || '/';
-  $projid =~ s/:/$delimiter/g;
-  $repoid =~ s/:/$delimiter/g;
-
-  my @tags = @{$info->{tags} || []};
-  for (@tags) {
-    $_ = 'latest' unless /:[^\/]+$/;
-    s/.*://;
-  }
-  @tags = BSUtil::unify(@tags);
-  @tags = ('latest') unless @tags;	# hmm
+  return unless @{$containerinfos || []} && @{$tags || []};
   
-  my $reponame = lc("$repository_base$projid/$repoid/$arch");
-  $reponame =~ s/^\///;
-
-  my $registryserver = $config->{pushserver} || $config->{server};
-  my $pullserver = $config->{server};
+  my $registryserver = $registry->{pushserver} || $registry->{server};
+  my $pullserver = $registry->{server};
   $pullserver =~ s/https?:\/\///;
   $pullserver =~ s/\/?$/\//;
   $pullserver = '' if $pullserver =~ /docker.io\/$/;
-  $reponame = "library/$reponame" if $pullserver eq '' && $reponame !~ /\//;
+  $repository = "library/$repository" if $pullserver eq '' && $repository !~ /\//;
 
+  # decompress tar files
+  my @tempfiles;
+  my @uploadfiles;
+  for my $containerinfo (@$containerinfos) {
+    my $file = $containerinfo->{'publishfile'};
+    if ($file =~ /\.tar$/) {
+      push @uploadfiles, $file;
+    } else {
+      my $tmpfile = decompress_container($file);
+      push @uploadfiles, $tmpfile;
+      push @tempfiles, $tmpfile;
+    }
+  }
+
+  # do the upload
   mkdir_p($uploaddir);
   my $containerdigestfile = "$uploaddir/publisher.$$.containerdigests";
   unlink($containerdigestfile);
-  my @tagopts = map {('-t', $_)} @tags;
-  my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @tagopts, '-F', $containerdigestfile, $registryserver, $reponame, $tempfile);
+  my @opts = map {('-t', $_)} @$tags;
+  push @opts, '-m' if @uploadfiles > 1;		# create multi arch container
+  my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @opts, '-F', $containerdigestfile, $registryserver, $repository, @uploadfiles);
   BSUtil::printlog("Uploading to registry: @cmd\n");
-  my $result = qsystem('echo', "$config->{user}:$config->{password}\n", 'stdout', '', @cmd);
+  my $result = qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', '', @cmd);
   my $containerdigests = readstr($containerdigestfile, 1);
   unlink($containerdigestfile);
+  unlink($_) for @tempfiles;
   die("Error while uploading to registry: $result\n") if $result;
 
-  if ($config->{'notary'}) {
-    my $gun = $config->{'notary_gunprefix'} || $registryserver;
+  if ($registry->{'notary'}) {
+    my $gun = $registry->{'notary_gunprefix'} || $registryserver;
     $gun =~ s/^https?:\/\///;
-    print "adding notary upload for $gun/$reponame: @tags\n";
-    $notary_uploads->{"$gun/$reponame"} ||= {'config' => $config, 'digests' => '', 'gun' => "$gun/$reponame"};
-    $notary_uploads->{"$gun/$reponame"}->{'digests'} .= $containerdigests if $containerdigests;
+    print "adding notary upload for $gun/$repository: @$tags\n";
+    $notary_uploads->{"$gun/$repository"} ||= {'registry' => $registry, 'digests' => '', 'gun' => "$gun/$repository"};
+    $notary_uploads->{"$gun/$repository"}->{'digests'} .= $containerdigests if $containerdigests;
   }
 
-  # return public reference (XXX: only first tag?)
-  $reponame =~ s/^library\/([^\/]+)$/$1/ if $pullserver eq '';
-  return "$pullserver$reponame:$tags[0]";
+  # return digest and public references
+  $repository =~ s/^library\/([^\/]+)$/$1/ if $pullserver eq '';
+  return ($containerdigests, map {"$pullserver$repository:$_"} @$tags);
+}
+
+sub delete_obsolete_tags_from_registry {
+  my ($registry, $repository, $containerdigests) = @_;
+  mkdir_p($uploaddir);
+  my $containerdigestfile = "$uploaddir/publisher.$$.containerdigests";
+  writestr($containerdigestfile, undef, $containerdigests);
+  my $registryserver = $registry->{pushserver} || $registry->{server};
+  my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', '-X', '-F', $containerdigestfile, $registryserver, $repository);
+  BSUtil::printlog("Deleting obsolete tags: @cmd\n");
+  my $result = qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', '', @cmd);
+  unlink($containerdigestfile);
+  die("Error while deleting tags from registry: $result\n") if $result;
 }
 
 sub upload_to_notary {
@@ -2704,12 +2810,12 @@ sub upload_to_notary {
   push @signargs, @{$signargs || []};
   for my $uploadkey (sort keys %$notary_uploads) {
     my $uploaddata = $notary_uploads->{'uploadkey'};
-    my $config = $uploaddata->{'config'};
+    my $registry = $uploaddata->{'registry'};
     my $containerdigestfile = "$uploaddir/publisher.$$.containerdigests";
     writestr($containerdigestfile, undef, $uploaddata->{'digests'} || '');
-    my @cmd = ("$INC[0]/bs_notar", '--dest-creds', '-', @signargs, "-p", $pubkeyfile, '-F', $containerdigestfile, $config->{'notary'}, $uploaddata->{'gun'});
+    my @cmd = ("$INC[0]/bs_notar", '--dest-creds', '-', @signargs, "-p", $pubkeyfile, '-F', $containerdigestfile, $registry->{'notary'}, $uploaddata->{'gun'});
     BSUtil::printlog("Uploading to notary: @cmd\n");
-    my $result = qsystem('echo', "$config->{user}:$config->{password}\n", 'stdout', '', @cmd);
+    my $result = qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', '', @cmd);
     unlink($containerdigestfile);
     if ($result) {
       unlink($pubkeyfile);
@@ -2717,40 +2823,6 @@ sub upload_to_notary {
     }
   }
   unlink($pubkeyfile);
-}
-
-=head2 get_registry_config - check for valid registry config and set default values
-
- Parameters:
-  registry - identifier for registry to be searched in $BSConfig::container_registries
-
- Returns:
-  config - valid config for registry
-
-=cut
-
-sub get_registry_config {
-  my ($registry) = @_;
-
-  # avoid "used only once" warnings
-  my $cr = $BSConfig::container_registries->{$registry} || $BSConfig::container_registries->{$registry};
-  if (ref($cr) ne 'HASH') {
-    BSUtil::printlog(
-      "No or invalid config found for container registry: '$registry'"
-    );
-    return;
-  }
-
-  # check if minimal config items are set
-  if (!$cr->{server} || !$cr->{user} || !$cr->{password}) {
-    BSUtil::printlog(
-      "No valid config found for container registry: ".
-      "$cr->{server}/$cr->{user}/$cr->{password} (server/user/password)"
-    );
-    return;
-  }
-
-  return $cr;
 }
 
 =head2 decompress_container - decompress or copy container into a temporary file
@@ -2772,11 +2844,9 @@ sub decompress_container {
   my $decomp;
   $decomp = $ext2decomp{$1} if $in =~ /\.([^\.]+)$/;
   $decomp ||= 'cat';
-
   my ($fh, $tempfile) = tempfile();
-
   BSUtil::printlog("Decompressing: '$decomp $in > $tempfile'");
   qsystem('stdout', $tempfile, $decomp, $in);
-
   return $tempfile;
 }
+
