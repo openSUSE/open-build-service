@@ -289,7 +289,7 @@ if (!$dodelete) {
       $snapshot_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_snapshot_id};
     }
   };
-  warn($@) if $@;
+  warn($@) if $@ && $@ !~ /^404 /;
 }
 
 $dodelete = 1 unless $cert || $dorootupdate;
