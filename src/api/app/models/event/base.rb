@@ -1,5 +1,3 @@
-require 'rabbitmq_bus'
-
 # This class represents some kind of event within the build service
 # that users (or services) would like to know about
 module Event
@@ -273,7 +271,7 @@ module Event
     end
 
     def send_to_bus
-      RabbitmqBus.send_to_bus(self.class.message_bus_routing_key, self[:payload])
+      ::RabbitmqBus.send_to_bus(self.class.message_bus_routing_key, self[:payload])
     end
 
     private

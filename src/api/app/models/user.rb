@@ -841,6 +841,7 @@ class User < ApplicationRecord
 
   def mark_login!
     update_attributes(last_logged_in_at: Time.now, login_failure_count: 0)
+    RabbitmqBus.send_to_bus('metrics.user', "login id=#{id}")
   end
 
   private
