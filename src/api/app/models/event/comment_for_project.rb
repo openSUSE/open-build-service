@@ -7,7 +7,7 @@ module Event
     after_create_commit :send_to_bus
 
     def self.message_bus_routing_key
-      "#{Configuration.amqp_namespace}.project.comment"
+      'project.comment'
     end
 
     self.description = 'New comment for project created'

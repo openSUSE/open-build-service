@@ -6,7 +6,7 @@ module Event
     after_create_commit :send_to_bus
 
     def self.message_bus_routing_key
-      "#{Configuration.amqp_namespace}.request.state_change"
+      'request.state_change'
     end
 
     def subject

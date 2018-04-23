@@ -5,7 +5,7 @@ module Event
     after_create_commit :send_to_bus
 
     def self.message_bus_routing_key
-      "#{Configuration.amqp_namespace}.repo.publish_state"
+      'repo.publish_state'
     end
   end
 end
