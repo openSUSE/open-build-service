@@ -271,10 +271,30 @@ module Event
     end
 
     def send_to_bus
-      ::RabbitmqBus.send_to_bus(self.class.message_bus_routing_key, self[:payload])
+      RabbitmqBus.send_to_bus(self.class.message_bus_routing_key, self[:payload])
+      RabbitmqBus.send_to_bus("metrics.#{self.class.message_bus_routing_key}", to_metric) if metric_fields.present?
     end
 
     private
+
+    def metric_tags
+      {}
+    end
+
+    def metric_fields
+      {}
+    end
+
+    def metric_measurement
+      self.class.message_bus_routing_key
+    end
+
+    def to_metric
+      tags = metric_tags.map { |k, v| "#{k}=#{v}" }.join(',')
+      tags = ",#{tags}" if tags.present?
+      fields = metric_fields.map { |k, v| "#{k}=#{v}" }.join(',')
+      "#{metric_measurement}#{tags} #{fields}"
+    end
 
     def calculate_payload(values)
       return values if shortenable_key.nil? # If no shortenable_key is set then we cannot shorten the payload

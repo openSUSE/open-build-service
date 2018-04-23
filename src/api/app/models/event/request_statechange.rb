@@ -12,6 +12,16 @@ module Event
     def subject
       "Request #{payload['number']} changed to #{payload['state']} (#{actions_summary})"
     end
+
+    private
+
+    def metric_tags
+      payload.slice('oldstate', 'state')
+    end
+
+    def metric_fields
+      payload.slice('number')
+    end
   end
 end
 
