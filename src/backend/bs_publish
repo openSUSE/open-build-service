@@ -2809,7 +2809,7 @@ sub upload_to_notary {
   push @signargs, '--project', $projid if $BSConfig::sign_project;
   push @signargs, @{$signargs || []};
   for my $uploadkey (sort keys %$notary_uploads) {
-    my $uploaddata = $notary_uploads->{'uploadkey'};
+    my $uploaddata = $notary_uploads->{$uploadkey};
     my $registry = $uploaddata->{'registry'};
     my $containerdigestfile = "$uploaddir/publisher.$$.containerdigests";
     writestr($containerdigestfile, undef, $uploaddata->{'digests'} || '');
