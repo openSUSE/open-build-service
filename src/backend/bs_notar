@@ -155,7 +155,8 @@ while (@ARGV) {
     next;
   }
   if ($ARGV[0] eq '--dest-creds') {
-    (undef, $dest_creds) = splice(@ARGV, 0, 2);
+    $dest_creds = BSBearer::get_credentials($ARGV[1]);
+    splice(@ARGV, 0, 2);
     next;
   }
   if ($ARGV[0] eq '-P' || $ARGV[0] eq '--project' || $ARGV[0] eq '-u') {
