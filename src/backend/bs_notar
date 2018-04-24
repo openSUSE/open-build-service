@@ -159,7 +159,7 @@ while (@ARGV) {
     splice(@ARGV, 0, 2);
     next;
   }
-  if ($ARGV[0] eq '-P' || $ARGV[0] eq '--project' || $ARGV[0] eq '-u') {
+  if ($ARGV[0] eq '-P' || $ARGV[0] eq '--project' || $ARGV[0] eq '-u' || $ARGV[0] eq '--signtype') {
     push @signargs, splice(@ARGV, 0, 2);
     next;
   }
