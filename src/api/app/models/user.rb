@@ -97,7 +97,11 @@ class User < ApplicationRecord
   validates :password, length: { minimum: 6, maximum: ActiveModel::SecurePassword::MAX_PASSWORD_LENGTH_ALLOWED }, allow_nil: true
   validates :password, confirmation: true, allow_blank: true
 
-  after_create :create_home_project
+  after_create :create_home_project, :track_create
+
+  def track_create
+    RabbitmqBus.send_to_bus('metrics', "user.create id=#{id}")
+  end
 
   def create_home_project
     # avoid errors during seeding
@@ -612,7 +616,14 @@ class User < ApplicationRecord
     end
   end
 
+  def delete
+    delete!
+  rescue ActiveRecord::RecordInvalid
+    false
+  end
+
   def delete!
+    oldstate = self.state
     self.state = 'deleted'
     save!
 
@@ -621,6 +632,9 @@ class User < ApplicationRecord
       prj.commit_opts = { comment: 'User account got deleted' }
       prj.destroy
     end
+
+    RabbitmqBus.send_to_bus('metrics', "user.delete id=#{id}") unless oldstate == 'deleted'
+    true
   end
 
   def involved_projects
@@ -841,7 +855,7 @@ class User < ApplicationRecord
 
   def mark_login!
     update_attributes(last_logged_in_at: Time.now, login_failure_count: 0)
-    RabbitmqBus.send_to_bus('metrics.user', "login id=#{id}")
+    RabbitmqBus.send_to_bus('metrics', "user.login id=#{id}")
   end
 
   private
