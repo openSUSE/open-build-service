@@ -1949,15 +1949,18 @@ sub publish {
   my $signargs = [];
   my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid", "withpubkey=1", "autoextend=1", "withalgo=1");
   my $pubkey;
-  my $algo;
   if ($signkey) {
     ($signkey, $pubkey) = split("\n", $signkey, 2);
-    $algo = $1 if $signkey && $signkey =~ s/^(\S+)://;
-    mkdir_p("$uploaddir");
-    writestr("$uploaddir/publisher.$$", undef, $signkey);
-    $signargs = [ '-P', "$uploaddir/publisher.$$" ];
-    push @$signargs, '-h', 'sha256' if $algo && $algo eq 'rsa';
+    undef $signkey unless $signkey && length($signkey) > 4;	# not a valid signkey
     undef $pubkey unless $pubkey && length($pubkey) > 2;	# not a valid pubkey
+    if ($signkey) {
+      my $algo;
+      $algo = $1 if $signkey && $signkey =~ s/^(\S+)://;
+      mkdir_p("$uploaddir");
+      writestr("$uploaddir/publisher.$$", undef, $signkey);
+      $signargs = [ '-P', "$uploaddir/publisher.$$" ];
+      push @$signargs, '-h', 'sha256' if $algo && $algo eq 'rsa';
+    }
   }
   if (!$pubkey) {
     if ($BSConfig::sign_project && $BSConfig::sign) {
@@ -2803,13 +2806,36 @@ sub delete_obsolete_tags_from_registry {
 sub upload_to_notary {
   my ($projid, $notary_uploads, $signargs, $pubkey) = @_;
 
-  mkdir_p($uploaddir);
-  my $pubkeyfile = "$uploaddir/publisher.$$.notarypubkey";
-  unlink($pubkeyfile);
-  writestr($pubkeyfile, undef, $pubkey);
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
+  push @signargs, '--signtype', 'notary' if $BSConfig::sign_type || $BSConfig::sign_type;
   push @signargs, @{$signargs || []};
+
+  # ask the sign tool for the correct pubkey if we do not have a sign key
+  if (!@$signargs && $BSConfig::sign_project && $BSConfig::sign) {
+    local *S;
+    open(S, '-|', $BSConfig::sign, @signargs, '-p') || die("$BSConfig::sign: $!\n");;
+    $pubkey = '';
+    1 while sysread(S, $pubkey, 4096, length($pubkey));
+    if (!close(S)) {
+      print "sign -p failed: $?\n";
+      $pubkey = undef;
+    }
+  }
+
+  # check pubkey
+  die("could not determine pubkey for notary signing\n") unless $pubkey;
+  my $pkalgo;
+  eval { $pkalgo = BSPGP::pk2algo(BSPGP::unarmor($pubkey)) };
+  if ($pkalgo && $pkalgo ne 'rsa') {
+    print "public key algorithm is '$pkalgo', skipping notary upload\n";
+    return;
+  }
+
+  my $pubkeyfile = "$uploaddir/publisher.$$.notarypubkey";
+  mkdir_p($uploaddir);
+  unlink($pubkeyfile);
+  writestr($pubkeyfile, undef, $pubkey);
   for my $uploadkey (sort keys %$notary_uploads) {
     my $uploaddata = $notary_uploads->{$uploadkey};
     my $registry = $uploaddata->{'registry'};
