@@ -272,7 +272,7 @@ module Event
 
     def send_to_bus
       RabbitmqBus.send_to_bus(self.class.message_bus_routing_key, self[:payload])
-      RabbitmqBus.send_to_bus("metrics.#{self.class.message_bus_routing_key}", to_metric) if metric_fields.present?
+      RabbitmqBus.send_to_bus('metrics', to_metric) if metric_fields.present?
     end
 
     private
