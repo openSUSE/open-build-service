@@ -11,6 +11,16 @@ module Event
     def subject
       "New Package #{payload['project']}/#{payload['package']}"
     end
+
+    private
+
+    def metric_tags
+      { home: ::Project.home?(payload['project']) }
+    end
+
+    def metric_fields
+      { value: 1 }
+    end
   end
 end
 
