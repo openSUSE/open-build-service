@@ -75,8 +75,7 @@ class Webui::UserController < Webui::WebuiController
 
   def delete
     other_user = User.find_by(login: user_params[:login])
-    other_user.update_attributes(state: 'deleted')
-    if other_user.save
+    if other_user.delete
       flash[:notice] = "Marked user '#{other_user}' as deleted."
     else
       flash[:error] = "Marking user '#{other_user}' as deleted failed: #{other_user.errors.full_messages.to_sentence}"

@@ -7,6 +7,16 @@ module Event
     def self.message_bus_routing_key
       'project.delete'
     end
+
+    private
+
+    def metric_tags
+      { home: ::Project.home?(payload['project']) }
+    end
+
+    def metric_fields
+      { value: 1 }
+    end
   end
 end
 
