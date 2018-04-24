@@ -1632,7 +1632,7 @@ sub publish {
         } elsif ($bin =~ /\.packages$/) {
 	  $p = "$bin";
         } elsif ($bin =~ /^(.*)\.report$/) {
-	  # collect kiwi reports
+	  # collect reports
 	  $kiwireport{$1} = readxml("$r/$rbin", $BSXML::report, 1);
 	  next;
 	} elsif ($bin =~ /^(.*)\.index$/) {
@@ -2028,6 +2028,19 @@ sub publish {
 	$pt->{'binaryarch'} = $res->{'arch'} if defined $res->{'arch'};
 	$pt->{'id'} = "$bin/$s[9]/$s[7]/$s[1]";
 	$packtrack->{$bin} = $pt;
+
+        # generic case like for python venv container in rpm
+        if ($bin =~ /.*\/(.*)$/ && $kiwireport{$1}) {
+          my $rpm_container = $1;
+	  for my $kb (@{$kiwireport{$rpm_container}->{'binary'} || []}) {
+	    my $pt = { %$kb };
+	    delete $pt->{'_content'};
+	    $pt->{'medium'} = $rpm_container;
+	    my $fn = '';
+	    $fn .= "/".(defined($pt->{$_}) ? $pt->{$_} : '') for qw{binaryarch name epoch version release};
+	    $packtrack->{"$rpm_container$fn"} = $pt;
+  	  }
+  	}
       } elsif ($kiwimedium{$bin} && $kiwireport{$kiwimedium{$bin}}) {
 	my $medium = $bin;
 	$medium =~ s/.*\///;	# basename

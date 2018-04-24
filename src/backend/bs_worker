@@ -3107,7 +3107,9 @@ sub dobuild {
   if (($kiwimode || '') eq 'product' && !$followupmode && $kiwiorigins) {
     createchannel("$buildroot/.build.packages/OTHER", $kiwiorigins);
   }
-  if ((!$kiwimode || $kiwimode ne 'product') && !$followupmode && $kiwiorigins) {
+  if (!$kiwimode && !$followupmode && $kiwiorigins) {
+    createkiwireport("$buildroot/.build.packages/OTHER", $kiwiorigins);
+  } elsif ((!$kiwimode || $kiwimode ne 'product') && !$followupmode && $kiwiorigins) {
     createkiwireport("$buildroot/.build.packages/KIWI", $kiwiorigins);
   }
   if (%$followupcopy) {
