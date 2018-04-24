@@ -124,6 +124,10 @@ class Project < ApplicationRecord
   validate :valid_name
   validates :kind, inclusion: { in: ['standard', 'maintenance', 'maintenance_incident', 'maintenance_release'] }
 
+  def self.home?(name)
+    name.start_with?('home:')
+  end
+
   def self.deleted?(project_name)
     return false if find_by_name(project_name)
 
