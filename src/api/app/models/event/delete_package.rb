@@ -12,6 +12,16 @@ module Event
       attribs['comment'] = attribs['comment'][0..800] if attribs['comment'].present?
       super(attribs, keys)
     end
+
+    private
+
+    def metric_tags
+      { home: ::Project.home?(payload['project']) }
+    end
+
+    def metric_fields
+      { value: 1 }
+    end
   end
 end
 
