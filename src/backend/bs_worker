@@ -2684,8 +2684,8 @@ sub createchannel {
   writestr("$dir/._channel", "$dir/_channel", $c);
 }
 
-# create a kiwi .report file from a kiwi .packages file by adding binary origin information
-sub createkiwireport {
+# create a .report file from a .packages file by adding binary origin information
+sub createreport {
   my ($dir, $kiwiorigins) = @_;
 
   local *F;
@@ -3102,16 +3102,18 @@ sub dobuild {
     writexml("$buildroot/.build.packages/OTHER/_buildenv", undef, $buildinfo->{'outbuildinfo'}, $BSXML::buildinfo);
   }
 
-  # as a special service we also create a channel file from
-  # the report files
-  if (($kiwimode || '') eq 'product' && !$followupmode && $kiwiorigins) {
-    createchannel("$buildroot/.build.packages/OTHER", $kiwiorigins);
+  if (!$followupmode && $kiwiorigins) {
+    if (!$kiwimode) {
+      # some builds like python-venv also write a .packages file
+      createreport("$buildroot/.build.packages/OTHER", $kiwiorigins);
+    } elsif ($kiwimode ne 'product') {
+      createreport("$buildroot/.build.packages/KIWI", $kiwiorigins);
+    } else {
+      # as a special service we also create a channel file from the report files
+      createchannel("$buildroot/.build.packages/OTHER", $kiwiorigins);
+    }
   }
-  if (!$kiwimode && !$followupmode && $kiwiorigins) {
-    createkiwireport("$buildroot/.build.packages/OTHER", $kiwiorigins);
-  } elsif ((!$kiwimode || $kiwimode ne 'product') && !$followupmode && $kiwiorigins) {
-    createkiwireport("$buildroot/.build.packages/KIWI", $kiwiorigins);
-  }
+
   if (%$followupcopy) {
     writestr("$buildroot/.build.packages/OTHER/$_", undef, $followupcopy->{$_}) for keys %$followupcopy;
   }
