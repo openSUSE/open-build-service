@@ -1589,16 +1589,16 @@ sub publish {
       } else {
 	if ($bin =~ /\.iso(?:\.sha256)?$/) {
 	  $p = "iso/$bin";
-	  $kiwimedium = $1 if $bin =~ /(.+)\.iso$/;
+	  $kiwimedium = "$arch/$1" if $bin =~ /(.+)\.iso$/;
 	} elsif ($bin =~ /ONIE\.bin(?:\.sha256)?$/) {
 	  $p = "onie/$bin";
-	  $kiwimedium = $1 if $bin =~ /(.+)ONIE\.bin$/;
+	  $kiwimedium = "$arch/$1" if $bin =~ /(.+)ONIE\.bin$/;
 	} elsif ($bin =~ /\.raw(?:\.install)?(?:\.(?:gz|bz2|xz))?(?:\.sha256)?$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256)?$/) {
           # kiwi image case
           $p = $bin;
-	  $kiwimedium = $2 if !$3 && -e "$r/$2.packages";
+	  $kiwimedium = "$arch/$2" if !$3 && -e "$r/$2.packages";
           if (-e "$r/$1.containerinfo") {
 	    eval { $containerinfo = BSRepServer::Containerinfo::readcontainerinfo($r, "$1.containerinfo") };
 	    warn("$@") if $@;
@@ -1612,7 +1612,7 @@ sub publish {
 	} elsif ($bin =~ /(.*)\.tar(?:\.(?:gz|bz2|xz))?(\.sha256)?$/) {
           # Dockerfile case
           $p = $bin;
-	  $kiwimedium = $1 if !$2 && -e "$r/$1.packages";
+	  $kiwimedium = "$arch/$1" if !$2 && -e "$r/$1.packages";
           if (-e "$r/$1.containerinfo") {
 	    eval { $containerinfo = BSRepServer::Containerinfo::readcontainerinfo($r, "$1.containerinfo") };
 	    warn("$@") if $@;
@@ -1639,7 +1639,7 @@ sub publish {
 	  $p = "$bin";
         } elsif ($bin =~ /^(.*)\.report$/) {
 	  # collect reports
-	  $kiwireport{$1} = readxml("$r/$rbin", $BSXML::report, 1) if $do_packtrack;
+	  $kiwireport{"$arch/$1"} = readxml("$r/$rbin", $BSXML::report, 1) if $do_packtrack;
 	  next;
 	} elsif ($bin =~ /^(.*)\.index$/) {
 	  # collect virt-builder index parts
@@ -1652,8 +1652,8 @@ sub publish {
 	    my $name = $repotype{'slepool'}->[0] || 'product';
 	    $p = $bin;
 	    if ($name eq 'nobuildid') {
-		$p = "repo/$bin";
-		$p =~ s/-Build[\d\.]+-/-/;
+	      $p = "repo/$bin";
+	      $p =~ s/-Build[\d\.]+-/-/;
 	    } elsif ($bin =~ /.*-Media1(\.license|)$/) {
 	      $p = "$name$1";
 	    } elsif ($bin =~ /-Media3$/) {
@@ -1667,9 +1667,9 @@ sub publish {
 	        $p = "${name}_debug";	# source is on media 1, 2 is debug
 	      }
 	    }
-	    $p = $bin if $kiwimedium{$p};	# what???
+	    $p = $bin if $kiwimedium{"$arch/$p"};	# what???
 	  }
-	  $kiwimedium = $bin;
+	  $kiwimedium = "$arch/$bin";
 	} else {
 	  next;
 	}
@@ -1937,9 +1937,10 @@ sub publish {
   }
 
   my $notary_uploads = {};
+  my %deleted_bins;
   if (%containers) {
     # found some containers. upload if requested
-    upload_all_containers($extrep, $projid, $repoid, \%containers, $notary_uploads, $multicontainer, $binaryorigins);
+    upload_all_containers($extrep, $projid, $repoid, \%containers, $notary_uploads, $multicontainer, \%deleted_bins);
   }
 
   $changed = 1 if %$notary_uploads;	# FIXME
@@ -2022,10 +2023,7 @@ sub publish {
 	  };
 	  next unless $res;
 	}
-	my $pt = {
-	  'project' => $projid,
-	  'repository' => $repoid,
-	};
+	my $pt = { 'project' => $projid, 'repository' => $repoid };
 	$pt->{'arch'} = $1 if $bins{$bin} =~ /^\Q$reporoot\E\/\Q$prp\E\/([^\/]+)\//;
 	$pt->{'package'} = $binaryorigins->{$bin} if $binaryorigins->{$bin};
 	for (qw{name epoch version release disturl buildtime}) {
@@ -2033,6 +2031,32 @@ sub publish {
 	}
 	$pt->{'binaryarch'} = $res->{'arch'} if defined $res->{'arch'};
 	$pt->{'id'} = "$bin/$s[9]/$s[7]/$s[1]";
+	$packtrack->{$bin} = $pt;
+      }
+
+      # track containers
+      if ($containers{$bin}) {
+        my $containerinfo = $containers{$bin};
+	my $pt = { 'project' => $projid, 'repository' => $repoid };
+        $pt->{'arch'} = $containerinfo->{'arch'};
+	$pt->{'package'} = $binaryorigins->{$bin} if $binaryorigins->{$bin};
+	for (qw{name version release disturl buildtime}) {
+	  $pt->{$_} = $containerinfo->{$_} if defined $containerinfo->{$_};
+	}
+	# this overwrites the name for kiwi containers
+        $pt->{'name'} = $bin;
+	$pt->{'name'} =~ s/.*\///;	# basename
+	$packtrack->{$bin} = $pt;
+      }
+
+      # track kiwi images and kiwi products
+      if (!$containers{$bin} && $kiwireport{$kiwimedium{$bin}}) {
+	my $pt = { 'project' => $projid, 'repository' => $repoid };
+        $pt->{'arch'} = (split('/', $kiwimedium{$bin}, 2))[0];
+	$pt->{'package'} = $binaryorigins->{$bin} if $binaryorigins->{$bin};
+        $pt->{'name'} = $bin;
+	$pt->{'name'} =~ s/.*\///;	# basename
+	# need a way to get disturl and buildtime...
 	$packtrack->{$bin} = $pt;
       }
 
@@ -2076,6 +2100,9 @@ sub publish {
     }
   }
   undef $packtrackcache;
+
+  # remove deleted container files from binaryorigins
+  delete $binaryorigins->{$_} for keys %deleted_bins;
 
   # create and store the new repoinfo
   $repoinfo = {
@@ -2651,7 +2678,7 @@ sub default_container_mapper {
 =cut
 
 sub upload_all_containers {
-  my ($extrep, $projid, $repoid, $containers, $notary_uploads, $multicontainer, $binaryorigins) = @_;
+  my ($extrep, $projid, $repoid, $containers, $notary_uploads, $multicontainer, $deleted) = @_;
 
   return unless %{$containers || {}};
   my @registries = registries_for_prp($projid, $repoid);
@@ -2708,7 +2735,8 @@ sub upload_all_containers {
     $allrefs_pp_lastp{$pp} = $p;	# for link creation
     # delete container if uploaded
     if (@{$allrefs{$p} || []}) {
-      delete $binaryorigins->{$p};
+      $deleted->{$p} = 1 if $deleted;
+      $deleted->{"$p.sha256"} = 1 if $deleted;
       unlink("$extrep/$p");
       unlink("$extrep/$p.sha256");
       rmdir($1) if $multicontainer && $p =~ /(.*)\//;
