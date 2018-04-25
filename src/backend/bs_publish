@@ -2774,7 +2774,10 @@ sub upload_to_registry {
   my $result = qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', '', @cmd);
   my $containerdigests = readstr($containerdigestfile, 1);
   unlink($containerdigestfile);
-  unlink($_) for @tempfiles;
+  for (@tempfiles) {
+    BSUtil::printlog("Deleting $_");
+    unlink($_);
+  };
   die("Error while uploading to registry: $result\n") if $result;
 
   if ($registry->{'notary'}) {
