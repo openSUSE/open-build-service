@@ -21,7 +21,7 @@ class Webui::MainController < Webui::WebuiController
   end
 
   def index
-    @news = StatusMessage.alive.limit(4).to_a
+    @status_messages = StatusMessage.alive.limit(4).to_a
     @workerstatus = Rails.cache.fetch('workerstatus_hash', expires_in: 10.minutes) do
       WorkerStatus.hidden.to_hash
     end
