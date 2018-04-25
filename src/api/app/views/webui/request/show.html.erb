@@ -227,8 +227,9 @@
       <% @superseding.each do |supersed| %>
         <% if supersed.comments.any? %>
           <div class="grid_10 box box-shadow alpha omega">
-            <h2 class="box-header"><a class="supersed_comments_link">
-              Show outdated comments</a>for superseded <%= link_to "request #{supersed.number}", number: supersed.number %>
+            <h2 class="box-header">
+              <a class="supersed_comments_link">Show outdated comments</a>for superseded
+              <%= link_to "request #{supersed.number}", number: supersed.number %>
             </h2>
             <div class="superseded_comments hidden">
               <%= render :partial => 'webui/comment/show', locals: { commentable: supersed } %>
