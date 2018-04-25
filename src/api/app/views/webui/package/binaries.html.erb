@@ -1,4 +1,4 @@
-<% @pagetitle = "State of Repository #{@repository} for #{@project} / #{@package}"
+<% @pagetitle = "State of Repository #{@repository} for #{@project} / #{@package_name}"
    @metarobots = 'index,nofollow' # do not follow the single binary pages
    package_bread_crumb 'Repository State'
 -%>
@@ -10,7 +10,7 @@
 <p>
   <%= render partial: "shared/download_repository_link", locals: { project: @project, repository: @repository} %>
   <% unless @buildresults.empty? %>
-    <%= link_to sprited_text('drive_burn', 'Delete'), { controller: :package, action: :wipe_binaries, project: @project, package: @package, repository: @repository }, { method: :delete} %> all built binaries
+    <%= link_to sprited_text('drive_burn', 'Delete'), { controller: :package, action: :wipe_binaries, project: @project, package: @package_name, repository: @repository }, { method: :delete} %> all built binaries
   <% end %>
 </p>
 
@@ -26,7 +26,7 @@
           <span class="binaries_links">
             <%= link_to(sprited_text('page_white_get', 'Cloud Upload'), new_cloud_upload_path(project: @project, package: @package, repository: @repository, arch: result[:arch], filename: binary[:filename])) if binary[:links][:cloud_upload?] %>
             <%= link_to(sprited_text('page_white_put', 'Download'), binary[:links][:download_url]) if binary[:links][:download_url] %>
-            <%= link_to(sprited_text('information', 'Details'), package_binary_path(project: @project, package: @package, repository: @repository, arch: result[:arch], filename: binary[:filename])) if binary[:links][:details?] %>
+            <%= link_to(sprited_text('information', 'Details'), package_binary_path(project: @project, package: @package_name, repository: @repository, arch: result[:arch], filename: binary[:filename])) if binary[:links][:details?] %>
           </span>
         </li>
       <% end %>
@@ -34,15 +34,15 @@
   <% end %>
   <p>
     <% if User.current.can_modify_package?(@package) %>
-      <%= link_to sprited_text('rebuild', 'Trigger'), { controller: :package, action: :trigger_rebuild, arch: result[:arch], project: @project, package: @package, repository: @repository }, { method: :post } %> rebuild
+      <%= link_to sprited_text('rebuild', 'Trigger'), { controller: :package, action: :trigger_rebuild, arch: result[:arch], project: @project, package: @package_name, repository: @repository }, { method: :post } %> rebuild
       <% unless result[:binaries].empty? %>
-        <%= link_to sprited_text('drive_burn', 'Delete'), { controller: :package, action: :wipe_binaries, arch: result[:arch], project: @project, package: @package, repository: @repository }, { method: :delete} %> built binaries
+        <%= link_to sprited_text('drive_burn', 'Delete'), { controller: :package, action: :wipe_binaries, arch: result[:arch], project: @project, package: @package_name, repository: @repository }, { method: :delete} %> built binaries
       <% end %>
     <% end %>
     <% if result[:statistics] %>
-      <%= link_to sprited_text('server_chart', 'Show'), package_statistics_path(project: @project, package: @package, repository: @repository, arch: result[:arch]) %> used resources
+      <%= link_to sprited_text('server_chart', 'Show'), package_statistics_path(project: @project, package: @package_name, repository: @repository, arch: result[:arch]) %> used resources
     <% end %>
     <%= link_to sprited_text('text_indent', 'Job history'), index_package_job_history_path(project: @project, package_name: @package, repository: @repository, arch: result[:arch]), class: '' %> list
-    <%= link_to sprited_text('information', 'Build Reason'), index_package_build_reason_path(project: @project, package_name: @package, repository: @repository, arch: result[:arch]), class: '' %>
+    <%= link_to sprited_text('information', 'Build Reason'), index_package_build_reason_path(project: @project, package_name: @package_name, repository: @repository, arch: result[:arch]), class: '' %>
   </p>
 <% end %>
