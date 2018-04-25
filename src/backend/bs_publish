@@ -1405,6 +1405,12 @@ sub publish {
   my $archorder;
   $archorder = $repotype{'archorder'} if $repotype{'archorder'};
 
+  # do we need to do package tracking?
+  my $do_packtrack;
+  if ($BSConfig::packtrack && (($proj->{'kind'} || '') eq 'maintenance_release' || grep {$prp =~ /^$_/} @$BSConfig::packtrack)) {
+    $do_packtrack = 1;
+  }
+
   # is there a special subdirectory for binary packages configured?
   my $subdir = '';
   if ($repotype{'packagesubdir'} && $repotype{'packagesubdir'}->[0]) {
@@ -1633,7 +1639,7 @@ sub publish {
 	  $p = "$bin";
         } elsif ($bin =~ /^(.*)\.report$/) {
 	  # collect reports
-	  $kiwireport{$1} = readxml("$r/$rbin", $BSXML::report, 1);
+	  $kiwireport{$1} = readxml("$r/$rbin", $BSXML::report, 1) if $do_packtrack;
 	  next;
 	} elsif ($bin =~ /^(.*)\.index$/) {
 	  # collect virt-builder index parts
@@ -1994,7 +2000,7 @@ sub publish {
 
   # collect packtrack data (if needed)
   my $packtrack;
-  if ($BSConfig::packtrack && (($proj->{'kind'} || '') eq 'maintenance_release' || grep {$prp =~ /^$_/} @$BSConfig::packtrack)) {
+  if ($do_packtrack) {
     $packtrack = $dbgpacktrack || {};
     my %cache = @{$packtrackcache || []};
     for my $bin (sort keys %bins) {
@@ -2028,23 +2034,15 @@ sub publish {
 	$pt->{'binaryarch'} = $res->{'arch'} if defined $res->{'arch'};
 	$pt->{'id'} = "$bin/$s[9]/$s[7]/$s[1]";
 	$packtrack->{$bin} = $pt;
+      }
 
-        # generic case like for python venv container in rpm
-        if ($bin =~ /.*\/(.*)$/ && $kiwireport{$1}) {
-          my $rpm_container = $1;
-	  for my $kb (@{$kiwireport{$rpm_container}->{'binary'} || []}) {
-	    my $pt = { %$kb };
-	    delete $pt->{'_content'};
-	    $pt->{'medium'} = $rpm_container;
-	    my $fn = '';
-	    $fn .= "/".(defined($pt->{$_}) ? $pt->{$_} : '') for qw{binaryarch name epoch version release};
-	    $packtrack->{"$rpm_container$fn"} = $pt;
-  	  }
-  	}
-      } elsif ($kiwimedium{$bin} && $kiwireport{$kiwimedium{$bin}}) {
+      # check if there is a report associated with this binary
+      my $reportfile = $kiwimedium{$bin};
+      $reportfile = $1 if !$reportfile && $bin =~ /([^\/]+\.(?:$binsufsre))$/;
+      if ($kiwireport{$reportfile}) {
 	my $medium = $bin;
 	$medium =~ s/.*\///;	# basename
-	for my $kb (@{$kiwireport{$kiwimedium{$bin}}->{'binary'} || []}) {
+	for my $kb (@{$kiwireport{$reportfile}->{'binary'} || []}) {
 	  my $pt = { %$kb };
 	  delete $pt->{'_content'};
 	  $pt->{'medium'} = $medium;
