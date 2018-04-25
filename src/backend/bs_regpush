@@ -427,7 +427,21 @@ if ($list_mode) {
     my ($mani, $maniid, $mani_json) = get_manifest_for_tag($ARGV[2]);
     print "$mani_json\n" if $mani_json;
   } else {
-    die("usage: bs_regpush -l  <registryserver> [repository [tag]]\n");
+    die('usage: bs_regpush [options] <registryserver> [repository [tag]]
+
+OPTIONS:
+
+  --dest-creds	- credentials in form <user>:<password> or "-" to read from STDIN
+
+  -l		- list mode
+  -D		- delete mode
+  -X		- delete except mode
+
+  -T		- use image tags
+  -m		- multiarch
+  -t		- tag (multiple)
+  -F		- digestfile
+');
   }
   exit(0);
 }
