@@ -387,16 +387,16 @@ usage: bs_regpush [options] <registryserver> repository tar [tar...]
 
 MODES:
                 - upload mode
-  -l		- list mode
-  -D		- delete mode
-  -X		- delete except mode
+  -l            - list mode
+  -D            - delete mode
+  -X            - delete except mode
 
 OPTIONS:
-  --dest-creds	- credentials in form <user>:<password> or "-" to read from STDIN
-  -T		- use image tags
-  -m		- push multiarch image
-  -t		- tag (can be given multiple times)
-  -F		- digestfile, output in upload mode, otherwise input
+  --dest-creds  - credentials in form <user>:<password> or "-" to read from STDIN
+  -T            - use image tags
+  -m            - push multiarch image
+  -t            - tag (can be given multiple times)
+  -F            - digestfile, output in upload mode, otherwise input
 
 END
 }
