@@ -20,7 +20,7 @@ module Event
     end
 
     def metric_fields
-      payload.slice('number')
+      { number: payload['number'], count: BsRequest.where(state: payload['state']).count }
     end
   end
 end

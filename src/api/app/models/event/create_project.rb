@@ -15,11 +15,11 @@ module Event
     private
 
     def metric_tags
-      { home: ::Project.home?(payload['project']) }
+      { project: payload['project'], home: ::Project.home?(payload['project']) }
     end
 
     def metric_fields
-      { value: 1 }
+      { count: Project.count }
     end
   end
 end
