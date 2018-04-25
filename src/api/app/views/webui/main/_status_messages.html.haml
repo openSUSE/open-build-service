@@ -10,8 +10,8 @@
       .clear
       .grid_4.box.news-message
         - if User.current.is_admin?
-          = link_to(sprite_tag('comment_delete', title: 'Remove message'),
-            { controller: 'main', action: 'delete_message_dialog', message_id: msg.id },
+          = link_to(sprite_tag('comment_delete', title: 'Remove status message'),
+            { controller: 'status_messages', action: 'destroy_status_message_dialog', id: msg.id },
             { remote: true, class: 'delete-message' })
         - case msg.severity.to_i
         - when 3
@@ -26,4 +26,4 @@
       .clear
     - if User.current.is_admin?
       %p
-        = link_to(sprite_tag('comment_add') + content_tag(:span, 'Add new status', id: "add-new-message"), { controller: 'main', action: 'add_news_dialog' }, { remote: true })
+        = link_to(sprite_tag('comment_add') + content_tag(:span, 'Add new status message', id: "add-new-message"), { controller: 'status_messages', action: 'create_status_message_dialog' }, { remote: true })

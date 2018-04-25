@@ -46,10 +46,13 @@ OBSApi::Application.routes.draw do
 
     controller 'webui/main' do
       get 'main/systemstatus' => :systemstatus
-      get 'main/add_news_dialog' => :add_news_dialog
-      post 'main/add_news' => :add_news
-      get 'main/delete_message_dialog' => :delete_message_dialog
-      delete 'main/delete_message/:message_id' => :delete_message, as: :main_delete_message
+    end
+
+    resources :status_messages, only: [:create, :destroy], controller: 'webui/status_messages' do
+      collection do
+        get 'create_status_message_dialog' => :create_status_message_dialog
+        get 'destroy_status_message_dialog' => :destroy_status_message_dialog
+      end
     end
 
     controller 'webui/feeds' do
