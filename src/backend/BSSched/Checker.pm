@@ -239,6 +239,14 @@ sub setup {
   BSSolv::setgenmetaalgo($genmetaalgo) if $gctx->{'maxgenmetaalgo'};
   $ctx->{'genmetaalgo'} = $genmetaalgo;
 
+  # check for package whitelist
+  if (exists $bconf->{'buildflags:onlybuild'}) {
+    my %onlybuild;
+    for (@{$bconf->{'buildflags'} || []}) {
+      $onlybuild{$1} = 1 if /^onlybuild:(.*)$/s;
+    }
+    $ctx->{'onlybuild'} = \%onlybuild if %onlybuild;
+  }
   return ('scheduling', undef);
 }
 
@@ -269,8 +277,12 @@ sub wipeobsolete {
       } else {
 	my %info = map {$_->{'repository'} => $_} @{$pdata->{'info'} || []};
 	my $info = $info{$repoid};
-	next unless $info && ($info->{'error'} || '') eq 'excluded';
-	$reason = 'excluded';
+	$reason = 'excluded' if $info && ($info->{'error'} || '') eq 'excluded';
+	if ($ctx->{'onlybuild'}) {
+	  my $releasename = $pdata->{'releasename'} || $packid;
+	  $reason = 'excluded' unless $ctx->{'onlybuild'}->{$packid} || $ctx->{'onlybuild'}->{$releasename};
+	}
+	next unless $reason;
       }
     }
     my @files = ls("$gdst/$packid");
@@ -487,6 +499,13 @@ sub expandandsort {
     if ($info->{'error'} && $info->{'error'} eq 'excluded') {
       $pdeps{$packid} = [];
       next;
+    }
+    if ($ctx->{'onlybuild'}) {
+      my $releasename = $pdata->{'releasename'} || $packid;
+      if (!($ctx->{'onlybuild'}->{$packid} || $ctx->{'onlybuild'}->{$releasename})) {
+        $pdeps{$packid} = [];
+        next;
+      }
     }
     if (exists($pdata->{'originproject'})) {
       # this is a package from a project link
@@ -751,6 +770,16 @@ sub checkpkgs {
     } else {
       if ($projlocked) {
 	$packstatus{$packid} = 'locked';
+	next;
+      }
+    }
+
+    # check if this package is excluded by prjconf whitelist
+    if ($ctx->{'onlybuild'}) {
+      my $releasename = $pdata->{'releasename'} || $packid;
+      if (!($ctx->{'onlybuild'}->{$packid} || $ctx->{'onlybuild'}->{$releasename})) {
+	$packstatus{$packid} = 'excluded';
+	$packerror{$packid} = 'package whitelist';
 	next;
       }
     }
