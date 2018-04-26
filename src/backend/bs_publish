@@ -2036,27 +2036,32 @@ sub publish {
 
       # track containers
       if ($containers{$bin}) {
-        my $containerinfo = $containers{$bin};
+	my $containerinfo = $containers{$bin};
+	my $medium = $bin;
+	$medium =~ s/.*\///;	# basename
+	my $lnk = BSRepServer::Containerinfo::containerinfo2nevra($containerinfo);
 	my $pt = { 'project' => $projid, 'repository' => $repoid };
-        $pt->{'arch'} = $containerinfo->{'arch'};
+	for (qw{name epoch version release arch}) {
+	  $pt->{$_} = $lnk->{$_} if defined $lnk->{$_};
+	}
 	$pt->{'package'} = $binaryorigins->{$bin} if $binaryorigins->{$bin};
-	for (qw{name version release disturl buildtime}) {
+	for (qw{disturl buildtime}) {
 	  $pt->{$_} = $containerinfo->{$_} if defined $containerinfo->{$_};
 	}
-	# this overwrites the name for kiwi containers
-        $pt->{'name'} = $bin;
-	$pt->{'name'} =~ s/.*\///;	# basename
+	$pt->{'ismedium'} = $medium;
 	$packtrack->{$bin} = $pt;
       }
 
       # track kiwi images and kiwi products
       if (!$containers{$bin} && $kiwireport{$kiwimedium{$bin}}) {
+	my $medium = $bin;
+	$medium =~ s/.*\///;	# basename
 	my $pt = { 'project' => $projid, 'repository' => $repoid };
-        $pt->{'arch'} = (split('/', $kiwimedium{$bin}, 2))[0];
+	$pt->{'arch'} = (split('/', $kiwimedium{$bin}, 2))[0];
 	$pt->{'package'} = $binaryorigins->{$bin} if $binaryorigins->{$bin};
-        $pt->{'name'} = $bin;
-	$pt->{'name'} =~ s/.*\///;	# basename
+	$pt->{'name'} = $medium;	# hmm...
 	# need a way to get disturl and buildtime...
+	$pt->{'ismedium'} = $medium;
 	$packtrack->{$bin} = $pt;
       }
 
@@ -2066,6 +2071,8 @@ sub publish {
       if ($kiwireport{$reportfile}) {
 	my $medium = $bin;
 	$medium =~ s/.*\///;	# basename
+	# make sure ismedium is set in the binary
+	$packtrack->{$bin}->{'ismedium'} = $medium if $packtrack->{$bin};
 	for my $kb (@{$kiwireport{$reportfile}->{'binary'} || []}) {
 	  my $pt = { %$kb };
 	  delete $pt->{'_content'};

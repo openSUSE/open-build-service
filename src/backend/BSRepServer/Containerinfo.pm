@@ -36,6 +36,24 @@ BSRepServer::Containerinfo
 
 =cut
 
+=head2  containerinfo2nevra - convert a containerinfo file to name/epoch/version/release/arch
+
+ input: $containerinfo - containerinfo filename in $dir
+
+ output: hash containting name/epoch/...
+
+=cut
+
+sub containerinfo2nevra {
+  my ($d) = @_;
+  my $lnk = {};
+  $lnk->{'name'} = "container:$d->{'name'}";
+  $lnk->{'version'} = defined($d->{'version'}) ? $d->{'version'} : '0';
+  $lnk->{'release'} = defined($d->{'release'}) ? $d->{'release'} : '0';
+  $lnk->{'arch'} = defined($d->{'arch'}) ? $d->{'arch'} : 'noarch';
+  return $lnk;
+}
+
 =head2  containerinfo2obsbinlnk - convert a containerinfo file to an obsbinlnk
 
  input: $dir - directory of the built container
@@ -50,12 +68,7 @@ sub containerinfo2obsbinlnk {
   my ($dir, $containerinfo, $packid) = @_;
   my $d = readcontainerinfo($dir, $containerinfo);
   return unless $d;
-  my $name = $d->{name};
-  my $lnk = {};
-  $lnk->{'name'} = "container:$name";
-  $lnk->{'version'} = defined($d->{'version'}) ? $d->{'version'} : '0';
-  $lnk->{'release'} = defined($d->{'release'}) ? $d->{'release'} : '0';
-  $lnk->{'arch'} = defined($d->{'arch'}) ? $d->{'arch'} : 'noarch';
+  my $lnk = containerinfo2nevra($d);
   # need to have a source so that it goes into the :full tree
   $lnk->{'source'} = $lnk->{'name'};
   # add self-provides
