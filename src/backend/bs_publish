@@ -2005,6 +2005,7 @@ sub publish {
     $packtrack = $dbgpacktrack || {};
     my %cache = @{$packtrackcache || []};
     for my $bin (sort keys %bins) {
+      my $reportfile;
       if ($bin =~ /\.(?:$binsufsre)$/) {
 	my $res;
 	my @s = stat("$extrep/$bin");
@@ -2032,6 +2033,11 @@ sub publish {
 	$pt->{'binaryarch'} = $res->{'arch'} if defined $res->{'arch'};
 	$pt->{'id'} = "$bin/$s[9]/$s[7]/$s[1]";
 	$packtrack->{$bin} = $pt;
+	if ($pt->{'arch'}) {
+	  $reportfile = $bin;
+	  $reportfile =~ s/.*\///;    # basename
+	  $reportfile = "$pt->{'arch'}/$reportfile";
+        }
       }
 
       # track containers
@@ -2053,7 +2059,7 @@ sub publish {
       }
 
       # track kiwi images and kiwi products
-      if (!$containers{$bin} && $kiwireport{$kiwimedium{$bin}}) {
+      if (!$containers{$bin} && $kiwimedium{$bin} && $kiwireport{$kiwimedium{$bin}}) {
 	my $medium = $bin;
 	$medium =~ s/.*\///;	# basename
 	my $pt = { 'project' => $projid, 'repository' => $repoid };
@@ -2066,9 +2072,8 @@ sub publish {
       }
 
       # check if there is a report associated with this binary
-      my $reportfile = $kiwimedium{$bin};
-      $reportfile = $1 if !$reportfile && $bin =~ /([^\/]+\.(?:$binsufsre))$/;
-      if ($kiwireport{$reportfile}) {
+      $reportfile = $kiwimedium{$bin} if $kiwimedium{$bin};
+      if ($reportfile && $kiwireport{$reportfile}) {
 	my $medium = $bin;
 	$medium =~ s/.*\///;	# basename
 	# make sure ismedium is set in the binary
