@@ -91,4 +91,26 @@ class BinaryReleaseTest < ActiveSupport::TestCase
     BinaryRelease.update_binary_releases_via_json(r, json)
     assert_equal count, BinaryRelease.all.length - 1 # one entry added
   end
+
+  def test_container_handling
+    json = [{ 'arch' => 'i586', 'binaryarch' => 'i586', 'repository' => 'BaseDistro3_repo',
+             'release' => '0', 'name' => 'my_container', 'project' => 'BaseDistro3', 'version' => '0',
+             'package' => 'pack2', 'buildtime' => '1409642056', 
+             'ismedium' => 'my_container.docker.tar.xz' },
+            { 'arch' => 'i586', 'binaryarch' => 'i586', 'name' => 'package', 'repository' => 'BaseDistro3_repo',
+             'release' => '1', 'project' => 'BaseDistro3', 'version' => '1.0',
+             'package' => 'pack3', 'buildtime' => '1409642056', 'medium' => 'my_container.docker.tar.xz' },
+           ]
+    r = Repository.find_by_project_and_name('BaseDistro3', 'BaseDistro3_repo')
+
+    BinaryRelease.update_binary_releases_via_json(r, json)
+    br = BinaryRelease.where(medium: 'my_container.docker.tar.xz').last
+    assert_equal nil, br.release_package # not release itself
+
+    # find container which went out
+    release_package = br.on_medium.release_package
+    assert_equal "BaseDistro3", release_package.project.name
+    assert_equal "pack2", release_package.name
+   
+  end
 end

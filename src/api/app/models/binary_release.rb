@@ -8,6 +8,7 @@ class BinaryRelease < ApplicationRecord
   #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :repository
   belongs_to :release_package, class_name: 'Package', foreign_key: 'release_package_id' # optional
+  belongs_to :on_medium, class_name: 'BinaryRelease'
 
   #### Callbacks macros: before_save, after_save, etc.
   before_create :set_release_time
@@ -35,12 +36,15 @@ class BinaryRelease < ApplicationRecord
     # we can not just remove it from relation, delete would affect the object.
     processed_item = {}
 
+    # when we have a medium providing further entries
+    medium_hash = {}
+
     BinaryRelease.transaction do
       json.each do |binary|
         # identifier
         hash = { binary_name:    binary['name'],
-                 binary_version: binary['version'],
-                 binary_release: binary['release'] || 0, # container have no tracked release number atm
+                 binary_version: binary['version'] || 0, # docker containers have no version
+                 binary_release: binary['release'] || 0,
                  binary_epoch:   binary['epoch'],
                  binary_arch:    binary['binaryarch'],
                  medium:         binary['medium'],
@@ -91,9 +95,17 @@ class BinaryRelease < ApplicationRecord
           hash[:binary_maintainer] = patchinfo.hashed['packager'] if patchinfo && patchinfo.hashed['packager']
         end
 
+        # put a reference to the medium aka container
+        if binary['medium'].present?
+          hash[:on_medium] = medium_hash[binary['medium']]
+        end
+
         # new entry, also for modified binaries.
         entry = repository.binary_releases.create(hash)
         processed_item[entry.id] = true
+
+        # store in medium case
+        medium_hash[binary['ismedium']] = entry if binary['ismedium'].present?
       end
 
       # and mark all not processed binaries as removed
@@ -126,14 +138,9 @@ class BinaryRelease < ApplicationRecord
     repository.product_medium.find_by(name: medium)
   end
 
-  # returns all package objects of docker containers where this binary is included
-  # usually just one, but people can build multiple docker containers with same name in one repo
-  def media_containers
-    # construct container name, there must be a better way ...
-    #               prefix + medium name excluding arch, Build number and suffix
-    containername = 'container:' << medium.gsub(/\.[^\.]*-[^-]*-Build[^-]*$/, '')
-    # must be in same repository since we got released here
-    Package.find(BinaryRelease.where(repository: repository, binary_name: containername).pluck(:release_package_id))
+  # esp. for docker/appliance/python-venv-rpms and friends
+  def medium_container
+    on_medium.try(:release_package)
   end
 
   # renders all values, which are used as identifier of a binary entry.
@@ -225,6 +232,7 @@ end
 #  binary_updateinfo         :string(255)      indexed
 #  binary_updateinfo_version :string(255)
 #  modify_time               :datetime
+#  on_medium                 :integer
 #
 # Indexes
 #

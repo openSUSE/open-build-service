@@ -984,7 +984,7 @@ class Package < ApplicationRecord
   def add_containers
     container_list = []
     origin_container(local: false).binary_releases.each do |binary_release|
-      container_list += binary_release.media_containers
+      container_list += binary_release.medium_container
     end
     comment = "add container for #{name}"
 
