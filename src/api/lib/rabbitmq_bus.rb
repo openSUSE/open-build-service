@@ -2,7 +2,7 @@ class RabbitmqBus
   def self.send_to_bus(channel, data)
     publish("#{Configuration.amqp_namespace}.#{channel}", data)
   rescue Bunny::Exception, OpenSSL::SSL::SSLError => e
-    logger.error "Publishing to RabbitMQ failed: #{e.message}"
+    Rails.logger.error "Publishing to RabbitMQ failed: #{e.message}"
   end
 
   def self.publish(event_routing_key, event_payload)
