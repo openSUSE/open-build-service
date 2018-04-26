@@ -2341,7 +2341,7 @@ sub getbinaries {
       if ($buildinfo->{'containerannotation'}) {
 	my $annotation = BSUtil::fromxml($buildinfo->{'containerannotation'}, $BSXML::binannotation, 1);
 	if ($annotation) {
-	  for (qw{package version release binaryarch disturl}) {
+	  for (qw{package version release binaryarch disturl buildtime}) {
 	    $bin->{$_} = $annotation->{$_} if defined($annotation->{$_}) && $annotation->{$_} ne '';
 	  }
 	}

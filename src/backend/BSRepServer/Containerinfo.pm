@@ -69,6 +69,7 @@ sub containerinfo2obsbinlnk {
   my $annotation = {};
   $annotation->{'repo'} = $d->{'repos'} if $d->{'repos'};
   $annotation->{'disturl'} = $d->{'disturl'} if $d->{'disturl'};
+  $annotation->{'buildtime'} = $d->{'buildtime'} if $d->{'buildtime'};
   if (%$annotation) {
     eval { $lnk->{'annotation'} = BSUtil::toxml($annotation, $BSXML::binannotation) };
     warn($@) if $@;
@@ -117,6 +118,7 @@ sub readcontainerinfo {
   my $file = $d->{'file'};
   $d->{'file'} = $file = undef unless defined($file) && ref($file) eq '';
   delete $d->{'disturl'} unless defined($d->{'disturl'}) && ref($d->{'disturl'}) eq '';
+  delete $d->{'buildtime'} unless defined($d->{'buildtime'}) && ref($d->{'buildtime'}) eq '';
   return undef unless defined($name) && defined($file);
   eval {
     BSVerify::verify_simple($file);
