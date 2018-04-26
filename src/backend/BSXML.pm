@@ -1849,6 +1849,7 @@ our $binannotation = [
 	    'priority',
      ]],
 	'disturl',
+	'buildtime',
 	'package',		# only in build job annotation
 	'epoch',		# only in build job annotation
 	'version',		# only in build job annotation
