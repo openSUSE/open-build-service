@@ -314,16 +314,18 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def choose_layout
-    switch_to_webui2? ? 'webui/webui2' : 'webui/webui'
+    @switch_to_webui2 ? 'webui/webui2' : 'webui/webui'
   end
 
   def switch_to_webui2
     if switch_to_webui2?
+      @switch_to_webui2 = true
       prepend_view_path("app/views/webui2")
       prefixed_action_name = "webui2_#{action_name}"
       send(prefixed_action_name) if self.action_methods.include?(prefixed_action_name)
       return true
     end
+    @switch_to_webui2 = false
     false
   end
 end
