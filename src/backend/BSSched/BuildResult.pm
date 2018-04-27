@@ -807,7 +807,7 @@ sub wipe {
   my $useforbuildenabled = 1;
   $useforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled, $myarch) if $proj;
   $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
-  my $importarch = '';  # keep those imports
+  my $importarch = '';					# keep those imports
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath, $dstcache, $importarch);
   delete $gctx->{'repounchanged'}->{$prp};
@@ -816,7 +816,9 @@ sub wipe {
   unlink("$gdst/:logfiles.fail/$packid");
   unlink("$gdst/:meta/$packid");
   for my $f (ls("$gdst/$packid")) {
-    next if $f eq 'history';
+    next if $f eq 'history' || $f eq '.bininfo';
+    next if $f =~ /^::import::/;			# keep those imports
+    next if $f =~ /^\.meta\.success\.import\./;		# keep those imports
     if (-d "$gdst/$packid/$f") {
       BSUtil::cleandir("$gdst/$packid/$f");
       rmdir("$gdst/$packid/$f");
