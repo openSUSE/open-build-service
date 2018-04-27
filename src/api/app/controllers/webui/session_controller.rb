@@ -9,11 +9,13 @@ class Webui::SessionController < Webui::WebuiController
     user = User.find_with_credentials(params[:username], params[:password])
 
     unless user
+      RabbitmqBus.send_to_bus('metrics', 'user.login,access_point=webui,result=failed,failure_reason=unauthenticated id=0')
       redirect_to(session_new_path, error: 'Authentication failed')
       return
     end
 
     unless user.is_active?
+      RabbitmqBus.send_to_bus('metrics', "user.login,access_point=webui,result=failed,failure_reason=inactive id=#{user.id}")
       redirect_to(root_path, error: 'Your account is disabled. Please contact the administrator for details.')
       return
     end
@@ -21,6 +23,7 @@ class Webui::SessionController < Webui::WebuiController
     User.current = user
     session[:login] = user.login
     Rails.logger.debug "Authenticated as user '#{user.login}'"
+    RabbitmqBus.send_to_bus('metrics', "user.login,access_point=webui,result=succeeded id=#{user.id}")
 
     redirect_on_login
   end
@@ -29,6 +32,7 @@ class Webui::SessionController < Webui::WebuiController
     Rails.logger.info "Logging out: #{session[:login]}"
 
     reset_session
+    RabbitmqBus.send_to_bus('metrics', "user.logout,access_point=webui id=#{User.current.id}") if User.current
     User.current = nil
 
     redirect_on_logout
