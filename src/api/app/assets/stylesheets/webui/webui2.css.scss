@@ -1,0 +1,59 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or vendor/assets/stylesheets of plugins, if any, can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the top of the
+ * compiled file, but it's generally better to create a new file per style scope.
+ *
+ *= require dataTables/jquery.dataTables
+ *= require token-input
+ *= require token-input-facebook
+ *= require codemirror
+ *= require mousetrap
+ *= require peek
+ *= require webui/application/cm2.css.scss
+ *= require webui/application/icons.css.scss
+ *= require webui/application/datatable.css.scss
+*/
+
+$breadcrumb-item-color: rgb(102, 102, 102);
+$breadcrumb-item-active-color: #333;
+$title-color: rgb(102, 153, 0);
+
+@import 'bulma';
+
+.navbar-link {
+  &::after {
+    display: none;
+  }
+}
+
+.breadcrumb .icons-home_grey {
+  margin-right: 5px;
+}
+
+.personal_navigation a {
+  color: #690;
+  text-decoration: none;
+  &:hover {
+    color: #39c;
+  }
+}
+
+.box-with-header {
+  padding: 0;
+  .box-header {
+    background-color: $light;
+    border-radius: 6px 6px 0px 0px;
+    color: $dark;
+    padding: 0.25rem 1.25rem;
+    border-bottom: 1px solid $grey-lighter;
+    font-weight: bold;
+  }
+  .box-content {
+    padding: 1.25rem;
+  }
+}

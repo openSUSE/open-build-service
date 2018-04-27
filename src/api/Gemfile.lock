@@ -63,6 +63,8 @@ GEM
     bullet (5.7.5)
       activesupport (>= 3.0.0)
       uniform_notifier (~> 1.11.0)
+    bulma-rails (0.7.1)
+      sass (~> 3.2)
     bunny (2.9.2)
       amq-protocol (~> 2.3.0)
     capybara (2.18.0)
@@ -420,6 +422,7 @@ DEPENDENCIES
   annotate
   bcrypt
   bullet
+  bulma-rails
   bunny
   capybara
   capybara_minitest_spec
