@@ -473,4 +473,4 @@ sub createrepo_rpmmd_hook {
 
 }
 
-1;
+\&createrepo_rpmmd_hook;
