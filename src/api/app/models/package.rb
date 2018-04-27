@@ -981,26 +981,35 @@ class Package < ApplicationRecord
     linkinfo && (linkinfo['project'] == project.name)
   end
 
-  def add_containers
-    container_list = []
-    origin_container(local: false).binary_releases.each do |binary_release|
-      container_list += binary_release.medium_container
-    end
-    comment = "add container for #{name}"
+  def add_containers(opts={})
+    container_list = {}
 
-    container_list.uniq.each do |container|
-      opkg = container.origin_container(local: false)
-      # remote or broken link?
-      return if opkg.nil?
-      cont_name = opkg.name
-      cont_name.gsub!(/\.[^\.]*$/, '') if opkg.project.is_maintenance_release? && !opkg.is_link?
-      next if project.packages.exists?(name: cont_name)
-      target_package = Package.new(name: cont_name, title: opkg.title, description: opkg.description)
+    # released maintenance updates first
+    origin_container(local: false).update_instance.binary_releases.where("ISNULL(obsolete_time)").each do |binary_release|
+      mc = binary_release.medium_container
+      container_list[mc] = 1 if mc
+    end
+    # GA versions second
+    origin_container(local: false).binary_releases.where("ISNULL(obsolete_time)").each do |binary_release|
+      mc = binary_release.medium_container
+      container_list[mc] = 1 if mc
+    end
+
+    comment = "add container for #{name}"
+    opts[:extend_package_names] = true if project.is_maintenance_incident?
+
+    container_list.keys.each do |container|
+      container_name = container.name
+      container_update_project = container.project.update_instance
+      container_name.gsub!(/\.[^\.]*$/, '') if container_update_project.is_maintenance_release? && !container.is_link?
+      container_name << '.' << container_update_project.name.tr(':', '_') if opts[:extend_package_names]
+      next if project.packages.exists?(name: container_name)
+      target_package = Package.new(name: container_name, title: container.title, description: container.description)
       project.packages << target_package
       target_package.store({comment: comment})
 
       # branch sources
-      target_package.branch_from(opkg.project.name, opkg.name, {comment: comment})
+      target_package.branch_from(container.project.update_instance.name, container.name, {comment: comment})
     end
   end
 

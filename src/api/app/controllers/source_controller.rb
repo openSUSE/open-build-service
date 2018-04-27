@@ -748,7 +748,7 @@ class SourceController < ApplicationController
   # add containers using the origin of this package (docker in first place, but not limited to it)
   # POST /source/<project>/<package>?cmd=addcontainers
   def package_command_addcontainers
-    @package.add_containers
+    @package.add_containers(extend_package_names: params[:extend_package_names].present?)
 
     render_ok
   end

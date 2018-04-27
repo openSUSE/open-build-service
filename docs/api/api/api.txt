@@ -826,6 +826,7 @@ Parameters:
   opackage: origin package, used as base package
   requestid: log the requestid in source history, optional (copy and commitfilelist only)
   expand: expand links, optional
+  extend_package_names: bool, optional, extends package and repository names to allow multiple instances of same package. used by default in incident projects.
   keeplink: keep link on source commit, optional
   repairlink: repair link on source commit, optional
   dontupdatesource: Do not update origin package, optional (copy only)
