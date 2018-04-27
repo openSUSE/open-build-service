@@ -10,7 +10,27 @@
       = "#{@pagetitle} - " if @pagetitle
       = @configuration ? @configuration['title'] : 'Open Build Service'
     = stylesheet_link_tag 'webui/webui2'
-  %body.has-background-white-ter
+    - if content_for?(:head_style)
+      :css
+        #{yield :head_style}
+    = yield :content_for_head
+    = javascript_include_tag 'webui/application'
+    = javascript_tag do
+      = yield :head_javascript
+      var _paq = _paq || [];
+      $(function() {
+      \#{yield :ready_function}
+      - if @configuration['theme'] == 'bento'
+        callPiwik();
+      });
+    = auto_discovery_link_tag(:rss, news_feed_path(format: 'rss'), {:title => 'News'})
+    - unless CONFIG['feeds'].nil? or CONFIG['feeds'].empty?
+      - CONFIG['feeds'].each do |feed|
+        = auto_discovery_link_tag(:rss, feed['url'], {:title => feed['name']})
+    = csrf_meta_tag
+    - if User.current.try(:rss_token)
+      = auto_discovery_link_tag(:rss, user_rss_notifications_url(token: User.current.rss_token.string, format: :rss), { title: 'Notifications' })
+  %body
     %nav.navbar.is-dark
       .navbar-brand
         .navbar-burger.burger{"data-target" => "navbarExampleTransparentExample"}
@@ -76,8 +96,11 @@
                   Components
             .navbar-item
               = form_tag(search_path(project: 1, package: 1, name: 1), { id: 'global-search-form', class: 'label-overlay' }) do
-                = text_field_tag 'search_text', '', id: 'search'
-    .container
+                .control.has-icons-left
+                  = text_field_tag 'search_text', '', id: 'search', class: 'input', placeholder: 'Search...'
+                  %span.icon.is-left
+                    %i.fa.fa-search
+    .container.navigation-bar
       .level
         .level-left
           .level-item
@@ -104,6 +127,5 @@
         .level-right
           .level-item
             = render partial: 'layouts/webui/webui2_personal_navigation'
-    %section.section
-      .container
-        = content_for?(:content) ? yield(:content) : yield
+    .container
+      = content_for?(:content) ? yield(:content) : yield

@@ -22,6 +22,11 @@
 $breadcrumb-item-color: rgb(102, 102, 102);
 $breadcrumb-item-active-color: #333;
 $title-color: rgb(102, 153, 0);
+$body-background-color: hsl(0, 0%, 96%);
+$primary: #690;
+$secondary: #39c;
+$link: #069;
+$link-hover: $primary;
 
 @import 'bulma';
 @import 'font-awesome';
@@ -37,10 +42,10 @@ $title-color: rgb(102, 153, 0);
 }
 
 .personal_navigation a {
-  color: #690;
+  color: $primary;
   text-decoration: none;
   &:hover {
-    color: #39c;
+    color: $secondary;
   }
 }
 
@@ -57,4 +62,8 @@ $title-color: rgb(102, 153, 0);
   .box-content {
     padding: 1.25rem;
   }
+}
+
+.navigation-bar {
+  padding: 0.5rem 0rem 1.5rem 0rem;
 }
