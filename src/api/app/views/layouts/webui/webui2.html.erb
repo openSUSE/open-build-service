@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <% if @metarobots %>
+    <meta name="robots" content="<%= @metarobots %>"/>
+    <% end %>
+
+    <%= favicon_link_tag %>
+
+    <title><%= "#{@pagetitle} - " if @pagetitle -%><%= @configuration ? @configuration['title'] : 'Open Build Service' %></title>
+
+    <%= stylesheet_link_tag 'webui/application' %>
+    <% if content_for?(:head_style) -%>
+      <style type="text/css">
+        <%= yield :head_style %>
+      </style>
+    <% end -%>
+    <%= yield :content_for_head %>
+
+    <%= javascript_include_tag 'webui/application' %>
+    <%= javascript_tag do %>
+      <%= yield :head_javascript %>
+      var _paq = _paq || [];
+      $(function() {
+        <%= yield :ready_function %>
+        <% if @configuration['theme'] == 'bento' %>
+          callPiwik();
+        <% end %>
+      });
+    <% end %>
+
+    <%= auto_discovery_link_tag(:rss, news_feed_path(format: 'rss'), {:title => 'News'}) %>
+    <% unless CONFIG['feeds'].nil? or CONFIG['feeds'].empty? %>
+      <% CONFIG['feeds'].each do |feed| %>
+        <%= auto_discovery_link_tag(:rss, feed['url'], {:title => feed['name']}) %>
+      <% end %>
+    <% end %>
+    <%= csrf_meta_tag %>
+    <% if User.current.try(:rss_token) %>
+        <%= auto_discovery_link_tag(:rss, user_rss_notifications_url(token: User.current.rss_token.string, format: :rss), { title: 'Notifications' }) %>
+    <% end %>
+  </head>
+  <body>
+    <div class="overlay"></div>
+
+    <%= render 'peek/bar' %>
+    <%= render :partial => 'layouts/webui/header' %>
+
+    <div id="subheader" class="container_16">
+      <div id="breadcrump" class="grid_10 alpha">
+        <%= sprite_tag( "home_grey", title: 'Logo' ) %><%= link_to "#{@configuration ? @configuration['title'] : 'Open Build Service'}", root_path %>
+        <% if @crumb_list %>
+          <% @crumb_list.each do |link| %>
+            &gt;
+            <% if link.class == Array %> <!-- multiple items in crump list but they belong together as sub group, eg sub projects -->
+              <% link.each_with_index do |slink, index| %><%= ':' if index > 0 %><%= slink %><% end %>
+            <% else %>
+              <%= link %>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+
+      <%= render :partial => "layouts/webui/personal_navigation"  %>
+    </div>
+
+
+    <%= render :partial => "layouts/webui/flash", :object => flash  %>
+
+    <!-- this is needed for the delete confirm dialogues -->
+    <div id="dialog_wrapper" style="display: none"></div>
+
+    <!-- Start: Main Content Area -->
+    <div id="content" class="container_16 content-wrapper">
+      <% if @layouttype == "custom" %>
+        <%= content_for?(:content) ? yield(:content) : yield %>
+      <% else %>
+        <div class="grid_16 box box-shadow alpha omega">
+          <%= content_for?(:content) ? yield(:content) : yield %>
+        </div>
+      <% end %>
+    </div>
+    <!-- End: Main Content Area -->
+
+    <div style="clear: both;"></div>
+
+    <div id="footer" class="container_12">
+    <% if User.current && !User.current.is_nobody? -%>
+      <div class="grid_3">
+        <strong class="grey-medium spacer1"><%= link_to(user_show_path(User.current)) do %><%= User.current %><% end %>:</strong>
+        <ul>
+          <li><%= link_to "Your Profile", user_show_path(User.current) %> </li>
+          <% if User.current.home_project %>
+            <li><%= link_to "Home Project", project_show_path(User.current.home_project) %></li>
+          <% else %>
+            <li><%= link_to "Create Home Project", new_project_path(name: User.current.home_project_name) %></li>
+          <% end %>
+          <li><%= link_to 'Logout', session_destroy_path, method: :delete %></li>
+        </ul>
+      </div>
+    <% end -%>
+
+    <% if ::Configuration.anonymous -%>
+      <div class="grid_3">
+        <strong class="grey-medium spacer1">Locations</strong>
+        <ul>
+          <li><%= link_to "Projects", projects_path %></li>
+          <li><%= link_to "Search", search_path, class: 'search-link' %></li>
+          <% unless @spider_bot -%>
+            <li><%= link_to "Status Monitor", monitor_path %></li>
+          <% end -%>
+        </ul>
+      </div>
+    <% end -%>
+
+      <div class="grid_3">
+        <strong class="grey-medium spacer1">Help</strong>
+        <ul>
+          <% @helplinks = [
+            { 'Open Build Service'  => 'http://openbuildservice.org/' },
+            { 'OBS Manuals'  => 'http://openbuildservice.org/help/manuals/' },
+            { 'openSUSEs OBS Portal' => 'http://en.opensuse.org/Portal:Build_service' },
+            { 'Reporting a Bug'   => 'http://openbuildservice.org/support/' } ]
+
+          @helplinks.each do |helplink|
+            for k in helplink.keys %>
+              <li><a href="<%= helplink[k] -%>"><%= k %></a></li>
+            <% end %>
+          <% end %>
+        </ul>
+      </div>
+
+      <div class="grid_3">
+        <strong class="grey-medium spacer1">Contact</strong>
+        <ul>
+          <% @contactlinks = [
+            { 'Mailing List'  => 'http://lists.opensuse.org/opensuse-buildservice/' },
+            { 'Forums'  => 'http://forums.opensuse.org/forumdisplay.php/692-Open-Build-Service-%28OBS%29' },
+            { 'Chat (IRC)' => 'irc://irc.opensuse.org/opensuse-buildservice' },
+            { 'Twitter'   => 'http://twitter.com/OBShq' } ]
+
+          @contactlinks.each do |contactlink|
+             for k in contactlink.keys %>
+               <li><a href="<%= contactlink[k] -%>"><%= k %></a></li>
+            <% end %>
+          <% end %>
+        </ul>
+      </div>
+      <div class="clear"></div>
+      <div id="footer-legal" class="grid_12">
+        <p>
+          <a href="http://openbuildservice.org">Open Build Service (OBS)</a> is an <a href="http://www.opensuse.org">openSUSE project</a>.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
