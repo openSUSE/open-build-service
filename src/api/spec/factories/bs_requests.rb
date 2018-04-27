@@ -73,6 +73,17 @@ FactoryBot.define do
       end
     end
 
+    factory :delete_bs_request do
+      after(:create) do |request, evaluator|
+        request.bs_request_actions.delete_all
+        request.bs_request_actions << create(
+          :bs_request_action_delete,
+          target_project: evaluator.target_project,
+          target_package: evaluator.target_package
+        )
+      end
+    end
+
     factory :bs_request_with_maintenance_release_action do
       after(:create) do |request, evaluator|
         request.bs_request_actions.delete_all
