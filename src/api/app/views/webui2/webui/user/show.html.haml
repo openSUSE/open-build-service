@@ -1,0 +1,9 @@
+- @pagetitle = "Home of #{@displayed_user}"
+- @layouttype = 'custom'
+- @crumb_list = [@pagetitle]
+/ user
+.grid_4.alpha.box.box-shadow#userinfo
+  HELLO!
+
+- content_for :ready_function do
+  $( "#involved" ).tabs();
