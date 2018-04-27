@@ -54,14 +54,12 @@
       = render partial: 'systemstatus'
 
   .column
-    .box
-      - if User.current.is_nobody? and can_register
-        .box.box-shadow
-          %h2.box-header New here? Sign up!
+    - if User.current.is_nobody? and can_register
+      .box.box-with-header
+        .box-header New here? Sign up!
+        .box-content
           = render partial: 'shared/sign_up'
-    .box
-      = render partial: 'sponsors'
-    .box
-      = render partial: 'news'
-    .box
-      = render partial: 'latest_updates' if (@latest_updates and ::Configuration.anonymous)
+    = render partial: 'sponsors'
+    = render partial: 'news'
+    - if (@latest_updates and ::Configuration.anonymous)
+      = render partial: 'latest_updates'
