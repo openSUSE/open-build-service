@@ -60,7 +60,7 @@ end
 
 class HistoryElement::RequestRevoked < HistoryElement::Request
   def color
-    'green'
+    'orange'
   end
 
   def description
