@@ -32,6 +32,7 @@ class Webui::SessionController < Webui::WebuiController
     Rails.logger.info "Logging out: #{session[:login]}"
 
     reset_session
+    RabbitmqBus.send_to_bus('metrics', "user.logout,access_point=webui id=#{User.current.id}") if User.current
     User.current = nil
 
     redirect_on_logout
