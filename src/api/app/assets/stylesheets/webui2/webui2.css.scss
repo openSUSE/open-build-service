@@ -28,6 +28,7 @@ $secondary: #39c;
 $link: #069;
 $link-hover: $primary;
 $table-background-color: none;
+$footer-background-color: none;
 
 @import 'bulma';
 @import 'font-awesome';
@@ -46,7 +47,7 @@ $table-background-color: none;
   margin-right: 5px;
 }
 
-.personal_navigation a {
+.personal_navigation a, footer.footer a {
   color: $primary;
   text-decoration: none;
   &:hover {
