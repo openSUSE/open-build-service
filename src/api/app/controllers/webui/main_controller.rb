@@ -1,8 +1,6 @@
 require 'statistics_calculations'
 
 class Webui::MainController < Webui::WebuiController
-  # permissions.status_message_create
-  before_action :require_admin, only: [:delete_message, :add_news]
   skip_before_action :check_anonymous, only: [:index]
 
   def gather_busy
@@ -23,7 +21,7 @@ class Webui::MainController < Webui::WebuiController
   end
 
   def index
-    @news = StatusMessage.alive.limit(4).to_a
+    @status_messages = StatusMessage.alive.limit(4).to_a
     @workerstatus = Rails.cache.fetch('workerstatus_hash', expires_in: 10.minutes) do
       WorkerStatus.hidden.to_hash
     end
@@ -83,33 +81,5 @@ class Webui::MainController < Webui::WebuiController
     render template: 'webui/main/sitemap_packages',
            layout: false, locals: { action: params[:listaction] },
            content_type: 'application/xml'
-  end
-
-  def add_news_dialog
-    render_dialog
-  end
-
-  def add_news
-    if params[:message].nil? || params[:severity].blank?
-      flash[:error] = 'Please provide a message and severity'
-      redirect_to(action: 'index') && return
-    end
-    # TODO: make use of permissions.status_message_create
-    status_message = StatusMessage.new(message: params[:message], severity: params[:severity], user: User.current)
-    if status_message.save
-      flash[:notice] = 'Status message was successfully created.'
-    else
-      flash[:error] = "Could not create status message: #{status_message.errors.full_messages.to_sentence}"
-    end
-    redirect_to(action: 'index')
-  end
-
-  def delete_message_dialog
-    render_dialog
-  end
-
-  def delete_message
-    StatusMessage.find(params[:message_id]).delete
-    redirect_to(action: 'index')
   end
 end

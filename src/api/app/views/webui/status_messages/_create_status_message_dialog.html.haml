@@ -1,8 +1,8 @@
 .dialog.darkgrey_box
   .box.box-shadow
-    %h2.box-header Add New Message
+    %h2.box-header Add New Status Message
     .dialog-content
-      = form_tag({ controller: 'main', action: 'add_news' }, method: 'post') do
+      = form_tag({ controller: 'status_messages', action: 'create' }, method: 'post') do
         %p
           = label_tag(:message, 'Message:')
           %br/

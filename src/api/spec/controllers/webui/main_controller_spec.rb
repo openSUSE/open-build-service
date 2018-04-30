@@ -4,99 +4,6 @@ RSpec.describe Webui::MainController do
   let(:user) { create(:confirmed_user) }
   let(:admin_user) { create(:admin_user) }
 
-  describe 'POST add_news' do
-    it 'create a status message' do
-      login(admin_user)
-
-      post :add_news, params: { message: 'Some message', severity: 'Green' }
-      expect(response).to redirect_to(root_path)
-      message = StatusMessage.where(user: admin_user, message: 'Some message', severity: 'Green')
-      expect(message).to exist
-    end
-
-    it 'requires message and severity parameters' do
-      login(admin_user)
-
-      expect do
-        post :add_news, params: { message: 'Some message' }
-      end.not_to change(StatusMessage, :count)
-      expect(response).to redirect_to(root_path)
-      expect(flash[:error]).to eq('Please provide a message and severity')
-
-      expect do
-        post :add_news, params: { severity: 'Green' }
-      end.not_to change(StatusMessage, :count)
-      expect(response).to redirect_to(root_path)
-      expect(flash[:error]).to eq('Please provide a message and severity')
-    end
-
-    context 'non-admin users' do
-      before do
-        login(user)
-
-        post :add_news, params: { message: 'Some message', severity: 'Green' }
-      end
-
-      it 'does not create a status message' do
-        expect(response).to redirect_to(root_path)
-        message = StatusMessage.where(user: admin_user, message: 'Some message', severity: 'Green')
-        expect(message).not_to exist
-      end
-    end
-
-    context 'empty message' do
-      before do
-        login(admin_user)
-        post :add_news, params: { severity: 'Green' }
-      end
-
-      it { expect(flash[:error]).to eq('Please provide a message and severity') }
-    end
-
-    context 'empty severity' do
-      before do
-        login(admin_user)
-        post :add_news, params: { message: 'Some message' }
-      end
-
-      it { expect(flash[:error]).to eq('Please provide a message and severity') }
-    end
-
-    context 'that fails at saving the message' do
-      before do
-        login(admin_user)
-        allow_any_instance_of(StatusMessage).to receive(:save).and_return(false)
-        post :add_news, params: { message: 'Some message', severity: 'Green' }
-      end
-
-      it { expect(flash[:error]).not_to be nil }
-    end
-  end
-
-  describe 'POST delete_message' do
-    let(:message) { create(:status_message, user: admin_user) }
-
-    it 'marks a message as deleted' do
-      login(admin_user)
-
-      post :delete_message, params: { message_id: message.id }
-      expect(response).to redirect_to(root_path)
-      expect(message.reload.deleted_at).to be_a_kind_of(ActiveSupport::TimeWithZone)
-    end
-
-    context 'non-admin users' do
-      before do
-        login(user)
-        post :delete_message, params: { message_id: message.id }
-      end
-
-      it "can't delete messages" do
-        expect(response).to redirect_to(root_path)
-        expect(message.reload.deleted_at).to be nil
-      end
-    end
-  end
-
   describe 'GET #sitemap' do
     render_views
 
@@ -201,21 +108,5 @@ RSpec.describe Webui::MainController do
         end
       end
     end
-  end
-
-  describe 'GET #add_news_dialog' do
-    before do
-      get :add_news_dialog, xhr: true
-    end
-
-    it { is_expected.to respond_with(:success) }
-  end
-
-  describe 'GET #delete_message_dialog' do
-    before do
-      get :delete_message_dialog, xhr: true
-    end
-
-    it { is_expected.to respond_with(:success) }
   end
 end
