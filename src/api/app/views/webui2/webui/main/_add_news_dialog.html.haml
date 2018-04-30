@@ -1,14 +1,18 @@
-.dialog.darkgrey_box
-  .box.box-shadow
-    %h2.box-header Add New Message
-    .dialog-content
-      = form_tag({ controller: 'main', action: 'add_news' }, method: 'post') do
-        %p
-          = label_tag(:message, 'Message:')
-          %br/
-          = text_area_tag(:message, '', size: '40x3', required: true)
-          %br/
-          = label_tag(:severity, "Severity:")
-          %br/
-          = select_tag(:severity, options_for_select([['Information', 0], ['Green', 1], ['Yellow', 2], ['Red', 3]]))
-        = render partial: '/webui/shared/dialog_action_buttons'
+#add_news_dialog.modal
+  .modal-background
+  .modal-card
+    = form_tag(status_messages_path, method: 'post') do
+      %header.modal-card-head
+        %p.modal-card-title Add Announcement
+        %button.delete{"aria-label" => "close"}
+      %section.modal-card-body
+        = label_tag(:message, 'Message:')
+        %br/
+        = text_area_tag(:message, '', size: '60x5', required: true)
+        %br/
+        = label_tag(:severity, "Severity:")
+        %br/
+        = select_tag(:severity, options_for_select([['Information', 0], ['Green', 1], ['Yellow', 2], ['Red', 3]]))
+      %footer.modal-card-foot
+        %button.button.cancel Cancel
+        = submit_tag('Ok', class: 'button is-success')

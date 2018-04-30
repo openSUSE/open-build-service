@@ -1,4 +1,5 @@
-- if @news.present? || User.current.is_admin?
+- if @status_messages.present? || User.current.is_admin?
+  = render partial: 'add_news_dialog'
   .box.box-with-header
     .box-header#messages
       .level
@@ -8,11 +9,20 @@
         .level-right
           .level-item
             = link_to('', news_feed_path(format: 'rss'), { class: 'icons-feeds', title: 'RSS Feed' })
-    .box-content
+    .box-content.is-size-7
+<<<<<<< HEAD
       - @news.each do |msg|
         .grid_4.news-sender
+||||||| parent of 321c66bde... con 6e9e57f73d3c2c52c51bde2c5fd846e072eff429
+      - @news.each do |msg|
+        .news-sender
+=======
+      - @status_messages.each do |msg|
+        .news-sender
+>>>>>>> 321c66bde... con 6e9e57f73d3c2c52c51bde2c5fd846e072eff429
           = user_with_realname_and_icon msg.user, short: true
           wrote #{time_ago_in_words(msg.created_at)} ago
+<<<<<<< HEAD
         .clear
         .grid_4.box.news-message
           - if User.current.is_admin?
@@ -28,8 +38,40 @@
             = sprite_tag('accept', alt: 'Green')
           - else
             = sprite_tag('information', alt: 'Information')
+||||||| parent of 321c66bde... con 6e9e57f73d3c2c52c51bde2c5fd846e072eff429
+        .box.news-message.slim-padding
+          .has-text-right
+            - if User.current.is_admin?
+              = link_to(sprite_tag('comment_delete', title: 'Remove message'),
+                { controller: 'main', action: 'delete_message_dialog', message_id: msg.id },
+                { remote: true, class: 'delete-message' })
+            - case msg.severity.to_i
+            - when 3
+              = sprite_tag('exclamation', alt: 'Red')
+            - when 2
+              = sprite_tag('error', alt: 'Yellow')
+            - when 1
+              = sprite_tag('accept', alt: 'Green')
+            - else
+              = sprite_tag('information', alt: 'Information')
+=======
+        .box.news-message.slim-padding
+          .has-text-right
+            - if User.current.is_admin?
+              = link_to(sprite_tag('comment_delete', title: 'Remove message'), status_message_path(id: msg.id),
+                { remote: true, method: :delete, class: 'delete-message' })
+            - case msg.severity.to_i
+            - when 3
+              = sprite_tag('exclamation', alt: 'Red')
+            - when 2
+              = sprite_tag('error', alt: 'Yellow')
+            - when 1
+              = sprite_tag('accept', alt: 'Green')
+            - else
+              = sprite_tag('information', alt: 'Information')
+>>>>>>> 321c66bde... con 6e9e57f73d3c2c52c51bde2c5fd846e072eff429
           = comment_body(msg.message)
         .clear
       - if User.current.is_admin?
         %p
-          = link_to(sprite_tag('comment_add') + content_tag(:span, 'Add new status', id: "add-new-message"), { controller: 'main', action: 'add_news_dialog' }, { remote: true })
+          = link_to(sprite_tag('comment_add') + content_tag(:span, 'Add new status', id: "add-new-message"), '#')
