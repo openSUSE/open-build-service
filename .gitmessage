@@ -1,4 +1,4 @@
-[label] A title that summarizes **what** has been done
+# [label] A title that summarizes **what** has been done
 
 # If you can't explain **what** you have done only in the title
 # then elaborate on it in the body 
@@ -7,7 +7,7 @@
 # Explain **why** you have changed this instead of the *how*.
 # This is the most important content of the message.
 
-* ...
+# * ...
 
 # Explain potential side-effects of this change, if there are any
 # * ...
