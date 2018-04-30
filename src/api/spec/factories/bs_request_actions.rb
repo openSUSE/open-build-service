@@ -13,6 +13,9 @@ FactoryBot.define do
     factory :bs_request_action_submit, class: BsRequestActionSubmit do
       type 'submit'
     end
+    factory :bs_request_action_delete, class: BsRequestActionDelete do
+      type 'delete'
+    end
     factory :bs_request_action_maintenance_incident, class: BsRequestActionMaintenanceIncident do
       type 'maintenance_incident'
     end

@@ -6,6 +6,7 @@ require 'nokogiri'
 # CONFIG['global_write_through'] = true
 
 RSpec.describe BsRequest, vcr: true do
+  let(:user) { create(:confirmed_user, login: 'tux') }
   let(:target_project) { create(:project, name: 'target_project') }
   let(:source_project) { create(:project, name: 'source_project') }
   let(:target_package) { create(:package, name: 'target_package', project: target_project) }
@@ -16,6 +17,13 @@ RSpec.describe BsRequest, vcr: true do
            target_package: target_package.name,
            source_project: source_project.name,
            source_package: source_package.name)
+  end
+  let(:delete_request) do
+    create(:delete_bs_request,
+           reviewer: user.login,
+           creator:  user.login,
+           target_project: target_project.name,
+           target_package: target_package.name)
   end
 
   context 'validations' do
@@ -370,12 +378,15 @@ RSpec.describe BsRequest, vcr: true do
   end
 
   context '#forward_to' do
-    let(:user) { create(:confirmed_user, login: 'tux') }
-
     before do
-      # This avoids failures in the permission validation caused by mocking User.current
       submit_request
+      # This avoids failures in the permission validation caused by mocking User.current
       allow(User).to receive(:current).and_return(user)
+    end
+
+    it 'only forwards submit requests' do
+      delete_request
+      expect { delete_request.forward_to(project: user.home_project.name) }.not_to change(BsRequestAction, :count)
     end
 
     context 'with a project as parameter' do
