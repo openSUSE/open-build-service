@@ -314,7 +314,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def choose_layout
-    @switch_to_webui2 ? 'webui/webui2' : 'webui/webui'
+    @switch_to_webui2 ? 'webui2/webui' : 'webui/webui'
   end
 
   def switch_to_webui2

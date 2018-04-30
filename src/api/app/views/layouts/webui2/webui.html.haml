@@ -32,6 +32,7 @@
     - if User.current.try(:rss_token)
       = auto_discovery_link_tag(:rss, user_rss_notifications_url(token: User.current.rss_token.string, format: :rss), { title: 'Notifications' })
   %body
+    = render 'peek/bar'
     %nav.navbar.is-dark
       .navbar-brand
         .navbar-burger.burger{"data-target" => "navbarExampleTransparentExample"}
@@ -127,7 +128,8 @@
                           = link
         .level-right
           .level-item
-            = render partial: 'layouts/webui/webui2_personal_navigation'
+            = render partial: 'layouts/webui2/personal_navigation'
+    = render :partial => "layouts/webui2/flash", :object => flash
     .container
       = content_for?(:content) ? yield(:content) : yield
     = render partial: 'footer'

@@ -1,0 +1,28 @@
+.container#flash-messages
+  - unless flash.blank?
+    .ui-widget.grid_16.alpha.omega
+      - [:success, :error, :alert, :notice].each do |flash_type|
+        - if (flash[flash_type] && !flash[flash_type].empty?)
+          - case flash_type
+          - when :error
+            - flash_icon = 'ui-icon-alert'
+            - flash_header = 'ui-state-error'
+          - when :alert
+            - flash_icon = 'ui-icon-alert'
+            - flash_header = 'ui-state-error'
+          - when :success
+            - flash_icon = 'ui-icon-info'
+            - flash_header = 'ui-state-highlight'
+          - when :notice
+            - flash_icon = 'ui-icon-info'
+            - flash_header = 'ui-state-highlight'
+          %div{ class: "#{flash_header} ui-corner-all ui-widget-shadow" }
+            %p.flash-content
+              %span{ class: "ui-icon #{flash_icon}" }
+                = flash_content(flash[flash_type])
+                = link_to 'more info', '#', class: 'btn-more' if @more_info
+            - if @more_info
+              .more_info.hidden
+                %div{ class: flash_header }
+                .more-info-content
+                  = simple_format @more_info.gsub(/\\n/, '<br \>')
