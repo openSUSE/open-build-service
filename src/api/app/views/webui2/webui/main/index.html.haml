@@ -50,12 +50,12 @@
               = sprite_tag('drive-optical-32', title: 'New Image')
               %br
               %span New Image
-    .box.box-with-header
+    .box.with-header
       = render partial: 'systemstatus'
 
   .column
     - if User.current.is_nobody? and can_register
-      .box.box-with-header
+      .box.with-header
         .box-header New here? Sign up!
         .box-content
           = render partial: 'shared/sign_up'

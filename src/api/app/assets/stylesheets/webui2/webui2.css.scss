@@ -38,6 +38,10 @@ $table-background-color: none;
   }
 }
 
+.navigation-bar {
+  padding: 0.5rem 0rem 1.5rem 0rem;
+}
+
 .breadcrumb .icons-home_grey {
   margin-right: 5px;
 }
@@ -50,21 +54,27 @@ $table-background-color: none;
   }
 }
 
-.box-with-header {
-  padding: 0;
-  .box-header {
-    background-color: $light;
-    border-radius: 6px 6px 0px 0px;
-    color: $dark;
-    padding: 0.25rem 1.25rem;
-    border-bottom: 1px solid $grey-lighter;
-    font-weight: bold;
-  }
-  .box-content {
-    padding: 1.25rem;
-  }
-}
+// Boxes
 
-.navigation-bar {
-  padding: 0.5rem 0rem 1.5rem 0rem;
+.box {
+  &.slim-padding {
+    padding: 0.5rem;
+  }
+
+  &.with-header {
+    padding: 0;
+
+    .box-header {
+      background-color: $light;
+      border-radius: 6px 6px 0px 0px;
+      color: $dark;
+      padding: 0.25rem 1.25rem;
+      border-bottom: 1px solid $grey-lighter;
+      font-weight: bold;
+    }
+
+    .box-content {
+      padding: 1.25rem;
+    }
+  }
 }
