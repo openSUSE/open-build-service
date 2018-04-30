@@ -2,6 +2,8 @@ require 'open-uri'
 require 'project'
 
 class Webui::PackageController < Webui::WebuiController
+  include Webui2::PackageController
+
   require_dependency 'opensuse/validator'
   include ParsePackageDiff
   include Webui::PackageHelper
@@ -79,6 +81,8 @@ class Webui::PackageController < Webui::WebuiController
     @comment = Comment.new
     @requests = []
     @services = Service.find(project: @project.name, package: @package.name)
+
+    switch_to_webui2
   end
 
   def main_object
