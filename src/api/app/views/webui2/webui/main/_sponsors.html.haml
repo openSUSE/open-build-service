@@ -1,7 +1,7 @@
-- unless CONFIG['sponsors'].nil? or CONFIG['sponsors'].empty?
+- unless CONFIG['sponsors'].blank?
   .box.with-header
     .box-header Sponsor
-    .box-content
+    .box-content.has-text-centered
       - sponsor = CONFIG['sponsors'].sample
       = link_to(sprite_tag(sponsor['icon']), sponsor['url'], { title: sponsor['name'] })
       %p
