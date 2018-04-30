@@ -9,12 +9,13 @@
     %title
       = "#{@pagetitle} - " if @pagetitle
       = @configuration ? @configuration['title'] : 'Open Build Service'
-    = stylesheet_link_tag 'webui/webui2'
+    = stylesheet_link_tag 'webui2/webui2'
     - if content_for?(:head_style)
       :css
         #{yield :head_style}
     = yield :content_for_head
     = javascript_include_tag 'webui/application'
+    = javascript_include_tag 'webui2/application'
     = javascript_tag do
       = yield :head_javascript
       var _paq = _paq || [];
