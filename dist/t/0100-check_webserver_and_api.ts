@@ -9,7 +9,7 @@ use XML::Structured;
 
 
 my $oscrc  = "$ENV{HOME}/.oscrc";
-my $apiurl = "http://" . (hostname()||'localhost');
+my $apiurl = "https://" . (hostname()||'localhost');
 
 if ( -f $oscrc ) {
   open(F, '<', $oscrc) || die "Could not open $oscrc: $!";
@@ -21,8 +21,8 @@ if ( -f $oscrc ) {
   open(F, '>', $oscrc) || die "Could not open $oscrc: $!";
   print F "
 [general]
-apiurl = https://localhost
-[https://localhost]
+apiurl = $apiurl
+[$apiurl]
 user = Admin
 pass = opensuse
 ";
