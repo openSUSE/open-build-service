@@ -5,7 +5,7 @@ class Webui::FeedsController < Webui::WebuiController
   before_action :set_project, only: ['commits']
 
   def news
-    @news = StatusMessage.alive.limit(5)
+    @news = StatusMessage.alive.includes(:user).limit(5)
   end
 
   def latest_updates
