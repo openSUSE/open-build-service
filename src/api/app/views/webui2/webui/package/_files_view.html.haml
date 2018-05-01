@@ -1,0 +1,54 @@
+.sources
+  - unless @files.blank?
+    %table#files_table.compact
+      %thead
+        %tr
+          %th Filename
+          %th Size
+          %th Changed
+          %th{:style => "width: 1%"} Actions
+      %tbody
+        - @files.each do |file|
+          %tr{:id => "file-#{valid_xml_id(file[:name])}"}
+            %td
+              - link_opts = {action: :view_file, project: @project, package: @package, filename: file[:name], expand: @expand}
+              - link_opts[:rev] = file[:srcmd5] unless @is_current_rev
+              = link_to_if(file[:viewable], nbsp(file[:name]), link_opts)
+            %td
+              %span.hidden= file[:size].rjust(10, '0')
+              = human_readable_fsize(file[:size])
+            %td
+              %span.hidden= file[:mtime]
+              = fuzzy_time_string(Time.at(file[:mtime].to_i).to_s)
+            / limit download for anonymous user to avoid getting killed by crawlers
+            %td
+              - if !User.current.is_nobody? || file[:size].to_i < (4 * 1024 * 1024)
+                = link_to sprite_tag('page_white_put', title: 'Download File'), file_url(@project.name, @package.name, file[:name], file[:srcmd5])
+              - unless file[:name] =~ /^_service:/
+                - if User.current.can_modify_package? @package
+                  = link_to sprite_tag('page_white_delete', title: 'Remove File'), {:action => :remove_file, :project => @project.to_param, |
+                                                                            :package => @package.to_param, :filename => file[:name]},       |
+                    {data: {confirm: "Really remove file '#{file[:name]}'?"}, :method => :post}                                             |
+    - content_for :ready_function do
+      $('#files_table').dataTable({
+      'columns': [null, null, null, {'orderable': false}],
+      });
+  - else
+    %p
+      %i This package has no files yet
+  - if User.current.can_modify_package? @package
+    %p
+      = link_to sprited_text('page_white_add', 'Add file'), :action => :add_file, :project => @project, :package => @package
+.revisions
+  - unless @files.blank? || @spider_bot
+    - if @revision.present?
+      - unless @is_current_rev
+        %h6.title.is-6
+          Revision #{@revision} (latest revision is #{@current_rev})
+      - else
+        %h6.title.is-6 Latest Revision
+      %div{:style => "margin-left: 1.2em"}
+        = render :partial => 'commit_item', :locals => {:rev => @revision}
+    - elsif @srcmd5
+      %h6.title.is-6
+        Source MD5 is #{@srcmd5} (latest revision is #{@current_rev})

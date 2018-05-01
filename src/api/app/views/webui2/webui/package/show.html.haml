@@ -1,0 +1,133 @@
+- @pagetitle = "Show #{@project} / #{@package}"
+- @layouttype = 'custom'
+- dpackage = @package.develpackage
+- package_bread_crumb
+= render :partial => 'tabs'
+.box.with-tabs
+  .columns
+    .column.is-three-quarters
+      %h5#package_title.title.is-5
+        - title = @package.title
+        - title = @package.name if title.blank?
+        = title
+        - if @package.url.present?
+          %br/
+          %small= link_to(@package.url, @package.url)
+      %p#description-text
+        - if @package.description.blank?
+          %i No description set
+        - else
+          = @package.description
+    .column
+      = possibly_empty_ul class: :clean_list do
+        - if @failures > 0
+          %li
+            = sprite_tag 'exclamation', title: ''
+            = @failures
+            = link_to "error#{@failures == 1 ? '' : 's'}", :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name
+        = render :partial => 'shared/open_requests'
+        - if dpackage
+          %li
+            = sprite_tag 'information', title: ''
+            Developed
+            at #{link_to(elide(dpackage.project.name, 44), :action => :show, :controller => :package, :project => dpackage.project.name, :package => dpackage.name)}
+        - if @package.project != @project
+          %li
+            = sprite_tag 'information', title: ''
+            Sources inherited from project
+            \#{link_to("#{elide(@package.project.name, 40)}", :action => 'show', :project => @package.project.name, :package => @package.name)}
+        - if @package.developed_packages.present?
+          %li
+            = sprite_tag 'information', title: ''
+            Devel package for
+            - @package.developed_packages.each_with_index do |pkg, index|
+              = ',' if index > 0
+              = link_to("#{elide(pkg.project.name, 40)}", :action => 'show', :project => pkg.project.name, :package => pkg.name)
+        - if @package.is_patchinfo?
+          %li
+            = sprite_tag 'information', title: ''
+            Has
+            a #{link_to 'patchinfo', :controller => :patchinfo, :action => :show, :package => @package, :project => @project}
+            for #{link_to 'maintenance updates', 'http://en.opensuse.org/Portal:Maintenance'}
+        - if @package.linking_packages.present?
+          %li
+            = sprite_tag 'information', title: ''
+            = @package.linking_packages.size
+            = link_to('derived packages', { :action => :linking_packages, :project => @project, :package => @package }, :remote => true)
+        - if @linkinfo
+          - linked_package = @linkinfo[:package]
+          %li
+            = sprite_tag 'package_link', title: ''
+            Links to
+            \#{project_or_package_link project: linked_package.project.name, package: linked_package.name, short: true}
+          - if @linkinfo[:error]
+            %li
+              = sprite_tag 'exclamation', title: ''
+              Link has errors:
+              %i= @linkinfo[:error]
+          - elsif @linkinfo[:diff]
+            %li
+              = sprite_tag 'information', title: ''
+              Has a #{link_to 'link diff', :action => :rdiff, :oproject => linked_package.project.name, :opackage => linked_package.name, :project => @project, :package => @package, :rev => @revision}
+        = render partial: 'extra_actions'
+  .columns
+    - if @bugowners_mail.present? and @configuration['bugzilla_url']
+      .column.is-narrow
+        = link_to sprited_text('tools-report-bug', 'Report Bug'), bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug")
+    - unless User.current.is_nobody?
+      - if @current_rev
+        .column.is-narrow
+          = link_to(sprited_text('arrow_branch', 'Branch package'), '#', class: 'show_dialog', data: { target: '#package_branch_dialog' })
+        .column.is-narrow
+          = link_to(sprited_text('package_go', 'Submit package'), { :action => :submit_request_dialog, :project => @project, :package => @package, :revision => @revision }, :remote => true)
+      - if User.current.can_modify_package? @package
+        .column.is-narrow
+          = link_to sprited_text('package_edit', 'Edit description'), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count
+        .column.is-narrow
+          = link_to(sprited_text('package_delete', 'Delete package'), { :action => :delete_dialog, :package => @package, :project => @project }, :remote => true, id: 'delete-package')
+        - Feature.with(:kiwi_image_editor) do
+          - if @package.kiwi_image? && policy(@package).update?
+            .column.is-narrow
+              = link_to(sprited_text('package_edit', 'View Image'), import_kiwi_image_path(@package.id), id: 'edit-kiwi')
+        - if Feature.active?(:cloud_upload) && !User.current.is_nobody?
+          - if @package.kiwi_image?
+            .column.is-narrow
+              = link_to(sprited_text('drive_web', 'Cloud Upload'), cloud_upload_index_path, id: 'cloud-upload')
+        - if @services.present?
+          .column.is-narrow
+            = link_to(sprited_text('package_link', 'Trigger services'), { action: :trigger_services, package: @package, project: @project }, method: :post)
+      - else
+        .column.is-narrow
+          = link_to(sprited_text('user_add', 'Request role addition'), { :controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package }, :remote => true)
+        .column.is-narrow
+          = link_to(sprited_text('package_delete', 'Request deletion'), { :controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package }, :remote => true)
+      - if @package.develpackage
+        .column.is-narrow
+          = link_to(sprited_text('arrow_switch', 'Request devel project change'), { controller: :request, action: :change_devel_request_dialog, project: @project, package: @package }, remote: true)
+.columns
+  .column.is-8
+    .box
+      %h5.title.is-5
+        Source Files #{image_tag('ajax-loader.gif', id: 'spinner_files', class: 'is-hidden')}
+        - if @linkinfo && @revision_parameter.nil?
+          %span{:style => "font-size: small; font-weight: normal"}
+            - if @expand && @expand.to_s == '1' || @forced_unexpand.present?
+              = link_to '(show unmerged sources)', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '0'
+            - else
+              = link_to '(show merged sources derived from linked package)', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '1'
+      - unless @forced_unexpand.blank?
+        %p
+          %i
+            Sources could not be expanded: #{@forced_unexpand}
+        %p= link_to 'Show unmerged sources', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '0'
+      - else
+        = render :partial => 'files_view'
+    .box.with-header
+      .box-header
+        Comments for #{@project.name} (#{@comments.length})
+      #comments.box-content
+        = render partial: 'webui2/webui/comment/show', locals: { commentable: @package }
+  .column
+    = render :partial => 'shared/webui2/buildresult_box', :locals => { :project => @project.name, :package => @package.name }
+.columns.is-hidden
+  = render partial: 'webui/package/branch_dialog'

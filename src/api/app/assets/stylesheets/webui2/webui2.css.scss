@@ -29,6 +29,8 @@ $link: #069;
 $link-hover: $primary;
 $table-background-color: none;
 $footer-background-color: none;
+$tabs-boxed-link-hover-background-color: hsl(0, 0%, 90%);
+$tabs-link-hover-color: $primary;
 
 @import 'bulma';
 @import 'font-awesome';
@@ -78,6 +80,19 @@ $footer-background-color: none;
       padding: 1.25rem;
     }
   }
+
+  &.with-tabs {
+    margin-top: 0;
+    border-top: 0;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+  }
+}
+
+.tabs {
+  &.attached-to-box {
+    margin-bottom: 0;
+  }
 }
 
 #flash-messages {
@@ -88,4 +103,8 @@ $footer-background-color: none;
   border-top: 1px dotted #999;
   color: #999;
   padding-top: 1.25rem;
+}
+
+.revisions {
+  margin-top: 1.25rem;
 }
