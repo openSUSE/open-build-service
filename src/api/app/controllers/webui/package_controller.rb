@@ -925,6 +925,9 @@ class Webui::PackageController < Webui::WebuiController
       show_all = params[:show_all] == 'true'
       @index = params[:index]
       @buildresults = @package.buildresult(@project, show_all)
+
+      switch_to_webui2
+
       render partial: 'buildstatus'
     else
       render partial: 'no_repositories'
@@ -951,6 +954,9 @@ class Webui::PackageController < Webui::WebuiController
     repos.uniq.each do |repo_name|
       @repo_list << [repo_name, valid_xml_id(elide(repo_name, 30))]
     end
+
+    switch_to_webui2
+
     if @repo_list.empty?
       render partial: 'no_repositories'
     else

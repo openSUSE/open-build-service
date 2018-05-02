@@ -15,10 +15,10 @@
               - link_opts[:rev] = file[:srcmd5] unless @is_current_rev
               = link_to_if(file[:viewable], nbsp(file[:name]), link_opts)
             %td
-              %span.hidden= file[:size].rjust(10, '0')
+              %span.is-hidden= file[:size].rjust(10, '0')
               = human_readable_fsize(file[:size])
             %td
-              %span.hidden= file[:mtime]
+              %span.is-hidden= file[:mtime]
               = fuzzy_time_string(Time.at(file[:mtime].to_i).to_s)
             / limit download for anonymous user to avoid getting killed by crawlers
             %td

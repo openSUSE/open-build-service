@@ -12,3 +12,4 @@
 //
 //= require webui2/application/modals.js
 //= require webui2/application/main.js
+//= require webui2/application/tabs.js

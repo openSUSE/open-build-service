@@ -93,6 +93,10 @@ $tabs-link-hover-color: $primary;
   &.attached-to-box {
     margin-bottom: 0;
   }
+
+  .action-icon {
+    margin-left: 0.5rem;
+  }
 }
 
 #flash-messages {
@@ -107,4 +111,66 @@ $tabs-link-hover-color: $primary;
 
 .revisions {
   margin-top: 1.25rem;
+}
+
+.rpmlint_log {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-size: 0.8em;
+  max-height: 500px;
+  background-color: transparent;
+  padding: 1rem 0;
+}
+
+
+.fuzzy-time {
+  text-decoration: underline dashed #069;
+
+  &:hover {
+    text-decoration-color: #690;
+  }
+}
+
+.table {
+  th:first-child, td:first-child {
+    border-left: none;
+  }
+
+  th:last-child, td:last-child {
+    border-right: none;
+  }
+
+  tr:first-child td {
+    border-top: none;
+  }
+
+  td {
+    border: 1px dotted #ccc;
+
+    &.no_border_bottom {
+      border-bottom: none;
+    }
+
+    &.no_border_top {
+      border-top: none;
+    }
+  }
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.show_all_box {
+  margin-bottom: 1rem;
+  input[type=checkbox] { display: none; }
+  label {
+    color: #069;
+
+    &:hover {
+      color: #693;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  }
 }
