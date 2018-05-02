@@ -147,7 +147,7 @@ class Webui::PackageController < Webui::WebuiController
     @filename = File.basename(params[:filename])
 
     begin
-      @fileinfo = Fileinfo.find(project: @project, package: @package, repository: @repository, arch: @arch,
+      @fileinfo = Fileinfo.find(project: @project, package: params[:package], repository: @repository, arch: @arch,
         filename: @filename, view: 'fileinfo_ext')
     rescue ActiveXML::Transport::ForbiddenError, ActiveXML::Transport::Error => e
       flash[:error] = "File #{@filename} can not be downloaded from #{@project}: #{e.summary}"
