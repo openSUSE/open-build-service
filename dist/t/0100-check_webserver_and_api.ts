@@ -5,6 +5,12 @@ use warnings;
 use Test::More tests => 4;
 use Sys::Hostname;
 use Data::Dumper;
+use FindBin;
+
+BEGIN {
+  unshift @INC, "/usr/lib/obs/server/";
+}
+
 use XML::Structured;
 
 
