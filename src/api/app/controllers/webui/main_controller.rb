@@ -2,7 +2,7 @@ require 'statistics_calculations'
 
 class Webui::MainController < Webui::WebuiController
   include Webui2::MainController
-  
+
   skip_before_action :check_anonymous, only: [:index]
 
   def gather_busy

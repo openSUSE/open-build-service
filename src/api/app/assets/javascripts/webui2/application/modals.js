@@ -1,3 +1,5 @@
+/* jshint unused: false */
+
 function setModal(link, modalTarget) {
   var modal = $(modalTarget);
 
