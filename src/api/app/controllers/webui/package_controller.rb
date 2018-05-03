@@ -130,7 +130,7 @@ class Webui::PackageController < Webui::WebuiController
     @repository = params[:repository]
     @statistics = nil
     begin
-      @statistics = Statistic.find_hashed(project: @project, package: @package, repository: @repository, arch: @arch)
+      @statistics = Statistic.find_hashed(project: @project, package: params[:package], repository: @repository, arch: @arch)
     rescue ActiveXML::Transport::ForbiddenError
     end
 
@@ -147,7 +147,7 @@ class Webui::PackageController < Webui::WebuiController
     @filename = File.basename(params[:filename])
 
     begin
-      @fileinfo = Fileinfo.find(project: @project, package: @package, repository: @repository, arch: @arch,
+      @fileinfo = Fileinfo.find(project: @project, package: params[:package], repository: @repository, arch: @arch,
         filename: @filename, view: 'fileinfo_ext')
     rescue ActiveXML::Transport::ForbiddenError, ActiveXML::Transport::Error => e
       flash[:error] = "File #{@filename} can not be downloaded from #{@project}: #{e.summary}"
@@ -169,10 +169,11 @@ class Webui::PackageController < Webui::WebuiController
 
   def binaries
     @repository = params[:repository]
+    @package_name = params[:package]
 
-    results_from_backend = Buildresult.find_hashed(project: @project, package: @package, repository: @repository, view: ['binarylist', 'status'])
+    results_from_backend = Buildresult.find_hashed(project: @project, package: @package_name, repository: @repository, view: ['binarylist', 'status'])
     unless results_from_backend
-      flash[:error] = "Package \"#{@package}\" has no build result for repository #{@repository}"
+      flash[:error] = "Package \"#{@package_name}\" has no build result for repository #{@repository}"
       redirect_to(controller: :package, action: :show, project: @project, package: @package, nextstatus: 404)
       return
     end

@@ -1,5 +1,5 @@
 :ruby
-  @pagetitle = "Build Reason for #{@project} / #{@package}"
+  @pagetitle = "Build Reason for #{@project} / #{@package_name}"
   @metarobots = 'index,nofollow'
   build_reason_breadcrumb(@project, @package, "Build Reason (#{@repository.name} / #{params[:arch]})")
 
@@ -10,7 +10,7 @@
   Repository / Architecture: #{params[:repository]} / #{params[:arch]}
 
 %p
-  = link_to("<= Go back to binaries", package_binaries_path(controller: '/webui/package', project: @project, package: @package, repository: @repository.name ))
+  = link_to("<= Go back to binaries", package_binaries_path(controller: '/webui/package', project: @project, package: @package_name, repository: @repository.name ))
 
 %p
   %strong

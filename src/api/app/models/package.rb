@@ -1439,12 +1439,12 @@ class Package < ApplicationRecord
     []
   end
 
-  def last_build_reason(repo, arch)
+  def last_build_reason(repo, arch, package_name = nil)
     repo = repo.name if repo.is_a? Repository
 
     xml_data = Nokogiri::XML(BuildReasonFile.new(
       project_name: project.name,
-      package_name: name,
+      package_name: package_name || name,
       repo: repo,
       arch: arch
     ).to_s).xpath('reason')

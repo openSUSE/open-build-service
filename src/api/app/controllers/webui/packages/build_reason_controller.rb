@@ -7,8 +7,7 @@ module Webui
       before_action :set_architecture
 
       def index
-        @details = @package.last_build_reason(@repository, @architecture.name)
-
+        @details = @package.last_build_reason(@repository, @architecture.name, @package_name)
         return if @details.explain
 
         redirect_back(fallback_location: package_binaries_path(package: @package, project: @project, repository: @repository.name),
@@ -18,6 +17,8 @@ module Webui
       private
 
       def set_package
+        # Store the package name in case of multibuilds
+        @package_name = params[:package_name]
         @package = ::Package.get_by_project_and_name(@project.to_param, params[:package_name],
                                                      use_source: false, follow_project_links: true, follow_multibuild: true)
         @is_link = @package.is_link? || @package.is_local_link?

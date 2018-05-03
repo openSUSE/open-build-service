@@ -1299,7 +1299,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     context 'when backend returns statistics' do
       before do
         allow(Statistic).to receive(:find_hashed).
-          with(project: source_project, package: source_package, repository: repository.name, arch: 'i586').
+          with(project: source_project, package: source_package.name, repository: repository.name, arch: 'i586').
           and_return(disk: { usage: 20, size: 30 })
 
         get :statistics, params: { project: source_project, package: source_package, arch: 'i586', repository: repository.name }
@@ -1324,7 +1324,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     context 'when backend raises an exception' do
       before do
         allow(Statistic).to receive(:find_hashed).
-          with(project: source_project, package: source_package, repository: repository.name, arch: 'i586').
+          with(project: source_project, package: source_package.name, repository: repository.name, arch: 'i586').
           and_raise(ActiveXML::Transport::ForbiddenError)
 
         get :statistics, params: { project: source_project, package: source_package, arch: 'i586', repository: repository.name }
