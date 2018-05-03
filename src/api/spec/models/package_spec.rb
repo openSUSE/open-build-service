@@ -482,7 +482,7 @@ RSpec.describe Package, vcr: true do
         %(<reason>\n  <explain>source change</explain>  <time>1496387771</time>  <oldsource>1de56fdc419ea4282e35bd388285d370</oldsource></reason>))
     end
 
-    let(:result) { package.last_build_reason('openSUSE_Leap_42.3', 'x86_64') }
+    let(:result) { package.last_build_reason(package.project.name, 'openSUSE_Leap_42.3', 'x86_64') }
 
     it 'returns a PackageBuildReason object' do
       expect(result).to be_a(PackageBuildReason)
@@ -505,7 +505,7 @@ RSpec.describe Package, vcr: true do
         stub_request(:get, path).and_return(body:
           %(<reason>\n  <explain>source change</explain>  <time>1496387771</time>  <oldsource>1de56fdc419ea4282e35bd388285d370</oldsource>
             <packagechange change="md5sum" key="libsystemd0-mini"/></reason>))
-        result = package.last_build_reason('openSUSE_Leap_42.3', 'x86_64')
+        result = package.last_build_reason(package.project.name, 'openSUSE_Leap_42.3', 'x86_64')
 
         expect(result.packagechange).to eq(
           [
@@ -521,7 +521,7 @@ RSpec.describe Package, vcr: true do
         stub_request(:get, path).and_return(body:
           %(<reason>\n  <explain>source change</explain>  <time>1496387771</time>  <oldsource>1de56fdc419ea4282e35bd388285d370</oldsource>
             <packagechange change="md5sum" key="libsystemd0-mini"/><packagechange change="md5sum" key="python3-websockets"/></reason>))
-        result = package.last_build_reason('openSUSE_Leap_42.3', 'x86_64')
+        result = package.last_build_reason(package.project.name, 'openSUSE_Leap_42.3', 'x86_64')
 
         expect(result.packagechange).to eq(
           [
