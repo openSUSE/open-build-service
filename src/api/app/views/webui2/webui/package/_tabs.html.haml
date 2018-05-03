@@ -1,10 +1,10 @@
 = content_for :ready_function do
-  $("#advanced_tabs_trigger").click(function() {
+  $("#advanced-tabs-trigger").click(function() {
   $(".advanced-tab").removeClass('is-hidden');
-  $("#advanced_list_item").hide();
+  $("#advanced-list-item").hide();
   });
 
-#package_tabs.tabs.attached-to-box.is-small.is-boxed
+.tabs.attached-to-box.is-small.is-boxed#package-tabs
   %ul
     - if @package.name == "patchinfo"
       = webui2_tab 'details', 'Details', :controller => '/webui/patchinfo', :action => 'show'
@@ -18,8 +18,8 @@
       = content_for :ready_function do
         $("#advanced_tabs").show();
     - else
-      %li#advanced_list_item
-        %a#advanced_tabs_trigger{:href => "#"} Advanced
+      %li#advanced-list-item
+        %a#advanced-tabs-trigger{:href => "#"} Advanced
     - unless @spider_bot
       = webui2_tab 'attributes', 'Attributes', { controller: '/webui/attribute', package: @package, project: @project, action: 'index' }, { class: 'advanced-tab is-hidden'}
       = webui2_tab 'meta', 'Meta', { controller: '/webui/package', action: 'meta' }, { class: 'advanced-tab is-hidden'}

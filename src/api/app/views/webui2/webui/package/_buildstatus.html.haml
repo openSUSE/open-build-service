@@ -6,7 +6,7 @@
 
 - @buildresults.results.each_pair do |package, results|
   %h6.title.is-size-6= package
-  #package-buildstatus.is-size-7
+  .is-size-7#package-buildstatus
     %table.table.is-fullwidth
       - if results.present?
         - previous_repo = nil

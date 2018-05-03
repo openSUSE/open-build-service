@@ -1,6 +1,6 @@
 .sources
   - unless @files.blank?
-    %table#files_table.compact
+    %table.compact#files-table
       %thead
         %tr
           %th Filename
@@ -26,11 +26,11 @@
                 = link_to sprite_tag('page_white_put', title: 'Download File'), file_url(@project.name, @package.name, file[:name], file[:srcmd5])
               - unless file[:name] =~ /^_service:/
                 - if User.current.can_modify_package? @package
-                  = link_to sprite_tag('page_white_delete', title: 'Remove File'), {:action => :remove_file, :project => @project.to_param, |
-                                                                            :package => @package.to_param, :filename => file[:name]},       |
-                    {data: {confirm: "Really remove file '#{file[:name]}'?"}, :method => :post}                                             |
+                  = link_to sprite_tag('page_white_delete', title: 'Remove File'), {:action => :remove_file, :project => @project.to_param,
+                                                                                    :package => @package.to_param, :filename => file[:name]},
+                                                                                    {data: {confirm: "Really remove file '#{file[:name]}'?"}, :method => :post}
     - content_for :ready_function do
-      $('#files_table').dataTable({
+      $('#files-table').dataTable({
       'columns': [null, null, null, {'orderable': false}],
       });
   - else
