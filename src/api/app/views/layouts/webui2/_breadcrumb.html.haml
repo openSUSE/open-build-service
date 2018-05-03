@@ -1,0 +1,20 @@
+%nav.breadcrumb.is-small.has-succeeds-separator{"aria-label" => "breadcrumbs"}
+  %ul
+    %li
+      = sprite_tag( "home_grey", title: 'Logo')
+      = link_to "#{@configuration ? @configuration['title'] : 'Open Build Service'}", root_path
+    - if @crumb_list
+      - @crumb_list.each_with_index do |link, link_index|
+        - if link.class == Array
+          - link.each_with_index do |sublink, index|
+            = ':' if index > 0
+            %li
+              = sublink
+        - else
+          - if link_index == @crumb_list.size - 1
+            %li.is-active
+              %a{ href: '#', 'aria-current': "page" }
+                = link
+          - else
+            %li
+              = link

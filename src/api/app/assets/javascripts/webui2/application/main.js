@@ -1,3 +1,3 @@
 $(document).ready(function(){
-  setModal('#add-new-message', '#add_news_dialog');
+  setModal('#add-new-message', '#add-news-dialog');
 });
