@@ -15,6 +15,7 @@
     // Defined in our views. FIXME: We might be able to solve these by not having inline js
     "isOutdatedUrl" : false,
     "mainProjects"  : false,
-    "exclProjects"  : false
+    "exclProjects"  : false,
+    "setModal": false
   }
 }
