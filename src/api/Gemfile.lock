@@ -103,7 +103,7 @@ GEM
     crass (1.0.4)
     cssmin (1.0.3)
     daemons (1.2.6)
-    dalli (2.7.7)
+    dalli (2.7.8)
     data_migrate (3.5.0)
       rails (>= 4.1)
     database_cleaner (1.6.2)
