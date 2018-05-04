@@ -290,6 +290,10 @@ GEM
       actionpack (>= 4.2.0, < 5.3)
       railties (>= 4.2.0, < 5.3)
     riddle (2.3.1)
+    rspec (3.5.0)
+      rspec-core (~> 3.5.0)
+      rspec-expectations (~> 3.5.0)
+      rspec-mocks (~> 3.5.0)
     rspec-core (3.5.4)
       rspec-support (~> 3.5.0)
     rspec-expectations (3.5.0)
@@ -466,6 +470,7 @@ DEPENDENCIES
   rdoc
   redcarpet
   responders (~> 2.0)
+  rspec
   rspec-rails (~> 3.5.0)
   rspec-retry
   rubocop

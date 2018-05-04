@@ -136,6 +136,7 @@ group :development do
 end
 
 group :development, :test do
+  gem 'rspec'
   # as testing framework
   gem 'rspec-rails', '~> 3.5.0'
   # to make tests not fail in package test suite
