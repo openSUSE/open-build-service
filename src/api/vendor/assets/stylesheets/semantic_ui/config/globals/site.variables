@@ -1,3 +1,18 @@
 /*******************************
      User Global Variables
 *******************************/
+
+@green: #690;
+
+@primary: $green;
+@secondaryColor: #39c39c;
+
+@pageBackground: #f6f6f6;
+
+@linkColor: #069;
+@linkHoverColor: $primary;
+
+@subtleShadow: 0px 1px 3px 0 #ccc;
+
+@borderColor: #ddd #ccc #bbb;
+
