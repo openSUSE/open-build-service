@@ -1,67 +1,61 @@
 - @pagetitle = 'Welcome'
 - @layouttype = 'custom'
-
-.columns
-  .column.is-three-quarters
-    .box
-      %h4.title.is-4
-        Welcome to #{@configuration['title']}
-      .content
-        = raw @configuration['description']
-      %br/
-      .columns
-        - if User.current.is_admin?
-          .column.has-text-centered
-            = link_to(configuration_path) do
-              = sprite_tag('configure', title: 'Configuration')
-              %br
-              %span Configuration
-        - unless User.current.is_nobody?
-          .column.has-text-centered
-            = link_to(user_show_path(User.current)) do
-              = sprite_tag('start-here', title: 'Your Home')
-              %br
-              %span Your Home
-        .column.has-text-centered
-          = link_to(projects_path) do
-            = sprite_tag('list', title: 'All Projects')
-            %br
-            %span All Projects
-        .column.has-text-centered
-          = link_to(search_path) do
-            = sprite_tag('system-search', title: 'Search')
-            %br
-            %span Search
-        - unless User.current.is_nobody?
-          .column.has-text-centered
-            = link_to(controller: 'project', action: 'new', ns: User.current.home_project_name) do
-              = sprite_tag('document-new', title: 'New Project')
-              %br
-              %span New Project
-        - unless @spider_bot
-          .column.has-text-centered
-            = link_to(monitor_path) do
-              = sprite_tag('utilities-system-monitor', title: 'Status Monitor')
-              %br
-              %span Status Monitor
-        - if Feature.active?(:image_templates)
-          .column.has-text-centered
-            = link_to(image_templates_path) do
-              = sprite_tag('drive-optical-32', title: 'New Image')
-              %br
-              %span New Image
-    .box.box-with-header
-      = render partial: 'systemstatus'
-
-  .column
-    .box
-      - if User.current.is_nobody? and can_register
-        .box.box-shadow
-          %h2.box-header New here? Sign up!
-          = render partial: 'shared/sign_up'
-    .box
-      = render partial: 'sponsors'
-    .box
-      = render partial: 'news'
-    .box
-      = render partial: 'latest_updates' if (@latest_updates and ::Configuration.anonymous)
+.eleven.wide.column
+  .ui.raised.segment
+    %h1.ui.green.header
+      Welcome to #{@configuration['title']}
+    = raw @configuration['description']
+    .ui.hidden.section.divider
+    .ui.horizontal.list
+      - if User.current.is_admin?
+        .item
+          %i.icon
+          = link_to(sprite_tag('configure', title: 'Configuration'), configuration_path)
+          .content
+            = link_to('Configuration', configuration_path)
+      - unless User.current.is_nobody?
+        .item
+          %i.icon
+          = link_to(sprite_tag('start-here', title: 'Your Home'), user_show_path(User.current))
+          .content
+            = link_to('Your Home', user_show_path(User.current))
+      .item
+        %i.icon
+        = link_to(sprite_tag('list', title: 'All Projects'), projects_path)
+        .content
+          = link_to('All Projects', projects_path)
+      .item
+        %i.icon
+        = link_to(sprite_tag('system-search', title: 'Search'), search_path)
+        .content
+          = link_to('Search', search_path)
+      - unless User.current.is_nobody?
+        .item
+          %i.icon
+          = link_to(sprite_tag('document-new', title: 'New Project'), new_project_path(ns: User.current.home_project_name))
+          .content
+            = link_to('New Project', new_project_path(ns: User.current.home_project_name))
+      - unless @spider_bot
+        .item
+          %i.icon
+          = link_to(sprite_tag('utilities-system-monitor', title: 'Status Monitor'), monitor_path)
+          .content
+            = link_to('Status Monitor', monitor_path)
+      - if Feature.active?(:image_templates)
+        .item
+          %i.icon
+          = link_to(sprite_tag('drive-optical-32', title: 'New Image'), image_templates_path)
+          .content
+            = link_to('New Image', image_templates_path)
+  = render partial: 'systemstatus'
+.five.wide.column
+  - if User.current.is_nobody? and can_register
+    .ui.raised.segment
+      .ui.top.attached.label
+        New here? Sign up!
+      = render partial: 'shared/sign_up'
+  = render partial: 'sponsors'
+  .ui.hidden.divider
+  = render partial: 'status_messages'
+  .ui.hidden.divider
+  = render partial: 'latest_updates' if (@latest_updates and ::Configuration.anonymous)

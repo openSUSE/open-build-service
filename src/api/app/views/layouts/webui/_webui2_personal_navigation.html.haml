@@ -1,4 +1,4 @@
-%div.personal_navigation.is-size-7
+%div.navigation-links
   - if User.current && !User.current.is_nobody?
     = link_to(home_path, id: 'link-to-user-home') do
       = User.current.login

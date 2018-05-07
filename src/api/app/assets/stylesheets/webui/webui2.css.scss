@@ -1,0 +1,59 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or vendor/assets/stylesheets of plugins, if any, can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the top of the
+ * compiled file, but it's generally better to create a new file per style scope.
+ *
+ *= require dataTables/jquery.dataTables
+ *= require token-input
+ *= require token-input-facebook
+ *= require codemirror
+ *= require mousetrap
+ *= require peek
+ *= require webui/application/cm2.css.scss
+ *= require webui/application/icons.css.scss
+ *= require webui/application/datatable.css.scss
+ *= require semantic_ui/semantic_ui
+*/
+
+.navigation-links a {
+  color: #690;
+}
+
+.navigation-links a:hover {
+  color: #069;
+}
+
+a:hover {
+  color: #690;
+}
+
+tr, img {
+  vertical-align: top;
+}
+
+.ui.menu.topbar {
+  background: #666 image-url('images/gradient-dark-nav.png') repeat-x scroll bottom left;
+  font-size: 100%;
+  border-radius: 0;
+  height: 30px !important;
+  line-height: 150%;
+  font-weight: bold;
+  margin-bottom: 1px;
+}
+
+.ui.menu.topbar > .item {
+  font-weight: bolder;
+
+}
+
+.ui.top.attached.label {
+  background: #fff image-url('images/gradient-light-nav.png') repeat-x scroll 0 -25px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  border-bottom: 1px solid #ddd;
+}

@@ -1,5 +1,6 @@
-.box-header System Status
-.box-content
+.ui.raised.segment
+  .ui.top.attached.label
+    System Status
   - if @busy
     .aligncenter#overallgraph{ style: "height:250px; margin: 0px 20px 20px 20px" }
     %p.description
@@ -19,5 +20,5 @@
     and is used by
     %b= number_with_delimiter @sysstats[:users]
     confirmed developers.
-  - content_for :ready_function do
-    plotbusyworkers(#{Webui::MonitorHelper.print_statistics_array(@busy)});
+- content_for :ready_function do
+  plotbusyworkers(#{Webui::MonitorHelper.print_statistics_array(@busy)});
