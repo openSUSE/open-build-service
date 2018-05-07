@@ -428,7 +428,7 @@ getent passwd obsservicerun >/dev/null || \
     /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
     -c "User for the build service source service" obsservicerun
 
-%service_add_pre obsdeltastore
+%service_add_pre obsdeltastore.service
 
 exit 0
 
@@ -443,7 +443,7 @@ exit 0
 %preun
 %stop_on_removal obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice
 
-%service_del_preun obsdeltastore
+%service_del_preun obsdeltastore.service
 
 %preun -n obs-worker
 %stop_on_removal obsworker
@@ -459,7 +459,7 @@ exit 0
 %endif
 # systemd kills the init script executing the reload first on reload....
 %restart_on_update obsscheduler
-%service_add_post obsdeltastore
+%service_add_post obsdeltastore.service
 
 %post -n obs-cloud-uploader
 %if 0%{?suse_version} >= 1315
@@ -480,7 +480,7 @@ fi
 
 %postun
 %insserv_cleanup
-%service_del_postun obsdeltastore
+%service_del_postun obsdeltastore.service
 # cleanup empty directory just in case
 rmdir /srv/obs 2> /dev/null || :
 
