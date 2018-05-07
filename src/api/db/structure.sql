@@ -375,12 +375,12 @@ CREATE TABLE `comments` (
 
 CREATE TABLE `configurations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) COLLATE utf8_bin DEFAULT '',
-  `description` text CHARACTER SET utf8 DEFAULT NULL,
+  `title` varchar(255) DEFAULT '',
+  `description` mediumtext DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
-  `name` varchar(255) COLLATE utf8_bin DEFAULT '',
-  `registration` enum('allow','confirmation','deny') COLLATE utf8_bin DEFAULT 'allow',
+  `name` varchar(255) DEFAULT '',
+  `registration` enum('allow','confirmation','deny') DEFAULT 'allow',
   `anonymous` tinyint(1) DEFAULT 1,
   `default_access_disabled` tinyint(1) DEFAULT 0,
   `allow_user_to_create_home_project` tinyint(1) DEFAULT 1,
@@ -390,23 +390,23 @@ CREATE TABLE `configurations` (
   `gravatar` tinyint(1) DEFAULT 1,
   `enforce_project_keys` tinyint(1) DEFAULT 0,
   `download_on_demand` tinyint(1) DEFAULT 1,
-  `download_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `ymp_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `bugzilla_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `http_proxy` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `no_proxy` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `theme` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `obs_url` varchar(255) COLLATE utf8_bin DEFAULT 'https://unconfigured.openbuildservice.org',
+  `download_url` varchar(255) DEFAULT NULL,
+  `ymp_url` varchar(255) DEFAULT NULL,
+  `bugzilla_url` varchar(255) DEFAULT NULL,
+  `http_proxy` varchar(255) DEFAULT NULL,
+  `no_proxy` varchar(255) DEFAULT NULL,
+  `theme` varchar(255) DEFAULT NULL,
+  `obs_url` varchar(255) DEFAULT 'https://unconfigured.openbuildservice.org',
   `cleanup_after_days` int(11) DEFAULT NULL,
-  `admin_email` varchar(255) COLLATE utf8_bin DEFAULT 'unconfigured@openbuildservice.org',
+  `admin_email` varchar(255) DEFAULT 'unconfigured@openbuildservice.org',
   `cleanup_empty_projects` tinyint(1) DEFAULT 1,
   `disable_publish_for_branches` tinyint(1) DEFAULT 1,
-  `default_tracker` varchar(255) COLLATE utf8_bin DEFAULT 'bnc',
-  `api_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `unlisted_projects_filter` varchar(255) COLLATE utf8_bin DEFAULT '^home:.+',
-  `unlisted_projects_filter_description` varchar(255) COLLATE utf8_bin DEFAULT 'home projects',
+  `default_tracker` varchar(255) DEFAULT 'bnc',
+  `api_url` varchar(255) DEFAULT NULL,
+  `unlisted_projects_filter` varchar(255) DEFAULT '^home:.+',
+  `unlisted_projects_filter_description` varchar(255) DEFAULT 'home projects',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `data_migrations` (
   `version` varchar(255) NOT NULL,
@@ -579,12 +579,12 @@ CREATE TABLE `history_elements` (
   `created_at` datetime NOT NULL,
   `user_id` int(11) NOT NULL,
   `description_extension` varchar(255) DEFAULT NULL,
-  `comment` text DEFAULT NULL,
+  `comment` mediumtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_history_elements_on_created_at` (`created_at`),
   KEY `index_history_elements_on_type` (`type`),
   KEY `index_search` (`op_object_id`,`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `incident_counter` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -649,7 +649,7 @@ CREATE TABLE `kiwi_descriptions` (
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `index_kiwi_descriptions_on_image_id` (`image_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `kiwi_images` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -774,7 +774,7 @@ CREATE TABLE `notifications` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `type` varchar(255) NOT NULL,
   `event_type` varchar(255) NOT NULL,
-  `event_payload` text NOT NULL,
+  `event_payload` mediumtext NOT NULL,
   `subscription_receiver_role` varchar(255) NOT NULL,
   `delivered` tinyint(1) DEFAULT 0,
   `created_at` datetime NOT NULL,
@@ -783,7 +783,7 @@ CREATE TABLE `notifications` (
   `subscriber_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_notifications_on_subscriber_type_and_subscriber_id` (`subscriber_type`,`subscriber_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `package_issues` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1330,6 +1330,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20180110074142'),
 ('20180216082148'),
 ('20180221175514'),
-('20180307074538');
+('20180307074538'),
+('20180405074538');
 
 

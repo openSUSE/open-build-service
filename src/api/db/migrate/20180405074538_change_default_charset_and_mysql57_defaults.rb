@@ -3,24 +3,24 @@ class ChangeDefaultCharsetAndMysql57Defaults < ActiveRecord::Migration[5.1]
   # to avoid to have specific sql code for difference mysql versions
   def up
     # these may be utf8 or utf8mb4 depending on the use mysql instance on creation time
-    [ 'ar_internal_metadata', 'binary_releases', 'bs_request_counter',
-      'cloud_azure_configurations', 'cloud_ec2_configurations', 
-      'cloud_user_upload_jobs', 'data_migrations', 'download_repositories',
-      'group_maintainers', 'incident_updateinfo_counter_values',
-      'kiwi_images', 'kiwi_package_groups', 'kiwi_packages',
-      'kiwi_preferences', 'kiwi_repositories', 'maintained_projects',
-      'product_media', 'product_update_repositories' ].each do |table|
-      execute("ALTER TABLE #{table} CONVERT TO CHARACTER SET utf8");
-    end
+#    [ 'ar_internal_metadata', 'binary_releases', 'bs_request_counter',
+#      'cloud_azure_configurations', 'cloud_ec2_configurations', 
+#      'cloud_user_upload_jobs', 'data_migrations', 'download_repositories',
+#      'group_maintainers', 'incident_updateinfo_counter_values',
+#      'kiwi_images', 'kiwi_package_groups', 'kiwi_packages',
+#      'kiwi_preferences', 'kiwi_repositories', 'maintained_projects',
+#      'product_media', 'product_update_repositories' ].each do |table|
+#      execute("ALTER TABLE #{table} CONVERT TO CHARACTER SET utf8");
+#    end
     # contains free text, could have emojis
     [ 'configurations', 'history_elements', 'kiwi_descriptions', 'notifications' ].each do |table|
       execute("ALTER TABLE #{table} ROW_FORMAT=DYNAMIC"); # default in MySQL 5.7 & MariaDB 10.2
       execute("ALTER TABLE #{table} CONVERT TO CHARACTER SET utf8mb4");
     end
-    # these could have been different depending on the used DB
-# we try to find out where the difference is comming from
-#    execute('alter table history_elements modify comment text DEFAULT NULL;')
-#    execute('alter table notifications modify event_payload text NOT NULL;')
+    # these got reduced on utf8mb4 convert
+    execute('alter table configurations modify description mediumtext DEFAULT NULL;')
+    execute('alter table history_elements modify comment mediumtext DEFAULT NULL;')
+    execute('alter table notifications modify event_payload mediumtext NOT NULL;')
   end
 
   def down
