@@ -205,7 +205,10 @@ if ($digestfile) {
     chomp;
     next if /^#/ || /^\s*$/;
     die("bad line in digest file\n") unless /^([a-z0-9]+):([a-f0-9]+) (\d+) (.+?)\s*$/;
-    $manifests->{$4} = { 'hashes' => { $1 => MIME::Base64::encode_base64($2, '') }, 'length' =>  (0 + $3) };
+    $manifests->{$4} = {
+      'hashes' => { $1 => MIME::Base64::encode_base64(pack('H*', $2), '') },
+      'length' => (0 + $3),
+    };
   }
   close(DIG) || die("$digestfile: $!\n");
 } else {
