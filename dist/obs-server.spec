@@ -341,7 +341,9 @@ export DESTDIR=$RPM_BUILD_ROOT
 
 export OBS_VERSION="%{version}"
 DESTDIR=%{buildroot} make install FILLUPDIR=%{_fillupdir}
-
+if [ -f %{_sourcedir}/open-build-service.obsinfo ]; then
+    sed -n -e 's/commit: \(.\+\)/\1/p' %{_sourcedir}/open-build-service.obsinfo > %{buildroot}/srv/www/obs/api/last_deploy
+fi
 #
 # turn duplicates into hard links
 #
@@ -649,6 +651,7 @@ usermod -a -G docker obsservicerun
 %dir /srv/www/obs/api/db
 /srv/www/obs/api/db/checker.rb
 /srv/www/obs/api/Gemfile
+/srv/www/obs/api/last_deploy
 /srv/www/obs/api/Gemfile.lock
 /srv/www/obs/api/config.ru
 /srv/www/obs/api/config/application.rb
