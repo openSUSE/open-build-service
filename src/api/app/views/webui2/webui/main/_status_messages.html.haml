@@ -1,17 +1,17 @@
-- if @news.present? || User.current.is_admin?
-  .box.box-shadow#messages
-    %h2.box-header
+- if @status_messages.present? || User.current.is_admin?
+  .ui.raised.segment#messages
+    .ui.top.attached.label
       Announcements
       \#{link_to('', news_feed_path(format: 'rss'), { class: 'alignright icons-feeds', title: 'RSS Feed' })}
-    - @news.each do |msg|
+    - @status_messages.each do |msg|
       .grid_4.news-sender
         = user_with_realname_and_icon msg.user, short: true
         wrote #{time_ago_in_words(msg.created_at)} ago
       .clear
       .grid_4.box.news-message
         - if User.current.is_admin?
-          = link_to(sprite_tag('comment_delete', title: 'Remove message'),
-            { controller: 'main', action: 'delete_message_dialog', message_id: msg.id },
+          = link_to(sprite_tag('comment_delete', title: 'Remove status message'),
+            { controller: 'status_messages', action: 'destroy_status_message_dialog', id: msg.id },
             { remote: true, class: 'delete-message' })
         - case msg.severity.to_i
         - when 3
@@ -26,4 +26,4 @@
       .clear
     - if User.current.is_admin?
       %p
-        = link_to(sprite_tag('comment_add') + content_tag(:span, 'Add new status', id: "add-new-message"), { controller: 'main', action: 'add_news_dialog' }, { remote: true })
+        = link_to(sprite_tag('comment_add') + content_tag(:span, 'Add new status message', id: "add-new-message"), { controller: 'status_messages', action: 'create_status_message_dialog' }, { remote: true })
