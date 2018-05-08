@@ -314,7 +314,6 @@ rm src/api/Dockerfile.frontend-base
 
 # drop build script, we require the installed one from own package
 rm -rf src/backend/build
-find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
 
 %build
 export DESTDIR=$RPM_BUILD_ROOT
