@@ -1,0 +1,52 @@
+- dpackage = @package.develpackage
+= possibly_empty_ul class: :clean_list do
+  - if @failures > 0
+    %li
+      = sprite_tag 'exclamation', title: ''
+      = @failures
+      = link_to "error#{@failures == 1 ? '' : 's'}", :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name
+  = render :partial => 'shared/open_requests'
+  - if dpackage
+    %li
+      = sprite_tag 'information', title: ''
+      Developed
+      at #{link_to(elide(dpackage.project.name, 44), :action => :show, :controller => :package, :project => dpackage.project.name, :package => dpackage.name)}
+  - if @package.project != @project
+    %li
+      = sprite_tag 'information', title: ''
+      Sources inherited from project
+      \#{link_to("#{elide(@package.project.name, 40)}", :action => 'show', :project => @package.project.name, :package => @package.name)}
+  - if @package.developed_packages.present?
+    %li
+      = sprite_tag 'information', title: ''
+      Devel package for
+      - @package.developed_packages.each_with_index do |pkg, index|
+        = ',' if index > 0
+        = link_to("#{elide(pkg.project.name, 40)}", :action => 'show', :project => pkg.project.name, :package => pkg.name)
+  - if @package.is_patchinfo?
+    %li
+      = sprite_tag 'information', title: ''
+      Has
+      a #{link_to 'patchinfo', :controller => :patchinfo, :action => :show, :package => @package, :project => @project}
+      for #{link_to 'maintenance updates', 'http://en.opensuse.org/Portal:Maintenance'}
+  - if @package.linking_packages.present?
+    %li
+      = sprite_tag 'information', title: ''
+      = @package.linking_packages.size
+      = link_to('derived packages', { :action => :linking_packages, :project => @project, :package => @package }, :remote => true)
+  - if @linkinfo
+    - linked_package = @linkinfo[:package]
+    %li
+      = sprite_tag 'package_link', title: ''
+      Links to
+      \#{project_or_package_link project: linked_package.project.name, package: linked_package.name, short: true}
+    - if @linkinfo[:error]
+      %li
+        = sprite_tag 'exclamation', title: ''
+        Link has errors:
+        %i= @linkinfo[:error]
+    - elsif @linkinfo[:diff]
+      %li
+        = sprite_tag 'information', title: ''
+        Has a #{link_to 'link diff', :action => :rdiff, :oproject => linked_package.project.name, :opackage => linked_package.name, :project => @project, :package => @package, :rev => @revision}
+  = render partial: 'extra_actions'
