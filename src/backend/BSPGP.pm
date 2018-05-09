@@ -58,40 +58,45 @@ sub pkdecodetaglenoff {
       $len = unpack('N', substr($pkg, 1)); 
       $off = 6; 
     } else {
-      die("can't deal with unspecified packet length\n");
+      die("cannot deal with unspecified packet length\n");
     }    
     $tag = ($tag & 60) >> 2;
   }
+  die("truncated pgp packet\n") if length($pkg) < $off + $len;
   return ($tag, $len, $off);
+}
+
+sub pkdecodepacket {
+  my ($pk) = @_;
+  my ($tag, $len, $off) = pkdecodetaglenoff($pk);
+  return ($tag, substr($pk, $off, $len), substr($pk, $len + $off));
+}
+
+sub pkdecodesubpacket {
+  my ($pk) = @_;
+  my ($tag, $len, $off) = pkdecodetaglenoff(pack('C', 0xc0).$pk);
+  return (unpack('C', substr($pk, $off - 1, 1)), substr($pk, $off, $len - 1), substr($pk, $len + $off - 1));
 }
 
 sub pk2times {
   my ($pk) = @_;
   my ($kct, $kex, $rct);
-  my ($tag, $len, $off) = pkdecodetaglenoff($pk);
+  my ($tag, $pack);
+  ($tag, $pack, $pk) = pkdecodepacket($pk);
   die("not a public key\n") unless $tag == 6;
-  $kct = unpack('N', substr($pk, $off + 1, 4));
-  $pk = substr($pk, $len + $off);
+  $kct = unpack('N', substr($pack, 1, 4));
   while ($pk ne '') {
-    ($tag, $len, $off) = pkdecodetaglenoff($pk);
-    my $pack = substr($pk, $off, $len);
-    $pk = substr($pk, $len + $off);
-    next if $tag != 2;
-    my $sver = unpack('C', substr($pack, 0, 1));
-    next unless $sver == 4;
-    my $stype = unpack('C', substr($pack, 1, 1));
-    next unless $stype == 19; # positive certification of userid and pubkey
+    ($tag, $pack, $pk) = pkdecodepacket($pk);
+    next if $tag != 2;				# signature
+    my ($sver, $stype) = unpack('CC', substr($pack, 0, 2));
+    next unless $sver == 4 && $stype == 19;	# positive certification of userid and pubkey
     my $plen = unpack('n', substr($pack, 4, 2));
     $pack = substr($pack, 6, $plen);
-    my ($ct, $ex);
+    my ($ct, $ex, $stag, $spack);
     while ($pack ne '') {
-      $pack = pack('C', 0xc0).$pack;
-      my ($stag, $slen, $soff) = pkdecodetaglenoff($pack);
-      my $spack = substr($pack, $soff, $slen);
-      $pack = substr($pack, $slen + $soff);
-      $stag = unpack('C', substr($spack, 0, 1));
-      $ct = unpack('N', substr($spack, 1, 4)) if $stag == 2;
-      $ex = unpack('N', substr($spack, 1, 4)) if $stag == 9;
+      ($stag, $spack, $pack) = pkdecodesubpacket($pack);
+      $ct = unpack('N', $spack) if $stag == 2;
+      $ex = unpack('N', $spack) if $stag == 9;
     }
     $kex = $ex if defined($ex) && (!defined($kex) || $kex > $ex);
     $rct = $ct if defined($ct) && (!defined($rct) || $rct > $ct);
@@ -111,9 +116,9 @@ sub pk2expire {
 
 sub pk2keydata {
   my ($pk) = @_;
-  my ($tag, $len, $off) = pkdecodetaglenoff($pk);
+  my ($tag, $pack);
+  ($tag, $pack, $pk) = pkdecodepacket($pk);
   die("not a public key\n") unless $tag == 6;
-  my $pack = substr($pk, $off, $len);
   my $ver = unpack('C', substr($pack, 0, 1));
   if ($ver == 3) {
     $pack = substr($pack, 7);
@@ -160,35 +165,54 @@ sub pk2keysize {
 
 sub pk2fingerprint {
   my ($pk) = @_;
-  my ($tag, $len, $off) = pkdecodetaglenoff($pk);
+  my ($tag, $pack);
+  ($tag, $pack, $pk) = pkdecodepacket($pk);
   die("not a public key\n") unless $tag == 6;
-  my $pack = substr($pk, $off, $len);
   my $ver = unpack('C', substr($pack, 0, 1));
   die("fingerprint calculation needs at least V4 keys\n") if $ver < 4;
   my $ctx = Digest->new("SHA-1");
-  $ctx->add(pack('Cn', 0x99, $len)."$pack");
+  $ctx->add(pack('Cn', 0x99, length($pack)).$pack);
   return $ctx->hexdigest();
+}
+
+sub pk2sigdata {
+  my ($pk) = @_; 
+  my ($tag, $pack);
+  ($tag, $pack, $pk) = pkdecodepacket($pk);
+  die("not a signature\n") unless $tag == 2;
+  my $d = {};
+  my $algo;
+  my $ver = unpack('C', substr($pack, 0, 1));
+  if ($ver == 3) {
+    $d->{'signtime'} = unpack('N', substr($pack, 3, 4));
+    $d->{'issuer'} = unpack('H*', substr($pack, 7, 8));
+    $algo = unpack('C', substr($pack, 15, 1));
+  } elsif ($ver == 4) {
+    $algo = unpack('C', substr($pack, 2, 1));
+    my $plen = unpack('n', substr($pack, 4, 2));
+    my $pack2 = substr($pack, 6 + $plen + 2, unpack('n', substr($pack, 6 + $plen, 2)));
+    $pack = substr($pack, 6, $plen);
+    for my $hashed (1, 0) {
+      while ($pack ne '') {
+        my ($stag, $spack);
+        ($stag, $spack, $pack) = pkdecodesubpacket($pack);
+        $d->{'signtime'} = unpack('N', $spack) if $stag == 2 && $hashed;
+        $d->{'issuer'} = unpack('H*', substr($spack, 0, 8)) if $stag == 16;
+      }
+      $pack = $pack2;
+    }
+  } else {
+    die("unknown sig version\n");
+  }
+  $d->{'algo'} = 'rsa' if $algo == 1;
+  $d->{'algo'} = 'dsa' if $algo == 17;
+  return $d;
 }
 
 sub pk2signtime {
   my ($pk) = @_; 
-  my ($tag, $len, $off) = pkdecodetaglenoff($pk);
-  die("not a signature\n") unless $tag == 2;
-  my $pack = substr($pk, $off, $len);
-  my $sver = unpack('C', substr($pack, 0, 1));
-  return unpack('N', substr($pack, 3, 4)) if $sver == 3;
-  die("unsupported sig version\n") if $sver != 4;
-  my $plen = unpack('n', substr($pack, 4, 2));
-  $pack = substr($pack, 6, $plen);
-  while ($pack ne '') {
-    $pack = pack('C', 0xc0).$pack;
-    ($tag, $len, $off) = pkdecodetaglenoff($pack);
-    my $spack = substr($pack, $off, $len);
-    $pack = substr($pack, $len + $off);
-    $tag = unpack('C', substr($spack, 0, 1));
-    return unpack('N', substr($spack, 1, 4)) if $tag == 2;
-  }
-  return undef;
+  my $d = pk2sigdata($pk);
+  return $d->{'signtime'};
 }
 
 sub unarmor {
