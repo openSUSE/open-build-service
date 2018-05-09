@@ -1,5 +1,7 @@
 # Edit this Gemfile to bundle your application's dependencies.
 # This preamble is the current preamble for Rails 3 apps; edit as needed.
+# This preamble is the current preamble for Rails 3 apps; edit as needed.
+# This preamble is the current preamble for Rails 3 apps; edit as needed.
 source 'https://rubygems.org'
 
 gem 'rails', '~> 5.1.1'
@@ -128,7 +130,7 @@ group :test do
   # To generate random data
   gem 'rantly', '>= 1.1.0'
   # To ensure consistent Git commits
-  gem 'git-cop', '>=1.5.0'
+  gem 'git-cop', '>=1.5.0', git: 'https://github.com/DavidKang/git-cop.git', branch: 'fix-travis'
 end
 
 # Gems used only during development not required in production environments by default.
