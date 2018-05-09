@@ -124,7 +124,7 @@ group :test do
   # To generate random data
   gem 'rantly', '>= 1.1.0'
   # To ensure consistent Git commits
-  gem 'git-cop', '>=1.5.0'
+  gem 'git-cop', '>=1.5.0', :git => 'https://github.com/DavidKang/git-cop.git', :branch => 'fix-travis'
 end
 
 # Gems used only during development not required in production environments by default.
