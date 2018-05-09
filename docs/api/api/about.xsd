@@ -21,6 +21,7 @@
         <xs:element ref="description"/>
         <xs:element ref="revision"/>
         <xs:element ref="last_deployment" minOccurs="0"/>
+        <xs:element ref="commit" minOccurs="0"/>
         <xs:element ref="documentation" minOccurs="0" maxOccurs="unbounded"/>
       </xs:sequence>
     </xs:complexType>
@@ -55,6 +56,14 @@
 		<xs:annotation>
 			<xs:documentation>
 				Date of the last deployment of the obs-api package
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	
+	<xs:element name="commit" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>
+				Git commit hash
 			</xs:documentation>
 		</xs:annotation>
 	</xs:element>
