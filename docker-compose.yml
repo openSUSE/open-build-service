@@ -12,6 +12,9 @@ services:
     image: openbuildservice/backend
     volumes:
       - .:/obs
+      - ./dist/aws_credentials:/etc/obs/cloudupload/.aws/config
+      - ./dist/ec2utils.conf:/etc/obs/cloudupload/.ec2utils.conf
+      - ./dist/clouduploader.rb:/usr/bin/clouduploader
   worker:
     image: openbuildservice/backend
     volumes:

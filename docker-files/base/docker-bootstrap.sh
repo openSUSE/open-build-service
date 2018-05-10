@@ -19,6 +19,9 @@ do
     ;;
 
   backend)
+    zypper ar -f https://download.opensuse.org/repositories/Cloud:/Tools/openSUSE_Leap_42.3/Cloud:Tools.repo
+    zypper ar -f https://download.opensuse.org/repositories/devel:/languages:/python/openSUSE_Leap_42.3/devel:languages:python.repo
+    zypper --gpg-auto-import-keys refresh
     zypper -n install --no-recommends --replacefiles \
       inst-source-utils \
       obs-server obs-signd \
@@ -26,7 +29,11 @@ do
       obs-service-download_url \
       obs-service-format_spec_file obs-service-kiwi_import \
       perl-Devel-Cover perl-Diff-LibXDiff \
-      osc
+      osc \
+      python3-setuptools \
+      python3-ec2uploadimg \
+      aws-cli \
+      azure-cli
     ;;
 
   memcached)

@@ -29,6 +29,10 @@ namespace :dev do
       puts 'Old test suite. Copying thinking sphinx example...'
       copy_example_file('config/thinking_sphinx.yml')
     end
+
+    puts 'Setting up the cloud uploader'
+    copy_example_file('../../dist/aws_credentials')
+    copy_example_file('../../dist/ec2utils.conf')
   end
 
   desc 'Bootstrap the application'
