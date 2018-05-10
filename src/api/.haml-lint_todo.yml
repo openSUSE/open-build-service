@@ -39,6 +39,7 @@ linters:
       - "app/views/webui/monitor/_workers_table.html.haml"
       - "app/views/webui/patchinfo/_form.html.haml"
       - "app/views/webui/user/show.html.haml"
+      - "app/views/webui/cloud/azure/configurations/show.html.haml"
 
   # Offense count: 1
   MultilineScript:
