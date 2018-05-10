@@ -259,7 +259,7 @@ OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE="1024"
 
 ## Path:        Applications/OBS
 ## Description: Default filesystem to use for autosetup.
-## Type:        string
+## Type:        ("ext2" | "ext3" | "ext4" | "reiserfs" | "btrfs" | "xfs")
 ## Default:     "ext3"
 ## Config:      OBS
 #
