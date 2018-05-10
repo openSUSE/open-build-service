@@ -258,12 +258,13 @@ OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE="4096"
 OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE="1024"
 
 ## Path:        Applications/OBS
-## Description: Filesystem to use for autosetup {none,ext4}=ext4, ext3=ext3
+## Description: Default filesystem to use for autosetup.
 ## Type:        string
 ## Default:     "ext3"
 ## Config:      OBS
 #
 #
+# Buildflag vmfstype may overwrite this for a specific job.
 OBS_VM_DISK_AUTOSETUP_FILESYSTEM="ext3"
 
 ## Path:        Applications/OBS
