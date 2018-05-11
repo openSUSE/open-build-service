@@ -1,3 +1,14 @@
+GIT
+  remote: https://github.com/DavidKang/git-cop.git
+  revision: ecba3ffa1213e86ac9aae70db076466540ff244a
+  branch: fix-travis
+  specs:
+    git-cop (2.3.0)
+      pastel (~> 0.7)
+      refinements (~> 5.2)
+      runcom (~> 3.1)
+      thor (~> 0.20)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -131,11 +142,6 @@ GEM
       jquery-rails
     font-awesome-rails (4.7.0.4)
       railties (>= 3.2, < 6.0)
-    git-cop (2.3.0)
-      pastel (~> 0.7)
-      refinements (~> 5.2)
-      runcom (~> 3.1)
-      thor (~> 0.20)
     globalid (0.4.1)
       activesupport (>= 4.2.0)
     gssapi (1.2.0)
@@ -440,7 +446,7 @@ DEPENDENCIES
   feature
   flot-rails
   font-awesome-rails
-  git-cop (>= 1.5.0)
+  git-cop (>= 1.5.0)!
   gssapi
   haml
   haml_lint
