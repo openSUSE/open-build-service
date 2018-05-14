@@ -3,7 +3,9 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+my $tests = 2;
+use Test::More;
+plan tests => $tests;
 
 BEGIN {
   unshift @INC, "/usr/lib/obs/server";
@@ -16,7 +18,7 @@ use JSON::XS;
 # skipable
 
 SKIP: {
-  skip "tests disabled by default. To enable set ENABLE_DOCKER_REGISTRY_TESTS=1", 3 unless $ENV{ENABLE_DOCKER_REGISTRY_TESTS};
+  skip "tests disabled by default. To enable set ENABLE_DOCKER_REGISTRY_TESTS=1", $tests unless $ENV{ENABLE_DOCKER_REGISTRY_TESTS};
   `osc rdelete -m "testing deleted it" -rf BaseContainer 2>&1`;
   `rm -rf /tmp/BaseContainer`;
   `osc branch openSUSE.org:openSUSE:Templates:Images:42.3:Base  openSUSE-Leap-Container-Base BaseContainer`;
@@ -45,29 +47,9 @@ SKIP: {
 
   ok($? == 0,"Checking result code");
 
-  my $timeout=1800;
-  # waiting for publishing to start
-  sleep 10;
-  my $tmp_file;
-
-  # Waiting for publishing
-  my $found = 0;
-  while (1) {
-    $timeout--;
-    open($fh, "<", "/srv/obs/log/publisher.log");
-    while (<$fh>) {
-       $found++ if ( $_ =~ /Uploading to registry/ );
-    }
-    close($fh);
-    last if $timeout < 1;
-    last if $found;
-    sleep 1;
-  }
-
-  ok($found > 0, "Checking for log entry 'Uploading to registry'($found)");
-
   # wait for publishing in registry
-  $timeout=600;
+  my $timeout=1800;
+  sleep 10;
   my $repo;
   while (1) {
     $timeout--;
