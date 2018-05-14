@@ -28,7 +28,6 @@ if test -z "$SUBTEST"; then
       make -C ../../ rubocop
       bundle exec rake haml_lint
       jshint .
-      bundle exec git-cop --police
       ;;
     rspec)
       perl -pi -e 's/source_host: localhost/source_host: backend/' config/options.yml
