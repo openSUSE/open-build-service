@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More tests => 3;
 
 BEGIN {
   unshift @INC, "/usr/lib/obs/server";
@@ -16,7 +16,7 @@ use JSON::XS;
 # skipable
 
 SKIP: {
-  skip "tests disabled by default. To enable set ENABLE_DOCKER_REGISTRY_TESTS=1", 4 unless $ENV{ENABLE_DOCKER_REGISTRY_TESTS};
+  skip "tests disabled by default. To enable set ENABLE_DOCKER_REGISTRY_TESTS=1", 3 unless $ENV{ENABLE_DOCKER_REGISTRY_TESTS};
   `osc rdelete -m "testing deleted it" -rf BaseContainer 2>&1`;
   `rm -rf /tmp/BaseContainer`;
   `osc branch openSUSE.org:openSUSE:Templates:Images:42.3:Base  openSUSE-Leap-Container-Base BaseContainer`;
@@ -51,21 +51,20 @@ SKIP: {
   my $tmp_file;
 
   # Waiting for publishing
+  my $found = 0;
   while (1) {
     $timeout--;
     open($fh, "<", "/srv/obs/log/publisher.log");
     while (<$fh>) {
-      if ( $_ =~ /Decompressing.*(\/tmp\/\w*)/ ) {
-        $tmp_file = $1;
-        $timeout  = 0;
-      }
+       $found++ if ( $_ =~ /Uploading to registry/ );
     }
     close($fh);
     last if $timeout < 1;
+    last if $found;
     sleep 1;
   }
 
-  ok($tmp_file,"Found temp file '$tmp_file' in log");
+  ok($found > 0, "Checking for log entry 'Uploading to registry'($found)");
 
   # wait for publishing in registry
   $timeout=600;
@@ -83,19 +82,6 @@ SKIP: {
   }
 
   is($repo, "basecontainer/images/opensuse", "Found repository 'basecontainer/images/opensuse' in registry");
-
-  my $deleted=0;
-  $timeout=10;
-  while (1) {
-    $timeout--;
-    if (! -f $tmp_file) {
-      $deleted=1;
-      last;
-    }
-    last if $timeout < 1;
-    sleep 1;
-  }
-  ok($deleted, "temp file removed successfully"); 
 }
 
 exit 0;
