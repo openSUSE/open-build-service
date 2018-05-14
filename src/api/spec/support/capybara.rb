@@ -2,6 +2,7 @@ require 'capybara/poltergeist'
 
 Capybara.default_max_wait_time = 6
 Capybara.save_path = Rails.root.join('tmp', 'capybara')
+Capybara.server = :webrick
 
 Capybara.register_driver :poltergeist do |app|
   Capybara::Poltergeist::Driver.new(app, debug: false, timeout: 30)
