@@ -1,0 +1,70 @@
+<% unless @files.blank? %>
+    <table id="files_table" class="compact">
+      <thead>
+      <tr>
+        <th>Filename</th>
+        <th>Size</th>
+        <th>Changed</th>
+        <th style="width: 1%">Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <% @files.each do |file| %>
+          <tr id="file-<%= valid_xml_id(file[:name]) %>">
+            <td>
+              <% link_opts = {action: :view_file, project: @project, package: @package, filename: file[:name], expand: @expand}
+                 unless @is_current_rev
+                   link_opts[:rev] = file[:srcmd5]
+                 end %>
+              <%= link_to_if(file[:viewable], nbsp(file[:name]), link_opts) %>
+            </td>
+            <td><span class="hidden"><%= file[:size].rjust(10, '0') %></span><%= human_readable_fsize(file[:size]) %>
+            </td>
+            <td><span class="hidden"><%= file[:mtime] %></span><%= fuzzy_time_string(Time.at(file[:mtime].to_i).to_s) %>
+            </td>
+            <!-- limit download for anonymous user to avoid getting killed by crawlers -->
+            <td><%= if !User.current.is_nobody? || file[:size].to_i < (4 * 1024 * 1024)
+                      link_to sprite_tag('page_white_put', title: 'Download File'),
+                              file_url(@project.name, @package.name, file[:name], file[:srcmd5])
+                    end %>
+              <% unless file[:name] =~ /^_service:/ %>
+                  <% if User.current.can_modify_package? @package %>
+                      <%= link_to sprite_tag('page_white_delete', title: 'Remove File'), {:action => :remove_file, :project => @project.to_param,
+                                                                                          :package => @package.to_param, :filename => file[:name]},
+                                  {data: {confirm: "Really remove file '#{file[:name]}'?"}, :method => :post} %>
+                  <% end %>
+              <% end %>
+            </td>
+          </tr>
+      <% end %>
+      </tbody>
+    </table>
+    <% content_for :ready_function do %>
+        $('#files_table').dataTable({
+        'columns': [null, null, null, {'orderable': false}],
+        });
+    <% end %>
+<% else %>
+    <p><i>This package has no files yet</i></p>
+<% end %>
+
+<% if User.current.can_modify_package? @package %>
+    <p>
+      <%= link_to sprited_text('page_white_add', 'Add file'), :action => :add_file, :project => @project, :package => @package %>
+    </p>
+<% end %>
+
+<% unless @files.blank? || @spider_bot %>
+  <% if @revision.present? %>
+    <% unless @is_current_rev %>
+      <h3>Revision <%= @revision %> (latest revision is <%= @current_rev %>)</h3>
+    <% else %>
+      <h3>Latest Revision</h3>
+    <% end %>
+    <div style="margin-left: 1.2em">
+      <%= render :partial => 'commit_item', :locals => {:rev => @revision} %>
+    </div>
+    <% elsif @srcmd5 %>
+      <h3>Source MD5 is <%= @srcmd5 %> (latest revision is <%= @current_rev %>)</h3>
+  <% end %>
+<% end %>

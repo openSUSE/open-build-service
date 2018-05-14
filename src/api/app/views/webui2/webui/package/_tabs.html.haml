@@ -1,0 +1,25 @@
+.ui.horizontal.list.item
+  - if @package.name == "patchinfo"
+    .item
+      = link_to('Details', :controller => '/webui/patchinfo', :action => 'show')
+  = link_to('Overview', :controller => '/webui/package', :action => 'show')
+  - unless @spider_bot
+    .item
+      = link_to('Repositories', :controller => '/webui/repositories', :action => 'index')
+    .item
+      = link_to('Revisions', :controller => '/webui/package', :action => 'revisions')
+    .item
+      = link_to('Requests', :controller => '/webui/package', :action => 'requests')
+    .item
+      = link_to('Users', :controller => '/webui/package', :action => 'users')
+  - if false #is_advanced_tab?
+    = content_for :ready_function do
+      $("#advanced_tabs").show();
+  - else
+    .item
+      = link_to('Advanced', '#')
+  - unless @spider_bot
+    .item.advanced.hidden
+      Attributes
+    .item.advanced.hidden
+      Meta

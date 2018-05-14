@@ -1,0 +1,18 @@
+.container
+  - commentable.comments.walk_tree do |comment, level|
+    .ui.divider
+    %div{class: "container thread_level_#{level >= 4 ? 4 : level}"}
+      = user_with_realname_and_icon(comment.user, no_icon: true, short: true)
+      wrote
+      %span.comment_time
+        = fuzzy_time(comment.created_at)
+      = comment_body(comment)
+      = render partial: 'webui/comment/links', locals: { comment: comment }
+      = render partial: 'webui/comment/reply', locals: { comment: comment, level: 0, commentable: commentable }
+  .container
+    - unless User.current.is_nobody?
+      = form_for @comment, method: :post, remote: true do |f|
+        = hidden_field_tag :commentable_type, commentable.class
+        = hidden_field_tag :commentable_id, commentable.id
+        ~ f.text_area :body, size: '80x4', onkeyup: 'sz(this);', onclick: 'sz(this);', placeholder: 'Add a new comment (markdown markup supported)', required: 'required'
+        = f.submit 'Add comment'
