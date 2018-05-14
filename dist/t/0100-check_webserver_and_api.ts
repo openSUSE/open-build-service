@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 4;
+use Test::More tests => 5;
 use Sys::Hostname;
 use Data::Dumper;
 use FindBin;
@@ -54,6 +54,8 @@ eval {
   $xml = XMLin($dtd, $out);
   $out = `rpm -q --qf %{version} obs-server`;
 };
+
+is($@, '', 'Checking for xml converting error');
 
 ok($out eq $xml->{revision}, "Checking api about version") || print $?;
 
