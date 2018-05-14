@@ -44,7 +44,8 @@ my $dtd = [
     "title",
     "revision",
     "description",
-    "last_deployment"
+    "last_deployment",
+    "commit",
   ,
 ];
 
