@@ -1,0 +1,30 @@
+.cloud_button {
+  padding: 20px;
+  height: 150px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  &:hover {
+    background-color: #f2f2f2;
+  }
+
+  &.disabled {
+    background-color: #f2f2f2;
+    opacity: 0.4;
+  }
+}
+
+.cloud_item {
+  text-align: center;
+  height: 130px;
+  p.red {
+    color: #c00;
+    margin-top: 30px;
+  }
+}
+
+.cloud_form {
+  label {
+    display: inline-block;
+    width: 110px;
+  }
+}

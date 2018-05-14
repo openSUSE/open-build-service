@@ -3,8 +3,6 @@ module Cloud
     class UploadJob < ApplicationRecord
       belongs_to :user, required: true, class_name: '::User'
 
-      scope :ec2, -> { where(type: :ec2) }
-
       validates :job_id, presence: true, uniqueness: true
 
       def self.table_name_prefix

@@ -1,0 +1,36 @@
+- @pagetitle = "EC2 Cloud Upload"
+- @layouttype = 'custom'
+
+.grid_16.alpha.omega.box.box-shadow
+  %h1
+    Upload to Amazon EC2
+
+  = form_for @upload_job, url: cloud_ec2_upload_path, method: :post, html: { class: 'cloud_form' } do |upload_job_form|
+    %p
+      Filename:
+      %b
+        = @upload_job.filename
+    %p
+      = upload_job_form.label 'cloud_backend_upload_job[ami_name]', "AMI Name:"
+      = text_field('cloud_backend_upload_job', 'ami_name',  size: 35, required: true)
+    %p
+      = upload_job_form.label 'cloud_backend_upload_job[region]', "Region:"
+      = select_tag('cloud_backend_upload_job[region]', options_for_select(@regions))
+    %p
+      = upload_job_form.label 'cloud_backend_upload_job[vpc_subnet_id]' do
+        VPC Subnet ID (optional
+        = sprite_tag('help', title: 'We create a temporary subnet, if you don\'t provide one.')
+        ):
+      = text_field('cloud_backend_upload_job', 'vpc_subnet_id',  size: 35, placeholder: 'eg. subnet-12345678')
+    %p
+      = upload_job_form.hidden_field :project
+      = upload_job_form.hidden_field :package
+      = upload_job_form.hidden_field :arch
+      = upload_job_form.hidden_field :repository
+      = upload_job_form.hidden_field :filename
+      = upload_job_form.hidden_field :target, value: 'ec2'
+    %p
+      = submit_tag 'Upload Image'
+
+  %p
+    = link_to "All Cloud Uploads", cloud_upload_index_path

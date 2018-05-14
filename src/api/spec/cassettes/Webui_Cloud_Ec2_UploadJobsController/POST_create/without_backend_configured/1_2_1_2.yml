@@ -1,0 +1,39 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://backend:5352/cloudupload?arch=x86_64&filename=appliance.raw.xz&package=aws&project=Cloud&repository=standard&target=ec2&user=tom
+    body:
+      encoding: UTF-8
+      string: '{"user_id":28,"external_id":"rvsv1rxapq8kvld0rol37slc","arn":"arn:2rlaq9r829","region":"us-east-1","ami_name":"my-image"}'
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: no cloud upload server configurated
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '87'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="400">
+          <summary>no cloud upload server configurated</summary>
+        </status>
+    http_version: 
+  recorded_at: Tue, 03 Apr 2018 11:37:05 GMT
+recorded_with: VCR 4.0.0

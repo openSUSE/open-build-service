@@ -18,6 +18,10 @@ module Cloud
         application_id && application_key
       end
 
+      def upload_parameters
+        attributes.except('id', 'created_at', 'updated_at')
+      end
+
       private
 
       def encrypt_credentials

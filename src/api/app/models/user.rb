@@ -337,7 +337,7 @@ class User < ApplicationRecord
   end
 
   def cloud_configurations?
-    ec2_configuration.present?
+    ec2_configuration.present? || azure_configuration.present?
   end
 
   def to_axml(_opts = {})

@@ -72,3 +72,5 @@ nbproject
 .kanku/
 src/api/.bundle/
 src/api/vendor/bundle
+dist/aws_credentials
+dist/ec2utils.conf

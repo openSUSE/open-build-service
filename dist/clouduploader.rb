@@ -4,99 +4,215 @@ require 'fileutils'
 require 'json'
 require 'ostruct'
 require 'open3'
+require 'openssl'
+require 'base64'
 
-start = Time.now
-THIRTY_MINUTES = 1800
-HOME = '/etc/obs/cloudupload'.freeze
-ENV['HOME'] = "/etc/obs/cloudupload"
-ENV['PYTHONUNBUFFERED'] = '1'
-STDOUT.sync = true
+module CloudUploader
+  # Module method for uploading the image depending on the platform
+  def self.upload(_user, platform, backend_image_file, job_data_file, image_filename, result_path)
+    start = Time.now
 
-if ARGV.length != 6
-  raise 'Wrong number of arguments, please provide: user platform upload_file targetdata filename result_path'
-end
+    STDOUT.sync = true
+    STDOUT.write("Start uploading image #{image_filename}.\n")
 
-platform = ARGV[1]
-image_path = ARGV[2]
-data_path = ARGV[3]
-filename = ARGV[4]
-result_path = ARGV[5]
-data = JSON.parse(File.read(data_path))
+    job_data = JSON.parse(File.read(job_data_file))
 
-# link file into working directory
-FileUtils.ln_s(image_path, File.join(Dir.pwd, filename))
-
-def get_ec2_credentials(data)
-  command = [
-    'aws',
-    'sts',
-    'assume-role',
-    "--role-arn=#{data['arn']}",
-    "--external-id=#{data['external_id']}",
-    '--role-session-name=obs',
-    "--duration-seconds=#{THIRTY_MINUTES}"
-  ]
-
-  # Credentials are stored in  ~/.aws/credentials
-  out, err, status = Open3.capture3(*command)
-
-  if status.success?
-    STDOUT.write("Successfully authenticated.\n")
-    json = JSON.parse(out)
-    OpenStruct.new(
-      access_key_id: json['Credentials']['AccessKeyId'],
-      secret_access_key: json['Credentials']['SecretAccessKey'],
-      session_token: json['Credentials']['SessionToken']
-    )
-  else
-    abort(err)
-  end
-end
-
-def upload_image_to_ec2(image, data, result_path)
-  STDOUT.write("Start uploading image #{image}.\n")
-
-  credentials = get_ec2_credentials(data)
-  command = [
-    'ec2uploadimg',
-    "--description='obs uploader'",
-    '--machine=x86_64',
-    "--name=#{data['ami_name']}",
-    "--region=#{data['region']}",
-    "--secret-key=#{credentials.secret_access_key}",
-    "--access-id=#{credentials.access_key_id}",
-    "--session-token=#{credentials.session_token}",
-    '--verbose'
-  ]
-
-  if data['vpc_subnet_id']
-    command << "--vpc-subnet-id=#{data['vpc_subnet_id']}"
-  end
-  command << image
-
-  Open3.popen2e(*command) do |_stdin, stdout_stderr, wait_thr|
-    Signal.trap("TERM") {
-      # We just omit the SIGTERM because otherwise we would not get logs from ec2uploadimg
-      STDOUT.write("Received abort signal, waiting for ec2uploadimg to properly clean up.\n")
-    }
-    while line = stdout_stderr.gets
-      STDOUT.write(line)
-      write_result($1, result_path) if line =~ /^Created\simage:\s+(ami-[\w]+)$/
+    case platform
+    when 'ec2'
+      EC2.new(backend_image_file, image_filename, job_data, result_path).upload
+    when 'azure'
+      Azure.new(backend_image_file, image_filename, job_data).upload
+    else
+      abort('No valid platform. Valid platforms are "ec2" and "azure".')
     end
-    status = wait_thr.value
-    abort unless status.success?
+
+    diff = Time.now - start
+    STDOUT.write("Upload took: #{Time.at(diff).utc.strftime("%H:%M:%S")}\n")
+  end
+
+  class EC2
+    THIRTY_MINUTES = 1800
+
+    def initialize(backend_image_file, image_filename, job_data, result_path)
+      ENV['HOME'] = '/etc/obs/cloudupload'
+      ENV['PYTHONUNBUFFERED'] = '1'
+      FileUtils.ln_s(backend_image_file, File.join(Dir.pwd, image_filename))
+      @image_filename = image_filename
+      @ami_name       = job_data['ami_name']
+      @region         = job_data['region']
+      @vpc_subnet_id  = job_data['vpc_subnet_id']
+      @arn            = job_data['arn']
+      @external_id    = job_data['external_id']
+      @credentials    = credentials
+      @result_path    = result_path
+    end
+
+    def upload
+      command = [
+        'ec2uploadimg',
+        "--description='obs uploader'",
+        '--machine=x86_64',
+        "--name=#{@ami_name}",
+        "--region=#{@region}",
+        "--secret-key=#{@credentials.secret_access_key}",
+        "--access-id=#{@credentials.access_key_id}",
+        "--session-token=#{@credentials.session_token}",
+        '--verbose'
+      ]
+
+      command << "--vpc-subnet-id=#{@vpc_subnet_id}" if @vpc_subnet_id
+      command << @image_filename
+
+      Open3.popen2e(*command) do |_stdin, stdout_stderr, wait_thr|
+        Signal.trap("TERM") {
+          # We just omit the SIGTERM because otherwise we would not get logs from ec2uploadimg
+          STDOUT.write("Received abort signal, waiting for ec2uploadimg to properly clean up.\n")
+        }
+        while line = stdout_stderr.gets
+          STDOUT.write(line)
+          write_result($1) if line =~ /^Created\simage:\s+(ami-[\w]+)$/
+        end
+        status = wait_thr.value
+        abort unless status.success?
+      end
+    end
+
+    private
+
+    def write_result(result)
+      File.open(@result_path, "w+") { |file| file.write(result) }
+    end
+
+    def credentials
+      command = [
+        'aws',
+        'sts',
+        'assume-role',
+        "--role-arn=#{@arn}",
+        "--external-id=#{@external_id}",
+        '--role-session-name=obs',
+        "--duration-seconds=#{THIRTY_MINUTES}"
+      ]
+
+      # Credentials are stored in  ~/.aws/credentials
+      out, err, status = Open3.capture3(*command)
+
+      if status.success?
+        STDOUT.write("Successfully authenticated.\n")
+        json = JSON.parse(out)
+        OpenStruct.new(
+          access_key_id: json['Credentials']['AccessKeyId'],
+          secret_access_key: json['Credentials']['SecretAccessKey'],
+          session_token: json['Credentials']['SessionToken']
+        )
+      else
+        abort(err)
+      end
+    end
+  end
+
+  class Azure
+    def initialize(backend_image_file, image_filename, job_data)
+      ENV['HOME'] = Dir.pwd
+      @subscription      = job_data['subscription']
+      @storage_account   = job_data['storage_account']
+      @resource_group    = job_data['resource_group']
+      @container         = job_data['container']
+      @image_name        = job_data['image_name'].to_s
+      @image_name        = calculate_image_name(image_filename) if @image_name.empty?
+      @uncompressed_file = uncompress(backend_image_file)
+      @remote_file_name  = File.basename(@uncompressed_file)
+      @application_id, @application_key = decrypt([job_data['application_id'], job_data['application_key']])
+    end
+
+    def upload
+      login
+      create_container
+      blob_upload
+      image_create
+      blob_delete
+      logout
+    end
+
+    private
+
+    def login
+      run_command(['az', 'login', '--service-principal', '-u', @application_id, '-p', @application_key, '--tenant', @subscription, '--debug'],
+                  "Logging in as OBS app")
+    end
+
+    def create_container
+      run_command(['az', 'storage', 'container', 'create', '-n', @container, '--account-name', @storage_account, '--debug'],
+                  "Creating container at '#{@storage_account}/#{@container}'")
+    end
+
+    def blob_upload
+      run_command(['az', 'storage', 'blob', 'upload', '--container-name', @container, '--account-name', @storage_account,
+                   '-f', @uncompressed_file, '-n', @remote_file_name, '--debug'],
+                  "Uploading image file '#{@uncompressed_file}' to a blob")
+    end
+
+    def image_create
+      result = run_command(['az', 'image', 'create', '--resource-group', @resource_group, '--name', @image_name,
+                            '--source', uploaded_image_url, '--os-type', 'Linux', '--debug'],
+                           "Creating image '#{@image_name}' out of the blob '#{@remote_file_name}'")
+      STDOUT.write("#{JSON.parse(result).inspect}\n")
+    end
+
+    def blob_delete
+      run_command(['az', 'storage', 'blob', 'delete', '--container-name', @container, '--account-name', @storage_account,
+                   '-n', @remote_file_name, '--debug'],
+                  "Deleting")
+    end
+
+    def logout
+      run_command(['az', 'logout'], "Logging out")
+    end
+
+    def decrypt(encrypted_data)
+      private_key = ::OpenSSL::PKey::RSA.new(File.read('/etc/obs/cloudupload/secret.pem'))
+      encrypted_data.map { |encrypted_string| private_key.private_decrypt(::Base64.decode64(encrypted_string)) }
+    end
+
+    def uncompress(backend_image_file)
+      file_path = File.join(Dir.pwd, File.basename(backend_image_file))
+      compressed_file = "#{file_path}.xz"
+      uncompressed_file = "#{file_path}.vhd"
+      FileUtils.ln_s(backend_image_file, compressed_file)
+      run_command("xz -c -d #{compressed_file} > #{uncompressed_file}", "Uncompressing file '#{backend_image_file}'")
+      uncompressed_file
+    end
+
+    def calculate_image_name(image_filename)
+      image_filename.gsub(/\.xz|\.vhdfixed|\.vhd/, '')
+    end
+
+    def run_command(command, message)
+      STDOUT.write("#{message}...")
+      out, err, status = Open3.capture3(*command)
+      if status.success?
+        STDOUT.write("[OK]\n")
+        out
+      else
+        STDOUT.write("[ERROR]\n\nLogging out\n\n")
+        spawn('az logout')
+        STDOUT.write("---DEBUG INFO----------------------------------------------------\n" \
+                     "Running: '#{safe_str(command)}'\n\n" \
+                     "#{safe_str(out)}\n" \
+                     "---ERROR MESSAGE-------------------------------------------------\n\n")
+        abort(safe_str(err))
+      end
+    end
+
+    def safe_str(str)
+      str.to_s.gsub(@application_id, '*************').gsub(@application_key, '*************')
+    end
+
+    def uploaded_image_url
+      "https://#{@storage_account}.blob.core.windows.net/#{@container}/#{@remote_file_name}"
+    end
   end
 end
 
-def write_result(result, result_path)
-  File.open(result_path, "w+") { |file| file.write(result) }
-end
-
-if platform == 'ec2'
-  upload_image_to_ec2(filename, data, result_path)
-else
-  abort('No valid platform. Valid platforms is ec2.')
-end
-
-diff = Time.now - start
-STDOUT.write("Upload took: #{Time.at(diff).utc.strftime("%H:%M:%S")}")
+raise 'Wrong number of arguments, please provide: user platform upload_file targetdata filename' unless ARGV.length == 6
+CloudUploader.upload(*ARGV)

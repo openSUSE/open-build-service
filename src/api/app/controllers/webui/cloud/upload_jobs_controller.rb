@@ -3,8 +3,7 @@ module Webui
     class UploadJobsController < WebuiController
       before_action :require_login
       before_action -> { feature_active?(:cloud_upload) }
-      before_action :validate_ec2_configuration_presence, only: [:new, :create]
-      before_action :validate_configuration_presence, only: [:index]
+      before_action :validate_configuration_presence
       before_action :set_breadcrump
       before_action :validate_uploadable, only: [:new]
       before_action :set_package, only: :new
@@ -16,9 +15,11 @@ module Webui
       end
 
       def new
-        xml_object = OpenStruct.new(params.slice(:project, :package, :repository, :arch, :filename, :vpc_subnet_id))
-        @upload_job = ::Cloud::Backend::UploadJob.new(xml_object: xml_object)
-        @ec2_regions = ::Cloud::Ec2::Configuration::REGIONS
+        @crumb_list.push << 'Choose your Cloud'
+        @ec2_configured = Feature.active?(:cloud_upload)
+        @azure_configured = Feature.active?(:cloud_upload_azure)
+        @user_ec2_configured = User.current.ec2_configuration.present?
+        @user_azure_configured = User.current.azure_configuration.present?
       end
 
       def create
@@ -58,16 +59,6 @@ module Webui
 
       def validate_configuration_presence
         redirect_to cloud_configuration_index_path unless User.current.cloud_configurations?
-      end
-
-      def validate_ec2_configuration_presence
-        redirect_to cloud_ec2_configuration_path if User.current.ec2_configuration.blank?
-      end
-
-      def permitted_params
-        params.require(:cloud_backend_upload_job).permit(
-          :project, :package, :repository, :arch, :filename, :region, :ami_name, :target, :vpc_subnet_id
-        )
       end
 
       def set_upload_job

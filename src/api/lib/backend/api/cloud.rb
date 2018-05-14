@@ -5,11 +5,21 @@ module Backend
       # Triggers a cloud upload job
       # @return [String]
       def self.upload(params)
-        data = params.slice(:region, :ami_name, :vpc_subnet_id)
         user = params[:user]
-        params = params.except(:region, :ami_name, :vpc_subnet_id).merge(user: user.login, target: params[:target])
-        data = user.ec2_configuration.upload_parameters.merge(data).to_json
-        http_post('/cloudupload', params: params, data: data)
+        case params[:target]
+        when 'ec2'
+          param_names = [:region, :ami_name, :vpc_subnet_id]
+          upload_parameters = user.ec2_configuration.upload_parameters
+        when 'azure'
+          param_names = [
+            :image_name, :application_id, :application_key, :subscription, :container, :storage_account, :resource_group
+          ]
+          upload_parameters = user.azure_configuration.upload_parameters
+        end
+        data = params.slice(*param_names)
+        params = params.except(*param_names).merge(user: user.login, target: params[:target])
+        json = upload_parameters.merge(data).to_json
+        http_post('/cloudupload', params: params, data: json)
       end
 
       # Returns the backend data associated to a given list of cloud upload job ids
