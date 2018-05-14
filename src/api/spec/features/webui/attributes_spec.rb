@@ -34,7 +34,9 @@ RSpec.feature 'Attributes', type: :feature, js: true do
       expect(page).to have_content('Attribute was successfully updated.')
 
       visit index_attribs_path(project: user.home_project_name)
-      expect(page).to have_content("#{attribute_type.namespace}:#{attribute_type.name} test 2, test 1")
+      tr_tds = page.all('tr.attribute-values:nth-child(3) td').map(&:text)
+      expect(tr_tds[0]).to eq("#{attribute_type.namespace}:#{attribute_type.name}")
+      expect(tr_tds[1]).to eq('test 2, test 1')
     end
 
     describe 'with values that are not allowed' do
@@ -94,9 +96,9 @@ RSpec.feature 'Attributes', type: :feature, js: true do
       expect(page).to have_content('Attribute was successfully updated.')
 
       visit index_attribs_path(project: user.home_project_name, package: package.name)
-      within('tr.attribute-values') do
-        expect(page).to have_content("#{attribute_type.namespace}:#{attribute_type.name} test 2, test 1")
-      end
+      tr_tds = page.all('tr.attribute-values:nth-child(2) td').map(&:text)
+      expect(tr_tds[0]).to eq("#{attribute_type.namespace}:#{attribute_type.name}")
+      expect(tr_tds[1]).to eq('test 2, test 1')
     end
   end
 end
