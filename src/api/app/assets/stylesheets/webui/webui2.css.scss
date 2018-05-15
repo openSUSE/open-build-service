@@ -20,12 +20,21 @@
  *= require semantic_ui/semantic_ui
 */
 
+a:hover {
+  text-decoration: underline;
+}
+
+a:hover {
+  color: #690;
+}
+
 .navigation-links a {
   color: #690;
 }
 
 .navigation-links a:hover {
   color: #069;
+  text-decoration: none;
 }
 
 .ui.top.attached.label a:hover {
