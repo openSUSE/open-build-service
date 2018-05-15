@@ -1,0 +1,18 @@
+.ui.tiny.modal.status-message-create-dialog
+  .header
+    Add New Status Message
+  .content
+    = form_tag({ controller: 'status_messages', action: 'create' }, method: 'post', class: 'ui form', id: 'status-create-form') do
+      %p
+        = label_tag(:message, 'Message:')
+        %br/
+        = text_area_tag(:message, '', size: '40x3', required: true)
+        %br/
+        = label_tag(:severity, "Severity:")
+        %br/
+        = select_tag(:severity, options_for_select([['Information', 0], ['Green', 1], ['Yellow', 2], ['Red', 3]]))
+  .actions
+    .ui.cancel.button
+      Close
+    %button.ui.teal.submit.button{ type: "submit", form: 'status-form' }
+      Ok

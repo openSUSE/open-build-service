@@ -1,2 +1,6 @@
 //= require semantic_ui/semantic_ui
 
+$(document).on('click', 'a[data-open-dialog]', function() {
+  $($(this).data('dialog-id')).modal('show');
+});
+

@@ -59,3 +59,4 @@
   = render partial: 'status_messages'
   .ui.hidden.divider
   = render partial: 'latest_updates' if (@latest_updates and ::Configuration.anonymous)
+= render partial: 'webui2/status_messages/create_status_message_dialog'
