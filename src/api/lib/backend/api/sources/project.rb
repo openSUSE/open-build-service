@@ -84,8 +84,8 @@ module Backend
         end
 
         # Deletes the project and all the packages inside
-        def self.delete(project_name)
-          http_delete(['/source/:project', project_name])
+        def self.delete(project_name, options = {})
+          http_delete(['/source/:project', project_name], params: options, accepted: [:user, :comment, :requestid])
         end
 
         # Undeletes the project
