@@ -1,10 +1,53 @@
-#!/bin/bash
+#!/usr/bin/ruby
 
-if [ -z $1 ]; then
-  export api_url="https://api.opensuse.org"
+require 'net/http'
+require 'nokogiri'
+require 'launchy'
+require 'optparse'
+
+options = { api_url: 'https://api.opensuse.org' }
+OptionParser.new do |opts|
+  opts.banner = "Usage: #{ARGV[0]} [options]"
+  opts.on('-b', '--browser', 'Open Browser to show diff') do |v|
+    options[:browser] = v
+  end
+  opts.on('-aAPI_URL', '--api_url=API_URL', 'API URL (default build.o.o)') do |v|
+    options[:api_url] = v
+  end
+end.parse!
+
+def available_revision(api_url)
+  uri = URI("#{api_url}/public/build/OBS:Server:Unstable/SLE_12_SP3/x86_64/obs-server")
+  result = Net::HTTP.get(uri)
+  doc = Nokogiri::XML(result)
+  obs_api_filename = doc.xpath('//binary[starts-with(@filename, "obs-api")]/@filename').to_s
+  obs_api_filename.match(/obs-api-2\.10~alpha\.\w*\.(?<git>\w*)-(\w*.)*/)[:git]
+end
+
+def deployed_revision(api_url)
+  uri = URI("#{api_url}/about")
+  result = Net::HTTP.get(uri)
+  doc = Nokogiri::XML(result)
+  doc.xpath('//commit').first.content
+end
+
+url = "https://github.com/openSUSE/open-build-service/compare/#{deployed_revision(options[:api_url])}...#{available_revision(options[:api_url])}"
+if options[:browser]
+  Launchy.open(url)
 else
-  export api_url=$1
-fi
+  result = Net::HTTP.get(URI("#{url}.diff"))
+  output = <<~HEREDOC
+    ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-DEPLOYED_REVISION=`osc -A $api_url api /about|awk -F'[<|>]' '/revision/{printf("%s\n",$3)}'|rev|cut -d . -f 1|rev`
-git log -p --reverse --no-merges $DEPLOYED_REVISION..master -- . ':!src/api/spec'
+    Using #{options[:api_url]}
+    Deployed revision: #{deployed_revision(options[:api_url])}
+    Available revision: #{available_revision(options[:api_url])}
+
+    ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+    #{result}
+  HEREDOC
+  puts output
+end
