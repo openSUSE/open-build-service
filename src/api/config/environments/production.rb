@@ -71,6 +71,18 @@ OBSApi::Application.configure do
     config.logger = ActiveSupport::TaggedLogging.new(logger)
   end
 
+  # Use lograge to show the logs in one line
+  config.lograge.enabled = true
+  config.lograge.custom_options = lambda do |event|
+    exceptions = ['controller', 'action', 'format', 'id']
+    {
+      params: event.payload[:params].except(*exceptions),
+      host:   event.payload[:headers].env['REMOTE_ADDR'],
+      time:   event.time,
+      user:   User.current.try(:login)
+    }
+  end
+
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 

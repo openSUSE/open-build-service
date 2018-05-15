@@ -84,6 +84,8 @@ group :development, :production do
   gem 'clockwork', '>= 0.7'
   # as interface to LDAP
   gem 'ruby-ldap', require: false
+  # to have better logs
+  gem 'lograge'
 end
 
 group :production do
