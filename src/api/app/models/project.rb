@@ -1236,15 +1236,13 @@ class Project < ApplicationRecord
 
   def bsrequest_repos_map(project)
     Rails.cache.fetch("bsrequest_repos_map-#{project}", expires_in: 2.hours) do
-      ret = {}
-      uri = "/getprojpack?project=#{CGI.escape(project.to_s)}&nopackages&withrepos&expandedrepos"
       begin
-        body = Backend::Connection.get(uri).body
-        xml = Xmlhash.parse body
+        xml = Xmlhash.parse(Backend::Api::Sources::Project.repositories(project.to_s))
       rescue ActiveXML::Transport::Error
-        return ret
+        return {}
       end
 
+      ret = {}
       xml.get('project').elements('repository') do |repo|
         repo.elements('path') do |path|
           ret[path['project']] ||= []

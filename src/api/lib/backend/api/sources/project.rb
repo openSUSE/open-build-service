@@ -93,6 +93,11 @@ module Backend
           http_post(['/source/:project', project_name], defaults: { cmd: :undelete },
                     params: options, accepted: [:user, :comment])
         end
+
+        # Returns the list of repositories
+        def self.repositories(project_name)
+          http_get('/getprojpack', defaults: { project: project_name, nopackages: 1, withrepos: 1, expandedrepos: 1 })
+        end
       end
     end
   end
