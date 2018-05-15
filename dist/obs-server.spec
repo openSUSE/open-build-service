@@ -293,6 +293,7 @@ This package contains test cases for testing a installed appliances.
 Summary:       The Open Build Service -- Image Cloud Uploader
 Requires:      obs-server
 Requires:      aws-cli
+Requires:      azure-cli
 %if 0%{?suse_version} > 1315
 Requires:      python3-ec2uploadimg
 %else
