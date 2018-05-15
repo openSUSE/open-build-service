@@ -770,6 +770,20 @@ RSpec.describe Webui::PackageController, vcr: true do
       it { expect(flash[:error]).to eq("Services couldn't be triggered: no source service defined!") }
       it { is_expected.to redirect_to(action: :show, project: source_project, package: package) }
     end
+
+    context 'without permissions' do
+      let(:post_url) { /#{CONFIG['source_url']}\/source\/#{source_project}\/#{service_package}\.*/ }
+      let(:other_user) { create(:confirmed_user) }
+
+      before do
+        login other_user
+        get :trigger_services, params: { project: source_project, package: package }
+      end
+
+      it { expect(a_request(:post, post_url)).not_to have_been_made }
+      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this Package.') }
+      it { is_expected.to redirect_to(root_path) }
+    end
   end
 
   describe 'POST #save_meta' do
