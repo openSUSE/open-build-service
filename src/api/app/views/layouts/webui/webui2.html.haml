@@ -126,6 +126,7 @@
         .ui.grid
           = content_for?(:content) ? yield(:content) : yield
 
+        = render partial: 'layouts/webui/footer'
 :javascript
   $(document).ready(
     $('.ui.dropdown').dropdown()

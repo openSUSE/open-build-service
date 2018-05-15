@@ -1,0 +1,65 @@
+.ui.grid.footer
+  - if User.current && !User.current.is_nobody?
+    .three.wide.column
+      .item
+        %b
+          = link_to(User.current, user_show_path(User.current))
+      %ul.ui.list
+        %li
+          = link_to('Your Profile', user_show_path(User.current))
+        - if User.current.home_project
+          %li
+            = link_to('Home Project', project_show_path(User.current.home_project))
+        - else
+          %li
+            = link_to('Create Home Project', new_project_path(name: User.current.home_project_name))
+        %li
+          = link_to('Logout', session_destroy_path, method: :delete)
+
+  - if ::Configuration.anonymous
+    .three.wide.column
+      .item
+        %b.grey
+          Locations
+      %ul.ui.list
+        %li.item
+          = link_to('Projects', projects_path)
+        %li.item
+          = link_to('Search', search_path, class: 'search-link')
+        - unless @spider_bot
+          %li.item
+            = link_to('Status Monitor', monitor_path)
+
+  .three.wide.column
+    .item
+      %b.grey
+        Help
+    %ul.ui.list
+      - @helplinks = { 'Open Build Service'  => 'http://openbuildservice.org/',
+         'OBS Manuals'  => 'http://openbuildservice.org/help/manuals/',
+         'openSUSEs OBS Portal' => 'http://en.opensuse.org/Portal:Build_service',
+         'Reporting a Bug'   => 'http://openbuildservice.org/support/' }
+
+      - @helplinks.each do |label, url|
+        %li
+          = link_to(label, url)
+
+  .three.wide.column
+    .item
+      %b.grey
+        Contact
+    %ul.ui.list
+      - @contactlinks = { 'Mailing List'  => 'http://lists.opensuse.org/opensuse-buildservice/',
+         'Forums'  => 'http://forums.opensuse.org/forumdisplay.php/692-Open-Build-Service-%28OBS%29',
+         'Chat (IRC)' => 'irc://irc.opensuse.org/opensuse-buildservice',
+         'Twitter'   => 'http://twitter.com/OBShq' }
+
+      - @contactlinks.each do |label, url|
+        %li
+          = link_to(label, url)
+  .twelve.ui.divider
+  .twelve.wide.center.aligned.column
+    %p{ style: 'font-size: 0.7em' }
+      = link_to('Open Build Service (OBS)', 'http://openbuildservice.org')
+      is an
+      = link_to('openSUSE project', 'http://www.opensuse.org')

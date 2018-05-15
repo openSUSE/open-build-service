@@ -51,8 +51,26 @@ a:hover {
   color: #666;
 }
 
-a:hover {
+.footer a {
   color: #690;
+  font-size: 0.8em !important;
+  line-height: 0.7em;
+  //font-weight: bold
+}
+
+.footer b.grey {
+  font-size: 0.82em !important;
+  color: #666;
+}
+
+p, ul, li {
+  margin: 1em 0;
+  list-style: none;
+}
+
+.footer li {
+  margin-left: 25px;
+  line-height: 50%;
 }
 
 tr, img {
@@ -90,7 +108,7 @@ tr, img {
 }
 
 .ui.top.attached.label {
-  background: #fff image-url('images/gradient-light-nav.png') repeat-x scroll 0 -25px;
+  background: #fff image-url('images/gradient-light.png') repeat-x scroll 0 -25px;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   border-bottom: 1px solid #ddd;
