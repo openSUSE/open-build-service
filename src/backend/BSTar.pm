@@ -110,4 +110,86 @@ sub extract {
   return $data;
 }
 
+sub maketarhead {
+  my ($file, $s) = @_; 
+
+  my $h = "\0\0\0\0\0\0\0\0" x 64;
+  my $pad = '';
+  return ("$h$h", $pad) unless $file;
+  my $name = $file->{'name'};
+  my $type = '0';
+  $type = '5' if (($file->{'mode'} || 0) | 0xfff) == 0x4fff;
+  $name =~ s/\/?$/\// if $type eq '5';
+  my $mode = sprintf("%07o", $file->{'mode'} || 0x81a4);
+  my $size = sprintf("%011o", $s->[7]);
+  my $mtime = sprintf("%011o", defined($file->{'mtime'}) ? $file->{'mtime'} : $s->[9]);
+  substr($h, 0, length($name), $name);
+  substr($h, 100, length($mode), $mode);
+  substr($h, 108, 15, "0000000\0000000000");
+  substr($h, 124, length($size), $size);
+  substr($h, 136, length($mtime), $mtime);
+  substr($h, 148, 8, '        ');
+  substr($h, 156, 1, $type);
+  substr($h, 257, 8, "ustar\00000");
+  substr($h, 329, 15, "0000000\0000000000");
+  substr($h, 148, 7, sprintf("%06o\0", unpack("%16C*", $h)));
+  $pad = "\0" x (512 - $s->[7] % 512) if $s->[7] % 512;
+  return ($h, $pad);
+}
+
+sub writetar {
+  my ($fd, $entries) = @_;
+  for my $ent (@{$entries || []}) {
+    my (@s);
+    local *F;
+    if (exists $ent->{'filename'}) {
+      my $filename = $ent->{'filename'};
+      if (ref($filename)) {
+        *F = $filename;
+      } else {
+        @s = lstat($filename);
+        die("$filename: $!\n") unless @s;
+        if (-l _) {
+          die("$filename: is a symlink\n");
+        } elsif (! -f _) {
+          die("$filename: not a plain file\n");
+        }
+        if (!open(F, '<', $filename)) {
+          die("$filename: $!\n") unless @s;
+        }
+      }
+      @s = stat(F);
+      my $l = $s[7];
+      if (defined($ent->{'offset'})) {
+        die("$filename: seek error: $!\n") unless seek(F, $ent->{'offset'}, 0);
+        $l -= $ent->{'offset'};
+      }
+      if (defined($ent->{'size'})) {
+        die("$filename: size too small for request\n") if $ent->{'size'} > $l;
+        $l = $ent->{'size'};
+      }
+      $s[7] = $l;
+      my $r = 0;
+      my ($data, $pad) = maketarhead($ent, \@s);
+      while(1) {
+        $r = sysread(F, $data, $l > 8192 ? 8192 : $l, length($data)) if $l;
+        die("error while reading '$filename': $!\n") unless defined $r;
+        $data .= $pad if $r == $l;
+        print $fd $data or die("write error: $!\n");
+        $data = '';
+        $l -= $r;
+        last unless $l;
+      }
+      close F unless ref $filename;
+    } else {
+      $s[7] = length($ent->{'data'});
+      $s[9] = $ent->{'mtime'} || time;
+      my ($data, $pad) = maketarhead($ent, \@s);
+      print $fd "$data$ent->{'data'}$pad" or die("write error: $!\n");
+    }
+  }
+  my ($data) = maketarhead();
+  print $fd $data or die("write error: $!\n");
+}
+
 1;
