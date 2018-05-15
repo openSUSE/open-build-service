@@ -87,6 +87,12 @@ module Backend
         def self.delete(project_name)
           http_delete(['/source/:project', project_name])
         end
+
+        # Undeletes the project
+        def self.undelete(project_name, options = {})
+          http_post(['/source/:project', project_name], defaults: { cmd: :undelete },
+                    params: options, accepted: [:user, :comment])
+        end
       end
     end
   end

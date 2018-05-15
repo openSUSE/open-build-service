@@ -138,10 +138,7 @@ class Project < ApplicationRecord
   end
 
   def self.restore(project_name, backend_opts = {})
-    backend_opts[:cmd] = 'undelete'
-
-    query = Backend::Connection.build_query_from_hash(backend_opts, [:cmd, :user, :comment])
-    Backend::Connection.post "/source/#{CGI.escape(project_name)}#{query}"
+    Backend::Api::Sources::Project.undelete(project_name, backend_opts)
 
     # read meta data from backend to restore database object
     project = Project.new(name: project_name)
