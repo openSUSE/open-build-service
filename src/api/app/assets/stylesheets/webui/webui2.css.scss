@@ -28,12 +28,30 @@
   color: #069;
 }
 
+.ui.top.attached.label a:hover {
+  text-decoration: none;
+}
+
+.ui.top.attached.label a {
+  text-decoration: none;
+  font-size: 0.9em;
+  font-weight: normal;
+}
+
+.ui.breadcrumb a {
+  color: #666;
+}
+
 a:hover {
   color: #690;
 }
 
 tr, img {
   vertical-align: top;
+}
+
+.obs-content {
+  width: 960px !important;
 }
 
 .ui.menu.topbar {
@@ -44,11 +62,22 @@ tr, img {
   line-height: 150%;
   font-weight: bold;
   margin-bottom: 1px;
+  min-height: 0px !important;
 }
 
-.ui.menu.topbar > .item {
-  font-weight: bolder;
+.obs-bar {
+  background: #666 image-url('images/gradient-dark-nav.png') repeat-x scroll bottom left;
+  height: 30px;
+}
 
+.ui.menu.topbar > .item, .right.menu > .item {
+  font-size: 1.03em;
+  font-weight: bolder;
+  color: #fefefe
+}
+
+.ui.attached.label {
+  padding: 0.5em 1em;
 }
 
 .ui.top.attached.label {
@@ -56,4 +85,11 @@ tr, img {
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   border-bottom: 1px solid #ddd;
+  color: #333;
+  max-height: 28px;
+  font-size: 14px;
+}
+
+.ui.top.attached.label.center {
+  text-align: center;
 }

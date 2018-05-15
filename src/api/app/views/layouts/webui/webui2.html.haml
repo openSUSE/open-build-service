@@ -32,99 +32,99 @@
     - if User.current.try(:rss_token)
       = auto_discovery_link_tag(:rss, user_rss_notifications_url(token: User.current.rss_token.string, format: :rss), { title: 'Notifications' })
   %body
-    .ui.container
-      .ui.menu.topbar.inverted
-        .item
-          = link_to image_tag('obs-logo_small.png', height: 26), root_path, { id: 'header-logo', class: 'navbar-item' }
-        // $('.ui.dropdown').dropdown();
-        .ui.dropdown.item
-          Downloads
-          .menu
-            .item
-              %a.ui.green.tiny.header{:href => "/documentation/overview/start/"}
-                Foo
-            .item
-              %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/layout/container/"}
-                Layout
-            .item
-              %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/form/general/"}
-                Form
-        .ui.dropdown.item
-          Support
-          .menu
-            .item
-              %a.ui.green.tiny.header{:href => "/documentation/overview/start/"}
-                Foo
-            .item
-              %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/layout/container/"}
-                Layout
-            .item
-              %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/form/general/"}
-                Form
-        .ui.dropdown.item
-          Community
-          .menu
-            .item
-              %a.ui.green.tiny.header{:href => "/documentation/overview/start/"}
-                Comunity
-            .item
-              %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/layout/container/"}
-                Layout
-            .item
-              %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/form/general/"}
-                Form
-        .ui.dropdown.item
-          Development
-          .menu
-            .item
-              %a.ui.green.tiny.header{:href => "/documentation/overview/start/"}
-                Comunity
-            .item
-              %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/layout/container/"}
-                Layout
-            .item
-              %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/form/general/"}
-                Form
-        .right.menu
-          .ui.dropdown.item
-            Watchlist
-            .menu
-              %a.item{:href => "/documentation/overview/start/"}
-                Comunity
-              %a.item{:href => "https://bulma.io/documentation/layout/container/"}
-                Layout
-              %a.item{:href => "https://bulma.io/documentation/form/general/"}
-                Form
+    .ui.obs-bar
+      .ui.container{ style: 'width: 960px' }
+        .ui.menu.topbar.inverted
           .item
-            = form_tag(search_path(project: 1, package: 1, name: 1), { id: 'global-search-form', class: 'label-overlay' }) do
-              .control.has-icons-left
-                = text_field_tag 'search_text', '', id: 'search', class: 'input', placeholder: 'Search...'
-                %span.icon.is-left
-                  %i.fa.fa-search
-      .ui.secondary.menu
-        .ui.tiny.breadcrumb
-          = sprite_tag('home_grey', title: 'Logo')
-          = link_to "#{@configuration ? @configuration['title'] : 'Open Build Service'}", root_path
-          - if @crumb_list
-            - @crumb_list.each_with_index do |link, link_index|
-              - if link.class == Array
-                - link.each_with_index do |sublink, index|
-                  = ':' if index > 0
-                  %i.right.chevron.icon.divider
-                  = sublink
-              - else
-                - if link_index == @crumb_list.size - 1
-                  %i.right.chevron.icon.divider
-                  %a{ href: '#', 'aria-current': "page" }
-                    = link
+            = link_to image_tag('obs-logo_small.png', height: 26), root_path, { id: 'header-logo', class: 'navbar-item' }
+          .ui.dropdown.item
+            Downloads
+            .menu
+              .item
+                %a.ui.green.tiny.header{:href => "/documentation/overview/start/"}
+                  Foo
+              .item
+                %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/layout/container/"}
+                  Layout
+              .item
+                %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/form/general/"}
+                  Form
+          .ui.dropdown.item
+            Support
+            .menu
+              .item
+                %a.ui.green.tiny.header{:href => "/documentation/overview/start/"}
+                  Foo
+              .item
+                %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/layout/container/"}
+                  Layout
+              .item
+                %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/form/general/"}
+                  Form
+          .ui.dropdown.item
+            Community
+            .menu
+              .item
+                %a.ui.green.tiny.header{:href => "/documentation/overview/start/"}
+                  Comunity
+              .item
+                %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/layout/container/"}
+                  Layout
+              .item
+                %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/form/general/"}
+                  Form
+          .ui.dropdown.item
+            Development
+            .menu
+              .item
+                %a.ui.green.tiny.header{:href => "/documentation/overview/start/"}
+                  Comunity
+              .item
+                %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/layout/container/"}
+                  Layout
+              .item
+                %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/form/general/"}
+                  Form
+          .right.menu
+            .ui.dropdown.item
+              Watchlist
+              .menu
+                %a.item{:href => "/documentation/overview/start/"}
+                  Comunity
+                %a.item{:href => "https://bulma.io/documentation/layout/container/"}
+                  Layout
+                %a.item{:href => "https://bulma.io/documentation/form/general/"}
+                  Form
+            .item
+              = form_tag(search_path(project: 1, package: 1, name: 1), { id: 'global-search-form', class: 'label-overlay' }) do
+                .control.has-icons-left
+                  = text_field_tag 'search_text', '', id: 'search', class: 'input', placeholder: 'Search...'
+                  %span.icon.is-left
+                    %i.fa.fa-search
+        .ui.secondary.menu
+          .ui.tiny.breadcrumb
+            = sprite_tag('home_grey' title: 'Logo')
+            = link_to "#{@configuration ? @configuration['title'] : 'Open Build Service'}", root_path
+            - if @crumb_list
+              - @crumb_list.each_with_index do |link, link_index|
+                - if link.class == Array
+                  - link.each_with_index do |sublink, index|
+                    = ':' if index > 0
+                    %i.right.chevron.icon.divider
+                    = sublink
                 - else
-                  %i.right.chevron.icon.divider
-                    = link
+                  - if link_index == @crumb_list.size - 1
+                    %i.right.chevron.icon.divider
+                    %a{ href: '#', 'aria-current': "page" }
+                      = link
+                  - else
+                    %i.right.chevron.icon.divider
+                      = link
 
-        .right.menu
-          = render partial: 'layouts/webui/webui2_personal_navigation'
-      .ui.grid
-        = content_for?(:content) ? yield(:content) : yield
+          .right.menu
+            = render partial: 'layouts/webui/webui2_personal_navigation'
+        .ui.grid
+          = content_for?(:content) ? yield(:content) : yield
 
 :javascript
   $(document).ready(
