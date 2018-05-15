@@ -20,6 +20,7 @@ function create_dir {
 DOCKER_IMAGE=`obs_admin --query-config docker_image`
 DOCKER_CUSTOM_OPT=`obs_admin --query-config docker_custom_opt`
 SERVICES_DIR=`obs_admin --query-config servicetempdir`
+OBS_SERVICE_BUNDLE_GEMS_MIRROR_URL=`obs_admin --query-config gems_mirror`
 SCM_COMMAND=0
 WITH_NET=0
 COMMAND="$1"
@@ -39,7 +40,7 @@ create_dir "$LOGDIR"
 
 shift
 case "$COMMAND" in
-  */download_url|*/download_src_package|*/update_source|*/download_files|*/generator_pom|*/snapcraft|*/kiwi_import|*/appimage)
+  */download_url|*/download_src_package|*/update_source|*/download_files|*/generator_pom|*/snapcraft|*/kiwi_import|*/appimage|*/bundle_gems)
     WITH_NET="1"
     ;;
   */tar_scm|*/obs_scm)
@@ -107,10 +108,11 @@ create_dir "$OUTERHOMEDIR"
 # su nobody -s inner.sh.command
 
 printlog "Creating INNERSCRIPT '$MOUNTDIR/$INNERSCRIPT'"
-echo "#!/bin/bash" 					 > "$MOUNTDIR/$INNERSCRIPT"
-echo "export OBS_SERVICE_APIURL=\"$OBS_SERVICE_APIURL\"" >> "$MOUNTDIR/$INNERSCRIPT"
-echo "cd $INNERSRCDIR" 					 >> "$MOUNTDIR/$INNERSCRIPT"
-echo -n "${INNERSCRIPT}.command" 			 >> "$MOUNTDIR/$INNERSCRIPT"
+echo "#!/bin/bash"                                                                          > "$MOUNTDIR/$INNERSCRIPT"
+echo "export OBS_SERVICE_APIURL=\"$OBS_SERVICE_APIURL\""                                   >> "$MOUNTDIR/$INNERSCRIPT"
+echo "export OBS_SERVICE_BUNDLE_GEMS_MIRROR_URL=\"$OBS_SERVICE_BUNDLE_GEMS_MIRROR_URL\""   >> "$MOUNTDIR/$INNERSCRIPT"
+echo "cd $INNERSRCDIR"                                                                     >> "$MOUNTDIR/$INNERSCRIPT"
+echo -n "${INNERSCRIPT}.command"                                                           >> "$MOUNTDIR/$INNERSCRIPT"
 
 # Create inner.sh.command
 # dirname /srv/obs/service/11875/out/
