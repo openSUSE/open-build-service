@@ -3,6 +3,10 @@ For Updaters from OBS 2.9 to OBS 2.10
 
 Note: Update from OBS 2.5 should also work, but is untested.
       A direct update from OBS 2.4 or older will not work.
+      It's recommended to wait for all pending delayed jobs to be processed before
+      creating a DB dump or running the migrations.
+      To see the number of pending delayed jobs run
+      `(cd /srv/www/obs/api; bundle exec rails r -e production "puts Delayed::Job.count")`
 
   1) Remove the OBS 2.9 Repository
 
@@ -54,6 +58,10 @@ For Updaters to OBS 2.9 from OBS 2.8
 
 Note: Update from OBS 2.5 should also work, but is untested.
       A direct update from OBS 2.4 or older will not work.
+      It's recommended to wait for all pending delayed jobs to be processed before
+      creating a DB dump or running the migrations.
+      To see the number of pending delayed jobs run
+      `(cd /srv/www/obs/api; bundle exec rails r -e production "puts Delayed::Job.count")`
 
   1) Remove the OBS 2.8 Repository
 
@@ -106,6 +114,10 @@ For Updaters to OBS 2.8 from OBS 2.7
 
 Note: Update from OBS 2.5 should also work, but is untested.
       A direct update from OBS 2.4 or older will not work.
+      It's recommended to wait for all pending delayed jobs to be processed before
+      creating a DB dump or running the migrations.
+      To see the number of pending delayed jobs run
+      `(cd /srv/www/obs/api; bundle exec rails r -e production "puts Delayed::Job.count")`
 
   1) Remove the OBS 2.7 Repository
 
