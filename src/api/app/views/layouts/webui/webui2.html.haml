@@ -62,7 +62,7 @@
             .item
               = form_tag(search_path(project: 1, package: 1, name: 1), { id: 'global-search-form', class: 'label-overlay' }) do
                 .control.has-icons-left
-                  = text_field_tag 'search_text', '', id: 'search', class: 'input', placeholder: 'Search...'
+                  = text_field_tag 'search_text', '', id: 'search', class: 'input', placeholder: ''
                   %span.icon.is-left
                     %i.fa.fa-search
         .ui.secondary.menu
