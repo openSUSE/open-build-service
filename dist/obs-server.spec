@@ -342,6 +342,8 @@ export OBS_VERSION="%{version}"
 DESTDIR=%{buildroot} make install FILLUPDIR=%{_fillupdir}
 if [ -f %{_sourcedir}/open-build-service.obsinfo ]; then
     sed -n -e 's/commit: \(.\+\)/\1/p' %{_sourcedir}/open-build-service.obsinfo > %{buildroot}/srv/www/obs/api/last_deploy
+else
+    echo "%version" > %{buildroot}/srv/www/obs/api/last_deploy
 fi
 #
 # turn duplicates into hard links
@@ -525,7 +527,6 @@ touch /srv/www/obs/api/log/production.log
 chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
 %restart_on_update memcached
-touch /srv/www/obs/api/last_deploy
 
 %postun -n obs-api
 %insserv_cleanup
