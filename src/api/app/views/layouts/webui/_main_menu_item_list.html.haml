@@ -1,0 +1,6 @@
+.ui.dropdown.item
+  = header
+  .menu
+    - items.each do |item|
+      .item
+        = link_to(item[:label], item[:url], class: 'ui green tiny header')

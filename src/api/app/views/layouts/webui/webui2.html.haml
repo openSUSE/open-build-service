@@ -37,54 +37,18 @@
         .ui.menu.topbar.inverted
           .item
             = link_to image_tag('obs-logo_small.png', height: 26), root_path, { id: 'header-logo', class: 'navbar-item' }
-          .ui.dropdown.item
-            Downloads
-            .menu
-              .item
-                %a.ui.green.tiny.header{:href => "/documentation/overview/start/"}
-                  Foo
-              .item
-                %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/layout/container/"}
-                  Layout
-              .item
-                %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/form/general/"}
-                  Form
-          .ui.dropdown.item
-            Support
-            .menu
-              .item
-                %a.ui.green.tiny.header{:href => "/documentation/overview/start/"}
-                  Foo
-              .item
-                %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/layout/container/"}
-                  Layout
-              .item
-                %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/form/general/"}
-                  Form
-          .ui.dropdown.item
-            Community
-            .menu
-              .item
-                %a.ui.green.tiny.header{:href => "/documentation/overview/start/"}
-                  Comunity
-              .item
-                %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/layout/container/"}
-                  Layout
-              .item
-                %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/form/general/"}
-                  Form
-          .ui.dropdown.item
-            Development
-            .menu
-              .item
-                %a.ui.green.tiny.header{:href => "/documentation/overview/start/"}
-                  Comunity
-              .item
-                %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/layout/container/"}
-                  Layout
-              .item
-                %a.ui.green.tiny.header{:href => "https://bulma.io/documentation/form/general/"}
-                  Form
+          = render partial: 'layouts/webui/main_menu_item_list', locals: { header: 'Downloads', items: [{ label: 'Foo', url: '/documentation/overview/start/' }, |
+            { label: 'Layout', url: 'https://bulma.io/documentation/layout/container/'}, |
+            { label: 'Bar', url: 'https://bulma.io/documentation/layout/container/'} ] }
+          = render partial: 'layouts/webui/main_menu_item_list', locals: { header: 'Support', items: [{ label: 'Foo', url: '/documentation/overview/start/' }, |
+            { label: 'Layout', url: 'https://bulma.io/documentation/layout/container/'}, |
+            { label: 'Bar', url: 'https://bulma.io/documentation/layout/container/'} ] }
+          = render partial: 'layouts/webui/main_menu_item_list', locals: { header: 'Comunity', items: [{ label: 'Foo', url: '/documentation/overview/start/' }, |
+            { label: 'Layout', url: 'https://bulma.io/documentation/layout/container/'}, |
+            { label: 'Bar', url: 'https://bulma.io/documentation/layout/container/'} ] }
+          = render partial: 'layouts/webui/main_menu_item_list', locals: { header: 'Development', items: [{ label: 'Foo', url: '/documentation/overview/start/' }, |
+            { label: 'Layout', url: 'https://bulma.io/documentation/layout/container/'}, |
+            { label: 'Bar', url: 'https://bulma.io/documentation/layout/container/'} ] }
           .right.menu
             .ui.dropdown.item
               Watchlist
