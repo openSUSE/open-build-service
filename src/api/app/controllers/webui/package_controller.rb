@@ -697,6 +697,8 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def remove_file
+    authorize @package, :update?
+
     filename = params[:filename]
     begin
       @package.delete_file filename

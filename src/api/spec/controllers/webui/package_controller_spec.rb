@@ -654,6 +654,18 @@ RSpec.describe Webui::PackageController, vcr: true do
       allow_any_instance_of(Package).to receive(:delete_file).with('the_file')
       remove_file_post
     end
+
+    context 'with no permissions' do
+      let(:other_user) { create(:confirmed_user) }
+
+      before do
+        login other_user
+        remove_file_post
+      end
+
+      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this Package.') }
+      it { expect(Package.where(name: 'my_package')).to exist }
+    end
   end
 
   describe 'GET #revisions' do
