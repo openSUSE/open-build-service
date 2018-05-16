@@ -104,6 +104,7 @@ sub extract {
   $offset = 0 unless defined($offset) && $offset >= 0;
   return '' if $offset >= $size || (defined($length) && $length <= 0);
   $length = $size - $offset if !defined($length) || $length > $size - $offset;
+  return substr($ent->{'data'}, $offset, $length) if exists $ent->{'data'};
   die("cannot seek to $ent->{name} entry\n") unless seek($handle, $ent->{'offset'} + $offset, 0);
   my $data = '';
   die("cannot read $ent->{name} entry\n") unless (read($handle, $data, $length) || 0) == $length;
@@ -139,6 +140,9 @@ sub maketarhead {
 
 sub writetar {
   my ($fd, $entries) = @_;
+
+  my $writer;
+  $writer = $fd if ref($fd) eq 'CODE';
   for my $ent (@{$entries || []}) {
     my (@s);
     local *F;
@@ -173,9 +177,14 @@ sub writetar {
       my ($data, $pad) = maketarhead($ent, \@s);
       while(1) {
         $r = sysread(F, $data, $l > 8192 ? 8192 : $l, length($data)) if $l;
-        die("error while reading '$filename': $!\n") unless defined $r;
+        die("$filename: read error: $!\n") unless defined $r;
+        die("$filename: unexpected EOF\n") if $l && !$r;
         $data .= $pad if $r == $l;
-        print $fd $data or die("write error: $!\n");
+        if ($writer) {
+          $writer->($data);
+        } else {
+          print $fd $data or die("write error: $!\n");
+        }
         $data = '';
         $l -= $r;
         last unless $l;
@@ -185,11 +194,20 @@ sub writetar {
       $s[7] = length($ent->{'data'});
       $s[9] = $ent->{'mtime'} || time;
       my ($data, $pad) = maketarhead($ent, \@s);
-      print $fd "$data$ent->{'data'}$pad" or die("write error: $!\n");
+      $data .= "$ent->{'data'}$pad";
+      if ($writer) {
+        $writer->($data);
+      } else {
+        print $fd $data or die("write error: $!\n");
+      }
     }
   }
   my ($data) = maketarhead();
-  print $fd $data or die("write error: $!\n");
+  if ($writer) {
+    $writer->($data);
+  } else {
+    print $fd $data or die("write error: $!\n");
+  }
 }
 
 1;

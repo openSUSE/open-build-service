@@ -548,7 +548,8 @@ sub cpio_sender {
       my $r = 0;
       while(1) {
 	$r = sysread(F, $data, $l > 8192 ? 8192 : $l, length($data)) if $l;
-	die("error while reading '$filename': $!\n") unless defined $r;
+	die("$filename: read error: $!\n") unless defined $r;
+	die("$filename: unexpected EOF\n") if $l && !$r;
 	$data .= $pad if $r == $l;
 	swrite($sock, $data, $param->{'chunked'});
 	$data = '';
