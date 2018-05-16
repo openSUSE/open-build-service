@@ -2348,7 +2348,13 @@ sub getbinaries {
       die("Error\n") unless ref($res);
       $res = [ grep {$_->{'name'} ne '.errors'} @$res ];
       die("getbinaries: missing packages: $bdep->{'name'}\n") unless @$res == 1;
-      push @{$buildinfo->{'containerurl'}}, "dir://./containers/$repo->{'project'}/$repo->{'repository'}/$res->[0]->{'name'}";
+      my $tarname = $res->[0]->{'name'};
+      if ($kiwimode eq 'image' && $tarname =~ /\.tar$/) {
+        system('gzip', '-f', '-1', "$ddir/$tarname") && die("kiwi container compression: $?\n");
+        $tarname .= '.gz';
+        die("kiwi container compression did not work\n") unless -f "$ddir/$tarname";
+      }
+      push @{$buildinfo->{'containerurl'}}, "dir://./containers/$repo->{'project'}/$repo->{'repository'}/$tarname";
       push @meta, "$res->[0]->{'md5'}  $repo->{'project'}/$repo->{'repository'}/$bdep->{'name'}";
       my $bin = {
 	'name' => $bdep->{'name'},
