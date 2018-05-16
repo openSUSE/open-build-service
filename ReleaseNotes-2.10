@@ -44,6 +44,34 @@ Bugfixes:
 Intentional changes:
 ====================
 
+OBS is now using the lograge gem to generate production logs. We will log at least (in one line per request):
+
+* Timestamp
+* Request: Method + Controller + Action + Path + Params
+* Response status
+* Duration: Overall / View / DB
+* Remote IP
+* User login
+
+You can see an example of the output here:
+
+```
+method=POST path=/comments format=js controller=Webui::CommentsController action=create status=200 duration=1436.57 view=77.25 db=13.92 params={"utf8"=>"✓", "commentable_type"=>"Project", "commentable_id"=>"1", "comment"=>{"body"=>"hola que tal"}, "commit"=>"Add comment"} host=127.0.0.1 time=2018-05-14 15:59:03 +0000 user=Admin
+```
+
+This will condense the output generated, before it was something like this:
+
+```
+Started POST "/" for 127.0.0.1 at 2012-03-10 14:28:14 +0100
+Processing by HomeController#index as HTML
+  Rendered text template within layouts/application (0.0ms)
+  Rendered layouts/_assets.html.erb (2.0ms)
+  Rendered layouts/_top.html.erb (2.6ms)
+  Rendered layouts/_about.html.erb (0.3ms)
+  Rendered layouts/_google_analytics.html.erb (0.4ms)
+Completed 200 OK in 79ms (Views: 78.8ms | ActiveRecord: 0.0ms)
+```
+
 
 Other changes
 =============
