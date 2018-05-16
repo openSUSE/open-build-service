@@ -344,7 +344,7 @@ DESTDIR=%{buildroot} make install FILLUPDIR=%{_fillupdir}
 if [ -f %{_sourcedir}/open-build-service.obsinfo ]; then
     sed -n -e 's/commit: \(.\+\)/\1/p' %{_sourcedir}/open-build-service.obsinfo > %{buildroot}/srv/www/obs/api/last_deploy
 else
-    echo "%version" > %{buildroot}/srv/www/obs/api/last_deploy
+    echo "" > %{buildroot}/srv/www/obs/api/last_deploy
 fi
 #
 # turn duplicates into hard links
