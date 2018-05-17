@@ -66,7 +66,7 @@ EOF
 export RAILS_ENV=development
 bundle.ruby2.5 exec rake.ruby2.5 db:create || exit 1
 mv db/structure.sql db/structure.sql.git
-xzcat test/dump_2.5.sql.xz | mysql  -u root --socket=$MYSQL_SOCKET
+xzcat test/dump_2.5.sql.xz | mysql  -u root --socket=$MYSQL_SOCKET || exit 1
 bundle.ruby2.5 exec rake.ruby2.5 db:migrate:with_data db:structure:dump db:drop || exit 1
 ./script/compare_structure_sql.sh db/structure.sql.git db/structure.sql || exit 1
 
