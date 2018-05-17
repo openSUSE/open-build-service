@@ -136,7 +136,7 @@ namespace :db do
     # https://mariadb.com/kb/en/library/show-create-table/
     # TODO: drop this line when we drop support for Mariadb < 10.2.2 (SLE12 & Leap 42.3)
     structure = File.read("#{Rails.root}/db/structure.sql")
-    structure.gsub!(/DEFAULT (\d)/, "DEFAULT '\\1'")
+    structure.gsub!(/DEFAULT (\d+)/, "DEFAULT '\\1'")
     # MariaDB 10.2.1 permits TEXT and BLOB data types to be assigned a DEFAULT value.
     # As a result, from MariaDB 10.2.1, SHOW CREATE TABLE will append a DEFAULT NULL
     # to nullable TEXT or BLOB fields if no specific default is provided.
