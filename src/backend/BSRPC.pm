@@ -121,6 +121,10 @@ sub createreq {
     $path = $uri unless $uri =~ /^https:/;
   }
   $port = substr($port || ($proto eq 'http' ? ":80" : ":443"), 1);
+  if ($param->{'_stripauthhost'} && $host ne $param->{'_stripauthhost'}) {
+    @xhdrs = grep {!/^authorization:/i} @xhdrs;
+    delete $param->{'authenticator'};
+  }
   unshift @xhdrs, "Connection: close" unless $param->{'noclose'};
   unshift @xhdrs, "User-Agent: $useragent" unless !defined($useragent) || grep {/^user-agent:/si} @xhdrs;
   unshift @xhdrs, "Host: $hostport" unless grep {/^host:/si} @xhdrs;
@@ -389,7 +393,7 @@ sub rpc {
     #  1 while sysread(S, $ans, 1024, length($ans));
     #  print "< $ans\n";
     #}
-    if ($status =~ /^302[^\d]/ && ($param->{'ignorestatus'} || 0) != 2) {
+    if ($status =~ /^30[27][^\d]/ && ($param->{'ignorestatus'} || 0) != 2) {
       close S;
       die("error: no redirects allowed\n") unless defined $param->{'maxredirects'};
       die("error: status 302 but no 'location' header found\n") unless exists $headers{'location'};
@@ -397,6 +401,8 @@ sub rpc {
       my %myparam = %$param;
       $myparam{'uri'} = $headers{'location'};
       $myparam{'maxredirects'} = $param->{'maxredirects'} - 1;
+      $myparam{'_stripauthhost'} = $host;	# strip authentication on redirect to different domain
+      $myparam{'verbatim_uri'} = 1;
       return rpc(\%myparam, $xmlargs, @args);
     }
     if ($status =~ /^401[^\d]/ && $param->{'authenticator'} && $headers{'www-authenticate'}) {
