@@ -64,8 +64,7 @@
         <% end -%>
         <% @other_open_reviews.each do |review| %>
             <li>
-              <%= sprite_tag('exclamation') %> Open review for
-              <%= render :partial => 'reviewer', :locals => { :review => review } %>
+              <%= sprite_tag('exclamation') %> Open review for <%= render :partial => 'reviewer', :locals => { :review => review } %>
             </li>
         <% end %>
     <% end %>
