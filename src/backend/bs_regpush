@@ -34,7 +34,9 @@ use Data::Dumper;
 use Compress::Zlib;
 
 use BSRPC ':https';
+use BSHTTP;
 use BSTar;
+use BSContar;
 use BSUtil;
 use BSBearer;
 
@@ -57,39 +59,11 @@ my @tarfiles;
 
 my $registry_authenticator;
 
-sub checksum_file {
-  my ($handle, $ent, $ctx) = @_;
-  my $offset = 0;
-  while (1) {
-    my $chunk = BSTar::extract($handle, $ent, $offset, 65536);
-    last unless length($chunk);
-    $ctx->add($chunk);
-    $offset += length($chunk);
-  }
-}
-
-sub compress_file {
-  my ($handle, $ent) = @_;
-  my ($tmp, $tmp2);
-  open($tmp, '+>', undef) || die;
-  open($tmp2, "+>&", $tmp) || die;	# gzclose close the file, grr...
-  my $gz = gzopen($tmp2, 'w') ;
-  my $offset = 0;
-  while (1) {
-    my $chunk = BSTar::extract($handle, $ent, $offset, 65536);
-    last unless length($chunk);
-    $gz->gzwrite($chunk) || die("gzwrite failed\n");
-    $offset += length($chunk);
-  }
-  $gz->gzclose() && die("gzclose failed\n");
-  return $tmp;
-}
-
 sub send_layer {
   my ($param) = @_;
-  my $sl = $param->{'send_layer_data'}; # [ $handle, $layer_ent, $offset ],
-  my $chunk = BSTar::extract($sl->[1]->{'fd'} || $sl->[0], $sl->[1], $sl->[2], 65536);
-  $sl->[2] += length($chunk);
+  my $sl = $param->{'send_layer_data'}; # [ $layer_ent, $offset ],
+  my $chunk = BSTar::extract($sl->[0]->{'handle'}, $sl->[0], $sl->[1], 65536);
+  $sl->[1] += length($chunk);
   return $chunk;
 }
 
@@ -114,7 +88,7 @@ sub blob_exists {
 }
 
 sub blob_upload {
-  my ($blobid, $handle, $upload_ent) = @_;
+  my ($blobid, $upload_ent) = @_;
 
   return $blobid if blob_exists($blobid, $upload_ent->{'size'});
   print "uploading layer $blobid... ";
@@ -142,7 +116,7 @@ sub blob_upload {
     'authenticator' => $registry_authenticator,
     'replyheaders' => \$replyheaders,
     'data' => \&send_layer,
-    'send_layer_data' => [ $handle, $upload_ent, 0 ],
+    'send_layer_data' => [ $upload_ent, 0 ],
   };
   $replyheaders = undef;
   BSRPC::rpc($param, undef, @locextra, "digest=$blobid");
@@ -151,6 +125,19 @@ sub blob_upload {
   die("server created a different blobid: $blobid $id\n") if $blobid ne $id;
   print "done.\n";
   return $blobid;
+}
+
+sub blob_download {
+  my ($blobid, $filename) = @_;
+  my $param = {
+    'uri' => "$registryserver/v2/$repository/blobs/$blobid",
+    'authenticator' => $registry_authenticator,
+    'timeout' => $registry_timeout,
+    'receiver' =>  \&BSHTTP::file_receiver,
+    'filename' => $filename,
+    'maxredirects' => 1,
+  };
+  BSRPC::rpc($param);
 }
 
 sub manifest_exists {
@@ -228,32 +215,6 @@ sub manifest_upload_tags {
     manifest_upload($manifest, $tag, $content_type);
     manifest_append($manifest, $tag) if defined $digestfile;
   }
-}
-
-sub read_tar_manifest {
-  my ($handle, $tar) = @_;
-
-  my $manifest_ent = $tar->{'manifest.json'};
-  die("no manifest.json file found\n") unless $manifest_ent;
-  my $manifest_json = BSTar::extract(\*TAR, $manifest_ent);
-  my $manifest = JSON::XS::decode_json($manifest_json);
-  die("tar contains no image\n") unless @{$manifest || []};
-  die("tar contains more than one image\n") unless @$manifest == 1;
-  $manifest = $manifest->[0];
-  return $manifest;
-}
-
-sub detect_compression {
-  my ($head) = @_;
-  my $comp = '';
-  if (substr($head, 0, 3) eq "\x42\x5a\x68") {
-    $comp = 'bzip2';
-  } elsif (substr($head, 0, 3) eq "\x1f\x8b\x08") {
-    $comp = 'gzip';
-  } elsif (substr($head, 0, 6) eq "\xfd\x37\x7a\x58\x5a\x00") {
-    $comp = 'xz';
-  }
-  return $comp;
 }
 
 sub get_all_tags {
@@ -354,6 +315,8 @@ sub list_tag {
   my ($mani, $maniid) = get_manifest_for_tag($tag);
   if (!$mani) {
     printf "%-20s -\n", $tag;
+  } elsif (!$mani->{'mediaType'}) {
+    printf "%-20s %s %s\n", $tag, $maniid, 'v1image';
   } elsif ($mani->{'mediaType'} eq 'application/vnd.docker.distribution.manifest.list.v2+json') {
     printf "%-20s %s %s\n", $tag, $maniid, 'list';
   } elsif ($mani->{'mediaType'} eq 'application/vnd.docker.distribution.manifest.v2+json') {
@@ -449,6 +412,8 @@ if ($list_mode) {
   } elsif (@ARGV == 3) {
     my ($mani, $maniid, $mani_json) = get_manifest_for_tag($ARGV[2]);
     print "$mani_json\n" if $mani_json;
+  } elsif (@ARGV == 4) {
+    blob_download($ARGV[2], $ARGV[3]);
   } else {
     die_with_usage();
   }
@@ -486,8 +451,9 @@ if ($use_image_tags && @tarfiles > 1) {
     local *TAR;
     open(TAR, '<', $tarfile) || die("$tarfile: $!\n");
     my $tar = BSTar::list(\*TAR);
+    $_->{'handle'} = \*TAR for @$tar;
     my %tar = map {$_->{'name'} => $_} @$tar;
-    my $manifest = read_tar_manifest(\*TAR, \%tar);
+    my $manifest = BSContar::get_manifest(\%tar);
     my @imagetags = @{$manifest->{'RepoTags'} || []};
     s/.*:// for @imagetags;
     my $it = join(', ', sort(BSUtil::unify(@imagetags)));
@@ -507,9 +473,10 @@ for my $tarfile (@tarfiles) {
   local *TAR;
   open(TAR, '<', $tarfile) || die("$tarfile: $!\n");
   my $tar = BSTar::list(\*TAR);
+  $_->{'handle'} = \*TAR for @$tar;
   my %tar = map {$_->{'name'} => $_} @$tar;
 
-  my $manifest = read_tar_manifest(\*TAR, \%tar);
+  my ($manifest_ent, $manifest) = BSContar::get_manifest(\%tar);
   #print Dumper($manifest);
 
   if ($use_image_tags) {
@@ -518,12 +485,7 @@ for my $tarfile (@tarfiles) {
     push @tags, @imagetags if $use_image_tags;
   }
 
-  my $config_file = $manifest->{'Config'};
-  die("manifest has no Config\n") unless defined $config_file;
-  my $config_ent = $tar{$config_file};
-  die("Config file $config_file not included in tar\n") unless $config_ent;
-  my $config_json = BSTar::extract(\*TAR, $config_ent);
-  my $config = JSON::XS::decode_json($config_json);
+  my ($config_ent, $config) = BSContar::get_config(\%tar, $manifest);
   #print Dumper($config);
 
   my @layers = @{$manifest->{'Layers'} || []};
@@ -542,13 +504,24 @@ for my $tarfile (@tarfiles) {
     $multiplatforms{$platformstr} = 1;
   }
 
+
+  # process config
+  my $config_blobid = BSContar::blobid_entry($config_ent);
+  # create layer data
+  my $config_data = { 
+    'xxx1_mediaType' => 'application/vnd.docker.container.image.v1+json',
+    'xxx2_size' => $config_ent->{'size'},
+    'xxx3_digest' => $config_blobid,
+  }; 
+  # upload to server
+  blob_upload($config_blobid, $config_ent);
+  
+  # process layers (compress if necessary)
   my %layer_datas;
   my @layer_data;
-  my $config_data;
-
-  for my $layer_file ($config_file, @layers) {
-    if ($layer_file ne $config_file && $layer_datas{$layer_file}) {
-      # already did that one!
+  for my $layer_file (@layers) {
+    if ($layer_datas{$layer_file}) {
+      # already did that file, just reuse old layer data
       push @layer_data, $layer_datas{$layer_file};
       next;
     }
@@ -556,42 +529,27 @@ for my $tarfile (@tarfiles) {
     die("File $layer_file not included in tar\n") unless $layer_ent;
 
     # detect layer compression
-    my $comp = detect_compression(BSTar::extract(\*TAR, $layer_ent, 0, 6));
+    my $comp = BSContar::detect_entry_compression($layer_ent);
     die("unsupported compression $comp\n") if $comp && $comp ne 'gzip';
-
-    my $upload_ent = $layer_ent;
-
-    # find blob id (and compress if necessary)
-    my $ctx = Digest::SHA->new(256);
-    if (!$comp && $layer_file ne $config_file) {
-      print "compressing layer $layer_file... ";
-      my $fd = compress_file(\*TAR, $layer_ent);
-      seek($fd, 0, 0) || die("seek failed\n");
-      $ctx->addfile($fd);
-      my $size = -s $fd;
-      $upload_ent = { %$layer_ent, 'offset' => 0, 'size' => $size, 'fd' => $fd };
+    if (!$comp) {
+      print "compressing $layer_ent->{'name'}... ";
+      $layer_ent = BSContar::compress_entry($layer_ent);
       print "done.\n";
-    } else {
-      checksum_file(\*TAR, $layer_ent, $ctx);
     }
-    my $blobid = "sha256:".$ctx->hexdigest();
+    my $blobid = BSContar::blobid_entry($layer_ent);
     #print "$layer_file -> $blobid\n";
 
     # create layer data
     my $layer_data = {
-      'xxx1_mediaType' => $layer_file eq $config_file ? 'application/vnd.docker.container.image.v1+json' : 'application/vnd.docker.image.rootfs.diff.tar.gzip',
-      'xxx2_size' => $upload_ent->{'size'},
+      'xxx1_mediaType' => 'application/vnd.docker.image.rootfs.diff.tar.gzip',
+      'xxx2_size' => $layer_ent->{'size'},
       'xxx3_digest' => $blobid,
     };
-    if ($layer_file eq $config_file) {
-      $config_data = $layer_data;
-    } else {
-      push @layer_data, $layer_data;
-      $layer_datas{$layer_file} = $layer_data;
-    }
+    push @layer_data, $layer_data;
+    $layer_datas{$layer_file} = $layer_data;
 
-    # upload if not available
-    blob_upload($blobid, \*TAR, $upload_ent);
+    # upload to server
+    blob_upload($blobid, $layer_ent);
   }
   close TAR;
 
