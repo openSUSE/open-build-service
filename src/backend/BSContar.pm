@@ -43,9 +43,33 @@ sub checksum_entry {
   }
 }
 
+sub compress_entry_obs_gzip_go {
+  my ($ent) = @_;
+  my $tmp;
+  open($tmp, '+>', undef) || die;
+  local *F;
+  my $pid = open(F, '|-');
+  die("fork: $!\n") unless defined $pid;
+  if (!$pid) {
+    open(STDOUT, "+>&", $tmp) || die("stdin dup\n");
+    exec('/usr/bin/obs-gzip-go');
+    die("/usr/bin/obs-gzip-go: $!\n");
+  }
+  my $offset = 0;
+  while (1) {
+    my $chunk = BSTar::extract($ent->{'handle'}, $ent, $offset, 65536);
+    last unless length($chunk);
+    print F $chunk or die("compress_entry_obs_gzip_go write: $!\n");
+    $offset += length($chunk);
+  }
+  close(F) or die("/usr/bin/obs-gzip-go: $?\n");
+  my $compsize = -s $tmp;
+  return { %$ent, 'offset' => 0, 'size' => $compsize, 'handle' => $tmp };
+}
+
 sub compress_entry {
   my ($ent) = @_;
-
+  return compress_entry_obs_gzip_go($ent) if -x '/usr/bin/obs-gzip-go';
   my ($tmp, $tmp2);
   open($tmp, '+>', undef) || die;
   open($tmp2, "+>&", $tmp) || die;      # gzclose closes the file, grr...
