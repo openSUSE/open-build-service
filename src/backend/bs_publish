@@ -1969,8 +1969,8 @@ sub publish {
   my $pubkey;
   if ($signkey) {
     ($signkey, $pubkey) = split("\n", $signkey, 2);
-    undef $signkey unless $signkey && length($signkey) > 4;	# not a valid signkey
-    undef $pubkey unless $pubkey && length($pubkey) > 2;	# not a valid pubkey
+    undef $signkey unless $signkey && length($signkey) > 10;	# not a valid signkey
+    undef $pubkey unless $pubkey && length($pubkey) > 10;	# not a valid pubkey
     if ($signkey) {
       my $algo;
       $algo = $1 if $signkey && $signkey =~ s/^(\S+)://;
