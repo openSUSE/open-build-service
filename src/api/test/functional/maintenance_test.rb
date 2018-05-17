@@ -1596,7 +1596,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_equal 'package(x86-64)', pac['format']['rpm:provides']['rpm:entry'][2]['name']
     assert_equal 'something', pac['format']['rpm:conflicts']['rpm:entry']['name']
     assert_equal 'old_crap', pac['format']['rpm:obsoletes']['rpm:entry']['name']
-    if File.exist? '/var/adm/fillup-templates'
+    if File.exist?('/var/adm/fillup-templates') || File.exist?('/usr/share/fillup-templates/')
       # seems to be a SUSE system
       if pac['format']['rpm:suggests'].nil?
         print 'createrepo seems not to create week dependencies, we want this on SUSE systems'
@@ -1624,7 +1624,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     end
     assert_equal found, true
     # modifyrepo tends to kill that one:
-    if File.exist? '/var/adm/fillup-templates'
+    if File.exist?('/var/adm/fillup-templates') || File.exist?('/usr/share/fillup-templates/')
       # seems to be a SUSE system
       assert_equal hashed['tags']['repo'], 'obsrepository://obstest/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo'
     end

@@ -61,14 +61,24 @@ test:
 EOF
 
 /usr/sbin/memcached $MEMCACHED_USER -l 127.0.0.1 -d -P $MEMCACHED_PID_FILE || exit 1
+# prepare for migration test
+export RAILS_ENV=test
+# reformat structure.sql to running mysql/mariadb version
+bundle.ruby2.5 exec rake.ruby2.5 db:create || exit 1
+echo 'SET foreign_key_checks = 0;' > db/structure.sql.reimport
+# only needed for mysql <= 5.6
+echo 'SET GLOBAL innodb_file_per_table=1, innodb_file_format=Barracuda, innodb_large_prefix=1;' >> db/structure.sql.reimport
+cat db/structure.sql >> db/structure.sql.reimport
+cat db/structure.sql.reimport | mysql  -u root --socket=$MYSQL_SOCKET api_test || exit 1
+bundle.ruby2.5 exec rails.ruby2.5 db:environment:set db:structure:dump db:drop || exit 1
+mv db/structure.sql db/structure.sql.git_reformated
 
 # migration test
 export RAILS_ENV=development
 bundle.ruby2.5 exec rake.ruby2.5 db:create || exit 1
-mv db/structure.sql db/structure.sql.git
-xzcat test/dump_2.5.sql.xz | mysql  -u root --socket=$MYSQL_SOCKET
+xzcat test/dump_2.5.sql.xz | mysql  -u root --socket=$MYSQL_SOCKET || exit 1
 bundle.ruby2.5 exec rake.ruby2.5 db:migrate:with_data db:structure:dump db:drop || exit 1
-./script/compare_structure_sql.sh db/structure.sql.git db/structure.sql || exit 1
+./script/compare_structure_sql.sh db/structure.sql.git_reformated db/structure.sql || exit 1
 
 # entire test suite
 export RAILS_ENV=test
