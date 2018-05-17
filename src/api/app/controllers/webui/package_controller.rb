@@ -1121,9 +1121,9 @@ class Webui::PackageController < Webui::WebuiController
 
   def download_url_for_file_in_repo(project, package, repository, architecture, filename)
     download_url = repository.download_url_for_file(package, architecture, filename)
-    download_url = nil if download_url && !file_available?(download_url) # ignore files not available
-    # only use API for logged in users if the mirror is not available
-    download_url = rpm_url(project, package, repository.name, architecture, filename) unless User.current.is_nobody? || download_url
-    download_url
+    # return mirror if available
+    return download_url if download_url && file_available?(download_url)
+    # only use API for logged in users if the mirror is not available - return nil otherwise
+    rpm_url(project, package, repository.name, architecture, filename) unless User.current.is_nobody?
   end
 end
