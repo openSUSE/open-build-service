@@ -334,7 +334,7 @@ GEM
     runcom (3.1.0)
       refinements (~> 5.2)
     safe_yaml (1.0.4)
-    sanitize (4.6.4)
+    sanitize (4.6.5)
       crass (~> 1.0.2)
       nokogiri (>= 1.4.4)
       nokogumbo (~> 1.4)
