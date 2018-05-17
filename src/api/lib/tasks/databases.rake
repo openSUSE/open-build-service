@@ -89,6 +89,7 @@ namespace :db do
       Rake::Task['db:create'].invoke
       puts 'Running rails db:migrate:with_data'
       Rake::Task['db:migrate:with_data'].invoke
+      normalize_structure
       puts 'Diffing the db/structure.sql'
       sh %(git diff --quiet db/structure.sql) do |ok, _|
         unless ok
@@ -128,5 +129,14 @@ namespace :db do
     puts 'warning: db:migrate only migrates your database structure, not the data contained in it.'
     puts 'warning for migrating your data run data:migrate'
     puts ''
+  end
+
+  def normalize_structure
+    # From MariaDB 10.2.2, numbers are no longer quoted in the DEFAULT clause in SHOW CREATE statement.
+    # https://mariadb.com/kb/en/library/show-create-table/
+    # TODO: drop this line when we drop support for Mariadb < 10.2.2 (SLE12 & Leap 42.3)
+    structure = File.read("#{Rails.root}/db/structure.sql")
+    structure.gsub!(/DEFAULT (\d)/, "DEFAULT '\\1'")
+    File.open("#{Rails.root}/db/structure.sql", 'w+') { |f| f << structure }
   end
 end
