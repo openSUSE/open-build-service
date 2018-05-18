@@ -19,6 +19,12 @@ for file in "$git_file" "$migrate_file"; do
   # https://mariadb.com/kb/en/library/show-create-table/
   # TODO: drop this line when we drop support for Mariadb < 10.2.2 (SLE12 & Leap 42.3)
   sed -i -r "s/DEFAULT '([[:digit:]]+)'/DEFAULT \1/g" "${file}.normalized" || exit 1
+  # MariaDB 10.2.1 permits TEXT and BLOB data types to be assigned a DEFAULT value.
+  # As a result, from MariaDB 10.2.1, SHOW CREATE TABLE will append a DEFAULT NULL
+  # to nullable TEXT or BLOB fields if no specific default is provided.
+  # https://mariadb.com/kb/en/library/show-create-table/
+  # TODO: drop this line when we drop support for Mariadb < 10.2.2 (SLE12 & Leap 42.3)
+  sed -r "s/(\`[a-zA-Z0-9]*\` (medium)*text [a-zA-Z0-9 ]*) DEFAULT NULL,/\1,/g"
 done
 
 if ! diff "${git_file}.normalized" "${migrate_file}.normalized"; then
