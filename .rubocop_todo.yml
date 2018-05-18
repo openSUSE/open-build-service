@@ -656,13 +656,6 @@ Rails/Presence:
     - 'src/api/app/helpers/webui/package_helper.rb'
     - 'src/api/app/models/kiwi/image/xml_parser.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: NotNilAndNotEmpty, NotBlank, UnlessBlank.
-Rails/Present:
-  Exclude:
-    - 'dist/openQA_mail_notification.rb'
-
 # Offense count: 8
 # Configuration parameters: Include.
 # Include: db/migrate/*.rb
