@@ -1,9 +1,7 @@
-# avoid to render, parser and re-render here, since it can be a hughe content
-
-output = ''
-output << "<productlist count='#{@products.length}'>\n"
-@products.each do |p|
-  output << p.to_axml
+xml.productlist(count: @products.count) do
+  @products.map do |p|
+    xml.product(name: p.name, cpe: p.cpe, originproject: p.package.project.name,
+                originpackage: p.package.name, mtime: p.package.updated_at.to_i,
+                version: p.version)
+  end
 end
-output << "</productlist>\n"
-return output
