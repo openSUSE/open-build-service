@@ -1356,7 +1356,7 @@ class Package < ApplicationRecord
     ActiveXML.backend.http_do :put, path, data: content, timeout: 500
 
     # KIWI file
-    if opt[:filename] =~ /\.kiwi\.txz$/
+    if /\.kiwi\.txz$/.match?(opt[:filename])
       logger.debug 'Found a kiwi archive, creating kiwi_import source service'
       services = self.services
       services.addKiwiImport

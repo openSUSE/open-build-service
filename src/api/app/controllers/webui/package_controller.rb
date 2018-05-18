@@ -840,9 +840,9 @@ class Webui::PackageController < Webui::WebuiController
     rescue Timeout::Error, IOError
       @log_chunk = ''
     rescue ActiveXML::Transport::Error => e
-      if e.summary =~ %r{Logfile is not that big}
+      if %r{Logfile is not that big}.match?(e.summary)
         @log_chunk = ''
-      elsif e.summary =~ /start out of range/
+      elsif /start out of range/.match?(e.summary)
         # probably build compare has cut log and offset is wrong, reset offset
         @log_chunk = ''
         @offset = old_offset

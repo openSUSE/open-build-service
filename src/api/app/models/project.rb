@@ -1052,7 +1052,7 @@ class Project < ApplicationRecord
         path_elements = remote_project_meta.xpath("//repository[@name='images']/path")
 
         new_configuration = source_file('_config')
-        unless new_configuration =~ /^Type:/
+        unless /^Type:/.match?(new_configuration)
           new_configuration = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << new_configuration
           Backend::Api::Sources::Project.write_configuration(name, new_configuration)
         end
