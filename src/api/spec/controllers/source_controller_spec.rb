@@ -45,7 +45,7 @@ RSpec.describe SourceController, vcr: true do
   describe 'GET #show_project' do
     before do
       login user
-      get :show_project, params: { project: source_project.name }
+      get :show_project, params: { project: source_project.name, format: :xml }
     end
 
     it { expect(response).to be_success }
