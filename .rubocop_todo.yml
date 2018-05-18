@@ -99,12 +99,6 @@ Layout/Tab:
   Exclude:
     - 'src/api/db/migrate/20170123115500_remove_duplicate_indexes.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Layout/TrailingWhitespace:
-  Exclude:
-    - 'dist/obs_mirror_project'
-
 # Offense count: 1
 # Configuration parameters: AllowSafeAssignment.
 Lint/AssignmentInCondition:
