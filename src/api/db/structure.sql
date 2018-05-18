@@ -1,10 +1,10 @@
 CREATE TABLE `ar_internal_metadata` (
-  `key` varchar(255) NOT NULL,
-  `value` varchar(255) DEFAULT NULL,
+  `key` varchar(255) COLLATE utf8_bin NOT NULL,
+  `value` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime(6) NOT NULL,
   PRIMARY KEY (`key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `architectures` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -116,7 +116,7 @@ CREATE TABLE `attribs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `attrib_type_id` int(11) NOT NULL,
   `package_id` int(11) DEFAULT NULL,
-  `binary` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `binary` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `project_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `attribs_index` (`attrib_type_id`,`package_id`,`project_id`,`binary`) USING BTREE,
@@ -204,17 +204,17 @@ CREATE TABLE `bs_request_actions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `bs_request_id` int(11) DEFAULT NULL,
   `type` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `target_project` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `target_package` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `target_releaseproject` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `source_project` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `source_package` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `source_rev` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `sourceupdate` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `target_project` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `target_package` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `target_releaseproject` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `source_project` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `source_package` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `source_rev` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `sourceupdate` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `updatelink` tinyint(1) DEFAULT '0',
-  `person_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `group_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `role` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `person_name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `group_name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `role` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `target_repository` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `makeoriginolder` tinyint(1) DEFAULT '0',
@@ -336,14 +336,14 @@ CREATE TABLE `cloud_azure_configurations` (
 CREATE TABLE `cloud_ec2_configurations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) DEFAULT NULL,
-  `external_id` varchar(255) DEFAULT NULL,
-  `arn` varchar(255) DEFAULT NULL,
+  `external_id` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `arn` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_cloud_ec2_configurations_on_external_id_and_arn` (`external_id`,`arn`),
   KEY `index_cloud_ec2_configurations_on_user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `cloud_user_upload_jobs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -354,7 +354,7 @@ CREATE TABLE `cloud_user_upload_jobs` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_cloud_user_upload_jobs_on_job_id` (`job_id`),
   KEY `index_cloud_user_upload_jobs_on_user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `comments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -418,12 +418,12 @@ CREATE TABLE `delayed_jobs` (
   `priority` int(11) DEFAULT '0',
   `attempts` int(11) DEFAULT '0',
   `handler` mediumtext COLLATE utf8_bin,
-  `last_error` text CHARACTER SET utf8,
+  `last_error` text COLLATE utf8_bin,
   `run_at` datetime DEFAULT NULL,
   `locked_at` datetime DEFAULT NULL,
   `failed_at` datetime DEFAULT NULL,
-  `locked_by` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `queue` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `locked_by` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `queue` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_delayed_jobs_on_queue` (`queue`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -500,13 +500,13 @@ CREATE TABLE `events` (
 
 CREATE TABLE `flags` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `status` enum('enable','disable') CHARACTER SET utf8 NOT NULL,
-  `repo` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `status` enum('enable','disable') COLLATE utf8_bin NOT NULL,
+  `repo` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `project_id` int(11) DEFAULT NULL,
   `package_id` int(11) DEFAULT NULL,
   `architecture_id` int(11) DEFAULT NULL,
   `position` int(11) NOT NULL,
-  `flag` enum('useforbuild','sourceaccess','binarydownload','debuginfo','build','publish','access','lock') CHARACTER SET utf8 NOT NULL,
+  `flag` enum('useforbuild','sourceaccess','binarydownload','debuginfo','build','publish','access','lock') COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`id`),
   KEY `index_flags_on_flag` (`flag`) USING BTREE,
   KEY `architecture_id` (`architecture_id`) USING BTREE,
@@ -557,7 +557,7 @@ CREATE TABLE `groups_roles` (
   KEY `role_id` (`role_id`) USING BTREE,
   CONSTRAINT `groups_roles_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`),
   CONSTRAINT `groups_roles_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `groups_users` (
   `group_id` int(11) NOT NULL DEFAULT '0',
@@ -603,7 +603,7 @@ CREATE TABLE `incident_updateinfo_counter_values` (
   KEY `uniq_id_index` (`updateinfo_counter_id`,`project_id`),
   KEY `project_id` (`project_id`),
   CONSTRAINT `incident_updateinfo_counter_values_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `issue_trackers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -653,32 +653,32 @@ CREATE TABLE `kiwi_descriptions` (
 
 CREATE TABLE `kiwi_images` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) DEFAULT NULL,
-  `md5_last_revision` varchar(32) DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `md5_last_revision` varchar(32) COLLATE utf8_bin DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime(6) NOT NULL,
   `use_project_repositories` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `kiwi_package_groups` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `kiwi_type` int(11) NOT NULL,
-  `profiles` varchar(255) DEFAULT NULL,
-  `pattern_type` varchar(255) DEFAULT NULL,
+  `profiles` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `pattern_type` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `image_id` int(11) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `index_kiwi_package_groups_on_image_id` (`image_id`),
   CONSTRAINT `fk_rails_c64a679086` FOREIGN KEY (`image_id`) REFERENCES `kiwi_images` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `kiwi_packages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `arch` varchar(255) DEFAULT NULL,
-  `replaces` varchar(255) DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8_bin NOT NULL,
+  `arch` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `replaces` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `bootinclude` tinyint(1) DEFAULT NULL,
   `bootdelete` tinyint(1) DEFAULT NULL,
   `package_group_id` int(11) DEFAULT NULL,
@@ -687,38 +687,38 @@ CREATE TABLE `kiwi_packages` (
   PRIMARY KEY (`id`),
   KEY `index_kiwi_packages_on_package_group_id` (`package_group_id`),
   CONSTRAINT `fk_rails_0ecab3b2cd` FOREIGN KEY (`package_group_id`) REFERENCES `kiwi_package_groups` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `kiwi_preferences` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `image_id` int(11) DEFAULT NULL,
   `type_image` int(11) DEFAULT NULL,
-  `type_containerconfig_name` varchar(255) DEFAULT NULL,
-  `type_containerconfig_tag` varchar(255) DEFAULT NULL,
-  `version` varchar(255) DEFAULT NULL,
+  `type_containerconfig_name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `type_containerconfig_tag` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `version` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_kiwi_preferences_on_image_id` (`image_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `kiwi_repositories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `image_id` int(11) DEFAULT NULL,
-  `repo_type` varchar(255) DEFAULT NULL,
-  `source_path` varchar(255) DEFAULT NULL,
+  `repo_type` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `source_path` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `order` int(11) DEFAULT NULL,
   `priority` int(11) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime(6) NOT NULL,
-  `alias` varchar(255) DEFAULT NULL,
+  `alias` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `imageinclude` tinyint(1) DEFAULT NULL,
-  `password` varchar(255) DEFAULT NULL,
+  `password` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `prefer_license` tinyint(1) DEFAULT NULL,
   `replaceable` tinyint(1) DEFAULT NULL,
-  `username` varchar(255) DEFAULT NULL,
+  `username` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_kiwi_repositories_on_image_id_and_order` (`image_id`,`order`),
   KEY `index_kiwi_repositories_on_image_id` (`image_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `linked_projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -740,7 +740,7 @@ CREATE TABLE `maintained_projects` (
   KEY `maintenance_project_id` (`maintenance_project_id`),
   CONSTRAINT `maintained_projects_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
   CONSTRAINT `maintained_projects_ibfk_2` FOREIGN KEY (`maintenance_project_id`) REFERENCES `projects` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `maintenance_incidents` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -772,30 +772,30 @@ CREATE TABLE `messages` (
 
 CREATE TABLE `notifications` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `type` varchar(255) NOT NULL,
-  `event_type` varchar(255) NOT NULL,
-  `event_payload` text NOT NULL,
-  `subscription_receiver_role` varchar(255) NOT NULL,
+  `type` varchar(255) COLLATE utf8_bin NOT NULL,
+  `event_type` varchar(255) COLLATE utf8_bin NOT NULL,
+  `event_payload` text COLLATE utf8_bin NOT NULL,
+  `subscription_receiver_role` varchar(255) COLLATE utf8_bin NOT NULL,
   `delivered` tinyint(1) DEFAULT '0',
   `created_at` datetime NOT NULL,
   `updated_at` datetime(6) NOT NULL,
-  `subscriber_type` varchar(255) DEFAULT NULL,
+  `subscriber_type` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `subscriber_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_notifications_on_subscriber_type_and_subscriber_id` (`subscriber_type`,`subscriber_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `package_issues` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `package_id` int(11) NOT NULL,
   `issue_id` int(11) NOT NULL,
-  `change` enum('added','deleted','changed','kept') DEFAULT NULL,
+  `change` enum('added','deleted','changed','kept') COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_package_issues_on_package_id_and_issue_id` (`package_id`,`issue_id`) USING BTREE,
   KEY `index_package_issues_on_issue_id` (`issue_id`) USING BTREE,
   CONSTRAINT `package_issues_ibfk_1` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`),
   CONSTRAINT `package_issues_ibfk_2` FOREIGN KEY (`issue_id`) REFERENCES `issues` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `package_kinds` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -810,13 +810,13 @@ CREATE TABLE `packages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `project_id` int(11) NOT NULL,
   `name` varchar(200) COLLATE utf8_bin NOT NULL,
-  `title` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `description` text CHARACTER SET utf8,
+  `title` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `description` text COLLATE utf8_bin,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
-  `url` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `activity_index` float DEFAULT '100',
-  `bcntsynctag` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `bcntsynctag` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `develpackage_id` int(11) DEFAULT NULL,
   `delta` tinyint(1) NOT NULL DEFAULT '1',
   `releasename` varchar(255) COLLATE utf8_bin DEFAULT NULL,
@@ -884,7 +884,7 @@ CREATE TABLE `product_update_repositories` (
   CONSTRAINT `product_update_repositories_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`),
   CONSTRAINT `product_update_repositories_ibfk_2` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
   CONSTRAINT `product_update_repositories_ibfk_3` FOREIGN KEY (`arch_filter_id`) REFERENCES `architectures` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `products` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1330,6 +1330,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20180110074142'),
 ('20180216082148'),
 ('20180221175514'),
-('20180307074538');
+('20180307074538'),
+('20180518143420');
 
 
