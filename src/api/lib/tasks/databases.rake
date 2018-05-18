@@ -142,7 +142,7 @@ namespace :db do
     # to nullable TEXT or BLOB fields if no specific default is provided.
     # https://mariadb.com/kb/en/library/show-create-table/
     # TODO: drop this line when we drop support for Mariadb < 10.2.2 (SLE12 & Leap 42.3)
-    structure.gsub!(/(`\w*` (medium)*text [\w* ]*) DEFAULT NULL,/, '\1,')
+    structure.gsub!(/(`\w*` (medium)*text\s*[\w* ]*) DEFAULT NULL,/, '\1,')
     File.open("#{Rails.root}/db/structure.sql", 'w+') { |f| f << structure }
   end
 end
