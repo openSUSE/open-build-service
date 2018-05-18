@@ -156,12 +156,65 @@ sub create_manifest_entry {
 
 sub checksum_tar {
   my ($tar) = @_;
-  my $ctx = Digest::MD5->new();
+  my $md5 = Digest::MD5->new();
+  my $sha256 = Digest::SHA->new(256);
   my $size = 0;
-  my $writer = sub { $size += length($_[0]); $ctx->add($_[0]) };
+  my $writer = sub { $size += length($_[0]); $md5->add($_[0]), $sha256->add($_[0]) };
   BSTar::writetar($writer, $tar);
-  my $md5 = $ctx->hexdigest();
-  return ($md5, $size);
+  $md5 = $md5->hexdigest();
+  $sha256 = $sha256->hexdigest();
+  return ($md5, $sha256, $size);
+}
+
+sub normalize_container {
+  my ($tarfd) = @_;
+  my @tarstat = stat($tarfd);
+  die("stat: $!\n") unless @tarstat;
+  my $mtime = $tarstat[9];
+  my $tar = BSTar::list($tarfd);
+  $_->{'handle'} = $tarfd for @$tar;
+  my %tar = map {$_->{'name'} => $_} @$tar;
+  my ($manifest_ent, $manifest) = get_manifest(\%tar);
+  my ($config_ent, $config) = get_config(\%tar, $manifest);
+
+  # compress blobs
+  my %newblobs;
+  my @newlayers;
+  my $newconfig = blobid_entry($config_ent);
+  $newblobs{$newconfig} ||= $config_ent;
+  for my $layer_file (@{$manifest->{'Layers'} || []}) {
+    my $layer_ent = $tar{$layer_file};
+    die("File $layer_file not included in tar\n") unless $layer_ent;
+    my $comp = detect_entry_compression($layer_ent);
+    die("unsupported compression $comp\n") if $comp && $comp ne 'gzip';
+    if (!$comp) {
+      print "compressing $layer_ent->{'name'}... ";
+      $layer_ent = compress_entry($layer_ent);
+      print "done.\n";
+    }   
+    my $blobid = blobid_entry($layer_ent);
+    $newblobs{$blobid} ||= $layer_ent;
+    push @newlayers, $blobid;
+  }
+
+  # create new manifest
+  my $newmanifest = { 
+    'Config' => $newconfig,
+    'RepoTags' => $manifest->{'RepoTags'},
+    'Layers' => \@newlayers,
+  };  
+  my $newmanifest_ent = create_manifest_entry($newmanifest, $mtime);
+
+  # create new tar (annotated with the handle and blobid)
+  my @newtar;
+  for my $blobid (sort keys %newblobs) {
+    my $ent = $newblobs{$blobid};
+    push @newtar, {'name' => $blobid, 'filename' => $ent->{'handle'}, 'mtime' => $mtime, 'offset' => $ent->{'offset'}, 'size' => $ent->{'size'}, 'handle' => $ent->{'handle'}, 'type' => '0', 'blobid' => $blobid};
+  }
+  $newmanifest_ent->{'blobid'} = BSContar::blobid_entry($newmanifest_ent);
+  push @newtar, $newmanifest_ent;
+
+  return (\@newtar, $mtime, $config);
 }
 
 1;
