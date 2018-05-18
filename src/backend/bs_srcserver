@@ -1598,11 +1598,14 @@ sub getprojpack {
 	      $d = {'error' => $@};
 	      $d->{'error'} =~ s/\n.*//s;
 	    }
+	    $d = { 'error' => "can not parse $file" } unless $d;
 	    data2utf8xml($d);
-
-	    if (!$d || !defined($d->{'name'})) {
-	      $rinfo->{'error'} = "can not parse package name from $file";
-	      $rinfo->{'error'} .= " because: ".$d->{'error'} if $d->{'error'};
+	    if ($d->{'error'}) {
+	      $rinfo->{'error'} = $d->{'error'};
+	      next;
+	    }
+	    if (!defined($d->{'name'})) {
+	      $rinfo->{'error'} = "can not parse name from $file";
 	      next;
 	    }
 	    my $version = defined($d->{'version'}) ? $d->{'version'} : 'unknown';

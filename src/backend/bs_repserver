@@ -2905,10 +2905,8 @@ sub getbuildinfo_post {
   my $d = Build::parse_typed($bconf, $fn, $bconf->{'type'});
   unlink($fn);
   die("unknown repository type $bconf->{'type'}\n") unless $d;
-  if (!defined $d->{'name'}) {
-    die("could not parse build description ($bconf->{'type'}): $d->{'error'}\n") if $d->{'error'};
-    die("could not parse build description ($bconf->{'type'})\n");
-  }
+  die("could not parse build description ($bconf->{'type'}): $d->{'error'}\n") if $d->{'error'};
+  die("could not parse name in build description ($bconf->{'type'})\n") unless defined $d->{'name'};
 
   # build info from parsed data
   my $info = { 'repository' => $repoid };
