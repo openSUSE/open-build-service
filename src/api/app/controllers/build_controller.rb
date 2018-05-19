@@ -101,7 +101,7 @@ class BuildController < ApplicationController
   def buildinfo
     required_parameters :project, :repository, :arch, :package
     # just for permission checking
-    if request.post? && params[:package] == '_repository'
+    if request.post? && Package.striping_multibuild_suffix(params[:package]) == '_repository'
       # for osc local package build in this repository
       Project.get_by_name params[:project]
     else
