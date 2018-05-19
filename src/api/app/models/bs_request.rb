@@ -517,7 +517,7 @@ class BsRequest < ApplicationRecord
           if defined?(v) && v
             begin
               embargo = DateTime.parse(v.value)
-              if v.value =~ /^\d{4}-\d\d?-\d\d?$/
+              if /^\d{4}-\d\d?-\d\d?$/.match?(v.value)
                 # no time specified, allow it next day
                 embargo = embargo.tomorrow
               end

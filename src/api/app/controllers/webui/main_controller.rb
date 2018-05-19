@@ -60,7 +60,7 @@ class Webui::MainController < Webui::WebuiController
     category = params[:category].to_s
 
     projects = Project.arel_table
-    if category =~ %r{home}
+    if %r{home}.match?(category)
       rel = Project.where(projects[:name].matches("#{category}%"))
     elsif category == 'opensuse'
       rel = Project.where(projects[:name].matches('openSUSE:%'))

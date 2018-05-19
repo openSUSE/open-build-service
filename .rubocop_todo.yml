@@ -99,12 +99,6 @@ Layout/Tab:
   Exclude:
     - 'src/api/db/migrate/20170123115500_remove_duplicate_indexes.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Layout/TrailingWhitespace:
-  Exclude:
-    - 'dist/obs_mirror_project'
-
 # Offense count: 1
 # Configuration parameters: AllowSafeAssignment.
 Lint/AssignmentInCondition:
@@ -322,24 +316,6 @@ Naming/VariableNumber:
   Exclude:
     - 'src/api/spec/features/webui/projects_spec.rb'
     - 'src/api/test/unit/project_test.rb'
-
-# Offense count: 16
-# Cop supports --auto-correct.
-Performance/RegexpMatch:
-  Exclude:
-    - 'src/api/app/controllers/webui/main_controller.rb'
-    - 'src/api/app/controllers/webui/package_controller.rb'
-    - 'src/api/app/helpers/webui/webui_helper.rb'
-    - 'src/api/app/mixins/parse_package_diff.rb'
-    - 'src/api/app/models/bs_request.rb'
-    - 'src/api/app/models/package.rb'
-    - 'src/api/app/models/project.rb'
-    - 'src/api/app/models/repository.rb'
-    - 'src/api/lib/authenticator.rb'
-    - 'src/api/lib/pretty_nested_errors/key_and_messages_parser.rb'
-    - 'src/api/lib/tasks/databases.rake'
-    - 'src/api/script/import'
-    - 'src/api/test/unit/schema_test.rb'
 
 # Offense count: 49
 RSpec/AnyInstance:
@@ -680,13 +656,6 @@ Rails/Presence:
     - 'src/api/app/helpers/webui/package_helper.rb'
     - 'src/api/app/models/kiwi/image/xml_parser.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: NotNilAndNotEmpty, NotBlank, UnlessBlank.
-Rails/Present:
-  Exclude:
-    - 'dist/openQA_mail_notification.rb'
-
 # Offense count: 8
 # Configuration parameters: Include.
 # Include: db/migrate/*.rb
@@ -714,18 +683,6 @@ Rails/SkipsModelValidations:
 # SupportedStyles: strict, flexible
 Rails/TimeZone:
   Enabled: false
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, ProceduralMethods, FunctionalMethods, IgnoredMethods.
-# SupportedStyles: line_count_based, semantic, braces_for_chaining
-# ProceduralMethods: benchmark, bm, bmbm, create, each_with_object, measure, new, realtime, tap, with_object
-# FunctionalMethods: let, let!, subject, watch
-# IgnoredMethods: lambda, proc, it
-Style/BlockDelimiters:
-  Exclude:
-    - 'dist/clouduploader.rb'
-    - 'dist/obs_mirror_project'
 
 # Offense count: 68
 # Cop supports --auto-correct.

@@ -3,7 +3,7 @@
 # This script mirrors a base distribution from the opensuse.org Build Service.
 # You can use it to create initial base projects in your build service to build for.
 #
-# This script does mirror only build packages, not the sources. 
+# This script does mirror only build packages, not the sources.
 #
 
 require 'optparse'
@@ -223,7 +223,7 @@ end
 # process full binary list file
 puts ""
 filelist = Document.new(process)
-filelist.elements.each("binarylist/binary") { |binary| 
+filelist.elements.each("binarylist/binary") do |binary|
   fname  = binary.attributes["filename"]
   fsize  = binary.attributes["size"]
   fmtime = binary.attributes["mtime"]
@@ -272,4 +272,4 @@ filelist.elements.each("binarylist/binary") { |binary|
     puts "  retry #{i}: download failure" if verbose
     puts "  failure: download failure" if i == 2
   end
-}
+end

@@ -14,7 +14,7 @@ module PrettyNestedErrors
     # Parse the errors on the model into a nested hash based with keys based on the lambda
     # set in the base model for each association
     def parse
-      if @key.match(NESTED_ERROR_REGEX)
+      if @key.match?(NESTED_ERROR_REGEX)
         parsed_key = @key.match(NESTED_ERROR_REGEX)
 
         association_invalid_column = parsed_key.to_a.last
@@ -22,7 +22,7 @@ module PrettyNestedErrors
 
         parse_error_message_for_nested(nested_resources_and_indexes, association_invalid_column)
 
-      elsif @key.match(HAS_ONE_ERROR_REGEX)
+      elsif @key.match?(HAS_ONE_ERROR_REGEX)
         parsed_key = @key.match(HAS_ONE_ERROR_REGEX)
 
         association_name = parsed_key[1].to_sym

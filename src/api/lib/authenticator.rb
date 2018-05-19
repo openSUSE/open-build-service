@@ -138,7 +138,7 @@ class Authenticator
         raise_and_invalidate(authorization, 'Received invalid GSSAPI context.')
       end
 
-      unless krb.display_name.match("@#{CONFIG['kerberos_realm']}$")
+      unless krb.display_name.match?("@#{CONFIG['kerberos_realm']}$")
         raise_and_invalidate(authorization, 'User authenticated in wrong Kerberos realm.')
       end
 

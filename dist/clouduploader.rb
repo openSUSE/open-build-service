@@ -64,10 +64,10 @@ module CloudUploader
       command << @image_filename
 
       Open3.popen2e(*command) do |_stdin, stdout_stderr, wait_thr|
-        Signal.trap("TERM") {
+        Signal.trap("TERM") do
           # We just omit the SIGTERM because otherwise we would not get logs from ec2uploadimg
           STDOUT.write("Received abort signal, waiting for ec2uploadimg to properly clean up.\n")
-        }
+        end
         while line = stdout_stderr.gets
           STDOUT.write(line)
           write_result($1) if line =~ /^Created\simage:\s+(ami-[\w]+)$/
