@@ -83,7 +83,6 @@ class SourceController < ApplicationController
       pass_to_backend
       return
     end
-
     if Project.is_remote_project?(project_name)
       # not a local project, hand over to backend
       pass_to_backend
@@ -96,11 +95,11 @@ class SourceController < ApplicationController
     if params.key? :view
       if params[:view] == 'verboseproductlist'
         @products = Product.all_products(@project, params[:expand])
-        render 'source/verboseproductlist'
+        render 'source/verboseproductlist', formats: [:xml]
         return
       elsif params[:view] == 'productlist'
         @products = Product.all_products(@project, params[:expand])
-        render 'source/productlist'
+        render 'source/productlist', formats: [:xml]
         return
       elsif params[:view] == 'issues'
         render_project_issues
@@ -109,26 +108,13 @@ class SourceController < ApplicationController
       end
       return
     end
-
-    render xml: render_project_packages
+    render_project_packages
   end
 
   def render_project_packages
-    packages = nil
-    if params.key? :expand
-      packages = @project.expand_all_packages
-    else
-      packages = @project.packages.pluck(:name)
-    end
-    output = ''
-    output << "<directory count='#{packages.length}'>\n"
-    if params.key? :expand
-      output << packages.map { |p| "  <entry name=\"#{p[0]}\" originproject=\"#{p[1]}\"/>\n" }.join
-    else
-      output << packages.map { |p| "  <entry name=\"#{p}\"/>\n" }.join
-    end
-    output << "</directory>\n"
-    output
+    packages = params.key?(:expand) ? @project.expand_all_packages : @project.packages.pluck(:name)
+    render 'source/project_pages', formats: [:xml],
+            locals: { packages: packages, expand: params.key?(:expand) }
   end
 
   # DELETE /source/:project

@@ -6,6 +6,7 @@ require 'rails_helper'
 RSpec.describe SourceController, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:project) { user.home_project }
+  let!(:source_project) { create(:project_with_package, name: 'openZZ') }
 
   describe 'POST #global_command_orderkiwirepos' do
     it 'is accessible anonymously and forwards backend errors' do
@@ -39,6 +40,17 @@ RSpec.describe SourceController, vcr: true do
 
     it { expect(response).to be_success }
     it { expect(Xmlhash.parse(response.body)['name']).to eq(project.name) }
+  end
+
+  describe 'GET #show_project' do
+    before do
+      login user
+      get :show_project, params: { project: source_project.name, format: :xml }
+    end
+
+    it { expect(response).to be_success }
+    it { expect(response.content_type).to eq('application/xml') }
+    # it { expect(Xmlhash.parse(response.body)['count']).to eq(project.packages.count) }
   end
 
   describe 'PUT #update_project_config' do

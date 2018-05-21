@@ -1,0 +1,1028 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/openZZ/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openZZ">
+          <title>To a God Unknown</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '99'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openZZ">
+          <title>To a God Unknown</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:05:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openZZ/_config
+    body:
+      encoding: UTF-8
+      string: Deleniti nihil voluptatem et iure. Consequuntur porro est. Consectetur
+        sint iure et.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:05:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openZZ/package_4/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="openZZ">
+          <title>Edna O'Brien</title>
+          <description>Velit sit quo rerum odio laudantium.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '151'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="openZZ">
+          <title>Edna O'Brien</title>
+          <description>Velit sit quo rerum odio laudantium.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:05:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openZZ/package_4/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="openZZ">
+          <title>Edna O'Brien</title>
+          <description>Velit sit quo rerum odio laudantium.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '151'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="openZZ">
+          <title>Edna O'Brien</title>
+          <description>Velit sit quo rerum odio laudantium.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:05:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openZZ/package_4/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="openZZ">
+          <title>Edna O'Brien</title>
+          <description>Velit sit quo rerum odio laudantium.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '151'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="openZZ">
+          <title>Edna O'Brien</title>
+          <description>Velit sit quo rerum odio laudantium.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:05:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_4/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_4">
+          <title>A Many-Splendoured Thing</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '110'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_4">
+          <title>A Many-Splendoured Thing</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:05:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_4/_config
+    body:
+      encoding: UTF-8
+      string: Commodi perferendis enim. Aut asperiores dolor vel. Reprehenderit cumque
+        hic.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:05:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_4/multibuild/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="multibuild" project="project_4">
+          <title>The Last Enemy</title>
+          <description>Ex sit praesentium reiciendis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '151'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="multibuild" project="project_4">
+          <title>The Last Enemy</title>
+          <description>Ex sit praesentium reiciendis.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:05:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_4/multibuild/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="multibuild" project="project_4">
+          <title>The Last Enemy</title>
+          <description>Ex sit praesentium reiciendis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '151'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="multibuild" project="project_4">
+          <title>The Last Enemy</title>
+          <description>Ex sit praesentium reiciendis.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:05:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_5/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_5">
+          <title>Dance Dance Dance</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_5">
+          <title>Dance Dance Dance</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:05:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_5/_config
+    body:
+      encoding: UTF-8
+      string: Voluptate dignissimos neque quidem et. Dicta voluptas harum. Sed neque
+        officia expedita aut. Suscipit distinctio accusamus est dolorem. Veritatis
+        optio reiciendis.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:05:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:05:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_6/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_6">
+          <title>Mother Night</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '98'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_6">
+          <title>Mother Night</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:05:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_6/_config
+    body:
+      encoding: UTF-8
+      string: Ratione ipsam numquam debitis maiores non. Nihil libero quisquam ducimus
+        amet. Reprehenderit dolorem ipsa. Voluptate porro quidem consequatur quaerat
+        expedita.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:05:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openZZ/package_5/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_5" project="openZZ">
+          <title>The Wealth of Nations</title>
+          <description>Cupiditate et aut quo tempora libero nam occaecati.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '175'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_5" project="openZZ">
+          <title>The Wealth of Nations</title>
+          <description>Cupiditate et aut quo tempora libero nam occaecati.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:06:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openZZ/package_5/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_5" project="openZZ">
+          <title>The Wealth of Nations</title>
+          <description>Cupiditate et aut quo tempora libero nam occaecati.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '175'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_5" project="openZZ">
+          <title>The Wealth of Nations</title>
+          <description>Cupiditate et aut quo tempora libero nam occaecati.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:06:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openZZ/package_5/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_5" project="openZZ">
+          <title>The Wealth of Nations</title>
+          <description>Cupiditate et aut quo tempora libero nam occaecati.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '175'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_5" project="openZZ">
+          <title>The Wealth of Nations</title>
+          <description>Cupiditate et aut quo tempora libero nam occaecati.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:06:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openZZ/package_4/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="openZZ">
+          <title>Taming a Sea Horse</title>
+          <description>Et ducimus nesciunt placeat.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '149'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="openZZ">
+          <title>Taming a Sea Horse</title>
+          <description>Et ducimus nesciunt placeat.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:07:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openZZ/package_4/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="openZZ">
+          <title>Taming a Sea Horse</title>
+          <description>Et ducimus nesciunt placeat.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '149'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="openZZ">
+          <title>Taming a Sea Horse</title>
+          <description>Et ducimus nesciunt placeat.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:07:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>Butter In a Lordly Dish</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '109'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>Butter In a Lordly Dish</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:07:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/_config
+    body:
+      encoding: UTF-8
+      string: Minus asperiores recusandae sequi quas incidunt exercitationem ut. Est
+        voluptate in laborum voluptatibus. Voluptatibus qui accusamus nostrum error
+        sit et.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:07:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/multibuild/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="multibuild" project="project_1">
+          <title>Bury My Heart at Wounded Knee</title>
+          <description>Veniam omnis nemo dignissimos.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="multibuild" project="project_1">
+          <title>Bury My Heart at Wounded Knee</title>
+          <description>Veniam omnis nemo dignissimos.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:07:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/multibuild/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="multibuild" project="project_1">
+          <title>Bury My Heart at Wounded Knee</title>
+          <description>Veniam omnis nemo dignissimos.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="multibuild" project="project_1">
+          <title>Bury My Heart at Wounded Knee</title>
+          <description>Veniam omnis nemo dignissimos.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:07:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_2/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2">
+          <title>Taming a Sea Horse</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '104'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2">
+          <title>Taming a Sea Horse</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:07:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_2/_config
+    body:
+      encoding: UTF-8
+      string: Possimus doloribus enim expedita tempore quo excepturi. Voluptatem velit
+        ab. Cupiditate similique minus magnam consequatur. Error qui quisquam inventore
+        blanditiis aspernatur assumenda et. Vero incidunt asperiores odit voluptatem
+        ullam.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:07:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_3/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_3">
+          <title>Paths of Glory</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '100'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_3">
+          <title>Paths of Glory</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:07:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_3/_config
+    body:
+      encoding: UTF-8
+      string: Aliquid consequatur perspiciatis ut dignissimos. Illo eum error perferendis
+        ab. Et ipsa neque. Soluta minima modi. Aut id est itaque.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:07:25 GMT
+recorded_with: VCR 4.0.0

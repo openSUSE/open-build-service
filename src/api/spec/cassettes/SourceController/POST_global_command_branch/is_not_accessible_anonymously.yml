@@ -1,49 +1,13 @@
 ---
 http_interactions:
 - request:
-    method: post
-    uri: http://backend:5352/source?cmd=orderkiwirepos
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/x-www-form-urlencoded
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 400
-      message: read_file  no content attached
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '82'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="400">
-          <summary>read_file: no content attached</summary>
-        </status>
-    http_version: 
-  recorded_at: Mon, 17 Oct 2016 14:56:22 GMT
-- request:
     method: put
     uri: http://backend:5352/source/openZZ/_meta
     body:
       encoding: UTF-8
       string: |
         <project name="openZZ">
-          <title>Cover Her Face</title>
+          <title>The Last Temptation</title>
           <description/>
         </project>
     headers:
@@ -65,12 +29,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '97'
+      - '102'
     body:
       encoding: UTF-8
       string: |
         <project name="openZZ">
-          <title>Cover Her Face</title>
+          <title>The Last Temptation</title>
           <description></description>
         </project>
     http_version: 
@@ -80,8 +44,8 @@ http_interactions:
     uri: http://backend:5352/source/openZZ/_config
     body:
       encoding: UTF-8
-      string: Et ipsa quod. Praesentium repellat rerum minus architecto. Impedit et
-        et est magni in.
+      string: Dolor aperiam eligendi quidem non. Nisi eius consequuntur labore explicabo
+        numquam reiciendis voluptas. Dolorum aliquid illo nemo autem sit.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -108,16 +72,16 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Fri, 18 May 2018 16:05:02 GMT
+  recorded_at: Fri, 18 May 2018 16:05:03 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/openZZ/package_1/_meta?user=_nobody_
+    uri: http://backend:5352/source/openZZ/package_2/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <package name="package_1" project="openZZ">
-          <title>Time of our Darkness</title>
-          <description>Molestiae nostrum optio modi ut quis.</description>
+        <package name="package_2" project="openZZ">
+          <title>The Moving Finger</title>
+          <description>Omnis quia aut porro est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -138,16 +102,133 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '145'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_2" project="openZZ">
+          <title>The Moving Finger</title>
+          <description>Omnis quia aut porro est.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:05:03 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openZZ/package_2/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_2" project="openZZ">
+          <title>The Moving Finger</title>
+          <description>Omnis quia aut porro est.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '145'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_2" project="openZZ">
+          <title>The Moving Finger</title>
+          <description>Omnis quia aut porro est.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:05:03 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openZZ/package_2/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_2" project="openZZ">
+          <title>The Moving Finger</title>
+          <description>Omnis quia aut porro est.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '145'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_2" project="openZZ">
+          <title>The Moving Finger</title>
+          <description>Omnis quia aut porro est.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 18 May 2018 16:05:03 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openZZ/package_1/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="package_1" project="openZZ">
-          <title>Time of our Darkness</title>
-          <description>Molestiae nostrum optio modi ut quis.</description>
+          <title>Some Buried Caesar</title>
+          <description>Expedita inventore eum nostrum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="openZZ">
+          <title>Some Buried Caesar</title>
+          <description>Expedita inventore eum nostrum.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 18 May 2018 16:05:02 GMT
+  recorded_at: Fri, 18 May 2018 16:06:38 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openZZ/package_1/_meta
@@ -155,8 +236,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_1" project="openZZ">
-          <title>Time of our Darkness</title>
-          <description>Molestiae nostrum optio modi ut quis.</description>
+          <title>Some Buried Caesar</title>
+          <description>Expedita inventore eum nostrum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -177,16 +258,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <package name="package_1" project="openZZ">
-          <title>Time of our Darkness</title>
-          <description>Molestiae nostrum optio modi ut quis.</description>
+          <title>Some Buried Caesar</title>
+          <description>Expedita inventore eum nostrum.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 18 May 2018 16:05:02 GMT
+  recorded_at: Fri, 18 May 2018 16:06:38 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openZZ/package_1/_meta?user=_nobody_
@@ -194,8 +275,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_1" project="openZZ">
-          <title>Time of our Darkness</title>
-          <description>Molestiae nostrum optio modi ut quis.</description>
+          <title>Some Buried Caesar</title>
+          <description>Expedita inventore eum nostrum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -216,25 +297,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <package name="package_1" project="openZZ">
-          <title>Time of our Darkness</title>
-          <description>Molestiae nostrum optio modi ut quis.</description>
+          <title>Some Buried Caesar</title>
+          <description>Expedita inventore eum nostrum.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 18 May 2018 16:05:02 GMT
+  recorded_at: Fri, 18 May 2018 16:06:38 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/openZZ/package_11/_meta?user=tom
+    uri: http://backend:5352/source/openZZ/package_9/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="package_11" project="openZZ">
-          <title>Have His Carcase</title>
-          <description>Excepturi nobis itaque enim voluptatibus fugiat reprehenderit iste.</description>
+        <package name="package_9" project="openZZ">
+          <title>The Lathe of Heaven</title>
+          <description>Dolor voluptas minima voluptatum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -255,142 +336,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '187'
+      - '155'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_11" project="openZZ">
-          <title>Have His Carcase</title>
-          <description>Excepturi nobis itaque enim voluptatibus fugiat reprehenderit iste.</description>
-        </package>
-    http_version: 
-  recorded_at: Fri, 18 May 2018 16:06:41 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/openZZ/package_11/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_11" project="openZZ">
-          <title>Have His Carcase</title>
-          <description>Excepturi nobis itaque enim voluptatibus fugiat reprehenderit iste.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '187'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_11" project="openZZ">
-          <title>Have His Carcase</title>
-          <description>Excepturi nobis itaque enim voluptatibus fugiat reprehenderit iste.</description>
-        </package>
-    http_version: 
-  recorded_at: Fri, 18 May 2018 16:06:41 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/openZZ/package_11/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_11" project="openZZ">
-          <title>Have His Carcase</title>
-          <description>Excepturi nobis itaque enim voluptatibus fugiat reprehenderit iste.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '187'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_11" project="openZZ">
-          <title>Have His Carcase</title>
-          <description>Excepturi nobis itaque enim voluptatibus fugiat reprehenderit iste.</description>
-        </package>
-    http_version: 
-  recorded_at: Fri, 18 May 2018 16:06:41 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/openZZ/package_8/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_8" project="openZZ">
-          <title>Tiger! Tiger!</title>
-          <description>Itaque mollitia unde dolor.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '143'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_8" project="openZZ">
-          <title>Tiger! Tiger!</title>
-          <description>Itaque mollitia unde dolor.</description>
+        <package name="package_9" project="openZZ">
+          <title>The Lathe of Heaven</title>
+          <description>Dolor voluptas minima voluptatum.</description>
         </package>
     http_version: 
   recorded_at: Fri, 18 May 2018 16:07:26 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/openZZ/package_8/_meta
+    uri: http://backend:5352/source/openZZ/package_9/_meta
     body:
       encoding: UTF-8
       string: |
-        <package name="package_8" project="openZZ">
-          <title>Tiger! Tiger!</title>
-          <description>Itaque mollitia unde dolor.</description>
+        <package name="package_9" project="openZZ">
+          <title>The Lathe of Heaven</title>
+          <description>Dolor voluptas minima voluptatum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -411,25 +375,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '143'
+      - '155'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_8" project="openZZ">
-          <title>Tiger! Tiger!</title>
-          <description>Itaque mollitia unde dolor.</description>
+        <package name="package_9" project="openZZ">
+          <title>The Lathe of Heaven</title>
+          <description>Dolor voluptas minima voluptatum.</description>
         </package>
     http_version: 
   recorded_at: Fri, 18 May 2018 16:07:26 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/openZZ/package_8/_meta?user=tom
+    uri: http://backend:5352/source/openZZ/package_9/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="package_8" project="openZZ">
-          <title>Tiger! Tiger!</title>
-          <description>Itaque mollitia unde dolor.</description>
+        <package name="package_9" project="openZZ">
+          <title>The Lathe of Heaven</title>
+          <description>Dolor voluptas minima voluptatum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -450,13 +414,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '143'
+      - '155'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_8" project="openZZ">
-          <title>Tiger! Tiger!</title>
-          <description>Itaque mollitia unde dolor.</description>
+        <package name="package_9" project="openZZ">
+          <title>The Lathe of Heaven</title>
+          <description>Dolor voluptas minima voluptatum.</description>
         </package>
     http_version: 
   recorded_at: Fri, 18 May 2018 16:07:26 GMT
