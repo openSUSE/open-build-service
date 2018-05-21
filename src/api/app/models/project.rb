@@ -138,10 +138,7 @@ class Project < ApplicationRecord
   end
 
   def self.restore(project_name, backend_opts = {})
-    backend_opts[:cmd] = 'undelete'
-
-    query = Backend::Connection.build_query_from_hash(backend_opts, [:cmd, :user, :comment])
-    Backend::Connection.post "/source/#{CGI.escape(project_name)}#{query}"
+    Backend::Api::Sources::Project.undelete(project_name, backend_opts)
 
     # read meta data from backend to restore database object
     project = Project.new(name: project_name)
@@ -631,12 +628,10 @@ class Project < ApplicationRecord
 
   def delete_on_backend
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
-      path = source_path
-      h = { user: User.current.login, comment: @commit_opts[:comment] }
-      h[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
-      path << Backend::Connection.build_query_from_hash(h, [:user, :comment, :requestid])
       begin
-        Backend::Connection.delete path
+        options = { user: User.current.login, comment: @commit_opts[:comment] }
+        options[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
+        Backend::Api::Sources::Project.delete(name, options)
       rescue ActiveXML::Transport::NotFoundError
         # ignore this error, backend was out of sync
         logger.warn("Project #{name} was already missing on backend on removal")
@@ -1241,15 +1236,13 @@ class Project < ApplicationRecord
 
   def bsrequest_repos_map(project)
     Rails.cache.fetch("bsrequest_repos_map-#{project}", expires_in: 2.hours) do
-      ret = {}
-      uri = "/getprojpack?project=#{CGI.escape(project.to_s)}&nopackages&withrepos&expandedrepos"
       begin
-        body = Backend::Connection.get(uri).body
-        xml = Xmlhash.parse body
+        xml = Xmlhash.parse(Backend::Api::Sources::Project.repositories(project.to_s))
       rescue ActiveXML::Transport::Error
-        return ret
+        return {}
       end
 
+      ret = {}
       xml.get('project').elements('repository') do |repo|
         repo.elements('path') do |path|
           ret[path['project']] ||= []

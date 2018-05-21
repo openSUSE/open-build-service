@@ -61,18 +61,6 @@ class BsRequestAction < ApplicationRecord
   before_validation :set_target_associations
 
   #### Class methods using self. (public and then private)
-
-  def self.get_package_diff(path, query)
-    path += "?#{query.to_query}"
-    begin
-      Backend::Connection.post(path, '', 'Timeout' => 30).body
-    rescue Timeout::Error
-      raise DiffError, "Timeout while diffing #{path}"
-    rescue ActiveXML::Transport::Error => e
-      raise DiffError, "The diff call for #{path} failed: #{e.summary}"
-    end
-  end
-
   def self.type_to_class_name(type_name)
     "BsRequestAction#{type_name.classify}".constantize
   end
