@@ -619,6 +619,8 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def trigger_services
+    authorize @package, :update?
+
     begin
       Backend::Api::Sources::Package.trigger_services(@project.name, @package.name, User.current.to_s)
       flash[:notice] = 'Services successfully triggered'
@@ -695,6 +697,8 @@ class Webui::PackageController < Webui::WebuiController
 
   def remove_file
     required_parameters :filename
+    authorize @package, :update?
+
     filename = params[:filename]
     begin
       @package.delete_file filename
