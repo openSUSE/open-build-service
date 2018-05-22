@@ -48,16 +48,8 @@ class SourceController < ApplicationController
   end
 
   def projectlist
-    # list all projects (visible to user)
-    output = Rails.cache.fetch(['projectlist', Project.maximum(:updated_at), Relationship.forbidden_project_ids]) do
-      dir = Project.pluck(:name).sort
-      output = ''
-      output << "<?xml version='1.0' encoding='UTF-8'?>\n"
-      output << "<directory>\n"
-      output << dir.map { |item| "  <entry name=\"#{::Builder::XChar.encode(item)}\"/>\n" }.join
-      output << "</directory>\n"
-    end
-    render xml: output
+    @project_names = Project.pluck(:name).sort
+    render formats: [:xml]
   end
 
   def set_issues_default
@@ -110,25 +102,12 @@ class SourceController < ApplicationController
       return
     end
 
-    render xml: render_project_packages
+    render_project_packages
   end
 
   def render_project_packages
-    packages = nil
-    if params.key? :expand
-      packages = @project.expand_all_packages
-    else
-      packages = @project.packages.pluck(:name)
-    end
-    output = ''
-    output << "<directory count='#{packages.length}'>\n"
-    if params.key? :expand
-      output << packages.map { |p| "  <entry name=\"#{p[0]}\" originproject=\"#{p[1]}\"/>\n" }.join
-    else
-      output << packages.map { |p| "  <entry name=\"#{p}\"/>\n" }.join
-    end
-    output << "</directory>\n"
-    output
+    @packages = params.key?(:expand) ? @project.expand_all_packages : @project.packages.pluck(:name)
+    render locals: { expand: params.key?(:expand) }, formats: [:xml]
   end
 
   # DELETE /source/:project
@@ -877,15 +856,7 @@ class SourceController < ApplicationController
   # create a id collection of all projects doing a project link to this one
   # POST /source/<project>?cmd=showlinked
   def project_command_showlinked
-    builder = Builder::XmlMarkup.new(indent: 2)
-    xml = builder.collection do |c|
-      @project.linked_by_projects.each do |l|
-        p = {}
-        p[:name] = l.name
-        c.project(p)
-      end
-    end
-    render xml: xml
+    render 'source/project_command_showlinked', formats: [:xml]
   end
 
   # lock a project
@@ -1213,7 +1184,9 @@ class SourceController < ApplicationController
   # create a id collection of all packages doing a package source link to this one
   # POST /source/<project>/<package>?cmd=showlinked
   def package_command_showlinked
-    unless @package
+    if @package
+      render 'source/package_command_showlinked', formats: [:xml]
+    else
       # package comes from remote instance or is hidden
 
       # FIXME: return an empty list for now
@@ -1223,19 +1196,7 @@ class SourceController < ApplicationController
       # answer = Backend::Connection.post path
       # render :text => answer.body, :content_type => 'text/xml'
       render xml: '<collection/>'
-      return
     end
-
-    builder = Builder::XmlMarkup.new(indent: 2)
-    xml = builder.collection do |c|
-      @package.find_linking_packages.each do |l|
-        p = {}
-        p[:project] = l.project.name
-        p[:name] = l.name
-        c.package(p)
-      end
-    end
-    render xml: xml
   end
 
   # POST /source/<project>/<package>?cmd=collectbuildenv
