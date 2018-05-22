@@ -13,5 +13,9 @@ FactoryBot.define do
                architecture: Architecture.find_or_create_by!(name: arch))
       end
     end
+
+    factory :repository_with_release_target do
+      release_targets { [create(:release_target)] }
+    end
   end
 end

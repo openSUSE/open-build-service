@@ -696,6 +696,10 @@ class Project < ApplicationRecord
     possible_projects
   end
 
+  def basename
+    name.gsub(/.*:/, '')
+  end
+
   def to_axml(_opts = {})
     Rails.cache.fetch("xml_project_#{id}") do
       # CanRenderModel
@@ -1221,16 +1225,9 @@ class Project < ApplicationRecord
         repo.release_targets.each do |releasetarget|
           next if params[:targetproject] && params[:targetproject] != releasetarget.target_repository.project.name
           next if params[:targetreposiory] && params[:targetreposiory] != releasetarget.target_repository.name
-          target_package_name = pkg.name
-          # emulate a maintenance release request action here in case
-          if pkg.project.is_maintenance_incident?
-            # The maintenance ID is always the sub project name of the maintenance project
-            target_package_name += '.' << pkg.project.name.gsub(/.*:/, '')
-          end
-
           # release source and binaries
           # permission checking happens inside this function
-          release_package(pkg, releasetarget.target_repository, target_package_name, repo, nil, nil, params[:setrelease], true)
+          release_package(pkg, releasetarget.target_repository, pkg.target_name, repo, nil, nil, params[:setrelease], true)
         end
       end
     end

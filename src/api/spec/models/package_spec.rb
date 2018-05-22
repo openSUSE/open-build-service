@@ -623,4 +623,19 @@ Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
 
     it_behaves_like 'makes a user a maintainer of the subject'
   end
+
+  describe '#target_name' do
+    it "returns the package name for 'normal' projects" do
+      expect(package.target_name).to eq(package.name)
+    end
+
+    context 'when package belongs to a maintenance incident' do
+      let(:maintenance_incident_project) { create(:maintenance_incident_project) }
+      let(:package) { create(:package, project: maintenance_incident_project) }
+
+      it 'adds the project basename as suffix' do
+        expect(package.target_name).to eq("#{package.name}.#{package.project.basename}")
+      end
+    end
+  end
 end
