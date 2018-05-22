@@ -605,8 +605,10 @@ sub file_sender {
 sub reply_sender {
   my ($param, $sock) = @_;
   my $data;
-  while (($data = read_data($param->{'reply_req'}, 8192)) ne '') {
-    swrite($sock, $data, $param->{'chunked'});
+  my $req = $param->{'reply_req'};
+  my $chunked = $param->{'chunked'};
+  while (($data = read_data($req, 8192)) ne '') {
+    swrite($sock, $data, $chunked);
   }
   return '';
 }

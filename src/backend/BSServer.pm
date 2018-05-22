@@ -694,13 +694,20 @@ sub read_data {
 
 ###########################################################################
 
+sub reply_stream {
+  my ($sender, $param, @hdrs) = @_;
+  my $chunked = $param->{'chunked'};
+  my $req = $BSServer::request || {};
+  reply(undef, @hdrs); 
+  $req->{'replying'} = 2 if $chunked;
+  $sender->($param, \*CLNT);
+  swrite("0\r\n\r\n") if $chunked;
+}
+
 sub reply_cpio {
   my ($files, @hdrs) = @_;
-  my $req = $BSServer::request || {};
-  reply(undef, 'Content-Type: application/x-cpio', 'Transfer-Encoding: chunked', @hdrs);
-  $req->{'replying'} = 2;
-  BSHTTP::cpio_sender({'cpiofiles' => $files, 'chunked' => 1}, \*CLNT);
-  swrite("0\r\n\r\n");
+  my $param = {'cpiofiles' => $files, 'chunked' => 1};
+  reply_stream(\&BSHTTP::cpio_sender, $param, 'Content-Type: application/x-cpio', 'Transfer-Encoding: chunked', @hdrs);
 }
 
 sub reply_file {
@@ -726,19 +733,15 @@ sub reply_file {
     }
   }
   unshift @hdrs, 'Content-Type: application/octet-stream' unless grep {/^content-type:/i} @hdrs;
-  reply(undef, @hdrs);
-  $req->{'replying'} = 2 if $chunked;
   my $param = {'filename' => $file};
   $param->{'bytes'} = $1 if $cl && $cl =~ /(\d+)/;	# limit to content length
   $param->{'chunked'} = 1 if $chunked;
-  BSHTTP::file_sender($param, \*CLNT);
-  swrite("0\r\n\r\n") if $chunked;
+  reply_stream(\&BSHTTP::file_sender, $param, @hdrs);
 }
 
 sub reply_receiver {
   my ($req, $param) = @_;
 
-  my $replyreq = $BSServer::request || {};
   my $hdr = $req->{'headers'};
   $param->{'reply_receiver_called'} = 1;
   my $st = $hdr->{'status'};
@@ -754,14 +757,9 @@ sub reply_receiver {
   if ($param->{'reply_receiver_forward_hdrs'}) {
     push @hdrs, BSHTTP::forwardheaders($req, 'status', 'content-type', 'content-length', 'transfer-encoding', 'cache-control', 'connection');
   }
-  reply(undef, @hdrs);
-  $replyreq->{'replying'} = 2 if $chunked;
-  while(1) {
-    my $data = BSHTTP::read_data($req, 8192);
-    last unless defined($data) && $data ne '';
-    swrite($data, $chunked);
-  }
-  swrite("0\r\n\r\n") if $chunked;
+  my $reply_param = {'reply_req' => $req};
+  $reply_param->{'chunked'} = 1 if $chunked;
+  reply_stream(\&BSHTTP::reply_sender, $reply_param, @hdrs);
 }
 
 ###########################################################################
