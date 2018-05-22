@@ -90,6 +90,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     @name = @file.value(:name)
 
     @description = @file.value(:description)
+    @message = @file.value(:message)
     @relogin = @file.has_element?('relogin_needed')
     @reboot = @file.has_element?('reboot_needed')
     @zypp_restart_needed = @file.has_element?('zypp_restart_needed')
@@ -142,6 +143,7 @@ class Webui::PatchinfoController < Webui::WebuiController
         node.rating params[:rating].try(:strip)
         node.summary params[:summary].try(:strip)
         node.description params[:description].gsub("\r\n", "\n")
+        node.message params[:message].gsub("\r\n", "\n") if params[:message].present?
         node.reboot_needed if params[:reboot]
         node.relogin_needed if params[:relogin]
         node.zypp_restart_needed if params[:zypp_restart_needed]
@@ -187,6 +189,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       @rating = params[:rating]
       @summary = params[:summary]
       @description = params[:description]
+      @message = params[:message]
       @relogin = params[:relogin]
       @reboot = params[:reboot]
       @zypp_restart_needed = params[:zypp_restart_needed]

@@ -36,6 +36,10 @@
       %b Description:
       %br/
       = description_wrapper(@description)
+    - if @message.present?
+      .box.show_left.show_right
+        %strong Message:
+        %pre.plain= @message
     .box.show_left.show_right
       %b Fixed bugs:
       - if @issues.present?

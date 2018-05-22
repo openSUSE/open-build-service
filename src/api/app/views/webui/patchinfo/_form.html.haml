@@ -31,6 +31,11 @@
             = text_area_tag 'description', @description, size: '65x9', required: true, min: 10
           %p
             %strong
+              = image_tag('info.png', title: 'Enter a message', alt: 'Messageinfo')
+              %label{for: "message"} Message:
+            = text_area_tag 'message', @message, size: '65x5'
+          %p
+            %strong
               = image_tag('info.png', title: 'Choose the category of your update', alt: 'Categoryinfo')
               %label{for: "category"} Category:
             = select_tag 'category', options_for_select(Patchinfo::CATEGORIES, @category)
