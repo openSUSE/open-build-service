@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:32:05 GMT
+  recorded_at: Tue, 22 May 2018 09:54:41 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>O Pioneers!</title>
-          <description>Harum ut perspiciatis dolore sed.</description>
+          <title>The Monkey's Raincoat</title>
+          <description>Ipsum sed perferendis quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '156'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>O Pioneers!</title>
-          <description>Harum ut perspiciatis dolore sed.</description>
+          <title>The Monkey's Raincoat</title>
+          <description>Ipsum sed perferendis quia.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:32:05 GMT
+  recorded_at: Tue, 22 May 2018 09:54:41 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>O Pioneers!</title>
-          <description>Harum ut perspiciatis dolore sed.</description>
+          <title>The Monkey's Raincoat</title>
+          <description>Ipsum sed perferendis quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '156'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>O Pioneers!</title>
-          <description>Harum ut perspiciatis dolore sed.</description>
+          <title>The Monkey's Raincoat</title>
+          <description>Ipsum sed perferendis quia.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:32:05 GMT
+  recorded_at: Tue, 22 May 2018 09:54:41 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/foo.spec?user=tom
@@ -148,20 +148,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '203'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="17" vrev="17">
+        <revision rev="2" vrev="2">
           <srcmd5>9b1c1ddcaab8327d31b5f9d882782630</srcmd5>
           <version>unknown</version>
-          <time>1499340725</time>
+          <time>1526982881</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:32:05 GMT
+  recorded_at: Tue, 22 May 2018 09:54:41 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -169,8 +169,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>O Pioneers!</title>
-          <description>Harum ut perspiciatis dolore sed.</description>
+          <title>The Monkey's Raincoat</title>
+          <description>Ipsum sed perferendis quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -191,16 +191,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '156'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>O Pioneers!</title>
-          <description>Harum ut perspiciatis dolore sed.</description>
+          <title>The Monkey's Raincoat</title>
+          <description>Ipsum sed perferendis quia.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:32:05 GMT
+  recorded_at: Tue, 22 May 2018 09:54:41 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package
@@ -226,19 +226,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '300'
+      - '298'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="17" vrev="17" srcmd5="9b1c1ddcaab8327d31b5f9d882782630">
-          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1499338181" />
-          <entry name="foo.spec" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1499338182" />
+        <directory name="test_package" rev="2" vrev="2" srcmd5="9b1c1ddcaab8327d31b5f9d882782630">
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1526982880" />
+          <entry name="foo.spec" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1526982881" />
         </directory>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:32:05 GMT
+  recorded_at: Tue, 22 May 2018 09:54:41 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom/test_package?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:tom/test_package?view=info
     body:
       encoding: US-ASCII
       string: ''
@@ -261,15 +261,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '188'
+      - '186'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="test_package" rev="17" vrev="17" srcmd5="9b1c1ddcaab8327d31b5f9d882782630" verifymd5="9b1c1ddcaab8327d31b5f9d882782630">
-          <revtime>1499340725</revtime>
+        <sourceinfo package="test_package" rev="2" vrev="2" srcmd5="9b1c1ddcaab8327d31b5f9d882782630" verifymd5="9b1c1ddcaab8327d31b5f9d882782630">
+          <filename>foo.spec</filename>
         </sourceinfo>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:32:05 GMT
+  recorded_at: Tue, 22 May 2018 09:54:41 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package
@@ -295,16 +295,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '300'
+      - '298'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="17" vrev="17" srcmd5="9b1c1ddcaab8327d31b5f9d882782630">
-          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1499338181" />
-          <entry name="foo.spec" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1499338182" />
+        <directory name="test_package" rev="2" vrev="2" srcmd5="9b1c1ddcaab8327d31b5f9d882782630">
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1526982880" />
+          <entry name="foo.spec" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1526982881" />
         </directory>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:32:05 GMT
+  recorded_at: Tue, 22 May 2018 09:54:41 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -327,16 +327,16 @@ http_interactions:
     headers:
       Content-Type:
       - text/xml
-      Content-Length:
-      - '305'
       Cache-Control:
       - no-cache
       Connection:
       - close
+      Content-Length:
+      - '305'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="3f15819536dc60627879be3682246c9e">
+        <sourcediff key="b71404829eb062d86e6af20c41ce051a">
           <old project="home:tom" package="test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
           <new project="home:tom" package="test_package" rev="2" srcmd5="9b1c1ddcaab8327d31b5f9d882782630" />
           <files />
@@ -344,40 +344,5 @@ http_interactions:
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:32:05 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom/test_package?view=info
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home tom' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '144'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:tom' does not exist</summary>
-          <details>404 project 'home:tom' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:31:27 GMT
+  recorded_at: Tue, 22 May 2018 09:54:41 GMT
 recorded_with: VCR 4.0.0

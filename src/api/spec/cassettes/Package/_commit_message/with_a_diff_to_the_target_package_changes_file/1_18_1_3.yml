@@ -1,0 +1,548 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:54:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Apache/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>A Glass of Blessings</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>A Glass of Blessings</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:54:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Apache/_config
+    body:
+      encoding: UTF-8
+      string: Rerum cum amet iste consequuntur omnis. Eligendi asperiores voluptas.
+        Qui dolore architecto assumenda praesentium.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:54:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Apache/package_with_changes_file/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="Apache">
+          <title>Ah, Wilderness!</title>
+          <description>Repellat sequi dolores nihil provident ullam ea commodi.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '190'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="Apache">
+          <title>Ah, Wilderness!</title>
+          <description>Repellat sequi dolores nihil provident ullam ea commodi.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:54:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Apache/package_with_changes_file/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="Apache">
+          <title>Ah, Wilderness!</title>
+          <description>Repellat sequi dolores nihil provident ullam ea commodi.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '190'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="Apache">
+          <title>Ah, Wilderness!</title>
+          <description>Repellat sequi dolores nihil provident ullam ea commodi.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:54:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Apache/package_with_changes_file/package_with_changes_file.changes
+    body:
+      encoding: UTF-8
+      string: |-
+        -------------------------------------------------------------------
+        Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
+
+        - Temporary hack
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>40899e069ca30ed587a89e8aae983b45</srcmd5>
+          <version>unknown</version>
+          <time>1526982883</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:54:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo:Apache/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:foo:Apache">
+          <title>Oh! To be in England</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '112'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:foo:Apache">
+          <title>Oh! To be in England</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:54:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo:Apache/_config
+    body:
+      encoding: UTF-8
+      string: Fugit doloremque temporibus autem sint. Sit expedita odio quod assumenda.
+        Non qui nobis voluptas asperiores ut.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:54:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="home:foo:Apache">
+          <title>Taming a Sea Horse</title>
+          <description>Voluptas rerum quia atque quos provident ipsam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '193'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="home:foo:Apache">
+          <title>Taming a Sea Horse</title>
+          <description>Voluptas rerum quia atque quos provident ipsam.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:54:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="home:foo:Apache">
+          <title>Taming a Sea Horse</title>
+          <description>Voluptas rerum quia atque quos provident ipsam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '193'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="home:foo:Apache">
+          <title>Taming a Sea Horse</title>
+          <description>Voluptas rerum quia atque quos provident ipsam.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:54:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/package_with_changes_file.changes
+    body:
+      encoding: UTF-8
+      string: |2-
+
+        -------------------------------------------------------------------
+        Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org
+
+        - Testing the submit diff
+
+        -------------------------------------------------------------------
+        Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
+
+        - Temporary hack
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="7" vrev="7">
+          <srcmd5>21f4b51fd1e52f4f2ba65bdfa48f9d30</srcmd5>
+          <version>unknown</version>
+          <time>1526982883</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:54:43 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '239'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_changes_file" rev="7" vrev="7" srcmd5="21f4b51fd1e52f4f2ba65bdfa48f9d30">
+          <entry name="package_with_changes_file.changes" md5="3b79b4c0bb480628f86b7c39cd9fe9d0" size="279" mtime="1526982881" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:54:43 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/package_with_changes_file.changes
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '279'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |2-
+
+        -------------------------------------------------------------------
+        Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org
+
+        - Testing the submit diff
+
+        -------------------------------------------------------------------
+        Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
+
+        - Temporary hack
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:54:43 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/Apache/package_with_changes_file/package_with_changes_file.changes
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '134'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        -------------------------------------------------------------------
+        Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
+
+        - Temporary hack
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:54:43 GMT
+recorded_with: VCR 4.0.0
