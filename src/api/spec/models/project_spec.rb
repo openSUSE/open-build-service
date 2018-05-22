@@ -540,4 +540,24 @@ RSpec.describe Project, vcr: true do
       expect(subject.basename).to eq('baz')
     end
   end
+
+  describe '#do_project_release' do
+    let(:user) { create(:confirmed_user, login: 'tux') }
+    let(:project) { user.home_project }
+    let!(:package) { create(:package_with_revisions, name: 'my_package_release', project: project) }
+    let(:project_release) { create(:project, name: "#{user.home_project}:staging") }
+    let(:repository) { create(:repository, project: project) }
+    let(:repository_release) { create(:repository, project: project_release) }
+    let!(:release_target) { create(:release_target, target_repository: repository_release, repository: repository) }
+
+    before do
+      User.current = user
+      allow_any_instance_of(Package).to receive(:target_name).and_return('my_release_target')
+    end
+
+    it "uses the package's release target name when releasing the package" do
+      project.do_project_release(user: user)
+      expect(project_release.packages.where(name: 'my_release_target')).to exist
+    end
+  end
 end
