@@ -6,7 +6,6 @@ require 'rantly/rspec_extensions'
 # CONFIG['global_write_through'] = true
 
 RSpec.describe Package, vcr: true do
-  let(:admin) { create(:admin_user) }
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:home_project) { user.home_project }
   let(:package) { create(:package, name: 'test_package', project: home_project) }
@@ -33,16 +32,6 @@ RSpec.describe Package, vcr: true do
     it 'does not call #addKiwiImport if filename ends not with kiwi.txz' do
       expect_any_instance_of(Service).not_to receive(:addKiwiImport)
       package.save_file(filename: 'foo.spec')
-    end
-  end
-
-  context 'is_admin?' do
-    it 'returns true for admins' do
-      expect(admin.is_admin?).to be true
-    end
-
-    it 'returns false for non-admins' do
-      expect(user.is_admin?).to be false
     end
   end
 

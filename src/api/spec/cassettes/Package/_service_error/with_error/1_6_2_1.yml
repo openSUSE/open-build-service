@@ -1,0 +1,75 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_broken_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '409'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_broken_service" rev="1" vrev="1" srcmd5="48246ab2d71f8103a368397f691cd3ac">
+          <serviceinfo code="failed" xsrcmd5="bbaed8dee7f6745ff7a48a431ba8ac5e">
+            <error>service error:  400 remote error: document element must be 'services', was 'service'</error>
+          </serviceinfo>
+          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1526982880" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:59:16 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_broken_service/_serviceerror?rev=bbaed8dee7f6745ff7a48a431ba8ac5e
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '92'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        service daemon error:
+         400 remote error: document element must be 'services', was 'service'
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:59:16 GMT
+recorded_with: VCR 4.0.0

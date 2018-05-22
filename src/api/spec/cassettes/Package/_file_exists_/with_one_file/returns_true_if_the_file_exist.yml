@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+  recorded_at: Tue, 22 May 2018 09:54:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_one_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_one_file" project="home:tom">
-          <title>That Hideous Strength</title>
-          <description>Et cupiditate aut maiores ad voluptatem et veniam sit.</description>
+          <title>Blithe Spirit</title>
+          <description>Voluptatem nisi harum consequatur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '192'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_one_file" project="home:tom">
-          <title>That Hideous Strength</title>
-          <description>Et cupiditate aut maiores ad voluptatem et veniam sit.</description>
+          <title>Blithe Spirit</title>
+          <description>Voluptatem nisi harum consequatur.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+  recorded_at: Tue, 22 May 2018 09:54:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_one_file/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_one_file" project="home:tom">
-          <title>That Hideous Strength</title>
-          <description>Et cupiditate aut maiores ad voluptatem et veniam sit.</description>
+          <title>Blithe Spirit</title>
+          <description>Voluptatem nisi harum consequatur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '192'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_one_file" project="home:tom">
-          <title>That Hideous Strength</title>
-          <description>Et cupiditate aut maiores ad voluptatem et veniam sit.</description>
+          <title>Blithe Spirit</title>
+          <description>Voluptatem nisi harum consequatur.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+  recorded_at: Tue, 22 May 2018 09:54:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_one_file/_service
@@ -144,20 +144,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="15" vrev="15">
-          <srcmd5>b85a553ae6339305df427b43dae4da25</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>dc04f065b5adfb18b70a2cc9fd75fc19</srcmd5>
           <version>unknown</version>
-          <time>1499340717</time>
+          <time>1526982889</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+  recorded_at: Tue, 22 May 2018 09:54:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_one_file
@@ -183,16 +183,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '244'
+      - '287'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_one_file" rev="15" vrev="15" srcmd5="b85a553ae6339305df427b43dae4da25">
-          <serviceinfo code="running" />
-          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1499338180" />
+        <directory name="package_with_one_file" rev="2" vrev="2" srcmd5="dc04f065b5adfb18b70a2cc9fd75fc19">
+          <serviceinfo code="succeeded" xsrcmd5="5b6d41d2e0f67f5183bd203866607ad8" />
+          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1526982889" />
         </directory>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+  recorded_at: Tue, 22 May 2018 09:54:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_one_file
@@ -218,14 +218,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '244'
+      - '287'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_one_file" rev="15" vrev="15" srcmd5="b85a553ae6339305df427b43dae4da25">
-          <serviceinfo code="running" />
-          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1499338180" />
+        <directory name="package_with_one_file" rev="2" vrev="2" srcmd5="dc04f065b5adfb18b70a2cc9fd75fc19">
+          <serviceinfo code="succeeded" xsrcmd5="5b6d41d2e0f67f5183bd203866607ad8" />
+          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1526982889" />
         </directory>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Tue, 22 May 2018 09:54:49 GMT
+recorded_with: VCR 4.0.0

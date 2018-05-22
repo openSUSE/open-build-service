@@ -1,0 +1,196 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:54:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title>I Know Why the Caged Bird Sings</title>
+          <description>Doloribus quod placeat aperiam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title>I Know Why the Caged Bird Sings</title>
+          <description>Doloribus quod placeat aperiam.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:54:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/test_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title>I Know Why the Caged Bird Sings</title>
+          <description>Doloribus quod placeat aperiam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title>I Know Why the Caged Bird Sings</title>
+          <description>Doloribus quod placeat aperiam.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:54:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/other_project/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="other_project">
+          <title>That Hideous Strength</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="other_project">
+          <title>That Hideous Strength</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:54:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/other_project/_config
+    body:
+      encoding: UTF-8
+      string: Totam sed quaerat. Dolor sunt id non voluptas molestiae. Eum enim dolores
+        quas. Hic aut omnis ipsam aspernatur cumque. Culpa est explicabo non nihil
+        ut sed praesentium.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:54:52 GMT
+recorded_with: VCR 4.0.0

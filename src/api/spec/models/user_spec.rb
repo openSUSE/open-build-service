@@ -23,6 +23,11 @@ RSpec.describe User do
     it { expect(create(:user)).to validate_uniqueness_of(:login).with_message('is the name of an already existing user') }
   end
 
+  context 'is_admin?' do
+    it { expect(admin_user.is_admin?).to be true }
+    it { expect(user.is_admin?).to be false }
+  end
+
   describe '#is_active?' do
     it 'returns true if user is confirmed' do
       expect(confirmed_user.is_active?).to be_truthy
