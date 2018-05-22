@@ -5,12 +5,12 @@ class MarkEvents < ActiveRecord::Migration[4.2]
     Event::Base.update_all(mails_sent: true)
 
     # unless there is a delayed job for it
-    Delayed::Job.where("handler like '%ruby/object:SendEventEmails%'").each do |j|
+    Delayed::Job.where("handler like '%ruby/object:SendEventEmailsJob%'").each do |j|
       next unless j.payload_object.event
       j.payload_object.event.update(mails_sent: false)
     end
 
-    Delayed::Job.where("handler like '%ruby/object:SendEventEmails%'").delete_all
+    Delayed::Job.where("handler like '%ruby/object:SendEventEmailsJob%'").delete_all
   end
 
   def down
