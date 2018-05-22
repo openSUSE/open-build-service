@@ -48,9 +48,7 @@ namespace :db do
         raise "Task not supported by '#{abcs[Rails.env]['adapter']}'"
       end
 
-      if ActiveRecord::Base.connection.supports_migrations?
-        structure << ActiveRecord::Base.connection.dump_schema_information
-      end
+      structure << ActiveRecord::Base.connection.dump_schema_information
 
       structure.gsub!(%r{AUTO_INCREMENT=[0-9]* }, '')
       structure.gsub!('auto_increment', 'AUTO_INCREMENT')
