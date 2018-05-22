@@ -1,4 +1,6 @@
 class MarkEvents < ActiveRecord::Migration[4.2]
+  class SendEventEmails < SendEventEmailsJob; end
+
   def up
     add_column :events, :mails_sent, :boolean, default: false
     # all events in existance should have the mail sent out
