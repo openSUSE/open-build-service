@@ -532,4 +532,12 @@ RSpec.describe Project, vcr: true do
 
     it_behaves_like 'makes a user a maintainer of the subject'
   end
+
+  describe '#basename' do
+    subject { create(:project, name: 'foo:bar:baz') }
+
+    it "returns the lowest level of ':' seperated subproject names" do
+      expect(subject.basename).to eq('baz')
+    end
+  end
 end

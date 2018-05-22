@@ -1400,6 +1400,11 @@ class Package < ApplicationRecord
     backend_build_command(:sendsysrq, params[:project], params.slice(:package, :arch, :repository, :sysrq))
   end
 
+  def target_name
+    # The maintenance ID is always the sub project name of the maintenance project
+    project.is_maintenance_incident? ? "#{name}.#{project.basename}" : name
+  end
+
   def release_target_name
     # usually used in maintenance incidents
     return releasename if releasename
