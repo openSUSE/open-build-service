@@ -1,5 +1,9 @@
 #!/usr/bin/perl -w
 
+BEGIN {
+unshift @INC, ".";
+}
+
 use POSIX;
 use strict;
 
@@ -223,7 +227,7 @@ my $file = ($srcdir?$srcdir:$ddir)."/_builddepinfo.xml";
 
 if(!$options{'fromscratch'} && -f "$ddir/deps" && -f $file &&  -M "$ddir/deps" < -M $file) {
   $depsprecomputed = 1;
-  taskstart "reading deps";
+  taskstart ("reading deps");
   readdeps;
   taskdone;
   goto start;
@@ -234,7 +238,7 @@ if (! -e $file) {
   print "retreiving builddepinfo\n";
   system("$osc api '/build/$dist/_builddepinfo' > $file");
 }
-taskstart "parsing build deps";
+taskstart ("parsing build deps");
 $pdep->parsefile($file, ProtocolEncoding => 'UTF-8');
 taskdone;
 
@@ -285,7 +289,7 @@ my $p1 = new XML::Parser(
   Handlers => {
     Start => \&handle_start
   });
-taskstart "parsing jobhistory";
+taskstart ("parsing jobhistory");
 $p1->parsefile($file, ProtocolEncoding => 'UTF-8');
 taskdone;
 
@@ -306,7 +310,7 @@ for $pack (keys %deps) {
   }
 }
 
-taskstart "calculating dependencies";
+taskstart ("calculating dependencies");
 # map dependencies to real packages, ignore - deps, filter out self
 for $pack (keys %deps) {
   #$pdeps{$pack} = [ unify(grep {$_ ne $pack} map {$subpack2pack{$_} || ()} grep {!/^-/} @{$deps{$pack} || []}) ];
@@ -328,7 +332,7 @@ for $pack (keys %deps) {
     }
     push @dl, $dep;
   }
-  $pdeps{$pack} = [ unify @dl ];
+  $pdeps{$pack} = [ unify (@dl) ];
 }
 taskdone;
 
@@ -357,7 +361,7 @@ if ($debug) {
   close FOO;
 }
 
-taskstart "computing dependency graph";
+taskstart ("computing dependency graph");
 
 #$Dfs::warnings = 1;
 $dfs = new Dfs(\%pdeps);
@@ -369,7 +373,7 @@ taskdone;
 
 ### cycle elimination
 #
-taskstart "finding cycles";
+taskstart ("finding cycles");
 my %cycles = $dfs->findcycles();
 # put all packages involved in a cycle in the hash,
 # calculate cycle build time
@@ -430,8 +434,8 @@ sub replacecycles
     }
   } @_;
 }
-@todo = replacecycles @todo;
-@packs_to_setup = replacecycles @packs_to_setup;
+@todo = replacecycles (@todo);
+@packs_to_setup = replacecycles (@packs_to_setup);
 
 
 taskdone;
@@ -467,7 +471,7 @@ if ($depsprecomputed) {
 	@packs_to_setup = grep { $_ = $cycles{$_} if exists $cycles{$_}; 1 } @packs_to_setup;
       }
     }
-    @packs_to_setup = unify @packs_to_setup;
+    @packs_to_setup = unify (@packs_to_setup);
     @todo = @packs_to_setup;
   } else {
     my %cycles = map { $_ => 1} split(/,/, join(',', grep { /,/ } keys %pdeps));
@@ -612,7 +616,7 @@ sub run
     }
   }
 
-  taskstart sprintf("Starting simulation with %d packages on %s hosts", $nwait, ($nbuildhosts||'infinite'));
+  taskstart (sprintf("Starting simulation with %d packages on %s hosts", $nwait, ($nbuildhosts||'infinite')));
 
   my %building;
   while ($nwait || $nbuild)
@@ -688,7 +692,7 @@ sub run
 sub output
 {
   if ($opt_justgraph) {
-    taskstart "reading deps";
+    taskstart ("reading deps");
     readdeps();
     open(IN, '<', "$ddir/simul") || die "$!";
     while (<IN>) {
@@ -797,7 +801,7 @@ sub output
     }
   }
 
-  taskstart "creating output";
+  taskstart ("creating output");
 
   render("$ddir/rebuild.png", \%inttimes);
 
