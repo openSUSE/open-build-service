@@ -42,6 +42,11 @@ Shipment:
 
 Bugfixes:
 
+* Build result page took long time to load:
+  In the binaries page we were always asking to the backend per file if it knows the url for downloading. If the backend answers with an url, that url will be checked on the fly to know if the file is available, if it is not there then we provide an API url.
+  That meant that up to 2 http request are performed to only know if we need to show the link. I we have a package with 20 files per subpackage and 5 subpackages... we will perform up to 200 requests just to show links.
+  Now we have deferred this calculation to an internal action in the frontend to only perform the request to external sources if the user really wants to download a file.
+
 Intentional changes:
 ====================
 
