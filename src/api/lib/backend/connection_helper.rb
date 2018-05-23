@@ -112,6 +112,7 @@ module Backend
         url_base = endpoint
       else
         template = endpoint.shift
+        endpoint.map! { |x| URI.encode_www_form_component(x) }
         url_base = template.gsub(/(:\w+)/, '%s') % endpoint
       end
       Addressable::URI.parse(url_base).normalize.to_s
