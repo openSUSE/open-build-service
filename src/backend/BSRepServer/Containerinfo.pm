@@ -89,12 +89,18 @@ sub containerinfo2obsbinlnk {
     warn($@) if $@;
   }
   local *F;
-  return undef unless open(F, '<', "$dir/$d->{file}");
+  if ($d->{'tar_md5sum'}) {
+    # this is a normalized container, see BSRepServer::Containertar::normalize_container
+    $lnk->{'hdrmd5'} = $d->{'tar_md5sum'};
+    $lnk->{'path'} = "../$packid/$d->{'file'}";
+    return $lnk;
+  }
+  return undef unless open(F, '<', "$dir/$d->{'file'}");
   my $ctx = Digest::MD5->new;
   $ctx->addfile(*F);
   close F;
   $lnk->{'hdrmd5'} = $ctx->hexdigest();
-  $lnk->{'path'} = "../$packid/$d->{file}";
+  $lnk->{'path'} = "../$packid/$d->{'file'}";
   return $lnk;
 }
 

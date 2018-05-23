@@ -38,6 +38,7 @@ use Fcntl qw(:DEFAULT :flock);
 use Data::Dumper;
 use Storable ();
 use MIME::Base64;
+use JSON::XS ();
 use File::Temp qw/tempfile/;
 
 use BSConfiguration;
@@ -1506,6 +1507,7 @@ sub publish {
   my $multicontainer = 0;
   $multicontainer = 1 if @archs > 1;
 
+  my $blobdir;
   my @chksumfiles;
   for my $arch (@archs) {
     my $r = "$reporoot/$prp/$arch/:repo";
@@ -1568,6 +1570,18 @@ sub publish {
 	  }
 	}
       }
+      if ($bin =~ /^_blob\.sha256:[0-9a-f]{64}$/) {
+	# container blobid, collect
+	if (!$blobdir) {
+	  $blobdir = "$uploaddir/publisher.$$.blobs";
+	  BSUtil::cleandir($blobdir);
+	  rmdir($blobdir) || die("rmdir $blobdir: $!\n");
+	  mkdir_p($blobdir);
+	}
+	if (! -e "$blobdir/$bin") {
+	  link("$r/$bin", "$blobdir/$bin") || die("link $r/$bin: $blobdir/$bin$!\n");
+	}
+      }
       $bin =~ s/^.*?:://;	# strip package name for now
       my $p;
       if ($bin =~ /^.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.d?rpm$/) {
@@ -1606,6 +1620,20 @@ sub publish {
 	  $kiwimedium = "$arch/$1" if $bin =~ /(.+)ONIE\.bin$/;
 	} elsif ($bin =~ /\.raw(?:\.install)?(?:\.(?:gz|bz2|xz))?(?:\.sha256)?$/) {
 	  $p = "$bin";
+	} elsif ($bin =~ /\.containerinfo$/) {
+	  # handle the case wjere there is a containerinfo with no tar file
+	  eval { $containerinfo = BSRepServer::Containerinfo::readcontainerinfo($r, "$1.containerinfo") };
+	  next unless $containerinfo;
+	  next unless $containerinfo->{'tar_manifest'} && $containerinfo->{'file'} =~ /\.tar$/ && ! -e "$r/$containerinfo->{'file'}";
+	  $containerinfo->{'arch'} = $arch;
+	  $p = "$arch/$containerinfo->{'file'}";
+          $containers{$p} = $containerinfo;
+	  if ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.containerinfo$/) {
+            $kiwimedium{$p} = "$arch/$2" if -e "$r/$2.packages";
+	  } elsif ($bin =~ /(.*)\.containerinfo$/) {
+            $kiwimedium{$p} = "$arch/$1" if -e "$r/$1.packages";
+	  }
+	  next;
 	} elsif ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256)?$/) {
           # kiwi image case
           $p = $bin;
@@ -1951,7 +1979,16 @@ sub publish {
   my %deleted_bins;
   if (%containers) {
     # found some containers. upload if requested
+    if ($blobdir) {
+      $_->{'blobdir'} = $blobdir for values %containers;
+    }
     upload_all_containers($extrep, $projid, $repoid, \%containers, $notary_uploads, $multicontainer, \%deleted_bins);
+  }
+  if ($blobdir) {
+    # get rid of the blobdir
+    BSUtil::cleandir($blobdir);
+    rmdir($blobdir);
+    undef $blobdir;
   }
 
   $changed = 1 if %$notary_uploads;	# FIXME
@@ -2015,7 +2052,7 @@ sub publish {
   if ($do_packtrack) {
     $packtrack = $dbgpacktrack || {};
     my %cache = @{$packtrackcache || []};
-    for my $bin (sort keys %bins) {
+    for my $bin (sort keys %{ { %bins, %containers } }) {
       my $reportfile;
       if ($bin =~ /\.(?:$binsufsre)$/) {
 	my $res;
@@ -2814,9 +2851,17 @@ sub upload_to_registry {
   # decompress tar files
   my @tempfiles;
   my @uploadfiles;
+  my $blobdir;
   for my $containerinfo (@$containerinfos) {
     my $file = $containerinfo->{'publishfile'};
-    if ($file =~ /\.tar$/) {
+    if (!defined($file)) {
+      # tar file needs to be constructed from blobs
+      $blobdir = $containerinfo->{'blobdir'};
+      die("need a blobdir for containerinfo uploads\n") unless $blobdir;
+      my $containerinfo_str = JSON::XS->new->utf8->canonical->pretty->encode($containerinfo);
+      push @uploadfiles, "$blobdir/container.".scalar(@uploadfiles).".containerinfo";
+      writestr($uploadfiles[-1], undef, $containerinfo);
+    } elsif ($file =~ /\.tar$/) {
       push @uploadfiles, $file;
     } else {
       my $tmpfile = decompress_container($file);
@@ -2831,6 +2876,7 @@ sub upload_to_registry {
   unlink($containerdigestfile);
   my @opts = map {('-t', $_)} @$tags;
   push @opts, '-m' if @uploadfiles > 1;		# create multi arch container
+  push @opts, '-B', $blobdir if $blobdir;
   my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @opts, '-F', $containerdigestfile, $registryserver, $repository, @uploadfiles);
   print "Uploading to registry: @cmd\n";
   my $result = qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', '', @cmd);

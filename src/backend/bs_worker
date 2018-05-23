@@ -49,6 +49,14 @@ use BSHTTP;
 use BSBuild;
 use BSCando;
 
+my $can_rewrite_containers;
+eval {
+  require Digest::SHA;
+  require BSTar;
+  require BSContar;
+  $can_rewrite_containers = 1;
+};
+
 use strict;
 
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
@@ -2731,6 +2739,30 @@ sub createreport {
   }
 }
 
+sub normalize_container {
+  my ($container) = @_;
+  local *TAR;
+  open(TAR, '<', $container) || die("$container: $!\n");
+  my ($tar, $mtime) = BSContar::normalize_container(\*TAR);
+  local *NEWTAR;
+  open(NEWTAR, '>', "$container.new") || die("$container.new: $!\n");
+  BSTar::writetar(\*NEWTAR, $tar);
+  close(NEWTAR) || die("close: $!\n");
+  close(TAR);
+  utime($mtime, $mtime, "$container.new");
+  if (-f "$container.sha256") {
+    open(NEWTAR, '<', "$container.new") || die("$container.new: $!\n");
+    my $ctx = Digest::SHA->new(256);
+    my $containerbasename = $container;
+    $containerbasename =~ s/.*\///;
+    my $chksum = $ctx->addfile(\*NEWTAR)->hexdigest() . "  $containerbasename\n";
+    close NEWTAR;
+    writestr("$container.sha256.new", "$container.sha256", $chksum);
+    utime($mtime, $mtime, "$container.sha256");
+  }
+  rename("$container.new", "$container") || die("rename $container.new $container: $!\n");
+}
+
 $Build::Kiwi::urlmapper = sub {return '_obsrepositories'}  unless $Build::Kiwi::urlmapper;
 
 sub dobuild {
@@ -3105,6 +3137,7 @@ sub dobuild {
   }
   $stats->{'times'}->{'total'}->{'time'}->{'unit'} = "s";
   $stats->{'times'}->{'total'}->{'time'}->{'_content'} = (time() - $starttime);
+  mkdir_p("$buildroot/.build.packages/OTHER");
   writexml("$buildroot/.build.packages/OTHER/_statistics.new", "$buildroot/.build.packages/OTHER/_statistics", $stats, $BSXML::buildstatistics);
 
   if ($buildinfo->{'outbuildinfo'}) {
@@ -3721,6 +3754,16 @@ if ($ex == 0) {
       undef $kiwitree if defined($BSConfig::nokiwitree) && $BSConfig::nokiwitree;
     }
     @files = grep {! -l "$buildroot/.build.packages/$d/$_" && -f _} @files;
+    # normalize/compress containers if we have /usr/bin/obs-gzip-go
+    if ($can_rewrite_containers && -x "/usr/bin/obs-gzip-go") {
+      for my $containerinfo (grep {/\.containerinfo$/} @files) {
+	my $container = "$buildroot/.build.packages/$d/$containerinfo";
+        $container =~ s/\.containerinfo$/\.tar/;
+        next unless ! -l $container && -f _;
+        eval { normalize_container($container) };
+        warn($@) if $@;
+      }
+    }
     push @send, map {"$buildroot/.build.packages/$d/$_"} @files;
   }
   @send = map {{name => (split('/', $_))[-1], filename => $_}} @send;
