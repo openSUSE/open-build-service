@@ -17,7 +17,7 @@ class Webui::PackageController < Webui::WebuiController
                                      :save_group, :remove_role, :view_file,
                                      :abort_build, :trigger_rebuild, :trigger_services,
                                      :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
-                                     :save_meta, :attributes, :edit, :import_spec, :files]
+                                     :save_meta, :attributes, :edit, :import_spec, :files, :binary_download]
 
   before_action :require_package, only: [:show, :linking_packages, :dependency, :binary, :binaries,
                                          :requests, :statistics, :commit, :revisions, :submit_request_dialog,
@@ -27,7 +27,7 @@ class Webui::PackageController < Webui::WebuiController
                                          :save_group, :remove_role, :view_file,
                                          :abort_build, :trigger_rebuild, :trigger_services,
                                          :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
-                                         :attributes, :edit, :import_spec, :files, :users]
+                                         :attributes, :edit, :import_spec, :files, :users, :binary_download]
 
   # make sure it's after the require_, it requires both
   before_action :require_login, except: [:show, :linking_packages, :linking_packages, :dependency,
@@ -38,7 +38,7 @@ class Webui::PackageController < Webui::WebuiController
 
   before_action :check_build_log_access, only: [:live_build_log, :update_build_log]
 
-  prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
+  prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binary, :binaries, :requests, :binary_download]
 
   def show
     if request.bot?
@@ -141,7 +141,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def binary
-    @arch = params[:arch]
+    @arch = Architecture.find_by_name(params[:arch]).name
     @repository = params[:repository]
     # Ensure it really is just a file name, no '/..', etc.
     @filename = File.basename(params[:filename])
@@ -1021,6 +1021,19 @@ class Webui::PackageController < Webui::WebuiController
 
   def edit; end
 
+  def binary_download
+    architecture = Architecture.find_by_name(params[:arch]).name
+    filename = File.basename(params[:filename]) # Ensure it really is just a file name, no '/..', etc.
+    repository = Repository.find_by_project_and_name(@project.to_s, params[:repository].to_s)
+
+    download_url = download_url_for_file_in_repo(@project, @package, repository, architecture, filename)
+    if download_url
+      redirect_to download_url
+    else
+      redirect_back(fallback_location: root_path)
+    end
+  end
+
   private
 
   def package_files(rev = nil, expand = nil)
@@ -1114,7 +1127,8 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def links_for_binaries_action(project, package, repository, architecture, filename)
-    download_url = download_url_for_file_in_repo(project, package, repository, architecture, filename)
+    download_url = package_binary_download_path(project: project.name, package: package.name,
+                                                repository: repository.name, arch: architecture, filename: filename)
     cloud_upload = Feature.active?(:cloud_upload) && !User.current.is_nobody? && uploadable?(filename, architecture)
     { details?: filename != 'rpmlint.log', download_url: download_url, cloud_upload?: cloud_upload }
   end

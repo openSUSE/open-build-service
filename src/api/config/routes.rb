@@ -103,6 +103,8 @@ OBSApi::Application.routes.draw do
         get 'package/show/:project/:package' => :show, as: 'package_show', constraints: cons
         get 'package/dependency/:project/:package' => :dependency, constraints: cons
         get 'package/binary/:project/:package/:repository/:arch/:filename' => :binary, constraints: cons, as: 'package_binary'
+        get 'package/binary/download/:project/:package/:repository/:arch/:filename' => :binary_download,
+            constraints: cons, as: 'package_binary_download'
         get 'package/binaries/:project/:package/:repository' => :binaries, constraints: cons, as: 'package_binaries'
         get 'package/users/:project/:package' => :users, as: 'package_users', constraints: cons
         get 'package/requests/:project/:package' => :requests, as: 'package_requests', constraints: cons
