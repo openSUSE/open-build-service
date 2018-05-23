@@ -31,6 +31,12 @@
             = text_area_tag 'description', @description, size: '65x9', required: true, min: 10
           %p
             %strong
+              = image_tag('info.png', title: 'Enter a version of this update', alt: 'Versioninfo')
+              %label{for: "version"} Version:
+            %br/
+            = text_field_tag 'version', @version
+          %p
+            %strong
               = image_tag('info.png', title: 'Enter a message', alt: 'Messageinfo')
               %label{for: "message"} Message:
             = text_area_tag 'message', @message, size: '65x5'

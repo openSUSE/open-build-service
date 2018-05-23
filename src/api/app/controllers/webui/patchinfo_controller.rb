@@ -57,6 +57,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     end
     @binary = []
     @packager = @file.value(:packager)
+    @version = @file.value(:version)
 
     if params[:issueid]
       @issues = params[:issue].to_a << params[:issueid]
@@ -123,6 +124,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       attrs = {
         incident: @package.project.name.gsub(/.*:/, '')
       }
+      attrs[:version] = params[:version] if params[:version].present?
       xml = node.patchinfo(attrs) do
         params[:selected_binaries].to_a.each do |binary|
           node.binary(binary) if binary.present?
@@ -173,6 +175,7 @@ class Webui::PatchinfoController < Webui::WebuiController
                   project: @project.name, package: @package
     else
       @tracker = params[:tracker]
+      @version = params[:version]
       @packager = params[:packager]
       @binaries = params[:selected_binaries]
       @binarylist = params[:available_binaries]

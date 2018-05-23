@@ -40,6 +40,10 @@
       .box.show_left.show_right
         %strong Message:
         %pre.plain= @message
+    - if @version
+      .box.show_left.show_right
+        %b Version:
+        %span= @version
     .box.show_left.show_right
       %b Fixed bugs:
       - if @issues.present?
