@@ -14,6 +14,7 @@ AllCops:
     - 'src/api/test/fixtures/backend/**/*'
     - 'src/api/files/*'
     - 'src/backend/**/*'
+    - 'src/api/db/data_schema.rb'
     # These files are RPM spec files
     - 'dist/obs-api-deps.spec'
     - 'dist/obs-server.spec'
