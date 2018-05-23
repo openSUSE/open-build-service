@@ -3559,6 +3559,8 @@ sub periodic {
 
 
 # better safe than sorry...
+my $startworkercode = '?';
+$startworkercode = codemd5('.') if -e './bs_worker';
 chdir($statedir) || die("$statedir: $!\n");
 
 BSServer::deamonize(@ARGV) unless $oneshot;
@@ -3568,6 +3570,7 @@ $| = 1;
 # calculate code meta md5
 $workercode = codemd5('worker');
 $buildcode = codemd5('build');
+$workercode = $buildcode = '?' if $startworkercode ne $workercode;
 
 open(RUNLOCK, '>>', "$statedir/lock") || die("$statedir/lock: $!");
 flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("worker is already running on $statedir!\n");
