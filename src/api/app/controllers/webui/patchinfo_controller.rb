@@ -58,6 +58,8 @@ class Webui::PatchinfoController < Webui::WebuiController
     @binary = []
     @packager = @file.value(:packager)
     @version = @file.value(:version)
+    @package_list = []
+    @file.each(:package) { |package| @package_list << package.text }
 
     if params[:issueid]
       @issues = params[:issue].to_a << params[:issueid]
@@ -129,6 +131,7 @@ class Webui::PatchinfoController < Webui::WebuiController
         params[:selected_binaries].to_a.each do |binary|
           node.binary(binary) if binary.present?
         end
+        params[:package_list].to_a.each { |package| node.package(package) }
         node.name params[:name] if params[:name].present?
         node.packager params[:packager]
         issues.to_a.each do |issue|
@@ -179,6 +182,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       @packager = params[:packager]
       @binaries = params[:selected_binaries]
       @binarylist = params[:available_binaries]
+      @package_list = params[:package_list]
       @issues = []
       params[:issueid].to_a.each_with_index do |new_issue, index|
         @issues << [
