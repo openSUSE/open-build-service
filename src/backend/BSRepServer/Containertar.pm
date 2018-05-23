@@ -28,7 +28,10 @@ use BSUtil;
 use strict;
 
 sub normalize_container {
-  my ($dir, $container, $writetar) = @_;
+  my ($dir, $container, $writeblobs, $deletetar) = @_;
+
+  # sanity check
+  die("must not delete container if blobs are not stored\n") if $deletetar && !$writeblobs;
 
   # read containerinfo
   my $containerinfo_file = $container;
@@ -45,7 +48,9 @@ sub normalize_container {
   # split in blobs/manifest, write blob files
   my @blob_entries = @$tar;
   my $manifest_entry = pop @blob_entries;
-  BSContar::write_entry($_, "$dir/_blob.$_->{'blobid'}") for @blob_entries;
+  if ($writeblobs) {
+    BSContar::write_entry($_, "$dir/_blob.$_->{'blobid'}") for @blob_entries;
+  }
 
   # add extra data to containerinfo
   $containerinfo->{'tar_manifest'} = $manifest_entry->{'data'};
@@ -60,15 +65,15 @@ sub normalize_container {
   $containerinfo_str = JSON::XS->new->utf8->canonical->pretty->encode($containerinfo);
   writestr("$dir/.$containerinfo_file", "$dir/$containerinfo_file", $containerinfo_str);
 
-  if ($writetar) {
+  if ($deletetar) {
+    unlink("$dir/$container");
+  } else {
     local *NEWTAR;
     open(NEWTAR, '>', "$dir/.$container") || die("$dir/.$container: $!\n");
     BSTar::writetar(\*NEWTAR, $tar);
     close(NEWTAR) || die("close: $!\n");
     utime($mtime, $mtime, "$dir/.$container");
     rename("$dir/.$container", "$dir/$container") || die("rename $dir/.$container $dir/$container: $!\n");
-  } else {
-    unlink("$dir/$container");
   }
   # update checksum
   writestr("$dir/.$container.sha256", "$dir/$container.sha256", "$sha256  $container\n") if -f "$dir/$container.sha256";
