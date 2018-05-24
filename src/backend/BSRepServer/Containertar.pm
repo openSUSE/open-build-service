@@ -62,8 +62,7 @@ sub normalize_container {
   $containerinfo->{'goarch'} = $config->{'architecture'};
   $containerinfo->{'goos'} = $config->{'os'};
   # XXX: should add a variant for arm
-  $containerinfo_str = JSON::XS->new->utf8->canonical->pretty->encode($containerinfo);
-  writestr("$dir/.$containerinfo_file", "$dir/$containerinfo_file", $containerinfo_str);
+  BSRepServer::Containerinfo::writecontainerinfo("$dir/.$containerinfo_file", "$dir/$containerinfo_file", $containerinfo);
 
   if ($deletetar) {
     unlink("$dir/$container");

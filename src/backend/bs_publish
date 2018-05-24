@@ -38,7 +38,6 @@ use Fcntl qw(:DEFAULT :flock);
 use Data::Dumper;
 use Storable ();
 use MIME::Base64;
-use JSON::XS ();
 use File::Temp qw/tempfile/;
 
 use BSConfiguration;
@@ -2858,9 +2857,8 @@ sub upload_to_registry {
       # tar file needs to be constructed from blobs
       $blobdir = $containerinfo->{'blobdir'};
       die("need a blobdir for containerinfo uploads\n") unless $blobdir;
-      my $containerinfo_str = JSON::XS->new->utf8->canonical->pretty->encode($containerinfo);
       push @uploadfiles, "$blobdir/container.".scalar(@uploadfiles).".containerinfo";
-      writestr($uploadfiles[-1], undef, $containerinfo);
+      BSRepServer::Containerinfo::writecontainerinfo($uploadfiles[-1], undef, $containerinfo);
     } elsif ($file =~ /\.tar$/) {
       push @uploadfiles, $file;
     } else {

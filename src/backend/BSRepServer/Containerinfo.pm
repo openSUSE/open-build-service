@@ -148,4 +148,10 @@ sub readcontainerinfo {
   return $d;
 }
 
+sub writecontainerinfo {
+  my ($fn, $fnf, $containerinfo) = @_;
+  my $containerinfo_json = JSON::XS->new->utf8->canonical->pretty->encode($containerinfo);
+  writestr($fn, $fnf, $containerinfo_json);
+}
+
 1;
