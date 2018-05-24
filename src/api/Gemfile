@@ -2,7 +2,7 @@
 # This preamble is the current preamble for Rails 3 apps; edit as needed.
 source 'https://rubygems.org'
 
-gem 'rails', '~> 5.1.1'
+gem 'rails', '~> 5.2.0'
 
 # as our database
 gem 'mysql2'
@@ -195,4 +195,6 @@ group :assets do
   gem 'font-awesome-rails'
   # assets for formatting dates
   gem 'momentjs-rails'
+  # assets for formatting dates
+  gem 'bootstrap'
 end

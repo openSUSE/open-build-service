@@ -1,0 +1,9 @@
+= possibly_empty_ul class: 'nav' do
+  - unless User.current.is_nobody?
+    %li.nav-item.togglable_comment{ "data-toggle": "reply_form_of_#{comment.id}" }
+      %a{ id: "reply_link_id_#{comment.id}", class: 'nav-link text-primary' }
+        = sprited_text('comment_add', 'Reply')
+  - if policy(comment).destroy?
+    %li.nav-item
+      = link_to(sprited_text('comment_delete', 'Delete'), comment, method: :delete, id: "delete_link_id_#{comment.id}", class: 'delete_link nav-link', remote: true,
+        'data-confirm': 'Do you really want delete this comment?')

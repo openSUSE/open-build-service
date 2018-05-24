@@ -1,0 +1,17 @@
+= content_for :content_for_head do
+  = auto_discovery_link_tag(:rss, latest_updates_feed_path(format: 'rss'), { title: 'Latest updates' })
+.card.mb-2
+  %h5.card-header.d-flex.justify-content-between.align-items-center
+    Latest Updates
+    \#{link_to('', latest_updates_feed_path(format: 'rss'), { class: 'icons-feeds', title: 'RSS Feed' })}
+  .list-group.list-group-flush
+    - @latest_updates.each do |update|
+      .list-group-item.d-flex.justify-content-between.align-items-center
+        %div
+          - if update[1] == :package
+            = sprite_tag 'package', title: 'Package'
+            = link_to(elide(update[2], 20), controller: 'package', action: 'show', project: update[3], package: update[2])
+          - else
+            = sprite_tag 'project', title: 'Project'
+            = link_to(elide(update[1], 20), controller: 'project', action: 'show', project: update[1])
+        %small.text-muted= fuzzy_time(update[0])

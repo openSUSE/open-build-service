@@ -1,4 +1,6 @@
 class Webui::UserController < Webui::WebuiController
+  # Include the overwriting module from the Webui2 namespace
+  # include Webui2::UserController
   before_action :check_display_user, only: [:show, :edit, :list_my]
   before_action :require_login, only: [:edit, :save, :index, :update, :delete]
   before_action :require_admin, only: [:edit, :index, :update, :delete]

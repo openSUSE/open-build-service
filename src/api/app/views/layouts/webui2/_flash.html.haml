@@ -1,0 +1,26 @@
+- unless flash.blank?
+  - [:success, :error, :alert, :notice].each do |flash_type|
+    - if (flash[flash_type] && !flash[flash_type].empty?)
+      - case flash_type
+      - when :error
+        - flash_icon = 'times-octagon'
+        - flash_header = 'danger'
+      - when :alert
+        - flash_icon = 'exclamation-triangle'
+        - flash_header = 'warning'
+      - when :success
+        - flash_icon = 'thumbs-up'
+        - flash_header = 'success'
+      - when :notice
+        - flash_icon = 'info-circle'
+        - flash_header = 'info'
+      %div{ class: "alert alert-#{flash_header}" }
+        .container.text-center
+          %span{ class: "fa fa-#{flash_icon}" }
+            = flash_content(flash[flash_type])
+            = link_to 'more info', '#', class: 'btn-more' if @more_info
+          - if @more_info
+            .more_info.hidden
+              %div{ class: flash_header }
+              .more-info-content
+                = simple_format @more_info.gsub(/\\n/, '<br \>')

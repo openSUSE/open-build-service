@@ -1,0 +1,35 @@
+- if @status_messages.present? || User.current.is_admin?
+  .card.mb-2
+    %h5.card-header.d-flex.justify-content-between.align-items-center
+      Announcements
+      \#{link_to('', news_feed_path(format: 'rss'), { class: 'alignright icons-feeds', title: 'RSS Feed' })}
+    .list-group.list-group-flush
+      - @status_messages.each do |msg|
+        .list-group-item
+          .d-flex.justify-content-between.align-items-center.mb-2
+            %p.mb-0
+              = user_with_realname_and_icon msg.user, short: true
+            %small.text-muted
+              #{time_ago_in_words(msg.created_at)} ago
+          .card.card-body
+            .row
+              .col
+                = comment_body(msg.message)
+              .col-auto
+                - case msg.severity.to_i
+                - when 3
+                  = sprite_tag('exclamation', alt: 'Red')
+                - when 2
+                  = sprite_tag('error', alt: 'Yellow')
+                - when 1
+                  = sprite_tag('accept', alt: 'Green')
+                - else
+                  = sprite_tag('information', alt: 'Information')
+                - if User.current.is_admin?
+                  = link_to(sprite_tag('comment_delete', title: 'Remove status message'),
+                    { controller: 'status_messages', action: 'destroy_status_message_dialog', id: msg.id },
+                    { remote: true, class: 'delete-message' })
+    - if User.current.is_admin?
+      .card-footer
+        
+        = render partial: 'webui2/webui/status_messages/create_status_message_dialog'

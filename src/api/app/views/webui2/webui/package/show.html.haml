@@ -1,0 +1,28 @@
+- @pagetitle = "Show #{@project} / #{@package}"
+- @layouttype = 'custom'
+- package_bread_crumb
+.card.mb-2
+  = render :partial => 'tabs'
+  .card-body
+    .row
+      .col-9
+        = render partial: 'show_description'
+      .col-3
+        = render partial: 'show_info_right_side'
+  .nav
+    = render partial: 'show_actions'
+.row
+  .col-md-8
+    .card.mb-2
+      = render partial: 'show_source_files'
+  .col-md-4
+    .card
+      = render :partial => 'webui2/webui/shared/buildresult_box', :locals => { :project => @project.name, :package => @package.name }
+  .col-12
+    .card.mb-2
+      %h5.card-header
+        Comments for #{@project.name} (#{@comments.length})
+      #comments
+        = render partial: 'webui2/webui/comment/show', locals: { commentable: @package }
+.modal
+  = render partial: 'webui/package/branch_dialog'

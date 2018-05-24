@@ -1,0 +1,16 @@
+.container
+  .row.justify-content-end
+    - commentable.comments.walk_tree do |comment, level|
+      %div{class: "col-#{level >= 4 ? 4 : 12 - level}"}
+        .p-2
+          .d-flex.justify-content-between.align-items-center
+            %span
+              = user_with_realname_and_icon(comment.user, no_icon: true, short: true)
+            %small.text-muted
+              = fuzzy_time(comment.created_at)
+          .px-3.pt-3
+            = comment_body(comment)
+          = render partial: 'webui/comment/links', locals: { comment: comment }
+          = render partial: 'webui/comment/reply', locals: { comment: comment, level: 0, commentable: commentable }
+        .dropdown-divider
+    = render partial: 'webui/comment/new', locals: { commentable: commentable }

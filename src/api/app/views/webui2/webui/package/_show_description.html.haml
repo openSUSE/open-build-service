@@ -1,0 +1,12 @@
+%h5.title.is-5#package-title
+  - title = @package.title
+  - title = @package.name if title.blank?
+  = title
+  - if @package.url.present?
+    %br/
+    %small= link_to(@package.url, @package.url)
+%p#description-text
+  - if @package.description.blank?
+    %i No description set
+  - else
+= @package.description

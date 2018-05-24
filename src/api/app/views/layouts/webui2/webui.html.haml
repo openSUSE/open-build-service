@@ -1,0 +1,64 @@
+!!!
+%html
+  %head
+    %meta{:content => "text/html; charset=utf-8", "http-equiv" => "Content-Type"}/
+    - if @metarobots
+      %meta{:content => "#{@metarobots}", :name => "robots"}/
+    = favicon_link_tag
+    %title
+      = "#{@pagetitle} - " if @pagetitle
+      = @configuration ? @configuration['title'] : 'Open Build Service'
+    = stylesheet_link_tag 'webui2/webui2'
+    - if content_for?(:head_style)
+      :css
+        #{yield :head_style}
+    = yield :content_for_head
+    = javascript_include_tag 'webui2/application'
+    = javascript_tag do
+      = yield :head_javascript
+      var _paq = _paq || [];
+      $(function() {
+      \#{yield :ready_function}
+      - if @configuration['theme'] == 'bento'
+        callPiwik();
+      });
+    = auto_discovery_link_tag(:rss, news_feed_path(format: 'rss'), {:title => 'News'})
+    - unless CONFIG['feeds'].nil? or CONFIG['feeds'].empty?
+      - CONFIG['feeds'].each do |feed|
+        = auto_discovery_link_tag(:rss, feed['url'], {:title => feed['name']})
+    = csrf_meta_tag
+    - if User.current.try(:rss_token)
+      = auto_discovery_link_tag(:rss, user_rss_notifications_url(token: User.current.rss_token.string, format: :rss), { title: 'Notifications' })
+  %body
+    .overlay
+    = render 'peek/bar'
+    = render :partial => 'layouts/webui2/header'
+    .breadcrumb.mb-0
+      %ol.breadcrumb.mb-0.p-0.mr-auto
+        = sprite_tag( "home_grey", title: 'Logo', class: 'my-auto' )
+        %li.breadcrumb-item
+          = link_to "#{@configuration ? @configuration['title'] : 'Open Build Service'}", root_path
+        - if @crumb_list
+          - @crumb_list.each do |link|
+            %li.breadcrumb-item
+              - if link.class == Array
+                / multiple items in crump list but they belong together as sub group, eg sub projects
+                - link.each_with_index do |slink, index|
+                  = ':' if index > 0
+                  = slink
+              - else
+                = link
+      = render :partial => "layouts/webui2/personal_navigation"
+    .mb-3
+      = render :partial => "layouts/webui2/flash", :object => flash
+    / this is needed for the delete confirm dialogues
+    #dialog_wrapper{:style => "display: none"}
+    / Start: Main Content Area
+    .container
+      - if @layouttype == "custom"
+        = content_for?(:content) ? yield(:content) : yield
+      - else
+        .card
+          = content_for?(:content) ? yield(:content) : yield
+    / End: Main Content Area
+    = render partial: 'layouts/webui2/footer'

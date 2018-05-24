@@ -1,0 +1,23 @@
+- if User.current && !User.current.is_nobody?
+  .btn-group
+    %button.btn.btn-link.dropdown-toggle{ 'type': 'button', 'data-toggle': 'dropdown', 'aria-haspopup': 'true', 'aria-expanded': 'false' } Watchlist
+    .dropdown-menu
+      .dropdown-header
+        List of projects you are watching
+      .dropdown-divider
+      - if params[:project]
+        %a.dropdown-item{ href: project_toggle_watch_path(params[:project]) }
+          - if User.current.watches? params[:project]
+            %p.mb-0
+              Remove this project from Watchlist
+            %small.text-muted
+              Do not watch this project anymore
+          - else
+            %p.mb-0
+              Add this project to Watchlist
+            %small.text-muted
+              Watch this project
+      .dropdown-divider
+      - User.current.watched_project_names.each do |project|
+        = link_to(content_tag(:span, content_tag(:span, '', class: 'icons-project') + raw(project.gsub(':', ':<wbr>')),
+          class: 'dropdown-item'), project_show_path(project))

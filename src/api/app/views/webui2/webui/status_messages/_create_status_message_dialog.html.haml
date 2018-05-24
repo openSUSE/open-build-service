@@ -1,0 +1,22 @@
+.btn.btn-link{'type': 'button', 'data-toggle': 'modal', 'data-target': '#addStatusMessageModal' }
+  = sprite_tag('comment_add')
+  %span
+    Add new status message"
+
+.modal.fade#addStatusMessageModal{'tabindex': '-1', 'role': 'dialog', 'aria-labelledby': 'addStatusMessageModalLabel', 'aria-hidden': 'true', }
+  .modal-dialog{'role': 'document'}
+    .modal-content
+      .modal-header
+        %h5.modal-title#addStatusMessageModalLabel Add New Status Message
+        %button.close{'type':"button", 'data-dismiss': "modal", 'aria-label': "Close"}
+          %span{'aria-hidden': "true"} &times;
+      = form_tag({ controller: 'status_messages', action: 'create' }, method: 'post') do
+        .modal-body
+          = label_tag(:message, 'Message:')
+          = text_area_tag(:message, '', size: '40x3', required: true, class: 'form-control')
+          = label_tag(:severity, "Severity:")
+          = select_tag(:severity, options_for_select([['Information', 0], ['Green', 1], ['Yellow', 2], ['Red', 3]]), class: 'form-control')
+        .modal-footer
+          %button.btn.btn-secondary{'type':"button", 'data-dismiss': "modal"} Cancel
+          = submit_tag('Ok', class: 'btn btn-primary')
+

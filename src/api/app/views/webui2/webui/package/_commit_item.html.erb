@@ -1,0 +1,43 @@
+<% commit = @package.commit(rev.to_s) %>
+<% if commit %>
+    <% if commit['user'] == '_service' %>
+        <%= sprite_tag('cog') %> automatic update by service
+    <% else %>
+        <% user = User.find_by_login commit['user'] %>
+        <% if user %>
+            <% realname = user.realname %>
+            <%= user_icon(user) %>
+            <% unless realname.empty? %>
+                <%= link_to(realname + ' (' + user.login + ')', user_show_path(user)) %>
+            <% else %>
+                <%= link_to(user.login, user_show_path(user)) %>
+            <% end %>
+        <% else %>
+            <i><%= commit['user'] || '-' %></i>
+        <% end %>
+        <% if commit['requestid'] %>
+            accepted <%= link_to("request #{commit['requestid']}", {:controller => :request, :action => :show, :number => commit['requestid']}) %>
+        <% else %>
+            committed
+        <% end %>
+    <% end %>
+    <% time = Time.at(commit['time'].to_i) %>
+    <%= fuzzy_time(time) %> (revision <%= commit['rev'] %>)
+    <% unless commit['user'] == '_service' || commit['comment'].blank? %>
+        <pre class="plain"><%= commit['comment'] %></pre>
+    <% end %>
+    <ul class="nav row">
+    <% if commit['rev'] != '1' %>
+      <li class="nav-item">
+        <%= link_to(sprite_tag('brick') + 'Files changed', {:controller => :package, :action => :rdiff,
+                                                            :package => @package, :project => @project,
+                                                            :rev => commit['rev'], :linkrev => 'base'}, class: 'nav-link') %>
+      </li>
+    <% end -%>
+      <li class="nav-item">
+        <%= link_to(image_tag('folder_go.png') + "Browse Source", {:action => 'show', :project => @project, :package => @package, :rev => commit['rev']}, class: 'nav-link') %>
+      </li>
+    </ul>
+<% else %>
+    <i>Revision <%= rev.to_s %> not found</i>
+<% end %>

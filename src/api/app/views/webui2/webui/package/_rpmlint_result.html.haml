@@ -1,0 +1,42 @@
+- index ||= ''
+%p
+  - unless @repo_list.empty?
+    = select_tag("rpmlint_repo_select_#{index}", options_for_select(@repo_list.sort))
+    - i = 0
+    - @repo_arch_hash.each do |repo, arches|
+      = select_tag("rpmlint_arch_select_#{index}_#{repo}", options_for_select(arches.reverse), :class => "rpmlint_arch_select_#{index}")
+    = image_tag('ajax-loader.gif', :id => "rpmlint_spinner_#{index}", :class => 'is-hidden')
+
+%pre.plain.rpmlint_log.is-size-7{ id: "rpmlint_display_#{index}" }
+
+= javascript_tag do
+  function update_arch_display(data) {
+  $('.rpmlint_arch_select_#{index}').hide();
+  $('#rpmlint_arch_select_#{index}_' + $('#rpmlint_repo_select_#{index} option:selected').attr('value')).show();
+  update_rpmlint_display();
+  }
+
+  function update_rpmlint_display() {
+  $('#rpmlint_spinner_#{index}').show();
+  repo_name = $('#rpmlint_repo_select_#{index} option:selected').html();
+  repo_key = $('#rpmlint_repo_select_#{index} option:selected').attr('value');
+  $.ajax({
+  url: '#{url_for(:controller => 'package', :action => 'rpmlint_log')}',
+  data: {
+  'project': '#{@project.name}',
+  'package': '#{@package.name}',
+  'repository': repo_name,
+  'architecture': $("#rpmlint_arch_select_#{index}_" + repo_key + " option:selected").attr('value'),
+  },
+  success: function (data) {
+  $('#rpmlint_display_#{index}').html(data);
+  },
+  complete: function (data) {
+  $('#rpmlint_spinner_#{index}').hide();
+  },
+  });
+  }
+
+  $('#rpmlint_repo_select_#{index}').change(update_arch_display);
+  $('.rpmlint_arch_select_#{index}').change(update_rpmlint_display);
+update_arch_display();

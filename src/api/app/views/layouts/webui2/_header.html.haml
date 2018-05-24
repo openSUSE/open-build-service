@@ -1,0 +1,13 @@
+/ Start: Header
+%nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+  = link_to image_tag('obs-logo_small.png', height: '30' ), root_path, { class: 'navbar-brand' }
+  %button.navbar-toggler{ 'type': "button", 'data-toggle': "collapse", 'data-target': "#navbarSupportedContent", 'aria-controls': "navbarSupportedContent", 'aria-expanded': "false", 'aria-label': "Toggle navigation"}
+    %span.navbar-toggler-icon
+  .collapse.navbar-collapse#navbarSupportedContent
+    %ul.navbar-nav.mr-auto#global-navigation
+      %li.nav-item
+      - if User.current && !User.current.is_nobody?
+        %li#item-favorites{ style: 'float: right;' }
+    = render partial: 'layouts/webui2/watch'
+    = render partial: 'layouts/webui2/search'
+/ End: Header

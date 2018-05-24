@@ -1,0 +1,253 @@
+@import "node_modules/bootstrap/scss/variables";
+
+// set to false to remove default icons, saves about 5.8kb when minified
+$render-embedded-icons: true !default;
+// default icons are black, so use opacity to manipulate states. only applies to default icon classes
+$opacity-default: 0.2 !default;
+$opacity-step-1: 0.45 !default;
+$opacity-step-2: 0.8 !default;
+
+.ca-dt-bootstrap__wrapper {
+    box-sizing: border-box;
+
+    .ca-dt-bootstrap__header,
+    .ca-dt-bootstrap__footer {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .ca-dt-bootstrap__header .input-group {
+        margin-bottom: $spacer;
+    }
+
+    .ca-dt-bootstrap__footer {
+        .dataTables_paginate,
+        .dataTables_info {
+            margin-bottom: $spacer;
+        }
+    } 
+
+    // TODO: sort icon colors don't look quite right    
+    // TODO: remove border shown on mouse held down
+    .ca-dt-bootstrap__sorting {
+        .ca-dt-bootstrap__sorting-inner {
+            position: relative;
+            cursor: pointer;
+            >span {
+                display: inline-block;
+                padding-right: 8px;
+            }
+        }
+
+        .ca-dt-bootstrap__sort {
+            display: block;
+            color: $gray-lighter;
+        }
+
+        &.ca-dt-bootstrap__sorting--asc {
+            .ca-dt-bootstrap__sort--asc {
+                display: block;
+                color: $gray-dark;
+            }
+        }
+
+        &.ca-dt-bootstrap__sorting--desc {
+            .ca-dt-bootstrap__sort--desc {
+                display: block;
+                color: $gray-dark;
+            }
+        }
+
+        &:hover {
+            &.ca-dt-bootstrap__sorting--asc {
+                .ca-dt-bootstrap__sort--asc {
+                    display: block;
+                    color: $gray;
+                }
+                .ca-dt-bootstrap__sort--desc {
+                    display: block;
+                    color: $gray-dark;
+                }
+            }
+
+            &,
+            &.ca-dt-bootstrap__sorting--desc {
+                .ca-dt-bootstrap__sort--asc {
+                    display: block;
+                    color: $gray-dark;
+                }
+                .ca-dt-bootstrap__sort--desc {
+                    display: block;
+                    color: $gray;
+                }
+            }
+        }
+    }
+
+    .ca-dt-bootstrap__sort {
+        position: absolute;
+        right: 4px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: none;
+    } 
+
+    // form-control heights are not explicitly set by default
+    .input-group.ca-dt-bootstrap__filter {
+        .form-control {
+            height: $input-height;
+        }
+        &.input-group-lg .form-control {
+            height: $input-height-lg;
+        }
+        &.input-group-sm .form-control {
+            height: $input-height-sm;
+        }
+    }
+
+    .input-group-addon,
+    .pagination {
+        user-select: none;
+    }
+
+    .input-group-addon {
+        cursor: default;
+    }
+
+    .pagination .page-item {
+        cursor: pointer;
+        &.disabled,
+        &.active {
+            cursor: default;
+        }
+    } 
+
+    // scrolling    
+    .ca-dt-bootstrap__scroll-head {
+        .ca-dt-bootstrap__scroll-head-inner {
+            min-width: 100%; // force table to fill container. set width on the wrapper element's parent for desired width
+        }
+        .table {
+            margin-bottom: 0;
+            border-bottom: none;
+        }
+        th,
+        td {
+            border-bottom-width: $table-border-width;
+        }
+    }
+
+    .ca-dt-bootstrap__scroll-body {
+        margin-bottom: $spacer;
+
+        .table {
+            border-top: none;
+            min-width: 100%;
+            margin-bottom: 0;
+        }
+
+        .dataTables_sizing .ca-dt-bootstrap__sort {
+            // due to absolute position, icons dont hide... so hide them
+            display: none;
+        }
+    }
+
+    .ca-dt-bootstrap__scroll {
+        // force full width cells when scrollx enabled
+        overflow: hidden;
+
+        .ca-dt-bootstrap__sorting-inner,
+        td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .ca-dt-bootstrap__sorting {
+            // need to remove padding on cell itself in order for datatables to calculate header width appropriately
+            padding-left: 0;
+            padding-right: 0;
+            .ca-dt-bootstrap__sorting-inner {
+                // add the padding back to the inner header element
+                padding-left: $table-cell-padding;
+                padding-right: $table-cell-padding;
+            }
+        }
+
+        .table-sm .ca-dt-bootstrap__sorting .ca-dt-bootstrap__sorting-inner {
+            // add the padding back to the inner header element for small tables
+            padding-left: $table-sm-cell-padding;
+            padding-right: $table-sm-cell-padding;
+        }
+    }
+
+    @if($render-embedded-icons==true) {       
+        .ca-dt-bootstrap__sorting {
+
+            .ca-dt-bootstrap__sort {
+                opacity: $opacity-default;
+            }
+
+            &.ca-dt-bootstrap__sorting--asc {
+                .ca-dt-bootstrap__sort--asc {
+                    opacity: $opacity-step-2;
+                }
+            }
+
+            &.ca-dt-bootstrap__sorting--desc {
+                .ca-dt-bootstrap__sort--desc {
+                    opacity: $opacity-step-2;
+                }
+            }
+
+            &:hover {
+                &.ca-dt-bootstrap__sorting--asc {
+                    .ca-dt-bootstrap__sort--asc {
+                        opacity: $opacity-step-1;
+                    }
+
+                    .ca-dt-bootstrap__sort--desc {
+                        opacity: $opacity-step-2;
+                    }
+                }
+
+                &,
+                &.ca-dt-bootstrap__sorting--desc {
+                    .ca-dt-bootstrap__sort--asc {
+                        opacity: $opacity-step-2;
+                    }
+
+                    .ca-dt-bootstrap__sort--desc {
+                        opacity: $opacity-step-1;
+                    }
+                }
+            }
+        }
+
+        .ca-dt-bootstrap__icon-search {
+            height: 16px;
+            width: 16px;
+            background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgMzIgMzIiIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDMyIDMyIiB4bWw6c3BhY2U9InByZXNlcnZlIj48cGF0aCBkPSJNMjkuMjgzLDI1Ljc0OWwtNy4xMjUtNy4xMjdjMC45NTktMS41ODIsMS41MjEtMy40MzYsMS41MjEtNS40MjJjMC01Ljc5My00LjY4OC0xMC40ODQtMTAuNDgxLTEwLjQ4NiAgQzcuNDA5LDIuNzE2LDIuNzE3LDcuNDA3LDIuNzE3LDEzLjE5OWMwLDUuNzg4LDQuNjkzLDEwLjQ3OSwxMC40ODQsMTAuNDc5YzEuOTg3LDAsMy44MzgtMC41NjIsNS40Mi0xLjUyMWw3LjEyOSw3LjEyOSAgTDI5LjI4MywyNS43NDl6IE02LjcxNiwxMy4xOTlDNi43MjIsOS42MTcsOS42MTksNi43MiwxMy4yLDYuNzE0YzMuNTgsMC4wMDgsNi40NzgsMi45MDMsNi40ODQsNi40ODUgIGMtMC4wMDcsMy41NzktMi45MDQsNi40NzgtNi40ODQsNi40ODNDOS42MTgsMTkuNjc3LDYuNzIxLDE2Ljc3OCw2LjcxNiwxMy4xOTl6Ij48L3BhdGg+PC9zdmc+);
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        .ca-dt-bootstrap__icon-asc {
+            height: 16px;
+            width: 16px;
+            background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PHN2ZyAgIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIiAgIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyIgICB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgICB4bWxuczpzb2RpcG9kaT0iaHR0cDovL3NvZGlwb2RpLnNvdXJjZWZvcmdlLm5ldC9EVEQvc29kaXBvZGktMC5kdGQiICAgeG1sbnM6aW5rc2NhcGU9Imh0dHA6Ly93d3cuaW5rc2NhcGUub3JnL25hbWVzcGFjZXMvaW5rc2NhcGUiICAgdmVyc2lvbj0iMS4xIiAgIHg9IjBweCIgICB5PSIwcHgiICAgdmlld0JveD0iLTI1NSAzNDcgMzIgMzIiICAgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgICBpZD0ic3ZnMiIgICBpbmtzY2FwZTp2ZXJzaW9uPSIwLjkxIHIxMzcyNSIgICBzb2RpcG9kaTpkb2NuYW1lPSJ1cC5zdmciICAgd2lkdGg9IjMyIiAgIGhlaWdodD0iMzIiPjxtZXRhZGF0YSAgICAgaWQ9Im1ldGFkYXRhMTYiPjxyZGY6UkRGPjxjYzpXb3JrICAgICAgICAgcmRmOmFib3V0PSIiPjxkYzpmb3JtYXQ+aW1hZ2Uvc3ZnK3htbDwvZGM6Zm9ybWF0PjxkYzp0eXBlICAgICAgICAgICByZGY6cmVzb3VyY2U9Imh0dHA6Ly9wdXJsLm9yZy9kYy9kY21pdHlwZS9TdGlsbEltYWdlIiAvPjxkYzp0aXRsZT48L2RjOnRpdGxlPjwvY2M6V29yaz48L3JkZjpSREY+PC9tZXRhZGF0YT48ZGVmcyAgICAgaWQ9ImRlZnMxNCIgLz48c29kaXBvZGk6bmFtZWR2aWV3ICAgICBwYWdlY29sb3I9IiNmZmZmZmYiICAgICBib3JkZXJjb2xvcj0iIzY2NjY2NiIgICAgIGJvcmRlcm9wYWNpdHk9IjEiICAgICBvYmplY3R0b2xlcmFuY2U9IjEwIiAgICAgZ3JpZHRvbGVyYW5jZT0iMTAiICAgICBndWlkZXRvbGVyYW5jZT0iMTAiICAgICBpbmtzY2FwZTpwYWdlb3BhY2l0eT0iMCIgICAgIGlua3NjYXBlOnBhZ2VzaGFkb3c9IjIiICAgICBpbmtzY2FwZTp3aW5kb3ctd2lkdGg9IjE5MjAiICAgICBpbmtzY2FwZTp3aW5kb3ctaGVpZ2h0PSIxMDE3IiAgICAgaWQ9Im5hbWVkdmlldzEyIiAgICAgc2hvd2dyaWQ9ImZhbHNlIiAgICAgZml0LW1hcmdpbi10b3A9IjEwIiAgICAgZml0LW1hcmdpbi1sZWZ0PSIxMCIgICAgIGZpdC1tYXJnaW4tcmlnaHQ9IjEwIiAgICAgZml0LW1hcmdpbi1ib3R0b209IjEwIiAgICAgaW5rc2NhcGU6em9vbT0iNS4zNDAwNzA0IiAgICAgaW5rc2NhcGU6Y3g9IjI3LjkyMDQ5MiIgICAgIGlua3NjYXBlOmN5PSItNS4yODc0NzYiICAgICBpbmtzY2FwZTp3aW5kb3cteD0iLTgiICAgICBpbmtzY2FwZTp3aW5kb3cteT0iLTgiICAgICBpbmtzY2FwZTp3aW5kb3ctbWF4aW1pemVkPSIxIiAgICAgaW5rc2NhcGU6Y3VycmVudC1sYXllcj0ic3ZnMiIgLz48cG9seWdvbiAgICAgcG9pbnRzPSItMjE2LjYsMzkyLjggLTE5My40LDM5Mi44IC0yMDUsMzc2LjEgIiAgICAgaWQ9InBvbHlnb240IiAgICAgdHJhbnNmb3JtPSJtYXRyaXgoMC42NDY1NTE3MiwwLDAsMC42NDU5MzMwMSwtMTA2LjQ1NjkxLDEwNi41NjQ2KSIgLz48L3N2Zz4=);
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        .ca-dt-bootstrap__icon-desc {
+            height: 16px;
+            width: 16px;
+            background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PHN2ZyAgIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIiAgIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyIgICB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgICB4bWxuczpzb2RpcG9kaT0iaHR0cDovL3NvZGlwb2RpLnNvdXJjZWZvcmdlLm5ldC9EVEQvc29kaXBvZGktMC5kdGQiICAgeG1sbnM6aW5rc2NhcGU9Imh0dHA6Ly93d3cuaW5rc2NhcGUub3JnL25hbWVzcGFjZXMvaW5rc2NhcGUiICAgdmVyc2lvbj0iMS4xIiAgIHg9IjBweCIgICB5PSIwcHgiICAgdmlld0JveD0iLTI1NSAzNDcgMzIgMzIiICAgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgICBpZD0ic3ZnMiIgICBpbmtzY2FwZTp2ZXJzaW9uPSIwLjkxIHIxMzcyNSIgICBzb2RpcG9kaTpkb2NuYW1lPSJkb3duLnN2ZyIgICB3aWR0aD0iMzIiICAgaGVpZ2h0PSIzMiI+PG1ldGFkYXRhICAgICBpZD0ibWV0YWRhdGExNiI+PHJkZjpSREY+PGNjOldvcmsgICAgICAgICByZGY6YWJvdXQ9IiI+PGRjOmZvcm1hdD5pbWFnZS9zdmcreG1sPC9kYzpmb3JtYXQ+PGRjOnR5cGUgICAgICAgICAgIHJkZjpyZXNvdXJjZT0iaHR0cDovL3B1cmwub3JnL2RjL2RjbWl0eXBlL1N0aWxsSW1hZ2UiIC8+PGRjOnRpdGxlPjwvZGM6dGl0bGU+PC9jYzpXb3JrPjwvcmRmOlJERj48L21ldGFkYXRhPjxkZWZzICAgICBpZD0iZGVmczE0IiAvPjxzb2RpcG9kaTpuYW1lZHZpZXcgICAgIHBhZ2Vjb2xvcj0iI2ZmZmZmZiIgICAgIGJvcmRlcmNvbG9yPSIjNjY2NjY2IiAgICAgYm9yZGVyb3BhY2l0eT0iMSIgICAgIG9iamVjdHRvbGVyYW5jZT0iMTAiICAgICBncmlkdG9sZXJhbmNlPSIxMCIgICAgIGd1aWRldG9sZXJhbmNlPSIxMCIgICAgIGlua3NjYXBlOnBhZ2VvcGFjaXR5PSIwIiAgICAgaW5rc2NhcGU6cGFnZXNoYWRvdz0iMiIgICAgIGlua3NjYXBlOndpbmRvdy13aWR0aD0iMTkyMCIgICAgIGlua3NjYXBlOndpbmRvdy1oZWlnaHQ9IjEwMTciICAgICBpZD0ibmFtZWR2aWV3MTIiICAgICBzaG93Z3JpZD0iZmFsc2UiICAgICBmaXQtbWFyZ2luLXRvcD0iMTAiICAgICBmaXQtbWFyZ2luLWxlZnQ9IjEwIiAgICAgZml0LW1hcmdpbi1yaWdodD0iMTAiICAgICBmaXQtbWFyZ2luLWJvdHRvbT0iMTAiICAgICBpbmtzY2FwZTp6b29tPSI1LjM0MDA3MDQiICAgICBpbmtzY2FwZTpjeD0iMjcuOTIwNDkyIiAgICAgaW5rc2NhcGU6Y3k9Ii01LjI4NzQ3NiIgICAgIGlua3NjYXBlOndpbmRvdy14PSItOCIgICAgIGlua3NjYXBlOndpbmRvdy15PSItOCIgICAgIGlua3NjYXBlOndpbmRvdy1tYXhpbWl6ZWQ9IjEiICAgICBpbmtzY2FwZTpjdXJyZW50LWxheWVyPSJzdmcyIiAvPjxwb2x5Z29uICAgICBwb2ludHM9Ii0xOTMuNCw0MDEuMiAtMjE2LjYsNDAxLjIgLTIwNSw0MTcuOSAiICAgICBpZD0icG9seWdvbjYiICAgICB0cmFuc2Zvcm09Im1hdHJpeCgwLjY0NjU1MTcyLDAsMCwwLjY0NTkzMzAxLC0xMDYuNDU2OTEsMTA2LjU2NDYpIiAvPjwvc3ZnPg==);
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+    }
+}
