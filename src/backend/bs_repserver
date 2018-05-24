@@ -1868,6 +1868,10 @@ sub receivekiwitree {
     die("bad file '$file' (contains \\0)\n") if $file =~ /\0/s;
     die("already processed: $file\n") if $done{$file};
     die("bad file '$file'\n") if "/$file/" =~ /\/\.{0,2}\//s;
+    if ($file !~ /\//s) {
+      die("toplevel files must be directories\n") if $type ne 'd';
+      die("illegal toplevel directory\n") if $file =~ /^[_\.]/s;
+    }
     if ($file =~ /^(.*)\//s) {
       die("file without directory\n") unless $done{$1} && $done{$1} eq 'd';
     }
@@ -2040,6 +2044,21 @@ sub putjob {
     }
   }
 
+  # make sure there are no illegal files
+  eval {
+    for my $file (@$uploaded) {
+      my $name = $file->{'name'};
+      die("job contains an illegal file\n") if $name =~ /\.obsbinlnk$/s;
+      die("job contains an illegal file\n") if $name =~ /^_blob\./s;
+    }
+  };
+  if ($@) {
+    my $err = $@;
+    BSUtil::cleandir($tmpdir);
+    rmdir($tmpdir);
+    die($err);
+  }
+
   # normalize containers
   for my $file (@$uploaded) {
     my $containerinfofile = $file->{'name'};
@@ -2066,7 +2085,6 @@ sub putjob {
     die("different jobid\n") if $jobstatus->{'jobid'} ne $jobid;
     die("job is not building\n") if $jobstatus->{'code'} ne 'building';
     die("job is building on a different worker\n") if $jobstatus->{'workerid'} ne $oldjobstatus->{'workerid'} || $jobstatus->{'starttime'} ne $oldjobstatus->{'starttime'};
-    die("job contains an illegal file\n") if grep {$_->{'name'} =~ /\.obsbinlnk$/s} @$uploaded;
     if (!@$uploaded && -e $dir) {
       # local image building hack
       rmdir($tmpdir);
