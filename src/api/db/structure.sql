@@ -410,7 +410,7 @@ CREATE TABLE `configurations` (
 
 CREATE TABLE `data_migrations` (
   `version` varchar(255) NOT NULL,
-  UNIQUE KEY `unique_data_migrations` (`version`)
+  PRIMARY KEY (`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `delayed_jobs` (
@@ -1330,6 +1330,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20180110074142'),
 ('20180216082148'),
 ('20180221175514'),
-('20180307074538');
+('20180307074538'),
+('20180523123532');
 
 
