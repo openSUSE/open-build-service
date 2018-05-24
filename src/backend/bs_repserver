@@ -2069,7 +2069,7 @@ sub putjob {
       # check that the containerinfo is well formed
       BSRepServer::Containerinfo::readcontainerinfo($tmpdir, $containerinfofile);
       # now do the rewrite
-      BSRepServer::Containertar::normalize_container($tmpdir, $container, 1, 1);
+      BSRepServer::Containertar::normalize_container($tmpdir, $container, 0, 0);
     };
     warn($@) if $@;
   }
