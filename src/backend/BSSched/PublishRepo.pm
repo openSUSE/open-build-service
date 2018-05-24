@@ -51,6 +51,7 @@ use Build::Rpm;		# for verscmp
 use BSSched::ProjPacks;		# for orderpackids
 use BSSched::BuildJob::DeltaRpm;
 use BSSched::EventSource::Directory;  # sendpublishevent
+use BSSched::Blobstore;
 
 my $default_publishfilter;
 
@@ -114,8 +115,12 @@ sub prpfinished {
     # delete all in :repo
     unlink("${rdir}info");
     if (-d $rdir) {
+      my @blobs = grep {/^_blob\./} ls($rdir);
       BSUtil::cleandir($rdir);
       rmdir($rdir) || die("rmdir $rdir: $!\n");
+      for my $blob (sort @blobs) {
+	BSSched::Blobstore::blobstore_chk($gctx, $blob);
+      }
     } elsif (! -e "$reporoot/$prp/:repoinfo") {
       print "    nothing to delete...\n";
       close(F);
@@ -253,7 +258,8 @@ sub prpfinished {
           BSUtil::cleandir("$rdir/$rbin");
           rmdir("$rdir/$rbin");
         } else {
-          unlink("$rdir/$rbin");
+	  unlink("$rdir/$rbin");
+	  BSSched::Blobstore::blobstore_chk($gctx, $rbin) if $rbin =~ /^_blob\./;
         }
       } else {
         print "      + :repo/$rbin ($packid)\n";
@@ -289,7 +295,8 @@ sub prpfinished {
       rmdir("$rdir/$rbin") || die("rmdir $rdir/$rbin: $!\n");
     } else {
       if (-f "$rdir/$rbin") {
-       unlink("$rdir/$rbin") || die("unlink $rdir/$rbin: $!\n");
+        unlink("$rdir/$rbin") || die("unlink $rdir/$rbin: $!\n");
+        BSSched::Blobstore::blobstore_chk($gctx, $rbin) if $rbin =~ /^_blob\./;
       }
     }
     $changed = 1;

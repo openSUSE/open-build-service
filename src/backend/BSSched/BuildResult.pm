@@ -53,6 +53,7 @@ use BSXML;
 use BSVerify;
 use BSConfiguration;
 use BSSched::BuildRepo;
+use BSSched::Blobstore;
 use BSSched::BuildJob::Import;		# for createexportjob
 use BSSched::BuildJob::PreInstallImage;	# for update_preinstallimage
 use BSSched::Access;			# for checkaccess
@@ -453,6 +454,7 @@ sub update_dst_full {
       my $df = $importarch ? "::import::${importarch}::$f" : $f;
       rename("$jobdir/$f", "$dst/$df") || die("rename $jobdir/$f $dst/$df: $!\n");
       $new{$df} = 1;
+      BSSched::Blobstore::blobstore_lnk($gctx, $df, $dst) if $df =~ /^_blob\./;
       if ($jobbininfo->{$f}) {
         $bininfo->{$df} = $jobbininfo->{$f};
         $bininfo->{$df}->{'filename'} = $df if $importarch;
@@ -484,7 +486,8 @@ sub update_dst_full {
         BSUtil::cleandir("$dst/$f");
         rmdir("$dst/$f");
       } else {
-        unlink("$dst/$f") ;
+	unlink("$dst/$f");
+	BSSched::Blobstore::blobstore_chk($gctx, $f) if $f =~ /^_blob\./;
       }
     }
     # save meta into .meta.success file
