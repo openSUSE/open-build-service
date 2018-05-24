@@ -104,7 +104,7 @@
             %strong
               = image_tag('info.png', title: 'Move specific binaries to the right select box by using the arrows', alt: 'Binaryinfo')
               Binaries:
-          - if !@binarylist.blank?
+          - if @binarylist.present? || @binaries.present?
             - available_bin = Array.new
             - @binarylist.each { |d| available_bin << "#{d.to_s}" }
             - selected_bin = Array.new
