@@ -34,14 +34,14 @@
     .ui.center.aligned
       .ui.green.header
         Source Files
-        = image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden')
+        =# image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden')
       - if @linkinfo && @revision_parameter.nil?
         %span{ style="font-size: small; font-weight: normal" }
         - if @expand && @expand.to_s == '1' || @forced_unexpand.present?
           = link_to('(show unmerged sources)', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '0')
         - else
           = link_to('(show merged sources derived from linked package)', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '1')
-      - if @forced_unexpand.present?
+      - if @forced_unexpand.blank?
         = render :partial => 'files_view'
       - else
         %p
