@@ -131,7 +131,7 @@ sub maketarhead {
 
   my $h = "\0\0\0\0\0\0\0\0" x 64;
   my $pad = '';
-  return ("$h$h", $pad) unless $file;
+  return ("$h$h") unless $file;
   my $name = $file->{'name'};
   my $tartype = $file->{'tartype'};
   if (!defined($tartype)) {
@@ -176,14 +176,12 @@ sub writetar {
         } elsif (! -f _) {
           die("$file: not a plain file\n");
         }
-        if (!open(F, '<', $file)) {
-          die("$file: $!\n") unless @s;
-        }
+        open(F, '<', $file) || die("$file: $!\n");
       }
       @s = stat(F);
       my $l = $s[7];
       if (defined($ent->{'offset'})) {
-        die("$file: seek error: $!\n") unless seek(F, $ent->{'offset'}, 0);
+        die("$file: seek error: $!\n") unless defined(sysseek(F, $ent->{'offset'}, 0));
         $l -= $ent->{'offset'};
       }
       if (defined($ent->{'size'})) {
