@@ -7,12 +7,20 @@
       %span.comment_time
         = fuzzy_time(comment.created_at)
       = comment_body(comment)
-      = render partial: 'webui/comment/links', locals: { comment: comment }
-      = render partial: 'webui/comment/reply', locals: { comment: comment, level: 0, commentable: commentable }
-  .container
-    - unless User.current.is_nobody?
-      = form_for @comment, method: :post, remote: true do |f|
-        = hidden_field_tag :commentable_type, commentable.class
-        = hidden_field_tag :commentable_id, commentable.id
-        ~ f.text_area :body, size: '80x4', onkeyup: 'sz(this);', onclick: 'sz(this);', placeholder: 'Add a new comment (markdown markup supported)', required: 'required'
-        = f.submit 'Add comment'
+      =# render partial: 'webui/comment/links', locals: { comment: comment }
+      .ui.horizontal.list
+        - unless User.current.is_nobody?
+          .item.togglable_comment{ "data-toggle": "reply_form_of_#{comment.id}" }
+            %a{ id: "reply_link_id_#{comment.id}" }
+              = sprited_text('comment_add', 'Reply')
+        - if policy(comment).destroy?
+          .item
+            = link_to(sprited_text('comment_delete', 'Delete'), comment, method: :delete,
+              id: "delete_link_id_#{comment.id}", class: 'delete_link', remote: true,
+              'data-confirm': 'Do you really want delete this comment?')
+      =# render partial: 'webui/comment/reply', locals: { comment: comment, level: 0, commentable: commentable }
+.container
+  - unless User.current.is_nobody?
+    = text_area_tag('body', nil, placeholder: 'Add a new comment (markdown markup supported)',
+      required: 'required', size: '80x4', id: 'comment-message')
+    =# link_to('Add comment', '#', data: { 'send-comment' => true, 'commentable-type' => commentable.class, 'commentable-id' => commentable.id }, method: :post, remote: true)
