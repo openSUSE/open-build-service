@@ -1,0 +1,64 @@
+<% project_bread_crumb link_to('Staging projects', staging_projects_path(project: @distribution.name)), @staging_project.id %>
+
+<div class="grid_13 alpha">
+
+  <div class="box box-shadow" id="staging-detail">
+    <h1><%= @staging_project.name %></h1>
+
+    <h2>Packages</h2>
+
+    <div id="packages-container">
+      <%= render partial: 'packages_list', locals: { project: @staging_project } %>
+      <div class="clearfix"></div>
+    </div>
+
+    <h2>Status</h2>
+    <div class="factory-summary">
+      <dl>
+        <% ok = @staging_project.untracked_requests.size.zero? -%>
+        <dt><%= sprite_tag(ok ? 'accept' : 'error', alt: ok ? 'Ok' : 'Fail') %>Untracked requests</dt>
+        <dd>
+        <% if ok %>
+          None.
+        <% else %>
+          <%= render @staging_project.untracked_requests %>
+        <% end %>
+        </dd>
+        <% ok = @staging_project.obsolete_requests.size.zero? -%>
+        <dt><%= sprite_tag(ok ? 'accept' : 'error', alt: ok ? 'Ok' : 'Fail') %>Obsolete requests</dt>
+        <dd>
+        <% if ok %>
+          None.
+        <% else %>
+          <%= render @staging_project.obsolete_requests %>
+        <% end %>
+        </dd>
+        <% ok = @staging_project.missing_reviews.size.zero? -%>
+        <dt><%= sprite_tag(ok ? 'accept' : 'error', alt: ok ? 'Ok' : 'Fail') %>Missing reviews</dt>
+        <dd>
+        <% if ok %>
+          None.
+        <% else %>
+          <% missing = @staging_project.missing_reviews.map do |rev| %>
+            <% link_to "#{rev[:package]} by #{rev[:by]}".html_safe, main_app.request_show_url(number: rev[:request]) %>
+          <% end %>
+          <%= missing.to_sentence.html_safe %>.
+        <% end %>
+        </dd>
+        <%= render partial: 'buildinfo', locals: {project: @staging_project} %>
+        <%= render partial: 'openqa_jobs', locals: {project: @staging_project} %>
+      </dl>
+      <% if @staging_project.subproject %>
+        <h3>DVD subproject</h3>
+        <dl>
+          <%= render partial: 'buildinfo', locals: {project: @staging_project.subproject} %>
+          <%= render partial: 'openqa_jobs', locals: {project: @staging_project.subproject} %>
+        </dl>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="grid_3 omega">
+  <%= render partial: 'legend'%>
+</div>

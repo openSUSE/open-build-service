@@ -1,0 +1,22 @@
+%div{class: "overall-state staging-project state-#{project.overall_state}"}
+  %div{class: 'letter'}
+    = link_to project.letter, staging_project_path(project: @distribution.name, id: project.id)
+  %div{class: 'state'}
+    = link_to project.overall_state, main_app.project_show_path(project.name)
+  %div{class: 'progress'}
+    - if project.overall_state == :building
+      - progress = project.build_progress
+      = link_to main_app.project_monitor_url(progress[:subproject]) do
+        = "#{progress[:percentage]}%"
+    - elsif project.overall_state == :review
+      = "#{project.review_percentage}%"
+    - elsif project.overall_state == :testing
+      = link_to "#{openqa_links_helper}/tests?hoursfresh=24&#{@distribution.openqa_filter(project)}" do
+        = "#{project.testing_percentage}%"
+  - if project.meta['splitter_info']
+    %div{class: 'splitter-info', title: 'strategy information (name, group)'}
+      - splitter_info = project.meta['splitter_info']
+      %div{class: 'splitter-info-strategy'}
+        = "#{splitter_info['strategy']['name']}"
+      %div{class: 'splitter-info-group'}
+        = "#{splitter_info['group']}"

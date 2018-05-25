@@ -1,0 +1,10 @@
+<%
+  if openqa_job.failing_modules.empty?
+    css = 'openqa-'+openqa_job.result
+    label = openqa_job.test
+  else
+    css = 'openqa-failed'
+    label = openqa_job.failing_modules.first
+  end
+%>
+<%= link_to label, openqa_job.url, class: css %>
