@@ -1,34 +1,20 @@
 require 'open-uri'
 
 module ObsFactory
-  
+
   class UnknownDistribution < Exception
   end
-  
+
   # A Distribution. Contains a reference to the corresponding Project object.
   class Distribution
     include ActiveModel::Model
     extend ActiveModel::Naming
     extend Forwardable
-    
+
     SOURCE_VERSION_FILE = "000product/openSUSE.product"
     RINGS_PREFIX = ":Rings"
 
     attr_accessor :project, :strategy
-
-    def distribution_strategy_for_project(project)
-      s = case project.name
-        when 'openSUSE:Factory' then DistributionStrategyFactory.new
-        when 'openSUSE:Factory:PowerPC' then DistributionStrategyFactoryPPC.new
-        when /^openSUSE:.*/ then DistributionStrategyOpenSUSE.new
-        when /^SUSE:SLE-12-SP\d:GA/ then DistributionStrategySLE12SP1.new
-        when /^SUSE:SLE-15:GA/ then DistributionStrategySLE15.new
-        when /^SUSE:SLE-12-SP.*CASP\d*/ then DistributionStrategyCasp.new
-        else raise UnknownDistribution
-      end
-      s.project = project
-      s
-    end
 
     def initialize(project = nil)
       self.project = project
@@ -115,18 +101,6 @@ module ObsFactory
     # @return [Array] array of StagingProject objects
     def staging_projects_all
       @staging_projects ||= StagingProject.for(self, false)
-    end
-
-    # Staging project associated to the distribution and with the given id
-    #
-    # @param [String] id of the staging project
-    # @return [StagingProject] the associated project or nil
-    def staging_project(id)
-      if @staging_projects
-        @staging_projects.select {|p| p.id == id }
-      else
-        StagingProject.find(self, id)
-      end
     end
 
     # Version of the distribution used as source
@@ -231,5 +205,20 @@ module ObsFactory
       return strategy.openqa_filter(project)
     end
 
+    private
+
+    def distribution_strategy_for_project(project)
+      s = case project.name
+        when 'openSUSE:Factory' then DistributionStrategyFactory.new
+        when 'openSUSE:Factory:PowerPC' then DistributionStrategyFactoryPPC.new
+        when /^openSUSE:.*/ then DistributionStrategyOpenSUSE.new
+        when /^SUSE:SLE-12-SP\d:GA/ then DistributionStrategySLE12SP1.new
+        when /^SUSE:SLE-15:GA/ then DistributionStrategySLE15.new
+        when /^SUSE:SLE-12-SP.*CASP\d*/ then DistributionStrategyCasp.new
+        else raise UnknownDistribution
+      end
+      s.project = project
+      s
+    end
   end
 end

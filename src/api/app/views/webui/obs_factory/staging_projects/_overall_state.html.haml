@@ -1,6 +1,6 @@
 %div{class: "overall-state staging-project state-#{project.overall_state}"}
   %div{class: 'letter'}
-    = link_to project.letter, staging_project_path(project: @distribution.name, id: project.id)
+    = link_to project.letter, staging_project_path(project: @distribution.name, project_name: project.id)
   %div{class: 'state'}
     = link_to project.overall_state, main_app.project_show_path(project.name)
   %div{class: 'progress'}
