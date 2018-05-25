@@ -2744,12 +2744,8 @@ sub normalize_container {
   local *TAR;
   open(TAR, '<', $container) || die("$container: $!\n");
   my ($tar, $mtime) = BSContar::normalize_container(\*TAR);
-  local *NEWTAR;
-  open(NEWTAR, '>', "$container.new") || die("$container.new: $!\n");
-  BSTar::writetar(\*NEWTAR, $tar);
-  close(NEWTAR) || die("close: $!\n");
+  BSTar::writetarfile("$container.new", undef, $tar, $mtime);
   close(TAR);
-  utime($mtime, $mtime, "$container.new");
   if (-f "$container.sha256") {
     open(NEWTAR, '<', "$container.new") || die("$container.new: $!\n");
     my $ctx = Digest::SHA->new(256);

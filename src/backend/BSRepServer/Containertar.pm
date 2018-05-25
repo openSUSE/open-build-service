@@ -70,7 +70,10 @@ sub normalize_container {
     BSTar::writetarfile("$dir/.$container", "$dir/$container", $tar, $mtime);
   }
   # update checksum
-  writestr("$dir/.$container.sha256", "$dir/$container.sha256", "$sha256  $container\n") if -f "$dir/$container.sha256";
+  if (-f "$dir/$container.sha256") {
+    writestr("$dir/.$container.sha256", "$dir/$container.sha256", "$sha256  $container\n");
+    utime($mtime, $mtime, "$dir/$container.sha256");
+  }
 }
 
 sub construct_container_tar {
