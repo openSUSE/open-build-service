@@ -67,12 +67,7 @@ sub normalize_container {
   if ($deletetar) {
     unlink("$dir/$container");
   } else {
-    local *NEWTAR;
-    open(NEWTAR, '>', "$dir/.$container") || die("$dir/.$container: $!\n");
-    BSTar::writetar(\*NEWTAR, $tar);
-    close(NEWTAR) || die("close: $!\n");
-    utime($mtime, $mtime, "$dir/.$container");
-    rename("$dir/.$container", "$dir/$container") || die("rename $dir/.$container $dir/$container: $!\n");
+    BSTar::writetarfile("$dir/.$container", "$dir/$container", $tar, $mtime);
   }
   # update checksum
   writestr("$dir/.$container.sha256", "$dir/$container.sha256", "$sha256  $container\n") if -f "$dir/$container.sha256";
