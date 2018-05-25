@@ -3,19 +3,19 @@
   - controller = 'package'
 - else
   - controller = 'project'
-.ui.top.attached.tabular.menu
-  -#%ul{id: "result_select_#{index}"}
-  .active.item
-    %a{ href: '#', id: "result_select_link_#{index}_0", data: { id: "result_display_#{index}_0" } } Build Results
-    = sprite_tag('reload', title: 'Reload', onclick: "update_build_result_#{index}()", class: "result_reload", id: "result_reload_#{index}_0")
-    = image_tag('ajax-loader.gif', id: "result_spinner_#{index}_0")
-  .item
-    - if controller == 'package'
-      %a{ href: '#', id: "result_select_link_#{index}_1", data: { id: "result_display_#{index}_1" } } Rpmlint Results
-      = sprite_tag('reload', title: 'Reload', onclick: "update_rpmlint_result_#{index}()", class: "result_reload", id: "result_reload_#{index}_1", style: 'display: none')
-      = image_tag('ajax-loader.gif', id: "result_spinner_#{index}_1", class: 'hidden')
-.ui.bottom.attached.active.tab.segment
-  -#.content-tab{ id: "result_display_#{index}_0" }
+.ui.top.attached.label
+  .ui.horizontal.list.item
+    .item
+      %a{ href: '#', id: "result_select_link_#{index}_0", data: { id: "result_display_#{index}_0" } } Build Results
+      = sprite_tag('reload', title: 'Reload', onclick: "update_build_result_#{index}()", class: "result_reload", id: "result_reload_#{index}_0")
+      = image_tag('ajax-loader.gif', id: "result_spinner_#{index}_0")
+    .item
+      - if controller == 'package'
+        %a{ href: '#', id: "result_select_link_#{index}_1", data: { id: "result_display_#{index}_1" } } Rpmlint Results
+        = sprite_tag('reload', title: 'Reload', onclick: "update_rpmlint_result_#{index}()", class: "result_reload", id: "result_reload_#{index}_1", style: 'display: none')
+        = image_tag('ajax-loader.gif', id: "result_spinner_#{index}_1", class: 'hidden')
+.ui.center.aligned
+  .content-tab{ id: "result_display_#{index}_0" }
   - if controller == 'package'
     %div{ class: "content-tab hidden", id: "result_display_#{index}_1" }
 

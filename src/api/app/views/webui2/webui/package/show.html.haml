@@ -139,11 +139,8 @@
 
 .six.wide.column
   .ui.raised.segment
-    .ui.center.aligned
-      =# render :partial => 'shared/buildresult_box', :locals => { :project => @project.name, :package => @package.name }
-      = render :partial => 'shared/webui2_buildresult_box', :locals => { :project => @project.name, :package => @package.name }
-    .ui.top.attached.label
-      Build results
+    =# render :partial => 'shared/buildresult_box', :locals => { :project => @project.name, :package => @package.name }
+    = render :partial => 'shared/webui2_buildresult_box', :locals => { :project => @project.name, :package => @package.name }
 
 .sixteen.wide.column
   .ui.raised.segment
@@ -151,6 +148,6 @@
       Comments for
       = @project.name + "(#{@comments.length})"
     #comments.ui.center.aligned
-      = render :partial => 'webui/comment/show', locals: { commentable: @package }
+      = render :partial => 'webui2/webui/comment/show', locals: { commentable: @package }
 
 
