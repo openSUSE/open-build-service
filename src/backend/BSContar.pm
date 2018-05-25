@@ -36,7 +36,7 @@ sub checksum_entry {
   my ($ent, $ctx) = @_;
   my $offset = 0;
   while (1) {
-    my $chunk = BSTar::extract($ent->{'handle'}, $ent, $offset, 65536);
+    my $chunk = BSTar::extract($ent->{'file'}, $ent, $offset, 65536);
     last unless length($chunk);
     $ctx->add($chunk);
     $offset += length($chunk);
@@ -57,14 +57,14 @@ sub compress_entry_obs_gzip_go {
   }
   my $offset = 0;
   while (1) {
-    my $chunk = BSTar::extract($ent->{'handle'}, $ent, $offset, 65536);
+    my $chunk = BSTar::extract($ent->{'file'}, $ent, $offset, 65536);
     last unless length($chunk);
     print F $chunk or die("compress_entry_obs_gzip_go write: $!\n");
     $offset += length($chunk);
   }
   close(F) or die("/usr/bin/obs-gzip-go: $?\n");
   my $compsize = -s $tmp;
-  return { %$ent, 'offset' => 0, 'size' => $compsize, 'handle' => $tmp };
+  return { %$ent, 'offset' => 0, 'size' => $compsize, 'file' => $tmp };
 }
 
 sub compress_entry {
@@ -76,14 +76,14 @@ sub compress_entry {
   my $gz = Compress::Zlib::gzopen($tmp2, 'w') ;
   my $offset = 0;
   while (1) {
-    my $chunk = BSTar::extract($ent->{'handle'}, $ent, $offset, 65536);
+    my $chunk = BSTar::extract($ent->{'file'}, $ent, $offset, 65536);
     last unless length($chunk);
     $gz->gzwrite($chunk) || die("gzwrite failed\n");
     $offset += length($chunk);
   }
   $gz->gzclose() && die("gzclose failed\n");
   my $compsize = -s $tmp;
-  return { %$ent, 'offset' => 0, 'size' => $compsize, 'handle' => $tmp };
+  return { %$ent, 'offset' => 0, 'size' => $compsize, 'file' => $tmp };
 }
 
 sub blobid_entry {
@@ -99,7 +99,7 @@ sub write_entry {
   open(F, '>', $fn) || die("$fn: $!\n");
   my $offset = 0;
   while (1) {
-    my $chunk = BSTar::extract($ent->{'handle'}, $ent, $offset, 65536);
+    my $chunk = BSTar::extract($ent->{'file'}, $ent, $offset, 65536);
     last unless length($chunk);
     print F $chunk or die("write: $!\n");
     $offset += length($chunk);
@@ -109,7 +109,7 @@ sub write_entry {
 
 sub detect_entry_compression {
   my ($ent) = @_;
-  my $head = BSTar::extract($ent->{'handle'}, $ent, 0, 6);
+  my $head = BSTar::extract($ent->{'file'}, $ent, 0, 6);
   my $comp = '';
   if (substr($head, 0, 3) eq "\x42\x5a\x68") {
     $comp = 'bzip2';
@@ -125,7 +125,7 @@ sub get_manifest {
   my ($tar) = @_;
   my $manifest_ent = $tar->{'manifest.json'};
   die("no manifest.json file found\n") unless $manifest_ent;
-  my $manifest_json = BSTar::extract($manifest_ent->{'handle'}, $manifest_ent);
+  my $manifest_json = BSTar::extract($manifest_ent->{'file'}, $manifest_ent);
   my $manifest = JSON::XS::decode_json($manifest_json);
   die("tar contains no image\n") unless @{$manifest || []};
   die("tar contains more than one image\n") unless @$manifest == 1;
@@ -139,7 +139,7 @@ sub get_config {
   die("manifest has no Config\n") unless defined $config_file;
   my $config_ent = $tar->{$config_file};
   die("File $config_file not included in tar\n") unless $config_ent;
-  my $config_json = BSTar::extract($config_ent->{'handle'}, $config_ent);
+  my $config_json = BSTar::extract($config_ent->{'file'}, $config_ent);
   my $config = JSON::XS::decode_json($config_json);
   return ($config_ent, $config);
 }
@@ -150,7 +150,7 @@ sub create_manifest_entry {
   $newmanifest{'XXXLayers'} = delete $newmanifest{'Layers'};
   my $newmanifest_json = JSON::XS->new->utf8->canonical->encode([ \%newmanifest ]);
   $newmanifest_json =~ s/(.*)XXX/$1/s;
-  my $newmanifest_ent = { 'name' => 'manifest.json', 'type' => '0', 'size' => length($newmanifest_json), 'data' => $newmanifest_json, 'mtime' => $mtime };
+  my $newmanifest_ent = { 'name' => 'manifest.json', 'size' => length($newmanifest_json), 'data' => $newmanifest_json, 'mtime' => $mtime };
   return $newmanifest_ent;
 }
 
@@ -172,7 +172,7 @@ sub normalize_container {
   die("stat: $!\n") unless @tarstat;
   my $mtime = $tarstat[9];
   my $tar = BSTar::list($tarfd);
-  $_->{'handle'} = $tarfd for @$tar;
+  $_->{'file'} = $tarfd for @$tar;
   my %tar = map {$_->{'name'} => $_} @$tar;
   my ($manifest_ent, $manifest) = get_manifest(\%tar);
   my ($config_ent, $config) = get_config(\%tar, $manifest);
@@ -205,11 +205,11 @@ sub normalize_container {
   };  
   my $newmanifest_ent = create_manifest_entry($newmanifest, $mtime);
 
-  # create new tar (annotated with the handle and blobid)
+  # create new tar (annotated with the file and blobid)
   my @newtar;
   for my $blobid (sort keys %newblobs) {
     my $ent = $newblobs{$blobid};
-    push @newtar, {'name' => $blobid, 'filename' => $ent->{'handle'}, 'mtime' => $mtime, 'offset' => $ent->{'offset'}, 'size' => $ent->{'size'}, 'handle' => $ent->{'handle'}, 'type' => '0', 'blobid' => $blobid};
+    push @newtar, {'name' => $blobid, 'mtime' => $mtime, 'offset' => $ent->{'offset'}, 'size' => $ent->{'size'}, 'file' => $ent->{'file'}, 'blobid' => $blobid};
   }
   $newmanifest_ent->{'blobid'} = BSContar::blobid_entry($newmanifest_ent);
   push @newtar, $newmanifest_ent;

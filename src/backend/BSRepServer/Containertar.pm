@@ -87,18 +87,18 @@ sub construct_container_tar {
   die("containerinfo is incomplete\n") unless $mtime && $size && $manifest && $blobids;
   my @tar;
   for my $blobid (@$blobids) {
-    my ($filename, $blobsize);
+    my ($file, $blobsize);
     if ($usefd) {
-      open($filename, '<', "$dir/_blob.$blobid") || die("$dir/_blob.$blobid: $!\n");
-      $blobsize = -s $filename;
+      open($file, '<', "$dir/_blob.$blobid") || die("$dir/_blob.$blobid: $!\n");
+      $blobsize = -s $file;
     } else {
-      $filename = "$dir/_blob.$blobid";
-      die("$filename: $!\n") unless -f $filename;
+      $file = "$dir/_blob.$blobid";
+      die("$file: $!\n") unless -f $file;
       $blobsize = -s _;
     }
-    push @tar, {'name' => $blobid, 'filename' => $filename, 'mtime' => $mtime, 'type' => '0', 'offset' => 0, 'size' => $blobsize, 'handle' => $filename};
+    push @tar, {'name' => $blobid, 'file' => $file, 'mtime' => $mtime, 'offset' => 0, 'size' => $blobsize};
   }
-  push @tar, {'name' => 'manifest.json', 'data' => $manifest, 'mtime' => $mtime, 'type' => '0', 'size' => length($manifest)};
+  push @tar, {'name' => 'manifest.json', 'data' => $manifest, 'mtime' => $mtime, 'size' => length($manifest)};
   return (\@tar, $size, $mtime);
 }
 

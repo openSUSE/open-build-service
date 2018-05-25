@@ -24,7 +24,9 @@ package BSTar;
 
 use strict;
 
-my @headnames = qw{name mode uid gid size mtime chksum type linkname magic version uname gname major minor prefix};
+my @headnames = qw{name mode uid gid size mtime chksum tartype linkname magic version uname gname major minor prefix};
+
+# tartype: 0=file 1=hardlink 2=symlink 3=char 4=block 5=dir 6=fifo
 
 sub list {
   my ($handle) = @_;
@@ -32,6 +34,7 @@ sub list {
   my $offset = 0;
   my $ispax;
   my $nameoverride;
+  my $linkoverride;
   my @tar;
 
   while (1) {
@@ -57,22 +60,26 @@ sub list {
     $head[7] = '0' if $head[7] eq '' || $head[7] =~ /\W/;
     $head[7] = '5' if $head[7] eq '0' && $head[0] =~ /\/$/s;	# dir
     my $ent = { map {$headnames[$_] => $head[$_]} (0..$#headnames) };
-    next if $ent->{'type'} eq 'V';	# ignore volume lables
-    if ($ent->{'type'} eq 'L' || $ent->{'type'} eq 'x' || $ent->{'type'} eq 'X') {
-      # read longlink/pax extension
+    my $tartype = $ent->{'tartype'};
+    next if $tartype eq 'V';	# ignore volume lables
+    if ($tartype eq 'L' || $tartype eq 'K' || $tartype eq 'x' || $tartype eq 'X') {
+      # read longname/longlink/pax extension
       die if $bsize < 1 || $bsize > 2 ** 16;
       my $data = '';
       last unless (read($handle, $data, $bsize) || 0) == $bsize;
       $offset += $bsize;
       substr($data, $ent->{'size'}) = '';
-      if ($ent->{'type'} eq 'L') {
+      if ($tartype eq 'L') {
         $nameoverride = $data;
+      } elsif ($tartype eq 'K') {
+        $linkoverride = $data;
       } else {
 	$ispax = 1;
         while ($data =~ /^(\d+) /) {
           my $entry = substr($data, length($1) + 1, $1);
           $data = substr($data, length($1) + 1 + $1);
 	  $nameoverride = substr($entry, 5) if substr($entry, 0, 5) eq 'path=';
+	  $linkoverride = substr($entry, 9) if substr($entry, 0, 9) eq 'linkpath=';
         }
       }
       next;
@@ -84,12 +91,16 @@ sub list {
       $ent->{'prefix'} =~ s/\/$//;
       $ent->{'name'} = "$ent->{'prefix'}/$ent->{'name'}" if $ent->{'prefix'} ne '';
     }
+    if (defined($linkoverride)) {
+      $ent->{'linkname'} = $linkoverride;
+      undef $linkoverride;
+    }
     delete $ent->{'prefix'};
-    $bsize = 0 if $ent->{'type'} == '2' || $ent->{'type'} == '3' || $ent->{'type'} == '4' || $ent->{'type'} == '6';
-    $bsize = 0 if $ent->{'type'} == '1' && !$ispax;	# hard link magic
-    $ent->{'offset'} = $offset if $ent->{'type'} == '0';
+    $bsize = 0 if $tartype eq '2' || $tartype eq '3' || $tartype eq '4' || $tartype eq '6';
+    $bsize = 0 if $tartype eq '1' && !$ispax;	# hard link magic
+    $ent->{'offset'} = $offset if $tartype eq '0';
     if ($bsize) {
-      last unless seek($handle, $bsize, 1);	# skip if seek fails?
+      last unless seek($handle, $bsize, 1);	# try to skip if seek fails?
       $offset += $bsize;
     }
     push @tar, $ent;
@@ -99,12 +110,16 @@ sub list {
 
 sub extract {
   my ($handle, $ent, $offset, $length) = @_;
-  die("cannot extract this type of entry\n") unless $ent->{'type'} eq '0';
-  my $size = $ent->{'size'};
+  die("cannot extract this type of entry\n") if defined($ent->{'tartype'}) && $ent->{'tartype'} ne '0';
+  return '' if defined($length) && $length <= 0;
   $offset = 0 unless defined($offset) && $offset >= 0;
-  return '' if $offset >= $size || (defined($length) && $length <= 0);
+  if (exists $ent->{'data'}) {
+    return substr($ent->{'data'}, $offset) unless defined $length;
+    return substr($ent->{'data'}, $offset, $length);
+  }
+  my $size = $ent->{'size'};
+  return '' if $offset >= $size;
   $length = $size - $offset if !defined($length) || $length > $size - $offset;
-  return substr($ent->{'data'}, $offset, $length) if exists $ent->{'data'};
   die("cannot seek to $ent->{name} entry\n") unless seek($handle, $ent->{'offset'} + $offset, 0);
   my $data = '';
   die("cannot read $ent->{name} entry\n") unless (read($handle, $data, $length) || 0) == $length;
@@ -118,9 +133,12 @@ sub maketarhead {
   my $pad = '';
   return ("$h$h", $pad) unless $file;
   my $name = $file->{'name'};
-  my $type = '0';
-  $type = '5' if (($file->{'mode'} || 0) | 0xfff) == 0x4fff;
-  $name =~ s/\/?$/\// if $type eq '5';
+  my $tartype = $file->{'tartype'};
+  if (!defined($tartype)) {
+    $tartype = '0';
+    $tartype = '5' if (($file->{'mode'} || 0) | 0xfff) == 0x4fff;
+  }
+  $name =~ s/\/?$/\// if $tartype eq '5';
   my $mode = sprintf("%07o", $file->{'mode'} || 0x81a4);
   my $size = sprintf("%011o", $s->[7]);
   my $mtime = sprintf("%011o", defined($file->{'mtime'}) ? $file->{'mtime'} : $s->[9]);
@@ -130,7 +148,7 @@ sub maketarhead {
   substr($h, 124, length($size), $size);
   substr($h, 136, length($mtime), $mtime);
   substr($h, 148, 8, '        ');
-  substr($h, 156, 1, $type);
+  substr($h, 156, 1, $tartype);
   substr($h, 257, 8, "ustar\00000");
   substr($h, 329, 15, "0000000\0000000000");
   substr($h, 148, 7, sprintf("%06o\0", unpack("%16C*", $h)));
@@ -146,30 +164,30 @@ sub writetar {
   for my $ent (@{$entries || []}) {
     my (@s);
     local *F;
-    if (exists $ent->{'filename'}) {
-      my $filename = $ent->{'filename'};
-      if (ref($filename)) {
-        *F = $filename;
+    if (exists $ent->{'file'}) {
+      my $file = $ent->{'file'};
+      if (ref($file)) {
+        *F = $file;
       } else {
-        @s = lstat($filename);
-        die("$filename: $!\n") unless @s;
+        @s = lstat($file);
+        die("$file: $!\n") unless @s;
         if (-l _) {
-          die("$filename: is a symlink\n");
+          die("$file: is a symlink\n");
         } elsif (! -f _) {
-          die("$filename: not a plain file\n");
+          die("$file: not a plain file\n");
         }
-        if (!open(F, '<', $filename)) {
-          die("$filename: $!\n") unless @s;
+        if (!open(F, '<', $file)) {
+          die("$file: $!\n") unless @s;
         }
       }
       @s = stat(F);
       my $l = $s[7];
       if (defined($ent->{'offset'})) {
-        die("$filename: seek error: $!\n") unless seek(F, $ent->{'offset'}, 0);
+        die("$file: seek error: $!\n") unless seek(F, $ent->{'offset'}, 0);
         $l -= $ent->{'offset'};
       }
       if (defined($ent->{'size'})) {
-        die("$filename: size too small for request\n") if $ent->{'size'} > $l;
+        die("$file: size too small for request\n") if $ent->{'size'} > $l;
         $l = $ent->{'size'};
       }
       $s[7] = $l;
@@ -177,8 +195,8 @@ sub writetar {
       my ($data, $pad) = maketarhead($ent, \@s);
       while(1) {
         $r = sysread(F, $data, $l > 8192 ? 8192 : $l, length($data)) if $l;
-        die("$filename: read error: $!\n") unless defined $r;
-        die("$filename: unexpected EOF\n") if $l && !$r;
+        die("$file: read error: $!\n") unless defined $r;
+        die("$file: unexpected EOF\n") if $l && !$r;
         $data .= $pad if $r == $l;
         if ($writer) {
           $writer->($data);
@@ -189,7 +207,7 @@ sub writetar {
         $l -= $r;
         last unless $l;
       }
-      close F unless ref $filename;
+      close F unless ref $file;
     } else {
       $s[7] = length($ent->{'data'});
       $s[9] = $ent->{'mtime'} || time;
