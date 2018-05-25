@@ -1,0 +1,12 @@
+$('a.staging_expand').click(function() {
+  var css = 'staging_'+$(this).data('name');
+  $('.staging_expand.'+css).hide('appear');
+  $('.staging_collapsible.'+css).show('slide');
+  return false;
+});
+$('a.staging_collapse').click(function() {
+  var css = 'staging_'+$(this).data('name');
+  $('.staging_collapsible.'+css).hide('slide');
+  $('.staging_expand.'+css).show('appear');
+  return false;
+});

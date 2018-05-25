@@ -1,0 +1,48 @@
+%div{class: "box box-shadow"}
+  %h2{class: "box-header"} Infos
+
+  %p Empty Projects:
+  - empties = @staging_projects.select { |p| p.overall_state == :empty && p.name =~ /Staging:[A-Z]?$/ }
+  - empties = empties.map { |p| link_to(p.letter, main_app.project_show_path(p.name)) }
+
+  %p
+    - if empties.empty?
+      none
+    - else
+      = empties.sort.join(' &ndash; ').html_safe
+
+  %p= link_to "Backlog:", main_app.group_show_path(title: @distribution.staging_manager)
+  - if @backlog_requests.empty?
+    %p
+      %i Empty
+  - else
+    %ul{class: "staging_backlog"}
+      - @backlog_requests.each_with_index do |req,counter|
+        %li
+          = link_to elide(req.package, length = 19), main_app.request_show_path(req.number)
+        - if counter > 5 && @backlog_requests.size > counter + 1
+          %li ... #{@backlog_requests.size - counter} more
+          - break
+
+  %p= link_to "Ready:", "/project/requests/#{@distribution.project}?state=new"
+  - if @requests_state_new.empty?
+    %p
+      %i Empty
+  - else
+    %ul{class: "staging_backlog"}
+      - @requests_state_new.each_with_index do |req,counter|
+        %li
+          = link_to elide(req.package, length = 19), main_app.request_show_path(req.number)
+        - if counter > 5 && @requests_state_new.size > counter + 1
+          %li ... #{@requests_state_new.size - counter} more
+          - break
+
+  - if @backlog_requests_ignored.present?
+    %p= link_to "Ignored:", "/package/view_file/#{@distribution.project}:Staging/dashboard/ignored_requests?expand=1"
+    %ul{class: "staging_backlog_ignored"}
+      - @backlog_requests_ignored.each_with_index do |req,counter|
+        %li
+          = link_to elide(req.package, length = 19), main_app.request_show_path(req.number), title: @ignored_requests[req.number]
+        - if counter > 5 && @backlog_requests_ignored.size > counter + 1
+          %li ... #{@backlog_requests_ignored.size - counter} more
+          - break
