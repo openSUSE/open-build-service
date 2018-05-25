@@ -1,25 +1,20 @@
 .ui.horizontal.list.item
   - if @package.name == "patchinfo"
     .item
-      = link_to('Details', :controller => '/webui/patchinfo', :action => 'show')
-  = link_to('Overview', :controller => '/webui/package', :action => 'show')
+      = link_to('Details', patchinfo_show_path)
+  = link_to('Overview', package_show_path)
   - unless @spider_bot
     .item
-      = link_to('Repositories', :controller => '/webui/repositories', :action => 'index')
+      = link_to('Repositories', controller: '/webui/repositories', action: 'index', package: @package)
     .item
-      = link_to('Revisions', :controller => '/webui/package', :action => 'revisions')
+      = link_to('Revisions', package_view_revisions_path)
     .item
-      = link_to('Requests', :controller => '/webui/package', :action => 'requests')
+      = link_to('Requests', package_requests_path)
     .item
-      = link_to('Users', :controller => '/webui/package', :action => 'users')
-  - if false #is_advanced_tab?
-    = content_for :ready_function do
-      $("#advanced_tabs").show();
-  - else
+      = link_to('Users', controller: '/webui/package', action: 'users')
     .item
-      = link_to('Advanced', '#')
-  - unless @spider_bot
-    .item.advanced.hidden
-      Attributes
-    .item.advanced.hidden
-      Meta
+      = link_to('Advanced', '#', data: { 'advanced-menu-link' => true })
+    .item.advanced-menu{ style: 'display: none;' }
+      = link_to('Attributes', index_attribs_path)
+    .item.advanced-menu{ style: 'display: none;' }
+      = link_to('Meta', package_meta_path)
