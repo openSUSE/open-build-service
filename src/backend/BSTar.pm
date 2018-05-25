@@ -227,11 +227,12 @@ sub writetar {
 }
 
 sub writetarfile {
-  my ($fn, $fnf, $tar, $mtime) = @_;
+  my ($fn, $fnf, $tar, %opts) = @_;
   local *TAR;
   open(TAR, '>', $fn) || die("$fn: $!\n");
   writetar(\*TAR, $tar);
   close(TAR) || die("$fn close: $!\n");
+  my $mtime = $opts{'mtime'};
   utime($mtime, $mtime, $fn) if defined $mtime;
   rename($fn, $fnf) || die("rename $fn $fnf: $!\n") if defined $fnf;
 }
