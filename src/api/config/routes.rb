@@ -302,18 +302,7 @@ OBSApi::Application.routes.draw do
 
     get 'project/dashboard/:project' => 'webui/obs_factory/distributions#show', as: 'dashboard', constraints: cons
     get 'project/staging_projects/:project' => 'webui/obs_factory/staging_projects#index', as: 'staging_projects', constraints: cons
-    get 'project/staging_projects/:project/:id' => 'webui/obs_factory/staging_projects#show', as: 'staging_project', constraints: cons
-
-    # Used to enforce the refresh of the cache of jobs (using cache=refresh)
-    get 'openqa_jobs' => 'webui/obs_factory/openqa_jobs#index'
-
-    # Compatibility with old routes
-    scope '/factory' do
-      get "dashboard", to: redirect('project/dashboard/openSUSE:Factory')
-      get "staging_projects", to: redirect('project/staging_projects/openSUSE:Factory')
-      get "staging_projects/:id", to: redirect('project/staging_projects/openSUSE:Factory/%{id}')
-      get "openqa_jobs", to: redirect('openqa_jobs')
-    end
+    get 'project/staging_projects/:project/:project_name' => 'webui/obs_factory/staging_projects#show', as: 'staging_project', constraints: cons
 
     controller 'webui/projects/rebuild_times' do
       get 'project/rebuild_time/:project/:repository/:arch' => :show, constraints: cons, as: 'project_rebuild_time'

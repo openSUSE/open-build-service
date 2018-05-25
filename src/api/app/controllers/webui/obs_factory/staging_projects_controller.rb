@@ -1,22 +1,16 @@
-module ObsFactory
+module Webui::ObsFactory
   class StagingProjectsController < ApplicationController
     respond_to :json, :html
 
     before_action :require_distribution
-
-    def require_distribution
-      @distribution = Distribution.find(params[:project])
-      unless @distribution
-        redirect_to main_app.root_path, flash: { error: "#{params[:project]} is not a valid openSUSE distribution, can't offer dashboard" }
-      end
-    end
+    before_action :require_project_name, only: [:show]
 
     def index
       respond_to do |format|
         format.html do
-          @staging_projects = StagingProjectPresenter.sort(@distribution.staging_projects_all)
-          @backlog_requests = Request.with_open_reviews_for(by_group: @distribution.staging_manager, target_project: @distribution.name)
-          @requests_state_new = Request.in_state_new(by_group: @distribution.staging_manager, target_project: @distribution.name)
+          @staging_projects = ::ObsFactory::StagingProjectPresenter.sort(@distribution.staging_projects_all)
+          @backlog_requests = ::ObsFactory::Request.with_open_reviews_for(by_group: @distribution.staging_manager, target_project: @distribution.name)
+          @requests_state_new = ::ObsFactory::Request.in_state_new(by_group: @distribution.staging_manager, target_project: @distribution.name)
           file = PackageFile.new(
             project_name: "#{params[:project]}:Staging",
             package_name: "dashboard",
@@ -41,23 +35,30 @@ module ObsFactory
       end
     end
 
-    before_action :require_id, only: [:show]
-
-    def require_id
-      @staging_project = StagingProject.find(@distribution, params[:id])
-      unless @staging_project
-        redirect_to main_app.root_path, flash: { error: "#{params[:id]} is not a valid staging project" }
-      end
-    end
-
     def show
       respond_to do |format|
         format.html do
-          @staging_project = StagingProjectPresenter.new(@staging_project)
+          @staging_project = ::ObsFactory::StagingProjectPresenter.new(@staging_project)
           # For the breadcrumbs
           @project = @distribution.project
         end
         format.json { render json: @staging_project }
+      end
+    end
+
+    private
+
+    def require_distribution
+      @distribution = ::ObsFactory::Distribution.find(params[:project])
+      unless @distribution
+        redirect_to main_app.root_path, flash: { error: "#{params[:project]} is not a valid openSUSE distribution, can't offer dashboard" }
+      end
+    end
+
+    def require_project_name
+      @staging_project = ::ObsFactory::StagingProject.find(@distribution, params[:project_name])
+      unless @staging_project
+        redirect_to main_app.root_path, flash: { error: "#{params[:project_name]} is not a valid staging project" }
       end
     end
   end

@@ -9,7 +9,7 @@
       - @staging_projects.each do |project|
         - next if project.overall_state == :empty
         %li
-          = render partial: 'obs_factory/staging_projects/overall_state', locals: { project: project }
+          = render partial: 'webui/obs_factory/staging_projects/overall_state', locals: { project: project }
 
     %p{class: 'clear'}
 
