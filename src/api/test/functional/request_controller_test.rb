@@ -2038,6 +2038,18 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag(tag: 'person', attributes: { userid: 'Iggy', role: 'maintainer' })
     assert_no_xml_tag(tag: 'group', attributes: { groupid: 'test_group', role: 'reader' })
 
+    # Accept will fail because Fred does not have permissions on the source package
+    # which is required because of the InitializeDevelPackage attribute on kde4
+    login_fred
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response 403
+    assert_match(/No permission to initialize the source package as a devel package/, @response.body)
+
+    # We need to set permissions on the source because of the InitializeDevelPackage attribute on kde4 project
+    login_king
+    put '/source/home:Iggy:branches:kde4/_meta', params: "<project name='home:Iggy:branches:kde4'><title/><description/><person userid='fred' role='maintainer'/></project>"
+    assert_response :success
+
     # Successful accept the request
     login_fred
     post "/request/#{id}?cmd=changestate&newstate=accepted"
@@ -2142,6 +2154,21 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'state', attributes: { name: 'review' },
                    parent: { tag: 'request' }) # switch to new after last review
 
+    # Accept will fail because adrian does not have permissions on the source
+    # which is required because of the InitializeDevelPackage attribute on kde4
+    post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
+    assert_response 403
+    assert_match(/No permission to initialize the source package as a devel package/, @response.body)
+
+    # Adding adrian as maintainoer of the source
+    login_Iggy
+    get '/source/home:Iggy/_meta'
+    iggy_meta = @response.body
+    put '/source/home:Iggy/_meta', params: "<project name='home:Iggy'><title/><description/><person userid='adrian' role='maintainer'/></project>"
+
+    assert_response :success
+
+    login_adrian
     # approve accepted and check initialized devel package
     post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
     assert_response :success
@@ -2155,6 +2182,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     delete '/source/kde4/Testing'
     assert_response :success
+    login_Iggy
+    put '/source/home:Iggy/_meta', params: iggy_meta
   end
 
   def test_reviewer_added_when_source_maintainer_is_missing

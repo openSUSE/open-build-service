@@ -98,6 +98,26 @@ class BsRequestActionSubmit < BsRequestAction
     Project.find_by_name!(self.target_project).update_product_autopackages
   end
 
+  def check_action_permission!(skip_source = nil)
+    super(skip_source)
+    # only perform the following check, if we are called from
+    # BsRequest.permission_check_change_state! (that is, if
+    # skip_source is set to true). Always executing this check
+    # would be a regression, because this code is also executed
+    # if a new request is created (which could fail if User.current
+    # cannot modify the source_package).
+    return unless skip_source
+    target_project = Project.get_by_name(self.target_project)
+    return unless target_project && target_project.is_a?(Project)
+    target_package = target_project.packages.find_by_name(self.target_package)
+    initialize_devel_package = target_project.find_attribute('OBS', 'InitializeDevelPackage')
+    return if target_package || !initialize_devel_package
+    source_package = Package.get_by_project_and_name(source_project, self.source_package)
+    return if !source_package || User.current.can_modify_package?(source_package)
+    msg = 'No permission to initialize the source package as a devel package'
+    raise PostRequestNoPermission, msg
+  end
+
   #### Alias of methods
 end
 
