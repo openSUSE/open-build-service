@@ -66,24 +66,7 @@
                   %span.icon.is-left
                     %i.fa.fa-search
         .ui.secondary.menu
-          .ui.tiny.breadcrumb
-            = sprite_tag('home_grey' title: 'Logo')
-            = link_to "#{@configuration ? @configuration['title'] : 'Open Build Service'}", root_path
-            - if @crumb_list
-              - @crumb_list.each_with_index do |link, link_index|
-                - if link.class == Array
-                  - link.each_with_index do |sublink, index|
-                    = ':' if index > 0
-                    %i.right.chevron.icon.divider
-                    = sublink
-                - else
-                  - if link_index == @crumb_list.size - 1
-                    %i.right.chevron.icon.divider
-                    %a{ href: '#', 'aria-current': "page" }
-                      = link
-                  - else
-                    %i.right.chevron.icon.divider
-                      = link
+          = render partial: 'breadcrumb'
 
           .right.menu
             = render partial: 'layouts/webui/webui2_personal_navigation'

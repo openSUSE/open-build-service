@@ -46,6 +46,17 @@ module Webui::PackageHelper
 
   include Webui::ProjectHelper
 
+  def project_parents
+    return [] if @spider_bot || !@project || !@project.is_a?(Project) || @project.new_record?
+
+    if @namespace # corner case where no project object is available
+      Project.parent_projects(@namespace)
+    else
+      # FIXME: Some controller's @project is a Project object whereas other's @project is a String object.
+      Project.parent_projects(@project.to_s)
+    end
+  end
+
   def package_bread_crumb(*args)
     args.insert(0, link_to_if(params['action'] != 'show', @package,
                               controller: :package, action: :show,

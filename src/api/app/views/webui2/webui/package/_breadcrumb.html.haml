@@ -1,0 +1,12 @@
+.ui.tiny.breadcrumb
+  = sprite_tag("home_grey", title: 'Logo', class: 'right divider')
+  = link_to("#{@configuration ? @configuration['title'] : 'Open Build Service'}", root_path, class: 'section')
+  %i.right.angle.icon.divider
+  = link_to('Projects', project_list_public_path, class: 'section')
+  %i.right.angle.icon.divider
+  - project_parents.each do |name, short_name|
+    = link_to(short_name, project_show_path(project: name), class: 'section')
+  %i.right.angle.icon.divider
+  = link_to_if(params['action'] != 'show', @package,
+    package_show_path(project: @project, package: @package), class: 'section')
+
