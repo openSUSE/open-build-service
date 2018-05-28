@@ -103,7 +103,7 @@ Requires:       %(/bin/bash -c 'rpm -q --qf "%%{name} = %%{version}-%%{release}"
 %else
 Requires:       /usr/bin/createrepo
 %endif
-Recommends:     cron
+Recommends:     cron logrotate
 
 BuildRequires:  xz
 
