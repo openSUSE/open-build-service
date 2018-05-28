@@ -105,6 +105,8 @@ Requires:       /usr/bin/createrepo
 %endif
 Recommends:     cron
 
+Obsoletes:      obs-devel
+
 BuildRequires:  xz
 
 %if 0%{?suse_version:1}
@@ -248,18 +250,6 @@ Requires:       ghostscript-fonts-std
 %description -n obs-api
 This is the API server instance, and the web client for the
 OBS.
-
-%package -n obs-devel
-Summary:        The Open Build Service -- The API and WEBUI Testsuite
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
-Group:          Productivity/Networking/Web/Utilities
-%endif
-Obsoletes:      obs-webui-testsuite
-Requires:       obs-api = %{version}-%{release}
-%requires_eq obs-api-testsuite-deps
-
-%description -n obs-devel
-Install to track dependencies for git
 
 %package -n obs-utils
 Summary:        The Open Build Service -- utilities
@@ -734,11 +724,6 @@ usermod -a -G docker obsservicerun
 %files -n obs-utils
 %defattr(-,root,root)
 /usr/sbin/obs_project_update
-
-%files -n obs-devel
-%defattr(-,root,root)
-%dir %_docdir/obs-devel
-%_docdir/obs-devel/README.devel
 
 %files -n obs-tests-appliance
 %defattr(-,root,root)
