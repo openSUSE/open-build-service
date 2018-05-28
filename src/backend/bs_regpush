@@ -63,7 +63,7 @@ my $registry_authenticator;
 sub send_layer {
   my ($param) = @_;
   my $sl = $param->{'send_layer_data'}; # [ $layer_ent, $offset ],
-  my $chunk = BSTar::extract($sl->[0]->{'handle'}, $sl->[0], $sl->[1], 65536);
+  my $chunk = BSTar::extract($sl->[0]->{'file'}, $sl->[0], $sl->[1], 65536);
   $sl->[1] += length($chunk);
   return $chunk;
 }
@@ -352,9 +352,9 @@ sub construct_container_tar {
   for my $blobid (@$blobids) {
     my $fd;
     open($fd, '<', "$blobdir/_blob.$blobid") || die("$blobdir/_blob.$blobid: $!\n");
-    push @tar, {'name' => $blobid, 'handle' => $fd, 'filename' => $fd, 'mtime' => $mtime, 'type' => '0', 'offset' => 0, 'size' => (-s $fd)};
+    push @tar, {'name' => $blobid, 'file' => $fd, 'mtime' => $mtime, 'offset' => 0, 'size' => (-s $fd)};
   }
-  push @tar, {'name' => 'manifest.json', 'data' => $manifest, 'mtime' => $mtime, 'type' => '0', 'size' => length($manifest)};
+  push @tar, {'name' => 'manifest.json', 'data' => $manifest, 'mtime' => $mtime, 'size' => length($manifest)};
   return \@tar;
 }
 
@@ -471,7 +471,7 @@ if ($use_image_tags && @tarfiles > 1) {
     local *TAR;
     open(TAR, '<', $tarfile) || die("$tarfile: $!\n");
     my $tar = BSTar::list(\*TAR);
-    $_->{'handle'} = \*TAR for @$tar;
+    $_->{'file'} = \*TAR for @$tar;
     my %tar = map {$_->{'name'} => $_} @$tar;
     my $manifest = BSContar::get_manifest(\%tar);
     my @imagetags = @{$manifest->{'RepoTags'} || []};
@@ -500,7 +500,7 @@ for my $tarfile (@tarfiles) {
   } else {
     open(TAR, '<', $tarfile) || die("$tarfile: $!\n");
     $tar = BSTar::list(\*TAR);
-    $_->{'handle'} = \*TAR for @$tar;
+    $_->{'file'} = \*TAR for @$tar;
   }
   my %tar = map {$_->{'name'} => $_} @$tar;
 
