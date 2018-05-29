@@ -1,22 +1,23 @@
 version: "2.1"
 services:
   db:
-    image: openbuildservice/mariadb
+    image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/mariadb:latest
     ports:
       - "3306:3306"
   cache:
-    image: openbuildservice/memcached
+    image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/memcached:latest
     ports:
       - "11211:11211"
   backend:
-    image: openbuildservice/backend
+    image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/backend:latest
     volumes:
       - .:/obs
       - ./dist/aws_credentials:/etc/obs/cloudupload/.aws/config
       - ./dist/ec2utils.conf:/etc/obs/cloudupload/.ec2utils.conf
       - ./dist/clouduploader.rb:/usr/bin/clouduploader
+    command: /obs/contrib/start_development_backend -d /obs
   worker:
-    image: openbuildservice/backend
+    image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/backend:latest
     volumes:
       - .:/obs
     privileged: true
@@ -24,7 +25,7 @@ services:
       - backend
     command: /obs/contrib/start_development_worker
   frontend:
-    image: openbuildservice/frontend
+    image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/frontend-base:latest
     build:
       dockerfile: docker-files/Dockerfile
       context: src/api
