@@ -1,0 +1,35 @@
+.ui.horizontal.list.item
+  - if @bugowners_mail.present? and @configuration['bugzilla_url']
+    .item
+      = link_to sprited_text('tools-report-bug', 'Report Bug'), bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug")
+  - unless User.current.is_nobody?
+    - if @current_rev
+      .item
+        = link_to(sprited_text('arrow_branch', 'Branch package'), '#', class: 'show_dialog', data: { target: '#package_branch_dialog' })
+      .item
+        = link_to(sprited_text('package_go', 'Submit package'), { :action => :submit_request_dialog, :project => @project, :package => @package, :revision => @revision }, :remote => true)
+    - if User.current.can_modify_package? @package
+      .item
+        = link_to sprited_text('package_edit', 'Edit description'), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count
+      .item
+        = link_to(sprited_text('package_delete', 'Delete package'), { :action => :delete_dialog, :package => @package, :project => @project }, :remote => true, id: 'delete-package')
+      - Feature.with(:kiwi_image_editor) do
+        - if @package.kiwi_image? && policy(@package).update?
+          .item
+            = link_to(sprited_text('package_edit', 'View Image'), import_kiwi_image_path(@package.id), id: 'edit-kiwi')
+        - if Feature.active?(:cloud_upload) && !User.current.is_nobody?
+          - if @package.kiwi_image?
+            .item
+              = link_to(sprited_text('drive_web', 'Cloud Upload'), cloud_upload_index_path, id: 'cloud-upload')
+        - if @services.present?
+          .item
+            = link_to(sprited_text('package_link', 'Trigger services'), { action: :trigger_services, package: @package, project: @project }, method: :post)
+    - else
+      .item
+        = link_to(sprited_text('user_add', 'Request role addition'), { :controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package }, :remote => true)
+      .item
+        = link_to(sprited_text('package_delete', 'Request deletion'), { :controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package }, :remote => true)
+    -# TODO: only users w/o rights should see this, maintainers should get a different dialog:
+    - if @package.develpackage
+      .item
+        = link_to(sprited_text('arrow_switch', 'Request devel project change'), { controller: :request, action: :change_devel_request_dialog, project: @project, package: @package }, remote: true)

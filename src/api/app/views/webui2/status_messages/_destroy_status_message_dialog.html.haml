@@ -1,0 +1,11 @@
+.ui.tiny.modal{ class: "status-message-delete-dialog-#{message_id}" }
+  .header
+    Delete Confirmation
+  .content
+    Really delete this status message?
+    = form_tag(status_message_path(id: message_id), method: :delete, id: "status-delete-form-#{message_id}")
+  .actions
+    .ui.cancel.button
+      Close
+    %button.ui.teal.submit.button{ type: "submit", form: "status-delete-form-#{message_id}" }
+      Ok

@@ -1,0 +1,67 @@
+- @pagetitle = "Show #{@project} / #{@package}"
+- @layouttype = 'custom'
+- dpackage = @package.develpackage
+
+.sixteen.wide.column
+  .ui.raised.segment
+    .ui.top.attached.label
+      = render :partial => 'tabs'
+    .ui.center.aligned
+      .ten.wide.column
+        .ui.green.header
+          = @package.title.blank? ? @package.name : @package.title
+          - if @package.url.present?
+            %br
+            %small
+              = link_to(@package.url, @package.url)
+        %p
+          - if @package.description.blank?
+            %i
+              No description set
+          -else
+            = @package.description
+      .six.wide.column
+        = render partial: 'info_list'
+
+    .sixteen.wide.column
+      = render partial: 'actions_list'
+
+.ten.wide.column
+  .ui.raised.segment
+    .ui.top.attached.label
+      Packages
+    .ui.center.aligned
+      .ui.green.header
+        Source Files
+        =# image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden')
+      - if @linkinfo && @revision_parameter.nil?
+        %span{ style="font-size: small; font-weight: normal" }
+        - if @expand && @expand.to_s == '1' || @forced_unexpand.present?
+          = link_to('(show unmerged sources)', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '0')
+        - else
+          = link_to('(show merged sources derived from linked package)', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '1')
+      - if @forced_unexpand.blank?
+        = render :partial => 'files_view'
+      - else
+        %p
+          %i
+            Sources could not be expanded:
+            = @forced_unexpand
+        %p
+          = link_to('Show unmerged sources', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '0')
+    =# modal render partial: 'webui/package/branch_dialog'
+
+.six.wide.column
+  .ui.raised.segment
+    =# render :partial => 'shared/buildresult_box', :locals => { :project => @project.name, :package => @package.name }
+    = render :partial => 'shared/webui2_buildresult_box', :locals => { :project => @project.name, :package => @package.name }
+
+.sixteen.wide.column
+  .ui.raised.segment
+    .ui.top.attached.label
+      Comments for
+      = @project.name + "(#{@comments.length})"
+    #comments.ui.center.aligned
+      = render :partial => 'webui2/webui/comment/show', locals: { commentable: @package }
+
+

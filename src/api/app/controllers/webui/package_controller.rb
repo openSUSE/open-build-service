@@ -41,6 +41,8 @@ class Webui::PackageController < Webui::WebuiController
   prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binary, :binaries, :requests, :binary_download]
 
   def show
+    switch_to_webui2
+
     if request.bot?
       params.delete(:rev)
       params.delete(:srcmd5)

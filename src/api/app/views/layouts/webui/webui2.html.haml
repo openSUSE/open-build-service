@@ -1,0 +1,82 @@
+!!!
+%html
+  %head
+    %meta{:content => "text/html; charset=utf-8", "http-equiv" => "Content-Type"}/
+    %meta{:content => "width=device-width, initial-scale=1", :name => "viewport"}/
+    - if @metarobots
+      %meta{:content => @metarobots, :name => "robots"}/
+    = favicon_link_tag
+    %title
+      = "#{@pagetitle} - " if @pagetitle
+      = @configuration ? @configuration['title'] : 'Open Build Service'
+    = stylesheet_link_tag 'webui/webui2'
+    - if content_for?(:head_style)
+      :css
+        #{yield :head_style}
+    = yield :content_for_head
+    = javascript_include_tag 'webui/application'
+    = javascript_include_tag 'webui/webui2'
+    = javascript_tag do
+      = yield :head_javascript
+      var _paq = _paq || [];
+      $(function() {
+      \#{yield :ready_function}
+      - if @configuration['theme'] == 'bento'
+        callPiwik();
+      });
+    = auto_discovery_link_tag(:rss, news_feed_path(format: 'rss'), {:title => 'News'})
+    - unless CONFIG['feeds'].nil? or CONFIG['feeds'].empty?
+      - CONFIG['feeds'].each do |feed|
+        = auto_discovery_link_tag(:rss, feed['url'], {:title => feed['name']})
+    = csrf_meta_tag
+    - if User.current.try(:rss_token)
+      = auto_discovery_link_tag(:rss, user_rss_notifications_url(token: User.current.rss_token.string, format: :rss), { title: 'Notifications' })
+  %body
+    .ui.obs-bar
+      .ui.container{ style: 'width: 960px' }
+        .ui.menu.topbar.inverted
+          .item
+            = link_to image_tag('obs-logo_small.png', height: 26), root_path, { id: 'header-logo', class: 'navbar-item' }
+          = render partial: 'layouts/webui/main_menu_item_list', locals: { header: 'Downloads', items: [{ label: 'Foo', url: '/documentation/overview/start/' }, |
+            { label: 'Layout', url: 'https://bulma.io/documentation/layout/container/'}, |
+            { label: 'Bar', url: 'https://bulma.io/documentation/layout/container/'} ] }
+          = render partial: 'layouts/webui/main_menu_item_list', locals: { header: 'Support', items: [{ label: 'Foo', url: '/documentation/overview/start/' }, |
+            { label: 'Layout', url: 'https://bulma.io/documentation/layout/container/'}, |
+            { label: 'Bar', url: 'https://bulma.io/documentation/layout/container/'} ] }
+          = render partial: 'layouts/webui/main_menu_item_list', locals: { header: 'Comunity', items: [{ label: 'Foo', url: '/documentation/overview/start/' }, |
+            { label: 'Layout', url: 'https://bulma.io/documentation/layout/container/'}, |
+            { label: 'Bar', url: 'https://bulma.io/documentation/layout/container/'} ] }
+          = render partial: 'layouts/webui/main_menu_item_list', locals: { header: 'Development', items: [{ label: 'Foo', url: '/documentation/overview/start/' }, |
+            { label: 'Layout', url: 'https://bulma.io/documentation/layout/container/'}, |
+            { label: 'Bar', url: 'https://bulma.io/documentation/layout/container/'} ] }
+          .right.menu
+            .ui.dropdown.item
+              Watchlist
+              .menu
+                %a.item{:href => "/documentation/overview/start/"}
+                  Comunity
+                %a.item{:href => "https://bulma.io/documentation/layout/container/"}
+                  Layout
+                %a.item{:href => "https://bulma.io/documentation/form/general/"}
+                  Form
+            .item
+              = form_tag(search_path(project: 1, package: 1, name: 1), { id: 'global-search-form', class: 'label-overlay' }) do
+                .control.has-icons-left
+                  = text_field_tag 'search_text', '', id: 'search', class: 'input', placeholder: ''
+                  %span.icon.is-left
+                    %i.fa.fa-search
+        .ui.secondary.menu
+          = render partial: 'breadcrumb'
+
+          .right.menu
+            = render partial: 'layouts/webui/webui2_personal_navigation'
+        .ui.grid
+          = render :partial => "layouts/webui/webui2_flash", :object => flash
+          = content_for?(:content) ? yield(:content) : yield
+
+        = render partial: 'layouts/webui/footer'
+:javascript
+  $(document).ready(
+    $('.ui.dropdown').dropdown()
+  )
+

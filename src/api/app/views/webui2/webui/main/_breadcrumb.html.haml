@@ -1,0 +1,4 @@
+.ui.tiny.breadcrumb
+  = sprite_tag("home_grey", title: 'Logo', class: 'right divider')
+  = link_to("#{@configuration ? @configuration['title'] : 'Open Build Service'}", root_path, class: 'section')
+

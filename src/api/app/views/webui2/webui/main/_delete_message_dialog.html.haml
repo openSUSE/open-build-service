@@ -1,0 +1,7 @@
+.dialog.darkgrey_box
+  .box.box-shadow
+    %h2.box-header Delete Confirmation
+    .dialog-content
+      %p Really delete this message?
+    = form_tag(main_delete_message_path(message_id: params[:message_id]), method: :delete) do
+      = render partial: '/webui/shared/dialog_action_buttons'

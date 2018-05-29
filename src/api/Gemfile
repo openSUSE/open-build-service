@@ -72,6 +72,10 @@ gem 'bunny'
 gem 'data_migrate', '= 4.0.0'
 # for URI encoding
 gem 'addressable'
+# for Semantic UI
+gem 'less-rails-semantic_ui'
+gem 'autoprefixer-rails'
+gem 'therubyracer'
 
 group :development, :production do
   # to have the delayed job daemon

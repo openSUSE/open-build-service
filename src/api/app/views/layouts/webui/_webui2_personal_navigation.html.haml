@@ -1,0 +1,56 @@
+%div.navigation-links
+  - if User.current && !User.current.is_nobody?
+    = link_to(home_path, id: 'link-to-user-home') do
+      = User.current.login
+    |
+    - tasks = User.current.tasks
+    = link_to(user_tasks_path) do
+      - if tasks > 0
+        %span{title: 'where an action is requested from you' }
+          = pluralize(tasks, 'Task')
+      - else
+        Tasks
+    |
+    - if User.current.home_project
+      = link_to 'Home Project', project_show_path(User.current.home_project)
+    - else
+      = link_to 'Create Home', new_project_path(name: User.current.home_project_name)
+    |
+    \#{link_to 'Logout', session_destroy_path, method: :delete, id: 'logout-link'}
+  - elsif CONFIG['kerberos_mode']
+    = link_to 'Log In', session_new_path
+  - else
+    - if CONFIG['proxy_auth_mode'] == :on
+      - unless CONFIG['proxy_auth_register_page'].blank?
+        = link_to 'Sign Up', "#{CONFIG['proxy_auth_register_page']}?%22"
+        |
+      = link_to 'Log In', session_new_path, id: 'login-trigger'
+      #login-form
+        = form_tag(CONFIG['proxy_auth_login_page'], method: :post, id: 'login_form', enctype: 'application/x-www-form-urlencoded') do
+          %p
+            = hidden_field_tag(:context, 'default')
+            = hidden_field_tag(:proxypath, 'reserve')
+            = hidden_field_tag(:message, 'Please log in')
+            = hidden_field_tag(:url, request.fullpath)
+            = label_tag(:username, 'Username')
+            = text_field_tag(:username, '')
+          %p
+            = label_tag(:password, 'Password')
+            = password_field_tag(:password, '')
+          %p= submit_tag('Log In', onclick: 'fillEmptyFields();')
+          %p.slim-footer= link_to('Cancel', '#', id: 'close-login')
+    - else
+      - if can_register
+        = link_to 'Sign Up', user_register_user_path
+        |
+      = link_to 'Log In', session_new_path, id: 'login-trigger'
+      #login-form
+        = form_tag(session_create_path) do
+          %p
+            = label_tag(:username, 'Username')
+            = text_field_tag(:username, '')
+          %p
+            = label_tag(:password, 'Password')
+            = password_field_tag(:password, '')
+          %p= submit_tag('Log In')
+          %p.slim-footer= link_to('Cancel', '#', id: 'close-login')

@@ -1,0 +1,19 @@
+= content_for :content_for_head do
+  = auto_discovery_link_tag(:rss, latest_updates_feed_path(format: 'rss'), { title: 'Latest updates' })
+.ui.raised.segment
+  .ui.top.attached.label
+    Latest Updates
+    = link_to('', latest_updates_feed_path(format: 'rss'), { class: 'icons-feeds link icon', title: 'RSS Feed' })
+  %table.ui.very.basic.collapsing.celled.compact.table
+    %tbody
+      - @latest_updates.each do |update|
+        %tr
+          %td.collapsing
+            - if update[1] == :package
+              = sprite_tag 'package', title: 'Package'
+              = link_to(elide(update[2], 20), controller: 'package', action: 'show', project: update[3], package: update[2])
+            - else
+              = sprite_tag 'project', title: 'Project'
+              = link_to(elide(update[1], 20), controller: 'project', action: 'show', project: update[1])
+          %td.single.line{ style: 'width: 1%;' }
+            = fuzzy_time(update[0])

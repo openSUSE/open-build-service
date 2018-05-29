@@ -1,6 +1,10 @@
 require 'statistics_calculations'
 
 class Webui::MainController < Webui::WebuiController
+  include Webui2::MainController
+
+  # permissions.status_message_create
+  before_action :require_admin, only: [:delete_message, :add_news]
   skip_before_action :check_anonymous, only: [:index]
 
   def gather_busy
@@ -41,6 +45,8 @@ class Webui::MainController < Webui::WebuiController
       sysstats[:users] = User.count
       sysstats
     end
+
+    switch_to_webui2
   end
 
   def sitemap
