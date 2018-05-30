@@ -78,9 +78,11 @@ sub set_maxopen() {
 
 sub manage_cache {
   my ($prunesize, $cacheold, $cachenew) = @_;
+  my $manage_cache_start = time();
   # get the lock
   local *F;
   BSUtil::lockopen(\*F, '+>>', "$cachedir/content", 1) || return;
+  my $manage_cache_run_start = time();
   my $content;
   if (-s F) {
     seek(F, 0, 0);
@@ -138,6 +140,9 @@ sub manage_cache {
   Storable::nstore($content, "$cachedir/content.new");
   rename("$cachedir/content.new", "$cachedir/content") || die("rename $cachedir/content.new $cachedir/content");
   close F;
+  my $waitlocktime = $manage_cache_run_start - $manage_cache_start;
+  my $managecachechecktime = time() - $manage_cache_run_start;
+  print "Took $managecachechecktime seconds to manage cache after waiting $waitlocktime seconds for lock\n";
 }
 
 
