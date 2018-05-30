@@ -2,8 +2,7 @@
 %urlset{ xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9",
          "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
          "xsi:schemalocation": "http://www.sitemaps.org/schemas/sitemap/0.9\n            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" }
-  / created with Free Online Sitemap Generator www.xml-sitemaps.com
-  - @projects.each do |project|
+  - @packages.each do |project, package|
     %url
-      %loc= url_for(controller: :project, action: action, project: project, only_path: false)
-      %priority= priority
+      %loc= url_for(controller: :package, action: :show, project: project, package: package, only_path: false)
+      %priority 0.6

@@ -778,11 +778,12 @@ OBSApi::Application.routes.draw do
   # this can be requested by non browsers (like HA proxies :)
   get 'apidocs/:filename' => 'webui/apidocs#file', constraints: cons, as: 'apidocs_file'
 
-  # TODO: move to api
   # spiders request this, not browsers
-  get 'main/sitemap' => 'webui/main#sitemap'
-  get 'main/sitemap_projects' => 'webui/main#sitemap_projects'
-  get 'main/sitemap_packages/:listaction' => 'webui/main#sitemap_packages'
+  controller 'webui/sitemaps' do
+    get 'sitemaps' => :index
+    get 'project/sitemap' => :projects
+    get 'package/sitemap(/:project_name)' => :packages
+  end
 end
 
 OBSEngine::Base.subclasses.each(&:mount_it)

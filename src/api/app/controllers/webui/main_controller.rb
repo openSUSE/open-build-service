@@ -42,44 +42,4 @@ class Webui::MainController < Webui::WebuiController
       sysstats
     end
   end
-
-  def sitemap
-    render layout: false, content_type: 'application/xml'
-  end
-
-  def require_projects
-    @projects = Project.all.pluck(:name)
-  end
-
-  def sitemap_projects
-    require_projects
-    render layout: false, content_type: 'application/xml'
-  end
-
-  def sitemap_packages
-    category = params[:category].to_s
-
-    projects = Project.arel_table
-    if %r{home}.match?(category)
-      rel = Project.where(projects[:name].matches("#{category}%"))
-    elsif category == 'opensuse'
-      rel = Project.where(projects[:name].matches('openSUSE:%'))
-    else
-      rel = Project.all.where.not(projects[:name].matches('home:%'))
-      rel = rel.where.not(projects[:name].matches('DISCONTINUED:%'))
-      rel = rel.where.not(projects[:name].matches('openSUSE:%'))
-    end
-    projects = {}
-    rel.pluck(:id, :name).each do |id, name|
-      projects[id] = name
-    end
-    result = Package.where(project_id: projects.keys).pluck(:project_id, :name)
-    @packages = []
-    result.each do |pid, name|
-      @packages << [projects[pid], name]
-    end
-    render template: 'webui/main/sitemap_packages',
-           layout: false, locals: { action: params[:listaction] },
-           content_type: 'application/xml'
-  end
 end

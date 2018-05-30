@@ -1,0 +1,11 @@
+!!! XML
+%sitemapindex{ xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" }
+  %sitemap
+    %loc= url_for(controller: :sitemaps, action: :projects, only_path: false)
+  %sitemap
+    %loc= url_for(controller: :sitemaps, action: :packages, project_name: 'main', only_path: false)
+  - for letter in [*'a'..'z', *'A'..'Z'] do
+    %sitemap
+      %loc= url_for(controller: :sitemaps, action: :packages, project_name: "home:#{letter}", only_path: false)
+  %sitemap
+    %loc= url_for(controller: :sitemaps, action: :packages, project_name: 'opensuse', only_path: false)

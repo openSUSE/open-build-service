@@ -1,0 +1,13 @@
+!!! XML
+%urlset{ xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9",
+         "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+         "xsi:schemalocation": "http://www.sitemaps.org/schemas/sitemap/0.9\n            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" }
+  %url
+    %loc= url_for(controller: :main, action: :index, only_path: false)
+    %priority 1.0
+
+  - project_url = url_for(controller: :project, action: :show, project: 'REPLACEIT', only_path: false)
+  - @projects_names.each do |project_name|
+    %url
+      %loc= project_url.gsub('REPLACEIT', project_name)
+      %priority 0.9
