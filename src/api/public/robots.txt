@@ -13,4 +13,4 @@ Disallow: /project/rebuild_time
 # unfortunately the sitemap needs to be full URL,
 # so it needs to be adopted for other anonymous
 # installations
-Sitemap: https://build.opensuse.org/main/sitemap
+Sitemap: https://build.opensuse.org/sitemaps
