@@ -36,7 +36,7 @@ module Person
     private
 
     def set_user
-      @user = User.find_by(login: params[:login])
+      @user = User.find_by(login: params[:login]) || User.find_nobody!
     end
   end
 end

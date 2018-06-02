@@ -27,6 +27,17 @@ RSpec.describe Person::TokenController, vcr: false do
       it { expect(response).to have_http_status(:forbidden) }
       it { expect(assigns(:list)).to be nil }
     end
+
+    context 'called for a user that does not exist' do
+      before do
+        login user
+        get :index, params: { login: 'non-existant-user' }, format: :xml
+      end
+
+      it { expect(response).not_to render_template(:index) }
+      it { expect(response).to have_http_status(:forbidden) }
+      it { expect(assigns(:list)).to be nil }
+    end
   end
 
   describe '#create' do

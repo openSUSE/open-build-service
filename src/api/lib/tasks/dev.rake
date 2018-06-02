@@ -73,7 +73,6 @@ namespace :dev do
   task :lint do
     Rake::Task['haml_lint'].invoke
     Rake::Task['dev:lint:ruby'].invoke
-    Rake::Task['git_cop'].invoke
     sh 'jshint ./app/assets/javascripts/'
     Rake::Task['db:structure:verify'].invoke
     Rake::Task['db:structure:verify_no_bigint'].invoke
