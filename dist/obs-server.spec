@@ -106,6 +106,7 @@ Requires:       /usr/bin/createrepo
 Recommends:     cron logrotate
 
 Obsoletes:      obs-devel
+Provides:       obs-devel
 
 BuildRequires:  xz
 
