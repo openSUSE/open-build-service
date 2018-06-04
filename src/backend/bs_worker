@@ -2740,10 +2740,10 @@ sub createreport {
 }
 
 sub normalize_container {
-  my ($container) = @_;
+  my ($container, $recompress) = @_;
   local *TAR;
   open(TAR, '<', $container) || die("$container: $!\n");
-  my ($tar, $mtime) = BSContar::normalize_container(\*TAR);
+  my ($tar, $mtime) = BSContar::normalize_container(\*TAR, $recompress);
   BSTar::writetarfile("$container.new", undef, $tar, 'mtime' => $mtime);
   close(TAR);
   if (-f "$container.sha256") {
@@ -3758,7 +3758,11 @@ if ($ex == 0) {
 	my $container = "$buildroot/.build.packages/$d/$containerinfo";
         $container =~ s/\.containerinfo$/\.tar/;
         next unless ! -l $container && -f _;
-        eval { normalize_container($container) };
+        eval {
+          normalize_container($container, 1);
+          BSUtil::touch("$container.recompressed");
+	  push @send, "$container.recompressed" if ! -l "$container.recompressed" && -f _;
+        };
         warn($@) if $@;
       }
     }
