@@ -168,7 +168,6 @@ OBSApi::Application.routes.draw do
       post 'patchinfo/updatepatchinfo' => :updatepatchinfo
       get 'patchinfo/edit_patchinfo' => :edit_patchinfo
       get 'patchinfo/show/:project/:package' => :show, as: 'patchinfo_show', constraints: cons, defaults: { format: 'html' }
-      get 'patchinfo/read_patchinfo' => :read_patchinfo
       post 'patchinfo/save/:project/:package' => :save, constraints: cons, as: :patchinfo_save
       post 'patchinfo/remove' => :remove
       get 'patchinfo/new_tracker' => :new_tracker
