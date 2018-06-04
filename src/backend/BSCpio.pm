@@ -122,6 +122,7 @@ sub writecpio {
         $errors->{'data'} .= $@;
 	next;
       }
+      $s[7] = $l;
       my ($data, $pad) = makecpiohead($ent, \@s);
       my $r = 0;
       while (1) {

@@ -656,8 +656,7 @@ sub getbinarylist_repository {
 	  $fd->flush();
 	  BSUtil::do_fdatasync(fileno($fd)) if $BSUtil::fdatasync_before_rename;
 	  rename($tmpname, "$reporoot/$prp/$arch/:full.xcache");
-	  sysseek($fd, 64, Fcntl::SEEK_SET);
-          push @files, { 'name' => 'repositorycache', 'filename' => $fd };
+	  push @files, { 'name' => 'repositorycache', 'filename' => $fd, 'offset' => 64 };
 	}
       }
       undef $repo;
