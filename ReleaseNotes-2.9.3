@@ -1,0 +1,47 @@
+#
+# Open Build Service 2.9.3
+#
+
+Please read the README.SETUP file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download
+
+There is also an install medium with installs OBS on hard disc now.
+
+dist/README.UPDATERS file has informations for updaters.
+
+OBS Appliance users who have setup their LVM can just replace
+their appliance image without data loss. The migration will
+happen automatically.
+
+Features
+=======
+
+Backend:
+  * Allow to use different scheduling strategy which handles large build dependency cycles
+    better. Enable it via project config:
+
+      BuildFlags: genmetaalgo:1
+
+Bugfixes
+========
+
+Frontend:
+  * Fixes permission issue that allowd unpermitted users to trigger services via the webui.
+  * Permits setting the initial bs request state. This prevents setting the initial state
+    to something else than 'new' (CVE-2018-7689).
+  * Fixes permission check for project with 'InitializeDevelPackage' attribute (CVE-2018-7688).
+  * Fixes rendering of requests with multiple submit requests. Previously switching tabs would
+    not trigger a reload of the request content for the selected request.
+
+Backend:
+  * Debian fixes to 2.9 - publish ONIE binary and hashsum, enable Secure Boot EFI signing for Debian packages.
+  * New regex needssslcertforbuild for Debian builds
+  * Support publishing via rsync syntax (allows to specify port numbers)
+  * Make project config parser errors always visible
+  * Fix corner case on wiping binaries
+  * Improved .changes merge handling
+  * Don't publish unneeded files of appdata in meta data
+  * Fixing lost events on restarting schedulers
+  * Make errors by not reachable remote instances better visible.
