@@ -138,5 +138,7 @@
         %div{style: "margin-left:5px;"}
           = submit_tag 'Save Patchinfo'
         = hidden_field_tag "name", @name
+        - @package_list.each do |package|
+          = hidden_field_tag 'package_list[]', package
 - content_for :ready_function do
   patchinfoReady();
