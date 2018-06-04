@@ -220,15 +220,6 @@ class Webui::PatchinfoController < Webui::WebuiController
     render_dialog
   end
 
-  def valid_summary?(name)
-    name && name.length > 10
-  end
-
-  def valid_description?(name)
-    name &&
-      name.length > [params[:summary].length, 50].max
-  end
-
   def new_tracker
     # collection with all informations of the new issues
     issue_collection = []
@@ -274,6 +265,17 @@ class Webui::PatchinfoController < Webui::WebuiController
     render json: { error: error, issues: issue_collection }
   end
 
+  private
+
+  def valid_summary?(name)
+    name && name.length > 10
+  end
+
+  def valid_description?(name)
+    name &&
+      name.length > [params[:summary].length, 50].max
+  end
+
   # returns issue summary of an issue
   # returns empty string in case of ActiveXML::Transport::Error exception
   # returns nil in case of error (bug mismatches tracker result regex)
@@ -293,8 +295,6 @@ class Webui::PatchinfoController < Webui::WebuiController
     return issue.summary.gsub(/\\|'/) { '' } if issue.summary
     return ''
   end
-
-  private
 
   def get_binaries
     @binarylist = []
