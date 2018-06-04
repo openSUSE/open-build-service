@@ -28,6 +28,7 @@ use Fcntl qw(:DEFAULT);
 use Symbol;
 use BSEvents;
 use BSHTTP;
+use BSCpio;
 use Data::Dumper;
 
 use strict;
@@ -199,7 +200,7 @@ sub cpio_nextfile {
 	$file = {'data' => $ev->{'cpioerrors'}, 'name' => '.errors'};
 	$ev->{'cpioerrors'} = '';
       } else {
-	$data .= BSHTTP::makecpiohead();
+	$data .= BSCpio::makecpiohead();
 	return $data;
       }
     } else {
@@ -235,7 +236,7 @@ sub cpio_nextfile {
       $s[7] = length($file->{'data'});
       $s[9] = time();
     }
-    my ($header, $pad) = BSHTTP::makecpiohead($file, \@s);
+    my ($header, $pad) = BSCpio::makecpiohead($file, \@s);
     $data .= $header;
     $ev->{'filespad'} = $pad;
     if (!exists $file->{'filename'}) {

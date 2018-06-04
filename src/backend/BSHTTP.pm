@@ -27,6 +27,8 @@ use Digest::MD5 ();
 use Fcntl qw(:DEFAULT);
 BEGIN { Fcntl->import(':seek') unless defined &SEEK_SET; }
 
+use BSCpio;
+
 use strict;
 
 =head1 NAME
@@ -371,32 +373,23 @@ sub cpio_receiver {
   while(1) {
     my $cpiohead = read_data($req, 110, 1);
     die("cpio: not a 'SVR4 no CRC ascii' cpio\n") unless substr($cpiohead, 0, 6) eq '070701';
-    my $mode = hex(substr($cpiohead, 14, 8));
-    my $mtime = hex(substr($cpiohead, 46, 8));
-    my $size  = hex(substr($cpiohead, 54, 8));
-    if ($size == 0xffffffff) {
-      # build service length extension
-      $cpiohead .= read_data($req, 16, 1);
-      $size = hex(substr($cpiohead, 62, 8)) * 4294967296. + hex(substr($cpiohead, 70, 8));
-      substr($cpiohead, 62, 16) = '';
-    }
-    my $nsize = hex(substr($cpiohead, 94, 8));
-    die("ridiculous long filename\n") if $nsize > 8192;
-    my $nsizepad = $nsize;
-    $nsizepad += 4 - ($nsize + 2 & 3) if $nsize + 2 & 3;
-    my $name = read_data($req, $nsizepad, 1);
+    my ($ent, $namesize, $namepad, $size, $pad) = BSCpio::parsecpiohead($cpiohead);
+    die("cannot parse cpio header\n") unless $ent;
+    die("ridiculous long filename\n") if $namesize > 8192;
+    my $name = read_data($req, $namesize + $namepad, 1);
+    $name = substr($name, 0, $namesize);
     $name =~ s/\0.*//s;
-    $name =~ s/^\.\///s;
-    my $sizepad = $size;
-    $sizepad += 4 - ($size % 4) if $size % 4;
     last if !$size && $name eq 'TRAILER!!!';
+    $name =~ s/^\.\///s;
+    $ent->{'name'} = $name;
+
+    die("cpio filename is '.' or '..'\n") if $name eq '.' || $name eq '..';
     if ($param->{'acceptsubdirs'} || $param->{'createsubdirs'}) {
       die("cpio filename is illegal: $name\n") if "/$name/" =~ /\/\.{0,2}\//s;
     } else {
       die("cpio filename contains a '/': $name\n") if $name =~ /\//s;
     }
-    die("cpio filename is '.' or '..'\n") if $name eq '.' || $name eq '..';
-    my $ent = {'name' => $name, 'size' => $size, 'mtime' => $mtime, 'mode' => $mode};
+
     if ($param->{'accept'}) {
       if (ref($param->{'accept'})) {
 	die("illegal file in cpio archive: $name\n") unless $param->{'accept'}->($param, $name, $ent);
@@ -404,60 +397,68 @@ sub cpio_receiver {
 	die("illegal file in cpio archive: $name\n") unless $name =~ /$param->{'accept'}/;
       }
     }
+
     if ($param->{'map'}) {
       $ent->{'unmappedname'} = $name;
       if (ref($param->{'map'})) {
-	$ent->{'name'} = $name = $param->{'map'}->($param, $name);
+	$ent->{'name'} = $name = $param->{'map'}->($param, $name, $ent);
       } else {
 	$ent->{'name'} = $name = "$param->{'map'}$name";
       }
     }
+
     if (!defined($name)) {
       # skip entry
-      while ($sizepad) {
-        my $m = $sizepad > 8192 ? 8192 : $sizepad;
+      $size += $pad;
+      while ($size) {
+        my $m = $size > 8192 ? 8192 : $size;
         read_data($req, $m, 1);
-        $sizepad -= $m;
+        $size -= $m;
       }
       next;
     }
     push @res, $ent;
+    my $mode = $ent->{'mode'};
+    my $cpiotype = $ent->{'cpiotype'};
     my $ctx;
-    $ctx = Digest::MD5->new if $withmd5;
+    $ctx = Digest::MD5->new if $withmd5 && $cpiotype != 4;
     if (defined($dn)) {
       my $filename = "$dn/$name";
-      if (($mode & 0xf000) == 0x4000 && $param->{'createsubdirs'}) {
-	die("directory has non-zero size\n") if $sizepad;
+      if ($cpiotype == 4 && $param->{'createsubdirs'}) {
+	die("directory has non-zero size\n") if $size;
 	if (! -d $filename) {
 	  unlink($filename) unless $param->{'no_unlink'};
 	  mkdir($filename) || die("mkdir $filename: $!\n");
 	}
       } else {
-	die("can only unpack plain files from cpio archive, file $name, mode was $mode\n") unless ($mode & 0xf000) == 0x8000;
+	die("can only unpack plain files from cpio archive, file $name, cpiotype was $cpiotype\n") unless $cpiotype == 8;
 	unlink($filename) unless $param->{'no_unlink'};
 	open(F, '>', $filename) || die("$filename: $!\n");
       }
     } else {
       $ent->{'data'} = '';
     }
-    while ($sizepad) {
-      my $m = $sizepad > 8192 ? 8192 : $sizepad;
+    while ($size) {
+      my $m = $size > 8192 ? 8192 : $size + $pad;
       my $data = read_data($req, $m, 1);
-      $sizepad -= $m;
+      if ($m > $size) {
+	substr($data, -$pad, $pad, '');
+	$m = $size;
+      }
       $size -= $m;
-      $m += $size if $size < 0;
       if (defined($dn)) {
         (syswrite(F, $data, $m) || 0) == $m || die("syswrite: $!\n");
       } else {
-        $ent->{'data'} .= substr($data, 0, $m);
+        $ent->{'data'} .= $data;
       }
-      $ctx->add($size >= 0 ? $data : substr($data, 0, $m)) if $ctx;
+      $ctx->add($data) if $ctx;
     }
-    if (defined($dn) && ($mode & 0xf000) != 0x4000) {
+    if (defined($dn) && $cpiotype == 8) {
       close(F) || die("close: $!\n");
+      my $mtime = $ent->{'mtime'};
       utime($mtime, $mtime, "$dn/$name") if $mtime;
     }
-    $ent->{'md5'} = $ctx->hexdigest if $ctx && ($mode & 0xf000) != 0x4000;
+    $ent->{'md5'} = $ctx->hexdigest if $ctx && $cpiotype != 4;
     $param->{'cpiopostfile'}->($param, $ent) if $param->{'cpiopostfile'};
   }
   return \@res;
@@ -465,115 +466,24 @@ sub cpio_receiver {
 
 sub swrite {
   my ($sock, $data, $chunked) = @_;
-  local *S = $sock;
   return if $chunked && $data eq '';	# can't write that
   $data = sprintf("%X\r\n", length($data)).$data."\r\n" if $chunked;
   while (length($data)) {
-    my $l = syswrite(S, $data, length($data));
+    my $l = syswrite($sock, $data, length($data));
     die("socket write: $!\n") unless $l;
     $data = substr($data, $l);
   }
 }
 
-sub makecpiohead {
-  my ($file, $s) = @_; 
-  return "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000b00000000TRAILER!!!\0\0\0\0" if !$file;
-  my $name = $file->{'name'};
-  my $mode = $file->{'mode'} || 0x81a4;
-  my $mtime = $file->{'mtime'} || $s->[9];
-  my $h = sprintf("07070100000000%08x000000000000000000000001", $mode);
-  if ($s->[7] > 0xffffffff) {
-    # build service length extension
-    my $top = int($s->[7] / 4294967296.);
-    $h .= sprintf("%08xffffffff%08x%08x", $mtime, $top, $s->[7] - $top * 4294967296.);
-  } else {
-    $h .= sprintf("%08x%08x", $mtime, $s->[7]);
-  }
-  $h .= "00000000000000000000000000000000";
-  $h .= sprintf("%08x", length($name) + 1); 
-  $h .= "00000000$name\0";
-  $h .= substr("\0\0\0\0", (length($h) & 3)) if length($h) & 3;
-  my $pad = $s->[7] % 4 ? substr("\0\0\0\0", $s->[7] % 4) : ''; 
-  return ($h, $pad);
+sub create_writer {
+  my ($sock, $chunked) = @_;
+  return sub { swrite($sock, $_[0], $chunked) };
 }
 
 sub cpio_sender {
   my ($param, $sock) = @_;
-
-  local *F;
-  my ($data, $pad);
-  my $errors = {'__errors' => 1, 'name' => '.errors', 'data' => ''};
-  for my $file (@{$param->{'cpiofiles'} || []}, $errors) {
-    my @s;
-    if ($file->{'error'}) {
-	$errors->{'data'} .= "$file->{'name'}: $file->{'error'}\n";
-	next;
-    }
-    if (exists $file->{'filename'}) {
-      my $filename = $file->{'filename'};
-      if (ref($filename)) {
-	*F = $filename;
-      } else {
-	@s = lstat($filename);
-	if (!@s) {
-	  $errors->{'data'} .= "$file->{'name'}: $filename: $!\n";
-	  next;
-	}
-	if (-l _) {
-	  if (!$file->{'follow'} && !$param->{'follow'}) {
-	    $errors->{'data'} .= "$file->{'name'}: $filename: is a symlink\n";
-	    next;
-	  }
-	} elsif (! -f _) {
-	  $errors->{'data'} .= "$file->{'name'}: $filename: not a plain file\n";
-	  next;
-	}
-	if (!open(F, '<', $filename)) {
-	  $errors->{'data'} .= "$file->{'name'}: $filename: $!\n";
-	  next;
-	}
-      }
-      @s = stat(F);
-      if (!@s) {
-	$errors->{'data'} .= "$file->{'name'}: fstat: $!\n";
-	close F unless ref $filename;
-	next;
-      }
-      if (ref($filename)) {
-	my $off = sysseek(F, 0, Fcntl::SEEK_CUR) || 0;
-	$s[7] -= $off if $off > 0;
-      }
-      ($data, $pad) = makecpiohead($file, \@s);
-      my $l = $s[7];
-      my $r = 0;
-      while(1) {
-	$r = sysread(F, $data, $l > 8192 ? 8192 : $l, length($data)) if $l;
-	die("$filename: read error: $!\n") unless defined $r;
-	die("$filename: unexpected EOF\n") if $l && !$r;
-	$data .= $pad if $r == $l;
-	swrite($sock, $data, $param->{'chunked'});
-	$data = '';
-	$l -= $r;
-	last unless $l;
-      }
-      die("internal error\n") if $l;
-      close F unless ref $filename;
-    } else {
-      next if $file->{'__errors'} && $file->{'data'} eq '';
-      $s[7] = length($file->{'data'});
-      $s[9] = time;
-      ($data, $pad) = makecpiohead($file, \@s);
-      $data .= "$file->{'data'}$pad";
-      while ($param->{'chunked'} && length($data) > 8192) {
-	# keep chunks small
-	swrite($sock, substr($data, 0, 4096), $param->{'chunked'});
-	$data = substr($data, 4096);
-      }
-      swrite($sock, $data, $param->{'chunked'});
-    }
-  }
-  $data = makecpiohead();
-  swrite($sock, $data, $param->{'chunked'});
+  my $writer = create_writer($sock, $param->{'chunked'});
+  BSCpio::writecpio($writer, $param->{'cpiofiles'}, 'collecterrors' => '.errors', 'follow' => $param->{'follow'});
   return '';
 }
 
