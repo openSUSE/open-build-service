@@ -629,7 +629,7 @@ sub getbinarylist_repository {
       if (open($fd, '<', "$reporoot/$prp/$arch/:full.xcache")) {
 	my $id;
 	if (sysread($fd, $id, 64) == 64 && $id eq $id64) {
-          push @files, { 'name' => 'repositorycache', 'filename' => $fd };
+          push @files, { 'name' => 'repositorycache', 'filename' => $fd, 'offset' => 64 };
 	  BSWatcher::reply_cpio(\@files);
 	  return undef;
 	}
