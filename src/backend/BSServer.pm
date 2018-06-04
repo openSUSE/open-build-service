@@ -706,7 +706,7 @@ sub reply_stream {
 
 sub reply_cpio {
   my ($files, @hdrs) = @_;
-  my $param = {'cpiofiles' => $files, 'chunked' => 1};
+  my $param = {'cpiofiles' => $files, 'chunked' => 1, 'collecterrors' => '.errors'};
   reply_stream(\&BSHTTP::cpio_sender, $param, 'Content-Type: application/x-cpio', 'Transfer-Encoding: chunked', @hdrs);
 }
 

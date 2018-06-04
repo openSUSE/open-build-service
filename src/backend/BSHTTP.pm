@@ -483,7 +483,7 @@ sub create_writer {
 sub cpio_sender {
   my ($param, $sock) = @_;
   my $writer = create_writer($sock, $param->{'chunked'});
-  BSCpio::writecpio($writer, $param->{'cpiofiles'}, 'collecterrors' => '.errors', 'follow' => $param->{'follow'});
+  BSCpio::writecpio($writer, $param->{'cpiofiles'}, 'collecterrors' => $param->{'collecterrors'}, 'follow' => $param->{'follow'});
   return '';
 }
 
