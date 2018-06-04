@@ -26,6 +26,7 @@ use JSON::XS ();
 use Digest::SHA ();
 use Digest::MD5 ();
 use Compress::Zlib ();
+use POSIX;
 
 use BSUtil;
 use BSTar;
@@ -43,47 +44,83 @@ sub checksum_entry {
   }
 }
 
-sub compress_entry_obs_gzip_go {
-  my ($ent) = @_;
-  my $tmp;
-  open($tmp, '+>', undef) || die;
-  local *F;
-  my $pid = open(F, '|-');
-  die("fork: $!\n") unless defined $pid;
-  if (!$pid) {
-    open(STDOUT, "+>&", $tmp) || die("stdin dup\n");
-    exec('/usr/bin/obs-gzip-go');
-    die("/usr/bin/obs-gzip-go: $!\n");
-  }
-  my $offset = 0;
-  while (1) {
-    my $chunk = BSTar::extract($ent->{'file'}, $ent, $offset, 65536);
-    last unless length($chunk);
-    print F $chunk or die("compress_entry_obs_gzip_go write: $!\n");
-    $offset += length($chunk);
-  }
-  close(F) or die("/usr/bin/obs-gzip-go: $?\n");
-  my $compsize = -s $tmp;
-  return { %$ent, 'offset' => 0, 'size' => $compsize, 'file' => $tmp };
+sub comp2decompressor {
+  my ($comp) = @_;
+  return () unless defined $comp;
+  return ('gunzip') if $comp eq 'gzip';
+  return ('bunzip2') if $comp eq 'gzip2';
+  return ('xzdec') if $comp eq 'xz';
+  return ('cat') if $comp eq '';
+  return ();
 }
 
 sub compress_entry {
-  my ($ent) = @_;
-  return compress_entry_obs_gzip_go($ent) if -x '/usr/bin/obs-gzip-go';
-  my ($tmp, $tmp2);
+  my ($ent, $oldcomp) = @_;
+
+  my @compressor = ('zlib');
+  @compressor = ('/usr/bin/obs-gzip-go') if -x '/usr/bin/obs-gzip-go';
+
+  my @decompressor;
+  $oldcomp = detect_entry_compression($ent) unless defined $oldcomp;
+  if ($oldcomp) {
+    @decompressor = comp2decompressor($oldcomp);
+    die("unknown compression $oldcomp\n") unless @decompressor;
+  }
+
+  my $tmp;
   open($tmp, '+>', undef) || die;
-  open($tmp2, "+>&", $tmp) || die;      # gzclose closes the file, grr...
-  my $gz = Compress::Zlib::gzopen($tmp2, 'w') ;
+
+  # setup compressor
+  local *F;
+  my $pid = open(F, '|-');
+  die("compressor fork: $!\n") unless defined $pid;
+  if (!$pid) {
+    if ($compressor[0] eq 'zlib') {
+      my $gz = Compress::Zlib::gzopen($tmp, 'w') ;
+      while (1) {
+	my $chunk;
+	my $r = sysread(STDIN, $chunk, 8192);
+	die("read error: $!\n") unless defined $r;
+	last unless $r;
+        $gz->gzwrite($chunk) || die("gzwrite failed\n");
+      }
+      $gz->gzclose() && die("gzclose failed\n");
+      POSIX::_exit(0);
+    }
+    open(STDOUT, "+>&", $tmp) || die("stdin dup\n");
+    exec(@compressor);
+    die("$compressor[0]: $!\n");
+  }
+
+  # setup decompressor if needed
+  local *G;
+  my $pid2;
+  if ($oldcomp) {
+    $pid2 = open(G, '|-');
+    die("decompressor fork: $!\n") unless defined $pid2;
+    if (!$pid2) {
+      close($tmp);
+      open(STDOUT, "+>&F") || die("decompress stdin dup\n");
+      exec(@decompressor);
+      die("$decompressor[0]: $!\n");
+    }
+  }
+
+  # feed data
   my $offset = 0;
   while (1) {
     my $chunk = BSTar::extract($ent->{'file'}, $ent, $offset, 65536);
     last unless length($chunk);
-    $gz->gzwrite($chunk) || die("gzwrite failed\n");
+    if ($pid2) {
+      print G $chunk or die("compress_entry write: $!\n");
+    } else {
+      print F $chunk or die("compress_entry write: $!\n");
+    }
     $offset += length($chunk);
   }
-  $gz->gzclose() && die("gzclose failed\n");
-  my $compsize = -s $tmp;
-  return { %$ent, 'offset' => 0, 'size' => $compsize, 'file' => $tmp };
+  close(G) or die("compress_entry $decompressor[0]: $?\n") if $pid2;
+  close(F) or die("compress_entry $compressor[0]: $?\n");
+  return { %$ent, 'offset' => 0, 'size' => (-s $tmp), 'file' => $tmp };
 }
 
 sub blobid_entry {
@@ -167,7 +204,7 @@ sub checksum_tar {
 }
 
 sub normalize_container {
-  my ($tarfd) = @_;
+  my ($tarfd, $recompress) = @_;
   my @tarstat = stat($tarfd);
   die("stat: $!\n") unless @tarstat;
   my $mtime = $tarstat[9];
@@ -187,9 +224,13 @@ sub normalize_container {
     die("File $layer_file not included in tar\n") unless $layer_ent;
     my $comp = detect_entry_compression($layer_ent);
     die("unsupported compression $comp\n") if $comp && $comp ne 'gzip';
-    if (!$comp) {
-      print "compressing $layer_ent->{'name'}... ";
-      $layer_ent = compress_entry($layer_ent);
+    if (!$comp || $recompress) {
+      if ($comp) {
+        print "recompressing $layer_ent->{'name'}... ";
+      } else {
+        print "compressing $layer_ent->{'name'}... ";
+      }
+      $layer_ent = compress_entry($layer_ent, $comp);
       print "done.\n";
     }   
     my $blobid = blobid_entry($layer_ent);
