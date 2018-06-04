@@ -28,6 +28,27 @@ my @headnames = qw{name mode uid gid size mtime chksum tartype linkname magic ve
 
 # tartype: 0=file 1=hardlink 2=symlink 3=char 4=block 5=dir 6=fifo
 
+sub parsetarhead {
+  my ($tarhead) = @_;
+  my @head = unpack('A100A8A8A8A12A12A8A1A100A6A2A32A32A8A8A155x12', $tarhead);
+  /^([^\0]*)/ && ($_ = $1) for @head;
+  $head[$_] = oct($head[$_]) for (1, 2, 3, 5, 6, 13, 14);
+  my $pad;
+  if (substr($tarhead, 124, 1) eq "\x80") {
+    # not octal, but binary!
+    my @s = unpack('aCSNN', substr($tarhead, 124, 12));
+    $head[4] = $s[4] + (2 ** 32) * $s[3] + (2 ** 64) * $s[2];
+    $pad = (512 - ($s[4] & 511)) & 511;
+  } else {
+    $head[4] = oct($head[4]);
+    $pad = (512 - ($head[4] & 511)) & 511;
+  }
+  $head[7] = '0' if $head[7] eq '' || $head[7] =~ /\W/;
+  $head[7] = '5' if $head[7] eq '0' && $head[0] =~ /\/$/s;	# dir
+  my $ent = { map {$headnames[$_] => $head[$_]} (0..$#headnames) };
+  return ($ent, $head[4], $pad);
+}
+
 sub list {
   my ($handle) = @_;
 
@@ -43,32 +64,17 @@ sub list {
     $offset += 512;
     last if $head eq "\0" x 512;
     next if substr($head, 500, 12) ne "\0" x 12;
-    my @head = unpack('A100A8A8A8A12A12A8A1A100A6A2A32A32A8A8A155x12', $head);
-    /^([^\0]*)/ && ($_ = $1) for @head;
-    $head[$_] = oct($head[$_]) for (1, 2, 3, 5, 6, 13, 14);
-    my $bsize;
-    if (substr($head, 124, 1) eq "\x80") {
-      # not octal, but binary!
-      my @s = unpack('aCSNN', substr($head, 124, 12));
-      $head[4] = $s[4] + (2 ** 32) * $s[3] + (2 ** 64) * $s[2];
-      $bsize = $s[4] & 511;
-      $bsize = $head[4] + ($bsize ? 512 - $bsize : 0);
-    } else {
-      $head[4] = oct($head[4]);
-      $bsize = ($head[4] + 511) & ~511;
-    }
-    $head[7] = '0' if $head[7] eq '' || $head[7] =~ /\W/;
-    $head[7] = '5' if $head[7] eq '0' && $head[0] =~ /\/$/s;	# dir
-    my $ent = { map {$headnames[$_] => $head[$_]} (0..$#headnames) };
+    my ($ent, $size, $pad) = parsetarhead($head);
+    my $bsize = $size + $pad;
     my $tartype = $ent->{'tartype'};
     next if $tartype eq 'V';	# ignore volume lables
     if ($tartype eq 'L' || $tartype eq 'K' || $tartype eq 'x' || $tartype eq 'X') {
       # read longname/longlink/pax extension
-      die if $bsize < 1 || $bsize > 2 ** 16;
+      die if $bsize < 1 || $bsize >= 65536;
       my $data = '';
       last unless (read($handle, $data, $bsize) || 0) == $bsize;
       $offset += $bsize;
-      substr($data, $ent->{'size'}) = '';
+      substr($data, $size) = '';
       if ($tartype eq 'L') {
         $nameoverride = $data;
       } elsif ($tartype eq 'K') {
@@ -84,18 +90,19 @@ sub list {
       }
       next;
     }
+    my $prefix = delete $ent->{'prefix'};
+    if (defined($prefix)) {
+      $prefix =~ s/\/$//s;
+      $ent->{'name'} = "$prefix/$ent->{'name'}" if $prefix ne '';
+    }
     if (defined($nameoverride)) {
       $ent->{'name'} = $nameoverride;
       undef $nameoverride;
-    } elsif (defined($ent->{'prefix'})) {
-      $ent->{'prefix'} =~ s/\/$//;
-      $ent->{'name'} = "$ent->{'prefix'}/$ent->{'name'}" if $ent->{'prefix'} ne '';
     }
     if (defined($linkoverride)) {
       $ent->{'linkname'} = $linkoverride;
       undef $linkoverride;
     }
-    delete $ent->{'prefix'};
     $bsize = 0 if $tartype eq '2' || $tartype eq '3' || $tartype eq '4' || $tartype eq '6';
     $bsize = 0 if $tartype eq '1' && !$ispax;	# hard link magic
     $ent->{'offset'} = $offset if $tartype eq '0';
