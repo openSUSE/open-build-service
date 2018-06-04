@@ -95,6 +95,9 @@ class Webui::PatchinfoController < Webui::WebuiController
         node.rating params[:rating].try(:strip)
         node.summary params[:summary].try(:strip)
         node.description params[:description].gsub("\r\n", "\n")
+        @file.each(:package) do |pkg|
+          node.package pkg.text
+        end
         node.message params[:message].gsub("\r\n", "\n") if params[:message].present?
         node.reboot_needed if params[:reboot]
         node.relogin_needed if params[:relogin]
