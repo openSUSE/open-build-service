@@ -7,9 +7,9 @@ services:
 # Language and app config
 language: ruby
 
-#cache:
-#  directories:
-#    - src/api/vendor/bundle
+cache:
+  directories:
+    - src/api/vendor/bundle
 # Github config
 branches:
   except:
