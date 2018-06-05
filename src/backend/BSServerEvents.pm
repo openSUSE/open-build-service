@@ -188,18 +188,15 @@ sub cpio_nextfile {
   my ($ev) = @_;
 
   my $data = '';
-  while(1) {
+  while (1) {
     #print "cpio_nextfile\n";
-    $data .= $ev->{'filespad'} if defined $ev->{'filespad'};
-    delete $ev->{'filespad'};
+    $data .= delete($ev->{'filespad'}) if defined $ev->{'filespad'};
     my $files = $ev->{'files'};
     my $filesno = defined($ev->{'filesno'}) ? $ev->{'filesno'} + 1 : 0;
     my $ent;
     if ($filesno >= @$files) {
-      if ($ev->{'cpioerrors'} ne '') {
-	$ent = {'data' => $ev->{'cpioerrors'}, 'name' => '.errors'};
-	$ev->{'cpioerrors'} = '';
-      } else {
+      $ent = delete $ev->{'cpioerrors'};
+      if (!$ent || $ent->{'data'} eq '') {
 	$data .= BSCpio::makecpiohead();
 	return $data;
       }
@@ -207,49 +204,30 @@ sub cpio_nextfile {
       $ev->{'filesno'} = $filesno;
       $ent = $files->[$filesno];
     }
+    my @s;
     my $name = $ent->{'name'};
     if ($ent->{'error'}) {
-      $ev->{'cpioerrors'} .= "$name: $ent->{'error'}\n";
-      next;
-    }
-    my @s;
-    if (exists($ent->{'file'}) || exists($ent->{'filename'})) {
+      $ev->{'cpioerrors'}->{'data'} .= "$name: $ent->{'error'}\n";
+    } elsif (exists($ent->{'file'}) || exists($ent->{'filename'})) {
       my $file = exists($ent->{'file'}) ? $ent->{'file'} : $ent->{'filename'};
-      my $fd = $file;
-      if (!ref($fd)) {
-	$fd = gensym;
-	if (!open($fd, '<', $file)) {
-	  $ev->{'cpioerrors'} .= "$name: $file: $!\n";
-	  next;
-	}
-      }
-      @s = stat($fd);
-      if (!@s) {
-	$ev->{'cpioerrors'} .= "$name: stat: $!\n";
-	close($fd);
+      my ($fd, $error) = BSCpio::openentfile($ent, $file, \@s);
+      if ($error) {
+        close($fd) if $fd && !ref($file);
+        $ev->{'cpioerrors'}->{'data'} .= $error;
 	next;
-      }
-      if (defined($ent->{'offset'})) {
-	if (!defined(sysseek($fd, $ent->{'offset'}, 0))) {
-	  $ev->{'cpioerrors'} .= "$name: seek: $!\n";
-	  close($fd);
-	  next;
-	}
-	$s[7] -= $ent->{'offset'};
       }
       $ev->{'fd'} = $fd;
       my ($header, $pad) = BSCpio::makecpiohead($ent, \@s);
       $data .= $header;
       $ev->{'filespad'} = $pad;
+      return $data;
     } else {
       $s[7] = length($ent->{'data'});
       $s[9] = $ent->{'mtime'} || time();
       my ($header, $pad) = BSCpio::makecpiohead($ent, \@s);
       $data .= "$header$ent->{'data'}";
       $ev->{'filespad'} = $pad;
-      next;
     }
-    return $data;
   }
 }
 
@@ -258,8 +236,9 @@ sub cpio_closehandler {
   my $files = $ev->{'files'};
   my $filesno = defined($ev->{'filesno'}) ? $ev->{'filesno'} + 1 : 0;
   while ($filesno < @$files) {
-    my $file = $files->[$filesno];
-    close($file->{'filename'}) if ref($file->{'filename'});
+    my $ent = $files->[$filesno];
+    close($ent->{'file'}) if ref($ent->{'file'});
+    close($ent->{'filename'}) if ref($ent->{'filename'});
     $filesno++;
   }
 }
@@ -268,7 +247,7 @@ sub reply_cpio {
   my ($files, @hdrs) = @_;
   my $rev = BSEvents::new('always');
   $rev->{'files'} = $files;
-  $rev->{'cpioerrors'} = '';
+  $rev->{'cpioerrors'} = { 'name' => '.errors', 'data' => '' };
   $rev->{'makechunks'} = 1;
   $rev->{'eofhandler'} = \&cpio_nextfile;
   $rev->{'closehandler'} = \&cpio_closehandler;
