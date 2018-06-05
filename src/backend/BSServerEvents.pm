@@ -28,6 +28,7 @@ use Fcntl qw(:DEFAULT);
 use Symbol;
 use BSEvents;
 use BSHTTP;
+use BSCpio;
 use Data::Dumper;
 
 use strict;
@@ -193,53 +194,59 @@ sub cpio_nextfile {
     delete $ev->{'filespad'};
     my $files = $ev->{'files'};
     my $filesno = defined($ev->{'filesno'}) ? $ev->{'filesno'} + 1 : 0;
-    my $file;
+    my $ent;
     if ($filesno >= @$files) {
       if ($ev->{'cpioerrors'} ne '') {
-	$file = {'data' => $ev->{'cpioerrors'}, 'name' => '.errors'};
+	$ent = {'data' => $ev->{'cpioerrors'}, 'name' => '.errors'};
 	$ev->{'cpioerrors'} = '';
       } else {
-	$data .= BSHTTP::makecpiohead();
+	$data .= BSCpio::makecpiohead();
 	return $data;
       }
     } else {
       $ev->{'filesno'} = $filesno;
-      $file = $files->[$filesno];
+      $ent = $files->[$filesno];
     }
-    if ($file->{'error'}) {
-      $ev->{'cpioerrors'} .= "$file->{'name'}: $file->{'error'}\n";
+    my $name = $ent->{'name'};
+    if ($ent->{'error'}) {
+      $ev->{'cpioerrors'} .= "$name: $ent->{'error'}\n";
       next;
     }
     my @s;
-    if (exists $file->{'filename'}) {
-      my $fd = $file->{'filename'};
+    if (exists($ent->{'file'}) || exists($ent->{'filename'})) {
+      my $file = exists($ent->{'file'}) ? $ent->{'file'} : $ent->{'filename'};
+      my $fd = $file;
       if (!ref($fd)) {
 	$fd = gensym;
-	if (!open($fd, '<', $file->{'filename'})) {
-	  $ev->{'cpioerrors'} .= "$file->{'name'}: $file->{'filename'}: $!\n";
+	if (!open($fd, '<', $file)) {
+	  $ev->{'cpioerrors'} .= "$name: $file: $!\n";
 	  next;
 	}
       }
       @s = stat($fd);
       if (!@s) {
-	$ev->{'cpioerrors'} .= "$file->{'name'}: stat: $!\n";
+	$ev->{'cpioerrors'} .= "$name: stat: $!\n";
 	close($fd);
 	next;
       }
-      if (ref($file->{'filename'})) {
-	my $off = sysseek($fd, 0, Fcntl::SEEK_CUR) || 0;
-	$s[7] -= $off if $off > 0;
+      if (defined($ent->{'offset'})) {
+	if (!defined(sysseek($fd, $ent->{'offset'}, 0))) {
+	  $ev->{'cpioerrors'} .= "$name: seek: $!\n";
+	  close($fd);
+	  next;
+	}
+	$s[7] -= $ent->{'offset'};
       }
       $ev->{'fd'} = $fd;
+      my ($header, $pad) = BSCpio::makecpiohead($ent, \@s);
+      $data .= $header;
+      $ev->{'filespad'} = $pad;
     } else {
-      $s[7] = length($file->{'data'});
-      $s[9] = time();
-    }
-    my ($header, $pad) = BSHTTP::makecpiohead($file, \@s);
-    $data .= $header;
-    $ev->{'filespad'} = $pad;
-    if (!exists $file->{'filename'}) {
-      $data .= $file->{'data'};
+      $s[7] = length($ent->{'data'});
+      $s[9] = $ent->{'mtime'} || time();
+      my ($header, $pad) = BSCpio::makecpiohead($ent, \@s);
+      $data .= "$header$ent->{'data'}";
+      $ev->{'filespad'} = $pad;
       next;
     }
     return $data;

@@ -629,7 +629,7 @@ sub getbinarylist_repository {
       if (open($fd, '<', "$reporoot/$prp/$arch/:full.xcache")) {
 	my $id;
 	if (sysread($fd, $id, 64) == 64 && $id eq $id64) {
-          push @files, { 'name' => 'repositorycache', 'filename' => $fd };
+          push @files, { 'name' => 'repositorycache', 'filename' => $fd, 'offset' => 64 };
 	  BSWatcher::reply_cpio(\@files);
 	  return undef;
 	}
@@ -656,8 +656,7 @@ sub getbinarylist_repository {
 	  $fd->flush();
 	  BSUtil::do_fdatasync(fileno($fd)) if $BSUtil::fdatasync_before_rename;
 	  rename($tmpname, "$reporoot/$prp/$arch/:full.xcache");
-	  sysseek($fd, 64, Fcntl::SEEK_SET);
-          push @files, { 'name' => 'repositorycache', 'filename' => $fd };
+	  push @files, { 'name' => 'repositorycache', 'filename' => $fd, 'offset' => 64 };
 	}
       }
       undef $repo;
@@ -2069,7 +2068,7 @@ sub putjob {
       # check that the containerinfo is well formed
       BSRepServer::Containerinfo::readcontainerinfo($tmpdir, $containerinfofile);
       # now do the rewrite
-      BSRepServer::Containertar::normalize_container($tmpdir, $container, 0, 0);
+      BSRepServer::Containertar::normalize_container($tmpdir, $container, 1, 1);
     };
     warn($@) if $@;
   }

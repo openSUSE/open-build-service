@@ -40,9 +40,12 @@ sub normalize_container {
   my $containerinfo = JSON::XS::decode_json($containerinfo_str);
 
   # do the normalization
+  my $recompress;
+  $recompress = 1 unless -f "$dir/$container.recompressed";
+  unlink("$dir/$container.recompressed");
   local *TAR;
   open(TAR, '<', "$dir/$container") || die("$dir/$container: $!\n");
-  my ($tar, $mtime, $config) = BSContar::normalize_container(\*TAR);
+  my ($tar, $mtime, $config) = BSContar::normalize_container(\*TAR, $recompress);
   my ($md5, $sha256, $size) = BSContar::checksum_tar($tar);
  
   # split in blobs/manifest, write blob files
@@ -163,8 +166,7 @@ sub add_containers {
 
 sub tar_sender {
   my ($param, $sock) =@_;
-  my $chunked = $param->{'chunked'};
-  my $writer = sub {BSHTTP::swrite($sock, $_[0], $chunked)};
+  my $writer = BSHTTP::create_writer($sock, $param->{'chunked'});
   BSTar::writetar($writer, $param->{'tar'});
   return '';
 }
