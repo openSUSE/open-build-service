@@ -142,7 +142,7 @@ module ObsFactory
       total = classified_requests.size
       missing = 0
       classified_requests.each do |rq|
-        missing +=1 if rq[:missing_reviews]
+        missing += 1 if rq[:missing_reviews]
       end
       if total > 0
         100 - missing * 100 / total
