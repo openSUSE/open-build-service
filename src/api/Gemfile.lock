@@ -199,6 +199,8 @@ GEM
     mini_mime (1.0.0)
     mini_portile2 (2.3.0)
     minitest (5.11.3)
+    minitest-ci (3.4.0)
+      minitest (>= 5.0.6)
     minitest-fail-fast (0.1.0)
       minitest (~> 5)
     minitest-reporters (1.2.0)
@@ -318,6 +320,8 @@ GEM
     rspec-retry (0.6.0)
       rspec-core (> 3.3)
     rspec-support (3.5.0)
+    rspec_junit_formatter (0.4.1)
+      rspec-core (>= 2, < 4, != 2.12.0)
     rubocop (0.56.0)
       parallel (~> 1.10)
       parser (>= 2.5)
@@ -452,6 +456,7 @@ DEPENDENCIES
   launchy
   lograge
   minitest
+  minitest-ci
   minitest-fail-fast
   minitest-reporters
   mocha (> 0.13.0)
@@ -475,6 +480,7 @@ DEPENDENCIES
   rspec
   rspec-rails (~> 3.5.0)
   rspec-retry
+  rspec_junit_formatter
   rubocop
   rubocop-rspec
   ruby-ldap

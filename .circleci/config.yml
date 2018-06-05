@@ -29,12 +29,15 @@ jobs:
       - run:
           name: Setup application
           command: cd src/api; bundle exec rake dev:bootstrap RAILS_ENV=test
+      - run: mkdir ~/rspec
       - run:
           name: Run rspec
-          command: cd src/api; bundle exec rspec
+          command: cd src/api; bundle exec rspec --format progress --format RspecJunitFormatter -o ~/rspec/rspec.xml
       - store_artifacts:
           path: ./src/api/log
           destination: rspec
+      - store_test_results:
+          path: ~/rspec
   minitest:
     docker:
       - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/frontend-backend:latest
@@ -70,9 +73,14 @@ jobs:
       - run:
           name: Setup application
           command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
+      - run: mkdir ~/minitest
       - run:
           name: Run minitest
-          command: cd src/api; bundle exec rake test:api
+          command: cd src/api; bundle exec rake test:api TESTOPTS="--ci-dir=~/minitest"
+      - store_artifacts:
+         path: ~/minitest
+      - store_test_results:
+          path: ~/minitest
       - run:
           name: Run spider
           command: cd src/api; bundle exec rake test:spider
