@@ -1,0 +1,19 @@
+- unless flash.blank?
+  .container#flash-messages
+    - flash_config = { success: { icon: 'fa-check-circle', color: 'has-text-success', type: 'is-success' },
+        error: { icon: 'fa-ban', color: 'has-text-danger', type: 'is-danger' },
+        alert: { icon: 'fa-exclamation-triangle', color: 'has-text-warning', type: 'is-warning' },
+        notice: { icon: 'fa-info-circle', color: 'has-text-info', type: 'is-info' } }
+    - flash.each do |flash_type, flash_message|
+      - config = flash_config[flash_type.to_sym]
+      %article.message.is-small{ class: config[:type] }
+        .message-body
+          %span.icon{ class: config[:color] }
+            %i.fa{ class: config[:icon] }
+          = flash_content(flash_message)
+          = link_to 'more info', '#', class: 'btn-more' if @more_info
+      - if @more_info
+        .more_info.hidden
+          %div{ class: flash_header }
+          .more-info-content
+            = simple_format @more_info.gsub(/\\n/, '<br \>')

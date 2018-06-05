@@ -1,0 +1,65 @@
+- @pagetitle = 'Welcome'
+- @layouttype = 'custom'
+
+.columns
+  .column.is-three-quarters
+    .box
+      %h4.title.is-4
+        Welcome to #{@configuration['title']}
+      .content
+        = raw @configuration['description']
+      %br/
+      .columns
+        - if User.current.is_admin?
+          .column.has-text-centered
+            = link_to(configuration_path) do
+              = sprite_tag('configure', title: 'Configuration')
+              %br
+              %span Configuration
+        - unless User.current.is_nobody?
+          .column.has-text-centered
+            = link_to(user_show_path(User.current)) do
+              = sprite_tag('start-here', title: 'Your Home')
+              %br
+              %span Your Home
+        .column.has-text-centered
+          = link_to(projects_path) do
+            = sprite_tag('list', title: 'All Projects')
+            %br
+            %span All Projects
+        .column.has-text-centered
+          = link_to(search_path) do
+            = sprite_tag('system-search', title: 'Search')
+            %br
+            %span Search
+        - unless User.current.is_nobody?
+          .column.has-text-centered
+            = link_to(controller: 'project', action: 'new', ns: User.current.home_project_name) do
+              = sprite_tag('document-new', title: 'New Project')
+              %br
+              %span New Project
+        - unless @spider_bot
+          .column.has-text-centered
+            = link_to(monitor_path) do
+              = sprite_tag('utilities-system-monitor', title: 'Status Monitor')
+              %br
+              %span Status Monitor
+        - if Feature.active?(:image_templates)
+          .column.has-text-centered
+            = link_to(image_templates_path) do
+              = sprite_tag('drive-optical-32', title: 'New Image')
+              %br
+              %span New Image
+    .box.with-header
+      = render partial: 'systemstatus'
+
+  .column
+    - if User.current.is_nobody? and can_register
+      .box.with-header
+        .box-header New here? Sign up!
+        .box-content
+          = render partial: 'shared/sign_up'
+    = render partial: 'sponsors'
+    = render partial: 'news'
+    - if (@latest_updates and ::Configuration.anonymous)
+      = render partial: 'latest_updates'

@@ -196,4 +196,6 @@ group :assets do
   gem 'font-awesome-rails'
   # assets for formatting dates
   gem 'momentjs-rails'
+  # Bulma CSS
+  gem 'bulma-rails'
 end

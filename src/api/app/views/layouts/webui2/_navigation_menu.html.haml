@@ -1,0 +1,69 @@
+%nav.navbar.is-dark
+  .navbar-brand
+    .navbar-burger.burger{"data-target" => "navbarExampleTransparentExample"}
+      %span
+      %span
+      %span
+  .navbar-menu
+    .navbar-start
+      = link_to image_tag('obs-logo_small.png', height: 26), root_path, { id: 'header-logo', class: 'navbar-item' }
+      .navbar-item.has-dropdown.is-hoverable
+        %a.navbar-link
+          Downloads
+        .navbar-dropdown.is-boxed
+          %a.navbar-item
+            Layout
+          %a.navbar-item
+            Form
+      .navbar-item.has-dropdown.is-hoverable
+        %a.navbar-link
+          Support
+        .navbar-dropdown.is-boxed
+          %a.navbar-item
+            Layout
+          %a.navbar-item
+            Form
+      .navbar-item.has-dropdown.is-hoverable
+        %a.navbar-link
+          Comunity
+        .navbar-dropdown.is-boxed
+          %a.navbar-item
+            Layout
+          %a.navbar-item
+            Form
+      .navbar-item.has-dropdown.is-hoverable
+        %a.navbar-link.without-arrow
+          Development
+        .navbar-dropdown.is-boxed
+          %a.navbar-item
+            Layout
+          %a.navbar-item
+            Form
+
+    .navbar-end
+      .field.is-grouped
+        .navbar-item.has-dropdown.is-hoverable
+          %a.navbar-link
+            Watchlist
+          .navbar-dropdown.is-boxed
+            %a.navbar-item
+              Overview
+            %a.navbar-item
+              Modifiers
+            %a.navbar-item
+              Columns
+            %a.navbar-item
+              Layout
+            %a.navbar-item
+              Form
+            %hr.navbar-divider/
+            %a.navbar-item
+              Elements
+            %a.navbar-item.is-active
+              Components
+        .navbar-item
+          = form_tag(search_path(project: 1, package: 1, name: 1), { id: 'global-search-form', class: 'label-overlay' }) do
+            .control.has-icons-left
+              = text_field_tag 'search_text', '', id: 'search', class: 'input', placeholder: 'Search...'
+              %span.icon.is-left
+                %i.fa.fa-search

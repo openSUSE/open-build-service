@@ -1,0 +1,176 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or vendor/assets/stylesheets of plugins, if any, can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the top of the
+ * compiled file, but it's generally better to create a new file per style scope.
+ *
+ *= require dataTables/jquery.dataTables
+ *= require token-input
+ *= require token-input-facebook
+ *= require codemirror
+ *= require mousetrap
+ *= require peek
+ *= require webui/application/cm2.css.scss
+ *= require webui/application/icons.css.scss
+ *= require webui/application/datatable.css.scss
+*/
+
+$breadcrumb-item-color: rgb(102, 102, 102);
+$breadcrumb-item-active-color: #333;
+$title-color: rgb(102, 153, 0);
+$body-background-color: hsl(0, 0%, 96%);
+$primary: #690;
+$secondary: #39c;
+$link: #069;
+$link-hover: $primary;
+$table-background-color: none;
+$footer-background-color: none;
+$tabs-boxed-link-hover-background-color: hsl(0, 0%, 90%);
+$tabs-link-hover-color: $primary;
+
+@import 'bulma';
+@import 'font-awesome';
+
+.navbar-link {
+  &::after {
+    display: none;
+  }
+}
+
+.navigation-bar {
+  padding: 0.5rem 0rem 1.5rem 0rem;
+}
+
+.breadcrumb .icons-home_grey {
+  margin-right: 5px;
+}
+
+.personal_navigation a, footer.footer a {
+  color: $primary;
+  text-decoration: none;
+  &:hover {
+    color: $secondary;
+  }
+}
+
+// Boxes
+
+.box {
+  &.slim-padding {
+    padding: 0.5rem;
+  }
+
+  &.with-header {
+    padding: 0;
+
+    .box-header {
+      background-color: $light;
+      border-radius: 6px 6px 0px 0px;
+      color: $dark;
+      padding: 0.25rem 1.25rem;
+      border-bottom: 1px solid $grey-lighter;
+      font-weight: bold;
+    }
+
+    .box-content {
+      padding: 1.25rem;
+    }
+  }
+
+  &.with-tabs {
+    margin-top: 0;
+    border-top: 0;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+  }
+}
+
+.tabs {
+  &.attached-to-box {
+    margin-bottom: 0;
+  }
+
+  .action-icon {
+    margin-left: 0.5rem;
+  }
+}
+
+#flash-messages {
+  margin-bottom: 1.25rem;
+}
+
+#footer-legal {
+  border-top: 1px dotted #999;
+  color: #999;
+  padding-top: 1.25rem;
+}
+
+.revisions {
+  margin-top: 1.25rem;
+}
+
+.rpmlint_log {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-size: 0.8em;
+  max-height: 500px;
+  background-color: transparent;
+  padding: 1rem 0;
+}
+
+
+.fuzzy-time {
+  text-decoration: underline dashed #069;
+
+  &:hover {
+    text-decoration-color: #690;
+  }
+}
+
+.table {
+  th:first-child, td:first-child {
+    border-left: none;
+  }
+
+  th:last-child, td:last-child {
+    border-right: none;
+  }
+
+  tr:first-child td {
+    border-top: none;
+  }
+
+  td {
+    border: 1px dotted #ccc;
+
+    &.no_border_bottom {
+      border-bottom: none;
+    }
+
+    &.no_border_top {
+      border-top: none;
+    }
+  }
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.show_all_box {
+  margin-bottom: 1rem;
+  input[type=checkbox] { display: none; }
+  label {
+    color: #069;
+
+    &:hover {
+      color: #693;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  }
+}

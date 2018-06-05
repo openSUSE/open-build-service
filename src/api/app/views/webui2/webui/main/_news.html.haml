@@ -1,0 +1,35 @@
+- if @status_messages.present? || User.current.is_admin?
+  = render partial: 'add_news_dialog'
+  .box.with-header
+    .box-header#messages
+      .level
+        .level-left
+          .level-item
+            Announcements
+        .level-right
+          .level-item
+            = link_to('', news_feed_path(format: 'rss'), { class: 'icons-feeds', title: 'RSS Feed' })
+    .box-content.is-size-7
+      - @status_messages.each do |msg|
+        .news-sender
+          = user_with_realname_and_icon msg.user, short: true
+          wrote #{time_ago_in_words(msg.created_at)} ago
+        .box.news-message.slim-padding
+          .has-text-right
+            - if User.current.is_admin?
+              = link_to(sprite_tag('comment_delete', title: 'Remove message'), status_message_path(id: msg.id),
+                { remote: true, method: :delete, class: 'delete-message' })
+            - case msg.severity.to_i
+            - when 3
+              = sprite_tag('exclamation', alt: 'Red')
+            - when 2
+              = sprite_tag('error', alt: 'Yellow')
+            - when 1
+              = sprite_tag('accept', alt: 'Green')
+            - else
+              = sprite_tag('information', alt: 'Information')
+          = comment_body(msg.message)
+      - if User.current.is_admin?
+        = link_to('#', id: 'add-new-message') do
+          = sprite_tag('comment_add')
+          Add new status
