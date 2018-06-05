@@ -65,6 +65,7 @@ use BSSolv;
 use BSRPC;
 use BSSched::RPC;
 use BSConfiguration;
+use BSXML;
 
 =head2 setup_watches - create watches for all dependencies on remote projects
 
@@ -399,6 +400,16 @@ sub addrepo_remote_resume {
   $ctx->setchanged($handle) unless !$r && $error && BSSched::RPC::is_transient_error($error);
 }
 
+sub import_annotation {
+  my ($annotation) = @_;
+  return $annotation unless ref($annotation);
+  my %a;
+  for (qw{repo disturl buildtime}) {
+    $a{$_} = $annotation->{$_} if exists $annotation->{$_};
+  }
+  return BSUtil::toxml(\%a, $BSXML::binannotation);
+}
+
 sub addrepo_remote_unpackcpio {
   my ($gctx, $pool, $prp, $arch, $cpio, $solvok, $error) = @_;
 
@@ -460,11 +471,14 @@ sub addrepo_remote_unpackcpio {
     delete $cache->{'/url'};
     delete $cache->{'/dodcookie'};
     delete $cache->{'/external/'};
-    # free some unused entries to save mem
+    # postprocess entries
     for (values %$cache) {
       $havedod = 1 if ($_->{'hdrmd5'} || '') eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0';
+      # free some unused entries to save mem
       delete $_->{'path'};
       delete $_->{'id'};
+      # import annotations
+      $_->{'annotation'} = import_annotation($_->{'annotation'}) if $_->{'annotation'};
     }
     # add special "havedod" marker
     $cache->{'/dodcookie'} = 'remote repository with dod packages' if $havedod;
