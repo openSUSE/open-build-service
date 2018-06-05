@@ -98,6 +98,11 @@ class Webui::PatchinfoController < Webui::WebuiController
         @file.each(:package) do |pkg|
           node.package pkg.text
         end
+        @file.each(:releasetarget) do |release_target|
+          attributes = { project: release_target.value(:project) }
+          attributes[:repository] = release_target.value(:repository) if release_target.value(:repository)
+          node.releasetarget(attributes)
+        end
         node.message params[:message].gsub("\r\n", "\n") if params[:message].present?
         node.reboot_needed if params[:reboot]
         node.relogin_needed if params[:relogin]
