@@ -67,7 +67,7 @@ GEM
     bullet (5.7.5)
       activesupport (>= 3.0.0)
       uniform_notifier (~> 1.11.0)
-    bunny (2.9.2)
+    bunny (2.10.0)
       amq-protocol (~> 2.3.0)
     capybara (3.2.1)
       addressable
