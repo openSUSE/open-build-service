@@ -230,7 +230,6 @@ class Webui::PatchinfoController < Webui::WebuiController
     @file.each(:binary) do |binaries|
       @binaries << binaries.text
     end
-    @binary = []
     @packager = @file.value(:packager)
     @version = @file.value(:version)
 
