@@ -10,6 +10,9 @@ jobs:
         name: db
     steps:
       - checkout
+      - run:
+          name: whoami
+          command: whoami
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
@@ -52,10 +55,14 @@ jobs:
     steps:
       - checkout
       - run:
+          name: whoami
+          command: whoami
+      - run:
           name: Init submodule
           command: git submodule update --init --recursive --remote
       - restore_cache:
           keys:
+          - whoami
           - v1-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
