@@ -6342,13 +6342,16 @@ my $dispatches = [
   'POST:/worker cmd=checkconstraints $project $repository $arch $package' => \&checkconstraints,
 
   # worker calls
-  '/getsources $project $package $srcmd5:md5' => \&getsources,
-  '/getconfig $project $repository path:prp*' => \&getbuildconfig,
+  '/getsources $project $package $srcmd5:md5 workerid?' => \&getsources,
+  '/getconfig $project $repository path:prp* workerid?' => \&getbuildconfig,
+  '/getsslcert $project autoextend:bool? workerid?' => \&getsslcert,
+  '/getbinaries $project $repository $arch binaries: nometa:bool? workerid?' => \&worker_getbinaries,
+  '/getbinaryversions $project $repository $arch binaries: nometa:bool? workerid?' => \&worker_getbinaryversions,
 
+  # publisher/signer calls
   '/getsignkey $project withpubkey:bool? autoextend:bool? withalgo:bool?' => \&getsignkey,
-  '/getsslcert $project autoextend:bool?' => \&getsslcert,
-  '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaries,
-  '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaryversions,
+
+  # event/notification handling
   '!- /lastevents $filter:* start:num? obsname:?' => \&lastevents,
   '/lastnotifications start:num? view:? block:bool? noprune:bool?' => \&lastnotifications,
   '/notificationpayload/$payloadkey:filename' => \&getnotificationpayload,
