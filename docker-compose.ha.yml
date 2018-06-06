@@ -1,0 +1,27 @@
+version: "2.1"
+services:
+  proxy:
+    image: haproxy:1.7
+    volumes:
+      - ./contrib/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      - frontend
+      - frontend_node_2
+  frontend_node_2:
+    image: openbuildservice/frontend
+    environment:
+      - NODE_NUMBER=2
+    volumes:
+      - .:/obs
+      - ./contrib/thinking_sphinx.yml.ha:/obs/src/api/config/thinking_sphinx.yml:ro
+      - ./contrib/Procfile.ha:/obs/src/api/Procfile
+    ports:
+      - "3001:3000"
+      - "1081:1080"
+    depends_on:
+      - db
+      - cache
+      - backend
+      - worker
