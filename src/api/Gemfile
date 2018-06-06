@@ -63,6 +63,7 @@ gem 'feature'
 # for profiling
 gem 'peek'
 gem 'peek-dalli'
+gem 'peek-host'
 gem 'peek-mysql2'
 # for kerberos authentication
 gem 'gssapi', require: false
