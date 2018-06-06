@@ -2373,7 +2373,7 @@ sub getbinaries {
       if ($buildinfo->{'containerannotation'}) {
 	my $annotation = BSUtil::fromxml($buildinfo->{'containerannotation'}, $BSXML::binannotation, 1);
 	if ($annotation) {
-	  for (qw{package version release binaryarch disturl buildtime}) {
+	  for (qw{package version release binaryarch disturl buildhost buildtime}) {
 	    $bin->{$_} = $annotation->{$_} if defined($annotation->{$_}) && $annotation->{$_} ne '';
 	  }
 	}
@@ -2600,7 +2600,7 @@ sub xmlescape {
 # parse all .report files and create a channel file from them
 # also update the data in the .report files with the binary origins
 sub createchannel {
-  my ($dir, $kiwiorigins) = @_;
+  my ($buildinfo, $dir, $kiwiorigins) = @_;
   my @reports = grep {/\.report$/} ls($dir);
   my %channel;
   my $hasunknown;
@@ -2609,6 +2609,9 @@ sub createchannel {
   for my $reportfile (@reports) {
     my $report = readxml("$dir/$reportfile", $BSXML::report, 1);
     next unless $report;
+    $report->{'buildtime'} = $buildinfo->{'buildtime'} if $buildinfo->{'buildtime'};
+    $report->{'buildhost'} = $buildinfo->{'buildhost'} if $buildinfo->{'buildhost'};
+    $report->{'disturl'} = $buildinfo->{'disturl'} if $buildinfo->{'disturl'};
     for my $bin (@{$report->{'binary'} || []}) {
       # update missing entries
       my $prpap = $kiwiorigins->{$bin->{'_content'}};
@@ -2700,7 +2703,7 @@ sub createchannel {
 
 # create a .report file from a .packages file by adding binary origin information
 sub createreport {
-  my ($dir, $kiwiorigins) = @_;
+  my ($buildinfo, $dir, $kiwiorigins) = @_;
 
   local *F;
   for my $file (grep {/\.packages$/} sort(ls($dir))) {
@@ -2719,7 +2722,7 @@ sub createreport {
         'disturl' => $s[5],
       };
       $bin->{'package'} = $1 if $s[5] =~ /.*\/[^-]*-(.*)$/; # container case
-      $bin->{'epoch'} = $s[1] if $s[1] ne '(none)';
+      $bin->{'epoch'} = $s[1] if $s[1] ne '' && $s[1] ne '(none)';
       my $prpap = $kiwiorigins->{$s[0]};
       if ($prpap) {
         my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
@@ -2733,6 +2736,9 @@ sub createreport {
     close F;
     push @bins, @{$kiwiorigins->{':basecontainers'} || []};
     my $report = { 'binary' => \@bins };
+    $report->{'buildtime'} = $buildinfo->{'buildtime'} if $buildinfo->{'buildtime'};
+    $report->{'buildhost'} = $buildinfo->{'buildhost'} if $buildinfo->{'buildhost'};
+    $report->{'disturl'} = $buildinfo->{'disturl'} if $buildinfo->{'disturl'};
     my $reportfile = $file;
     $reportfile =~ s/\.packages$/\.report/;
     writexml("$dir/.$reportfile", "$dir/$reportfile", $report, $BSXML::report);
@@ -3140,14 +3146,15 @@ sub dobuild {
   }
 
   if (!$followupmode && $kiwiorigins) {
+    $buildinfo->{'buildtime'} = time();
     if (!$kiwimode) {
       # some builds like python-venv also write a .packages file
-      createreport("$buildroot/.build.packages/OTHER", $kiwiorigins);
+      createreport($buildinfo, "$buildroot/.build.packages/OTHER", $kiwiorigins);
     } elsif ($kiwimode ne 'product') {
-      createreport("$buildroot/.build.packages/KIWI", $kiwiorigins);
+      createreport($buildinfo, "$buildroot/.build.packages/KIWI", $kiwiorigins);
     } else {
       # as a special service we also create a channel file from the report files
-      createchannel("$buildroot/.build.packages/OTHER", $kiwiorigins);
+      createchannel($buildinfo, "$buildroot/.build.packages/OTHER", $kiwiorigins);
     }
   }
 
