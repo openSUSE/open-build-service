@@ -1,4 +1,3 @@
-
 #
 # Open Build Service 2.10
 #
@@ -35,6 +34,11 @@ Frontend:
     * Clicking on the hint can starts or stop the loading of the content.
  * Do not show excluded entries in package build results by default.
  * Microsoft Azure cloud upload support
+ * API routes for Amazon ec2 cloud feature
+ * Refactored the view of the binaries page that before was just a list of links that
+   pointed to the details page. Now you can download the files and upload images to
+   the cloud directly from here.
+
 
 Backend:
 
@@ -42,41 +46,42 @@ Shipment:
 
 Bugfixes:
 
-* Build result page took long time to load:
-  In the binaries page we were always asking to the backend per file if it knows the url for downloading. If the backend answers with an url, that url will be checked on the fly to know if the file is available, if it is not there then we provide an API url.
-  That meant that up to 2 http request are performed to only know if we need to show the link. I we have a package with 20 files per subpackage and 5 subpackages... we will perform up to 200 requests just to show links.
-  Now we have deferred this calculation to an internal action in the frontend to only perform the request to external sources if the user really wants to download a file.
+  * Binary view now shows correct data for multibuild packages
+  * Source diffs with mixed encoding were causing failures when processing notification
+    mails. This is fixed now.
+  * Improved explanatory text for role changes on request review page.
+
 
 Intentional changes:
 ====================
 
-OBS is now using the lograge gem to generate production logs. We will log at least (in one line per request):
+  * Excluded entries in package build results are not shown by default anymore.
 
-* Timestamp
-* Request: Method + Controller + Action + Path + Params
-* Response status
-* Duration: Overall / View / DB
-* Remote IP
-* User login
+  * OBS is now using the lograge gem to generate production logs. We are now logging (in one line per request):
+    * Timestamp
+    * Request: Method + Controller + Action + Path + Params
+    * Response status
+    * Duration: Overall / View / DB
+    * Remote IP
+    * User login
 
-You can see an example of the output here:
+  You can see an example of the output here:
+    ```
+    method=POST path=/comments format=js controller=Webui::CommentsController action=create status=200 duration=1436.57 view=77.25 db=13.92 params={"utf8"=>"✓", "commentable_type"=>"Project", "commentable_id"=>"1", "comment"=>{"body"=>"hola que tal"}, "commit"=>"Add comment"} host=127.0.0.1 time=2018-05-14 15:59:03 +0000 user=Admin
+    ```
 
-```
-method=POST path=/comments format=js controller=Webui::CommentsController action=create status=200 duration=1436.57 view=77.25 db=13.92 params={"utf8"=>"✓", "commentable_type"=>"Project", "commentable_id"=>"1", "comment"=>{"body"=>"hola que tal"}, "commit"=>"Add comment"} host=127.0.0.1 time=2018-05-14 15:59:03 +0000 user=Admin
-```
+    This will condense the output generated, before it was something like this:
 
-This will condense the output generated, before it was something like this:
-
-```
-Started POST "/" for 127.0.0.1 at 2012-03-10 14:28:14 +0100
-Processing by HomeController#index as HTML
-  Rendered text template within layouts/application (0.0ms)
-  Rendered layouts/_assets.html.erb (2.0ms)
-  Rendered layouts/_top.html.erb (2.6ms)
-  Rendered layouts/_about.html.erb (0.3ms)
-  Rendered layouts/_google_analytics.html.erb (0.4ms)
-Completed 200 OK in 79ms (Views: 78.8ms | ActiveRecord: 0.0ms)
-```
+    ```
+    Started POST "/" for 127.0.0.1 at 2012-03-10 14:28:14 +0100
+    Processing by HomeController#index as HTML
+      Rendered text template within layouts/application (0.0ms)
+      Rendered layouts/_assets.html.erb (2.0ms)
+      Rendered layouts/_top.html.erb (2.6ms)
+      Rendered layouts/_about.html.erb (0.3ms)
+      Rendered layouts/_google_analytics.html.erb (0.4ms)
+    Completed 200 OK in 79ms (Views: 78.8ms | ActiveRecord: 0.0ms)
+    ```
 
 
 Other changes

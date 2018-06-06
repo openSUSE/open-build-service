@@ -125,6 +125,9 @@ group :test do
   gem 'rails-controller-testing'
   # To generate random data
   gem 'rantly', '>= 1.1.0'
+  # for test analysis in CircleCI
+  gem 'minitest-ci'
+  gem 'rspec_junit_formatter'
 end
 
 # Gems used only during development not required in production environments by default.

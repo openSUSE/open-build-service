@@ -22,6 +22,8 @@
 
 package BSCpio;
 
+use Symbol;
+
 use strict;
 
 # cpiotype: 1=pipe 2=char 4=dir 6=block 8=file 10=symlink 12=socket
@@ -36,13 +38,13 @@ sub makecpiohead {
   } else {
     $mode |= 0x8000 unless $mode & 0xf000;
   }
-  my $mtime = $ent->{'mtime'} || $s->[9];
+  my $mtime = defined($ent->{'mtime'}) ? $ent->{'mtime'} : $s->[9];
   my $h = sprintf("07070100000000%08x000000000000000000000001%08x", $mode, $mtime);
   my $size = $s->[7];
   if ($size >= 0xffffffff) {
     # build service extension, size is in rmajor/rminor
-    my $top = int($s->[7] / 4294967296.);
-    $size -= $top * 4294967296.;
+    my $top = int($s->[7] / 4294967296);
+    $size -= $top * 4294967296;
     $h .= sprintf("ffffffff0000000000000000%08x%08x", $top, $size);
   } else {
     $h .= sprintf("%08x00000000000000000000000000000000", $size);
@@ -67,11 +69,41 @@ sub parsecpiohead {
     # build service extension, size is in rmajor/rminor
     $size = hex(substr($cpiohead, 86, 8));
     $pad = (4 - ($size % 4)) % 4;
-    $size += hex(substr($cpiohead, 78, 8)) * 4294967296.;
+    $size += hex(substr($cpiohead, 78, 8)) * 4294967296;
     return undef if $size < 0xffffffff;
   }
-  my $ent ={ 'namesize' => $size , 'size' => $size, 'mtime' => $mtime, 'mode' => $mode, 'cpiotype' => ($mode >> 12 & 0xf) };
+  my $ent = { 'namesize' => $size , 'size' => $size, 'mtime' => $mtime, 'mode' => $mode, 'cpiotype' => ($mode >> 12 & 0xf) };
   return ($ent, $namesize, $namepad, $size, $pad);
+}
+
+sub openentfile {
+  my ($ent, $file, $s, $follow) = @_;
+  my $name = $ent->{'name'};
+  my $fd;
+  if (ref($file)) {
+    $fd = $file;
+  } else {
+    @$s = lstat($file);
+    return (undef, "$name: $file: $!\n") unless @$s;
+    if (-l _) {
+      return (undef, "$name: $file: is a symlink\n") if !$ent->{'follow'} && !$follow;
+    } elsif (! -f _) {
+      return (undef, "$name: $file: not a plain file\n");
+    }
+    $fd = gensym;
+    return (undef, "$name: $file: $!\n") unless open($fd, '<', $file);
+  }
+  @$s = stat($fd);
+  return ($fd, "$name: fstat: $!\n") unless @$s;
+  if (defined($ent->{'offset'})) {
+    return ($fd, "$name: seek error: $!\n") unless defined(sysseek($fd, $ent->{'offset'}, 0));
+    $s->[7] -= $ent->{'offset'};
+  }
+  if (defined($ent->{'size'})) {
+    return ($fd, "$name: size too small for request\n") if $ent->{'size'} > $s->[7];
+    $s->[7] = $ent->{'size'};
+  }
+  return ($fd, undef);
 }
 
 sub writecpio {
@@ -81,52 +113,25 @@ sub writecpio {
   my $collecterrors = $opts{'collecterrors'};
   my $errors = {'name' => $collecterrors, '__errors' => 1, 'data' => ''};
   for my $ent (@{$entries || []}, $errors) {
-    my (@s);
+    my @s;
     my $name = $ent->{'name'};
     if ($ent->{'error'}) {
       die("$name: $ent->{'error'}\n") unless $collecterrors;
       $errors->{'data'} .= "$name: $ent->{'error'}\n";
-      next;
-    }
-    if (exists($ent->{'file'}) || exists($ent->{'filename'})) {
-      local *F;
+    } elsif (exists($ent->{'file'}) || exists($ent->{'filename'})) {
       my $file = exists($ent->{'file'}) ? $ent->{'file'} : $ent->{'filename'};
-      my $l;
-      eval {
-	if (ref($file)) {
-	  *F = $file;
-	} else {
-	  @s = lstat($file);
-	  die("$name: $file: $!\n") unless @s;
-	  if (-l _) {
-	    die("$name: $file: is a symlink\n") if !$ent->{'follow'} && !$opts{'follow'};
-	  } elsif (! -f _) {
-	    die("$name: $file: not a plain file\n");
-	  }
-	  open(F, '<', $file) || die("$name: $file: $!\n");
-	}
-	@s = stat(F);
-	die("$name: fstat: $!\n") unless @s;
-	$l = $s[7];
-	if (defined($ent->{'offset'})) {
-	  die("$name: seek error: $!\n") unless defined(sysseek(F, $ent->{'offset'}, 0));
-	  $l -= $ent->{'offset'};
-	}
-	if (defined($ent->{'size'})) {
-	  die("$name: size too small for request\n") if $ent->{'size'} > $l;
-	  $l = $ent->{'size'};
-	}
-      };
-      if ($@) {
-        die($@) unless $collecterrors;
-        $errors->{'data'} .= $@;
+      my ($efd, $error) = openentfile($ent, $file, \@s, $opts{'follow'});
+      if ($error) {
+	close($efd) if $efd && !ref($file);
+        die($error) unless $collecterrors;
+        $errors->{'data'} .= $error;
 	next;
       }
-      $s[7] = $l;
       my ($data, $pad) = makecpiohead($ent, \@s);
+      my $l = $s[7];
       my $r = 0;
       while (1) {
-	$r = sysread(F, $data, $l > 8192 ? 8192 : $l, length($data)) if $l;
+	$r = sysread($efd, $data, $l > 8192 ? 8192 : $l, length($data)) if $l;
 	die("$name: $file: read error: $!\n") unless defined $r;
 	die("$name: $file: unexpected EOF\n") if $l && !$r;
 	$data .= $pad if $r == $l;
@@ -139,7 +144,7 @@ sub writecpio {
 	$l -= $r;
 	last unless $l;
       }
-      close F unless ref $file;
+      close($efd) unless ref $file;
     } else {
       next if $ent->{'__errors'} && $ent->{'data'} eq '';
       $s[7] = length($ent->{'data'});

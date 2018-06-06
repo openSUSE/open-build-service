@@ -106,6 +106,7 @@ Requires:       /usr/bin/createrepo
 Recommends:     cron logrotate
 
 Obsoletes:      obs-devel
+Provides:       obs-devel
 
 BuildRequires:  xz
 
@@ -306,6 +307,8 @@ rm src/api/Dockerfile.frontend-base
 
 # drop build script, we require the installed one from own package
 rm -rf src/backend/build
+
+find -name .keep | xargs rm -rf
 
 %build
 export DESTDIR=$RPM_BUILD_ROOT
@@ -598,7 +601,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 # formerly obs-source_service
 /etc/init.d/obsservice
 %config(noreplace) /etc/logrotate.d/obs-source_service
-/etc/cron.d/cleanup_scm_cache
+%config(noreplace) /etc/cron.d/cleanup_scm_cache
 /usr/sbin/rcobsservice
 /usr/lib/obs/server/bs_service
 /usr/lib/obs/server/call-service-in-docker.sh
@@ -624,7 +627,7 @@ usermod -a -G docker obsservicerun
 /srv/www/obs/overview
 
 /srv/www/obs/api/config/thinking_sphinx.yml.example
-/etc/cron.d/obs_api_delayed_jobs_monitor
+%config(noreplace) /etc/cron.d/obs_api_delayed_jobs_monitor
 %config(noreplace) /srv/www/obs/api/config/thinking_sphinx.yml
 %attr(-,%{apache_user},%{apache_group}) %config(noreplace) /srv/www/obs/api/config/production.sphinx.conf
 
