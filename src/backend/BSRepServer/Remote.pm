@@ -61,7 +61,7 @@ sub addrepo_remote {
       delete $_->{'path'};
       delete $_->{'id'};
       # import annotations
-      $_->{'annotation'} = import_annotation($_->{'annotation'}) if $_->{'annotation'};
+      $_->{'annotation'} = import_annotation($_->{'annotationdata'} || $_->{'annotation'}) if $_->{'annotation'};
     }
     delete $cache->{'/external/'};
     delete $cache->{'/url'};
