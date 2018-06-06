@@ -16,6 +16,7 @@
 # Required-Stop:     $null
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
+# Short-Description  OBS storage setup
 # Description:       Finds the storage device to be used for OBS server and/or worker
 ### END INIT INFO
 
