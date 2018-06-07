@@ -6,6 +6,7 @@ services:
       - ./contrib/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
     ports:
       - "8080:80"
+      - "32700:32700"
     depends_on:
       - frontend
       - frontend_node_2
