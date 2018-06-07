@@ -56,9 +56,6 @@ GEM
       airbrake-ruby (~> 2.5)
     airbrake-ruby (2.5.0)
     amq-protocol (2.3.0)
-    annotate (2.7.4)
-      activerecord (>= 3.2, < 6.0)
-      rake (>= 10.4, < 13.0)
     ansi (1.5.0)
     arel (9.0.0)
     ast (2.4.0)
@@ -421,7 +418,6 @@ DEPENDENCIES
   addressable
   airbrake (<= 7.1.0)
   airbrake-ruby (<= 2.5.0)
-  annotate
   bcrypt
   bullet
   bunny
