@@ -11,7 +11,7 @@ module ObsFactory
     extend ActiveModel::Naming
     extend Forwardable
 
-    SOURCE_VERSION_FILE = "000product/openSUSE.product"
+    SOURCE_VERSION_FILE = { package_name: '000product', filename: 'openSUSE.product' }
     RINGS_PREFIX = ":Rings"
 
     attr_accessor :project, :strategy
@@ -109,7 +109,7 @@ module ObsFactory
     def source_version
       Rails.cache.fetch("source_version_for_#{name}", expires_in: 10.minutes) do
         begin
-          p = Xmlhash.parse(ActiveXML::backend.direct_http "/source/#{name}/#{SOURCE_VERSION_FILE}?expand=1")
+          p = Xmlhash.parse(Backend::Api::Sources::Package.file(name, SOURCE_VERSION_FILE[:package_name], SOURCE_VERSION_FILE[:filename]))
           p.get('products').get('product').get('version')
         rescue ActiveXML::Transport::NotFoundError
           nil

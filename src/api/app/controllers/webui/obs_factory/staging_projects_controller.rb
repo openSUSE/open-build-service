@@ -11,14 +11,16 @@ module Webui::ObsFactory
           @staging_projects = ::ObsFactory::StagingProjectPresenter.sort(@distribution.staging_projects_all)
           @backlog_requests = ::ObsFactory::Request.with_open_reviews_for(by_group: @distribution.staging_manager, target_project: @distribution.name)
           @requests_state_new = ::ObsFactory::Request.in_state_new(by_group: @distribution.staging_manager, target_project: @distribution.name)
-          file = PackageFile.new(
-            project_name: "#{params[:project]}:Staging",
-            package_name: "dashboard",
-            name: "ignored_requests")
-          unless file.to_s.nil?
-            @ignored_requests = YAML.load(file.to_s)
+
+          staging_project = Project.find_by_name("#{@distribution.project}:Staging")
+          dashboard_package = Package.find_by_project_and_name(staging_project.name, 'dashboard')
+
+          if dashboard_package && dashboard_package.file_exists?('ignored_requests')
+            file = ::Backend::Api::Sources::Package.file(staging_project.name, dashboard_package.name, 'ignored_requests')
+            @ignored_requests = YAML.load(file)
           end
-          if !@ignored_requests.nil? and @ignored_requests
+
+          if @ignored_requests
             @backlog_requests_ignored = @backlog_requests.select { |req| @ignored_requests.key?(req.number) }
             @backlog_requests = @backlog_requests.select { |req| !@ignored_requests.key?(req.number) }
             @requests_state_new = @requests_state_new.select { |req| !@ignored_requests.key?(req.number) }
