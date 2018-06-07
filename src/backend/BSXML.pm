@@ -1788,6 +1788,9 @@ our $frozenlinks = [
 
 our $report = [
     'report' =>
+	'buildtime',
+	'buildhost',
+	'disturl',
      [[ 'binary' =>
 	    'name',
 	    'epoch',
@@ -1795,6 +1798,7 @@ our $report = [
 	    'release',
 	    'binaryarch',
 	    'buildtime',
+	    'buildhost',
 	    'disturl',
 	    'supportstatus',
 
@@ -1848,8 +1852,9 @@ our $binannotation = [
 	    'repository',
 	    'priority',
      ]],
-	'disturl',
 	'buildtime',
+	'buildhost',
+	'disturl',
 	'package',		# only in build job annotation
 	'epoch',		# only in build job annotation
 	'version',		# only in build job annotation

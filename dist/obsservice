@@ -15,6 +15,7 @@
 # Should-Stop:       $none
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
+# Short-Description: OBS service server
 # Description:       open build service source service server
 ### END INIT INFO
 

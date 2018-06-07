@@ -1213,13 +1213,16 @@ sub trygetbinariesproxy_preinstallimage {
   my ($server, $filename, $img) = @_;
   return undef unless $getbinariesproxy;
   my $res;
+  my @args;
+  push @args, "workerid=$workerid" if defined $workerid;
+  push @args, "prpa=$img->{'prpa'}", "hdrmd5=$img->{'hdrmd5'}", "sizek=$img->{'sizek'}", "path=$img->{'path'}";
   eval {
     $res = BSRPC::rpc({
       'uri' => "$getbinariesproxy/getpreinstallimage",
       'filename' => $filename,
       'timeout' => $gettimeout,
       'receiver' => \&BSHTTP::file_receiver,
-    }, undef, "server=$server", "prpa=$img->{'prpa'}", "hdrmd5=$img->{'hdrmd5'}", "sizek=$img->{'sizek'}", "path=$img->{'path'}");
+    }, undef, "server=$server", @args);
   };
   if ($@) {
     warn($@);
@@ -1251,6 +1254,7 @@ sub getbinaries_cache {
   }
   if ($cachedir && !$bvl) {
     my @args;
+    push @args, "workerid=$workerid" if defined $workerid;
     push @args, "project=$projid";
     push @args, "repository=$repoid";
     push @args, "arch=$arch";
@@ -1340,6 +1344,7 @@ sub getbinaries_cache {
       manage_cache($cachesize - $downloadsizek * 1024);
     }
     my @args;
+    push @args, "workerid=$workerid" if defined $workerid;
     push @args, "project=$projid";
     push @args, "repository=$repoid";
     push @args, "arch=$arch";
@@ -1776,6 +1781,7 @@ sub getpreinstallimage_metas {
 
   # get missing ones for the repo server for this build
   my @args;
+  push @args, "workerid=$workerid" if defined $workerid;
   push @args, "project=$buildinfo->{'project'}";
   push @args, "repository=$buildinfo->{'repository'}";
   push @args, "arch=$buildinfo->{'arch'}";
@@ -2342,6 +2348,7 @@ sub getbinaries {
       my $ddir = "$srcdir/containers/$repo->{'project'}/$repo->{'repository'}";
       mkdir_p($ddir);
       my @args;
+      push @args, "workerid=$workerid" if defined $workerid;
       push @args, "project=$repo->{'project'}";
       push @args, "repository=$repo->{'repository'}";
       push @args, "arch=$buildinfo->{'arch'}";
@@ -2373,7 +2380,7 @@ sub getbinaries {
       if ($buildinfo->{'containerannotation'}) {
 	my $annotation = BSUtil::fromxml($buildinfo->{'containerannotation'}, $BSXML::binannotation, 1);
 	if ($annotation) {
-	  for (qw{package version release binaryarch disturl buildtime}) {
+	  for (qw{package version release binaryarch disturl buildhost buildtime}) {
 	    $bin->{$_} = $annotation->{$_} if defined($annotation->{$_}) && $annotation->{$_} ne '';
 	  }
 	}
@@ -2600,7 +2607,7 @@ sub xmlescape {
 # parse all .report files and create a channel file from them
 # also update the data in the .report files with the binary origins
 sub createchannel {
-  my ($dir, $kiwiorigins) = @_;
+  my ($buildinfo, $dir, $kiwiorigins) = @_;
   my @reports = grep {/\.report$/} ls($dir);
   my %channel;
   my $hasunknown;
@@ -2609,6 +2616,9 @@ sub createchannel {
   for my $reportfile (@reports) {
     my $report = readxml("$dir/$reportfile", $BSXML::report, 1);
     next unless $report;
+    $report->{'buildtime'} = $buildinfo->{'buildtime'} if $buildinfo->{'buildtime'};
+    $report->{'buildhost'} = $buildinfo->{'buildhost'} if $buildinfo->{'buildhost'};
+    $report->{'disturl'} = $buildinfo->{'disturl'} if $buildinfo->{'disturl'};
     for my $bin (@{$report->{'binary'} || []}) {
       # update missing entries
       my $prpap = $kiwiorigins->{$bin->{'_content'}};
@@ -2700,7 +2710,7 @@ sub createchannel {
 
 # create a .report file from a .packages file by adding binary origin information
 sub createreport {
-  my ($dir, $kiwiorigins) = @_;
+  my ($buildinfo, $dir, $kiwiorigins) = @_;
 
   local *F;
   for my $file (grep {/\.packages$/} sort(ls($dir))) {
@@ -2719,7 +2729,7 @@ sub createreport {
         'disturl' => $s[5],
       };
       $bin->{'package'} = $1 if $s[5] =~ /.*\/[^-]*-(.*)$/; # container case
-      $bin->{'epoch'} = $s[1] if $s[1] ne '(none)';
+      $bin->{'epoch'} = $s[1] if $s[1] ne '' && $s[1] ne '(none)';
       my $prpap = $kiwiorigins->{$s[0]};
       if ($prpap) {
         my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
@@ -2733,6 +2743,9 @@ sub createreport {
     close F;
     push @bins, @{$kiwiorigins->{':basecontainers'} || []};
     my $report = { 'binary' => \@bins };
+    $report->{'buildtime'} = $buildinfo->{'buildtime'} if $buildinfo->{'buildtime'};
+    $report->{'buildhost'} = $buildinfo->{'buildhost'} if $buildinfo->{'buildhost'};
+    $report->{'disturl'} = $buildinfo->{'disturl'} if $buildinfo->{'disturl'};
     my $reportfile = $file;
     $reportfile =~ s/\.packages$/\.report/;
     writexml("$dir/.$reportfile", "$dir/$reportfile", $report, $BSXML::report);
@@ -3140,14 +3153,15 @@ sub dobuild {
   }
 
   if (!$followupmode && $kiwiorigins) {
+    $buildinfo->{'buildtime'} = time();
     if (!$kiwimode) {
       # some builds like python-venv also write a .packages file
-      createreport("$buildroot/.build.packages/OTHER", $kiwiorigins);
+      createreport($buildinfo, "$buildroot/.build.packages/OTHER", $kiwiorigins);
     } elsif ($kiwimode ne 'product') {
-      createreport("$buildroot/.build.packages/KIWI", $kiwiorigins);
+      createreport($buildinfo, "$buildroot/.build.packages/KIWI", $kiwiorigins);
     } else {
       # as a special service we also create a channel file from the report files
-      createchannel("$buildroot/.build.packages/OTHER", $kiwiorigins);
+      createchannel($buildinfo, "$buildroot/.build.packages/OTHER", $kiwiorigins);
     }
   }
 

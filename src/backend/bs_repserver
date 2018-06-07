@@ -540,8 +540,8 @@ sub processavailable {
 sub export_annotation {
   my ($annotation_xml) = @_;
   my $annotation = BSUtil::fromxml($annotation_xml, $BSXML::binannotation, 1);
-  return undef unless $annotation;
-  return $annotation_xml unless $annotation->{'repo'};	# nothing to map
+  return $annotation unless $annotation && $annotation->{'repo'};
+  # map repositories
   for my $r (@{$annotation->{'repo'}}) {
     my $url = $r->{'url'};
     next unless $url;
@@ -553,7 +553,17 @@ sub export_annotation {
      }
      ($r->{'project'}, $r->{'repository'}) = split('/', $urlprp, 2) if $urlprp;
   }
-  return BSUtil::toxml($annotation, $BSXML::binannotation);
+  return $annotation;
+}
+
+# create legacy xml from annotation subset
+sub create_legacy_annotation {
+  my ($annotation) = @_;
+  return undef unless $annotation;
+  my %a;
+  $a{'repo'} = $annotation->{'repo'} if $annotation->{'repo'};
+  $a{'disturl'} = $annotation->{'disturl'} if $annotation->{'disturl'};
+  return BSUtil::toxml(\%a, $BSXML::binannotation);
 }
 
 sub getbinarylist_repository {
@@ -642,7 +652,10 @@ sub getbinarylist_repository {
         my %data = $repo->pkgnames();
         for my $p (values %data) {
 	  $p = $pool->pkg2data($p);
-	  $p->{'annotation'} = export_annotation($p->{'annotation'}) if $p->{'annotation'};
+	  if ($p->{'annotation'}) {
+	    $p->{'annotationdata'} = export_annotation($p->{'annotation'});
+	    $p->{'annotation'} = create_legacy_annotation($p->{'annotationdata'});
+	  }
         }
 	if (keys(%data) < 100 && $s[7] < 10000) {
 	  # small repo, feed from memory

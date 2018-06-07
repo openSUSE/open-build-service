@@ -2109,12 +2109,14 @@ sub publish {
       if (!$containers{$bin} && $kiwimedium{$bin} && $kiwireport{$kiwimedium{$bin}}) {
 	my $medium = $bin;
 	$medium =~ s/.*\///;	# basename
+	my $report = $kiwireport{$kiwimedium{$bin}};
 	my $pt = { 'project' => $projid, 'repository' => $repoid };
 	$pt->{'arch'} = (split('/', $kiwimedium{$bin}, 2))[0];
 	$pt->{'package'} = $binaryorigins->{$bin} if $binaryorigins->{$bin};
 	$pt->{'name'} = $medium;	# hmm...
-	# need a way to get disturl and buildtime...
 	$pt->{'ismedium'} = $medium;
+	$pt->{'buildtime'} = $report->{'buildtime'} if $report->{'buildtime'};
+	$pt->{'disturl'} = $report->{'disturl'} if $report->{'disturl'};
 	$packtrack->{$bin} = $pt;
       }
 
@@ -2123,9 +2125,10 @@ sub publish {
       if ($reportfile && $kiwireport{$reportfile}) {
 	my $medium = $bin;
 	$medium =~ s/.*\///;	# basename
+	my $report = $kiwireport{$reportfile};
 	# make sure ismedium is set in the binary
 	$packtrack->{$bin}->{'ismedium'} = $medium if $packtrack->{$bin};
-	for my $kb (@{$kiwireport{$reportfile}->{'binary'} || []}) {
+	for my $kb (@{$report->{'binary'} || []}) {
 	  my $pt = { %$kb };
 	  delete $pt->{'_content'};
 	  $pt->{'medium'} = $medium;

@@ -478,7 +478,7 @@ sub addrepo_remote_unpackcpio {
       delete $_->{'path'};
       delete $_->{'id'};
       # import annotations
-      $_->{'annotation'} = import_annotation($_->{'annotation'}) if $_->{'annotation'};
+      $_->{'annotation'} = import_annotation($_->{'annotationdata'} || $_->{'annotation'}) if $_->{'annotation'};
     }
     # add special "havedod" marker
     $cache->{'/dodcookie'} = 'remote repository with dod packages' if $havedod;
