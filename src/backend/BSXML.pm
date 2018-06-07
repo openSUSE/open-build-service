@@ -1788,6 +1788,10 @@ our $frozenlinks = [
 
 our $report = [
     'report' =>
+	'epoch',
+	'version',
+	'release',
+	'binaryarch',
 	'buildtime',
 	'buildhost',
 	'disturl',
