@@ -134,11 +134,8 @@ end
 group :development do
   # as alternative to the standard IRB shell
   gem 'unicorn-rails' # webrick won't work
-  # FIXME: Temporarily disabled until we either switch to bundle-gems service
-  #        or our gem packaging scripts have a way to deal with conflicting
-  #        executeables.
   # for annotating models with schema info
-  # gem 'annotate'
+  gem 'annotate'
 end
 
 group :development, :test do
