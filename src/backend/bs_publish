@@ -1574,7 +1574,6 @@ sub publish {
 	if (!$blobdir) {
 	  $blobdir = "$uploaddir/publisher.$$.blobs";
 	  BSUtil::cleandir($blobdir);
-	  rmdir($blobdir) || die("rmdir $blobdir: $!\n");
 	  mkdir_p($blobdir);
 	}
 	if (! -e "$blobdir/$bin") {
@@ -1621,12 +1620,12 @@ sub publish {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.containerinfo$/) {
 	  # handle the case wjere there is a containerinfo with no tar file
-	  eval { $containerinfo = BSRepServer::Containerinfo::readcontainerinfo($r, "$1.containerinfo") };
+	  eval { $containerinfo = BSRepServer::Containerinfo::readcontainerinfo($r, $bin) };
 	  next unless $containerinfo;
 	  next unless $containerinfo->{'tar_manifest'} && $containerinfo->{'file'} =~ /\.tar$/ && ! -e "$r/$containerinfo->{'file'}";
 	  $containerinfo->{'arch'} = $arch;
-	  $p = "$arch/$containerinfo->{'file'}";
-          $containers{$p} = $containerinfo;
+	  $p = $multicontainer ? "$arch/$containerinfo->{'file'}" : $containerinfo->{'file'};
+	  $containers{$p} = $containerinfo;
 	  if ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.containerinfo$/) {
             $kiwimedium{$p} = "$arch/$2" if -e "$r/$2.packages";
 	  } elsif ($bin =~ /(.*)\.containerinfo$/) {
@@ -2811,6 +2810,7 @@ sub upload_all_containers {
   }
 
   for my $p (sort keys %allrefs_pp_lastp) {
+    mkdir_p($extrep);
     if (@{$allrefs_pp{$p} || []}) {
       # write readme file where to find the container
       unlink("$extrep/$p");
