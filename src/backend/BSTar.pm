@@ -24,13 +24,13 @@ package BSTar;
 
 use strict;
 
-my @headnames = qw{name mode uid gid size mtime chksum tartype linkname magic version uname gname major minor prefix};
+my @headnames = qw{name mode uid gid size mtime chksum tartype linkname magic version uname gname major minor};
 
 # tartype: 0=file 1=hardlink 2=symlink 3=char 4=block 5=dir 6=fifo
 
 sub parsetarhead {
   my ($tarhead) = @_;
-  my @head = unpack('A100A8A8A8A12A12A8A1A100A6A2A32A32A8A8A155x12', $tarhead);
+  my @head = unpack('A100A8A8A8A12A12A8A1A100a6a2A32A32A8A8A155x12', $tarhead);
   /^([^\0]*)/ && ($_ = $1) for @head;
   $head[$_] = oct($head[$_]) for (1, 2, 3, 5, 6, 13, 14);
   my $pad;
@@ -45,6 +45,10 @@ sub parsetarhead {
   }
   $head[7] = '0' if $head[7] eq '' || $head[7] =~ /\W/;
   $head[7] = '5' if $head[7] eq '0' && $head[0] =~ /\/$/s;	# dir
+  if ($head[9] eq 'ustar' && $head[15] ne '') {		# ustar prefix handling
+    $head[15] =~ s/\/$//s;
+    $head[0] = "$head[15]/$head[0]";
+  }
   my $ent = { map {$headnames[$_] => $head[$_]} (0..$#headnames) };
   return ($ent, $head[4], $pad);
 }
@@ -87,18 +91,13 @@ sub list {
     next if $tartype eq 'V';	# ignore volume lables
     if ($tartype eq 'L' || $tartype eq 'K' || $tartype eq 'x' || $tartype eq 'X') {
       # read longname/longlink/pax extension
-      die if $bsize < 1 || $bsize >= 65536;
+      last if $bsize < 1 || $bsize >= 1024 * 1024;
       my $data = '';
       last unless (read($handle, $data, $bsize) || 0) == $bsize;
       $offset += $bsize;
       substr($data, $size) = '';
       $override = parseoverride($override, $tartype, $data);
       next;
-    }
-    my $prefix = delete $ent->{'prefix'};
-    if (defined($prefix)) {
-      $prefix =~ s/\/$//s;
-      $ent->{'name'} = "$prefix/$ent->{'name'}" if $prefix ne '';
     }
     if ($override) {
       $ent->{$_} = $override->{$_} for keys %$override;
