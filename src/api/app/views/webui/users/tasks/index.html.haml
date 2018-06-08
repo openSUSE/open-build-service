@@ -7,9 +7,11 @@
     .box-header.header-tabs
       %ul
         %li
-          %a{href: "#reviews-in", title: "Requests that #{User.current.login} has to review"} Incoming Reviews
-          = sprite_tag('reload', title: 'Reload', class: 'result_reload', data: { table: 'reviews_in_table' })
-          = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
+          - cache "#{User.current.cache_key}-reviews-in" do
+            %a{href: "#reviews-in", title: "Requests that #{User.current.login} has to review"}
+              Incoming Reviews (#{User.current.involved_reviews.count})
+            = sprite_tag('reload', title: 'Reload', class: 'result_reload', data: { table: 'reviews_in_table' })
+            = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
     .tab#reviews-in
       = render(partial: 'webui/shared/requests_table', locals: { id: 'reviews_in_table', source_url: user_requests_path(User.current) })
 .grid_16.alpha.omega.box.box-shadow
@@ -17,17 +19,21 @@
     .box-header.header-tabs
       %ul
         %li
-          %a#requests-in-tab{href: "#requests-in", title: "Requests that #{User.current.login} has to merge"} Incoming Requests
-          = sprite_tag('reload', title: 'Reload', class: 'result_reload', data: { table: 'requests_in_table' })
-          = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
+          - cache "#{User.current.cache_key}-requests-in" do
+            %a#requests-in-tab{href: "#requests-in", title: "Requests that #{User.current.login} has to merge"}
+              Incoming Requests (#{User.current.incoming_requests.count})
+            = sprite_tag('reload', title: 'Reload', class: 'result_reload', data: { table: 'requests_in_table' })
+            = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
         %li
           %a#requests-out-tab{href: "#requests-out", title: "Requests that #{User.current.login} has sent"} Outgoing Requests
           = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'requests_out_table' })
           = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
         %li
-          %a#requests-declined-tab{href: "#requests-declined", title: "Requests from #{User.current.login} that are declined"} Declined Requests
-          = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'requests_declined_table' })
-          = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
+          - cache "#{User.current.cache_key}-requests-declined" do
+            %a#requests-declined-tab{href: "#requests-declined", title: "Requests from #{User.current.login} that are declined"}
+              Declined Requests (#{User.current.declined_requests.count})
+            = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'requests_declined_table' })
+            = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
         %li
           %a#all-requests-tab{href: "#all-requests", title: "All Requests from #{User.current.login}"} All Requests
           = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'all_requests_table' })

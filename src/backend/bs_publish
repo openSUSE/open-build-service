@@ -2094,11 +2094,12 @@ sub publish {
 	$medium =~ s/.*\///;	# basename
 	my $lnk = BSRepServer::Containerinfo::containerinfo2nevra($containerinfo);
 	my $pt = { 'project' => $projid, 'repository' => $repoid };
-	for (qw{name epoch version release arch}) {
+	for (qw{name epoch version release}) {
 	  $pt->{$_} = $lnk->{$_} if defined $lnk->{$_};
 	}
+	$pt->{'binaryarch'} = $lnk->{'arch'} || 'noarch';
 	$pt->{'package'} = $binaryorigins->{$bin} if $binaryorigins->{$bin};
-	for (qw{disturl buildtime}) {
+	for (qw{arch disturl buildtime}) {
 	  $pt->{$_} = $containerinfo->{$_} if defined $containerinfo->{$_};
 	}
 	$pt->{'ismedium'} = $medium;
@@ -2114,9 +2115,12 @@ sub publish {
 	$pt->{'arch'} = (split('/', $kiwimedium{$bin}, 2))[0];
 	$pt->{'package'} = $binaryorigins->{$bin} if $binaryorigins->{$bin};
 	$pt->{'name'} = $medium;	# hmm...
-	$pt->{'ismedium'} = $medium;
+	$pt->{'version'} = defined($report->{'version'}) ? $report->{'version'} : '0';
+	$pt->{'release'} = defined($report->{'release'}) ? $report->{'release'} : '0';
+	$pt->{'binaryarch'} = $report->{'binaryarch'} || $pt->{'arch'} || 'noarch';
 	$pt->{'buildtime'} = $report->{'buildtime'} if $report->{'buildtime'};
 	$pt->{'disturl'} = $report->{'disturl'} if $report->{'disturl'};
+	$pt->{'ismedium'} = $medium;
 	$packtrack->{$bin} = $pt;
       }
 

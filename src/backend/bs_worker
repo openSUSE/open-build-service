@@ -2604,6 +2604,18 @@ sub xmlescape {
   return $d;
 }
 
+sub addreportdata {
+  my ($report, $buildinfo) = $_;
+  if ($buildinfo->{'versrel'}) {
+    $report->{'version'} = $buildinfo->{'versrel'};
+    $report->{'version'} =~ s/-[^-]*$//s;
+  }
+  $report->{'release'} = $buildinfo->{'release'} if defined $buildinfo->{'release'};
+  $report->{'buildtime'} = $buildinfo->{'buildtime'} if $buildinfo->{'buildtime'};
+  $report->{'buildhost'} = $buildinfo->{'buildhost'} if $buildinfo->{'buildhost'};
+  $report->{'disturl'} = $buildinfo->{'disturl'} if $buildinfo->{'disturl'};
+}
+
 # parse all .report files and create a channel file from them
 # also update the data in the .report files with the binary origins
 sub createchannel {
@@ -2616,9 +2628,7 @@ sub createchannel {
   for my $reportfile (@reports) {
     my $report = readxml("$dir/$reportfile", $BSXML::report, 1);
     next unless $report;
-    $report->{'buildtime'} = $buildinfo->{'buildtime'} if $buildinfo->{'buildtime'};
-    $report->{'buildhost'} = $buildinfo->{'buildhost'} if $buildinfo->{'buildhost'};
-    $report->{'disturl'} = $buildinfo->{'disturl'} if $buildinfo->{'disturl'};
+    addreportdata($report, $buildinfo);
     for my $bin (@{$report->{'binary'} || []}) {
       # update missing entries
       my $prpap = $kiwiorigins->{$bin->{'_content'}};
@@ -2743,9 +2753,7 @@ sub createreport {
     close F;
     push @bins, @{$kiwiorigins->{':basecontainers'} || []};
     my $report = { 'binary' => \@bins };
-    $report->{'buildtime'} = $buildinfo->{'buildtime'} if $buildinfo->{'buildtime'};
-    $report->{'buildhost'} = $buildinfo->{'buildhost'} if $buildinfo->{'buildhost'};
-    $report->{'disturl'} = $buildinfo->{'disturl'} if $buildinfo->{'disturl'};
+    addreportdata($report, $buildinfo);
     my $reportfile = $file;
     $reportfile =~ s/\.packages$/\.report/;
     writexml("$dir/.$reportfile", "$dir/$reportfile", $report, $BSXML::report);
