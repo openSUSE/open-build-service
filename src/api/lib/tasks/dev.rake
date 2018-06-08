@@ -101,6 +101,65 @@ namespace :dev do
       end
     end
   end
+  namespace :development_testdata do
+    task create: :environment do
+      unless Rails.env.to_s == 'development'
+        puts "You are running this rake task in #{Rails.env} environment."
+        puts 'Please only run this task with RAILS_ENV=development'
+        puts 'otherwise it will destroy your database data.'
+        return
+      end
+      require 'factory_bot'
+      include FactoryBot::Syntax::Methods
+
+      Rails.cache.clear
+      Rake::Task['db:drop'].invoke
+      Rake::Task['db:create'].invoke
+      Rake::Task['db:setup'].invoke
+
+      iggy = create(:confirmed_user, login: 'Iggy')
+      admin = User.where(login: 'Admin').first
+      User.current = admin
+
+      interconnect = create(:project, name: 'openSUSE.org', remoteurl: 'https://api.opensuse.org/public')
+      tw_repository = create(:repository, name: 'snapshot', project: interconnect, remote_project_name: 'openSUSE:Factory')
+
+      # the home:admin is not created because the Admin user is created in seeds.rb
+      # therefore we need to create it manually and also set the proper relationship
+      home_admin = create(:project, name: admin.home_project_name)
+      create(:relationship, project: home_admin, user: admin, role: Role.hashed['maintainer'])
+      admin_repository = create(:repository, project: home_admin, name: 'openSUSE_Tumbleweed')
+      create(:path_element, link: tw_repository, repository: admin_repository)
+      ruby_admin = create(:package_with_file, name: 'ruby', project: home_admin, file_content: 'from admin home')
+
+      branches_iggy = create(:project, name: iggy.branch_project_name('home:Admin'))
+      ruby_iggy = create(:package_with_file, name: 'ruby', project: branches_iggy, file_content: 'from iggies branch')
+      create(
+        :bs_request_with_submit_action,
+        creator: iggy,
+        target_project: home_admin,
+        target_package: ruby_admin,
+        source_project: branches_iggy,
+        source_package: ruby_iggy
+      )
+
+      leap = create(:project, name: 'openSUSE:Leap:15.0')
+      create(:package_with_file, name: 'apache2', project: leap)
+      leap_repository = create(:repository, project: leap, name: 'openSUSE_Tumbleweed')
+      create(:path_element, link: tw_repository, repository: leap_repository)
+
+      # we need to set the user again because some factories set the user back to nil :(
+      User.current = admin
+      update_project = create(:update_project, target_project: leap, name: "#{leap.name}:Update")
+      create(
+        :maintenance_project,
+        name: 'MaintenanceProject',
+        title: 'official maintenance space',
+        target_project: update_project,
+        maintainer: admin
+      )
+    end
+  end
 end
 
 def copy_example_file(example_file)
