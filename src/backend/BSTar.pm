@@ -49,13 +49,30 @@ sub parsetarhead {
   return ($ent, $head[4], $pad);
 }
 
+sub parseoverride {
+  my ($override, $tartype, $data) = @_;
+  $override ||= {};
+  if ($tartype eq 'L') {
+    $override->{'name'} = $data;
+  } elsif ($tartype eq 'K') {
+    $override->{'linkname'} = $data;
+  } elsif ($tartype eq 'x' || $tartype eq 'X') {
+    $override->{'ispax'} = 1;
+    while ($data =~ /^(\d+) / && $1 > 3) {
+      my $entry = substr($data, length($1) + 1, $1 - length($1) - 2);	# -2 because of space and newline
+      $data = substr($data, $1);
+      $override->{'name'} = substr($entry, 5) if substr($entry, 0, 5) eq 'path=';
+      $override->{'linkname'} = substr($entry, 9) if substr($entry, 0, 9) eq 'linkpath=';
+    }
+  }
+  return $override;
+}
+
 sub list {
   my ($handle) = @_;
 
   my $offset = 0;
-  my $ispax;
-  my $nameoverride;
-  my $linkoverride;
+  my $override;
   my @tar;
 
   while (1) {
@@ -75,19 +92,7 @@ sub list {
       last unless (read($handle, $data, $bsize) || 0) == $bsize;
       $offset += $bsize;
       substr($data, $size) = '';
-      if ($tartype eq 'L') {
-        $nameoverride = $data;
-      } elsif ($tartype eq 'K') {
-        $linkoverride = $data;
-      } else {
-	$ispax = 1;
-        while ($data =~ /^(\d+) /) {
-          my $entry = substr($data, length($1) + 1, $1);
-          $data = substr($data, length($1) + 1 + $1);
-	  $nameoverride = substr($entry, 5) if substr($entry, 0, 5) eq 'path=';
-	  $linkoverride = substr($entry, 9) if substr($entry, 0, 9) eq 'linkpath=';
-        }
-      }
+      $override = parseoverride($override, $tartype, $data);
       next;
     }
     my $prefix = delete $ent->{'prefix'};
@@ -95,16 +100,12 @@ sub list {
       $prefix =~ s/\/$//s;
       $ent->{'name'} = "$prefix/$ent->{'name'}" if $prefix ne '';
     }
-    if (defined($nameoverride)) {
-      $ent->{'name'} = $nameoverride;
-      undef $nameoverride;
-    }
-    if (defined($linkoverride)) {
-      $ent->{'linkname'} = $linkoverride;
-      undef $linkoverride;
+    if ($override) {
+      $ent->{$_} = $override->{$_} for keys %$override;
+      undef $override;
     }
     $bsize = 0 if $tartype eq '2' || $tartype eq '3' || $tartype eq '4' || $tartype eq '6';
-    $bsize = 0 if $tartype eq '1' && !$ispax;	# hard link magic
+    $bsize = 0 if $tartype eq '1' && !$ent->{'ispax'};	# hard link magic
     $ent->{'offset'} = $offset if $tartype eq '0';
     if ($bsize) {
       last unless seek($handle, $bsize, 1);	# try to skip if seek fails?
