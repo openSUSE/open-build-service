@@ -121,3 +121,7 @@ Rails/Output:
     - 'src/api/config/*'
     - 'src/api/db/**/*'
     - 'src/api/lib/**/*'
+
+# Disabled due to a bug
+Rails/BulkChangeTable:
+  Enabled: false
