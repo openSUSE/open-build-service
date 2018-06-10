@@ -298,7 +298,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_invalid_project_and_package_name
     login_king
     ['_invalid', '..'].each do |n|
-      put url_for(controller: :source_project, action: :update_project_meta, project: n), params: "<project name='#{n}'> <title /> <description /> </project>"
+      put url_for(controller: :source_project_meta, action: :update, project: n), params: "<project name='#{n}'> <title /> <description /> </project>"
       assert_response 400
       assert_xml_tag tag: 'status', attributes: { code: 'invalid_project_name' }
 
@@ -396,7 +396,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     d.text = new_desc
 
     # Write changed data back
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'kde4'), params: doc.dump_xml
+    put url_for(controller: :source_project_meta, action: :update, project: 'kde4'), params: doc.dump_xml
     assert_response 403
 
     ### admin only tag
@@ -404,29 +404,29 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_fred
     d = doc.add_element 'remoteurl'
     d.text = 'http://localhost:5352'
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'kde4'), params: doc.dump_xml
+    put url_for(controller: :source_project_meta, action: :update, project: 'kde4'), params: doc.dump_xml
     assert_response 403
     assert_match(/admin rights are required to change projects using remote resources/, @response.body)
     # DoD remote repository
     doc = ActiveXML::Node.new(xml)
     r = doc.add_element 'repository', name: 'download_on_demand'
     r.add_element 'download', arch: 'i586', url: 'http://somewhere', repotype: 'rpmmd'
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'kde4'), params: doc.dump_xml
+    put url_for(controller: :source_project_meta, action: :update, project: 'kde4'), params: doc.dump_xml
     assert_response 403
     assert_match(/admin rights are required to change projects using remote resources/, @response.body)
 
     # invalid xml
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'NewProject'), params: '<asd/>'
+    put url_for(controller: :source_project_meta, action: :update, project: 'NewProject'), params: '<asd/>'
     assert_response 400
     assert_match(/validation error/, @response.body)
 
     # new project
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'NewProject'), params: "<project name='NewProject'><title>blub</title><description/></project>"
+    put url_for(controller: :source_project_meta, action: :update, project: 'NewProject'), params: "<project name='NewProject'><title>blub</title><description/></project>"
     assert_response 403
     assert_xml_tag tag: 'status', attributes: { code: 'create_project_no_permission' }
 
     login_king
-    put url_for(controller: :source_project, action: :update_project_meta, project: '_NewProject'), params: "<project name='_NewProject'><title>blub</title><description/></project>"
+    put url_for(controller: :source_project_meta, action: :update, project: '_NewProject'), params: "<project name='_NewProject'><title>blub</title><description/></project>"
     assert_response 400
     assert_match(/invalid project name/, @response.body)
   end
@@ -458,27 +458,27 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     subprojectmeta = "<project name='kde4:subproject'><title></title><description/></project>"
 
     # nobody
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'kde4:subproject'), params: subprojectmeta
+    put url_for(controller: :source_project_meta, action: :update, project: 'kde4:subproject'), params: subprojectmeta
     assert_response 401
     assert_xml_tag tag: 'status', attributes: { code: 'authentication_required' }
     login_tom
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'kde4:subproject'), params: subprojectmeta
+    put url_for(controller: :source_project_meta, action: :update, project: 'kde4:subproject'), params: subprojectmeta
     assert_response 403
     # admin
     login_king
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'kde4:subproject'), params: subprojectmeta
+    put url_for(controller: :source_project_meta, action: :update, project: 'kde4:subproject'), params: subprojectmeta
     assert_response :success
     delete '/source/kde4:subproject'
     assert_response :success
     # maintainer
     login_fred
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'kde4:subproject'), params: subprojectmeta
+    put url_for(controller: :source_project_meta, action: :update, project: 'kde4:subproject'), params: subprojectmeta
     assert_response :success
     delete '/source/kde4:subproject'
     assert_response :success
     # maintainer via group
     login_adrian
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'kde4:subproject'), params: subprojectmeta
+    put url_for(controller: :source_project_meta, action: :update, project: 'kde4:subproject'), params: subprojectmeta
     assert_response :success
     delete '/source/kde4:subproject'
     assert_response :success
@@ -486,7 +486,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # create illegal project
     login_fred
     subprojectmeta = "<project name='kde4_subproject'><title></title><description/></project>"
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'kde4:subproject'), params: subprojectmeta
+    put url_for(controller: :source_project_meta, action: :update, project: 'kde4:subproject'), params: subprojectmeta
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'project_name_mismatch' }
 
@@ -570,11 +570,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # create them
     login_king
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'TEMPORARY:rel_target'), params: rel_target_meta
+    put url_for(controller: :source_project_meta, action: :update, project: 'TEMPORARY:rel_target'), params: rel_target_meta
     assert_response :success
     get '/source/TEMPORARY:rel_target/_meta'
     assert_response :success
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'TEMPORARY:build'), params: build_meta
+    put url_for(controller: :source_project_meta, action: :update, project: 'TEMPORARY:build'), params: build_meta
     assert_response :success
     get '/source/TEMPORARY:build/_meta'
     assert_response :success
@@ -627,11 +627,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def do_change_project_meta_test(project, response1, response2, tag2, doesmatch)
     # Get meta file
-    get url_for(controller: :source_project, action: :show_project_meta, project: project)
+    get url_for(controller: :source_project_meta, action: :show, project: project)
     assert_response response1
     unless response2 && tag2
       # dummy write to check blocking
-      put url_for(controller: :source_project, action: :update_project_meta, project: project), params: "<project name=\"#{project}\"><title></title><description></description></project>"
+      put url_for(controller: :source_project_meta, action: :update, project: project), params: "<project name=\"#{project}\"><title></title><description></description></project>"
       assert_response 403 # 4
       #      assert_match(/unknown_project/, @response.body)
       assert_match(/create_project_no_permission/, @response.body)
@@ -646,12 +646,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     d.text = new_desc
 
     # Write changed data back
-    put url_for(controller: :source_project, action: :update_project_meta, project: project), params: doc.to_s
+    put url_for(controller: :source_project_meta, action: :update, project: project), params: doc.to_s
     assert_response response2
     assert_xml_tag(tag2)
 
     # Get data again and check that it is the changed data
-    get url_for(controller: :source_project, action: :show_project_meta, project: project)
+    get url_for(controller: :source_project_meta, action: :show, project: project)
     assert_response :success
     assert_equal new_desc, Xmlhash.parse(@response.body)['description'] if doesmatch
   end
@@ -661,7 +661,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_create_and_delete_project
     prepare_request_with_user('king', 'sunflower')
     # Get meta file
-    get url_for(controller: :source_project, action: :show_project_meta, project: 'kde4')
+    get url_for(controller: :source_project_meta, action: :show, project: 'kde4')
     assert_response :success
 
     xml = @response.body
@@ -670,12 +670,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     d = doc.elements['/project']
     d.delete_attribute('name')
     d.add_attribute('name', 'kde5')
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'kde5'), params: doc.to_s
+    put url_for(controller: :source_project_meta, action: :update, project: 'kde5'), params: doc.to_s
     assert_response(:success, '--> king was not allowed to create a project')
     assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
 
     # Get data again and check that the maintainer was added
-    get url_for(controller: :source_project, action: :show_project_meta, project: 'kde5')
+    get url_for(controller: :source_project_meta, action: :show, project: 'kde5')
     assert_response :success
     assert_select 'project[name=kde5]'
     assert_select 'person[userid=king][role=maintainer]', {}, 'Creator was not added as project maintainer'
@@ -692,31 +692,31 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_fred
 
     # Get meta file
-    get url_for(controller: :source_project, action: :show_project_meta, project: 'kde4')
+    get url_for(controller: :source_project_meta, action: :show, project: 'kde4')
     assert_response :success
 
     xml = @response.body
     olddoc = REXML::Document.new(xml)
     doc = REXML::Document.new(xml)
     # Write corrupt data back
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'kde4'), params: doc.to_s + '</xml>'
+    put url_for(controller: :source_project_meta, action: :update, project: 'kde4'), params: doc.to_s + '</xml>'
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'validation_failed' }
 
     login_king
     # write to illegal location:
-    put url_for(controller: :source_project, action: :update_project_meta, project: '$hash'), params: doc.to_s
+    put url_for(controller: :source_project_meta, action: :update, project: '$hash'), params: doc.to_s
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_project_name' }
 
     # must not create a project with different pathname and name in _meta.xml:
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'kde5'), params: doc.to_s
+    put url_for(controller: :source_project_meta, action: :update, project: 'kde5'), params: doc.to_s
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'project_name_mismatch' }
     # TODO: referenced repository names must exist
 
     # verify data is unchanged:
-    get url_for(controller: :source_project, action: :show_project_meta, project: 'kde4')
+    get url_for(controller: :source_project_meta, action: :show, project: 'kde4')
     assert_response :success
     assert_equal(olddoc.to_s, REXML::Document.new(@response.body).to_s)
   end
@@ -725,23 +725,23 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_fred
 
     # Get meta file
-    get url_for(controller: :source_project, action: :show_project_meta, project: 'home:fred')
+    get url_for(controller: :source_project_meta, action: :show, project: 'home:fred')
     assert_response :success
     xml = @response.body
     doc = REXML::Document.new(xml)
 
     # drop myself (fred)
     doc.elements['/project'].delete_element 'person'
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'home:fred'), params: doc.to_s
+    put url_for(controller: :source_project_meta, action: :update, project: 'home:fred'), params: doc.to_s
     assert_response :success
 
     # no person inside anymore
-    get url_for(controller: :source_project, action: :show_project_meta, project: 'home:fred')
+    get url_for(controller: :source_project_meta, action: :show, project: 'home:fred')
     assert_response :success
     assert_no_xml_tag tag: 'person'
 
     # but we are still allowed to modify our home meta, for example to re-add ourself
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'home:fred'), params: xml
+    put url_for(controller: :source_project_meta, action: :update, project: 'home:fred'), params: xml
     assert_response :success
   end
 
@@ -2243,7 +2243,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     login_king
     subprojectmeta = "<project name='DoesNotExist:subproject'><title></title><description/></project>"
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'DoesNotExist:subproject'), params: subprojectmeta
+    put url_for(controller: :source_project_meta, action: :update, project: 'DoesNotExist:subproject'), params: subprojectmeta
     assert_response :success
 
     delete '/source/DoesNotExist:subproject/_pubkey'
@@ -3195,7 +3195,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_create_links
     login_king
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'TEMPORARY'), params: '<project name="TEMPORARY"> <title/> <description/> <person role="maintainer" userid="fred"/> </project>'
+    put url_for(controller: :source_project_meta, action: :update, project: 'TEMPORARY'), params: '<project name="TEMPORARY"> <title/> <description/> <person role="maintainer" userid="fred"/> </project>'
     assert_response 200
     # create packages via user without any special roles
     login_fred
@@ -3400,12 +3400,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_create_project_with_invalid_repository_reference
     login_tom
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'home:tom:temporary'), params: '<project name="home:tom:temporary"> <title/> <description/>
+    put url_for(controller: :source_project_meta, action: :update, project: 'home:tom:temporary'), params: '<project name="home:tom:temporary"> <title/> <description/>
            <repository name="me" />
          </project>'
     assert_response :success
     # self reference
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'home:tom:temporary'), params: '<project name="home:tom:temporary"> <title/> <description/>
+    put url_for(controller: :source_project_meta, action: :update, project: 'home:tom:temporary'), params: '<project name="home:tom:temporary"> <title/> <description/>
            <repository name="me">
              <path project="home:tom:temporary" repository="me" />
            </repository>
@@ -3413,7 +3413,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'project_save_error' }
     assert_match(/Using same repository as path element is not allowed/, @response.body)
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'home:tom:temporary'), params: '<project name="home:tom:temporary"> <title/> <description/>
+    put url_for(controller: :source_project_meta, action: :update, project: 'home:tom:temporary'), params: '<project name="home:tom:temporary"> <title/> <description/>
            <repository name="me">
              <hostsystem project="home:tom:temporary" repository="me" />
            </repository>
@@ -3422,7 +3422,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'status', attributes: { code: 'project_save_error' }
     assert_match(/Using same repository as hostsystem element is not allowed/, @response.body)
     # not existing repo
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'home:tom:temporary'), params: '<project name="home:tom:temporary"> <title/> <description/>
+    put url_for(controller: :source_project_meta, action: :update, project: 'home:tom:temporary'), params: '<project name="home:tom:temporary"> <title/> <description/>
            <repository name="me">
              <path project="home:tom:temporary" repository="DOESNOTEXIST" />
            </repository>
@@ -3430,7 +3430,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'project_save_error' }
     assert_match(/unable to walk on path/, @response.body)
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'home:tom:temporary'), params: '<project name="home:tom:temporary"> <title/> <description/>
+    put url_for(controller: :source_project_meta, action: :update, project: 'home:tom:temporary'), params: '<project name="home:tom:temporary"> <title/> <description/>
            <repository name="me">
              <hostsystem project="home:tom:temporary" repository="DOESNOTEXIST" />
            </repository>
@@ -3445,7 +3445,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_use_project_link_as_non_maintainer
     login_tom
-    put url_for(controller: :source_project, action: :update_project_meta, project: 'home:tom:temporary'), params: '<project name="home:tom:temporary"> <title/> <description/> <link project="kde4" /> </project>'
+    put url_for(controller: :source_project_meta, action: :update, project: 'home:tom:temporary'), params: '<project name="home:tom:temporary"> <title/> <description/> <link project="kde4" /> </project>'
     assert_response :success
     get '/source/home:tom:temporary'
     assert_response :success
@@ -4085,7 +4085,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_store_invalid_project
     login_tom
     name = "home:tom:#{Faker::Lorem.characters(255)}"
-    url = url_for(controller: :source_project, action: :update_project_meta, project: name)
+    url = url_for(controller: :source_project_meta, action: :update, project: name)
     put url, params: "<project name='#{name}'> <title/> <description/></project>"
     assert_response 400
     assert_select 'status[code] > summary', %r{invalid project name}

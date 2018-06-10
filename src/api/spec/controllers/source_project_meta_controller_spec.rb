@@ -1,13 +1,13 @@
 require 'rails_helper'
 
-RSpec.describe SourceProjectController, vcr: true do
+RSpec.describe SourceProjectMetaController, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:project) { user.home_project }
 
-  describe 'GET #show_project_meta' do
+  describe 'GET #show' do
     before do
       login user
-      get :show_project_meta, params: { project: project }
+      get :show, params: { project: project }
     end
 
     it { expect(response).to be_success }
