@@ -241,7 +241,7 @@ GEM
       capybara (>= 2.1, < 4)
       cliver (~> 0.3.1)
       websocket-driver (>= 0.2.0)
-    power_assert (1.1.1)
+    power_assert (1.1.2)
     powerpack (0.1.1)
     pry (0.11.3)
       coderay (~> 1.1.0)
