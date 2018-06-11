@@ -1,0 +1,343 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>A Summer Bird-Cage</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '104'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>A Summer Bird-Cage</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Tue, 12 Jun 2018 05:59:57 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/_config
+    body:
+      encoding: UTF-8
+      string: Cupiditate sed quia quia qui porro. Maxime fugit corrupti voluptatem
+        doloremque dignissimos placeat. Excepturi fuga laboriosam vero consequuntur
+        id. Consectetur explicabo ad molestiae porro inventore. Sint laudantium aut
+        incidunt tempore quisquam.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Tue, 12 Jun 2018 05:59:57 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/multibuild/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="multibuild" project="project_1">
+          <title>Cabbages and Kings</title>
+          <description>Quod aut et voluptatem cum odio qui.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '161'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="multibuild" project="project_1">
+          <title>Cabbages and Kings</title>
+          <description>Quod aut et voluptatem cum odio qui.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 12 Jun 2018 05:59:57 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/multibuild/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="multibuild" project="project_1">
+          <title>Cabbages and Kings</title>
+          <description>Quod aut et voluptatem cum odio qui.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '161'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="multibuild" project="project_1">
+          <title>Cabbages and Kings</title>
+          <description>Quod aut et voluptatem cum odio qui.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 12 Jun 2018 05:59:57 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_2/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2">
+          <title>Consider Phlebas</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '102'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2">
+          <title>Consider Phlebas</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Tue, 12 Jun 2018 05:59:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_2/_config
+    body:
+      encoding: UTF-8
+      string: Ut architecto saepe velit. Eveniet reprehenderit consequatur beatae
+        illo. Omnis cum illum quidem veniam.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Tue, 12 Jun 2018 05:59:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 12 Jun 2018 05:59:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_3/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_3">
+          <title>Now Sleeps the Crimson Petal</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '114'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_3">
+          <title>Now Sleeps the Crimson Petal</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Tue, 12 Jun 2018 05:59:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_3/_config
+    body:
+      encoding: UTF-8
+      string: Temporibus eius voluptatem vitae ut laudantium repellat maxime. Aliquid
+        est et qui quam qui. A eaque quasi fugit.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Tue, 12 Jun 2018 05:59:58 GMT
+recorded_with: VCR 4.0.0
