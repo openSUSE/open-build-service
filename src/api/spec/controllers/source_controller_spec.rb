@@ -31,16 +31,6 @@ RSpec.describe SourceController, vcr: true do
     end
   end
 
-  describe 'GET #show_project_meta' do
-    before do
-      login user
-      get :show_project_meta, params: { project: project }
-    end
-
-    it { expect(response).to be_success }
-    it { expect(Xmlhash.parse(response.body)['name']).to eq(project.name) }
-  end
-
   describe 'PUT #update_project_config' do
     before do
       login user

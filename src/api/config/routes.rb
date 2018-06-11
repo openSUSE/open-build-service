@@ -729,18 +729,23 @@ OBSApi::Application.routes.draw do
     get 'projects/:project/packages/:package/requests' => 'webui/packages/bs_requests#index', constraints: cons, as: 'packages_requests'
   end
 
+  # project level
+  controller :source_project_meta do
+    get 'source/:project/_meta' => :show, constraints: cons
+    put 'source/:project/_meta' => :update, constraints: cons
+  end
+
+  controller :source_project do
+    get 'source/:project' => :show, constraints: cons
+    delete 'source/:project' => :delete, constraints: cons
+    post 'source/:project' => :project_command, constraints: cons
+  end
+
   controller :source do
     get 'source' => :index
     post 'source' => :global_command_createmaintenanceincident, constraints: ->(req) { req.params[:cmd] == 'createmaintenanceincident' }
     post 'source' => :global_command_branch,                    constraints: ->(req) { req.params[:cmd] == 'branch' }
     post 'source' => :global_command_orderkiwirepos,            constraints: ->(req) { req.params[:cmd] == 'orderkiwirepos' }
-
-    # project level
-    get 'source/:project' => :show_project, constraints: cons
-    delete 'source/:project' => :delete_project, constraints: cons
-    post 'source/:project' => :project_command, constraints: cons
-    get 'source/:project/_meta' => :show_project_meta, constraints: cons
-    put 'source/:project/_meta' => :update_project_meta, constraints: cons
 
     get 'source/:project/_config' => :show_project_config, constraints: cons
     put 'source/:project/_config' => :update_project_config, constraints: cons

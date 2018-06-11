@@ -228,6 +228,8 @@ GEM
       concurrent-ruby-ext
       dalli
       peek
+    peek-host (1.0.0)
+      peek
     peek-mysql2 (1.2.0)
       concurrent-ruby
       concurrent-ruby-ext
@@ -462,6 +464,7 @@ DEPENDENCIES
   nokogiri
   peek
   peek-dalli
+  peek-host
   peek-mysql2
   poltergeist
   pry (>= 0.9.12)

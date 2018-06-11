@@ -24,14 +24,15 @@ package BSTar;
 
 use strict;
 
-my @headnames = qw{name mode uid gid size mtime chksum tartype linkname magic version uname gname major minor prefix};
+my @headnames = qw{name mode uid gid size mtime chksum tartype linkname magic version uname gname major minor};
 
 # tartype: 0=file 1=hardlink 2=symlink 3=char 4=block 5=dir 6=fifo
 
 sub parsetarhead {
   my ($tarhead) = @_;
-  my @head = unpack('A100A8A8A8A12A12A8A1A100A6A2A32A32A8A8A155x12', $tarhead);
+  my @head = unpack('A100A8A8A8A12A12A8A1A100a6a2A32A32A8A8A155x12', $tarhead);
   /^([^\0]*)/ && ($_ = $1) for @head;
+  $head[7] = '0' if $head[7] eq '';
   $head[$_] = oct($head[$_]) for (1, 2, 3, 5, 6, 13, 14);
   my $pad;
   if (substr($tarhead, 124, 1) eq "\x80") {
@@ -45,17 +46,38 @@ sub parsetarhead {
   }
   $head[7] = '0' if $head[7] eq '' || $head[7] =~ /\W/;
   $head[7] = '5' if $head[7] eq '0' && $head[0] =~ /\/$/s;	# dir
+  if ($head[9] eq 'ustar' && $head[15] ne '') {		# ustar prefix handling
+    $head[15] =~ s/\/$//s;
+    $head[0] = "$head[15]/$head[0]";
+  }
   my $ent = { map {$headnames[$_] => $head[$_]} (0..$#headnames) };
   return ($ent, $head[4], $pad);
+}
+
+sub parseoverride {
+  my ($override, $tartype, $data) = @_;
+  $override ||= {};
+  if ($tartype eq 'L') {
+    $override->{'name'} = $data;
+  } elsif ($tartype eq 'K') {
+    $override->{'linkname'} = $data;
+  } elsif ($tartype eq 'x' || $tartype eq 'X') {
+    $override->{'ispax'} = 1;
+    while ($data =~ /^(\d+) / && $1 > 3) {
+      my $entry = substr($data, length($1) + 1, $1 - length($1) - 2);	# -2 because of space and newline
+      $data = substr($data, $1);
+      $override->{'name'} = substr($entry, 5) if substr($entry, 0, 5) eq 'path=';
+      $override->{'linkname'} = substr($entry, 9) if substr($entry, 0, 9) eq 'linkpath=';
+    }
+  }
+  return $override;
 }
 
 sub list {
   my ($handle) = @_;
 
   my $offset = 0;
-  my $ispax;
-  my $nameoverride;
-  my $linkoverride;
+  my $override;
   my @tar;
 
   while (1) {
@@ -70,41 +92,20 @@ sub list {
     next if $tartype eq 'V';	# ignore volume lables
     if ($tartype eq 'L' || $tartype eq 'K' || $tartype eq 'x' || $tartype eq 'X') {
       # read longname/longlink/pax extension
-      die if $bsize < 1 || $bsize >= 65536;
+      last if $bsize < 1 || $bsize >= 1024 * 1024;
       my $data = '';
       last unless (read($handle, $data, $bsize) || 0) == $bsize;
       $offset += $bsize;
       substr($data, $size) = '';
-      if ($tartype eq 'L') {
-        $nameoverride = $data;
-      } elsif ($tartype eq 'K') {
-        $linkoverride = $data;
-      } else {
-	$ispax = 1;
-        while ($data =~ /^(\d+) /) {
-          my $entry = substr($data, length($1) + 1, $1);
-          $data = substr($data, length($1) + 1 + $1);
-	  $nameoverride = substr($entry, 5) if substr($entry, 0, 5) eq 'path=';
-	  $linkoverride = substr($entry, 9) if substr($entry, 0, 9) eq 'linkpath=';
-        }
-      }
+      $override = parseoverride($override, $tartype, $data);
       next;
     }
-    my $prefix = delete $ent->{'prefix'};
-    if (defined($prefix)) {
-      $prefix =~ s/\/$//s;
-      $ent->{'name'} = "$prefix/$ent->{'name'}" if $prefix ne '';
-    }
-    if (defined($nameoverride)) {
-      $ent->{'name'} = $nameoverride;
-      undef $nameoverride;
-    }
-    if (defined($linkoverride)) {
-      $ent->{'linkname'} = $linkoverride;
-      undef $linkoverride;
+    if ($override) {
+      $ent->{$_} = $override->{$_} for keys %$override;
+      undef $override;
     }
     $bsize = 0 if $tartype eq '2' || $tartype eq '3' || $tartype eq '4' || $tartype eq '6';
-    $bsize = 0 if $tartype eq '1' && !$ispax;	# hard link magic
+    $bsize = 0 if $tartype eq '1' && !$ent->{'ispax'};	# hard link magic
     $ent->{'offset'} = $offset if $tartype eq '0';
     if ($bsize) {
       last unless seek($handle, $bsize, 1);	# try to skip if seek fails?
