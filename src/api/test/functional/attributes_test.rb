@@ -150,6 +150,11 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'value', content: 'A'
     assert_xml_tag tag: 'value', content: 'B'
+    # blame view is working
+    get '/source/home:adrian/_project/_attribute?view=blame&meta=1'
+    assert_response :success
+    assert_match(/^   . \(adrian/, @response.body)
+
     # cleanup
     login_Iggy
     delete '/attribute/TEST/Dummy/_meta'
