@@ -730,12 +730,15 @@ OBSApi::Application.routes.draw do
   end
 
   # project level
+  controller :source_project_meta do
+    get 'source/:project/_meta' => :show, constraints: cons
+    put 'source/:project/_meta' => :update, constraints: cons
+  end
+
   controller :source_project do
     get 'source/:project' => :show, constraints: cons
     delete 'source/:project' => :delete, constraints: cons
     post 'source/:project' => :project_command, constraints: cons
-    get 'source/:project/_meta' => :show_project_meta, constraints: cons
-    put 'source/:project/_meta' => :update_project_meta, constraints: cons
   end
 
   controller :source do

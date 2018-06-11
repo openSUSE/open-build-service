@@ -40,5 +40,5 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 03 Mar 2017 13:00:46 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Sun, 10 Jun 2018 17:21:41 GMT
+recorded_with: VCR 4.0.0
