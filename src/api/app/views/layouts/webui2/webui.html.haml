@@ -1,0 +1,38 @@
+!!!
+%html{lang: "en"}
+  %head
+    %meta{content: "charset=utf-8"}/
+    %meta{name: "viewport", content: "width=device-width, initial-scale=1, shrink-to-fit=no"}
+    - if @metarobots
+      %meta{:content => "#{@metarobots}", :name => "robots"}/
+    = favicon_link_tag
+    %title
+      = "#{@pagetitle} - " if @pagetitle
+      = @configuration ? @configuration['title'] : 'Open Build Service'
+    = stylesheet_link_tag 'webui2/webui2'
+    = javascript_include_tag 'webui2/application'
+    = auto_discovery_link_tag(:rss, news_feed_path(format: 'rss'), {:title => 'News'})
+    = csrf_meta_tag
+    - if User.current.try(:rss_token)
+      = auto_discovery_link_tag(:rss, user_rss_notifications_url(token: User.current.rss_token.string, format: :rss), { title: 'Notifications' })
+  %body.d-flex.flex-column
+    .container-fluid#peek
+      = render 'peek/bar'
+    #navigation
+      = render partial: 'layouts/webui2/navigation'
+    .w-100.m-2
+    .container.d-none.d-sm-block#personal-navigation
+      .row
+        .col-12
+          %nav.nav.justify-content-end.nav-pills
+            = render partial: "layouts/webui2/personal_navigation"
+    - unless flash.blank?
+      .container#flash
+        .row.justify-content-center
+          .col-12
+            = render partial: "layouts/webui2/flash", object: flash
+    .container.flex-grow#content
+      = yield
+    .container-fluid.bg-light.py-4.mt-4#footer
+      .container
+        = render partial: 'layouts/webui2/footer'

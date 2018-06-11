@@ -188,11 +188,11 @@ group :assets do
   # assets for jQuery and jQuery-ujs
   gem 'jquery-rails'
   # assets for jQuery-ui
-  gem 'jquery-ui-rails', '~> 4.2.1' # version 5 needs henne's new webui
-  # assets for the bootstrap front-end framework. Used by the bratwurst theme
-  # gem 'bootstrap-sass-rails'
+  gem 'jquery-ui-rails', '~> 4.2.1'
+  # assets for the bootstrap front-end framework
+  gem 'bootstrap'
   # assets for font-awesome vector icons
-  gem 'font-awesome-rails'
+  gem 'font-awesome-sass'
   # assets for formatting dates
   gem 'momentjs-rails'
 end

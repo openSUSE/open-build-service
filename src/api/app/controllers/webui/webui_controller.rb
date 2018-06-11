@@ -4,6 +4,8 @@
 require_dependency 'authenticator'
 
 class Webui::WebuiController < ActionController::Base
+  layout :choose_layout
+
   helper_method :valid_xml_id
 
   Rails.cache.set_domain if Rails.cache.respond_to?('set_domain')
@@ -305,5 +307,24 @@ class Webui::WebuiController < ActionController::Base
     @dialog_html = ActionController::Base.helpers.escape_javascript(render_to_string(partial: action_name))
     @dialog_init = dialog_init
     render partial: 'dialog', content_type: 'application/javascript'
+  end
+
+  def switch_to_webui2?
+    User.current && (User.current.is_admin? || User.current.is_staff?)
+  end
+
+  def choose_layout
+    @switch_to_webui2 ? 'webui2/webui' : 'webui/webui'
+  end
+
+  def switch_to_webui2
+    if switch_to_webui2?
+      @switch_to_webui2 = true
+      prepend_view_path('app/views/webui2')
+      prefixed_action_name = "webui2_#{action_name}"
+      send(prefixed_action_name) if action_methods.include?(prefixed_action_name)
+      return true
+    end
+    @switch_to_webui2 = false
   end
 end
