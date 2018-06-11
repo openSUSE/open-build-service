@@ -52,7 +52,7 @@ system('osc ci -m "initial version"');
 ok(!$?,"Checking initial commit of package obs-testpackage");
 
 # wait for building results
-my $time_out = 60 * 60; # wait for at least an hour
+my $time_out = $::ENV{OBS_TEST_TIMEOUT} || 60 * 60; # wait for at least an hour by default
 my $start_time = time();
 my $retry_timeout = 5; # retry after X seconds
 my $succeed;
@@ -81,17 +81,35 @@ while (1) {
     }
   }
 
+  my $last_result = join q{}, @result;
+
   # test reached timeout (e.g. stuck while signing)
-  last if (($start_time + $time_out) < time());
+  if (($start_time + $time_out) < time()) {
+    print STDERR <<"EOF"
+TEST TIMEOUT REACHED ($time_out sec)!
+Last result:
+$last_result
+
+EOF
+;
+    last;
+  }
 
   if (! $recalculation) {
     # if all have succeeded and no recalculation is needed the test succeed
     $succeed = 1 if (($states->{succeeded} + $states->{failed}) == @result);
+
     # if any of the results is failed/broken the whole test is failed
     my $bad_results = $states->{broken} + $states->{unresolvable};
     if ($bad_results > 0) {
       $succeed = 0;
-      print STDERR "@result";
+      print STDERR <<"EOF"
+AN ERROR OCCOURED WHILE BUILDING:
+Last result:
+$last_result
+
+EOF
+;
     }
   }
 
