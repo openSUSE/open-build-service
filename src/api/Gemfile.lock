@@ -54,7 +54,7 @@ GEM
       public_suffix (>= 2.0.2, < 4.0)
     airbrake (7.1.0)
       airbrake-ruby (~> 2.5)
-    airbrake-ruby (2.5.0)
+    airbrake-ruby (2.10.0)
     amq-protocol (2.3.0)
     ansi (1.5.0)
     arel (9.0.0)
@@ -420,8 +420,8 @@ DEPENDENCIES
   acts_as_list
   acts_as_tree
   addressable
-  airbrake (<= 7.1.0)
-  airbrake-ruby (<= 2.5.0)
+  airbrake
+  airbrake-ruby
   bcrypt
   bullet
   bunny
