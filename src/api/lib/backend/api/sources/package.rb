@@ -8,10 +8,12 @@ module Backend
         # Returns the attributes content
         # @param revision [String] Revision hash/number.
         # @return [String]
-        def self.attributes(project_name, package_name, revision)
+        def self.attributes(project_name, package_name, options = {})
           params = { meta: 1 }
-          params[:rev] = revision if revision
-          http_get(['/source/:project/:package/_attribute', project_name, package_name || '_project'], params: params)
+          params[:rev]  = options[:rev]  if options[:rev]
+          params[:view] = options[:view] if options[:view]
+          http_get(['/source/:project/:package/_attribute', project_name, package_name || '_project'],
+                   params: params, accepted: [:rev, :meta, :view])
         end
 
         # Writes the content in xml for attributes
