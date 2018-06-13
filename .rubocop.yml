@@ -125,3 +125,8 @@ Rails/Output:
 # Disabled due to a bug
 Rails/BulkChangeTable:
   Enabled: false
+
+# Disabled as we currently violate it everywhere in spec/features directory
+# we first need to discuss if we want to move this directory and then fix the violation
+Capybara/FeatureMethods:
+  Enabled: false
