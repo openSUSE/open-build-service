@@ -73,6 +73,8 @@ gem 'bunny'
 gem 'data_migrate', '= 4.0.0'
 # for URI encoding
 gem 'addressable'
+# for XML builder
+gem 'builder'
 
 group :development, :production do
   # to have the delayed job daemon
