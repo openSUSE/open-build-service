@@ -5,7 +5,7 @@
   %li.nav-item
     - tasks = User.current.tasks
     = link_to(user_tasks_path, class: 'nav-link') do
-      - if tasks > 0
+      - if tasks.positive?
         %span{title: 'where an action is requested from you' }
           = pluralize(tasks, 'Task')
       - else

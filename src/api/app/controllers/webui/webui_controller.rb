@@ -14,6 +14,7 @@ class Webui::WebuiController < ActionController::Base
   protect_from_forgery
 
   before_action :setup_view_path
+  before_action :set_breadcrumbs
   before_action :check_user
   before_action :check_anonymous
   before_action :require_configuration
@@ -326,5 +327,12 @@ class Webui::WebuiController < ActionController::Base
       return true
     end
     @switch_to_webui2 = false
+  end
+
+  def set_breadcrumbs
+    name = @configuration ? @configuration['title'] : 'Open Build Service'
+    @breadcrumbs = [
+      { name: name, path: root_path }
+    ]
   end
 end

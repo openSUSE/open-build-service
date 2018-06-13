@@ -23,8 +23,10 @@
     .w-100.m-2
     .container.d-none.d-sm-block#personal-navigation
       .row
-        .col-12
-          %nav.nav.justify-content-end.nav-pills
+        .col-6
+          = render partial: "layouts/webui2/breadcrumbs"
+        .col-6
+          %nav.nav.nav-pills.justify-content-end
             = render partial: "layouts/webui2/personal_navigation"
     - unless flash.blank?
       .container#flash
@@ -33,6 +35,6 @@
             = render partial: "layouts/webui2/flash", object: flash
     .container.flex-grow#content
       = yield
-    .container-fluid.bg-light.py-4.mt-4#footer
+    .container-fluid.py-4.mt-4#footer
       .container
         = render partial: 'layouts/webui2/footer'
