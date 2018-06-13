@@ -5,6 +5,7 @@ jobs:
       - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/frontend-base:latest
         environment:
           NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
+          EAGER_LOAD: 1
       - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/mariadb:latest
         command: /usr/lib/mysql/mysql-systemd-helper start
         name: db
@@ -31,8 +32,19 @@ jobs:
           command: cd src/api; bundle exec rake dev:bootstrap RAILS_ENV=test
       - run: mkdir ~/rspec
       - run:
+          name: Download code climate test reporter
+          command: cd src/api; curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter; chmod +x ./cc-test-reporter
+      - run: ./cc-test-reporter before-build
+      - run:
           name: Run rspec
           command: cd src/api; bundle exec rspec --format progress --format RspecJunitFormatter -o ~/rspec/rspec.xml
+      - run:
+          name: Format code coverage for code climate
+          command: cd src/api; ./cc-test-reporter format-coverage --output "coverage/codeclimate.rspec.json"
+      - persist_to_workspace:
+          root: src/api
+          paths:
+            - coverage
       - store_artifacts:
           path: ./src/api/log
           destination: rspec
@@ -44,6 +56,8 @@ jobs:
         environment:
           NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
           NO_MEMCACHED: 1
+          DO_COVERAGE: 1
+          EAGER_LOAD: 1
       - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/mariadb:latest
         command: /usr/lib/mysql/mysql-systemd-helper start
         name: db
@@ -75,18 +89,53 @@ jobs:
           command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
       - run: mkdir ~/minitest
       - run:
+          name: Download code climate test reporter
+          command: cd src/api; curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter; chmod +x ./cc-test-reporter
+      - run: ./cc-test-reporter before-build
+      - run:
           name: Run minitest
           command: cd src/api; bundle exec rake test:api TESTOPTS="--ci-dir=~/minitest"
+      - run:
+          name: Format code coverage for code climate
+          command: cd src/api; ./cc-test-reporter format-coverage --output "coverage/codeclimate.minitest.json"
       - store_artifacts:
          path: ~/minitest
       - store_test_results:
           path: ~/minitest
-      - run:
-          name: Run spider
-          command: cd src/api; bundle exec rake test:spider
-      - store_artifacts:
-          path: ./src/api/log/
-          destination: minitest
+      - persist_to_workspace:
+          root: src/api
+          paths:
+            - coverage
+  spider:
+    - checkout
+    - run:
+        name: Init submodule
+        command: git submodule update --init --recursive --remote
+    - restore_cache:
+        keys:
+        - v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
+        # fallback to using the latest cache if no exact match is found
+        - v2-dependencies-
+    - run:
+        name: install dependencies
+        command: |
+          cd ./src/api && bundle install --jobs=4 --retry=3 --path vendor/bundle
+    - save_cache:
+        paths:
+          - ./src/api/vendor/bundle
+        key: v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
+    - run:
+        name: Wait for DB
+        command: mysqladmin ping -h db
+    - run:
+        name: Setup application
+        command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
+    - run:
+        name: Run spider
+        command: cd src/api; bundle exec rake test:spider
+    - store_artifacts:
+        path: ./src/api/log/
+        destination: minitest
   backend:
     docker:
       - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/backend:latest
@@ -98,6 +147,18 @@ jobs:
       - run:
           name: backend
           command: make -C src/backend test
+  code_climate:
+      docker:
+        - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/frontend-base:latest
+      steps:
+        - attach_workspace:
+          at: ~/coverage
+        - run:
+            name: Download code climate test reporter
+            command: cd src/api; curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter; chmod +x ./cc-test-reporter
+        - run:
+            name: Format code coverage for code climate
+            command: cc-test-reporter sum-coverage --output - --parts 2 coverage/codeclimate.*.json | cc-test-reporter upload-coverage --input -
 
 workflows:
   version: 2
@@ -105,4 +166,9 @@ workflows:
     jobs:
       - rspec
       - minitest
+      - spider
       - backend
+      - code_climate:
+          requires:
+            - minitest
+            - rspec
