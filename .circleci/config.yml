@@ -8,6 +8,10 @@ aliases:
     paths:
       - ./src/api/vendor/bundle
     key: v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
+  - &install_dependencies
+    name: install dependencies
+    command: |
+      cd ./src/api && bundle install --jobs=4 --retry=3 --path vendor/bundle
 
 version: 2
 jobs:
@@ -22,10 +26,7 @@ jobs:
     steps:
       - checkout
       - restore_cache: *restore_bundle_cache
-      - run:
-          name: install dependencies
-          command: |
-            cd ./src/api && bundle install --jobs=4 --retry=3 --path vendor/bundle
+      - run: *install_dependencies
       - save_cache: *save_bundle_cache
       - run:
           name: Wait for DB
@@ -59,10 +60,7 @@ jobs:
           name: Init submodule
           command: git submodule update --init --recursive --remote
       - restore_cache: *restore_bundle_cache
-      - run:
-          name: install dependencies
-          command: |
-            cd ./src/api && bundle install --jobs=4 --retry=3 --path vendor/bundle
+      - run: *install_dependencies
       - save_cache: *save_bundle_cache
       - run:
           name: Wait for DB
