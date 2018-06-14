@@ -81,10 +81,6 @@ GEM
     clockwork (2.0.3)
       tzinfo
     cocoon (1.2.11)
-    codecov (0.1.10)
-      json
-      simplecov
-      url
     codemirror-rails (5.16.0)
       railties (>= 3.0, < 6.0)
     coderay (1.1.2)
@@ -394,7 +390,6 @@ GEM
       rack
       unicorn
     uniform_notifier (1.11.0)
-    url (0.3.2)
     vcr (4.0.0)
     voight_kampff (1.1.2)
       rack (>= 1.4, < 3.0)
@@ -430,7 +425,6 @@ DEPENDENCIES
   chunky_png
   clockwork (>= 0.7)
   cocoon
-  codecov
   codemirror-rails
   coffee-rails
   colorize
