@@ -1,3 +1,14 @@
+aliases:
+  - &restore_bundle_cache
+    keys:
+    - v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
+    # fallback to using the latest cache if no exact match is found
+    - v2-dependencies-
+  - &save_bundle_cache
+    paths:
+      - ./src/api/vendor/bundle
+    key: v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
+
 version: 2
 jobs:
   rspec:
@@ -10,19 +21,12 @@ jobs:
         name: db
     steps:
       - checkout
-      - restore_cache:
-          keys:
-          - v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
-          # fallback to using the latest cache if no exact match is found
-          - v2-dependencies-
+      - restore_cache: *restore_bundle_cache
       - run:
           name: install dependencies
           command: |
             cd ./src/api && bundle install --jobs=4 --retry=3 --path vendor/bundle
-      - save_cache:
-          paths:
-            - ./src/api/vendor/bundle
-          key: v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
+      - save_cache: *save_bundle_cache
       - run:
           name: Wait for DB
           command: mysqladmin ping -h db
@@ -54,19 +58,12 @@ jobs:
       - run:
           name: Init submodule
           command: git submodule update --init --recursive --remote
-      - restore_cache:
-          keys:
-          - v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
-          # fallback to using the latest cache if no exact match is found
-          - v2-dependencies-
+      - restore_cache: *restore_bundle_cache
       - run:
           name: install dependencies
           command: |
             cd ./src/api && bundle install --jobs=4 --retry=3 --path vendor/bundle
-      - save_cache:
-          paths:
-            - ./src/api/vendor/bundle
-          key: v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
+      - save_cache: *save_bundle_cache
       - run:
           name: Wait for DB
           command: mysqladmin ping -h db
