@@ -1,23 +1,23 @@
 /* Staging projects dashboard table */
-#staging-dashboard th.staging-project {
+.staging-dashboard th.staging-project {
     text-align: right;
 }
 
-#staging-dashboard .packages-list {
+.staging-dashboard .packages-list {
     text-align: left;
     margin: 6px;
 }
 
-#staging-dashboard td {
+.staging-dashboard td {
     text-align: center
 }
 
-#staging-dashboard td img {
+.staging-dashboard td img {
     margin-top: 4px
 }
 
 /* Fix an issue with rowspans */
-#staging-dashboard tr:last-child td {
+.staging-dashboard tr:last-child td {
     border-bottom: 1px dotted #CCCCCC
 }
 
@@ -80,22 +80,22 @@ a.openqa-incomplete {
     margin-bottom: 0.5em
 }
 
-#staging-dashboard .request {
+.staging-dashboard .request {
     white-space: nowrap;
     margin: 1ex;
     padding: 3px;
 }
 
-#staging-dashboard .request a.staging_expand,
-#staging-dashboard .request a.staging_collapse {
+.staging-dashboard .request a.staging_expand,
+.staging-dashboard .request a.staging_collapse {
   color: #069;
 }
 
-#staging-dashboard div.staging_collapsible {
+.staging-dashboard div.staging_collapsible {
   display: inline-block;
 }
 
-#staging-dashboard .ok {
+.staging-dashboard .ok {
     background-color: #53b25f;
 }
 
@@ -103,7 +103,7 @@ a.openqa-incomplete {
     background-color: #53b25f;
 }
 
-#staging-dashboard .review {
+.staging-dashboard .review {
     background-color: #d9b200;
 }
 
@@ -111,7 +111,7 @@ a.openqa-incomplete {
     background-color: #d9b200;
 }
 
-#staging-dashboard .obsolete {
+.staging-dashboard .obsolete {
     background-color: #42a2cc;
 }
 
@@ -119,7 +119,7 @@ a.openqa-incomplete {
     background-color: #42a2cc;
 }
 
-#staging-dashboard .untracked {
+.staging-dashboard .untracked {
     background-color: #666;
 }
 
@@ -127,18 +127,18 @@ a.openqa-incomplete {
     background-color: #666;
 }
 
-#staging-dashboard .request a {
+.staging-dashboard .request a {
     color: white;
     margin: 0;
     line-height: 1em;
 }
 
-#staging-dashboard .packages-list {
+.staging-dashboard .packages-list {
     text-align: left;
     list-style-type: none;
 }
 
-#staging-dashboard .request {
+.staging-dashboard .request {
     padding-left: 2px;
     padding-right: 3px;
     margin-right: .5ex;
@@ -146,15 +146,15 @@ a.openqa-incomplete {
     float: left;
 }
 
-#staging-dashboard tr:nth-child(odd) {
+.staging-dashboard tr:nth-child(odd) {
     background-color: #fff;
 }
 
-#staging-dashboard tr:nth-child(even) {
+.staging-dashboard tr:nth-child(even) {
     background-color: #eee;
 }
 
-#staging-dashboard ul.problem_list {
+.staging-dashboard ul.problem_list {
     white-space: nowrap;
     margin-left: 0px;
     text-align: left;
@@ -162,12 +162,12 @@ a.openqa-incomplete {
     list-style-type: none;
 }
 
-#staging-dashboard ul.problem_list li {
+.staging-dashboard ul.problem_list li {
     margin-left: 8px;
     line-height: 170%;
 }
 
-#staging-dashboard .delete a {
+.staging-dashboard .delete a {
     text-decoration: line-through;
 }
 
