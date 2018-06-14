@@ -26,6 +26,9 @@ aliases:
   - &wait_for_database
     name: Wait for DB
     command: mysqladmin ping -h db
+  - &init_git_submodule
+    name: Init submodule
+    command: git submodule update --init --recursive --remote
 
 version: 2
 jobs:
@@ -59,9 +62,7 @@ jobs:
     <<: *minitest
     steps:
       - checkout
-      - run:
-          name: Init submodule
-          command: git submodule update --init --recursive --remote
+      - run: *init_git_submodule
       - restore_cache: *restore_bundle_cache
       - run: *install_dependencies
       - save_cache: *save_bundle_cache
@@ -84,9 +85,7 @@ jobs:
     <<: *minitest
     steps:
       - checkout
-      - run:
-          name: Init submodule
-          command: git submodule update --init --recursive --remote
+      - run: *init_git_submodule
       - restore_cache: *restore_bundle_cache
       - run: *install_dependencies
       - save_cache: *save_bundle_cache
@@ -106,9 +105,7 @@ jobs:
       - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/backend:latest
     steps:
       - checkout
-      - run:
-          name: Init submodule
-          command: git submodule update --init --recursive --remote
+      - run: *init_git_submodule
       - run:
           name: backend
           command: make -C src/backend test
