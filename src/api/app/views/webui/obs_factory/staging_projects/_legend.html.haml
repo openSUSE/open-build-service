@@ -1,47 +1,47 @@
-%div{class: "box box-shadow", id: "legends"}
-  %h2{class: "box-header"} Legend
+.box.box-shadow#legends
+  %h2.box-header Legend
 
   %p Requests
-  %ul{class: "color-legend"}
+  %ul.color-legend
     %li
-      %span{class: "ok"}
+      %span.ok
       Ready
     %li
-      %span{class: "review"}
+      %span.review
       In review
     %li
-      %span{class: "obsolete"}
+      %span.obsolete
       Obsolete
     %li
-      %span{class: "untracked"}
+      %span.untracked
       Untracked
-    %li{class: "delete"}
-      %span{class: "delete"}
+    %li.delete
+      %span.delete
       Delete
 
   %p Projects
-  %ul{class: "color-legend"}
+  %ul.color-legend
     %li
-      %span{class: "staging-project state-building"}
+      %span.staging-project.state-building
       Building
     %li
-      %span{class: "staging-project state-testing"}
+      %span.staging-project.state-testing
       Testing
     %li
-      %span{class: "staging-project state-review"}
+      %span.staging-project.state-review
       Review
     %li
-      %span{class: "staging-project state-acceptable"}
+      %span.staging-project.state-acceptable
       Acceptable
     %li
-      %span{class: "staging-project state-unacceptable"}
+      %span.staging-project.state-unacceptable
       Unacceptable
     %li
-      %span{class: "staging-project state-failed"}
+      %span.staging-project.state-failed
       Failed
 
   %p Reviews
-  %ul{class: "color-legend"}
+  %ul.color-legend
     %li
       %i{class: "fa fa-#{ObsFactory::StagingProjectPresenter.review_icon('opensuse-review-team')}"}
       = link_to 'Source Review', main_app.group_show_path('opensuse-review-team')

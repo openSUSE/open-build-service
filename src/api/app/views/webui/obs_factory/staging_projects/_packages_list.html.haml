@@ -1,7 +1,7 @@
-%ul{class: "packages-list"}
+%ul.packages-list
   - max = 15
   - count = project.classified_requests.count
-  - if count <= max+1 # Prevent the "1 more" link
+  - if count <= max + 1 # Prevent the "1 more" link
     = render partial: "request", collection: project.classified_requests
   - else
     = render partial: "request", collection: project.classified_requests[0,max]
