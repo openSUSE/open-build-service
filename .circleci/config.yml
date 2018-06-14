@@ -1,4 +1,15 @@
 aliases:
+  - &minitest
+    docker:
+      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/frontend-backend:latest
+        environment:
+          NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
+          NO_MEMCACHED: 1
+      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/mariadb:latest
+        command: /usr/lib/mysql/mysql-systemd-helper start
+        name: db
+      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/memcached:latest
+        name: cache
   - &restore_bundle_cache
     keys:
     - v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
@@ -45,16 +56,7 @@ jobs:
       - store_test_results:
           path: ~/rspec
   minitest:
-    docker:
-      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/frontend-backend:latest
-        environment:
-          NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
-          NO_MEMCACHED: 1
-      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/mariadb:latest
-        command: /usr/lib/mysql/mysql-systemd-helper start
-        name: db
-      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/memcached:latest
-        name: cache
+    <<: *minitest
     steps:
       - checkout
       - run:
