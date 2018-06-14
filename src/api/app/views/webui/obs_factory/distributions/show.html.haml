@@ -1,33 +1,33 @@
 - project_bread_crumb 'Dashboard'
 
-%div{class: "grid_16 alpha"}
-  %div{class: "box box-shadow"}
+.grid_16.alpha
+  .box.box-shadow
     %h2
-      %i{class: "fa fa-2 fa-tasks"}
-      = link_to "Staging Projects", staging_projects_path(project: @distribution.name)
-    %ul{id: 'main-dashboard'}
+      %i.fa.fa-2.fa-tasks
+      = link_to 'Staging Projects', staging_projects_path(project: @distribution.name)
+    %ul#main-dashboard
       - @staging_projects.each do |project|
         - next if project.overall_state == :empty
         %li
           = render partial: 'webui/obs_factory/staging_projects/overall_state', locals: { project: project }
 
-    %p{class: 'clear'}
+    %p.clear
 
     %h2
-      %i{class: "fa fa-2 fa-circle-o"}
-      = link_to "Ring Projects", main_app.project_subprojects_path(project: @distribution.rings_project_name)
-    %ul{id: 'ring-projects', class: 'project-results'}
+      %i.fa.fa-2.fa-circle-o
+      = link_to 'Ring Projects', main_app.project_subprojects_path(project: @distribution.rings_project_name)
+    %ul.project-results#ring-projects
       - @ring_prjs.each do |rp|
         %li{class: "project-result-#{rp.summary[0]}"}
           = link_to rp.summary[1], main_app.project_monitor_path(rp.build_and_failed_params)
 
-    %p{class: 'clear'}
+    %p.clear
 
     %h2
-      %i{class: "fa fa-2 fa-building"}
+      %i.fa.fa-2.fa-building
       = link_to "Repositories of #{@distribution.name}", main_app.project_show_path(project: "#{@distribution.name}")
 
-    %ul{id: 'factory-build-Status', class: 'project-results'}
+    %ul.project-results#factory-build-status
       %li{class: "project-result-#{@standard.summary[0]} "}
         = link_to @standard.summary[1], main_app.project_monitor_path(@standard.build_and_failed_params)
       - if @live
@@ -37,11 +37,11 @@
         = link_to @images.summary[1], main_app.project_monitor_path(@images.build_and_failed_params)
 
 
-    %p{class: 'clear'}
+    %p.clear
 
     %h2
-      %i{class: "fa fa-2 fa-check"}
-      = link_to "Open Reviews", "/project/requests/#{@distribution.root_project_name}"
+      %i.fa.fa-2.fa-check
+      = link_to 'Open Reviews', "/project/requests/#{@distribution.root_project_name}"
 
     %ul
       - if @reviews[:legal_auto] > 0
@@ -66,8 +66,8 @@
         Legal Team:
         = @reviews[:legal_team]
     %h2
-      %i{class: "fa fa-2 fa-tag"}
-      = link_to "Versions", "http://download.opensuse.org/#{@distribution.url_suffix}"
+      %i.fa.fa-2.fa-tag
+      = link_to 'Versions', "http://download.opensuse.org/#{@distribution.url_suffix}"
 
     %ul
       - if @versions[:source]
@@ -86,13 +86,13 @@
           = link_to @versions[:published], "http://download.opensuse.org/#{@distribution.url_suffix}"
 
     %h2
-      %i{class: "fa fa-2 fa-wrench"}
+      %i.fa.fa-2.fa-wrench
       = link_to "openQA results for #{@versions[:totest]}", "#{openqa_links_helper}/tests/overview?distri=opensuse&version=#{@distribution.openqa_version}&build=#{@versions[:totest]}&group=#{@distribution.openqa_group}"
 
     %p
       - unless @openqa_jobs.empty?
         - @openqa_jobs.group_by(&:result_or_state).each do |label, jobs|
-          %b= "#{label}:"
+          %b #{label}:
           = jobs.size
       - else
         OpenQA currently not reachable or failure in GET request
