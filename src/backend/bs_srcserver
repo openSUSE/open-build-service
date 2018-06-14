@@ -982,8 +982,15 @@ sub getprojpack {
     }
   }
   if ($BSConfig::limit_projects && $BSConfig::limit_projects->{$arch}) {
-    my %limit_projids = map {$_ => 1} @{$BSConfig::limit_projects->{$arch}};
-    $projids = [ grep {$limit_projids{$_}} @$projids ];
+    my $limit = $BSConfig::limit_projects->{$arch};
+    if ($BSConfig::limit_projects_use_regex || $BSConfig::limit_projects_use_regex) {
+      for my $projid (splice @$projids) {
+        push @$projids, $projid if grep {$projid =~ /^$_$/} @$limit;
+      }
+    } else {
+      my %limit_projids = map {$_ => 1} @$limit;
+      $projids = [ grep {$limit_projids{$_}} @$projids ];
+    }
   }
   $repoids = { map {$_ => 1} @$repoids } if $repoids;
   $packids = { map {$_ => 1} @$packids } if $packids;
