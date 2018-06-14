@@ -12,6 +12,9 @@ aliases:
     name: install dependencies
     command: |
       cd ./src/api && bundle install --jobs=4 --retry=3 --path vendor/bundle
+  - &wait_for_database
+    name: Wait for DB
+    command: mysqladmin ping -h db
 
 version: 2
 jobs:
@@ -28,9 +31,7 @@ jobs:
       - restore_cache: *restore_bundle_cache
       - run: *install_dependencies
       - save_cache: *save_bundle_cache
-      - run:
-          name: Wait for DB
-          command: mysqladmin ping -h db
+      - run: *wait_for_database
       - run:
           name: Setup application
           command: cd src/api; bundle exec rake dev:bootstrap RAILS_ENV=test
@@ -62,9 +63,7 @@ jobs:
       - restore_cache: *restore_bundle_cache
       - run: *install_dependencies
       - save_cache: *save_bundle_cache
-      - run:
-          name: Wait for DB
-          command: mysqladmin ping -h db
+      - run: *wait_for_database
       - run:
           name: Setup application
           command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
