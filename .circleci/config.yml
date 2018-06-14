@@ -77,6 +77,24 @@ jobs:
          path: ~/minitest
       - store_test_results:
           path: ~/minitest
+      - store_artifacts:
+          path: ./src/api/log/
+          destination: minitest
+  spider:
+    <<: *minitest
+    steps:
+      - checkout
+      - run:
+          name: Init submodule
+          command: git submodule update --init --recursive --remote
+      - restore_cache: *restore_bundle_cache
+      - run: *install_dependencies
+      - save_cache: *save_bundle_cache
+      - run: *wait_for_database
+      - run:
+          name: Setup application
+          command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
+      - run: mkdir ~/minitest
       - run:
           name: Run spider
           command: cd src/api; bundle exec rake test:spider
@@ -101,4 +119,5 @@ workflows:
     jobs:
       - rspec
       - minitest
+      - spider
       - backend
