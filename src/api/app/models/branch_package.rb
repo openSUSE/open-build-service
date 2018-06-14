@@ -398,7 +398,7 @@ class BranchPackage
       end
     else
       unless p[:link_target_project].is_a?(Project) && p[:link_target_project].find_attribute('OBS', 'BranchTarget')
-        p[:link_target_project] = update_project
+        p[:link_target_project] = pkg.is_a?(Package) ? pkg.project : update_project
       end
       update_pkg = update_project.find_package(pkg_name, true) # true for check_update_package in older service pack projects
       if update_pkg
