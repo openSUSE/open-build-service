@@ -187,6 +187,7 @@ RSpec.describe Package, vcr: true do
     context 'without error' do
       it { expect(package_with_service.service_error).to be_nil }
     end
+
     context 'with error' do
       it { expect(package_with_broken_service.service_error).not_to be_empty }
     end

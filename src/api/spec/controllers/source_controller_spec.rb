@@ -59,6 +59,7 @@ RSpec.describe SourceController, vcr: true do
           cmd: 'diff', package: "#{multibuild_package.name}:one", project: multibuild_project, target_project: project
         }
       end
+
       it { expect(flash[:error]).to eq("invalid_package_name(invalid package name '#{multibuild_package.name}:one'): ") }
       it { expect(response.status).to eq(302) }
     end

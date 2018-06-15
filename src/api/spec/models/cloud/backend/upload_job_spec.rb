@@ -82,6 +82,7 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
       before do
         allow(Backend::Api::Cloud).to receive(:upload).with(params).and_raise(Timeout::Error, 'boom')
       end
+
       subject { Cloud::Backend::UploadJob.create(params) }
 
       it { expect(subject.valid?).to be_falsy }
@@ -267,6 +268,7 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
       before do
         allow(Backend::Api::Cloud).to receive(:status).with(user).and_raise(Timeout::Error, 'boom')
       end
+
       subject { Cloud::Backend::UploadJob.all(user) }
 
       it { expect(subject).to be_empty }
