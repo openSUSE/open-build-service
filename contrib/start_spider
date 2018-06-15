@@ -6,3 +6,4 @@ bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
 echo "Running spider test..."
 export NO_MEMCACHED=1
 bundle exec rake test:spider
+rm -rf .bundle vendor/bundle
