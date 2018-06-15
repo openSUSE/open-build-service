@@ -20,7 +20,7 @@ gem 'yajl-ruby', require: 'yajl/json_gem'
 gem 'thinking-sphinx', '> 3.1'
 # to paginate search results
 gem 'kaminari'
-# as abstract HTML of the bratwurst 'theme'
+# for abstract HTML
 gem 'haml'
 # to avoid tilt downgrade
 gem 'tilt', '>= 1.4.1'

@@ -269,6 +269,7 @@ Summary:  The Open Build Service -- Test cases for installed appliances
 
 Requires: obs-server = %{version}
 Requires: obs-api = %{version}
+Requires: perl(Test::Most)
 
 %if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 Group:          Productivity/Networking/Web/Utilities

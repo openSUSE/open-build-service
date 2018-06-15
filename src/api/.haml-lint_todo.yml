@@ -76,7 +76,6 @@ linters:
   SpaceBeforeScript:
     exclude:
       - "app/views/webui/search/owner.html.haml"
-      - "app/views/webui/theme/bratwurst/webui/package/_commit.html.haml"
 
   # Offense count: 15
   RepeatedId:
