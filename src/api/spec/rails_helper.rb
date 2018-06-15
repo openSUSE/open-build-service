@@ -1,7 +1,7 @@
 # for generating test coverage
 require 'simplecov'
 # Avoid codecov failures outside of travis
-if ENV['TRAVIS'] == 'true'
+if ENV['CIRCLECI']
   # support test coverage
   require 'support/coverage'
 end

@@ -1,3 +1,42 @@
+aliases:
+  - &cc_test_reporter_id
+    CC_TEST_REPORTER_ID: b7a6ce504d06a446d7f677160fb92e7b40a1c6538cd888435404a6ae92c5140a
+  - &minitest
+    docker:
+      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/frontend-backend:latest
+        environment:
+          NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
+          NO_MEMCACHED: 1
+          EAGER_LOAD: 1
+          <<: *cc_test_reporter_id
+      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/mariadb:latest
+        command: /usr/lib/mysql/mysql-systemd-helper start
+        name: db
+      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/memcached:latest
+        name: cache
+  - &restore_bundle_cache
+    keys:
+    - v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
+    # fallback to using the latest cache if no exact match is found
+    - v2-dependencies-
+  - &save_bundle_cache
+    paths:
+      - ./src/api/vendor/bundle
+    key: v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
+  - &install_dependencies
+    name: install dependencies
+    command: |
+      cd ./src/api && bundle install --jobs=4 --retry=3 --path vendor/bundle
+  - &wait_for_database
+    name: Wait for DB
+    command: mysqladmin ping -h db
+  - &init_git_submodule
+    name: Init submodule
+    command: git submodule update --init --recursive --remote
+  - &download_test_reporter
+    name: Download code climate test reporter
+    command: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter; chmod +x ./cc-test-reporter
+
 version: 2
 jobs:
   rspec:
@@ -5,82 +44,82 @@ jobs:
       - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/frontend-base:latest
         environment:
           NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
+          <<: *cc_test_reporter_id
       - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/mariadb:latest
         command: /usr/lib/mysql/mysql-systemd-helper start
         name: db
     steps:
       - checkout
-      - restore_cache:
-          keys:
-          - v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
-          # fallback to using the latest cache if no exact match is found
-          - v2-dependencies-
-      - run:
-          name: install dependencies
-          command: |
-            cd ./src/api && bundle install --jobs=4 --retry=3 --path vendor/bundle
-      - save_cache:
-          paths:
-            - ./src/api/vendor/bundle
-          key: v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
-      - run:
-          name: Wait for DB
-          command: mysqladmin ping -h db
+      - run: *download_test_reporter
+      - run: ./cc-test-reporter before-build
+      - restore_cache: *restore_bundle_cache
+      - run: *install_dependencies
+      - save_cache: *save_bundle_cache
+      - run: *wait_for_database
       - run:
           name: Setup application
           command: cd src/api; bundle exec rake dev:bootstrap RAILS_ENV=test
-      - run: mkdir ~/rspec
+      - run: mkdir $HOME/rspec
       - run:
           name: Run rspec
-          command: cd src/api; bundle exec rspec --format progress --format RspecJunitFormatter -o ~/rspec/rspec.xml
+          command: cd src/api; bundle exec rspec --format progress --format RspecJunitFormatter -o $HOME/rspec/rspec.xml
+      - run:
+          name: Format code coverage for code climate
+          command: ./cc-test-reporter format-coverage --input-type simplecov --output /tmp/coverage/codeclimate.rspec.json src/api/coverage/.resultset.json
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - coverage
       - store_artifacts:
           path: ./src/api/log
           destination: rspec
       - store_test_results:
-          path: ~/rspec
+          path: $HOME/rspec
   minitest:
-    docker:
-      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/frontend-backend:latest
-        environment:
-          NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
-          NO_MEMCACHED: 1
-      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/mariadb:latest
-        command: /usr/lib/mysql/mysql-systemd-helper start
-        name: db
-      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/memcached:latest
-        name: cache
+    <<: *minitest
     steps:
       - checkout
-      - run:
-          name: Init submodule
-          command: git submodule update --init --recursive --remote
-      - restore_cache:
-          keys:
-          - v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
-          # fallback to using the latest cache if no exact match is found
-          - v2-dependencies-
-      - run:
-          name: install dependencies
-          command: |
-            cd ./src/api && bundle install --jobs=4 --retry=3 --path vendor/bundle
-      - save_cache:
-          paths:
-            - ./src/api/vendor/bundle
-          key: v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
-      - run:
-          name: Wait for DB
-          command: mysqladmin ping -h db
+      - run: *download_test_reporter
+      - run: ./cc-test-reporter before-build
+      - run: *init_git_submodule
+      - restore_cache: *restore_bundle_cache
+      - run: *install_dependencies
+      - save_cache: *save_bundle_cache
+      - run: *wait_for_database
       - run:
           name: Setup application
           command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
-      - run: mkdir ~/minitest
+      - run: mkdir $HOME/minitest
       - run:
           name: Run minitest
-          command: cd src/api; bundle exec rake test:api TESTOPTS="--ci-dir=~/minitest"
-      - store_artifacts:
-         path: ~/minitest
+          environment:
+            DO_COVERAGE: 1
+            TESTOPTS: "--ci-dir=$HOME/minitest"
+          command: cd src/api; bundle exec rake test:api
+      - run:
+          name: Format code coverage for code climate
+          command: ./cc-test-reporter format-coverage --input-type simplecov --output /tmp/coverage/codeclimate.minitest.json src/api/coverage/.resultset.json
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - coverage
       - store_test_results:
-          path: ~/minitest
+          path: $HOME/minitest
+      - store_artifacts:
+          path: ./src/api/log/
+          destination: minitest
+  spider:
+    <<: *minitest
+    steps:
+      - checkout
+      - run: *init_git_submodule
+      - restore_cache: *restore_bundle_cache
+      - run: *install_dependencies
+      - save_cache: *save_bundle_cache
+      - run: *wait_for_database
+      - run:
+          name: Setup application
+          command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
       - run:
           name: Run spider
           command: cd src/api; bundle exec rake test:spider
@@ -92,12 +131,22 @@ jobs:
       - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/backend:latest
     steps:
       - checkout
-      - run:
-          name: Init submodule
-          command: git submodule update --init --recursive --remote
+      - run: *init_git_submodule
       - run:
           name: backend
           command: make -C src/backend test
+  upload_result:
+    docker:
+      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/frontend-base:latest
+        environment:
+          <<: *cc_test_reporter_id
+    steps:
+      - attach_workspace:
+          at: /tmp
+      - run: *download_test_reporter
+      - run:
+          name: Format code coverage for code climate
+          command: ./cc-test-reporter sum-coverage --output - --parts 2 /tmp/coverage/codeclimate.*.json | ./cc-test-reporter upload-coverage --input -
 
 workflows:
   version: 2
@@ -105,4 +154,9 @@ workflows:
     jobs:
       - rspec
       - minitest
+      - spider
       - backend
+      - upload_result:
+          requires:
+            - minitest
+            - rspec
