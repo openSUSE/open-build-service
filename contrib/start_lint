@@ -6,3 +6,4 @@ echo "Preparing application..."
 bundle exec rake dev:prepare RAILS_ENV=test
 echo "Running linter..."
 bundle exec rake dev:lint RAILS_ENV=test
+rm -rf .bundle vendor/bundle
