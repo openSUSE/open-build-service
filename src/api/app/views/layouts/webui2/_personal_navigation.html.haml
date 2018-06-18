@@ -1,0 +1,61 @@
+- if User.current && !User.current.is_nobody?
+  %li.nav-item
+    = link_to(home_path, id: 'link-to-user-home', class: 'nav-link') do
+      = User.current.login
+  %li.nav-item
+    - tasks = User.current.tasks
+    = link_to(user_tasks_path, class: 'nav-link') do
+      - if tasks.positive?
+        %span{title: 'where an action is requested from you' }
+          = pluralize(tasks, 'Task')
+      - else
+        Tasks
+  %li.nav-item
+    - if User.current.home_project
+      = link_to(project_show_path(User.current.home_project), class: 'nav-link') do
+        Home Project
+    - else
+      = link_to(new_project_path(name: User.current.home_project_name), class: 'nav-link') do
+        Create Home
+  %li.nav-item
+    = link_to(session_destroy_path, method: :delete, id: 'logout-link', class: 'nav-link') do
+      Logout
+- elsif CONFIG['kerberos_mode']
+  = link_to 'Log In', session_new_path
+- else
+  - if CONFIG['proxy_auth_mode'] == :on
+    - unless CONFIG['proxy_auth_register_page'].blank?
+      %li
+        = link_to 'Sign Up', "#{CONFIG['proxy_auth_register_page']}?%22"
+    %li
+      = link_to 'Log In', session_new_path, id: 'login-trigger'
+    %li
+    .login-form
+      = form_tag(CONFIG['proxy_auth_login_page'], method: :post, id: 'login_form', enctype: 'application/x-www-form-urlencoded') do
+        %p
+          = hidden_field_tag(:context, 'default')
+          = hidden_field_tag(:proxypath, 'reserve')
+          = hidden_field_tag(:message, 'Please log in')
+          = hidden_field_tag(:url, request.fullpath)
+          = label_tag(:username, 'Username')
+          = text_field_tag(:username, '')
+        %p
+          = label_tag(:password, 'Password')
+          = password_field_tag(:password, '')
+        %p= submit_tag('Log In', onclick: 'fillEmptyFields();')
+        %p.slim-footer= link_to('Cancel', '#', id: 'close-login')
+  - else
+    - if can_register
+      = link_to 'Sign Up', user_register_user_path
+      |
+    = link_to 'Log In', session_new_path, id: 'login-trigger'
+    #login-form
+      = form_tag(session_create_path) do
+        %p
+          = label_tag(:username, 'Username')
+          = text_field_tag(:username, '')
+        %p
+          = label_tag(:password, 'Password')
+          = password_field_tag(:password, '')
+        %p= submit_tag('Log In')
+        %p.slim-footer= link_to('Cancel', '#', id: 'close-login')

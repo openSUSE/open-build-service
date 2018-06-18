@@ -1,0 +1,11 @@
+// Sticky footer
+body {
+  min-height: 100vh;
+}
+.flex-grow {
+  flex: 1;
+}
+
+#footer {
+  background-color: $gray-200;
+}
