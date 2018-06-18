@@ -185,7 +185,8 @@ class BinaryRelease < ApplicationRecord
   def indentical_to?(binary_hash)
     binary_disturl == binary_hash['disturl'] &&
       binary_supportstatus == binary_hash['supportstatus'] &&
-      entry.binary_buildtime.to_datetime.utc == ::Time.at(binary['buildtime'].to_i).to_datetime.utc
+      binary_buildtime &&
+      binary_buildtimeto.datetime.utc == ::Time.at(binary['buildtime'].to_i).to_datetime.utc
   end
   #### Alias of methods
 end
