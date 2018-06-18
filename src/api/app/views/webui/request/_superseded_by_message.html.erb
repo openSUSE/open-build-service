@@ -1,4 +1,17 @@
-<% if superseded_by.present?  %>
+<% if superseding.present? && superseded_by.nil? && diff_to_superseded.nil? %>
+  <div class="grid_16 alpha omega box-invisible">
+    <div id="truncated_diff_hint" class="ui-state-info ui-corner-all ui-widget-shadow padding-10pt">
+      <span class="ui-icon ui-icon-info">
+        This request supersedes:
+        <% superseding.each do |bs_request| %>
+          <%= link_to "request #{bs_request.number}", request_show_path(number: bs_request.number) %>
+          (<%= link_to 'Show diff', request_show_path(number: bs_request.superseded_by, diff_to_superseded: bs_request.number) %>)
+        <% end %>
+      </span>
+    </div>
+  </div>
+<% end %>
+<% if superseded_by.present? %>
   <div class="grid_16 alpha omega box-invisible">
     <div id="truncated_diff_hint" class="ui-state-info ui-corner-all ui-widget-shadow padding-10pt">
       <span class="ui-icon ui-icon-info">
@@ -9,7 +22,7 @@
     </div>
   </div>
 <% end %>
-<% if diff_to_superseded.present?  %>
+<% if diff_to_superseded.present? %>
   <div class="grid_16 alpha omega box-invisible">
     <div id="truncated_diff_hint" class="ui-state-info ui-corner-all ui-widget-shadow padding-10pt">
       <span class="ui-icon ui-icon-info">
