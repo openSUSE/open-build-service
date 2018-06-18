@@ -2203,27 +2203,27 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_prjconf
-    get url_for(controller: :source, action: :show_project_config, project: 'DoesNotExist')
+    get url_for(controller: :source_project_config, action: :show, project: 'DoesNotExist')
     assert_response 401
     prepare_request_with_user 'adrian_nobody', 'buildservice'
-    get url_for(controller: :source, action: :show_project_config, project: 'DoesNotExist')
+    get url_for(controller: :source_project_config, action: :show, project: 'DoesNotExist')
     assert_response 404
-    get url_for(controller: :source, action: :show_project_config, project: 'kde4')
+    get url_for(controller: :source_project_config, action: :show, project: 'kde4')
     assert_response :success
-    get url_for(controller: :source, action: :show_project_config, project: 'RemoteInstance:BaseDistro')
+    get url_for(controller: :source_project_config, action: :show, project: 'RemoteInstance:BaseDistro')
     assert_response :success
 
-    put url_for(controller: :source, action: :update_project_config, project: 'RemoteInstance:BaseDistro'), params: 'Substitute: nix da'
+    put url_for(controller: :source_project_config, action: :update, project: 'RemoteInstance:BaseDistro'), params: 'Substitute: nix da'
     assert_response 403
 
     prepare_request_with_user 'adrian_nobody', 'buildservice'
-    put url_for(controller: :source, action: :update_project_config, project: 'kde4'), params: 'Substitute: nix da'
+    put url_for(controller: :source_project_config, action: :update, project: 'kde4'), params: 'Substitute: nix da'
     assert_response 403
 
     login_tom
-    put url_for(controller: :source, action: :update_project_config, project: 'home:coolo:test'), params: 'Substitute: nix da'
+    put url_for(controller: :source_project_config, action: :update, project: 'home:coolo:test'), params: 'Substitute: nix da'
     assert_response :success
-    get url_for(controller: :source, action: :show_project_config, project: 'home:coolo:test')
+    get url_for(controller: :source_project_config, action: :show, project: 'home:coolo:test')
     assert_response :success
   end
 

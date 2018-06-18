@@ -1,0 +1,13 @@
+%span.navbar-text.h6
+  Watchlist
+- if @project
+  = link_to(project_toggle_watch_path(@project), class: 'nav-link') do
+    - if User.current.watches?(@project)
+      Remove Project #{@project}
+    - else
+      Add Project
+%ul
+  - User.current.watched_project_names.each do |project|
+    %li
+      = link_to project_show_path(project), class: 'nav-link' do
+        = raw(project.gsub(':', ':<wbr>'))

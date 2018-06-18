@@ -1,0 +1,49 @@
+.row
+  - if User.current && !User.current.is_nobody?
+    .col
+      %strong
+        = User.current
+      %ul
+        %li= link_to "Your Profile", user_show_path(User.current)
+        - if User.current.home_project
+          %li= link_to "Home Project", project_show_path(User.current.home_project)
+        - else
+          %li= link_to "Create Home Project", new_project_path(name: User.current.home_project_name)
+        %li= link_to 'Logout', session_destroy_path, method: :delete
+  - if ::Configuration.anonymous
+    .col
+      %strong Locations
+      %ul
+        %li= link_to "Projects", projects_path
+        %li= link_to "Search", search_path, class: 'search-link'
+        - unless @spider_bot
+          %li= link_to "Status Monitor", monitor_path
+  .col
+    %strong Help
+    %ul
+      %li
+        %a{href: 'http://openbuildservice.org/'} Open Build Service
+      %li
+        %a{href: 'http://openbuildservice.org/help/manuals/'} OBS Manuals
+      %li
+        %a{href: 'http://en.opensuse.org/Portal:Build_service'} openSUSEs OBS Portal
+      %li
+        %a{href: 'http://openbuildservice.org/support/'} Reporting a Bug
+  .col
+    %strong Contact
+    %ul
+      %li
+        %a{href: 'http://lists.opensuse.org/opensuse-buildservice/'} Mailing List
+      %li
+        %a{href: 'http://forums.opensuse.org/forumdisplay.php/692-Open-Build-Service-%28OBS%29'} Forums
+      %li
+        %a{href: 'irc://irc.opensuse.org/opensuse-buildservice'} Chat (IRC)
+      %li
+        %a{href: 'http://twitter.com/OBShq'} Twitter
+.row#footer-legal
+  .col
+    %p.text-center
+      %a{href: "http://openbuildservice.org"} Open Build Service (OBS)
+      is an
+      = succeed "." do
+        %a{href: "http://www.opensuse.org"} openSUSE project

@@ -31,16 +31,6 @@ RSpec.describe SourceController, vcr: true do
     end
   end
 
-  describe 'PUT #update_project_config' do
-    before do
-      login user
-      put :update_project_config, params: { project: project, comment: 'Updated by test' }
-    end
-
-    it { expect(response).to be_success }
-    it { expect(project.config.to_s).to include('Updated', 'by', 'test') }
-  end
-
   describe 'POST #package_command' do
     let(:multibuild_package) { create(:package, name: 'multibuild') }
     let(:multibuild_project) { multibuild_package.project }
