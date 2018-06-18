@@ -430,6 +430,7 @@ DEPENDENCIES
   airbrake-ruby (<= 2.5.0)
   bcrypt
   bootstrap
+  builder
   bullet
   bunny
   capybara
