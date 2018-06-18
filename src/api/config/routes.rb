@@ -741,14 +741,16 @@ OBSApi::Application.routes.draw do
     post 'source/:project' => :project_command, constraints: cons
   end
 
+  controller :source_project_config do
+    get 'source/:project/_config' => :show, constraints: cons
+    put 'source/:project/_config' => :update, constraints: cons
+  end
+
   controller :source do
     get 'source' => :index
     post 'source' => :global_command_createmaintenanceincident, constraints: ->(req) { req.params[:cmd] == 'createmaintenanceincident' }
     post 'source' => :global_command_branch,                    constraints: ->(req) { req.params[:cmd] == 'branch' }
     post 'source' => :global_command_orderkiwirepos,            constraints: ->(req) { req.params[:cmd] == 'orderkiwirepos' }
-
-    get 'source/:project/_config' => :show_project_config, constraints: cons
-    put 'source/:project/_config' => :update_project_config, constraints: cons
     get 'source/:project/_pubkey' => :show_project_pubkey, constraints: cons
     delete 'source/:project/_pubkey' => :delete_project_pubkey, constraints: cons
 
