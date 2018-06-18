@@ -24,7 +24,7 @@
   = link_to 'Log In', session_new_path
 - else
   - if CONFIG['proxy_auth_mode'] == :on
-    - unless CONFIG['proxy_auth_register_page'].blank?
+    - if CONFIG['proxy_auth_register_page'].present?
       %li
         = link_to 'Sign Up', "#{CONFIG['proxy_auth_register_page']}?%22"
     %li
