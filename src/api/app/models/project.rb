@@ -7,6 +7,7 @@ class Project < ApplicationRecord
   include HasRelationships
   include HasRatings
   include HasAttributes
+  include MaintenanceHelper
 
   class CycleError < APIException
     setup 'project_cycle'
