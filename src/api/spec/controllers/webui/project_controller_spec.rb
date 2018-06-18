@@ -1516,6 +1516,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         it { expect(response).to have_http_status(:ok) }
       end
     end
+
     context 'without xhr request' do
       let(:call_package_buildresult) { get :package_buildresult, params: { project: user.home_project } }
 

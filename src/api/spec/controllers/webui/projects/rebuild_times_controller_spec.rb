@@ -107,6 +107,7 @@ RSpec.describe Webui::Projects::RebuildTimesController do
     before do
       login(user)
     end
+
     context 'with an invalid key' do
       before do
         get :rebuild_time_png, params: { project: user.home_project, key: 'invalid_key' }
