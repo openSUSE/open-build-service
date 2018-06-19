@@ -51,10 +51,12 @@ RSpec.describe Webui::UserController do
         subject(:user) { deleted_user }
         it_should_behave_like 'a non existent account'
       end
+
       describe 'showing an invalid user' do
         subject(:user) { 'INVALID_USER' }
         it_should_behave_like 'a non existent account'
       end
+
       describe 'showing someone else' do
         it 'does not include requests' do
           get :show, params: { user: admin_user }

@@ -66,6 +66,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
       visit package_show_path(project: other_user.home_project, package: other_users_package)
       click_link('Branch package')
     end
+
     after do
       # Cleanup backend
       if CONFIG['global_write_through']

@@ -59,7 +59,7 @@ GEM
     ansi (1.5.0)
     arel (9.0.0)
     ast (2.4.0)
-    autoprefixer-rails (8.6.2)
+    autoprefixer-rails (8.6.3)
       execjs
     bcrypt (3.1.12)
     bootstrap (4.1.1)
@@ -215,7 +215,7 @@ GEM
     mousetrap-rails (1.4.6)
     mysql2 (0.5.1)
     nio4r (2.3.1)
-    nokogiri (1.8.2)
+    nokogiri (1.8.3)
       mini_portile2 (~> 2.3.0)
     nokogumbo (1.5.0)
       nokogiri
@@ -333,8 +333,8 @@ GEM
       rainbow (>= 2.2.2, < 4.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (~> 1.0, >= 1.0.1)
-    rubocop-rspec (1.26.0)
-      rubocop (>= 0.53.0)
+    rubocop-rspec (1.27.0)
+      rubocop (>= 0.56.0)
     ruby-ldap (0.9.19)
     ruby-progressbar (1.9.0)
     safe_yaml (1.0.4)
@@ -430,6 +430,7 @@ DEPENDENCIES
   airbrake-ruby (<= 2.5.0)
   bcrypt
   bootstrap
+  builder
   bullet
   bunny
   capybara
