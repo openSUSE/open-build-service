@@ -47,14 +47,15 @@ class BinaryRelease < ApplicationRecord
                  obsolete_time:  nil,
                  modify_time:    nil }
         # check for existing entry
-        existing = oldlist.where(hash)
-        Rails.logger.info "ERROR: multiple matches, cleaning up: #{existing.inspect}" if existing.count > 1
+        matching_binaries = oldlist.where(hash)
+        Rails.logger.info "ERROR: multiple matches, cleaning up: #{matching_binaries.inspect}" if matching_binaries.exists?
         # double definition means broken DB entries
-        existing.offset(1).destroy_all
+        matching_binaries.offset(1).destroy_all
 
         # compare with existing entry
-        if existing.count == 1
-          entry = existing.first
+        entry = matching_binaries.first
+
+        if entry
           if entry.indentical_to?(binary)
             # same binary, don't touch
             processed_item[entry.id] = true
