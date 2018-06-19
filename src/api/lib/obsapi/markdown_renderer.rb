@@ -27,7 +27,10 @@ module OBSApi
     # unfortunately we can't call super (into C) - see vmg/redcarpet#51
     def link(link, title, content)
       title = " title='#{title}'" if title.present?
-      link = URI.join(::Configuration.obs_url, link)
+      begin
+        link = URI.join(::Configuration.obs_url, link)
+      rescue URI::InvalidURIError
+      end
       "<a href='#{link}'#{title}>#{content}</a>"
     end
   end
