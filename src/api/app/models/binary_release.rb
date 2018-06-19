@@ -55,9 +55,7 @@ class BinaryRelease < ApplicationRecord
         # compare with existing entry
         if existing.count == 1
           entry = existing.first
-          if entry.binary_disturl                   == binary['disturl'] &&
-             entry.binary_supportstatus             == binary['supportstatus'] &&
-             entry.binary_buildtime.to_datetime.utc == ::Time.at(binary['buildtime'].to_i).to_datetime.utc
+          if entry.indentical_to?(binary)
             # same binary, don't touch
             processed_item[entry.id] = true
             next
@@ -184,6 +182,12 @@ class BinaryRelease < ApplicationRecord
     Rails.cache.delete("xml_binary_release_#{cache_key}")
   end
 
+  def indentical_to?(binary_hash)
+    binary_disturl == binary_hash['disturl'] &&
+      binary_supportstatus == binary_hash['supportstatus'] &&
+      binary_buildtime &&
+      binary_buildtimeto.datetime.utc == ::Time.at(binary['buildtime'].to_i).to_datetime.utc
+  end
   #### Alias of methods
 end
 
