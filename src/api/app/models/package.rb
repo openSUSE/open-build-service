@@ -1442,15 +1442,14 @@ class Package < ApplicationRecord
   def last_build_reason(repo, arch, package_name = nil)
     repo = repo.name if repo.is_a? Repository
 
-    xml_data = Nokogiri::XML(BuildReasonFile.new(
+    xml_data = BuildReasonFile.new(
       project_name: project.name,
       package_name: package_name || name,
       repo: repo,
       arch: arch
-    ).to_s).xpath('reason')
+    )
 
-    data = Hash.from_xml(xml_data.to_s)['reason']
-
+    data = Xmlhash.parse(xml_data.to_s)
     # ensure that if 'packagechange' exists, it is an Array and not a Hash
     # Bugreport: https://github.com/openSUSE/open-build-service/issues/3230
     data['packagechange'] = [data['packagechange']] if data && data['packagechange'].is_a?(Hash)
