@@ -13,6 +13,7 @@ RSpec.describe SourceProjectConfigController, vcr: true do
 
       it { expect(response).to be_success }
     end
+
     context 'when the project doesnt exist' do
       before do
         login user
@@ -30,6 +31,7 @@ RSpec.describe SourceProjectConfigController, vcr: true do
         put :update, params: { project: remote_project.name,
              comment: 'Updated by test', format: :xml }
       end
+
       it { expect(response).to be_forbidden }
     end
 
