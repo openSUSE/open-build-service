@@ -1,14 +1,14 @@
 version: "2"
 services:
   rspec:
-    image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/openbuildservice/frontend-base:latest
+    image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/frontend-base:latest
     volumes:
       - .:/obs
     depends_on:
       - db
     command: /obs/contrib/start_rspec
   minitest:
-    image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/openbuildservice/frontend-backend:latest
+    image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/frontend-backend:latest
     privileged: true
     volumes:
       - .:/obs
@@ -17,15 +17,15 @@ services:
       - cache
     command: /obs/contrib/start_minitest
   cache:
-    image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/openbuildservice/memcached:latest
+    image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/memcached:latest
   db:
-    image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/openbuildservice/mariadb:latest
+    image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/mariadb:latest
     volumes:
       - .:/obs
     shm_size: 512MB
     command: /obs/contrib/start_test_db
   backend:
-    image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/openbuildservice/backend:latest
+    image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/backend:latest
     volumes:
       - .:/obs
     working_dir: /obs
