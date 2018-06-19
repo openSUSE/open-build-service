@@ -20,18 +20,18 @@ module HasAttributes
     raise AttributeSaveError, e.summary
   end
 
-  def store_attribute_axml(attrib, binary = nil)
+  def store_attribute_xml(attrib, binary = nil)
     values = []
-    attrib.each('value') do |val|
-      values << val.text
+    attrib.elements('value') do |val|
+      values << val
     end
 
     issues = []
-    attrib.each('issue') do |i|
-      issues << Issue.find_or_create_by_name_and_tracker(i.value('name'), i.value('tracker'))
+    attrib.elements('issue') do |i|
+      issues << Issue.find_or_create_by_name_and_tracker(i['name'], i['tracker'])
     end
 
-    store_attribute(attrib.value('namespace'), attrib.value('name'), values, issues, binary)
+    store_attribute(attrib['namespace'], attrib['name'], values, issues, binary)
   end
 
   def store_attribute(namespace, name, values, issues, binary = nil)
