@@ -47,14 +47,15 @@ class BinaryRelease < ApplicationRecord
                  obsolete_time:  nil,
                  modify_time:    nil }
         # check for existing entry
-        existing = oldlist.where(hash)
-        Rails.logger.info "ERROR: multiple matches, cleaning up: #{existing.inspect}" if existing.count > 1
+        matching_binaries = oldlist.where(hash)
+        Rails.logger.info "ERROR: multiple matches, cleaning up: #{matching_binaries.inspect}" if matching_binaries.exists?
         # double definition means broken DB entries
-        existing.offset(1).destroy_all
+        matching_binaries.offset(1).destroy_all
 
         # compare with existing entry
-        if existing.count == 1
-          entry = existing.first
+        entry = matching_binaries.first
+
+        if entry
           if entry.indentical_to?(binary)
             # same binary, don't touch
             processed_item[entry.id] = true
@@ -181,12 +182,14 @@ class BinaryRelease < ApplicationRecord
     Rails.cache.delete("xml_binary_release_#{cache_key}")
   end
 
+  # rubocop:disable Style/DateTime
   def indentical_to?(binary_hash)
     binary_disturl == binary_hash['disturl'] &&
       binary_supportstatus == binary_hash['supportstatus'] &&
       binary_buildtime &&
-      binary_buildtimeto.datetime.utc == ::Time.at(binary['buildtime'].to_i).to_datetime.utc
+      binary_buildtime.to_datetime.utc == DateTime.strptime(binary['buildtime'].to_s, '%s').utc
   end
+  # rubocop:enable Style/DateTime
   #### Alias of methods
 end
 
