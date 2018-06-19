@@ -3,21 +3,20 @@
     .ui-state-info.ui-corner-all.ui-widget-shadow.padding-10pt#request-supersedes-hint
       %span.ui-icon.ui-icon-info
         This request supersedes:
-        - superseding.each do |bs_request|
+        - superseding.each_with_index do |bs_request, index|
           = link_to "request #{bs_request.number}", request_show_path(number: bs_request.number)
-          (
-          = link_to 'Show diff', request_show_path(number: bs_request.superseded_by, diff_to_superseded: bs_request.number)
-          )
+          = surround '(', ')' do
+            = link_to 'Show diff', request_show_path(number: bs_request.superseded_by, diff_to_superseded: bs_request.number)
+          = ', ' if index < superseding.length - 1
 - if superseded_by.present?
   .grid_16.alpha.omega.box-invisible
     .ui-state-info.ui-corner-all.ui-widget-shadow.padding-10pt#request-superseded-by-hint
       %span.ui-icon.ui-icon-info
         This request is superseded by
         = link_to "request #{superseded_by}", request_show_path(number: superseded_by)
-        (
-        = link_to 'Show diff', request_show_path(number: superseded_by, diff_to_superseded: number)
-        )
-- if diff_to_superseded.present?
+        = surround '(', ')' do
+          = link_to 'Show diff', request_show_path(number: superseded_by, diff_to_superseded: number)
+- if diff_to_superseded
   .grid_16.alpha.omega.box-invisible
     .ui-state-info.ui-corner-all.ui-widget-shadow.padding-10pt#truncated-diff-hint
       %span.ui-icon.ui-icon-info
@@ -25,6 +24,5 @@
         = link_to "request #{number}", request_show_path(number: number)
         but the diff to the superseded
         = link_to "request #{diff_to_superseded.number}", request_show_path(number: diff_to_superseded)
-        (
-        = link_to 'Show full diff', request_show_path(number: number)
-        )
+        = surround '(', ')' do
+          = link_to 'Show full diff', request_show_path(number: number)
