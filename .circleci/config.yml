@@ -14,6 +14,15 @@ aliases:
         name: db
       - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/memcached:latest
         name: cache
+  - &frontend_base
+    docker:
+      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/frontend-base:latest
+        environment:
+          NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
+          <<: *cc_test_reporter_id
+      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/mariadb:latest
+        command: /usr/lib/mysql/mysql-systemd-helper start
+        name: db
   - &restore_bundle_cache
     keys:
     - v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
@@ -39,15 +48,25 @@ aliases:
 
 version: 2
 jobs:
+  lint:
+    <<: *frontend_base
+    steps:
+      - checkout
+      - restore_cache: *restore_bundle_cache
+      - run: *install_dependencies
+      - save_cache: *save_bundle_cache
+      - run: *wait_for_database
+      - run:
+          name: Install jshint
+          command: sudo npm install -g jshint
+      - run:
+          name: Setup application
+          command: cd src/api; bundle exec rake dev:prepare RAILS_ENV=test
+      - run:
+          name: Run linters
+          command: cd src/api; bundle exec rake dev:lint RAILS_ENV=test
   rspec:
-    docker:
-      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/frontend-base:latest
-        environment:
-          NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
-          <<: *cc_test_reporter_id
-      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/mariadb:latest
-        command: /usr/lib/mysql/mysql-systemd-helper start
-        name: db
+    <<: *frontend_base
     steps:
       - checkout
       - run: *download_test_reporter
@@ -152,10 +171,19 @@ workflows:
   version: 2
   test_all:
     jobs:
-      - rspec
-      - minitest
-      - spider
-      - backend
+      - lint
+      - rspec:
+          requires:
+            - lint
+      - minitest:
+          requires:
+            - lint
+      - spider:
+          requires:
+            - lint
+      - backend:
+          requires:
+            - lint
       - upload_result:
           requires:
             - minitest
