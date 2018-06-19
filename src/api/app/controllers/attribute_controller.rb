@@ -2,14 +2,16 @@ class AttributeController < ApplicationController
   include ValidationHelper
 
   validate_action index: { method: :get, response: :directory }
-  validate_action namespace_definition: { method: :get, response: :attribute_namespace_meta }
-  validate_action namespace_definition: { method: :delete, response: :status }
-  validate_action namespace_definition: { method: :put, request: :attribute_namespace_meta, response: :status }
-  validate_action namespace_definition: { method: :post, request: :attribute_namespace_meta, response: :status }
-  validate_action attribute_definition: { method: :get, response: :attrib_type }
-  validate_action attribute_definition: { method: :delete, response: :status }
-  validate_action attribute_definition: { method: :put, request: :attrib_type, response: :status }
-  validate_action attribute_definition: { method: :post, request: :attrib_type, response: :status }
+  validate_action show_namespace_definition: { method: :get, response: :attribute_namespace_meta }
+  validate_action delete_namespace_definition: { method: :delete, response: :status }
+  validate_action update_namespace_definition: { method: :put, request: :attribute_namespace_meta, response: :status }
+  validate_action update_namespace_definition: { method: :post, request: :attribute_namespace_meta, response: :status }
+  validate_action show_attribute_definition: { method: :get, response: :attrib_type }
+  validate_action delete_attribute_definition: { method: :delete, response: :status }
+  validate_action update_attribute_definition: { method: :put, request: :attrib_type, response: :status }
+  validate_action update_attribute_definition: { method: :post, request: :attrib_type, response: :status }
+  before_action :require_admin, only: [:update_namespace_definition, :delete_namespace_definition]
+  before_action :require_attribute_name, only: [:show_attribute_definition, :update_attribute_definition, :delete_attribute_definition]
 
   def index
     if params[:namespace]
@@ -34,134 +36,76 @@ class AttributeController < ApplicationController
     render xml: xml
   end
 
-  # /attribute/:namespace/_meta
-  def namespace_definition
-    if params[:namespace].nil?
-      raise MissingParameterError, "parameter 'namespace' is missing"
-    end
-    namespace = params[:namespace]
-
-    if request.get?
-      @an = AttribNamespace.where(name: namespace).select(:id, :name).first
-      unless @an
-        render_error message: "Unknown attribute namespace '#{namespace}'",
-          status: 404, errorcode: 'unknown_attribute_namespace'
-      end
-      return
-    end
-
-    # namespace definitions must be managed by the admin
-    return unless extract_user
-    unless User.current.is_admin?
-      render_error status: 403, errorcode: 'permissions denied',
-        message: 'Namespace changes are only permitted by the administrator'
-      return
-    end
-
-    if request.post? || request.put?
-      logger.debug '--- updating attribute namespace definitions ---'
-
-      xml_element = Xmlhash.parse(request.raw_post)
-
-      unless xml_element['name'] == namespace
-        render_error status: 400, errorcode: 'illegal_request',
-          message: "Illegal request: PUT/POST #{request.path}: path does not match content"
-        return
-      end
-
-      db = AttribNamespace.where(name: namespace).first
-      if db
-        logger.debug '* updating existing attribute namespace'
-        db.update_from_xml(xml_element)
-      else
-        logger.debug '* create new attribute namespace'
-        AttribNamespace.create(name: namespace).update_from_xml(xml_element)
-      end
-
-      logger.debug '--- finished updating attribute namespace definitions ---'
-      render_ok
-    elsif request.delete?
-      AttribNamespace.where(name: namespace).destroy_all
-      render_ok
+  def show_namespace_definition
+    if (@an = AttribNamespace.where(name: ensure_namespace).select(:id, :name).first)
+      render template: 'attribute/namespace_definition'
     else
-      render_error status: 400, errorcode: 'illegal_request',
-        message: "Illegal request: POST #{request.path}"
+      render_error message: "Unknown attribute namespace '#{@namespace}'",
+        status: 404, errorcode: 'unknown_attribute_namespace'
     end
   end
 
-  # /attribute/:namespace/:name/_meta
-  def attribute_definition
-    if params[:namespace].nil?
-      raise MissingParameterError, "parameter 'namespace' is missing"
-    end
-    if params[:name].nil?
-      raise MissingParameterError, "parameter 'name' is missing"
-    end
-    namespace = params[:namespace]
-    name = params[:name]
-    ans = AttribNamespace.where(name: namespace).first
-    unless ans
-      render_error status: 400, errorcode: 'unknown_attribute_namespace',
-        message: "Specified attribute namespace does not exist: '#{namespace}'"
-      return
-    end
+  def delete_namespace_definition
+    AttribNamespace.where(name: ensure_namespace).destroy_all
+    render_ok
+  end
 
-    if request.get?
-      @at = ans.attrib_types.find_by(name: name)
-      unless @at
-        render_error message: "Unknown attribute '#{namespace}':'#{name}'",
-          status: 404, errorcode: 'unknown_attribute'
-      end
-      return
-    end
+  # /attribute/:namespace/_meta
+  def update_namespace_definition
+    xml_element = Xmlhash.parse(request.raw_post)
+    ensure_namespace
 
-    # permission check via User model
-    return unless extract_user
-
-    if request.post? || request.put?
-      logger.debug '--- updating attribute type definitions ---'
-
-      xml_element = Xmlhash.parse(request.raw_post)
-
-      unless xml_element && xml_element['name'] == name && xml_element['namespace'] == namespace
-        render_error status: 400, errorcode: 'illegal_request',
-          message: "Illegal request: PUT/POST #{request.path}: path does not match content"
-        return
-      end
-
-      entry = ans.attrib_types.where('name = ?', name).first
-
-      if entry
-        authorize entry, :update?
-
-        db = AttribType.find(entry.id) # get a writable object
-        logger.debug '* updating existing attribute definitions'
-        db.update_from_xml(xml_element)
-      else
-        entry = AttribType.new(name: name, attrib_namespace: ans)
-        authorize entry, :create?
-
-        logger.debug '* create new attribute definition'
-        entry.update_from_xml(xml_element)
-      end
-
-      logger.debug '--- finished updating attribute namespace definitions ---'
-      #--- end update attribute namespace definitions ---#
-
-      render_ok
-    elsif request.delete?
-      at = ans.attrib_types.where('name = ?', name).first
-
-      if at
-        authorize at, :destroy?
-        at.destroy
-      end
-
-      render_ok
-    else
+    unless xml_element['name'] == @namespace
       render_error status: 400, errorcode: 'illegal_request',
-        message: "Illegal request: POST #{request.path}"
+        message: "Illegal request: PUT/POST #{request.path}: path does not match content"
+      return
     end
+
+    db = AttribNamespace.where(name: @namespace).first
+    if db
+      db.update_from_xml(xml_element)
+    else
+      AttribNamespace.create(name: @namespace).update_from_xml(xml_element)
+    end
+
+    render_ok
+  end
+
+  # GET /attribute/:namespace/:name/_meta
+  def show_attribute_definition
+    if (@at = attribute_type)
+      render template: 'attribute/attribute_definition'
+    else
+      render_error message: "Unknown attribute '#{@namespace}':'#{@name}'",
+                   status: 404, errorcode: 'unknown_attribute'
+    end
+  end
+
+  # DELETE /attribute/:namespace/:name/_meta
+  # DELETE /attribute/:namespace/:name
+  def delete_attribute_definition
+    if (at = attribute_type)
+      authorize at, :destroy?
+      at.destroy
+    end
+
+    render_ok
+  end
+
+  # POST/PUT /attribute/:namespace/:name/_meta
+  def update_attribute_definition
+    return unless (xml_element = validate_attribute_definition_xml)
+
+    if (entry = attribute_type)
+      authorize entry, :update?
+
+      db = AttribType.find(entry.id) # get a writable object
+      db.update_from_xml(xml_element)
+    else
+      create_attribute_definiton(xml_element)
+    end
+
+    render_ok
   end
 
   class RemoteProject < APIException
@@ -233,16 +177,18 @@ class AttributeController < ApplicationController
     find_attribute_container
 
     # init
-    req = ActiveXML::Node.new(request.raw_post)
+    req = Xmlhash.parse(request.raw_post)
+    # Keep compat exception
+    raise ActiveXML::ParseError unless req
 
     # This is necessary for checking the authorization and do not create the attribute
-    # The attribute creation will happen in @attribute_container.store_attribute_axml
-    req.each('attribute') do |attr|
+    # The attribute creation will happen in @attribute_container.store_attribute_xml
+    req.elements('attribute') do |attr|
       attrib_type = AttribType.find_by_namespace_and_name!(attr.value('namespace'), attr.value('name'))
       attrib = Attrib.new(attrib_type: attrib_type)
 
-      attr.each('value') do |value|
-        attrib.values.new(value: value.text)
+      attr.elements('value') do |value|
+        attrib.values.new(value: value)
       end
 
       attrib.container = @attribute_container
@@ -256,8 +202,8 @@ class AttributeController < ApplicationController
 
     # exec
     changed = false
-    req.each('attribute') do |attr|
-      changed = true if @attribute_container.store_attribute_axml(attr, @binary)
+    req.elements('attribute') do |attr|
+      changed = true if @attribute_container.store_attribute_xml(attr, @binary)
     end
     logger.debug "Attributes for #{@attribute_container.class} #{@attribute_container.name} changed, writing to backend" if changed
     @attribute_container.write_attributes(params[:comment]) if changed
@@ -297,5 +243,52 @@ class AttributeController < ApplicationController
     # only needed for a get request
     params[:namespace] = name_parts[0]
     params[:name] = name_parts[1]
+  end
+
+  private
+
+  def ensure_namespace
+    if params[:namespace].nil?
+      raise MissingParameterError, "parameter 'namespace' is missing"
+    end
+    @namespace = params[:namespace]
+  end
+
+  def require_attribute_namespace
+    ensure_namespace
+    @ans = AttribNamespace.where(name: @namespace).first
+    return true if @ans
+
+    render_error status: 400, errorcode: 'unknown_attribute_namespace',
+      message: "Specified attribute namespace does not exist: '#{namespace}'"
+    false
+  end
+
+  def require_attribute_name
+    return unless require_attribute_namespace
+    if params[:name].nil?
+      raise MissingParameterError, "parameter 'name' is missing"
+    end
+    @name = params[:name]
+  end
+
+  def create_attribute_definiton(xml_element)
+    entry = AttribType.new(name: @name, attrib_namespace: @ans)
+    authorize entry, :create?
+
+    entry.update_from_xml(xml_element)
+  end
+
+  def attribute_type
+    @ans.attrib_types.where(name: @name).first
+  end
+
+  def validate_attribute_definition_xml
+    xml_element = Xmlhash.parse(request.raw_post)
+
+    return xml_element if xml_element && xml_element['name'] == @name && xml_element['namespace'] == @namespace
+    render_error status: 400, errorcode: 'illegal_request',
+                 message: "Illegal request: PUT/POST #{request.path}: path does not match content"
+    return
   end
 end

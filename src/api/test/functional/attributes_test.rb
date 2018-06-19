@@ -54,11 +54,11 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     post '/attribute/TEST/_meta', params: data
     assert_response 403
-    assert_match(/Namespace changes are only permitted by the administrator/, @response.body)
+    assert_match(/Requires admin privileges/, @response.body)
 
     delete '/attribute/OBS/_meta'
     assert_response 403
-    assert_match(/Namespace changes are only permitted by the administrator/, @response.body)
+    assert_match(/Requires admin privileges/, @response.body)
 
     login_king
     # FIXME3.0: POST is deprecated, use PUT
