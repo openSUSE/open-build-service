@@ -133,12 +133,12 @@ class AttributeTest < ActiveSupport::TestCase
     assert_equal 'OBS', @at.attrib_namespace.name
 
     axml = " <attribute namespace='OBS' name='Maintained' /> "
-    xml = ActiveXML::Node.new(axml)
+    xml = Xmlhash.parse(axml)
 
     # store in a project
     @project = Project.create(name: 'GNOME18')
     assert_not_nil @project
-    @project.store_attribute_axml(xml)
+    @project.store_attribute_xml(xml)
     @project.store
 
     @p = Project.find_by_name('GNOME18')
@@ -150,7 +150,7 @@ class AttributeTest < ActiveSupport::TestCase
     # store in a package
     @package = @project.packages.create(name: 'kdebase')
     assert_not_nil @package
-    @package.store_attribute_axml(xml)
+    @package.store_attribute_xml(xml)
     @package.store
 
     @p = Package.find_by_project_and_name('GNOME18', 'kdebase')
@@ -163,19 +163,19 @@ class AttributeTest < ActiveSupport::TestCase
     axml = "<attribute namespace='OBS' name='Maintained' >
               <value>blah</value>
             </attribute> "
-    xml = ActiveXML::Node.new(axml)
+    xml = Xmlhash.parse(axml)
 
     # store in a project
     @project = Project.find_by_name('GNOME18')
     assert_not_nil @project
     assert_raise ActiveRecord::RecordInvalid do
-      @project.store_attribute_axml(xml)
+      @project.store_attribute_xml(xml)
     end
     # store in a package
     @package = Package.find_by_project_and_name('GNOME18', 'kdebase')
     assert_not_nil @package
     e = assert_raise(ActiveRecord::RecordInvalid) do
-      @package.store_attribute_axml(xml)
+      @package.store_attribute_xml(xml)
     end
     assert_match %r{Values has 1 values, but only 0 are allowed}, e.message
 
