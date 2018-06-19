@@ -523,6 +523,10 @@ touch /srv/www/obs/api/log/production.log
 chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
 %restart_on_update memcached
+# We need to touch the last_deploy file in the post hook 
+# to update the timestamp which we use to display the 
+# last deployment time in the API
+touch /srv/www/obs/api/last_deploy || true
 
 %postun -n obs-api
 %insserv_cleanup
