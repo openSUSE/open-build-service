@@ -1,4 +1,4 @@
-- if User.current && !User.current.is_nobody?
+- unless User.current.is_nobody?
   %ul.global-navigation-menu.global-navigation-menu-favorites#menu-favorites
     %li
       %span.desc
