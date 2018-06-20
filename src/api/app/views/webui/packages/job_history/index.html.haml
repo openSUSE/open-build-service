@@ -1,7 +1,7 @@
 :ruby
   @pagetitle = "Job history of #{@project} / #{@package_name}"
   @metarobots = 'index,nofollow'
-  job_history_breadcrumb(@project, @package_name, 'Job history')
+  package_bread_crumb('Job history')
 
 = render partial: 'webui/package/tabs'
 
