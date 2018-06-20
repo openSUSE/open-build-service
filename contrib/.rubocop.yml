@@ -1,0 +1,7 @@
+inherit_from: .rubocop_todo.yml
+
+AllCops:
+  UseCache: true
+  CacheRootDirectory: ../src/api/tmp/rubocop_cache_contrib_dir
+  MaxFilesInCache: 2000
+

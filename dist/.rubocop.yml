@@ -1,0 +1,11 @@
+inherit_from: .rubocop_todo.yml
+
+AllCops:
+  UseCache: true
+  CacheRootDirectory: ../src/api/tmp/rubocop_cache_dist_dir
+  MaxFilesInCache: 2000
+  Exclude:
+    # These files are RPM spec files
+    - 'obs-api-deps.spec'
+    - 'obs-server.spec'
+    - 't/spec/fixtures/ctris.spec'

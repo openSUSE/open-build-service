@@ -1,25 +1,3 @@
-require: rubocop-rspec
-
-inherit_from: .rubocop_todo.yml
-
-AllCops:
-  UseCache: true
-  CacheRootDirectory: src/api/tmp/rubocop_cache
-  MaxFilesInCache: 2000
-  Exclude:
-    - 'src/api/tmp/**/*'
-    - 'src/api/lib/templates/**/*'
-    - 'src/api/vendor/bundle/**/*'
-    - 'docs/api/restility/**/*'
-    - 'src/api/test/fixtures/backend/**/*'
-    - 'src/api/files/*'
-    - 'src/backend/**/*'
-    - 'src/api/db/data_schema.rb'
-    # These files are RPM spec files
-    - 'dist/obs-api-deps.spec'
-    - 'dist/obs-server.spec'
-    - 'dist/t/spec/fixtures/ctris.spec'
-
 #################### Layout ###########################
 
 # Align the elements of a hash literal if they span more than one line.
@@ -58,12 +36,6 @@ Style/Documentation:
 Style/GlobalVars:
   AllowedVariables: ['$rabbitmq_conn', '$rabbitmq_exchange', '$rabbitmq_channel']
 
-# Checks for chaining of a block after another block that spans multiple lines.
-# We disabled this cop because of Rantly.
-Style/MultilineBlockChain:
-  Exclude:
-    - 'src/api/spec/**/*'
-
 # Checks for redundant `return` expressions
 Style/RedundantReturn:
   Enabled: false
@@ -75,10 +47,6 @@ Style/WordArray:
   EnforcedStyle: brackets
 
 ##################### Metrics ##################################
-
-Metrics/BlockLength:
-  Exclude:
-    - 'src/api/config/routes.rb'
 
 # Checks if the length a class exceeds some maximum value
 Metrics/ClassLength:
@@ -92,41 +60,3 @@ Metrics/LineLength:
 # Checks if the length a module exceeds some maximum value
 Metrics/ModuleLength:
   Severity: refactor
-
-##################### Rails ##################################
-
-Rails:
-  Enabled: true
-
-# Actually is not possible to enable this cop because we have several overwritten methods.
-Rails/DynamicFindBy:
-  Enabled: false
-
-# Enforces that 'exit' calls are not used.
-Rails/Exit:
-  Exclude:
-    - 'src/api/lib/memory_dumper.rb'
-
-Rails/HasAndBelongsToMany:
-  Enabled: false
-
-# FIXME: Disabled due to a bug in Rubocop. Once it is fixed in this PR (https://github.com/bbatsov/rubocop/pull/5707), it could be enabled again
-Rails/HttpStatus:
-  Enabled: false
-
-# Checks for the use of output calls like puts and print
-Rails/Output:
-  Exclude:
-    - 'src/api/app/jobs/*'
-    - 'src/api/config/*'
-    - 'src/api/db/**/*'
-    - 'src/api/lib/**/*'
-
-# Disabled due to a bug
-Rails/BulkChangeTable:
-  Enabled: false
-
-# Disabled as we currently violate it everywhere in spec/features directory
-# we first need to discuss if we want to move this directory and then fix the violation
-Capybara/FeatureMethods:
-  Enabled: false

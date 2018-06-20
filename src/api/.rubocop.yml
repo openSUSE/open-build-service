@@ -1,5 +1,62 @@
-inherit_from: ../../.rubocop.yml
+require: rubocop-rspec
+
+inherit_from: .rubocop_todo.yml
 
 AllCops:
   UseCache: true
-  CacheRootDirectory: tmp/rubocop_cache
+  CacheRootDirectory: tmp/rubocop_cache_rails_dir
+  MaxFilesInCache: 2000
+  Exclude:
+    - 'tmp/**/*'
+    - 'lib/templates/**/*'
+    - 'vendor/bundle/**/*'
+    - 'test/fixtures/backend/**/*'
+    - 'files/*'
+    - 'db/data_schema.rb'
+
+#################### Style ###########################
+
+# Checks for chaining of a block after another block that spans multiple lines.
+# We disabled this cop because of Rantly.
+Style/MultilineBlockChain:
+  Exclude:
+    - 'spec/**/*'
+
+##################### Metrics ##################################
+
+Metrics/BlockLength:
+  Exclude:
+    - 'config/routes.rb'
+
+##################### Rails ##################################
+
+Rails:
+  Enabled: true
+
+# Actually is not possible to enable this cop because we have several overwritten methods.
+Rails/DynamicFindBy:
+  Enabled: false
+
+# Enforces that 'exit' calls are not used.
+Rails/Exit:
+  Exclude:
+    - 'lib/memory_dumper.rb'
+
+Rails/HasAndBelongsToMany:
+  Enabled: false
+
+# FIXME: Disabled due to a bug in Rubocop. Once it is fixed in this PR (https://github.com/bbatsov/rubocop/pull/5707), it could be enabled again
+Rails/HttpStatus:
+  Enabled: false
+
+# Checks for the use of output calls like puts and print
+Rails/Output:
+  Exclude:
+    - 'app/jobs/*'
+    - 'config/*'
+    - 'db/**/*'
+    - 'lib/**/*'
+
+# Disabled due to a bug
+Rails/BulkChangeTable:
+  Enabled: false
