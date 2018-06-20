@@ -2,6 +2,7 @@
 
 require 'fileutils'
 require 'yaml'
+require 'rubocop/rake_task'
 
 namespace :dev do
   task :prepare, [:old_test_suite] do |_t, args|
@@ -72,15 +73,25 @@ namespace :dev do
   desc 'Run all linters we use'
   task :lint do
     Rake::Task['haml_lint'].invoke
-    Rake::Task['dev:lint:ruby'].invoke
+    Rake::Task['dev:lint:rubocop:all'].invoke
     sh 'jshint ./app/assets/javascripts/'
     Rake::Task['db:structure:verify'].invoke
     Rake::Task['db:structure:verify_no_bigint'].invoke
   end
   namespace :lint do
-    desc 'Run the ruby linter'
-    task :ruby do
-      sh 'rubocop -D -F -S --fail-level convention ../..'
+    namespace :rubocop do
+      task all: [:root, :rails] do
+      end
+      desc 'Run the ruby linter in rails'
+      RuboCop::RakeTask.new(:rails) do |task|
+        task.options = ['-D', '-F', '-S', '--fail-level', 'convention', '--ignore_parent_exclusion']
+      end
+      desc 'Run the ruby linter in root'
+      task :root do
+        Dir.chdir('../..') do
+          Rake::Task['dev:lint:rubocop:rails'].invoke
+        end
+      end
     end
     desc 'Run the haml linter'
     task :haml do
