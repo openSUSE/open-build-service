@@ -6,6 +6,7 @@ require 'support/capybara'
 
 # helper methods for authentication in features tests
 require 'support/features/features_authentication'
+require 'support/features/features_bootstrap'
 
 # Shared examples. Per recommendation of RSpec,
 # https://www.relishapp.com/rspec/rspec-core/v/2-12/docs/example-groups/shared-examples
