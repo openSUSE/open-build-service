@@ -96,7 +96,7 @@ class Attrib < ApplicationRecord
     end
 
     #--- update values ---#
-    if values.sort != self.values.map(&:value).sort
+    if values != self.values.map(&:value)
       logger.debug "Attrib.update_with_associations: Values for #{fullname} changed, updating."
       will_save = true
       self.values.delete_all
