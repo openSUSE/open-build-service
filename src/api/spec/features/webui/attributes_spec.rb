@@ -3,7 +3,6 @@ require 'browser_helper'
 RSpec.feature 'Attributes', type: :feature, js: true do
   let!(:user) { create(:confirmed_user) }
   let!(:attribute_type) { create(:attrib_type) }
-  let!(:attribute) { create(:attrib, project_id: user.home_project.id) }
 
   def add_attribute_with_values(package = nil)
     visit index_attribs_path(project: user.home_project_name, package: package.try(:name))
@@ -29,6 +28,7 @@ RSpec.feature 'Attributes', type: :feature, js: true do
   describe 'for a project without packages' do
     scenario 'add attribute with values' do
       login user
+      create(:attrib, project_id: user.home_project.id)
 
       add_attribute_with_values
       expect(page).to have_content('Attribute was successfully updated.')
@@ -74,6 +74,7 @@ RSpec.feature 'Attributes', type: :feature, js: true do
 
     scenario 'remove attribute' do
       login user
+      attribute = create(:attrib, project_id: user.home_project.id)
 
       visit index_attribs_path(project: user.home_project_name)
 

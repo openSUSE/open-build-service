@@ -105,6 +105,7 @@ RSpec.describe User do
     end
 
     it 'will have owned projects and packages' do
+      login user
       create(:attrib, attrib_type: AttribType.find_by(name: 'OwnerRootProject'), project: project_with_package)
       create(:relationship_package_user, package: project_with_package.packages.first, user: user)
       create(:relationship_project_user, project: project_with_package, user: user)
