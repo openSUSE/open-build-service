@@ -5,23 +5,6 @@ RSpec.describe Webui::Packages::JobHistoryHelper, type: :helper do
   let(:project) { user.home_project }
   let(:package) { create(:package, name: 'my_package', project: project) }
 
-  describe '#job_history_bread_crumb' do
-    let(:breadcrumb) do
-      [
-        '<a href="/project/list_public">Projects</a>',
-        ['<a href="/project/show/home:tom">home:tom</a>'],
-        '<a href="/package/show/home:tom/my_package">my_package</a>',
-        'Job history'
-      ]
-    end
-
-    before do
-      @project = project
-    end
-
-    it { expect(job_history_breadcrumb(project, package, 'Job history')).to eq(breadcrumb) }
-  end
-
   describe '#link_to_package_from_job_history' do
     let(:job_history) { LocalJobHistory.new(srcmd5: '12312312', revision: '1') }
 

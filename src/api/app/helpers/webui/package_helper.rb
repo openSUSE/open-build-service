@@ -47,9 +47,7 @@ module Webui::PackageHelper
   include Webui::ProjectHelper
 
   def package_bread_crumb(*args)
-    args.insert(0, link_to_if(params['action'] != 'show', @package_name || @package,
-                              controller: :package, action: :show,
-                              project: @project, package: @package))
+    args.insert(0, link_to_if(params['action'] != 'show', @package_name || @package, package_show_path(project: @project, package: @package)))
     project_bread_crumb(*args)
   end
 
