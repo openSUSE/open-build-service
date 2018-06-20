@@ -928,10 +928,13 @@ class Package < ApplicationRecord
     LocalBuildResult::ForPackage.new(package: self, project: prj, show_all: show_all)
   end
 
-  def jobhistory_list(project, repository, arch, limit = 100)
-    results = Jobhistory.find_hashed(project: project.name, package: name,
+  def jobhistory_list(project, repository, arch, options = {})
+    options[:limit] = 100 if options[:limit].blank?
+    options[:package] = name if options[:package].blank?
+
+    results = Jobhistory.find_hashed(project: project.name, package: options[:package],
                                      repository: repository, arch: arch,
-                                     limit: limit)
+                                     limit: options[:limit])
 
     local_jobs_history = []
     results.elements('jobhist').each_with_index do |result, index|
