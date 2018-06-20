@@ -128,6 +128,8 @@ class Webui::PackageController < Webui::WebuiController
   def statistics
     @arch = params[:arch]
     @repository = params[:repository]
+    @package_name = params[:package]
+
     @statistics = nil
     begin
       @statistics = Statistic.find_hashed(project: @project, package: params[:package], repository: @repository, arch: @arch)
@@ -143,6 +145,7 @@ class Webui::PackageController < Webui::WebuiController
   def binary
     @arch = Architecture.find_by_name(params[:arch]).name
     @repository = params[:repository]
+    @package_name = params[:package]
     # Ensure it really is just a file name, no '/..', etc.
     @filename = File.basename(params[:filename])
 
