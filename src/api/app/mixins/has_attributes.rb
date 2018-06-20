@@ -40,20 +40,14 @@ module HasAttributes
 
     # update or create attribute entry
     changed = false
-    begin
-      a = find_attribute(namespace, name, binary)
-    rescue AttributeFindError => e
-      raise AttributeSaveError, e
-    end
+    a = find_attribute(namespace, name, binary)
     if a.nil?
       # create the new attribute
       a = Attrib.new(attrib_type: attrib_type, binary: binary)
       a.project = self if is_a? Project
       a.package = self if is_a? Package
-      if a.attrib_type.value_count
-        a.attrib_type.value_count.times do |i|
-          a.values.build(position: i, value: values[i])
-        end
+      (a.attrib_type.value_count || 0).times do |i|
+        a.values.build(position: i, value: values[i])
       end
       raise AttributeSaveError, a.errors.full_messages.join(', ') unless a.save
       changed = true
