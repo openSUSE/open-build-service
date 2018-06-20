@@ -78,10 +78,10 @@ jobs:
       - run:
           name: Setup application
           command: cd src/api; bundle exec rake dev:bootstrap RAILS_ENV=test
-      - run: mkdir $HOME/rspec
+      - run: mkdir /home/frontend/rspec
       - run:
           name: Run rspec
-          command: cd src/api; bundle exec rspec --format progress --format RspecJunitFormatter -o $HOME/rspec/rspec.xml
+          command: cd src/api; bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/rspec/rspec.xml
       - run:
           name: Format code coverage for code climate
           command: ./cc-test-reporter format-coverage --input-type simplecov --output /tmp/coverage/codeclimate.rspec.json src/api/coverage/.resultset.json
@@ -93,7 +93,7 @@ jobs:
           path: ./src/api/log
           destination: rspec
       - store_test_results:
-          path: $HOME/rspec
+          path: /home/frontend/rspec
   minitest:
     <<: *minitest
     steps:
@@ -108,12 +108,12 @@ jobs:
       - run:
           name: Setup application
           command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
-      - run: mkdir $HOME/minitest
+      - run: mkdir /home/frontend/minitest
       - run:
           name: Run minitest
           environment:
             DO_COVERAGE: 1
-            TESTOPTS: "--ci-dir=$HOME/minitest"
+            TESTOPTS: "--ci-dir=/home/frontend/minitest"
           command: cd src/api; bundle exec rake test:api
       - run:
           name: Format code coverage for code climate
@@ -123,7 +123,7 @@ jobs:
           paths:
             - coverage
       - store_test_results:
-          path: $HOME/minitest
+          path: /home/frontend/minitest
       - store_artifacts:
           path: ./src/api/log/
           destination: minitest
