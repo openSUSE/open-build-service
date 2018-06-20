@@ -306,6 +306,7 @@ ription</description>
     login_king
     data = "<attributes><attribute namespace='OBS' name='VeryImportantProject'/></attributes>"
     post '/source/home:tom/_attribute', params: data
+    assert_response :success
 
     login_tom
     delete '/source/home:tom/_attribute/OBS:VeryImportantProject'

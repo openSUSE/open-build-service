@@ -9,12 +9,13 @@ module HasAttributes
   class AttributeSaveError < APIException
   end
 
-  def write_attributes(comment = nil)
+  def write_attributes
+    return unless CONFIG['global_write_through']
     project_name = is_a?(Project) ? name : project.name
     if is_a?(Package)
-      Backend::Api::Sources::Package.write_attributes(project_name, name, User.current.login, render_attribute_axml, comment)
+      Backend::Api::Sources::Package.write_attributes(project_name, name, User.current.login, render_attribute_axml)
     else
-      Backend::Api::Sources::Project.write_attributes(project_name, User.current.login, render_attribute_axml, comment)
+      Backend::Api::Sources::Project.write_attributes(project_name, User.current.login, render_attribute_axml)
     end
   rescue ActiveXML::Transport::Error => e
     raise AttributeSaveError, e.summary
@@ -39,21 +40,17 @@ module HasAttributes
     attrib_type = AttribType.find_by_namespace_and_name!(namespace, name)
 
     # update or create attribute entry
-    changed = false
     a = find_attribute(namespace, name, binary)
-    if a.nil?
+    unless a
       # create the new attribute
-      a = Attrib.new(attrib_type: attrib_type, binary: binary)
+      a = Attrib.create(attrib_type: attrib_type, binary: binary)
       a.project = self if is_a? Project
       a.package = self if is_a? Package
-      (a.attrib_type.value_count || 0).times do |i|
-        a.values.build(position: i, value: values[i])
-      end
-      raise AttributeSaveError, a.errors.full_messages.join(', ') unless a.save
-      changed = true
     end
     # write values
-    a.update_with_associations(values, issues) || changed
+    a.update_with_associations(values, issues)
+    return unless a.saved_changes?
+    write_attributes
   end
 
   def find_attribute(namespace, name, binary = nil)
