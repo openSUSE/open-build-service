@@ -1,7 +1,7 @@
 :ruby
   @pagetitle = "Build Reason for #{@project} / #{@package_name}"
   @metarobots = 'index,nofollow'
-  build_reason_breadcrumb(@project, @package, "Build Reason (#{@repository.name} / #{params[:arch]})")
+  build_reason_breadcrumb(@project, @package_name, "Build Reason (#{@repository.name} / #{params[:arch]})")
 
 = render partial: 'webui/package/tabs'
 
