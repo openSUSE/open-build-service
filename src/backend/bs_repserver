@@ -832,8 +832,8 @@ sub getbinarylist_repository {
     my $n = $bin;
     if ($bin =~ /^container:/ && $path =~ /(\.tar(?:\..+)?)$/) {
       $n .= $1;
-      if ($1 eq '.tar' && ! -e $path) {
-	my @s = BSRepServer::Containertar::stat_container($path);
+      if ($1 eq '.tar' && ! -e "$reporoot/$prp/$arch/:full/$path") {
+	my @s = BSRepServer::Containertar::stat_container("$reporoot/$prp/$arch/:full/$path");
 	if (@s) {
 	  my $r = {'filename' => $view eq 'names' ? $n : $path, 'mtime' => $s[9], 'size' => $s[7] };
 	  push @res, $r;
