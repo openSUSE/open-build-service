@@ -20,7 +20,6 @@ class Attrib < ApplicationRecord
 
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
-  scope :nobinary, -> { where(binary: nil) }
 
   #### Validations macros
   validates_associated :values
