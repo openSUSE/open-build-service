@@ -101,6 +101,18 @@ RSpec.describe Attrib, type: :model do
         it { expect(subject).to be true }
         it { expect { subject }.to change { attribute.values.count }.by(1) }
       end
+
+      context 'values list' do
+        let(:values1) { ['blue', 'green'] }
+        let(:values2) { ['green', 'blue'] }
+
+        it 'resorts attribute values' do
+          expect(attribute.update_with_associations(values1, [])).to be true
+          expect(attribute.values.map(&:value)).to eq(values1)
+          expect(attribute.update_with_associations(values2, [])).to be true
+          expect(attribute.values.map(&:value)).to eq(values2)
+        end
+      end
     end
   end
 
