@@ -72,15 +72,31 @@ namespace :dev do
   desc 'Run all linters we use'
   task :lint do
     Rake::Task['haml_lint'].invoke
-    Rake::Task['dev:lint:ruby'].invoke
+    Rake::Task['dev:lint:rubocop:all'].invoke
     sh 'jshint ./app/assets/javascripts/'
     Rake::Task['db:structure:verify'].invoke
     Rake::Task['db:structure:verify_no_bigint'].invoke
   end
   namespace :lint do
-    desc 'Run the ruby linter'
-    task :ruby do
-      sh 'rubocop -D -F -S --fail-level convention ../..'
+    namespace :rubocop do
+      task all: [:contrib, :dist, :rails] do
+      end
+      desc 'Run the ruby linter in rails'
+      task :rails do
+        sh 'rubocop -D -F -S --fail-level convention'
+      end
+      desc 'Run the ruby linter in contrib'
+      task :contrib do
+        Dir.chdir('../../contrib') do
+          sh 'rubocop -D -F -S --fail-level convention'
+        end
+      end
+      desc 'Run the ruby linter in dist'
+      task :dist do
+        Dir.chdir('../../dist') do
+          sh 'rubocop -D -F -S --fail-level convention'
+        end
+      end
     end
     desc 'Run the haml linter'
     task :haml do
