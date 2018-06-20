@@ -77,10 +77,12 @@ namespace :dev do
     Rake::Task['db:structure:verify'].invoke
     Rake::Task['db:structure:verify_no_bigint'].invoke
   end
+
   namespace :lint do
     namespace :rubocop do
       task all: [:contrib, :dist, :rails] do
       end
+
       desc 'Run the ruby linter in rails'
       task :rails do
         sh 'rubocop -D -F -S --fail-level convention'
@@ -97,7 +99,29 @@ namespace :dev do
           sh 'rubocop -D -F -S --fail-level convention'
         end
       end
+
+      namespace :auto_gen_config do
+        task all: [:contrib, :dist, :rails] do
+        end
+        desc 'Autogenerate rubocop config in rails'
+        task :rails do
+          sh 'rubocop --auto-gen-config || exit 0'
+        end
+        desc 'Autogenerate rubocop config in contrib'
+        task :contrib do
+          Dir.chdir('../../contrib') do
+            sh 'rubocop --auto-gen-config || exit 0'
+          end
+        end
+        desc 'Autogenerate rubocop config in dist'
+        task :dist do
+          Dir.chdir('../../dist') do
+            sh 'rubocop --auto-gen-config || exit 0'
+          end
+        end
+      end
     end
+
     desc 'Run the haml linter'
     task :haml do
       Rake::Task['haml_lint'].invoke
