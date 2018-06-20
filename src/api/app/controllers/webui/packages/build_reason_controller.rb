@@ -8,7 +8,7 @@ module Webui
 
       def index
         @details = @package.last_build_reason(@repository, @architecture.name, @package_name)
-        return if @details.explain
+        return if @details.explain.present?
 
         redirect_back(fallback_location: package_binaries_path(package: @package, project: @project, repository: @repository.name),
                       notice: "No build reason found for #{@repository.name}:#{@architecture.name}")

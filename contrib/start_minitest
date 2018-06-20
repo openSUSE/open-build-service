@@ -6,6 +6,6 @@ bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
 echo "Running api test suite..."
 export NO_MEMCACHED=1
 bundle exec rake test:api
-if ! [ -z "$CI" ]; then
-  rm -rf .bundle vendor/bundle
-fi
+tmp_exit=$?
+rm -rf .bundle vendor/bundle
+exit $tmp_exit

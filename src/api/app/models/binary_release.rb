@@ -47,17 +47,16 @@ class BinaryRelease < ApplicationRecord
                  obsolete_time:  nil,
                  modify_time:    nil }
         # check for existing entry
-        existing = oldlist.where(hash)
-        Rails.logger.info "ERROR: multiple matches, cleaning up: #{existing.inspect}" if existing.count > 1
+        matching_binaries = oldlist.where(hash)
+        Rails.logger.info "ERROR: multiple matches, cleaning up: #{matching_binaries.inspect}" if matching_binaries.exists?
         # double definition means broken DB entries
-        existing.offset(1).destroy_all
+        matching_binaries.offset(1).destroy_all
 
         # compare with existing entry
-        if existing.count == 1
-          entry = existing.first
-          if entry.binary_disturl                   == binary['disturl'] &&
-             entry.binary_supportstatus             == binary['supportstatus'] &&
-             entry.binary_buildtime.to_datetime.utc == ::Time.at(binary['buildtime'].to_i).to_datetime.utc
+        entry = matching_binaries.first
+
+        if entry
+          if entry.indentical_to?(binary)
             # same binary, don't touch
             processed_item[entry.id] = true
             next
@@ -87,7 +86,6 @@ class BinaryRelease < ApplicationRecord
           rescue ActiveXML::Transport::NotFoundError
             # patchinfo disappeared meanwhile
           end
-          # no database object on purpose, since it must also work for historic releases...
           hash[:binary_maintainer] = patchinfo.to_hash['packager'] if patchinfo && patchinfo.to_hash['packager']
         end
 
@@ -184,6 +182,14 @@ class BinaryRelease < ApplicationRecord
     Rails.cache.delete("xml_binary_release_#{cache_key}")
   end
 
+  # rubocop:disable Style/DateTime
+  def indentical_to?(binary_hash)
+    binary_disturl == binary_hash['disturl'] &&
+      binary_supportstatus == binary_hash['supportstatus'] &&
+      binary_buildtime &&
+      binary_buildtime.to_datetime.utc == DateTime.strptime(binary['buildtime'].to_s, '%s').utc
+  end
+  # rubocop:enable Style/DateTime
   #### Alias of methods
 end
 

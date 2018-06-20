@@ -8,6 +8,6 @@
       - if @attribute.attrib_type.allowed_values.any?
         = f.select :value, @attribute.attrib_type.allowed_values.map(&:value), { include_blank: false }, { id: 'attrib-default-select' }
       - else
-        = f.text_field :value
+        = f.text_area :value
       - if @attribute.values_removeable?
         = link_to_remove_association "remove value", f

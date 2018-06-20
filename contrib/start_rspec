@@ -5,6 +5,6 @@ echo "Preparing application..."
 bundle exec rake dev:bootstrap RAILS_ENV=test
 echo "Running rspec..."
 bundle exec rspec
-if ! [ -z "$CI" ]; then
-  rm -rf .bundle vendor/bundle
-fi
+tmp_exit=$?
+rm -rf .bundle vendor/bundle
+exit $tmp_exit

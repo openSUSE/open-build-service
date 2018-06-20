@@ -7,6 +7,7 @@ class Project < ApplicationRecord
   include HasRelationships
   include HasRatings
   include HasAttributes
+  include MaintenanceHelper
 
   class CycleError < APIException
     setup 'project_cycle'
@@ -696,6 +697,10 @@ class Project < ApplicationRecord
     possible_projects
   end
 
+  def basename
+    name.gsub(/.*:/, '')
+  end
+
   def to_axml(_opts = {})
     Rails.cache.fetch("xml_project_#{id}") do
       # CanRenderModel
@@ -1223,7 +1228,7 @@ class Project < ApplicationRecord
           next if params[:targetreposiory] && params[:targetreposiory] != releasetarget.target_repository.name
           # release source and binaries
           # permission checking happens inside this function
-          release_package(pkg, releasetarget.target_repository, pkg.name, repo, nil, nil, params[:setrelease], true)
+          release_package(pkg, releasetarget.target_repository, pkg.target_name, repo, nil, nil, params[:setrelease], true)
         end
       end
     end

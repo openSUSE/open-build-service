@@ -20,7 +20,7 @@ RSpec.feature 'Attributes', type: :feature, js: true do
     fill_in 'Value', with: 'test 1', match: :first
     # Workaround to enter data into second textfield
     within('div.nested-fields:nth-of-type(2)') do
-      fill_in 'Value', with: 'test 2'
+      fill_in 'Value', with: "test\n2nd line"
     end
 
     click_button 'Save Attribute'
@@ -36,7 +36,7 @@ RSpec.feature 'Attributes', type: :feature, js: true do
       visit index_attribs_path(project: user.home_project_name)
       tr_tds = page.all('tr.attribute-values:nth-child(3) td').map(&:text)
       expect(tr_tds[0]).to eq("#{attribute_type.namespace}:#{attribute_type.name}")
-      expect(tr_tds[1]).to eq('test 2, test 1')
+      expect(tr_tds[1]).to eq("test\n2nd line\ntest 1")
     end
 
     describe 'with values that are not allowed' do
@@ -98,7 +98,7 @@ RSpec.feature 'Attributes', type: :feature, js: true do
       visit index_attribs_path(project: user.home_project_name, package: package.name)
       tr_tds = page.all('tr.attribute-values:nth-child(2) td').map(&:text)
       expect(tr_tds[0]).to eq("#{attribute_type.namespace}:#{attribute_type.name}")
-      expect(tr_tds[1]).to eq('test 2, test 1')
+      expect(tr_tds[1]).to eq("test\n2nd line\ntest 1")
     end
   end
 end
