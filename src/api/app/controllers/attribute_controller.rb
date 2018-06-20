@@ -164,7 +164,6 @@ class AttributeController < ApplicationController
 
     # exec
     ac.destroy
-    @attribute_container.write_attributes(params[:comment])
     render_ok
   end
 
@@ -201,13 +200,8 @@ class AttributeController < ApplicationController
     end
 
     # exec
-    changed = false
     req.elements('attribute') do |attr|
-      changed = true if @attribute_container.store_attribute_xml(attr, @binary)
-    end
-    if changed
-      logger.debug "Attributes for #{@attribute_container.class} #{@attribute_container.name} changed, writing to backend"
-      @attribute_container.write_attributes(params[:comment])
+      @attribute_container.store_attribute_xml(attr, @binary)
     end
     render_ok
   end
