@@ -63,21 +63,16 @@ module HasAttributes
   end
 
   def find_attribute(namespace, name, binary = nil)
-    logger.debug "find_attribute for #{namespace}:#{name}"
-    raise AttributeFindError, 'Namespace must be given' if namespace.nil?
-    raise AttributeFindError, 'Name must be given' if name.nil?
-    if binary
-      if is_a? Project
-        raise AttributeFindError, 'binary packages are not allowed in project attributes'
-      end
-      # rubocop:disable Metrics/LineLength
-      a = attribs.joins(attrib_type: :attrib_namespace).where('attrib_types.name = ? and attrib_namespaces.name = ? AND attribs.binary = ?', name, namespace, binary).first
-    else
-      a = attribs.nobinary.joins(attrib_type: :attrib_namespace).where('attrib_types.name = ? and attrib_namespaces.name = ?', name, namespace).first
-      # rubocop:enable Metrics/LineLength
+    raise AttributeFindError, 'Namespace must be given' unless namespace
+    raise AttributeFindError, 'Name must be given' unless name
+    if is_a?(Project) && binary
+      raise AttributeFindError, 'binary packages are not allowed in project attributes'
     end
-    a = attribs.find(a.id) if a && a.readonly? # FIXME: joins make things read only
-    a
+    query = attribs.joins(attrib_type: :attrib_namespace)
+    query = query.where(attrib_types: { name: name },
+                        binary: binary,
+                        attrib_namespaces: { name: namespace })
+    query.readonly(false).first
   end
 
   def render_attribute_axml(params = {})
@@ -98,8 +93,8 @@ module HasAttributes
     done = {}
     attribs.each do |attr|
       type_name = attr.attrib_type.attrib_namespace.name + ':' + attr.attrib_type.name
-      next if params[:name] && !(attr.attrib_type.name == params[:name])
-      next if params[:namespace] && !(attr.attrib_type.attrib_namespace.name == params[:namespace])
+      next if params[:name] && attr.attrib_type.name != params[:name]
+      next if params[:namespace] && attr.attrib_type.attrib_namespace.name != params[:namespace]
       next if params[:binary] && attr.binary != params[:binary]
       next if params[:binary] == '' && attr.binary != '' # switch between all and NULL binary
       done[type_name] = 1 unless attr.binary
