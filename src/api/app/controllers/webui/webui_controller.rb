@@ -311,7 +311,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def switch_to_webui2?
-    User.current && (User.current.is_admin? || User.current.is_staff?)
+    Feature.active?(:bootstrap)
   end
 
   def choose_layout
