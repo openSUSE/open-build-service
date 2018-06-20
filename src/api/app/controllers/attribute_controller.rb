@@ -205,8 +205,10 @@ class AttributeController < ApplicationController
     req.elements('attribute') do |attr|
       changed = true if @attribute_container.store_attribute_xml(attr, @binary)
     end
-    logger.debug "Attributes for #{@attribute_container.class} #{@attribute_container.name} changed, writing to backend" if changed
-    @attribute_container.write_attributes(params[:comment]) if changed
+    if changed
+      logger.debug "Attributes for #{@attribute_container.class} #{@attribute_container.name} changed, writing to backend"
+      @attribute_container.write_attributes(params[:comment])
+    end
     render_ok
   end
 
