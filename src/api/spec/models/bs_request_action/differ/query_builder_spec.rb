@@ -73,8 +73,7 @@ RSpec.describe BsRequestAction::Differ::QueryBuilder, vcr: true do
     end
 
     context 'with a maintenance release target project' do
-      let!(:maintenance_release_project) { create(:update_project, name: 'maintenance_project') }
-      let!(:maintenance_package) { create(:package, project: maintenance_release_project, name: 'the_package') }
+      let(:maintenance_release_project) { create(:update_project, name: 'maintenance_project') }
 
       let(:differ) do
         BsRequestAction::Differ::QueryBuilder.new(
@@ -84,9 +83,13 @@ RSpec.describe BsRequestAction::Differ::QueryBuilder, vcr: true do
           source_package: source_package.name
         ).build
       end
-      it { expect(differ[:oproject]).to eq('maintenance_project') }
-      it { expect(differ[:opackage]).to eq('the_package') }
-      it { expect(differ.keys.length).to eq(4) }
+      it 'has proper diff' do
+        login user
+        create(:package, project: maintenance_release_project, name: 'the_package')
+        expect(differ[:oproject]).to eq('maintenance_project')
+        expect(differ[:opackage]).to eq('the_package')
+        expect(differ.keys.length).to eq(4)
+      end
     end
   end
 end

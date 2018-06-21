@@ -23,7 +23,6 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
   before do
     User.current = admin_user
     create(:maintenance_project_attrib, project: maintenance_project)
-    User.current = nil
   end
 
   scenario 'maintenance workflow' do
