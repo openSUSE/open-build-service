@@ -362,8 +362,8 @@ class Package < ApplicationRecord
   def commit_message(target_project, target_package)
     result = ''
     changes_files.each do |changes_file|
-      source_changes = PackageFile.new(package_name: name, project_name: project.name, name: changes_file).to_s
-      target_changes = PackageFile.new(package_name: target_package, project_name: target_project, name: changes_file).to_s
+      source_changes = PackageFile.new(package_name: name, project_name: project.name, name: changes_file).content
+      target_changes = PackageFile.new(package_name: target_package, project_name: target_project, name: changes_file).content
       result << source_changes.try(:chomp, target_changes)
     end
     # Remove header and empty lines
@@ -960,7 +960,7 @@ class Package < ApplicationRecord
 
   def service_error(revision = nil)
     revision ||= serviceinfo.try { to_hash['xsrcmd5'] }
-    PackageServiceErrorFile.new(project_name: project.name, package_name: name).to_s(rev: revision)
+    PackageServiceErrorFile.new(project_name: project.name, package_name: name).content(rev: revision)
   end
 
   # local mode (default): last package in link chain in my project

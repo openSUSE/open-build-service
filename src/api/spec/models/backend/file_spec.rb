@@ -157,7 +157,7 @@ RSpec.describe Backend::File, vcr: true do
         subject.file
       end
 
-      it { expect(subject.to_s).to be_nil }
+      it { expect(subject.content).to be_nil }
     end
   end
 
@@ -166,7 +166,7 @@ RSpec.describe Backend::File, vcr: true do
       before do
         login user
 
-        @previous_content = subject.to_s
+        @previous_content = subject.content
         subject.save({}, 'hello') # Change the content of the file
       end
 
@@ -177,7 +177,7 @@ RSpec.describe Backend::File, vcr: true do
   describe '#save!' do
     context 'with a string as content' do
       before do
-        @previous_content = subject.to_s
+        @previous_content = subject.content
         subject.save!({}, 'hello') # Change the content of the file with a string
       end
 
@@ -187,7 +187,7 @@ RSpec.describe Backend::File, vcr: true do
 
     context 'with a file as content' do
       before do
-        @previous_content = subject.to_s
+        @previous_content = subject.content
 
         subject.file = File.open(fake_file.path)
         subject.save!

@@ -132,7 +132,7 @@ class Project < ApplicationRecord
   def self.deleted?(project_name)
     return false if find_by_name(project_name)
 
-    response = ProjectFile.new(project_name: project_name, name: '_history').to_s(deleted: 1)
+    response = ProjectFile.new(project_name: project_name, name: '_history').content(deleted: 1)
     return false unless response
 
     !Xmlhash.parse(response).empty?
@@ -145,14 +145,14 @@ class Project < ApplicationRecord
     project = Project.new(name: project_name)
 
     Project.transaction do
-      project.update_from_xml!(Xmlhash.parse(project.meta.to_s))
+      project.update_from_xml!(Xmlhash.parse(project.meta.content))
       project.store
 
       # restore all package meta data objects in DB
       backend_packages = Collection.find(:package, match: "@project='#{project_name}'")
       backend_packages.each('package') do |package|
         package = project.packages.new(name: package.value(:name))
-        package_meta = Xmlhash.parse(package.meta.to_s)
+        package_meta = Xmlhash.parse(package.meta.content)
 
         Package.transaction do
           package.update_from_xml(package_meta)
@@ -1037,7 +1037,7 @@ class Project < ApplicationRecord
 
   def branch_remote_repositories(project)
     remote_project = Project.new(name: project)
-    remote_project_meta = Nokogiri::XML(remote_project.meta.to_s)
+    remote_project_meta = Nokogiri::XML(remote_project.meta.content)
     local_project_meta = Nokogiri::XML(to_axml)
 
     remote_repositories = remote_project.repositories_from_meta
@@ -1079,7 +1079,7 @@ class Project < ApplicationRecord
 
   def repositories_from_meta
     result = []
-    Nokogiri::XML(meta.to_s).xpath('//repository').each do |repo|
+    Nokogiri::XML(meta.content).xpath('//repository').each do |repo|
       result.push(repo.attributes.values.first.to_s)
     end
     result
