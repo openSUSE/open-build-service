@@ -1450,14 +1450,13 @@ class Package < ApplicationRecord
   def last_build_reason(repo, arch, package_name = nil)
     repo = repo.name if repo.is_a? Repository
 
-    xml_data = BuildReasonFile.new(
-      project_name: project.name,
-      package_name: package_name || name,
-      repo: repo,
-      arch: arch
-    )
+    begin
+      build_reason = Backend::Api::BuildResults::Status.build_reason(project.name, package_name || name, repo, arch)
+    rescue ActiveXML::Transport::NotFoundError
+      return PackageBuildReason.new
+    end
 
-    data = Xmlhash.parse(xml_data.to_s)
+    data = Xmlhash.parse(build_reason)
     # ensure that if 'packagechange' exists, it is an Array and not a Hash
     # Bugreport: https://github.com/openSUSE/open-build-service/issues/3230
     data['packagechange'] = [data['packagechange']] if data && data['packagechange'].is_a?(Hash)
