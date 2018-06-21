@@ -20,7 +20,6 @@ AllCops:
 Style/GlobalVars:
   AllowedVariables: ['$rabbitmq_conn', '$rabbitmq_exchange', '$rabbitmq_channel']
 
-# Checks for chaining of a block after another block that spans multiple lines.
 # We disabled this cop because of Rantly.
 Style/MultilineBlockChain:
   Exclude:
@@ -41,7 +40,6 @@ Rails:
 Rails/DynamicFindBy:
   Enabled: false
 
-# Enforces that 'exit' calls are not used.
 Rails/Exit:
   Exclude:
     - 'lib/memory_dumper.rb'

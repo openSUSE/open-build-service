@@ -15,39 +15,29 @@ AllCops:
 
 #################### Layout ###########################
 
-# Align the elements of a hash literal if they span more than one line.
 Layout/AlignHash:
-  # Alignment of entries using hash rocket as separator.
   EnforcedHashRocketStyle: table
-  # Alignment of entries using colon as separator.
   EnforcedColonStyle: table
-  # Select whether hashes that are the last argument in a method call should be
-  # inspected?
   EnforcedLastArgumentHashStyle: ignore_implicit
 
 # We decide disable this cop because we can't reach an agreement
 Layout/DotPosition:
   Enabled: false
 
-# Align ends correctly.
 Layout/EndAlignment:
   EnforcedStyleAlignWith: variable
 
 #################### Style ###########################
 
-# Find uses of alias where alias_method would be more appropriate (or is simply preferred due to configuration), and vice versa.
-# It also finds uses of alias :symbol rather than alias bareword.
 Style/Alias:
   EnforcedStyle: 'prefer_alias_method'
 
-# Use ` or %x around command literals.
 Style/CommandLiteral:
   EnforcedStyle: percent_x
 
 Style/Documentation:
   Enabled: false
 
-# Checks for redundant `return` expressions
 Style/RedundantReturn:
   Enabled: false
 
@@ -59,15 +49,12 @@ Style/WordArray:
 
 ##################### Metrics ##################################
 
-# Checks if the length a class exceeds some maximum value
 Metrics/ClassLength:
   Severity: refactor
 
-# Checks the length of lines in the source code.
 Metrics/LineLength:
   Max: 150
   IgnoredPatterns: ['\A#']
 
-# Checks if the length a module exceeds some maximum value
 Metrics/ModuleLength:
   Severity: refactor
