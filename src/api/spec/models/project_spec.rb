@@ -105,7 +105,8 @@ RSpec.describe Project, vcr: true do
 
     before do
       logout
-      allow(ProjectMetaFile).to receive(:new).and_return(remote_meta_xml)
+      meta_project_file_mock = double('meta', content: remote_meta_xml)
+      allow(ProjectMetaFile).to receive(:new).and_return(meta_project_file_mock)
     end
 
     context 'normal project' do
@@ -376,17 +377,17 @@ RSpec.describe Project, vcr: true do
     end
 
     it 'returns false if backend responds with nothing' do
-      allow_any_instance_of(ProjectFile).to receive(:to_s).with(deleted: 1).and_return(nil)
+      allow_any_instance_of(ProjectFile).to receive(:content).with(deleted: 1).and_return(nil)
       expect(Project.deleted?('never-existed-before')).to be_falsey
     end
 
     it 'returns false if revision list element of _history file is empty' do
-      allow_any_instance_of(ProjectFile).to receive(:to_s).with(deleted: 1).and_return("<revisionlist>\n</revisionlist>\n")
+      allow_any_instance_of(ProjectFile).to receive(:content).with(deleted: 1).and_return("<revisionlist>\n</revisionlist>\n")
       expect(Project.deleted?('never-existed-before')).to be_falsey
     end
 
     it 'returns true if _history element has elements' do
-      allow_any_instance_of(ProjectFile).to receive(:to_s).with(deleted: 1).and_return(
+      allow_any_instance_of(ProjectFile).to receive(:content).with(deleted: 1).and_return(
         "<revisionlist>\n  <revision rev=\"1\" vrev=\"\">\n    <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>\n    " \
         "<version></version>\n    <time>1498113679</time>\n    <user>Admin</user>\n    <comment>1</comment>\n  " \
         "</revision>\n</revisionlist>\n"
@@ -415,16 +416,16 @@ RSpec.describe Project, vcr: true do
       deleted_project.destroy!
       Project.restore(deleted_project.name, user: admin_user.login)
 
-      meta = Xmlhash.parse(ProjectFile.new(project_name: deleted_project.name, name: '_history').to_s(deleted: 1))
+      meta = Xmlhash.parse(ProjectFile.new(project_name: deleted_project.name, name: '_history').content(deleted: 1))
       expect(meta['revision'].last['user']).to eq(admin_user.login)
     end
 
     it 'project meta gets properly updated' do
-      old_project_meta_xml = ProjectMetaFile.new(project_name: deleted_project.name).to_s
+      old_project_meta_xml = ProjectMetaFile.new(project_name: deleted_project.name).content
       deleted_project.destroy!
 
       restored_project = Project.restore(deleted_project.name)
-      expect(restored_project.meta.to_s).to eq(old_project_meta_xml)
+      expect(restored_project.meta.content).to eq(old_project_meta_xml)
     end
 
     context 'on a project with packages' do

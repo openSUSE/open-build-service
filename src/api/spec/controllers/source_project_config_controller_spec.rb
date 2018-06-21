@@ -43,7 +43,7 @@ RSpec.describe SourceProjectConfigController, vcr: true do
       end
 
       it { expect(response).to be_success }
-      it { expect(project.config.to_s).to include('Updated', 'by', 'test') }
+      it { expect(project.config.content).to include('Updated', 'by', 'test') }
     end
   end
 end
