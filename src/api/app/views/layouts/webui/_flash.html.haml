@@ -20,8 +20,8 @@
             %p.flash-content
               %span{ class: "ui-icon #{flash_icon}" }
                 = flash_content(flash[flash_type])
-                = link_to 'more info', '#', class: 'btn-more' if @more_info
-            - if @more_info
+                = link_to 'more info', '#', class: 'btn-more' if @more_info.present?
+            - if @more_info.present?
               .more_info.hidden
                 %div{ class: flash_header }
                 .more-info-content

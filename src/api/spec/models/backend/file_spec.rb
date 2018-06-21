@@ -157,7 +157,7 @@ RSpec.describe Backend::File, vcr: true do
         subject.file
       end
 
-      it { expect(subject.to_s).to be_nil }
+      it { expect(subject.to_s).to eq '' }
     end
   end
 
