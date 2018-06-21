@@ -16,8 +16,8 @@
     %div{ class: "alert alert-#{flash_header} alert-dismissible fade show" }
       %i{ class: "fas fa-#{flash_icon}" }
       = flash_content(flash[flash_type])
-      = link_to 'more info', '#', class: 'btn-more' if @more_info
-      - if @more_info
+      = link_to 'more info', '#', class: 'btn-more' if @more_info.present?
+      - if @more_info.present?
         .more_info.hidden
           %div{ class: flash_header }
           .more-info-content
