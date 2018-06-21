@@ -30,9 +30,9 @@ my @headnames = qw{name mode uid gid size mtime chksum tartype linkname magic ve
 
 sub parsetarhead {
   my ($tarhead) = @_;
-  my @head = unpack('A100A8A8A8A12A12A8A1A100a6a2A32A32A8A8A155x12', $tarhead);
-  /^([^\0]*)/ && ($_ = $1) for @head;
-  $head[7] = '0' if $head[7] eq '';
+  my @head = unpack('A100A8A8A8A12A12A8a1A100a6a2A32A32A8A8A155x12', $tarhead);
+  /^([^\0]*)/s && ($_ = $1) for @head;
+  $head[7] = '0' if $head[7] eq '';	# map old \0 type to 0
   $head[$_] = oct($head[$_]) for (1, 2, 3, 5, 6, 13, 14);
   my $pad;
   if (substr($tarhead, 124, 1) eq "\x80") {

@@ -128,6 +128,8 @@ class Webui::PackageController < Webui::WebuiController
   def statistics
     @arch = params[:arch]
     @repository = params[:repository]
+    @package_name = params[:package]
+
     @statistics = nil
     begin
       @statistics = Statistic.find_hashed(project: @project, package: params[:package], repository: @repository, arch: @arch)
@@ -143,6 +145,7 @@ class Webui::PackageController < Webui::WebuiController
   def binary
     @arch = Architecture.find_by_name(params[:arch]).name
     @repository = params[:repository]
+    @package_name = params[:package]
     # Ensure it really is just a file name, no '/..', etc.
     @filename = File.basename(params[:filename])
 
@@ -160,7 +163,7 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     repository = Repository.find_by_project_and_name(@project.to_s, @repository.to_s)
-    @durl = download_url_for_file_in_repo(@project, @package, repository, @arch, @filename)
+    @durl = download_url_for_file_in_repo(@project, @package_name, repository, @arch, @filename)
 
     logger.debug "accepting #{request.accepts.join(',')} format:#{request.format}"
     # little trick to give users eager to download binaries a single click
@@ -187,7 +190,7 @@ class Webui::PackageController < Webui::WebuiController
         if binary['filename'] == '_statistics'
           build_results_set[:statistics] = true
         else
-          links = links_for_binaries_action(@project, @package, repository, result['arch'], binary['filename'])
+          links = links_for_binaries_action(@project, @package_name, repository, result['arch'], binary['filename'])
           build_results_set[:binaries] << { filename: binary['filename'], size: binary['size'], links: links }
         end
       end
@@ -1026,7 +1029,7 @@ class Webui::PackageController < Webui::WebuiController
     filename = File.basename(params[:filename]) # Ensure it really is just a file name, no '/..', etc.
     repository = Repository.find_by_project_and_name(@project.to_s, params[:repository].to_s)
 
-    download_url = download_url_for_file_in_repo(@project, @package, repository, architecture, filename)
+    download_url = download_url_for_file_in_repo(@project, params[:package], repository, architecture, filename)
     if download_url
       redirect_to download_url
     else
@@ -1126,18 +1129,18 @@ class Webui::PackageController < Webui::WebuiController
     true
   end
 
-  def links_for_binaries_action(project, package, repository, architecture, filename)
-    download_url = package_binary_download_path(project: project.name, package: package.name,
+  def links_for_binaries_action(project, package_name, repository, architecture, filename)
+    download_url = package_binary_download_path(project: project.name, package: package_name,
                                                 repository: repository.name, arch: architecture, filename: filename)
     cloud_upload = Feature.active?(:cloud_upload) && !User.current.is_nobody? && uploadable?(filename, architecture)
     { details?: filename != 'rpmlint.log', download_url: download_url, cloud_upload?: cloud_upload }
   end
 
-  def download_url_for_file_in_repo(project, package, repository, architecture, filename)
-    download_url = repository.download_url_for_file(package, architecture, filename)
+  def download_url_for_file_in_repo(project, package_name, repository, architecture, filename)
+    download_url = repository.download_url_for_file(package_name, architecture, filename)
     # return mirror if available
     return download_url if download_url && file_available?(download_url)
     # only use API for logged in users if the mirror is not available - return nil otherwise
-    rpm_url(project, package, repository.name, architecture, filename) unless User.current.is_nobody?
+    rpm_url(project, package_name, repository.name, architecture, filename) unless User.current.is_nobody?
   end
 end
