@@ -488,16 +488,18 @@ OBSApi::Application.routes.draw do
 
     resources :about, only: :index
 
-    ### /attribute is before source as it needs more specific routes for projects
-    controller :attribute do
+    controller :attribute_namespace do
       get 'attribute' => :index
       get 'attribute/:namespace' => :index
       # FIXME3.0: drop the POST and DELETE here
-      get 'attribute/:namespace/_meta' => :show_namespace_definition
-      delete 'attribute/:namespace/_meta' => :delete_namespace_definition
-      delete 'attribute/:namespace' => :delete_namespace_definition
-      match 'attribute/:namespace/_meta' => :update_namespace_definition, via: [:post, :put]
+      get 'attribute/:namespace/_meta' => :show
+      delete 'attribute/:namespace/_meta' => :delete
+      delete 'attribute/:namespace' => :delete
+      match 'attribute/:namespace/_meta' => :update, via: [:post, :put]
+    end
 
+    ### /attribute is before source as it needs more specific routes for projects
+    controller :attribute do
       get 'attribute/:namespace/:name/_meta' => :show_attribute_definition
       delete 'attribute/:namespace/:name/_meta' => :delete_attribute_definition
       delete 'attribute/:namespace/:name' => :delete_attribute_definition
