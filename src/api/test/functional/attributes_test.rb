@@ -312,7 +312,7 @@ ription</description>
     delete '/source/home:tom/_attribute/OBS:VeryImportantProject'
     assert_response 403
     delete '/source/home:tom/_attribute/?namespace=OBS&name=VeryImportantProject'
-    assert_response 403
+    assert_response 404
   end
 
   def test_create_attributes_project
@@ -474,8 +474,7 @@ ription</description>
 
     # invalid operations
     delete '/source/kde4/kdelibs/kdelibs-devel/_attribute'
-    assert_response 400
-    assert_xml_tag tag: 'status', attributes: { code: 'missing_attribute' }
+    assert_response 404
     delete '/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS_Maintained'
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_attribute' }
