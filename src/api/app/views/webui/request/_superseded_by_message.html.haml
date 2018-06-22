@@ -5,9 +5,8 @@
         This request supersedes:
         - superseding.each_with_index do |bs_request, index|
           = link_to "request #{bs_request.number}", request_show_path(number: bs_request.number)
-          = succeed (', ' if index < superseding.length - 1) do
-            = surround '(', ')' do
-              = link_to('Show diff', request_show_path(number: bs_request.superseded_by, diff_to_superseded: bs_request.number))
+          = surround '(', ")#{', ' if index < superseding.length - 1 }" do
+            = link_to('Show diff', request_show_path(number: bs_request.superseded_by, diff_to_superseded: bs_request.number))
 - if superseded_by.present?
   .grid_16.alpha.omega.box-invisible
     .ui-state-info.ui-corner-all.ui-widget-shadow.padding-10pt#request-superseded-by-hint
