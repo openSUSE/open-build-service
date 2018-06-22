@@ -28,7 +28,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
 
     get '/attribute/NotExisting'
-    assert_response 400
+    assert_response 404
 
     get '/attribute/OBS'
     assert_response :success
