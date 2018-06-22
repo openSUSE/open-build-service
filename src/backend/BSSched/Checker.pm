@@ -260,6 +260,8 @@ sub wipeobsolete {
   my $repoid = $ctx->{'repository'};
   my $projpacks = $gctx->{'projpacks'};
   my $myarch = $gctx->{'arch'};
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
+  my $linkedbuild = $repo ? $repo->{'linkedbuild'} : 'all';
   my $pdatas = $projpacks->{$projid}->{'package'} || {};
   my $dstcache = { 'fullcache' => {}, 'bininfocache' => {} };
   my $hadobsolete;
@@ -275,6 +277,10 @@ sub wipeobsolete {
       if (($pdata->{'error'} || '') eq 'excluded') {
 	$reason = 'excluded';
       } else {
+	if (exists($pdata->{'originproject'})) {
+	  # package from project link
+	  $reason = 'excluded' if !$linkedbuild || ($linkedbuild ne 'localdep' && $linkedbuild ne 'all');
+	}
 	my %info = map {$_->{'repository'} => $_} @{$pdata->{'info'} || []};
 	my $info = $info{$repoid};
 	$reason = 'excluded' if $info && ($info->{'error'} || '') eq 'excluded';

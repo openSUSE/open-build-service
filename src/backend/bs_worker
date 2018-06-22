@@ -2207,16 +2207,26 @@ sub getbinaries_buildenv {
   return ();	# no meta
 }
 
+sub getkiwimode {
+  my ($buildinfo) = @_;
+  my $file = $buildinfo->{'file'};
+  $file =~ s/^_service:.*://;
+  my $kiwimode;
+  $kiwimode = 'image' if $file =~ /\.kiwi$/;
+  $kiwimode = 'product' if $kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
+  $kiwimode = 'docker' if $file eq 'Dockerfile';
+  $kiwimode = 'fissile' if $file eq 'fissile.yml';
+  return $kiwimode;
+}
+
 sub getbinaries {
   my ($buildinfo, $dir, $srcdir, $preinstallimagedata, $kiwiorigins) = @_;
 
   return getbinaries_buildenv($buildinfo, $dir, $srcdir) if $buildinfo->{'hasbuildenv'};
 
   mkdir_p($dir);
-  my $kiwimode;
-  $kiwimode = 'image' if $buildinfo->{'file'} =~ /\.kiwi$/;
-  $kiwimode = 'docker' if $buildinfo->{'file'} eq 'Dockerfile';
-  $kiwimode = 'fissile' if $buildinfo->{'file'} eq 'fissile.yml';
+  my $recipefile = $buildinfo->{'file'};
+  my $kiwimode = getkiwimode($buildinfo);
 
   # we need the Build package for queryhdrmd5
   importbuild() unless defined &Build::queryhdrmd5;
@@ -2790,11 +2800,7 @@ sub dobuild {
   my $repoid = $buildinfo->{'repository'};
   my $arch = $buildinfo->{'arch'};
   my $helperarch = $buildinfo->{'hostarch'} || $arch;
-  my $kiwimode;
-  $kiwimode = 'image' if $buildinfo->{'file'} =~ /\.kiwi$/;
-  $kiwimode = 'product' if $kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
-  $kiwimode = 'docker' if $buildinfo->{'file'} eq 'Dockerfile';
-  $kiwimode = 'fissile' if $buildinfo->{'file'} eq 'fissile.yml';
+  my $kiwimode = getkiwimode($buildinfo);
   my $kiwiorigins;
   my $stats = {};
   my $deltamode;
@@ -2881,11 +2887,7 @@ sub dobuild {
     $buildinfo->{'rootforbuild'} = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
     $buildinfo->{'file'} = $followupmode;
     # recalc kiwimode as we changed the file
-    undef $kiwimode;
-    $kiwimode = 'image' if $buildinfo->{'file'} =~ /\.kiwi$/;
-    $kiwimode = 'product' if $kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
-    $kiwimode = 'docker' if $buildinfo->{'file'} eq 'Dockerfile';
-    $kiwimode = 'fissile' if $buildinfo->{'file'} eq 'fissile.yml';
+    $kiwimode = getkiwimode($buildinfo);
     @meta = split("\n", readstr("$srcdir/meta"));
   } else {
     $kiwiorigins = {} if $kiwimode;	# always for kiwi
