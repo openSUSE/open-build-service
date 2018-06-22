@@ -10,17 +10,13 @@ class AttributeController < ApplicationController
   validate_action delete_attribute_definition: { method: :delete, response: :status }
   validate_action update_attribute_definition: { method: :put, request: :attrib_type, response: :status }
   validate_action update_attribute_definition: { method: :post, request: :attrib_type, response: :status }
+  before_action :require_namespace, only: [:show_namespace_definition, :delete_namespace_definition, :update_namespace_definition]
   before_action :require_admin, only: [:update_namespace_definition, :delete_namespace_definition]
   before_action :require_attribute_name, only: [:show_attribute_definition, :update_attribute_definition, :delete_attribute_definition]
 
   def index
     if params[:namespace]
-      an = AttribNamespace.where(name: params[:namespace]).first
-      unless an
-        render_error status: 400, errorcode: 'unknown_namespace',
-          message: "Attribute namespace does not exist: #{params[:namespace]}"
-        return
-      end
+      an = AttribNamespace.find_by_name!(params[:namespace])
       list = an.attrib_types.pluck(:name)
     else
       list = AttribNamespace.pluck(:name)
@@ -37,7 +33,7 @@ class AttributeController < ApplicationController
   end
 
   def show_namespace_definition
-    if (@an = AttribNamespace.where(name: ensure_namespace).select(:id, :name).first)
+    if (@an = AttribNamespace.find_by_name!(@namespace))
       render template: 'attribute/namespace_definition'
     else
       render_error message: "Unknown attribute namespace '#{@namespace}'",
@@ -46,14 +42,13 @@ class AttributeController < ApplicationController
   end
 
   def delete_namespace_definition
-    AttribNamespace.where(name: ensure_namespace).destroy_all
+    AttribNamespace.where(name: @namespace).destroy_all
     render_ok
   end
 
   # /attribute/:namespace/_meta
   def update_namespace_definition
     xml_element = Xmlhash.parse(request.raw_post)
-    ensure_namespace
 
     unless xml_element['name'] == @namespace
       render_error status: 400, errorcode: 'illegal_request',
@@ -61,7 +56,7 @@ class AttributeController < ApplicationController
       return
     end
 
-    db = AttribNamespace.where(name: @namespace).first
+    db = AttribNamespace.find_by_name(@namespace)
     if db
       db.update_from_xml(xml_element)
     else
@@ -84,9 +79,9 @@ class AttributeController < ApplicationController
   # DELETE /attribute/:namespace/:name/_meta
   # DELETE /attribute/:namespace/:name
   def delete_attribute_definition
-    if (at = attribute_type)
-      authorize at, :destroy?
-      at.destroy
+    if (@at = attribute_type)
+      authorize @at, :destroy?
+      @at.destroy
     end
 
     render_ok
@@ -96,11 +91,10 @@ class AttributeController < ApplicationController
   def update_attribute_definition
     return unless (xml_element = validate_attribute_definition_xml)
 
-    if (entry = attribute_type)
+    if (@at = attribute_type)
       authorize entry, :update?
 
-      db = AttribType.find(entry.id) # get a writable object
-      db.update_from_xml(xml_element)
+      @at.update_from_xml(xml_element)
     else
       create_attribute_definiton(xml_element)
     end
@@ -243,16 +237,13 @@ class AttributeController < ApplicationController
 
   private
 
-  def ensure_namespace
-    if params[:namespace].nil?
-      raise MissingParameterError, "parameter 'namespace' is missing"
-    end
+  def require_namespace
     @namespace = params[:namespace]
   end
 
   def require_attribute_namespace
-    ensure_namespace
-    @ans = AttribNamespace.where(name: @namespace).first
+    require_namespace
+    @ans = AttribNamespace.find_by_name!(@namespace)
     return true if @ans
 
     render_error status: 400, errorcode: 'unknown_attribute_namespace',
@@ -276,6 +267,7 @@ class AttributeController < ApplicationController
   end
 
   def attribute_type
+    # find_by_name is something else (of course)
     @ans.attrib_types.where(name: @name).first
   end
 
