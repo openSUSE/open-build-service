@@ -11,6 +11,10 @@ class SourceAttributeController < ApplicationController
   class InvalidAttribute < APIException
   end
 
+  class ChangeAttributeNoPermission < APIException
+    setup 403
+  end
+
   # GET
   # /source/:project/_attribute/:attribute
   # /source/:project/:package/_attribute/:attribute
@@ -32,27 +36,18 @@ class SourceAttributeController < ApplicationController
   # /source/:project/:package/:binary/_attribute/:attribute
   #--------------------------------------------------------
   def delete
-    # init
-    if params[:namespace].blank? || params[:name].blank?
-      render_error status: 400, errorcode: 'missing_attribute',
-                   message: 'No attribute got specified for delete'
-      return
-    end
-    ac = @attribute_container.find_attribute(params[:namespace], params[:name], @binary)
+    attrib = @attribute_container.find_attribute(@at.namespace, @at.name, @binary)
 
     # checks
-    unless ac
-      render_error(status: 404, errorcode: 'not_found',
-                   message: "Attribute #{params[:attribute]} does not exist") && return
+    unless attrib
+      raise ActiveRecord::RecordNotFound, "Attribute #{params[:attribute]} does not exist"
     end
-    unless User.current.can_create_attribute_in? @attribute_container, namespace: params[:namespace], name: params[:name]
-      render_error status: 403, errorcode: 'change_attribute_no_permission',
-                   message: "user #{user.login} has no permission to change attribute"
-      return
+    unless User.current.can_create_attribute_in? @attribute_container, @at
+      raise ChangeAttributeNoPermission, "User #{user.login} has no permission to change attribute"
     end
 
     # exec
-    ac.destroy
+    attrib.destroy
     render_ok
   end
 
@@ -95,12 +90,16 @@ class SourceAttributeController < ApplicationController
 
   protected
 
+  def attribute_type(name)
+    return if name.blank?
+    # if an attribute param is given, it needs to exist
+    AttribType.find_by_name!(name)
+  end
+
   def find_attribute_container
     # init and validation
     #--------------------
-    params[:user] = User.current.login if User.current
-    @binary = nil
-    @binary = params[:binary] if params[:binary]
+    @binary = params[:binary]
     # valid post commands
     if params[:package] && params[:package] != '_project'
       @attribute_container = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
@@ -110,19 +109,6 @@ class SourceAttributeController < ApplicationController
       @attribute_container = Project.get_by_name(params[:project])
     end
 
-    # is the attribute type defined at all ?
-    return if params[:attribute].blank?
-
-    # Valid attribute
-    aname = params[:attribute]
-    name_parts = aname.split(/:/)
-    if name_parts.length != 2
-      raise InvalidAttribute, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
-    end
-    # existing ?
-    AttribType.find_by_name!(params[:attribute])
-    # only needed for a get request
-    params[:namespace] = name_parts[0]
-    params[:name] = name_parts[1]
+    @at = attribute_type(params[:attribute])
   end
 end

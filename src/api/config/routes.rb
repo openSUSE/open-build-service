@@ -731,7 +731,7 @@ OBSApi::Application.routes.draw do
   controller :source_attribute do
     get 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :show, constraints: cons
     post 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :update, constraints: cons, as: :change_attribute
-    delete 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :delete, constraints: cons
+    delete 'source/:project(/:package(/:binary))/_attribute/:attribute' => :delete, constraints: cons
   end
 
   # project level
