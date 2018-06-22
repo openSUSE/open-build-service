@@ -260,8 +260,7 @@ sub wipeobsolete {
   my $repoid = $ctx->{'repository'};
   my $projpacks = $gctx->{'projpacks'};
   my $myarch = $gctx->{'arch'};
-  my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
-  my $linkedbuild = $repo ? $repo->{'linkedbuild'} : 'all';
+  my $linkedbuild = $ctx->{'repo'}->{'linkedbuild'};
   my $pdatas = $projpacks->{$projid}->{'package'} || {};
   my $dstcache = { 'fullcache' => {}, 'bininfocache' => {} };
   my $hadobsolete;
