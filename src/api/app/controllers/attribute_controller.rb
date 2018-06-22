@@ -1,16 +1,16 @@
 class AttributeController < ApplicationController
   include ValidationHelper
 
-  validate_action show_attribute_definition: { method: :get, response: :attrib_type }
-  validate_action delete_attribute_definition: { method: :delete, response: :status }
-  validate_action update_attribute_definition: { method: :put, request: :attrib_type, response: :status }
-  validate_action update_attribute_definition: { method: :post, request: :attrib_type, response: :status }
-  before_action :require_attribute_name, only: [:show_attribute_definition, :update_attribute_definition, :delete_attribute_definition]
+  validate_action show: { method: :get, response: :attrib_type }
+  validate_action delete: { method: :delete, response: :status }
+  validate_action update: { method: :put, request: :attrib_type, response: :status }
+  validate_action update: { method: :post, request: :attrib_type, response: :status }
+  before_action :require_attribute_name, only: [:show, :update, :delete]
 
   # GET /attribute/:namespace/:name/_meta
-  def show_attribute_definition
+  def show
     if (@at = attribute_type)
-      render template: 'attribute/attribute_definition'
+      render template: 'attribute/show'
     else
       render_error message: "Unknown attribute '#{@namespace}':'#{@name}'",
                    status: 404, errorcode: 'unknown_attribute'
@@ -19,7 +19,7 @@ class AttributeController < ApplicationController
 
   # DELETE /attribute/:namespace/:name/_meta
   # DELETE /attribute/:namespace/:name
-  def delete_attribute_definition
+  def delete
     if (@at = attribute_type)
       authorize @at, :destroy?
       @at.destroy
@@ -29,8 +29,8 @@ class AttributeController < ApplicationController
   end
 
   # POST/PUT /attribute/:namespace/:name/_meta
-  def update_attribute_definition
-    return unless (xml_element = validate_attribute_definition_xml)
+  def update
+    return unless (xml_element = validate_xml)
 
     if (@at = attribute_type)
       authorize entry, :update?
@@ -41,139 +41,6 @@ class AttributeController < ApplicationController
     end
 
     render_ok
-  end
-
-  class RemoteProject < APIException
-    setup 400, 'Attribute access to remote project is not yet supported'
-  end
-
-  class InvalidAttribute < APIException
-  end
-
-  # GET
-  # /source/:project/_attribute/:attribute
-  # /source/:project/:package/_attribute/:attribute
-  # /source/:project/:package/:binary/_attribute/:attribute
-  #--------------------------------------------------------
-  def show_attribute
-    find_attribute_container
-
-    # init
-    # checks
-    # exec
-    if params[:rev] || params[:meta] || params[:view] || @attribute_container.nil?
-      # old or remote instance entry
-      render xml: Backend::Api::Sources::Package.attributes(params[:project], params[:package], params)
-      return
-    end
-
-    render xml: @attribute_container.render_attribute_axml(params)
-  end
-
-  # DELETE
-  # /source/:project/_attribute/:attribute
-  # /source/:project/:package/_attribute/:attribute
-  # /source/:project/:package/:binary/_attribute/:attribute
-  #--------------------------------------------------------
-  def delete_attribute
-    find_attribute_container
-
-    # init
-    if params[:namespace].blank? || params[:name].blank?
-      render_error status: 400, errorcode: 'missing_attribute',
-                   message: 'No attribute got specified for delete'
-      return
-    end
-    ac = @attribute_container.find_attribute(params[:namespace], params[:name], @binary)
-
-    # checks
-    unless ac
-      render_error(status: 404, errorcode: 'not_found',
-                   message: "Attribute #{params[:attribute]} does not exist") && return
-    end
-    unless User.current.can_create_attribute_in? @attribute_container, namespace: params[:namespace], name: params[:name]
-      render_error status: 403, errorcode: 'change_attribute_no_permission',
-                   message: "user #{user.login} has no permission to change attribute"
-      return
-    end
-
-    # exec
-    ac.destroy
-    render_ok
-  end
-
-  # POST
-  # /source/:project/_attribute/:attribute
-  # /source/:project/:package/_attribute/:attribute
-  # /source/:project/:package/:binary/_attribute/:attribute
-  #--------------------------------------------------------
-  def cmd_attribute
-    find_attribute_container
-
-    # init
-    req = Xmlhash.parse(request.raw_post)
-    # Keep compat exception
-    raise ActiveXML::ParseError unless req
-
-    # This is necessary for checking the authorization and do not create the attribute
-    # The attribute creation will happen in @attribute_container.store_attribute_xml
-    req.elements('attribute') do |attr|
-      attrib_type = AttribType.find_by_namespace_and_name!(attr.value('namespace'), attr.value('name'))
-      attrib = Attrib.new(attrib_type: attrib_type)
-
-      attr.elements('value') do |value|
-        attrib.values.new(value: value)
-      end
-
-      attrib.container = @attribute_container
-
-      unless attrib.valid?
-        raise APIException, message: attrib.errors.full_messages.join('\n'), status: 400
-      end
-
-      authorize attrib, :create?
-    end
-
-    # exec
-    req.elements('attribute') do |attr|
-      @attribute_container.store_attribute_xml(attr, @binary)
-    end
-    render_ok
-  end
-
-  protected
-
-  before_action :require_valid_project_name, only: [:find_attribute_container]
-
-  def find_attribute_container
-    # init and validation
-    #--------------------
-    params[:user] = User.current.login if User.current
-    @binary = nil
-    @binary = params[:binary] if params[:binary]
-    # valid post commands
-    if params[:package] && params[:package] != '_project'
-      @attribute_container = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
-    else
-      # project
-      raise RemoteProject if Project.is_remote_project?(params[:project])
-      @attribute_container = Project.get_by_name(params[:project])
-    end
-
-    # is the attribute type defined at all ?
-    return if params[:attribute].blank?
-
-    # Valid attribute
-    aname = params[:attribute]
-    name_parts = aname.split(/:/)
-    if name_parts.length != 2
-      raise InvalidAttribute, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
-    end
-    # existing ?
-    AttribType.find_by_name!(params[:attribute])
-    # only needed for a get request
-    params[:namespace] = name_parts[0]
-    params[:name] = name_parts[1]
   end
 
   private
@@ -212,7 +79,7 @@ class AttributeController < ApplicationController
     @ans.attrib_types.where(name: @name).first
   end
 
-  def validate_attribute_definition_xml
+  def validate_xml
     xml_element = Xmlhash.parse(request.raw_post)
 
     return xml_element if xml_element && xml_element['name'] == @name && xml_element['namespace'] == @namespace
