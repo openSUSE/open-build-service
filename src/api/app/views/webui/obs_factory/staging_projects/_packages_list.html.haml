@@ -1,0 +1,12 @@
+%ul.packages-list
+  - max = 15
+  - count = project.classified_requests.count
+  - if count <= max + 1 # Prevent the "1 more" link
+    = render partial: "request", collection: project.classified_requests
+  - else
+    = render partial: "request", collection: project.classified_requests[0,max]
+    - name = project.letter
+    %li.request= link_to "...#{count - max} more", "#", class: "staging_expand staging_#{name}", data: {name: name}
+    %div{class: "staging_collapsible staging_#{name}", style: "display:none"}
+      = render partial: "request", collection: project.classified_requests[max..-1]
+      %li.request= link_to "collapse", "#", class: "staging_collapse", data: {name: name}

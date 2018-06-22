@@ -1,0 +1,57 @@
+- project_bread_crumb 'Staging projects'
+
+- content_for :ready_function do
+  = render partial: 'expand_collapse.js.erb'
+
+.grid_13.alpha
+  .nav
+    %input#letterbox{checked: 'checked', name: 'navbar', type: 'radio'}
+    %section
+      %h2
+        %label{for: 'letterbox'} Letter
+      .box.box-shadow
+        %table.dashboard.staging-dashboard
+          %thead
+          %tr
+            %th Project
+            %th Requests
+            %th Problems
+
+          %tbody
+          - @staging_projects.each do |project|
+            - next if project.overall_state == :empty || project.name !~ /Staging:[A-Z]?$/
+            %tr
+              %td
+                = render partial: 'overall_state', locals: { project: project }
+              %td
+                = render partial: 'packages_list', locals: { project: project }
+              %td.broken-packages
+                = render partial: 'problems', locals: { project: project }
+
+    %input#adibox{name: 'navbar', type: 'radio'}
+    %section
+      %h2
+        %label{for: 'adibox'} ADI
+      .box.box-shadow
+        %table.dashboard.staging-dashboard
+          %thead
+          %tr
+            %th Project
+            %th Requests
+            %th Problems
+
+          %tbody
+          - @staging_projects.each do |project|
+            - next if project.overall_state == :empty || project.name !~ /Staging:adi:[0-9]+$/
+            %tr
+              %td
+                = render partial: 'overall_state', locals: { project: project }
+              %td
+                = render partial: 'packages_list', locals: { project: project }
+              %td.broken-packages
+                = render partial: 'problems', locals: { project: project }
+
+.grid_3.omega
+  = render 'legend'
+  = render 'infos'
+
