@@ -213,6 +213,9 @@ file path of the new one to every test covered.
 When you work on the test suite and you notice a method or part of a feature that
 is not tested please add a test for it.
 
+### Bootstrap theming
+As we are in the progress of migrating our views to a new bootstrap based theming, we currently run our feature tests twice (we do not have view tests). In CircleCI we run the feature tests one time with bootstrap enabled and one time disabled (regardless of the logged in user). Sometimes it can happen that a feature test fails with the bootstrap enabled. The desired solution should be to update the feature test that it works with and without bootstrap. If this is not easily possible, you have the possibility to skip this test for bootstrap by adding ```skip_if_bootstrap``` to the first line of the spec. After that, you should copy over the test to the ```spec/bootstrap/features``` directory and adapt it as necessary.
+
 ## Better Specs
 As a set of "rules" to follow in our specs we use [BetterSpecs.org](http://betterspecs.org/).
 Please read those guidelines before you start coding new specs.

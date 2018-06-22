@@ -1,0 +1,13 @@
+<% ok = project.openqa_jobs.all? {|j| j.result == 'passed' } -%>
+<dt><%= sprite_tag(ok ? 'accept' : 'error', alt: ok ? 'Ok' : 'Fail') %>openQA Jobs</dt>
+<dd>
+<% if project.openqa_jobs.empty? %>
+  None.
+<% else %>
+  <ul>
+    <% project.openqa_jobs.each do |job| %>
+      <li class="openqa_job"><%= render job %></li>
+    <% end %>
+  </ul>
+<% end %>
+</dd>

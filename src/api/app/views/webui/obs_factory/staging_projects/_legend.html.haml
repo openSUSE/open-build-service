@@ -1,0 +1,53 @@
+.box.box-shadow#legends
+  %h2.box-header Legend
+
+  %p Requests
+  %ul.color-legend
+    %li
+      %span.ok
+      Ready
+    %li
+      %span.review
+      In review
+    %li
+      %span.obsolete
+      Obsolete
+    %li
+      %span.untracked
+      Untracked
+    %li.delete
+      %span.delete
+      Delete
+
+  %p Projects
+  %ul.color-legend
+    %li
+      %span.staging-project.state-building
+      Building
+    %li
+      %span.staging-project.state-testing
+      Testing
+    %li
+      %span.staging-project.state-review
+      Review
+    %li
+      %span.staging-project.state-acceptable
+      Acceptable
+    %li
+      %span.staging-project.state-unacceptable
+      Unacceptable
+    %li
+      %span.staging-project.state-failed
+      Failed
+
+  %p Reviews
+  %ul.color-legend
+    %li
+      %i{class: "fa fa-#{ObsFactory::StagingProjectPresenter.review_icon('opensuse-review-team')}"}
+      = link_to 'Source Review', main_app.group_show_path('opensuse-review-team')
+    %li
+      %i{class: "fa fa-#{ObsFactory::StagingProjectPresenter.review_icon('repo-checker')}"}
+      = link_to 'Installation Check', main_app.user_show_path('repo-checker')
+    %li
+      %i{class: "fa fa-#{ObsFactory::StagingProjectPresenter.review_icon('legal-team')}"}
+      = link_to 'Legal Review', main_app.group_show_path('legal-team')
