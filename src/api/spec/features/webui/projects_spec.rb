@@ -197,6 +197,8 @@ RSpec.feature 'Projects', type: :feature, js: true do
         fill_in('Public Key', with: 'JLKSDJFSJ83U4902RKLJSDFLJF2J9IJ23OJFKJFSDF')
         click_button('Save')
 
+        expect(page).to have_css('.repository-container')
+
         within '.repository-container' do
           expect(page).to have_text('My DoD repository')
           expect(page).to have_link('Delete repository')
