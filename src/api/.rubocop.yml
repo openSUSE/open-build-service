@@ -59,6 +59,21 @@ Rails/Output:
     - 'db/**/*'
     - 'lib/**/*'
 
-# Disabled due to a bug
+# We decided not to modify old migrations
 Rails/BulkChangeTable:
-  Enabled: false
+  Exclude:
+    - 'db/migrate/20140210114542_remove_project_and_package_from_subscription.rb'
+    - 'db/migrate/20140624101042_add_package_tracking.rb'
+    - 'db/migrate/20140717101042_add_updateinfo_tracking.rb'
+    - 'db/migrate/20140718112346_flexible_updateinfoid.rb'
+    - 'db/migrate/20140721112346_delayed_job_indexes.rb'
+    - 'db/migrate/20140729101042_updateinfo_tracking_second_attempt.rb'
+    - 'db/migrate/20140801071042_product_version_tracking.rb'
+    - 'db/migrate/20170516140442_add_several_fields_to_kiwi_repositories.rb'
+    - 'db/migrate/20170607110443_add_and_remove_some_index_in_bs_request_actions.rb'
+    - 'db/migrate/20170630121602_add_index_bs_requests_action.rb'
+    - 'db/migrate/20170905081525_add_has_secure_password_support.rb'
+    - 'db/migrate/20170911142301_change_kiwi_package_groups_columns_from_big_int_to_int.rb'
+    - 'db/migrate/20170912140257_change_kiwi_packages_columns_from_big_int_to_int.rb'
+    - 'db/migrate/20171107125828_rename_kiwi_preference_types_to_kiwi_preferences.rb'
+    - 'db/migrate/20180516074538_explicitly_set_charset.rb'
