@@ -1,6 +1,6 @@
  <% 
    problems = project.failed_openqa_jobs.map do |j|
-     content_tag(:li, "QA: #{render(j)}".html_safe, class: "openqa_job")
+     content_tag(:li, "QA: #{render(template: 'webui/obs_factory/openqa_jobs/_openqa_job', locals: { openqa_job: j })}".html_safe, class: "openqa_job")
    end
 -%>
 
