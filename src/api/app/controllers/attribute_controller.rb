@@ -5,11 +5,11 @@ class AttributeController < ApplicationController
   validate_action delete: { method: :delete, response: :status }
   validate_action update: { method: :put, request: :attrib_type, response: :status }
   validate_action update: { method: :post, request: :attrib_type, response: :status }
-  before_action :require_attribute_name, only: [:show, :update, :delete]
+  before_action :load_attribute, only: [:show, :update, :delete]
 
   # GET /attribute/:namespace/:name/_meta
   def show
-    if (@at = attribute_type)
+    if @at
       render template: 'attribute/show'
     else
       render_error message: "Unknown attribute '#{@namespace}':'#{@name}'",
@@ -20,7 +20,7 @@ class AttributeController < ApplicationController
   # DELETE /attribute/:namespace/:name/_meta
   # DELETE /attribute/:namespace/:name
   def delete
-    if (@at = attribute_type)
+    if @at
       authorize @at, :destroy?
       @at.destroy
     end
@@ -32,12 +32,11 @@ class AttributeController < ApplicationController
   def update
     return unless (xml_element = validate_xml)
 
-    if (@at = attribute_type)
+    if @at
       authorize entry, :update?
-
       @at.update_from_xml(xml_element)
     else
-      create_attribute_definiton(xml_element)
+      create(xml_element)
     end
 
     render_ok
@@ -45,38 +44,22 @@ class AttributeController < ApplicationController
 
   private
 
-  def require_namespace
+  def load_attribute
     @namespace = params[:namespace]
-  end
-
-  def require_attribute_namespace
-    require_namespace
     @ans = AttribNamespace.find_by_name!(@namespace)
-    return true if @ans
-
-    render_error status: 400, errorcode: 'unknown_attribute_namespace',
-      message: "Specified attribute namespace does not exist: '#{namespace}'"
-    false
-  end
-
-  def require_attribute_name
-    return unless require_attribute_namespace
     if params[:name].nil?
       raise MissingParameterError, "parameter 'name' is missing"
     end
     @name = params[:name]
+    # find_by_name is something else (of course)
+    @at = @ans.attrib_types.where(name: @name).first
   end
 
-  def create_attribute_definiton(xml_element)
+  def create(xml_element)
     entry = AttribType.new(name: @name, attrib_namespace: @ans)
     authorize entry, :create?
 
     entry.update_from_xml(xml_element)
-  end
-
-  def attribute_type
-    # find_by_name is something else (of course)
-    @ans.attrib_types.where(name: @name).first
   end
 
   def validate_xml
