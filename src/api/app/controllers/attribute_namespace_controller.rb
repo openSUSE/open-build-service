@@ -29,7 +29,7 @@ class AttributeNamespaceController < ApplicationController
 
   def show
     if (@an = AttribNamespace.find_by_name!(@namespace))
-      render template: 'attribute/namespace_definition'
+      render template: 'attribute_namespace/show'
     else
       render_error message: "Unknown attribute namespace '#{@namespace}'",
         status: 404, errorcode: 'unknown_attribute_namespace'

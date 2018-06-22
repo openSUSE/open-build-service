@@ -173,7 +173,6 @@ OBSApi::Application.routes.draw do
       get 'patchinfo/new_tracker' => :new_tracker
       get 'patchinfo/delete_dialog' => :delete_dialog
     end
-    #
     controller 'webui/repositories' do
       get 'repositories/:project(/:package)' => :index, constraints: cons, as: 'repositories', defaults: { format: 'html' }
       get 'project/repositories/:project' => :index, constraints: cons, as: 'project_repositories'
@@ -498,16 +497,11 @@ OBSApi::Application.routes.draw do
       match 'attribute/:namespace/_meta' => :update, via: [:post, :put]
     end
 
-    ### /attribute is before source as it needs more specific routes for projects
     controller :attribute do
-      get 'attribute/:namespace/:name/_meta' => :show_attribute_definition
-      delete 'attribute/:namespace/:name/_meta' => :delete_attribute_definition
-      delete 'attribute/:namespace/:name' => :delete_attribute_definition
-      match 'attribute/:namespace/:name/_meta' => :update_attribute_definition, via: [:post, :put]
-
-      get 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :show_attribute, constraints: cons
-      post 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :cmd_attribute, constraints: cons, as: :change_attribute
-      delete 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :delete_attribute, constraints: cons
+      get 'attribute/:namespace/:name/_meta' => :show
+      delete 'attribute/:namespace/:name/_meta' => :delete
+      delete 'attribute/:namespace/:name' => :delete
+      match 'attribute/:namespace/:name/_meta' => :update, via: [:post, :put]
     end
 
     ### /architecture
@@ -732,6 +726,12 @@ OBSApi::Application.routes.draw do
     ### /projects
     get 'projects/:project/requests' => 'webui/projects/bs_requests#index', constraints: cons, as: 'projects_requests'
     get 'projects/:project/packages/:package/requests' => 'webui/packages/bs_requests#index', constraints: cons, as: 'packages_requests'
+  end
+
+  controller :source_attribute do
+    get 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :show, constraints: cons
+    post 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :update, constraints: cons, as: :change_attribute
+    delete 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :delete, constraints: cons
   end
 
   # project level
