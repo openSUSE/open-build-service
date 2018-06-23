@@ -875,9 +875,12 @@ sub create {
 
   # a new one. expand usedforbuild. write info file.
   my $buildtype = $pdata->{'buildtype'} || Build::recipe2buildtype($info->{'file'});
+  if ($buildtype eq 'kiwi') {	# split kiwi buildtype into kiwi-image and kiwi-product
+    $buildtype = $info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product' ? 'kiwi-product' : 'kiwi-image';
+  }
 
   my $kiwimode;
-  $kiwimode = $buildtype if $buildtype eq 'kiwi' || $buildtype eq 'docker' || $buildtype eq 'fissile';
+  $kiwimode = $buildtype if $buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product' || $buildtype eq 'docker' || $buildtype eq 'fissile';
 
   my $syspath;
   my $searchpath = path2buildinfopath($gctx, $ctx->{'prpsearchpath'});
@@ -904,18 +907,20 @@ sub create {
     @btdeps = BSUtil::unify(@btdeps);
   }
 
-  # calculate sysdeps (cannot cache in the kiwi case)
-  my @sysdeps;
-  if ($buildtype eq 'kiwi') {
-    my $kiwitype = '';
-    $kiwitype = $info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product' ? 'kiwi-product' : 'kiwi-image';
-    @sysdeps = grep {/^kiwi-.*:/} @{$info->{'dep'} || []};
-    @sysdeps = Build::get_sysbuild($bconf, $kiwitype, [ @sysdeps, @btdeps, @{$ctx->{'extradeps'} || []} ]);
+  # calculate sysdeps
+  my @sysdeps = @btdeps;
+  if ($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product') {
+    unshift @sysdeps, grep {/^kiwi-.*:/} @{$info->{'dep'} || []};
+    push @sysdeps, @{$ctx->{'extradeps'} || []};
+  }
+  if (@sysdeps) {
+    @sysdeps = Build::get_sysbuild($bconf, $buildtype, [ @sysdeps ]);	# cannot cache...
   } else {
     $ctx->{"sysbuild_$buildtype"} ||= [ Build::get_sysbuild($bconf, $buildtype) ];
     @sysdeps = @{$ctx->{"sysbuild_$buildtype"}};
   }
   add_expanddebug($ctx,'sysdeps expansion') if $expanddebug && @sysdeps;
+  @btdeps = () if @sysdeps;	# already included in sysdeps
 
   # calculate packages needed for building
   my @bdeps = grep {!/^\// || $bconf->{'fileprovides'}->{$_}} @{$info->{'prereq'} || []};

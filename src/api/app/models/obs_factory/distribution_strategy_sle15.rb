@@ -16,6 +16,15 @@ module ObsFactory
       '000product:SLES-cd-DVD'
     end
 
+    def sp_version(name)
+      if name.start_with? 'SUSE:SLE-15:GA'
+        nil
+      else
+        match = name.match(/SUSE:SLE-15-(.*):GA/)
+        match[1]
+      end
+    end
+
     # Name of the ISO file by the given staging project tracked on openqa
     #
     # @return [String] file name
@@ -23,7 +32,9 @@ module ObsFactory
       ending = project_iso(project)
       return if ending.nil?
       ending.gsub!(/.*-Build/, '')
-      "SLE-15-Staging:#{project.letter}-Installer-DVD-#{arch}-Build#{project.letter}.#{ending}"
+      sp = sp_version(project.name)
+      version = sp ? ('15-' + sp) : '15'
+      "SLE-#{version}-Staging:#{project.letter}-Installer-DVD-#{arch}-Build#{project.letter}.#{ending}"
     end
 
   end
