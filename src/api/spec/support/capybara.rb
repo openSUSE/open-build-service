@@ -16,15 +16,17 @@ Capybara.javascript_driver = :poltergeist
 
 # Automatically save the page a test fails
 RSpec.configure do |config|
+  config.before(:suite) do
+    FileUtils.rm_rf(File.join(Capybara.save_path, '.'), secure: true)
+  end
+  
   config.after(:each, type: :feature) do
-    example_filename = RSpec.current_example.full_description
-    example_filename = example_filename.tr(' ', '_')
-    example_filename += '.html'
-    example_filename = File.expand_path(example_filename, Capybara.save_path)
     if RSpec.current_example.exception.present?
+      example_filename = RSpec.current_example.full_description
+      example_filename = example_filename.tr(' ', '_')
+      example_filename += '.html'
+      example_filename = File.expand_path(example_filename, Capybara.save_path)
       save_page(example_filename)
-    elsif File.exist?(example_filename)
-      File.unlink(example_filename)
     end
   end
 end
