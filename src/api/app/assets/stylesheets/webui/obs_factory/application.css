@@ -35,7 +35,7 @@ a.openqa-none {
 }
 
 a.openqa-incomplete {
-    color: black
+    color: red
 }
 
 /* Proper formating for dl, dt and dd */
