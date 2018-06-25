@@ -92,6 +92,9 @@ jobs:
       - store_artifacts:
           path: ./src/api/log
           destination: rspec
+      - store_artifacts:
+          path: ./src/api/tmp/capybara
+          destination: capybara
       - store_test_results:
           path: /home/frontend/rspec
   rspec-bootstrap:
@@ -114,6 +117,9 @@ jobs:
       - store_artifacts:
           path: ./src/api/log
           destination: rspec
+      - store_artifacts:
+          path: ./src/api/tmp/capybara
+          destination: capybara
   minitest:
     <<: *minitest
     steps:
