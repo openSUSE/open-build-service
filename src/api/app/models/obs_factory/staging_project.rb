@@ -256,21 +256,24 @@ module ObsFactory
       :acceptable
     end
 
+    def is_testing?(openqa_jobs)
+      # empty == the ISOs may still be syncing
+      openqa_jobs.empty? || openqa_jobs.any? { |job| job.result == 'none' }
+    end
+
+    def all_passed?
+      openqa_jobs.all? { |job| ['passed', 'softfailed'].include? job.result }
+    end
+
     # check openQA jobs for all projects not building right now - or that are known to be broken
     def openqa_state
       # no openqa result for adi staging project
       return :acceptable if adi_staging?
-      # the ISOs may still be syncing
-      return :testing if openqa_jobs.empty?
+      return :testing if is_testing?(openqa_jobs)
 
-      openqa_jobs.each do |job|
-        if job.failing_modules.present?
-          return :failed
-        elsif ! %w(passed softfailed).include? job.result
-          return :testing
-        end
-      end
-      :acceptable
+      return :acceptable if all_passed?(openqa_jobs)
+      # something failed on openqa side, needs manual check
+      return :failed
     end
 
     # calculate the overall state of the project
