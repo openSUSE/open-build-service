@@ -84,13 +84,13 @@ namespace :dev do
       task all: [:root, :rails] do
       end
       desc 'Run the ruby linter in rails'
-      RuboCop::RakeTask.new(:rails) do |task|
-        task.options = ['-D', '-F', '-S', '--fail-level', 'convention', '--ignore_parent_exclusion']
+      task :rails do
+        sh 'rubocop', '-D', '-F', '-S', '--fail-level', 'convention', '--ignore_parent_exclusion'
       end
       desc 'Run the ruby linter in root'
       task :root do
         Dir.chdir('../..') do
-          Rake::Task['dev:lint:rubocop:rails'].invoke
+          sh 'rubocop', '-D', '-F', '-S', '--fail-level', 'convention'
         end
       end
       namespace :auto_gen_config do
