@@ -517,12 +517,6 @@ Naming/VariableNumber:
     - 'spec/features/webui/projects_spec.rb'
     - 'test/unit/project_test.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Performance/InefficientHashSearch:
-  Exclude:
-    - 'app/models/user.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 Performance/RegexpMatch:
