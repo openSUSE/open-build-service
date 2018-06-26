@@ -24,9 +24,9 @@ RSpec.configure do |config|
     if RSpec.current_example.exception.present?
       example_filename = RSpec.current_example.full_description
       example_filename = example_filename.gsub(/[^0-9A-Za-z_]/, '_')
-      example_filename += '.html'
       example_filename = File.expand_path(example_filename, Capybara.save_path)
-      save_page(example_filename)
+      save_page("#{example_filename}.html")
+      save_screenshot("#{example_filename}.png")
     end
   end
 end
