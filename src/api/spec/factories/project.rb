@@ -1,15 +1,18 @@
 FactoryBot.define do
   factory :project do
-    sequence(:name) { |n| "project_#{n}" }
-    title { Faker::Book.title }
-
-    after(:create, &:write_to_backend)
-
     transient do
+      link_to nil
       maintainer nil
     end
 
+    sequence(:name) { |n| "project_#{n}" }
+    title { Faker::Book.title }
+
     after(:create) do |project, evaluator|
+      if evaluator.link_to
+        LinkedProject.create(project: project, linked_db_project: evaluator.link_to)
+      end
+
       if evaluator.maintainer
         maintainers = [*evaluator.maintainer]
         maintainers.each do |maintainer|
@@ -20,6 +23,8 @@ FactoryBot.define do
           end
         end
       end
+
+      project.write_to_backend
     end
 
     # remote projects validate additional the description and remoteurl
