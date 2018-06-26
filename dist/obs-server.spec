@@ -651,7 +651,7 @@ usermod -a -G docker obsservicerun
 %dir /srv/www/obs/api/db
 /srv/www/obs/api/db/checker.rb
 /srv/www/obs/api/Gemfile
-%verify(no mtime) /srv/www/obs/api/last_deploy
+%verify(not mtime) /srv/www/obs/api/last_deploy
 /srv/www/obs/api/Gemfile.lock
 /srv/www/obs/api/config.ru
 /srv/www/obs/api/config/application.rb
