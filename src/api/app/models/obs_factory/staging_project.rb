@@ -52,10 +52,7 @@ module ObsFactory
     #
     # @return [Boolean] true if the project is adi staging project
     def adi_staging?
-      if name =~ /#{ADI_NAME_PREFIX}/
-        return true
-      end
-      false
+      /#{ADI_NAME_PREFIX}/.match?(name)
     end
 
     # Part of the name shared by all the staging projects belonging to the same
