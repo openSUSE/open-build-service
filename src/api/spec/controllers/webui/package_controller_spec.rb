@@ -1,9 +1,5 @@
 require 'webmock/rspec'
 require 'rails_helper'
-# WARNING: If you change owner tests make sure you uncomment this line
-# and start a test backend. Some of the Owner methods
-# require real backend answers for projects/packages.
-# CONFIG['global_write_through'] = true
 
 # rubocop:disable Metrics/BlockLength
 RSpec.describe Webui::PackageController, vcr: true do

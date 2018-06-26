@@ -1,4 +1,3 @@
-require 'browser_helper'
 
 RSpec.feature 'Projects', type: :feature, js: true do
   let!(:admin_user) { create(:admin_user) }

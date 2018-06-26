@@ -1,7 +1,5 @@
 require 'rails_helper'
 
-# CONFIG['global_write_through'] = true
-
 RSpec.describe BranchPackage, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:home_project) { user.home_project }

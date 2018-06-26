@@ -1,8 +1,4 @@
 require 'rails_helper'
-# WARNING: If you change tests make sure you uncomment this line
-# and start a test backend. Some of the BsRequestAction methods
-# require real backend answers for projects/packages.
-# CONFIG['global_write_through'] = true
 
 RSpec.describe BsRequestAction, vcr: true do
   context 'encoding of sourcediffs' do

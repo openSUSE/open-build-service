@@ -1,10 +1,5 @@
 require 'rails_helper'
 
-# WARNING: If you change tests make sure you uncomment this line
-# and start a test backend. Some of the actions
-# require real backend answers for projects/packages.
-# CONFIG['global_write_through'] = true
-
 RSpec.describe Issue, vcr: true do
   describe '#fetch_issues' do
     let!(:issue_tracker) { create(:issue_tracker) }

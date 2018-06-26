@@ -1,8 +1,4 @@
 require 'rails_helper'
-# WARNING: If you change owner tests make sure you uncomment this line
-# and start a test backend. Some of the Owner methods
-# require real backend answers for projects/packages.
-# CONFIG['global_write_through'] = true
 
 RSpec.describe Webui::SearchController, vcr: true do
   let!(:user) { create(:confirmed_user, login: 'Iggy') }
@@ -31,6 +27,7 @@ RSpec.describe Webui::SearchController, vcr: true do
       package.update_attributes(develpackage: develpackage)
 
       get :owner, params: { search_text: 'package', owner: 1, devel: 'on' }
+      print(response.body)
       expect(assigns(:results)[0].users).to eq('maintainer'=>['DevelIggy'])
       expect(assigns(:results)[0].users).not_to eq('maintainer'=>['Iggy'])
     end

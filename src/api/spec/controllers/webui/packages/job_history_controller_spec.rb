@@ -1,9 +1,5 @@
 require 'rails_helper'
 require 'webmock/rspec'
-# WARNING: If you change owner tests make sure you uncomment this line
-# and start a test backend. Some of the Owner methods
-# require real backend answers for projects/packages.
-# CONFIG['global_write_through'] = true
 
 RSpec.describe Webui::Packages::JobHistoryController, type: :controller, vcr: true do
   describe 'GET #index' do

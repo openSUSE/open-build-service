@@ -3,8 +3,6 @@ FactoryBot.define do
     sequence(:name) { |n| "project_#{n}" }
     title { Faker::Book.title }
 
-    # NOTE: Enable global write through when writing new VCR cassetes.
-    # ensure the backend knows the project
     after(:create, &:write_to_backend)
 
     transient do

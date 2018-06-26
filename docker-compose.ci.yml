@@ -6,6 +6,7 @@ services:
       - .:/obs
     depends_on:
       - db
+      - backend
     command: /obs/contrib/start_rspec
   minitest:
     image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/frontend-backend:latest
@@ -27,3 +28,11 @@ services:
       - .:/obs
     working_dir: /obs
     command: make -C src/backend test
+  backend:
+    image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/openbuildservice/backend:latest
+    volumes:
+      - .:/obs
+      - ./dist/aws_credentials:/etc/obs/cloudupload/.aws/config
+      - ./dist/ec2utils.conf:/etc/obs/cloudupload/.ec2utils.conf
+      - ./dist/clouduploader.rb:/usr/bin/clouduploader
+    command: /obs/contrib/start_development_backend -d /obs
