@@ -1,14 +1,29 @@
 FactoryBot.define do
   factory :project do
+    transient do
+      link_to nil
+    end
+
     sequence(:name) { |n| "project_#{n}" }
     title { Faker::Book.title }
 
-    after(:create) do |project|
+    after(:create) do |project, evaluator|
+      if evaluator.link_to
+        LinkedProject.create(project: project, linked_db_project: evaluator.link_to)
+      end
       # NOTE: Enable global write through when writing new VCR cassetes.
       # ensure the backend knows the project
       if CONFIG['global_write_through']
+        link = "<link project='evaluator.link_to}'/>" if evaluator.link_to
+        prj_config = <<-XML
+          <project name="#{project.name}">
+            <title/>
+            <description/>
+            #{link}
+          </project>
+        XML
         Backend::Connection.put("/source/#{CGI.escape(project.name)}/_meta", project.to_axml)
-        Backend::Connection.put("/source/#{CGI.escape(project.name)}/_config", Faker::Lorem.paragraph)
+        Backend::Connection.put("/source/#{CGI.escape(project.name)}/_config", prj_config)
       end
     end
 
