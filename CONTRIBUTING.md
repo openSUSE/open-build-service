@@ -167,7 +167,7 @@ You can access the frontend at [localhost:3000](http://localhost:3000). Whatever
 9. Changed something in the frontend? Test your changes!
 
     ```
-    rake docker:test:frontend
+    rake docker:test:rspec
     rake docker:test:lint
     ```
 
