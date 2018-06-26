@@ -719,7 +719,7 @@ usermod -a -G docker obsservicerun
 %ghost /srv/www/obs/api/log/error.log
 %ghost /srv/www/obs/api/log/lastevents.access.log
 %ghost /srv/www/obs/api/log/production.log
-%ghost %attr(0640,root,www) %secret_key_file
+%ghost %attr(0640,root,www) %verify(not mode group) %secret_key_file
 
 %files -n obs-common
 %defattr(-,root,root)
