@@ -207,6 +207,8 @@ sub dod_rpmmd {
 
 # same parser as in build package:
 #   distribution:   <baseurl>/<dist>/[components]
+#                   or
+#                   <baseurl|dist[|component[|component]]>
 #   flat repo:      <baseurl>/.[/subdir]
 #     components:   comp1,comp2... (main if empty)
 sub dod_deb {
@@ -221,6 +223,15 @@ sub dod_deb {
     @components = ('.');
     $url = defined($2) ? "$1$2" : $1;
     $url .= '/' unless $url =~ /\/$/;
+  } elsif ($url =~ /\|/) {
+    # Dist and components split by |
+    my @parts = split(/\|/, $url);
+    $baseurl = shift @parts;
+    my $dist = shift @parts;
+    @components = @parts;
+    push @components, 'main' unless @components;
+    $baseurl .= '/' unless $baseurl =~ /\/$/;
+    $url = "${baseurl}dists/${dist}/";
   } else {
     if ($url =~ /([^\/]+)$/) {
       @components = split(/[,+]/, $1);
