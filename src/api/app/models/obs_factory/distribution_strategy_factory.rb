@@ -1,6 +1,8 @@
 module ObsFactory
   # this is not a Factory pattern, this is for openSUSE:Factory :/
   class DistributionStrategyFactory
+    include ActiveModel::Model
+
     attr_accessor :project
 
     # String to pass as version to filter the openQA jobs

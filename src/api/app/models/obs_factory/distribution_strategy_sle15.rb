@@ -17,12 +17,8 @@ module ObsFactory
     end
 
     def sp_version(name)
-      if name.start_with? 'SUSE:SLE-15:GA'
-        nil
-      else
-        match = name.match(/SUSE:SLE-15-(.*):GA/)
-        match[1]
-      end
+      /SUSE:SLE-15-(?<service_pack>.*):GA/ =~ name
+      service_pack
     end
 
     # Name of the ISO file by the given staging project tracked on openqa
