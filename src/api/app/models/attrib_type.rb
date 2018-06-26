@@ -6,6 +6,8 @@ class AttribType < ApplicationRecord
   class UnknownAttributeTypeError < APIException
     setup 'unknown_attribute_type', 404, 'Unknown Attribute Type'
   end
+  class InvalidAttributeError < APIException
+  end
 
   #### Attributes
   #### Associations macros (Belongs to, Has one, Has many)
@@ -29,7 +31,7 @@ class AttribType < ApplicationRecord
   def self.find_by_name(name, or_fail = false)
     name_parts = name.split(/:/)
     if name_parts.length != 2
-      raise ArgumentError, "attribute '#{name}' must be in the $NAMESPACE:$NAME style"
+      raise InvalidAttributeError, "Attribute '#{name}' must be in the $NAMESPACE:$NAME style"
     end
     find_by_namespace_and_name(name_parts[0], name_parts[1], or_fail)
   end
