@@ -21,8 +21,8 @@ services:
   db:
     image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/openbuildservice/mariadb:latest
     volumes:
-      - mysql_vol:/var/lib/mysql_tmpfs/
       - .:/obs
+    shm_size: 512MB
     command: /obs/contrib/start_test_db
   backend:
     image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/openbuildservice/backend:latest
@@ -30,8 +30,3 @@ services:
       - .:/obs
     working_dir: /obs
     command: make -C src/backend test
-volumes:
-  mysql_vol:
-    driver_opts:
-      type: tmpfs
-      device: tmpfs
