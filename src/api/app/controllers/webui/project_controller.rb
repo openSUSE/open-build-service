@@ -541,7 +541,7 @@ class Webui::ProjectController < Webui::WebuiController
     sliced_params = params.slice(:rev)
     sliced_params.permit!
 
-    @content = @project.config.to_s(sliced_params.to_h)
+    @content = @project.config.content(sliced_params.to_h)
     return if @content
     flash[:error] = @project.config.errors.full_messages.to_sentence
     redirect_to controller: 'project', nextstatus: 404

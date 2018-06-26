@@ -9,7 +9,7 @@ class SourceProjectConfigController < SourceController
 
     return if forward_from_backend(config.full_path(sliced_params))
 
-    content = config.to_s(sliced_params)
+    content = config.content(sliced_params)
 
     unless content
       render_404(config.errors.full_messages.to_sentence)

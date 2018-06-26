@@ -488,12 +488,6 @@ OBSApi::Application.routes.draw do
 
     resources :about, only: :index
 
-    controller :test do
-      post 'test/killme' => :killme
-      post 'test/startme' => :startme
-      post 'test/test_start' => :test_start
-    end
-
     ### /attribute is before source as it needs more specific routes for projects
     controller :attribute do
       get 'attribute' => :index

@@ -152,7 +152,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
     request = BsRequest.where(description: 'Hey, why not?', creator: user.login, state: 'review')
     expect(request).to exist
     expect(page.current_path).to match("/request/show/#{request.first.number}")
-    expect(page).to have_text("Created by #{user.login}")
+    expect(page).to have_text(/Created by\s+#{user.login}/)
     expect(page).to have_text('In state review')
     expect(page).to have_text("Set the devel project to package #{third_project.name} / develpackage for package #{user.home_project} / develpackage")
   end

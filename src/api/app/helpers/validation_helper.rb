@@ -45,7 +45,7 @@ module ValidationHelper
 
     query = { deleted: 1 }
     query[:rev] = lastrev.value('srcmd5') if lastrev
-    meta = PackageMetaFile.new(project_name: project, package_name: name).to_s(query)
+    meta = PackageMetaFile.new(project_name: project, package_name: name).content(query)
     raise Package::UnknownObjectError, "#{project}/#{name}" unless meta
 
     return true if User.current.is_admin?

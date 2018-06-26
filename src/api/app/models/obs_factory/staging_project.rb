@@ -14,18 +14,14 @@ module ObsFactory
     NAME_PREFIX = ":Staging:"
     ADI_NAME_PREFIX = ":Staging:adi:"
 
-    def initialize(project, distribution)
-      self.project = project
-      self.distribution = distribution
-    end
-
     # Find all staging projects for a given distribution
     #
     # @param [Boolean] only_letter  only letter stagings, otherwise all stagings
     # @return [Array] array of StagingProject objects
     def self.for(distribution, only_letter=true)
       wildcard = only_letter ? "_" : "%"
-      ::Project.where(["name like ?", "#{distribution.root_project_name}#{NAME_PREFIX}#{wildcard}"]).map { |p| StagingProject.new(p, distribution) }
+      ::Project.where(["name like ?", "#{distribution.root_project_name}#{NAME_PREFIX}#{wildcard}"]).
+        map { |project| StagingProject.new(project: project, distribution: distribution) }
     end
 
     # Find a staging project by distribution and id
@@ -34,9 +30,7 @@ module ObsFactory
     def self.find(distribution, id)
       project = ::Project.find_by_name("#{distribution.root_project_name}#{NAME_PREFIX}#{id}")
       if project
-        StagingProject.new(project, distribution)
-      else
-        nil
+        StagingProject.new(project: project, distribution: distribution)
       end
     end
 
@@ -58,10 +52,7 @@ module ObsFactory
     #
     # @return [Boolean] true if the project is adi staging project
     def adi_staging?
-      if name =~ /#{ADI_NAME_PREFIX}/
-        return true
-      end
-      false
+      /#{ADI_NAME_PREFIX}/.match?(name)
     end
 
     # Part of the name shared by all the staging projects belonging to the same
@@ -108,8 +99,8 @@ module ObsFactory
     def subproject
       return @subprojects[0] unless @subprojects.nil?
       @subprojects = []
-      ::Project.where(["name like ?", "#{name}:%"]).map do |p| 
-        p = StagingProject.new(p, distribution)
+      ::Project.where(["name like ?", "#{name}:%"]).map do |project|
+        p = StagingProject.new(project: project, distribution: distribution)
         p.parent = self
         @subprojects << p
       end

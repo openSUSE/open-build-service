@@ -882,7 +882,7 @@ class User < ApplicationRecord
                     'sha256crypt' => 5 }
     if deprecated_password_hash_type == 'md5'
       Digest::MD5.hexdigest(value + deprecated_password_salt)
-    elsif crypt2index.keys.include?(deprecated_password_hash_type)
+    elsif crypt2index.key?(deprecated_password_hash_type)
       value.crypt("$#{crypt2index[deprecated_password_hash_type]}$#{deprecated_password_salt}$").split('$')[3]
     end
   end
