@@ -19,7 +19,7 @@ RSpec.configure do |config|
   config.before(:suite) do
     FileUtils.rm_rf(File.join(Capybara.save_path, '.'), secure: true)
   end
-  
+
   config.after(:each, type: :feature) do
     if RSpec.current_example.exception.present?
       example_filename = RSpec.current_example.full_description
