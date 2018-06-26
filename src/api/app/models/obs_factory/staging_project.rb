@@ -31,8 +31,6 @@ module ObsFactory
       project = ::Project.find_by_name("#{distribution.root_project_name}#{NAME_PREFIX}#{id}")
       if project
         StagingProject.new(project: project, distribution: distribution)
-      else
-        nil
       end
     end
 
