@@ -12,6 +12,4 @@ require 'support/features/features_bootstrap'
 # https://www.relishapp.com/rspec/rspec-core/v/2-12/docs/example-groups/shared-examples
 Dir['./spec/support/shared_examples/features/*.rb'].each { |example| require example }
 
-if ENV['RETRY'].present?
-  require 'support/features/features_rspec_retry'
-end
+require 'support/features/features_rspec_retry'
