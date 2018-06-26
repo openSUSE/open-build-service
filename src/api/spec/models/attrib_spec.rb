@@ -1,9 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe Attrib, type: :model do
-  let(:attribute) { create(:attrib, project: create(:project)) }
+  let(:user) { create(:confirmed_user) }
   let(:project) { create(:project) }
   let(:package) { create(:package) }
+  let(:attribute) { build(:attrib, project: create(:project)) }
 
   describe '#fullname' do
     it { expect(attribute.fullname).to eq("#{attribute.namespace}:#{attribute.name}") }
@@ -15,9 +16,11 @@ RSpec.describe Attrib, type: :model do
     end
 
     context 'attribute with package' do
-      let(:attribute_with_package) { create(:attrib, package: package) }
-
-      it { expect(attribute_with_package.container).to eq(package) }
+      it 'saves the proper container' do
+        login user
+        attribute_with_package = create(:attrib, package: package)
+        expect(attribute_with_package.container).to eq(package)
+      end
     end
   end
 
@@ -65,27 +68,34 @@ RSpec.describe Attrib, type: :model do
 
   describe '#project' do
     context 'attribute with project' do
-      let(:attribute_with_project) { create(:attrib, project: project) }
+      let(:attribute_with_project) { build(:attrib, project: project) }
 
       it { expect(attribute_with_project.project).to eq(project) }
     end
 
     context 'attribute with package' do
-      let(:attribute_with_package) { create(:attrib, package: package) }
-
-      it { expect(attribute_with_package.project).to eq(package.project) }
+      it 'has the proper project' do
+        login user
+        attribute_with_package = create(:attrib, package: package)
+        expect(attribute_with_package.project).to eq(package.project)
+      end
     end
   end
 
   describe '#update_with_associations' do
     context 'without issues and without values' do
+      before do
+        login user
+        attribute.save
+      end
+
       it { expect(attribute.update_with_associations).to be false }
 
       context 'add an issue' do
         let(:issue_tracker) { create(:issue_tracker) }
         let(:issue) { create(:issue, issue_tracker_id: issue_tracker.id) }
         let(:attrib_type_issue) { create(:attrib_type, issue_list: true) }
-        let(:attribute_with_type_issue) { create(:attrib, project: project, attrib_type: attrib_type_issue) }
+        let(:attribute_with_type_issue) { build(:attrib, project: project, attrib_type: attrib_type_issue) }
 
         subject { attribute_with_type_issue.update_with_associations([], [issue]) }
 
@@ -101,11 +111,24 @@ RSpec.describe Attrib, type: :model do
         it { expect(subject).to be true }
         it { expect { subject }.to change { attribute.values.count }.by(1) }
       end
+
+      context 'values list' do
+        let(:values1) { ['blue', 'green'] }
+        let(:values2) { ['green', 'blue'] }
+
+        it 'resorts attribute values' do
+          expect(attribute.update_with_associations(values1, [])).to be true
+          expect(attribute.values.map(&:value)).to eq(values1)
+          expect(attribute.update_with_associations(values2, [])).to be true
+          expect(attribute.values.map(&:value)).to eq(values2)
+        end
+      end
     end
   end
 
   describe 'validations' do
     before do
+      login user
       subject.valid?
     end
 

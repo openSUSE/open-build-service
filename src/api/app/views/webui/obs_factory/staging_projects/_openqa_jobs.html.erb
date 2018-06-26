@@ -6,7 +6,7 @@
 <% else %>
   <ul>
     <% project.openqa_jobs.each do |job| %>
-      <li class="openqa_job"><%= render job %></li>
+      <li class="openqa_job"><%= render(template: 'webui/obs_factory/openqa_jobs/_openqa_job', locals: { openqa_job: job }) %></li>
     <% end %>
   </ul>
 <% end %>

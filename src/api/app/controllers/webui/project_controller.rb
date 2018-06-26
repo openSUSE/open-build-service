@@ -429,7 +429,7 @@ class Webui::ProjectController < Webui::WebuiController
     @packagenames = @packagenames.flatten.uniq.sort
 
     ## Filter for PackageNames ####
-    @packagenames.reject! { |name| !filter_matches?(name, @name_filter) } if @name_filter.present?
+    @packagenames.select! { |name| filter_matches?(name, @name_filter) } if @name_filter.present?
 
     packagename_hash = {}
     @packagenames.each { |p| packagename_hash[p.to_s] = 1 }
@@ -541,7 +541,7 @@ class Webui::ProjectController < Webui::WebuiController
     sliced_params = params.slice(:rev)
     sliced_params.permit!
 
-    @content = @project.config.to_s(sliced_params.to_h)
+    @content = @project.config.content(sliced_params.to_h)
     return if @content
     flash[:error] = @project.config.errors.full_messages.to_sentence
     redirect_to controller: 'project', nextstatus: 404
@@ -590,13 +590,13 @@ class Webui::ProjectController < Webui::WebuiController
   def edit_comment
     @package = @project.find_package(params[:package])
 
-    unless User.current.can_create_attribute_in? @package, namespace: 'OBS', name: 'ProjectStatusPackageFailComment'
+    at = AttribType.find_by_namespace_and_name!('OBS', 'ProjectStatusPackageFailComment')
+    unless User.current.can_create_attribute_in? @package, at
       @comment = params[:last_comment]
       @error = "Can't create attributes in #{@package}"
       return
     end
 
-    at = AttribType.find_by_namespace_and_name!('OBS', 'ProjectStatusPackageFailComment')
     attr = @package.attribs.where(attrib_type: at).first_or_initialize
     v = attr.values.first_or_initialize
     v.value = params[:text]

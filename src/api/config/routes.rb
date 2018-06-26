@@ -173,7 +173,6 @@ OBSApi::Application.routes.draw do
       get 'patchinfo/new_tracker' => :new_tracker
       get 'patchinfo/delete_dialog' => :delete_dialog
     end
-    #
     controller 'webui/repositories' do
       get 'repositories/:project(/:package)' => :index, constraints: cons, as: 'repositories', defaults: { format: 'html' }
       get 'project/repositories/:project' => :index, constraints: cons, as: 'project_repositories'
@@ -488,25 +487,21 @@ OBSApi::Application.routes.draw do
 
     resources :about, only: :index
 
-    controller :test do
-      post 'test/killme' => :killme
-      post 'test/startme' => :startme
-      post 'test/test_start' => :test_start
-    end
-
-    ### /attribute is before source as it needs more specific routes for projects
-    controller :attribute do
+    controller :attribute_namespace do
       get 'attribute' => :index
       get 'attribute/:namespace' => :index
       # FIXME3.0: drop the POST and DELETE here
-      match 'attribute/:namespace/_meta' => :namespace_definition, via: [:get, :delete, :post, :put]
-      match 'attribute/:namespace/:name/_meta' => :attribute_definition, via: [:get, :delete, :post, :put]
-      delete 'attribute/:namespace' => :namespace_definition
-      delete 'attribute/:namespace/:name' => :attribute_definition
+      get 'attribute/:namespace/_meta' => :show
+      delete 'attribute/:namespace/_meta' => :delete
+      delete 'attribute/:namespace' => :delete
+      match 'attribute/:namespace/_meta' => :update, via: [:post, :put]
+    end
 
-      get 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :show_attribute, constraints: cons
-      post 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :cmd_attribute, constraints: cons, as: :change_attribute
-      delete 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :delete_attribute, constraints: cons
+    controller :attribute do
+      get 'attribute/:namespace/:name/_meta' => :show
+      delete 'attribute/:namespace/:name/_meta' => :delete
+      delete 'attribute/:namespace/:name' => :delete
+      match 'attribute/:namespace/:name/_meta' => :update, via: [:post, :put]
     end
 
     ### /architecture
@@ -731,6 +726,12 @@ OBSApi::Application.routes.draw do
     ### /projects
     get 'projects/:project/requests' => 'webui/projects/bs_requests#index', constraints: cons, as: 'projects_requests'
     get 'projects/:project/packages/:package/requests' => 'webui/packages/bs_requests#index', constraints: cons, as: 'packages_requests'
+  end
+
+  controller :source_attribute do
+    get 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :show, constraints: cons
+    post 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :update, constraints: cons, as: :change_attribute
+    delete 'source/:project(/:package(/:binary))/_attribute/:attribute' => :delete, constraints: cons
   end
 
   # project level

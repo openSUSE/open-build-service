@@ -60,6 +60,7 @@ class Webui::AttributeController < Webui::WebuiController
     authorize @attribute
 
     if @attribute.update(attrib_params)
+      @attribute.write_container_attributes
       redirect_to edit_attribs_path(project: @attribute.project.to_s, package: @attribute.package.to_s, attribute: @attribute.fullname),
                   notice: 'Attribute was successfully updated.'
     else
