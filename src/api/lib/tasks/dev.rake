@@ -2,7 +2,6 @@
 
 require 'fileutils'
 require 'yaml'
-require 'rubocop/rake_task'
 
 namespace :dev do
   task :prepare, [:old_test_suite] do |_t, args|
@@ -80,6 +79,8 @@ namespace :dev do
   end
   namespace :lint do
     namespace :rubocop do
+      require 'rubocop/rake_task'
+
       task all: [:root, :rails] do
       end
       desc 'Run the ruby linter in rails'
