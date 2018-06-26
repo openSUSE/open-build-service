@@ -13,6 +13,7 @@ use Digest;
 use Digest::MD5 ();
 use Encode;
 use Fcntl qw(:DEFAULT :flock);
+use URI::URL;
 use XML::Structured ':bytes';
 
 use BSConfiguration;
@@ -207,15 +208,40 @@ sub dod_rpmmd {
 
 # same parser as in build package:
 #   distribution:   <baseurl>/<dist>/[components]
+#                   or
+#                   <baseurl?distro=<dist>[&components=<components>]>
 #   flat repo:      <baseurl>/.[/subdir]
 #     components:   comp1,comp2... (main if empty)
 sub dod_deb {
   my ($doddata, $cookie, $file) = @_;
-  my $url = $doddata->{'url'};
+  my $urlparsed = URI::URL->new($doddata->{'url'});
   my $sslfingerprint = getsslfingerprint($doddata);
+  my $dist;
   my @components;
+
+  # See if the URL has distro and/or components in a query string
+  for my $param (split(/&/, $urlparsed->query || '')) {
+    my ($key, $value) = split(/=/, $param, 2);
+    next unless defined $value;
+    if ($key eq 'distro') {
+      $dist = $value;
+    } elsif ($key eq 'components') {
+      @components = split(/[,+]/, $value);
+    }
+  }
+
+  # Strip off the query string from the URL
+  $urlparsed->query('');
+  my $url = $urlparsed->as_string;
+  $url =~ s/\?$//;
   my $baseurl = $url;
-  if ($url =~ /^(.*\/)\.(\/.*)?$/) {
+
+  if (defined $dist) {
+    # Distro parsed from query string
+    push @components, 'main' unless @components;
+    $baseurl .= '/' unless $baseurl =~ /\/$/;
+    $url = "${baseurl}dists/${dist}/";
+  } elsif ($url =~ /^(.*\/)\.(\/.*)?$/) {
     # flat repo
     $baseurl = $1;
     @components = ('.');
