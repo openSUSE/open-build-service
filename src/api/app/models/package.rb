@@ -362,8 +362,8 @@ class Package < ApplicationRecord
   def commit_message(target_project, target_package)
     result = ''
     changes_files.each do |changes_file|
-      source_changes = PackageFile.new(package_name: name, project_name: project.name, name: changes_file).to_s
-      target_changes = PackageFile.new(package_name: target_package, project_name: target_project, name: changes_file).to_s
+      source_changes = PackageFile.new(package_name: name, project_name: project.name, name: changes_file).content
+      target_changes = PackageFile.new(package_name: target_package, project_name: target_project, name: changes_file).content
       result << source_changes.try(:chomp, target_changes)
     end
     # Remove header and empty lines
@@ -960,7 +960,7 @@ class Package < ApplicationRecord
 
   def service_error(revision = nil)
     revision ||= serviceinfo.try { to_hash['xsrcmd5'] }
-    PackageServiceErrorFile.new(project_name: project.name, package_name: name).to_s(rev: revision)
+    PackageServiceErrorFile.new(project_name: project.name, package_name: name).content(rev: revision)
   end
 
   # local mode (default): last package in link chain in my project
@@ -1450,14 +1450,13 @@ class Package < ApplicationRecord
   def last_build_reason(repo, arch, package_name = nil)
     repo = repo.name if repo.is_a? Repository
 
-    xml_data = BuildReasonFile.new(
-      project_name: project.name,
-      package_name: package_name || name,
-      repo: repo,
-      arch: arch
-    )
+    begin
+      build_reason = Backend::Api::BuildResults::Status.build_reason(project.name, package_name || name, repo, arch)
+    rescue ActiveXML::Transport::NotFoundError
+      return PackageBuildReason.new
+    end
 
-    data = Xmlhash.parse(xml_data.to_s)
+    data = Xmlhash.parse(build_reason)
     # ensure that if 'packagechange' exists, it is an Array and not a Hash
     # Bugreport: https://github.com/openSUSE/open-build-service/issues/3230
     data['packagechange'] = [data['packagechange']] if data && data['packagechange'].is_a?(Hash)

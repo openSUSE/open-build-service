@@ -55,10 +55,10 @@ module Backend
       nil
     end
 
-    # Converts file into a String if it's valid
-    def to_s(query = {})
+    # Converts file into a String if it's valid and nil if it's not
+    def content(query = {})
       file(query)
-      !@file.nil? && valid? ? ::File.open(@file.path).read : nil
+      @file && valid? ? ::File.open(@file.path).read : nil
     end
 
     # Reloads from Backend the file content
