@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe RequestController, type: :controller do
+RSpec.describe RequestController, type: :controller, vcr: true do
   render_views # NOTE: This is required otherwise Suse::Validator.validate will fail
 
   describe '#request_command' do
