@@ -81,6 +81,7 @@ namespace :dev do
     namespace :rubocop do
       require 'rubocop/rake_task'
 
+      desc 'Run the ruby linter in rails and in root'
       task all: [:root, :rails] do
       end
 
@@ -97,6 +98,7 @@ namespace :dev do
       end
 
       namespace :auto_gen_config do
+        desc 'Autogenerate rubocop config in rails and in root'
         task all: [:root, :rails] do
         end
 
