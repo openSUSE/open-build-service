@@ -82,6 +82,13 @@ Intentional changes:
       Rendered layouts/_google_analytics.html.erb (0.4ms)
     Completed 200 OK in 79ms (Views: 78.8ms | ActiveRecord: 0.0ms)
     ```
+ * In previous releases it was possible to delete attributes through
+   /source/<project>/_attribute/?namespace=OBS&name=VeryImportantProject (or similiar
+   for packages). You need to follow the documentation now and the proper
+   route is /source/<project>/_attribute/OBS:VeryImportantProject
+
+ * GET '/attribute/:attribute' route responded with a 400 when the attribute type
+   did not exist. It now returns a 404 status.
 
 
 Other changes

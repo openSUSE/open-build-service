@@ -311,8 +311,6 @@ ription</description>
     login_tom
     delete '/source/home:tom/_attribute/OBS:VeryImportantProject'
     assert_response 403
-    delete '/source/home:tom/_attribute/?namespace=OBS&name=VeryImportantProject'
-    assert_response 404
   end
 
   def test_create_attributes_project
