@@ -21,4 +21,22 @@ RSpec.describe ObsFactory::StagingProject do
       it { is_expected.to be_nil }
     end
   end
+
+  describe '#adi_staging?' do
+    let(:project) { create(:project, name: "openSUSE:Factory:Staging:adi:42") }
+
+    subject { ObsFactory::StagingProject.new(project: project, distribution: distribution) }
+
+    context "when the project name includes 'Staging:adi'" do
+      let(:project) { create(:project, name: "openSUSE:Factory:Staging:adi:42") }
+
+      it { expect(subject.adi_staging?).to be true }
+    end
+
+    context "when the project name does not include 'Staging:adi'" do
+      let(:project) { create(:project, name: "openSUSE:Factory:Staging:42") }
+
+      it { expect(subject.adi_staging?).to be false }
+    end
+  end
 end
