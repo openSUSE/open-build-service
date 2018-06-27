@@ -7,6 +7,10 @@ RSpec.configure do |config|
     CONFIG['global_write_through'] = true
     # Backend::Test.start
   end
+
+  config.after do
+    Backend::Connection.delete('/resetall')
+  end
 end
 
 # for mocking the backend
