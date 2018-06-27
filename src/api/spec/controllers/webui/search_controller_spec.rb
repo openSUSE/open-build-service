@@ -19,6 +19,7 @@ RSpec.describe Webui::SearchController, vcr: true do
     end
 
     it 'assigns results' do
+      skip('https://github.com/openSUSE/open-build-service/issues/5235')
       get :owner, params: { search_text: 'package', owner: 1 }
       expect(assigns(:results)[0].users).to eq('maintainer'=>['Iggy'])
     end
@@ -28,6 +29,7 @@ RSpec.describe Webui::SearchController, vcr: true do
       owner_attrib # initiate
       package.update_attributes(develpackage: develpackage)
 
+      skip('https://github.com/openSUSE/open-build-service/issues/5235')
       get :owner, params: { search_text: 'package', owner: 1, devel: 'on' }
       puts(response.inspect)
       expect(assigns(:results)[0].users).to eq('maintainer'=>['DevelIggy'])
