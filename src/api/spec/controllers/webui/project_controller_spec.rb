@@ -1032,7 +1032,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'Can not load project config' do
       before do
-        allow_any_instance_of(ProjectConfigFile).to receive(:to_s).and_return(nil)
+        allow_any_instance_of(ProjectConfigFile).to receive(:content).and_return(nil)
         get :prjconf, params: { project: apache_project }
       end
 
