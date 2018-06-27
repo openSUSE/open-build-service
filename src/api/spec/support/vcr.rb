@@ -18,3 +18,10 @@ VCR.configure do |config|
   end
   config.ignore_hosts 'www.gravatar.com' # Ignore gravatar calls
 end
+RSpec.configure do |config|
+  # Usually we use VCR to mock the backend responses. If you want to refresh casettes
+  # or record new ones you can enable writing to the backend here.
+  config.before do
+    # CONFIG['global_write_through'] = true
+  end
+end
