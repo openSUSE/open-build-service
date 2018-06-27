@@ -2,15 +2,10 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/my_package/_link
     body:
       encoding: UTF-8
-      string: |
-        <project name="home:tom">
-          <title/>
-          <description/>
-          <person userid="tom" role="maintainer"/>
-        </project>
+      string: "<link project='/Invalid'/>"
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -30,168 +25,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:tom">
-          <title></title>
-          <description></description>
-          <person userid="tom" role="maintainer" />
-        </project>
+        <revision rev="10" vrev="10">
+          <srcmd5>6e3cb940a6f3f5b473a68d4ef83b7dce</srcmd5>
+          <version>unknown</version>
+          <time>1530087001</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:57 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title>Far From the Madding Crowd</title>
-          <description>Similique ea fuga dolorem.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '158'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title>Far From the Madding Crowd</title>
-          <description>Similique ea fuga dolorem.</description>
-        </package>
-    http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:57 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title>Far From the Madding Crowd</title>
-          <description>Similique ea fuga dolorem.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '158'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title>Far From the Madding Crowd</title>
-          <description>Similique ea fuga dolorem.</description>
-        </package>
-    http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:57 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/project_19/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="project_19">
-          <title>Nectar in a Sieve</title>
-          <description/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '104'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="project_19">
-          <title>Nectar in a Sieve</title>
-          <description></description>
-        </project>
-    http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:57 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/project_19/_config
-    body:
-      encoding: UTF-8
-      string: Voluptas sit eveniet non. Ut laudantium quia voluptatem cumque. Accusamus
-        minima a reprehenderit officia. Ex ut nihil saepe et. Alias numquam unde nemo.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:57 GMT
+  recorded_at: Wed, 27 Jun 2018 08:10:01 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package?expand=1
@@ -207,8 +54,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 200
-      message: OK
+      code: 400
+      message: _link is bad  projid '/Invalid' is illegal
     headers:
       Content-Type:
       - text/xml
@@ -217,12 +64,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '85'
+      - '94'
     body:
       encoding: UTF-8
       string: |
-        <directory name="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
+        <status code="400">
+          <summary>_link is bad: projid '/Invalid' is illegal</summary>
+        </status>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:58 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Wed, 27 Jun 2018 08:10:01 GMT
+recorded_with: VCR 4.0.0
