@@ -1,7 +1,7 @@
 require 'browser_helper'
 
 RSpec.feature "User's home project creation", type: :feature, js: true do
-  let!(:user) { create(:confirmed_user, login: 'moi') }
+  let!(:user) { create(:confirmed_user, login: 'hans') }
 
   scenario 'creating a home project' do
     user.home_project.destroy
