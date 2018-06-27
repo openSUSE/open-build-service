@@ -1,11 +1,6 @@
 require 'browser_helper'
 require 'webmock/rspec'
 
-# WARNING: If you change owner tests make sure you uncomment this line
-# and start a test backend. Some of the Owner methods
-# require real backend answers for projects/packages.
-# CONFIG['global_write_through'] = true
-
 RSpec.feature 'Packages', type: :feature, js: true do
   it_behaves_like 'user tab' do
     let(:package) do
