@@ -20,7 +20,6 @@ class Attrib < ApplicationRecord
 
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
-  scope :nobinary, -> { where(binary: nil) }
 
   #### Validations macros
   validates_associated :values
@@ -34,6 +33,8 @@ class Attrib < ApplicationRecord
   validate :validate_value_count,
            :validate_issues,
            :validate_allowed_values_for_attrib_type
+
+  after_commit :write_container_attributes, on: [:create, :destroy]
 
   #### Class methods using self. (public and then private)
   def self.find_by_container_and_fullname(container, fullname)
@@ -83,33 +84,38 @@ class Attrib < ApplicationRecord
       (attrib_type.value_count && (attrib_type.value_count != values.length)) # If value_count != values.length
   end
 
-  def update_with_associations(values = [], issues = [])
-    will_save = false
+  def write_container_attributes
+    # also called if container is deleted...
+    return unless (c = container)
+    c.write_attributes
+  end
 
+  def update_with_associations(values = [], issues = [])
     #--- update issues ---#
+    changed = false
     if issues.map(&:name).sort != self.issues.map(&:name).sort
       logger.debug "Attrib.update_with_associations: Issues for #{fullname} changed, updating."
-      will_save = true
       self.issues.delete_all
       issues.each do |issue|
         self.issues << issue
       end
+      changed = true
     end
 
     #--- update values ---#
-    if values.sort != self.values.map(&:value).sort
+    if values != self.values.map(&:value)
       logger.debug "Attrib.update_with_associations: Values for #{fullname} changed, updating."
-      will_save = true
       self.values.delete_all
       position = 1
       values.each do |val|
-        self.values.create(value: val, position: position)
+        self.values.build(value: val, position: position)
         position += 1
       end
+      changed = true
     end
 
-    save! if will_save
-    will_save
+    save!
+    saved_changes? || changed
   end
 
   #### Alias of methods

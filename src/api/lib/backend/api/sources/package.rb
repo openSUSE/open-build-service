@@ -18,9 +18,8 @@ module Backend
 
         # Writes the content in xml for attributes
         # @return [String]
-        def self.write_attributes(project_name, package_name, user_login, content, comment)
+        def self.write_attributes(project_name, package_name, user_login, content)
           params = { meta: 1, user: user_login }
-          params[:comment] = comment if comment
           http_put(['/source/:project/:package/_attribute', project_name, package_name || '_project'],
                    data: content, params: params)
         end

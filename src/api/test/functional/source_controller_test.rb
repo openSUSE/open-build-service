@@ -1739,6 +1739,10 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/kde4/_project/_history?meta=1'
     assert_response :success
     assert_xml_tag(tag: 'revisionlist')
+    # remember the current HEAD so we can check it later
+    # value depends on the test order
+    rl = Xmlhash.parse(@response.body)
+    oldrevision = rl.elements('revision').last['rev']
     get '/source/kde4/_meta'
     assert_response :success
     oldmeta = @response.body
@@ -1762,7 +1766,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/kde4/_project/_meta?meta=1'
     assert_response :success
     assert_xml_tag(tag: 'project')
-    get '/source/kde4/_project/_meta?meta=1&rev=1'
+    get "/source/kde4/_project/_meta?meta=1&rev=#{oldrevision}"
     assert_response :success
     assert_xml_tag(tag: 'project')
     assert_xml_tag(tag: 'title', content: 'blub') # fixture string

@@ -10,7 +10,8 @@ aliases:
           EAGER_LOAD: 1
           <<: *cc_test_reporter_id
       - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/mariadb:latest
-        command: /usr/lib/mysql/mysql-systemd-helper start
+        command: |
+          /bin/bash -c 'echo -e "[mysqld]\ndatadir = /dev/shm" > /etc/my.cnf.d/obs.cnf && cp -a /var/lib/mysql/* /dev/shm && /usr/lib/mysql/mysql-systemd-helper start'
         name: db
       - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/memcached:latest
         name: cache
@@ -21,7 +22,8 @@ aliases:
           NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
           <<: *cc_test_reporter_id
       - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/mariadb:latest
-        command: /usr/lib/mysql/mysql-systemd-helper start
+        command: |
+          /bin/bash -c 'echo -e "[mysqld]\ndatadir = /dev/shm" > /etc/my.cnf.d/obs.cnf && cp -a /var/lib/mysql/* /dev/shm && /usr/lib/mysql/mysql-systemd-helper start'
         name: db
   - &restore_bundle_cache
     keys:
@@ -92,6 +94,9 @@ jobs:
       - store_artifacts:
           path: ./src/api/log
           destination: rspec
+      - store_artifacts:
+          path: ./src/api/tmp/capybara
+          destination: capybara
       - store_test_results:
           path: /home/frontend/rspec
   rspec-bootstrap:
@@ -114,6 +119,9 @@ jobs:
       - store_artifacts:
           path: ./src/api/log
           destination: rspec
+      - store_artifacts:
+          path: ./src/api/tmp/capybara
+          destination: capybara
   minitest:
     <<: *minitest
     steps:
