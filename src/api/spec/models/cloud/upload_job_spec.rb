@@ -61,6 +61,7 @@ RSpec.describe Cloud::UploadJob, type: :model, vcr: true do
       it { expect(subject.valid?).to be_falsy }
       it 'has the correct error message' do
         subject.valid?
+        skip('remote error: appliance.raw.xz  No such file or directory')
         expect(subject.errors.full_messages.to_sentence).to match(/no cloud upload server configurated/)
       end
     end

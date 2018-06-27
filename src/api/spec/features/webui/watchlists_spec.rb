@@ -11,7 +11,6 @@ RSpec.feature 'Watchlists', type: :feature, js: true do
   end
 
   scenario 'add projects to watchlist' do
-    pending("NOVCR: name does not match data")
     login user
     visit project_show_path(user.home_project)
 
