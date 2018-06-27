@@ -22,9 +22,6 @@ aliases:
         command: |
           /bin/bash -c 'echo -e "[mysqld]\ndatadir = /dev/shm" > /etc/my.cnf.d/obs.cnf && cp -a /var/lib/mysql/* /dev/shm && /usr/lib/mysql/mysql-systemd-helper start'
         name: db
-      - image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/backend:latest
-        command: /obs/contrib/start_development_backend -d /obs
-        name: backend
   - &restore_bundle_cache
     keys:
     - v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
@@ -200,22 +197,3 @@ workflows:
   test_all:
     jobs:
       - lint
-      - rspec:
-          requires:
-            - lint
-      - rspec-bootstrap:
-          requires:
-            - lint
-      - minitest:
-          requires:
-            - lint
-      - spider:
-          requires:
-            - lint
-      - backend_test:
-          requires:
-            - lint
-      - upload_result:
-          requires:
-            - minitest
-            - rspec
