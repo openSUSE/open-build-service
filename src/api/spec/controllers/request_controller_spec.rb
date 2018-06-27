@@ -4,7 +4,7 @@ require 'webmock/rspec'
 RSpec.describe RequestController, type: :controller, vcr: true do
   render_views # NOTE: This is required otherwise Suse::Validator.validate will fail
 
-  describe '#request_command' do
+  describe '#request_command (cmd=diff)' do
     let(:user) { create(:confirmed_user) }
     let(:bs_request) { create(:bs_request) }
     before do
