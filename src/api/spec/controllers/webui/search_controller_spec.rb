@@ -5,7 +5,7 @@ RSpec.describe Webui::SearchController, vcr: true do
   let!(:develuser) { create(:confirmed_user, login: 'DevelIggy') }
   let!(:package) { create(:package, name: 'TestPack', project: Project.find_by(name: 'home:Iggy')) }
   let!(:develpackage) { create(:package, name: 'DevelPack', project: Project.find_by(name: 'home:DevelIggy')) }
-  let!(:owner_attrib) { create(:attrib, attrib_type: AttribType.where(name: 'OwnerRootProject').first, project: Project.find_by(name: 'home:Iggy')) }
+  let(:owner_attrib) { create(:attrib, attrib_type: AttribType.find_by(name: 'OwnerRootProject'), project: Project.find_by(name: 'home:Iggy')) }
 
   describe 'GET #owner' do
     it 'just returns with blank search text' do
@@ -24,10 +24,12 @@ RSpec.describe Webui::SearchController, vcr: true do
     end
 
     it 'assigns results for devel package' do
+      login user
+      owner_attrib # initiate
       package.update_attributes(develpackage: develpackage)
 
       get :owner, params: { search_text: 'package', owner: 1, devel: 'on' }
-      print(response.body)
+      puts(response.inspect)
       expect(assigns(:results)[0].users).to eq('maintainer'=>['DevelIggy'])
       expect(assigns(:results)[0].users).not_to eq('maintainer'=>['Iggy'])
     end
