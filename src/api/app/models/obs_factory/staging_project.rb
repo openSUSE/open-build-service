@@ -253,7 +253,7 @@ module ObsFactory
       :acceptable
     end
 
-    def is_testing?(openqa_jobs)
+    def testing?(openqa_jobs)
       # empty == the ISOs may still be syncing
       openqa_jobs.empty? || openqa_jobs.any? { |job| job.result == 'none' }
     end
@@ -266,7 +266,7 @@ module ObsFactory
     def openqa_state
       # no openqa result for adi staging project
       return :acceptable if adi_staging?
-      return :testing if is_testing?(openqa_jobs)
+      return :testing if testing?(openqa_jobs)
 
       return :acceptable if all_passed?(openqa_jobs)
       # something failed on openqa side, needs manual check
