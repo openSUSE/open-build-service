@@ -69,3 +69,6 @@ require 'feature/testing'
 
 # support Delayed Jobs
 require 'support/delayed_job'
+
+# Cache reset
+require 'support/cache'
