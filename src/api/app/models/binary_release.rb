@@ -187,7 +187,7 @@ class BinaryRelease < ApplicationRecord
     binary_disturl == binary_hash['disturl'] &&
       binary_supportstatus == binary_hash['supportstatus'] &&
       binary_buildtime &&
-      binary_buildtime.to_datetime.utc == DateTime.strptime(binary_hash['buildtime'].to_s, '%s').utc
+      binary_buildtime.utc == DateTime.strptime(binary_hash['buildtime'].to_s, '%s').utc
   end
   # rubocop:enable Style/DateTime
   #### Alias of methods
