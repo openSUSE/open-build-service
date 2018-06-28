@@ -113,7 +113,7 @@ class BsRequestActionSubmit < BsRequestAction
     initialize_devel_package = target_project.find_attribute('OBS', 'InitializeDevelPackage')
     return if target_package || !initialize_devel_package
     source_package = Package.get_by_project_and_name(source_project, self.source_package)
-    return if !source_package || User.current.can_modify_package?(source_package)
+    return if !source_package || User.current.can_modify?(source_package)
     msg = 'No permission to initialize the source package as a devel package'
     raise PostRequestNoPermission, msg
   end

@@ -91,7 +91,7 @@ class BranchPackage
     # create branch project
     tprj = create_branch_project
 
-    unless User.current.can_modify_project?(tprj)
+    unless User.current.can_modify?(tprj)
       raise Project::WritePermissionError, "no permission to modify project '#{@target_project}' while executing branch project command"
     end
 

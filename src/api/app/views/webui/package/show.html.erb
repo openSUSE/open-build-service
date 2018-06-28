@@ -105,7 +105,7 @@
                   <%= link_to(sprited_text('package_go', 'Submit package'), { :action => :submit_request_dialog, :project => @project, :package => @package, :revision => @revision }, :remote => true) %>
                 </li>
             <% end %>
-            <% if User.current.can_modify_package? @package %>
+            <% if User.current.can_modify? @package %>
                 <li>
                   <%= link_to sprited_text('package_edit', 'Edit description'), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
                 </li>

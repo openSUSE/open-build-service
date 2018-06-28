@@ -29,7 +29,7 @@ class TriggerController < ApplicationController
     pkg = token.package || Package.get_by_project_and_name(params[:project].to_s, params[:package].to_s, use_source: true)
     if pkg
       # check if user has still access
-      unless token.user.is_active? && token.user.can_modify_package?(pkg)
+      unless token.user.is_active? && token.user.can_modify?(pkg)
         render_error message:   "no permission for package #{pkg.name} in project #{pkg.project.name}",
                      status:    403,
                      errorcode: 'no_permission'

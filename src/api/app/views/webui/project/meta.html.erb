@@ -7,7 +7,7 @@
 <%= render :partial => 'tabs' %>
 
 <h3><%= @pagetitle %></h3>
-<% if User.current.can_modify_project?(@project) %>
+<% if User.current.can_modify?(@project) %>
   <%= render partial: "shared/editor", locals: {text: @meta, mode: 'xml', save: {url: url_for(controller: 'project', action: 'save_meta'), method: 'POST', data: {project: @project.name, submit: 'meta'}}} %>
 <% else %>
   <%= render partial: "shared/editor", locals: {text: @meta, mode: 'xml', style: {read_only: true}} %>
