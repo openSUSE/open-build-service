@@ -79,8 +79,6 @@ namespace :dev do
   end
   namespace :lint do
     namespace :rubocop do
-      require 'rubocop/rake_task'
-
       desc 'Run the ruby linter in rails and in root'
       task all: [:root, :rails] do
       end
@@ -103,15 +101,14 @@ namespace :dev do
         end
 
         desc 'Autogenerate rubocop config in rails'
-        RuboCop::RakeTask.new(:rails) do |task|
-          task.options = ['--auto-gen-config', '--ignore_parent_exclusion']
-          task.fail_on_error = false
+        task :rails do
+          sh 'rubocop --auto-gen-config --ignore_parent_exclusion || exit 0'
         end
 
-        desc 'Autogenerate rubocop config in root'
+        desc 'Run the ruby linter in root'
         task :root do
           Dir.chdir('../..') do
-            Rake::Task['dev:lint:rubocop:auto_gen_config:rails'].invoke
+            sh 'rubocop --auto-gen-config || exit 0'
           end
         end
       end
