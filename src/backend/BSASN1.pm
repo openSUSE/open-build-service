@@ -139,7 +139,7 @@ sub asn1_boolean {
 }
 
 sub asn1_integer {
-  return asn1_pack($INTEGER, pack('C', $_[0])) if $_[0] >= -128 && $_[0] <= 127;
+  return asn1_pack($INTEGER, pack('c', $_[0])) if $_[0] >= -128 && $_[0] <= 127;
   return asn1_pack($INTEGER, substr(pack('N', $_[0]), 3 - (length(sprintf('%b', $_[0] >= 0 ? $_[0] : ~$_[0])) >> 3)));
 }
 
