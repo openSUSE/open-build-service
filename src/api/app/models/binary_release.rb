@@ -71,7 +71,7 @@ class BinaryRelease < ApplicationRecord
         # complete hash for new entry
         hash[:binary_releasetime] = time
         hash[:binary_buildtime] = nil
-        hash[:binary_buildtime] = ::Time.at(binary['buildtime'].to_i).to_datetime if binary['buildtime'].to_i > 0
+        hash[:binary_buildtime] = DateTime.strptime(binary['buildtime'].to_s, '%s') if binary['buildtime'].present?
         hash[:binary_disturl] = binary['disturl']
         hash[:binary_supportstatus] = binary['supportstatus']
         if binary['updateinfoid']
