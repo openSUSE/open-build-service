@@ -914,9 +914,9 @@ class Package < ApplicationRecord
     LocalBuildResult::ForPackage.new(package: self, project: prj, show_all: show_all)
   end
 
-  def jobhistory_list(project, repository, arch, package_name)
+  def jobhistory_list(project_name, repository_name, arch_name, package_name)
     begin
-      results = Xmlhash.parse(Backend::Api::BuildResults::JobHistory.all_for_package(project.name, package_name, repository, arch))
+      results = Xmlhash.parse(Backend::Api::BuildResults::JobHistory.all_for_package(project_name, package_name, repository_name, arch_name))
     rescue Backend::Error
       return []
     end
