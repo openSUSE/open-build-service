@@ -108,7 +108,7 @@ class Relationship < ApplicationRecord
   # calculate and cache forbidden_project_ids for users
   def self.forbidden_project_ids
     # Admins don't have forbidden projects
-    return [0] if User.current && User.current.is_admin?
+    return [0] if User.current.is_admin?
 
     # This will cache and return a hash like this:
     # {projecs: [p1,p2], whitelist: { u1: [p1], u2: [p1,p2], u3: [p2] } }
@@ -128,7 +128,7 @@ class Relationship < ApplicationRecord
       forbidden_projects_hash
     end
     # We don't need to check the relationships if we don't have a User
-    return forbidden_projects[:projects] if User.current.nil? || User.current.is_nobody?
+    return forbidden_projects[:projects] if User.current.is_nobody?
     # The cache sequence is for invalidating user centric cache entries for all users
     cache_sequence = Rails.cache.read('cache_sequence_for_forbidden_projects') || 0
     Rails.cache.fetch("users/#{User.current.id}-forbidden_projects-#{cache_sequence}") do

@@ -209,7 +209,7 @@ class User < ApplicationRecord
   end
 
   def self.current
-    Thread.current[:user]
+    Thread.current[:user] || Thread.current[:user] = find_nobody!
   end
 
   def self.current=(user)

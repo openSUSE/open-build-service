@@ -86,7 +86,7 @@
     <div style="clear: both;"></div>
 
     <div id="footer" class="container_12">
-    <% if User.current && !User.current.is_nobody? -%>
+    <% unless User.current.is_nobody? -%>
       <div class="grid_3">
         <strong class="grey-medium spacer1"><%= link_to(user_show_path(User.current)) do %><%= User.current %><% end %>:</strong>
         <ul>

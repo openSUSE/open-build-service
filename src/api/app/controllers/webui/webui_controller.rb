@@ -102,7 +102,7 @@ class Webui::WebuiController < ActionController::Base
     if CONFIG['kerberos_mode']
       kerberos_auth
     else
-      if User.current.nil? || User.current.is_nobody?
+      if User.current.is_nobody?
         render(text: 'Please login') && (return false) if request.xhr?
 
         flash[:error] = 'Please login to access the requested page.'
@@ -136,7 +136,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def kerberos_auth
-    return true unless CONFIG['kerberos_mode'] && (User.current.nil? || User.current.is_nobody?)
+    return true unless CONFIG['kerberos_mode'] && User.current.is_nobody?
 
     authorization = authenticator.authorization_infos || []
     if authorization[0].to_s != 'Negotiate'
@@ -203,7 +203,7 @@ class Webui::WebuiController < ActionController::Base
         @displayed_user = User.find_by_login!(params['user'])
       rescue NotFoundError
         # admins can see deleted users
-        @displayed_user = User.find_by_login(params['user']) if User.current && User.current.is_admin?
+        @displayed_user = User.find_by_login(params['user']) if User.current.is_admin?
         redirect_back(fallback_location: root_path, error: "User not found #{params['user']}") unless @displayed_user
       end
     else
@@ -224,7 +224,7 @@ class Webui::WebuiController < ActionController::Base
 
   # Don't show performance of database queries to users
   def peek_enabled?
-    User.current && (User.current.is_admin? || User.current.is_staff?)
+    User.current.is_admin? || User.current.is_staff?
   end
 
   def require_package
@@ -266,14 +266,14 @@ class Webui::WebuiController < ActionController::Base
 
   # Before filter to check if current user is administrator
   def require_admin
-    return unless User.current.nil? || !User.current.is_admin?
+    return if User.current.is_admin?
     flash[:error] = 'Requires admin privileges'
     redirect_back(fallback_location: { controller: 'main', action: 'index' })
   end
 
   # before filter to only show the frontpage to anonymous users
   def check_anonymous
-    if User.current && User.current.is_nobody?
+    if User.current.is_nobody?
       unless ::Configuration.anonymous
         flash[:error] = 'No anonymous access. Please log in!'
         redirect_back(fallback_location: root_path)

@@ -23,5 +23,5 @@
         %i
           There are no cycles for #{arch}
     %p
-      - if User.current && !User.current.is_nobody?
+      - unless User.current.is_nobody?
         Check the rebuild time for #{link_to arch, project_rebuild_time_path(project: @project, arch: arch.name, repository: @repository.name), { rel: 'nofollow' }}
