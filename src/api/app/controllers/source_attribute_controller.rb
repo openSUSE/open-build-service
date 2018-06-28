@@ -27,6 +27,10 @@ class SourceAttributeController < ApplicationController
       return
     end
 
+    if @at
+      params[:namespace] = @at.namespace
+      params[:name] = @at.name
+    end
     render xml: @attribute_container.render_attribute_axml(params)
   end
 
