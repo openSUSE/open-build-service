@@ -15,13 +15,13 @@
 
     %div{ style: "margin-top: 1em" }
       - # No edit for DoD repositories
-      - if User.current.can_modify_project?(@project) && !repository.is_dod_repository?
+      - if User.current.can_modify?(@project) && !repository.is_dod_repository?
         %span.edit-repository-field
           = sprite_tag('drive_edit')
           = link_to('Edit repository', '#', data: { "repository-edit": true })
         %div.hidden.edit-repository-container
           = render partial: 'edit_repository', locals: { project: @project, repository: repository }
-      - if User.current.can_modify_project?(@project)
+      - if User.current.can_modify?(@project)
         = sprite_tag('drive_delete', title: 'Delete repository')
         = link_to('Delete repository', { action: :destroy, project: @project, target: repository.name }, |
                       { data: { confirm: "Really remove repository '#{repository.name}'?" }, class: 'x', method: :post })

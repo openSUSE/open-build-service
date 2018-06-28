@@ -385,7 +385,7 @@ class Package < ApplicationRecord
   end
 
   def can_be_modified_by?(user, ignore_lock = nil)
-    user.can_modify_package? master_product_object, ignore_lock
+    user.can_modify? master_product_object, ignore_lock
   end
 
   def check_write_access!(ignore_lock = nil)
@@ -1232,7 +1232,7 @@ class Package < ApplicationRecord
     delete_opt[:user] = User.current.login
     delete_opt[:comment] = opt[:comment] if opt[:comment]
 
-    unless User.current.can_modify_package? self
+    unless User.current.can_modify? self
       raise DeleteFileNoPermission, 'Insufficient permissions to delete file'
     end
 
@@ -1348,7 +1348,7 @@ class Package < ApplicationRecord
     logger.debug "storing file: filename: #{opt[:filename]}, comment: #{opt[:comment]}"
 
     Package.verify_file!(self, opt[:filename], content)
-    unless User.current.can_modify_package?(self)
+    unless User.current.can_modify?(self)
       raise PutFileNoPermission, "Insufficient permissions to store file in package #{name}, project #{project.name}"
     end
 

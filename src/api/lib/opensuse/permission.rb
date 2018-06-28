@@ -33,7 +33,7 @@ module Suse
 
       return true if @user.has_global_permission?('global_project_change')
 
-      @user.can_modify_project?(prj)
+      @user.can_modify?(prj)
     end
 
     # args can either be an instance of the respective class (Package, Project),
@@ -59,7 +59,7 @@ module Suse
         end
       end
 
-      return true if @user.can_modify_package?(pkg)
+      return true if @user.can_modify?(pkg)
       false
     end
 

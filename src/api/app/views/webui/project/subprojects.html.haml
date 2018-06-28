@@ -46,7 +46,7 @@
           %td.project_name= link_to(word_break(remove_parent_name(project.name, @parent_name), 50), {action: 'show', project: project.name})
           %td.project_title= word_break(project.title)
 
-- if User.current.can_modify_project?(@project)
+- if User.current.can_modify?(@project)
   %p
     = link_to sprite_tag('brick_add', title: 'New subproject') + ' New subproject', '#', id: 'create_subproject_link'
     .hidden#create-subproject

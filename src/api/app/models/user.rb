@@ -423,6 +423,17 @@ class User < ApplicationRecord
     end
   end
 
+  def can_modify?(object, ignore_lock = nil)
+    case object
+    when Project
+      can_modify_project?(object, ignore_lock)
+    when Package
+      can_modify_package?(object, ignore_lock)
+    else
+      raise ArgumentError, "Wrong type of object: '#{object.class}' instead of Project or Package."
+    end
+  end
+
   # project is instance of Project
   def can_modify_project?(project, ignore_lock = nil)
     unless project.is_a? Project
@@ -448,11 +459,6 @@ class User < ApplicationRecord
     return true if has_global_permission? 'change_package'
     return true if has_local_permission? 'change_package', package
     false
-  end
-
-  def can_modify_attribute_container?(object)
-    return can_modify_project?(object) if object.is_a? Project
-    return can_modify_package?(object)
   end
 
   def can_modify_user?(user)
@@ -522,7 +528,7 @@ class User < ApplicationRecord
 
     abies = atype.attrib_type_modifiable_bies.includes([:user, :group, :role])
     # no rules -> maintainer
-    return can_modify_attribute_container?(object) if abies.empty?
+    return can_modify?(object) if abies.empty?
 
     abies.any? { |rule| attribute_modification_rule_matches?(rule, object) }
   end
