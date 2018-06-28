@@ -9,14 +9,14 @@ module Webui::ProjectHelper
       # TODO: Port _to_remote helpers to jQuery
       status_comment_html = ERB::Util.h(comment)
       if !firstfail
-        if User.current.can_modify_project?(@project.api_obj)
+        if User.current.can_modify?(@project.api_obj)
           status_comment_html += ' '.html_safe + link_to(image_tag('comment_delete.png', size: '16x16', alt: 'Clear'),
                                                          { action: :clear_failed_comment, project: @project,
                                                           package: package, update: valid_xml_id("comment_#{package}") },
                                                          remote: true)
           comments_to_clear << package
         end
-      elsif User.current.can_modify_project?(@project.api_obj)
+      elsif User.current.can_modify?(@project.api_obj)
         status_comment_html += ' '.html_safe
         status_comment_html += link_to(image_tag('comment_edit.png', alt: 'Edit'),
                                        { action: 'edit_comment_form', comment: comment,
@@ -25,7 +25,7 @@ module Webui::ProjectHelper
                                        remote: true)
       end
     elsif firstfail
-      if User.current.can_modify_project?(@project.api_obj)
+      if User.current.can_modify?(@project.api_obj)
         status_comment_html += " <span class='unknown_failure'>Unknown build failure ".html_safe +
                                link_to(image_tag('comment_edit.png', size: '16x16', alt: 'Edit'),
                                        { action: 'edit_comment_form', comment: '', package: package,

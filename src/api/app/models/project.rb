@@ -499,7 +499,7 @@ class Project < ApplicationRecord
   def can_be_modified_by?(user, ignore_lock = nil)
     return user.can_create_project?(name) if new_record?
 
-    user.can_modify_project?(self, ignore_lock)
+    user.can_modify?(self, ignore_lock)
   end
 
   def is_locked?
@@ -538,7 +538,7 @@ class Project < ApplicationRecord
 
   def can_free_repositories?
     expand_all_repositories.each do |repository|
-      unless User.current.can_modify_project?(repository.project)
+      unless User.current.can_modify?(repository.project)
         errors.add(:base, "a repository in project #{repository.project.name} depends on this")
         return false
       end
@@ -1563,7 +1563,7 @@ class Project < ApplicationRecord
       maintenance.elements('maintains') do |maintains|
         target_project_name = maintains.value('project')
         target_project = Project.get_by_name(target_project_name)
-        unless target_project.class == Project && User.current.can_modify_project?(target_project)
+        unless target_project.class == Project && User.current.can_modify?(target_project)
           return { error: "No write access to maintained project #{target_project_name}" }
         end
       end
@@ -1671,7 +1671,7 @@ class Project < ApplicationRecord
         # but never remove the special repository named "deleted"
         unless repo == deleted_repository
           # permission check
-          unless User.current.can_modify_project?(project)
+          unless User.current.can_modify?(project)
             return { error: "No permission to remove a repository in project '#{project.name}'" }
           end
         end

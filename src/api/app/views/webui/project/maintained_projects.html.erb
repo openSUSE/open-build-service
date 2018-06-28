@@ -9,7 +9,7 @@
     <thead>
       <tr>
         <th class="hidden">Name</th>
-        <% if User.current.can_modify_project?(@project) %>
+        <% if User.current.can_modify?(@project) %>
           <th style="width: 1%">Actions</th>
         <% end %>
       </tr>
@@ -18,7 +18,7 @@
       <% @maintained_projects.each do |maintained_project| %>
         <tr>
           <td><%= link_to(maintained_project, :action => 'show', :project => maintained_project) %></td>
-          <% if User.current.can_modify_project?(@project) %>
+          <% if User.current.can_modify?(@project) %>
             <td>
               <%# TODO: Convert into a dialog and use link_to + :remote => true %>
 	      <%= link_to(sprite_tag('brick_delete', title: 'Remove project from maintenance'), { :controller => 'project', :action => 'remove_maintained_project', :project => @project, :maintained_project => maintained_project }, method: :post) %>
@@ -39,7 +39,7 @@
   <p><i>No projects in maintenance</i></p>
 <% end %>
 
-<% if User.current.can_modify_project?(@project) %>
+<% if User.current.can_modify?(@project) %>
   <p>
     <%= link_to(sprite_tag('brick_add', title: 'Add project to maintenance') + 'Add project to maintenance', {:controller => 'project', :action => 'add_maintained_project_dialog', :project => @project}, :remote => true) %>
   </p>

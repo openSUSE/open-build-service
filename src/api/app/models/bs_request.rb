@@ -415,10 +415,10 @@ class BsRequest < ApplicationRecord
       elsif r.by_project
         if r.by_package
           pkg = Package.find_by_project_and_name r.by_project, r.by_package
-          return true if pkg && user.can_modify_package?(pkg)
+          return true if pkg && user.can_modify?(pkg)
         else
           prj = Project.find_by_name r.by_project
-          return true if prj && user.can_modify_project?(prj)
+          return true if prj && user.can_modify?(prj)
         end
       end
     end
@@ -947,14 +947,14 @@ class BsRequest < ApplicationRecord
         tpkg = Package.find_by_project_and_name(a.target_project, a.target_package)
         if tpkg
           has_target = true
-          is_target_maintainer &= user.can_modify_package?(tpkg)
+          is_target_maintainer &= user.can_modify?(tpkg)
           next
         end
       end
       tprj = Project.find_by_name(a.target_project)
       if tprj
         has_target = true
-        is_target_maintainer &= user.can_modify_project?(tprj)
+        is_target_maintainer &= user.can_modify?(tprj)
       end
     end
     has_target && is_target_maintainer
