@@ -53,7 +53,7 @@
                 <% if !@has_patchinfo %>
                     <li>
                       <%= sprite_tag 'exclamation' %>
-                      <%= link_to_if(User.current.can_modify_project?(@project), 'Patchinfo missing', { controller: 'patchinfo', action: 'new_patchinfo', project: @project, package: 'patchinfo' }, method: :post) %>
+                      <%= link_to_if(User.current.can_modify?(@project), 'Patchinfo missing', { controller: 'patchinfo', action: 'new_patchinfo', project: @project, package: 'patchinfo' }, method: :post) %>
                     </li>
                 <% end %>
                 <% if @open_release_requests.length > 0 %>
@@ -114,11 +114,11 @@
                 <%= link_to(sprited_text('tools-report-bug', 'Report bug'), bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>
               </li>
           <% end -%>
-          <% if @project.is_locked? && User.current.can_modify_project?(@project, true) %>
+          <% if @project.is_locked? && User.current.can_modify?(@project, true) %>
                   <li>
                     <%= link_to(sprited_text('lock_open', 'Unlock project'), { controller: 'project', action: 'unlock_dialog', project: @project.name }, remote: true) %>
                   </li>
-          <% elsif User.current.can_modify_project?(@project) %>
+          <% elsif User.current.can_modify?(@project) %>
               <% unless @project.defines_remote_instance? %>
                   <% if @is_incident_project && @packages.present? && @has_patchinfo && @open_release_requests.blank? %>
                       <li>

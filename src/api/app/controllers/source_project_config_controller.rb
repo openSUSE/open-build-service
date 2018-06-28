@@ -63,7 +63,7 @@ class SourceProjectConfigController < SourceController
   end
 
   def ensure_access!(user, project)
-    unless user.can_modify_project?(project) # rubocop:disable Style/GuardClause
+    unless user.can_modify?(project) # rubocop:disable Style/GuardClause
       raise PutProjectConfigNoPermission,
             "No permission to write build configuration for project '#{params[:project]}'"
     end

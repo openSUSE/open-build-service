@@ -342,7 +342,7 @@ class BsRequestAction < ApplicationRecord
 
     if source_project
       # if the user is not a maintainer if current devel package, the current maintainer gets added as reviewer of this request
-      if action_type == :change_devel && tpkg.develpackage && !User.current.can_modify_package?(tpkg.develpackage, 1)
+      if action_type == :change_devel && tpkg.develpackage && !User.current.can_modify?(tpkg.develpackage, 1)
         reviews.push(tpkg.develpackage)
       end
 
@@ -352,7 +352,7 @@ class BsRequestAction < ApplicationRecord
         # projects may skip this by setting OBS:ApprovedRequestSource attributes
         if source_package
           spkg = Package.find_by_project_and_name source_project, source_package
-          if spkg && !User.current.can_modify_package?(spkg)
+          if spkg && !User.current.can_modify?(spkg)
             if action_type == :submit
               if sourceupdate || updatelink
                 # FIXME: completely misplaced in this function
@@ -366,7 +366,7 @@ class BsRequestAction < ApplicationRecord
           end
         else
           sprj = Project.find_by_name source_project
-          if sprj && !User.current.can_modify_project?(sprj) && !sprj.find_attribute('OBS', 'ApprovedRequestSource')
+          if sprj && !User.current.can_modify?(sprj) && !sprj.find_attribute('OBS', 'ApprovedRequestSource')
             if action_type == :submit
               raise LackingMaintainership if sourceupdate || updatelink
             end
@@ -888,7 +888,7 @@ class BsRequestAction < ApplicationRecord
         # the target, the request creator (who must have permissions to read source)
         # wanted the target owner to review it
         tprj = Project.find_by_name(target_project)
-        if tprj.nil? || !User.current.can_modify_project?(tprj)
+        if tprj.nil? || !User.current.can_modify?(tprj)
           # produce an error for the source
           Package.get_by_project_and_name(source_project, source_package)
         end

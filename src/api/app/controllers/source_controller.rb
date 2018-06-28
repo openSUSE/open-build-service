@@ -117,7 +117,7 @@ class SourceController < ApplicationController
     tpkg = Package.get_by_project_and_name(@target_project_name, @target_package_name,
                                            use_source: false, follow_project_links: false)
 
-    unless User.current.can_modify_package?(tpkg)
+    unless User.current.can_modify?(tpkg)
       raise DeletePackageNoPermission, "no permission to delete package #{@target_package_name} in project #{@target_project_name}"
     end
 
@@ -161,7 +161,7 @@ class SourceController < ApplicationController
   end
 
   def verify_can_modify_target_package!
-    return if User.current.can_modify_package?(@package)
+    return if User.current.can_modify?(@package)
 
     unless @package.class == Package
       raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " \
@@ -252,7 +252,7 @@ class SourceController < ApplicationController
       if @package # for remote package case it's nil
         @project = @package.project
         ignore_lock = @command == 'unlock'
-        unless READ_COMMANDS.include?(@command) || User.current.can_modify_package?(@package, ignore_lock)
+        unless READ_COMMANDS.include?(@command) || User.current.can_modify?(@package, ignore_lock)
           raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@project.name}"
         end
       end
@@ -320,7 +320,7 @@ class SourceController < ApplicationController
     # check for permissions
     upper_project = @prj.name.gsub(/:[^:]*$/, '')
     while upper_project != @prj.name && upper_project.present?
-      if Project.exists_by_name(upper_project) && User.current.can_modify_project?(Project.get_by_name(upper_project))
+      if Project.exists_by_name(upper_project) && User.current.can_modify?(Project.get_by_name(upper_project))
         pass_to_backend path
         return
       end
@@ -384,7 +384,7 @@ class SourceController < ApplicationController
     # check for project
     if Package.exists_by_project_and_name(@project_name, @package_name, follow_project_links: false)
       pkg = Package.get_by_project_and_name(@project_name, @package_name, use_source: false)
-      unless User.current.can_modify_package?(pkg)
+      unless User.current.can_modify?(pkg)
         render_error status: 403, errorcode: 'change_package_no_permission',
                      message: "no permission to modify package '#{pkg.project.name}'/#{pkg.name}"
         return
@@ -574,7 +574,7 @@ class SourceController < ApplicationController
   end
 
   def actually_create_incident(project)
-    unless User.current.can_modify_project?(project)
+    unless User.current.can_modify?(project)
       raise ModifyProjectNoPermission, "no permission to modify project '#{project.name}'"
     end
 
@@ -721,7 +721,7 @@ class SourceController < ApplicationController
     pro.repositories.each do |repo|
       next if params[:repository] && params[:repository] != repo.name
       repo.release_targets.each do |releasetarget|
-        unless User.current.can_modify_project?(releasetarget.target_repository.project)
+        unless User.current.can_modify?(releasetarget.target_repository.project)
           raise CmdExecutionNoPermission, "no permission to write in project #{releasetarget.target_repository.project.name}"
         end
         unless releasetarget.trigger == 'manual'
@@ -778,12 +778,12 @@ class SourceController < ApplicationController
     project_name = params[:project]
 
     @project = Project.find_by_name(project_name)
-    unless (@project && User.current.can_modify_project?(@project)) || User.current.can_create_project?(project_name)
+    unless (@project && User.current.can_modify?(@project)) || User.current.can_create_project?(project_name)
       raise CmdExecutionNoPermission, "no permission to execute command 'copy'"
     end
     oprj = Project.get_by_name(params[:oproject], includeallpackages: 1)
     if params.key?(:makeolder) || params.key?(:makeoriginolder)
-      unless User.current.can_modify_project?(oprj)
+      unless User.current.can_modify?(oprj)
         raise CmdExecutionNoPermission, "no permission to execute command 'copy', requires modification permission in origin project"
       end
     end
@@ -958,10 +958,10 @@ class SourceController < ApplicationController
     if project == opackage.project
       raise CmdExecutionNoPermission, 'package is already intialized here'
     end
-    unless User.current.can_modify_project?(project)
+    unless User.current.can_modify?(project)
       raise CmdExecutionNoPermission, "no permission to execute command 'copy'"
     end
-    unless User.current.can_modify_package?(opackage, true) # ignore_lock option
+    unless User.current.can_modify?(opackage, true) # ignore_lock option
       raise CmdExecutionNoPermission, 'no permission to modify source package'
     end
 

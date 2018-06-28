@@ -589,7 +589,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def save
-    unless User.current.can_modify_package? @package
+    unless User.current.can_modify? @package
       redirect_to action: :show, project: params[:project], package: params[:package], error: 'No permission to save'
       return
     end
@@ -722,7 +722,7 @@ class Webui::PackageController < Webui::WebuiController
     @rev = params[:rev]
     @expand = params[:expand]
     @addeditlink = false
-    if User.current.can_modify_package?(@package) && @rev.blank?
+    if User.current.can_modify?(@package) && @rev.blank?
       begin
         files = package_files(@rev, @expand)
       rescue ActiveXML::Transport::Error
@@ -1121,7 +1121,7 @@ class Webui::PackageController < Webui::WebuiController
       return false
     end
 
-    @can_modify = User.current.can_modify_project?(@project) || User.current.can_modify_package?(@package)
+    @can_modify = User.current.can_modify?(@project) || User.current.can_modify?(@package)
 
     # for remote and multibuild / local link packages
     @package = params[:package] if @package.try(:name) != params[:package]

@@ -8,10 +8,10 @@ class PackagePolicy < ApplicationPolicy
   end
 
   def update?
-    @user.can_modify_package?(@record)
+    @user.can_modify?(@record)
   end
 
   def destroy?
-    @user.can_modify_package?(@record)
+    @user.can_modify?(@record)
   end
 end

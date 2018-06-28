@@ -103,7 +103,7 @@ class Service < ActiveXML::Node
       super(comment: 'Modified via webui', user: User.current.login)
       package = Package.get_by_project_and_name(init_options[:project], init_options[:package],
                                                 use_source: true, follow_project_links: false)
-      return false unless User.current.can_modify_package?(package)
+      return false unless User.current.can_modify?(package)
       Backend::Api::Sources::Package.run_service(init_options[:project], init_options[:package], User.current.login)
       package.sources_changed
     end

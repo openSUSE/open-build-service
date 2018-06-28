@@ -38,7 +38,7 @@ class SourceProjectMetaController < SourceController
     logger.debug 'Checking permission for the put'
     if project
       # project exists, change it
-      unless User.current.can_modify_project?(project)
+      unless User.current.can_modify?(project)
         if project.is_locked?
           logger.debug "no permission to modify LOCKED project #{project.name}"
           raise ChangeProjectNoPermission, "The project #{project.name} is locked"
