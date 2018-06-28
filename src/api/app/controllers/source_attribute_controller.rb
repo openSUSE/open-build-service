@@ -27,7 +27,9 @@ class SourceAttributeController < ApplicationController
       return
     end
 
-    render xml: @attribute_container.render_attribute_axml(params)
+    opts = { attrib_type: @at }.with_indifferent_access
+    [:binary, :with_default, :with_project].each { |p| opts[p] = params[p] }
+    render xml: @attribute_container.render_attribute_axml(opts)
   end
 
   # DELETE
