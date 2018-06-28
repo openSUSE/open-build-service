@@ -66,29 +66,39 @@ module HasAttributes
     query.readonly(false).first
   end
 
-  def render_attribute_axml(params = {})
+  def render_attribute_axml(opts = {})
     builder = Nokogiri::XML::Builder.new
 
     builder.attributes do |xml|
-      render_main_attributes(xml, params)
+      render_main_attributes(xml, opts)
 
       # show project values as fallback ?
-      project.render_main_attributes(xml, params) if params[:with_project]
+      project.render_main_attributes(xml, opts) if opts[:with_project]
     end
     builder.doc.to_xml indent: 2, encoding: 'UTF-8',
                               save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                          Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
-  def render_main_attributes(builder, params)
-    done = {}
+  private
+
+  def matches_binary_filter?(filter, binary)
+    return true unless filter
+    return false if binary != filter
+    # switch between all and NULL binary
+    filter != '' || binary == ''
+  end
+
+  def render?(attr, filter_attrib_type, filter_binary)
+    if filter_attrib_type
+      return false unless attr.attrib_type == filter_attrib_type
+    end
+    return matches_binary_filter?(filter_binary, attr.binary)
+  end
+
+  def render_main_attributes(builder, opts)
     attribs.each do |attr|
-      type_name = attr.attrib_type.attrib_namespace.name + ':' + attr.attrib_type.name
-      next if params[:name] && attr.attrib_type.name != params[:name]
-      next if params[:namespace] && attr.attrib_type.attrib_namespace.name != params[:namespace]
-      next if params[:binary] && attr.binary != params[:binary]
-      next if params[:binary] == '' && attr.binary != '' # switch between all and NULL binary
-      done[type_name] = 1 unless attr.binary
+      next unless render?(attr, opts[:attrib_type], opts[:binary])
       p = {}
       p[:name] = attr.attrib_type.name
       p[:namespace] = attr.attrib_type.attrib_namespace.name
@@ -99,7 +109,7 @@ module HasAttributes
             builder.issue(name: ai.name, tracker: ai.issue_tracker.name)
           end
         end
-        render_single_attribute(attr, params[:with_default], builder)
+        render_single_attribute(attr, opts[:with_default], builder)
       end
     end
   end

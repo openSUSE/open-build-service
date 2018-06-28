@@ -90,6 +90,10 @@ Intentional changes:
  * GET '/attribute/:attribute' route responded with a 400 when the attribute type
    did not exist. It now returns a 404 status.
 
+ * GET '/source/<project>/_attribute' allowed to filter by namespace. This was never
+   documented and was removed now. '/_attribute' will return all attributes, while
+   '/_attribute/:attribute' keeps returning only the given attribute (as documented)
+
 
 Other changes
 =============
