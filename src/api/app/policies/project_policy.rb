@@ -5,7 +5,7 @@ class ProjectPolicy < ApplicationPolicy
 
   def update?
     # The ordering is important because of the lock status check
-    return false unless @user.can_modify_project?(@record)
+    return false unless @user.can_modify?(@record)
     return true if @user.is_admin?
 
     # Regular users are not allowed to modify projects with remote references
@@ -17,6 +17,6 @@ class ProjectPolicy < ApplicationPolicy
   end
 
   def unlock?
-    @user.can_modify_project?(@record, true)
+    @user.can_modify?(@record, true)
   end
 end

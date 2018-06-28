@@ -36,7 +36,7 @@
       = render partial: "dod_repository_form", locals: { project: @project, download_on_demand: DownloadRepository.new }
     %p
       = link_to(sprite_tag("drive_add", title: "Add DoD repository") + " Add DoD repository", "#", id: "add-dod-repository-link")
-  - if User.current.can_modify_project?(@project)
+  - if User.current.can_modify?(@project)
     %p
       = link_to(sprite_tag("drive_add", title: "Add repository") + " Add repositories", action: :distributions, project: @project)
 

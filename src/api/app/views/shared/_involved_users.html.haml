@@ -1,4 +1,5 @@
-- user_is_maintainer = (@package && User.current.can_modify_package?(@package)) || (@project && User.current.can_modify_project?(@project.api_obj))
+- object = @package || @project
+- user_is_maintainer = User.current.can_modify?(object) if object
 - data = { 'save-user' => url_for(action: 'save_person'),
 -          'remove' => url_for(action: 'remove_role'),
 -          'save-group' => url_for(action: 'save_group'),
