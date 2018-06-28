@@ -3,7 +3,7 @@ aliases:
     CC_TEST_REPORTER_ID: b7a6ce504d06a446d7f677160fb92e7b40a1c6538cd888435404a6ae92c5140a
   - &minitest
     docker:
-      - image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/openbuildservice/frontend-backend:latest
+      - image: registry.opensuse.org/home/cbruckmayer/containers/containers/openbuildservice/frontend-backend:latest
         environment:
           NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
           NO_MEMCACHED: 1
@@ -17,7 +17,7 @@ aliases:
         name: cache
   - &frontend_base
     docker:
-      - image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/openbuildservice/frontend-base:latest
+      - image: registry.opensuse.org/home/cbruckmayer/containers/containers/openbuildservice/frontend-base:latest
         environment:
           NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
           <<: *cc_test_reporter_id
@@ -27,17 +27,20 @@ aliases:
         name: db
   - &restore_bundle_cache
     keys:
-    - v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
+    - v3-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
     # fallback to using the latest cache if no exact match is found
-    - v2-dependencies-
+    - v3-dependencies-
+  - &switch_user
+    name: switch to frontend user
+    command: sudo -u review-lab -s
   - &save_bundle_cache
     paths:
-      - ./src/api/vendor/bundle
+      - /usr/lib64/ruby/gems/2.5.0/gems/
     key: v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
   - &install_dependencies
     name: install dependencies
     command: |
-      cd ./src/api && bundle install --jobs=4 --retry=3 --path vendor/bundle
+      cd ./src/api && bundle install --jobs=4 --retry=3
   - &wait_for_database
     name: Wait for DB
     command: mysqladmin ping -h db
@@ -53,6 +56,7 @@ jobs:
   lint:
     <<: *frontend_base
     steps:
+      - run: *switch_user
       - checkout
       - restore_cache: *restore_bundle_cache
       - run: *install_dependencies
@@ -70,6 +74,7 @@ jobs:
   rspec:
     <<: *frontend_base
     steps:
+      - run: *switch_user
       - checkout
       - run: *download_test_reporter
       - run: ./cc-test-reporter before-build
@@ -102,6 +107,7 @@ jobs:
   rspec-bootstrap:
     <<: *frontend_base
     steps:
+      - run: *switch_user
       - checkout
       - run: *download_test_reporter
       - restore_cache: *restore_bundle_cache
@@ -125,6 +131,7 @@ jobs:
   minitest:
     <<: *minitest
     steps:
+      - run: *switch_user
       - checkout
       - run: *download_test_reporter
       - run: ./cc-test-reporter before-build
@@ -158,6 +165,7 @@ jobs:
   spider:
     <<: *minitest
     steps:
+      - run: *switch_user
       - checkout
       - run: *init_git_submodule
       - restore_cache: *restore_bundle_cache
