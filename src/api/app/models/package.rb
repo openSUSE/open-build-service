@@ -915,11 +915,10 @@ class Package < ApplicationRecord
   end
 
   def jobhistory_list(project, repository, arch, options = {})
-    options[:limit] = 100 if options[:limit].blank?
     options[:package] = name if options[:package].blank?
 
     begin
-      results = Xmlhash.parse(Backend::Api::BuildResults::JobHistory.all_for_package(project.name, options[:package], repository, arch, options[:limit]))
+      results = Xmlhash.parse(Backend::Api::BuildResults::JobHistory.all_for_package(project.name, options[:package], repository, arch))
     rescue Backend::Error
       return []
     end
