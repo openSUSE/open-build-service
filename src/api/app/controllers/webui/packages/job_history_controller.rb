@@ -7,7 +7,7 @@ module Webui
       before_action :set_architecture
 
       def index
-        @jobshistory = @package.jobhistory_list(@project.name, @repository.name, @architecture.name, @package_name)
+        @jobshistory = Package.jobhistory_list(@project.name, @repository.name, @architecture.name, @package_name)
       end
 
       private

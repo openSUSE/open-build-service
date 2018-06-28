@@ -433,11 +433,11 @@ RSpec.describe Package, vcr: true do
     end
   end
 
-  describe '#jobhistory_list' do
+  describe '.jobhistory_list' do
     let(:backend_url) { "#{CONFIG['source_url']}/build/#{home_project}/openSUSE_Tumbleweed/x86_64/_jobhistory?limit=100&package=#{package}" }
 
     # the package name is needed because it could be a multibuild
-    subject { package.jobhistory_list(home_project, 'openSUSE_Tumbleweed', 'x86_64', package.name) }
+    subject { Package.jobhistory_list(home_project, 'openSUSE_Tumbleweed', 'x86_64', package.name) }
 
     context 'when response is successful' do
       let(:local_job_history) do
