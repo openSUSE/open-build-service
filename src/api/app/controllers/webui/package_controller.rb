@@ -386,9 +386,6 @@ class Webui::PackageController < Webui::WebuiController
       @spec_count += 1 if file[:ext] == 'spec'
     end
 
-    # check source service state
-    @package.serviceinfo.value(:error) if @package.serviceinfo
-
     true
   end
   private :set_file_details
