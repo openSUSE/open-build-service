@@ -960,6 +960,7 @@ class Package < ApplicationRecord
 
   def service_error(revision = nil)
     revision ||= serviceinfo.try { to_hash['xsrcmd5'] }
+    return nil unless revision
     PackageServiceErrorFile.new(project_name: project.name, package_name: name).content(rev: revision)
   end
 
@@ -1260,14 +1261,11 @@ class Package < ApplicationRecord
   end
 
   def serviceinfo
-    unless @serviceinfo
-      begin
-        dir = Directory.find(project: project.name, package: name)
-        @serviceinfo = dir.find_first(:serviceinfo) if dir
-      rescue ActiveXML::Transport::NotFoundError
-      end
+    begin
+      dir = Directory.find(project: project.name, package: name)
+      dir.find_first(:serviceinfo) if dir
+    rescue ActiveXML::Transport::NotFoundError
     end
-    @serviceinfo
   end
 
   def parse_all_history
