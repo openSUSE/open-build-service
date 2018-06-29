@@ -182,14 +182,12 @@ class BinaryRelease < ApplicationRecord
     Rails.cache.delete("xml_binary_release_#{cache_key}")
   end
 
-  # rubocop:disable Style/DateTime
   def indentical_to?(binary_hash)
     binary_disturl == binary_hash['disturl'] &&
       binary_supportstatus == binary_hash['supportstatus'] &&
       binary_buildtime &&
       binary_buildtime == DateTime.strptime(binary_hash['buildtime'].to_s, '%s')
   end
-  # rubocop:enable Style/DateTime
   #### Alias of methods
 end
 
