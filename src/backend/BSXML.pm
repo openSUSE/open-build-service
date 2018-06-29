@@ -1795,6 +1795,7 @@ our $report = [
 	'buildtime',
 	'buildhost',
 	'disturl',
+	'binaryid',
      [[ 'binary' =>
 	    'name',
 	    'epoch',
@@ -1804,6 +1805,7 @@ our $report = [
 	    'buildtime',
 	    'buildhost',
 	    'disturl',
+	    'binaryid',
 	    'supportstatus',
 
 	    'project',
@@ -1859,6 +1861,7 @@ our $binannotation = [
 	'buildtime',
 	'buildhost',
 	'disturl',
+	'binaryid',
 	'package',		# only in build job annotation
 	'epoch',		# only in build job annotation
 	'version',		# only in build job annotation

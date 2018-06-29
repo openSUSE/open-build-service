@@ -255,7 +255,7 @@ sub normalize_container {
   $newmanifest_ent->{'blobid'} = BSContar::blobid_entry($newmanifest_ent);
   push @newtar, $newmanifest_ent;
 
-  return (\@newtar, $mtime, $config);
+  return (\@newtar, $mtime, $config, $newconfig);
 }
 
 1;
