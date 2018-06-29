@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_service" project="home:tom">
-          <title>Vanity Fair</title>
-          <description>Ut libero ullam veritatis quia nihil non doloremque culpa.</description>
+          <title>The Line of Beauty</title>
+          <description>Ipsa perferendis voluptate vel et veniam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,13 +70,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '185'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_service" project="home:tom">
-          <title>Vanity Fair</title>
-          <description>Ut libero ullam veritatis quia nihil non doloremque culpa.</description>
+          <title>The Line of Beauty</title>
+          <description>Ipsa perferendis voluptate vel et veniam.</description>
         </package>
     http_version: 
   recorded_at: Fri, 29 Jun 2018 11:39:25 GMT
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_service" project="home:tom">
-          <title>Vanity Fair</title>
-          <description>Ut libero ullam veritatis quia nihil non doloremque culpa.</description>
+          <title>The Line of Beauty</title>
+          <description>Ipsa perferendis voluptate vel et veniam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,13 +109,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '185'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_service" project="home:tom">
-          <title>Vanity Fair</title>
-          <description>Ut libero ullam veritatis quia nihil non doloremque culpa.</description>
+          <title>The Line of Beauty</title>
+          <description>Ipsa perferendis voluptate vel et veniam.</description>
         </package>
     http_version: 
   recorded_at: Fri, 29 Jun 2018 11:39:25 GMT
@@ -148,49 +148,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5" vrev="5">
-          <srcmd5>a327ec1e9c0bb99a9d902a615538eb7f</srcmd5>
+        <revision rev="6" vrev="6">
+          <srcmd5>ba5dbfad4f343a5641512ea764f3039c</srcmd5>
           <version>unknown</version>
           <time>1530272365</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Fri, 29 Jun 2018 11:39:25 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom/package_with_service/_serviceerror?rev=ebd3257ae7a0170d10648c1a4ab4ce04
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: _serviceerror  no such file
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '132'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>_serviceerror: no such file</summary>
-          <details>404 _serviceerror: no such file</details>
-        </status>
     http_version: 
   recorded_at: Fri, 29 Jun 2018 11:39:25 GMT
 recorded_with: VCR 4.0.0
