@@ -5,6 +5,7 @@ require 'rantly/rspec_extensions'
 # you uncomment the next line and start a test backend.
 # CONFIG['global_write_through'] = true
 
+# rubocop:disable Metrics/BlockLength
 RSpec.describe Package, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:home_project) { user.home_project }
@@ -184,12 +185,18 @@ RSpec.describe Package, vcr: true do
   end
 
   describe '#service_error' do
-    context 'without error' do
-      it { expect(package_with_service.service_error).to be_nil }
+    def finish_service(package)
+      sleep 0.1 while package.serviceinfo.to_hash['code'] == 'running'
     end
 
-    context 'with error' do
-      it { expect(package_with_broken_service.service_error).not_to be_empty }
+    it 'returns nil without errors' do
+      finish_service package_with_service
+      expect(package_with_service.service_error).to be_nil
+    end
+
+    it 'returns the errors' do
+      finish_service package_with_broken_service
+      expect(package_with_broken_service.service_error).not_to be_empty
     end
   end
 
@@ -639,3 +646,4 @@ Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
     end
   end
 end
+# rubocop:enable Metrics/BlockLength

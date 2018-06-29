@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:33:38 GMT
+  recorded_at: Fri, 29 Jun 2018 07:59:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_broken_service/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_broken_service" project="home:tom">
-          <title>An Acceptable Time</title>
-          <description>Quis aut officia perferendis repellendus minus vitae.</description>
+          <title>The Wealth of Nations</title>
+          <description>Excepturi laborum odio sunt atque quibusdam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '194'
+      - '188'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_broken_service" project="home:tom">
-          <title>An Acceptable Time</title>
-          <description>Quis aut officia perferendis repellendus minus vitae.</description>
+          <title>The Wealth of Nations</title>
+          <description>Excepturi laborum odio sunt atque quibusdam.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:33:38 GMT
+  recorded_at: Fri, 29 Jun 2018 07:59:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_broken_service/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_broken_service" project="home:tom">
-          <title>An Acceptable Time</title>
-          <description>Quis aut officia perferendis repellendus minus vitae.</description>
+          <title>The Wealth of Nations</title>
+          <description>Excepturi laborum odio sunt atque quibusdam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '194'
+      - '188'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_broken_service" project="home:tom">
-          <title>An Acceptable Time</title>
-          <description>Quis aut officia perferendis repellendus minus vitae.</description>
+          <title>The Wealth of Nations</title>
+          <description>Excepturi laborum odio sunt atque quibusdam.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:33:38 GMT
+  recorded_at: Fri, 29 Jun 2018 07:59:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_broken_service/_service
@@ -144,20 +144,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="16" vrev="16">
-          <srcmd5>de1f75f07a7096e47734d832a5a7dd72</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>954749565ae2e0071b9cfaaa29acd2b1</srcmd5>
           <version>unknown</version>
-          <time>1499340818</time>
+          <time>1530259187</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:33:38 GMT
+  recorded_at: Fri, 29 Jun 2018 07:59:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_broken_service
@@ -185,21 +185,60 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '411'
+      - '409'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_broken_service" rev="16" vrev="16" srcmd5="de1f75f07a7096e47734d832a5a7dd72">
-          <serviceinfo code="failed" xsrcmd5="d6a1494599a9a5cab62c57e007be4d1f">
+        <directory name="package_with_broken_service" rev="1" vrev="1" srcmd5="954749565ae2e0071b9cfaaa29acd2b1">
+          <serviceinfo code="failed" xsrcmd5="b725a05beaf57fbf1ec85276efbcbf97">
             <error>service error:  400 remote error: document element must be 'services', was 'service'</error>
           </serviceinfo>
-          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1499338186" />
+          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1530259187" />
         </directory>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:33:38 GMT
+  recorded_at: Fri, 29 Jun 2018 07:59:47 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom/package_with_broken_service/_serviceerror?rev=d6a1494599a9a5cab62c57e007be4d1f
+    uri: http://backend:5352/source/home:tom/package_with_broken_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '409'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_broken_service" rev="1" vrev="1" srcmd5="954749565ae2e0071b9cfaaa29acd2b1">
+          <serviceinfo code="failed" xsrcmd5="b725a05beaf57fbf1ec85276efbcbf97">
+            <error>service error:  400 remote error: document element must be 'services', was 'service'</error>
+          </serviceinfo>
+          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1530259187" />
+        </directory>
+    http_version: 
+  recorded_at: Fri, 29 Jun 2018 07:59:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_broken_service/_serviceerror?rev=b725a05beaf57fbf1ec85276efbcbf97
     body:
       encoding: US-ASCII
       string: ''
@@ -229,5 +268,5 @@ http_interactions:
         service daemon error:
          400 remote error: document element must be 'services', was 'service'
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:33:38 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Fri, 29 Jun 2018 07:59:47 GMT
+recorded_with: VCR 4.0.0
