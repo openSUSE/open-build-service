@@ -1,4 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/openSUSE/open-build-service.svg?branch=master)](https://travis-ci.org/openSUSE/open-build-service)
+[![Build Status](https://circleci.com/gh/openSUSE/open-build-service.svg?style=svg)](https://circleci.com/gh/openSUSE/open-build-service)
 [![Code Coverage](https://codecov.io/gh/openSUSE/open-build-service/branch/master/graph/badge.svg)](https://codecov.io/gh/openSUSE/open-build-service)
 [![Code Climate](https://codeclimate.com/github/openSUSE/open-build-service.png)](https://codeclimate.com/github/openSUSE/open-build-service)
 

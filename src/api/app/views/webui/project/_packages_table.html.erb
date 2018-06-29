@@ -33,7 +33,7 @@
           <p><i>This project does not contain any packages</i></p>
       <% end %>
 
-      <% if @project.kind_of?(Project) && User.current.can_modify_project?(@project) %>
+      <% if @project.kind_of?(Project) && User.current.can_modify?(@project) %>
           <% if !@project.defines_remote_instance? && !(@is_incident_project && !@packages.blank? && @has_patchinfo && @open_release_requests.empty?) && !@is_maintenance_project %>
               <ul class="horizontal-list">
                 <li>

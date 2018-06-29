@@ -33,7 +33,7 @@
     </ul>
   <% end %>
   <p>
-    <% if User.current.can_modify_package?(@package) %>
+    <% if User.current.can_modify?(@package) %>
       <%= link_to sprited_text('rebuild', 'Trigger'), { controller: :package, action: :trigger_rebuild, arch: result[:arch], project: @project, package: @package_name, repository: @repository }, { method: :post } %> rebuild
       <% unless result[:binaries].empty? %>
         <%= link_to sprited_text('drive_burn', 'Delete'), { controller: :package, action: :wipe_binaries, arch: result[:arch], project: @project, package: @package_name, repository: @repository }, { method: :delete} %> built binaries

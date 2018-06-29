@@ -8,7 +8,7 @@
 
 <h3><%= @pagetitle %></h3>
 <div style="margin-left: 15px; margin-right: 15px;">
-  <% if User.current.can_modify_project?(@project) %>
+  <% if User.current.can_modify?(@project) %>
     <%= render partial: "shared/editor", locals: {text: @content, mode: 'prjconf', save: {url: url_for(controller: 'project', action: 'save_prjconf'), method: 'POST', data: {project: @project.name, submit: 'config'}}} %>
   <% else %>
     <%= render partial: "shared/editor", locals: {text: @content, mode: 'prjconf', style: {read_only: true}} %>
