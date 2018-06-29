@@ -1,0 +1,56 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/build/_workerstatus
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1018'
+    body:
+      encoding: UTF-8
+      string: |
+        <workerstatus clients="0">
+          <waiting arch="i586" jobs="0" />
+          <waiting arch="x86_64" jobs="0" />
+          <blocked arch="i586" jobs="0" />
+          <blocked arch="x86_64" jobs="0" />
+          <buildavg arch="i586" buildavg="1200" />
+          <buildavg arch="x86_64" buildavg="1200" />
+          <partition>
+            <daemon type="srcserver" state="running" starttime="1530246095" />
+            <daemon type="service" state="running" starttime="1530246101" />
+            <daemon type="scheduler" arch="i586" state="running" starttime="1530246101">
+              <queue high="0" med="0" low="0" next="0" />
+            </daemon>
+            <daemon type="scheduler" arch="x86_64" state="running" starttime="1530246101">
+              <queue high="0" med="0" low="0" next="0" />
+            </daemon>
+            <daemon type="repserver" state="running" starttime="1530246099" />
+            <daemon type="dispatcher" state="running" starttime="1530246101" />
+            <daemon type="publisher" state="running" starttime="1530246101" />
+            <daemon type="signer" state="running" starttime="1530246102" />
+          </partition>
+        </workerstatus>
+    http_version: 
+  recorded_at: Fri, 29 Jun 2018 10:55:06 GMT
+recorded_with: VCR 4.0.0
