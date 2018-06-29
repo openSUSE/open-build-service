@@ -1260,14 +1260,11 @@ class Package < ApplicationRecord
   end
 
   def serviceinfo
-    unless @serviceinfo
-      begin
-        dir = Directory.find(project: project.name, package: name)
-        @serviceinfo = dir.find_first(:serviceinfo) if dir
-      rescue ActiveXML::Transport::NotFoundError
-      end
+    begin
+      dir = Directory.find(project: project.name, package: name)
+      dir.find_first(:serviceinfo) if dir
+    rescue ActiveXML::Transport::NotFoundError
     end
-    @serviceinfo
   end
 
   def parse_all_history
