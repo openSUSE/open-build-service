@@ -5,6 +5,7 @@ require 'rantly/rspec_extensions'
 # you uncomment the next line and start a test backend.
 # CONFIG['global_write_through'] = true
 
+# rubocop:disable Metrics/BlockLength
 RSpec.describe Package, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:home_project) { user.home_project }
@@ -184,12 +185,48 @@ RSpec.describe Package, vcr: true do
   end
 
   describe '#service_error' do
-    context 'without error' do
-      it { expect(package_with_service.service_error).to be_nil }
+    let(:url) { "#{CONFIG['source_url']}/source/#{package_with_service.project}/#{package_with_service.name}" }
+    let(:no_error) do
+      '<directory name="package_with_service" rev="1" vrev="1" srcmd5="cf9c84e27a27dfc3e289f74fb096b42a">
+          <serviceinfo code="succeeded" xsrcmd5="ebd3257ae7a0170d10648c1a4ab4ce04" />
+          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1530259187" />
+        </directory>'
+    end
+    let(:running) do
+      '<directory name="package_with_service" rev="1" vrev="1" srcmd5="cf9c84e27a27dfc3e289f74fb096b42a">
+         <serviceinfo code="running" />
+        <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1526982880" />
+     </directory>'
+    end
+    let(:remote_error) do
+      '<directory name="package_with_service" rev="1" vrev="1" srcmd5="954749565ae2e0071b9cfaaa29acd2b1">
+        <serviceinfo code="failed" xsrcmd5="b725a05beaf57fbf1ec85276efbcbf97">
+          <error>service error:  400 remote error: document element must be \'services\', was \'service\'</error>
+        </serviceinfo>
+        <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1530259187" />
+      </directory>'
+    end
+    let(:service_error_url) { "#{CONFIG['source_url']}/source/#{package_with_service.project}/#{package_with_service.name}/_serviceerror?rev=b725a05beaf57fbf1ec85276efbcbf97" }
+    let(:error) do
+      "service daemon error:
+         400 remote error: document element must be 'services', was 'service'"
     end
 
-    context 'with error' do
-      it { expect(package_with_broken_service.service_error).not_to be_empty }
+    it 'returns nil without errors' do
+      stub_request(:get, url).and_return(body: no_error)
+      expect(package_with_service.service_error).to be_nil
+    end
+
+    it 'returns nil on running' do
+      stub_request(:get, url).and_return(body: running)
+      expect(package_with_service.service_error).to be_nil
+    end
+
+    it 'returns the errors' do
+      stub_request(:get, url).and_return(body: remote_error)
+      stub_request(:get, service_error_url).and_return(body: error)
+      expect(package_with_service.service_error).to match(error)
+      expect(a_request(:get, service_error_url)).to have_been_made.once
     end
   end
 
@@ -639,3 +676,4 @@ Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
     end
   end
 end
+# rubocop:enable Metrics/BlockLength
