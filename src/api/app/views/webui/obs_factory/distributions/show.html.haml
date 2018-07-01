@@ -78,7 +78,7 @@
       - if @versions[:totest]
         %li
           Testing:
-          = link_to @versions[:totest], "#{openqa_links_helper}/tests/overview?distri=opensuse&version=#{@distribution.openqa_version}"
+          = link_to @versions[:totest], distribution_tests_url(@distribution)
 
       - if @versions[:published]
         %li
@@ -87,7 +87,7 @@
 
     %h2
       %i.fa.fa-2.fa-wrench
-      = link_to "openQA results for #{@versions[:totest]}", "#{openqa_links_helper}/tests/overview?distri=opensuse&version=#{@distribution.openqa_version}&build=#{@versions[:totest]}"
+      = link_to "openQA results for #{@versions[:totest]}", distribution_tests_url(@distribution, @versions[:totest])
 
     %p
       - unless @openqa_jobs.empty?
