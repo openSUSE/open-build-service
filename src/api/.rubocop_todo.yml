@@ -582,22 +582,6 @@ RSpec/ExpectInHook:
     - 'spec/controllers/webui/project_controller_spec.rb'
     - 'spec/features/webui/projects_spec.rb'
 
-# Offense count: 10
-# Configuration parameters: CustomTransform, IgnoreMethods.
-RSpec/FilePath:
-  Exclude:
-    - 'spec/controllers/webui/attributes_controller_spec.rb'
-    - 'spec/controllers/webui/cloud/ec2/upload_job/logs_controller_spec.rb'
-    - 'spec/controllers/webui/users/rss_token_controller_spec.rb'
-    - 'spec/decorators/statistics/maintenance_statistic_decorator.rb'
-    - 'spec/helpers/webui/build_result_helper.rb'
-    - 'spec/jobs/bs_request_action_webui_infos_job.rb'
-    - 'spec/jobs/project_log_rotate_job_spec.rb'
-    - 'spec/models/obs_factory/distribution_strategy_opensuse_spec.rb'
-    - 'spec/models/event/comment_spec.rb'
-    - 'spec/models/image_template_spec.rb'
-    - 'spec/script/db_checker.rb'
-
 # Offense count: 7
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: implicit, each, example

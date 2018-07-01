@@ -3,7 +3,8 @@ require 'rails_helper'
 RSpec.describe Statistics::MaintenanceStatisticDecorator do
   describe '#to_hash_for_xml' do
     let(:maintenance_statistic1) do
-      double(
+      instance_double(
+        'Statistics::MaintenanceStatistic',
         type: :issue_created,
         name: Faker::Lorem.word,
         tracker: Faker::Lorem.word,
@@ -19,7 +20,8 @@ RSpec.describe Statistics::MaintenanceStatisticDecorator do
       }
     end
     let(:maintenance_statistic2) do
-      double(
+      instance_double(
+        'Statistics::MaintenanceStatistic',
         type: :review_accepted,
         who: Faker::Lorem.word,
         id: rand(100),
