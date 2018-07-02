@@ -223,7 +223,8 @@ class Package < ApplicationRecord
 
   # to check existens of a project (local or remote)
   def self.exists_by_project_and_name(project, package, opts = {})
-    opts = { follow_project_links: true, allow_remote_packages: false }.merge(opts)
+    opts = { follow_project_links: true, allow_remote_packages: false, follow_multibuild: false }.merge(opts)
+    package = striping_multibuild_suffix(package) if opts[:follow_multibuild]
     begin
       prj = Project.get_by_name(project)
     rescue Project::UnknownObjectError

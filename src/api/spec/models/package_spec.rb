@@ -675,5 +675,43 @@ Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
       end
     end
   end
+
+  describe '.exists_by_project_and_name' do
+    subject { package.name }
+
+    let(:project_name) { package.project.name }
+
+    context 'for local package' do
+      it 'returns true for an existing package' do
+        expect(Package.exists_by_project_and_name(project_name, subject)).to be_truthy
+      end
+
+      it 'returns false for a not existing package' do
+        expect(Package.exists_by_project_and_name(project_name, 'does-not-exist:hello-world')).to be_falsey
+      end
+
+      it 'returns false for a not existing project' do
+        expect(Package.exists_by_project_and_name('does-not-exist', subject)).to be_falsey
+      end
+    end
+
+    context 'for multibuild package' do
+      it 'returns true for an existing local package' do
+        expect(Package.exists_by_project_and_name(project_name, subject, follow_multibuild: true)).to be_truthy
+      end
+
+      it 'returns true for an existing multibuild package' do
+        expect(Package.exists_by_project_and_name(project_name, "#{subject}:hello-world", follow_multibuild: true)).to be_truthy
+      end
+
+      it 'returns false for a not existing multibuild package' do
+        expect(Package.exists_by_project_and_name(project_name, 'does-not-exist:hello-world', follow_multibuild: true)).to be_falsey
+      end
+
+      it 'returns false for an existing multibuild package without follow_multibuild option' do
+        expect(Package.exists_by_project_and_name(project_name, "#{subject}:hello-world")).to be_falsey
+      end
+    end
+  end
 end
 # rubocop:enable Metrics/BlockLength
