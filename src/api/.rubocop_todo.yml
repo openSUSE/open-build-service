@@ -593,6 +593,7 @@ RSpec/FilePath:
     - 'spec/helpers/webui/build_result_helper.rb'
     - 'spec/jobs/bs_request_action_webui_infos_job.rb'
     - 'spec/jobs/project_log_rotate_job_spec.rb'
+    - 'spec/models/obs_factory/distribution_strategy_opensuse_spec.rb'
     - 'spec/models/event/comment_spec.rb'
     - 'spec/models/image_template_spec.rb'
     - 'spec/script/db_checker.rb'
