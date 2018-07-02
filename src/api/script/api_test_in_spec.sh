@@ -5,7 +5,6 @@ BASE_DIR=$PWD
 TEMP_DIR=$BASE_DIR/tmp
 MYSQL_BASEDIR=$TEMP_DIR/mysql/
 MYSQL_DATADIR=$MYSQL_BASEDIR/data
-MEMCACHED_PID_FILE=$TEMP_DIR/memcached.pid
 MYSQL_SOCKET_DIR=`mktemp -d`
 MYSQL_SOCKET=$MYSQL_SOCKET_DIR/mysql.socket
 RETRY=1
@@ -13,18 +12,7 @@ RETRY=1
 MYSQLD_USER=`whoami`
 if [[ $EUID == 0 ]];then
   MYSQLD_USER=mysql
-  MEMCACHED_USER="-u memcached"
 fi
-
-### define some function
-kill_memcached() {
-  if [[ -f  $MEMCACHED_PID_FILE ]];then
-    MEMCACHED_PID=$(cat $MEMCACHED_PID_FILE)
-    if [[ $MEMCACHED_PID ]];then
-      kill  $MEMCACHED_PID;
-    fi
-  fi
-}
 
 ### do testing now
 
@@ -61,8 +49,6 @@ test:
 
 EOF
 
-/usr/sbin/memcached $MEMCACHED_USER -l 127.0.0.1 -d -P $MEMCACHED_PID_FILE || exit 1
-
 # migration test
 export RAILS_ENV=development
 bundle.ruby2.5 exec rake.ruby2.5 db:create || exit 1
@@ -91,12 +77,9 @@ for suite in "rake.ruby2.5 test:api" "rake.ruby2.5 test:spider" "rspec"; do
   if ! (set -x; bundle.ruby2.5 exec $suite); then
     # dump log only in package builds
     [[ -n "$RPM_BUILD_ROOT" ]] && cat log/test.log
-    kill_memcached
     exit 1
   fi
 done
-
-kill_memcached
 
 #cleanup
 /usr/bin/mysqladmin -u root --socket=$MYSQL_SOCKET shutdown || true

@@ -6,15 +6,12 @@ aliases:
       - image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/openbuildservice/frontend-backend:latest
         environment:
           NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
-          NO_MEMCACHED: 1
           EAGER_LOAD: 1
           <<: *cc_test_reporter_id
       - image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/openbuildservice/mariadb:latest
         command: |
           /bin/bash -c 'echo -e "[mysqld]\ndatadir = /dev/shm" > /etc/my.cnf.d/obs.cnf && cp -a /var/lib/mysql/* /dev/shm && /usr/lib/mysql/mysql-systemd-helper start'
         name: db
-      - image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/openbuildservice/memcached:latest
-        name: cache
   - &frontend_base
     docker:
       - image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/openbuildservice/frontend-base:latest
