@@ -30,28 +30,29 @@ use BSServer;
 
 sub handoffsender {
   my ($param, $s, $req, $data) = @_;
-  local *FD;
+  my $fd;
   die("handoffsender: data arg is not supported\n") if defined $data;
   if (!$param->{'nullhandoff'}) {
-    *FD = BSServer::getsocket();
+    $fd = BSServer::getsocket();
   } else {
-    open(FD, '+<', '/dev/null') || die("/dev/null: $!\n");
+    open($fd, '+<', '/dev/null') || die("/dev/null: $!\n");
   }
   my $msgHdr = new Socket::MsgHdr(buflen => length($req), controllen => 256);
   $msgHdr->buf($req);
-  $msgHdr->cmsghdr(SOL_SOCKET, SCM_RIGHTS, pack("i", fileno(FD)));
-  (sendmsg(SOCK, $msgHdr) == length($req)) || die("sendmsg: $!\n");
+  $msgHdr->cmsghdr(SOL_SOCKET, SCM_RIGHTS, pack("i", fileno($fd)));
+  (sendmsg($param->{'socket'}, $msgHdr) == length($req)) || die("sendmsg: $!\n");
 }
 
 sub receivefd {
-  my ($fd, $newfd, $len) = @_;
+  my ($fd, $len) = @_;
   my $inHdr = Socket::MsgHdr->new(buflen => $len, controllen => 256);
   my $r = recvmsg($fd, $inHdr, 0);
   return $r unless defined $r;
   my ($level, $type, $data) = $inHdr->cmsghdr();
   die("no socket attached\n") unless $type && $type == SCM_RIGHTS;
+  my $newfd;
   open($newfd, "+<&=".unpack('i', $data)) || die("socket reopen: $!\n");
-  return $inHdr->buf();
+  return ($inHdr->buf(), $newfd);
 }
 
 sub handoff {
@@ -61,12 +62,12 @@ sub handoff {
   $path = { 'uri' => $path } unless ref $path;
   my $sockpath = $path->{'handoffpath'} || $conf->{'handoffpath'};
   die("no handoff path set\n") unless $sockpath;
-  local *SOCK;
-  socket(SOCK, PF_UNIX, SOCK_STREAM, 0) || die("socket: $!\n");
-  connect(SOCK, sockaddr_un($sockpath)) || die("connect: $!\n");
+  my $sock;
+  socket($sock, PF_UNIX, SOCK_STREAM, 0) || die("socket: $!\n");
+  connect($sock, sockaddr_un($sockpath)) || die("connect: $!\n");
   my $param = {
     'uri' => $path->{'uri'},
-    'socket' => *SOCK,
+    'socket' => $sock,
     'sender' => \&handoffsender,
   };
   $param->{'nullhandoff'} = 1 if $path->{'nullhandoff'};

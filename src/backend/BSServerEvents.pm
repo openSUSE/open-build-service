@@ -25,7 +25,6 @@ package BSServerEvents;
 use POSIX;
 use Socket;
 use Fcntl qw(:DEFAULT);
-use Symbol;
 use BSEvents;
 use BSHTTP;
 use BSCpio;
@@ -161,10 +160,11 @@ sub reply_file {
     $param = $filename;
     $filename = $filename->{'filename'};
   }
-  my $fd = $filename;
+  my $fd;
   if (!ref($fd)) {
-    $fd = gensym;
     open($fd, '<', $filename) || die("$filename: $!\n");
+  } else {
+    $fd = $filename;
   }
   my $rev = BSEvents::new('always');
   $rev->{'fd'} = $fd;
@@ -276,16 +276,15 @@ sub getrequest {
     $ev->{'reqbuf'} = '' unless exists $ev->{'reqbuf'};
     my $r;
     if ($ev->{'reqbuf'} eq '' && exists $conf->{'getrequest_recvfd'}) {
-      my $newfd = gensym;
-      $r = $conf->{'getrequest_recvfd'}->($ev->{'fd'}, $newfd, 1024);
-      if (defined($r)) {
+      my ($chunk, $newfd) = $conf->{'getrequest_recvfd'}->($ev->{'fd'}, 1024);
+      if (defined($chunk)) {
 	if (-c $newfd) {
 	  close $newfd;	# /dev/null case, no handoff requested
 	} else {
           $ev->{'nfd'} = $newfd;
 	}
-        $ev->{'reqbuf'} = $r;
-        $r = length($r);
+        $ev->{'reqbuf'} = $chunk;
+        $r = length($chunk);
       }
     } else {
       $r = sysread($ev->{'fd'}, $ev->{'reqbuf'}, 1024, length($ev->{'reqbuf'}));
@@ -354,7 +353,7 @@ sub newconnect {
   my ($ev) = @_;
   #print "newconnect!\n";
   BSEvents::add($ev);
-  my $newfd = gensym;
+  my $newfd;
   my $peeraddr = accept($newfd, *{$ev->{'fd'}});
   return unless $peeraddr;
   fcntl($newfd, F_SETFL, O_NONBLOCK);

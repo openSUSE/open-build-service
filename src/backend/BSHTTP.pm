@@ -171,7 +171,7 @@ sub read_data {
 
   my $ret = '';
   my $hdr = $req->{'headers'} || {};
-  local *S = $req->{'__socket'};
+  my $sock = $req->{'__socket'};
   if ($hdr->{'transfer-encoding'} && lc($hdr->{'transfer-encoding'}) eq 'chunked') {
     my $cl = $req->{'__cl'} || 0;
     if ($cl < 0) {
@@ -182,7 +182,7 @@ sub read_data {
     while (1) {
       if (defined($maxl) && $maxl <= $cl) {
 	while(length($qu) < $maxl) {
-	  my $r = sysread(S, $qu, 8192, length($qu));
+	  my $r = sysread($sock, $qu, 8192, length($qu));
 	  unexpected_eof($req) if !$r && (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK));
 	}
 	$ret .= substr($qu, 0, $maxl);
@@ -193,7 +193,7 @@ sub read_data {
       if ($cl) {
 	# no maxl or maxl > cl, read full cl
 	while(length($qu) < $cl) {
-	  my $r = sysread(S, $qu, 8192, length($qu));
+	  my $r = sysread($sock, $qu, 8192, length($qu));
 	  unexpected_eof($req) if !$r && (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK));
 	}
 	$ret .= substr($qu, 0, $cl);
@@ -208,7 +208,7 @@ sub read_data {
       }
       # reached end of chunk, prepare for next one
       while ($qu !~ /\r?\n/s) {
-	my $r = sysread(S, $qu, 8192, length($qu));
+	my $r = sysread($sock, $qu, 8192, length($qu));
         unexpected_eof($req) if !$r && (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK));
       }
       if (substr($qu, 0, 1) eq "\n") {
@@ -230,7 +230,7 @@ sub read_data {
 	# read trailer
 	$qu = "\r\n$qu";
 	while ($qu !~ /\n\r?\n/s) {
-	  my $r = sysread(S, $qu, 8192, length($qu));
+	  my $r = sysread($sock, $qu, 8192, length($qu));
 	  unexpected_eof($req) if !$r && (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK));
 	}
 	$qu =~ /^(.*?)\n\r?\n/;
@@ -250,7 +250,7 @@ sub read_data {
     while (!defined($maxl) || length($qu) < $maxl) {
       my $m = ($maxl || 0) - length($qu);
       $m = 8192 if $m < 8192;
-      my $r = sysread(S, $qu, $m, length($qu));
+      my $r = sysread($sock, $qu, $m, length($qu));
       if (!$r &&  (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK))) {
 	$req->{'__eof'} = 1;
 	die("unexpected EOF\n") if defined($cl) || ($exact && defined($maxl));
@@ -280,7 +280,7 @@ sub fd2req {
   my $req = {
     '__data' => '',
     '__socket' => $fd,
-    '__cl' => -s *$fd,
+    '__cl' => -s *{$fd},
   };
   return $req;
 }
@@ -296,20 +296,19 @@ sub file_receiver {
 
   die("file_receiver: no filename\n") unless defined $param->{'filename'};
   my $fn = $param->{'filename'};
-  my $withmd5 = $param->{'withmd5'};
-  local *F;
   my $ctx;
-  $ctx = Digest::MD5->new if $withmd5;
-  open(F, '>', $fn) || die("$fn: $!\n");
+  $ctx = Digest::MD5->new if $param->{'withmd5'};
+  my $fd;
+  open($fd, '>', $fn) || die("$fn: $!\n");
   my $size = 0;
   while(1) {
     my $s = read_data($req, 8192);
     last if $s eq '';
-    (syswrite(F, $s) || 0) == length($s) || die("syswrite: $!\n");
+    (syswrite($fd, $s) || 0) == length($s) || die("syswrite: $!\n");
     $size += length($s);
     $ctx->add($s) if $ctx;
   }
-  close(F) || die("close: $!\n");
+  close($fd) || die("close: $!\n");
   my $res = {size => $size};
   $res->{'md5'} = $ctx->hexdigest if $ctx;
   return $res;
@@ -369,7 +368,6 @@ sub cpio_receiver {
   my @res;
   my $dn = $param->{'directory'};
   my $withmd5 = $param->{'withmd5'};
-  local *F;
   while(1) {
     my $cpiohead = read_data($req, 110, 1);
     die("cpio: not a 'SVR4 no CRC ascii' cpio\n") unless substr($cpiohead, 0, 6) eq '070701';
@@ -422,6 +420,7 @@ sub cpio_receiver {
     my $cpiotype = $ent->{'cpiotype'};
     my $ctx;
     $ctx = Digest::MD5->new if $withmd5 && $cpiotype != 4;
+    my $fd;
     if (defined($dn)) {
       my $filename = "$dn/$name";
       if ($cpiotype == 4 && $param->{'createsubdirs'}) {
@@ -433,7 +432,7 @@ sub cpio_receiver {
       } else {
 	die("can only unpack plain files from cpio archive, file $name, cpiotype was $cpiotype\n") unless $cpiotype == 8;
 	unlink($filename) unless $param->{'no_unlink'};
-	open(F, '>', $filename) || die("$filename: $!\n");
+	open($fd, '>', $filename) || die("$filename: $!\n");
       }
     } else {
       $ent->{'data'} = '';
@@ -447,18 +446,18 @@ sub cpio_receiver {
       }
       $size -= $m;
       if (defined($dn)) {
-        (syswrite(F, $data, $m) || 0) == $m || die("syswrite: $!\n");
+        (syswrite($fd, $data, $m) || 0) == $m || die("syswrite: $!\n");
       } else {
         $ent->{'data'} .= $data;
       }
       $ctx->add($data) if $ctx;
     }
-    if (defined($dn) && $cpiotype == 8) {
-      close(F) || die("close: $!\n");
+    if ($fd) {
+      close($fd) || die("close: $!\n");
       my $mtime = $ent->{'mtime'};
       utime($mtime, $mtime, "$dn/$name") if $mtime;
     }
-    $ent->{'md5'} = $ctx->hexdigest if $ctx && $cpiotype != 4;
+    $ent->{'md5'} = $ctx->hexdigest if $ctx;
     $param->{'cpiopostfile'}->($param, $ent) if $param->{'cpiopostfile'};
   }
   return \@res;
@@ -489,18 +488,18 @@ sub cpio_sender {
 
 sub file_sender {
   my ($param, $sock) = @_;
-  local *F;
 
   my $bytes = $param->{'bytes'};
   my $data;
+  my $fd;
   if (ref($param->{'filename'})) {
-    *F = $param->{'filename'};
+    $fd = $param->{'filename'};
   } else {
-    open(F, '<', $param->{'filename'}) || die("$param->{'filename'}: $!\n")
+    open($fd, '<', $param->{'filename'}) || die("$param->{'filename'}: $!\n")
   }
   while(1) {
     last if defined($bytes) && !$bytes;
-    my $r = sysread(F, $data, 8192);
+    my $r = sysread($fd, $data, 8192);
     last unless $r;
     if ($bytes) {
       $data = substr($data, 0, $bytes) if length($data) > $bytes;
@@ -508,7 +507,7 @@ sub file_sender {
     }
     swrite($sock, $data, $param->{'chunked'});
   }
-  close F unless ref $param->{'filename'};
+  close $fd unless ref $param->{'filename'};
   return '';
 }
 
