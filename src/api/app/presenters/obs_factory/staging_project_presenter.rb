@@ -37,8 +37,10 @@ module ObsFactory
         'search'
       when 'repo-checker' then
         'cog'
-      when 'sle-release-managers', 'leap-reviewers', 'caasp-release-managers' then
+      when 'sle-release-managers', 'leap-reviewers', 'caasp-release-managers', 'backports-reviewers' then
         'users'
+      when 'security-team' then
+        'user-shield'
       when 'maintenance-team' then
         'medkit'
       when 'legal-team', 'legal-auto' then
