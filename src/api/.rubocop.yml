@@ -44,6 +44,10 @@ Rails/Exit:
   Exclude:
     - 'lib/memory_dumper.rb'
 
+RSpec/FilePath:
+  Exclude:
+    - 'spec/models/obs_factory/distribution_strategy_opensuse_spec.rb'
+
 Rails/HasAndBelongsToMany:
   Enabled: false
 
