@@ -13,7 +13,9 @@ module ObsFactory
     end
 
     def openqa_version
-      opensuse_leap_version
+      # Only use major version to find the openSUSE Leap job group since we use
+      # the same job group for the whole codestream
+      opensuse_leap_version[0..1]
     end
 
     def openqa_group
