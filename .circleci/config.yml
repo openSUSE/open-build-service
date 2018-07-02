@@ -170,7 +170,7 @@ jobs:
       - store_artifacts:
           path: ./src/api/log/
           destination: minitest
-  backend:
+  backend_test:
     docker:
       - image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/openbuildservice/backend:latest
     steps:
@@ -209,7 +209,7 @@ workflows:
       - spider:
           requires:
             - lint
-      - backend:
+      - backend_test:
           requires:
             - lint
       - upload_result:

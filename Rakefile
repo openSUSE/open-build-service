@@ -34,9 +34,9 @@ namespace :docker do
     desc 'Run our backend tests in the docker container'
     task :backend do
       begin
-        sh 'docker-compose -f docker-compose.ci.yml -p backend run --rm backend'
+        sh 'docker-compose -f docker-compose.ci.yml -p backend_test run --rm backend_test'
       ensure
-        sh 'docker-compose -f docker-compose.ci.yml -p backend stop'
+        sh 'docker-compose -f docker-compose.ci.yml -p backend_test stop'
       end
     end
 
