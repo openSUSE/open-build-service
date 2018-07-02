@@ -55,27 +55,11 @@ class SourceProjectMetaController < SourceController
     end
 
     # projects using remote resources must be edited by the admin
-    result = Project.validate_remote_permissions(request_data)
-    if result[:error]
-      raise ChangeProjectNoPermission, 'admin rights are required to change projects using remote resources'
-    end
+    ensure_access_to_edit_remote_project(request_data)
 
-    result = Project.validate_link_xml_attribute(request_data, project_name)
-    raise ProjectReadAccessFailure, result[:error] if result[:error]
+    ensure_xml_attributes_are_valid(request_data, project_name)
 
-    result = Project.validate_maintenance_xml_attribute(request_data)
-    raise ModifyProjectNoPermission, result[:error] if result[:error]
-
-    result = Project.validate_repository_xml_attribute(request_data, project_name)
-    raise RepositoryAccessFailure, result[:error] if result[:error]
-
-    if project
-      remove_repositories = project.get_removed_repositories(request_data)
-      opts = { no_write_to_backend: true,
-               force:               params[:force].present?,
-               recursive_remove:    params[:remove_linking_repositories].present? }
-      check_and_remove_repositories!(remove_repositories, opts)
-    end
+    remove_repositories!(project, request_data, params) if project
 
     Project.transaction do
       # exec
@@ -90,5 +74,29 @@ class SourceProjectMetaController < SourceController
       project.store(comment: params[:comment])
     end
     render_ok
+  end
+
+  def remove_repositories!(project, request_data, params)
+    remove_repositories = project.get_removed_repositories(request_data)
+    opts = { no_write_to_backend: true,
+             force:               params[:force].present?,
+             recursive_remove:    params[:remove_linking_repositories].present? }
+    check_and_remove_repositories!(remove_repositories, opts)
+  end
+
+  def ensure_access_to_edit_remote_project(request_data)
+    result = Project.validate_remote_permissions(request_data)
+    raise ChangeProjectNoPermission, 'admin rights are required to change projects using remote resources' if result[:error]
+  end
+
+  def ensure_xml_attributes_are_valid(request_data, project_name)
+    result = Project.validate_link_xml_attribute(request_data, project_name)
+    raise ProjectReadAccessFailure, result[:error] if result[:error]
+
+    result = Project.validate_maintenance_xml_attribute(request_data)
+    raise ModifyProjectNoPermission, result[:error] if result[:error]
+
+    result = Project.validate_repository_xml_attribute(request_data, project_name)
+    raise RepositoryAccessFailure, result[:error] if result[:error]
   end
 end
