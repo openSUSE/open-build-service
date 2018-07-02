@@ -1,8 +1,5 @@
 require 'rails_helper'
 require 'webmock/rspec'
-# WARNING: If you change #file_exists or #has_file test make sure
-# you uncomment the next line and start a test backend.
-# CONFIG['global_write_through'] = true
 
 RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
   include ActiveJob::TestHelper

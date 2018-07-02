@@ -1,8 +1,5 @@
 require 'rails_helper'
 require 'webmock/rspec'
-# WARNING: If you change #file_exists or #has_file test make sure
-# you uncomment the next line and start a test backend.
-# CONFIG['global_write_through'] = true
 
 RSpec.describe Buildresult, vcr: true do
   describe '#status_description' do

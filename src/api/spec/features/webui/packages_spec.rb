@@ -1,11 +1,6 @@
 require 'browser_helper'
 require 'webmock/rspec'
 
-# WARNING: If you change owner tests make sure you uncomment this line
-# and start a test backend. Some of the Owner methods
-# require real backend answers for projects/packages.
-# CONFIG['global_write_through'] = true
-
 RSpec.feature 'Packages', type: :feature, js: true do
   it_behaves_like 'user tab' do
     let(:package) do
@@ -65,14 +60,6 @@ RSpec.feature 'Packages', type: :feature, js: true do
       login user
       visit package_show_path(project: other_user.home_project, package: other_users_package)
       click_link('Branch package')
-    end
-
-    after do
-      # Cleanup backend
-      if CONFIG['global_write_through']
-        Backend::Connection.delete("/source/#{CGI.escape(other_user.home_project_name)}")
-        Backend::Connection.delete("/source/#{CGI.escape(user.branch_project_name(other_user.home_project_name))}")
-      end
     end
 
     scenario 'with AutoCleanup' do

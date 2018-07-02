@@ -6259,6 +6259,20 @@ sub cloudupload_log {
   return undef; # always streams result
 }
 
+# only to support frontend testing
+sub resetall {
+   my ($cgi) = @_;
+
+   system("rm -rf $BSConfig::bsdir/sources");
+   system("rm -rf $BSConfig::bsdir/build");
+   system("rm -rf $BSConfig::bsdir/trees");
+   system("rm -rf $BSConfig::bsdir/events");
+   system("rm -rf $BSConfig::bsdir/projects");
+   system("rm -rf $BSConfig::bsdir/db");
+   system("rm -rf $BSConfig::bsdir/diffcache");
+   system("rm -rf $BSConfig::bsdir/service");
+}
+
 ####################################################################
 
 my $dispatches = [
@@ -6440,6 +6454,8 @@ my $dispatches = [
 
   '/ajaxstatus' => \&getajaxstatus,
   '/serverstatus' => \&BSStdServer::serverstatus,
+ 
+  'DELETE:/resetall' => \&resetall,
 ];
 
 ####################################################################

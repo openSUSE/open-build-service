@@ -1,8 +1,4 @@
 require 'browser_helper'
-# WARNING: If you change tests make sure you uncomment this line
-# and start a test backend. Some of the BsRequestAction methods
-# require real backend answers for projects/packages.
-# CONFIG['global_write_through'] = true
 
 RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
   let(:admin_user) { create(:admin_user) }

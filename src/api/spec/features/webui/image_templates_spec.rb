@@ -1,7 +1,4 @@
 require 'browser_helper'
-# WARNING: This test require real backend answers for projects/packages, make
-# sure you uncomment this line and start a test backend.
-# CONFIG['global_write_through'] = true
 
 RSpec.feature 'ImageTemplates', type: :feature, js: true do
   let!(:user) { create(:confirmed_user, login: 'tom') }

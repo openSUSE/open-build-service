@@ -10,7 +10,6 @@ module HasAttributes
   end
 
   def write_attributes
-    return unless CONFIG['global_write_through']
     project_name = is_a?(Project) ? name : project.name
     if is_a?(Package)
       Backend::Api::Sources::Package.write_attributes(project_name, name, User.current.login, render_attribute_axml)

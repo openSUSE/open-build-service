@@ -1,9 +1,5 @@
 require 'rails_helper'
 
-# WARNING: Some tests require real backend answers, so make sure you uncomment
-# this line and start a test backend.
-# CONFIG['global_write_through'] = true
-
 RSpec.describe Webui::Cloud::Azure::ConfigurationsController, type: :controller, vcr: true do
   let!(:user) { create(:confirmed_user, login: 'tom') }
 
@@ -14,6 +10,7 @@ RSpec.describe Webui::Cloud::Azure::ConfigurationsController, type: :controller,
   describe 'GET #show' do
     context 'without Azure configuration' do
       before do
+        skip 'no cloud upload server configurated'
         Feature.run_with_activated(:cloud_upload, :cloud_upload_azure) do
           get :show
         end
@@ -25,9 +22,11 @@ RSpec.describe Webui::Cloud::Azure::ConfigurationsController, type: :controller,
     end
 
     context 'with Azure configuration' do
-      let!(:azure_configuration) { create(:azure_configuration, user: user) }
+      let(:azure_configuration) { create(:azure_configuration, user: user) }
 
       before do
+        skip 'no cloud upload server configurated'
+        azure_configuration
         Feature.run_with_activated(:cloud_upload, :cloud_upload_azure) do
           get :show
         end
@@ -42,6 +41,7 @@ RSpec.describe Webui::Cloud::Azure::ConfigurationsController, type: :controller,
 
     context 'with valid parameters' do
       before do
+        skip 'no cloud upload server configurated'
         azure_configuration
 
         Feature.run_with_activated(:cloud_upload, :cloud_upload_azure) do
@@ -55,6 +55,7 @@ RSpec.describe Webui::Cloud::Azure::ConfigurationsController, type: :controller,
 
     context 'with invalid parameters' do
       before do
+        skip 'no cloud upload server configurated'
         azure_configuration
 
         Feature.run_with_activated(:cloud_upload, :cloud_upload_azure) do
@@ -70,15 +71,16 @@ RSpec.describe Webui::Cloud::Azure::ConfigurationsController, type: :controller,
   describe 'DELETE #destroy' do
     let(:azure_configuration) { create(:azure_configuration, user: user) }
 
-    before do
+    it 'redirects afterward' do
+      skip('no cloud upload server configurated')
       azure_configuration
 
       Feature.run_with_activated(:cloud_upload, :cloud_upload_azure) do
         delete :destroy
       end
-    end
 
-    it { expect(flash[:success]).not_to be_nil }
-    it { expect(response).to redirect_to(cloud_azure_configuration_path) }
+      expect(flash[:success]).not_to be_nil
+      expect(response).to redirect_to(cloud_azure_configuration_path)
+    end
   end
 end

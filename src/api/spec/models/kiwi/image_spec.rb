@@ -1,10 +1,6 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-# WARNING: Some tests require real backend answers, so make sure you uncomment
-# this line and start a test backend.
-# CONFIG['global_write_through'] = true
-
 RSpec.describe Kiwi::Image, type: :model, vcr: true do
   include_context 'a kiwi image xml'
   include_context 'an invalid kiwi image xml'

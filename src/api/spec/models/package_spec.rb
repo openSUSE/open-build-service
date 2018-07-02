@@ -1,9 +1,6 @@
 require 'rails_helper'
 require 'webmock/rspec'
 require 'rantly/rspec_extensions'
-# WARNING: If you change #file_exists or #has_file test make sure
-# you uncomment the next line and start a test backend.
-# CONFIG['global_write_through'] = true
 
 # rubocop:disable Metrics/BlockLength
 RSpec.describe Package, vcr: true do
@@ -172,10 +169,8 @@ RSpec.describe Package, vcr: true do
 
   context '#has_icon?' do
     it 'returns true if the icon exist' do
-      if CONFIG['global_write_through']
-        Backend::Connection.put("/source/#{CGI.escape(package_with_file.project.name)}/#{CGI.escape(package_with_file.name)}/_icon",
-                                Faker::Lorem.paragraph)
-      end
+      Backend::Connection.put("/source/#{CGI.escape(package_with_file.project.name)}/#{CGI.escape(package_with_file.name)}/_icon",
+                              Faker::Lorem.paragraph)
       expect(package_with_file.has_icon?).to eq(true)
     end
 
@@ -645,10 +640,8 @@ Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
 
     context 'of a package with more than one changes file' do
       before do
-        if CONFIG['global_write_through']
-          full_path = "/source/#{package.project.name}/#{package.name}/lorem.changes"
-          Backend::Connection.put(URI.escape(full_path), 'Lorem ipsum dolorem')
-        end
+        full_path = "/source/#{package.project.name}/#{package.name}/lorem.changes"
+        Backend::Connection.put(URI.escape(full_path), 'Lorem ipsum dolorem')
       end
 
       it { expect(package.commit_message(nil, nil)).to include('Lorem ipsum dolorem') }
