@@ -21,7 +21,7 @@ services:
       - .:/obs
     shm_size: 512MB
     command: /obs/contrib/start_test_db
-  backend:
+  backend_test:
     image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/backend:latest
     volumes:
       - .:/obs
