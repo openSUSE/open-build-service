@@ -73,6 +73,10 @@ sub gen_meta {
   # sort
   @deps = sort {$helper1{$a} <=> $helper1{$b} || $helper2{$a} cmp $helper2{$b} || $a cmp $b} @deps;
 
+  # ignore self-cycles
+  if (%cycle) {
+    delete $cycle{$_} for @subp;
+  }
   # handle cycles
   my %cycdepseen;
   if (%cycle) {
