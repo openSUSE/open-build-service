@@ -5,13 +5,9 @@ FactoryBot.define do
     title { Faker::Book.title }
     description { Faker::Lorem.sentence }
 
-    after(:create) do |package|
-      # NOTE: Enable global write through when writing new VCR cassetes.
-      # ensure the backend knows the project
-      if CONFIG['global_write_through']
-        Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_meta", package.to_axml)
-      end
-    end
+    # NOTE: Enable global write through when writing new VCR cassetes.
+    # ensure the backend knows the project
+    after(:create, &:write_to_backend)
 
     factory :package_with_revisions do
       transient do
