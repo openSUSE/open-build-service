@@ -386,7 +386,7 @@ RSpec.describe BsRequest, vcr: true do
 
   context '#forward_to' do
     before do
-      submit_request
+      submit_request.bs_request_actions.first.update(sourceupdate: 'cleanup')
       login user
     end
 
@@ -409,9 +409,12 @@ RSpec.describe BsRequest, vcr: true do
                  target_project: user.home_project.name,
                  target_package: target_package.name,
                  source_project: target_package.project.name,
-                 source_package: target_package.name,
-                 sourceupdate:   nil
+                 source_package: target_package.name
         )).to exist
+      end
+
+      it 'does not set the sourceupdate' do
+        expect(subject.bs_request_actions.first.sourceupdate).to be_nil
       end
 
       it 'sets the logged in user as creator of the request' do
@@ -438,10 +441,7 @@ RSpec.describe BsRequest, vcr: true do
       subject do
         submit_request.forward_to(
           project: user.home_project.name,
-          options: {
-            sourceupdate: 'noupdate',
-            description:  'my description'
-          }
+          options: { description: 'my description' }
         )
       end
 
@@ -451,7 +451,7 @@ RSpec.describe BsRequest, vcr: true do
 
       it 'creates a submit request action with the correct target' do
         expect(subject.bs_request_actions.count).to eq 1
-        expect(subject.bs_request_actions.where(type: 'submit', sourceupdate: 'noupdate')).to exist
+        expect(subject.bs_request_actions.where(type: 'submit')).to exist
       end
     end
   end

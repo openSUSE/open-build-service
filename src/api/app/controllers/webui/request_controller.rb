@@ -365,7 +365,7 @@ class Webui::RequestController < Webui::WebuiController
     # split off 'forward_' and split into project and package
     tgt_prj, tgt_pkg = params[fwd].split('_#_')
     begin
-      forwarded_request = @bs_request.forward_to(project: tgt_prj, package: tgt_pkg, options: params.slice(:description, :sourceupdate))
+      forwarded_request = @bs_request.forward_to(project: tgt_prj, package: tgt_pkg, options: params.slice(:description))
     rescue APIException, ActiveRecord::RecordInvalid => e
       error_string = "Failed to forward BsRequest: #{@bs_request.number}, error: #{e}, params: #{params.inspect}"
       error_string << ", request: #{e.record.inspect}" if e.respond_to?(:record)
