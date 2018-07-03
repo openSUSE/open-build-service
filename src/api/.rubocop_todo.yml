@@ -738,6 +738,7 @@ RSpec/VerifiedDoubles:
   Exclude:
     - 'spec/decorators/statistics/maintenance_statistic_decorator.rb'
     - 'spec/features/webui/login_spec.rb'
+    - 'spec/controllers/webui/session_controller_spec.rb'
     - 'spec/jobs/issue_tracker_fetch_issues_job_spec.rb'
     - 'spec/jobs/issue_tracker_update_issues_job_spec.rb'
     - 'spec/lib/authenticator_spec.rb'
