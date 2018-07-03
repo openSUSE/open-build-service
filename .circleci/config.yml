@@ -26,17 +26,17 @@ aliases:
         name: db
   - &restore_bundle_cache
     keys:
-    - v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
+    - v3-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
     # fallback to using the latest cache if no exact match is found
-    - v2-dependencies-
+    - v3-dependencies-
   - &save_bundle_cache
     paths:
-      - ./src/api/vendor/bundle
+      - /usr/lib64/ruby/gems/2.5.0/gems/
     key: v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
   - &install_dependencies
     name: install dependencies
     command: |
-      cd ./src/api && bundle install --jobs=4 --retry=3 --path vendor/bundle
+      cd ./src/api && bundle install --jobs=4 --retry=3
   - &wait_for_database
     name: Wait for DB
     command: mysqladmin ping -h db
