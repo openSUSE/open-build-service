@@ -171,11 +171,11 @@ sub writetar {
   $writer = $fd if ref($fd) eq 'CODE';
   for my $ent (@{$entries || []}) {
     my (@s);
-    local *F;
+    my $f;
     if (exists $ent->{'file'}) {
       my $file = $ent->{'file'};
       if (ref($file)) {
-        *F = $file;
+        $f = $file;
       } else {
         @s = lstat($file);
         die("$file: $!\n") unless @s;
@@ -184,12 +184,12 @@ sub writetar {
         } elsif (! -f _) {
           die("$file: not a plain file\n");
         }
-        open(F, '<', $file) || die("$file: $!\n");
+        open($f, '<', $file) || die("$file: $!\n");
       }
-      @s = stat(F);
+      @s = stat($f);
       my $l = $s[7];
       if (defined($ent->{'offset'})) {
-        die("$file: seek error: $!\n") unless defined(sysseek(F, $ent->{'offset'}, 0));
+        die("$file: seek error: $!\n") unless defined(sysseek($f, $ent->{'offset'}, 0));
         $l -= $ent->{'offset'};
       }
       if (defined($ent->{'size'})) {
@@ -200,7 +200,7 @@ sub writetar {
       my $r = 0;
       my ($data, $pad) = maketarhead($ent, \@s);
       while(1) {
-        $r = sysread(F, $data, $l > 8192 ? 8192 : $l, length($data)) if $l;
+        $r = sysread($f, $data, $l > 8192 ? 8192 : $l, length($data)) if $l;
         die("$file: read error: $!\n") unless defined $r;
         die("$file: unexpected EOF\n") if $l && !$r;
         $data .= $pad if $r == $l;
@@ -213,7 +213,7 @@ sub writetar {
         $l -= $r;
         last unless $l;
       }
-      close F unless ref $file;
+      close $f unless ref $file;
     } else {
       $s[7] = length($ent->{'data'});
       $s[9] = $ent->{'mtime'} || time;
@@ -236,10 +236,10 @@ sub writetar {
 
 sub writetarfile {
   my ($fn, $fnf, $tar, %opts) = @_;
-  local *TAR;
-  open(TAR, '>', $fn) || die("$fn: $!\n");
-  writetar(\*TAR, $tar);
-  close(TAR) || die("$fn close: $!\n");
+  my $tarfd;
+  open($tarfd, '>', $fn) || die("$fn: $!\n");
+  writetar($tarfd, $tar);
+  close($tarfd) || die("$fn close: $!\n");
   my $mtime = $opts{'mtime'};
   utime($mtime, $mtime, $fn) if defined $mtime;
   rename($fn, $fnf) || die("rename $fn $fnf: $!\n") if defined $fnf;

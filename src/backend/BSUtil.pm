@@ -68,11 +68,11 @@ sub do_fdatasync {
 sub writexml {
   my ($fn, $fnf, $dd, $dtd) = @_;
   my $d = XMLout($dtd, $dd);
-  local *F;
-  open(F, '>', $fn) || die("$fn: $!\n");
-  (syswrite(F, $d) || 0) == length($d) || die("$fn write: $!\n");
-  do_fdatasync(fileno(F)) if defined($fnf) && $fdatasync_before_rename;
-  close(F) || die("$fn close: $!\n");
+  my $f;
+  open($f, '>', $fn) || die("$fn: $!\n");
+  (syswrite($f, $d) || 0) == length($d) || die("$fn write: $!\n");
+  do_fdatasync(fileno($f)) if defined($fnf) && $fdatasync_before_rename;
+  close($f) || die("$fn close: $!\n");
   return unless defined $fnf;
   $! = 0;
   rename($fn, $fnf) || die("rename $fn $fnf: $!\n");
@@ -80,37 +80,37 @@ sub writexml {
 
 sub writestr {
   my ($fn, $fnf, $d) = @_;
-  local *F;
-  open(F, '>', $fn) || die("$fn: $!\n");
+  my $f;
+  open($f, '>', $fn) || die("$fn: $!\n");
   if (length($d)) {
-    (syswrite(F, $d) || 0) == length($d) || die("$fn write: $!\n");
+    (syswrite($f, $d) || 0) == length($d) || die("$fn write: $!\n");
   }
-  do_fdatasync(fileno(F)) if defined($fnf) && $fdatasync_before_rename;
-  close(F) || die("$fn close: $!\n");
+  do_fdatasync(fileno($f)) if defined($fnf) && $fdatasync_before_rename;
+  close($f) || die("$fn close: $!\n");
   return unless defined $fnf;
   rename($fn, $fnf) || die("rename $fn $fnf: $!\n");
 }
 
 sub appendstr {
   my ($fn, $d) = @_;
-  local *F;
-  open(F, '>>', $fn) || die("$fn: $!\n");
+  my $f;
+  open($f, '>>', $fn) || die("$fn: $!\n");
   if (length($d)) {
-    (syswrite(F, $d) || 0) == length($d) || die("$fn write: $!\n");
+    (syswrite($f, $d) || 0) == length($d) || die("$fn write: $!\n");
   }
-  close(F) || die("$fn close: $!\n");
+  close($f) || die("$fn close: $!\n");
 }
 
 sub readstr {
   my ($fn, $nonfatal) = @_;
-  local *F;
-  if (!open(F, '<', $fn)) {
+  my $f;
+  if (!open($f, '<', $fn)) {
     die("$fn: $!\n") unless $nonfatal;
     return undef;
   }
   my $d = '';
-  1 while sysread(F, $d, 8192, length($d));
-  close F;
+  1 while sysread($f, $d, 8192, length($d));
+  close $f;
   return $d;
 }
 
@@ -142,20 +142,21 @@ sub toxml {
 sub touch($) {
   my ($file) = @_;
   if (-e $file) {
-    utime(time, time, $file); 
+    my $t = time();
+    utime($t, $t, $file); 
   } else {
     # create new file, mtime is anyway current
-    local *F;
-    open(F, '>>', $file) || die("$file: $!\n");
-    close(F) || die("$file close: $!\n");
+    my $f;
+    open($f, '>>', $file) || die("$file: $!\n");
+    close($f) || die("$file close: $!\n");
   }
 }
 
 sub ls {
-  local *D;
-  opendir(D, $_[0]) || return ();
-  my @r = grep {$_ ne '.' && $_ ne '..'} readdir(D);
-  closedir D;
+  my $d;
+  opendir($d, $_[0]) || return ();
+  my @r = grep {$_ ne '.' && $_ ne '..'} readdir($d);
+  closedir $d;
   return @r;
 }
 
@@ -203,16 +204,19 @@ sub mkdir_p_chown {
   my $ogroup = $group;
   
   if ($user  !~ /^-?\d+$/ && !defined($user = getpwnam($user))) {
-    warn "user $ouser unknown\n"; return undef
+    warn "user $ouser unknown\n";
+    return undef
   }
   if ($group !~ /^-?\d+$/ && !defined($group = getgrnam($group))) {
-    warn "group $ogroup unknown\n"; return undef
+    warn "group $ogroup unknown\n";
+    return undef
   }
 
   my @s = stat($dir);
   if ($s[4] != $user || $s[5] != $group) {
     if (!chown $user, $group, $dir) {
-      warn "failed to chown $dir to $user:$group\n"; return undef;
+      warn "failed to chown $dir to $user:$group\n";
+      return undef;
     }
   }
   return 1;
@@ -304,16 +308,15 @@ sub xfork {
 
 sub cp {
   my ($from, $to, $tof) = @_;
-  local *F;
-  local *T;
-  open(F, '<', $from) || die("$from: $!\n");
-  open(T, '>', $to) || die("$to: $!\n");
+  my ($f, $t);
+  open($f, '<', $from) || die("$from: $!\n");
+  open($t, '>', $to) || die("$to: $!\n");
   my $buf;
-  while (sysread(F, $buf, 8192)) {
-    (syswrite(T, $buf) || 0) == length($buf) || die("$to write: $!\n");
+  while (sysread($f, $buf, 8192)) {
+    (syswrite($t, $buf) || 0) == length($buf) || die("$to write: $!\n");
   }
-  close(F);
-  close(T) || die("$to: $!\n");
+  close($f);
+  close($t) || die("$to: $!\n");
   if (defined($tof)) {
     rename($to, $tof) || die("rename $to $tof: $!\n");
   }
@@ -422,32 +425,34 @@ sub waituntilgone {
 sub lockopen {
   my ($fg, $op, $fn, $nonfatal) = @_;
 
-  local *F = $fg; 
   while (1) {
-    if (!open(F, $op, $fn)) {
+    if (!open($fg, $op, $fn)) {
       return undef if $nonfatal;
       die("$fn: $!\n");
     }
-    flock(F, LOCK_EX) || die("flock $fn: $!\n");
-    my @s = stat(F);
-    return 1 if @s && $s[3];
-    close F;
+    flock($fg, LOCK_EX) || die("flock $fn: $!\n");
+    my @s = stat($fg);
+    last if @s && $s[3];
+    close $fg;
+    $fg = undef;
   }
+  $_[0] = $fg;	# support auto-vivify
+  return 1;
 }
 
 sub lockcheck {
   my ($op, $fn) = @_;
-  local *F;
+  my $fg;
   while (1) {
-    if (!open(F, $op, $fn)) {
+    if (!open($fg, $op, $fn)) {
       return -1;
     }
-    if (!flock(F, LOCK_EX | LOCK_NB)) {
-      close(F);
+    if (!flock($fg, LOCK_EX | LOCK_NB)) {
+      close($fg);
       return 0;
     }
-    my @s = stat(F);
-    close F;
+    my @s = stat($fg);
+    close $fg;
     return 1 if @s && $s[3];
   }
 }
@@ -460,25 +465,26 @@ sub lockopenxml {
   }
   my $d = readxml($fn, $dtd, $nonfatal);
   if (!$d) {
-    local *F = $fg;
-    close F;
+    close $fg;
+    return undef;
   }
+  $_[0] = $fg;	# support auto-vivify
   return $d;
 }
 
 sub lockcreatexml {
   my ($fg, $fn, $fnf, $dd, $dtd) = @_;
 
-  local *F = $fg; 
   writexml($fn, undef, $dd, $dtd);
-  open(F, '<', $fn) || die("$fn: $!\n");
-  flock(F, LOCK_EX | LOCK_NB) || die("lock: $!\n");
+  open($fg, '<', $fn) || die("$fn: $!\n");
+  flock($fg, LOCK_EX | LOCK_NB) || die("lock: $!\n");
   if (!link($fn, $fnf)) {
     unlink($fn);
-    close F;
+    close $fg;
     return undef;
   }
   unlink($fn);
+  $_[0] = $fg;	# support auto-vivify
   return 1;
 }
 
@@ -537,14 +543,14 @@ sub enabled {
 sub store {
   my ($fn, $fnf, $dd) = @_;
   if ($fdatasync_before_rename && defined($fnf)) {
-    local *F;
-    open(F, '>', $fn) || die("$fn: $!\n");
-    if (!Storable::nstore_fd($dd, \*F)) {
+    my $f;
+    open($f, '>', $fn) || die("$fn: $!\n");
+    if (!Storable::nstore_fd($dd, $f)) {
       die("nstore_fd $fn: $!\n");
     }
-    (\*F)->flush();
-    do_fdatasync(fileno(F));
-    close(F) || die("$fn close: $!\n");
+    $f->flush();
+    do_fdatasync(fileno($f));
+    close($f) || die("$fn close: $!\n");
   } else {
     if (!Storable::nstore($dd, $fn)) {
       die("nstore $fn: $!\n");
@@ -594,10 +600,10 @@ sub fromstorable {
 
 sub ping {
   my ($pingfile) = @_;
-  local *F;
-  if (sysopen(F, $pingfile, POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
-    syswrite(F, 'x');
-    close(F);
+  my $f;
+  if (sysopen($f, $pingfile, POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
+    syswrite($f, 'x');
+    close($f);
   }
 }
 
@@ -659,21 +665,23 @@ sub restartexit {
 sub xsystem {
   my ($in, @args) = @_;
 
-  local (*RIN, *WIN);
-  local (*RERR, *WERR);
-  local *P;
+  my ($rin, $win, $rerr, $werr);
   if (defined($in)) {
-    pipe(RIN, WIN) || die("stdin pipe: $!\n");
+    pipe($rin, $win) || die("stdin pipe: $!\n");
   }
-  pipe(RERR, WERR) || die("stderr pipe: $!\n");
-  my $pid;
-  $pid = open(P, '-|');
+  pipe($rerr, $werr) || die("stderr pipe: $!\n");
+  my $rout;
+  my $pid = open($rout, '-|');
   die("fork: $!\n") unless defined $pid;
   if (!$pid) {
-    close WIN if defined $in;
-    close RERR;
-    open(STDIN, defined($in) ? "<&RIN" : "</dev/null");
-    open(STDERR, ">&WERR");
+    close $win if $win;
+    close $rerr;
+    if ($rin) {
+      open(STDIN, '<&', $rin);
+    } else {
+      open(STDIN, '<', '/dev/null');
+    }
+    open(STDERR, '>&', $werr);
     eval {
       exec(@args);
       die("$args[0]: $!\n");
@@ -681,55 +689,56 @@ sub xsystem {
     warn($@) if $@;
     exit 1;
   }
-  close RIN if defined $in;
-  close WERR;
-  my ($indead, $outdead, $errdead);
-  $indead = 1 unless defined $in;
+  close $rin if $rin;
+  undef $rin;
+  close $werr;
+  undef $werr;
+
   my ($out, $err) = ('', '');
   my $stat;
-  while (!($outdead && $errdead)) {
-    my ($rin, $win) = ('', '');
-    vec($win, fileno(WIN), 1) = 1 unless $indead;
-    vec($rin, fileno(P),  1) = 1 unless $outdead;
-    vec($rin, fileno(RERR),  1) = 1 unless $errdead;
-    my $nfound = select($rin, $win, undef, undef);
+  while ($rout || $rerr) {
+    my ($rvec, $wvec) = ('', '');
+    vec($wvec, fileno($win), 1) = 1 if $win;
+    vec($rvec, fileno($rout),  1) = 1 if $rout;
+    vec($rvec, fileno($rerr),  1) = 1 if $rerr;
+    my $nfound = select($rvec, $wvec, undef, undef);
     if (!defined($nfound) || $nfound == -1) {
       next if $! == POSIX::EINTR;
       die("select: $!\n");
     }
     next unless $nfound;
-    if (!$indead && vec($win, fileno(WIN), 1)) {
-      my $l = syswrite(WIN, $in);
+    if ($win && vec($wvec, fileno($win), 1)) {
+      my $l = syswrite($win, $in);
       if (!defined($l) || $l < 0) {
         next if $! == POSIX::EINTR || $! == POSIX::EWOULDBLOCK;
-        close(WIN);
-        $indead = 1;
+        close($win);
+	undef $win;
       } else {
         $in = substr($in, $l);
         if (length($in) <= 0) {
-          close(WIN);
-          $indead = 1;
+          close($win);
+	  undef $win;
         }
       }
     }
-    if (!$outdead && vec($rin, fileno(P), 1)) {
-      my $l = sysread(P, $out, 4096, length($out));
+    if ($rout && vec($rvec, fileno($rout), 1)) {
+      my $l = sysread($rout, $out, 4096, length($out));
       if (!defined($l) || $l <= 0) {
         next if !defined($l) && ($! == POSIX::EINTR || $! == POSIX::EWOULDBLOCK);
-        $stat = close(P);
-        $outdead = 1;
+        $stat = close($rout);
+	undef $rout;
       }
     }
-    if (!$errdead && vec($rin, fileno(RERR), 1)) {
-      my $l = sysread(RERR, $err, 4096, length($err));
+    if ($rerr && vec($rvec, fileno($rerr), 1)) {
+      my $l = sysread($rerr, $err, 4096, length($err));
       if (!defined($l) || $l <= 0) {
         next if !defined($l) && ($! == POSIX::EINTR || $! == POSIX::EWOULDBLOCK);
-        close(RERR);
-        $errdead = 1;
+        close($rerr);
+	undef $rerr;
       }
     }
   }
-  close WIN unless $indead;
+  close $win if $win;
   if (!$stat) {
     chomp $err;
     die(($err || "$args[0]: $?") . "\n");

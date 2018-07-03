@@ -6139,9 +6139,6 @@ sub cloudupload_create_receiver {
   die("need a content length\n") unless defined $cl;
   die("upload image is empty\n") unless $cl;
 
-  local *S = $req->{'__socket'};	# XXX: fix BSRPC
-  $req->{'__socket'} = \*S;
-
   # create a job
   $param->{'uploadjob'}->{'size'} = $cl;	# we now know the size
   my $createparam = {

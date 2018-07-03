@@ -45,7 +45,7 @@ sub normalize_container {
   unlink("$dir/$container.recompressed");
   local *TAR;
   open(TAR, '<', "$dir/$container") || die("$dir/$container: $!\n");
-  my ($tar, $mtime, $config) = BSContar::normalize_container(\*TAR, $recompress);
+  my ($tar, $mtime, $config, $config_id) = BSContar::normalize_container(\*TAR, $recompress);
   my ($md5, $sha256, $size) = BSContar::checksum_tar($tar);
  
   # split in blobs/manifest, write blob files
@@ -62,6 +62,8 @@ sub normalize_container {
   $containerinfo->{'tar_mtime'} = $mtime;
   $containerinfo->{'tar_size'} = $size;
   $containerinfo->{'tar_blobids'} = [ map {$_->{'blobid'}} @blob_entries ];
+  $containerinfo->{'imageid'} = $config_id;
+  $containerinfo->{'imageid'} =~ s/^sha256://;
   $containerinfo->{'goarch'} = $config->{'architecture'};
   $containerinfo->{'goos'} = $config->{'os'};
   # XXX: should add a variant for arm
