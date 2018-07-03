@@ -25,7 +25,7 @@ namespace :docker do
     desc 'Run our frontend tests in the docker container'
     task :rspec do
       begin
-        sh 'docker-compose', '-f', 'docker-compose.ci.yml', '-p', 'rspec', 'run', *environment_vars, '--rm', 'rspec'
+        sh 'docker-compose', '-f', 'docker-compose.ci.yml', '-p', 'rspec', 'run', '--use-aliases', *environment_vars, '--rm', 'rspec'
       ensure
         sh 'docker-compose -f docker-compose.ci.yml -p rspec stop'
       end

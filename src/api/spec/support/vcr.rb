@@ -14,9 +14,10 @@ VCR.configure do |config|
   config.ignore_request do |request|
     # Ignore capybara identify calls. For more details:
     #   http://stackoverflow.com/questions/6119669/using-webmock-with-cucumber
-    request.uri =~ /127.0.0.1:\d{5}\/__identify__/
+    request.uri =~ /0.0.0.0:\d*\/__identify__/
   end
   config.ignore_hosts 'www.gravatar.com' # Ignore gravatar calls
+  config.ignore_hosts 'selenium'
 end
 
 RSpec.configure do |config|
