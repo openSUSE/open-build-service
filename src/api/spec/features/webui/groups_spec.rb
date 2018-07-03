@@ -34,7 +34,8 @@ RSpec.feature 'Groups', type: :feature, js: true do
     end
 
     expect(page).to have_content('Edit Group test_group_b')
-    page.find('input#members', visible: false).set 'eisendieter'
+    # the interaction is a little complicated - so use js
+    page.execute_script('$("#members").tokenInput("add", {id: 1, name: "eisendieter"})')
     click_button 'Save'
 
     within 'form', text: 'Members:' do
