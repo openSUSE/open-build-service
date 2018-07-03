@@ -41,8 +41,8 @@ class BsRequestActionDelete < BsRequestAction
   end
 
   def sourcediff(opts = {})
-    raise DiffError, "Project diff isn't implemented yet" unless target_package && target_repository
-    return '' unless target_repository
+    raise DiffError, "Project diff isn't implemented yet" unless target_package || target_repository
+    return '' unless target_package
     begin
       options = { expand: 1, filelimit: 0, rev: 0 }
       options[:view] = 'xml' if opts[:view] == 'xml' # Request unified diff in full XML view
