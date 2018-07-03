@@ -58,7 +58,7 @@ module ObsFactory
 
     # URL parameter for Leap
     def openqa_filter(project)
-      return "match=#{opensuse_leap_version}:S:#{project.letter}"
+      "match=#{opensuse_leap_version}:S:#{project.letter}"
     end
 
     private
