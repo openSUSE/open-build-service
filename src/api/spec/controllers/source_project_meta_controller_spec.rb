@@ -1,5 +1,7 @@
 require 'rails_helper'
 
+# CONFIG['global_write_through'] = true
+
 RSpec.describe SourceProjectMetaController, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:project) { user.home_project }
