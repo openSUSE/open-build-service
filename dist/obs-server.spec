@@ -690,7 +690,6 @@ usermod -a -G docker obsservicerun
 /srv/www/obs/api/config/boot.rb
 /srv/www/obs/api/config/routes.rb
 /srv/www/obs/api/config/environments/development.rb
-/srv/www/obs/api/config/unicorn
 %attr(0640,root,%apache_group) %config(noreplace) %verify(md5) /srv/www/obs/api/config/database.yml
 %attr(0640,root,%apache_group) /srv/www/obs/api/config/database.yml.example
 %attr(0644,root,root) %config(noreplace) %verify(md5) /srv/www/obs/api/config/options.yml
