@@ -77,7 +77,8 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
           visit root_path
           expect(page).to have_link('New Image')
           visit image_templates_path
-          expect(page.status_code).to eq(200)
+          # should be controller test
+          expect(page).not_to have_content 'Sorry but the page you are looking for'
         end
       end
     end
@@ -92,7 +93,8 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
           visit root_path
           expect(page).to have_link('New Image')
           visit image_templates_path
-          expect(page.status_code).to eq(200)
+          # should be controller test
+          expect(page).not_to have_content 'Sorry but the page you are looking for'
         end
       end
 
@@ -101,7 +103,8 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
           visit root_path
           expect(page).not_to have_link('New Image')
           visit image_templates_path
-          expect(page.status_code).to eq(404)
+          # this should be a controller test
+          expect(page).to have_content 'Sorry but the page you are looking for'
         end
       end
     end
