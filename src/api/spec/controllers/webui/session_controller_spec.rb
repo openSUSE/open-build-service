@@ -122,4 +122,41 @@ RSpec.describe Webui::SessionController do
       end
     end
   end
+
+  context 'In proxy mode' do
+    let!(:user) { create(:confirmed_user, login: 'proxy_user') }
+    let(:username) { 'new_user' }
+
+    before do
+      # Fake proxy mode
+      stub_const('CONFIG', CONFIG.merge('proxy_auth_mode' => :on))
+    end
+
+    it 'logs in a user when the header is set' do
+      request.headers['HTTP_X_USERNAME'] = user.login
+
+      # a rather unusual place to go, but this isn't really
+      # about the session controller but about basic proxy mode
+      get :new
+      expect(User.current).to eq(user)
+    end
+
+    it 'does not log in any user when no header is set' do
+      get :new
+      expect(User.current.login).to eq '_nobody_'
+    end
+
+    it 'creates a new user account if user does not exist in OBS' do
+      request.headers['HTTP_X_USERNAME'] = username
+      request.headers['HTTP_X_EMAIL'] = 'new_user@obs.com'
+      request.headers['HTTP_X_FIRSTNAME'] = 'Bob'
+      request.headers['HTTP_X_LASTNAME'] = 'Geldof'
+
+      get :new
+      user = User.where(login: username, realname: 'Bob Geldof', email: 'new_user@obs.com')
+      expect(user).to exist
+
+      expect(User.current.login).to eq(user.first.login)
+    end
+  end
 end
