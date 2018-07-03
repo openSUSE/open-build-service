@@ -14,17 +14,14 @@ services:
       - .:/obs
     depends_on:
       - db
-      - cache
     command: /obs/contrib/start_minitest
-  cache:
-    image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/memcached:latest
   db:
     image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/mariadb:latest
     volumes:
       - .:/obs
     shm_size: 512MB
     command: /obs/contrib/start_test_db
-  backend:
+  backend_test:
     image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/backend:latest
     volumes:
       - .:/obs

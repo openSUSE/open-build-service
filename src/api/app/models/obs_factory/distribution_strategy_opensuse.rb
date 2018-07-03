@@ -2,20 +2,18 @@ module ObsFactory
 
   # this class tracks the differences between Factory and the upcoming release
   class DistributionStrategyOpenSUSE < DistributionStrategyFactory
+    SIGNATURE = /openSUSE:(?<full_name>.+:(?<version>(?<major_version>\d+)\.(?<minor_version>\d+)))/
+
     def opensuse_version
-      # Remove the "openSUSE:" part
-      project.name[9..-1]
+      distribution[:full_name]
     end
 
     def opensuse_leap_version
-      # Remove the "openSUSE:Leap:" part
-      project.name[14..-1]
+      distribution[:version]
     end
 
     def openqa_version
-      # Only use major version to find the openSUSE Leap job group since we use
-      # the same job group for the whole codestream
-      opensuse_leap_version[0..1]
+      distribution[:major_version]
     end
 
     def openqa_group
@@ -64,5 +62,10 @@ module ObsFactory
       return "match=#{opensuse_leap_version}:S:#{project.letter}"
     end
 
+    private
+
+    def distribution
+      SIGNATURE.match(project.name)
+    end
   end
 end

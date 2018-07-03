@@ -2,7 +2,6 @@
 ENV['RAILS_ENV'] ||= 'test'
 ENV['origin_RAILS_ENV'] ||= ENV['RAILS_ENV']
 ENV['LC_ALL'] = 'C'
-no_memcached = ENV['NO_MEMCACHED']
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
 require 'builder'
 
@@ -32,29 +31,6 @@ if File.exist?(backend_config)
   puts 'Old backend data is there. checking if we can stop it'
   ['bs_srcserver', 'bs_repserver', 'bs_servicedispatch', 'bs_service', 'bs_sched', 'bs_publish'].each do |srv|
     system("cd #{backend_config} && exec ./#{srv} --stop 2>&1 && sleep 2")
-  end
-end
-
-# if we run the testsuite in a container, we run memcached in a dedicated container
-unless no_memcached
-  memcached_pid = %x(ps -C memcached -o pid=).strip
-  if memcached_pid.to_i > 0
-    memcached_npid = 0
-    puts "memcached already started (pid=#{memcached_pid})\."
-  else
-    puts "memcached not started.\nTrying to start it ..."
-    if Etc.getpwuid(Process::Sys.geteuid).name == 'root'
-      success = system('/usr/sbin/memcached', '-d', '-u', 'wwwrun')
-    else
-      success = system('/usr/sbin/memcached', '-d')
-    end
-    if success
-      memcached_npid = %x(ps -C memcached -o pid=).strip
-      puts "memcached started (pid=#{memcached_npid})\."
-    else
-      puts "memcached couldn't become started. Abort."
-      exit 1
-    end
   end
 end
 
@@ -353,8 +329,6 @@ at_exit do
   Process.kill 'TERM', reposrv_out.pid
   Process.kill 'TERM', servicedispatchsrv_out.pid
   Process.kill 'TERM', servicesrv_out.pid
-
-  Process.kill 'TERM', memcached_npid if memcached_npid.to_i > 0
 
   srcsrv_out.close
   srcsrv_out = nil

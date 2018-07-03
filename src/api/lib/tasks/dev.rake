@@ -112,6 +112,14 @@ namespace :dev do
           end
         end
       end
+
+      desc 'Autocorrect rubocop offenses in rails and in root'
+      task :auto_correct do
+        sh 'rubocop --auto-correct --ignore_parent_exclusion'
+        Dir.chdir('../..') do
+          sh 'rubocop --auto-correct'
+        end
+      end
     end
     desc 'Run the haml linter'
     task :haml do

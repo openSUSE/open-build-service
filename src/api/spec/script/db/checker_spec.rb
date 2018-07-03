@@ -41,10 +41,8 @@ RSpec.describe DB::Checker do
       checker.contraints_to_check.each do |constraint|
         expect(constraint).to be_a Array
         expect(constraint.size).to be >= 3
-        constraint[0, 3].each do |value|
-          expect(value).to be_a Symbol
-        end
-        expect([true, false, nil]).to include constraint[3]
+        expect(constraint[0, 3]).to all(be_a Symbol)
+        expect(constraint[3]).to be_in([true, false, nil])
       end
     end
   end

@@ -1,8 +1,39 @@
 require 'rails_helper'
+require 'webmock/rspec'
 
-RSpec.describe Webui::MonitorController, vcr: true do
+RSpec.describe Webui::MonitorController do
+  let(:xml_response) do
+    <<-HEREDOC
+    <workerstatus clients="7">
+      <building workerid="simulated" hostarch="i586" project="BinaryprotectedProject" repository="nada" package="bdpack" arch="i586" starttime="0" />
+      <building workerid="simulated" hostarch="i586" project="SourceprotectedProject" repository="repo" package="pack" arch="i586" starttime="0" />
+      <building workerid="simulated" hostarch="x86_64" project="home:Iggy" repository="10.2" package="TestPack" arch="x86_64" starttime="0" />
+      <building workerid="simulated" hostarch="i586" project="UseRemoteInstance" repository="pop" package="pack2.linked" arch="i586" starttime="0" />
+      <building workerid="simulated" hostarch="i586" project="home:Iggy" repository="10.2" package="TestPack" arch="i586" starttime="0" />
+      <building workerid="simulated" hostarch="i586" project="BaseDistro3" repository="BaseDistro3_repo" package="pack2" arch="i586" starttime="0" />
+      <building workerid="simulated" hostarch="i586" project="HiddenProject" repository="nada" package="pack" arch="i586" starttime="0" />
+      <waiting arch="i586" jobs="1" />
+      <waiting arch="x86_64" jobs="0" />
+      <blocked arch="i586" jobs="1" />
+      <blocked arch="x86_64" jobs="0" />
+      <buildavg arch="i586" buildavg="1200" />
+      <buildavg arch="x86_64" buildavg="1200" />
+      <partition>
+        <daemon type="scheduler" arch="i586" state="dead">
+          <queue high="0" med="0" low="3" next="0" />
+        </daemon>
+        <daemon type="scheduler" arch="x86_64" state="dead">
+          <queue high="0" med="0" low="6" next="0" />
+        </daemon>
+        <daemon type="publisher" state="dead" />
+      </partition>
+    </workerstatus>
+    HEREDOC
+  end
+
   describe 'GET #index' do
     before do
+      stub_request(:get, "#{CONFIG['source_url']}/build/_workerstatus").and_return(body: xml_response)
       get :index
     end
 
@@ -11,6 +42,7 @@ RSpec.describe Webui::MonitorController, vcr: true do
 
   describe 'GET #old' do
     before do
+      stub_request(:get, "#{CONFIG['source_url']}/build/_workerstatus").and_return(body: xml_response)
       get :old
     end
 
@@ -19,11 +51,12 @@ RSpec.describe Webui::MonitorController, vcr: true do
 
   describe 'GET #update_building' do
     before do
+      stub_request(:get, "#{CONFIG['source_url']}/build/_workerstatus").and_return(body: xml_response)
       get :update_building, xhr: true
       @json_response = JSON.parse(response.body)
     end
 
-    it { expect(@json_response).to have_key('simulated') } # it relays on a simulated VCR cassette
+    it { expect(@json_response).to have_key('simulated') }
   end
 
   describe 'GET #events' do

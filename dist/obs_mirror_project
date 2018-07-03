@@ -99,7 +99,6 @@ if verbose
   puts verbose: verbose
 end
 
-
 puts "
 #####################
 # Data Verification #
@@ -177,7 +176,6 @@ directory_verify("#{dest}/projects", "projects", verbose, trialrun)
 # verify :full dir
 directory_verify("#{dest}/build/#{proj}/#{repo}/#{arch}/:full", ":full", verbose, trialrun)
 
-
 puts "
 ################
 # Project meta #
@@ -192,7 +190,6 @@ puts "\nRetrieve project configuration data:
 osc -A #{apiurl} meta prjconf #{proj} > #{dest}/projects/#{proj}.conf" if verbose
 system("
 osc -A #{apiurl} meta prjconf #{proj} > #{dest}/projects/#{proj}.conf") if !trialrun
-
 
 puts "
 ####################

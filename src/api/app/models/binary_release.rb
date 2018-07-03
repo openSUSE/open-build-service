@@ -71,7 +71,7 @@ class BinaryRelease < ApplicationRecord
         # complete hash for new entry
         hash[:binary_releasetime] = time
         hash[:binary_buildtime] = nil
-        hash[:binary_buildtime] = ::Time.at(binary['buildtime'].to_i).to_datetime if binary['buildtime'].to_i > 0
+        hash[:binary_buildtime] = DateTime.strptime(binary['buildtime'].to_s, '%s') if binary['buildtime'].present?
         hash[:binary_disturl] = binary['disturl']
         hash[:binary_supportstatus] = binary['supportstatus']
         if binary['updateinfoid']
@@ -182,14 +182,12 @@ class BinaryRelease < ApplicationRecord
     Rails.cache.delete("xml_binary_release_#{cache_key}")
   end
 
-  # rubocop:disable Style/DateTime
   def indentical_to?(binary_hash)
     binary_disturl == binary_hash['disturl'] &&
       binary_supportstatus == binary_hash['supportstatus'] &&
       binary_buildtime &&
-      binary_buildtime.to_datetime.utc == DateTime.strptime(binary_hash['buildtime'].to_s, '%s').utc
+      binary_buildtime == DateTime.strptime(binary_hash['buildtime'].to_s, '%s')
   end
-  # rubocop:enable Style/DateTime
   #### Alias of methods
 end
 

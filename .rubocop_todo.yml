@@ -8,12 +8,6 @@
 
 # Offense count: 3
 # Cop supports --auto-correct.
-Layout/EmptyLines:
-  Exclude:
-    - 'dist/obs_mirror_project'
-
-# Offense count: 3
-# Cop supports --auto-correct.
 # Configuration parameters: AllowForAlignment, ForceEqualSignAlignment.
 Layout/ExtraSpacing:
   Exclude:
