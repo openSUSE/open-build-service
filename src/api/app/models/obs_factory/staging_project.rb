@@ -89,30 +89,6 @@ module ObsFactory
       selected_requests.select(&:obsolete?)
     end
 
-    # Used to fetch the :DVD project
-    #
-    # @return StagingProject object or nil
-    def subproject
-      return @subprojects[0] unless @subprojects.nil?
-      @subprojects = []
-      ::Project.where(["name like ?", "#{name}:%"]).map do |project|
-        p = StagingProject.new(project: project, distribution: distribution)
-        p.parent = self
-        @subprojects << p
-      end
-      if @subprojects.length > 1
-        Rails.logger.error 'There too many subprojects, we can not handle this'
-        @subprojects[0] = nil
-        return
-      end
-      @subprojects[0] ||= nil
-    end
-
-    # only for compat in the JSON
-    def subprojects
-      [subproject]
-    end
-
     # Associated openQA jobs.
     #
     # The jobs are fetched by ISO name.
@@ -237,8 +213,8 @@ module ObsFactory
 
     def self.attributes
       ['name', 'description', 'obsolete_requests', 'openqa_jobs',
-       'building_repositories', 'broken_packages', 'subproject',
-       'subprojects', 'untracked_requests', 'missing_reviews',
+       'building_repositories', 'broken_packages',
+       'untracked_requests', 'missing_reviews',
        'selected_requests', 'overall_state']
     end
 
@@ -289,15 +265,8 @@ module ObsFactory
         @state = build_state
       end
 
-      if @state == :acceptable && subproject
-        @state = subproject.build_state
-      end
-
       if @state == :acceptable
         @state = openqa_state
-        if @state == :acceptable && subproject
-          @state = subproject.openqa_state
-        end
       end
 
       if @state == :acceptable && missing_reviews.present?

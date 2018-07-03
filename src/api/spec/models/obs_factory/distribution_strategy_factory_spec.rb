@@ -35,7 +35,7 @@ RSpec.describe ObsFactory::DistributionStrategyFactory do
   end
 
   describe 'rings' do
-    it { expect(strategy.rings).to eq(['Bootstrap', 'MinimalX', 'TestDVD']) }
+    it { expect(strategy.rings).to eq(['Bootstrap', 'MinimalX']) }
   end
 
   describe 'repo_url' do

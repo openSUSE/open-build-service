@@ -42,7 +42,7 @@ module ObsFactory
     end
 
     def rings
-      %w[Bootstrap MinimalX TestDVD]
+      %w[Bootstrap MinimalX]
     end
 
     def repo_url
