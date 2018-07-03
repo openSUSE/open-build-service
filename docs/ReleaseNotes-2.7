@@ -1,16 +1,14 @@
-
-#
-# Open Build Service 2.7
-#
+== Open Build Service 2.7
 
 Please read the README.md file for initial installation
 instructions or use the OBS Appliance from
 
-  http://openbuildservice.org/download/
+http://openbuildservice.org/download/
 
 If you already have a running OBS installation and want to update it, please
 read also the README.UPDATERS file about the necessary steps. Please note that
 you need to have at least OBS 2.5 to be able to update to OBS 2.7 release.
+
 Migrations from older OBS versions will fail.
 
 OBS Appliance users who have setup their LVM according to our documentation can
@@ -20,8 +18,8 @@ automatically.
 OBS 2.7 will be the last release supporting SUSE Linux Enterprise Server 11 as
 operating system for the server installation.
 
-Changes On Purpose
-==================
+=== Changes On Purpose
+
 * Repository meta data and packages are now signed with sha256 instead of sha1 if RSA is used
 * Force login for all API calls (Exception are /public, /trigger and /about routes).
 * The experimental Download On Demand configurations are not supported anymore.
@@ -33,17 +31,17 @@ Changes On Purpose
 * package search for bug issues in attributes is done via own attribute_issue xpath attribute.
   the search api used to match source and attribute issues via same xpath attribute before
 
-General Features
-================
+=== General Features
+
 * Incremental storage of sources from upstream SCM systems
-  * cpio archives are stored incremental and offered the to the build job
+  ** cpio archives are stored incremental and offered the to the build job
     as directory.
 * Download on demand repositories
-  * support changing source repos now
-  * can be configured by the administrator via api or webui
-  * add support for peer fingerprint verification (using gpg or SSL)
+  ** support changing source repos now
+  ** can be configured by the administrator via api or webui
+  ** add support for peer fingerprint verification (using gpg or SSL)
 * Source services can be used during build time
-  * they get executed before the packaging tool (eg. rpm-build) gets started
+  ** they get executed before the packaging tool (eg. rpm-build) gets started
     and can be used for creating needed archives.
 * New hardware architectures are supported: k1om, aarch64_ilp32
 * Many improvements in the maintenance support features
@@ -63,54 +61,53 @@ General Features
   in a place other than document root, so its URL prefix has a non-empty
   pathname (like https://example.com/obs instead of https://obs.example.com).
 
-Backend Features
-================
+=== Backend Features
+
 * make the new repository handling the default now.
 * bs_admin:
-  * give the admin a chance to prefer publish events with --prefer-publish-event
-* Basic support for simpleimage
+  ** give the admin a chance to prefer publish events with --prefer-publish-event
+* Basic support for simpleimage +
   Adding support for squashfs and tar.gz binaries and for simpleimage
   build type (request for build update to support it sent separately)
 * support buildtime source services
-  * skip them on service server
-  * add dependencies to build env
+  ** skip them on service server
+  ** add dependencies to build env
 * Improved scheduler speed
 * collax package format support
 * Support virt-builder repository meta data
 * New waitservice and mergeservice commands to handle _service files
 
-Worker Features
-===============
+=== Worker Features
+
 * --vm-enable-console to allow user input for debugging
 * Support to use docker as virtualization engine
 
-Webui Features
-=================
+=== Webui Features
+
 * Support to add remote repositories
 * use new obs_scm service for git source URLs
 * Make it possible enforce removal of projects which others depend on
-* kiwi import feature
+* kiwi import feature +
   Supports import of standarized kiwi archives (kiwi.txz suffix)
 * Show all open requests of a project in the UI
 * Support unlock of projects
 * All request tab at user's home with search an order. FIXES: #928
 * Restrict supersede requests to same source project
 * Allow picking requests to supersede on submit requests
-* Break project names in watchlist
+* Break project names in watchlist +
   Currently long project names are shortened in the watchlist. This makes
   it quite hard to identify projects in that list.
   This commit will instead add html zery width spaces after every colon
   which allows HTML to break them if necessary.
 * Don't truncate project or packages names on search results.
-* Send `Content-Disposition: inline` for text files
+* Send `Content-Disposition: inline` for text files. +
   Without this fix, text files such as _log are served with
   `Content-Disposition: attachment`, which makes Firefox prompt the user to
   download the file rather than simply showing the text within the browser.
 * Improve load time when loading open requests for a user on profile page.
 
 
-Notes for systems using systemd:
-================================
+=== Notes for systems using systemd:
 
 OBS is using init scripts, not systemd style .service files. This will stay until
 we switch from SLES 11 to SLES 12 as default production platform.
@@ -130,8 +127,7 @@ To avoid these problems you need to switch directory to by-pass systemd:
  # cd /etc/init.d
  # ./obssrcserver status|stop|start
 
-Other small changes
-===================
+=== Other small changes
 
 * experimental deep_check_dependent_projects_on_macro_change option
 * experimental view=order mode for _builddepinfo
@@ -150,3 +146,6 @@ Other small changes
 * implement view=cpioheaders for packages
 * allow an array ref for $BSConfig::notification_plugin
 
+////
+vim: syntax=asciidoc
+////

@@ -1,9 +1,6 @@
-#
-# Release Notes for openSUSE Build Service 1.7     (PRE-RELEASE)
-#
+== Release Notes for openSUSE Build Service 1.7     (PRE-RELEASE)
 
-Please read the README.SETUP file for initial installation
-instructions.
+Please read the README.SETUP file for initial installation instructions.
 
 README.UPDATE has informations for updaters.
 
@@ -11,31 +8,32 @@ Please note that the new SLP service discovery support is
 recommended to be used. bs_worker instances will find all
 OBS server instances in the entire network. You can disable
 this via syconfig settings:
+
   /etc/sysconfig/obs-server
   /etc/sysconfig/obs-worker
 
-The former called "frontend" is now called "api".
+The former called "frontend" is now called "api". +
 The former called "webclient" is now called "webui".
 
-New processes are
+=== New processes are
 
- * bs_signerd
+ bs_signerd::
    Needed when a signing key is configured in BSConfig.pm
 
- * bs_warden
+ bs_warden::
    Optionally, detects hanging build hosts
 
- * delayed_jobs
+ delayed_jobs::
    Needed to run regular jobs on api instance which creates
    cache content.
 
- * Cron jobs
+ Cron jobs::
    api and webui requires cronjobs to log the worker status
    and to generate the load graphes. These are active by default
-   in obs-server rpm package. Otherwise templates for the 
+   in obs-server rpm package. Otherwise templates for the
    cronjobs can be found in dist/ directory of git tree.
 
-Main new features are:
+=== Main new features are
 
  * Rewritten dependency solver in scheduler which gave
    a significant speed up. It is using the SAT solver via perl-BSSolv
@@ -47,14 +45,14 @@ Main new features are:
    packages or sub packages as defined by the server admin.
 
  * Extended request handling
-   - new request types (delete or change_devel)
-   - new review mechanism
+   ** new request types (delete or change_devel)
+   ** new review mechanism
 
  * clean product build support (inside of chroot enviroment)
 
- * Improved source handling of branched packages (less often 
+ * Improved source handling of branched packages (less often
    created conflicts).
-   branch command is creating full copies now with additional _link
+   Branch command is creating full copies now with additional _link
 
  * webui is themable now
 
@@ -63,15 +61,18 @@ Main new features are:
 
  * Scheduler status reporting for each repository
 
-Regression:
+=== Regression
 
  * The Download on Demand feature got not yet re-implemented to support
    the new scheduler SAT support. 
 
-Preview features are:
+=== Preview features are
 
  * patchinfo aka maintenance handling, this is not complete yet.
 
  * source service handler to let server and client side modules
    prepare sources in the same way.
 
+////
+vim: syntax=asciidoc
+////

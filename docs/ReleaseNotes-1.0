@@ -1,27 +1,26 @@
-#
-# Release Notes for openSUSE Build Service 1.0.0
-#
+== Release Notes for openSUSE Build Service 1.0.0
 
 Please read the README.SETUP file for initial installation instructions.
 
 README.UPDATE has informations for updaters.
 
-Main new features are:
+Main new features are::
+
  * Submission request handling. It is possible to create, show, accept
    or decline a package submission from a project to another.
-
  * The source handling has improved for source links. Merged sources
    are checked out by default and the server creates a source link
    with changes on submission time.
-
  * The branch request creates a branch project from another one.
    This project builds against the branched one and has package(s)
    with source links inside.
 
-Important Bugfixes:
+Important Bugfixes::
+
  * Flag handling has been fixed for debuginfo flag in api and web frontend.
-
  * rpmlint call gots enabled, if configured in project config.
-
  * The publisher works out of the box now.
 
+////
+vim: syntax=asciidoc
+////

@@ -1,6 +1,4 @@
-#
-# openSUSE Build Service 2.1
-#
+== openSUSE Build Service 2.1
 
 Please read the README.SETUP file for initial installation
 instructions or use the OBS Appliance from
@@ -11,92 +9,90 @@ There is also an install medium with installs OBS on hard disc now.
 
 README.UPDATERS file has informations for updaters.
 
-OBS Appliance users who have setup their LVM can just replace 
-their appliance image without data loss. The migration will 
+OBS Appliance users who have setup their LVM can just replace
+their appliance image without data loss. The migration will
 happen automatically.
 
 
-Known Regressions to 2.0:
-=========================
+=== Known Regressions to 2.0:
 
-- Project listing of deleted projects is only allowed by the admin
+* Project listing of deleted projects is only allowed by the admin
 
 
-Features:
-=========
+=== Features:
+
 
 * web interface improvements:
-  - Linked projects and packages are shown if existing.
+  ** Linked projects and packages are shown if existing.
 
-  - Source Service Editor can be used to add or remove source services.
+  ** Source Service Editor can be used to add or remove source services.
     Also to edit each service parameters and to trigger a run.
 
-  - Merged sources of linked packages can be shown and the merged files can be 
+  ** Merged sources of linked packages can be shown and the merged files can be
     edited.
 
-  - New submit requests can be created.
+  ** New submit requests can be created.
 
-  - Existing repository configuration can be edited. Add or remove pathes or architectures.
+  ** Existing repository configuration can be edited. Add or remove pathes or architectures.
 
-  - Additional reviews by users or groups can be added to requests. The reviews
+  ** Additional reviews by users or groups can be added to requests. The reviews
     can be processed as well in web interface.
 
-  - Displayed load diagrams can be configured to any architecture now.
+  ** Displayed load diagrams can be configured to any architecture now.
 
-  - Source history and commit view has been added.
+  ** Source history and commit view has been added.
 
-  - Interface for new user registration.
+  ** Interface for new user registration.
 
 * api
-  - Support Clone and supersed of existing requests. "osc rq clone" can be used
+  ** Support Clone and supersed of existing requests. "osc rq clone" can be used
     to clone packages from an existing request. When submitting these cloned
     packages the original request gets superseded.
 
-  - api: Improved LDAP support updating user information from LDAP server
+  ** api: Improved LDAP support updating user information from LDAP server
     (This functionality has been provided by Intel)
 
-  - Read access control for package sources. New created projects or packages
+  ** Read access control for package sources. New created projects or packages
     can get the "<sourceaccess>" flag to hide any access to the sources of a package.
     This includes access to the source files, source and debug packages and build log.
     (This functionality has been provided by the LinuxFoundation)
 
-  - administrator can configure new user registration to deny or allow registration
+  ** administrator can configure new user registration to deny or allow registration
     only after approval in config/options.yml file
 
 * backend:
-  - Source services to checkout from external SCM repositories have been added.
+  ** Source services to checkout from external SCM repositories have been added.
     This includes also necessary source services to compress tar balls, use spec/dsc
     files out of them or to update the version in spec/dsc files.
 
-  - Accepted submit request store the exact merged versions to allow later tracking
+  ** Accepted submit request store the exact merged versions to allow later tracking
     of the requests. osc and the web interface can show now the diffs of accepted requests
     as result.
 
-  - aggregate allows to skip source packages now.
-    (Functionality has been provided by Nokia).
+  ** aggregate allows to skip source packages now. (Functionality has been provided by Nokia).
 
-  - File provides can be mapped to packages now in prjconf
+  ** File provides can be mapped to packages now in prjconf
 
-  - GPG sign key can get modifed with increased expiration date
+  ** GPG sign key can get modifed with increased expiration date
 
-  - scheduler kills building jobs when switching to blocked/excluded/disabled state
+  ** scheduler kills building jobs when switching to blocked/excluded/disabled state
 
-  - Cross Build support for MIPS architecture
-    (Functionality has been provided by LinuxFoundation)
+  ** Cross Build support for MIPS architecture (Functionality has been provided by LinuxFoundation)
 
 
-Changes:
-========
+=== Changes:
 
 * It is recommended to switch to MySQL database for the webui. Please see
   README.UPDATERS for details.
 
 
-Requirements:
-=============
+=== Requirements:
 
-* The OBS server should not run on a system with less than 2GB memory. 
+* The OBS server should not run on a system with less than 2GB memory. +
   4GB is recommended, esp. when the same system is also building packages.
 
 * Use osc 0.129 or later to get access to the new features.
 
+////
+vim: syntax=asciidoc
+////
