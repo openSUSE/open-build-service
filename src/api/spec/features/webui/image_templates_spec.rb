@@ -24,13 +24,13 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
       find('.proceed_text > a', text: 'New Image').click
 
       expect(page).to have_text(package1.title)
-      expect(find("input[data-package='#{package1}']", visible: false)['checked']).to be true
-      expect(find("input[data-package='#{package3}']", visible: false)['checked']).to be false
-      expect(find("input[data-package='#{package2}']", visible: false)['checked']).to be false
-      expect(find("input[data-package='#{kiwi_package}']", visible: false)['checked']).to be false
+      expect(page).to have_selector("input[data-package='#{package1}']:checked", visible: false)
+      expect(page).to have_selector("input[data-package='#{package2}']:not(:checked)", visible: false)
+      expect(page).to have_selector("input[data-package='#{package3}']:not(:checked)", visible: false)
+      expect(page).to have_selector("input[data-package='#{kiwi_package}']:not(:checked)", visible: false)
 
       expect(page).to have_field('target_package', with: package1)
-      find("input[data-package='#{package2}']", visible: false).trigger(:click)
+      find(:xpath, "//input[@data-package='#{package2}']/../dd/span[@class='group']").click
       expect(page).to have_field('target_package', with: package2)
       fill_in 'target_package', with: 'custom_name'
 
@@ -49,13 +49,13 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
       find('.proceed_text > a', text: 'New Image').click
 
       expect(page).to have_text(package1.title)
-      expect(find("input[data-package='#{package1}']", visible: false)['checked']).to be true
-      expect(find("input[data-package='#{package3}']", visible: false)['checked']).to be false
-      expect(find("input[data-package='#{package2}']", visible: false)['checked']).to be false
-      expect(find("input[data-package='#{kiwi_package}']", visible: false)['checked']).to be false
+      expect(page).to have_selector("input[data-package='#{package1}']:checked", visible: false)
+      expect(page).to have_selector("input[data-package='#{package2}']:not(:checked)", visible: false)
+      expect(page).to have_selector("input[data-package='#{package3}']:not(:checked)", visible: false)
+      expect(page).to have_selector("input[data-package='#{kiwi_package}']:not(:checked)", visible: false)
 
       expect(page).to have_field('target_package', with: package1)
-      find("input[data-package='#{kiwi_package}']", visible: false).trigger(:click)
+      find(:xpath, "//input[@data-package='#{kiwi_package}']/../dd/span[@class='group']").click
       expect(page).to have_field('target_package', with: kiwi_package)
       fill_in 'target_package', with: 'package_with_kiwi_image'
 
@@ -77,7 +77,8 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
           visit root_path
           expect(page).to have_link('New Image')
           visit image_templates_path
-          expect(page.status_code).to eq(200)
+          # should be controller test
+          expect(page).not_to have_content 'Sorry but the page you are looking for'
         end
       end
     end
@@ -92,7 +93,8 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
           visit root_path
           expect(page).to have_link('New Image')
           visit image_templates_path
-          expect(page.status_code).to eq(200)
+          # should be controller test
+          expect(page).not_to have_content 'Sorry but the page you are looking for'
         end
       end
 
@@ -101,7 +103,8 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
           visit root_path
           expect(page).not_to have_link('New Image')
           visit image_templates_path
-          expect(page.status_code).to eq(404)
+          # this should be a controller test
+          expect(page).to have_content 'Sorry but the page you are looking for'
         end
       end
     end
