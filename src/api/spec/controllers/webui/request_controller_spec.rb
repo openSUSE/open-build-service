@@ -5,12 +5,14 @@ require 'rails_helper'
 # CONFIG['global_write_through'] = true
 
 RSpec.describe Webui::RequestController, vcr: true do
+  let(:submitter_with_group) { create(:user_with_groups, login: 'fluffyrabbit') }
   let(:submitter) { create(:confirmed_user, login: 'kugelblitz') }
   let(:receiver) { create(:confirmed_user, login: 'titan') }
   let(:reviewer) { create(:confirmed_user, login: 'klasnic') }
   let(:target_project) { receiver.home_project }
   let(:target_package) { create(:package_with_file, name: 'goal', project_id: target_project.id) }
   let(:source_project) { submitter.home_project }
+  let(:source_project_fluffy) { submitter_with_group.home_project }
   let(:source_package) { create(:package, name: 'ball', project_id: source_project.id) }
   let(:devel_project) { create(:project, name: 'devel:project') }
   let(:devel_package) { create(:package_with_file, name: 'goal', project: devel_project) }
@@ -394,7 +396,27 @@ RSpec.describe Webui::RequestController, vcr: true do
     end
   end
 
+  describe 'POST #set_bugowner_request' do
+    let(:req) { BsRequest.find_by(creator: submitter_with_group.login, description: 'blah blah blash', state: 'new') }
+    context 'with valid parameters' do
+      before do
+        login(submitter_with_group)
+        post :set_bugowner_request, params: {
+          project: source_project_fluffy.name,
+          user: submitter_with_group.login,
+          group: submitter_with_group.groups.first.title,
+          description: 'blah blah blash'
+        }
+      end
+
+      it { expect(req).not_to be nil }
+      it { expect(req.description).to eq('blah blah blash') }
+      it { expect(response).to redirect_to(request_show_path(number: req)) }
+    end
+  end
+
   describe 'POST #change_devel_request' do
+    let(:req) { BsRequest.find_by(description: 'change it!', creator: submitter.login, state: 'new') }
     context 'with valid parameters' do
       before do
         login(submitter)
@@ -402,16 +424,15 @@ RSpec.describe Webui::RequestController, vcr: true do
           project: target_project.name, package: target_package.name,
             devel_project: source_project.name, devel_package: source_package.name, description: 'change it!'
         }
-        @bs_request = BsRequest.where(description: 'change it!', creator: submitter.login, state: 'new').first
       end
 
-      it { expect(response).to redirect_to(request_show_path(number: @bs_request)) }
+      it { expect(response).to redirect_to(request_show_path(number: req)) }
       it { expect(flash[:success]).to be nil }
-      it { expect(@bs_request).not_to be nil }
-      it { expect(@bs_request.description).to eq('change it!') }
+      it { expect(req).not_to be nil }
+      it { expect(req.description).to eq('change it!') }
 
       it 'creates a request action with correct data' do
-        request_action = @bs_request.bs_request_actions.where(
+        request_action = req.bs_request_actions.where(
           type: 'change_devel',
           target_project: target_project.name,
           target_package: target_package.name,
@@ -429,12 +450,11 @@ RSpec.describe Webui::RequestController, vcr: true do
           project: target_project.name, package: target_package.name,
             devel_project: source_project.name, devel_package: 'non-existant', description: 'change it!'
         }
-        @bs_request = BsRequest.where(description: 'change it!', creator: submitter.login, state: 'new').first
       end
 
       it { expect(flash[:error]).to eq("No such package: #{source_project.name}/non-existant") }
       it { expect(response).to redirect_to(package_show_path(project: target_project, package: target_package)) }
-      it { expect(@bs_request).to be nil }
+      it { expect(req).to be nil }
     end
   end
 
