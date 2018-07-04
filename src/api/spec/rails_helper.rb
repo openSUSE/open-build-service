@@ -5,6 +5,11 @@ if ENV['CIRCLECI']
   # support test coverage
   require 'support/coverage'
 end
+# to clean old unused cassettes
+if ENV['CLEAN_UNUSED_CASSETTES']
+  require 'cassette_rewinder'
+end
+
 ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../../config/environment', __FILE__)
 # Prevent database truncation if the environment is production
@@ -32,6 +37,14 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
+
+  # Delete all cassettes which arent used
+  if ENV['CLEAN_UNUSED_CASSETTES']
+    config.after(:suite) do
+      files = (Dir[File.join(Rails.root, 'spec', 'cassettes', '**', '*.yml')] - USED_CASSETTES.to_a)
+      files.each { |v| File.delete(v) } unless files.empty?
+    end
+  end
 
   # Wrap each test in Bullet api.
   if Bullet.enable?
