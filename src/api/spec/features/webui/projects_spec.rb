@@ -214,8 +214,11 @@ RSpec.feature 'Projects', type: :feature, js: true do
       scenario 'removing DoD repositories' do
         visit(project_repositories_path(project: project_with_dod_repo))
         within '.repository-container' do
-          click_link('Delete repository')
+          accept_alert do
+            click_link('Delete repository')
+          end
         end
+        expect(page).to have_text 'Successfully removed repository'
         expect(project_with_dod_repo.repositories).to be_empty
       end
 
@@ -256,7 +259,9 @@ RSpec.feature 'Projects', type: :feature, js: true do
         expect(page).to have_text 'Successfully removed Download on Demand'
         expect(repository.download_repositories.count).to eq 1
 
-        find(:xpath, "//a[@href='/download_repositories/#{download_repository_2.id}?project=#{project_with_dod_repo}'][text()='Delete']").click
+        accept_alert do
+          find(:xpath, "//a[@href='/download_repositories/#{download_repository_2.id}?project=#{project_with_dod_repo}'][text()='Delete']").click
+        end
         expect(page).to have_text "Download on Demand can't be removed: DoD Repositories must have at least one repository."
         expect(repository.download_repositories.count).to eq 1
       end
