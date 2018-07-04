@@ -135,7 +135,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
     fill_in 'devel_project', with: third_project.name
     click_button 'Ok'
 
-    expect(find('#flash-messages').text).to be_empty
+    expect(find('#flash-messages', visible: false)).not_to be_visible
     request = BsRequest.where(description: 'Hey, why not?', creator: user.login, state: 'review')
     expect(request).to exist
     expect(page.current_path).to match("/request/show/#{request.first.number}")
