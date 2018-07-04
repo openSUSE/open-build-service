@@ -26,6 +26,7 @@ services:
     command: /obs/contrib/start_development_worker
   frontend:
     image: openbuildservice/frontend
+    command: foreman start -p 3000
     build:
       dockerfile: docker-files/Dockerfile
       context: src/api
