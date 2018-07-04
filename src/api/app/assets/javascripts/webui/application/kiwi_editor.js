@@ -266,7 +266,7 @@ function autocompleteKiwiRepositories(project, repoField) {
   if (project === "")
       return;
   $('.ui-autocomplete-loading').show();
-  repoField.attr('disabled', 'true');
+  repoField.prop('disabled', true);
   $.ajax({
       url: repoField.data('ajaxurl'),
       data: {project: project},
@@ -275,7 +275,7 @@ function autocompleteKiwiRepositories(project, repoField) {
         var foundoptions = false;
         $.each(data, function (idx, val) {
           repoField.append(new Option(val));
-          repoField.removeAttr('disabled');
+          repoField.prop('disabled', false);
           foundoptions = true;
         });
         if (!foundoptions)

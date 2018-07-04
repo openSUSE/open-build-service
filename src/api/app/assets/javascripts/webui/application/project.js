@@ -94,9 +94,9 @@ function autocompleteRepositories(projectName) {
   if (projectName === "")
     return;
   $('#loader-repo').show();
-  $('#add_repository_button').attr('disabled', 'true');
-  $('#target_repo').attr('disabled', 'true');
-  $('#repo_name').attr('disabled', 'true');
+  $('#add_repository_button').prop('disabled', true);
+  $('#target_repo').prop('disabled', true);
+  $('#repo_name').prop('disabled', true);
   $.ajax({
     url: $('#target_repo').data('ajaxurl'),
     data: {project: projectName},
@@ -107,9 +107,9 @@ function autocompleteRepositories(projectName) {
       var foundoptions = false;
       $.each(data, function (idx, val) {
         $('#target_repo').append(new Option(val));
-        $('#target_repo').removeAttr('disabled');
-        $('#repo_name').removeAttr('disabled');
-        $('#add_repository_button').removeAttr('disabled');
+        $('#target_repo').prop('disabled', false);
+        $('#repo_name').prop('disabled', false);
+        $('#add_repository_button').prop('disabled', false);
         foundoptions = true;
       });
       if (!foundoptions)

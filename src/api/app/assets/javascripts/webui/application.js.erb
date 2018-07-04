@@ -112,11 +112,11 @@ function project_monitor_ready() {
         $("#statusbox").hide();
     });
     $("#statusbox_all").click(function () {
-        $(".statusitem").attr("checked", "checked");
+        $(".statusitem").prop("checked", true);
         return false;
     });
     $("#statusbox_none").click(function () {
-        $(".statusitem").attr("checked", false);
+        $(".statusitem").prop("checked", false);
         return false;
     });
 
@@ -124,11 +124,11 @@ function project_monitor_ready() {
         $("#archbox").hide();
     });
     $("#archbox_all").click(function () {
-        $(".architem").attr("checked", "checked");
+        $(".architem").prop("checked", true);
         return false;
     });
     $("#archbox_none").click(function () {
-        $(".architem").attr("checked", false);
+        $(".architem").prop("checked", false);
         return false;
     });
 
@@ -136,11 +136,11 @@ function project_monitor_ready() {
         $("#repobox").hide();
     });
     $("#repobox_all").click(function () {
-        $(".repoitem").attr("checked", "checked");
+        $(".repoitem").prop("checked", true);
         return false;
     });
     $("#repobox_none").click(function () {
-        $(".repoitem").attr("checked", false);
+        $(".repoitem").prop("checked", false);
         return false;
     });
 }
@@ -209,7 +209,7 @@ function change_role(obj) {
 
     $('#' + type + '_spinner').show();
     $('#' + type + '_table input').animate({opacity: 0.2}, 500);
-    $('#' + type + '_table input').attr("disabled", "true");
+    $('#' + type + '_table input').prop("disabled", true);
 
     $.ajax({
         url: url,
@@ -218,7 +218,7 @@ function change_role(obj) {
         complete: function () {
             $('#' + type + '_spinner').hide();
             $('#' + type + '_table input').animate({opacity: 1}, 200);
-            $('#' + type + '_table input').removeAttr('disabled');
+            $('#' + type + '_table input').prop('disabled', false);
         }
     });
 }

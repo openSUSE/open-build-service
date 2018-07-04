@@ -116,8 +116,8 @@ function patchinfoReady() {
   document.onkeypress = stopRKey;
   toggle_blockreason();
   $("form").submit(function () {
-    $('#selected_binaries option').attr('selected', true);
-    $('#available_binaries option').attr('selected', true);
+    $('#selected_binaries option').prop('selected', true);
+    $('#available_binaries option').prop('selected', true);
   });
 
   $('#add').click(function () {
@@ -126,14 +126,14 @@ function patchinfoReady() {
   });
   $('#add-all').click(function () {
     $("#selected_binaries option[value='']").remove();
-    $('#available_binaries option').attr('selected', 'true');
+    $('#available_binaries option').prop('selected', 'true');
     moveSelectedItems('#available_binaries', '#selected_binaries');
   });
   $('#remove').click(function () {
     moveSelectedItems('#selected_binaries', '#available_binaries');
   });
   $('#remove-all').click(function () {
-    $('#selected_binaries option').attr('selected', 'true');
+    $('#selected_binaries option').prop('selected', 'true');
     moveSelectedItems('#selected_binaries', '#available_binaries');
   });
 
