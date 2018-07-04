@@ -161,7 +161,7 @@ sub reply_file {
     $filename = $filename->{'filename'};
   }
   my $fd;
-  if (!ref($fd)) {
+  if (!ref($filename)) {
     open($fd, '<', $filename) || die("$filename: $!\n");
   } else {
     $fd = $filename;
