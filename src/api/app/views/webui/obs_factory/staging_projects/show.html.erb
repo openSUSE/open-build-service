@@ -48,13 +48,6 @@
         <%= render partial: 'buildinfo', locals: {project: @staging_project} %>
         <%= render partial: 'openqa_jobs', locals: {project: @staging_project} %>
       </dl>
-      <% if @staging_project.subproject %>
-        <h3>DVD subproject</h3>
-        <dl>
-          <%= render partial: 'buildinfo', locals: {project: @staging_project.subproject} %>
-          <%= render partial: 'openqa_jobs', locals: {project: @staging_project.subproject} %>
-        </dl>
-      <% end %>
     </div>
   </div>
 </div>

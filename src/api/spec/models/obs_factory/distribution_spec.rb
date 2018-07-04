@@ -226,9 +226,8 @@ openSUSE-20180606-i586-x86_64-Build261.1
       let!(:ring_project) { create(:project, name: 'openSUSE:Factory:Rings') }
       let!(:ring_project_0) { create(:project, name: 'openSUSE:Factory:Rings:0-Bootstrap') }
       let!(:ring_project_1) { create(:project, name: 'openSUSE:Factory:Rings:1-MinimalX') }
-      let!(:ring_project_2) { create(:project, name: 'openSUSE:Factory:Rings:2-TestDVD') }
       let(:ring_projects) do
-        [ring_project_0, ring_project_1, ring_project_2]
+        [ring_project_0, ring_project_1]
       end
 
       subject { distribution.ring_projects }

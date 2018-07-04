@@ -36,7 +36,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
   end
 
   describe 'creating packages in projects owned by user, eg. home projects' do
-    let(:very_long_description) { Faker::Lorem.paragraphs(250) }
+    let(:very_long_description) { Faker::Lorem.paragraph(20) }
 
     before do
       login user
@@ -250,7 +250,9 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
         visit(project_repositories_path(project: project_with_dod_repo))
         # Delete link
-        find(:xpath, "//a[@href='/download_repositories/#{download_repository.id}?project=#{project_with_dod_repo}'][text()='Delete']").click
+        accept_alert do
+          find(:xpath, "//a[@href='/download_repositories/#{download_repository.id}?project=#{project_with_dod_repo}'][text()='Delete']").click
+        end
         expect(page).to have_text 'Successfully removed Download on Demand'
         expect(repository.download_repositories.count).to eq 1
 

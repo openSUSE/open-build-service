@@ -30,7 +30,6 @@ use BSEvents;
 use BSHTTP;
 use POSIX;
 use Socket;
-use Symbol;
 use XML::Structured;
 use Data::Dumper;
 use Digest::MD5 ();
@@ -699,7 +698,7 @@ sub rpc_recv_file_close_handler {
 sub rpc_recv_file {
   my ($ev, $chunked, $data, $filename, $withmd5) = @_;
   #print "rpc_recv_file $filename\n";
-  my $fd = gensym;
+  my $fd;
   if (!open($fd, '>', $filename)) {
     rpc_error($ev, "$filename: $!");
     return;
@@ -1091,7 +1090,7 @@ sub rpc {
     die("unknown host '$host'\n") unless $hostaddr;
     $hostlookupcache{$host} = $hostaddr;
   }
-  my $fd = gensym;
+  my $fd;
   socket($fd, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
   fcntl($fd, F_SETFL,O_NONBLOCK);
   setsockopt($fd, SOL_SOCKET, SO_KEEPALIVE, pack("l",1));

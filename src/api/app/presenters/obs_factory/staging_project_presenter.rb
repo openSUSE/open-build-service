@@ -2,14 +2,6 @@ module ObsFactory
   # View decorator for StagingProject
   class StagingProjectPresenter < BasePresenter
 
-    # Wraps the associated subproject with the corresponding decorator.
-    #
-    # @return StagingProjectPresenter object
-    def subproject
-      return nil unless model.subproject
-      ObsFactory::StagingProjectPresenter.new(model.subproject)
-    end
-
     def self.sort(collection)
       prjs = wrap(collection)
       prjs.sort_by! { |a| a.sort_key }
@@ -91,8 +83,6 @@ module ObsFactory
     end
 
     # determine build progress as percentage
-    # if the project contains subprojects but is complete, the percentage
-    # is the subproject's
     def build_progress
       total = 0
       final = 0
@@ -100,43 +90,30 @@ module ObsFactory
         total += r[:tobuild] + r[:final]
         final += r[:final]
       end
-      ret = { subproject: name }
+      ret = {}
       if total != 0
         # if we have building repositories, make sure we don't exceed 99
         ret[:percentage] = [final * 100 / total, 99].min
       else
         ret[:percentage] = 100
-        return subproject.build_progress if subproject
       end
       ret
     end
 
-    # collect the broken packages of all subprojects
-    def broken_packages
-      ret = model.broken_packages
-      ret += subproject.broken_packages if subproject
-      ret
-    end
-
-    # @return [Array] Array of OpenqaJob objects for all subprojects
-    def all_openqa_jobs
-      ret = model.openqa_jobs
-      ret += subproject.openqa_jobs if subproject
-      ret
-    end
+    delegate :broken_packages, to: :model
 
     # Wraps the associated openqa_jobs with the corresponding decorator.
     #
-    # @return [Array] Array of OpenqaJobPresenter objects for all subprojects
+    # @return [Array] Array of OpenqaJobPresenter objects
     def openqa_jobs
-      ObsFactory::OpenqaJobPresenter.wrap(all_openqa_jobs)
+      ObsFactory::OpenqaJobPresenter.wrap(model.openqa_jobs)
     end
 
     # Wraps the failed openqa_jobs with the corresponding decorator.
     #
-    # @return [Array] Array of OpenqaJobPresenter objects for all subprojects
+    # @return [Array] Array of OpenqaJobPresenter objects
     def failed_openqa_jobs
-      ObsFactory::OpenqaJobPresenter.wrap(all_openqa_jobs.select { |job| job.failing_modules.present? })
+      ObsFactory::OpenqaJobPresenter.wrap(model.openqa_jobs.select { |job| job.failing_modules.present? })
     end
 
     # return a percentage counting the reviewed requests / total requests
@@ -154,7 +131,7 @@ module ObsFactory
     end
 
     def testing_percentage
-      jobs = all_openqa_jobs
+      jobs = model.openqa_jobs
       notdone = 0
       jobs.each do |job|
         notdone += 1 unless %w(passed failed).include?(job.result)

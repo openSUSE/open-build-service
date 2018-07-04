@@ -9,6 +9,7 @@ FactoryBot.define do
       source_package nil
       target_project nil
       target_package nil
+      target_repository nil
       reviewer nil
     end
 
@@ -95,7 +96,8 @@ FactoryBot.define do
         request.bs_request_actions << create(
           :bs_request_action_delete,
           target_project: evaluator.target_project,
-          target_package: evaluator.target_package
+          target_package: evaluator.target_package,
+          target_repository: evaluator.target_repository
         )
       end
     end

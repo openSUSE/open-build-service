@@ -22,8 +22,6 @@
 
 package BSCpio;
 
-use Symbol;
-
 use strict;
 
 # cpiotype: 1=pipe 2=char 4=dir 6=block 8=file 10=symlink 12=socket
@@ -90,7 +88,6 @@ sub openentfile {
     } elsif (! -f _) {
       return (undef, "$name: $file: not a plain file\n");
     }
-    $fd = gensym;
     return (undef, "$name: $file: $!\n") unless open($fd, '<', $file);
   }
   @$s = stat($fd);
@@ -175,10 +172,10 @@ sub writecpio {
 
 sub writecpiofile {
   my ($fn, $fnf, $cpio, %opts) = @_;
-  local *CPIO;
-  open(CPIO, '>', $fn) || die("$fn: $!\n");
-  writecpio(\*CPIO, $cpio, %opts);
-  close(CPIO) || die("$fn close: $!\n");
+  my $cpiofd;
+  open($cpiofd, '>', $fn) || die("$fn: $!\n");
+  writecpio($cpiofd, $cpio, %opts);
+  close($cpiofd) || die("$fn close: $!\n");
   my $mtime = $opts{'mtime'};
   utime($mtime, $mtime, $fn) if defined $mtime;
   rename($fn, $fnf) || die("rename $fn $fnf: $!\n") if defined $fnf;

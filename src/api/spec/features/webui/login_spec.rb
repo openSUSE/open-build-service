@@ -1,5 +1,4 @@
 require 'browser_helper'
-require 'gssapi'
 require 'ldap'
 
 RSpec.feature 'Login', type: :feature, js: true do
@@ -96,78 +95,6 @@ RSpec.feature 'Login', type: :feature, js: true do
 
     expect(page).not_to have_css('a#link-to-user-home')
     expect(page).to have_link('Log')
-  end
-
-  context 'in kerberos mode' do
-    before do
-      stub_const('CONFIG', CONFIG.merge('kerberos_service_principal' => 'HTTP/obs.test.com@test_realm.com',
-                                        'kerberos_realm'             => 'test_realm.com',
-                                        'kerberos_mode'              => true))
-    end
-
-    context 'for a request that requires authentication' do
-      before do
-        visit root_path
-        click_link('Log In')
-      end
-
-      context "and 'Negotiate' header is not set" do
-        it 'informs the client tool (browser) that kerberos authentication is required' do
-          expect(page.response_headers['WWW-Authenticate']).to eq('Negotiate')
-          expect(page.status_code).to eq(401)
-        end
-
-        it 'informs users about failed kerberos authentication and possible cause' do
-          expect(page).to have_text('Kerberos authentication required')
-          expect(page).to have_text('You are seeing this page, because you are ' \
-                                    "not authenticated in the kerberos realm ('test_realm.com').")
-        end
-      end
-    end
-
-    context 'for a request with valid kerberos ticket' do
-      include_context 'a kerberos mock for' do
-        let(:login) { user.login }
-      end
-
-      it 'authenticates the user' do
-        visit project_list_path
-
-        # In real life done by the browser / client
-        page.driver.add_header('AUTHORIZATION', "Negotiate #{Base64.strict_encode64(ticket)}")
-
-        click_link('Log In')
-        within('#subheader') do
-          expect(page).to have_link('Home Project')
-        end
-      end
-    end
-
-    context 'for a request where GSSAPI raises an exception' do
-      let(:gssapi_mock) { double(:gssapi) }
-
-      before do
-        allow(gssapi_mock).to receive(:acquire_credentials).
-          and_raise(GSSAPI::GssApiError, "couldn't validate ticket")
-
-        allow(GSSAPI::Simple).to receive(:new).with(
-          'obs.test.com', 'HTTP', '/etc/krb5.keytab'
-        ).and_return(gssapi_mock)
-      end
-
-      it 'does not authenticate the user' do
-        visit project_list_path
-
-        page.driver.add_header('AUTHORIZATION', "Negotiate #{Base64.strict_encode64('ticket')}")
-
-        click_link('Log In')
-        within('#subheader') do
-          expect(page).not_to have_link('Home Project')
-        end
-        expect(find('.flash-content')).to have_text "Authentication failed: 'Received a GSSAPI exception"
-        expect(find('.flash-content')).to have_text "couldn't validate ticket"
-      end
-    end
   end
 
   context 'in ldap mode' do

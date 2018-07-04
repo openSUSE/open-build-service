@@ -6139,9 +6139,6 @@ sub cloudupload_create_receiver {
   die("need a content length\n") unless defined $cl;
   die("upload image is empty\n") unless $cl;
 
-  local *S = $req->{'__socket'};	# XXX: fix BSRPC
-  $req->{'__socket'} = \*S;
-
   # create a job
   $param->{'uploadjob'}->{'size'} = $cl;	# we now know the size
   my $createparam = {
@@ -6173,7 +6170,7 @@ sub cloudupload_create_receiver {
 
 sub cloudupload_create {
   my ($cgi, $projid, $repoid, $arch, $packid, $filename) = @_;
-  die("no cloud upload server configurated\n") unless $BSConfig::clouduploadserver;
+  die("no cloud upload server configured\n") unless $BSConfig::clouduploadserver;
   my $targetdata;
   $targetdata = BSServer::read_data(10000000) if BSServer::have_content();
   $targetdata = '' unless defined $targetdata;
@@ -6199,7 +6196,7 @@ sub cloudupload_create {
 
 sub cloudupload_status {
   my ($cgi, $jobid) = @_;
-  die("no cloud upload server configurated\n") unless $BSConfig::clouduploadserver;
+  die("no cloud upload server configured\n") unless $BSConfig::clouduploadserver;
   my $param = {
     'uri' => "$BSConfig::clouduploadserver/cloudupload/$jobid",
     'ignorestatus' => 1,
@@ -6211,7 +6208,7 @@ sub cloudupload_status {
 
 sub cloudupload_pubkey {
   my ($cgi) = @_;
-  die("no cloud upload server configurated\n") unless $BSConfig::clouduploadserver;
+  die("no cloud upload server configured\n") unless $BSConfig::clouduploadserver;
   return cloudupload_status($cgi, '_pubkey') unless $cgi->{'view'};
   die("unsupported view '$cgi->{'view'}'\n") if $cgi->{'view'} ne 'info';
   my $pk = BSWatcher::rpc("$BSConfig::clouduploadserver/cloudupload/_pubkey");
@@ -6222,7 +6219,7 @@ sub cloudupload_pubkey {
 
 sub cloudupload_kill {
   my ($cgi, $jobid) = @_;
-  die("no cloud upload server configurated\n") unless $BSConfig::clouduploadserver;
+  die("no cloud upload server configured\n") unless $BSConfig::clouduploadserver;
   my $param = {
     'uri' => "$BSConfig::clouduploadserver/cloudupload/$jobid",
     'request' => 'POST',
@@ -6235,7 +6232,7 @@ sub cloudupload_kill {
 
 sub cloudupload_joblist {
   my ($cgi) = @_;
-  die("no cloud upload server configurated\n") unless $BSConfig::clouduploadserver;
+  die("no cloud upload server configured\n") unless $BSConfig::clouduploadserver;
   my $param = {
     'uri' => "$BSConfig::clouduploadserver/cloudupload",
   };
@@ -6244,7 +6241,7 @@ sub cloudupload_joblist {
 
 sub cloudupload_log {
   my ($cgi, $jobid) = @_;
-  die("no cloud upload server configurated\n") unless $BSConfig::clouduploadserver;
+  die("no cloud upload server configured\n") unless $BSConfig::clouduploadserver;
   my @args = BSRPC::args($cgi, 'nostream', 'start', 'end', 'view');
   if (!$BSStdServer::isajax && !$cgi->{'nostream'} && !$cgi->{'view'}) {
     BSHandoff::handoff("/cloudupload/$jobid/_log", undef, @args);
@@ -6496,4 +6493,3 @@ if (! -e "$projectsdir/_repoid") {
 $datarepoid = readstr("$projectsdir/_repoid");
 
 BSStdServer::server('bs_srcserver', \@ARGV, $conf, $aconf);
-

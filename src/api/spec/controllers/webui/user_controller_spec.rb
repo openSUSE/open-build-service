@@ -340,7 +340,17 @@ RSpec.describe Webui::UserController do
   end
 
   describe 'GET #icon' do
-    skip
+    let(:user) { create(:confirmed_user, login: 'iconic') }
+
+    it 'loads big icon without param' do
+      get :icon, params: { user: user.login }
+      expect(response.body.size).to be > 2000
+    end
+
+    it 'loads small icon with param' do
+      get :icon, params: { user: user.login, size: 20 }
+      expect(response.body.size).to be < 1000
+    end
   end
 
   describe 'POST #register' do

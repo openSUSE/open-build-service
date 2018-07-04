@@ -65,7 +65,9 @@ RSpec.shared_examples 'user tab' do
 
     scenario 'Remove user from package / project' do
       expect(page).to have_css('a', text: "#{reader.realname} (reader_user)")
-      find('#user-reader_user a.remove-user').click
+      accept_alert do
+        find('#user-reader_user a.remove-user').click
+      end
       expect(page).to have_text('Removed user reader_user')
       expect(page).not_to have_css('a', text: "#{reader.realname} (reader_user)")
     end

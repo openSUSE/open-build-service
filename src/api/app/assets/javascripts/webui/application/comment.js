@@ -28,6 +28,7 @@ function reloadCommentBindings() {
   $('.togglable_comment').click(function () {
       var toggleid = $(this).data("toggle");
       $("#" + toggleid).toggle();
+      $("#" + toggleid + ' .comment_reply_body').focus();
   });
 
   // prevent duplicate comment submissions

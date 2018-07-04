@@ -78,9 +78,9 @@ RSpec.feature 'Attributes', type: :feature, js: true do
 
       visit index_attribs_path(project: user.home_project_name)
 
-      find("##{attribute.namespace}-#{attribute.name}-delete").click
-      # Pass the js confirmation dialog
-      page.evaluate_script('window.confirm = function() { return true; }')
+      accept_alert do
+        find("##{attribute.namespace}-#{attribute.name}-delete").click
+      end
       expect(page).to have_content('Attribute sucessfully deleted!')
     end
   end

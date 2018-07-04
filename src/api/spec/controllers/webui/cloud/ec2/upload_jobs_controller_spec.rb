@@ -99,7 +99,7 @@ RSpec.describe Webui::Cloud::Ec2::UploadJobsController, type: :controller, vcr: 
     end
 
     context 'without backend configured' do
-      subject { 'no cloud upload server configurated.' }
+      subject { 'no cloud upload server configured.' }
 
       include_context 'it redirects and assigns flash error'
     end
