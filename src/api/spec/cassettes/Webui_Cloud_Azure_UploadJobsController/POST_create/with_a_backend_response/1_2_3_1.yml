@@ -18,7 +18,7 @@ http_interactions:
   response:
     status:
       code: 400
-      message: no cloud upload server configurated
+      message: no cloud upload server configured
     headers:
       Content-Type:
       - text/xml
@@ -32,7 +32,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <status code="400">
-          <summary>no cloud upload server configurated</summary>
+          <summary>no cloud upload server configured</summary>
         </status>
     http_version: 
   recorded_at: Thu, 12 Apr 2018 09:28:20 GMT

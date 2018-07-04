@@ -18,7 +18,7 @@ http_interactions:
   response:
     status:
       code: 400
-      message: no cloud upload server configurated
+      message: no cloud upload server configured
     headers:
       Content-Type:
       - text/xml
@@ -32,7 +32,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <status code="400">
-          <summary>no cloud upload server configurated</summary>
+          <summary>no cloud upload server configured</summary>
         </status>
     http_version: 
   recorded_at: Fri, 22 Dec 2017 12:56:55 GMT
@@ -54,7 +54,7 @@ http_interactions:
   response:
     status:
       code: 400
-      message: no cloud upload server configurated
+      message: no cloud upload server configured
     headers:
       Content-Type:
       - text/xml
@@ -68,7 +68,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <status code="400">
-          <summary>no cloud upload server configurated</summary>
+          <summary>no cloud upload server configured</summary>
         </status>
     http_version: 
   recorded_at: Fri, 22 Dec 2017 13:00:59 GMT
@@ -90,7 +90,7 @@ http_interactions:
   response:
     status:
       code: 400
-      message: no cloud upload server configurated
+      message: no cloud upload server configured
     headers:
       Content-Type:
       - text/xml
@@ -104,7 +104,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <status code="400">
-          <summary>no cloud upload server configurated</summary>
+          <summary>no cloud upload server configured</summary>
         </status>
     http_version: 
   recorded_at: Fri, 22 Dec 2017 13:02:05 GMT
@@ -126,7 +126,7 @@ http_interactions:
   response:
     status:
       code: 400
-      message: no cloud upload server configurated
+      message: no cloud upload server configured
     headers:
       Content-Type:
       - text/xml
@@ -140,7 +140,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <status code="400">
-          <summary>no cloud upload server configurated</summary>
+          <summary>no cloud upload server configured</summary>
         </status>
     http_version: 
   recorded_at: Fri, 22 Dec 2017 13:02:57 GMT
@@ -162,7 +162,7 @@ http_interactions:
   response:
     status:
       code: 400
-      message: no cloud upload server configurated
+      message: no cloud upload server configured
     headers:
       Content-Type:
       - text/xml
@@ -176,7 +176,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <status code="400">
-          <summary>no cloud upload server configurated</summary>
+          <summary>no cloud upload server configured</summary>
         </status>
     http_version: 
   recorded_at: Fri, 22 Dec 2017 13:44:50 GMT
