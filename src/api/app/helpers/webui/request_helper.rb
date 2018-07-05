@@ -108,4 +108,9 @@ module Webui::RequestHelper
     return filename if file_element['old']['name'] == filename
     return "#{file_element['old']['name']} -> #{filename}"
   end
+
+  def reviewer(review)
+    return "#{review[:by_project]} / #{review[:by_package]}" if review[:by_package]
+    review[:by_user] || review[:by_group] || review[:by_project]
+  end
 end
