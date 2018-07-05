@@ -7,6 +7,7 @@ class Project < ApplicationRecord
   include HasRelationships
   include HasRatings
   include HasAttributes
+  include MaintenanceHelper
 
   class CycleError < APIException
     setup 'project_cycle'
@@ -131,30 +132,27 @@ class Project < ApplicationRecord
   def self.deleted?(project_name)
     return false if find_by_name(project_name)
 
-    response = ProjectFile.new(project_name: project_name, name: '_history').to_s(deleted: 1)
+    response = ProjectFile.new(project_name: project_name, name: '_history').content(deleted: 1)
     return false unless response
 
     !Xmlhash.parse(response).empty?
   end
 
   def self.restore(project_name, backend_opts = {})
-    backend_opts[:cmd] = 'undelete'
-
-    query = Backend::Connection.build_query_from_hash(backend_opts, [:cmd, :user, :comment])
-    Backend::Connection.post "/source/#{CGI.escape(project_name)}#{query}"
+    Backend::Api::Sources::Project.undelete(project_name, backend_opts)
 
     # read meta data from backend to restore database object
     project = Project.new(name: project_name)
 
     Project.transaction do
-      project.update_from_xml!(Xmlhash.parse(project.meta.to_s))
+      project.update_from_xml!(Xmlhash.parse(project.meta.content))
       project.store
 
       # restore all package meta data objects in DB
       backend_packages = Collection.find(:package, match: "@project='#{project_name}'")
       backend_packages.each('package') do |package|
         package = project.packages.new(name: package.value(:name))
-        package_meta = Xmlhash.parse(package.meta.to_s)
+        package_meta = Xmlhash.parse(package.meta.content)
 
         Package.transaction do
           package.update_from_xml(package_meta)
@@ -501,7 +499,7 @@ class Project < ApplicationRecord
   def can_be_modified_by?(user, ignore_lock = nil)
     return user.can_create_project?(name) if new_record?
 
-    user.can_modify_project?(self, ignore_lock)
+    user.can_modify?(self, ignore_lock)
   end
 
   def is_locked?
@@ -540,7 +538,7 @@ class Project < ApplicationRecord
 
   def can_free_repositories?
     expand_all_repositories.each do |repository|
-      unless User.current.can_modify_project?(repository.project)
+      unless User.current.can_modify?(repository.project)
         errors.add(:base, "a repository in project #{repository.project.name} depends on this")
         return false
       end
@@ -611,7 +609,7 @@ class Project < ApplicationRecord
     reset_cache
 
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
-      login = @commit_opts[:login] || User.current.login
+      login = @commit_opts[:login] || User.current_login
       options = { user: login }
       options[:comment] = @commit_opts[:comment] if @commit_opts[:comment].present?
       # api request number is requestid in backend
@@ -631,12 +629,10 @@ class Project < ApplicationRecord
 
   def delete_on_backend
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
-      path = source_path
-      h = { user: User.current.login, comment: @commit_opts[:comment] }
-      h[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
-      path << Backend::Connection.build_query_from_hash(h, [:user, :comment, :requestid])
       begin
-        Backend::Connection.delete path
+        options = { user: User.current_login, comment: @commit_opts[:comment] }
+        options[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
+        Backend::Api::Sources::Project.delete(name, options)
       rescue ActiveXML::Transport::NotFoundError
         # ignore this error, backend was out of sync
         logger.warn("Project #{name} was already missing on backend on removal")
@@ -699,6 +695,10 @@ class Project < ApplicationRecord
       possible_projects << names.join(':')
     end
     possible_projects
+  end
+
+  def basename
+    name.gsub(/.*:/, '')
   end
 
   def to_axml(_opts = {})
@@ -1037,7 +1037,7 @@ class Project < ApplicationRecord
 
   def branch_remote_repositories(project)
     remote_project = Project.new(name: project)
-    remote_project_meta = Nokogiri::XML(remote_project.meta.to_s)
+    remote_project_meta = Nokogiri::XML(remote_project.meta.content)
     local_project_meta = Nokogiri::XML(to_axml)
 
     remote_repositories = remote_project.repositories_from_meta
@@ -1052,7 +1052,7 @@ class Project < ApplicationRecord
         path_elements = remote_project_meta.xpath("//repository[@name='images']/path")
 
         new_configuration = source_file('_config')
-        unless new_configuration =~ /^Type:/
+        unless /^Type:/.match?(new_configuration)
           new_configuration = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << new_configuration
           Backend::Api::Sources::Project.write_configuration(name, new_configuration)
         end
@@ -1079,7 +1079,7 @@ class Project < ApplicationRecord
 
   def repositories_from_meta
     result = []
-    Nokogiri::XML(meta.to_s).xpath('//repository').each do |repo|
+    Nokogiri::XML(meta.content).xpath('//repository').each do |repo|
       result.push(repo.attributes.values.first.to_s)
     end
     result
@@ -1228,7 +1228,7 @@ class Project < ApplicationRecord
           next if params[:targetreposiory] && params[:targetreposiory] != releasetarget.target_repository.name
           # release source and binaries
           # permission checking happens inside this function
-          release_package(pkg, releasetarget.target_repository, pkg.name, repo, nil, nil, params[:setrelease], true)
+          release_package(pkg, releasetarget.target_repository, pkg.target_name, repo, nil, nil, params[:setrelease], true)
         end
       end
     end
@@ -1241,15 +1241,13 @@ class Project < ApplicationRecord
 
   def bsrequest_repos_map(project)
     Rails.cache.fetch("bsrequest_repos_map-#{project}", expires_in: 2.hours) do
-      ret = {}
-      uri = "/getprojpack?project=#{CGI.escape(project.to_s)}&nopackages&withrepos&expandedrepos"
       begin
-        body = Backend::Connection.get(uri).body
-        xml = Xmlhash.parse body
+        xml = Xmlhash.parse(Backend::Api::Sources::Project.repositories(project.to_s))
       rescue ActiveXML::Transport::Error
-        return ret
+        return {}
       end
 
+      ret = {}
       xml.get('project').elements('repository') do |repo|
         repo.elements('path') do |path|
           ret[path['project']] ||= []
@@ -1565,7 +1563,7 @@ class Project < ApplicationRecord
       maintenance.elements('maintains') do |maintains|
         target_project_name = maintains.value('project')
         target_project = Project.get_by_name(target_project_name)
-        unless target_project.class == Project && User.current.can_modify_project?(target_project)
+        unless target_project.class == Project && User.current.can_modify?(target_project)
           return { error: "No write access to maintained project #{target_project_name}" }
         end
       end
@@ -1673,7 +1671,7 @@ class Project < ApplicationRecord
         # but never remove the special repository named "deleted"
         unless repo == deleted_repository
           # permission check
-          unless User.current.can_modify_project?(project)
+          unless User.current.can_modify?(project)
             return { error: "No permission to remove a repository in project '#{project.name}'" }
           end
         end

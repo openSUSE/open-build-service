@@ -16,9 +16,8 @@ module Backend
 
         # Writes the xml for attributes
         # @return [String]
-        def self.write_attributes(project_name, user_login, content, comment)
+        def self.write_attributes(project_name, user_login, content)
           params = { meta: 1, user: user_login }
-          params[:comment] = comment if comment
           http_put(['/source/:project/_project/_attribute', project_name], data: content, params: params)
         end
 
@@ -84,8 +83,19 @@ module Backend
         end
 
         # Deletes the project and all the packages inside
-        def self.delete(project_name)
-          http_delete(['/source/:project', project_name])
+        def self.delete(project_name, options = {})
+          http_delete(['/source/:project', project_name], params: options, accepted: [:user, :comment, :requestid])
+        end
+
+        # Undeletes the project
+        def self.undelete(project_name, options = {})
+          http_post(['/source/:project', project_name], defaults: { cmd: :undelete },
+                    params: options, accepted: [:user, :comment])
+        end
+
+        # Returns the list of repositories
+        def self.repositories(project_name)
+          http_get('/getprojpack', defaults: { project: project_name, nopackages: 1, withrepos: 1, expandedrepos: 1 })
         end
       end
     end

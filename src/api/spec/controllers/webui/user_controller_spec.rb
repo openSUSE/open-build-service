@@ -51,10 +51,12 @@ RSpec.describe Webui::UserController do
         subject(:user) { deleted_user }
         it_should_behave_like 'a non existent account'
       end
+
       describe 'showing an invalid user' do
         subject(:user) { 'INVALID_USER' }
         it_should_behave_like 'a non existent account'
       end
+
       describe 'showing someone else' do
         it 'does not include requests' do
           get :show, params: { user: admin_user }
@@ -338,7 +340,21 @@ RSpec.describe Webui::UserController do
   end
 
   describe 'GET #icon' do
-    skip
+    let(:user) { create(:confirmed_user, login: 'iconic') }
+
+    it 'loads big icon without param' do
+      get :icon, params: { user: user.login }
+      image = ChunkyPNG::Image.from_blob(response.body)
+      expect(image.height).to be 80
+      expect(image.width).to be 80
+    end
+
+    it 'loads small icon with param' do
+      get :icon, params: { user: user.login, size: 20 }
+      image = ChunkyPNG::Image.from_blob(response.body)
+      expect(image.height).to be 20
+      expect(image.width).to be 20
+    end
   end
 
   describe 'POST #register' do

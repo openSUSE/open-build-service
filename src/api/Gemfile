@@ -2,7 +2,7 @@
 # This preamble is the current preamble for Rails 3 apps; edit as needed.
 source 'https://rubygems.org'
 
-gem 'rails', '~> 5.1.1'
+gem 'rails', '~> 5.2.0'
 
 # as our database
 gem 'mysql2'
@@ -11,16 +11,15 @@ gem 'nokogiri'
 # for delayed tasks
 gem 'delayed_job_active_record', '>= 4.0.0'
 # to fill errbit
-gem 'airbrake', '<= 7.1.0'
-# Due to a bug in Errbit we need to use 2.5.0 -> https://github.com/errbit/errbit/pull/1237
-gem 'airbrake-ruby', '<= 2.5.0'
+gem 'airbrake'
+gem 'airbrake-ruby'
 # as JSON library - the default json conflicts with activerecord (by means of vice-versa monkey patching)
 gem 'yajl-ruby', require: 'yajl/json_gem'
 # to search the database
 gem 'thinking-sphinx', '> 3.1'
 # to paginate search results
 gem 'kaminari'
-# as abstract HTML of the bratwurst 'theme'
+# for abstract HTML
 gem 'haml'
 # to avoid tilt downgrade
 gem 'tilt', '>= 1.4.1'
@@ -63,6 +62,7 @@ gem 'feature'
 # for profiling
 gem 'peek'
 gem 'peek-dalli'
+gem 'peek-host'
 gem 'peek-mysql2'
 # for kerberos authentication
 gem 'gssapi', require: false
@@ -72,6 +72,8 @@ gem 'bunny'
 gem 'data_migrate', '= 4.0.0'
 # for URI encoding
 gem 'addressable'
+# for XML builder
+gem 'builder'
 
 group :development, :production do
   # to have the delayed job daemon
@@ -103,7 +105,6 @@ group :test do
   # to ensure a clean state for testing
   gem 'database_cleaner', '>= 1.0.1'
   # for test coverage reports
-  gem 'codecov', require: false
   gem 'simplecov', require: false
   # for failing fast
   gem 'minitest-fail-fast'
@@ -125,16 +126,9 @@ group :test do
   gem 'rails-controller-testing'
   # To generate random data
   gem 'rantly', '>= 1.1.0'
-  # To ensure consistent Git commits
-  gem 'git-cop', '>=1.5.0'
-end
-
-# Gems used only during development not required in production environments by default.
-group :development do
-  # as alternative to the standard IRB shell
-  gem 'unicorn-rails' # webrick won't work
-  # for annotating models with schema info
-  gem 'annotate'
+  # for test analysis in CircleCI
+  gem 'minitest-ci'
+  gem 'rspec_junit_formatter'
 end
 
 group :development, :test do
@@ -165,6 +159,8 @@ group :development, :test do
   gem 'single_test'
   # to find n+1 queries
   gem 'bullet'
+  # Use Puma as the app server (rails 5 default)
+  gem 'puma', '~> 3.11'
 end
 
 # Gems used only for assets and not required in production environments by default.
@@ -188,11 +184,11 @@ group :assets do
   # assets for jQuery and jQuery-ujs
   gem 'jquery-rails'
   # assets for jQuery-ui
-  gem 'jquery-ui-rails', '~> 4.2.1' # version 5 needs henne's new webui
-  # assets for the bootstrap front-end framework. Used by the bratwurst theme
-  # gem 'bootstrap-sass-rails'
+  gem 'jquery-ui-rails', '~> 4.2.1'
+  # assets for the bootstrap front-end framework
+  gem 'bootstrap'
   # assets for font-awesome vector icons
-  gem 'font-awesome-rails'
+  gem 'font-awesome-sass'
   # assets for formatting dates
   gem 'momentjs-rails'
 end

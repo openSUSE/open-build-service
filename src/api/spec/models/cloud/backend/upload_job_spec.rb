@@ -74,7 +74,7 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
       it { expect(subject.valid?).to be_falsy }
       it 'has the correct error message' do
         subject.valid?
-        expect(subject.errors.full_messages.to_sentence).to eq('no cloud upload server configurated')
+        expect(subject.errors.full_messages.to_sentence).to eq('no cloud upload server configured')
       end
     end
 
@@ -82,6 +82,7 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
       before do
         allow(Backend::Api::Cloud).to receive(:upload).with(params).and_raise(Timeout::Error, 'boom')
       end
+
       subject { Cloud::Backend::UploadJob.create(params) }
 
       it { expect(subject.valid?).to be_falsy }
@@ -267,6 +268,7 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
       before do
         allow(Backend::Api::Cloud).to receive(:status).with(user).and_raise(Timeout::Error, 'boom')
       end
+
       subject { Cloud::Backend::UploadJob.all(user) }
 
       it { expect(subject).to be_empty }

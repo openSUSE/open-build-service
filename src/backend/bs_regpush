@@ -52,6 +52,7 @@ my $delete_mode;
 my $delete_except_mode;
 my $list_mode;
 my @tags;
+my $blobdir;
 
 my $registryserver;
 my $repository;
@@ -62,7 +63,7 @@ my $registry_authenticator;
 sub send_layer {
   my ($param) = @_;
   my $sl = $param->{'send_layer_data'}; # [ $layer_ent, $offset ],
-  my $chunk = BSTar::extract($sl->[0]->{'handle'}, $sl->[0], $sl->[1], 65536);
+  my $chunk = BSTar::extract($sl->[0]->{'file'}, $sl->[0], $sl->[1], 65536);
   $sl->[1] += length($chunk);
   return $chunk;
 }
@@ -341,6 +342,40 @@ sub tags_from_digestfile {
   return @ret;
 }
 
+sub construct_container_tar {
+  my ($containerinfofile) = @_; 
+
+  die("Must specify a blobdir for containerinfos\n") unless $blobdir;
+  my $containerinfo_json = readstr($containerinfofile);
+  my $containerinfo = JSON::XS::decode_json($containerinfo_json);
+  my $manifest = $containerinfo->{'tar_manifest'};
+  my $mtime = $containerinfo->{'tar_mtime'};
+  my $blobids = $containerinfo->{'tar_blobids'};
+  die("containerinfo is incomplete\n") unless $mtime && $manifest && $blobids;
+  my @tar;
+  for my $blobid (@$blobids) {
+    my $fd;
+    open($fd, '<', "$blobdir/_blob.$blobid") || die("$blobdir/_blob.$blobid: $!\n");
+    push @tar, {'name' => $blobid, 'file' => $fd, 'mtime' => $mtime, 'offset' => 0, 'size' => (-s $fd)};
+  }
+  push @tar, {'name' => 'manifest.json', 'data' => $manifest, 'mtime' => $mtime, 'size' => length($manifest)};
+  return \@tar;
+}
+
+sub open_tarfile {
+  my ($tarfile) = @_;
+
+  my ($tar, $tarfd);
+  if ($tarfile =~ /\.containerinfo$/) {
+    $tar = construct_container_tar($tarfile);
+  } else {
+    open($tarfd, '<', $tarfile) || die("$tarfile: $!\n");
+    $tar = BSTar::list($tarfd);
+    $_->{'file'} = $tarfd for @$tar;
+  }
+  return ($tar, $tarfd);
+}
+
 sub die_with_usage {
   die <<'END';
 usage: bs_regpush [options] <registryserver> repository tar [tar...]
@@ -391,6 +426,9 @@ while (@ARGV) {
   } elsif ($ARGV[0] eq '-X') {
     $delete_except_mode = 1;
     shift @ARGV;
+  } elsif ($ARGV[0] eq '-B') {
+    $blobdir = $ARGV[1];
+    splice(@ARGV, 0, 2);
   } else {
     last;
   }
@@ -448,12 +486,9 @@ if ($use_image_tags && @tarfiles > 1) {
   # make sure all tar files contain the same tags
   my $imagetags;
   for my $tarfile (@tarfiles) {
-    local *TAR;
-    open(TAR, '<', $tarfile) || die("$tarfile: $!\n");
-    my $tar = BSTar::list(\*TAR);
-    $_->{'handle'} = \*TAR for @$tar;
+    my ($tar, $tarfd) = open_tarfile($tarfile);
     my %tar = map {$_->{'name'} => $_} @$tar;
-    my $manifest = BSContar::get_manifest(\%tar);
+    my ($manifest_ent, $manifest) = BSContar::get_manifest(\%tar);
     my @imagetags = @{$manifest->{'RepoTags'} || []};
     s/.*:// for @imagetags;
     my $it = join(', ', sort(BSUtil::unify(@imagetags)));
@@ -462,7 +497,7 @@ if ($use_image_tags && @tarfiles > 1) {
       $imagetags = $it;
       push @tags, @imagetags;
     }
-    close(TAR);
+    close $tarfd if $tarfd;
   }
   $use_image_tags = 0;
 }
@@ -470,10 +505,7 @@ if ($use_image_tags && @tarfiles > 1) {
 my @multimanifests;
 my %multiplatforms;
 for my $tarfile (@tarfiles) {
-  local *TAR;
-  open(TAR, '<', $tarfile) || die("$tarfile: $!\n");
-  my $tar = BSTar::list(\*TAR);
-  $_->{'handle'} = \*TAR for @$tar;
+  my ($tar, $tarfd) = open_tarfile($tarfile);
   my %tar = map {$_->{'name'} => $_} @$tar;
 
   my ($manifest_ent, $manifest) = BSContar::get_manifest(\%tar);
@@ -498,7 +530,7 @@ for my $tarfile (@tarfiles) {
     my $platformstr = "architecture:$config->{'architecture'} os:$config->{'os'}";
     if ($multiplatforms{$platformstr}) {
       print "ignoring $tarfile, already have $platformstr\n";
-      close TAR;
+      close $tarfd if $tarfd;
       next;
     }
     $multiplatforms{$platformstr} = 1;
@@ -551,7 +583,7 @@ for my $tarfile (@tarfiles) {
     # upload to server
     blob_upload($blobid, $layer_ent);
   }
-  close TAR;
+  close $tarfd if $tarfd;
 
   my $mani = {
     'xxx1_schemaVersion' => 2,

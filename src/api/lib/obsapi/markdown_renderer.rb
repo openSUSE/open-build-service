@@ -1,3 +1,5 @@
+require 'uri'
+
 module OBSApi
   class MarkdownRenderer < Redcarpet::Render::HTML
     include Rails.application.routes.url_helpers
@@ -20,6 +22,16 @@ module OBSApi
       Sanitize.fragment(fulldoc, Sanitize::Config.merge(Sanitize::Config::RESTRICTED,
                                                         elements: Sanitize::Config::RESTRICTED[:elements] + ['pre'],
                                                         remove_contents: true))
+    end
+
+    # unfortunately we can't call super (into C) - see vmg/redcarpet#51
+    def link(link, title, content)
+      title = " title='#{title}'" if title.present?
+      begin
+        link = URI.join(::Configuration.obs_url, link)
+      rescue URI::InvalidURIError
+      end
+      "<a href='#{link}'#{title}>#{content}</a>"
     end
   end
 end

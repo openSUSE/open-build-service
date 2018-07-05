@@ -36,7 +36,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
   end
 
   describe 'creating packages in projects owned by user, eg. home projects' do
-    let(:very_long_description) { Faker::Lorem.paragraphs(250) }
+    let(:very_long_description) { Faker::Lorem.paragraph(20) }
 
     before do
       login user
@@ -184,7 +184,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
         login admin_user
       end
 
-      scenario 'adding DoD repositories' do
+      scenario 'adding DoD repositories', retry: 3 do
         visit(project_repositories_path(project: admin_user.home_project_name))
         click_link('Add DoD repository')
         fill_in('Repository name', with: 'My DoD repository')
@@ -196,6 +196,8 @@ RSpec.feature 'Projects', type: :feature, js: true do
         fill_in('SSL Fingerprint', with: '293470239742093')
         fill_in('Public Key', with: 'JLKSDJFSJ83U4902RKLJSDFLJF2J9IJ23OJFKJFSDF')
         click_button('Save')
+
+        expect(page).to have_css('.repository-container')
 
         within '.repository-container' do
           expect(page).to have_text('My DoD repository')
@@ -248,7 +250,9 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
         visit(project_repositories_path(project: project_with_dod_repo))
         # Delete link
-        find(:xpath, "//a[@href='/download_repositories/#{download_repository.id}?project=#{project_with_dod_repo}'][text()='Delete']").click
+        accept_alert do
+          find(:xpath, "//a[@href='/download_repositories/#{download_repository.id}?project=#{project_with_dod_repo}'][text()='Delete']").click
+        end
         expect(page).to have_text 'Successfully removed Download on Demand'
         expect(repository.download_repositories.count).to eq 1
 
@@ -286,19 +290,9 @@ RSpec.feature 'Projects', type: :feature, js: true do
     let!(:package_of_another_project) { create(:package_with_file, name: 'branch_test_package', project: other_user.home_project) }
 
     before do
-      if CONFIG['global_write_through']
-        Backend::Connection.put("/source/#{CGI.escape(project.name)}/_meta", project.to_axml)
-      end
       login user
       visit project_show_path(project)
       click_link('Branch existing package')
-    end
-
-    after do
-      if CONFIG['global_write_through']
-        Backend::Connection.delete("/source/#{CGI.escape(other_user.home_project_name)}")
-        Backend::Connection.delete("/source/#{CGI.escape(user.home_project_name)}")
-      end
     end
 
     scenario 'an existing package' do

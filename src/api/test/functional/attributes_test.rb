@@ -28,7 +28,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
 
     get '/attribute/NotExisting'
-    assert_response 400
+    assert_response 404
 
     get '/attribute/OBS'
     assert_response :success
@@ -54,11 +54,11 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     post '/attribute/TEST/_meta', params: data
     assert_response 403
-    assert_match(/Namespace changes are only permitted by the administrator/, @response.body)
+    assert_match(/Requires admin privileges/, @response.body)
 
     delete '/attribute/OBS/_meta'
     assert_response 403
-    assert_match(/Namespace changes are only permitted by the administrator/, @response.body)
+    assert_match(/Requires admin privileges/, @response.body)
 
     login_king
     # FIXME3.0: POST is deprecated, use PUT
@@ -150,6 +150,11 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'value', content: 'A'
     assert_xml_tag tag: 'value', content: 'B'
+    # blame view is working
+    get '/source/home:adrian/_project/_attribute?view=blame&meta=1'
+    assert_response :success
+    assert_match(/^   . \(adrian/, @response.body)
+
     # cleanup
     login_Iggy
     delete '/attribute/TEST/Dummy/_meta'
@@ -301,11 +306,10 @@ ription</description>
     login_king
     data = "<attributes><attribute namespace='OBS' name='VeryImportantProject'/></attributes>"
     post '/source/home:tom/_attribute', params: data
+    assert_response :success
 
     login_tom
     delete '/source/home:tom/_attribute/OBS:VeryImportantProject'
-    assert_response 403
-    delete '/source/home:tom/_attribute/?namespace=OBS&name=VeryImportantProject'
     assert_response 403
   end
 
@@ -468,8 +472,7 @@ ription</description>
 
     # invalid operations
     delete '/source/kde4/kdelibs/kdelibs-devel/_attribute'
-    assert_response 400
-    assert_xml_tag tag: 'status', attributes: { code: 'missing_attribute' }
+    assert_response 404
     delete '/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS_Maintained'
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_attribute' }

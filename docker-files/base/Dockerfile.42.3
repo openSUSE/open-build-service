@@ -9,7 +9,7 @@ RUN echo 'solver.allowVendorChange = true' >> /etc/zypp/zypp.conf; \
 # Install requirements for all our containers
 RUN zypper -n install --no-recommends --replacefiles \
   make gcc gcc-c++ patch curl vim vim-data psmisc \
-  timezone ack glibc-locale sudo aaa_base
+  timezone ack glibc-locale sudo aaa_base hostname
 
 # Add our bootstrap script
 ADD docker-bootstrap.sh /root/bin/docker-bootstrap.sh

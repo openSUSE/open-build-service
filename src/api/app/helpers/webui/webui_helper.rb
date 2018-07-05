@@ -106,7 +106,7 @@ module Webui::WebuiHelper
     icon = REPO_STATUS_ICONS[status] || 'eye'
 
     outdated = nil
-    if status =~ /^outdated_/
+    if /^outdated_/.match?(status)
       status.gsub!(%r{^outdated_}, '')
       outdated = true
     end

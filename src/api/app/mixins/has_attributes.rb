@@ -9,29 +9,30 @@ module HasAttributes
   class AttributeSaveError < APIException
   end
 
-  def write_attributes(comment = nil)
+  def write_attributes
+    return unless CONFIG['global_write_through']
     project_name = is_a?(Project) ? name : project.name
     if is_a?(Package)
-      Backend::Api::Sources::Package.write_attributes(project_name, name, User.current.login, render_attribute_axml, comment)
+      Backend::Api::Sources::Package.write_attributes(project_name, name, User.current.login, render_attribute_axml)
     else
-      Backend::Api::Sources::Project.write_attributes(project_name, User.current.login, render_attribute_axml, comment)
+      Backend::Api::Sources::Project.write_attributes(project_name, User.current.login, render_attribute_axml)
     end
   rescue ActiveXML::Transport::Error => e
     raise AttributeSaveError, e.summary
   end
 
-  def store_attribute_axml(attrib, binary = nil)
+  def store_attribute_xml(attrib, binary = nil)
     values = []
-    attrib.each('value') do |val|
-      values << val.text
+    attrib.elements('value') do |val|
+      values << val
     end
 
     issues = []
-    attrib.each('issue') do |i|
-      issues << Issue.find_or_create_by_name_and_tracker(i.value('name'), i.value('tracker'))
+    attrib.elements('issue') do |i|
+      issues << Issue.find_or_create_by_name_and_tracker(i['name'], i['tracker'])
     end
 
-    store_attribute(attrib.value('namespace'), attrib.value('name'), values, issues, binary)
+    store_attribute(attrib['namespace'], attrib['name'], values, issues, binary)
   end
 
   def store_attribute(namespace, name, values, issues, binary = nil)
@@ -39,70 +40,65 @@ module HasAttributes
     attrib_type = AttribType.find_by_namespace_and_name!(namespace, name)
 
     # update or create attribute entry
-    changed = false
-    begin
-      a = find_attribute(namespace, name, binary)
-    rescue AttributeFindError => e
-      raise AttributeSaveError, e
-    end
-    if a.nil?
+    a = find_attribute(namespace, name, binary)
+    unless a
       # create the new attribute
-      a = Attrib.new(attrib_type: attrib_type, binary: binary)
+      a = Attrib.create(attrib_type: attrib_type, binary: binary)
       a.project = self if is_a? Project
       a.package = self if is_a? Package
-      if a.attrib_type.value_count
-        a.attrib_type.value_count.times do |i|
-          a.values.build(position: i, value: values[i])
-        end
-      end
-      raise AttributeSaveError, a.errors.full_messages.join(', ') unless a.save
-      changed = true
     end
     # write values
-    a.update_with_associations(values, issues) || changed
+    a.update_with_associations(values, issues)
+    return unless a.saved_changes?
+    write_attributes
   end
 
   def find_attribute(namespace, name, binary = nil)
-    logger.debug "find_attribute for #{namespace}:#{name}"
-    raise AttributeFindError, 'Namespace must be given' if namespace.nil?
-    raise AttributeFindError, 'Name must be given' if name.nil?
-    if binary
-      if is_a? Project
-        raise AttributeFindError, 'binary packages are not allowed in project attributes'
-      end
-      # rubocop:disable Metrics/LineLength
-      a = attribs.joins(attrib_type: :attrib_namespace).where('attrib_types.name = ? and attrib_namespaces.name = ? AND attribs.binary = ?', name, namespace, binary).first
-    else
-      a = attribs.nobinary.joins(attrib_type: :attrib_namespace).where('attrib_types.name = ? and attrib_namespaces.name = ?', name, namespace).first
-      # rubocop:enable Metrics/LineLength
+    raise AttributeFindError, 'Namespace must be given' unless namespace
+    raise AttributeFindError, 'Name must be given' unless name
+    if is_a?(Project) && binary
+      raise AttributeFindError, 'binary packages are not allowed in project attributes'
     end
-    a = attribs.find(a.id) if a && a.readonly? # FIXME: joins make things read only
-    a
+    query = attribs.joins(attrib_type: :attrib_namespace)
+    query = query.where(attrib_types: { name: name },
+                        binary: binary,
+                        attrib_namespaces: { name: namespace })
+    query.readonly(false).first
   end
 
-  def render_attribute_axml(params = {})
+  def render_attribute_axml(opts = {})
     builder = Nokogiri::XML::Builder.new
 
     builder.attributes do |xml|
-      render_main_attributes(xml, params)
+      render_main_attributes(xml, opts)
 
       # show project values as fallback ?
-      project.render_main_attributes(xml, params) if params[:with_project]
+      project.render_main_attributes(xml, opts) if opts[:with_project]
     end
     builder.doc.to_xml indent: 2, encoding: 'UTF-8',
                               save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                          Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
-  def render_main_attributes(builder, params)
-    done = {}
+  private
+
+  def matches_binary_filter?(filter, binary)
+    return true unless filter
+    return false if binary != filter
+    # switch between all and NULL binary
+    filter != '' || binary == ''
+  end
+
+  def render?(attr, filter_attrib_type, filter_binary)
+    if filter_attrib_type
+      return false unless attr.attrib_type == filter_attrib_type
+    end
+    return matches_binary_filter?(filter_binary, attr.binary)
+  end
+
+  def render_main_attributes(builder, opts)
     attribs.each do |attr|
-      type_name = attr.attrib_type.attrib_namespace.name + ':' + attr.attrib_type.name
-      next if params[:name] && !(attr.attrib_type.name == params[:name])
-      next if params[:namespace] && !(attr.attrib_type.attrib_namespace.name == params[:namespace])
-      next if params[:binary] && attr.binary != params[:binary]
-      next if params[:binary] == '' && attr.binary != '' # switch between all and NULL binary
-      done[type_name] = 1 unless attr.binary
+      next unless render?(attr, opts[:attrib_type], opts[:binary])
       p = {}
       p[:name] = attr.attrib_type.name
       p[:namespace] = attr.attrib_type.attrib_namespace.name
@@ -113,7 +109,7 @@ module HasAttributes
             builder.issue(name: ai.name, tracker: ai.issue_tracker.name)
           end
         end
-        render_single_attribute(attr, params[:with_default], builder)
+        render_single_attribute(attr, opts[:with_default], builder)
       end
     end
   end

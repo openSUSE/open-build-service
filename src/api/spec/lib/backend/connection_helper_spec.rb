@@ -17,12 +17,12 @@ RSpec.describe Backend::ConnectionHelper do
     context 'with a template' do
       it { expect(subject.send(:calculate_endpoint, ['string_in_array'])).to eq('string_in_array') }
       it { expect(subject.send(:calculate_endpoint, ['/build/:param', 'my_param'])).to eq('/build/my_param') }
-      it { expect(subject.send(:calculate_endpoint, ['/build/:param', 'my param'])).to eq('/build/my%20param') }
-      it { expect(subject.send(:calculate_endpoint, ['/build/:param', 'my/param'])).to eq('/build/my/param') }
+      it { expect(subject.send(:calculate_endpoint, ['/build/:param', 'my param'])).to eq('/build/my+param') }
+      it { expect(subject.send(:calculate_endpoint, ['/build/:param', 'my/param'])).to eq('/build/my%2Fparam') }
       it { expect(subject.send(:calculate_endpoint, ['/build/:param', 'my&param'])).to eq('/build/my&param') }
-      it { expect(subject.send(:calculate_endpoint, ['/build/:param', 'my?param'])).to eq('/build/my?param') }
+      it { expect(subject.send(:calculate_endpoint, ['/build/:param', 'my?param'])).to eq('/build/my%3Fparam') }
       it { expect(subject.send(:calculate_endpoint, ['/build/:param', 'my:param'])).to eq('/build/my:param') }
-      it { expect(subject.send(:calculate_endpoint, ['/build/:param', 'my#param'])).to eq('/build/my#param') }
+      it { expect(subject.send(:calculate_endpoint, ['/build/:param', 'my#param'])).to eq('/build/my%23param') }
       it { expect(subject.send(:calculate_endpoint, ['/build/:param1/:param2', 'my_param', 'my_2nd_param'])).to eq('/build/my_param/my_2nd_param') }
       it { expect(subject.send(:calculate_endpoint, ['/build/:param1/:param2', 'my_param', 'my_2nd_param'])).to eq('/build/my_param/my_2nd_param') }
       it { expect(subject.send(:calculate_endpoint, ['/build/:param1/:param2', 'home:param2', 'blah'])).to eq('/build/home:param2/blah') }

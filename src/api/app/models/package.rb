@@ -223,7 +223,8 @@ class Package < ApplicationRecord
 
   # to check existens of a project (local or remote)
   def self.exists_by_project_and_name(project, package, opts = {})
-    opts = { follow_project_links: true, allow_remote_packages: false }.merge(opts)
+    opts = { follow_project_links: true, allow_remote_packages: false, follow_multibuild: false }.merge(opts)
+    package = striping_multibuild_suffix(package) if opts[:follow_multibuild]
     begin
       prj = Project.get_by_name(project)
     rescue Project::UnknownObjectError
@@ -362,8 +363,8 @@ class Package < ApplicationRecord
   def commit_message(target_project, target_package)
     result = ''
     changes_files.each do |changes_file|
-      source_changes = PackageFile.new(package_name: name, project_name: project.name, name: changes_file).to_s
-      target_changes = PackageFile.new(package_name: target_package, project_name: target_project, name: changes_file).to_s
+      source_changes = PackageFile.new(package_name: name, project_name: project.name, name: changes_file).content
+      target_changes = PackageFile.new(package_name: target_package, project_name: target_project, name: changes_file).content
       result << source_changes.try(:chomp, target_changes)
     end
     # Remove header and empty lines
@@ -385,7 +386,7 @@ class Package < ApplicationRecord
   end
 
   def can_be_modified_by?(user, ignore_lock = nil)
-    user.can_modify_package? master_product_object, ignore_lock
+    user.can_modify? master_product_object, ignore_lock
   end
 
   def check_write_access!(ignore_lock = nil)
@@ -928,10 +929,13 @@ class Package < ApplicationRecord
     LocalBuildResult::ForPackage.new(package: self, project: prj, show_all: show_all)
   end
 
-  def jobhistory_list(project, repository, arch, limit = 100)
-    results = Jobhistory.find_hashed(project: project.name, package: name,
+  def jobhistory_list(project, repository, arch, options = {})
+    options[:limit] = 100 if options[:limit].blank?
+    options[:package] = name if options[:package].blank?
+
+    results = Jobhistory.find_hashed(project: project.name, package: options[:package],
                                      repository: repository, arch: arch,
-                                     limit: limit)
+                                     limit: options[:limit])
 
     local_jobs_history = []
     results.elements('jobhist').each_with_index do |result, index|
@@ -957,7 +961,8 @@ class Package < ApplicationRecord
 
   def service_error(revision = nil)
     revision ||= serviceinfo.try { to_hash['xsrcmd5'] }
-    PackageServiceErrorFile.new(project_name: project.name, package_name: name).to_s(rev: revision)
+    return nil unless revision
+    PackageServiceErrorFile.new(project_name: project.name, package_name: name).content(rev: revision)
   end
 
   # local mode (default): last package in link chain in my project
@@ -1229,7 +1234,7 @@ class Package < ApplicationRecord
     delete_opt[:user] = User.current.login
     delete_opt[:comment] = opt[:comment] if opt[:comment]
 
-    unless User.current.can_modify_package? self
+    unless User.current.can_modify? self
       raise DeleteFileNoPermission, 'Insufficient permissions to delete file'
     end
 
@@ -1257,14 +1262,11 @@ class Package < ApplicationRecord
   end
 
   def serviceinfo
-    unless @serviceinfo
-      begin
-        dir = Directory.find(project: project.name, package: name)
-        @serviceinfo = dir.find_first(:serviceinfo) if dir
-      rescue ActiveXML::Transport::NotFoundError
-      end
+    begin
+      dir = Directory.find(project: project.name, package: name)
+      dir.find_first(:serviceinfo) if dir
+    rescue ActiveXML::Transport::NotFoundError
     end
-    @serviceinfo
   end
 
   def parse_all_history
@@ -1345,7 +1347,7 @@ class Package < ApplicationRecord
     logger.debug "storing file: filename: #{opt[:filename]}, comment: #{opt[:comment]}"
 
     Package.verify_file!(self, opt[:filename], content)
-    unless User.current.can_modify_package?(self)
+    unless User.current.can_modify?(self)
       raise PutFileNoPermission, "Insufficient permissions to store file in package #{name}, project #{project.name}"
     end
 
@@ -1356,7 +1358,7 @@ class Package < ApplicationRecord
     ActiveXML.backend.http_do :put, path, data: content, timeout: 500
 
     # KIWI file
-    if opt[:filename] =~ /\.kiwi\.txz$/
+    if /\.kiwi\.txz$/.match?(opt[:filename])
       logger.debug 'Found a kiwi archive, creating kiwi_import source service'
       services = self.services
       services.addKiwiImport
@@ -1398,6 +1400,11 @@ class Package < ApplicationRecord
 
   def send_sysrq(params)
     backend_build_command(:sendsysrq, params[:project], params.slice(:package, :arch, :repository, :sysrq))
+  end
+
+  def target_name
+    # The maintenance ID is always the sub project name of the maintenance project
+    project.is_maintenance_incident? ? "#{name}.#{project.basename}" : name
   end
 
   def release_target_name
@@ -1442,15 +1449,13 @@ class Package < ApplicationRecord
   def last_build_reason(repo, arch, package_name = nil)
     repo = repo.name if repo.is_a? Repository
 
-    xml_data = Nokogiri::XML(BuildReasonFile.new(
-      project_name: project.name,
-      package_name: package_name || name,
-      repo: repo,
-      arch: arch
-    ).to_s).xpath('reason')
+    begin
+      build_reason = Backend::Api::BuildResults::Status.build_reason(project.name, package_name || name, repo, arch)
+    rescue ActiveXML::Transport::NotFoundError
+      return PackageBuildReason.new
+    end
 
-    data = Hash.from_xml(xml_data.to_s)['reason']
-
+    data = Xmlhash.parse(build_reason)
     # ensure that if 'packagechange' exists, it is an Array and not a Hash
     # Bugreport: https://github.com/openSUSE/open-build-service/issues/3230
     data['packagechange'] = [data['packagechange']] if data && data['packagechange'].is_a?(Hash)

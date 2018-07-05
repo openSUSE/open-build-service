@@ -84,17 +84,24 @@ sub containerinfo2obsbinlnk {
   $annotation->{'repo'} = $d->{'repos'} if $d->{'repos'};
   $annotation->{'disturl'} = $d->{'disturl'} if $d->{'disturl'};
   $annotation->{'buildtime'} = $d->{'buildtime'} if $d->{'buildtime'};
+  $annotation->{'binaryid'} = $d->{'imageid'} if $d->{'imageid'};
   if (%$annotation) {
     eval { $lnk->{'annotation'} = BSUtil::toxml($annotation, $BSXML::binannotation) };
     warn($@) if $@;
   }
   local *F;
-  return undef unless open(F, '<', "$dir/$d->{file}");
+  if ($d->{'tar_md5sum'}) {
+    # this is a normalized container, see BSRepServer::Containertar::normalize_container
+    $lnk->{'hdrmd5'} = $d->{'tar_md5sum'};
+    $lnk->{'path'} = "../$packid/$d->{'file'}";
+    return $lnk;
+  }
+  return undef unless open(F, '<', "$dir/$d->{'file'}");
   my $ctx = Digest::MD5->new;
   $ctx->addfile(*F);
   close F;
   $lnk->{'hdrmd5'} = $ctx->hexdigest();
-  $lnk->{'path'} = "../$packid/$d->{file}";
+  $lnk->{'path'} = "../$packid/$d->{'file'}";
   return $lnk;
 }
 
@@ -133,6 +140,7 @@ sub readcontainerinfo {
   $d->{'file'} = $file = undef unless defined($file) && ref($file) eq '';
   delete $d->{'disturl'} unless defined($d->{'disturl'}) && ref($d->{'disturl'}) eq '';
   delete $d->{'buildtime'} unless defined($d->{'buildtime'}) && ref($d->{'buildtime'}) eq '';
+  delete $d->{'imageid'} unless defined($d->{'imageid'}) && ref($d->{'imageid'}) eq '';
   return undef unless defined($name) && defined($file);
   eval {
     BSVerify::verify_simple($file);
@@ -140,6 +148,12 @@ sub readcontainerinfo {
   };
   return undef if $@;
   return $d;
+}
+
+sub writecontainerinfo {
+  my ($fn, $fnf, $containerinfo) = @_;
+  my $containerinfo_json = JSON::XS->new->utf8->canonical->pretty->encode($containerinfo);
+  writestr($fn, $fnf, $containerinfo_json);
 }
 
 1;

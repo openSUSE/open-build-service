@@ -395,8 +395,8 @@ sub hello {
 
 my $dispatches = [
   '/' => \&hello,
-  '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? server:' => \&getbinaries,
-  '/getpreinstallimage $prpa $hdrmd5:md5 path: sizek:num? server:' => \&getpreinstallimage,
+  '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? workerid? server:' => \&getbinaries,
+  '/getpreinstallimage $prpa $hdrmd5:md5 path: sizek:num? workerid? server:' => \&getpreinstallimage,
 ];
 
 my $conf = {

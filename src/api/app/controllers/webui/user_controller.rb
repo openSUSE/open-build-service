@@ -88,7 +88,7 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def icon
-    size = params[:size].to_i || '20'
+    size = params[:size].to_i
     user = User.find_by_login(params[:user])
     if user.nil? || (content = user.gravatar_image(size)) == :none
       redirect_to ActionController::Base.helpers.asset_path('default_face.png')

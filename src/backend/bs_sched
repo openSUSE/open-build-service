@@ -97,6 +97,7 @@ my $_eventdir = "$bsdir/events";
 my $_dodsdir = "$bsdir/dods";
 my $_rundir = $BSConfig::rundir || "$bsdir/run";
 my $_infodir = "$bsdir/info";
+my $_blobdir = "$bsdir/blobs";
 my $_remotecache = "$BSConfig::bsdir/remotecache";
 
 # parse arguments
@@ -391,6 +392,7 @@ my $gctx = {
   'dodsdir' => $_dodsdir,
   'rundir' => $_rundir,
   'infodir' => $_infodir,
+  'blobdir' => $_blobdir,
   'remotecache' => $_remotecache,
   'remoteproxy' => $BSConfig::proxy,
   'asyncmode' => $asyncmode,

@@ -1,0 +1,161 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 29 Jun 2018 11:39:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_service/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_service" project="home:tom">
+          <title>The Line of Beauty</title>
+          <description>Ipsa perferendis voluptate vel et veniam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '175'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_service" project="home:tom">
+          <title>The Line of Beauty</title>
+          <description>Ipsa perferendis voluptate vel et veniam.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 29 Jun 2018 11:39:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_service/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_service" project="home:tom">
+          <title>The Line of Beauty</title>
+          <description>Ipsa perferendis voluptate vel et veniam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '175'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_service" project="home:tom">
+          <title>The Line of Beauty</title>
+          <description>Ipsa perferendis voluptate vel et veniam.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 29 Jun 2018 11:39:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_service/_service
+    body:
+      encoding: UTF-8
+      string: "<services/>"
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="6" vrev="6">
+          <srcmd5>ba5dbfad4f343a5641512ea764f3039c</srcmd5>
+          <version>unknown</version>
+          <time>1530272365</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 29 Jun 2018 11:39:25 GMT
+recorded_with: VCR 4.0.0

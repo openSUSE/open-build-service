@@ -23,6 +23,8 @@ my $gctx = {
   'arch' => 'i586',
   'reporoot' => "$BSConfig::bsdir/build",
   'obsname' => 'testobs',
+  'genmetaalgo' => 0,
+  'maxgenmetaalgo' => 0,
 };
 
 my $projpacksin = readxml("$FindBin::Bin/data/0170/srcserver/fixtures_0001", $BSXML::projpack);

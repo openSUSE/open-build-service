@@ -54,6 +54,19 @@ In particular, this community seeks the following types of contributions:
 - **Preferably include a commit description**
   
   There is always some useful information to add in your commit. If you don't include a commit description, more likely you are missing something.
+  
+- **Summarize what has been done and why**
+
+  The commit message body should explain **what** & **why** the changes have been made.
+  Explain potential side-effects of the changes, if there are any.
+ 
+- **Mention related issues**
+
+  If this commit fixes an issue you need to mention it like `Fixes #1234`
+  
+- **Give kudos to Co-authors**
+
+  If the commit has more than one author tag them with `Co-authored-by: name <name@example.com>`.
 
 - **Try that the commit subject is not longer than 50 characters**
 
@@ -154,8 +167,8 @@ You can access the frontend at [localhost:3000](http://localhost:3000). Whatever
 9. Changed something in the frontend? Test your changes!
 
     ```
-    rake docker:test:frontend
-    rake docker:test:lint
+    docker-compose run --rm frontend bundle exec rspec
+    docker-compose run --rm frontend bundle exec rake dev:lint
     ```
 
 10. Changed something in the backend? Test your changes!

@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:56 GMT
+  recorded_at: Tue, 22 May 2018 09:54:51 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/_meta?user=other_user
@@ -81,7 +81,7 @@ http_interactions:
           <person userid="other_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:56 GMT
+  recorded_at: Tue, 22 May 2018 09:54:51 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -89,8 +89,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Quo Vadis</title>
-          <description>Rem qui aut quis reprehenderit perspiciatis quam eum.</description>
+          <title>In Dubious Battle</title>
+          <description>Voluptatem aut pariatur ut et at tempora expedita.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -111,16 +111,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Quo Vadis</title>
-          <description>Rem qui aut quis reprehenderit perspiciatis quam eum.</description>
+          <title>In Dubious Battle</title>
+          <description>Voluptatem aut pariatur ut et at tempora expedita.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:56 GMT
+  recorded_at: Tue, 22 May 2018 09:54:51 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta
@@ -128,8 +128,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Quo Vadis</title>
-          <description>Rem qui aut quis reprehenderit perspiciatis quam eum.</description>
+          <title>In Dubious Battle</title>
+          <description>Voluptatem aut pariatur ut et at tempora expedita.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -150,16 +150,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Quo Vadis</title>
-          <description>Rem qui aut quis reprehenderit perspiciatis quam eum.</description>
+          <title>In Dubious Battle</title>
+          <description>Voluptatem aut pariatur ut et at tempora expedita.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:56 GMT
+  recorded_at: Tue, 22 May 2018 09:54:51 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user2/_meta?user=other_user2
@@ -200,5 +200,5 @@ http_interactions:
           <person userid="other_user2" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:56 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Tue, 22 May 2018 09:54:51 GMT
+recorded_with: VCR 4.0.0

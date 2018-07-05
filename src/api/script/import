@@ -51,7 +51,7 @@ def store_project(p)
     store_packages_for p
     return true
   rescue Project::SaveError => e
-    if e.message =~ /^unable to walk on path/
+    if /^unable to walk on path/.match?(e.message)
       STDERR.puts 'delayed'
       return false
     else

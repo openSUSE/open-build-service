@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+  recorded_at: Tue, 22 May 2018 09:54:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Where Angels Fear to Tread</title>
-          <description>Expedita rerum suscipit animi libero quia magni architecto ut.</description>
+          <title>In a Glass Darkly</title>
+          <description>Voluptas fugit dignissimos explicabo in.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '202'
+      - '171'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Where Angels Fear to Tread</title>
-          <description>Expedita rerum suscipit animi libero quia magni architecto ut.</description>
+          <title>In a Glass Darkly</title>
+          <description>Voluptas fugit dignissimos explicabo in.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+  recorded_at: Tue, 22 May 2018 09:54:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Where Angels Fear to Tread</title>
-          <description>Expedita rerum suscipit animi libero quia magni architecto ut.</description>
+          <title>In a Glass Darkly</title>
+          <description>Voluptas fugit dignissimos explicabo in.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,23 +109,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '202'
+      - '171'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Where Angels Fear to Tread</title>
-          <description>Expedita rerum suscipit animi libero quia magni architecto ut.</description>
+          <title>In a Glass Darkly</title>
+          <description>Voluptas fugit dignissimos explicabo in.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+  recorded_at: Tue, 22 May 2018 09:54:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Laboriosam placeat aliquam ut vel. Omnis dignissimos earum dolore similique
-        vel ut. Vel totam ea rerum.
+      string: Aut sed sunt ipsam accusamus unde autem voluptatum. Provident et voluptas
+        omnis porro quia sed aperiam. A quo quis pariatur. Est deserunt omnis quis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -145,28 +145,27 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="274" vrev="274">
-          <srcmd5>d19f373bff6aa9cfe7a1285bfc5da2fd</srcmd5>
+        <revision rev="24" vrev="24">
+          <srcmd5>46ea3bbc103c1e740f76049d3185f2d8</srcmd5>
           <version>unknown</version>
-          <time>1499340717</time>
+          <time>1526982890</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+  recorded_at: Tue, 22 May 2018 09:54:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Quasi occaecati impedit aut. Quaerat voluptas occaecati nostrum. Temporibus
-        ipsum debitis qui. Est mollitia fuga sed sunt minima recusandae. Earum ad
-        rerum.
+      string: Id neque aspernatur reprehenderit. Aliquid occaecati explicabo ipsa.
+        Accusamus at non ex delectus.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -186,20 +185,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="275" vrev="275">
-          <srcmd5>38029ff3699ce6dc27228970fd4dbdba</srcmd5>
+        <revision rev="25" vrev="25">
+          <srcmd5>46ea3bbc103c1e740f76049d3185f2d8</srcmd5>
           <version>unknown</version>
-          <time>1499340717</time>
+          <time>1526982890</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+  recorded_at: Tue, 22 May 2018 09:54:50 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_files
@@ -225,17 +224,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '405'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_files" rev="275" vrev="275" srcmd5="38029ff3699ce6dc27228970fd4dbdba">
-          <entry name="_config" md5="42b800b4f1f2a9a0a5cd23dfb4a27144" size="103" mtime="1499340717" />
-          <entry name="_icon" md5="d3623f4e1afa11bcff44503ac76c8b41" size="184" mtime="1499340715" />
-          <entry name="somefile.txt" md5="6d3fd6eb3c35a438ff2dea0f39c26f6c" size="156" mtime="1499340717" />
+        <directory name="package_with_files" rev="25" vrev="25" srcmd5="46ea3bbc103c1e740f76049d3185f2d8">
+          <entry name="_config" md5="88b7ff23faa4ce082f5efbede8d939f2" size="149" mtime="1526982890" />
+          <entry name="somefile.txt" md5="464153626e5156defd142f44bc51e056" size="98" mtime="1526982886" />
         </directory>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+  recorded_at: Tue, 22 May 2018 09:54:50 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_files
@@ -261,15 +259,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '405'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_files" rev="275" vrev="275" srcmd5="38029ff3699ce6dc27228970fd4dbdba">
-          <entry name="_config" md5="42b800b4f1f2a9a0a5cd23dfb4a27144" size="103" mtime="1499340717" />
-          <entry name="_icon" md5="d3623f4e1afa11bcff44503ac76c8b41" size="184" mtime="1499340715" />
-          <entry name="somefile.txt" md5="6d3fd6eb3c35a438ff2dea0f39c26f6c" size="156" mtime="1499340717" />
+        <directory name="package_with_files" rev="25" vrev="25" srcmd5="46ea3bbc103c1e740f76049d3185f2d8">
+          <entry name="_config" md5="88b7ff23faa4ce082f5efbede8d939f2" size="149" mtime="1526982890" />
+          <entry name="somefile.txt" md5="464153626e5156defd142f44bc51e056" size="98" mtime="1526982886" />
         </directory>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Tue, 22 May 2018 09:54:50 GMT
+recorded_with: VCR 4.0.0

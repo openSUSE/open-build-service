@@ -49,6 +49,14 @@ use BSHTTP;
 use BSBuild;
 use BSCando;
 
+my $can_rewrite_containers;
+eval {
+  require Digest::SHA;
+  require BSTar;
+  require BSContar;
+  $can_rewrite_containers = 1;
+};
+
 use strict;
 
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
@@ -695,7 +703,6 @@ if ($justbuild) {
     die("not a kiwi product job\n") unless $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
   }
   $| = 1;
-
   dobuild($buildinfo);
   exit(0);
 }
@@ -1205,13 +1212,16 @@ sub trygetbinariesproxy_preinstallimage {
   my ($server, $filename, $img) = @_;
   return undef unless $getbinariesproxy;
   my $res;
+  my @args;
+  push @args, "workerid=$workerid" if defined $workerid;
+  push @args, "prpa=$img->{'prpa'}", "hdrmd5=$img->{'hdrmd5'}", "sizek=$img->{'sizek'}", "path=$img->{'path'}";
   eval {
     $res = BSRPC::rpc({
       'uri' => "$getbinariesproxy/getpreinstallimage",
       'filename' => $filename,
       'timeout' => $gettimeout,
       'receiver' => \&BSHTTP::file_receiver,
-    }, undef, "server=$server", "prpa=$img->{'prpa'}", "hdrmd5=$img->{'hdrmd5'}", "sizek=$img->{'sizek'}", "path=$img->{'path'}");
+    }, undef, "server=$server", @args);
   };
   if ($@) {
     warn($@);
@@ -1243,6 +1253,7 @@ sub getbinaries_cache {
   }
   if ($cachedir && !$bvl) {
     my @args;
+    push @args, "workerid=$workerid" if defined $workerid;
     push @args, "project=$projid";
     push @args, "repository=$repoid";
     push @args, "arch=$arch";
@@ -1332,6 +1343,7 @@ sub getbinaries_cache {
       manage_cache($cachesize - $downloadsizek * 1024);
     }
     my @args;
+    push @args, "workerid=$workerid" if defined $workerid;
     push @args, "project=$projid";
     push @args, "repository=$repoid";
     push @args, "arch=$arch";
@@ -1444,7 +1456,6 @@ sub getbinaries_kiwiproduct {
 
   # now fetch all packages that go into the repos subdir
   my %meta;
-  my $linklocal = $localkiwi && -d "$localkiwi/build" ? 1 : 0;
   my $rpmhdrs_only = $buildinfo->{'rpmhdrs_only'} ? "/rpmhdrs_only" : '';
 
   my %cachenew;
@@ -1473,208 +1484,97 @@ sub getbinaries_kiwiproduct {
     my $res;
     my $server =  $prp2server{"$projid/$repoid"} || $buildinfo->{'reposerver'};
     my %knownmd5;
-    if ($linklocal) {
-      $res = [];
-      for my $name (ls("$localkiwi/build/$projid/$repoid/$arch/$packid")) {
-	my $rarch;
-	if ($name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
-	  $rarch = $2 if $binfilter{"$packid/$1.$2"};
-	} elsif ($name =~ /appdata\.xml$/) {
-	  $rarch = 'appdata'; 
-	}
-	next unless $rarch;
-	next if $nodbgpkgs && $name =~ /-(?:debuginfo|debugsource)-/;
-	next if $nosrcpkgs && ($rarch eq 'src' || $rarch eq 'nosrc');
-	mkdir_p("$ddir/$rarch") unless -d "$ddir/$rarch";
-	if (!link("$localkiwi/build/$projid/$repoid/$arch/$packid/$name", "$ddir/$rarch/$name")) {
-	  # link fails if file already exists, rpc just overwrites
-	  unlink("$ddir/$rarch/$name");
-	  link_or_copy("$localkiwi/build/$projid/$repoid/$arch/$packid/$name", "$ddir/$rarch/$name") || die("link $localkiwi/build/$projid/$repoid/$arch/$packid/$name $ddir/$rarch/$name: $!\n");
-	}
-        $kiwiorigins->{"obs://$prp/$rarch/$name"} = $prpap;
-	push @$res, {'name' => "$rarch/$name"};
-      }
-    } else {
-      my $bvl;
-      if ($cachedir) {
-	my $pbvl = $packagebinaryversionlist{"$projid/$repoid/$arch"};
-	if (!$pbvl) {
-	  eval {
-	    if ($server ne $buildinfo->{'srcserver'}) {
-	      $pbvl = BSRPC::rpc({
-		'uri' => "$server/getpackagebinaryversionlist",
-		'timeout' => $gettimeout,
-	      }, $BSXML::packagebinaryversionlist, "project=$projid", "repository=$repoid", "arch=$arch", map {"package=$_"} @{$prpapackages{"$projid/$repoid/$arch"}});
-	    } else {
-	      $pbvl = BSRPC::rpc({
-		'uri' => "$server/build/$projid/$repoid/$arch",
-		'timeout' => $gettimeout,
-	      }, $BSXML::packagebinaryversionlist, "view=binaryversions", map {"package=$_"} @{$prpapackages{"$projid/$repoid/$arch"}});
-	    }
-	  };
-	  undef $pbvl if $@;
-	  warn($@) if $@;
-	  $pbvl = { map {$_->{'package'} => $_} @{$pbvl->{'binaryversionlist'} || []} } if $pbvl;
-	  $pbvl ||= {};
-	  $packagebinaryversionlist{"$projid/$repoid/$arch"} = $pbvl;
-	}
-        $bvl = $pbvl->{$packid};
-	if (!defined($bvl)) {
-	  eval {
-	    $bvl = BSRPC::rpc({
-	      'uri' => "$server/build/$projid/$repoid/$arch/$packid",
-	      'timeout' => $gettimeout,
-	    }, $BSXML::binaryversionlist, 'view=binaryversions');
-	  };
-	  undef $bvl if $@;
-	  warn($@) if $@;
-	}
-      }
-      my @good;
-      my @bad;
-      if ($bvl) {
-	for my $bv (@{$bvl->{'binary'} || []}) {
-	  my $bin = $bv->{'name'};
-	  if ($bin =~ /appdata\.xml$/) {
-	    push @bad, $bv;	# currently not in cache
-	    $downloadsizek += $bv->{'sizek'};
-	    next;
-	  }
-	  next unless $bin =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/;
-	  my $rarch = $2;
-	  next unless $binfilter{"$packid/$1.$2"};
-	  next if $nodbgpkgs && $bin =~ /-(?:debuginfo|debugsource)-/;
-	  next if $nosrcpkgs && ($rarch eq 'src' || $rarch eq 'nosrc');
-	  my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}$rpmhdrs_only");
-	  my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
-	  mkdir_p("$ddir/$rarch");
-	  if (link_or_copy($cachefile, "$ddir/$rarch/$bin.new.rpm")) {
-	    my @s = stat("$ddir/$rarch/$bin.new.rpm");
-	    die unless @s;
-	    my $leadsigmd5 = '';
-	    my $id = Build::queryhdrmd5("$ddir/$rarch/$bin.new.rpm", \$leadsigmd5);
-	    if ($id eq $bv->{'hdrmd5'} && (!$bv->{'leadsigmd5'} || $bv->{'leadsigmd5'} eq $leadsigmd5)) {
-	      push @good, "$rarch/$bin";
-	      push @cacheold, [$cacheid, $s[7]];
-	      $knownmd5{"$rarch/$bin"} = $id;
-	    } else {
-	      unlink "$ddir/$rarch/$bin.new.rpm";
-	      push @bad, $bv;
-	      $downloadsizek += $bv->{'sizek'};
-	    }
-	  } else {
-	    push @bad, $bv;
-	    $downloadsizek += $bv->{'sizek'};
-	  }
-	}
-      }
-      #print "(cache: ".@good." hits, ".@bad." misses)";
-      $binariesdownload += @bad;
-      $binariescachehits += @good;
-      if ($bvl && @bad) {
-	if ($cachedir && $downloadsizek * 1024 * 100 > $cachesize) {
-	  # reserve space
-	  manage_cache($cachesize - $downloadsizek * 1024, \@cacheold, [ values %cachenew ]);
-	  @cacheold = ();
-	  %cachenew = ();
-	  $binariesdownloadsize += $downloadsizek;
-	  $downloadsizek = 0;
-	}
+    my $bvl;
+    if ($cachedir) {
+      my $pbvl = $packagebinaryversionlist{"$projid/$repoid/$arch"};
+      if (!$pbvl) {
 	eval {
-	  my @args;
-	  push @args, $rpmhdrs_only ? "view=cpioheaderchksums" : "view=cpio";
-	  push @args, "noajax=1" if $server ne $buildinfo->{'srcserver'};
-	  push @args, map {"binary=$_->{'name'}"} @bad;
-	  BSRPC::rpc({
-	    'uri' => "$server/build/$projid/$repoid/$arch/$packid",
-	    'directory' => $ddir,
-	    'timeout' => $gettimeout,
-	    'map' => sub {
-	      my ($param, $name) = @_;
-	      my $rarch;
-	      if ($name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
-		$rarch = $2 if $binfilter{"$packid/$1.$2"};
-	      } elsif ($name =~ /appdata\.xml$/) {
-	        $rarch = 'appdata'; 
-	      }
-	      return undef unless $rarch;
-	      mkdir_p("$param->{'directory'}/$rarch");
-	      return "$rarch/$name.new.rpm";
-	    },
-	    'receiver' => \&BSHTTP::cpio_receiver,
-	  }, undef, @args);
+	  if ($server ne $buildinfo->{'srcserver'}) {
+	    $pbvl = BSRPC::rpc({
+	      'uri' => "$server/getpackagebinaryversionlist",
+	      'timeout' => $gettimeout,
+	    }, $BSXML::packagebinaryversionlist, "project=$projid", "repository=$repoid", "arch=$arch", map {"package=$_"} @{$prpapackages{"$projid/$repoid/$arch"}});
+	  } else {
+	    $pbvl = BSRPC::rpc({
+	      'uri' => "$server/build/$projid/$repoid/$arch",
+	      'timeout' => $gettimeout,
+	    }, $BSXML::packagebinaryversionlist, "view=binaryversions", map {"package=$_"} @{$prpapackages{"$projid/$repoid/$arch"}});
+	  }
 	};
-	if ($@) {
-	  # delete everything as a file might be incomplete
-          for my $bv (@bad) {
-	    my $bin = $bv->{'name'};
-	    if ($bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
-	      unlink("$ddir/$1/$bin.new.rpm");
-	    } elsif ($bin =~ /appdata\.xml$/) {
-	      unlink("$ddir/$arch/$bin.new.rpm");
-	    }
-	  }
+	undef $pbvl if $@;
+	warn($@) if $@;
+	$pbvl = { map {$_->{'package'} => $_} @{$pbvl->{'binaryversionlist'} || []} } if $pbvl;
+	$pbvl ||= {};
+	$packagebinaryversionlist{"$projid/$repoid/$arch"} = $pbvl;
+      }
+      $bvl = $pbvl->{$packid};
+      if (!defined($bvl)) {
+	eval {
+	  $bvl = BSRPC::rpc({
+	    'uri' => "$server/build/$projid/$repoid/$arch/$packid",
+	    'timeout' => $gettimeout,
+	  }, $BSXML::binaryversionlist, 'view=binaryversions');
+	};
+	undef $bvl if $@;
+	warn($@) if $@;
+      }
+    }
+    my @good;
+    my @bad;
+    if ($bvl) {
+      for my $bv (@{$bvl->{'binary'} || []}) {
+	my $bin = $bv->{'name'};
+	if ($bin =~ /appdata\.xml$/) {
+	  push @bad, $bv;	# currently not in cache
+	  $downloadsizek += $bv->{'sizek'};
+	  next;
 	}
-        for my $bv (splice @bad) {
-	  my $bin = $bv->{'name'};
-	  my $rarch;
-	  if ($bin =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
-	    $rarch = $2 if $binfilter{"$packid/$1.$2"};
-	  } elsif ($bin =~ /appdata\.xml$/) {
-	    $rarch = 'appdata'; 
-	  }
-	  next unless $rarch;
+	next unless $bin =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/;
+	my $rarch = $2;
+	next unless $binfilter{"$packid/$1.$2"};
+	next if $nodbgpkgs && $bin =~ /-(?:debuginfo|debugsource)-/;
+	next if $nosrcpkgs && ($rarch eq 'src' || $rarch eq 'nosrc');
+	my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}$rpmhdrs_only");
+	my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+	mkdir_p("$ddir/$rarch");
+	if (link_or_copy($cachefile, "$ddir/$rarch/$bin.new.rpm")) {
 	  my @s = stat("$ddir/$rarch/$bin.new.rpm");
-	  if (!@s) {
-	    push @bad, $bv;
-	    next;
-	  }
-	  if (!$bv->{'hdrmd5'}) {
-	    push @good, "$rarch/$bin";
-	    next;
-	  }
+	  die unless @s;
 	  my $leadsigmd5 = '';
 	  my $id = Build::queryhdrmd5("$ddir/$rarch/$bin.new.rpm", \$leadsigmd5);
 	  if ($id eq $bv->{'hdrmd5'} && (!$bv->{'leadsigmd5'} || $bv->{'leadsigmd5'} eq $leadsigmd5)) {
 	    push @good, "$rarch/$bin";
-            my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}$rpmhdrs_only");
-	    $cachenew{"$ddir/$rarch/$bin"} = [$cacheid, $s[7], "$ddir/$rarch/$bin"];
+	    push @cacheold, [$cacheid, $s[7]];
 	    $knownmd5{"$rarch/$bin"} = $id;
 	  } else {
 	    unlink "$ddir/$rarch/$bin.new.rpm";
 	    push @bad, $bv;
+	    $downloadsizek += $bv->{'sizek'};
 	  }
+	} else {
+	  push @bad, $bv;
+	  $downloadsizek += $bv->{'sizek'};
 	}
-        #print "(still ".@bad." misses)";
       }
-      if ($bvl && !@bad) {
-	for (@good) {
-	  rename("$ddir/$_.new.rpm", "$ddir/$_") || die("rename $ddir/$_.new.rpm $ddir/$_: $!\n");
-          $kiwiorigins->{"obs://$prp/$_"} = $prpap;
-	}
-        $res = [ map {{'name' => $_}} @good ];
-      } else {
-	%knownmd5 = ();
-        for (@good) {
-	  unlink("$ddir/$_.new.rpm");
-	  delete $cachenew{"$ddir/$_"};
-	}
-	if ($bvl && $server ne $buildinfo->{'srcserver'}) {
-	  # the bvl entry seems to be wrong. tell our server about that.
-	  eval {
-	    my @bargs = ("project=$projid", "repository=$repoid", "arch=$arch", "package=$packid");
-	    push @bargs, "workerid=$workerid" if defined $workerid;
-	    BSRPC::rpc({
-	      'uri' => "$server/badpackagebinaryversionlist",
-	      'timeout' => $gettimeout,
-	    }, undef, @bargs);
-	  };
-	  warn($@) if $@;
-	}
+    }
+    #print "(cache: ".@good." hits, ".@bad." misses)";
+    $binariesdownload += @bad;
+    $binariescachehits += @good;
+    if ($bvl && @bad) {
+      if ($cachedir && $downloadsizek * 1024 * 100 > $cachesize) {
+	# reserve space
+	manage_cache($cachesize - $downloadsizek * 1024, \@cacheold, [ values %cachenew ]);
+	@cacheold = ();
+	%cachenew = ();
+	$binariesdownloadsize += $downloadsizek;
+	$downloadsizek = 0;
+      }
+      eval {
 	my @args;
 	push @args, $rpmhdrs_only ? "view=cpioheaderchksums" : "view=cpio";
 	push @args, "noajax=1" if $server ne $buildinfo->{'srcserver'};
-	$res = BSRPC::rpc({
+	push @args, map {"binary=$_->{'name'}"} @bad;
+	BSRPC::rpc({
 	  'uri' => "$server/build/$projid/$repoid/$arch/$packid",
 	  'directory' => $ddir,
 	  'timeout' => $gettimeout,
@@ -1684,29 +1584,117 @@ sub getbinaries_kiwiproduct {
 	    if ($name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
 	      $rarch = $2 if $binfilter{"$packid/$1.$2"};
 	    } elsif ($name =~ /appdata\.xml$/) {
-	      $rarch = 'appdata';
+	      $rarch = 'appdata'; 
 	    }
 	    return undef unless $rarch;
-	    return undef if $nodbgpkgs && $name =~ /-(?:debuginfo|debugsource)-/;
-	    return undef if $nosrcpkgs && ($rarch eq 'src' || $rarch eq 'nosrc');
 	    mkdir_p("$param->{'directory'}/$rarch");
-            $kiwiorigins->{"obs://$prp/$rarch/$name"} = $prpap;
-	    return "$rarch/$name";
+	    return "$rarch/$name.new.rpm";
 	  },
 	  'receiver' => \&BSHTTP::cpio_receiver,
 	}, undef, @args);
-	if ($cachedir) {
-	  for my $f (@{$res || []}) {
-	    my @s = stat("$ddir/$f->{'name'}");
-	    next unless @s;
-	    my $id = Build::queryhdrmd5("$ddir/$f->{'name'}");
-	    next unless $id;
-	    my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$id$rpmhdrs_only");
-	    $cachenew{"$ddir/$f->{'name'}"} = [$cacheid, $s[7], "$ddir/$f->{'name'}"];
-	    $knownmd5{$f->{'name'}} = $id;
+      };
+      if ($@) {
+	# delete everything as a file might be incomplete
+	for my $bv (@bad) {
+	  my $bin = $bv->{'name'};
+	  if ($bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
+	    unlink("$ddir/$1/$bin.new.rpm");
+	  } elsif ($bin =~ /appdata\.xml$/) {
+	    unlink("$ddir/$arch/$bin.new.rpm");
 	  }
-	  #print "(put ".@cachenew." entries)";
 	}
+      }
+      for my $bv (splice @bad) {
+	my $bin = $bv->{'name'};
+	my $rarch;
+	if ($bin =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
+	  $rarch = $2 if $binfilter{"$packid/$1.$2"};
+	} elsif ($bin =~ /appdata\.xml$/) {
+	  $rarch = 'appdata'; 
+	}
+	next unless $rarch;
+	my @s = stat("$ddir/$rarch/$bin.new.rpm");
+	if (!@s) {
+	  push @bad, $bv;
+	  next;
+	}
+	if (!$bv->{'hdrmd5'}) {
+	  push @good, "$rarch/$bin";
+	  next;
+	}
+	my $leadsigmd5 = '';
+	my $id = Build::queryhdrmd5("$ddir/$rarch/$bin.new.rpm", \$leadsigmd5);
+	if ($id eq $bv->{'hdrmd5'} && (!$bv->{'leadsigmd5'} || $bv->{'leadsigmd5'} eq $leadsigmd5)) {
+	  push @good, "$rarch/$bin";
+	  my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}$rpmhdrs_only");
+	  $cachenew{"$ddir/$rarch/$bin"} = [$cacheid, $s[7], "$ddir/$rarch/$bin"];
+	  $knownmd5{"$rarch/$bin"} = $id;
+	} else {
+	  unlink "$ddir/$rarch/$bin.new.rpm";
+	  push @bad, $bv;
+	}
+      }
+      #print "(still ".@bad." misses)";
+    }
+    if ($bvl && !@bad) {
+      for (@good) {
+	rename("$ddir/$_.new.rpm", "$ddir/$_") || die("rename $ddir/$_.new.rpm $ddir/$_: $!\n");
+	$kiwiorigins->{"obs://$prp/$_"} = $prpap;
+      }
+      $res = [ map {{'name' => $_}} @good ];
+    } else {
+      %knownmd5 = ();
+      for (@good) {
+	unlink("$ddir/$_.new.rpm");
+	delete $cachenew{"$ddir/$_"};
+      }
+      if ($bvl && $server ne $buildinfo->{'srcserver'}) {
+	# the bvl entry seems to be wrong. tell our server about that.
+	eval {
+	  my @bargs = ("project=$projid", "repository=$repoid", "arch=$arch", "package=$packid");
+	  push @bargs, "workerid=$workerid" if defined $workerid;
+	  BSRPC::rpc({
+	    'uri' => "$server/badpackagebinaryversionlist",
+	    'timeout' => $gettimeout,
+	  }, undef, @bargs);
+	};
+	warn($@) if $@;
+      }
+      my @args;
+      push @args, $rpmhdrs_only ? "view=cpioheaderchksums" : "view=cpio";
+      push @args, "noajax=1" if $server ne $buildinfo->{'srcserver'};
+      $res = BSRPC::rpc({
+	'uri' => "$server/build/$projid/$repoid/$arch/$packid",
+	'directory' => $ddir,
+	'timeout' => $gettimeout,
+	'map' => sub {
+	  my ($param, $name) = @_;
+	  my $rarch;
+	  if ($name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
+	    $rarch = $2 if $binfilter{"$packid/$1.$2"};
+	  } elsif ($name =~ /appdata\.xml$/) {
+	    $rarch = 'appdata';
+	  }
+	  return undef unless $rarch;
+	  return undef if $nodbgpkgs && $name =~ /-(?:debuginfo|debugsource)-/;
+	  return undef if $nosrcpkgs && ($rarch eq 'src' || $rarch eq 'nosrc');
+	  mkdir_p("$param->{'directory'}/$rarch");
+	  $kiwiorigins->{"obs://$prp/$rarch/$name"} = $prpap;
+	  return "$rarch/$name";
+	},
+	'receiver' => \&BSHTTP::cpio_receiver,
+      }, undef, @args);
+      if ($cachedir) {
+	for my $f (@{$res || []}) {
+	  my @s = stat("$ddir/$f->{'name'}");
+	  next unless @s;
+	  my $id = Build::queryhdrmd5("$ddir/$f->{'name'}");
+	  next unless $id;
+	  my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$id$rpmhdrs_only");
+	  $cachenew{"$ddir/$f->{'name'}"} = [$cacheid, $s[7], "$ddir/$f->{'name'}"];
+	  $knownmd5{$f->{'name'}} = $id;
+	}
+	#print "(put ".@cachenew." entries)";
       }
     }
     die unless $res;
@@ -1768,6 +1756,7 @@ sub getpreinstallimage_metas {
 
   # get missing ones for the repo server for this build
   my @args;
+  push @args, "workerid=$workerid" if defined $workerid;
   push @args, "project=$buildinfo->{'project'}";
   push @args, "repository=$buildinfo->{'repository'}";
   push @args, "arch=$buildinfo->{'arch'}";
@@ -2193,16 +2182,26 @@ sub getbinaries_buildenv {
   return ();	# no meta
 }
 
+sub getkiwimode {
+  my ($buildinfo) = @_;
+  my $file = $buildinfo->{'file'};
+  $file =~ s/^_service:.*://;
+  my $kiwimode;
+  $kiwimode = 'image' if $file =~ /\.kiwi$/;
+  $kiwimode = 'product' if $kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
+  $kiwimode = 'docker' if $file eq 'Dockerfile';
+  $kiwimode = 'fissile' if $file eq 'fissile.yml';
+  return $kiwimode;
+}
+
 sub getbinaries {
   my ($buildinfo, $dir, $srcdir, $preinstallimagedata, $kiwiorigins) = @_;
 
   return getbinaries_buildenv($buildinfo, $dir, $srcdir) if $buildinfo->{'hasbuildenv'};
 
   mkdir_p($dir);
-  my $kiwimode;
-  $kiwimode = 'image' if $buildinfo->{'file'} =~ /\.kiwi$/;
-  $kiwimode = 'docker' if $buildinfo->{'file'} eq 'Dockerfile';
-  $kiwimode = 'fissile' if $buildinfo->{'file'} eq 'fissile.yml';
+  my $recipefile = $buildinfo->{'file'};
+  my $kiwimode = getkiwimode($buildinfo);
 
   # we need the Build package for queryhdrmd5
   importbuild() unless defined &Build::queryhdrmd5;
@@ -2334,6 +2333,7 @@ sub getbinaries {
       my $ddir = "$srcdir/containers/$repo->{'project'}/$repo->{'repository'}";
       mkdir_p($ddir);
       my @args;
+      push @args, "workerid=$workerid" if defined $workerid;
       push @args, "project=$repo->{'project'}";
       push @args, "repository=$repo->{'repository'}";
       push @args, "arch=$buildinfo->{'arch'}";
@@ -2365,7 +2365,7 @@ sub getbinaries {
       if ($buildinfo->{'containerannotation'}) {
 	my $annotation = BSUtil::fromxml($buildinfo->{'containerannotation'}, $BSXML::binannotation, 1);
 	if ($annotation) {
-	  for (qw{package version release binaryarch disturl buildtime}) {
+	  for (qw{package version release binaryarch disturl buildhost buildtime binaryid}) {
 	    $bin->{$_} = $annotation->{$_} if defined($annotation->{$_}) && $annotation->{$_} ne '';
 	  }
 	}
@@ -2589,10 +2589,22 @@ sub xmlescape {
   return $d;
 }
 
+sub addreportdata {
+  my ($report, $buildinfo) = $_;
+  if ($buildinfo->{'versrel'}) {
+    $report->{'version'} = $buildinfo->{'versrel'};
+    $report->{'version'} =~ s/-[^-]*$//s;
+  }
+  $report->{'release'} = $buildinfo->{'release'} if defined $buildinfo->{'release'};
+  $report->{'buildtime'} = $buildinfo->{'buildtime'} if $buildinfo->{'buildtime'};
+  $report->{'buildhost'} = $buildinfo->{'buildhost'} if $buildinfo->{'buildhost'};
+  $report->{'disturl'} = $buildinfo->{'disturl'} if $buildinfo->{'disturl'};
+}
+
 # parse all .report files and create a channel file from them
 # also update the data in the .report files with the binary origins
 sub createchannel {
-  my ($dir, $kiwiorigins) = @_;
+  my ($buildinfo, $dir, $kiwiorigins) = @_;
   my @reports = grep {/\.report$/} ls($dir);
   my %channel;
   my $hasunknown;
@@ -2601,6 +2613,7 @@ sub createchannel {
   for my $reportfile (@reports) {
     my $report = readxml("$dir/$reportfile", $BSXML::report, 1);
     next unless $report;
+    addreportdata($report, $buildinfo);
     for my $bin (@{$report->{'binary'} || []}) {
       # update missing entries
       my $prpap = $kiwiorigins->{$bin->{'_content'}};
@@ -2692,7 +2705,7 @@ sub createchannel {
 
 # create a .report file from a .packages file by adding binary origin information
 sub createreport {
-  my ($dir, $kiwiorigins) = @_;
+  my ($buildinfo, $dir, $kiwiorigins) = @_;
 
   local *F;
   for my $file (grep {/\.packages$/} sort(ls($dir))) {
@@ -2711,7 +2724,7 @@ sub createreport {
         'disturl' => $s[5],
       };
       $bin->{'package'} = $1 if $s[5] =~ /.*\/[^-]*-(.*)$/; # container case
-      $bin->{'epoch'} = $s[1] if $s[1] ne '(none)';
+      $bin->{'epoch'} = $s[1] if $s[1] ne '' && $s[1] ne '(none)';
       my $prpap = $kiwiorigins->{$s[0]};
       if ($prpap) {
         my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
@@ -2725,10 +2738,31 @@ sub createreport {
     close F;
     push @bins, @{$kiwiorigins->{':basecontainers'} || []};
     my $report = { 'binary' => \@bins };
+    addreportdata($report, $buildinfo);
     my $reportfile = $file;
     $reportfile =~ s/\.packages$/\.report/;
     writexml("$dir/.$reportfile", "$dir/$reportfile", $report, $BSXML::report);
   }
+}
+
+sub normalize_container {
+  my ($container, $recompress) = @_;
+  local *TAR;
+  open(TAR, '<', $container) || die("$container: $!\n");
+  my ($tar, $mtime) = BSContar::normalize_container(\*TAR, $recompress);
+  BSTar::writetarfile("$container.new", undef, $tar, 'mtime' => $mtime);
+  close(TAR);
+  if (-f "$container.sha256") {
+    open(NEWTAR, '<', "$container.new") || die("$container.new: $!\n");
+    my $ctx = Digest::SHA->new(256);
+    my $containerbasename = $container;
+    $containerbasename =~ s/.*\///;
+    my $chksum = $ctx->addfile(\*NEWTAR)->hexdigest() . "  $containerbasename\n";
+    close NEWTAR;
+    writestr("$container.sha256.new", "$container.sha256", $chksum);
+    utime($mtime, $mtime, "$container.sha256");
+  }
+  rename("$container.new", "$container") || die("rename $container.new $container: $!\n");
 }
 
 $Build::Kiwi::urlmapper = sub {return '_obsrepositories'}  unless $Build::Kiwi::urlmapper;
@@ -2741,11 +2775,7 @@ sub dobuild {
   my $repoid = $buildinfo->{'repository'};
   my $arch = $buildinfo->{'arch'};
   my $helperarch = $buildinfo->{'hostarch'} || $arch;
-  my $kiwimode;
-  $kiwimode = 'image' if $buildinfo->{'file'} =~ /\.kiwi$/;
-  $kiwimode = 'product' if $kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
-  $kiwimode = 'docker' if $buildinfo->{'file'} eq 'Dockerfile';
-  $kiwimode = 'fissile' if $buildinfo->{'file'} eq 'fissile.yml';
+  my $kiwimode = getkiwimode($buildinfo);
   my $kiwiorigins;
   my $stats = {};
   my $deltamode;
@@ -2832,11 +2862,7 @@ sub dobuild {
     $buildinfo->{'rootforbuild'} = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
     $buildinfo->{'file'} = $followupmode;
     # recalc kiwimode as we changed the file
-    undef $kiwimode;
-    $kiwimode = 'image' if $buildinfo->{'file'} =~ /\.kiwi$/;
-    $kiwimode = 'product' if $kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
-    $kiwimode = 'docker' if $buildinfo->{'file'} eq 'Dockerfile';
-    $kiwimode = 'fissile' if $buildinfo->{'file'} eq 'fissile.yml';
+    $kiwimode = getkiwimode($buildinfo);
     @meta = split("\n", readstr("$srcdir/meta"));
   } else {
     $kiwiorigins = {} if $kiwimode;	# always for kiwi
@@ -2993,7 +3019,6 @@ sub dobuild {
   push @args, '--oldpackages', $oldpkgdir if $oldpkgdir && -d $oldpkgdir;
   push @args, '--norootforbuild' unless $buildinfo->{'rootforbuild'} || ($BSConfig::norootexceptions && grep {"$projid/$packid" =~ /^$_$/} keys %$BSConfig::norootexceptions);
   push @args, '--baselibs-internal';
-  push @args, '--lint';
   push @args, '--dist', "$buildroot/.build.config";
   push @args, '--rpmlist', "$buildroot/.build.rpmlist";
   push @args, '--logfile', "$buildroot/.build.log";
@@ -3105,6 +3130,7 @@ sub dobuild {
   }
   $stats->{'times'}->{'total'}->{'time'}->{'unit'} = "s";
   $stats->{'times'}->{'total'}->{'time'}->{'_content'} = (time() - $starttime);
+  mkdir_p("$buildroot/.build.packages/OTHER");
   writexml("$buildroot/.build.packages/OTHER/_statistics.new", "$buildroot/.build.packages/OTHER/_statistics", $stats, $BSXML::buildstatistics);
 
   if ($buildinfo->{'outbuildinfo'}) {
@@ -3112,14 +3138,15 @@ sub dobuild {
   }
 
   if (!$followupmode && $kiwiorigins) {
+    $buildinfo->{'buildtime'} = time();
     if (!$kiwimode) {
       # some builds like python-venv also write a .packages file
-      createreport("$buildroot/.build.packages/OTHER", $kiwiorigins);
+      createreport($buildinfo, "$buildroot/.build.packages/OTHER", $kiwiorigins);
     } elsif ($kiwimode ne 'product') {
-      createreport("$buildroot/.build.packages/KIWI", $kiwiorigins);
+      createreport($buildinfo, "$buildroot/.build.packages/KIWI", $kiwiorigins);
     } else {
       # as a special service we also create a channel file from the report files
-      createchannel("$buildroot/.build.packages/OTHER", $kiwiorigins);
+      createchannel($buildinfo, "$buildroot/.build.packages/OTHER", $kiwiorigins);
     }
   }
 
@@ -3526,6 +3553,8 @@ sub periodic {
 
 
 # better safe than sorry...
+my $startworkercode = '?';
+$startworkercode = codemd5('.') if -e './bs_worker';
 chdir($statedir) || die("$statedir: $!\n");
 
 BSServer::deamonize(@ARGV) unless $oneshot;
@@ -3535,6 +3564,7 @@ $| = 1;
 # calculate code meta md5
 $workercode = codemd5('worker');
 $buildcode = codemd5('build');
+$workercode = $buildcode = '?' if $startworkercode ne $workercode;
 
 open(RUNLOCK, '>>', "$statedir/lock") || die("$statedir/lock: $!");
 flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("worker is already running on $statedir!\n");
@@ -3715,12 +3745,26 @@ if ($ex == 0) {
   for my $d ('.', @d) {
     my @files = sort(ls("$buildroot/.build.packages/$d"));
     @files = grep {$_ ne 'same_result_marker' && $_ ne '.kiwitree'} @files;
-    if ($localkiwi && ! -d "$localkiwi/jobs/$buildinfo->{'arch'}" && $d eq 'KIWI') {
+    if ($d eq 'KIWI') {
       $kiwitree = [ grep {-d "$buildroot/.build.packages/$d/$_"} @files ];
       undef $kiwitree unless @$kiwitree;
       undef $kiwitree if defined($BSConfig::nokiwitree) && $BSConfig::nokiwitree;
     }
     @files = grep {! -l "$buildroot/.build.packages/$d/$_" && -f _} @files;
+    # normalize/compress containers if we have /usr/bin/obs-gzip-go
+    if ($can_rewrite_containers && -x "/usr/bin/obs-gzip-go") {
+      for my $containerinfo (grep {/\.containerinfo$/} @files) {
+	my $container = "$buildroot/.build.packages/$d/$containerinfo";
+        $container =~ s/\.containerinfo$/\.tar/;
+        next unless ! -l $container && -f _;
+        eval {
+          normalize_container($container, 1);
+          BSUtil::touch("$container.recompressed");
+	  push @send, "$container.recompressed" if ! -l "$container.recompressed" && -f _;
+        };
+        warn($@) if $@;
+      }
+    }
     push @send, map {"$buildroot/.build.packages/$d/$_"} @files;
   }
   @send = map {{name => (split('/', $_))[-1], filename => $_}} @send;
@@ -3738,7 +3782,7 @@ if ($ex == 0) {
       $ex = 1;
     }
   }
-  if (!@send && !$localkiwi) {
+  if (!@send) {
     print "build did not create anything to send back!\n";
     $ex = 1;
   }
@@ -3781,24 +3825,6 @@ push @send, {name => 'meta', filename => "$buildroot/.build.meta"} if -e "$build
 push @send, {name => 'logfile', filename => "$buildroot/.build.log"};
 
 if (!$testmode) {
-  if ($localkiwi && -d "$localkiwi/jobs/$buildinfo->{'arch'}") {
-    # local delivery hack...
-    my @s = stat(_);
-    my ($localkiwi_uid, $localkiwi_gid) = ($s[4], $s[5]);
-    my $jobdir = "$localkiwi/jobs/$buildinfo->{'arch'}/$buildinfo->{'job'}:dir";
-    mkdir_p($jobdir);
-    chown($localkiwi_uid, $localkiwi_gid, $jobdir);
-    BSUtil::cleandir($jobdir);
-    for my $f (ls("$buildroot/.build.packages/KIWI")) {
-      system('chown', '-h', '-R', '--reference', "$jobdir", "$buildroot/.build.packages/KIWI/$f");
-      rename("$buildroot/.build.packages/KIWI/$f", "$jobdir/$f") || die("rename $buildroot/.build.packages/KIWI/$f $jobdir/$f: $!\n");
-    }
-    chown($localkiwi_uid, $localkiwi_gid, "$buildroot/.build.log");
-    chown($localkiwi_uid, $localkiwi_gid, "$buildroot/.build.meta");
-    rename("$buildroot/.build.log", "$jobdir/logfile");
-    rename("$buildroot/.build.meta", "$jobdir/meta");
-    @send = ();
-  }
   my $param = {
     uri => "$buildinfo->{'reposerver'}/putjob",
     request => 'POST',

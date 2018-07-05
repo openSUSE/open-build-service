@@ -23,6 +23,8 @@ my $gctx = {
   'arch' => 'x86_64',
   'reporoot' => "$BSConfig::bsdir/build",
   'obsname' => 'testobs',
+  'genmetaalgo' => 0,
+  'maxgenmetaalgo' => 0,
 };
 
 my $projid = 'OBS:Server:Unstable';

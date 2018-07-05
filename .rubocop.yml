@@ -1,18 +1,12 @@
-require: rubocop-rspec
-
 inherit_from: .rubocop_todo.yml
 
 AllCops:
   UseCache: true
-  CacheRootDirectory: src/api/tmp/rubocop_cache
+  CacheRootDirectory: src/api/tmp/rubocop_cache_root_dir
   MaxFilesInCache: 2000
   Exclude:
-    - 'src/api/tmp/**/*'
-    - 'src/api/lib/templates/**/*'
-    - 'src/api/vendor/bundle/**/*'
+    - 'src/api/**/*'
     - 'docs/api/restility/**/*'
-    - 'src/api/test/fixtures/backend/**/*'
-    - 'src/api/files/*'
     - 'src/backend/**/*'
     # These files are RPM spec files
     - 'dist/obs-api-deps.spec'
@@ -21,49 +15,29 @@ AllCops:
 
 #################### Layout ###########################
 
-# Align the elements of a hash literal if they span more than one line.
 Layout/AlignHash:
-  # Alignment of entries using hash rocket as separator.
   EnforcedHashRocketStyle: table
-  # Alignment of entries using colon as separator.
   EnforcedColonStyle: table
-  # Select whether hashes that are the last argument in a method call should be
-  # inspected?
   EnforcedLastArgumentHashStyle: ignore_implicit
 
 # We decide disable this cop because we can't reach an agreement
 Layout/DotPosition:
   Enabled: false
 
-# Align ends correctly.
 Layout/EndAlignment:
   EnforcedStyleAlignWith: variable
 
 #################### Style ###########################
 
-# Find uses of alias where alias_method would be more appropriate (or is simply preferred due to configuration), and vice versa.
-# It also finds uses of alias :symbol rather than alias bareword.
 Style/Alias:
   EnforcedStyle: 'prefer_alias_method'
 
-# Use ` or %x around command literals.
 Style/CommandLiteral:
   EnforcedStyle: percent_x
 
 Style/Documentation:
   Enabled: false
 
-# We need to allow some variables related to rabbiMQ.
-Style/GlobalVars:
-  AllowedVariables: ['$rabbitmq_conn', '$rabbitmq_exchange', '$rabbitmq_channel']
-
-# Checks for chaining of a block after another block that spans multiple lines.
-# We disabled this cop because of Rantly.
-Style/MultilineBlockChain:
-  Exclude:
-    - 'src/api/spec/**/*'
-
-# Checks for redundant `return` expressions
 Style/RedundantReturn:
   Enabled: false
 
@@ -75,48 +49,12 @@ Style/WordArray:
 
 ##################### Metrics ##################################
 
-Metrics/BlockLength:
-  Exclude:
-    - 'src/api/config/routes.rb'
-
-# Checks if the length a class exceeds some maximum value
 Metrics/ClassLength:
   Severity: refactor
 
-# Checks the length of lines in the source code.
 Metrics/LineLength:
   Max: 150
   IgnoredPatterns: ['\A#']
 
-# Checks if the length a module exceeds some maximum value
 Metrics/ModuleLength:
   Severity: refactor
-
-##################### Rails ##################################
-
-Rails:
-  Enabled: true
-
-# Actually is not possible to enable this cop because we have several overwritten methods.
-Rails/DynamicFindBy:
-  Enabled: false
-
-# Enforces that 'exit' calls are not used.
-Rails/Exit:
-  Exclude:
-    - 'src/api/lib/memory_dumper.rb'
-
-Rails/HasAndBelongsToMany:
-  Enabled: false
-
-# FIXME: Disabled due to a bug in Rubocop. Once it is fixed in this PR (https://github.com/bbatsov/rubocop/pull/5707), it could be enabled again
-Rails/HttpStatus:
-  Enabled: false
-
-# Checks for the use of output calls like puts and print
-Rails/Output:
-  Exclude:
-    - 'src/api/app/jobs/*'
-    - 'src/api/config/*'
-    - 'src/api/db/**/*'
-    - 'src/api/lib/**/*'

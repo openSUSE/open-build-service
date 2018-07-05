@@ -53,6 +53,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
   def raiseit(message, url)
     # known issues
     return if url =~ %r{/package/binary/BinaryprotectedProject/.*}
+    return if url =~ %r{/package/binary/download/*}
     return if url =~ %r{/package/statistics/BinaryprotectedProject/.*}
     return if url =~ %r{/package/statistics/SourceprotectedProject/.*}
     return if url.end_with? '/package/binary/SourceprotectedProject/pack?arch=i586&filename=package-1.0-1.src.rpm&repository=repo'

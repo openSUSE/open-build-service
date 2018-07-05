@@ -3,14 +3,7 @@ FactoryBot.define do
     sequence(:name) { |n| "project_#{n}" }
     title { Faker::Book.title }
 
-    after(:create) do |project|
-      # NOTE: Enable global write through when writing new VCR cassetes.
-      # ensure the backend knows the project
-      if CONFIG['global_write_through']
-        Backend::Connection.put("/source/#{CGI.escape(project.name)}/_meta", project.to_axml)
-        Backend::Connection.put("/source/#{CGI.escape(project.name)}/_config", Faker::Lorem.paragraph)
-      end
-    end
+    after(:create, &:write_to_backend)
 
     transient do
       maintainer nil
@@ -142,9 +135,10 @@ FactoryBot.define do
           CONFIG['global_write_through'] ? project.store : project.save!
         end
         if evaluator.create_patchinfo
+          old_user = User.current
           User.current = evaluator.maintainer
           Patchinfo.new.create_patchinfo(project.name, nil, comment: 'Fake comment', force: true)
-          User.current = nil
+          User.current = old_user
         end
       end
 

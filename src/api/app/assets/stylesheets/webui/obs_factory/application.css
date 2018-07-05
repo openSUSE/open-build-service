@@ -1,0 +1,425 @@
+/* Staging projects dashboard table */
+.staging-dashboard th.staging-project {
+    text-align: right;
+}
+
+.staging-dashboard .packages-list {
+    text-align: left;
+    margin: 6px;
+}
+
+.staging-dashboard td {
+    text-align: center
+}
+
+.staging-dashboard td img {
+    margin-top: 4px
+}
+
+/* Fix an issue with rowspans */
+.staging-dashboard tr:last-child td {
+    border-bottom: 1px dotted #CCCCCC
+}
+
+/* openQA */
+a.openqa-passed {
+    color: #6eb927
+}
+
+a.openqa-failed {
+    color: red
+}
+
+a.openqa-none {
+    color: #006699
+}
+
+a.openqa-incomplete {
+    color: red
+}
+
+/* Proper formating for dl, dt and dd */
+.content-wrapper .box .factory-summary dl {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.content-wrapper .box .factory-summary dt {
+    float: left;
+    clear: left;
+    width: 160px;
+    text-align: right;
+    font-weight: bold;
+}
+
+.content-wrapper .box .factory-summary dt img {
+    float: left
+}
+
+.content-wrapper .box .factory-summary dt:after {
+    content: ":"
+}
+
+.content-wrapper .box .factory-summary dd {
+    margin: 0 0 0 170px;
+    padding: 0 0 1em 0;
+}
+
+/* Avoid excessive margin in nested ul */
+.content-wrapper .box .factory-summary dd ul {
+    margin: 0 0 0 0;
+}
+
+.content-wrapper .box .factory-summary dd ul li {
+    margin-left: 0;
+}
+
+/* More compact h3 */
+.content-wrapper .box .factory-summary h3 {
+    margin-top: 0;
+    margin-bottom: 0.5em
+}
+
+.staging-dashboard .request {
+    white-space: nowrap;
+    margin: 1ex;
+    padding: 3px;
+}
+
+.staging-dashboard .request a.staging_expand,
+.staging-dashboard .request a.staging_collapse {
+  color: #069;
+}
+
+.staging-dashboard div.staging_collapsible {
+  display: inline-block;
+}
+
+.staging-dashboard .ok {
+    background-color: #53b25f;
+}
+
+.color-legend .ok {
+    background-color: #53b25f;
+}
+
+.staging-dashboard .review {
+    background-color: #d9b200;
+}
+
+.color-legend .review {
+    background-color: #d9b200;
+}
+
+.staging-dashboard .obsolete {
+    background-color: #42a2cc;
+}
+
+.color-legend .obsolete {
+    background-color: #42a2cc;
+}
+
+.staging-dashboard .untracked {
+    background-color: #666;
+}
+
+.color-legend .untracked {
+    background-color: #666;
+}
+
+.staging-dashboard .request a {
+    color: white;
+    margin: 0;
+    line-height: 1em;
+}
+
+.staging-dashboard .packages-list {
+    text-align: left;
+    list-style-type: none;
+}
+
+.staging-dashboard .request {
+    padding-left: 2px;
+    padding-right: 3px;
+    margin-right: .5ex;
+    border-radius: 3px;
+    float: left;
+}
+
+.staging-dashboard tr:nth-child(odd) {
+    background-color: #fff;
+}
+
+.staging-dashboard tr:nth-child(even) {
+    background-color: #eee;
+}
+
+.staging-dashboard ul.problem_list {
+    white-space: nowrap;
+    margin-left: 0px;
+    text-align: left;
+    margin-top: 0px;
+    list-style-type: none;
+}
+
+.staging-dashboard ul.problem_list li {
+    margin-left: 8px;
+    line-height: 170%;
+}
+
+.staging-dashboard .delete a {
+    text-decoration: line-through;
+}
+
+.color-legend .delete {
+    background-color: #FFFFFF;
+}
+
+.overall-state.staging-project {
+    border-radius: 8px;
+    margin: 5px;
+    padding: 4px;
+    text-align: center;
+    min-width: 5em;
+}
+
+.staging-project.state-building {
+    background-color: #cca66a;
+}
+
+.staging-project.state-review {
+    background-color: #6a98cc;
+}
+
+.staging-project.state-testing {
+    background-color: #6ab4cc;
+}
+
+.staging-project.state-unacceptable {
+    background-color: #333;
+}
+
+.staging-project.state-failed {
+    background-color: #ff4e46;
+}
+
+.staging-project.state-acceptable {
+    background-color: #75c195;
+}
+
+.staging-project .letter {
+    font-size: 150%;
+    margin: 5px;
+    padding: 16px;
+    background-color: #fff;
+    border-radius: 26px;
+    box-shadow: 0px -2px 2px #999;
+}
+
+.staging-project .state a {
+    color: white;
+}
+
+.staging-project .splitter-info {
+    margin-top: 5px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0px -2px 2px #999;
+    cursor: default;
+}
+
+.staging-project .splitter-info div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 7em;
+}
+
+.staging-project .splitter-info div:hover {
+    overflow: visible;
+    max-width: none;
+}
+
+ul.color-legend {
+    list-style-type: none;
+    margin-left: 4px;
+    margin-right: 10px;
+    margin-top: 0.5em;
+}
+
+#legends p {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+ul.color-legend li {
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+li.delete {
+  text-decoration: line-through;
+}
+
+.color-legend span {
+    vertical-align: top;
+    border: 1px #ccc solid;
+    min-width: 15px;
+    min-height: 15px;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.color-legend .fa {
+    min-width: 15px;
+    min-height: 15px;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.staging_backlog li,
+.staging_backlog_ignored li {
+    margin-left: 8px;
+}
+
+.ok-checkbox {
+    color: #53B25F;
+}
+
+.fa.missing-review {
+    color: white;
+}
+
+#main-dashboard .overall-state {
+    float: left;
+    min-height: 8em;
+}
+
+ul#main-dashboard {
+    list-style-type: none
+}
+
+ul.project-results {
+    list-style-type: none
+}
+
+.project-results a {
+    color: white;
+}
+
+.project-results li {
+    float: left
+}
+
+.project-results li.project-result-succeeded {
+    background-color: #53b25f
+}
+
+.project-results li.project-result-building {
+    background-color: #cca66a
+}
+
+.project-results li.project-result-failed {
+    background-color: #ff4e46
+}
+
+.nav{
+  float : left;
+  width : 100%;
+}
+
+.nav ul {
+    list-style-type: none;
+    text-align: center;
+    padding: 0;
+    margin: 8px;
+}
+
+.nav a {
+    text-decoration: none;
+    display: inline-block;
+}
+
+.nav > input{
+  display : none;
+}
+
+.nav > section > h2{
+  float              : left;
+  box-sizing         : border-box;
+  overflow           : hidden;
+  padding            : 0.3em 0.25em 0;
+  font-size          : 1em;
+}
+
+.nav > input:first-child + section > h2{
+  padding-left : 1em;
+}
+
+.nav > section > h2 > label{
+  display                 : block;
+  padding                 : 0.25em 0.75em;
+  border                  : 1px solid #ccc;
+  border-bottom           : none;
+  border-top-left-radius  : 5px;
+  border-top-right-radius : 5px;
+  background              : #fff;
+  cursor                  : pointer;
+}
+
+.nav > section > div{
+  position      : relative;
+  z-index       : 1;
+  float         : right;
+  box-sizing    : border-box;
+  width         : 100%;
+  margin        : 2.5em 0 0 -100%;
+  background    : #fff;
+}
+
+.nav > input:checked + section > h2{
+  position : relative;
+  z-index  : 2;
+}
+
+.nav > input:not(:checked) + section > div{
+  display : none;
+}
+
+div.factory-summary dt:nth-of-type(even), div.factory-summary dd:nth-of-type(even) {
+  background: #eee;
+}
+
+#staging-detail .request {
+    padding-left: 2px;
+    padding-right: 3px;
+    margin: 3px;
+    border-radius: 3px;
+    float: left;
+    list-style-type: none;
+}
+
+#staging-detail .request a {
+    color: white;
+    margin: 0;
+    line-height: 1em;
+}
+
+#staging-detail .ok {
+    background-color: #53b25f;
+}
+
+#staging-detail .review {
+    background-color: #d9b200;
+}
+
+#staging-detail .obsolete {
+    background-color: #42a2cc;
+}
+
+#staging-detail .untracked {
+    background-color: #666;
+}
+
+#staging-detail .delete a {
+    text-decoration: line-through;
+}

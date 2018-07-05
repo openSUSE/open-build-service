@@ -31,7 +31,7 @@ module ParsePackageDiff
         spec_file_keys << filename
       elsif filename.ends_with?('.changes')
         changes_file_keys << filename
-      elsif filename =~ /.*.(patch|diff|dif)/
+      elsif /.*.(patch|diff|dif)/.match?(filename)
         patch_file_keys << filename
       else
         other_file_keys << filename

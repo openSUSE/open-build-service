@@ -1,41 +1,6 @@
 ---
 http_interactions:
 - request:
-    method: get
-    uri: http://backend:5352/source/home:tom/package_with_files/not_existent.txt
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: package 'package_with_files' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '164'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>package 'package_with_files' does not exist</summary>
-          <details>404 package 'package_with_files' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Fri, 07 Jul 2017 07:11:51 GMT
-- request:
     method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
@@ -75,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 28 Jul 2017 14:14:21 GMT
+  recorded_at: Tue, 22 May 2018 09:54:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
@@ -83,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Fair Stood the Wind for France</title>
-          <description>Molestiae odio non dolorum debitis.</description>
+          <title>The Millstone</title>
+          <description>Non voluptates et quasi eum maiores architecto.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -105,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '179'
+      - '174'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Fair Stood the Wind for France</title>
-          <description>Molestiae odio non dolorum debitis.</description>
+          <title>The Millstone</title>
+          <description>Non voluptates et quasi eum maiores architecto.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 28 Jul 2017 14:14:22 GMT
+  recorded_at: Tue, 22 May 2018 09:54:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_meta
@@ -122,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Fair Stood the Wind for France</title>
-          <description>Molestiae odio non dolorum debitis.</description>
+          <title>The Millstone</title>
+          <description>Non voluptates et quasi eum maiores architecto.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -144,23 +109,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '179'
+      - '174'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Fair Stood the Wind for France</title>
-          <description>Molestiae odio non dolorum debitis.</description>
+          <title>The Millstone</title>
+          <description>Non voluptates et quasi eum maiores architecto.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 28 Jul 2017 14:14:22 GMT
+  recorded_at: Tue, 22 May 2018 09:54:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Quia ab minima quia mollitia. Commodi facere doloremque id aut. Impedit
-        voluptas similique tempora excepturi est et. Quibusdam et aut dicta quasi.
+      string: Voluptatem quisquam voluptate sit officiis. Aliquid magnam sed iure
+        et et animi. Eveniet voluptatem quam quia quia. Repellendus vitae numquam
+        tempora ea debitis et.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -180,26 +146,27 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
-          <srcmd5>cee4246aff52b2e092a861285fe17b42</srcmd5>
+        <revision rev="14" vrev="14">
+          <srcmd5>d5643c42cd998f24db0557a0cc258ef2</srcmd5>
           <version>unknown</version>
-          <time>1501251262</time>
+          <time>1526982888</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 28 Jul 2017 14:14:22 GMT
+  recorded_at: Tue, 22 May 2018 09:54:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Ea natus at rerum et autem. Commodi fuga qui dolores. Aut illo sit.
+      string: Id neque aspernatur reprehenderit. Aliquid occaecati explicabo ipsa.
+        Accusamus at non ex delectus.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -219,18 +186,53 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
-          <srcmd5>25e0b7482f4c85f0c47e856e6ef6901c</srcmd5>
+        <revision rev="15" vrev="15">
+          <srcmd5>d5643c42cd998f24db0557a0cc258ef2</srcmd5>
           <version>unknown</version>
-          <time>1501251262</time>
+          <time>1526982888</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 28 Jul 2017 14:14:22 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Tue, 22 May 2018 09:54:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_files/not_existent.txt
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: not_existent.txt  no such file
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '138'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>not_existent.txt: no such file</summary>
+          <details>404 not_existent.txt: no such file</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 22 May 2018 09:54:48 GMT
+recorded_with: VCR 4.0.0

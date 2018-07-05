@@ -111,6 +111,7 @@ printlog "Creating INNERSCRIPT '$MOUNTDIR/$INNERSCRIPT'"
 echo "#!/bin/bash"                                                                          > "$MOUNTDIR/$INNERSCRIPT"
 echo "export OBS_SERVICE_APIURL=\"$OBS_SERVICE_APIURL\""                                   >> "$MOUNTDIR/$INNERSCRIPT"
 echo "export OBS_SERVICE_BUNDLE_GEMS_MIRROR_URL=\"$OBS_SERVICE_BUNDLE_GEMS_MIRROR_URL\""   >> "$MOUNTDIR/$INNERSCRIPT"
+echo "export OBS_SERVICE_DAEMON=\"$OBS_SERVICE_DAEMON\""                                   >> "$MOUNTDIR/$INNERSCRIPT"
 echo "cd $INNERSRCDIR"                                                                     >> "$MOUNTDIR/$INNERSCRIPT"
 echo -n "${INNERSCRIPT}.command"                                                           >> "$MOUNTDIR/$INNERSCRIPT"
 

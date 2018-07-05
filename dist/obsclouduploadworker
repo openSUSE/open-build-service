@@ -15,7 +15,8 @@
 # Should-Stop:       $none
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
-# Description:       open build service cloup upload worker
+# Short-Description: OBS cloup upload worker
+# Description:       Service that processes cloud uploads to AWS and Azure
 ### END INIT INFO
 
 . /etc/rc.status

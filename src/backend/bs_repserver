@@ -44,6 +44,7 @@ use Data::Dumper;
 use Digest::MD5 ();
 use List::Util;
 use Symbol;
+use Encode;
 
 use BSConfiguration;
 use BSRPC ':https';
@@ -69,6 +70,7 @@ use BSSolv;
 use BSRepServer;
 use BSRepServer::BuildInfo;
 use BSRepServer::Containerinfo;
+use BSRepServer::Containertar;
 use BSRepServer::Remote;
 use BSDispatcher::Constraints;
 use BSCando;
@@ -251,10 +253,10 @@ sub getbinaryversions {
       $needscan = 1;
     }
     if ($bin =~ /^container:/ && $path =~ /(\.tar(?:\..+)?)$/) {
+      my $n = "$bin$1";
       my @s = stat($path);
-      next unless @s;
-      $sizek = ($s[7] + 1023) >> 10;
-      push @res, {'name' => "$bin$1", 'hdrmd5' => $hdrmd5, 'sizek' => $sizek};
+      @s = BSRepServer::Containertar::stat_container($path) if $1 eq '.tar' && !@s;
+      push @res, {'name' => $n, 'hdrmd5' => $hdrmd5, 'sizek' => (($s[7] + 1023) >> 10)} if @s;
       next;
     }
     if ($path !~ /\.($binsufsre)$/) {
@@ -403,7 +405,14 @@ sub getbinaries {
       $needscan = 1;
     }
     if ($bin =~ /^container:/ && $path =~ /(\.tar(?:\..+)?)$/) {
-      push @send, {'name' => "$bin$1", 'filename' => $path} unless $cgi->{'metaonly'};
+      next if $cgi->{'metaonly'};
+      my $n = "$bin$1";
+      if ($1 eq '.tar' && ! -e $path) {
+	my $fd = BSRepServer::Containertar::open_container($path);
+	push @send, {'name' => $n, 'filename' => ($fd || $path)};
+	next;
+      }
+      push @send, {'name' => $n, 'filename' => $path};
       next;
     }
     if ($path !~ /\.($binsufsre)$/) {
@@ -529,10 +538,33 @@ sub processavailable {
   return \@res;
 }
 
-sub mapannotationurls {
-  my ($p) = @_;
-  my $annotation = BSUtil::fromxml($p->{'annotation'}, $BSXML::binannotation, 1);
-  return unless $annotation && $annotation->{'repo'};
+sub utf8_off {
+  my ($x) = @_;
+  return undef unless defined($x);
+  my $r = ref($x);
+  if ($r eq '') {
+    Encode::_utf8_off($x);
+    return $x;
+  } elsif ($r eq 'ARRAY') {
+    return [ map { utf8_off($_) } @$x ];
+  } elsif ($r eq 'HASH') {
+    my %h;
+    for my $k (keys %$x) {
+      Encode::_utf8_off($k);
+      $h{$k} = utf8_off($x->{$k});
+    }
+    return \%h;
+  } else {
+    return $x;	# hope for the best
+  }
+}
+
+sub export_annotation {
+  my ($annotation_xml) = @_;
+  my $annotation = BSUtil::fromxml($annotation_xml, $BSXML::binannotation, 1);
+  $annotation = utf8_off($annotation);	# work around XML::Structured bug
+  return $annotation unless $annotation && $annotation->{'repo'};
+  # map repositories
   for my $r (@{$annotation->{'repo'}}) {
     my $url = $r->{'url'};
     next unless $url;
@@ -544,7 +576,17 @@ sub mapannotationurls {
      }
      ($r->{'project'}, $r->{'repository'}) = split('/', $urlprp, 2) if $urlprp;
   }
-  $p->{'annotation'} = BSUtil::toxml($annotation, $BSXML::binannotation);
+  return $annotation;
+}
+
+# create legacy xml from annotation subset
+sub create_legacy_annotation {
+  my ($annotation) = @_;
+  return undef unless $annotation;
+  my %a;
+  $a{'repo'} = $annotation->{'repo'} if $annotation->{'repo'};
+  $a{'disturl'} = $annotation->{'disturl'} if $annotation->{'disturl'};
+  return BSUtil::toxml(\%a, $BSXML::binannotation);
 }
 
 sub getbinarylist_repository {
@@ -621,7 +663,7 @@ sub getbinarylist_repository {
       if (open($fd, '<', "$reporoot/$prp/$arch/:full.xcache")) {
 	my $id;
 	if (sysread($fd, $id, 64) == 64 && $id eq $id64) {
-          push @files, { 'name' => 'repositorycache', 'filename' => $fd };
+          push @files, { 'name' => 'repositorycache', 'filename' => $fd, 'offset' => 64 };
 	  BSWatcher::reply_cpio(\@files);
 	  return undef;
 	}
@@ -633,7 +675,10 @@ sub getbinarylist_repository {
         my %data = $repo->pkgnames();
         for my $p (values %data) {
 	  $p = $pool->pkg2data($p);
-	  mapannotationurls($p) if $p->{'annotation'};
+	  if ($p->{'annotation'}) {
+	    $p->{'annotationdata'} = export_annotation($p->{'annotation'});
+	    $p->{'annotation'} = create_legacy_annotation($p->{'annotationdata'});
+	  }
         }
 	if (keys(%data) < 100 && $s[7] < 10000) {
 	  # small repo, feed from memory
@@ -648,8 +693,7 @@ sub getbinarylist_repository {
 	  $fd->flush();
 	  BSUtil::do_fdatasync(fileno($fd)) if $BSUtil::fdatasync_before_rename;
 	  rename($tmpname, "$reporoot/$prp/$arch/:full.xcache");
-	  sysseek($fd, 64, Fcntl::SEEK_SET);
-          push @files, { 'name' => 'repositorycache', 'filename' => $fd };
+	  push @files, { 'name' => 'repositorycache', 'filename' => $fd, 'offset' => 64 };
 	}
       }
       undef $repo;
@@ -724,6 +768,11 @@ sub getbinarylist_repository {
       my $n = $bin;
       if ($n =~ /^container:/) {
 	$n .= $1 if $path =~ /(\.tar(?:\..+)?)$/;
+	if ($1 eq '.tar' && ! -e $path) {
+	  my $fd = BSRepServer::Containertar::open_container($path);
+	  push @files, {'name' => $n, 'filename' => ($fd || $path)};
+	  next;
+	}
       } elsif ($path =~ /\.($binsufsre)$/) {
 	$n .= ".$1";
       }
@@ -783,9 +832,14 @@ sub getbinarylist_repository {
     my $n = $bin;
     if ($bin =~ /^container:/ && $path =~ /(\.tar(?:\..+)?)$/) {
       $n .= $1;
-    } else {
-      $n .= ".$1" if $path =~ /\.($binsufsre)$/;
+      my $r = {'filename' => $view eq 'names' ? $n : $path };
+      my @s = stat("$reporoot/$prp/$arch/:full/$path");
+      @s = BSRepServer::Containertar::stat_container("$reporoot/$prp/$arch/:full/$path") if $1 eq '.tar' && !@s;
+      ($r->{'mtime'}, $r->{'size'}) = ($s[9], $s[7]) if @s;
+      push @res, $r;
+      next;
     }
+    $n .= ".$1" if $path =~ /\.($binsufsre)$/;
     my $r = {'filename' => $view eq 'names' ? $n : $path };
     my $id = $pool->pkg2bsid($p);
     if ($id && $bin !~ /^container:/) {
@@ -853,9 +907,16 @@ sub getbinarylist {
     my @files;
     my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls("$reporoot/$prp/$arch/$packid");
     @bins = grep {!/^::import::/} @bins if $cgi->{'noimport'};
+    @bins = BSRepServer::Containertar::add_containers(@bins) if grep {/\.containerinfo$/} @bins;
     @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
     for (sort @bins) {
       next if %binaries && !$binaries{$_};
+      if (/\.tar$/ && ! -e "$reporoot/$prp/$arch/$packid/$_") {
+	my $n = $_;
+	my $fd = BSRepServer::Containertar::open_container("$reporoot/$prp/$arch/$packid/$n");
+	push @files, {'name' => $n, 'filename' => $fd} if $fd;
+	next;
+      }
       if ($BSStdServer::isajax || @files > 1000) {
 	# do not waste file descriptors
 	push @files, {'name' => $_, 'filename' => "$reporoot/$prp/$arch/$packid/$_"};
@@ -943,6 +1004,7 @@ sub getbinarylist {
   my @res;
   my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls("$reporoot/$prp/$arch/$packid");
   @bins = grep {!/^::import::/} @bins if $cgi->{'noimport'};
+  @bins = BSRepServer::Containertar::add_containers(@bins) if grep {/\.containerinfo$/} @bins;
   @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
   my %md5sums;
   if ($cgi->{'withmd5'}) {
@@ -966,6 +1028,14 @@ sub getbinarylist {
   for (sort @bins) {
     next if %binaries && !$binaries{$_};
     my @s = stat("$reporoot/$prp/$arch/$packid/$_");
+    if (!@s && /\.tar$/) {
+      @s = BSRepServer::Containertar::stat_container("$reporoot/$prp/$arch/$packid/$_");
+      next unless @s;
+      my $r = {'filename' => $_, 'size' => $s[7], 'mtime' => $s[9]};
+      $r->{'md5'} = $s[20] if $cgi->{'withmd5'};
+      push @res, $r;
+      next;
+    }
     next unless @s;
     next if -d _;
     my $r = {'filename' => $_, 'size' => $s[7], 'mtime' => $s[9]};
@@ -1122,9 +1192,18 @@ sub getlogfile {
 }
 
 sub getbinary_info {
-  my ($cgi, $projid, $repoid, $arch, $path) = @_;
+  my ($cgi, $projid, $repoid, $arch, $bin, $path) = @_;
+  if ($path =~ /\.tar$/ && ! -f $path) {
+    my @s = BSRepServer::Containertar::stat_container($path);
+    if (@s) {
+      my $res = {'mtime' => $s[9], 'size' => $s[7], 'filename' => $path};
+      $res->{'filename'} =~ s/.*\///;
+      data2utf8xml($res);
+      return ($res, $BSXML::fileinfo);
+    }
+  }
   my @s = stat($path);
-  die("404 $path: $!\n") unless @s;
+  die("404 $bin: $!\n") unless @s;
   my $res = Build::query($path, 'evra' => 1, 'description' => 1) || {};
   if (!%$res && $path =~ /\/updateinfo\.xml$/) {
     my $updateinfos = readxml($path, $BSXML::updateinfo, 1);
@@ -1261,11 +1340,15 @@ sub getbinary_repository {
     }
     undef $repo;
     undef $pool;
+    if ($path =~ /\.tar$/ && ! -f $path && !$BSStdServer::isajax) {
+      return getbinary_info($cgi, $projid, $repoid, $arch, $path, $path) if $view eq 'fileinfo' || $view eq 'fileinfo_ext';
+      return undef if BSRepServer::Containertar::reply_container($path);
+    }
     die("404 $bin: $!\n") unless -f $path;
   }
   BSWatcher::serialize_end($serial) if defined $serial;
   forwardevent($cgi, 'scanrepo', $projid, undef, $repoid, $arch) if $needscan;
-  return getbinary_info($cgi, $projid, $repoid, $arch, $path) if $view eq 'fileinfo' || $view eq 'fileinfo_ext';
+  return getbinary_info($cgi, $projid, $repoid, $arch, $path, $path) if $view eq 'fileinfo' || $view eq 'fileinfo_ext';
   die("unknown view '$view'\n") if $view;
   my $type = 'application/octet-stream';
   $type = 'application/x-rpm' if $path=~ /\.rpm$/;
@@ -1291,9 +1374,13 @@ sub getbinary {
     @bins = filtersources(@bins);
     die("404 $bin: No such file or directory\n") unless grep {$_ eq $bin} @bins;
   }
-  die("404 $bin: $!\n") unless -f $path;
   my $view = $cgi->{'view'} || '';
-  return getbinary_info($cgi, $projid, $repoid, $arch, $path) if $view eq 'fileinfo' || $view eq 'fileinfo_ext';
+  if ($path =~ /\.tar$/ && ! -f $path) {
+    return getbinary_info($cgi, $projid, $repoid, $arch, $bin, $path) if $view eq 'fileinfo' || $view eq 'fileinfo_ext';
+    return undef if BSRepServer::Containertar::reply_container($path);
+  }
+  die("404 $bin: $!\n") unless -f $path;
+  return getbinary_info($cgi, $projid, $repoid, $arch, $bin, $path) if $view eq 'fileinfo' || $view eq 'fileinfo_ext';
   die("unknown view '$view'\n") if $view;
   my $type = 'application/octet-stream';
   $type = 'application/x-rpm' if $path=~ /\.rpm$/;
@@ -1814,6 +1901,10 @@ sub receivekiwitree {
     die("bad file '$file' (contains \\0)\n") if $file =~ /\0/s;
     die("already processed: $file\n") if $done{$file};
     die("bad file '$file'\n") if "/$file/" =~ /\/\.{0,2}\//s;
+    if ($file !~ /\//s) {
+      die("toplevel files must be directories\n") if $type ne 'd';
+      die("illegal toplevel directory\n") if $file =~ /^[_\.]/s;
+    }
     if ($file =~ /^(.*)\//s) {
       die("file without directory\n") unless $done{$1} && $done{$1} eq 'd';
     }
@@ -1986,6 +2077,36 @@ sub putjob {
     }
   }
 
+  # make sure there are no illegal files
+  eval {
+    for my $file (@$uploaded) {
+      my $name = $file->{'name'};
+      die("job contains an illegal file\n") if $name =~ /\.obsbinlnk$/s;
+      die("job contains an illegal file\n") if $name =~ /^_blob\./s;
+    }
+  };
+  if ($@) {
+    my $err = $@;
+    BSUtil::cleandir($tmpdir);
+    rmdir($tmpdir);
+    die($err);
+  }
+
+  # normalize containers
+  for my $file (@$uploaded) {
+    my $containerinfofile = $file->{'name'};
+    next unless $containerinfofile =~ /(.*)\.containerinfo$/;
+    my $container = "$1.tar";
+    next unless -f "$tmpdir/$container";
+    eval {
+      # check that the containerinfo is well formed
+      BSRepServer::Containerinfo::readcontainerinfo($tmpdir, $containerinfofile);
+      # now do the rewrite
+      BSRepServer::Containertar::normalize_container($tmpdir, $container, 1, 1);
+    };
+    warn($@) if $@;
+  }
+
   # now get the lock again
   my $jobstatus;
   my $kiwitree_tosign;
@@ -1997,7 +2118,6 @@ sub putjob {
     die("different jobid\n") if $jobstatus->{'jobid'} ne $jobid;
     die("job is not building\n") if $jobstatus->{'code'} ne 'building';
     die("job is building on a different worker\n") if $jobstatus->{'workerid'} ne $oldjobstatus->{'workerid'} || $jobstatus->{'starttime'} ne $oldjobstatus->{'starttime'};
-    die("job contains an illegal file\n") if grep {$_->{'name'} =~ /\.obsbinlnk$/s} @$uploaded;
     if (!@$uploaded && -e $dir) {
       # local image building hack
       rmdir($tmpdir);
@@ -2900,6 +3020,7 @@ sub getbuildinfo_post {
       $packid =~ /^(.*):(.*?)$/;
       $bconf->{'obspackage'} = $1;
       $bconf->{'buildflavor'} = $2;
+      undef $packid if $1 eq '_repository';
     }
   }
   my $d = Build::parse_typed($bconf, $fn, $bconf->{'type'});

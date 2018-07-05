@@ -1,0 +1,68 @@
+ <% 
+   problems = project.failed_openqa_jobs.map do |j|
+     content_tag(:li, "QA: #{render(template: 'webui/obs_factory/openqa_jobs/_openqa_job', locals: { openqa_job: j })}".html_safe, class: "openqa_job")
+   end
+-%>
+
+<%# Failed packages are grouped by name %>
+<% failed_packages = {} %>
+<% other_broken_packages = [] %>
+<% project.broken_packages.each do |pack|
+  name = pack['package']
+  if pack['state'] == 'failed'
+    version = {arch: pack['arch'], project: pack['project']}
+    if failed_packages[name]
+      failed_packages[name][:versions] << version
+    else
+      failed_packages[name] = {repository: pack['repository'], versions: [version]}
+    end
+  else
+    other_broken_packages << {name: pack['package'], state: pack['state'], project: pack['project'] }
+  end
+end -%>
+
+<% problems += failed_packages.map do |name, attrs|
+  versions = attrs[:versions].map do |v|
+    link_to(v[:arch], main_app.package_live_build_log_url(v.merge(package: name, repository: attrs[:repository])))
+  end
+  label = "Build failed #{name} (" + versions.join(", ") + ")"
+  content_tag(:li, label.html_safe, class: "failed_pkg status_failed")
+end -%>
+
+<% problems += other_broken_packages.map do |pack|
+  st = pack[:state]
+  name = pack[:name]
+  label = "Build #{st}: #{name}"
+  content_tag(:li, link_to(label.html_safe, main_app.package_show_url(pack[:project], name)), class: "failed_pkg status_#{st}")
+end -%>
+
+<% if problems.empty? %>
+  <i class='fa-check-circle fa fa-2x ok-checkbox'></i>
+<% else %>
+  <ul class='problem_list'>
+    <%- problems.sort! -%>
+    <%- max = 5 -%>
+    <%- count = problems.size -%>
+    <% if count <= max+1 # Prevent the "1 more" link %>
+      <% problems.each do |p| %>
+        <%= p %>
+      <% end %>
+    <% else %>
+      <% problems[0,max].each do |p| %>
+        <%= p %>
+      <% end %>
+      <%- name = project.letter %>
+      <li>
+        <%= link_to "...#{count - max} more problems", "#", class: "staging_expand staging_#{name}", data: {name: name} %>
+      </li>
+      <div class="staging_collapsible staging_<%= name %>" style="display:none">
+        <% problems[max..-1].each do |p| %>
+          <%= p %>
+        <% end %>
+        <li>
+          <%= link_to "collapse", "#", class: "staging_collapse staging_#{name}", data: {name: name} %>
+        </li>
+      </div>
+    <% end %>
+  </ul>
+<% end %>

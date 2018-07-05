@@ -48,9 +48,7 @@ namespace :db do
         raise "Task not supported by '#{abcs[Rails.env]['adapter']}'"
       end
 
-      if ActiveRecord::Base.connection.supports_migrations?
-        structure << ActiveRecord::Base.connection.dump_schema_information
-      end
+      structure << ActiveRecord::Base.connection.dump_schema_information
 
       structure.gsub!(%r{AUTO_INCREMENT=[0-9]* }, '')
       structure.gsub!('auto_increment', 'AUTO_INCREMENT')
@@ -62,7 +60,7 @@ namespace :db do
       constraints = []
       added_comma = false
       structure.each_line do |line|
-        if line =~ /[ ]*CONSTRAINT/
+        if /[ ]*CONSTRAINT/.match?(line)
           unless line.end_with?(",\n")
             added_comma = true
             line = line[0..-2] + ",\n"
@@ -142,7 +140,7 @@ namespace :db do
     # to nullable TEXT or BLOB fields if no specific default is provided.
     # https://mariadb.com/kb/en/library/show-create-table/
     # TODO: drop this line when we drop support for Mariadb < 10.2.2 (SLE12 & Leap 42.3)
-    structure.gsub!(/(`\w*` (medium)*text [\w* ]*) DEFAULT NULL,/, '\1,')
+    structure.gsub!(/(`\w*` (medium)*text\s*[\w* ]*) DEFAULT NULL,/, '\1,')
     File.open("#{Rails.root}/db/structure.sql", 'w+') { |f| f << structure }
   end
 end

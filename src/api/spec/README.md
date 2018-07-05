@@ -144,14 +144,6 @@ Attention: Faker generates random but **NOT** unique data!
 
 ### Backend responses
 
-If you require a response from the OBS backend for your new test you need to
-start it with
-
-```
-docker-compose run --rm frontend bundle exec rake db:fixtures:load RAILS_ENV=test
-docker-compose run --rm frontend script/start_test_backend
-```
-
 We use [VCR](https://github.com/vcr/vcr) to record the response from the backend.
 VCR records the HTTP interactions with the backend and replays them during future test runs for fast, deterministic, accurate tests.
 Once your test ran successfully for the first time [VCR](https://github.com/vcr/vcr) will have recorded a new cassette (a simple yml file) in `spec/cassettes`.
@@ -187,23 +179,18 @@ You should only use shared examples where you have the exact same functionality 
 Otherwise these tests get fast hard to refactor and review.
 In our experience, shared examples are used mainly for controllers. Since models are pretty different from each other, they (usually) do not share much logic.
 
-### Travis
-We use [travis-ci](https://travis-ci.org/) for continues integration.
+### Continuous Integration
+We use [travis-ci](https://travis-ci.org/) and [CircleCI](https://circleci.com) for continuous integration.
 
 #### Setup
-As travis-ci runs on an Ubuntu machine, we need to add the OBS repository and install some OBS specific Ubuntu packages first.
-We do this in [dist/ci/obs_testsuite_travis_install.sh](https://github.com/openSUSE/open-build-service/blob/master/dist/ci/obs_testsuite_travis_install.sh).
-You can find the Ubuntu specific packages in this repository [http://download.opensuse.org/repositories/OBS:/Server:/Unstable/xUbuntu_12.04/](http://download.opensuse.org/repositories/OBS:/Server:/Unstable/xUbuntu_12.04/).
-We do not package the rubygems for Ubuntu, instead we use bundler to install them.
+In both services we use docker containers for running our tests. The docker containers are built with OBS in the container subprojects of [O:S:U](https://build.opensuse.org/project/subprojects/OBS:Server:Unstable) (e.g. https://build.opensuse.org/project/show/OBS:Server:Unstable:container:SLE12:SP3). With this approach we can test on our supported platforms like openSUSE or SLE and easily migrate to new platforms if necessary.
 
-#### Skipped tests
-Some tests we run only on SUSE/openSUSE systems due to significant package differences to other distributions.
-However, travis-ci runs on an Ubuntu machine.
-To find out which tests we skip, you can ```grep``` for:
+More information about the setup can be found in our wiki [here](https://github.com/openSUSE/open-build-service/wiki/Development-Environment-Overview) and [here](https://github.com/openSUSE/open-build-service/wiki/Development-Environment-Tips-&-Tricks).
 
-```
-fillup-templates
-```
+#### Flaky tests
+Sometimes a feature test is flaky and it fails the first run. This is especially a problem in the package build in OBS as the test suite run is significant longer as it is not parallelized. As a workaround we use [rspec-retry](https://github.com/NoRedInk/rspec-retry) which runs a test again if it fails.
+
+However, it should be desired to fix the test that it always succeeds. Therefore you need to flag the test with ``retry: 3``, otherwise rspec-retry will not run the test again. In the package build, we always retry feature tests.
 
 ### Migrating tests
 When migrating tests from the old minitest based suite to rspec, please add the
@@ -212,6 +199,9 @@ file path of the new one to every test covered.
 ### Untested methods
 When you work on the test suite and you notice a method or part of a feature that
 is not tested please add a test for it.
+
+### Bootstrap theming
+As we are in the progress of migrating our views to a new bootstrap based theming, we currently run our feature tests twice (we do not have view tests). In CircleCI we run the feature tests one time with bootstrap enabled and one time disabled (regardless of the logged in user). Sometimes it can happen that a feature test fails with the bootstrap enabled. The desired solution should be to update the feature test that it works with and without bootstrap. If this is not easily possible, you have the possibility to skip this test for bootstrap by adding ```skip_if_bootstrap``` to the first line of the spec. After that, you should copy over the test to the ```spec/bootstrap/features``` directory and adapt it as necessary.
 
 ## Better Specs
 As a set of "rules" to follow in our specs we use [BetterSpecs.org](http://betterspecs.org/).

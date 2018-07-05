@@ -22,11 +22,6 @@
 # dispatch table.
 #
 
-# global variables:
-#   *MS   - master socket
-#   *CLNT - client socket
-#   *LCK  - lock for exclusive access to *MS
-
 package BSServer;
 
 use Data::Dumper;
@@ -35,15 +30,13 @@ use Socket;
 use POSIX;
 use Fcntl qw(:DEFAULT :flock);
 BEGIN { Fcntl->import(':seek') unless defined &SEEK_SET; }
-use Symbol;
 
 use BSHTTP;
 use BSUtil;
 
 use strict;
 
-my $server;
-my $MS2;	# secondary server port
+my $server;		# FIXME: just one server?
 my $serverstatus_ok;
 
 our $request;		# FIXME: should not be global
@@ -63,7 +56,7 @@ sub deamonize {
 }
 
 sub serveropen {
-  # creates MS (=master socket) socket
+  # creates master socket
   # 512 connections in the queue maximum
   # $port:
   #     reference              - port is assigned by system and is returned using this reference
@@ -80,8 +73,9 @@ sub serveropen {
   } else {
     @ports = split(',', $port, 2);
   }
-  my $s = \*MS;
+  my @sock;
   for $port (@ports) {
+    my $s;
     if (!ref($port) && $port =~ /^&/) {
       open($s, "<$port") || die("socket open: $!\n");
     } else {
@@ -95,15 +89,17 @@ sub serveropen {
       }
     }
     listen($s , 512) || die "listen: $!\n";
-    $s = \*MS2 if @ports > 1;
-    $MS2 = \*MS2 if @ports > 1;
+    push @sock, $s;
   }
   BSUtil::drop_privs_to($user, $group);
   $server = { 'starttime' => time() };
+  $server->{'socket'} = $sock[0];
+  $server->{'socket2'} = $sock[1] if $sock[1];
+  return $server;
 }
 
 sub serveropen_unix {
-  # creates MS (=master socket) socket
+  # creates master socket
   # 512 connections in the queue maximum
   # creates named socket according to $filename
   # race-condition safe (locks)
@@ -114,43 +110,46 @@ sub serveropen_unix {
 
   # we need a lock for exclusive socket access
   mkdir_p($1) if $filename =~ /^(.*)\//;
-  open(LCK, '>', "$filename.lock") || die("$filename.lock: $!\n");
-  flock(LCK, LOCK_EX | LOCK_NB) || die("$filename: already in use\n");
-  socket(MS, PF_UNIX, SOCK_STREAM, 0) || die("socket: $!\n");
+  my $lck;
+  open($lck, '>', "$filename.lock") || die("$filename.lock: $!\n");
+  flock($lck, LOCK_EX | LOCK_NB) || die("$filename: already in use\n");
+  my $sock;
+  socket($sock, PF_UNIX, SOCK_STREAM, 0) || die("socket: $!\n");
   unlink($filename);
-  bind(MS, sockaddr_un($filename)) || die("bind: $!\n");
-  listen(MS , 512) || die "listen: $!\n";
+  bind($sock, sockaddr_un($filename)) || die("bind: $!\n");
+  listen($sock , 512) || die "listen: $!\n";
+  $server = { 'starttime' => time() };
+  $server->{'socket'} = $sock;
+  $server->{'lock'} = $lck;
+  return $server;
 }
 
 sub getserverlock {
-  return *LCK;
+  return $server->{'lock'};
 }
 
 sub getserversocket {
-  return *MS;
+  return $server->{'socket'};
 }
 
 sub getserversocket2 {
-  return $MS2;
+  return $server->{'socket2'};
 }
 
 sub setserversocket {
-  if (defined($_[0])) {
-    (*MS) = @_;
-  } else {
-    undef *MS;
-  }
+  $server->{'socket'} = $_[0];
 }
 
 sub serverclose {
-  close MS;
-  close $MS2 if $MS2;
-  undef $MS2;
+  close $server->{'socket'} if $server->{'socket'};
+  close $server->{'socket2'} if $server->{'socket2'};
+  close $server->{'lock'} if $server->{'lock'};
   undef $server;
 }
 
 sub getsocket {
-  return *CLNT;
+  my $req = $BSServer::request || {};
+  return $req->{'__socket'};
 }
 
 sub setsocket {
@@ -159,14 +158,13 @@ sub setsocket {
   my $req = $BSServer::request || {};
   $req->{'peer'} = 'unknown';
   delete $req->{'peerport'};
-  if (defined($_[0])) {
-    (*CLNT) = @_;
-  } else {
-    undef *CLNT;
+  if (!defined($_[0])) {
+    delete $req->{'__socket'};
     return;
   }
+  $req->{'__socket'} = $_[0];
   eval {
-    my $peername = getpeername(CLNT);
+    my $peername = getpeername($req->{'__socket'});
     if ($peername) {
       my ($peerport, $peera);
       ($peerport, $peera) = sockaddr_in($peername);
@@ -266,6 +264,9 @@ sub server {
     $serverstatus_ok = 1;
   }
 
+  my $clnt;
+  my $sock = $server->{'socket'};
+  my $sock2 = $server->{'socket2'};
   while (1) {
     my $tout = $timeout || 5;	# reap every 5 seconds
     if ($conf->{'periodic'}) {
@@ -278,29 +279,30 @@ sub server {
       }
       $tout = $due if $tout > $due;
     }
-    # listen on MS until there is an incoming connection
+    # listen on socket until there is an incoming connection
     my $rin = '';
-    if ($MS2) {
-      vec($rin, fileno(MS), 1) = 1 if !defined($maxchild) || keys(%chld) < $maxchild;
-      vec($rin, fileno($MS2), 1) = 1 if !defined($maxchild2) || keys(%chld2) < $maxchild2;
+    if ($sock2) {
+      vec($rin, fileno($sock), 1) = 1 if !defined($maxchild) || keys(%chld) < $maxchild;
+      vec($rin, fileno($sock2), 1) = 1 if !defined($maxchild2) || keys(%chld2) < $maxchild2;
     } else {
-      vec($rin, fileno(MS), 1) = 1;
+      vec($rin, fileno($sock), 1) = 1;
     }
     my $r = select($rin, undef, undef, $tout);
     if (!defined($r) || $r == -1) {
       die("select: $!\n") unless $! == POSIX::EINTR;
       $r = undef;
     }
-    # now we know there is a connection on MS waiting to be accepted
+    # now we know there is a connection on a socket waiting to be accepted
     my $pid;
     if ($r) {
       my $chldp = \%chld;
-      if ($MS2 && !vec($rin, fileno(MS), 1)) {
+      undef $clnt;
+      if ($sock2 && !vec($rin, fileno($sock), 1)) {
         $chldp = \%chld2;
-        $peeraddr = accept(CLNT, $MS2);
+        $peeraddr = accept($clnt, $sock2);
 	$group = 1;
       } else {
-        $peeraddr = accept(CLNT, MS);
+        $peeraddr = accept($clnt, $sock);
 	$group = 0;
       }
       next unless $peeraddr;
@@ -309,18 +311,19 @@ sub server {
 	last if $pid == 0;	# child
 	$chldp->{$pid} = $slot;
       }
-      close CLNT;
+      close $clnt;
+      undef $clnt;
     }
 
     # log if we reached the maxchild limit
-    if (defined($maxchild) && $chld_full != (keys(%chld) >= $maxchild ? 1 : 0)) {
-      if (!$chld_full || !vec($rin, fileno(MS), 1)) {
+    if ($sock && defined($maxchild) && $chld_full != (keys(%chld) >= $maxchild ? 1 : 0)) {
+      if (!$chld_full || !vec($rin, fileno($sock), 1)) {
         $chld_full = $chld_full ? 0 : 1;
         maxchildreached('maxchild', 0, $chld_full, $chld_full_data);
       }
     }
-    if ($MS2 && defined($maxchild2) && $chld2_full != (keys(%chld2) >= $maxchild2 ? 1 : 0)) {
-      if (!$chld2_full || !vec($rin, fileno($MS2), 1)) {
+    if ($sock2 && defined($maxchild2) && $chld2_full != (keys(%chld2) >= $maxchild2 ? 1 : 0)) {
+      if (!$chld2_full || !vec($rin, fileno($sock2), 1)) {
         $chld2_full = $chld2_full ? 0 : 1;
         maxchildreached('maxchild2', 1, $chld2_full, $chld2_full_data);
       }
@@ -331,7 +334,7 @@ sub server {
     while (1) {
       my $hang = 0;
       $hang = POSIX::WNOHANG if !defined($maxchild) || keys(%chld) < $maxchild;
-      $hang = POSIX::WNOHANG if $MS2 && (!defined($maxchild2) || keys(%chld2) < $maxchild2);
+      $hang = POSIX::WNOHANG if $sock2 && (!defined($maxchild2) || keys(%chld2) < $maxchild2);
       $pid = waitpid(-1, $hang);
       last unless $pid > 0;
       my $slot = delete $chld{$pid};
@@ -352,17 +355,19 @@ sub server {
   }
 
   # from now on, this is only the child process
-  close MS;
-  if ($MS2) {
-    close $MS2;
-    undef $MS2;
-  }
+  close $server->{'socket'} if $server->{'socket'};
+  close $server->{'socket2'} if $server->{'socket2'};
+  close $server->{'lock'} if $server->{'lock'};
+  delete $server->{'socket'};
+  delete $server->{'socket2'};
+  delete $server->{'lock'};
   my $req = {
     'peer' => 'unknown',
     'conf' => $conf,
     'server' => $server,
     'starttime' => time(),
     'group' => $group,
+    '__socket' => $clnt,
   };
   if ($serverstatus_ok) {
     # reopen so that we do not share the file offset
@@ -384,7 +389,7 @@ sub server {
     $req->{'peer'} = inet_ntoa($peera);
   };
 
-  setsockopt(CLNT, SOL_SOCKET, SO_KEEPALIVE, pack("l",1)) if $conf->{'setkeepalive'};
+  setsockopt($clnt, SOL_SOCKET, SO_KEEPALIVE, pack("l",1)) if $conf->{'setkeepalive'};
 
   # run the accept hook if configured
   if ($conf->{'accept'}) {
@@ -418,21 +423,19 @@ sub server {
   };
   return @{$req->{'returnfromserver'}} if $req->{'returnfromserver'} && !$@;
   reply_error($conf, $@) if $@;
-  close CLNT;
+  close $clnt;
+  undef $clnt;
+  delete $req->{'__socket'};
   log_slow_requests($conf, $req) if $conf->{'slowrequestlog'};
   exit(0);
 }
 
 sub msg {
   my $peer = ($BSServer::request || {})->{'peer'};
-  if (defined($peer)) {
-    BSUtil::printlog("$peer: $_[0]");
-  } else {
-    BSUtil::printlog($_[0]);
-  }
+  BSUtil::printlog(defined($peer) ? "$peer: $_[0]" : $_[0]);
 }
 
-# write reply to CLNT
+# write reply to client
 # $str: reply string
 # @hdrs: http header lines, 1st line can contain status
 sub reply {
@@ -467,17 +470,18 @@ sub reply {
     eval { discard_body() };
   }
 
+  my $clnt = $req->{'__socket'};
   # work around linux tcp implementation problem, the read side
   # must be empty otherwise a tcp-reset is done when we close
   # the socket, leading to data loss
-  fcntl(CLNT, F_SETFL,O_NONBLOCK);
+  fcntl($clnt, F_SETFL, O_NONBLOCK);
   my $dummy = '';
-  1 while sysread(CLNT, $dummy, 1024, 0);
-  fcntl(CLNT, F_SETFL,0);
+  1 while sysread($clnt, $dummy, 1024, 0);
+  fcntl($clnt, F_SETFL, 0);
 
   my $l;
   while (length($data)) {
-    $l = syswrite(CLNT, $data, length($data));
+    $l = syswrite($clnt, $data, length($data));
     die("write error: $!\n") unless $l;
     $req->{'replying'} = 1;
     $data = substr($data, $l);
@@ -531,7 +535,7 @@ sub reply_error  {
     }
   };
   my $reply_err = $@;
-  close CLNT;
+  done(1);
   my $req = $BSServer::request || {};
   $req->{'statuscode'} ||= $code;
   log_slow_requests($conf, $req) if $conf->{'slowrequestlog'};
@@ -544,12 +548,16 @@ sub reply_error  {
 
 sub done {
   my ($noexit) = @_;
-  close CLNT;
+  my $req = $BSServer::request || {};
+  my $sock = delete $req->{'__socket'};
+  close($sock) if $sock;
   exit(0) unless $noexit;
 }
 
 sub getpeerdata {
-  my $peername = getpeername(CLNT);
+  my $req = $BSServer::request || {};
+  return (undef, undef) unless defined $req->{'__socket'};
+  my $peername = getpeername($req->{'__socket'});
   return (undef, undef) unless $peername;
   my ($port, $addr) = sockaddr_in($peername);
   $addr = inet_ntoa($addr) if $addr;
@@ -560,13 +568,14 @@ sub readrequest {
   my ($req) = @_;
   my $qu = '';
   my $request;
+  my $clnt = $req->{'__socket'};
   # read first query line
   while (1) {
     if ($qu =~ /^(.*?)\r?\n/s) {
       $request = $1;
       last;
     }
-    die($qu eq '' ? "empty query\n" : "received truncated query\n") if !sysread(CLNT, $qu, 1024, length($qu));
+    die($qu eq '' ? "empty query\n" : "received truncated query\n") if !sysread($clnt, $qu, 1024, length($qu));
   }
   my ($act, $path, $vers, undef) = split(' ', $request, 4);
   my $rawheaders;
@@ -575,7 +584,7 @@ sub readrequest {
     die("501 Bad method: $act\n") if $act ne 'GET' && $act ne 'HEAD' && $act ne 'POST' && $act ne 'PUT' && $act ne 'DELETE' && $act ne 'PATCH';
     # read in all headers
     while ($qu !~ /^(.*?)\r?\n\r?\n(.*)$/s) {
-      die("501 received truncated query\n") if !sysread(CLNT, $qu, 1024, length($qu));
+      die("501 received truncated query\n") if !sysread($clnt, $qu, 1024, length($qu));
     }
     $qu =~ /^(.*?)\r?\n\r?\n(.*)$/s;	# redo regexp to work around perl bug
     $qu = $2;
@@ -613,7 +622,7 @@ sub readrequest {
       send_continue() if $req->{'need_continue'};
       my $cl = $headers{'content-length'} || 0;
       while (length($qu) < $cl) {
-        sysread(CLNT, $qu, $cl - length($qu), length($qu)) || die("400 Truncated body\n");
+        sysread($clnt, $qu, $cl - length($qu), length($qu)) || die("400 Truncated body\n");
       }
       $query_string .= '&' if $cl && $query_string ne '';
       $query_string .= substr($qu, 0, $cl);
@@ -625,7 +634,8 @@ sub readrequest {
 }
 
 sub swrite {
-  BSHTTP::swrite(\*CLNT, @_);
+  my $req = $BSServer::request || {};
+  BSHTTP::swrite($req->{'__socket'}, @_);
 }
 
 sub header {
@@ -649,9 +659,10 @@ sub get_content_type {
 sub send_continue {
   my $req = $BSServer::request;
   return unless delete $req->{'need_continue'};
+  my $clnt = $req->{'__socket'};
   my $data = "HTTP/1.1 100 continue\r\n\r\n";
   while (length($data)) {
-    my $l = syswrite(CLNT, $data, length($data));
+    my $l = syswrite($clnt, $data, length($data));
     die("write error: $!\n") unless $l;
     $data = substr($data, $l);
   }
@@ -670,7 +681,6 @@ sub read_file {
   die("read_file: no content attached\n") unless have_content();
   my $req = $BSServer::request;
   send_continue() if $req->{'need_continue'};
-  local $req->{'__socket'} = \*CLNT;
   return BSHTTP::file_receiver($req, {'filename' => $filename, @args});
 }
 
@@ -679,7 +689,6 @@ sub read_cpio {
   die("read_cpio: no content attached\n") unless have_content();
   my $req = $BSServer::request;
   send_continue() if $req->{'need_continue'};
-  local $req->{'__socket'} = \*CLNT;
   return BSHTTP::cpio_receiver($req, {'directory' => $dirname, @args});
 }
 
@@ -688,19 +697,25 @@ sub read_data {
   die("read_data: no content attached\n") unless have_content();
   my $req = $BSServer::request;
   send_continue() if $req->{'need_continue'};
-  local $req->{'__socket'} = \*CLNT;
   return BSHTTP::read_data($req, $maxl, $exact);
 }
 
 ###########################################################################
 
+sub reply_stream {
+  my ($sender, $param, @hdrs) = @_;
+  my $chunked = $param->{'chunked'};
+  my $req = $BSServer::request || {};
+  reply(undef, @hdrs); 
+  $req->{'replying'} = 2 if $chunked;
+  $sender->($param, $req->{'__socket'});
+  swrite("0\r\n\r\n") if $chunked;
+}
+
 sub reply_cpio {
   my ($files, @hdrs) = @_;
-  my $req = $BSServer::request || {};
-  reply(undef, 'Content-Type: application/x-cpio', 'Transfer-Encoding: chunked', @hdrs);
-  $req->{'replying'} = 2;
-  BSHTTP::cpio_sender({'cpiofiles' => $files, 'chunked' => 1}, \*CLNT);
-  swrite("0\r\n\r\n");
+  my $param = {'cpiofiles' => $files, 'chunked' => 1, 'collecterrors' => '.errors'};
+  reply_stream(\&BSHTTP::cpio_sender, $param, 'Content-Type: application/x-cpio', 'Transfer-Encoding: chunked', @hdrs);
 }
 
 sub reply_file {
@@ -712,7 +727,7 @@ sub reply_file {
   if (!$cl && !$chunked) {
     # detect file size
     if (!ref($file)) {
-      my $fd = gensym;
+      my $fd;
       open($fd, '<', $file) || die("$file: $!\n");
       $file = $fd;
     }
@@ -726,19 +741,15 @@ sub reply_file {
     }
   }
   unshift @hdrs, 'Content-Type: application/octet-stream' unless grep {/^content-type:/i} @hdrs;
-  reply(undef, @hdrs);
-  $req->{'replying'} = 2 if $chunked;
   my $param = {'filename' => $file};
   $param->{'bytes'} = $1 if $cl && $cl =~ /(\d+)/;	# limit to content length
   $param->{'chunked'} = 1 if $chunked;
-  BSHTTP::file_sender($param, \*CLNT);
-  swrite("0\r\n\r\n") if $chunked;
+  reply_stream(\&BSHTTP::file_sender, $param, @hdrs);
 }
 
 sub reply_receiver {
   my ($req, $param) = @_;
 
-  my $replyreq = $BSServer::request || {};
   my $hdr = $req->{'headers'};
   $param->{'reply_receiver_called'} = 1;
   my $st = $hdr->{'status'};
@@ -754,14 +765,9 @@ sub reply_receiver {
   if ($param->{'reply_receiver_forward_hdrs'}) {
     push @hdrs, BSHTTP::forwardheaders($req, 'status', 'content-type', 'content-length', 'transfer-encoding', 'cache-control', 'connection');
   }
-  reply(undef, @hdrs);
-  $replyreq->{'replying'} = 2 if $chunked;
-  while(1) {
-    my $data = BSHTTP::read_data($req, 8192);
-    last unless defined($data) && $data ne '';
-    swrite($data, $chunked);
-  }
-  swrite("0\r\n\r\n") if $chunked;
+  my $reply_param = {'reply_req' => $req};
+  $reply_param->{'chunked'} = 1 if $chunked;
+  reply_stream(\&BSHTTP::reply_sender, $reply_param, @hdrs);
 }
 
 ###########################################################################

@@ -15,6 +15,7 @@ services:
       - ./dist/aws_credentials:/etc/obs/cloudupload/.aws/config
       - ./dist/ec2utils.conf:/etc/obs/cloudupload/.ec2utils.conf
       - ./dist/clouduploader.rb:/usr/bin/clouduploader
+    command: /obs/contrib/start_development_backend -d /obs
   worker:
     image: openbuildservice/backend
     volumes:
@@ -25,6 +26,7 @@ services:
     command: /obs/contrib/start_development_worker
   frontend:
     image: openbuildservice/frontend
+    command: foreman start -p 3000
     build:
       dockerfile: docker-files/Dockerfile
       context: src/api

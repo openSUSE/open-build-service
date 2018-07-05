@@ -26,6 +26,7 @@ use JSON::XS ();
 use Digest::SHA ();
 use Digest::MD5 ();
 use Compress::Zlib ();
+use POSIX;
 
 use BSUtil;
 use BSTar;
@@ -36,54 +37,90 @@ sub checksum_entry {
   my ($ent, $ctx) = @_;
   my $offset = 0;
   while (1) {
-    my $chunk = BSTar::extract($ent->{'handle'}, $ent, $offset, 65536);
+    my $chunk = BSTar::extract($ent->{'file'}, $ent, $offset, 65536);
     last unless length($chunk);
     $ctx->add($chunk);
     $offset += length($chunk);
   }
 }
 
-sub compress_entry_obs_gzip_go {
-  my ($ent) = @_;
-  my $tmp;
-  open($tmp, '+>', undef) || die;
-  local *F;
-  my $pid = open(F, '|-');
-  die("fork: $!\n") unless defined $pid;
-  if (!$pid) {
-    open(STDOUT, "+>&", $tmp) || die("stdin dup\n");
-    exec('/usr/bin/obs-gzip-go');
-    die("/usr/bin/obs-gzip-go: $!\n");
-  }
-  my $offset = 0;
-  while (1) {
-    my $chunk = BSTar::extract($ent->{'handle'}, $ent, $offset, 65536);
-    last unless length($chunk);
-    print F $chunk or die("compress_entry_obs_gzip_go write: $!\n");
-    $offset += length($chunk);
-  }
-  close(F) or die("/usr/bin/obs-gzip-go: $?\n");
-  my $compsize = -s $tmp;
-  return { %$ent, 'offset' => 0, 'size' => $compsize, 'handle' => $tmp };
+sub comp2decompressor {
+  my ($comp) = @_;
+  return () unless defined $comp;
+  return ('gunzip') if $comp eq 'gzip';
+  return ('bunzip2') if $comp eq 'gzip2';
+  return ('xzdec') if $comp eq 'xz';
+  return ('cat') if $comp eq '';
+  return ();
 }
 
 sub compress_entry {
-  my ($ent) = @_;
-  return compress_entry_obs_gzip_go($ent) if -x '/usr/bin/obs-gzip-go';
-  my ($tmp, $tmp2);
+  my ($ent, $oldcomp) = @_;
+
+  my @compressor = ('zlib');
+  @compressor = ('/usr/bin/obs-gzip-go') if -x '/usr/bin/obs-gzip-go';
+
+  my @decompressor;
+  $oldcomp = detect_entry_compression($ent) unless defined $oldcomp;
+  if ($oldcomp) {
+    @decompressor = comp2decompressor($oldcomp);
+    die("unknown compression $oldcomp\n") unless @decompressor;
+  }
+
+  my $tmp;
   open($tmp, '+>', undef) || die;
-  open($tmp2, "+>&", $tmp) || die;      # gzclose closes the file, grr...
-  my $gz = Compress::Zlib::gzopen($tmp2, 'w') ;
+
+  # setup compressor
+  local *F;
+  my $pid = open(F, '|-');
+  die("compressor fork: $!\n") unless defined $pid;
+  if (!$pid) {
+    if ($compressor[0] eq 'zlib') {
+      my $gz = Compress::Zlib::gzopen($tmp, 'w') ;
+      while (1) {
+	my $chunk;
+	my $r = sysread(STDIN, $chunk, 8192);
+	die("read error: $!\n") unless defined $r;
+	last unless $r;
+        $gz->gzwrite($chunk) || die("gzwrite failed\n");
+      }
+      $gz->gzclose() && die("gzclose failed\n");
+      POSIX::_exit(0);
+    }
+    open(STDOUT, "+>&", $tmp) || die("stdin dup\n");
+    exec(@compressor);
+    die("$compressor[0]: $!\n");
+  }
+
+  # setup decompressor if needed
+  local *G;
+  my $pid2;
+  if ($oldcomp) {
+    $pid2 = open(G, '|-');
+    die("decompressor fork: $!\n") unless defined $pid2;
+    if (!$pid2) {
+      close($tmp);
+      open(STDOUT, "+>&F") || die("decompress stdin dup\n");
+      exec(@decompressor);
+      die("$decompressor[0]: $!\n");
+    }
+  }
+
+  # feed data
   my $offset = 0;
   while (1) {
-    my $chunk = BSTar::extract($ent->{'handle'}, $ent, $offset, 65536);
+    my $chunk = BSTar::extract($ent->{'file'}, $ent, $offset, 65536);
     last unless length($chunk);
-    $gz->gzwrite($chunk) || die("gzwrite failed\n");
+    if ($pid2) {
+      print G $chunk or die("compress_entry write: $!\n");
+    } else {
+      print F $chunk or die("compress_entry write: $!\n");
+    }
     $offset += length($chunk);
   }
-  $gz->gzclose() && die("gzclose failed\n");
-  my $compsize = -s $tmp;
-  return { %$ent, 'offset' => 0, 'size' => $compsize, 'handle' => $tmp };
+  close(G) or die("compress_entry $decompressor[0]: $?\n") if $pid2;
+  close(F) or die("compress_entry $compressor[0]: $?\n");
+  return { %$ent, 'offset' => 0, 'size' => (-s $tmp), 'file' => $tmp };
 }
 
 sub blobid_entry {
@@ -99,7 +136,7 @@ sub write_entry {
   open(F, '>', $fn) || die("$fn: $!\n");
   my $offset = 0;
   while (1) {
-    my $chunk = BSTar::extract($ent->{'handle'}, $ent, $offset, 65536);
+    my $chunk = BSTar::extract($ent->{'file'}, $ent, $offset, 65536);
     last unless length($chunk);
     print F $chunk or die("write: $!\n");
     $offset += length($chunk);
@@ -109,7 +146,7 @@ sub write_entry {
 
 sub detect_entry_compression {
   my ($ent) = @_;
-  my $head = BSTar::extract($ent->{'handle'}, $ent, 0, 6);
+  my $head = BSTar::extract($ent->{'file'}, $ent, 0, 6);
   my $comp = '';
   if (substr($head, 0, 3) eq "\x42\x5a\x68") {
     $comp = 'bzip2';
@@ -125,7 +162,7 @@ sub get_manifest {
   my ($tar) = @_;
   my $manifest_ent = $tar->{'manifest.json'};
   die("no manifest.json file found\n") unless $manifest_ent;
-  my $manifest_json = BSTar::extract($manifest_ent->{'handle'}, $manifest_ent);
+  my $manifest_json = BSTar::extract($manifest_ent->{'file'}, $manifest_ent);
   my $manifest = JSON::XS::decode_json($manifest_json);
   die("tar contains no image\n") unless @{$manifest || []};
   die("tar contains more than one image\n") unless @$manifest == 1;
@@ -139,7 +176,7 @@ sub get_config {
   die("manifest has no Config\n") unless defined $config_file;
   my $config_ent = $tar->{$config_file};
   die("File $config_file not included in tar\n") unless $config_ent;
-  my $config_json = BSTar::extract($config_ent->{'handle'}, $config_ent);
+  my $config_json = BSTar::extract($config_ent->{'file'}, $config_ent);
   my $config = JSON::XS::decode_json($config_json);
   return ($config_ent, $config);
 }
@@ -150,18 +187,75 @@ sub create_manifest_entry {
   $newmanifest{'XXXLayers'} = delete $newmanifest{'Layers'};
   my $newmanifest_json = JSON::XS->new->utf8->canonical->encode([ \%newmanifest ]);
   $newmanifest_json =~ s/(.*)XXX/$1/s;
-  my $newmanifest_ent = { 'name' => 'manifest.json', 'type' => '0', 'size' => length($newmanifest_json), 'data' => $newmanifest_json, 'mtime' => $mtime };
+  my $newmanifest_ent = { 'name' => 'manifest.json', 'size' => length($newmanifest_json), 'data' => $newmanifest_json, 'mtime' => $mtime };
   return $newmanifest_ent;
 }
 
 sub checksum_tar {
   my ($tar) = @_;
-  my $ctx = Digest::MD5->new();
+  my $md5 = Digest::MD5->new();
+  my $sha256 = Digest::SHA->new(256);
   my $size = 0;
-  my $writer = sub { $size += length($_[0]); $ctx->add($_[0]) };
+  my $writer = sub { $size += length($_[0]); $md5->add($_[0]), $sha256->add($_[0]) };
   BSTar::writetar($writer, $tar);
-  my $md5 = $ctx->hexdigest();
-  return ($md5, $size);
+  $md5 = $md5->hexdigest();
+  $sha256 = $sha256->hexdigest();
+  return ($md5, $sha256, $size);
+}
+
+sub normalize_container {
+  my ($tarfd, $recompress) = @_;
+  my @tarstat = stat($tarfd);
+  die("stat: $!\n") unless @tarstat;
+  my $mtime = $tarstat[9];
+  my $tar = BSTar::list($tarfd);
+  $_->{'file'} = $tarfd for @$tar;
+  my %tar = map {$_->{'name'} => $_} @$tar;
+  my ($manifest_ent, $manifest) = get_manifest(\%tar);
+  my ($config_ent, $config) = get_config(\%tar, $manifest);
+
+  # compress blobs
+  my %newblobs;
+  my @newlayers;
+  my $newconfig = blobid_entry($config_ent);
+  $newblobs{$newconfig} ||= $config_ent;
+  for my $layer_file (@{$manifest->{'Layers'} || []}) {
+    my $layer_ent = $tar{$layer_file};
+    die("File $layer_file not included in tar\n") unless $layer_ent;
+    my $comp = detect_entry_compression($layer_ent);
+    die("unsupported compression $comp\n") if $comp && $comp ne 'gzip';
+    if (!$comp || $recompress) {
+      if ($comp) {
+        print "recompressing $layer_ent->{'name'}... ";
+      } else {
+        print "compressing $layer_ent->{'name'}... ";
+      }
+      $layer_ent = compress_entry($layer_ent, $comp);
+      print "done.\n";
+    }   
+    my $blobid = blobid_entry($layer_ent);
+    $newblobs{$blobid} ||= $layer_ent;
+    push @newlayers, $blobid;
+  }
+
+  # create new manifest
+  my $newmanifest = { 
+    'Config' => $newconfig,
+    'RepoTags' => $manifest->{'RepoTags'},
+    'Layers' => \@newlayers,
+  };  
+  my $newmanifest_ent = create_manifest_entry($newmanifest, $mtime);
+
+  # create new tar (annotated with the file and blobid)
+  my @newtar;
+  for my $blobid (sort keys %newblobs) {
+    my $ent = $newblobs{$blobid};
+    push @newtar, {'name' => $blobid, 'mtime' => $mtime, 'offset' => $ent->{'offset'}, 'size' => $ent->{'size'}, 'file' => $ent->{'file'}, 'blobid' => $blobid};
+  }
+  $newmanifest_ent->{'blobid'} = BSContar::blobid_entry($newmanifest_ent);
+  push @newtar, $newmanifest_ent;
+
+  return (\@newtar, $mtime, $config, $newconfig);
 }
 
 1;

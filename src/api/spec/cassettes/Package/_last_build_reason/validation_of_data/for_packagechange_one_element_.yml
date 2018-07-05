@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:54 GMT
+  recorded_at: Tue, 22 May 2018 09:54:54 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>From Here to Eternity</title>
-          <description>Iste alias labore possimus vero qui.</description>
+          <title>The Wings of the Dove</title>
+          <description>Et sed vero perferendis hic enim.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>From Here to Eternity</title>
-          <description>Iste alias labore possimus vero qui.</description>
+          <title>The Wings of the Dove</title>
+          <description>Et sed vero perferendis hic enim.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:55 GMT
+  recorded_at: Tue, 22 May 2018 09:54:54 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>From Here to Eternity</title>
-          <description>Iste alias labore possimus vero qui.</description>
+          <title>The Wings of the Dove</title>
+          <description>Et sed vero perferendis hic enim.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,14 +109,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>From Here to Eternity</title>
-          <description>Iste alias labore possimus vero qui.</description>
+          <title>The Wings of the Dove</title>
+          <description>Et sed vero perferendis hic enim.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:55 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Tue, 22 May 2018 09:54:54 GMT
+recorded_with: VCR 4.0.0

@@ -22,9 +22,20 @@ use strict;
 use BSConfiguration;
 use BSRPC ':https';
 use BSUtil;
+use BSXML;
 
 my $proxy;
 $proxy = $BSConfig::proxy if defined($BSConfig::proxy);
+
+sub import_annotation {
+  my ($annotation) = @_;
+  return $annotation unless ref($annotation);
+  my %a;
+  for (qw{repo disturl buildtime}) {
+    $a{$_} = $annotation->{$_} if exists $annotation->{$_};
+  }
+  return BSUtil::toxml(\%a, $BSXML::binannotation);
+}
 
 sub addrepo_remote {
   my ($pool, $prp, $arch, $remoteproj) = @_;
@@ -44,10 +55,13 @@ sub addrepo_remote {
     my $cache = BSUtil::fromstorable($cpio{'repositorycache'}, 2);
     delete $cpio{'repositorycache'};    # free mem
     return undef unless $cache;
-    # free some unused entries to save mem
+    # postprocess entries
     for (values %$cache) {
+      # free some unused entries to save mem
       delete $_->{'path'};
       delete $_->{'id'};
+      # import annotations
+      $_->{'annotation'} = import_annotation($_->{'annotationdata'} || $_->{'annotation'}) if $_->{'annotation'};
     }
     delete $cache->{'/external/'};
     delete $cache->{'/url'};

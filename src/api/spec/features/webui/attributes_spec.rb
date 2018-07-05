@@ -3,7 +3,6 @@ require 'browser_helper'
 RSpec.feature 'Attributes', type: :feature, js: true do
   let!(:user) { create(:confirmed_user) }
   let!(:attribute_type) { create(:attrib_type) }
-  let!(:attribute) { create(:attrib, project_id: user.home_project.id) }
 
   def add_attribute_with_values(package = nil)
     visit index_attribs_path(project: user.home_project_name, package: package.try(:name))
@@ -20,7 +19,7 @@ RSpec.feature 'Attributes', type: :feature, js: true do
     fill_in 'Value', with: 'test 1', match: :first
     # Workaround to enter data into second textfield
     within('div.nested-fields:nth-of-type(2)') do
-      fill_in 'Value', with: 'test 2'
+      fill_in 'Value', with: "test\n2nd line"
     end
 
     click_button 'Save Attribute'
@@ -29,6 +28,7 @@ RSpec.feature 'Attributes', type: :feature, js: true do
   describe 'for a project without packages' do
     scenario 'add attribute with values' do
       login user
+      create(:attrib, project_id: user.home_project.id)
 
       add_attribute_with_values
       expect(page).to have_content('Attribute was successfully updated.')
@@ -36,7 +36,7 @@ RSpec.feature 'Attributes', type: :feature, js: true do
       visit index_attribs_path(project: user.home_project_name)
       tr_tds = page.all('tr.attribute-values:nth-child(3) td').map(&:text)
       expect(tr_tds[0]).to eq("#{attribute_type.namespace}:#{attribute_type.name}")
-      expect(tr_tds[1]).to eq('test 2, test 1')
+      expect(tr_tds[1]).to eq("test\n2nd line\ntest 1")
     end
 
     describe 'with values that are not allowed' do
@@ -74,12 +74,13 @@ RSpec.feature 'Attributes', type: :feature, js: true do
 
     scenario 'remove attribute' do
       login user
+      attribute = create(:attrib, project_id: user.home_project.id)
 
       visit index_attribs_path(project: user.home_project_name)
 
-      find("##{attribute.namespace}-#{attribute.name}-delete").click
-      # Pass the js confirmation dialog
-      page.evaluate_script('window.confirm = function() { return true; }')
+      accept_alert do
+        find("##{attribute.namespace}-#{attribute.name}-delete").click
+      end
       expect(page).to have_content('Attribute sucessfully deleted!')
     end
   end
@@ -98,7 +99,7 @@ RSpec.feature 'Attributes', type: :feature, js: true do
       visit index_attribs_path(project: user.home_project_name, package: package.name)
       tr_tds = page.all('tr.attribute-values:nth-child(2) td').map(&:text)
       expect(tr_tds[0]).to eq("#{attribute_type.namespace}:#{attribute_type.name}")
-      expect(tr_tds[1]).to eq('test 2, test 1')
+      expect(tr_tds[1]).to eq("test\n2nd line\ntest 1")
     end
   end
 end

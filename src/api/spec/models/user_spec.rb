@@ -23,6 +23,11 @@ RSpec.describe User do
     it { expect(create(:user)).to validate_uniqueness_of(:login).with_message('is the name of an already existing user') }
   end
 
+  context 'is_admin?' do
+    it { expect(admin_user.is_admin?).to be true }
+    it { expect(user.is_admin?).to be false }
+  end
+
   describe '#is_active?' do
     it 'returns true if user is confirmed' do
       expect(confirmed_user.is_active?).to be_truthy
@@ -100,6 +105,7 @@ RSpec.describe User do
     end
 
     it 'will have owned projects and packages' do
+      login user
       create(:attrib, attrib_type: AttribType.find_by(name: 'OwnerRootProject'), project: project_with_package)
       create(:relationship_package_user, package: project_with_package.packages.first, user: user)
       create(:relationship_project_user, project: project_with_package, user: user)
@@ -512,6 +518,37 @@ RSpec.describe User do
       subject { User.autocomplete_token('foo') }
 
       it { expect(subject).to match_array([name: 'foobar']) }
+    end
+  end
+
+  describe '.can_create_project' do
+    let(:user) { create(:confirmed_user, login: 'toni') }
+    let(:admin_user) { create(:admin_user, login: 'bierhoff') }
+    let(:maintainer) do
+      jogi = create(:confirmed_user, login: 'jogi')
+      jogi.add_globalrole(Role.where(title: 'maintainer'))
+      jogi
+    end
+
+    before do
+      allow(::Configuration).to receive(:allow_user_to_create_home_project).and_return('true')
+    end
+
+    it 'allows creating home projects' do
+      expect(user.can_create_project?(user.home_project_name)).to be true
+    end
+    it 'allows creating projects below home' do
+      expect(user.can_create_project?(user.branch_project_name('foo'))).to be true
+    end
+    it 'allows admins' do
+      expect(admin_user.can_create_project?('foo')).to be true
+    end
+    it 'considers global StaticPermission' do
+      expect(maintainer.can_create_project?('foo')).to be true
+    end
+    it 'considers parent projects' do
+      create(:project, name: 'foo', maintainer: user)
+      expect(user.can_create_project?('foo:bar')).to be true
     end
   end
 end

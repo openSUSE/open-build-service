@@ -14,7 +14,10 @@
           %td{ class: "#{attribute.namespace}-#{attribute.name}" }
             = attribute.fullname
           %td{ class: "#{attribute.namespace}-#{attribute.name}-values" }
-            = attribute.values.map(&:value).join(', ')
+            %ul
+            - attribute.values.each do |v|
+              %li
+                %pre{ style: "display: inline-flex"}= v.value
             = attribute.issues.map(&:name).join(', ')
           - unless User.current.is_nobody?
             %td

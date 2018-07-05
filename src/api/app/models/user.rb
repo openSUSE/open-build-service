@@ -423,6 +423,19 @@ class User < ApplicationRecord
     end
   end
 
+  def can_modify?(object, ignore_lock = nil)
+    case object
+    when Project
+      can_modify_project?(object, ignore_lock)
+    when Package
+      can_modify_package?(object, ignore_lock)
+    when nil
+      false
+    else
+      raise ArgumentError, "Wrong type of object: '#{object.class}' instead of Project or Package."
+    end
+  end
+
   # project is instance of Project
   def can_modify_project?(project, ignore_lock = nil)
     unless project.is_a? Project
@@ -484,6 +497,12 @@ class User < ApplicationRecord
     can_create_attribute_definition?(object)
   end
 
+  def attribute_modifier_rule_matches?(rule)
+    return false if rule.user && rule.user != self
+    return false if rule.group && !is_in_group?(rule.group)
+    true
+  end
+
   def can_create_attribute_definition?(object)
     object = object.attrib_namespace if object.is_a? AttribType
     unless object.is_a? AttribNamespace
@@ -493,49 +512,28 @@ class User < ApplicationRecord
     return true if is_admin?
 
     abies = object.attrib_namespace_modifiable_bies.includes([:user, :group])
-    abies.each do |mod_rule|
-      next if mod_rule.user && mod_rule.user != self
-      next if mod_rule.group && !is_in_group?(mod_rule.group)
-      return true
-    end
-
-    false
+    abies.any? { |rule| attribute_modifier_rule_matches?(rule) }
   end
 
-  # rubocop:disable Style/GuardClause
-  def can_create_attribute_in?(object, opts)
+  def attribute_modification_rule_matches?(rule, object)
+    return false unless attribute_modifier_rule_matches?(rule)
+    return false if rule.role && !has_local_role?(rule.role, object)
+    true
+  end
+
+  def can_create_attribute_in?(object, atype)
     if !object.is_a?(Project) && !object.is_a?(Package)
       raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}"
     end
-    raise ArgumentError, 'no namespace given' unless opts[:namespace]
-    raise ArgumentError, 'no name given' unless opts[:name]
-
-    # find attribute type definition
-    atype = AttribType.find_by_namespace_and_name!(opts[:namespace], opts[:name])
 
     return true if is_admin?
 
-    # check modifiable_by rules
     abies = atype.attrib_type_modifiable_bies.includes([:user, :group, :role])
-    if abies.empty?
-      # no rules set for attribute, just check package maintainer rules
-      if object.is_a? Project
-        return can_modify_project?(object)
-      else
-        return can_modify_package?(object)
-      end
-    else
-      abies.each do |mod_rule|
-        next if mod_rule.user && mod_rule.user != self
-        next if mod_rule.group && !is_in_group?(mod_rule.group)
-        next if mod_rule.role && !has_local_role?(mod_rule.role, object)
-        return true
-      end
-    end
-    # never reached
-    false
+    # no rules -> maintainer
+    return can_modify?(object) if abies.empty?
+
+    abies.any? { |rule| attribute_modification_rule_matches?(rule, object) }
   end
-  # rubocop:enable Style/GuardClause
 
   def can_download_binaries?(package)
     can?(:download_binaries, package)
@@ -882,7 +880,7 @@ class User < ApplicationRecord
                     'sha256crypt' => 5 }
     if deprecated_password_hash_type == 'md5'
       Digest::MD5.hexdigest(value + deprecated_password_salt)
-    elsif crypt2index.keys.include?(deprecated_password_hash_type)
+    elsif crypt2index.key?(deprecated_password_hash_type)
       value.crypt("$#{crypt2index[deprecated_password_hash_type]}$#{deprecated_password_salt}$").split('$')[3]
     end
   end

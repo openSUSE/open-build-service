@@ -5,8 +5,8 @@ require 'rantly/rspec_extensions'
 # you uncomment the next line and start a test backend.
 # CONFIG['global_write_through'] = true
 
+# rubocop:disable Metrics/BlockLength
 RSpec.describe Package, vcr: true do
-  let(:admin) { create(:admin_user) }
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:home_project) { user.home_project }
   let(:package) { create(:package, name: 'test_package', project: home_project) }
@@ -33,16 +33,6 @@ RSpec.describe Package, vcr: true do
     it 'does not call #addKiwiImport if filename ends not with kiwi.txz' do
       expect_any_instance_of(Service).not_to receive(:addKiwiImport)
       package.save_file(filename: 'foo.spec')
-    end
-  end
-
-  context 'is_admin?' do
-    it 'returns true for admins' do
-      expect(admin.is_admin?).to be true
-    end
-
-    it 'returns false for non-admins' do
-      expect(user.is_admin?).to be false
     end
   end
 
@@ -195,11 +185,48 @@ RSpec.describe Package, vcr: true do
   end
 
   describe '#service_error' do
-    context 'without error' do
-      it { expect(package_with_service.service_error).to be_nil }
+    let(:url) { "#{CONFIG['source_url']}/source/#{package_with_service.project}/#{package_with_service.name}" }
+    let(:no_error) do
+      '<directory name="package_with_service" rev="1" vrev="1" srcmd5="cf9c84e27a27dfc3e289f74fb096b42a">
+          <serviceinfo code="succeeded" xsrcmd5="ebd3257ae7a0170d10648c1a4ab4ce04" />
+          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1530259187" />
+        </directory>'
     end
-    context 'with error' do
-      it { expect(package_with_broken_service.service_error).not_to be_empty }
+    let(:running) do
+      '<directory name="package_with_service" rev="1" vrev="1" srcmd5="cf9c84e27a27dfc3e289f74fb096b42a">
+         <serviceinfo code="running" />
+        <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1526982880" />
+     </directory>'
+    end
+    let(:remote_error) do
+      '<directory name="package_with_service" rev="1" vrev="1" srcmd5="954749565ae2e0071b9cfaaa29acd2b1">
+        <serviceinfo code="failed" xsrcmd5="b725a05beaf57fbf1ec85276efbcbf97">
+          <error>service error:  400 remote error: document element must be \'services\', was \'service\'</error>
+        </serviceinfo>
+        <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1530259187" />
+      </directory>'
+    end
+    let(:service_error_url) { "#{CONFIG['source_url']}/source/#{package_with_service.project}/#{package_with_service.name}/_serviceerror?rev=b725a05beaf57fbf1ec85276efbcbf97" }
+    let(:error) do
+      "service daemon error:
+         400 remote error: document element must be 'services', was 'service'"
+    end
+
+    it 'returns nil without errors' do
+      stub_request(:get, url).and_return(body: no_error)
+      expect(package_with_service.service_error).to be_nil
+    end
+
+    it 'returns nil on running' do
+      stub_request(:get, url).and_return(body: running)
+      expect(package_with_service.service_error).to be_nil
+    end
+
+    it 'returns the errors' do
+      stub_request(:get, url).and_return(body: remote_error)
+      stub_request(:get, service_error_url).and_return(body: error)
+      expect(package_with_service.service_error).to match(error)
+      expect(a_request(:get, service_error_url)).to have_been_made.once
     end
   end
 
@@ -633,4 +660,58 @@ Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
 
     it_behaves_like 'makes a user a maintainer of the subject'
   end
+
+  describe '#target_name' do
+    it "returns the package name for 'normal' projects" do
+      expect(package.target_name).to eq(package.name)
+    end
+
+    context 'when package belongs to a maintenance incident' do
+      let(:maintenance_incident_project) { create(:maintenance_incident_project) }
+      let(:package) { create(:package, project: maintenance_incident_project) }
+
+      it 'adds the project basename as suffix' do
+        expect(package.target_name).to eq("#{package.name}.#{package.project.basename}")
+      end
+    end
+  end
+
+  describe '.exists_by_project_and_name' do
+    subject { package.name }
+
+    let(:project_name) { package.project.name }
+
+    context 'for local package' do
+      it 'returns true for an existing package' do
+        expect(Package.exists_by_project_and_name(project_name, subject)).to be_truthy
+      end
+
+      it 'returns false for a not existing package' do
+        expect(Package.exists_by_project_and_name(project_name, 'does-not-exist:hello-world')).to be_falsey
+      end
+
+      it 'returns false for a not existing project' do
+        expect(Package.exists_by_project_and_name('does-not-exist', subject)).to be_falsey
+      end
+    end
+
+    context 'for multibuild package' do
+      it 'returns true for an existing local package' do
+        expect(Package.exists_by_project_and_name(project_name, subject, follow_multibuild: true)).to be_truthy
+      end
+
+      it 'returns true for an existing multibuild package' do
+        expect(Package.exists_by_project_and_name(project_name, "#{subject}:hello-world", follow_multibuild: true)).to be_truthy
+      end
+
+      it 'returns false for a not existing multibuild package' do
+        expect(Package.exists_by_project_and_name(project_name, 'does-not-exist:hello-world', follow_multibuild: true)).to be_falsey
+      end
+
+      it 'returns false for an existing multibuild package without follow_multibuild option' do
+        expect(Package.exists_by_project_and_name(project_name, "#{subject}:hello-world")).to be_falsey
+      end
+    end
+  end
 end
+# rubocop:enable Metrics/BlockLength

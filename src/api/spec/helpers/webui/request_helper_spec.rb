@@ -47,4 +47,34 @@ RSpec.describe Webui::RequestHelper do
       it { expect(new_or_update_request(row)).to eq('submit') }
     end
   end
+
+  describe '#calculate_filename' do
+    let(:filename) { 'apache2' }
+
+    context 'for deleted files' do
+      let(:file_element) do
+        { state: 'deleted' }.with_indifferent_access
+      end
+
+      it { expect(calculate_filename(filename, file_element)).to eq(filename) }
+    end
+
+    context 'for added files' do
+      let(:file_element) do
+        { state: 'added' }.with_indifferent_access
+      end
+
+      it { expect(calculate_filename(filename, file_element)).to eq(filename) }
+    end
+
+    context 'for changed files' do
+      let(:file_element) do
+        { state: 'changed', old: { name: filename } }.with_indifferent_access
+      end
+      let(:new_filename) { 'apache3' }
+
+      it { expect(calculate_filename(filename, file_element)).to eq(filename) }
+      it { expect(calculate_filename(new_filename, file_element)).to eq("#{filename} -> #{new_filename}") }
+    end
+  end
 end

@@ -105,7 +105,8 @@ RSpec.describe Project, vcr: true do
 
     before do
       logout
-      allow(ProjectMetaFile).to receive(:new).and_return(remote_meta_xml)
+      meta_project_file_mock = double('meta', content: remote_meta_xml)
+      allow(ProjectMetaFile).to receive(:new).and_return(meta_project_file_mock)
     end
 
     context 'normal project' do
@@ -376,17 +377,17 @@ RSpec.describe Project, vcr: true do
     end
 
     it 'returns false if backend responds with nothing' do
-      allow_any_instance_of(ProjectFile).to receive(:to_s).with(deleted: 1).and_return(nil)
+      allow_any_instance_of(ProjectFile).to receive(:content).with(deleted: 1).and_return(nil)
       expect(Project.deleted?('never-existed-before')).to be_falsey
     end
 
     it 'returns false if revision list element of _history file is empty' do
-      allow_any_instance_of(ProjectFile).to receive(:to_s).with(deleted: 1).and_return("<revisionlist>\n</revisionlist>\n")
+      allow_any_instance_of(ProjectFile).to receive(:content).with(deleted: 1).and_return("<revisionlist>\n</revisionlist>\n")
       expect(Project.deleted?('never-existed-before')).to be_falsey
     end
 
     it 'returns true if _history element has elements' do
-      allow_any_instance_of(ProjectFile).to receive(:to_s).with(deleted: 1).and_return(
+      allow_any_instance_of(ProjectFile).to receive(:content).with(deleted: 1).and_return(
         "<revisionlist>\n  <revision rev=\"1\" vrev=\"\">\n    <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>\n    " \
         "<version></version>\n    <time>1498113679</time>\n    <user>Admin</user>\n    <comment>1</comment>\n  " \
         "</revision>\n</revisionlist>\n"
@@ -415,16 +416,16 @@ RSpec.describe Project, vcr: true do
       deleted_project.destroy!
       Project.restore(deleted_project.name, user: admin_user.login)
 
-      meta = Xmlhash.parse(ProjectFile.new(project_name: deleted_project.name, name: '_history').to_s(deleted: 1))
+      meta = Xmlhash.parse(ProjectFile.new(project_name: deleted_project.name, name: '_history').content(deleted: 1))
       expect(meta['revision'].last['user']).to eq(admin_user.login)
     end
 
     it 'project meta gets properly updated' do
-      old_project_meta_xml = ProjectMetaFile.new(project_name: deleted_project.name).to_s
+      old_project_meta_xml = ProjectMetaFile.new(project_name: deleted_project.name).content
       deleted_project.destroy!
 
       restored_project = Project.restore(deleted_project.name)
-      expect(restored_project.meta.to_s).to eq(old_project_meta_xml)
+      expect(restored_project.meta.content).to eq(old_project_meta_xml)
     end
 
     context 'on a project with packages' do
@@ -531,5 +532,33 @@ RSpec.describe Project, vcr: true do
     subject { create(:user).home_project }
 
     it_behaves_like 'makes a user a maintainer of the subject'
+  end
+
+  describe '#basename' do
+    subject { create(:project, name: 'foo:bar:baz') }
+
+    it "returns the lowest level of ':' seperated subproject names" do
+      expect(subject.basename).to eq('baz')
+    end
+  end
+
+  describe '#do_project_release' do
+    let(:user) { create(:confirmed_user, login: 'tux') }
+    let(:project) { user.home_project }
+    let!(:package) { create(:package_with_revisions, name: 'my_package_release', project: project) }
+    let(:project_release) { create(:project, name: "#{user.home_project}:staging") }
+    let(:repository) { create(:repository, project: project) }
+    let(:repository_release) { create(:repository, project: project_release) }
+    let!(:release_target) { create(:release_target, target_repository: repository_release, repository: repository) }
+
+    before do
+      User.current = user
+      allow_any_instance_of(Package).to receive(:target_name).and_return('my_release_target')
+    end
+
+    it "uses the package's release target name when releasing the package" do
+      project.do_project_release(user: user)
+      expect(project_release.packages.where(name: 'my_release_target')).to exist
+    end
   end
 end

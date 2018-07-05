@@ -1,5 +1,83 @@
-inherit_from: ../../.rubocop.yml
+require: rubocop-rspec
+
+inherit_from: .rubocop_todo.yml
 
 AllCops:
   UseCache: true
-  CacheRootDirectory: tmp/rubocop_cache
+  CacheRootDirectory: tmp/rubocop_cache_rails_dir
+  MaxFilesInCache: 2000
+  Exclude:
+    - 'tmp/**/*'
+    - 'lib/templates/**/*'
+    - 'vendor/bundle/**/*'
+    - 'test/fixtures/backend/**/*'
+    - 'files/*'
+    - 'db/data_schema.rb'
+
+#################### Style ###########################
+
+# We need to allow some variables related to rabbiMQ.
+Style/GlobalVars:
+  AllowedVariables: ['$rabbitmq_conn', '$rabbitmq_exchange', '$rabbitmq_channel']
+
+# We disabled this cop because of Rantly.
+Style/MultilineBlockChain:
+  Exclude:
+    - 'spec/**/*'
+
+##################### Metrics ##################################
+
+Metrics/BlockLength:
+  Exclude:
+    - 'config/routes.rb'
+
+##################### Rails ##################################
+
+Rails:
+  Enabled: true
+
+# Actually is not possible to enable this cop because we have several overwritten methods.
+Rails/DynamicFindBy:
+  Enabled: false
+
+Rails/Exit:
+  Exclude:
+    - 'lib/memory_dumper.rb'
+
+RSpec/FilePath:
+  Exclude:
+    - 'spec/models/obs_factory/distribution_strategy_opensuse_spec.rb'
+
+Rails/HasAndBelongsToMany:
+  Enabled: false
+
+# FIXME: Disabled due to a bug in Rubocop. Once it is fixed in this PR (https://github.com/bbatsov/rubocop/pull/5707), it could be enabled again
+Rails/HttpStatus:
+  Enabled: false
+
+# Checks for the use of output calls like puts and print
+Rails/Output:
+  Exclude:
+    - 'app/jobs/*'
+    - 'config/*'
+    - 'db/**/*'
+    - 'lib/**/*'
+
+# We decided not to modify old migrations
+Rails/BulkChangeTable:
+  Exclude:
+    - 'db/migrate/20140210114542_remove_project_and_package_from_subscription.rb'
+    - 'db/migrate/20140624101042_add_package_tracking.rb'
+    - 'db/migrate/20140717101042_add_updateinfo_tracking.rb'
+    - 'db/migrate/20140718112346_flexible_updateinfoid.rb'
+    - 'db/migrate/20140721112346_delayed_job_indexes.rb'
+    - 'db/migrate/20140729101042_updateinfo_tracking_second_attempt.rb'
+    - 'db/migrate/20140801071042_product_version_tracking.rb'
+    - 'db/migrate/20170516140442_add_several_fields_to_kiwi_repositories.rb'
+    - 'db/migrate/20170607110443_add_and_remove_some_index_in_bs_request_actions.rb'
+    - 'db/migrate/20170630121602_add_index_bs_requests_action.rb'
+    - 'db/migrate/20170905081525_add_has_secure_password_support.rb'
+    - 'db/migrate/20170911142301_change_kiwi_package_groups_columns_from_big_int_to_int.rb'
+    - 'db/migrate/20170912140257_change_kiwi_packages_columns_from_big_int_to_int.rb'
+    - 'db/migrate/20171107125828_rename_kiwi_preference_types_to_kiwi_preferences.rb'
+    - 'db/migrate/20180516074538_explicitly_set_charset.rb'

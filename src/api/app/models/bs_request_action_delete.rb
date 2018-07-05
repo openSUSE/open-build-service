@@ -41,17 +41,17 @@ class BsRequestActionDelete < BsRequestAction
   end
 
   def sourcediff(opts = {})
-    if target_package
-      path = Package.source_path target_project, target_package
-      query = { 'cmd' => 'diff', :expand => 1, :filelimit => 0, :rev => 0 }
-      query[:view] = 'xml' if opts[:view] == 'xml' # Request unified diff in full XML view
-      return BsRequestAction.get_package_diff(path, query)
-    elsif target_repository
-      # no source diff
-    else
-      raise DiffError, "Project diff isn't implemented yet"
+    raise DiffError, "Project diff isn't implemented yet" unless target_package || target_repository
+    return '' unless target_package
+    begin
+      options = { expand: 1, filelimit: 0, rev: 0 }
+      options[:view] = 'xml' if opts[:view] == 'xml' # Request unified diff in full XML view
+      Backend::Api::Sources::Package.source_diff(target_project, target_package, options)
+    rescue Timeout::Error
+      raise DiffError, "Timeout while diffing #{target_project}/#{target_package}"
+    rescue ActiveXML::Transport::Error => e
+      raise DiffError, "The diff call for #{target_project}/#{target_package} failed: #{e.summary}"
     end
-    ''
   end
 
   def execute_accept(opts)

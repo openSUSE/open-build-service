@@ -133,8 +133,8 @@ class Review < ApplicationRecord
   def self.new_from_xml_hash(hash)
     r = Review.new
 
-    r.state = hash.delete('state') { raise ArgumentError, 'no state' }
-    r.state = r.state.to_sym
+    r.state = :new
+    hash.delete('state')
 
     r.by_user = hash.delete('by_user')
     r.by_group = hash.delete('by_group')

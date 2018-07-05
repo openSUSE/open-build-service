@@ -103,6 +103,8 @@ OBSApi::Application.routes.draw do
         get 'package/show/:project/:package' => :show, as: 'package_show', constraints: cons
         get 'package/dependency/:project/:package' => :dependency, constraints: cons
         get 'package/binary/:project/:package/:repository/:arch/:filename' => :binary, constraints: cons, as: 'package_binary'
+        get 'package/binary/download/:project/:package/:repository/:arch/:filename' => :binary_download,
+            constraints: cons, as: 'package_binary_download'
         get 'package/binaries/:project/:package/:repository' => :binaries, constraints: cons, as: 'package_binaries'
         get 'package/users/:project/:package' => :users, as: 'package_users', constraints: cons
         get 'package/requests/:project/:package' => :requests, as: 'package_requests', constraints: cons
@@ -166,13 +168,11 @@ OBSApi::Application.routes.draw do
       post 'patchinfo/updatepatchinfo' => :updatepatchinfo
       get 'patchinfo/edit_patchinfo' => :edit_patchinfo
       get 'patchinfo/show/:project/:package' => :show, as: 'patchinfo_show', constraints: cons, defaults: { format: 'html' }
-      get 'patchinfo/read_patchinfo' => :read_patchinfo
       post 'patchinfo/save/:project/:package' => :save, constraints: cons, as: :patchinfo_save
       post 'patchinfo/remove' => :remove
       get 'patchinfo/new_tracker' => :new_tracker
       get 'patchinfo/delete_dialog' => :delete_dialog
     end
-    #
     controller 'webui/repositories' do
       get 'repositories/:project(/:package)' => :index, constraints: cons, as: 'repositories', defaults: { format: 'html' }
       get 'project/repositories/:project' => :index, constraints: cons, as: 'project_repositories'
@@ -298,6 +298,10 @@ OBSApi::Application.routes.draw do
       get 'project/unlock_dialog' => :unlock_dialog
       post 'project/unlock' => :unlock
     end
+
+    get 'project/dashboard/:project' => 'webui/obs_factory/distributions#show', as: 'dashboard', constraints: cons
+    get 'project/staging_projects/:project' => 'webui/obs_factory/staging_projects#index', as: 'staging_projects', constraints: cons
+    get 'project/staging_projects/:project/:project_name' => 'webui/obs_factory/staging_projects#show', as: 'staging_project', constraints: cons
 
     controller 'webui/projects/rebuild_times' do
       get 'project/rebuild_time/:project/:repository/:arch' => :show, constraints: cons, as: 'project_rebuild_time'
@@ -483,25 +487,21 @@ OBSApi::Application.routes.draw do
 
     resources :about, only: :index
 
-    controller :test do
-      post 'test/killme' => :killme
-      post 'test/startme' => :startme
-      post 'test/test_start' => :test_start
-    end
-
-    ### /attribute is before source as it needs more specific routes for projects
-    controller :attribute do
+    controller :attribute_namespace do
       get 'attribute' => :index
       get 'attribute/:namespace' => :index
       # FIXME3.0: drop the POST and DELETE here
-      match 'attribute/:namespace/_meta' => :namespace_definition, via: [:get, :delete, :post, :put]
-      match 'attribute/:namespace/:name/_meta' => :attribute_definition, via: [:get, :delete, :post, :put]
-      delete 'attribute/:namespace' => :namespace_definition
-      delete 'attribute/:namespace/:name' => :attribute_definition
+      get 'attribute/:namespace/_meta' => :show
+      delete 'attribute/:namespace/_meta' => :delete
+      delete 'attribute/:namespace' => :delete
+      match 'attribute/:namespace/_meta' => :update, via: [:post, :put]
+    end
 
-      get 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :show_attribute, constraints: cons
-      post 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :cmd_attribute, constraints: cons, as: :change_attribute
-      delete 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :delete_attribute, constraints: cons
+    controller :attribute do
+      get 'attribute/:namespace/:name/_meta' => :show
+      delete 'attribute/:namespace/:name/_meta' => :delete
+      delete 'attribute/:namespace/:name' => :delete
+      match 'attribute/:namespace/:name/_meta' => :update, via: [:post, :put]
     end
 
     ### /architecture
@@ -728,21 +728,34 @@ OBSApi::Application.routes.draw do
     get 'projects/:project/packages/:package/requests' => 'webui/packages/bs_requests#index', constraints: cons, as: 'packages_requests'
   end
 
+  controller :source_attribute do
+    get 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :show, constraints: cons
+    post 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :update, constraints: cons, as: :change_attribute
+    delete 'source/:project(/:package(/:binary))/_attribute/:attribute' => :delete, constraints: cons
+  end
+
+  # project level
+  controller :source_project_meta do
+    get 'source/:project/_meta' => :show, constraints: cons
+    put 'source/:project/_meta' => :update, constraints: cons
+  end
+
+  controller :source_project do
+    get 'source/:project' => :show, constraints: cons
+    delete 'source/:project' => :delete, constraints: cons
+    post 'source/:project' => :project_command, constraints: cons
+  end
+
+  controller :source_project_config do
+    get 'source/:project/_config' => :show, constraints: cons
+    put 'source/:project/_config' => :update, constraints: cons
+  end
+
   controller :source do
     get 'source' => :index
     post 'source' => :global_command_createmaintenanceincident, constraints: ->(req) { req.params[:cmd] == 'createmaintenanceincident' }
     post 'source' => :global_command_branch,                    constraints: ->(req) { req.params[:cmd] == 'branch' }
     post 'source' => :global_command_orderkiwirepos,            constraints: ->(req) { req.params[:cmd] == 'orderkiwirepos' }
-
-    # project level
-    get 'source/:project' => :show_project, constraints: cons
-    delete 'source/:project' => :delete_project, constraints: cons
-    post 'source/:project' => :project_command, constraints: cons
-    get 'source/:project/_meta' => :show_project_meta, constraints: cons
-    put 'source/:project/_meta' => :update_project_meta, constraints: cons
-
-    get 'source/:project/_config' => :show_project_config, constraints: cons
-    put 'source/:project/_config' => :update_project_config, constraints: cons
     get 'source/:project/_pubkey' => :show_project_pubkey, constraints: cons
     delete 'source/:project/_pubkey' => :delete_project_pubkey, constraints: cons
 
@@ -776,11 +789,12 @@ OBSApi::Application.routes.draw do
   # this can be requested by non browsers (like HA proxies :)
   get 'apidocs/:filename' => 'webui/apidocs#file', constraints: cons, as: 'apidocs_file'
 
-  # TODO: move to api
   # spiders request this, not browsers
-  get 'main/sitemap' => 'webui/main#sitemap'
-  get 'main/sitemap_projects' => 'webui/main#sitemap_projects'
-  get 'main/sitemap_packages/:listaction' => 'webui/main#sitemap_packages'
+  controller 'webui/sitemaps' do
+    get 'sitemaps' => :index
+    get 'project/sitemap' => :projects
+    get 'package/sitemap(/:project_name)' => :packages
+  end
 end
 
 OBSEngine::Base.subclasses.each(&:mount_it)

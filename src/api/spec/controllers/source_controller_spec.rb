@@ -31,26 +31,6 @@ RSpec.describe SourceController, vcr: true do
     end
   end
 
-  describe 'GET #show_project_meta' do
-    before do
-      login user
-      get :show_project_meta, params: { project: project }
-    end
-
-    it { expect(response).to be_success }
-    it { expect(Xmlhash.parse(response.body)['name']).to eq(project.name) }
-  end
-
-  describe 'PUT #update_project_config' do
-    before do
-      login user
-      put :update_project_config, params: { project: project, comment: 'Updated by test' }
-    end
-
-    it { expect(response).to be_success }
-    it { expect(project.config.to_s).to include('Updated', 'by', 'test') }
-  end
-
   describe 'POST #package_command' do
     let(:multibuild_package) { create(:package, name: 'multibuild') }
     let(:multibuild_project) { multibuild_package.project }
@@ -69,6 +49,7 @@ RSpec.describe SourceController, vcr: true do
           cmd: 'diff', package: "#{multibuild_package.name}:one", project: multibuild_project, target_project: project
         }
       end
+
       it { expect(flash[:error]).to eq("invalid_package_name(invalid package name '#{multibuild_package.name}:one'): ") }
       it { expect(response.status).to eq(302) }
     end

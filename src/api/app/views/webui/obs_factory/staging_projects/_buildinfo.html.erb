@@ -1,0 +1,27 @@
+<% ok = project.building_repositories.empty? -%>
+<dt><%= sprite_tag(ok ? 'accept' : 'error', alt: ok ? 'Ok' : 'Fail') %>Building repositories</dt>
+<dd>
+<% if ok %>
+  None.
+<% else %>
+  <% building = project.building_repositories.map do |repo| %>
+    <% link_to "#{repo['repository']}-#{repo['arch']} (#{repo['state']})".html_safe,
+                main_app.project_repository_state_url(project.name, repo['repository']) %>
+  <% end %>
+  <%= building.to_sentence.html_safe %>
+<% end %>
+</dd>
+<% ok = project.broken_packages.size.zero? -%>
+<dt><%= sprite_tag(ok ? 'accept' : 'error', alt: ok ? 'Ok' : 'Fail') %>Broken packages</dt>
+<dd>
+<% if ok %>
+  None.
+<% else %>
+  <% broken = project.broken_packages.map do |pack| %>
+    <% link_to "#{pack['package']} (#{pack['state']})".html_safe,
+              main_app.package_show_url(project.name, pack['package']) %>
+  <% end %>
+  <%= broken.to_sentence.html_safe %>
+<% end %>
+</dd>
+</dd>

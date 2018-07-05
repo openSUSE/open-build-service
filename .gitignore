@@ -39,6 +39,7 @@
 /src/api/tmp
 /src/api/spec/examples.txt
 /src/api/last_deploy
+/src/api/test/reports
 /src/backend/blib
 /src/backend/BSConfig.pm
 /src/backend/BSSolv.bs
@@ -70,7 +71,5 @@ nbproject
 *.iws
 .idea/
 .kanku/
-src/api/.bundle/
-src/api/vendor/bundle
 dist/aws_credentials
 dist/ec2utils.conf

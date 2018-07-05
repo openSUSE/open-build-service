@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+  recorded_at: Tue, 22 May 2018 09:54:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_one_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_one_file" project="home:tom">
-          <title>A Summer Bird-Cage</title>
-          <description>Odio neque rerum ullam architecto perspiciatis.</description>
+          <title>Such, Such Were the Joys</title>
+          <description>Voluptatum non at molestiae quidem quae dignissimos.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '182'
+      - '193'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_one_file" project="home:tom">
-          <title>A Summer Bird-Cage</title>
-          <description>Odio neque rerum ullam architecto perspiciatis.</description>
+          <title>Such, Such Were the Joys</title>
+          <description>Voluptatum non at molestiae quidem quae dignissimos.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+  recorded_at: Tue, 22 May 2018 09:54:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_one_file/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_one_file" project="home:tom">
-          <title>A Summer Bird-Cage</title>
-          <description>Odio neque rerum ullam architecto perspiciatis.</description>
+          <title>Such, Such Were the Joys</title>
+          <description>Voluptatum non at molestiae quidem quae dignissimos.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '182'
+      - '193'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_one_file" project="home:tom">
-          <title>A Summer Bird-Cage</title>
-          <description>Odio neque rerum ullam architecto perspiciatis.</description>
+          <title>Such, Such Were the Joys</title>
+          <description>Voluptatum non at molestiae quidem quae dignissimos.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+  recorded_at: Tue, 22 May 2018 09:54:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_one_file/_service
@@ -144,20 +144,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="16" vrev="16">
-          <srcmd5>79826c804ee494940cb182d8f00c220e</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>0976bb52c344f1de22b730c7cf116fdc</srcmd5>
           <version>unknown</version>
-          <time>1499340717</time>
+          <time>1526982889</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+  recorded_at: Tue, 22 May 2018 09:54:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_one_file
@@ -183,16 +183,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '244'
+      - '242'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_one_file" rev="16" vrev="16" srcmd5="79826c804ee494940cb182d8f00c220e">
+        <directory name="package_with_one_file" rev="1" vrev="1" srcmd5="0976bb52c344f1de22b730c7cf116fdc">
           <serviceinfo code="running" />
-          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1499338180" />
+          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1526982889" />
         </directory>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+  recorded_at: Tue, 22 May 2018 09:54:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_one_file
@@ -218,14 +218,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '289'
+      - '287'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_one_file" rev="16" vrev="16" srcmd5="79826c804ee494940cb182d8f00c220e">
-          <serviceinfo code="succeeded" xsrcmd5="2712adaded7f950c53739989d4fc41ce" />
-          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1499338180" />
+        <directory name="package_with_one_file" rev="1" vrev="1" srcmd5="0976bb52c344f1de22b730c7cf116fdc">
+          <serviceinfo code="succeeded" xsrcmd5="ad470653ec7f713a6b4f5661cda483f9" />
+          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1526982889" />
         </directory>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Tue, 22 May 2018 09:54:49 GMT
+recorded_with: VCR 4.0.0

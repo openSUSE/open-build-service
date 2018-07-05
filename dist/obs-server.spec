@@ -103,6 +103,10 @@ Requires:       %(/bin/bash -c 'rpm -q --qf "%%{name} = %%{version}-%%{release}"
 %else
 Requires:       /usr/bin/createrepo
 %endif
+Recommends:     cron logrotate
+
+Obsoletes:      obs-devel
+Provides:       obs-devel
 
 BuildRequires:  xz
 
@@ -248,18 +252,6 @@ Requires:       ghostscript-fonts-std
 This is the API server instance, and the web client for the
 OBS.
 
-%package -n obs-devel
-Summary:        The Open Build Service -- The API and WEBUI Testsuite
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
-Group:          Productivity/Networking/Web/Utilities
-%endif
-Obsoletes:      obs-webui-testsuite
-Requires:       obs-api = %{version}-%{release}
-%requires_eq obs-api-testsuite-deps
-
-%description -n obs-devel
-Install to track dependencies for git
-
 %package -n obs-utils
 Summary:        The Open Build Service -- utilities
 %if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
@@ -277,6 +269,7 @@ Summary:  The Open Build Service -- Test cases for installed appliances
 
 Requires: obs-server = %{version}
 Requires: obs-api = %{version}
+Requires: perl(Test::Most)
 
 %if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 Group:          Productivity/Networking/Web/Utilities
@@ -315,6 +308,8 @@ rm src/api/Dockerfile.frontend-base
 
 # drop build script, we require the installed one from own package
 rm -rf src/backend/build
+
+find -name .keep -o -name .gitignore | xargs rm -rf
 
 %build
 export DESTDIR=$RPM_BUILD_ROOT
@@ -528,6 +523,10 @@ touch /srv/www/obs/api/log/production.log
 chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
 %restart_on_update memcached
+# We need to touch the last_deploy file in the post hook 
+# to update the timestamp which we use to display the 
+# last deployment time in the API
+touch /srv/www/obs/api/last_deploy || true
 
 %postun -n obs-api
 %insserv_cleanup
@@ -607,7 +606,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 # formerly obs-source_service
 /etc/init.d/obsservice
 %config(noreplace) /etc/logrotate.d/obs-source_service
-/etc/cron.d/cleanup_scm_cache
+%config(noreplace) /etc/cron.d/cleanup_scm_cache
 /usr/sbin/rcobsservice
 /usr/lib/obs/server/bs_service
 /usr/lib/obs/server/call-service-in-docker.sh
@@ -633,7 +632,7 @@ usermod -a -G docker obsservicerun
 /srv/www/obs/overview
 
 /srv/www/obs/api/config/thinking_sphinx.yml.example
-/etc/cron.d/obs_api_delayed_jobs_monitor
+%config(noreplace) /etc/cron.d/obs_api_delayed_jobs_monitor
 %config(noreplace) /srv/www/obs/api/config/thinking_sphinx.yml
 %attr(-,%{apache_user},%{apache_group}) %config(noreplace) /srv/www/obs/api/config/production.sphinx.conf
 
@@ -652,7 +651,7 @@ usermod -a -G docker obsservicerun
 %dir /srv/www/obs/api/db
 /srv/www/obs/api/db/checker.rb
 /srv/www/obs/api/Gemfile
-/srv/www/obs/api/last_deploy
+%verify(not mtime) /srv/www/obs/api/last_deploy
 /srv/www/obs/api/Gemfile.lock
 /srv/www/obs/api/config.ru
 /srv/www/obs/api/config/application.rb
@@ -664,6 +663,7 @@ usermod -a -G docker obsservicerun
 /usr/sbin/rcobsapidelayed
 /srv/www/obs/api/app
 %attr(-,%{apache_user},%{apache_group})  /srv/www/obs/api/db/structure.sql
+%attr(-,%{apache_user},%{apache_group})  /srv/www/obs/api/db/data_schema.rb
 /srv/www/obs/api/db/attribute_descriptions.rb
 /srv/www/obs/api/db/data
 /srv/www/obs/api/db/migrate
@@ -690,7 +690,6 @@ usermod -a -G docker obsservicerun
 /srv/www/obs/api/config/boot.rb
 /srv/www/obs/api/config/routes.rb
 /srv/www/obs/api/config/environments/development.rb
-/srv/www/obs/api/config/unicorn
 %attr(0640,root,%apache_group) %config(noreplace) %verify(md5) /srv/www/obs/api/config/database.yml
 %attr(0640,root,%apache_group) /srv/www/obs/api/config/database.yml.example
 %attr(0644,root,root) %config(noreplace) %verify(md5) /srv/www/obs/api/config/options.yml
@@ -732,11 +731,6 @@ usermod -a -G docker obsservicerun
 %files -n obs-utils
 %defattr(-,root,root)
 /usr/sbin/obs_project_update
-
-%files -n obs-devel
-%defattr(-,root,root)
-%dir %_docdir/obs-devel
-%_docdir/obs-devel/README.devel
 
 %files -n obs-tests-appliance
 %defattr(-,root,root)

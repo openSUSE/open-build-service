@@ -25,9 +25,9 @@ package BSServerEvents;
 use POSIX;
 use Socket;
 use Fcntl qw(:DEFAULT);
-use Symbol;
 use BSEvents;
 use BSHTTP;
+use BSCpio;
 use Data::Dumper;
 
 use strict;
@@ -160,10 +160,11 @@ sub reply_file {
     $param = $filename;
     $filename = $filename->{'filename'};
   }
-  my $fd = $filename;
-  if (!ref($fd)) {
-    $fd = gensym;
+  my $fd;
+  if (!ref($filename)) {
     open($fd, '<', $filename) || die("$filename: $!\n");
+  } else {
+    $fd = $filename;
   }
   my $rev = BSEvents::new('always');
   $rev->{'fd'} = $fd;
@@ -187,62 +188,46 @@ sub cpio_nextfile {
   my ($ev) = @_;
 
   my $data = '';
-  while(1) {
+  while (1) {
     #print "cpio_nextfile\n";
-    $data .= $ev->{'filespad'} if defined $ev->{'filespad'};
-    delete $ev->{'filespad'};
+    $data .= delete($ev->{'filespad'}) if defined $ev->{'filespad'};
     my $files = $ev->{'files'};
     my $filesno = defined($ev->{'filesno'}) ? $ev->{'filesno'} + 1 : 0;
-    my $file;
+    my $ent;
     if ($filesno >= @$files) {
-      if ($ev->{'cpioerrors'} ne '') {
-	$file = {'data' => $ev->{'cpioerrors'}, 'name' => '.errors'};
-	$ev->{'cpioerrors'} = '';
-      } else {
-	$data .= BSHTTP::makecpiohead();
+      $ent = delete $ev->{'cpioerrors'};
+      if (!$ent || $ent->{'data'} eq '') {
+	$data .= BSCpio::makecpiohead();
 	return $data;
       }
     } else {
       $ev->{'filesno'} = $filesno;
-      $file = $files->[$filesno];
-    }
-    if ($file->{'error'}) {
-      $ev->{'cpioerrors'} .= "$file->{'name'}: $file->{'error'}\n";
-      next;
+      $ent = $files->[$filesno];
     }
     my @s;
-    if (exists $file->{'filename'}) {
-      my $fd = $file->{'filename'};
-      if (!ref($fd)) {
-	$fd = gensym;
-	if (!open($fd, '<', $file->{'filename'})) {
-	  $ev->{'cpioerrors'} .= "$file->{'name'}: $file->{'filename'}: $!\n";
-	  next;
-	}
-      }
-      @s = stat($fd);
-      if (!@s) {
-	$ev->{'cpioerrors'} .= "$file->{'name'}: stat: $!\n";
-	close($fd);
+    my $name = $ent->{'name'};
+    if ($ent->{'error'}) {
+      $ev->{'cpioerrors'}->{'data'} .= "$name: $ent->{'error'}\n";
+    } elsif (exists($ent->{'file'}) || exists($ent->{'filename'})) {
+      my $file = exists($ent->{'file'}) ? $ent->{'file'} : $ent->{'filename'};
+      my ($fd, $error) = BSCpio::openentfile($ent, $file, \@s);
+      if ($error) {
+        close($fd) if $fd && !ref($file);
+        $ev->{'cpioerrors'}->{'data'} .= $error;
 	next;
       }
-      if (ref($file->{'filename'})) {
-	my $off = sysseek($fd, 0, Fcntl::SEEK_CUR) || 0;
-	$s[7] -= $off if $off > 0;
-      }
       $ev->{'fd'} = $fd;
+      my ($header, $pad) = BSCpio::makecpiohead($ent, \@s);
+      $data .= $header;
+      $ev->{'filespad'} = $pad;
+      return $data;
     } else {
-      $s[7] = length($file->{'data'});
-      $s[9] = time();
+      $s[7] = length($ent->{'data'});
+      $s[9] = $ent->{'mtime'} || time();
+      my ($header, $pad) = BSCpio::makecpiohead($ent, \@s);
+      $data .= "$header$ent->{'data'}";
+      $ev->{'filespad'} = $pad;
     }
-    my ($header, $pad) = BSHTTP::makecpiohead($file, \@s);
-    $data .= $header;
-    $ev->{'filespad'} = $pad;
-    if (!exists $file->{'filename'}) {
-      $data .= $file->{'data'};
-      next;
-    }
-    return $data;
   }
 }
 
@@ -251,8 +236,9 @@ sub cpio_closehandler {
   my $files = $ev->{'files'};
   my $filesno = defined($ev->{'filesno'}) ? $ev->{'filesno'} + 1 : 0;
   while ($filesno < @$files) {
-    my $file = $files->[$filesno];
-    close($file->{'filename'}) if ref($file->{'filename'});
+    my $ent = $files->[$filesno];
+    close($ent->{'file'}) if ref($ent->{'file'});
+    close($ent->{'filename'}) if ref($ent->{'filename'});
     $filesno++;
   }
 }
@@ -261,7 +247,7 @@ sub reply_cpio {
   my ($files, @hdrs) = @_;
   my $rev = BSEvents::new('always');
   $rev->{'files'} = $files;
-  $rev->{'cpioerrors'} = '';
+  $rev->{'cpioerrors'} = { 'name' => '.errors', 'data' => '' };
   $rev->{'makechunks'} = 1;
   $rev->{'eofhandler'} = \&cpio_nextfile;
   $rev->{'closehandler'} = \&cpio_closehandler;
@@ -290,16 +276,15 @@ sub getrequest {
     $ev->{'reqbuf'} = '' unless exists $ev->{'reqbuf'};
     my $r;
     if ($ev->{'reqbuf'} eq '' && exists $conf->{'getrequest_recvfd'}) {
-      my $newfd = gensym;
-      $r = $conf->{'getrequest_recvfd'}->($ev->{'fd'}, $newfd, 1024);
-      if (defined($r)) {
+      my ($chunk, $newfd) = $conf->{'getrequest_recvfd'}->($ev->{'fd'}, 1024);
+      if (defined($chunk)) {
 	if (-c $newfd) {
 	  close $newfd;	# /dev/null case, no handoff requested
 	} else {
           $ev->{'nfd'} = $newfd;
 	}
-        $ev->{'reqbuf'} = $r;
-        $r = length($r);
+        $ev->{'reqbuf'} = $chunk;
+        $r = length($chunk);
       }
     } else {
       $r = sysread($ev->{'fd'}, $ev->{'reqbuf'}, 1024, length($ev->{'reqbuf'}));
@@ -368,7 +353,7 @@ sub newconnect {
   my ($ev) = @_;
   #print "newconnect!\n";
   BSEvents::add($ev);
-  my $newfd = gensym;
+  my $newfd;
   my $peeraddr = accept($newfd, *{$ev->{'fd'}});
   return unless $peeraddr;
   fcntl($newfd, F_SETFL, O_NONBLOCK);

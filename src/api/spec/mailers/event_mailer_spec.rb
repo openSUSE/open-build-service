@@ -60,7 +60,7 @@ RSpec.describe EventMailer, vcr: true do
 
     context 'for an event of type Event::CommentForProject' do
       let!(:subscription) { create(:event_subscription_comment_for_project, user: receiver) }
-      let!(:comment) { create(:comment_project, body: "Hey @#{receiver.login} how are things?") }
+      let!(:comment) { create(:comment_project, body: "Hey @#{receiver.login} how are things? Look at [bug](/project/show/apache) please.") }
       let(:originator) { comment.user }
       let(:mail) { EventMailer.event(Event::CommentForProject.last.subscribers, Event::CommentForProject.last).deliver_now }
 
@@ -72,6 +72,12 @@ RSpec.describe EventMailer, vcr: true do
       end
       it 'has a subject' do
         expect(mail.subject).to eq "New comment in project #{comment.commentable.name} by #{originator.login}"
+      end
+
+      it 'renders links absolute' do
+        expected_html = "<p>Hey <a href='https://build.example.com/user/show/#{receiver.login}'>@#{receiver.login}</a> "
+        expected_html += "how are things? Look at <a href='https://build.example.com/project/show/apache'>bug</a> please."
+        expect(mail.html_part.to_s).to include(expected_html)
       end
 
       it 'has custom headers' do

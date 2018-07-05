@@ -427,4 +427,20 @@ RSpec.describe Review do
       expect(review_by_package.reviewable_by?(by_package: other_package.name)).to be_falsy
     end
   end
+
+  describe '.new_from_xml_hash' do
+    let(:request_xml) do
+      "<request>
+        <review state='accepted' by_user='#{user}'/>
+      </request>"
+    end
+    let(:request_hash) { Xmlhash.parse(request_xml) }
+    let(:review_hash) { request_hash['review'] }
+
+    subject { Review.new_from_xml_hash(review_hash) }
+
+    it 'initalizes the review in state :new' do
+      expect(subject.state).to eq(:new)
+    end
+  end
 end

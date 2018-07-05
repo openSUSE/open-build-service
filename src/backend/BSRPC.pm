@@ -275,23 +275,23 @@ sub rpc {
   }
 
   # connect to server
-  local *S;
+  my $sock;
   if (exists($param->{'socket'})) {
-    *S = $param->{'socket'};
+    $sock = $param->{'socket'};
   } else {
     if (!$hostlookupcache{$host}) {
       my $hostaddr = inet_aton($host);
       die("unknown host '$host'\n") unless $hostaddr;
       $hostlookupcache{$host} = $hostaddr;
     }
-    socket(S, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
-    setsockopt(S, SOL_SOCKET, SO_KEEPALIVE, pack("l",1));
-    connect(S, sockaddr_in($port, $hostlookupcache{$host})) || die("connect to $host:$port: $!\n");
+    socket($sock, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
+    setsockopt($sock, SOL_SOCKET, SO_KEEPALIVE, pack("l",1));
+    connect($sock, sockaddr_in($port, $hostlookupcache{$host})) || die("connect to $host:$port: $!\n");
     if ($proxytunnel) {
-      BSHTTP::swrite(\*S, $proxytunnel);
+      BSHTTP::swrite($sock, $proxytunnel);
       my $ans = '';
       do {
-	my $r = sysread(S, $ans, 1024, length($ans));
+	my $r = sysread($sock, $ans, 1024, length($ans));
 	if (!$r) {
 	  die("received truncated answer: $!\n") if !defined($r) && $! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK;
 	  die("received truncated answer\n") if defined $r;
@@ -302,10 +302,10 @@ sub rpc {
       die("proxy tunnel: CONNECT method failed: $status\n") unless $status =~ /^200[^\d]/;
     }
     if ($proto eq 'https' || $proxytunnel) {
-      ($param->{'https'} || $tossl)->(\*S, $param->{'ssl_keyfile'}, $param->{'ssl_certfile'}, 1);
+      ($param->{'https'} || $tossl)->($sock, $param->{'ssl_keyfile'}, $param->{'ssl_certfile'}, 1);
       if ($param->{'sslpeerfingerprint'}) {
 	die("bad sslpeerfingerprint '$param->{'sslpeerfingerprint'}'\n") unless $param->{'sslpeerfingerprint'} =~ /^(.*?):(.*)$/s;
-	my $pfp =  tied(*S)->peerfingerprint($1);
+	my $pfp =  tied(*{$sock})->peerfingerprint($1);
 	die("peer fingerprint does not match: $2 != $pfp\n") if $2 ne $pfp;
       }
     }
@@ -328,17 +328,17 @@ sub rpc {
       undef $data;
     }
     if ($param->{'sender'}) {
-      $param->{'sender'}->($param, \*S, $req, $data);
+      $param->{'sender'}->($param, $sock, $req, $data);
     } elsif (!ref($data)) {
-      BSHTTP::swrite(\*S, $req);
+      BSHTTP::swrite($sock, $req);
     } else {
-      BSHTTP::swrite(\*S, $req);
+      BSHTTP::swrite($sock, $req);
       while(1) {
-	$req = &$data($param, \*S);
+	$req = &$data($param, $sock);
 	last if !defined($req) || !length($req);
-        BSHTTP::swrite(\*S, $req, $chunked);
+        BSHTTP::swrite($sock, $req, $chunked);
       }
-      BSHTTP::swrite(\*S, "0\r\n\r\n") if $chunked;
+      BSHTTP::swrite($sock, "0\r\n\r\n") if $chunked;
     }
   }
 
@@ -346,9 +346,7 @@ sub rpc {
   if ($param->{'async'} && !$param->{'continuation'}) {
     my $ret = {};
     $ret->{'uri'} = $uri;
-    my $fd = gensym;
-    *$fd = \*S;
-    $ret->{'socket'} = $fd;
+    $ret->{'socket'} = $sock;
     $ret->{'async'} = 1;
     $ret->{'continuation'} = 1;
     $ret->{'request'} = $param->{'request'} || 'GET';
@@ -362,7 +360,7 @@ sub rpc {
   # read answer from server, first the header
   my $ans = '';
   do {
-    my $r = sysread(S, $ans, 1024, length($ans));
+    my $r = sysread($sock, $ans, 1024, length($ans));
     if (!$r) {
       die("received truncated answer: $!\n") if !defined($r) && $! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK;
       die("received truncated answer\n") if defined $r;
@@ -390,11 +388,11 @@ sub rpc {
     undef $status;
   } else {
     #if ($param->{'verbose'}) {
-    #  1 while sysread(S, $ans, 1024, length($ans));
+    #  1 while sysread($sock, $ans, 1024, length($ans));
     #  print "< $ans\n";
     #}
     if ($status =~ /^30[27][^\d]/ && ($param->{'ignorestatus'} || 0) != 2) {
-      close S;
+      close $sock;
       die("error: no redirects allowed\n") unless defined $param->{'maxredirects'};
       die("error: status 302 but no 'location' header found\n") unless exists $headers{'location'};
       die("error: max number of redirects reached\n") if $param->{'maxredirects'} < 1;
@@ -409,7 +407,7 @@ sub rpc {
       # unauthorized, ask callback for authorization
       my $auth = $param->{'authenticator'}->($param, $headers{'www-authenticate'}, \%headers);
       if ($auth) {
-        close S;
+        close $sock;
         my %myparam = %$param;
         delete $myparam{'authenticator'};
         $myparam{'headers'} = [ grep {!/^authorization:/i} @{$myparam{'headers'} || []} ];
@@ -418,7 +416,7 @@ sub rpc {
       }
     }
     if (!$param->{'ignorestatus'}) {
-      close S;
+      close $sock;
       die("$1 remote error: $2\n") if $status =~ /^(\d+) +(.*?)$/;
       die("remote error: $status\n");
     }
@@ -428,17 +426,17 @@ sub rpc {
   my $act = $param->{'request'} || 'GET';
   # read and process rest of answer
   if ($act eq 'HEAD' && !$param->{'receiver'}) {
-    close S;
+    close $sock;
     return \%headers;
   }
   my $ansreq = {
     'headers' => \%headers,
     'rawheaders' => $headers,
-    '__socket' => \*S,
+    '__socket' => $sock,
     '__data' => $ans,
   };
   if ($act eq 'HEAD') {
-    close S;
+    close $sock;
     delete $ansreq->{'__socket'};
     delete $ansreq->{'__data'};
     $ansreq->{'__cl'} = -1;	# eof
@@ -451,7 +449,7 @@ sub rpc {
   } else {
     $ans = BSHTTP::read_data($ansreq, undef, 1);
   }
-  close S unless $act eq 'HEAD';
+  close $sock unless $act eq 'HEAD';
 
   #if ($param->{'verbose'}) {
   #  print "< $ans\n";

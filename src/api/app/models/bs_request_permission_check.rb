@@ -78,7 +78,7 @@ class BsRequestPermissionCheck
 
     # the target project may link to another project where we need to check modification permissions
     originpkg = Package.get_by_project_and_name action.target_project, action.target_package
-    return if User.current.can_modify_package?(originpkg, true)
+    return if User.current.can_modify?(originpkg, true)
 
     raise PostRequestNoPermission, 'Package target can not get initialized using makeoriginolder.' \
                                    "No permission in project #{originpkg.project.name}"
@@ -113,7 +113,7 @@ class BsRequestPermissionCheck
     @source_project.repositories.each do |repo|
       repo.release_targets.each do |releasetarget|
         next unless releasetarget.trigger == 'maintenance'
-        unless User.current.can_modify_project? releasetarget.target_repository.project
+        unless User.current.can_modify? releasetarget.target_repository.project
           raise ReleaseTargetNoPermission, "Release target project #{releasetarget.target_repository.project.name} is not writable by you"
         end
       end
@@ -191,8 +191,8 @@ class BsRequestPermissionCheck
     end
 
     # general source write permission check (for revoke)
-    if (@source_package && User.current.can_modify_package?(@source_package, true)) ||
-       (!@source_package && @source_project && User.current.can_modify_project?(@source_project, true))
+    if (@source_package && User.current.can_modify?(@source_package, true)) ||
+       (!@source_package && @source_project && User.current.can_modify?(@source_project, true))
       @write_permission_in_source = true
     end
 
@@ -202,7 +202,7 @@ class BsRequestPermissionCheck
     ignore_lock = (new_state == 'declined') || \
                   (opts[:force] && action.action_type == :set_bugowner)
     if @target_package
-      if User.current.can_modify_package?(@target_package, ignore_lock)
+      if User.current.can_modify?(@target_package, ignore_lock)
         @write_permission_in_target = true
         @write_permission_in_this_action = true
       end
@@ -286,12 +286,12 @@ class BsRequestPermissionCheck
     if by_group && !User.current.is_in_group?(by_group)
       raise ReviewChangeStateNoPermission, "review state change for group #{by_group.title} is not permitted for #{User.current.login}"
     end
-    if by_package && !User.current.can_modify_package?(by_package, true)
+    if by_package && !User.current.can_modify?(by_package, true)
       raise ReviewChangeStateNoPermission, "review state change for package #{opts[:by_project]}/#{opts[:by_package]} " \
                                            "is not permitted for #{User.current.login}"
     end
 
-    return unless by_project && !User.current.can_modify_project?(by_project, true)
+    return unless by_project && !User.current.can_modify?(by_project, true)
     raise ReviewChangeStateNoPermission, "review state change for project #{opts[:by_project]} is not permitted for #{User.current.login}"
   end
 

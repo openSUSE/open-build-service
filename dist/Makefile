@@ -9,7 +9,7 @@ FILLUPDIR             := /var/adm/fillup-templates
 
 UNITDIR=/usr/lib/systemd/system/
 
-install: install_obsapisetup install_apache install_initscripts install_project_update install_logrotate install_fillups install_slp install_obs_bin install_devel_docs install_overview install_tests_appliance install_crontabs install_systemd_services install_registry_dirs
+install: install_obsapisetup install_apache install_initscripts install_project_update install_logrotate install_fillups install_slp install_obs_bin install_overview install_tests_appliance install_crontabs install_systemd_services install_registry_dirs
 
 #install_overview
 
@@ -61,12 +61,8 @@ system_dirs:
 	$(INSTALL) -d -m 755 $(DESTDIR)/usr/bin/
 	$(INSTALL) -d -m 755 $(DESTDIR)/usr/sbin/
 	$(INSTALL) -d -m 755 $(DESTDIR)$(FILLUPDIR)
-	$(INSTALL) -d -m 755 $(DESTDIR)/usr/share/doc/packages/obs-devel
 	$(INSTALL) -d -m 755 $(DESTDIR)/usr/lib/obs/tests/appliance
 	$(INSTALL) -d -m 755 $(DESTDIR)$(UNITDIR)
-
-install_devel_docs:
-	$(INSTALL) -m 644 README.devel $(DESTDIR)/usr/share/doc/packages/obs-devel/README.devel
 
 install_overview:
 	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_DOCUMENT_ROOT)/overview
