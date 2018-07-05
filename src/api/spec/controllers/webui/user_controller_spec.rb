@@ -344,12 +344,16 @@ RSpec.describe Webui::UserController do
 
     it 'loads big icon without param' do
       get :icon, params: { user: user.login }
-      expect(response.body.size).to be > 2000
+      image = ChunkyPNG::Image.from_blob(response.body)
+      expect(image.height).to be 80
+      expect(image.width).to be 80
     end
 
     it 'loads small icon with param' do
       get :icon, params: { user: user.login, size: 20 }
-      expect(response.body.size).to be < 1000
+      image = ChunkyPNG::Image.from_blob(response.body)
+      expect(image.height).to be 20
+      expect(image.width).to be 20
     end
   end
 
