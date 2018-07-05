@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Cloud::Ec2::Params, type: :model, vcr: true do
+RSpec.describe Cloud::Ec2::Params, type: :model do
   describe 'validations' do
     it { is_expected.to validate_presence_of :region }
     it { is_expected.to validate_presence_of :ami_name }

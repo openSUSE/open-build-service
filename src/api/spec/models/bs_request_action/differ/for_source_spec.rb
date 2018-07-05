@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe BsRequestAction::Differ::ForSource, vcr: true do
+RSpec.describe BsRequestAction::Differ::ForSource do
   let(:user) { create(:confirmed_user, login: 'moi') }
   let(:source_project) { create(:project, name: 'source_project', maintainer: user) }
   let(:source_package) { create(:package, name: 'source_package', project: source_project) }

@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe Webui::Cloud::Azure::UploadJobsController, type: :controller, vcr: true do
+RSpec.describe Webui::Cloud::Azure::UploadJobsController, type: :controller do
   let(:azure_configuration) { build(:azure_configuration, application_id: 'Hey OBS!', application_key: 'Hey OBS?') }
   let(:user_with_azure_configuration) { create(:confirmed_user, login: 'tom', azure_configuration: azure_configuration) }
   let(:project) { create(:project, name: 'AzureImages') }

@@ -16,16 +16,13 @@ VCR.configure do |config|
   # ignore selenium requests
   config.ignore_localhost = true
   config.ignore_hosts 'selenium'
+  config.ignore_hosts 'backend'
 end
 
 RSpec.configure do |config|
-  # Usually we use VCR to mock the backend responses. If you want to refresh casettes
-  # or record new ones you can enable writing to the backend here.
   config.before do
     stub_request(:get, %r{download.opensuse.org}).to_return(status: [500, 'Internal Server Error'])
     stub_request(:get, %r{www.gravatar.com}).to_return(body: File.new(Rails.root.join('app', 'assets', 'images', 'default_face.png')))
-    # CONFIG['global_write_through'] = true
+    CONFIG['global_write_through'] = true
   end
-  # You can also limit this to the type of test with
-  # config.before(:each, type: feature) do...
 end

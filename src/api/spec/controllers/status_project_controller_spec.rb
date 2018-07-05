@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe StatusProjectController, vcr: true do
+RSpec.describe StatusProjectController do
   render_views
 
   describe 'GET #show' do

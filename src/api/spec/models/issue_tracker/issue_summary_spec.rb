@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe IssueTracker::IssueSummary, vcr: true do
+RSpec.describe IssueTracker::IssueSummary do
   let(:issue_tracker) { create(:issue_tracker) }
   let(:issue_tracker_instance) { IssueTracker::IssueSummary.new('github', '31337') }
 

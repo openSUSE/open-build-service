@@ -1,8 +1,7 @@
 require 'rails_helper'
 require 'rantly/rspec_extensions'
-# WARNING: If you need to make a Backend call uncomment the following line
-# CONFIG['global_write_through'] = true
-RSpec.describe Project, vcr: true do
+
+RSpec.describe Project do
   let!(:project) { create(:project, name: 'openSUSE_41') }
   let(:remote_project) { create(:remote_project, name: 'openSUSE.org') }
   let(:package) { create(:package, project: project) }
@@ -427,8 +426,13 @@ RSpec.describe Project, vcr: true do
 
     # make sure it's gone even if some previous test failed
     def reset_project_in_backend
+<<<<<<< HEAD
       Backend::Api::Sources::Project.delete 'project_used_for_restoration' if CONFIG['global_write_through']
     rescue Backend::NotFoundError
+=======
+      Backend::Api::Sources::Project.delete 'project_used_for_restoration'
+    rescue ActiveXML::Transport::NotFoundError
+>>>>>>> e2780de865... Don't use cassettes for backend
     end
 
     before do

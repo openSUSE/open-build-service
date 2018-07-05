@@ -1,11 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
-# WARNING: If you change owner tests make sure you uncomment this line
-# and start a test backend. Some of the Owner methods
-# require real backend answers for projects/packages.
-# CONFIG['global_write_through'] = true
 
-RSpec.describe Webui::Packages::BuildReasonController, type: :controller, vcr: true do
+RSpec.describe Webui::Packages::BuildReasonController, type: :controller do
   describe 'GET #index' do
     let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
     let(:source_project) { user.home_project }

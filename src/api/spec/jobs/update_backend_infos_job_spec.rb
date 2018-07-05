@@ -1,9 +1,6 @@
 require 'rails_helper'
-# WARNING: Some tests require real backend answers, so make sure you uncomment
-# this line and start a test backend.
-# CONFIG['global_write_through'] = true
 
-RSpec.describe UpdateBackendInfosJob, vcr: true do
+RSpec.describe UpdateBackendInfosJob do
   let(:project) { create(:project, name: 'apache') }
   let(:package) { create(:package, name: 'mod_ssl', project: project) }
   let(:user) { create(:admin_user, login: 'myself') }

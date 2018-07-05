@@ -59,12 +59,6 @@ RSpec.configure do |config|
   # the seed, which is printed after each run.
   config.order = :random
 
-  # Tag all groups and examples in the spec/features directory with
-  # :vcr => :true
-  config.define_derived_metadata(file_path: %r{/spec/features/}) do |metadata|
-    metadata[:vcr] = true
-  end
-
   # Seed global randomization in this process using the `--seed` CLI option.
   # Setting this allows you to use `--seed` to deterministically reproduce
   # test failures related to randomization by passing the same `--seed` value
