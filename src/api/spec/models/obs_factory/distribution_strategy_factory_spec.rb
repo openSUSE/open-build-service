@@ -83,9 +83,37 @@ RSpec.describe ObsFactory::DistributionStrategyFactory do
     it { expect(strategy.openqa_iso(staging_project)).to eq('openSUSE-Staging:A-Staging-DVD-x86_64-Build1036.1-Media.iso') }
   end
 
+  describe '#published_version' do
+    let(:file) { StringIO.new('openSUSE-20180604-i586-Build') }
+
+    before do
+      allow_any_instance_of(ObsFactory::DistributionStrategyFactory).to receive(:open).and_return(file)
+    end
+
+    it { expect(strategy.published_version).to eq('20180604') }
+  end
+
   describe 'openqa_filter' do
     let(:staging_project_a) { create(:project, name: 'openSUSE:Factory:Staging:A') }
 
     it { expect(strategy.openqa_filter(staging_project)).to eq('match=Staging:A') }
+  end
+
+  describe '#totest_version' do
+    let(:backend_url) { "#{CONFIG['source_url']}/build/#{project}/:ToTest/images/local/000product:openSUSE-cd-mini-x86_6" }
+    let(:backend_response) do
+      %(<binarylist>
+	  <binary filename="_channel" size="21" mtime="1530626778"/>
+	  <binary filename="_statistics" size="233" mtime="1530626778"/>
+	  <binary filename="openSUSE-Tumbleweed-NET-x86_64-Snapshot20180702-Media.iso" size="126877696" mtime="1530626781"/>
+	  <binary filename="openSUSE-Tumbleweed-NET-x86_64-Snapshot20180702-Media.iso.sha256" size="654" mtime="1530643927"/>
+	</binarylist>)
+    end
+
+    before do
+      stub_request(:get, backend_url).and_return(body: backend_response)
+    end
+
+    it { expect(strategy.totest_version).to eq('20180702') }
   end
 end
