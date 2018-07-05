@@ -45,6 +45,9 @@ class BsRequestActionSubmit < BsRequestAction
         instantiate_container(target_project, linked_package.update_instance, opts)
         target_package = target_project.packages.find_by_name(linked_package.name)
       else
+        # check the permissions again, because the target_package could
+        # have been deleted after the previous check_action_permission! call
+        check_action_permission!(skip_source: true) if initialize_devel_package
         # new package, base container on source container
         newxml = Xmlhash.parse(Backend::Api::Sources::Package.meta(source_project, source_package))
         newxml['name'] = self.target_package
