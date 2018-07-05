@@ -397,7 +397,7 @@ RSpec.describe Webui::RequestController, vcr: true do
   end
 
   describe 'POST #set_bugowner_request' do
-    let(:req) { BsRequest.find_by(creator: submitter_with_group.login, description: 'blah blah blash', state: 'new') }
+    let(:bs_request) { BsRequest.find_by(creator: submitter_with_group.login, description: 'blah blah blash', state: 'new') }
     context 'with valid parameters' do
       before do
         login(submitter_with_group)
@@ -409,14 +409,14 @@ RSpec.describe Webui::RequestController, vcr: true do
         }
       end
 
-      it { expect(req).not_to be nil }
-      it { expect(req.description).to eq('blah blah blash') }
-      it { expect(response).to redirect_to(request_show_path(number: req)) }
+      it { expect(bs_request).not_to be nil }
+      it { expect(bs_request.description).to eq('blah blah blash') }
+      it { expect(response).to redirect_to(request_show_path(number: bs_request)) }
     end
   end
 
   describe 'POST #change_devel_request' do
-    let(:req) { BsRequest.find_by(description: 'change it!', creator: submitter.login, state: 'new') }
+    let(:bs_request) { BsRequest.find_by(description: 'change it!', creator: submitter.login, state: 'new') }
     context 'with valid parameters' do
       before do
         login(submitter)
@@ -426,13 +426,13 @@ RSpec.describe Webui::RequestController, vcr: true do
         }
       end
 
-      it { expect(response).to redirect_to(request_show_path(number: req)) }
+      it { expect(response).to redirect_to(request_show_path(number: bs_request)) }
       it { expect(flash[:success]).to be nil }
-      it { expect(req).not_to be nil }
-      it { expect(req.description).to eq('change it!') }
+      it { expect(bs_request).not_to be nil }
+      it { expect(bs_request.description).to eq('change it!') }
 
       it 'creates a request action with correct data' do
-        request_action = req.bs_request_actions.where(
+        request_action = bs_request.bs_request_actions.where(
           type: 'change_devel',
           target_project: target_project.name,
           target_package: target_package.name,
@@ -454,7 +454,7 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       it { expect(flash[:error]).to eq("No such package: #{source_project.name}/non-existant") }
       it { expect(response).to redirect_to(package_show_path(project: target_project, package: target_package)) }
-      it { expect(req).to be nil }
+      it { expect(bs_request).to be nil }
     end
   end
 

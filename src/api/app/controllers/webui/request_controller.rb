@@ -194,7 +194,7 @@ class Webui::RequestController < Webui::WebuiController
         opts = { target_project: params[:project], description: params[:description] }
         opts[:target_package] = params[:package] if params[:package]
         opts[:target_repository] = params[:repository] if params[:repository]
-        req = prepare_bsrequest(:delete, opts)
+        req = BsRequest.build_from_params(:delete, opts)
         req.save!
       end
 
@@ -228,7 +228,7 @@ class Webui::RequestController < Webui::WebuiController
         opts[:target_package] = params[:package] if params[:package]
         opts[:person_name] = params[:user] if params[:user]
         opts[:group_name] = params[:group] if params[:group]
-        req = prepare_bsrequest(:add_role, opts)
+        req = BsRequest.build_from_params(:add_role, opts)
         req.save!
       end
     rescue APIException => e
@@ -252,7 +252,7 @@ class Webui::RequestController < Webui::WebuiController
         opts[:target_package] = params[:package] if params[:package]
         opts[:person_name] = params[:user] if params[:user]
         opts[:group_name] = params[:group] if params[:group]
-        req = prepare_bsrequest(:set_bugowner, opts)
+        req = BsRequest.build_from_params(:set_bugowner, opts)
         req.save!
       end
     rescue APIException => e
@@ -281,7 +281,7 @@ class Webui::RequestController < Webui::WebuiController
                  target_package: params[:package],
                  source_project: params[:devel_project] }
         opts[:source_package] = params[:devel_package] || params[:package]
-        req = prepare_bsrequest(:change_devel, opts)
+        req = BsRequest.build_from_params(:change_devel, opts)
         req.save!
       end
     rescue BsRequestAction::UnknownProject,
@@ -382,13 +382,6 @@ class Webui::RequestController < Webui::WebuiController
     params.keys.grep(/^forward_.*/).each do |fwd|
       forward_request_to(fwd)
     end
-  end
-
-  def prepare_bsrequest(action, params)
-    req = BsRequest.new(state: 'new', description: params[:description])
-    params.delete :description
-    req.bs_request_actions.build(params.merge(type: action.to_s))
-    req
   end
 
   def forward_request_to(fwd)
