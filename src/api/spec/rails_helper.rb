@@ -38,14 +38,6 @@ RSpec.configure do |config|
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
 
-  # Delete all cassettes which arent used
-  if ENV['CLEAN_UNUSED_CASSETTES']
-    config.after(:suite) do
-      files = (Dir[File.join(Rails.root, 'spec', 'cassettes', '**', '*.yml')] - USED_CASSETTES.to_a)
-      files.each { |v| File.delete(v) } unless files.empty?
-    end
-  end
-
   # Wrap each test in Bullet api.
   if Bullet.enable?
     config.before(:each) do
