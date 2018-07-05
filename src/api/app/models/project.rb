@@ -609,7 +609,7 @@ class Project < ApplicationRecord
     reset_cache
 
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
-      login = @commit_opts[:login] || User.current.login
+      login = @commit_opts[:login] || User.current_login
       options = { user: login }
       options[:comment] = @commit_opts[:comment] if @commit_opts[:comment].present?
       # api request number is requestid in backend
@@ -630,7 +630,7 @@ class Project < ApplicationRecord
   def delete_on_backend
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       begin
-        options = { user: User.current.login, comment: @commit_opts[:comment] }
+        options = { user: User.current_login, comment: @commit_opts[:comment] }
         options[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
         Backend::Api::Sources::Project.delete(name, options)
       rescue ActiveXML::Transport::NotFoundError

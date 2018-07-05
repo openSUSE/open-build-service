@@ -290,19 +290,9 @@ RSpec.feature 'Projects', type: :feature, js: true do
     let!(:package_of_another_project) { create(:package_with_file, name: 'branch_test_package', project: other_user.home_project) }
 
     before do
-      if CONFIG['global_write_through']
-        Backend::Connection.put("/source/#{CGI.escape(project.name)}/_meta", project.to_axml)
-      end
       login user
       visit project_show_path(project)
       click_link('Branch existing package')
-    end
-
-    after do
-      if CONFIG['global_write_through']
-        Backend::Connection.delete("/source/#{CGI.escape(other_user.home_project_name)}")
-        Backend::Connection.delete("/source/#{CGI.escape(user.home_project_name)}")
-      end
     end
 
     scenario 'an existing package' do
