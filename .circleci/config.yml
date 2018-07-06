@@ -200,22 +200,13 @@ workflows:
   test_all:
     jobs:
       - lint
-      - rspec:
-          requires:
-            - lint
-      - rspec-bootstrap:
-          requires:
-            - lint
-      - minitest:
-          requires:
-            - lint
-      - spider:
-          requires:
-            - lint
-      - backend_test:
-          requires:
-            - lint
+      - rspec
+      - rspec-bootstrap
+      - minitest
+      - spider
+      - backend_test
       - upload_result:
           requires:
             - minitest
             - rspec
+            - lint
