@@ -509,6 +509,7 @@ OBSApi::Application.routes.draw do
 
     ### /trigger
     post 'trigger/runservice' => 'trigger#runservice'
+    post 'trigger/webhook' => 'services/webhooks#create'
 
     ### /issue_trackers
     get 'issue_trackers/issues_in' => 'issue_trackers#issues_in'

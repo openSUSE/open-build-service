@@ -1,4 +1,14 @@
 class Token::Service < Token
+  def valid_signature?(signature, body)
+    return false unless signature
+    ActiveSupport::SecurityUtils.secure_compare(signature_of(body), signature)
+  end
+
+  private
+
+  def signature_of(body)
+    'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), string, body)
+  end
 end
 
 # == Schema Information
