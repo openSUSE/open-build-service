@@ -191,16 +191,10 @@ class Webui::RequestController < Webui::WebuiController
     req = nil
     begin
       BsRequest.transaction do
-        req = BsRequest.new
-        req.state = 'new'
-        req.description = params[:description]
-
-        opts = { target_project: params[:project] }
+        opts = { target_project: params[:project], description: params[:description] }
         opts[:target_package] = params[:package] if params[:package]
         opts[:target_repository] = params[:repository] if params[:repository]
-        action = BsRequestActionDelete.new(opts)
-        req.bs_request_actions << action
-
+        req = BsRequest.build_from_params(:delete, opts)
         req.save!
       end
 
@@ -228,18 +222,13 @@ class Webui::RequestController < Webui::WebuiController
     req = nil
     begin
       BsRequest.transaction do
-        req = BsRequest.new
-        req.state = 'new'
-        req.description = params[:description]
-
         opts = { target_project: params[:project],
-                 role:           params[:role] }
+                 role:           params[:role],
+                 description: params[:description] }
         opts[:target_package] = params[:package] if params[:package]
         opts[:person_name] = params[:user] if params[:user]
         opts[:group_name] = params[:group] if params[:group]
-        action = BsRequestActionAddRole.new(opts)
-        req.bs_request_actions << action
-
+        req = BsRequest.build_from_params(:add_role, opts)
         req.save!
       end
     rescue APIException => e
@@ -259,17 +248,11 @@ class Webui::RequestController < Webui::WebuiController
     req = nil
     begin
       BsRequest.transaction do
-        req = BsRequest.new
-        req.state = 'new'
-        req.description = params[:description]
-
-        opts = { target_project: params[:project] }
+        opts = { target_project: params[:project], description: params[:description] }
         opts[:target_package] = params[:package] if params[:package]
         opts[:person_name] = params[:user] if params[:user]
         opts[:group_name] = params[:group] if params[:group]
-        action = BsRequestActionSetBugowner.new(opts)
-        req.bs_request_actions << action
-
+        req = BsRequest.build_from_params(:set_bugowner, opts)
         req.save!
       end
     rescue APIException => e
@@ -293,13 +276,12 @@ class Webui::RequestController < Webui::WebuiController
     req = nil
     begin
       BsRequest.transaction do
-        req = BsRequest.new(state: 'new', description: params[:description])
-        action = BsRequestActionChangeDevel.new(target_project: params[:project],
-          target_package: params[:package],
-          source_project: params[:devel_project],
-          source_package: params[:devel_package] || params[:package])
-
-        req.bs_request_actions << action
+        opts = { target_project: params[:project],
+                 description: params[:description],
+                 target_package: params[:package],
+                 source_project: params[:devel_project] }
+        opts[:source_package] = params[:devel_package] || params[:package]
+        req = BsRequest.build_from_params(:change_devel, opts)
         req.save!
       end
     rescue BsRequestAction::UnknownProject,
