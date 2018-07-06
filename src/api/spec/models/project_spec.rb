@@ -9,6 +9,7 @@ RSpec.describe Project, vcr: true do
   let(:package) { create(:package, project: project) }
   let(:leap_project) { create(:project, name: 'openSUSE_Leap') }
   let(:attribute_type) { AttribType.find_by_namespace_and_name!('OBS', 'ImageTemplates') }
+  let(:user) { create(:confirmed_user) }
 
   describe 'validations' do
     it {
@@ -26,9 +27,13 @@ RSpec.describe Project, vcr: true do
   end
 
   describe '.image_templates' do
-    let!(:attrib) { create(:attrib, attrib_type: attribute_type, project: leap_project) }
+    let(:attrib) { create(:attrib, attrib_type: attribute_type, project: leap_project) }
 
-    it { expect(Project.image_templates).to eq([leap_project]) }
+    it 'has leap template' do
+      login user
+      attrib
+      expect(Project.image_templates).to eq([leap_project])
+    end
   end
 
   describe '#store' do
@@ -413,11 +418,18 @@ RSpec.describe Project, vcr: true do
              package_name:        'restoration_package')
     end
 
+    # make sure it's gone even if some previous test failed
+    def reset_project_in_backend
+      Backend::Api::Sources::Project.delete 'project_used_for_restoration' if CONFIG['global_write_through']
+    rescue ActiveXML::Transport::NotFoundError
+    end
+
     before do
       login admin_user
     end
 
     it 'sets the user that restored the project in the history element' do
+      reset_project_in_backend
       deleted_project.destroy!
       Project.restore(deleted_project.name, user: admin_user.login)
 
@@ -426,6 +438,7 @@ RSpec.describe Project, vcr: true do
     end
 
     it 'project meta gets properly updated' do
+      reset_project_in_backend
       old_project_meta_xml = ProjectMetaFile.new(project_name: deleted_project.name).content
       deleted_project.destroy!
 
@@ -440,6 +453,7 @@ RSpec.describe Project, vcr: true do
       let(:package2_meta_before_deletion) { package2.render_xml }
 
       before do
+        reset_project_in_backend
         deleted_project.destroy!
       end
 
