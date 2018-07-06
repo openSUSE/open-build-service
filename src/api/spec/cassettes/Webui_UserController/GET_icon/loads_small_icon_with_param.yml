@@ -1,0 +1,54 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://www.gravatar.com/avatar/bd3a4af368439803aa37d318f9941a9f?d=wavatar&s=20
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Fri, 06 Jul 2018 07:25:48 GMT
+      Content-Type:
+      - image/png
+      Content-Length:
+      - '746'
+      Connection:
+      - keep-alive
+      Last-Modified:
+      - Wed, 11 Jan 1984 08:00:00 GMT
+      Link:
+      - <https://www.gravatar.com/avatar/bd3a4af368439803aa37d318f9941a9f?s=20&d=wavatar>;
+        rel="canonical"
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Nc:
+      - MISS fra 2
+      Accept-Ranges:
+      - bytes
+      Expires:
+      - Fri, 06 Jul 2018 07:30:48 GMT
+      Cache-Control:
+      - max-age=300
+      Source-Age:
+      - '0'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAACXBIWXMAAA7EAAAOxAGVKw4bAAACnElEQVQ4jaWUS08TURTH/3c605Yyta2CtJQaHtLQRKiRQDBR48KNG01w6cbEHYkbv4FfwZ0mbgyJGxM3xA2JIiQiygICwcjDB8VKWzp2yjw6M3fuddHSWmBh8Oxu7vmdc+7/nHsIJgZxUhNOTAIQD507vOGReOp8e08iHAsFQozzoqpu5LYL2s7iztovpoKQY+DRjtSjmxPXBy8z4rUoKg5MB5YDi+KGC5vCsozP6x+ezz9Z0NeqITwY6QBwLTE8/fDZwLk+m3kKZeRUFPah6FANaBYqFDaF5UpCS0+69/bvzMa2/b2ROd01IHl9vw1s5VEow7DhMri8VhQBBAKXo2xA0b0hXwr7Mw3YZbyoYWfPWl5eFQgvV4Rg7IJH9HLOS9m1oGSaNveE+02ENQtGxWl6s0Ndw0Juc/7erStKoeBS9/W7qaWv5bOn8OD+nczmVupievb94txukrKQe1DSgWCEcEAO+ERRbI9GAXR1xjzd42JxXpblgfQQISQebaM/TIihI2pzDkCTel5MfWz1CyXd1cS+gBemnH76ciEWEU2bZ41ISyhq6Ef6zAHOEYxE90lUcQA/AgAAyRdAbEwB4IfcCkVrGgqhrme1+ZzjkJmrb/W5yfoV56i7NNS2KVwGAMXMuq7k6nBw+nF+ayXYlmzvHz0UuQYbpq3o0CpwXITjyUg82ZjCoashgHFUbFQTMNastmHo2RJUA6YDziEQCAdfhnO4DDaFaaNswqIAac4882029WkynrxbNkm1eAKA1EjK4FBYFJTBB003l6o8qf9nwcUlX3I4MR7vHGOBbsMWGAfjNb5VsvTcypftN6t7r362aFV5ydFlIJpMtqXeM11+KbirehKn7Wwpn1HzFRnwef72PAb+d/uvTfIHo59HtsjJrswAAAAASUVORK5CYII=
+    http_version: 
+  recorded_at: Fri, 06 Jul 2018 07:25:48 GMT
+recorded_with: VCR 4.0.0

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Webui::UserController do
+RSpec.describe Webui::UserController, vcr: true do
   let!(:user) { create(:confirmed_user, login: 'tom') }
   let!(:non_admin_user) { create(:confirmed_user, login: 'moi') }
   let!(:admin_user) { create(:admin_user, login: 'king') }
@@ -340,7 +340,7 @@ RSpec.describe Webui::UserController do
   end
 
   describe 'GET #icon' do
-    let(:user) { create(:confirmed_user, login: 'iconic') }
+    let(:user) { create(:confirmed_user, login: 'iconic', email: 'null@example.com') }
 
     it 'loads big icon without param' do
       get :icon, params: { user: user.login }
