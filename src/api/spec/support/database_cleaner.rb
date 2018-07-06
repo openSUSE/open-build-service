@@ -12,7 +12,7 @@ RSpec.configure do |config|
     # Before the test suites runs make sure the database is empty
     log_level = Rails.logger.level
     Rails.logger.level = :fatal
-    DatabaseCleaner.clean_with(:truncation)
+    DatabaseCleaner.clean_with(:transaction)
     # and is seeded
     load "#{Rails.root}/db/seeds.rb"
     Rails.logger.level = log_level
