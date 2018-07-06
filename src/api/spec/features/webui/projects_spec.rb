@@ -149,23 +149,23 @@ RSpec.feature 'Projects', type: :feature, js: true do
       visit project_show_path(project: locked_project.name)
     end
 
-    scenario 'unlock project' do
+    scenario 'unlock' do
       click_link('Unlock project')
       fill_in 'comment', with: 'Freedom at last!'
       click_button('Ok')
-      expect(page).to have_text('Successfully unlocked project')
+      expect(page).to have_content('Successfully unlocked project')
 
       visit project_show_path(project: locked_project.name)
       expect(page).not_to have_text('is locked')
     end
 
-    scenario 'unlock project' do
+    scenario 'fail to unlock' do
       allow_any_instance_of(Project).to receive(:can_be_unlocked?).and_return(false)
 
       click_link('Unlock project')
       fill_in 'comment', with: 'Freedom at last!'
       click_button('Ok')
-      expect(page).to have_text("Project can't be unlocked")
+      expect(page).to have_content("Project can't be unlocked")
 
       visit project_show_path(project: locked_project.name)
       expect(page).to have_text('is locked')
