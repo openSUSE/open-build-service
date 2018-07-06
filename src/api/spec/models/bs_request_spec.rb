@@ -334,6 +334,11 @@ RSpec.describe BsRequest, vcr: true do
     end
   end
 
+  describe '#build_from_params' do
+    let(:opts) { { target_project: 'home:Admin', description: 'super duper' } }
+    it { expect(BsRequest.build_from_params(:set_bugowner, opts)).not_to be_nil }
+  end
+
   describe '#sanitize!' do
     let(:target_package) { create(:package) }
     let(:patchinfo) { create(:patchinfo) }
