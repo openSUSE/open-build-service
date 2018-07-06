@@ -16,7 +16,6 @@ VCR.configure do |config|
     #   http://stackoverflow.com/questions/6119669/using-webmock-with-cucumber
     request.uri =~ /127.0.0.1:\d{5}\/__identify__/
   end
-  config.ignore_hosts 'www.gravatar.com' # Ignore gravatar calls
 end
 
 RSpec.configure do |config|
