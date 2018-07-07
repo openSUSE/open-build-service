@@ -67,6 +67,11 @@
               <%= sprite_tag('exclamation') %> Open review for <%= render :partial => 'reviewer', :locals => { :review => review } %>
             </li>
         <% end %>
+        <% @my_open_reviews.each do |review| %>
+            <li>
+              <%= sprite_tag('exclamation') %> Open review for <%= render partial: 'reviewer', locals: { review: review } %>
+            </li>
+        <% end %>
     <% end %>
   </div>
 </div>
@@ -257,8 +262,9 @@
               <% if @my_open_reviews.length > 0 %>
                   <% @my_open_reviews.each_with_index do |open_review, index| %>
                       <li class="<%= 'selected' if @my_open_reviews.length > 0 && index == 0 %>">
-                        <a class="review_descision_link" id="review_descision_link_<%= index %>" href="#">Review
-                          for <%= render :partial => 'reviewer', :locals => { :review => open_review, :no_icon => true } %></a>
+                        <a class="review_descision_link" id="review_descision_link_<%= index %>" href="#">
+                          Review for <%= reviewer(open_review) %>
+                        </a>
                       </li>
                   <% end %>
               <% end %>

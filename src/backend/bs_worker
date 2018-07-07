@@ -1174,8 +1174,20 @@ sub manage_cache {
     unlink("$cachefile.meta");
   }
   @$content = grep {defined $_} @$content;
-  Storable::nstore($content, "$cachedir/content.new");
-  rename("$cachedir/content.new", "$cachedir/content") || die("500 rename $cachedir/content.new $cachedir/content: $!\n");
+  eval {
+    Storable::nstore($content, "$cachedir/content.new");
+    rename("$cachedir/content.new", "$cachedir/content") || die("500 rename $cachedir/content.new $cachedir/content: $!\n");
+  };
+  if ($@) {
+    # could not update content, delete all new entries
+    for my $c (@$cachenew) {
+      my $cacheid = $c->[0];
+      my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+      unlink($cachefile);
+      unlink("$cachefile.meta");
+    }
+    die($@);
+  }
   close F;
 }
 
