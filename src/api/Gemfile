@@ -105,6 +105,7 @@ group :test do
   # to ensure a clean state for testing
   gem 'database_cleaner', '>= 1.0.1'
   # for test coverage reports
+  gem 'codecov', require: false
   gem 'simplecov', require: false
   # for failing fast
   gem 'minitest-fail-fast'
