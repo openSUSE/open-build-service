@@ -144,6 +144,8 @@ class RemoveDuplicateIndexes < ActiveRecord::Migration[5.0]
     #	  `by_user` varchar(255) collate utf8_unicode_ci default null
     # To remove this duplicate index, execute:
     execute 'ALTER TABLE `reviews` DROP INDEX `index_reviews_on_state`;'
+  rescue
+    # Ignore failures based on https://github.com/openSUSE/open-build-service/issues/2949#issuecomment-292870618
   end
 
   def self.down
