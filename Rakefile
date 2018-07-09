@@ -146,7 +146,7 @@ end
 
 def environment_vars(with_coverage = true)
   environment = travis_environment_variables
-  environment.concat(['-e', 'DO_COVERAGE=1']) if with_coverage && ENV['TRAVIS']
+  environment.concat(['-e', 'DO_COVERAGE=1']) if with_coverage && ENV['CIRCLECI']
   environment.concat(['-e', 'EAGER_LOAD=1'])
   environment.concat(['-e', "TEST_SUITE='#{ENV['TEST_SUITE']}'"])
   environment
