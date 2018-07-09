@@ -1,3 +1,6 @@
+# for tracking test coverage
+require 'codecov'
+
 if ENV['CIRCLE_ARTIFACTS']
   dir = File.join(ENV['CIRCLE_ARTIFACTS'], 'coverage')
   SimpleCov.coverage_dir(dir)
@@ -14,6 +17,4 @@ SimpleCov.start 'rails' do
   merge_timeout 3600
 end
 
-# for tracking test coverage
-require 'codecov'
 SimpleCov.formatter = SimpleCov::Formatter::Codecov
