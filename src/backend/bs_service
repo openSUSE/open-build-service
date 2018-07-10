@@ -64,6 +64,7 @@ my $servicedir = $BSConfig::servicedir || "/usr/lib/obs/service";
 my $rootservicedir = $BSConfig::serviceroot ? "$BSConfig::serviceroot/$servicedir" : $servicedir;
 my $uploaddir = "$BSConfig::bsdir/upload";
 
+my $proxy = $BSConfig::proxy;
 my $noproxy = $BSConfig::noproxy;
 my $maxchild = $BSConfig::service_maxchild;
 
@@ -141,6 +142,8 @@ sub run_source_update {
   $::ENV{'OBS_NAME'} = $BSConfig::obsname if $BSConfig::obsname;
   $::ENV{'OBS_SERVICE_DAEMON'} = 1;
   $::ENV{'no_proxy'} = $noproxy if $noproxy;
+  $::ENV{'http_proxy'} = $proxy if $proxy;
+  $::ENV{'https_proxy'} = $proxy if $proxy;
 
   # run all services
   my $error;
