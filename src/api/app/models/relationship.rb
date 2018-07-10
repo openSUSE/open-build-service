@@ -148,11 +148,11 @@ class Relationship < ApplicationRecord
   end
 
   def self.with_users_and_roles
-    with_users_and_roles_query.pluck('users.login as login, roles.title AS role_name')
+    with_users_and_roles_query.pluck('users.login', 'roles.title')
   end
 
   def self.with_groups_and_roles
-    with_groups_and_roles_query.pluck('groups.title as title', 'roles.title as role_name')
+    with_groups_and_roles_query.pluck('groups.title', 'roles.title')
   end
 
   private
