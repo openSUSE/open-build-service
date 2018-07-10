@@ -551,4 +551,30 @@ RSpec.describe User do
       expect(user.can_create_project?('foo:bar')).to be true
     end
   end
+
+  describe '#gravatar_image' do
+    context 'gravatar configuration disabled' do
+      before do
+        allow(Configuration).to receive(:gravatar).and_return(false)
+      end
+
+      it { expect(user.gravatar_image(0)).to eq(:none) }
+    end
+
+    context 'gravatar configuration enabled' do
+      context 'problems loading the image' do
+        before do
+          allow(ActiveXML.backend).to receive(:load_external_url).and_raise(ActiveXML::Transport::Error)
+        end
+
+        it { expect(user.gravatar_image(0)).to eq(:none) }
+      end
+
+      before do
+        allow(ActiveXML.backend).to receive(:load_external_url).with(anything).and_return('some_content')
+      end
+
+      it { expect(user.gravatar_image(0)).to eq('some_content') }
+    end
+  end
 end

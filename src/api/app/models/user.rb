@@ -829,7 +829,6 @@ class User < ApplicationRecord
         hash = Digest::MD5.hexdigest(email.downcase)
         begin
           content = ActiveXML.backend.load_external_url("http://www.gravatar.com/avatar/#{hash}?s=#{size}&d=wavatar")
-          content.force_encoding('ASCII-8BIT') if content
         rescue ActiveXML::Transport::Error
           # ignored
         end
