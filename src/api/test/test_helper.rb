@@ -10,7 +10,7 @@ require 'minitest/reporters'
 Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
 
 if ENV['DO_COVERAGE']
-  ENV['CODECOV_FLAG'] = ENV['TEST_SUITE']
+  ENV['CODECOV_FLAG'] = ENV['CIRCLE_STAGE']
   SimpleCov.start 'rails' do
     # NOTE: Keep filters in sync with spec/support/coverage.rb
     add_filter '/app/indices/'
