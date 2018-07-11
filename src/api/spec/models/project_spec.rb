@@ -417,7 +417,7 @@ RSpec.describe Project, vcr: true do
       Project.restore(deleted_project.name, user: admin_user.login)
 
       meta = Xmlhash.parse(ProjectFile.new(project_name: deleted_project.name, name: '_history').content(deleted: 1))
-      expect(meta['revision'].last['user']).to eq(admin_user.login)
+      expect(meta.elements('revision').last['user']).to eq(admin_user.login)
     end
 
     it 'project meta gets properly updated' do
