@@ -1,5 +1,5 @@
 %nav{"aria-label" => "breadcrumb"}
-  %ol.breadcrumb.bg-light
+  %ol.breadcrumb.m-0.p-0.bg-light
     - @breadcrumbs.each do |breadcrumb|
       %li.breadcrumb-item{class: @breadcrumbs.last == breadcrumb && 'active' , "aria-current" => "page"}
         - if breadcrumb == @breadcrumbs.first

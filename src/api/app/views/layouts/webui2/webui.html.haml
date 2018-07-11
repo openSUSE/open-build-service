@@ -11,23 +11,31 @@
       = @configuration ? @configuration['title'] : 'Open Build Service'
     = stylesheet_link_tag 'webui2/webui2'
     = javascript_include_tag 'webui2/application'
+    = javascript_tag do
+      = yield :head_javascript
+      var _paq = _paq || [];
+      $(function() {
+      = yield :ready_function
+      - if @configuration['theme'] == 'bento'
+        callPiwik();
+      });
     = auto_discovery_link_tag(:rss, news_feed_path(format: 'rss'), {:title => 'News'})
     = csrf_meta_tag
     - if User.current.try(:rss_token)
       = auto_discovery_link_tag(:rss, user_rss_notifications_url(token: User.current.rss_token.string, format: :rss), { title: 'Notifications' })
   %body.d-flex.flex-column
-    .container-fluid#peek
+    .container-fluid#peek{style: 'overflow: hidden;'}
       = render 'peek/bar'
     #navigation
       = render partial: 'layouts/webui2/navigation'
-    .w-100.m-2
-    .container.d-none.d-sm-block#personal-navigation
-      .row
-        .col-6
-          = render partial: "layouts/webui2/breadcrumbs"
-        .col-6
-          %nav.nav.nav-pills.justify-content-end
-            = render partial: "layouts/webui2/personal_navigation"
+    .breadcrumb.bg-light
+      .container.d-block#personal-navigation
+        .row
+          .col-sm-6.my-auto
+            = render partial: "layouts/webui2/breadcrumbs"
+          .col-sm-6
+            %nav.nav.nav-pills.justify-content-end
+              = render partial: "layouts/webui2/personal_navigation"
     - unless flash.blank?
       .container#flash
         .row.justify-content-center
