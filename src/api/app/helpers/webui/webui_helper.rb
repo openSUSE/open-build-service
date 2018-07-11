@@ -30,11 +30,17 @@ module Webui::WebuiHelper
     )
   end
 
-  def user_icon(user, size = 20, css_class = nil, alt = nil)
-    user = User.find_by_login!(user) unless user.is_a? User
-    alt ||= user.realname
+  def user_icon(user, opt = {})
+    alt = opt[:alt] || user.realname
     alt = user.login if alt.empty?
-    image_tag(icon_user_path(user: user.login, size: size), width: size, height: size, alt: alt, class: css_class)
+    size = opt[:size] || 20
+    if ::Configuration.gravatar
+      hash = Digest::MD5.hexdigest(user.email.downcase)
+      url = "http://www.gravatar.com/avatar/#{hash}?s=#{size}&d=wavatar"
+    else
+      url = 'default_face.png'
+    end
+    image_tag(url, width: size, height: size, alt: alt, class: opt[:css_class])
   end
 
   def fuzzy_time(time, with_fulltime = true)

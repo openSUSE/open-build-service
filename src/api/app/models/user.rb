@@ -822,22 +822,6 @@ class User < ApplicationRecord
     update_globalroles(global_role + roles.global)
   end
 
-  # returns the gravatar image as string or :none
-  def gravatar_image(size)
-    Rails.cache.fetch([self, 'home_face', size, Configuration.first]) do
-      if ::Configuration.gravatar
-        hash = Digest::MD5.hexdigest(email.downcase)
-        begin
-          content = ActiveXML.backend.load_external_url("http://www.gravatar.com/avatar/#{hash}?s=#{size}&d=wavatar")
-        rescue ActiveXML::Transport::Error
-          # ignored
-        end
-      end
-
-      content || :none
-    end
-  end
-
   def display_name
     address = Mail::Address.new email
     address.display_name = realname
