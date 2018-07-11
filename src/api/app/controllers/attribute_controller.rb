@@ -33,7 +33,7 @@ class AttributeController < ApplicationController
     return unless (xml_element = validate_xml)
 
     if @at
-      authorize entry, :update?
+      authorize @at, :update?
       @at.update_from_xml(xml_element)
     else
       create(xml_element)
