@@ -1,0 +1,24 @@
+.row
+  .col-md-6
+    %h3
+      Build Flag #{image_tag 'ajax-loader.gif', id: 'spinner_flag_table_build', class: 'spinner', style: 'display: none'}
+      %span.flagerror
+    = render partial: 'shared/repositories_flag_table', locals: { flags: @build }
+  .col-md-6
+    %h3
+      Publish Flag #{image_tag 'ajax-loader.gif', id: 'spinner_flag_table_publish', class: 'spinner', style: 'display: none'}
+      %span.flagerror
+    = render partial: 'shared/repositories_flag_table', locals: { flags: @publish }
+.row
+  .col-md-6
+    %h3
+      Debuginfo
+      Flag #{image_tag 'ajax-loader.gif', id: 'spinner_flag_table_debuginfo', class: 'spinner', style: 'display: none'}
+      %span.flagerror
+    = render partial: 'shared/repositories_flag_table', locals: { flags: @debuginfo }
+  .col-md-6
+    %h3
+      Use for Build
+      Flag #{image_tag 'ajax-loader.gif', id: 'spinner_flag_table_useforbuild', class: 'spinner', style: 'display: none'}
+      %span.flagerror
+    = render partial: 'shared/repositories_flag_table', locals: { flags: @useforbuild }

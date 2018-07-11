@@ -1,0 +1,47 @@
+- @pagetitle = "Repositories of #{@project.name}"
+- @metarobots = "noindex"
+- project_bread_crumb
+- if @package
+  - @crumb_list << link_to(@package, package_show_path(package: @package))
+- @crumb_list << "Repositories"
+
+.card
+  - if @package
+    = render partial: "webui/package/tabs"
+  - else
+    = render partial: "webui/project/tabs"
+
+  - if @package
+    - if @package.project == @project
+      .card-body
+        .alert.alert-info
+          You can configure individual flags for this package here. The repositories are inherited from the project
+          = link_to @project, controller: :repositories, action: :index, project: @project
+        = render partial: 'shared/repositories', locals: { obj: @package }
+    - else
+      .card-body
+        .alert.alert-info
+          This package is inherited from the project
+          = link_to @package.project, action: :index, controller: :repositories, project: @package.project
+          and changing repository flags has no effect.
+  - else
+    .card-body
+      %h3
+        = @pagetitle
+      %p
+        You can configure individual flags for this project here.
+
+      #repository-list
+        - @project.repositories.includes(:path_elements, :download_repositories).each do |repository|
+          = render partial: "repository_entry", locals: { repository: repository }
+
+      - if User.current.is_admin?
+        %div.hidden.add-dod-repository-form
+          = render partial: "dod_repository_form", locals: { project: @project, download_on_demand: DownloadRepository.new }
+        %p
+          = link_to(image_tag("icons/drive_add", title: "Add DoD repository") + " Add DoD repository", "#add-dod-repository-link", data: { "toggle": "collapse" }, "aria": { "expanded": "false", "controls": "add-dod-repository-link" })
+      - if User.current.can_modify?(@project)
+        %p
+          = link_to(image_tag("icons/drive_add", title: "Add repository") + " Add repositories", action: :distributions, project: @project)
+
+      = render partial: "shared/repositories", locals: { obj: @project }

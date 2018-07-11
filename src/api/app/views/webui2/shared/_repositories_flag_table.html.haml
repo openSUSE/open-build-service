@@ -1,0 +1,29 @@
+- first_flag = flags['all'].first.flag
+%table.flag_table.table.table-striped.table-sm.table-responsive{ 'data-flag' => first_flag, id: "flag_table_#{first_flag}" }
+  %tr
+    %th Repository
+    %th{ style: 'width: 6ex' } All
+    - @architectures.each do |architecture|
+      %th{ style: 'width: 6ex' }= architecture.name
+  %tr
+    %td.reponame
+      %strong All
+    - flags['all'].each_with_index do |flag, index|
+      %td{ class: index == 0 ? 'allrow' : 'allcolum' }
+        = render partial: 'shared/repositories_flag_table_column', locals: { flag: flag }
+  - @project.repositories.each do |repository|
+    %tr
+      %td.reponame
+        %strong{ title: repository.name }
+          - if @package
+            = link_to(elide(repository.name, 18), package_binaries_path(project: @project, package: @package, repository: repository.name))
+          - else
+            = link_to(elide(repository.name, 18), action: :state, project: @project, repository: repository.name)
+      - flags[repository.name].each_with_index do |flag, index|
+        %td{ class: index == 0 ? 'allrow' : nil }
+          = render partial: 'shared/repositories_flag_table_column', locals: { flag: flag }
+- content_for :ready_function do
+  :plain
+    $( '.flag_spinner_trigger_#{h(first_flag)}' ).click(function() {
+      $( '#spinner_flag_table_#{h(first_flag)}' ).show();
+    });

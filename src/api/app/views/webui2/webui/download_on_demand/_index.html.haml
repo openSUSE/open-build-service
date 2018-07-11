@@ -1,0 +1,29 @@
+- repository_id = valid_xml_id(repository.name)
+%div
+  %b Download on demand sources
+  - if User.current.is_admin?
+     
+    %span.add-dod-repository-link-container
+      = image_tag('icons/drive_add')
+      = link_to('Add', '#', data: { "dod-repository-add": true })
+    .hidden.add-dod-repository-form
+      = render partial: 'webui2/webui/download_on_demand/add', locals: { project: project, repository: repository, download_on_demand: DownloadRepository.new(repository_id: repository.id) }
+  %ul
+    - repository.download_repositories.each do |dod_element|
+      %li
+        %b
+          = dod_element.arch
+        \: 
+        %a{ href: "#{dod_element.url}", target: "_blank", title: "Go to the repository" }
+          = dod_element.url
+         (#{dod_element.repotype})
+        - if User.current.is_admin?
+           
+          %span.edit-dod-repository-link-container
+            = image_tag('icons/drive_edit')
+            = link_to('Edit', '#', data: { "dod-repository-edit": true })
+            = image_tag('icons/drive_delete', title: 'Delete repository')
+            = link_to "Delete", download_repository_path(dod_element, project: project),
+              { data: { confirm: "Really remove Download on Demand for '#{repository.name} / #{dod_element.arch}'?" }, class: 'x', method: :delete }
+          .hidden.edit-dod-repository-form
+            = render partial: 'webui2/webui/download_on_demand/edit', locals: { project: project, repository: repository, download_on_demand: dod_element }

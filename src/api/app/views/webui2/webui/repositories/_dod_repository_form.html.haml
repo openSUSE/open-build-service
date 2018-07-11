@@ -1,0 +1,32 @@
+.card.m-3.collapse#add-dod-repository-link
+  %h5.card-header
+    = "Add DoD repository"
+
+  = form_tag({ action: :create_dod_repository, project: @project }, method: "post", remote: true) do
+    .card-body
+      %p
+        = label_tag(:name, "Repository name")
+        = text_field_tag(:name, nil, required: true, class: 'form-control')
+
+    .card-body
+      %h4
+        = "Download on Demand Source"
+      - # Note: Mostly C&P from app/views/webui/download_on_demand/_form.html.erb
+      %div
+        = label_tag :arch, "Architecture"
+        = select_tag :arch, options_for_select(Architecture.available, ""), required: true, class: 'form-control'
+        = label_tag :repotype, 'Type'
+        = select_tag :repotype, options_for_select(DownloadRepository::REPOTYPES, ""), class: 'form-control'
+        = label_tag :url, 'Url'
+        = text_field_tag(:url, nil, required: true, class: 'form-control')
+        = label_tag :archfilter, 'Arch. Filter'
+        = text_field_tag :archfilter, nil, class: 'form-control'
+        = label_tag :masterurl, 'Master Url'
+        = text_field_tag :masterurl, nil, class: 'form-control'
+        = label_tag :mastersslfingerprint, 'SSL Fingerprint'
+        = text_field_tag :mastersslfingerprint, nil, class: 'form-control'
+        = label_tag :pubkey, 'Public Key'
+        ~ text_area_tag :pubkey, nil, class: 'form-control'
+
+    .card-footer.d-flex
+      = submit_tag "Save", class: 'btn btn-primary ml-auto'

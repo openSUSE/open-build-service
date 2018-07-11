@@ -1,0 +1,144 @@
+- @pagetitle = "Show #{@project} / #{@package}"
+- @layouttype = 'custom'
+- dpackage = @package.develpackage
+- package_bread_crumb
+
+.card.mb-3
+  = render :partial => 'tabs'
+  .card-body
+    .row
+      .col-9
+        %h3#package_title
+          - title = @package.title
+          - title = @package.name if title.blank?
+          = title
+          - if @package.url.present?
+            %small
+              = link_to(@package.url, @package.url)
+        = description_wrapper(@package.description)
+      .col-3
+        = possibly_empty_ul class: :clean_list do
+          - if @failures > 0
+            %li.nav-item
+              = image_tag 'icons/exclamation', title: ''
+              = @failures
+              = link_to "error#{@failures == 1 ? '' : 's'}", :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name
+
+            = render :partial => 'shared/open_requests'
+
+            - if dpackage
+              %li.nav-item
+                = image_tag 'icons/information', title: ''
+                Developed at
+                = link_to(elide(dpackage.project.name, 44), :action => :show, :controller => :package, :project => dpackage.project.name, :package => dpackage.name)
+            - if @package.project != @project
+              %li.nav-item
+                = image_tag 'icons/information', title: ''
+                Sources inherited from project
+                = link_to("#{elide(@package.project.name, 40)}", :action => 'show', :project => @package.project.name, :package => @package.name)
+            - if @package.developed_packages.present?
+              %li.nav-item
+                = image_tag 'icons/information', title: ''
+                Devel package for
+                - @package.developed_packages.each_with_index do |pkg, index|
+                  = ',' if index > 0
+                  = link_to("#{elide(pkg.project.name, 40)}", :action => 'show', :project => pkg.project.name, :package => pkg.name)
+            - if @package.is_patchinfo?
+              %li.nav-item
+                = image_tag 'icons/information', title: ''
+                Has a
+                = link_to 'patchinfo', :controller => :patchinfo, :action => :show, :package => @package, :project => @project
+                for
+                = link_to 'maintenance updates', 'http://en.opensuse.org/Portal:Maintenance'
+                #TODO: Fix this hard link
+            - if @package.linking_packages.present?
+              %li.nav-item
+                = image_tag 'icons/information', title: ''
+                = @package.linking_packages.size
+                = link_to('derived packages', { :action => :linking_packages, :project => @project, :package => @package }, :remote => true)
+            - if @linkinfo
+              - linked_package = @linkinfo[:package]
+              = image_tag('icons/package_link')
+              Links to
+              = project_or_package_link project: linked_package.project.name, package: linked_package.name, short: true
+              - if @linkinfo[:error]
+                %li.nav-item
+                  = image_tag 'icons/exclamation', title: ''
+                  Link has errors:
+                  %i
+                    = @linkinfo[:error]
+              - elsif @linkinfo[:diff]
+                %li.nav-item
+                  = image_tag 'icons/information', title: ''
+                  Has a
+                  = link_to 'link diff', :action => :rdiff, :oproject => linked_package.project.name, :opackage => linked_package.name, :project => @project, :package => @package, :rev => @revision
+            = render partial: 'extra_actions'
+
+      %div
+        = possibly_empty_ul class: 'nav' do
+          - if @bugowners_mail.present? and @configuration['bugzilla_url']
+            %li.nav-item
+              = link_to image_tag('icons/tools-report-bug', title: 'Report Bug') + ' Report Bug', bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug", class: 'nav-link')
+          - unless User.current.is_nobody?
+            - if @current_rev
+              %li.nav-item
+                = link_to(image_tag('icons/arrow_branch', title: 'Branch package') + ' Branch package', '#', class: 'nav-link', data: { "toggle": "modal", "target": "#branchModal" })
+              %li.nav-item
+                = link_to(image_tag('icons/package_go', title: 'Submit package') + ' Submit package', { :action => :submit_request_dialog, :project => @project, :package => @package, :revision => @revision }, :remote => true, class: 'nav-link')
+              - if User.current.can_modify? @package
+                %li.nav-item
+                  = link_to image_tag('icons/package_edit', title: 'Edit description') + ' Edit description', {:action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count}, class: 'nav-link'
+                %li.nav-item
+                  = link_to(image_tag('icons/package_delete', title: 'Delete package') + ' Delete package', { :action => :delete_dialog, :package => @package, :project => @project }, :remote => true, id: 'delete-package', class: 'nav-link')
+                - Feature.with(:kiwi_image_editor) do
+                  - if @package.kiwi_image? && policy(@package).update?
+                    %li.nav-item
+                      = link_to(image_tag('icons/package_edit', title: 'View Image') + ' View Image', import_kiwi_image_path(@package.id), id: 'edit-kiwi', class: 'nav-link')
+                - if Feature.active?(:cloud_upload) && !User.current.is_nobody?
+                  - if @package.kiwi_image?
+                    %li.nav-item
+                      = link_to(image_tag('icons/drive_web', title: 'Cloud Upload') + ' Cloud Upload', cloud_upload_index_path, id: 'cloud-upload', class: 'nav-link')
+                - if @services.present?
+                  %li.nav-item
+                    = link_to(image_tag('icons/package_link', title: 'Trigger services') + ' Trigger services', { action: :trigger_services, package: @package, project: @project }, method: :post, class: 'nav-link')
+                %li.nav-item
+                  = link_to(image_tag('icons/user_add', title: 'Request role addition') + ' Request role addition', { :controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package }, :remote => true, :class => 'nav-link')
+                %li.nav-item
+                  = link_to(image_tag('icons/package_delete', title: 'Request deletion') + ' Request deletion', { :controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package }, :remote => true, class: 'nav-link')
+              //TODO: only users w/o rights should see this, maintainers should get a different dialog:
+            - if @package.develpackage
+              %li.nav-item
+                = link_to(image_tag('icons/arrow_switch', title: 'Request devel project change') + ' Request devel project change', { controller: :request, action: :change_devel_request_dialog, project: @project, package: @package }, remote: true, class: 'nav-link')
+
+.row
+  .col-lg-8
+    .card.mb-3
+      %h5.card-header.mb-2
+        Source Files
+        = image_tag('ajax-loader.gif', :id => 'spinner_files', :style => 'display: none')
+        - if @linkinfo && @revision_parameter.nil?
+          %small
+            - if @expand && @expand.to_s == '1' || @forced_unexpand.present?
+              = link_to '(show unmerged sources)', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '0'
+            - else
+              = link_to '(show merged sources derived from linked package)', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '1'
+      - unless @forced_unexpand.blank?
+        %p.card-body
+          %i
+            Sources could not be expanded:
+            = @forced_unexpand
+          = link_to 'Show unmerged sources', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '0'
+      - else
+        = render :partial => 'files_view'
+  .col-lg-4
+    = render :partial => 'shared/buildresult_box', :locals => { :project => @project.name, :package => @package.name }
+  .col-12
+    .card.mb-3
+      %h5.card-header
+        Comments for
+        = @project.name
+        (#{ @comments.length})
+      .card-body
+        = render :partial => 'webui/comment/show', locals: { commentable: @package }
+
+= render partial: 'webui/package/branch_dialog'

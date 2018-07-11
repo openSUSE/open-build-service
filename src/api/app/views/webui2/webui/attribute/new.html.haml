@@ -1,0 +1,34 @@
+- @pagetitle = "Add Attribute"
+- project_bread_crumb
+- if @package
+  - @crumb_list << link_to(@package, package_show_path(package: @package))
+  - @crumb_list << link_to('Attributes', index_attribs_path(project: @project.name, package: @package))
+- else
+  - @crumb_list << link_to('Attributes', index_attribs_path(project: @project.name))
+- @crumb_list << "Add"
+.card
+  - if @package
+    = render partial: "webui/package/tabs"
+  - else
+    = render partial: "webui/project/tabs"
+  .card-body
+    %h2
+      = @pagetitle
+  = form_for(@attribute) do |f|
+    .card-body
+      .field
+        %p
+          = f.select :attrib_type_id, AttribType.all.collect { |a| [a.fullname, a.id] }.sort, {include_blank: false}, {:class => 'custom-select'}
+          = hidden_field_tag("attrib[project_id]", @attribute.project_id)
+          = hidden_field_tag("attrib[package_id]", @attribute.package_id) if @attribute.package_id
+      %p.help-block#first-help
+        = AttribType.all.to_a.sort_by { |t| t.fullname }.first.description
+        = "Sorry, this attribute has no description" if AttribType.all.to_a.sort_by { |t| t.fullname }.first.description.blank?
+      - AttribType.all.each do |type|
+        %p.help-block.attrib-type{ id: "#{type.id}-help", style: 'display: none' }
+          = type.description
+          = "Sorry, this attribute has no description" if type.description.blank?
+    .card-footer
+      .actions
+        .d-flex
+          = f.submit "Create Attribute", class: 'btn btn-primary ml-auto'

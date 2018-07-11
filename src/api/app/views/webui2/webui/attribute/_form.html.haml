@@ -1,0 +1,29 @@
+= form_for(@attribute) do |attribute_form|
+  - if @attribute.errors.any?
+    #error-explanation.alert.alert-info
+      %h2
+        = pluralize(@attribute.errors.count, "error")
+        prohibited this attribute from being saved:
+      %ul
+        - @attribute.errors.full_messages.each do |message|
+          %li
+            = message
+  .card-body
+    #values
+      = attribute_form.fields_for :values do |value|
+        = render 'value_fields', f: value
+      - if @attribute.values_addable?
+        .links
+          %p
+            = link_to_add_association 'add value', attribute_form, :values
+  - if @attribute.attrib_type.issue_list
+    .card-body
+      #issues
+        = attribute_form.fields_for :issues do |issue|
+          = render 'issue_fields', f: issue
+      .links
+        = link_to_add_association 'add issue', attribute_form, :issues
+  .actions.card-footer
+    = attribute_form.hidden_field(:attrib_type_id)
+    .d-flex
+      = attribute_form.submit "Save Attribute", class: 'btn btn-primary ml-auto'

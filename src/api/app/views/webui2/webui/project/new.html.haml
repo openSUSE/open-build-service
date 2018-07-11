@@ -1,0 +1,26 @@
+- @pagetitle = 'Create New Project'
+- project_bread_crumb 'New Project'
+
+.card
+  %h3.card-header
+    = @pagetitle
+  - unless User.current.is_admin?
+    .alert.alert-danger
+      All users have a homes project by default. Yours is 
+      = link_to User.current.home_project_name, { controller: :project, action: :show, project: User.current.home_project_name }
+      , and you can also create sub projects inside. New projects outside of your home project can get requested via 
+      %a{"href": "mailto:#{@configuration['admin_email']}"} email
+      '.'
+
+  - if @show_restore_message
+    .alert.alert-warning
+      A project with the same name existed in the past. You can restore the old state instead of starting from
+      scratch. 
+      = link_to 'Click here', projects_restore_path(project: @project.name), method: :post
+      if you want to restore the project. If you want to start from scratch, click the 'Create Project' button
+      again. 
+      %strong
+        (Be aware that starting from scratch would mean that you'd delete the old state of the project
+        and it can never get restored again!)
+
+  = render partial: 'form', locals: { project: @project, configuration: @configuration }

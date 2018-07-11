@@ -1,0 +1,23 @@
+- @pagetitle = "Edit Project Information of #{@project}"
+- @metarobots = 'noindex'
+- project_bread_crumb 'Edit Project'
+.card
+  = render :partial => "tabs"
+  = form_for(@project, url: { action: :update }) do |f|
+    .card-body
+      %h2= @pagetitle
+      = hidden_field_tag "id", @project.id
+      %p
+        %label{:for => "project_title"}
+          %strong Title:
+        = f.text_field :title, :size => 80, class: 'form-control'
+      %p
+        %label{:for => "project_description"}
+          %strong Description:
+        = f.text_area :description, :rows => 20, :cols => 80, class: 'form-control'
+      %p
+        %label{:for => "project_url"}
+          %strong URL:
+        = f.text_field :url, :size => 80, class: 'form-control'
+    .card-footer.d-flex
+      = f.submit "Save", class: 'btn btn-primary ml-auto'

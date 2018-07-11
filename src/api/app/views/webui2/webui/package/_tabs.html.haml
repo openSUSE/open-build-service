@@ -1,0 +1,16 @@
+.bg-light
+  %ul.nav.nav-tabs.pt-2.px-3
+    - if @package.name == "patchinfo"
+      = webui2_tab 'details', 'Details', :controller => '/webui/patchinfo', :action => 'show'
+    = webui2_tab 'overview', 'Overview', :controller => '/webui/package', :action => 'show'
+    - unless @spider_bot
+      = webui2_tab 'repositories', 'Repositories', :controller => '/webui/repositories', :action => 'index'
+      = webui2_tab 'revisions', 'Revisions', :controller => '/webui/package', :action => 'revisions'
+      = webui2_tab 'requests', "Requests", :controller => '/webui/package', :action => 'requests'
+      = webui2_tab 'users', 'Users', :controller => '/webui/package', :action => 'users'
+    - unless @spider_bot
+      %li.nav-item.dropdown
+        %a.nav-link.dropdown-toggle{ href: '#', "data-toggle": "dropdown", "role": "button", "aria-haspopup": "true", "aria-expanded": "false"} Advanced
+        .dropdown-menu
+          = link_to 'Attributes', {controller: '/webui/attribute', :package => @package, :project => @project, :action => 'index'}, class: 'dropdown-item'
+          = link_to 'Meta', {:controller => '/webui/package', :action => 'meta'}, class: 'dropdown-item'

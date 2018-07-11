@@ -1,0 +1,17 @@
+- content_for(:content_for_head, javascript_include_tag('webui/application/cm2/index-prjconf'))
+
+- @pagetitle = "Project Configuration of #{@project}"
+- @metarobots = 'noindex'
+- project_bread_crumb 'Project Configuration'
+
+.card
+  = render :partial => 'tabs'
+
+  .card-body
+    %h3
+      = @pagetitle
+    %div
+      - if User.current.can_modify?(@project)
+        = render partial: "shared/editor", locals: {text: @content, mode: 'prjconf', save: {url: url_for(controller: 'project', action: 'save_prjconf'), method: 'POST', data: {project: @project.name, submit: 'config'}}}
+      - else
+        = render partial: "shared/editor", locals: {text: @content, mode: 'prjconf', style: {read_only: true}}

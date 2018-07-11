@@ -1,0 +1,34 @@
+- @pagetitle = "Create New Package"
+- @metarobots = 'noindex'
+- project_bread_crumb @pagetitle
+
+.card
+  = render :partial => "tabs"
+
+
+  = form_tag controller: :package, action: 'save_new', project: @project.to_param do
+    .card-body
+      %h2
+        = @pagetitle
+        for
+        = @project.name
+      %strong
+        Name:
+      = text_field_tag 'name', @package_name, :size => 80, required: true, class: 'form-control'
+      %strong
+        Title:
+      = text_field_tag 'title', @package_title, :size => 80, class: 'form-control'
+      %strong
+        Description:
+      = text_area_tag 'description', @package_description, :cols => 80, :rows => 10, class: 'form-control'
+      - unless @configuration['hide_private_options']
+        .custom-control.custom-checkbox
+          = check_box_tag :source_protection, "no", false, class: 'custom-control-input'
+          %label.custom-control-label{for: "source_protection"}
+            Deny access to sources of package.
+      .custom-control.custom-checkbox
+        = check_box_tag :disable_publishing, "no", false, class: 'custom-control-input'
+        %label.custom-control-label{for: "disable_publishing"}
+          Disable build results publishing.
+    .card-footer.d-flex
+      = submit_tag "Create", class: 'btn btn-primary ml-auto'

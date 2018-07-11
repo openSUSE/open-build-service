@@ -1,0 +1,8 @@
+.bg-light
+  %ul.nav.nav-tabs.pt-2.px-3
+    = webui2_tab 'configuration', 'Configuration', controller: :configuration, action: :index
+    = webui2_tab 'architectures', 'Architectures', controller: :architectures, action: :index
+    = webui2_tab 'users', 'Manage Users', controller: :user, action: :index
+    = webui2_tab 'groups', 'Manage Groups', controller: :groups, action: :index
+    = webui2_tab 'notifications', 'Notifications', controller: :subscriptions, action: :index
+    = webui2_tab 'interconnect', 'Interconnect', controller: :configuration, action: :interconnect

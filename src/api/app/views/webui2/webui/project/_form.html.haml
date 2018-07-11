@@ -1,0 +1,37 @@
+= form_for project, url: { action: 'create' } do |f|
+  .card-body
+    %b
+      = local_assigns.has_key?(:ns) ? 'Subproject' : 'Project'
+      Name:
+
+    - if local_assigns.has_key?(:ns)
+      = hidden_field_tag :ns, ns
+      = ns + ':'
+    = f.text_field :name, size: 50, required: true, class: 'form-control'
+
+    %label{:for => "title"}
+      %b Title:
+
+    = f.text_field :title, size: 80, class: 'form-control'
+
+    %label{:for => "description"}
+      %b Description:
+
+    = f.text_area :description, cols: 80, rows: 10, class: 'form-control'
+
+    - unless configuration['hide_private_options']
+      .custom-control.custom-checkbox
+        = check_box_tag :access_protection, "no", false, class: "custom-control-input"
+        %label{:for => "access_protection", :class => "custom-control-label"} Hide the entire project.
+
+      .custom-control.custom-checkbox
+        = check_box_tag :source_protection, "no", false, class: "custom-control-input"
+        %label{:for => "source_protection", :class => "custom-control-label"} Deny access to sources of project.
+
+    .custom-control.custom-checkbox
+      = check_box_tag :disable_publishing, "no", false, class: "custom-control-input"
+      %label{:for => "disable_publishing", :class => "custom-control-label"} Disable build results publishing.
+    - if @show_restore_message
+      = hidden_field_tag :restore_option_provided, true
+
+  .card-footer.d-flex= submit_tag "Create Project", class: 'btn btn-primary ml-auto'

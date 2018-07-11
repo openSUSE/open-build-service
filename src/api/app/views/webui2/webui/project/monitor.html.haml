@@ -1,0 +1,109 @@
+- @pagetitle = "Project #{@project} Status Monitor"
+- @metarobots = 'noindex,nofollow'
+- project_bread_crumb( 'Status Monitor' )
+= content_for :ready_function do
+  project_monitor_ready();
+.card
+  = render :partial => "tabs"
+  .card-body#monitor-wrapper
+    / Filter Settings
+    = form_tag({:controller => 'project', :action => 'monitor'}, :method => :get) do
+      .form-inline
+        = submit_tag 'Filter:', class: 'btn btn-primary'
+        .dropdown#statuslink.strong.filterlink
+          %button.btn.btn-link.dropdown-toggle#dropdownStatusButton{ type: "button", "data-toggle": "dropdown", "aria-haspopup": "true", "aria-expanded": "false" }
+            Status
+          #statusbox.filterbox.dropdown-menu
+            - unless @avail_status_values.empty?
+              - @avail_status_values.each do |s|
+                - id=s.gsub(' ', '')
+                .dropdown-item.filteritem{:id => "li_#{id}"}
+                  .custom-control.custom-checkbox
+                    = check_box_tag id, 1, @status_filter.include?(s), :class => "statusitem custom-control-input"
+                    %label.custom-control-label{:for => id}= s
+            %a#statusbox_all.dropdown-item{:href => "#"} Select all
+            %a#statusbox_none.dropdown-item{:href => "#"} Select none
+        %label.strong{:for => "pkgname"} Packagename:
+        = text_field_tag "pkgname", @name_filter, class: 'form-control inline-form'
+        .dropdown#repolink.strong.filterlink
+          %button.btn.btn-link.dropdown-toggle#dropdownRepositoryButton{ type: "button", "data-toggle": "dropdown", "aria-haspopup": "true", "aria-expanded": "false" }
+            Repository
+          #repobox.dropdown-menu.filterbox
+            - unless @avail_repo_values.empty?
+              - @avail_repo_values.each do |s|
+                .dropdown-item.filteritem
+                  .custom-control.custom-checkbox
+                    - sname = valid_xml_id('repo_' + s)
+                    = check_box_tag s, 1, @repo_filter.include?(s), :class => "repoitem custom-control-input", :id => sname, :name => sname
+                    %label.custom-control-label{:for => sname}= s
+            %a#repobox_all.dropdown-item{:href => "#"} Select all
+            %a#repobox_none.dropdown-item{:href => "#"} Select none
+        .dropdown#archlink.strong.filterlink
+          %button.btn.btn-link.dropdown-toggle#dropdownArchitectureButton{ type: "button", "data-toggle": "dropdown", "aria-haspopup": "true", "aria-expanded": "false" }
+            Architecture
+          #archbox.dropdown-menu.filterbox
+            - unless @avail_arch_values.empty?
+              - @avail_arch_values.each do |s|
+                .dropdown-item.filteritem
+                  .custom-control.custom-checkbox
+                    - sname = valid_xml_id('arch_' + s)
+                    = check_box_tag s, 1, @arch_filter.include?(s), :class => "architem custom-control-input", :id => sname, :name => sname
+                    %label.custom-control-label{:for => sname}= s
+            %a#archbox_all.dropdown-item{:href => "#"} Select all
+            %a#archbox_none.dropdown-item{:href => "#"} Select none
+        %label.strong{:for => "lastbuild"} Last time results:
+        = check_box_tag "lastbuild", 1, @lastbuild_switch
+        = hidden_field_tag 'project', @project
+        = hidden_field_tag 'defaults', '0'
+  - if @buildresult_unavailable
+    %h3 Buildstatus unavailable
+  - elsif @packagenames.empty?
+    %h3 No Results
+  - else
+    %table.buildstatus.table.table-striped.table-sm.table-responsive
+      / repo row
+      %thead
+        %tr
+          %th
+          - @repohash.sort.each do |repo,archlist|
+          - next if archlist.empty?
+            %th{:colspan => archlist.length}
+              %span.strong= repo
+        / arch row
+        %tr
+          %th
+          - @repohash.sort.each do |repo, archlist|
+            - archlist.sort.each do |arch|
+              %th.buildstatus
+                = repo_status_icon_webui2(@repostatushash[repo][arch],@repostatusdetailshash[repo][arch])
+                = arch
+      %tbody
+        / package rows
+        - @packagenames.each do |packname|
+          %tr
+            %td
+              = link_to word_break(packname, 40), :controller => "package", :action => "show", |
+                :package => packname, :project => @project.to_s                                |
+            - @repohash.sort.each do |repo, archlist|
+              - archlist.sort.each do |arch|
+                = arch_repo_table_cell(repo, arch, packname, nil, false)
+    .card-body
+      #refresh_date
+        %p
+          Updated at: #{DateTime.now.to_s.sub(/T/, " ")}
+      #legend
+        %h3 Legend
+        %ul
+          - Buildresult::STATUS_DESCRIPTION.each do |status, description|
+            %li
+              %strong
+                = status
+                \:
+              %span.descr= description
+      #start_link
+- content_for :ready_function do
+  $('.unresolvable, .blocked').click(function() {
+  var title = $(this).attr('title');
+  alert(title);
+  return false;
+  });

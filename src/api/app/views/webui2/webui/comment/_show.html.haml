@@ -1,0 +1,15 @@
+.comments
+  - commentable.comments.walk_tree do |comment, level|
+    %div{class: "comment d-flex ml-auto col-#{level >= 4 ? 4 : 12 - level}"}
+      .card.w-100.mb-3
+        .card-header
+          = user_with_realname_and_icon(comment.user, no_icon: true, short: true)
+          wrote
+          %span.comment_time
+            = fuzzy_time(comment.created_at)
+        .card-body.pb-0
+          = comment_body(comment)
+          = render partial: 'webui/comment/links', locals: { comment: comment }
+          = render partial: 'webui/comment/reply', locals: { comment: comment, level: 0, commentable: commentable }
+  .comment_new.alpha.omega
+    = render partial: 'webui/comment/new', locals: { commentable: commentable }

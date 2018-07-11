@@ -1,0 +1,37 @@
+- @pagetitle = "Edit Package Information of #{@package} (Project #{@project})"
+- package_bread_crumb 'Edit Package'
+
+.card
+  = render :partial => 'tabs'
+
+  %h2.card-body
+    = @pagetitle
+
+  
+  = form_tag :action => :save do
+    .card-body
+      %label{"for": "title"}
+        %strong
+          Title:
+      = text_field_tag( 'title', @package.title, :size => 80, class: 'form-control' )
+      %label{"for": "description"}
+        %strong
+          Description:
+      - if params[:spec_count] == "1"
+        = link_to('Import from specfile', {:action => 'import_spec', :project => @project, :package => @package, :import => 'description'}, {:id => 'import-spec-link', :remote => true})
+        = image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden")
+      = text_area_tag( "description", @package.description, :cols => "80", :rows => "20", class: 'form-control' )
+      = hidden_field_tag( "project", @project.name )
+      = hidden_field_tag( "package", @package.name )
+
+    .card-footer
+      = submit_tag "Save changes", class: "btn btn-primary d-flex ml-auto"
+
+= javascript_tag do
+  $(function() {
+  var toggleLoading = function () { $('#spinner').toggle(); };
+  $('#import-spec-link')
+  \.bind('ajax:loading', toggleLoading)
+  \.bind('ajax:complete', toggleLoading)
+  \.bind('ajax:success', function (event, data, status, xhr) { $("#description").html(data); });
+  });

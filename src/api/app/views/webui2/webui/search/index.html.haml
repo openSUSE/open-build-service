@@ -1,0 +1,40 @@
+- require 'active_support/inflector'
+- @pagetitle = 'Search'
+- @crumb_list = [@pagetitle]
+- @layouttype = 'custom'
+
+.card
+  = render partial: 'tabs'
+  .card-body
+    %h3 Search for packages or projects:
+  #search-form
+    = form_tag({ controller: 'search', action: 'index' }, { method: :get }) do
+      .card-body
+        .input-group
+          = text_field_tag('search_text', params[:search_text], placeholder: 'Search', id: 'search_input', class: 'form-control mr-2 mb-2')
+          = submit_tag(nil, id: 'search_button', title: 'Search', class: 'btn btn-primary mb-2')
+        .input-group
+          = select_tag(:issue_tracker, options_for_select(@issue_tracker_list, params[:issue_tracker] || @default_tracker), class: 'form-control mb-2')
+          = text_field_tag('issue', params[:issue], size: 10, class: 'form-control mb-2 ml-2', placeholder: 'Bug tracker number')
+        %button.btn.btn-secondary.d-flex.mx-auto.collapsed{ "aria-controls": "collapseAdvanced", "aria-expanded": "false", type: "button", "data-toggle": "collapse", "data-target": "#collapseAdvanced"} Advanced
+      .card-body.collapse#collapseAdvanced
+        %h4 Search for:
+        %p
+          = check_box_tag('project', 1, params[:project].nil? || params[:project] == "1")
+          %label{for: "project" } Projects
+          = check_box_tag('package', 1, params[:package].nil? || params[:package] == "1")
+          %label{ for: "package" } Packages
+        %h4 Search in:
+        %p
+          = check_box_tag('name', 1, params[:name].nil? || params[:name] == "1")
+          %label{ for: "name" } Name
+          = check_box_tag('title', 1, params[:title] == "1")
+          %label{ for: "title" } Title
+          = check_box_tag('description', 1, params[:description] == "1")
+          %label{ for: "description" } Description
+        %h4 Require attribute:
+        %p
+          = select_tag(:attrib_type_id, options_for_select(@attrib_type_list, params[:attrib_type_id]), id: 'attribute_list')
+
+  - unless @results.nil? || @results.empty?
+    = render(partial: 'results')

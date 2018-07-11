@@ -1,0 +1,25 @@
+- @pagetitle = "Architecture Configuration"
+- @crumb_list = [@pagetitle]
+- @layouttype = 'custom'
+.card
+  = render partial: 'webui/configuration/tabs'
+  .card-body
+    %h3
+      Architecture Availability
+    %p
+      Toggle the availability of architectures.
+  = form_tag(bulk_update_availability_path, method: 'patch' ) do
+    .card-body
+      %table
+        %tr
+          %th Architecture
+          %th Availability
+        = fields_for :archs do |arch_fields|
+          - @architectures.each do |arch|
+            %tr
+              %td
+                = arch.name
+              %td
+                = arch_fields.check_box(arch.name, { checked: arch.available })
+    .card-footer.d-flex
+      = submit_tag 'Update', class: 'btn btn-primary ml-auto'

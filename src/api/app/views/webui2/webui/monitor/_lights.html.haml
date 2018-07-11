@@ -1,0 +1,36 @@
+= content_for :ready_function do
+  monitor_ready();
+
+.statuslights#serverstatus
+  %h2 Server Status
+  - @workerstatus.elements("partition") do |part|
+    - unless part["name"].blank?
+      %h3= part["name"]
+    - if part.has_key? "daemon"
+      .row
+        - part.elements("daemon") do |daemon|
+          .col-sm-4.col-md-3.col-lg-2
+            - state = "success"
+            - icon = "tick"
+            - if daemon["state"] == "dead"
+              - state = "danger"
+              - icon = "exclamation"
+            - elsif daemon["state"] == "booting"
+              - state = "warning"
+              - icon = "error"
+            %div.nav-item.alert{ class: "alert-#{state}", title: "#{daemon['state']}"}
+              .statusarch
+                = image_tag('icons/'+ icon, title: daemon["state"], class: 'd-block mx-auto')
+                %p.mb-0.text-truncate.text-center
+                  = daemon["arch"] ? daemon["arch"] : daemon["type"]
+              %span.d-none.statustext
+                = daemon["type"]
+                \:#{daemon['arch']}
+                \: #{daemon['state']}
+                - if daemon.has_key? "starttime"
+                  - start_time = Time.at(daemon["starttime"].to_i)
+                  for #{distance_of_time_in_words(@time_now, start_time, include_seconds: true)} (last restart: #{start_time.iso8601})
+    - else
+      %p
+        %i No daemons running!
+.clear

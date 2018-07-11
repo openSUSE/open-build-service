@@ -1,0 +1,7 @@
+%p.input-group
+  %label.my-auto.mx-3 Display
+  = select_tag( "request_type_select", options_for_select(@available_types, @default_request_type), data: { table: 'all_requests_table' }, class: 'custom-select')
+  %label.my-auto.mx-3 requests in state
+  = select_tag( "request_state_select", options_for_select(@available_states, @default_request_state), data: { table: 'all_requests_table' }, class: 'custom-select')
+  %span.my-auto.mx-3#request_count
+  = image_tag('ajax-loader.gif', :id => "spinner", :style => "display: none")

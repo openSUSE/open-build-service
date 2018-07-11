@@ -1,0 +1,68 @@
+- @pagetitle = "Subprojects of #{@project}"
+- @metarobots = 'noindex'
+- project_bread_crumb 'Subprojects'
+
+.card
+  = render partial: "tabs"
+
+  - if @parentprojects.present?
+    .card-body
+      %h3 Parent projects of #{@project}
+    %table.table.table-striped.mb-0
+      %thead
+        %tr
+          %th Parent project
+          %th Title
+      %tbody
+        - @parentprojects.each do |project|
+          %tr
+            %td.project_name= link_to(word_break(project.name), {action: 'show', project: project.name})
+            %td.project_title= word_break(project.title)
+  .card-body
+    %h3= @pagetitle
+  - if @subprojects.present?
+    %table.table.table-striped.mb-0
+      %thead
+        %tr
+          %th Subproject
+          %th Title
+      %tbody
+        - @subprojects.each do |project|
+          %tr
+            %td.project_name= link_to(word_break(remove_parent_name(project.name, @project.name), 50), {action: 'show', project: project.name})
+            %td.project_title= word_break(project.title)
+  - else
+    %p.card-body.text-center
+      %i This project has no subprojects
+
+  - if @siblings.present?
+    .card-body
+      %h3 Sibling projects of #{@project}
+    %table.table.table-striped.mb-0
+      %thead
+        %tr
+          %th Sibling project
+          %th Title
+      %tbody
+        - @siblings.each do |project|
+          %tr
+            %td.project_name= link_to(word_break(remove_parent_name(project.name, @parent_name), 50), {action: 'show', project: project.name})
+            %td.project_title= word_break(project.title)
+
+  - if User.current.can_modify?(@project)
+    .card-footer.d-flex
+      = link_to image_tag('icons/brick_add', title: 'New subproject') + ' New subproject', '#', id: 'create_subproject_link', class: 'btn btn-success ml-auto', data: { "toggle": "modal", "target": "#subprojectModal" }
+    .modal.fade#subprojectModal{ "tabindex": "-1", "role": "dialog", "aria-labelledby": "subprojectModalLabel", "aria-hidden": "true"}
+      .modal-dialog{ "role": "document" }
+        .modal-content
+          .modal-header
+            %h5.modal-title#subprojectModalLabel Branch Confirmation
+            %button.close{ "type": "button", "data-dismiss": "modal", "aria-label": "Close" }
+              %span{ "aria-hidden": "true" } &times;
+          = render partial: 'form', locals: { project: Project.new, configuration: @configuration, ns: @project.name }
+
+  - if @subprojects.present? || @parentprojects.present?
+    - content_for :ready_function do
+      setupSubprojectsTables();
+  - content_for :ready_function do
+    $("#create_subproject_link").click(function() { $('#create-subproject').show(); $('#create_subproject_link').hide() });

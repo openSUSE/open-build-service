@@ -1,0 +1,108 @@
+= content_for :head_javascript do
+  :plain
+    var logfileinfo = "package";
+    var container_width = -1;
+
+    function processCtrl(id, item)
+    {
+      var delta = item["delta"];
+      // 0 == #0f0
+      // 100 = #f00
+      // 50 = #ff0
+      var green = 255;
+      if (delta > 50) {
+        green = Math.round(255 * (100 - delta) / 50);
+      }
+      var red = 255;
+      if (delta < 50) {
+        red = Math.round(255 * delta / 50);
+      }
+
+      var container = $('#p' + id);
+      var el_text = container.children(".monitorpb_text:first");
+      var ctrl = container.find("#percentage:first");
+      if (delta) {
+        el_text.text(item[logfileinfo]);
+        if (container_width == -1) {
+          container_width = container.width();
+        }
+        ctrl.css("width", (delta) + "%");
+        var url = "#{url_for controller: :package, action: :live_build_log, project: 'PROJECT', package: 'PACKAGE', arch: 'ARCH', repository: 'REPOSITORY'}";
+        url = url.replace('ARCH', item["arch"]);
+        url = url.replace('PROJECT', item["project"]);
+        url = url.replace('PACKAGE', item["package"]);
+        url = url.replace('REPOSITORY', item["repository"]);
+
+        el_text.attr("href", url);
+        ctrl.css("background-color", "rgb(" + red + "," + green + ",0)");
+      }
+      else {
+        el_text.html("idle");
+        ctrl.css("width", "0%");
+        el_text.attr("href", "#");
+      }
+    }
+
+    function update()
+    {
+      $("#workers-updating").fadeIn(1200);
+      // resizeMonitorBoxes();
+      $.getJSON("#{url_for(controller: :monitor, action: :update_building)}", function(json) {
+        $.each(json, function(i,item) {
+                processCtrl(i, item);
+        });
+        $("#workers-updating").fadeOut(1200);
+      });
+    }
+
+= content_for :ready_function do
+  :plain
+    $("#worker-display option:selected").each(function() { logfileinfo=$(this).attr("value"); });
+
+    // Resize is not implemented right now. Hint: flot resize plugin could handle this.
+    // resizeMonitorBoxes();
+
+    update();
+    setInterval("update()", 100000 );
+
+    $("#worker-display").change(function() {
+      $("#worker-display option:selected").each(function() { logfileinfo=$(this).attr("value"); });
+      update();
+    });
+
+%div
+  %form{ action: "/"}
+    %p
+      %span
+        %span.strong Show:
+        %select#worker-display.form-control
+          %option{ selected: "selected", value: "package" } Package name
+          %option{ value: "project" } Project
+          %option{ value: "repository" } Repository
+          %option{ value: "arch" } Architecture
+%h2.nowrap#workers-title
+  Workers
+  %span.hidden#workers-updating (updating...)
+%div
+  %p
+    This shows the single workers and their jobs. The
+    %em progress
+    shown (and color) is not for the time it will take (we don't know that before),
+    but just relative against each other. The exact percentage shown has no real meaning, just one thing is certain: the bar reaches its maximum at 4h.
+  %p
+    The monitor is meant to entertain and not to be exact, if you need to know more details, check the #{link_to 'detailed page', action: :old}.
+- if @workers_sorted.empty?
+  %p
+    %i No workers
+- else
+  - @workers_sorted.each_slice(5) do |row|
+    .row.monitorboxrow
+      .col-sm-4.col-md-3.col-lg-2
+        - row.each do |name, hash|
+          .builderboxtitle= '%s (%s)' % [name, hash['_arch']]
+          - hash.each do |subid, id|
+            - if subid != '_arch'
+              .progress.monitorpb.mb-2{ id: "p#{id}" }
+                .progress-bar.progress-bar-striped#percentage
+                  %a.monitorpb_text{href: "#", rel: "nofollow"}
+                    %p

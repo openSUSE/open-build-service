@@ -1,0 +1,13 @@
+.nested-fields
+  .field
+    %p
+      - if @attribute.values_addable?
+        = f.label :position
+        = f.number_field :position, class: "attrib-position-input", size: 3
+      = f.label :value
+      - if @attribute.attrib_type.allowed_values.any?
+        = f.select :value, @attribute.attrib_type.allowed_values.map(&:value), { include_blank: false }, { id: 'attrib-default-select', class: 'custom-select' }
+      - else
+        = f.text_area :value, class: 'form-control'
+      - if @attribute.values_removeable?
+        = link_to_remove_association "remove value", f
