@@ -93,8 +93,13 @@ RSpec.describe Project, vcr: true do
   end
 
   describe '#image_template?' do
-    let!(:image_templates_attrib) { create(:attrib, attrib_type: attribute_type, project: leap_project) }
+    let(:image_templates_attrib) { create(:attrib, attrib_type: attribute_type, project: leap_project) }
     let(:tumbleweed_project) { create(:project, name: 'openSUSE_Tumbleweed') }
+
+    before do
+      login user
+      image_templates_attrib
+    end
 
     it { expect(leap_project.image_template?).to be(true) }
     it { expect(tumbleweed_project.image_template?).to be(false) }
