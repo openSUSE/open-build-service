@@ -1,125 +1,158 @@
-aliases:
-  - &cc_test_reporter_id
-    CC_TEST_REPORTER_ID: b7a6ce504d06a446d7f677160fb92e7b40a1c6538cd888435404a6ae92c5140a
-  - &minitest
-    docker:
-      - image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/openbuildservice/frontend-backend:latest
-        environment:
-          NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
-          EAGER_LOAD: 1
-          <<: *cc_test_reporter_id
-        user: frontend
-      - image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/openbuildservice/mariadb:latest
-        command: |
-          /bin/bash -c 'echo -e "[mysqld]\ndatadir = /dev/shm" > /etc/my.cnf.d/obs.cnf && cp -a /var/lib/mysql/* /dev/shm && /usr/lib/mysql/mysql-systemd-helper start'
-        name: db
+version: 2.0
+
+images:
+  - &common_frontend_config
+    user: frontend
+    environment:
+      CC_TEST_REPORTER_ID: b7a6ce504d06a446d7f677160fb92e7b40a1c6538cd888435404a6ae92c5140a
+      NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
+
+  - &mariadb
+    image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/containers/openbuildservice/mariadb:latest
+    command: |
+      /bin/bash -c 'echo -e "[mysqld]\ndatadir = /dev/shm" > /etc/my.cnf.d/obs.cnf && cp -a /var/lib/mysql/* /dev/shm && /usr/lib/mysql/mysql-systemd-helper start'
+    name: db
+
+  - &backend
+    image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/containers/openbuildservice/backend:latest
+
+  - &frontend_backend
+    image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/containers/openbuildservice/frontend-backend:latest
+    <<: *common_frontend_config
+    environment:
+      EAGER_LOAD: 1
+
   - &frontend_base
-    docker:
-      - image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/openbuildservice/frontend-base:latest
-        environment:
-          NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
-          <<: *cc_test_reporter_id
-        user: frontend
-      - image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/openbuildservice/mariadb:latest
-        command: |
-          /bin/bash -c 'echo -e "[mysqld]\ndatadir = /dev/shm" > /etc/my.cnf.d/obs.cnf && cp -a /var/lib/mysql/* /dev/shm && /usr/lib/mysql/mysql-systemd-helper start'
-        name: db
-  - &restore_bundle_cache
-    keys:
-    - v3-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
-    # fallback to using the latest cache if no exact match is found
-    - v3-dependencies-
-  - &save_bundle_cache
-    paths:
-      - /usr/lib64/ruby/gems/2.5.0/gems/
-    key: v2-dependencies-{{ checksum "./src/api/Gemfile.lock" }}
+    image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/containers/openbuildservice/frontend-base:latest
+    <<: *common_frontend_config
+
+aliases:
   - &install_dependencies
     name: install dependencies
     command: |
       cd ./src/api && bundle install --jobs=4 --retry=3
+
   - &wait_for_database
     name: Wait for DB
     command: mysqladmin ping -h db
+
   - &init_git_submodule
     name: Init submodule
     command: git submodule update --init --recursive --remote
 
-version: 2
+  - &create_test_db
+    name: Create database
+    command: cd src/api; bundle exec rake db:create db:setup RAILS_ENV=test
+
+  - &bootstrap_old_test_suite
+    name: Setup application
+    command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
+
+  - &repo_cache_key
+    key: v3-repo-{{ .Branch }}-{{ .Revision }}
+
+  - &restore_repo
+    restore_cache:
+      <<: *repo_cache_key
+
+  - &store_rspec_artefacts
+    store_artifacts:
+      path: ./src/api/log
+      destination: rspec
+    store_artifacts:
+      path: ./src/api/tmp/capybara
+      destination: capybara
+
+  - &store_minitest_artefacts
+    store_artifacts:
+      path: ./src/api/log/
+      destination: minitest
+
 jobs:
-  lint:
-    <<: *frontend_base
+  checkout_code:
+    docker:
+      - <<: *frontend_base
+      - <<: *mariadb
     steps:
+      - *restore_repo
       - checkout
-      - restore_cache: *restore_bundle_cache
       - run: *install_dependencies
-      - save_cache: *save_bundle_cache
       - run: *wait_for_database
+      - run:
+          name: Setup application
+          command: cd src/api; bundle exec rake dev:bootstrap RAILS_ENV=test
+      - save_cache:
+          <<: *repo_cache_key
+          paths:
+            - .
+
+  lint:
+    docker:
+      - <<: *frontend_base
+      - <<: *mariadb
+    steps:
+      - *restore_repo
+      - run: *install_dependencies
+      - restore_cache:
+          key: v3-lint
       - run:
           name: Install jshint
           command: sudo npm install -g jshint
+      - run: *wait_for_database
       - run:
           name: Setup application
           command: cd src/api; bundle exec rake dev:prepare RAILS_ENV=test
       - run:
           name: Run linters
           command: cd src/api; bundle exec rake dev:lint RAILS_ENV=test
+      - save_cache:
+          key: v3-lint
+          paths:
+            - src/api/tmp/rubocop_cache
+
   rspec:
-    <<: *frontend_base
+    docker:
+      - <<: *frontend_base
+      - <<: *mariadb
     steps:
-      - checkout
-      - restore_cache: *restore_bundle_cache
+      - *restore_repo
       - run: *install_dependencies
-      - save_cache: *save_bundle_cache
       - run: *wait_for_database
-      - run:
-          name: Setup application
-          command: cd src/api; bundle exec rake dev:bootstrap RAILS_ENV=test
+      - run: *create_test_db
       - run: mkdir /home/frontend/rspec
       - run:
           name: Run rspec
           command: cd src/api; bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/rspec/rspec.xml --exclude-pattern spec/bootstrap/**/*_spec.rb
-      - store_artifacts:
-          path: ./src/api/log
-          destination: rspec
-      - store_artifacts:
-          path: ./src/api/tmp/capybara
-          destination: capybara
+      - <<: *store_rspec_artefacts
       - store_test_results:
           path: /home/frontend/rspec
+
   rspec-bootstrap:
-    <<: *frontend_base
+    docker:
+      - <<: *frontend_base
+      - <<: *mariadb
     steps:
-      - checkout
-      - restore_cache: *restore_bundle_cache
+      - *restore_repo
       - run: *install_dependencies
-      - save_cache: *save_bundle_cache
       - run: *wait_for_database
-      - run:
-          name: Setup application
-          command: cd src/api; bundle exec rake dev:bootstrap RAILS_ENV=test
+      - run: *create_test_db
       - run:
           name: Run rspec with bootstrap enabled
           environment:
             BOOTSTRAP: 1
           command: cd src/api; bundle exec rspec --format progress --pattern spec/features/**/*_spec.rb --pattern spec/bootstrap/**/*_spec.rb
-      - store_artifacts:
-          path: ./src/api/log
-          destination: rspec
-      - store_artifacts:
-          path: ./src/api/tmp/capybara
-          destination: capybara
+      - <<: *store_rspec_artefacts
+
   minitest:
-    <<: *minitest
+    docker:
+      - <<: *frontend_backend
+      - <<: *mariadb
     steps:
-      - checkout
-      - run: *init_git_submodule
-      - restore_cache: *restore_bundle_cache
+      - *restore_repo
       - run: *install_dependencies
-      - save_cache: *save_bundle_cache
+      - run: *init_git_submodule
       - run: *wait_for_database
-      - run:
-          name: Setup application
-          command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
+      - run: *bootstrap_old_test_suite
       - run: mkdir /home/frontend/minitest
       - run:
           name: Run minitest
@@ -129,32 +162,29 @@ jobs:
           command: cd src/api; bundle exec rake test:api
       - store_test_results:
           path: /home/frontend/minitest
-      - store_artifacts:
-          path: ./src/api/log/
-          destination: minitest
+      - <<: *store_minitest_artefacts
+
   spider:
-    <<: *minitest
+    docker:
+      - <<: *frontend_backend
+      - <<: *mariadb
     steps:
-      - checkout
-      - run: *init_git_submodule
-      - restore_cache: *restore_bundle_cache
+      - *restore_repo
       - run: *install_dependencies
-      - save_cache: *save_bundle_cache
+      - run: *init_git_submodule
       - run: *wait_for_database
-      - run:
-          name: Setup application
-          command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
+      - run: *bootstrap_old_test_suite
       - run:
           name: Run spider
           command: cd src/api; bundle exec rake test:spider
-      - store_artifacts:
-          path: ./src/api/log/
-          destination: minitest
+      - <<: *store_minitest_artefacts
+
   backend_test:
     docker:
-      - image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/images/openbuildservice/backend:latest
+      - <<: *backend
+    working_directory: /home/frontend/project
     steps:
-      - checkout
+      - *restore_repo
       - run: *init_git_submodule
       - run:
           name: backend
@@ -164,19 +194,22 @@ workflows:
   version: 2
   test_all:
     jobs:
-      - lint
-      - rspec:
-          requires:
-            - lint
-      - rspec-bootstrap:
-          requires:
-            - lint
-      - minitest:
-          requires:
-            - lint
-      - spider:
-          requires:
-            - lint
+      - checkout_code
       - backend_test:
           requires:
-            - lint
+            - checkout_code
+      - lint:
+          requires:
+            - checkout_code
+      - rspec-bootstrap:
+          requires:
+            - checkout_code
+      - rspec:
+          requires:
+            - checkout_code
+      - minitest:
+          requires:
+            - checkout_code
+      - spider:
+          requires:
+            - checkout_code
