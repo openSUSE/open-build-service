@@ -438,6 +438,7 @@ class User < ApplicationRecord
 
   # project is instance of Project
   def can_modify_project?(project, ignore_lock = nil)
+    test = { 'foo' => "bar" }
     unless project.is_a? Project
       raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
     end
