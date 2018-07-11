@@ -4,7 +4,6 @@ images:
   - &common_frontend_config
     user: frontend
     environment:
-      CC_TEST_REPORTER_ID: b7a6ce504d06a446d7f677160fb92e7b40a1c6538cd888435404a6ae92c5140a
       NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
 
   - &mariadb
@@ -48,12 +47,21 @@ aliases:
     name: Setup application
     command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
 
-  - &repo_cache_key
+  # keep the prefix for the following aligned
+  - &save_repo_cache_key
     key: v3-repo-{{ .Branch }}-{{ .Revision }}
+
+  - &initial_repo_restore
+    restore_cache:
+      keys:
+        - v3-repo-{{ .Branch }}-{{ .Revision }}
+        - v3-repo-{{ .Branch }}
+        - v3-repo
 
   - &restore_repo
     restore_cache:
-      <<: *repo_cache_key
+      keys:
+        - v3-repo-{{ .Branch }}-{{ .Revision }}
 
   - &store_rspec_artefacts
     store_artifacts:
@@ -72,43 +80,31 @@ jobs:
   checkout_code:
     docker:
       - <<: *frontend_base
-      - <<: *mariadb
     steps:
-      - *restore_repo
+      - *initial_repo_restore
       - checkout
       - run: *install_dependencies
-      - run: *wait_for_database
-      - run:
-          name: Setup application
-          command: cd src/api; bundle exec rake dev:bootstrap RAILS_ENV=test
-      - save_cache:
-          <<: *repo_cache_key
-          paths:
-            - .
-
-  lint:
-    docker:
-      - <<: *frontend_base
-      - <<: *mariadb
-    steps:
-      - *restore_repo
-      - run: *install_dependencies
       - restore_cache:
-          key: v3-lint
+          key: v4-lint
       - run:
           name: Install jshint
           command: sudo npm install -g jshint
-      - run: *wait_for_database
-      - run:
-          name: Setup application
-          command: cd src/api; bundle exec rake dev:prepare RAILS_ENV=test
       - run:
           name: Run linters
           command: cd src/api; bundle exec rake dev:lint RAILS_ENV=test
       - save_cache:
-          key: v3-lint
+          key: v4-lint-{{ epoch }}
           paths:
-            - src/api/tmp/rubocop_cache
+            - src/api/tmp/rubocop_cache_root_dir
+            - src/api/tmp/rubocop_cache_rails_dir
+      - run: rm -rf src/api/tmp/rubocop*
+      - run:
+          name: Setup application
+          command: cd src/api; bundle exec rake dev:prepare assets:precompile RAILS_ENV=test
+      - save_cache:
+          <<: *save_repo_cache_key
+          paths:
+            - .
 
   rspec:
     docker:
@@ -152,6 +148,11 @@ jobs:
       - run: *install_dependencies
       - run: *init_git_submodule
       - run: *wait_for_database
+      - run:
+          name: Check DB Structure
+          command: |
+            cd src/api;
+            bundle exec rake dev:lint:db RAILS_ENV=test
       - run: *bootstrap_old_test_suite
       - run: mkdir /home/frontend/minitest
       - run:
@@ -196,9 +197,6 @@ workflows:
     jobs:
       - checkout_code
       - backend_test:
-          requires:
-            - checkout_code
-      - lint:
           requires:
             - checkout_code
       - rspec-bootstrap:
