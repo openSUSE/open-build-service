@@ -33,13 +33,7 @@ notifications:
 # Jobs matrix and stages 
 jobs:
   include:
-    - stage: Linters
-      env: TEST_SUITE=linter
-      cache:
-        directories:
-          - src/api/tmp/rubocop_cache
-    - stage: test
-      env: TEST_SUITE=rspec
+    - env: TEST_SUITE=rspec
     - env: TEST_SUITE=api
     - env: TEST_SUITE=spider
     - env: TEST_SUITE=backend
