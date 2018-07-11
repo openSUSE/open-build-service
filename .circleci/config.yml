@@ -84,9 +84,6 @@ jobs:
       - *initial_repo_restore
       - checkout
       - run: *install_dependencies
-      - run:
-          name: Setup application
-          command: cd src/api; bundle exec rake dev:prepare assets:precompile RAILS_ENV=test
       - restore_cache:
           key: v4-lint
       - run:
@@ -101,6 +98,9 @@ jobs:
             - src/api/tmp/rubocop_cache_root_dir
             - src/api/tmp/rubocop_cache_rails_dir
       - run: rm -rf src/api/tmp/rubocop*
+      - run:
+          name: Setup application
+          command: cd src/api; bundle exec rake dev:prepare assets:precompile RAILS_ENV=test
       - save_cache:
           <<: *save_repo_cache_key
           paths:
