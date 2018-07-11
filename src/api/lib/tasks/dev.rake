@@ -74,10 +74,15 @@ namespace :dev do
     Rake::Task['haml_lint'].invoke
     Rake::Task['dev:lint:rubocop:all'].invoke
     sh 'jshint ./app/assets/javascripts/'
-    Rake::Task['db:structure:verify'].invoke
-    Rake::Task['db:structure:verify_no_bigint'].invoke
   end
+
   namespace :lint do
+    task :db do
+      desc 'Verify DB structure'
+      Rake::Task['db:structure:verify'].invoke
+      Rake::Task['db:structure:verify_no_bigint'].invoke
+    end
+
     namespace :rubocop do
       desc 'Run the ruby linter in rails and in root'
       task all: [:root, :rails] do
