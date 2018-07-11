@@ -47,12 +47,21 @@ aliases:
     name: Setup application
     command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
 
-  - &repo_cache_key
+  # keep the prefix for the following aligned
+  - &save_repo_cache_key
     key: v3-repo-{{ .Branch }}-{{ .Revision }}
+
+  - &initial_repo_restore
+    restore_cache:
+      keys:
+        - v3-repo-{{ .Branch }}-{{ .Revision }}
+        - v3-repo-{{ .Branch }}
+        - v3-repo
 
   - &restore_repo
     restore_cache:
-      <<: *repo_cache_key
+      keys:
+        - v3-repo-{{ .Branch }}-{{ .Revision }}
 
   - &store_rspec_artefacts
     store_artifacts:
@@ -72,7 +81,7 @@ jobs:
     docker:
       - <<: *frontend_base
     steps:
-      - *restore_repo
+      - *initial_repo_restore
       - checkout
       - run: *install_dependencies
       - run:
@@ -93,7 +102,7 @@ jobs:
             - src/api/tmp/rubocop_cache_rails_dir
       - run: rm -rf src/api/tmp/rubocop*
       - save_cache:
-          <<: *repo_cache_key
+          <<: *save_repo_cache_key
           paths:
             - .
 
