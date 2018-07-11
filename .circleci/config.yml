@@ -148,6 +148,11 @@ jobs:
       - run: *install_dependencies
       - run: *init_git_submodule
       - run: *wait_for_database
+      - run:
+          name: Check DB Structure
+          command: |
+            cd src/api;
+            bundle exec rake dev:lint:db RAILS_ENV=test
       - run: *bootstrap_old_test_suite
       - run: mkdir /home/frontend/minitest
       - run:
