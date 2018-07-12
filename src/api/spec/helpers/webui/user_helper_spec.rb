@@ -39,13 +39,15 @@ RSpec.describe Webui::UserHelper do
 
     context 'for users that are not logged in' do
       before do
+        user.email = 'greatguy@nowhere.fi'
+        user.save
         User.current = anonymous_user
       end
 
       it 'does not link to user profiles' do
         expect(user_and_role(user.login)).to eq(
           "<img width=\"20\" height=\"20\" alt=\"#{CGI.escapeHTML(user.realname)}\" " \
-          "src=\"/user/#{user.login}/icon?size=20\" />#{CGI.escapeHTML(user.realname)} (#{user.login})"
+          "src=\"http://www.gravatar.com/avatar/803d88429659fa6549ee1a10ccdfbd47?s=20&amp;d=wavatar\" />#{CGI.escapeHTML(user.realname)} (#{user.login})"
         )
       end
     end
@@ -69,6 +71,25 @@ RSpec.describe Webui::UserHelper do
 
     it 'show the group' do
       expect(requester_str(creator.login, nil, 'ana-team')).to include('group', 'ana-team')
+    end
+  end
+
+  describe '#user_image_tag' do
+    let(:user) { create(:user, realname: 'Digger', email: 'gordo@example.com') }
+    context 'with gravatar configuration disabled' do
+      before do
+        allow(Configuration).to receive(:gravatar).and_return(false)
+      end
+
+      it 'returns default face' do
+        expect(user_image_tag(user)).to eq('<img width="20" height="20" alt="Digger" src="/images/default_face.png" />')
+      end
+    end
+
+    context 'with gravatar configuration enabled' do
+      it 'returns gravatar url' do
+        expect(user_image_tag(user)).to eq('<img width="20" height="20" alt="Digger" src="http://www.gravatar.com/avatar/66ada5090a2f94d4cfec83801081f3a2?s=20&amp;d=wavatar" />')
+      end
     end
   end
 end

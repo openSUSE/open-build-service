@@ -5,8 +5,7 @@ module Webui::UserHelper
     alt = user.try(:login) if alt.empty?
     size = opt[:size] || 20
     if user && ::Configuration.gravatar
-      hash = Digest::MD5.hexdigest(user.email.downcase)
-      url = "http://www.gravatar.com/avatar/#{hash}?s=#{size}&d=wavatar"
+      url = "http://www.gravatar.com/avatar/#{user.gravatar_hash}?s=#{size}&d=wavatar"
     else
       url = 'default_face.png'
     end
@@ -68,7 +67,7 @@ module Webui::UserHelper
         printed_name = "#{realname} (#{user.login})"
       end
 
-      user_icon(user) + ' ' + link_to(printed_name, user_show_path(user))
+      user_image_tag(user) + ' ' + link_to(printed_name, user_show_path(user))
     end
   end
 
