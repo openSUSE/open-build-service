@@ -2,25 +2,22 @@ class Webui::MonitorController < Webui::WebuiController
   before_action :require_settings, only: [:old, :index, :filtered_list, :update_building]
   before_action :fetch_workerstatus, only: [:old, :filtered_list, :update_building]
 
-  class << self
-    private_class_method
-    def addarrays(arr1, arr2)
-      # we assert that both have the same size
-      ret = []
-      if arr1
-        arr1.length.times do |i|
-          time1, value1 = arr1[i]
-          time2, value2 = arr2[i]
-          value2 ||= 0
-          value1 ||= 0
-          time1 ||= 0
-          time2 ||= 0
-          ret << [(time1 + time2) / 2, value1 + value2]
-        end
+  def self.addarrays(arr1, arr2)
+    # we assert that both have the same size
+    ret = []
+    if arr1
+      arr1.length.times do |i|
+        time1, value1 = arr1[i]
+        time2, value2 = arr2[i]
+        value2 ||= 0
+        value1 ||= 0
+        time1 ||= 0
+        time2 ||= 0
+        ret << [(time1 + time2) / 2, value1 + value2]
       end
-      ret << 0 if ret.length.zero?
-      ret
     end
+    ret << 0 if ret.length.zero?
+    ret
   end
 
   def old; end
