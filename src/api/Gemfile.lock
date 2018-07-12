@@ -223,7 +223,7 @@ GEM
     nokogumbo (1.5.0)
       nokogiri
     parallel (1.12.1)
-    parser (2.5.1.0)
+    parser (2.5.1.2)
       ast (~> 2.4.0)
     peek (1.0.1)
       concurrent-ruby (>= 0.9.0)
