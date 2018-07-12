@@ -130,17 +130,4 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 3, user.roles.count, 'Should remove all additional global roles'
     assert_equal 3, user.roles_users.count
   end
-
-  test 'gravatar image' do
-    f = Configuration.first
-    f.gravatar = true
-    f.save # of course just for this test
-
-    stub_request(:get, 'http://www.gravatar.com/avatar/ef677ecd5e63faa5842d43bcdfca2f33?d=wavatar&s=20').
-      to_return(status: 200, body: 'Superpng', headers: {})
-    assert_equal 'Superpng', users(:tom).gravatar_image(20)
-
-    stub_request(:get, 'http://www.gravatar.com/avatar/ef677ecd5e63faa5842d43bcdfca2f33?d=wavatar&s=200').to_timeout
-    assert_equal :none, users(:tom).gravatar_image(200)
-  end
 end

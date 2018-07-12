@@ -844,6 +844,7 @@ Rails/OutputSafety:
     - 'app/helpers/webui/project_helper.rb'
     - 'app/helpers/webui/request_helper.rb'
     - 'app/helpers/webui/webui_helper.rb'
+    - 'app/helpers/webui/user_helper.rb'
 
 # Offense count: 5
 # Cop supports --auto-correct.
