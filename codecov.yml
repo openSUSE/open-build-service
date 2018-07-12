@@ -9,9 +9,7 @@ coverage:
   status:
     project:
       default:
-        target: auto
-        base: auto
-        threshold: 1
+        target: 88.5
 comment:
   layout: "reach, diff, flags"
   require_changes: true
