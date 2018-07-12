@@ -338,7 +338,7 @@ GEM
       unicode-display_width (~> 1.0, >= 1.0.1)
     rubocop-rspec (1.27.0)
       rubocop (>= 0.56.0)
-    ruby-ldap (0.9.19)
+    ruby-ldap (0.9.20)
     ruby-progressbar (1.9.0)
     safe_yaml (1.0.4)
     sanitize (4.6.5)
