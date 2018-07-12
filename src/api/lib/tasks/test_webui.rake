@@ -16,8 +16,8 @@ Rake::TestTask.new do |t|
   test_files = FileList['test/unit/*_test.rb']
   test_files += FileList['test/models/*_test.rb']
   test_files += FileList['test/policies/*_test.rb']
-  test_files += FileList['test/policies/*_test.rb']
   test_files += FileList['test/integration/*_test.rb']
+  test_files += FileList['test/functional/channel_maintenance_test.rb']
   t.test_files = test_files
   t.name = 'test:api:models'
   t.warning = false
@@ -25,7 +25,7 @@ end
 
 Rake::TestTask.new do |t|
   t.libs << 'test'
-  t.test_files = FileList['test/functional/**/*_test.rb'].exclude(%r{spider_test})
+  t.test_files = FileList['test/functional/**/*_test.rb'].exclude(%r{spider_test}).exclude(%r{channel_maintenance_test})
   t.name = 'test:api:functional'
   t.warning = false
 end
