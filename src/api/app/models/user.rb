@@ -838,10 +838,6 @@ class User < ApplicationRecord
     update_attributes(last_logged_in_at: Time.now, login_failure_count: 0)
   end
 
-  def gravatar_hash
-    Digest::MD5.hexdigest(email.downcase)
-  end
-
   private
 
   def password_validation
