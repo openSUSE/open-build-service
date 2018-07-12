@@ -52,6 +52,8 @@
 }
 %endif
 
+%global obs_api_support_scripts obs-api-support.target obsapisetup.service obs-clockwork.service obs-clockwork.service obs-delayedjob-queue-consistency_check.service obs-delayedjob-queue-default.service obs-delayedjob-queue-issuetracking.service obs-delayedjob-queue-mailers.service obs-delayedjob-queue-project_log_rotate.service obs-delayedjob-queue-releasetracking.service obs-sphinx.service
+
 Name:           obs-server
 Summary:        The Open Build Service -- Server Component
 License:        GPL-2.0-only AND GPL-3.0-only
@@ -395,6 +397,9 @@ exit 0
 %preun -n obs-cloud-uploader
 %stop_on_removal obsclouduploadworker obsclouduploadserver
 
+%preun -n obs-api
+%service_del_preun %{obs_api_support_scripts}
+
 %post
 %if 0%{?suse_version} >= 1315
 %reload_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice
@@ -439,6 +444,7 @@ rmdir /srv/obs 2> /dev/null || :
 %pre -n obs-api
 getent passwd obsapidelayed >/dev/null || \
   /usr/sbin/useradd -r -s /bin/bash -c "User for build service api delayed jobs" -d /srv/www/obs/api -g www obsapidelayed
+%service_add_pre %{obs_api_support_scripts}
 
 %post -n obs-common
 %{fillup_and_insserv -n obs-server}
@@ -467,6 +473,7 @@ touch /srv/www/obs/api/log/production.log
 chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
 %restart_on_update memcached
+%service_add_post %{obs_api_support_scripts}
 # We need to touch the last_deploy file in the post hook
 # to update the timestamp which we use to display the
 # last deployment time in the API
@@ -474,9 +481,8 @@ touch /srv/www/obs/api/last_deploy || true
 
 %postun -n obs-api
 %insserv_cleanup
-%restart_on_update obsapisetup
+%service_del_postun %{obs_api_support_scripts}
 %restart_on_update apache2
-%restart_on_update obsapidelayed
 
 %files
 %defattr(-,root,root)
@@ -604,6 +610,25 @@ usermod -a -G docker obsservicerun
 %config(noreplace) /etc/logrotate.d/obs-api
 /etc/init.d/obsapisetup
 /usr/sbin/rcobsapisetup
+%{_unitdir}/obs-api-support.target
+%{_unitdir}/obs-clockwork.service
+%{_unitdir}/obs-delayedjob-queue-consistency_check.service
+%{_unitdir}/obs-delayedjob-queue-default.service
+%{_unitdir}/obs-delayedjob-queue-issuetracking.service
+%{_unitdir}/obs-delayedjob-queue-mailers.service
+%{_unitdir}/obs-delayedjob-queue-project_log_rotate.service
+%{_unitdir}/obs-delayedjob-queue-quick@.service
+%{_unitdir}/obs-delayedjob-queue-releasetracking.service
+%{_unitdir}/obs-sphinx.service
+%{_sbindir}/rcobs-api-support
+%{_sbindir}/rcobs-clockwork
+%{_sbindir}/rcobs-delayedjob-queue-consistency_check
+%{_sbindir}/rcobs-delayedjob-queue-default
+%{_sbindir}/rcobs-delayedjob-queue-issuetracking
+%{_sbindir}/rcobs-delayedjob-queue-mailers
+%{_sbindir}/rcobs-delayedjob-queue-project_log_rotate
+%{_sbindir}/rcobs-delayedjob-queue-releasetracking
+%{_sbindir}/rcobs-sphinx
 /srv/www/obs/api/app
 %attr(-,%{apache_user},%{apache_group})  /srv/www/obs/api/db/structure.sql
 %attr(-,%{apache_user},%{apache_group})  /srv/www/obs/api/db/data_schema.rb

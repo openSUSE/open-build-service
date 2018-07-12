@@ -1,0 +1,16 @@
+[Unit]
+Description = Open Build Service DelayedJob Queue: default
+BindsTo = obs-api-support.target
+
+[Service]
+Environment = "RAILS_ENV=production"
+User = wwwrun
+Group = www
+WorkingDirectory = /srv/www/obs/api
+ExecStart = /usr/bin/bundle.ruby2.5 exec script/delayed_job.api.rb --queue=default start -i 1030
+ExecStop = /usr/bin/bundle.ruby2.5 exec script/delayed_job.api.rb --queue=default stop -i 1030
+Type = forking
+PIDFile = /srv/www/obs/api/tmp/pids/delayed_job.1030.pid
+
+[Install]
+WantedBy = obs-api-support.target

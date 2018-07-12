@@ -1,0 +1,16 @@
+[Unit]
+Description = Open Build Service Clockwork Daemon
+BindsTo = obs-api-support.target
+
+[Service]
+Environment = "RAILS_ENV=production"
+User = wwwrun
+Group = www
+WorkingDirectory = /srv/www/obs/api
+ExecStart = /usr/lib64/obs-api/ruby/2.5.0/bin/clockworkd --log-dir=log -l -c config/clock.rb start
+ExecStop = /usr/lib64/obs-api/ruby/2.5.0/bin/clockworkd -l -c config/clock.rb stop
+Type = forking
+PIDFile = /srv/www/obs/api/tmp/clockworkd.clock.pid
+
+[Install]
+WantedBy = obs-api-support.target
