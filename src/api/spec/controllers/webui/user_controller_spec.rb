@@ -339,35 +339,6 @@ RSpec.describe Webui::UserController do
     skip
   end
 
-  describe 'GET #icon' do
-    context 'with an inexistent user' do
-      before do
-        get :icon, params: { user: 'inexistent_user' }
-      end
-
-      it { expect(response.location).to match(/.*\/assets\/default_face-.*\.png$/) }
-      it { expect(response).to have_http_status(302) }
-    end
-
-    context 'with a user not having an icon' do
-      before do
-        allow_any_instance_of(User).to receive(:gravatar_image).and_return(:none)
-        get :icon, params: { user: user.login }
-      end
-
-      it { expect(response.location).to match(/.*\/assets\/default_face-.*\.png$/) }
-      it { expect(response).to have_http_status(302) }
-    end
-
-    context 'with a user having an icon' do
-      before do
-        get :icon, params: { user: user.login }
-      end
-
-      it { expect(response).to have_http_status(200) }
-    end
-  end
-
   describe 'POST #register' do
     let!(:new_user) { build(:user, login: 'moi_new') }
 
