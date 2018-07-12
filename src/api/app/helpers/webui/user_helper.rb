@@ -1,9 +1,10 @@
 module Webui::UserHelper
+  # @param [User] user object
   def user_image_tag(user, opt = {})
-    alt = opt[:alt] || user.realname
-    alt = user.login if alt.empty?
+    alt = opt[:alt] || user.try(:realname)
+    alt = user.try(:login) if alt.empty?
     size = opt[:size] || 20
-    if ::Configuration.gravatar
+    if user && ::Configuration.gravatar
       hash = Digest::MD5.hexdigest(user.email.downcase)
       url = "http://www.gravatar.com/avatar/#{hash}?s=#{size}&d=wavatar"
     else
@@ -12,27 +13,35 @@ module Webui::UserHelper
     image_tag(url, width: size, height: size, alt: alt, class: opt[:css_class])
   end
 
+  def _optional_icon(user, opt)
+    if opt[:no_icon]
+      ''
+    else
+      # user_icon returns an ActiveSupport::SafeBuffer and not a String
+      user_image_tag(user)
+    end
+  end
+
+  def _printed_name(user, role, opt)
+    real_name = user.try(:realname)
+    if real_name.empty? || opt[:short]
+      printed_name = user
+    else
+      printed_name = "#{real_name} (#{user.login})"
+    end
+    printed_name << " as #{role}" if role
+    printed_name
+  end
+
   # @param [String] user login of the user
   # @param [String] role title of the login
   # @param [Hash]   options boolean flags :short, :no_icon
   def user_and_role(user, role = nil, options = {})
     opt = { short: false, no_icon: false }.merge(options)
-    real_name = User.not_deleted.find_by(login: user).try(:realname)
+    user = User.not_deleted.find_by(login: user)
 
-    if opt[:no_icon]
-      icon = ''
-    else
-      # user_icon returns an ActiveSupport::SafeBuffer and not a String
-      icon = user_image_tag(user)
-    end
-
-    if real_name.empty? || opt[:short]
-      printed_name = user
-    else
-      printed_name = "#{real_name} (#{user})"
-    end
-
-    printed_name << " as #{role}" if role
+    icon = _optional_icon(user, opt)
+    printed_name = _printed_name(user, role, opt)
 
     # It's necessary to concat icon and $variable and don't use string interpolation!
     # Otherwise we get a new string and not an ActiveSupport::SafeBuffer
