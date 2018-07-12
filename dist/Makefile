@@ -1,6 +1,6 @@
 include ../Makefile.include
 
-INIT_SCRIPTS          := obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher obssigner obswarden obsapidelayed obsapisetup obsstoragesetup obsservice obsdodup obsservicedispatch obsclouduploadserver obsclouduploadworker
+INIT_SCRIPTS          := obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher obssigner obswarden obsapisetup obsstoragesetup obsservice obsdodup obsservicedispatch obsclouduploadserver obsclouduploadworker
 LOGROTATE_CONFIGS     := obs-api obs-server obs-source_service
 OBS_BIN_SCRIPTS       := obs_productconvert
 OBS_SBIN_SCRIPTS      := obs_admin obs_serverstatus

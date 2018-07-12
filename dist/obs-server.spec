@@ -602,10 +602,8 @@ usermod -a -G docker obsservicerun
 /srv/www/obs/api/config/application.rb
 /srv/www/obs/api/config/clock.rb
 %config(noreplace) /etc/logrotate.d/obs-api
-/etc/init.d/obsapidelayed
 /etc/init.d/obsapisetup
 /usr/sbin/rcobsapisetup
-/usr/sbin/rcobsapidelayed
 /srv/www/obs/api/app
 %attr(-,%{apache_user},%{apache_group})  /srv/www/obs/api/db/structure.sql
 %attr(-,%{apache_user},%{apache_group})  /srv/www/obs/api/db/data_schema.rb
