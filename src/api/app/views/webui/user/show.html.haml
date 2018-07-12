@@ -4,7 +4,7 @@
 / user
 .grid_4.alpha.box.box-shadow#userinfo
   / avatar
-  = user_icon(@displayed_user, size: 200, css_class: 'home-avatar', alt: 'Avatar') if @displayed_user.email
+  = user_image_tag(@displayed_user, size: 200, css_class: 'home-avatar', alt: 'Avatar') if @displayed_user.email
   / info
   %h1
     %span#home-realname

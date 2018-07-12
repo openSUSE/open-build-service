@@ -1,5 +1,5 @@
 require 'rails_helper'
-include Webui::WebuiHelper
+include Webui::UserHelper
 
 RSpec.describe Webui::SearchHelper, type: :helper do
   describe '#search_owners_list' do

@@ -6,7 +6,7 @@
         <% user = User.find_by_login commit['user'] %>
         <% if user %>
             <% realname = user.realname %>
-            <%= user_icon(user) %>
+            <%= user_image_tag(user) %>
             <% unless realname.empty? %>
                 <%= link_to(realname + ' (' + user.login + ')', user_show_path(user)) %>
             <% else %>
