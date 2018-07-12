@@ -12,8 +12,7 @@ images:
       /bin/bash -c 'echo -e "[mysqld]\ndatadir = /dev/shm" > /etc/my.cnf.d/obs.cnf && cp -a /var/lib/mysql/* /dev/shm && /usr/lib/mysql/mysql-systemd-helper start'
     name: db
 
-  - &backend
-    image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/containers/openbuildservice/backend:latest
+  - &backend registry.opensuse.org/obs/server/unstable/container/sle12/sp3/containers/openbuildservice/backend:latest
 
   - &frontend_backend
     image: registry.opensuse.org/obs/server/unstable/container/sle12/sp3/containers/openbuildservice/frontend-backend:latest
@@ -63,18 +62,16 @@ aliases:
       keys:
         - v3-repo-{{ .Branch }}-{{ .Revision }}
 
-  - &store_rspec_artefacts
-    store_artifacts:
-      path: ./src/api/log
-      destination: rspec
-    store_artifacts:
-      path: ./src/api/tmp/capybara
-      destination: capybara
-
   - &store_minitest_artefacts
     store_artifacts:
       path: ./src/api/log/
       destination: minitest
+
+  - &install_circle_cli
+    name: Install CircleCI command line
+    command: |
+      curl -o circleci https://circle-downloads.s3.amazonaws.com/releases/build_agent_wrapper/circleci
+      chmod +x circleci
 
 jobs:
   checkout_code:
@@ -84,6 +81,7 @@ jobs:
       - *initial_repo_restore
       - checkout
       - run: *install_dependencies
+      - run: *install_circle_cli
       - restore_cache:
           key: v4-lint
       - run:
@@ -107,6 +105,7 @@ jobs:
             - .
 
   rspec:
+    parallelism: 4
     docker:
       - <<: *frontend_base
       - <<: *mariadb
@@ -118,28 +117,30 @@ jobs:
       - run: mkdir /home/frontend/rspec
       - run:
           name: Run rspec
-          command: cd src/api; bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/rspec/rspec.xml --exclude-pattern spec/bootstrap/**/*_spec.rb
-      - <<: *store_rspec_artefacts
+          command: |
+            cd src/api
+            pickfile=log/pick.$CIRCLE_NODE_INDEX.list
+            # reserve the latest node for bootstrap
+            if test "$CIRCLE_NODE_INDEX" = $((CIRCLE_NODE_TOTAL-1)); then
+              echo "Testing bootstrap"
+              circleci tests glob 'spec/features/**/*_spec.rb' 'spec/bootstrap/**/*_spec.rb' > $pickfile
+              export BOOTSTRAP=1
+            else
+              circleci tests glob 'spec/**/*_spec.rb' | grep -v spec/bootstrap > spec.list
+              circleci tests split --total $((CIRCLE_NODE_TOTAL-1)) --split-by=timings < spec.list > $pickfile
+            fi
+            bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/rspec/rspec.xml $(cat $pickfile)
+      - store_artifacts:
+          path: ./src/api/log
+          destination: rspec
+      - store_artifacts:
+          path: ./src/api/tmp/capybara
+          destination: capybara
       - store_test_results:
           path: /home/frontend/rspec
 
-  rspec-bootstrap:
-    docker:
-      - <<: *frontend_base
-      - <<: *mariadb
-    steps:
-      - *restore_repo
-      - run: *install_dependencies
-      - run: *wait_for_database
-      - run: *create_test_db
-      - run:
-          name: Run rspec with bootstrap enabled
-          environment:
-            BOOTSTRAP: 1
-          command: cd src/api; bundle exec rspec --format progress --pattern spec/features/**/*_spec.rb --pattern spec/bootstrap/**/*_spec.rb
-      - <<: *store_rspec_artefacts
-
   minitest:
+    parallelism: 2
     docker:
       - <<: *frontend_backend
       - <<: *mariadb
@@ -160,7 +161,16 @@ jobs:
           environment:
             DO_COVERAGE: 1
             TESTOPTS: "--ci-dir=/home/frontend/minitest"
-          command: cd src/api; bundle exec rake test:api
+          command: |
+            cd src/api
+            case $CIRCLE_NODE_INDEX in
+              0)
+                bundle exec rake test:api:models
+                ;;
+              1)
+                bundle exec rake test:api:functional
+                ;;
+            esac
       - store_test_results:
           path: /home/frontend/minitest
       - <<: *store_minitest_artefacts
@@ -182,7 +192,7 @@ jobs:
 
   backend_test:
     docker:
-      - <<: *backend
+      - image: *backend
     working_directory: /home/frontend/project
     steps:
       - *restore_repo
@@ -197,9 +207,6 @@ workflows:
     jobs:
       - checkout_code
       - backend_test:
-          requires:
-            - checkout_code
-      - rspec-bootstrap:
           requires:
             - checkout_code
       - rspec:
