@@ -340,20 +340,31 @@ RSpec.describe Webui::UserController do
   end
 
   describe 'GET #icon' do
-    let(:user) { create(:confirmed_user, login: 'iconic') }
+    context 'with an inexistent user' do
+      before do
+        get :icon, params: { user: 'inexistent_user' }
+      end
 
-    it 'loads big icon without param' do
-      get :icon, params: { user: user.login }
-      image = ChunkyPNG::Image.from_blob(response.body)
-      expect(image.height).to be 80
-      expect(image.width).to be 80
+      it { expect(response.location).to match(/.*\/assets\/default_face-.*\.png$/) }
+      it { expect(response).to have_http_status(302) }
     end
 
-    it 'loads small icon with param' do
-      get :icon, params: { user: user.login, size: 20 }
-      image = ChunkyPNG::Image.from_blob(response.body)
-      expect(image.height).to be 20
-      expect(image.width).to be 20
+    context 'with a user not having an icon' do
+      before do
+        allow_any_instance_of(User).to receive(:gravatar_image).and_return(:none)
+        get :icon, params: { user: user.login }
+      end
+
+      it { expect(response.location).to match(/.*\/assets\/default_face-.*\.png$/) }
+      it { expect(response).to have_http_status(302) }
+    end
+
+    context 'with a user having an icon' do
+      before do
+        get :icon, params: { user: user.login }
+      end
+
+      it { expect(response).to have_http_status(200) }
     end
   end
 

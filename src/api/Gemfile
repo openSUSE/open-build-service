@@ -135,7 +135,7 @@ end
 group :development, :test do
   gem 'rspec'
   # as testing framework
-  gem 'rspec-rails', '~> 3.5.0'
+  gem 'rspec-rails'
   # to make tests not fail in package test suite
   gem 'rspec-retry'
   # for fixtures
