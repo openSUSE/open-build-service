@@ -20,6 +20,13 @@ SAFE_TESTS = [
   'test/functional/architectures_controller_test.rb',
   'test/functional/attributes_test.rb',
   'test/functional/channel_maintenance_test.rb',
+  'test/functional/read_permission_test.rb',
+  'test/functional/statistics_controller_test.rb',
+  'test/functional/comments_controller_test.rb',
+  'test/functional/group_request_test.rb',
+  'test/functional/group_test.rb',
+  'test/functional/person_controller_test.rb',
+  'test/functional/message_controller_test.rb',
   'test/functional/request_events_test.rb'
 ].freeze
 Rake::TestTask.new do |t|
