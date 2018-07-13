@@ -751,6 +751,11 @@ OBSApi::Application.routes.draw do
     put 'source/:project/_config' => :update, constraints: cons
   end
 
+  controller :source_project_package_meta do
+    get 'source/:project/:package/_meta' => :show, constraints: cons
+    put 'source/:project/:package/_meta' => :update, constraints: cons
+  end
+
   controller :source do
     get 'source' => :index
     post 'source' => :global_command_createmaintenanceincident, constraints: ->(req) { req.params[:cmd] == 'createmaintenanceincident' }
@@ -761,9 +766,6 @@ OBSApi::Application.routes.draw do
 
     # package level
     get '/source/:project/_project/:filename' => :get_file, constraints: cons
-
-    get '/source/:project/:package/_meta' => :show_package_meta, constraints: cons
-    put '/source/:project/:package/_meta' => :update_package_meta, constraints: cons
 
     get 'source/:project/:package/:filename' => :get_file, constraints: cons
     delete 'source/:project/:package/:filename' => :delete_file, constraints: cons

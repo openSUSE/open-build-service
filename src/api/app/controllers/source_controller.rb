@@ -12,8 +12,6 @@ class SourceController < ApplicationController
   validate_action projectlist: { method: :get, response: :directory }
   validate_action packagelist: { method: :get, response: :directory }
   validate_action filelist: { method: :get, response: :directory }
-  validate_action package_meta: { method: :get, response: :package }
-  validate_action update_package_meta: { request: :package, response: :status }
 
   skip_before_action :extract_user, only: [:lastevents_public, :global_command_orderkiwirepos]
   skip_before_action :require_login, only: [:lastevents_public, :global_command_orderkiwirepos]
@@ -334,82 +332,6 @@ class SourceController < ApplicationController
       raise DeleteProjectPubkeyNoPermission, "No permission to delete public key for project '#{params[:project]}'. " \
                                              'Either maintainer permissions by upper project or admin permissions is needed.'
     end
-  end
-
-  def require_package_name
-    required_parameters :project, :package
-
-    @project_name = params[:project]
-    @package_name = params[:package]
-
-    valid_package_name! @package_name
-  end
-
-  # GET /source/:project/:package/_meta
-  def show_package_meta
-    require_package_name
-
-    pack = Package.get_by_project_and_name(@project_name, @package_name, use_source: false)
-
-    if params.key?(:meta) || params.key?(:rev) || params.key?(:view) || pack.nil?
-      # check if this comes from a remote project, also true for _project package
-      # or if meta is specified we need to fetch the meta from the backend
-      path = request.path_info
-      path += build_query_from_hash(params, [:meta, :rev, :view])
-      pass_to_backend path
-      return
-    end
-
-    render xml: pack.to_axml
-  end
-
-  # PUT /source/:project/:package/_meta
-  def update_package_meta
-    require_package_name
-
-    rdata = Xmlhash.parse(request.raw_post)
-
-    if rdata['project'] && rdata['project'] != @project_name
-      render_error status: 400, errorcode: 'project_name_mismatch',
-                   message: 'project name in xml data does not match resource path component'
-      return
-    end
-
-    if rdata['name'] && rdata['name'] != @package_name
-      render_error status: 400, errorcode: 'package_name_mismatch',
-                   message: 'package name in xml data does not match resource path component'
-      return
-    end
-
-    # check for project
-    if Package.exists_by_project_and_name(@project_name, @package_name, follow_project_links: false)
-      pkg = Package.get_by_project_and_name(@project_name, @package_name, use_source: false)
-      unless User.current.can_modify?(pkg)
-        render_error status: 403, errorcode: 'change_package_no_permission',
-                     message: "no permission to modify package '#{pkg.project.name}'/#{pkg.name}"
-        return
-      end
-
-      if pkg && !pkg.disabled_for?('sourceaccess', nil, nil)
-        if FlagHelper.xml_disabled_for?(rdata, 'sourceaccess') && !User.current.is_admin?
-          render_error status: 403, errorcode: 'change_package_protection_level',
-                       message: 'admin rights are required to raise the protection level of a package'
-          return
-        end
-      end
-    else
-      prj = Project.get_by_name(@project_name)
-      unless prj.is_a?(Project) && User.current.can_create_package_in?(prj)
-        render_error status: 403, errorcode: 'create_package_no_permission',
-                     message: "no permission to create a package in project '#{@project_name}'"
-        return
-      end
-      pkg = prj.packages.new(name: @package_name)
-    end
-
-    pkg.set_comment(params[:comment])
-    pkg.update_from_xml(rdata)
-    render_ok
   end
 
   # GET /source/:project/:package/:filename

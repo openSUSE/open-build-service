@@ -283,7 +283,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_match(flag, @response.body) if flag
     delete "/source/#{destprj}/#{destpkg}"
     assert_response delresp if delresp
-    get url_for(controller: :source, action: :show_package_meta, project: destprj, package: destpkg)
+    get url_for(controller: :source_project_package_meta, action: :show, project: destprj, package: destpkg)
     put "/source/#{destprj}/#{destpkg}/_meta", params: orig.dup
   end
   protected :do_test_copy_package
@@ -395,9 +395,9 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
   def test_create_links_hidden_project
     # user without any special roles
     login_adrian
-    get url_for(controller: :source, action: :show_package_meta, project: 'HiddenProject', package: 'temporary')
+    get url_for(controller: :source_project_package_meta, action: :show, project: 'HiddenProject', package: 'temporary')
     assert_response 404
-    put url_for(controller: :source, action: :update_package_meta, project: 'HiddenProject', package: 'temporary'),
+    put url_for(controller: :source_project_package_meta, action: :update, project: 'HiddenProject', package: 'temporary'),
         params: '<package project="HiddenProject" name="temporary"> <title/> <description/> </package>'
     assert_response 200
     assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
@@ -416,9 +416,9 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url, params: '<link project="HiddenProject" package="pack" />'
     assert_response :success
 
-    get url_for(controller: :source, action: :show_package_meta, project: 'kde4', package: 'temporary2')
+    get url_for(controller: :source_project_package_meta, action: :show, project: 'kde4', package: 'temporary2')
     assert_response 404
-    put url_for(controller: :source, action: :update_package_meta, project: 'kde4', package: 'temporary2'),
+    put url_for(controller: :source_project_package_meta, action: :update, project: 'kde4', package: 'temporary2'),
         params: '<package project="kde4" name="temporary2"> <title/> <description/> </package>'
     assert_response 200
     assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
@@ -434,9 +434,9 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'status', attributes: { code: 'unknown_package' }
 
     # check this works with remote projects also
-    get url_for(controller: :source, action: :show_package_meta, project: 'HiddenProject', package: 'temporary4')
+    get url_for(controller: :source_project_package_meta, action: :show, project: 'HiddenProject', package: 'temporary4')
     assert_response 404
-    put url_for(controller: :source, action: :update_package_meta, project: 'HiddenProject', package: 'temporary4'),
+    put url_for(controller: :source_project_package_meta, action: :update, project: 'HiddenProject', package: 'temporary4'),
         params: '<package project="HiddenProject" name="temporary4"> <title/> <description/> </package>'
     assert_response 200
     assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
@@ -449,9 +449,9 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
     # user without any special roles
     login_fred
-    get url_for(controller: :source, action: :show_package_meta, project: 'kde4', package: 'temporary3')
+    get url_for(controller: :source_project_package_meta, action: :show, project: 'kde4', package: 'temporary3')
     assert_response 404
-    put url_for(controller: :source, action: :update_package_meta, project: 'kde4', package: 'temporary3'),
+    put url_for(controller: :source_project_package_meta, action: :update, project: 'kde4', package: 'temporary3'),
         params: '<package project="kde4" name="temporary3"> <title/> <description/> </package>'
     assert_response 200
     assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
@@ -495,16 +495,16 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(controller: :source_project_meta, action: :update, project: 'home:adrian:PublicProject'),
         params: '<project name="home:adrian:PublicProject"> <title/> <description/> </project>'
     assert_response :success
-    put url_for(controller: :source, action: :update_package_meta, project: 'home:adrian:PublicProject', package: 'pack'),
+    put url_for(controller: :source_project_package_meta, action: :update, project: 'home:adrian:PublicProject', package: 'pack'),
         params: '<package name="pack" project="home:adrian:PublicProject"> <title/> <description/> </package>'
     assert_response :success
-    put url_for(controller: :source, action: :update_package_meta, project: 'home:adrian:PublicProject', package: 'pack'),
+    put url_for(controller: :source_project_package_meta, action: :update, project: 'home:adrian:PublicProject', package: 'pack'),
         params: '<package name="pack" project="home:adrian:PublicProject"> <title/> <description/> <sourceaccess><disable/></sourceaccess> </package>'
     assert_response 403
     assert_xml_tag tag: 'status', attributes: { code: 'change_package_protection_level' }
     # but works as admin
     login_king
-    put url_for(controller: :source, action: :update_package_meta, project: 'home:adrian:PublicProject', package: 'pack'),
+    put url_for(controller: :source_project_package_meta, action: :update, project: 'home:adrian:PublicProject', package: 'pack'),
         params: '<package name="pack" project="home:adrian:PublicProject"> <title/> <description/> <sourceaccess><disable/></sourceaccess> </package>'
     assert_response :success
     delete '/source/home:adrian:Project'
@@ -538,7 +538,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
         params: '<project name="home:adrian:PublicProject"> <title/> <description/> </project>'
     assert_response :success
     # rubocop:disable Metrics/LineLength
-    put url_for(controller: :source, action: :update_package_meta, project: 'home:adrian:PublicProject', package: 'ProtectedPackage'),
+    put url_for(controller: :source_project_package_meta, action: :update, project: 'home:adrian:PublicProject', package: 'ProtectedPackage'),
         params: '<package name="ProtectedPackage" project="home:adrian:PublicProject"> <title/> <description/>  <sourceaccess><disable/></sourceaccess>  </package>'
     # rubocop:enable Metrics/LineLength
     assert_response :success
@@ -619,7 +619,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(controller: :source_project_meta, action: :update, project: 'home:adrian:ProtectedProject'),
         params: '<project name="home:adrian:ProtectedProject"> <title/> <description/> <sourceaccess><disable/></sourceaccess>  </project>'
     assert_response :success
-    put url_for(controller: :source, action: :update_package_meta, project: 'home:adrian:ProtectedProject', package: 'Package'),
+    put url_for(controller: :source_project_package_meta, action: :update, project: 'home:adrian:ProtectedProject', package: 'Package'),
         params: '<package name="Package" project="home:adrian:ProtectedProject"> <title/> <description/> </package>'
     assert_response :success
 
@@ -759,7 +759,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:adrian:ProtectedProject'
     assert_response :success
-    put url_for(controller: :source, action: :update_package_meta, project: 'home:adrian:ProtectedProject', package: 'package'),
+    put url_for(controller: :source_project_package_meta, action: :update, project: 'home:adrian:ProtectedProject', package: 'package'),
         params: '<package project="home:adrian:ProtectedProject" name="package"> <title/> <description/></package>'
     assert_response :success
     get '/source/home:adrian:ProtectedProject/package'
