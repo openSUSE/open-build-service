@@ -87,18 +87,6 @@ class Webui::UserController < Webui::WebuiController
     render_dialog
   end
 
-  def icon
-    size = params[:size].to_i
-    user = User.find_by_login(params[:user])
-    if user.nil? || (content = user.gravatar_image(size)) == :none
-      redirect_to ActionController::Base.helpers.asset_path('default_face.png')
-      return
-    end
-
-    expires_in 5.hours, public: true
-    render(body: content, layout: false, content_type: 'image/png') if stale?(etag: Digest::MD5.hexdigest(content))
-  end
-
   def register
     opts = { realname: params[:realname], login: params[:login], state: params[:state],
              password: params[:password], password_confirmation: params[:password_confirmation],

@@ -369,7 +369,6 @@ OBSApi::Application.routes.draw do
       get 'home/my_work' => :home
       get 'home/list_my' => :home
       get 'home/home_project' => :home_project
-      get 'user/:user/icon' => :icon, constraints: cons, as: :icon_user
     end
 
     controller 'webui/session' do
