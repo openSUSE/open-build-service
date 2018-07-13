@@ -838,6 +838,10 @@ class User < ApplicationRecord
     end
   end
 
+  def hi
+    'hi'
+  end
+
   def display_name
     address = Mail::Address.new email
     address.display_name = realname
