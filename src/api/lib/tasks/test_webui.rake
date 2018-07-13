@@ -13,7 +13,13 @@ end
 
 # minitests are a little fragile when it comes to run out of order
 # so we cherry pick some functional tests into group1 that are safe
-SAFE_TESTS = ['test/functional/channel_maintenance_test.rb', 'test/functional/request_events_test.rb'].freeze
+SAFE_TESTS = [
+  'test/functional/about_controller_test.rb',
+  'test/functional/architectures_controller_test.rb',
+  'test/functional/attributes_test.rb',
+  'test/functional/channel_maintenance_test.rb',
+  'test/functional/request_events_test.rb'
+].freeze
 Rake::TestTask.new do |t|
   t.libs << 'test'
   files = FileList['test/unit/*_test.rb']
