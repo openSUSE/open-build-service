@@ -838,6 +838,10 @@ class User < ApplicationRecord
     update_attributes(last_logged_in_at: Time.now, login_failure_count: 0)
   end
 
+  def hi
+    'hello'
+  end
+
   private
 
   def password_validation
