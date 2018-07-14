@@ -27,7 +27,9 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
       expect(page).to have_selector("input[data-package='#{kiwi_package}']:not(:checked)", visible: false)
 
       expect(page).to have_field('target_package', with: package1)
-      find(:xpath, "//input[@data-package='#{package2}']/../dd/span[@class='group']").click
+      within :xpath, "//input[@data-package='#{package2}']/../dd" do
+        find('.description').click
+      end
       expect(page).to have_field('target_package', with: package2)
       fill_in 'target_package', with: 'custom_name'
 
@@ -52,8 +54,11 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
       expect(page).to have_selector("input[data-package='#{kiwi_package}']:not(:checked)", visible: false)
 
       expect(page).to have_field('target_package', with: package1)
-      find(:xpath, "//input[@data-package='#{kiwi_package}']/../dd/span[@class='group']").click
+      within :xpath, "//input[@data-package='#{kiwi_package}']/../dd" do
+        find('.description').click
+      end
       expect(page).to have_field('target_package', with: kiwi_package)
+
       fill_in 'target_package', with: 'package_with_kiwi_image'
 
       click_button('Create appliance')
