@@ -128,6 +128,7 @@ group :test do
   # To generate random data
   gem 'rantly', '>= 1.1.0'
   # for test analysis in CircleCI
+  gem 'coveralls'
   gem 'minitest-ci'
   gem 'rspec_junit_formatter'
 end

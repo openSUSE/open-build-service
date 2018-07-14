@@ -3,7 +3,6 @@ ENV['origin_RAILS_ENV'] = ENV['RAILS_ENV']
 ENV['RAILS_ENV'] = 'test'
 
 require 'simplecov'
-require 'codecov'
 require 'builder'
 require 'minitest/reporters'
 
@@ -18,7 +17,6 @@ if ENV['DO_COVERAGE']
     add_filter '/lib/memory_debugger.rb'
     add_filter '/lib/memory_dumper.rb'
     merge_timeout 3600
-    formatter SimpleCov::Formatter::Codecov
   end
 
   SimpleCov.at_exit do
