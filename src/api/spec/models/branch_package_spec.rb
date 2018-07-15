@@ -11,13 +11,14 @@ RSpec.describe BranchPackage, vcr: true do
   context '#branch' do
     let(:branch_package) { BranchPackage.new(project: project.name, package: package.name) }
     let!(:update_project) { create(:project, name: 'BaseDistro:Update') }
-    let!(:update_project_attrib) { create(:update_project_attrib, project: project, update_project: update_project) }
+    let(:update_project_attrib) { create(:update_project_attrib, project: project, update_project: update_project) }
     let(:leap_project) { create(:project, name: 'openSUSE_Leap') }
     let(:apache) { create(:package, name: 'apache2', project: leap_project) }
     let(:branch_apache_package) { BranchPackage.new(project: leap_project.name, package: apache.name) }
 
     before(:each) do
       login(user)
+      update_project_attrib
     end
 
     after(:each) do
