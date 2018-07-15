@@ -9,7 +9,16 @@ namespace :ci do
     # and configure simplecov
     coverage_results = []
     SimpleCov.filters.clear
+    SimpleCov.merge_timeout 100_000
 
+    SimpleCov.configure do
+      add_group('WebUI') { |file| file.filename =~ %r{webui} && file.filename !~ %r{obs_factory} }
+      add_group('Jobs') { |file| file.filename =~ %r{jobs/} }
+      add_group('Models') { |file| file.filename =~ %r{models/} && file.filename !~ %r{obs_factory} }
+      add_group('Helpers') { |file| file.filename =~ %r{helpers/} && file.filename !~ %r{webui} }
+      add_group('API Controllers') { |file| file.filename =~ %r{controllers/} && file.filename !~ %r{webui} }
+      add_group('Factory Dashboard') { |file| file.filename =~ %r{obs_factory} }
+    end
     base_dir = Rails.root.join('coverage_results')
     Dir["#{base_dir}/resultset*.json"].each do |file|
       # load json results from coverage folder
