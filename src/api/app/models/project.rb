@@ -1,5 +1,7 @@
 require_dependency 'has_relationships'
 
+# YOYOYO
+
 # rubocop:disable Metrics/ClassLength
 class Project < ApplicationRecord
   include FlagHelper
