@@ -148,6 +148,9 @@ my $pubkeyfile;
 my $dest_creds;
 my $justadd;
 my $digestfile;
+my $list_mode;
+my $delete_mode;
+my $registryserver;
 
 while (@ARGV) {
   if ($ARGV[0] eq '-p') {
@@ -173,26 +176,94 @@ while (@ARGV) {
     next;
   }
   if ($ARGV[0] eq '--just-add') {
-    shift @ARGV;
     $justadd = 1;
+    shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '-l') {
+    $list_mode++;
+    shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '-D') {
+    $delete_mode = 1;
+    shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '-R') {
+    $registryserver = $ARGV[1];
+    splice(@ARGV, 0, 2);
     next;
   }
   last;
 }
 
-my ($registryserver, $notaryserver, $gun, @tags);
+my ($notaryserver, $gun, @tags);
 
 if ($digestfile) {
   die("Usage: bs_notar -p pubkeyfile -F digestfile notaryserver gun\n") unless @ARGV == 2;
   ($notaryserver, $gun) = @ARGV;
+} elsif ($list_mode) {
+  die("Usage: bs_notar -l notaryserver gun [what]\n") unless @ARGV == 2 || @ARGV == 3;
+  ($notaryserver, $gun) = @ARGV;
+} elsif ($delete_mode) {
+  die("Usage: bs_notar -D notaryserver\n") unless @ARGV == 2;
+  ($notaryserver, $gun) = @ARGV;
+} elsif ($registryserver) {
+  die("Usage: bs_notar -p pubkeyfile -R registryserver notaryserver gun tags...\n") unless @ARGV >= 2;
+  ($notaryserver, $gun, @tags) = @ARGV;
 } else {
+  # obsolete syntax, please use '-R' instead
   die("Usage: bs_notar -p pubkeyfile registryserver notaryserver gun tags...\n") unless @ARGV >= 3;
   ($registryserver, $notaryserver, $gun, @tags) = @ARGV;
 }
 
-die("Need a pubkey file\n") unless defined $pubkeyfile;
-
 my $notary_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => 1);
+
+if ($list_mode) {
+  my $what = $ARGV[2] || 'root';
+  my $req = $what;
+  $req = 'root' if $what eq 'cert';
+  $req .= '.json' unless $req =~ /\.key$/ || $req =~ /\.json$/;
+  my $param = {
+    'uri' => "$notaryserver/v2/$gun/_trust/tuf/$req",
+    'timeout' => $notary_timeout,
+    'authenticator' => $notary_authenticator,
+  };
+  if ($what eq 'cert') {
+    my $data = BSRPC::rpc($param, \&JSON::XS::decode_json);
+    $data = $data->{'signed'};
+    for my $keyid (@{$data->{'roles'}->{'root'}->{'keyids'}}) {
+      my $k = $data->{'keys'}->{$keyid};
+      die("bad keytype\n") unless $k->{'keytype'} eq 'rsa-x509';
+      print MIME::Base64::decode_base64($k->{'keyval'}->{'public'});
+    }
+    exit(0);
+  }
+  my $pretty = $list_mode == 1;
+  $pretty = 0 if $req !~ /\.json$/;
+  if (!$pretty) {
+    my $data = BSRPC::rpc($param);
+    print $data;
+  } else {
+    my $data = BSRPC::rpc($param, \&JSON::XS::decode_json);
+    print JSON::XS->new->utf8->canonical->pretty->encode($data);
+  }
+  exit(0);
+}
+
+if ($delete_mode) {
+  my $param = {
+    'uri' => "$notaryserver/v2/$gun/_trust/tuf/",
+    'request' => 'DELETE',
+    'timeout' => $notary_timeout,
+    'authenticator' => $notary_authenticator,
+  };
+  BSRPC::rpc($param);
+  exit(0);
+}
+
+die("Need a pubkey file\n") unless defined $pubkeyfile;
 
 #
 # collect stuff to sign
