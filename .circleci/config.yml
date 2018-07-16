@@ -155,11 +155,6 @@ jobs:
       - run: *install_dependencies
       - run: *init_git_submodule
       - run: *wait_for_database
-      - run:
-          name: Check DB Structure
-          command: |
-            cd src/api;
-            bundle exec rake dev:lint:db RAILS_ENV=test
       - run: *bootstrap_old_test_suite
       - run: mkdir /home/frontend/minitest
       - run:
@@ -171,10 +166,11 @@ jobs:
             cd src/api
             case $CIRCLE_NODE_INDEX in
               0)
-                bundle exec rake test:api:models
+                bundle exec rake dev:lint:db RAILS_ENV=test
+                bundle exec rake test:api:group1
                 ;;
               1)
-                bundle exec rake test:api:functional
+                bundle exec rake test:api:group2
                 ;;
             esac
             mkdir coverage_results
