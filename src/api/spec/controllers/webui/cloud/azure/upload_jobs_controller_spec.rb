@@ -94,6 +94,14 @@ RSpec.describe Webui::Cloud::Azure::UploadJobsController, type: :controller, vcr
 
     shared_context 'it redirects and assigns flash error' do
       before do
+        url = "#{CONFIG['source_url']}/cloudupload?arch=x86_64&filename=appliance.raw.xz&package=azure&project=Cloud&repository=standard&target=azure&user=tom"
+        error_response = <<-HEREDOC
+            <status code="400">
+              <summary>no cloud upload server configured</summary>
+            </status>
+        HEREDOC
+
+        stub_request(:post, url).and_return(body: error_response, status: 400)
         Feature.run_with_activated(:cloud_upload, :cloud_upload_azure) do
           post :create, params: { cloud_backend_upload_job: params }
         end
