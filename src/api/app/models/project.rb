@@ -673,11 +673,7 @@ class Project < ApplicationRecord
 
   # Give me the first ancestor of that project
   def parent
-    project = nil
-    possible_ancestor_names.find do |name|
-      project = Project.find_by(name: name)
-    end
-    project
+    ancestors.order(name: :desc).first
   end
 
   # Give me all the projects that are ancestors of that project
