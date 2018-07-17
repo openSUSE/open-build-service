@@ -50,7 +50,7 @@ module ObsFactory
     # A get that follows redirects - openqa redirects to https
     def _get(uri, counter_redirects)
       req_path = uri.path
-      req_path << "?" + uri.query unless uri.query.empty?
+      req_path << "?" + uri.query unless uri.query.blank?
       req = Net::HTTP::Get.new(req_path)
       resp = Net::HTTP.start(uri.host, use_ssl: uri.scheme == "https") { |http| http.request(req) }
       # Prevent endless loop in case response is always 301 or 302
