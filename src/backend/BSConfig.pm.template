@@ -30,6 +30,7 @@ my $hostname = Net::Domain::hostfqdn() || 'localhost';
 my $ip = quotemeta inet_ntoa(inet_aton($hostname) || inet_aton("localhost"));
 
 my $frontend = undef; # FQDN of the WebUI/API server if it's not $hostname
+my $api_url; # _external_ https URL of the API - exported for source services
 
 # If defined, restrict access to the backend servers (bs_repserver, bs_srcserver, bs_service)
 our $ipaccess = {
