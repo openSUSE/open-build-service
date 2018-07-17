@@ -47,7 +47,7 @@ RSpec.describe Webui::UserHelper do
       it 'does not link to user profiles' do
         expect(user_and_role(user.login)).to eq(
           "<img width=\"20\" height=\"20\" alt=\"#{CGI.escapeHTML(user.realname)}\" " \
-          "src=\"http://www.gravatar.com/avatar/803d88429659fa6549ee1a10ccdfbd47?s=20&amp;d=wavatar\" />#{CGI.escapeHTML(user.realname)} (#{user.login})"
+          "src=\"https://www.gravatar.com/avatar/803d88429659fa6549ee1a10ccdfbd47?s=20&amp;d=wavatar\" />#{CGI.escapeHTML(user.realname)} (#{user.login})"
         )
       end
     end
@@ -88,7 +88,7 @@ RSpec.describe Webui::UserHelper do
 
     context 'with gravatar configuration enabled' do
       it 'returns gravatar url' do
-        expect(user_image_tag(user)).to eq('<img width="20" height="20" alt="Digger" src="http://www.gravatar.com/avatar/66ada5090a2f94d4cfec83801081f3a2?s=20&amp;d=wavatar" />')
+        expect(user_image_tag(user)).to eq('<img width="20" height="20" alt="Digger" src="https://www.gravatar.com/avatar/66ada5090a2f94d4cfec83801081f3a2?s=20&amp;d=wavatar" />')
       end
     end
   end
