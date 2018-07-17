@@ -89,6 +89,7 @@ perl -pi -e 's/my \$hostname.*/my \$hostname=\"$ENV{'DEVHOST'}\";/' $GIT_HOME/sr
 perl -pi -e 's/\$ipaccess/\$removed_by_start_development_backend /' $GIT_HOME/src/backend/BSConfig.pm
 perl -pi -e 's/.*our \$gpg_standard_key.*/our \$gpg_standard_key="\/etc\/ourkeyfile.asc";/' $GIT_HOME/src/backend/BSConfig.pm
 perl -pi -e 's/.*our \$sign .*/our \$sign="\/usr\/bin\/sign";/' $GIT_HOME/src/backend/BSConfig.pm
+perl -pi -e 's/.*our \$api_url.*/our \$api_url="https://api.example.com";/' $GIT_HOME/src/backend/BSConfig.pm
 
 #start backend services (the minimum needed) with two arch(i586/x86_64) schedulers and one worker
 echo "Starting bs_srcserver"
