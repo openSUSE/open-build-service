@@ -1393,8 +1393,8 @@ RSpec.describe Webui::ProjectController, vcr: true do
       let(:release_target) { create(:release_target, repository: maintenance_incident_repo, trigger: 'maintenance') }
 
       before do
-        release_target
         login user
+        release_target
         get :maintenance_incidents, params: { project: maintenance }
       end
 
@@ -1548,6 +1548,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     let(:maintenance_project) { create(:maintenance_project, name: 'MyProject') }
 
     before do
+      login user
       get :add_maintained_project_dialog, params: { project: maintenance_project.name }, xhr: true
     end
 
@@ -1594,11 +1595,12 @@ RSpec.describe Webui::ProjectController, vcr: true do
   end
 
   describe 'GET #maintained_projects' do
-    let!(:maintenance_project) { create(:maintenance_project, name: 'Project1') }
-    let!(:maintained_project) { create(:maintained_project, maintenance_project: maintenance_project) }
+    let(:maintenance_project) { create(:maintenance_project, name: 'Project1') }
+    let(:maintained_project) { create(:maintained_project, maintenance_project: maintenance_project) }
 
     before do
       login user
+      maintained_project
       get :maintained_projects, params: { project: maintenance_project }
     end
 
