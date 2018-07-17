@@ -18,10 +18,9 @@ module ObsFactory
     #
     # @param [String] url     action to call
     # @param [Hash]   params  query parameters
-    # @param [Hash]   options  additional options. Right now :base_url to
-    #                   overwrite the default one
+    #
     # @return [Object]  the response decoded (usually a Hash)
-    def get(url, params = {}, options = {})
+    def get(url, params = {})
       # Check if params for GET request are completely to prevent overhead for openQA
       # and timeouts for the dashboard
       params.each do |key, value|
@@ -31,11 +30,7 @@ module ObsFactory
         end
       end
 
-      if options[:base_url]
-        uri = URI.join(options[:base_url].chomp('/') + '/', url)
-      else
-        uri = URI.join(@base_url, url)
-      end
+      uri = URI.join(@base_url, url)
       uri.query = params.to_query
       resp = _get(uri, 0)
       unless resp.code.to_i == 200
@@ -50,7 +45,7 @@ module ObsFactory
     # A get that follows redirects - openqa redirects to https
     def _get(uri, counter_redirects)
       req_path = uri.path
-      req_path << "?" + uri.query unless uri.query.blank?
+      req_path << "?" + uri.query if uri.query.present?
       req = Net::HTTP::Get.new(req_path)
       resp = Net::HTTP.start(uri.host, use_ssl: uri.scheme == "https") { |http| http.request(req) }
       # Prevent endless loop in case response is always 301 or 302
