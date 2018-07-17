@@ -115,6 +115,10 @@ BuildRequires:  fdupes
 PreReq:         %insserv_prereq permissions pwdutils
 %endif
 
+%if 0%{?disable_obs_frontend_test_suite:1} < 1 && 0%{?disable_obs_test_suite} < 1
+BuildRequires:  chromedriver
+%endif
+
 %if 0%{?suse_version:1}
 Recommends:     yum yum-metadata-parser repoview dpkg
 Recommends:     deb >= 1.5
@@ -409,10 +413,6 @@ make -C src/backend test
 # start api testing
 #
 %if 0%{?disable_obs_frontend_test_suite:1} < 1
-# UI tests are not needed for non x86 architectures
-%ifnarch %ix86 x86_64
-rm -r src/api/spec/features/
-%endif  
 make -C src/api test
 %endif
 
