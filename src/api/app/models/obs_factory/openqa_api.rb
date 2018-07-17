@@ -12,23 +12,6 @@ module ObsFactory
       @base_url = base_url.chomp('/') + '/api/v1/'
     end
 
-    # A get that follows redirects - openqa redirects to https
-    def _get(uri, counter_redirects)
-      req_path = uri.path
-      req_path << "?" + uri.query unless uri.query.empty?
-      req = Net::HTTP::Get.new(req_path)
-      resp = Net::HTTP.start(uri.host, use_ssl: uri.scheme == "https") { |http| http.request(req) }
-      # Prevent endless loop in case response is always 301 or 302
-      unless counter_redirects >= 5
-        if resp.code.to_i == 302 or resp.code.to_i == 301
-          counter_redirects += 1
-          Rails.logger.debug "following to #{resp.header['location']}"
-          return _get(URI.parse(resp.header['location']), counter_redirects)
-        end
-      end
-      return resp
-    end
-
     # Performs a GET query on the openQA API
     #
     # @param [String] url     action to call
@@ -58,6 +41,25 @@ module ObsFactory
         return Hash.new
       end
       ActiveSupport::JSON.decode(resp.body)
+    end
+
+    private
+
+    # A get that follows redirects - openqa redirects to https
+    def _get(uri, counter_redirects)
+      req_path = uri.path
+      req_path << "?" + uri.query unless uri.query.empty?
+      req = Net::HTTP::Get.new(req_path)
+      resp = Net::HTTP.start(uri.host, use_ssl: uri.scheme == "https") { |http| http.request(req) }
+      # Prevent endless loop in case response is always 301 or 302
+      unless counter_redirects >= 5
+        if resp.code.to_i == 302 or resp.code.to_i == 301
+          counter_redirects += 1
+          Rails.logger.debug "following to #{resp.header['location']}"
+          return _get(URI.parse(resp.header['location']), counter_redirects)
+        end
+      end
+      return resp
     end
   end
 end
