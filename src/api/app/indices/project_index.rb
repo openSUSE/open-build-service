@@ -1,5 +1,7 @@
 ThinkingSphinx::Index.define :project, with: :active_record do
-  indexes name, title, description
+  indexes name
+  indexes title
+  indexes description
 
   has :id, as: :project_id
   has attribs.attrib_type_id, as: :attrib_type_ids
