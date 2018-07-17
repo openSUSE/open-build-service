@@ -2,6 +2,11 @@ require 'rails_helper'
 
 RSpec.describe AttribValue, type: :model do
   let(:attrib) { create(:attrib_with_default_value) }
+  let(:user) { create(:confirmed_user) }
+
+  before do
+    login user
+  end
 
   describe 'callbacks' do
     context 'set defaults' do

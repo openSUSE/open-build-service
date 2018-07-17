@@ -1316,7 +1316,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'config file exists and have the right content' do
-    assert_equal @project.config.content, File.read('test/fixtures/files/home_iggy_project_config.txt').strip
+    assert_equal @project.config.content.strip, File.read('test/fixtures/files/home_iggy_project_config.txt').strip
   end
 
   test 'update config file and reload it, it also should have the right content' do
