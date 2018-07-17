@@ -11,6 +11,7 @@ FactoryBot.define do
       target_package nil
       target_repository nil
       reviewer nil
+      request_state 'review'
     end
 
     before(:create) do |request, evaluator|
@@ -85,7 +86,7 @@ FactoryBot.define do
           source_package: evaluator.source_package
         )
         request.reviews << Review.new(by_group: evaluator.reviewer)
-        request.state = 'review'
+        request.state = evaluator.request_state
         request.save!
       end
     end
