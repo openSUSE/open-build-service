@@ -110,6 +110,7 @@ jobs:
           paths:
             - .
 
+  
   rspec:
     parallelism: 4
     docker:
@@ -130,6 +131,11 @@ jobs:
           name: Run rspec
           command: |
             cd src/api
+            # defined in obs-no-cassettes context - see Org settings
+            if test -n "$REMOVE_CASSETTES"; then
+               echo "Removing casssettes"
+               rm -r spec/cassettes
+            fi
             pickfile=log/pick.$CIRCLE_NODE_INDEX.list
             # reserve the latest node for bootstrap
             if test "$CIRCLE_NODE_INDEX" = $((CIRCLE_NODE_TOTAL-1)); then
@@ -263,3 +269,19 @@ workflows:
           requires:
             - rspec
             - minitest
+
+  check_without_cassettes:
+    triggers:
+      - schedule:
+          # random point in the night (UTC)
+          cron: "11 2 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - checkout_code
+      - rspec:
+          context: obs-no-cassettes
+          requires:
+            - checkout_code
