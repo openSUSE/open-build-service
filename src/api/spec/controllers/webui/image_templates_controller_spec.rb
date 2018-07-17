@@ -23,12 +23,15 @@ RSpec.describe Webui::ImageTemplatesController, type: :controller do
     end
 
     context 'with image templates' do
+      let(:user) { create(:confirmed_user) }
       let(:attribute_type) { AttribType.find_by_namespace_and_name!('OBS', 'ImageTemplates') }
       let(:leap_project) { create(:project, name: 'openSUSE_Leap') }
-      let!(:attrib) { create(:attrib, attrib_type: attribute_type, project: leap_project) }
+      let(:attrib) { create(:attrib, attrib_type: attribute_type, project: leap_project) }
       let!(:tumbleweed_project) { create(:project, name: 'openSUSE_Tumbleweed') }
 
       before do
+        login user
+        attrib
         get :index
       end
 
