@@ -71,6 +71,19 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
     context 'with an invalid backend response' do
       subject { Cloud::Backend::UploadJob.create(params) }
 
+      let(:url) { "#{CONFIG['source_url']}/cloudupload?arch=x86_64&filename=appliance.raw.gz&package=aws&project=Cloud&repository=standard&target=ec2&user=tom" }
+      let(:error_response) do
+        <<-HEREDOC
+         <status code="400">
+           <summary>no cloud upload server configured</summary>
+         </status>
+        HEREDOC
+      end
+
+      before do
+        stub_request(:post, url).and_return(body: error_response, status: 400)
+      end
+
       it { expect(subject.valid?).to be_falsy }
       it 'has the correct error message' do
         subject.valid?

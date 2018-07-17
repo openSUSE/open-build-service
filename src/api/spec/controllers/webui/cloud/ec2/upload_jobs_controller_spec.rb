@@ -86,6 +86,14 @@ RSpec.describe Webui::Cloud::Ec2::UploadJobsController, type: :controller, vcr: 
         target:     'ec2'
       }
     end
+    let(:error_response) do
+      <<-HEREDOC
+       <status code="400">
+         <summary>no cloud upload server configured</summary>
+       </status>
+      HEREDOC
+    end
+    let(:post_url) { "#{CONFIG['source_url']}/cloudupload?arch=x86_64&filename=appliance.raw.xz&package=aws&project=Cloud&repository=standard&target=ec2&user=tom" }
 
     shared_context 'it redirects and assigns flash error' do
       before do
@@ -99,6 +107,10 @@ RSpec.describe Webui::Cloud::Ec2::UploadJobsController, type: :controller, vcr: 
     end
 
     context 'without backend configured' do
+      before do
+        stub_request(:post, post_url).and_return(body: error_response, status: 400)
+      end
+
       subject { 'no cloud upload server configured.' }
 
       include_context 'it redirects and assigns flash error'
