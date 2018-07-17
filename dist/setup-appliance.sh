@@ -542,6 +542,7 @@ function prepare_obssigner {
            Name-Comment: key without passphrase
            Name-Email: defaultkey@localobs
            Expire-Date: 0
+           %no-protection
            %pubring $backenddir/gnupg/pubring.gpg
            %secring $backenddir/gnupg/secring.gpg
            %commit
