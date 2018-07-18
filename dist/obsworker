@@ -58,7 +58,7 @@ fi
 mkdir -p "$OBS_WORKER_DIRECTORY"
 
 if [ -z "$OBS_RUN_DIR" ]; then
-    OBS_RUN_DIR="/var/run/obs"
+    OBS_RUN_DIR="/tmp/obs-rundir"
 fi
 if [ -z "$OBS_LOG_DIR" ]; then
     OBS_LOG_DIR="/var/log/obs"
