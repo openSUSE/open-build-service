@@ -790,6 +790,9 @@ class BsRequest < ApplicationRecord
         creator:    User.current.try(:login),
         reviewer:    User.current.try(:login)
       )
+      unless newreview.valid?
+        raise InvalidReview, 'Review invalid: ' + newreview.errors.full_messages.join("\n")
+      end
       save!
 
       history_params = {

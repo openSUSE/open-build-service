@@ -129,6 +129,13 @@ RSpec.describe BsRequest, vcr: true do
 
     it { expect(request.state).to eq(:review) }
     it { expect(request.commenter).to eq(reviewer.login) }
+
+    it 'fails with reasonable error' do
+      expect { request.addreview(by_user: 'NOEXIST') }.to raise_error do |exception|
+        expect(exception).to be_a(BsRequest::InvalidReview)
+        expect(exception.message.to_s).to eq 'Review invalid: By user NOEXIST not found'
+      end
+    end
   end
 
   describe '#changestate' do
