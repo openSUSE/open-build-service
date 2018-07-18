@@ -258,6 +258,8 @@ BuildRequires:  mysql
 BuildRequires:  netcfg
 # write down dependencies for production
 BuildRequires:  rubygem(bundler)
+Source2:        Gemfile
+Source3:        Gemfile.lock
 # for rebuild_time
 Requires:       perl(GD)
 
@@ -314,6 +316,9 @@ This package contains all the necessary tools for upload images to the cloud.
 
 #--------------------------------------------------------------------------------
 %prep
+# Ensure there are ruby, gem and irb commands without ruby suffix
+mkdir ~/bin
+for i in ruby gem irb; do ln -s /usr/bin/$i.ruby2.5 ~/bin/$i; done
 
 %setup -q -n open-build-service-%version
 
@@ -325,8 +330,18 @@ rm src/api/Dockerfile.frontend-base
 rm -rf src/backend/build
 
 find -name .keep -o -name .gitignore | xargs rm -rf
+# copy gem files into cache
+mkdir -p src/api/vendor/cache
+cp %{_sourcedir}/vendor/cache/*.gem src/api/vendor/cache
 
 %build
+export PATH=~/bin:$PATH
+export GEM_HOME=~/.gems
+pushd src/api/
+bundle config build.nokogiri --use-system-libraries
+bundle --local --path %{buildroot}/%_libdir/obs-api/
+popd
+
 export DESTDIR=$RPM_BUILD_ROOT
 
 #
@@ -688,8 +703,9 @@ usermod -a -G docker obsservicerun
 
 
 /srv/www/obs/api/config/locales
-/srv/www/obs/api/vendor
+%dir /srv/www/obs/api/vendor
 /srv/www/obs/api/vendor/diststats
+%_libdir/obs-api/
 
 #
 # some files below config actually are _not_ config files
