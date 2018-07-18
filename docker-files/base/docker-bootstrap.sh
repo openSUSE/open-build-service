@@ -6,7 +6,6 @@ do
   frontend)
     zypper -n install --no-recommends --replacefiles \
       sphinx \
-      phantomjs \
       nodejs6 npm6 \
       mariadb-client \
       sqlite3-devel \

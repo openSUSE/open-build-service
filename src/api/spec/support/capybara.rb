@@ -1,18 +1,44 @@
-require 'capybara/poltergeist'
 
 Capybara.default_max_wait_time = 6
 Capybara.save_path = Rails.root.join('tmp', 'capybara')
-Capybara.server = :webrick
 
-Capybara.register_driver :poltergeist do |app|
-  Capybara::Poltergeist::Driver.new(app, debug: false, timeout: 30)
+# we use RSPEC_HOST as trigger to use remote selenium
+if ENV['RSPEC_HOST'].blank?
+  Selenium::WebDriver::Chrome.driver_path = '/usr/lib64/chromium/chromedriver'
+
+  Capybara.register_driver :selenium_chrome_headless do |app|
+    Capybara::Selenium::Driver.load_selenium
+    browser_options = ::Selenium::WebDriver::Chrome::Options.new
+    browser_options.args << '--headless'
+    browser_options.args << '--no-sandbox' # to run in docker
+    Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options)
+  end
+
+  Capybara.javascript_driver = :selenium_chrome_headless
+else
+  caps = Selenium::WebDriver::Remote::Capabilities.chrome(
+    'goog:chromeOptions' => {
+      'args' => ['--no-sandbox']
+    },
+     browserName: 'chrome'
+  )
+
+  Capybara.register_driver :chrome do |app|
+    Capybara::Selenium::Driver.new(
+      app,
+      browser: :remote,
+      url: 'http://selenium:4444/wd/hub',
+      desired_capabilities: caps
+    )
+  end
+  Capybara.configure do |config|
+    config.app_host = "http://#{ENV['RSPEC_HOST']}:3005"
+  end
+
+  Capybara.server_host = '0.0.0.0'
+  Capybara.server_port = 3005
+  Capybara.javascript_driver = :chrome
 end
-
-Capybara.register_driver :rack_test do |app|
-  Capybara::RackTest::Driver.new(app, headers: { 'HTTP_ACCEPT' => 'text/html' })
-end
-
-Capybara.javascript_driver = :poltergeist
 
 # Automatically save the page a test fails
 RSpec.configure do |config|

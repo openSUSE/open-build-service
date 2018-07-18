@@ -426,6 +426,7 @@ sub lockopen {
   my ($fg, $op, $fn, $nonfatal) = @_;
 
   while (1) {
+    $fg = $_[0];       # support auto-vivify
     if (!open($fg, $op, $fn)) {
       return undef if $nonfatal;
       die("$fn: $!\n");
@@ -434,7 +435,6 @@ sub lockopen {
     my @s = stat($fg);
     last if @s && $s[3];
     close $fg;
-    $fg = undef;
   }
   $_[0] = $fg;	# support auto-vivify
   return 1;

@@ -59,7 +59,7 @@ GEM
     ansi (1.5.0)
     arel (9.0.0)
     ast (2.4.0)
-    autoprefixer-rails (8.6.5)
+    autoprefixer-rails (9.0.0)
       execjs
     bcrypt (3.1.12)
     bootstrap (4.1.1)
@@ -82,8 +82,9 @@ GEM
     capybara_minitest_spec (1.0.7)
       capybara (>= 2)
       minitest (>= 4)
+    childprocess (0.9.0)
+      ffi (~> 1.0, >= 1.0.11)
     chunky_png (1.3.10)
-    cliver (0.3.2)
     clockwork (2.0.3)
       tzinfo
     cocoon (1.2.11)
@@ -248,10 +249,6 @@ GEM
       mysql2
       peek
     pkg-config (1.3.1)
-    poltergeist (1.18.1)
-      capybara (>= 2.1, < 4)
-      cliver (~> 0.3.1)
-      websocket-driver (>= 0.2.0)
     popper_js (1.12.9)
     power_assert (1.1.3)
     powerpack (0.1.2)
@@ -346,6 +343,7 @@ GEM
       rubocop (>= 0.56.0)
     ruby-ldap (0.9.20)
     ruby-progressbar (1.9.0)
+    rubyzip (1.2.1)
     safe_yaml (1.0.4)
     sanitize (4.6.5)
       crass (~> 1.0.2)
@@ -365,6 +363,9 @@ GEM
     sassc (1.12.1)
       ffi (~> 1.9.6)
       sass (>= 3.3.0)
+    selenium-webdriver (3.13.0)
+      childprocess (~> 0.5)
+      rubyzip (~> 1.2)
     shoulda-matchers (3.1.2)
       activesupport (>= 4.0.0)
     simplecov (0.16.1)
@@ -483,7 +484,6 @@ DEPENDENCIES
   peek-dalli
   peek-host
   peek-mysql2
-  poltergeist
   pry (>= 0.9.12)
   puma (~> 3.11)
   pundit
@@ -503,6 +503,7 @@ DEPENDENCIES
   ruby-ldap
   sanitize
   sass-rails (~> 5.0.1)
+  selenium-webdriver
   shoulda-matchers (~> 3.1)
   simplecov
   single_test

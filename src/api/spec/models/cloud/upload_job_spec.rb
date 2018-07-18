@@ -56,9 +56,15 @@ RSpec.describe Cloud::UploadJob, type: :model, vcr: true do
     end
 
     context 'with an invalid Backend::UploadJob' do
+      before do
+        exception = ActiveXML::Transport::Error.new 'no cloud upload server configured'
+        allow(Backend::Api::Cloud).to receive(:upload).with(params).and_raise(exception)
+      end
+
       subject { Cloud::UploadJob.create(params) }
 
       it { expect(subject.valid?).to be_falsy }
+
       it 'has the correct error message' do
         subject.valid?
         expect(subject.errors.full_messages.to_sentence).to match(/no cloud upload server configured/)
