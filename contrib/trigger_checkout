@@ -1,0 +1,12 @@
+#! /bin/sh
+
+set -e
+
+url=$(echo @CIRCLE_REPOSITORY_URL@ | sed -e 's,git@github.com:,https://github.com/,; s,\.git$,,')
+git clone $url /obs/bs
+cd /obs/bs
+git checkout @CIRCLE_SHA1@
+git submodule update --init
+
+/obs/bs/contrib/start_development_backend -d /obs/bs
+

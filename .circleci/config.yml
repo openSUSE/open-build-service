@@ -46,6 +46,12 @@ aliases:
     name: Setup application
     command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
 
+  - &start_remote_backend
+    name: Start Backend
+    command: |
+      sed -e "s,@CIRCLE_REPOSITORY_URL@,$CIRCLE_REPOSITORY_URL,; s,@CIRCLE_SHA1@,$CIRCLE_SHA1," -i contrib/trigger_checkout
+      nc backend 4000 < contrib/trigger_checkout
+
   # keep the prefix for the following aligned
   - &save_repo_cache_key
     key: v3-repo-{{ .Branch }}-{{ .Revision }}
@@ -104,14 +110,20 @@ jobs:
           paths:
             - .
 
+  
   rspec:
     parallelism: 4
     docker:
       - <<: *frontend_base
       - <<: *mariadb
+      - image: *backend
+        name: backend
+        user: frontend
+        command: /bin/bash /remote_executor.sh
     steps:
       - *restore_repo
       - run: *install_dependencies
+      - run: *start_remote_backend
       - run: *wait_for_database
       - run: *create_test_db
       - run: mkdir /home/frontend/rspec
@@ -119,6 +131,11 @@ jobs:
           name: Run rspec
           command: |
             cd src/api
+            # defined in obs-no-cassettes context - see Org settings
+            if test -n "$REMOVE_CASSETTES"; then
+               echo "Removing casssettes"
+               rm -r spec/cassettes
+            fi
             pickfile=log/pick.$CIRCLE_NODE_INDEX.list
             # reserve the latest node for bootstrap
             if test "$CIRCLE_NODE_INDEX" = $((CIRCLE_NODE_TOTAL-1)); then
@@ -252,3 +269,19 @@ workflows:
           requires:
             - rspec
             - minitest
+
+  check_without_cassettes:
+    triggers:
+      - schedule:
+          # random point in the night (UTC)
+          cron: "11 2 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - checkout_code
+      - rspec:
+          context: obs-no-cassettes
+          requires:
+            - checkout_code
