@@ -6,7 +6,10 @@ services:
       - .:/obs
     depends_on:
       - db
+      - selenium
     command: /obs/contrib/start_rspec
+    environment:
+      RSPEC_HOST: rspec
   minitest:
     image: registry.opensuse.org/obs/server/unstable/container/leap/42.3/images/openbuildservice/frontend-backend:latest
     privileged: true
@@ -27,3 +30,5 @@ services:
       - .:/obs
     working_dir: /obs
     command: make -C src/backend test
+  selenium:
+    image: selenium/standalone-chrome

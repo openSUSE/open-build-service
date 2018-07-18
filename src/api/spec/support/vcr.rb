@@ -11,12 +11,10 @@ VCR.configure do |config|
     !http_message.body.valid_encoding?
   end
 
-  config.ignore_request do |request|
-    # Ignore capybara identify calls. For more details:
-    #   http://stackoverflow.com/questions/6119669/using-webmock-with-cucumber
-    request.uri =~ /127.0.0.1:\d{5}\/__identify__/
-  end
+  # ignore selenium requests
+  config.ignore_localhost = true
   config.ignore_hosts 'www.gravatar.com' # Ignore gravatar calls
+  config.ignore_hosts 'selenium'
 end
 
 RSpec.configure do |config|

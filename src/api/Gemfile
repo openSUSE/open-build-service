@@ -153,8 +153,6 @@ group :development, :test do
   gem 'haml_lint'
   # to generate random long strings
   gem 'faker'
-  # as driver for capybara
-  gem 'poltergeist'
   # to launch browser in test
   gem 'launchy'
   # for calling single testd
@@ -163,6 +161,8 @@ group :development, :test do
   gem 'bullet'
   # Use Puma as the app server (rails 5 default)
   gem 'puma', '~> 3.11'
+  # to drive headless chrome
+  gem 'selenium-webdriver'
 end
 
 # Gems used only for assets and not required in production environments by default.

@@ -7,10 +7,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -27,32 +25,108 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '589'
+      - '1363'
     body:
       encoding: UTF-8
       string: |
-        <workerstatus clients="0">
-          <waiting arch="i586" jobs="1" />
+        <workerstatus clients="2">
+          <idle workerid="1adb34fe44af:1" hostarch="x86_64" />
+          <idle workerid="1adb34fe44af:2" hostarch="x86_64" />
+          <waiting arch="i586" jobs="0" />
           <waiting arch="x86_64" jobs="0" />
           <blocked arch="i586" jobs="0" />
           <blocked arch="x86_64" jobs="0" />
           <buildavg arch="i586" buildavg="1200" />
           <buildavg arch="x86_64" buildavg="1200" />
           <partition>
-            <daemon type="scheduler" arch="i586" state="dead">
-              <queue high="0" med="0" low="3" next="0" />
+            <daemon type="srcserver" state="running" starttime="1530715415" />
+            <daemon type="servicedispatch" state="running" starttime="1530715421" />
+            <daemon type="service" state="running" starttime="1530715421" />
+            <daemon type="clouduploadserver" state="running" starttime="1530715421" />
+            <daemon type="clouduploadworker" state="running" starttime="1530715421" />
+            <daemon type="scheduler" arch="i586" state="running" starttime="1530715421">
+              <queue high="0" med="0" low="0" next="0" />
             </daemon>
-            <daemon type="scheduler" arch="x86_64" state="dead">
-              <queue high="0" med="0" low="6" next="0" />
+            <daemon type="scheduler" arch="x86_64" state="running" starttime="1530715421">
+              <queue high="0" med="0" low="0" next="0" />
             </daemon>
-            <daemon type="publisher" state="dead" />
+            <daemon type="repserver" state="running" starttime="1530715419" />
+            <daemon type="dispatcher" state="running" starttime="1530715421" />
+            <daemon type="publisher" state="running" starttime="1530715421" />
+            <daemon type="signer" state="running" starttime="1530715421" />
           </partition>
         </workerstatus>
     http_version: 
-  recorded_at: Wed, 10 Feb 2016 16:04:28 GMT
+  recorded_at: Wed, 04 Jul 2018 15:20:33 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:eisendieter/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home eisendieter' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:eisendieter' does not exist</summary>
+          <details>404 project 'home:eisendieter' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 04 Jul 2018 15:20:35 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:eisendieter/_keyinfo?donotcreatecert=1&withsslcert=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '12'
+    body:
+      encoding: UTF-8
+      string: "<keyinfo />\n"
+    http_version: 
+  recorded_at: Wed, 04 Jul 2018 15:20:35 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:eisendieter/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''
@@ -86,129 +160,5 @@ http_interactions:
           <details>404 project 'home:eisendieter' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 10 Feb 2016 16:04:28 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:eisendieter/_keyinfo?withsslcert=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '12'
-    body:
-      encoding: UTF-8
-      string: "<keyinfo />\n"
-    http_version: 
-  recorded_at: Mon, 09 Jan 2017 11:06:01 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:eisendieter/_keyinfo?withsslcert=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '12'
-    body:
-      encoding: UTF-8
-      string: "<keyinfo />\n"
-    http_version: 
-  recorded_at: Mon, 09 Jan 2017 11:06:01 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:eisendieter/_keyinfo
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '12'
-    body:
-      encoding: UTF-8
-      string: "<keyinfo />\n"
-    http_version: 
-  recorded_at: Mon, 13 Feb 2017 15:54:27 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:eisendieter/_keyinfo?donotcreatecert=1&withsslcert=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '12'
-    body:
-      encoding: UTF-8
-      string: "<keyinfo />\n"
-    http_version: 
-  recorded_at: Mon, 08 May 2017 22:06:27 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Wed, 04 Jul 2018 15:20:36 GMT
+recorded_with: VCR 4.0.0
