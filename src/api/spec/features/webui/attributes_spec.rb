@@ -33,6 +33,11 @@ RSpec.feature 'Attributes', type: :feature, js: true do
       add_attribute_with_values
       expect(page).to have_content('Attribute was successfully updated.')
 
+      # check what is in the database as this is also returned by the API
+      # browsers might sneak a \r in there
+      attrib = user.home_project.find_attribute(attribute_type.namespace, attribute_type.name)
+      expect(attrib.values.pluck(:value)).to eq(["test\n2nd line", 'test 1'])
+
       visit index_attribs_path(project: user.home_project_name)
       tr_tds = page.all('tr.attribute-values:nth-child(3) td').map(&:text)
       expect(tr_tds[0]).to eq("#{attribute_type.namespace}:#{attribute_type.name}")

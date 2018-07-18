@@ -3,6 +3,7 @@ class AttribValue < ApplicationRecord
   belongs_to :attrib
 
   after_initialize :set_default_value
+  before_validation :universal_newlines
 
   def to_s
     value
@@ -23,6 +24,10 @@ class AttribValue < ApplicationRecord
     else
       ''
     end
+  end
+
+  def universal_newlines
+    self.value = value.encode(universal_newline: true)
   end
 end
 
