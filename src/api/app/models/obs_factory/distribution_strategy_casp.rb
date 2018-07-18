@@ -14,7 +14,7 @@ module ObsFactory
     def repo_url; end
 
     def openqa_version
-      '1.0'
+      '3.0'
     end
 
     # Name of the ISO file by the given staging project tracked on openqa
