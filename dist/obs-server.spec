@@ -63,8 +63,23 @@ Release:        0
 Url:            http://www.openbuildservice.org
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        open-build-service-%version.tar.xz
-Source1:        find-requires.sh
 BuildRequires:  python-devel
+# needed for native extensions
+BuildRequires:  autoconf
+BuildRequires:  automake
+BuildRequires:  gcc
+BuildRequires:  gcc-c++
+BuildRequires:  cyrus-sasl-devel
+BuildRequires:  glibc-devel
+BuildRequires:  libtool
+BuildRequires:  libxml2-devel
+BuildRequires:  libxslt-devel
+BuildRequires:  make
+BuildRequires:  mysql-devel
+BuildRequires:  nodejs
+BuildRequires:  openldap2-devel
+BuildRequires:  ruby2.5-devel
+BuildRequires:  phantomjs
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
 # atm the obs rails version patch above unifies that setting among the applications
@@ -231,7 +246,7 @@ Requires:       mysql
 Requires:       ruby(abi) >= 2.0
 # needed for fulltext searching
 Requires:       sphinx >= 2.1.8
-BuildRequires:  obs-api-testsuite-deps
+BuildRequires:  sphinx >= 2.1.8
 BuildRequires:  rubygem(ruby-ldap)
 # For doc generation
 BuildRequires:  rubygem(i18n)
@@ -243,7 +258,6 @@ BuildRequires:  mysql
 BuildRequires:  netcfg
 # write down dependencies for production
 BuildRequires:  rubygem(bundler)
-Requires:       %(echo `bash %{S:1} %{S:0} "ruby:2.5.0" "production"`)
 # for rebuild_time
 Requires:       perl(GD)
 
