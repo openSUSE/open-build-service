@@ -11,9 +11,7 @@ module ObsFactory
       'caasp-staging-managers'
     end
 
-    def repo_url
-      'http://download.opensuse.org/distribution/13.2/repo/oss/media.1/build'
-    end
+    def repo_url; end
 
     def openqa_version
       '1.0'
