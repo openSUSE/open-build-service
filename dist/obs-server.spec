@@ -362,6 +362,25 @@ export DESTDIR=$RPM_BUILD_ROOT
   perl -p -i -e 's/^APACHE_GROUP=.*/APACHE_GROUP=apache/' Makefile.include
 %endif
 
+# run gem clean up script
+/usr/lib/rpm/gem_build_cleanup.sh %{buildroot}/%_libdir/obs-api/ruby/*/
+# remove cached gems
+rm -rf src/api/vendor/cache/*
+# Remove sources of extensions, we don't need them
+rm -rf %{buildroot}/%_libdir/obs-api/ruby/*/gems/*/ext/
+
+# remove gem files to fix rpmlint errors
+rm -rf %{buildroot}/%_libdir/obs-api/ruby/*/gems/diff-lcs-*/bin
+# remove spec / test files from gems as they shouldn't be shipped in gems anyway
+# and often cause errors / warning in rpmlint
+rm -rf %{buildroot}/%_libdir/obs-api/ruby/*/gems/*/spec/
+rm -rf %{buildroot}/%_libdir/obs-api/ruby/*/gems/*/test/
+# we do not verify signing of the gem
+rm -rf %{buildroot}/%_libdir/obs-api/ruby/*/gems/mousetrap-rails-*/gem-public_cert.pem
+
+# remove all gitignore files to fix rpmlint version-control-internal-file
+find %{buildroot}/%_libdir/obs-api -name .gitignore | xargs rm -rf
+
 export OBS_VERSION="%{version}"
 DESTDIR=%{buildroot} make install FILLUPDIR=%{_fillupdir}
 if [ -f %{_sourcedir}/open-build-service.obsinfo ]; then
@@ -375,6 +394,7 @@ fi
 # There's dupes between webui and api:
 %if 0%{?suse_version} >= 1030
 %fdupes $RPM_BUILD_ROOT/srv/www/obs
+%fdupes $RPM_BUILD_ROOT/%_libdir/obs-api
 %endif
 
 # fix build for SLE 11
