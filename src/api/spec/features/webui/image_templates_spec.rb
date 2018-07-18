@@ -10,7 +10,14 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
     let!(:package3) { create(:package_with_file, project: project, name: 'third_package',  title: 'b') }
     let!(:kiwi_image) { create(:kiwi_image_with_package, with_kiwi_file: true, project: project) }
     let(:kiwi_package) { kiwi_image.package }
-    let!(:attrib) { create(:template_attrib, project: project) }
+    let(:attrib) { create(:template_attrib, project: project) }
+
+    before do
+      # create attrib as user
+      User.current = user
+      attrib
+      User.current = nil
+    end
 
     scenario 'branch image template' do
       visit image_templates_path
