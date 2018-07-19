@@ -190,14 +190,9 @@ class Webui::RequestController < Webui::WebuiController
   def delete_request
     req = nil
     begin
-      BsRequest.transaction do
-        opts = { target_project: params[:project], description: params[:description] }
-        opts[:target_package] = params[:package] if params[:package]
-        opts[:target_repository] = params[:repository] if params[:repository]
-        req = BsRequest.build_from_params(:delete, opts)
-        req.save!
-      end
-
+      req = BsRequest.create!(
+        description: params[:description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:delete))]
+      )
       request_link = ActionController::Base.helpers.link_to("repository delete request #{req.number}", request_show_path(req.number))
       flash[:success] = "Created #{request_link}"
     rescue APIException => e
@@ -221,16 +216,9 @@ class Webui::RequestController < Webui::WebuiController
   def add_role_request
     req = nil
     begin
-      BsRequest.transaction do
-        opts = { target_project: params[:project],
-                 role:           params[:role],
-                 description: params[:description] }
-        opts[:target_package] = params[:package] if params[:package]
-        opts[:person_name] = params[:user] if params[:user]
-        opts[:group_name] = params[:group] if params[:group]
-        req = BsRequest.build_from_params(:add_role, opts)
-        req.save!
-      end
+      req = BsRequest.create!(
+        description: params[:description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:add_role))]
+      )
     rescue APIException => e
       flash[:error] = e.message
       redirect_to(controller: :package, action: :show, package: params[:package], project: params[:project]) && return if params[:package]
@@ -247,14 +235,9 @@ class Webui::RequestController < Webui::WebuiController
     required_parameters :project, :user, :group
     req = nil
     begin
-      BsRequest.transaction do
-        opts = { target_project: params[:project], description: params[:description] }
-        opts[:target_package] = params[:package] if params[:package]
-        opts[:person_name] = params[:user] if params[:user]
-        opts[:group_name] = params[:group] if params[:group]
-        req = BsRequest.build_from_params(:set_bugowner, opts)
-        req.save!
-      end
+      req = BsRequest.create!(
+        description: params[:description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:set_bugowner))]
+      )
     rescue APIException => e
       flash[:error] = e.message
       redirect_to(controller: :package, action: :show, package: params[:package], project: params[:project]) && return if params[:package]
@@ -275,15 +258,9 @@ class Webui::RequestController < Webui::WebuiController
   def change_devel_request
     req = nil
     begin
-      BsRequest.transaction do
-        opts = { target_project: params[:project],
-                 description: params[:description],
-                 target_package: params[:package],
-                 source_project: params[:devel_project] }
-        opts[:source_package] = params[:devel_package] || params[:package]
-        req = BsRequest.build_from_params(:change_devel, opts)
-        req.save!
-      end
+      req = BsRequest.create!(
+        description: params[:description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:change_devel))]
+      )
     rescue BsRequestAction::UnknownProject,
            Package::UnknownObjectError,
            BsRequestAction::UnknownTargetPackage => e
@@ -400,5 +377,19 @@ class Webui::RequestController < Webui::WebuiController
     target_link = ActionController::Base.helpers.link_to("#{tgt_prj} / #{tgt_pkg}", package_show_url(project: tgt_prj, package: tgt_pkg))
     request_link = ActionController::Base.helpers.link_to(forwarded_request.number, request_show_path(forwarded_request.number))
     flash[:notice] += " and forwarded to #{target_link} (request #{request_link})"
+  end
+
+  def request_action_attributes(type)
+    {
+      target_project:    params[:project],
+      target_package:    params[:package],
+      source_project:    params[:devel_project],
+      source_package:    params[:devel_package] || params[:package],
+      target_repository: params[:repository],
+      person_name:       params[:user],
+      group_name:        params[:group],
+      role:              params[:role],
+      type:              type.to_s
+    }
   end
 end
