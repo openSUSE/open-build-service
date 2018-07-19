@@ -205,6 +205,8 @@ RSpec.describe ObsFactory::StagingProject do
       context 'openqa results are relevant' do
         before do
           allow_any_instance_of(ObsFactory::StagingProject).to receive(:openqa_results_relevant?).and_return(true)
+          url = 'http://openqa.opensuse.org/api/v1/jobs?iso=openSUSE-Staging:A-Staging-DVD-x86_64-Build1036.1-Media.iso&scope=current'
+          stub_request(:get, url).and_return(body: '{"jobs":[]}')
         end
 
         it { expect(subject.openqa_jobs).to eq([]) }
