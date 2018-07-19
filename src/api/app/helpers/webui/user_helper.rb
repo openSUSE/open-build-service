@@ -24,7 +24,7 @@ module Webui::UserHelper
   def _printed_name(user, role, opt)
     real_name = user.try(:realname)
     if real_name.empty? || opt[:short]
-      printed_name = user
+      printed_name = user.login.dup
     else
       printed_name = "#{real_name} (#{user.login})"
     end

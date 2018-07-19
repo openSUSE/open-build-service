@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe Webui::UserHelper do
   describe '#user_and_role' do
     let(:user) { create(:user) }
+    let(:role) { Role.find_by(title: 'bugowner') }
     let(:logged_in_user) { create(:user) }
     let(:anonymous_user) { create(:user_nobody) }
 
@@ -18,6 +19,11 @@ RSpec.describe Webui::UserHelper do
       it 'falls back to users login if realname is empty' do
         user.update_attributes(realname: '')
         expect(user_and_role(user.login)).to include(link_to(user.login, user_show_path(user: user)))
+      end
+
+      it 'shows user login and role if realname is empty and role is given' do
+        user.update_attributes(realname: '')
+        expect(user_and_role(user.login, role)).to include(link_to("#{user.login} as bugowner", user_show_path(user: user)))
       end
 
       it 'does not show an icon if option disables it' do
