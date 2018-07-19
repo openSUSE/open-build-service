@@ -1,0 +1,22 @@
+.card
+  .card-header.d-flex.justify-content-between.align-items-center
+    %h5
+      Latest Updates
+    .float-right
+      = link_to(latest_updates_feed_path(format: 'rss'), title: 'RSS Feed') do
+        %i.fa.fa-rss
+  .card-body.p-0
+    %ul.list-group
+      - @latest_updates.each do |update|
+        %li.list-group-item.rounded-0.small
+          %span.d-inline-block.text-truncate{style: 'max-width: 180px;'}
+            - if update[1] == :package
+              %i.fa.fa-archive.align-middle{title: 'Package'}
+              = link_to(package_show_path(project: update[3], package: update[2])) do
+                = update[2]
+            - else
+              %i.fa.fa-cubes{title: 'Project'}
+              = link_to(project_show_path(update[1])) do
+                = update[1]
+          %p.small.mb-0
+            = fuzzy_time(update[0])

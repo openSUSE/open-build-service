@@ -15,3 +15,8 @@
 //= require peek
 //= require popper
 //= require bootstrap
+//= require jquery.flot
+//= require jquery.flot.resize
+//= require jquery.flot.time
+//= require jquery.flot.stack.js
+//= require webui2/plotbusyworkers.js

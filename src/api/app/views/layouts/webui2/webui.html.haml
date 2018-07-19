@@ -15,9 +15,9 @@
     = csrf_meta_tag
     - if User.current.try(:rss_token)
       = auto_discovery_link_tag(:rss, user_rss_notifications_url(token: User.current.rss_token.string, format: :rss), { title: 'Notifications' })
+    = auto_discovery_link_tag(:rss, latest_updates_feed_path(format: 'rss'), { title: 'Latest updates' })
   %body.d-flex.flex-column
-    .container-fluid#peek
-      = render 'peek/bar'
+    = render 'peek/bar'
     #navigation
       = render partial: 'layouts/webui2/navigation'
     .w-100.m-2
@@ -26,8 +26,7 @@
         .col-6
           = render partial: "layouts/webui2/breadcrumbs"
         .col-6
-          %nav.nav.nav-pills.justify-content-end
-            = render partial: "layouts/webui2/personal_navigation"
+          = render partial: "layouts/webui2/personal_navigation"
     - unless flash.blank?
       .container#flash
         .row.justify-content-center
