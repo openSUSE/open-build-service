@@ -21,7 +21,7 @@
         <% if ok %>
           None.
         <% else %>
-          <%= render @staging_project.untracked_requests %>
+          <%= render partial: 'webui/obs_factory/requests/request', collection: @staging_project.untracked_requests %>
         <% end %>
         </dd>
         <% ok = @staging_project.obsolete_requests.size.zero? -%>
@@ -30,7 +30,7 @@
         <% if ok %>
           None.
         <% else %>
-          <%= render @staging_project.obsolete_requests %>
+          <%= render partial: 'webui/obs_factory/requests/request', collection: @staging_project.obsolete_requests %>
         <% end %>
         </dd>
         <% ok = @staging_project.missing_reviews.size.zero? -%>

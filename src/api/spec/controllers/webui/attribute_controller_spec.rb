@@ -174,10 +174,11 @@ RSpec.describe Webui::AttributeController do
   end
 
   describe 'DELETE #destroy' do
-    let!(:attrib) { create(:attrib, project: user.home_project) }
+    let(:attrib) { create(:attrib, project: user.home_project) }
 
     before do
       login user
+      attrib
     end
 
     it 'deletes the attrib' do
