@@ -1,0 +1,24 @@
+.card-body
+  - @results.each do |result|
+    - if result.kind_of? Project
+      - project = result.name
+      - package = nil
+      - rtype = 'project'
+    - else
+      - project = result.project_name
+      - package = result.name
+      - rtype = 'package'
+    .card
+      %h5.card-header
+        = image_tag("icons/" + rtype, class: rtype, title: rtype.humanize)
+        = project_or_package_link project: project, package: package, short: false, trim_to: nil
+        = content_tag :span, result.sphinx_attributes, style: 'display:none'
+      - if result.description.blank?
+        %p.card-body ...
+      - else
+        - desc = truncate(result.description, length: 80)
+        %p.card-body
+          - desc.split(/\n/).each do |line|
+            = highlight(line, @search_text, highlighter: '<b>\1</b>')
+  - if @per_page
+    = paginate @results

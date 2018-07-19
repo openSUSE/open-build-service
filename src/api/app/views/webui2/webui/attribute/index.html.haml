@@ -1,0 +1,11 @@
+- @pagetitle = "Attributes"
+- project_bread_crumb
+- if @package
+  - @crumb_list << link_to(@package, package_show_path(package: @package))
+- @crumb_list << "Attributes"
+.card
+  - if @package
+    = render partial: "webui/package/tabs"
+  - else
+    = render partial: "webui/project/tabs"
+  = render partial: "attributes"

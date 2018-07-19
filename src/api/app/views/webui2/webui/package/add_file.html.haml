@@ -1,0 +1,54 @@
+- @pagetitle = "Add File"
+- package_bread_crumb(@pagetitle)
+
+.card
+  = render :partial => 'tabs'
+  = form_tag({:action => :save_file, :project => @project, :package => @package}, {:multipart => true}) do
+    .card-body
+      %h3
+        Add File to #{@package.name} (Project #{@project.name})
+      %p
+        The filename is taken from the uploaded file if none is provided. Alternatively, if only a filename is provided, a new empty file is created (i.e. touched).
+      %p
+        You may also specify remote URLs to src.rpm files which will get extracted. URLs to git repositories willbe stored in a tar ball.
+      %p
+        %label{ "for": "filename"}
+          %b Filename (taken from uploaded file if empty):
+        = text_field_tag('filename', '', :size => 80, :class => 'form-control')
+        .row
+          .col-md-4.mb-3
+            %b Upload from
+            = select_tag('file_type', options_for_select([['local file', 'local'], ['remote URL', 'remote']]), class: 'form-control')
+          .col-md-8.mb-3.mt-auto
+            .custom-file#file-overlay
+              = file_field_tag('file', class: 'custom-file-input')
+              %label{"for": "file", class: 'custom-file-label'} Choose file
+            = text_field_tag('file_url', '', :size => 80, :style => "display: none", :class => "form-control")
+    .card-footer
+      = submit_tag 'Save changes ', id: 'submit_button', disabled: true, class: 'btn btn-success d-flex ml-auto'
+
+= javascript_tag do
+  $('#file_type').change(function() {
+  if ($('#file_type option:selected').attr('value') == 'local') {
+  $('#file-overlay').show();
+  $('#file_url').hide();
+  } else {
+  $('#file-overlay').hide();
+  $('#file_url').show();
+  }
+  });
+  $('#filename, #file_url').keyup(function(){
+  changeButton();
+  });
+  $('#file').change(function(){
+  changeButton();
+  });
+  function changeButton(){
+  var filename = $('#filename').val().length;
+  var file = $('#file').val().length;
+  var file_url = $('#file_url').val().length;
+  if(filename != 0 || file != 0 || file_url != 0)
+  $('#submit_button').attr('disabled', false);
+  else
+  $('#submit_button').attr('disabled',true);
+  }

@@ -1,0 +1,125 @@
+- @pagetitle = "Show #{@project}"
+- @layouttype = 'custom'
+- project_bread_crumb 'Overview'
+
+
+- content_for :content_for_head do
+  = auto_discovery_link_tag(:atom, commits_feed_path(project: @project, format: 'atom'), { title: "Commits for #{@project}" })
+.card.mb-3
+  = render partial: 'tabs'
+  .card-body
+    .row
+      .col-md-8
+        %h3#project_title
+          = @project.title
+          = @project if @project.title.blank?
+        = description_wrapper(@project.description)
+        - if @project.url.present?
+          %p
+            = link_to(@project.url, @project.url, class: 'nav-link')
+      .col-md-4
+        = possibly_empty_ul class: "nav flex-column" do
+          - if @is_maintenance_project
+            %li.nav-item
+              - if @open_maintenance_incidents
+                = image_tag 'icons/accept.png'
+              - else
+                = image_tag 'icons/exclamation.png'
+              = link_to(pluralize(@open_maintenance_incidents.count, "open incident"), {action: 'maintenance_incidents', project: @project})
+          - else # also for incident project
+            - if @nr_of_problem_packages && @nr_of_problem_packages > 0
+              %li.nav-item.nav-link
+                = link_to(image_tag('icons/exclamation.png') + pluralize(@nr_of_problem_packages, "build error"), action: 'monitor', project: @project, succeeded: 0, blocked: 0, finished: 0, signing: 0, dispatching: 0, scheduled: 0, building: 0)
+            - if @has_patchinfo
+              %li.nav-item.nav-link
+                = link_to(image_tag('icons/accept.png') + 'Patchinfo present', {controller: 'patchinfo', action: 'show', project: @project, package: 'patchinfo'})
+            - if @is_incident_project
+              - if !@has_patchinfo
+                %li.nav-item.nav-link
+                  = link_to_if(image_tag('icons/exclamation.png') + User.current.can_modify?(@project), 'Patchinfo missing', { controller: 'patchinfo', action: 'new_patchinfo', project: @project, package: 'patchinfo' }, method: :post)
+              - if @open_release_requests.length > 0
+                %li.nav-item.nav-link
+                  - if @open_release_requests.length == 1
+                    - path = request_show_path(@open_release_requests[0])
+                  - else
+                    - path = project_requests_path(@project.name, type: "maintenance_release")
+                  = link_to(image_tag('icons/flag_green.png') + pluralize(@open_release_requests.length, "release request"), path)
+            - if @releasetargets.length > 0
+              %li.nav-item.nav-link
+                = link_to image_tag('icons/information.png') + pluralize(@releasetargets.length, "Release Target"), {action: 'meta', project: @project}
+          = render partial: 'shared/open_requests'
+          - if @project.defines_remote_instance?
+            %li.nav-item.nav-link
+              = image_tag 'icons/information.png'
+              Links against the remote OBS instance at: 
+              %i
+                = link_to_if(@project.remoteurl, @project.remoteurl, @project.remoteurl)
+          - if @linking_projects.size > 0
+            %li.nav-item.nav-link
+              = link_to(image_tag('icons/information.png') + pluralize(@linking_projects.size, "linking project"), { action: 'linking_projects', project: @project }, remote: true)
+          - if @project_maintenance_project
+            %li.nav-item.nav-link
+              = image_tag('icons/accept.png')
+              Maintained by
+              = link_to(@project_maintenance_project, {action: 'show', project: @project_maintenance_project})
+          - if @project.is_locked?
+            %li.nav-item.nav-link
+              = image_tag 'icons/lock.png'
+              is locked
+      - if (!@bugowners_mail.empty? && !CONFIG['bugzilla_host'].nil?) || !User.current.is_nobody?
+        %ul.nav
+          - if !@bugowners_mail.empty? && !CONFIG['bugzilla_host'].nil?
+            %li.nav-item
+              = link_to(image_tag('icons/tools-report-bug.png', title: 'Report bug') + ' Report bug', bugzilla_url(@bugowners_mail, "#{@project.name}: Bug"), class: 'nav-link')
+          - if @project.is_locked? && User.current.can_modify?(@project, true)
+            %li.nav-item
+              = link_to(image_tag('icons/lock_open.png', title: 'Unlock project') + ' Unlock project', { controller: 'project', action: 'unlock_dialog', project: @project.name }, remote: true, class: 'nav-link')
+          - elsif User.current.can_modify?(@project)
+            - unless @project.defines_remote_instance?
+              - if @is_incident_project && @packages.present? && @has_patchinfo && @open_release_requests.blank?
+                %li.nav-item
+                  = link_to(image_tag('icons/brick_go.png', title: 'Request to release') + ' Request to release', { controller: 'project', action: 'release_request_dialog', project: @project }, remote: true, class: 'nav-link')
+              - elsif @is_maintenance_project
+                %li.nav-item
+                  = link_to(image_tag('icons/brick_add.png', 'Create maintenance incident') + ' Create maintenance incident', { controller: 'project', action: 'new_incident', ns: @project.name }, method: :post, class: 'nav-link')
+              - else
+                - if @has_patchinfo
+                  %li.nav-item
+                    = link_to(image_tag('icons/information.png', title: 'Show patchinfo') + ' Show patchinfo', {controller: 'patchinfo', action: 'show', project: @project, package: 'patchinfo'}, class: 'nav-link')
+                - else
+                  %li.nav-item
+                    = link_to(image_tag('icons/plugin_add.png', title: 'Create patchinfo') + ' Create patchinfo', { controller: 'patchinfo', action: :new_patchinfo, project: @project }, method: :post, class: 'nav-link')
+                - if !@is_incident_project && @releasetargets.length > 0
+                  %li.nav-item
+                    = link_to(image_tag('icons/brick_go.png', title: 'Submit as update') + ' Submit as update', { controller: 'project', action: 'incident_request_dialog', project: @project }, remote: true, class: 'nav-link')
+                = render partial: 'webui/project/show/encryption_key_download_links'
+            %li.nav-item
+              = link_to(image_tag('icons/brick_edit.png', title: 'Edit description') + ' Edit description', { action: 'edit', project: @project }, id: 'edit-description', class: 'nav-link')
+            %li.nav-item
+              = link_to(image_tag('icons/brick_delete.png', title: 'Delete project') + ' Delete project', { controller: 'project', action: 'delete_dialog', project: @project.name }, remote: true, id: 'delete-project', class: 'nav-link')
+          - elsif !@project.is_locked?
+            %li.nav-item
+              = link_to(image_tag('icons/user_add.png', title: 'Request role addition') + ' Request role addition', { controller: 'request', action: 'add_role_request_dialog', project: @project }, remote: true, class: 'nav-link')
+            %li.nav-item
+              = link_to(image_tag('icons/package_delete.png', title: 'Request deletion') + ' Request deletion', { controller: 'request', action: 'delete_request_dialog', project: @project }, remote: true, id: 'request-deletion', class: 'nav-link')
+      - else
+        %ul.nav
+          = render partial: 'webui/project/show/encryption_key_download_links'
+.row
+  .col-lg-8
+    - if @is_maintenance_project 
+      // TODO: Show some maintenance stuff here
+    - else
+      = render partial: 'packages_table'
+  .col-lg-4
+    = render partial: 'shared/buildresult_box', locals: { project: @project.name }
+  .col-12
+    .card.mb-3
+      %h5.card-header
+        Comments for 
+        = @project.name
+        (
+        = @comments.length
+        )
+      .card-body
+        = render partial: 'webui/comment/show', locals: { commentable: @project }

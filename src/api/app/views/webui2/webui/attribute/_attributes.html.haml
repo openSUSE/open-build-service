@@ -1,0 +1,34 @@
+- if @attributes.blank?
+  .card-body.text-center
+    %em No attributes set
+- else
+  %div
+    %table.table.table-striped.table-sm.table-responsive.mb-0
+      %tr
+        %th Attribute
+        %th{width: '100%'} Values
+        - unless User.current.is_nobody?
+          %th Actions
+      - @attributes.each do |attribute|
+        %tr.attribute-values
+          %td{ class: "#{attribute.namespace}-#{attribute.name}" }
+            = attribute.fullname
+          %td{ class: "#{attribute.namespace}-#{attribute.name}-values" }
+            %ul
+            - attribute.values.each do |v|
+              %li
+                %pre{ style: "display: inline-flex"}= v.value
+            = attribute.issues.map(&:name).join(', ')
+          - unless User.current.is_nobody?
+            %td
+              = link_to(image_tag('icons/note_edit', title: 'Edit values'),
+                  edit_attribs_path(project: @project.name, package: @package, attribute: attribute.fullname),
+                  class: 'edit-values btn btn-warning btn-sm') if attribute.values_editable?
+              = button_to('Delete attribute', attrib_path(attribute),
+                  { data: { confirm: "Really remove attribute '#{attribute.fullname}'?" },
+                  method: :delete, class: 'delete-attribute btn btn-danger btn-sm', id: "#{attribute.namespace}-#{attribute.name}-delete", title: "Delete" })
+- unless User.current.is_nobody?
+  .card-footer
+    = link_to(image_tag('icons/note_add', title: 'Add a new attribute') + ' Add a new attribute',
+        new_attribs_path(project: @project.name, package: @package),
+        id: 'add-new-attribute', class: 'btn btn-success')

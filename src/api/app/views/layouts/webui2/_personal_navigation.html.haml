@@ -21,15 +21,16 @@
     = link_to(session_destroy_path, method: :delete, id: 'logout-link', class: 'nav-link') do
       Logout
 - elsif CONFIG['kerberos_mode']
-  = link_to 'Log In', session_new_path
+  %li.nav-item
+    = link_to 'Log In', session_new_path, class: 'nav-link'
 - else
   - if CONFIG['proxy_auth_mode'] == :on
     - if CONFIG['proxy_auth_register_page'].present?
-      %li
-        = link_to 'Sign Up', "#{CONFIG['proxy_auth_register_page']}?%22"
-    %li
-      = link_to 'Log In', session_new_path, id: 'login-trigger'
-    %li
+      %li.nav-item
+        = link_to 'Sign Up', "#{CONFIG['proxy_auth_register_page']}?%22", class: 'nav-link'
+    %li.nav-item
+      = link_to 'Log In', session_new_path, id: 'login-trigger', class: 'nav-link'
+    %li.nav-item
     .login-form
       = form_tag(CONFIG['proxy_auth_login_page'], method: :post, id: 'login_form', enctype: 'application/x-www-form-urlencoded') do
         %p
@@ -46,16 +47,24 @@
         %p.slim-footer= link_to('Cancel', '#', id: 'close-login')
   - else
     - if can_register
-      = link_to 'Sign Up', user_register_user_path
-      |
-    = link_to 'Log In', session_new_path, id: 'login-trigger'
-    #login-form
-      = form_tag(session_create_path) do
-        %p
-          = label_tag(:username, 'Username')
-          = text_field_tag(:username, '')
-        %p
-          = label_tag(:password, 'Password')
-          = password_field_tag(:password, '')
-        %p= submit_tag('Log In')
-        %p.slim-footer= link_to('Cancel', '#', id: 'close-login')
+      %li.nav-item
+        = link_to 'Sign Up', user_register_user_path, class: 'nav-link'
+    %li.nav-item
+      = link_to 'Log In', session_new_path, {class: 'nav-link', type: 'button', "data-toggle": "modal", "data-target": "#loginModal", "role": "modal"}
+      .modal.fade#loginModal{role: 'dialog', "aria-hidden": "true", "role": "dialog", "aria-labelledby": "loginModalLabel", "tabindex": "-1"}
+        .modal-dialog.modal-dialog-centered{'role': 'document'}
+          .modal-content
+            .modal-header
+              %h5.modal-title#loginModalLabel Login
+              %button.close{"type": "button", "data-dismiss": "modal", "aria-label": "Close"}
+                %span
+                  &times;
+            = form_tag(session_create_path) do
+              .modal-body
+                = label_tag(:username, 'Username')
+                = text_field_tag(:username, '', class: 'form-control')
+                = label_tag(:password, 'Password')
+                = password_field_tag(:password, '', class: 'form-control')
+              .modal-footer
+                %button.btn.btn-secondary{type: 'button', 'data-dismiss': 'modal'} Cancel
+                = submit_tag('Log In', class: 'btn btn-primary')

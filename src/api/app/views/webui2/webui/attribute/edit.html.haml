@@ -1,0 +1,23 @@
+- @pagetitle = "Edit Attribute #{@attribute.fullname} on #{@container.class} #{@container.name}"
+- project_bread_crumb
+- if @package
+  - @crumb_list << link_to(@package, package_show_path(package: @package))
+  - @crumb_list << link_to('Attributes', index_attribs_path(project: @project.name, package: @package))
+- else
+  - @crumb_list << link_to('Attributes', index_attribs_path(project: @project.name))
+- @crumb_list << @attribute.fullname
+.card
+  - if @package
+    = render partial: "webui/package/tabs"
+  - else
+    = render partial: "webui/project/tabs"
+  .card-body
+    %h2
+      = @pagetitle
+    %p
+      = @attribute.attrib_type.description
+  - if @attribute.values_editable?
+    = render 'form'
+  - else
+    %p
+      This attribute has no values to edit

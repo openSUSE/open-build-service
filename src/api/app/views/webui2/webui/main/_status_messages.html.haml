@@ -1,0 +1,29 @@
+- if @status_messages.present? || User.current.is_admin?
+  .card.mb-3
+    .card-header.d-flex.justify-content-between.align-items-center
+      %h5.mb-0 Announcements
+      \#{link_to((image_tag 'icons/feeds.png', title: 'RSS Feed'), news_feed_path(format: 'rss'))}
+    - @status_messages.each do |msg|
+      .grid_4.news-sender
+        = user_with_realname_and_icon msg.user, short: true
+        wrote #{time_ago_in_words(msg.created_at)} ago
+      .clear
+      .grid_4.box.news-message
+        - if User.current.is_admin?
+          = link_to(sprite_tag('comment_delete', title: 'Remove status message'),
+            { controller: 'status_messages', action: 'destroy_status_message_dialog', id: msg.id },
+            { remote: true, class: 'delete-message' })
+        - case msg.severity.to_i
+        - when 3
+          = sprite_tag('exclamation', alt: 'Red')
+        - when 2
+          = sprite_tag('error', alt: 'Yellow')
+        - when 1
+          = sprite_tag('accept', alt: 'Green')
+        - else
+          = sprite_tag('information', alt: 'Information')
+        = comment_body(msg.message)
+      .clear
+    - if User.current.is_admin?
+      .card-footer.text-center
+        = link_to(image_tag('icons/comment_add.png') + content_tag(:span, 'Add new status message', id: "add-new-message"), { controller: 'status_messages', action: 'create_status_message_dialog' }, { remote: true })

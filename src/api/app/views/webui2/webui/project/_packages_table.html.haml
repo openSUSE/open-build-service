@@ -1,0 +1,65 @@
+- content_for :ready_function do
+  $( "#packages" ).tabs();
+
+.card.mb-3
+  #packages
+    .bg-light
+      %ul.nav.nav-tabs.px-3
+        %li.nav-item.mt-2
+          %a{href: "#raw_packages", title: "Packages directly in the project", class: "nav-link active" }
+            Packages
+            (#{@packages.length})
+        - if @ipackages.present?
+          %li.nav-item
+            %a{href: "#inherited_packages", title: "Inherited Packages", class: "nav-link" }
+              Inherited Packages
+              (#{@ipackages.length})
+    #raw_packages.tab
+
+      - packageurl = url_for(controller: 'package', action: 'show', project: @project, package: 'REPLACEIT')
+      - if @packages.present?
+        - cache [packageurl, Digest::MD5.hexdigest(@packages.join)] do
+          .py-3#packages_table_wrapper{ "data-url": "#{ packageurl}" }
+            = javascript_tag do
+              var packages = [ #{ escape_nested_list(@packages) } ];
+              renderPackagesTable("packages_table_wrapper", packages);
+      - else
+        .card-body.text-center
+          %i This project does not contain any packages
+
+      - if @project.kind_of?(Project) && User.current.can_modify?(@project)
+        - if !@project.defines_remote_instance? && !(@is_incident_project && !@packages.blank? && @has_patchinfo && @open_release_requests.empty?) && !@is_maintenance_project
+          %ul.nav
+            %li.nav-item
+              = link_to(image_tag('icons/package_add.png', title: 'Create package') + ' Create package', {controller: 'project', action: 'new_package', project: @project}, class: "nav-link")
+            %li.nav-item
+              = link_to image_tag('icons/package_link.png', title: 'Branch existing package') + ' Branch existing package', {controller: :project, action: :new_package_branch, project: @project}, class: "nav-link"
+
+    - if @ipackages.present?
+      #inherited_packages.tab
+        - packageurl = url_for(controller: 'package', action: 'show', project: @project, package: 'REPLACEPKG')
+        - cache [packageurl, Digest::MD5.hexdigest(@ipackages.join)] do
+          #ipackages_wrapper{ data-url="%{ packageurl}"}
+            = javascript_tag do
+              var ipackages = [ #{ escape_nested_list(@ipackages) } ];
+              renderPackagesProjectsTable({packages: ipackages, name: 'ipackages_wrapper'});
+
+    - if @packages.present? && @ipackages.present?
+      = javascript_tag do
+        $('#packages_table_wrapper_table_filter input:first-of-type').on("keyup paste", function() {
+        $('#ipackages_wrapper_table').dataTable().fnFilter($(this).val());
+        });
+
+        $('#ipackages_wrapper_table_filter input:first-of-type').on("keyup paste", function() {
+        $('#packages_table_wrapper_table').dataTable().fnFilter( $(this).val());
+        });
+  - if @packages.present? && @ipackages.present?
+    = javascript_tag do
+      $('#packages_table_wrapper_table_filter input:first-of-type').on("keyup paste", function() {
+      $('#ipackages_wrapper_table').dataTable().fnFilter( $(this).val());
+      });
+      $('#ipackages_wrapper_table_filter input:first-of-type').on("keyup paste", function() {
+      $('#packages_table_wrapper_table').dataTable().fnFilter( $(this).val());
+      });
+  %noscript
+    = link_to 'Packages', action: 'packages_simple', project: @project

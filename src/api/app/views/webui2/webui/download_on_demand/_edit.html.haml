@@ -1,0 +1,4 @@
+.card
+  %h5.card-header
+    Edit Download on Demand for #{repository.name} / #{download_on_demand.arch}
+  = render partial: 'webui/download_on_demand/form', locals: { project: project, repository: repository, download_on_demand: download_on_demand }

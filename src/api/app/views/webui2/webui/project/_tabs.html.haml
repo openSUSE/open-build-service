@@ -1,0 +1,26 @@
+.bg-light
+  %ul.nav.nav-tabs.pt-2.px-3
+    = webui2_tab 'overview', 'Overview', :controller => '/webui/project', :action => :show
+    - if @is_maintenance_project && !@spider_bot
+      = webui2_tab 'incidents', 'Incidents', :controller => '/webui/project', :action => :maintenance_incidents
+      = webui2_tab 'maintained', 'Maintained Projects', :controller => '/webui/project', :action => :maintained_projects
+    - else 
+      - unless @project.defines_remote_instance? || @spider_bot
+        = webui2_tab 'repositories', "Repositories", :controller => '/webui/repositories', :action => :index
+    - if @project.repositories.any? && !@spider_bot
+      = webui2_tab 'monitor', "Monitor", :controller => '/webui/project', :action => :monitor
+    - unless @spider_bot
+      = webui2_tab 'requests', "Requests", :controller => '/webui/project', :action => 'requests'
+      = webui2_tab 'users', 'Users', :controller => '/webui/project', :action => :users unless @project.defines_remote_instance?
+      = webui2_tab 'subprojects', 'Subprojects', :controller => '/webui/project', :action => :subprojects unless @project.defines_remote_instance? || @is_maintenance_project
+      %li.nav-item.dropdown
+        %a.nav-link.dropdown-toggle{ href: '#', "data-toggle": "dropdown", "role": "button", "aria-haspopup": "true", "aria-expanded": "false"} Advanced
+        .dropdown-menu
+          - unless @project.defines_remote_instance? || @is_maintenance_project
+            = link_to 'Project Config', {:controller => '/webui/project', :action => :prjconf}, class: 'dropdown-item'
+          - unless @spider_bot
+            = link_to 'Attributes', {:controller => '/webui/attribute', :project => @project, :action => 'index'}, class: 'dropdown-item'
+            = link_to "Meta", {:controller => '/webui/project', :action => :meta}, class: 'dropdown-item'
+            - unless @project.defines_remote_instance? || @is_maintenance_project
+              = link_to 'Status', {:controller => '/webui/project', :action => :status}, class: 'dropdown-item'
+            = link_to 'Pulse', {:controller => '/webui/project', :action => :pulse}, class: 'dropdown-item'

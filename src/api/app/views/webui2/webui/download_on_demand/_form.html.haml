@@ -1,0 +1,22 @@
+= form_for(download_on_demand) do |form|
+  %div
+    = form.label :arch, 'Architecture'
+    = form.select :arch, options_for_select(Architecture.available, download_on_demand.try(:arch)), class: 'form-control'
+    = form.label :repotype, 'Type'
+    = form.select :repotype, options_for_select(DownloadRepository::REPOTYPES, download_on_demand.try(:repotype)), class: 'form-control'
+    = form.label :url
+    = form.text_field :url, class: 'form-control'
+    = form.label :archfilter, 'Arch. Filter'
+    = form.text_field :archfilter, class: 'form-control'
+    = form.label :masterurl, 'Master Url'
+    = form.text_field :masterurl, class: 'form-control'
+    = form.label :mastersslfingerprint, 'SSL Fingerprint'
+    = form.text_field :mastersslfingerprint, class: 'form-control'
+    = form.label :pubkey, 'Public Key'
+    = form.text_area :pubkey, class: 'form-control'
+    = form.hidden_field :repository_id
+    = hidden_field_tag :project, project
+    - if form.object.new_record?
+      %p= form.submit "Add Download on Demand", id: "add_dod_button", class: 'btn btn-primary'
+    - else
+      %p= form.submit "Update Download on Demand", id: "update_dod_button-#{download_on_demand}", class: 'btn btn-primary'

@@ -1,0 +1,72 @@
+- @pagetitle = "Search Owner"
+- @crumb_list = [ @pagetitle ]
+- @layouttype = 'custom'
+= content_for :ready_function do
+  :plain
+    $('#search-text').focus();
+    $('#advanced-link' ).click(function() {
+      $('#advanced-container').toggle("drop");
+      return false;
+    });
+.card
+  = render partial: 'tabs'
+  %h3.card-body Search for people responsible for package:
+  .card-body
+    = form_tag({ controller: 'search', action: 'owner' }, { method: :get }) do
+      .input-group
+        = text_field_tag 'search_text', params[:search_text], placeholder: 'Search', id: 'search_input', class: 'form-control mr-2 mb-2'
+        %input{ name: "owner", type: "hidden", value: "1" }/
+        %input{ name: "package", type: "hidden", value: "0" }/
+        %input{ name: "project", type: "hidden", value: "0" }/
+        = submit_tag(nil, id: 'search_button', title: 'Search', class: 'btn btn-primary mb-2')
+      %button.btn.btn-secondary.d-flex.mx-auto.collapsed{ "aria-controls": "collapseAdvanced", "aria-expanded": "false", type: "button", "data-toggle": "collapse", "data-target": "#collapseAdvanced"} Advanced
+      .card-body.collapse#collapseAdvanced
+        %h4 Advanced:
+        %p
+          - if params[:devel] == "off"
+            %input#nodevel{ checked: "checked", name: "devel", type: "radio", value: "off" }/
+            %label{ for: "nodevel" } Ignore Devel Projects
+            %input#devel{ name: "devel", type: "radio", value: "on" }/
+          - elsif params[:devel] == "on"
+            %input#nodevel{ name: "devel", type: "radio", value: "off" }/
+            %label{ for: "nodevel" } Ignore Devel Projects
+            %input#devel{ checked: "checked", name: "devel", type: "radio", value: "on" }/
+          - else
+            %input#nodevel{ name: "devel", type: "radio" }/
+            %label{ for: "nodevel" } Ignore Devel Projects
+            %input#devel{ name: "devel", type: "radio" }/
+          %label{ for: "devel" } Follow Devel Projects
+        %p
+          - if params[:limit].nil?
+            %input#old{ name: "limit", type: "radio", value: "-1" }/
+            %label{ for: "old" } Oldest
+            %input#all{ name: "limit", type: "radio", value: "0" }/
+            %label{ for: "all" } All
+            %input#new{ checked: "checked", name: "limit", type: "radio", value: "1" }/
+            %label{ for: "new" } Newest
+          -else
+            - if params[:limit] == "-1"
+              %input#old{ checked: "checked", name: "limit", type: "radio", value: "-1" }/
+            - else
+              %input#old{ name: "limit", type: "radio", value: "-1" }/
+            %label{ for: "old" } Oldest
+            - if params[:limit] == "0"
+              %input#all{ checked: "checked", name: "limit", type: "radio", value: "0" }/
+            - else
+              %input#all{ name: "limit", type: "radio", value: "0" }/
+            %label{ for: "all" } All
+            - if params[:limit] == "1"
+              %input#new{ checked: "checked", name: "limit", type: "radio", value: "1" }/
+            - else
+              %input#new{ name: "limit", type: "radio", value: "1" }/
+            %label{ for: "new" } Newest
+  - unless @results.blank?
+    = render partial: 'owners'
+    %div
+      - projects = []
+      - @results.each do |result|
+        - link = { "project": result.project, "package": result.package }
+        - projects << link
+      %p
+        = link_to(image_tag('user_add.png', title: "Request bugowner change"), { controller: :request, action: :set_bugowner_request_dialog, projects: projects }, remote: true)
+        = link_to("Request bugowner change", { controller: :request, action: :set_bugowner_request_dialog, projects: projects }, remote: true)

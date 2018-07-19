@@ -1,0 +1,61 @@
+#project-buildstatus
+  - if buildresults.blank?
+    - if project.remoteurl
+      .card-body.text-center
+        %i This project is just used to get referenced for using remote resources.
+    - elsif project.repositories.empty?
+      .card-body.text-center
+        %i
+          This project currently has
+          no #{link_to 'build targets', controller: :repositories, action: :distributions, project: project.name}
+          defined.
+    - else
+      .card-body.text-center
+        %i No build result available
+  - else
+    %table.table.table-sm.table-striped.mb-0.small
+      - buildresults.each do |repository, builds|
+        - builds.sort_by(&:architecture).each_with_index do |build, index|
+          %tr
+            - if index.zero?
+              %td.repo{ rowspan: builds.length }
+                = link_to(word_break(repository, 12),
+                  { action: :state,
+                    project: project.name,
+                    repository: repository,
+                    controller: :repositories },
+                  { title: "Repository #{repository}" })
+
+            %td.arch{ title: "#{repository} summary" }
+              = repo_status_icon(build.state, build.details)
+              = link_to(build.architecture, { action: :monitor,
+                                              "#{valid_xml_id('repo_' + repository)}": 1,
+                                              "arch_#{build.architecture}": 1,
+                                              project: project.name,
+                                              succeeded: 1,
+                                              failed: 1,
+                                              unresolvable: 1,
+                                              broken: 1,
+                                              blocked: 1,
+                                              dispatching: 1,
+                                              scheduled: 1,
+                                              building: 1,
+                                              finished: 1,
+                                              signing: 1,
+                                              locked: 1,
+                                              deleting: 1,
+                                              defaults: 0 }, rel: 'nofollow', class: 'nowrap')
+
+            %td
+              - build.summary.each do |status_count|
+                %span{ class: "status_#{status_count.code.to_s.gsub(/[- ]/, '_')}" }
+                  = link_to("#{status_count.code}: #{status_count.count}",
+                    { action: :monitor,
+                      "#{valid_xml_id('repo_' + repository)}": 1,
+                      "arch_#{build.architecture}": 1,
+                      project: params[:project],
+                      "#{status_count.code}": 1,
+                      defaults: 0 }, rel: 'nofollow', class: 'nowrap')
+
+                  = image_tag('icons/help', title: Buildresult.status_description(status_count.code))
+                %br

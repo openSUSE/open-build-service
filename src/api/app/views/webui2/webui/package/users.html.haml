@@ -1,0 +1,7 @@
+- @pagetitle = "Users of #{@package} (Project #{@project})"
+- package_bread_crumb 'Users'
+
+.card
+  = render :partial => 'tabs'
+
+  = render :partial => "shared/involved_users"

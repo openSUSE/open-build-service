@@ -1,0 +1,31 @@
+- @pagetitle = 'Welcome'
+- @layouttype = 'custom'
+.row
+  .col-md-8
+    .card.card-body.mb-3
+      %h1
+        Welcome to #{@configuration['title']}
+      = raw @configuration['description']
+      %ul.nav#proceed-list
+        - if User.current.is_admin?
+          = proceed_link_webui2 'configure', 'Configuration', controller: 'configuration', action: 'index'
+          = proceed_link_webui2 'list', 'All Projects', controller: 'project'
+          = proceed_link_webui2 'system-search', 'Search', controller: 'search', action: 'index'
+        - else
+          = proceed_link_webui2 'start-here', 'Your Home', user_show_path(User.current) unless User.current.is_nobody?
+          = proceed_link_webui2 'list', 'All Projects', controller: 'project'
+          = proceed_link_webui2 'system-search', 'Search', controller: 'search', action: 'index'
+          = proceed_link_webui2 "document-new", 'New Project', controller: 'project', action: 'new', ns: User.current.home_project_name unless User.current.is_nobody?
+        - unless @spider_bot
+          = proceed_link_webui2 'utilities-system-monitor', 'Status Monitor', controller: 'monitor', action: 'index'
+        = proceed_link_webui2 'drive-optical-32', 'New Image', image_templates_path if Feature.active?(:image_templates)
+    = render partial: 'systemstatus'
+  .col-md-4
+    - if User.current.is_nobody? and can_register
+      .card.mb-3
+        %h2.card-header New here? Sign up!
+        .card-body
+          = render partial: 'shared/sign_up'
+    = render partial: 'sponsors'
+    = render partial: 'status_messages'
+    = render partial: 'latest_updates' if (@latest_updates and ::Configuration.anonymous)

@@ -1,0 +1,102 @@
+- @pagetitle = "Home of #{@displayed_user}"
+- @layouttype = 'custom'
+- @crumb_list = [@pagetitle]
+/ user
+.row
+  .col-lg-3
+    .card.mb-3
+      / avatar
+      = user_icon(@displayed_user, 512, 'w-100 h-100 d-block') if @displayed_user.email
+      / info
+      .card-body
+        %h4
+          %span#home-realname
+            = @displayed_user.realname
+          %span#home-username= @displayed_user.login if @displayed_user.login
+        / mail
+        - unless User.current.is_nobody?
+          %p
+            = mail_to(@displayed_user.email, sprite_tag('email', title: 'Send mail to user'), title: 'Send mail to user')
+            = mail_to(@displayed_user.email, nil, title: 'Send mail to user')
+        / groups
+  
+        - if @groups.any?
+          %p Member of the group
+          %ul
+            - @groups.each do |group|
+              %li= link_to("#{group.title} (#{group.tasks})", group_show_path(group))
+        / roles
+        - if @role_titles.any?
+          %p Has the role
+          %ul
+            - @role_titles.each do |title|
+              %li= title
+        / edit
+        - if @is_displayed_user
+          - if @configuration.accounts_editable?(@displayed_user)
+            - if @account_edit_link.present?
+              %p
+                = link_to image_tag('icons/user_edit', title: 'Edit your account') + ' Edit your account', @account_edit_link
+            - else
+              %p
+                = link_to(image_tag('icons/user_edit', title: 'Edit your account') + ' Edit your account', { controller: 'user', action: 'save_dialog', user: User.current }, {id: 'save_dialog', remote: true})
+          - if @configuration.passwords_changable?(User.current)
+            %p
+              = link_to(image_tag('icons/key', title: 'Change your password') + ' Change your password', { controller: 'user', action: 'password_dialog', user: User.current }, {id: 'password_dialog', remote: true})
+          %p
+            = link_to(image_tag('icons/email', title: 'Change your notifications') + ' Change your notifications', user_notifications_path)
+          - if @displayed_user.rss_token
+            %p
+              = link_to(image_tag('icons/feeds', title: 'RSS for notifications') + ' RSS for notifications', user_rss_notifications_path(token: @displayed_user.rss_token.string, format: 'rss'), { title: 'RSS Feed for Notifications' })
+
+  .col-lg-9
+    .card.mb-3
+      %ul.nav.nav-tabs.bg-light.px-3.pt-2
+        %li.nav-item
+          %a.nav-link.active#involved-tab{"data-toggle": "tab", "href": "#involved", "role": "tab", "aria-controls": "involved", "aria-selected": "true", title: "Packages that you are involved with"} Involved Packages
+        %li.nav-item
+          %a.nav-link#projects-tab{"data-toggle": "tab", "href": "#projects", "role": "tab", "aria-controls": "projects", "aria-selected": "false", title: "Projects that you are involved with"} Involved Projects
+        %li.nav-item
+          %a.nav-link#owned-tab{"data-toggle": "tab", "href": "#owned", "role": "tab", "aria-controls": "owned", "aria-selected": "false", title: "Projects/Packages where you are responsible for the maintenance"} Owned Project/Packages
+      .tab-content#userTabs
+        .tab-pane.fade.show.active#involved{ "role": "tabpanel", "aria-labelledby": "involved-tab"}
+          - if @ipackages.length > 0
+            #ipackages-wrapper{ "data-url": url_for(controller: 'package', action: 'show', project: 'REPLACEPRJ', package: 'REPLACEPKG') }
+              - content_for :ready_function do
+                var ipackages = [  #{escape_nested_list(@ipackages)}];
+                renderPackagesProjectsTable({packages: ipackages, length: 10, name: 'ipackages-wrapper'});
+          - else
+            .card-body.text-center
+              %i
+                = @displayed_user.login
+                is not involved in any packages
+      
+        .tab-pane.fade#projects{ "role": "tabpanel", "aria-labelledby": "projects-tab"}
+          - if @iprojects.blank?
+            .card-body.text-center
+              %i
+                = @displayed_user.login
+                is not involved in any projects
+          - else
+            #projects-table-wrapper{"data-url" => "#{url_for(controller: 'project', action: 'show', project: 'REPLACEIT')}"}
+              - content_for :head_javascript do
+                var mainProjects = [ #{escape_nested_list(@iprojects)} ];
+                var exclProjects = [];
+              - content_for :ready_function do
+                renderProjectsTable(length=10);
+                $('#excludefilter').change(renderProjectsTable);
+        .tab-pane.fade#owned{ "role": "tabpanel", "aria-labelledby": "owned-tab"}
+          - if @owned.blank?
+            .card-body.text-center
+              %i
+                = @displayed_user.login
+                is not involved in any projects
+          - else
+            #iowned-wrapper{ "data-url": url_for(controller: 'package', action: 'show', project: 'REPLACEPRJ', package: 'REPLACEPKG') }
+              - content_for :ready_function do
+                var iowned = [ #{escape_nested_list(@owned)} ];
+                renderPackagesProjectsTable({packages: iowned, length: 15, name: 'iowned-wrapper'});
+
+
+- content_for :ready_function do
+  $( "#involved" ).tabs();

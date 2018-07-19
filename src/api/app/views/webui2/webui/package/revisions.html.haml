@@ -1,0 +1,22 @@
+- @pagetitle = "Revision Log of #{@package}"
+- package_bread_crumb 'Revisions'
+
+.card
+  = render :partial => 'tabs'
+
+  .card-body
+    - if @revisions
+      %h3
+        = "#{@pagetitle} (#{@lastrev})"
+      .list-group
+        - @revisions.each do |rev|
+          .list-group-item{id: "commit_item_#{rev}"}
+            = render(:partial => 'commit_item', :locals => {:rev => rev })
+      - unless params[:showall]
+        %p
+          = link_to('Show all', :action  => 'revisions', :project => @project, :package => @package, :showall => 1)
+    - else
+      %h3
+        = @pagetitle
+      %p
+        %i No commits exists yet.

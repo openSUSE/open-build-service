@@ -1,0 +1,23 @@
+= form_tag action: :save_group do
+  .card-body
+    %h3= @pagetitle
+    %label{ for: 'groupid' }
+      %b Group:
+
+    = text_field_tag 'groupid', params[:groupid], size: '25', required: true, class: 'form-control'
+
+    :javascript
+      $('#groupid').autocomplete({source: '#{url_for controller: 'groups', action: 'autocomplete'}',
+        search: function(event, ui) {
+          $(this).addClass('loading-spinner');
+        },
+        response: function(event, ui) {
+          $(this).removeClass('loading-spinner');
+        },minLength: 2});
+    %b Role:
+
+    = select_tag 'role', options_for_select(Role.local_roles, params[:role]), required: true, class: 'custom-select'
+
+    = hidden_field_tag 'package', @package
+    = hidden_field_tag 'project', @project
+  .card-footer.d-flex= submit_tag 'Add group', class: 'btn btn-primary ml-auto'

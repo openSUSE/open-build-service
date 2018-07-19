@@ -1,14 +1,11 @@
 %nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
   = link_to root_path, { class: 'navbar-brand', alt: 'Logo' } do
-    = image_tag('obs-logo_small.png', height: '30' )
+    = image_tag('obs-logo', height: '30' )
   %button.navbar-toggler{ 'type': "button", 'data-toggle': "collapse", 'data-target': "#global-navigation", 'aria-controls': "global-navigation", 'aria-expanded': "false", 'aria-label': "Toggle navigation"}
     %span.navbar-toggler-icon
   .collapse.navbar-collapse#global-navigation
     %ul.navbar-nav.ml-auto
       - unless User.current.is_nobody?
-        %li.nav-item.dropdown.d-none.d-sm-block
+        %li.nav-item.dropdown
           = render partial: 'layouts/webui2/watchlist_dropdown'
-    %ul.navbar-nav.d-block.d-sm-none
-      = render partial: "layouts/webui2/personal_navigation"
-      = render partial: 'layouts/webui2/watchlist'
     = render partial: 'layouts/webui2/search'

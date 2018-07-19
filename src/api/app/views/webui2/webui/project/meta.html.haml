@@ -1,0 +1,15 @@
+- content_for(:content_for_head, javascript_include_tag('webui/application/cm2/index-xml'))
+
+- @pagetitle = "Meta Configuration of #{@project}"
+- @metarobots = 'noindex'
+- project_bread_crumb('Meta')
+
+.card
+  = render :partial => 'tabs'
+  .card-body
+    %h3
+      = @pagetitle
+    - if User.current.can_modify?(@project)
+      = render partial: "shared/editor", locals: {text: @meta, mode: 'xml', save: {url: url_for(controller: 'project', action: 'save_meta'), method: 'POST', data: {project: @project.name, submit: 'meta'}}}
+    - else
+      = render partial: "shared/editor", locals: {text: @meta, mode: 'xml', style: {read_only: true}}

@@ -1,0 +1,10 @@
+%table.table.table-striped.table-sm
+  %thead
+    %tr
+      %th Summary
+      %th Category
+      %th Packages
+      %th Info
+      %th Release Targets
+      %th Build
+  %tbody= render :partial => 'incident_table_entries', :locals => {:incidents => incidents}

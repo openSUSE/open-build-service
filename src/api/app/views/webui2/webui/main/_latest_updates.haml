@@ -1,0 +1,18 @@
+= content_for :content_for_head do
+  = auto_discovery_link_tag(:rss, latest_updates_feed_path(format: 'rss'), { title: 'Latest updates' })
+.card
+  .card-header.d-flex.justify-content-between.align-items-center
+    %h5.mb-0 Latest Updates
+    \#{link_to((image_tag 'icons/feeds.png', title: 'RSS Feed'), latest_updates_feed_path(format: 'rss'))}
+  .list-group.list-group-flush
+    %tbody
+      - @latest_updates.each do |update|
+        .list-group-item.d-flex.justify-content-between.align-items-center
+          %span
+            - if update[1] == :package
+              = image_tag 'icons/package.png', title: 'Package'
+              = link_to(elide(update[2], 20), controller: 'package', action: 'show', project: update[3], package: update[2])
+            - else
+              = image_tag 'icons/project.png', title: 'Project'
+              = link_to(elide(update[1], 20), controller: 'project', action: 'show', project: update[1])
+          %span= fuzzy_time(update[0])

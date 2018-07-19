@@ -1,0 +1,36 @@
+- @pagetitle = "Public Projects"
+- @crumb_list = %w(Projects)
+.card
+  - unless @important_projects.blank?
+    .card-body
+      %h3 Main Projects
+      - for project in @important_projects
+        %p.main-project
+          = link_to project[0], action: :show, project: project[0]
+          \:
+          \#{project[1]}
+  .card-body
+    %h3= @pagetitle
+    %div
+      %p
+        - if @show_all
+          = link_to "Exclude #{::Configuration.unlisted_projects_filter_description}", projects_path
+        - else
+          = link_to "Include #{::Configuration.unlisted_projects_filter_description}", projects_path(show_all: true)
+        - unless User.current.is_nobody?
+          %p
+            = link_to image_tag('icons/brick_add', title: 'Create new project') + 'Create new project', :controller => :project, :action => :new
+  - cachekey = Digest::MD5.hexdigest(@projects.join)
+  - projecturl = url_for(controller: 'project', action: 'show', project: 'REPLACEIT')
+  #project_list
+    - if @projects.blank?
+      %p
+        %i No projects found
+    - else
+      #projects-table-wrapper{"data-url" => projecturl}
+        - content_for :head_javascript do
+          - cache ['list_public_arrays', cachekey] do
+            var mainProjects = [ #{escape_nested_list(@projects)} ];
+            var exclProjects = [];
+        - content_for :ready_function do
+          renderProjectsTable();

@@ -1,0 +1,10 @@
+= possibly_empty_ul class: 'nav' do
+  - unless User.current.is_nobody?
+    %li.nav-item
+      %a.nav-link.px-0{ href: "#collapseReply#{comment.id}", "data-toggle": "collapse", "aria-expanded": "false", "aria-controls": "collapseReply#{comment.id}" }
+        = image_tag('icons/comment_add.png', title: 'Reply')
+        Reply
+  - if policy(comment).destroy?
+    %li.nav-item
+      = link_to(image_tag('icons/comment_delete.png', title: 'Delete') + ' Delete', comment, method: :delete, id: "delete_link_id_#{comment.id}", class: 'nav-link', remote: true,
+        'data-confirm': 'Do you really want delete this comment?')

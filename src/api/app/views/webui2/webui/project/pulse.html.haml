@@ -1,0 +1,20 @@
+- @pagetitle = "Pulse of #{@project}"
+- project_bread_crumb 'Pulse'
+
+.card
+  = render partial: 'webui/project/tabs'
+  .card-body
+    %h3 Pulse of #{@project}
+    - @pulse.includes(:bs_request).each do |log_entry|
+      %p
+        &bull;
+        = log_entry.event_type.camelcase.prepend('Event::').constantize.description
+        - if log_entry.package_name
+          (#{link_to(log_entry.package_name, package_show_path(@project.name, log_entry.package_name))})
+        - if log_entry.user_name
+          by #{link_to(log_entry.user_name, user_show_path(log_entry.user_name))}
+        - if log_entry.bs_request
+          via request #{link_to("##{log_entry.bs_request.number}", request_show_path(log_entry.bs_request.number))}
+        = fuzzy_time(log_entry.datetime)
+
+    = paginate @pulse

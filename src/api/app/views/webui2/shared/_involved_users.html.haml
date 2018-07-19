@@ -1,0 +1,98 @@
+- object = @package || @project
+- user_is_maintainer = User.current.can_modify?(object) if object
+- data = { 'save-user' => url_for(action: 'save_person'),
+-          'remove' => url_for(action: 'remove_role'),
+-          'save-group' => url_for(action: 'save_group'),
+-          'project' => @project.name }
+- data[:package] = @package.name if @package
+#involved-users{ data: data }
+  - if @users.present?
+    %h3.card-body
+      User Roles #{image_tag 'ajax-loader.gif', id: 'user_spinner', style: 'display: none'}
+    %table.table.table-sm.table-striped.table-responsive#user-table{'width': '100%'}
+      %thead
+        %tr
+          %td.w-100 Username
+          - @roles.each do |role|
+            %td= role.title.capitalize
+          %td
+      %tbody
+        - @users.each do |user|
+          %tr{ id: "user-#{valid_xml_id(user.login)}" }
+            %td= user_with_realname_and_icon(user)
+            - @roles.each do |role|
+              %td{ data: { user: user.login, role: role.title, type: 'user' } }
+                - if defined? @package
+                  = check_box_tag('user_' + role.title + '_' + user.login, '',
+                    @package.user_has_role?(user, role), disabled: !user_is_maintainer, class: 'trigger')
+                  - if @project.user_has_role?(user, role)
+                    = link_to(image_tag('icons/project', title: 'Inherited from project'), controller: 'project', action: 'users', project: @project)
+                - else
+                  = check_box_tag('user_' + role.title + '_' + user.login, '', @project.user_has_role?(user, role), disabled: !user_is_maintainer, class: 'trigger')
+            %td.nowrap
+              - unless User.current.is_nobody?
+                - mail_subject = 'openSUSE Build Service - ' + @project.name
+                - mail_subject += '/' + @package.name if defined? @package
+                = mail_to user.email, image_tag('icons/email', title: 'Send mail to user'), subject: mail_subject
+                - if user_is_maintainer
+                  = link_to image_tag('icons/user_delete', title: 'Remove user'), { action: 'remove_role', project: @project, package: @package, userid: user.login }, { data: { confirm: "Really remove '#{user.login}'?" }, method: :post, class: 'remove-user' }
+  - if user_is_maintainer
+    .card-footer.border-bottom
+      = link_to(image_tag('icons/user_add', title: 'Add user') + ' Add user', { action: :add_person, package: @package, project: @project }, id: 'add-user', class: 'btn btn-success')
+  - unless @groups.blank?
+    %h3.card-body
+      Group Roles #{image_tag 'ajax-loader.gif', id: 'group_spinner', style: 'display: none'}
+    %table.table.table-sm.table-striped.table-responsive#group-table
+      %thead
+        %tr
+          %td.w-100 Group name
+          - @roles.each do |role|
+            %td= role.title.capitalize
+          - if user_is_maintainer
+            %td
+      %tbody
+        - @groups.each do |group|
+          %tr
+            %td= link_to(group.title, controller: 'groups', action: 'show', title: group.title)
+            - @roles.each do |role|
+              = content_tag(:td, data: { group: group.title, role: role.title, type: 'group' }) do
+                - if @package
+                  = check_box_tag('group_' + role.title + '_' + group.title, '', @package.group_has_role?(group, role), disabled: !user_is_maintainer, class: :trigger)
+                  - if @project.group_has_role?(group, role)
+                    = link_to(image_tag('icons/project', title: 'Inherited from project'), controller: 'project', action: 'users', project: @project)
+                - else
+                  = check_box_tag('group_' + role.title + '_' + group.title, '',
+                    @project.group_has_role?(group, role), disabled: !user_is_maintainer, class: :trigger)
+            - if user_is_maintainer
+              %td
+                = link_to image_tag('icons/group_delete', title: 'Remove group'), { action: 'remove_role', project: @project, package: @package, groupid: group }, { data: { confirm: "Really remove '#{group}'?" }, method: :post }
+  - if user_is_maintainer
+    .card-footer
+      = link_to image_tag('icons/group_add', title: 'Add group') + ' Add group', {action: :add_group, package: @package, project: @project}, class: 'btn btn-success'
+= content_for :ready_function do
+  - if @users && @users.length > 0
+    $('#user-table').dataTable({
+    'columns': [
+    null,
+    - @roles.length.times do
+      null,
+    {'orderable': false}
+    ],
+    'info': false,
+    'paging': false,
+    });
+  - if @groups && @groups.length > 0
+    $('#group-table').dataTable({
+    'columns': [
+    null,
+    - @roles.length.times do
+      null,
+    - if user_is_maintainer
+      {'orderable': false}
+    ],
+    'searching': false,
+    'info': false,
+    'paging': false,
+    });
+  - if user_is_maintainer
+    $('.trigger').click(function() { change_role($(this)) } );

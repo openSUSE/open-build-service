@@ -1,0 +1,70 @@
+- save ||= {}
+- style ||= { read_only: false }
+- uid ||= next_codemirror_uid
+- content_for(:head_style, codemirror_style(style))
+.card
+  - unless style[:read_only]
+    %div{ id: "top_#{uid}" }
+      .card-header.d-flex.justify-content-between.align-items-center
+        %span
+          %input.save.btn.btn-success.btn-sm.mr-3.inactive{ id: "save_#{uid}", type: 'button', value: 'Save' }/
+          %input.btn.btn-secondary.btn-sm{ id: "undo_#{uid}", onclick: "editors[#{uid}].Undo(this);", style: 'background: transparent', type: 'button', value: 'undo' }/
+          %input.btn.btn-secondary.btn-sm{ id: "redo_#{uid}", onclick: "editors[#{uid}].Redo(this);", style: 'background: transparent', type: 'button', value: 'redo' }/
+        %span.form-inline
+          %select.tools.custom-select.custom-select-sm.select{ id: "fontsize_#{uid}", onchange: "editors[#{uid}].updateFontsize(this)" }
+            %option{ value: '8pt' } 8pt
+            %option{ value: '9pt' } 9pt
+            %option{ value: '10pt' } 10pt
+            %option{ value: '11pt' } 11pt
+            %option{ value: '12pt' } 12pt
+            %option{ value: '14pt' } 14pt
+          %select.tools.custom-select.custom-select-sm.select{ id: "mode_#{uid}", onchange: "editors[#{uid}].updateMode(this)" }
+            %option{ id: "rpm-changes_#{uid}", value: 'rpm-changes' } changes
+            %option{ id: "rpm-spec_#{uid}", value: 'rpm-spec' } spec
+            %option{ id: "diff_#{uid}", value: 'diff' } diff
+            %option{ id: "shell_#{uid}", value: 'text/x-sh' } shell
+            %option{ id: "prjconf_#{uid}", value: 'prjconf' } projconf
+            %option{ id: "baselibs_#{uid}", value: 'baselibsconf' } baselibs
+            %option{ id: "perl_#{uid}", value: 'perl' } perl
+            %option{ id: "css_#{uid}", value: 'css' } css
+            %option{ id: "html_#{uid}", value: 'htmlmixed' } html
+            %option{ id: "js_#{uid}", value: 'javascript' } js
+            %option{ id: "php_#{uid}", value: 'application/x-httpd-php-open' } php
+            %option{ id: "xml_#{uid}", value: 'xml' } xml
+            %option{ id: "x_#{uid}", selected: 'selected', value: '' } ---
+  - data = {}
+  - data['save-url'] = save[:url] if save[:url]
+  - data['save-method'] = save[:method] if save[:method]
+  - data['data'] = save[:data] if save[:data]
+  - text = force_utf8_and_transform_nonprintables(text)
+  = content_tag(:textarea, text, id: "editor_#{uid}",
+    class: 'editor form-control', cols: '0', rows: '0', data: data)
+  - unless style[:read_only]
+    %div{ id: "bottom_#{uid}" }
+      .card-footer.d-flex.justify-content-between.align-items-center
+        %span.form-inline
+          %label.mx-1 position
+          %label line:
+          %label.mx-1{ id: "ln_#{uid}"} 0
+          %label char:
+          %label.mx-1{ id: "ch_#{uid}"} 0
+          %label tab size:
+          %select.mx-1{ id: "tabsize_#{uid}", onchange: "editors[#{uid}].updateTabsize(this)", class: "custom-select custom-select-sm mx-1"}
+            %option{ value: '2' } 2
+            %option{ value: '3' } 3
+            %option{ value: '4' } 4
+            %option{ value: '5' } 5
+            %option{ value: '6' } 6
+            %option{ value: '7' } 7
+            %option{ value: '8' } 8
+        %span.form-inline
+          %label matching:
+          %input{ id: "match_#{uid}", onclick: "editors[#{uid}].Match(this);", type: 'button', value: 'off', class: "btn btn-secondary btn-sm mx-1" }/
+        %span.form-inline
+          %label line:
+          %input.inputs{ autocomplete: 'off', id: "line_#{uid}", type: 'text', class: "form-control form-control-sm mx-1" }/
+          %input{ onclick: "editors[#{uid}].gotoLine(this);", type: 'button', value: 'go', class: "btn btn-secondary btn-sm mx-1" }/
+          %label line wrapping:
+          %input{ onclick: "editors[#{uid}].Wrap(this)", type: 'button', value: 'off', class: "btn btn-secondary btn-sm mx-1" }/
+- content_for :ready_function do
+  use_codemirror(#{uid}, #{style[:read_only]}, '#{mode}');

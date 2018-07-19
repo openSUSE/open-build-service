@@ -1,0 +1,6 @@
+.nested-fields
+  .field.form-inline
+    = f.select :issue_tracker_id, IssueTracker.all.collect { |tracker| [tracker.name, tracker.id] }.sort, {include_blank: false}, {class: 'custom-select'}
+    = f.label :id
+    = f.text_field :name, class: 'form-control'
+    = link_to_remove_association "remove issue", f

@@ -1,0 +1,115 @@
+%h3 Statistical Plots
+%h5 Options
+- unless @available_arch_list.empty?
+  = form_tag(controller: "main", action: "index") do
+    %p
+      %strong Architecture:
+      = select_tag(:architecture_display, options_for_select(@available_arch_list, @default_architecture), class: 'form-control')
+      %strong Timeframe:
+      = select_tag(:time_display, options_for_select([["1 day", "24"], ["1 hour", 1], ["1 week", "168"], ["1 month", "720"], ["1 year", "8760"]], "24"), class: 'form-control')
+.row
+  .col-md-6
+    #building{ style: "height:250px; margin-right: 20px" }
+    .text-center
+      Workers
+      %span.flot_legend#legend-building
+    .plotspinner= image_tag('ajax-loader.gif')
+  .col-md-6
+    #events{ style: "height:250px; margin-left: 20px; margin-right: 20px" }
+    .text-center
+      Repositories to recalculate
+      %span.flot_legend#legend-events
+    .plotspinner= image_tag('ajax-loader.gif')
+  .col-md-6
+    #jobs{ style: "height:250px; margin-right: 20px" }
+    .text-center
+      Packages scheduled for building
+      %span.flot_legend#legend-jobs
+    .plotspinner= image_tag('ajax-loader.gif')
+
+= content_for :head_javascript do
+  :plain
+    var arch_to_show = "#{@default_architecture}";
+    var time_to_show = "24";
+
+    function plotValues(data) {
+
+    var plot = $.plot($("#events"), [ { data: data['squeue_high'], label: "High", color: "red" },
+             { data: data['squeue_med'], label: "Medium", color: 1 },
+             { data: data['squeue_low'], label: "Low Priority", color: 2}
+             ], {
+      series: {
+        lines: { show: true, fill: true },
+        stack: true
+      },
+      legend: { noColumns: 3, position: "ne", container: "#legend-events" },
+      xaxis: { mode: 'time' },
+      yaxis: { min: 0, max: data['events_max'], position: "left", labelWidth: 25 }
+    });
+
+    $.plot($("#building"), [ { data: data['building'], label: "building", color: 3},
+                             { data: data['idle'], label: "idle", color: 4 },
+                             { data: data['away'], label: "away", color: 6 },
+                             { data: data['down'], label: "down", color: 5 },
+                             { data: data['dead'], label: "dead", color: 7 } ],
+      {
+            series: {
+                stack: true,
+                lines: { show: true, steps: false, fill: true }
+            },
+            xaxis: { mode: 'time' },
+            yaxis: { min: 0, position: "left", labelWidth: 25 },
+            legend: { noColumns: 3, position: "ne", container: "#legend-building" }
+      });
+    $.plot($("#jobs"), [
+             { data: data['waiting'], label: "Ready to build", color: 5},
+             {  data: data['blocked'], label: "Blocked build job", color: 6 } ],
+        {
+            series: {
+                stack: true,
+                lines: { show: true, steps: false, fill: true },
+            },
+            xaxis: { mode: 'time' },
+            yaxis: { max: data['jobs_max'], position: "left", labelWidth: 25 },
+      legend: { noColumns: 3, position: "ne", container: "#legend-jobs" }
+        });
+    }
+
+    function updatePlots()
+    {
+         $(".plotspinner").show();
+         $.ajax({ url: "#{monitor_events_path}",
+                dataType: 'json',
+                data: { "range": time_to_show,
+                         "arch": arch_to_show },
+                success: function(json) {
+                           plotValues(json);
+                           $(".plotspinner").hide();
+                           /* fade out now */
+                         }
+               });
+    }
+
+= content_for :ready_function do
+  :plain
+     /* plot an empty set */
+     plotValues({ 'building': [],
+                  'idle': [],
+                  'waiting': [],
+                  'blocked': [],
+                  'squeue_low': [],
+                  'squeue_med': [],
+                  'squeue_high': []
+                  });
+     updatePlots();
+     setInterval("updatePlots()", 80000 );
+
+     $("#architecture_display").change(function() {
+         $("#architecture_display option:selected").each(function() { arch_to_show=$(this).attr("value"); });
+         updatePlots();
+     });
+
+     $("#time_display").change(function() {
+         $("#time_display option:selected").each(function() { time_to_show=$(this).attr("value"); });
+         updatePlots();
+     });

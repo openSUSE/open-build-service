@@ -1,0 +1,80 @@
+- index ||= ''
+- if defined?(package)
+  - controller = 'package'
+- else
+  - controller = 'project'
+.card.mb-3
+  .bg-light
+    %ul.nav.nav-tabs.pt-2.px-3{id: "result_select_#{index}"}
+      %li.nav-item
+        %a.nav-link.active{ href: '#', id: "result_select_link_#{index}_0", data: { id: "result_display_#{index}_0" } } Build Results
+        = image_tag('icons/reload.png', title: 'Reload', onclick: "update_build_result_#{index}()", class: "result_reload", id: "result_reload_#{index}_0")
+        = image_tag('ajax-loader.gif', id: "result_spinner_#{index}_0")
+      - if controller == 'package'
+        %li.nav-item
+          %a.nav-link{ href: '#', id: "result_select_link_#{index}_1", data: { id: "result_display_#{index}_1" } } Rpmlint Results
+          = image_tag('icons/reload.png', title: 'Reload', onclick: "update_rpmlint_result_#{index}()", class: "result_reload", id: "result_reload_#{index}_1", style: 'display: none')
+          = image_tag('ajax-loader.gif', id: "result_spinner_#{index}_1", style: "display: none")
+  .content-tabs
+    .content-tab{ id: "result_display_#{index}_0" }
+    - if controller == 'package'
+      %div{ class: "content-tab", id: "result_display_#{index}_1", style: "display: none" }
+
+- ajax_data = []
+- ajax_data.push("'project': '#{h(project)}'") if defined?(project)
+- ajax_data.push("'package': '#{h(package)}'") if defined?(package)
+- ajax_data.push("'index': '#{index}'") if defined?(index)
+- ajax_data = raw(ajax_data.join ', ')
+
+= javascript_tag do
+  - if controller == 'package'
+    :plain
+      function update_rpmlint_result_#{index}() {
+        $('#result_spinner_#{index}_1').show();
+        $('#result_reload_#{index}_1').hide();
+        $.ajax({
+          url: '#{ url_for(controller: controller, action: 'rpmlint_result') }',
+          data: {#{ajax_data}},
+          success: function(data) {
+            $('#result_display_#{index}_1').html(data);
+          },
+          error: function(data) {
+            $('#result_display_#{index}_1').html('<p class="card-body">No rpmlint results available</p>');
+          },
+          complete: function(data) {
+            $('#result_spinner_#{index}_1').hide();
+            if ($('#result_select_link_#{index}_1').hasClass('active')) {
+              $('#result_reload_#{index}_1').show();
+            }
+          }
+        });
+      }
+
+      update_rpmlint_result_#{index}();
+
+  :plain
+    function update_build_result_#{index}() {
+      $('#result_spinner_#{index}_0').show();
+      $('#result_reload_#{index}_0').hide();
+      $.ajax({
+        url: '#{ url_for(controller: controller, action: 'buildresult') }',
+        data: {
+          'show_all': $('#show_all_#{index}').is(':checked'),
+          #{ajax_data}
+        },
+        success: function(data) {
+          $('#result_display_#{index}_0').html(data);
+        },
+        error: function(data) {
+          $('#result_display_#{index}_0').html('<p class="card-body">No build results available</p>');
+        },
+        complete: function(data) {
+          $('#result_spinner_#{index}_0').hide();
+          if ($('#result_select_link_#{index}_0').parent().hasClass('active')) {
+            $('#result_reload_#{index}_0').show();
+          }
+        }
+      });
+    }
+
+    update_build_result_#{index}();

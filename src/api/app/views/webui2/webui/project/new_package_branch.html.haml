@@ -1,0 +1,66 @@
+- @pagetitle = "Add New Package Branch"
+- project_bread_crumb @pagetitle
+
+.card
+  = render :partial => 'tabs'
+  .card-body
+    %h2
+      = @pagetitle
+      to #{@project.name}
+    %p
+      By branching a package from another project you add the package and its files
+      to your project in a transparent way. Changes of the files in the original
+      project will also change the files in the branched package in your project.
+    %p
+      You can add patches to the branched package without affecting the original
+      package.
+    - unless @remote_projects.empty?
+      %p
+        Branches also work across interconnected OBS instances. This OBS has
+        \#{pluralize(@remote_projects.count, 'interconnect.', plural: 'interconnects.')}
+      %ul
+        - @remote_projects.each do |id,name,title|
+          %li= link_to("#{name}: #{title}", { controller: 'project', action: 'show', project: name}, {:class => 'project'})
+  = form_tag controller: :package, action: :branch do
+    .branching-details.card-body
+      %p
+        %label{:for => "linked_project"}
+          %strong Original project name
+        = text_field_tag 'linked_project', nil, size: 80, id: 'linked_project', required: true, class: 'form-control'
+      %p
+        %label{:for => "linked_package"}
+          %strong Original package name
+        = text_field_tag 'linked_package', nil, size: 80, id: 'linked_package', required: true, class: 'form-control'
+      = hidden_field_tag 'target_project', @project
+      = render partial: 'shared/package_branch_form', locals: {show_project_field: false, target_project: @project}
+    .card-footer.d-flex
+      = submit_tag "Create Branch", class: 'btn btn-primary ml-auto'
+= javascript_tag do
+  $("#linked_project").autocomplete({source: '#{url_for :controller => :project, :action => :autocomplete_projects}', search: function(event, ui) {
+  $(this).addClass('loading-spinner');
+  },
+  response: function(event, ui) {
+  $(this).removeClass('loading-spinner');
+  }, minLength: 2});
+  $("#linked_package").autocomplete({
+  source:
+  function (request, response) {
+  $.ajax({
+  url: '#{url_for :controller => 'project', :action => 'autocomplete_packages'}',
+  data: {
+  project: $('#linked_project').val(),
+  term: request.term,
+  },
+  success: function(data) {
+  response($.map(data, function(item) { return { label: item, value: item } }));
+  },
+  });
+  },
+  search: function(event, ui) {
+  $(this).addClass('loading-spinner');
+  },
+  response: function(event, ui) {
+  $(this).removeClass('loading-spinner');
+  },
+  minLength: 2,
+  });

@@ -1,0 +1,3 @@
+- if @project.key_info.present?
+  %li.nav-item
+    = link_to(image_tag('icons/key.png', title: 'GPG Key / SSL Certificate') + ' GPG Key / SSL Certificate', key_dialog_project_public_key_path(project_name: @project.name), remote: true, id: 'gpg-project', class: 'nav-link')
