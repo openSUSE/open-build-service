@@ -771,6 +771,22 @@ class BsRequest < ApplicationRecord
     raise InvalidReview
   end
 
+  def create_new_review(opts)
+    newreview = reviews.create(
+      reason:     opts[:comment],
+      by_user:    opts[:by_user],
+      by_group:   opts[:by_group],
+      by_project: opts[:by_project],
+      by_package: opts[:by_package],
+      creator:    User.current.try(:login),
+      reviewer:   User.current.try(:login)
+    )
+    return newreview if newreview.valid?
+    raise InvalidReview, 'Review invalid: ' + newreview.errors.full_messages.join("\n")
+  end
+
+  private :create_new_review
+
   def addreview(opts)
     permission_check_addreview!
 
@@ -781,15 +797,7 @@ class BsRequest < ApplicationRecord
       self.commenter = User.current.login
       self.comment = opts[:comment] if opts[:comment]
 
-      newreview = reviews.create(
-        reason:     opts[:comment],
-        by_user:    opts[:by_user],
-        by_group:   opts[:by_group],
-        by_project: opts[:by_project],
-        by_package: opts[:by_package],
-        creator:    User.current.try(:login),
-        reviewer:    User.current.try(:login)
-      )
+      newreview = create_new_review(opts)
       save!
 
       history_params = {
