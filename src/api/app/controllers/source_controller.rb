@@ -56,6 +56,12 @@ class SourceController < ApplicationController
 
   class NoLocalPackage < APIException; end
 
+  class ChangePackageProtectionLevelError < APIException
+    setup 'change_package_protection_level',
+          403,
+          'admin rights are required to raise the protection level of a package'
+  end
+
   class CmdExecutionNoPermission < APIException
     setup 403
   end
@@ -1261,5 +1267,21 @@ class SourceController < ApplicationController
       obj.store
     end
     render_ok
+  end
+
+  def set_request_data
+    @request_data = Xmlhash.parse(request.raw_post)
+    raise ActiveXML::ParseError unless @request_data
+  end
+
+  def render_error_for_package_or_project(err_code, err_message, xml_obj, obj)
+    render_error status: 400, errorcode: err_code, message: err_message if xml_obj && xml_obj != obj
+  end
+
+  def validate_xml_content(rdata_field, object, error_status, error_message)
+    render_error_for_package_or_project error_status,
+                                        error_message,
+                                        rdata_field,
+                                        object
   end
 end
