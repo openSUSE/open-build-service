@@ -751,6 +751,11 @@ OBSApi::Application.routes.draw do
     put 'source/:project/_config' => :update, constraints: cons
   end
 
+  controller :source do
+    # package level
+    get '/source/:project/_project/:filename' => :get_file, constraints: cons
+  end
+
   controller :source_project_package_meta do
     get 'source/:project/:package/_meta' => :show, constraints: cons
     put 'source/:project/:package/_meta' => :update, constraints: cons
@@ -763,9 +768,6 @@ OBSApi::Application.routes.draw do
     post 'source' => :global_command_orderkiwirepos,            constraints: ->(req) { req.params[:cmd] == 'orderkiwirepos' }
     get 'source/:project/_pubkey' => :show_project_pubkey, constraints: cons
     delete 'source/:project/_pubkey' => :delete_project_pubkey, constraints: cons
-
-    # package level
-    get '/source/:project/_project/:filename' => :get_file, constraints: cons
 
     get 'source/:project/:package/:filename' => :get_file, constraints: cons
     delete 'source/:project/:package/:filename' => :delete_file, constraints: cons
