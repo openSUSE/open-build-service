@@ -10,6 +10,13 @@ RSpec.describe Comment do
     it { expect(comment_package).to be_valid }
   end
 
+  describe 'save' do
+    it 'stores emoji' do
+      comment_package.body = '😁'
+      comment_package.save
+    end
+  end
+
   describe 'associations' do
     it { is_expected.to belong_to(:commentable) }
     it { is_expected.to belong_to(:user).inverse_of(:comments) }

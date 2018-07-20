@@ -35,14 +35,14 @@ development:
   host:     localhost
   database: api_25
   username: root
-  encoding: utf8
+  encoding: utf8mb4
   socket:   $MYSQL_SOCKET
 test:
   adapter:  mysql2
   host:     localhost
   database: api_test
   username: root
-  encoding: utf8
+  encoding: utf8mb4
   socket:   $MYSQL_SOCKET
   # disable timeout, required on SLES 11 SP3 at least
   connect_timeout:
