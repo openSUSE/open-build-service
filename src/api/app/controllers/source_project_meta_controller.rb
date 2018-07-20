@@ -2,6 +2,16 @@ class SourceProjectMetaController < SourceController
   validate_action update: { request: :project, response: :status }
   validate_action show: { response: :project }
 
+  before_action :set_request_data, only: [:update]
+  before_action :require_project_name, only: [:update]
+
+  before_action only: [:update] do
+    validate_xml_content @request_data['name'],
+                         @project_name,
+                         'project_name_mismatch',
+                         'project name in xml data does not match resource path component'
+  end
+
   # GET /source/:project/_meta
   #---------------------------
   def show
@@ -18,18 +28,9 @@ class SourceProjectMetaController < SourceController
 
   # PUT /source/:project/_meta
   def update
-    project_name = params[:project]
     params[:user] = User.current.login
-
-    request_data = Xmlhash.parse(request.raw_post)
-
-    # permission check
-    if request_data['name'] != project_name
-      raise ProjectNameMismatch, "project name in xml data ('#{request_data['name']}) does not match resource path component ('#{project_name}')"
-    end
-
     begin
-      project = Project.get_by_name(request_data['name'])
+      project = Project.get_by_name(@request_data['name'])
     rescue Project::UnknownObjectError
       project = nil
     end
@@ -48,26 +49,26 @@ class SourceProjectMetaController < SourceController
       end
     else
       # project is new
-      unless User.current.can_create_project?(project_name)
+      unless User.current.can_create_project?(@project_name)
         logger.debug 'Not allowed to create new project'
-        raise CreateProjectNoPermission, "no permission to create project #{project_name}"
+        raise CreateProjectNoPermission, "no permission to create project #{@project_name}"
       end
     end
 
     # projects using remote resources must be edited by the admin
-    ensure_access_to_edit_remote_project(request_data)
+    ensure_access_to_edit_remote_project(@request_data)
 
-    ensure_xml_attributes_are_valid(request_data, project_name)
+    ensure_xml_attributes_are_valid(@request_data, @project_name)
 
-    remove_repositories!(project, request_data, params) if project
+    remove_repositories!(project, @request_data, params) if project
 
     Project.transaction do
       # exec
       if project
-        project.update_from_xml!(request_data)
+        project.update_from_xml!(@request_data)
       else
-        project = Project.new(name: project_name)
-        project.update_from_xml!(request_data)
+        project = Project.new(name: @project_name)
+        project.update_from_xml!(@request_data)
         # FIXME3.0: don't modify send data
         project.relationships.build(user: User.current, role: Role.find_by_title!('maintainer'))
       end
@@ -86,7 +87,8 @@ class SourceProjectMetaController < SourceController
 
   def ensure_access_to_edit_remote_project(request_data)
     result = Project.validate_remote_permissions(request_data)
-    raise ChangeProjectNoPermission, 'admin rights are required to change projects using remote resources' if result[:error]
+    error_message = 'admin rights are required to change projects using remote resources'
+    raise ChangeProjectNoPermission, error_message if result[:error]
   end
 
   def ensure_xml_attributes_are_valid(request_data, project_name)
@@ -98,5 +100,12 @@ class SourceProjectMetaController < SourceController
 
     result = Project.validate_repository_xml_attribute(request_data, project_name)
     raise RepositoryAccessFailure, result[:error] if result[:error]
+  end
+
+  private
+
+  def require_project_name
+    required_parameters :project
+    @project_name = params[:project]
   end
 end
