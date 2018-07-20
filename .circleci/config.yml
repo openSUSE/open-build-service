@@ -44,7 +44,7 @@ aliases:
 
   - &bootstrap_old_test_suite
     name: Setup application
-    command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
+    command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test FORCE_EXAMPLE_FILES=1
 
   # keep the prefix for the following aligned
   - &save_repo_cache_key
@@ -98,7 +98,7 @@ jobs:
       - run: rm -rf src/api/tmp/rubocop*
       - run:
           name: Setup application
-          command: cd src/api; bundle exec rake dev:prepare assets:precompile RAILS_ENV=test
+          command: cd src/api; bundle exec rake dev:prepare assets:precompile RAILS_ENV=test FORCE_EXAMPLE_FILES=1
       - save_cache:
           <<: *save_repo_cache_key
           paths:
