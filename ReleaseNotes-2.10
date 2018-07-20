@@ -38,7 +38,8 @@ Frontend:
  * Refactored the view of the binaries page that before was just a list of links that
    pointed to the details page. Now you can download the files and upload images to
    the cloud directly from here.
-
+ * Text fields are stored as 4 byte UTF-8 which allows to use emojis. To use this
+   feature, switch database.yml to utf8mb4 encoding
 
 Backend:
 
