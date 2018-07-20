@@ -1,22 +1,18 @@
 module ObsFactory
   # this class tracks the differences between Factory and the upcoming release
-  class DistributionStrategyOpenSUSE < DistributionStrategyFactory
+  class DistributionStrategyOpenSUSELeap15 < DistributionStrategyFactory
     SIGNATURE = /openSUSE:(?<full_name>.+:(?<version>(?<major_version>\d+)\.(?<minor_version>\d+)))/
-
-    def opensuse_version
-      distribution[:full_name]
-    end
 
     def opensuse_leap_version
       distribution[:version]
     end
 
     def openqa_version
-      distribution[:major_version]
+      opensuse_leap_version
     end
 
     def openqa_group
-      "openSUSE Leap #{opensuse_leap_version}"
+      "openSUSE Leap #{distribution[:major_version]}"
     end
 
     def repo_url
@@ -28,7 +24,7 @@ module ObsFactory
     end
 
     def openqa_iso_prefix
-      "openSUSE-#{opensuse_version}-Staging"
+      "openSUSE-Leap-#{opensuse_leap_version}-Staging"
     end
 
     def published_arch
@@ -48,11 +44,11 @@ module ObsFactory
     # @return [String] version string
     def published_version
       begin
-        f = open(repo_url)
-      rescue ::OpenURI::HTTPError => e
+        f = URI(repo_url).open
+      rescue ::OpenURI::HTTPError
         return 'unknown'
       end
-      matchdata = %r{openSUSE-#{opensuse_leap_version}-#{published_arch}-Build(.*)}.match(f.read)
+      matchdata = %r{openSUSE-#{opensuse_leap_version}-#{published_arch}-Build(.*)-Media}.match(f.read)
       matchdata[1]
     end
 

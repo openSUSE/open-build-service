@@ -211,7 +211,7 @@ module ObsFactory
       s = case project.name
         when 'openSUSE:Factory' then DistributionStrategyFactory.new
         when 'openSUSE:Factory:PowerPC' then DistributionStrategyFactoryPPC.new
-        when /^openSUSE:Leap:15\.*/ then DistributionStrategyOpenSUSE.new
+        when /^openSUSE:Leap:15\.*/ then DistributionStrategyOpenSUSELeap15.new
         when /^SUSE:SLE-12-SP\d:GA/ then DistributionStrategySLE12SP1.new
         when 'SUSE:SLE-15:GA' then DistributionStrategySLE15.new
         when /^SUSE:SLE-15-SP\d:GA/ then DistributionStrategySLE15.new
