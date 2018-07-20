@@ -1,33 +1,21 @@
 class SourceProjectPackageMetaController < SourceController
-  before_action :require_package_name, only: [:show, :update]
-  before_action :set_rdata, only: [:update]
-  before_action :validate_project_name, only: [:update]
-  before_action :validate_package_name, only: [:update]
+  # override the ApplicationController version
+  # to have meaningful error messages
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+
   validate_action update: { request: :package, response: :status }
+  before_action :require_package_name, only: [:show, :update]
+  before_action :set_request_data, only: [:update]
 
-  def set_rdata
-    @rdata = Xmlhash.parse(request.raw_post)
-  end
-
-  def validate_package_name
-    err_message = 'package name in xml data does not match resource path component'
-    err_code = 'package_name_mismatch'
-    render_error status: 400, errorcode: err_code, message: err_message if @rdata['name'] && @rdata['name'] != @package_name
-  end
-
-  def validate_project_name
-    err_message = 'project name in xml data does not match resource path component'
-    err_code = 'project_name_mismatch'
-    render_error status: 400, errorcode: err_code, message: err_message if @rdata['project'] && @rdata['project'] != @project_name
-  end
-
-  def require_package_name
-    required_parameters :project, :package
-
-    @project_name = params[:project]
-    @package_name = params[:package]
-
-    valid_package_name! @package_name
+  before_action only: [:update] do
+    validate_xml_content @request_data['project'],
+                         @project_name,
+                         'project_name_mismatch',
+                         'project name in xml data does not match resource path component'
+    validate_xml_content @request_data['name'],
+                         @package_name,
+                         'package_name_mismatch',
+                         'package name in xml data does not match resource path component'
   end
 
   # GET /source/:project/:package/_meta
@@ -51,31 +39,50 @@ class SourceProjectPackageMetaController < SourceController
     # check for project
     if Package.exists_by_project_and_name(@project_name, @package_name, follow_project_links: false)
       pkg = Package.get_by_project_and_name(@project_name, @package_name, use_source: false)
-      unless User.current.can_modify?(pkg)
-        render_error status: 403, errorcode: 'change_package_no_permission',
-                     message: "no permission to modify package '#{pkg.project.name}'/#{pkg.name}"
-        return
-      end
 
-      if pkg && !pkg.disabled_for?('sourceaccess', nil, nil)
-        if FlagHelper.xml_disabled_for?(@rdata, 'sourceaccess') && !User.current.is_admin?
-          render_error status: 403, errorcode: 'change_package_protection_level',
-                       message: 'admin rights are required to raise the protection level of a package'
-          return
-        end
-      end
+      authorize pkg, :update?
+
+      change_package_protection_level?(pkg)
     else
       prj = Project.get_by_name(@project_name)
-      unless prj.is_a?(Project) && User.current.can_create_package_in?(prj)
-        render_error status: 403, errorcode: 'create_package_no_permission',
-                     message: "no permission to create a package in project '#{@project_name}'"
-        return
-      end
+      # necessary to pass the policy_class here
+      # if its remote prj is a string
+      authorize prj, :update?, policy_class: ProjectPolicy
       pkg = prj.packages.new(name: @package_name)
     end
 
     pkg.set_comment(params[:comment])
-    pkg.update_from_xml(@rdata)
+    pkg.update_from_xml(@request_data)
     render_ok
+  end
+
+  private
+
+  def change_package_protection_level?(pkg)
+    # rubocop: disable Style/GuardClause
+    # TODO: use pundit
+    if pkg && !pkg.disabled_for?('sourceaccess', nil, nil)
+      if FlagHelper.xml_disabled_for?(@request_data, 'sourceaccess') && !User.current.is_admin?
+        raise ChangePackageProtectionLevelError
+      end
+    end
+    # rubocop: enable Style/GuardClause
+  end
+
+  def require_package_name
+    required_parameters :project, :package
+
+    @project_name = params[:project]
+    @package_name = params[:package]
+
+    valid_package_name! @package_name
+  end
+
+  def user_not_authorized(exception)
+    policy_name = exception.policy.class.to_s.underscore == :package_policy ? :package : :project
+
+    render_error status: 403,
+                 errorcode: "update_#{policy_name}_not_authorized",
+                 message: "You are not authorized to update this #{policy_name}"
   end
 end
