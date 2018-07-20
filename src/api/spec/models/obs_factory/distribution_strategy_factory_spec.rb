@@ -6,6 +6,25 @@ RSpec.describe ObsFactory::DistributionStrategyFactory do
   let(:distribution) { ObsFactory::Distribution.new(project) }
   let(:strategy) { distribution.strategy }
   let(:staging_project) { ObsFactory::StagingProject.new(project: staging_project_a, distribution: distribution) }
+  let(:build_result) do
+    {
+      'result' => Xmlhash::XMLHash.new(
+        'project' => 'openSUSE:Factory:Staging:A',
+        'repository' => 'images',
+        'arch' => 'x86_64',
+        'code' => 'building',
+        'state' => 'building',
+        'binarylist' =>  Xmlhash::XMLHash.new(
+          'package' => 'Test-DVD-x86_64',
+          'binary' =>  Xmlhash::XMLHash.new(
+            'filename' => 'Test-Build1036.1-Media.iso',
+            'size' => '878993408',
+            'mtime' => '1528339590'
+          )
+        )
+      )
+    }
+  end
 
   describe 'openqa_version' do
     it { expect(strategy.openqa_version).to eq('Tumbleweed') }
@@ -57,31 +76,73 @@ RSpec.describe ObsFactory::DistributionStrategyFactory do
 
   describe 'openqa_iso' do
     let(:staging_project_a) { create(:project, name: 'openSUSE:Factory:Staging:A') }
-    let(:build_result) do
-      {
-        'result' => Xmlhash::XMLHash.new(
-          'project' => 'openSUSE:Factory:Staging:A',
-          'repository' => 'images',
-          'arch' => 'x86_64',
-          'code' => 'building',
-          'state' => 'building',
-          'binarylist' =>  Xmlhash::XMLHash.new(
-            'package' => 'Test-DVD-x86_64',
-            'binary' =>  Xmlhash::XMLHash.new(
-              'filename' => 'Test-Build1036.1-Media.iso',
-              'size' => '878993408',
-              'mtime' => '1528339590'
-            )
-          )
-        )
-      }
-    end
 
     before do
       allow(Buildresult).to receive(:find_hashed).and_return(Xmlhash::XMLHash.new(build_result))
     end
 
     it { expect(strategy.openqa_iso(staging_project)).to eq('openSUSE-Staging:A-Staging-DVD-x86_64-Build1036.1-Media.iso') }
+  end
+
+  describe 'project_iso' do
+    shared_examples 'project_iso returns' do |returned_value|
+      before do
+        allow(Buildresult).to receive(:find_hashed).and_return(Xmlhash::XMLHash.new(build_result))
+      end
+
+      it { expect(strategy.send(:project_iso, project)).to eq(returned_value) }
+    end
+
+    include_examples 'project_iso returns', 'Test-Build1036.1-Media.iso'
+
+    context 'without results' do
+      let(:build_result) { Xmlhash::XMLHash.new({}) }
+
+      include_examples 'project_iso returns', nil
+    end
+
+    context 'without binary list' do
+      let(:build_result) do
+        {
+          'result' => Xmlhash::XMLHash.new(
+            'project' => 'openSUSE:Factory:Staging:A',
+            'repository' => 'images',
+            'arch' => 'x86_64',
+            'code' => 'building',
+            'state' => 'building',
+            'binarylist' =>  Xmlhash::XMLHash.new(
+              'package' => 'Test-DVD-x86_64'
+            )
+          )
+        }
+      end
+
+      include_examples 'project_iso returns', nil
+    end
+
+    context 'without iso file' do
+      let(:build_result) do
+        {
+          'result' => Xmlhash::XMLHash.new(
+            'project' => 'openSUSE:Factory:Staging:A',
+            'repository' => 'images',
+            'arch' => 'x86_64',
+            'code' => 'building',
+            'state' => 'building',
+            'binarylist' =>  Xmlhash::XMLHash.new(
+              'package' => 'Test-DVD-x86_64',
+              'binary' =>  Xmlhash::XMLHash.new(
+                'filename' => 'non-iso-file.txt',
+                'size' => '878993408',
+                'mtime' => '1528339590'
+              )
+            )
+          )
+        }
+      end
+
+      include_examples 'project_iso returns', nil
+    end
   end
 
   describe '#published_version' do
