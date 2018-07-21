@@ -1,5 +1,5 @@
 module Webui::ObsFactory
-  class StagingProjectsController < ApplicationController
+  class StagingProjectsController < Webui::ObsFactory::ApplicationController
     respond_to :json, :html
 
     before_action :require_distribution
