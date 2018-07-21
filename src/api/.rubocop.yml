@@ -46,7 +46,7 @@ Rails/Exit:
 
 RSpec/FilePath:
   Exclude:
-    - 'spec/models/obs_factory/distribution_strategy_opensuse_spec.rb'
+    - 'spec/models/obs_factory/distribution_strategy_opensuse_leap15_spec.rb'
 
 Rails/HasAndBelongsToMany:
   Enabled: false

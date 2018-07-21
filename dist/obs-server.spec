@@ -84,8 +84,8 @@ BuildRequires:  perl-XML-Simple
 BuildRequires:  perl(Devel::Cover)
 BuildRequires:  perl(Test::Simple) > 1
 BuildRequires:  procps
-# Required by the test suite (contains /usr/bin/Xvfb)
-BuildRequires:  xorg-x11-server
+# Required by the test suite
+BuildRequires:  xorg-x11-fonts
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 BuildArch:      noarch
 Requires(pre):  obs-common
@@ -241,9 +241,6 @@ BuildRequires:  curl
 BuildRequires:  memcached >= 1.4
 BuildRequires:  mysql
 BuildRequires:  netcfg
-BuildRequires:  xorg-x11-Xvnc
-BuildRequires:  xorg-x11-server
-BuildRequires:  xorg-x11-server-extra
 # write down dependencies for production
 BuildRequires:  rubygem(bundler)
 Requires:       %(echo `bash %{S:1} %{S:0} "ruby:2.5.0" "production"`)
@@ -317,8 +314,6 @@ find -name .keep -o -name .gitignore | xargs rm -rf
 
 %build
 export DESTDIR=$RPM_BUILD_ROOT
-# we need it for the test suite or it may silently succeed
-test -x /usr/bin/Xvfb
 
 #
 # generate apidocs
