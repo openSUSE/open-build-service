@@ -35,6 +35,7 @@ else
     config.app_host = "http://#{ENV['RSPEC_HOST']}:3005"
   end
 
+  Capybara.server = :puma, { Silent: true }
   Capybara.server_host = '0.0.0.0'
   Capybara.server_port = 3005
   Capybara.javascript_driver = :chrome
