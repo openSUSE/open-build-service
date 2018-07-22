@@ -9,8 +9,8 @@ module Webui::ObsFactory
       respond_to do |format|
         format.html do
           @staging_projects = ::ObsFactory::StagingProjectPresenter.sort(@distribution.staging_projects_all)
-          @backlog_requests = ::ObsFactory::Request.with_open_reviews_for(by_group: @distribution.staging_manager, target_project: @distribution.name)
-          @requests_state_new = ::ObsFactory::Request.in_state_new(by_group: @distribution.staging_manager, target_project: @distribution.name)
+          @backlog_requests = BsRequest.with_open_reviews_for(by_group: @distribution.staging_manager, target_project: @distribution.name)
+          @requests_state_new = BsRequest.in_state_new(by_group: @distribution.staging_manager, target_project: @distribution.name)
 
           staging_project = Project.find_by_name("#{@distribution.project}:Staging")
           dashboard_package = Package.find_by_project_and_name(staging_project.name, 'dashboard')

@@ -44,19 +44,19 @@ RSpec.describe Webui::ObsFactory::DistributionsController, type: :controller do
       let!(:create_groups_and_reviews) do
         ['opensuse-review-team', 'factory-auto', 'legal-auto', 'legal-team'].each do |title|
           create(:group, title: title)
-          ObsFactory::Request.new(create(:review_bs_request_by_group,
-                                         reviewer: title,
-                                         target_project: factory.name,
-                                         target_package: target_package.name,
-                                         source_project: source_package.project.name,
-                                         source_package: source_package.name))
+          create(:review_bs_request_by_group,
+                 reviewer: title,
+                 target_project: factory.name,
+                 target_package: target_package.name,
+                 source_project: source_package.project.name,
+                 source_package: source_package.name)
         end
-        ObsFactory::Request.new(create(:review_bs_request,
-                                       reviewer: 'repo-checker',
-                                       target_project: factory.name,
-                                       target_package: target_package.name,
-                                       source_project: source_package.project.name,
-                                       source_package: source_package.name))
+        create(:review_bs_request,
+               reviewer: 'repo-checker',
+               target_project: factory.name,
+               target_package: target_package.name,
+               source_project: source_package.project.name,
+               source_package: source_package.name)
       end
 
       before do

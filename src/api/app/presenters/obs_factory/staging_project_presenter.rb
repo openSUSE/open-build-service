@@ -61,7 +61,7 @@ module ObsFactory
         reviews[r[:request]] << r
       end
       requests.each do |req|
-        r = { number: req.number, package: req.package }
+        r = { number: req.number, package: req.bs_request_actions.first.target_package }
         css = 'ok'
         r[:missing_reviews] = reviews[req.number]
         unless r[:missing_reviews].blank?
@@ -71,12 +71,12 @@ module ObsFactory
           css = 'obsolete'
         end
         r[:css] = css
-        r[:request_type] = req.request_type
+        r[:request_type] = req.bs_request_actions.first.type
         @classified_requests << r
       end
       # now append untracked reqs
       untracked_requests.each do |req|
-        @classified_requests << { number: req.number, package: req.package, css: 'untracked' }
+        @classified_requests << { number: req.number, package: req.bs_request_actions.first.target_package, css: 'untracked' }
       end
       @classified_requests.sort! { |x, y| x[:package] <=> y[:package] }
       @classified_requests

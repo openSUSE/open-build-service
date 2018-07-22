@@ -145,18 +145,18 @@ module ObsFactory
     #
     # @return [Array] Array of BsRequest objects
     def open_requests
-      @open_requests ||= Request.with_open_reviews_for(by_project: name)
+      @open_requests ||= BsRequest.with_open_reviews_for(by_project: name)
     end
 
     # Requests selected in the project
     #
-    # @return [Array] Array of BsRequest objects
+    # @return ActiveRecord::Relation of BsRequest objects
     def selected_requests
       if @selected_requests.nil?
         requests = meta["requests"]
         if requests
           ids = requests.map { |i| i['id'].to_i }
-          @selected_requests = Request.find(ids)
+          @selected_requests = BsRequest.where(number: ids).includes(:reviews, :bs_request_actions)
         else
           @selected_requests = []
         end
@@ -178,6 +178,7 @@ module ObsFactory
         attribs = [:by_group, :by_user, :by_project, :by_package]
 
         (open_requests + selected_requests).uniq.each do |req|
+          package = req.bs_request_actions.first.target_package
           req.reviews.each do |rev|
             next if rev.state.to_s == 'accepted' || rev.by_project == name
             # FIXME: this loop (and the inner if) would not be needed
@@ -187,7 +188,7 @@ module ObsFactory
             # who = rev.by_group || rev.by_user || rev.by_project || rev.by_package
             attribs.each do |att|
               if who = rev.send(att)
-                @missing_reviews << { id: rev.id, request: req.number, state: rev.state.to_s, package: req.package, by: who }
+                @missing_reviews << { id: rev.id, request: req.number, state: rev.state.to_s, package: package, by: who }
               end
             end
           end
