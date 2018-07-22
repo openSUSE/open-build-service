@@ -14,14 +14,15 @@ RSpec.describe Backend::File, vcr: true do
   end
   let(:somefile_txt_url) { "/source/#{user.home_project_name}/#{package_with_file.name}/somefile.txt" }
 
-  before do
-    # Needed because full_path is only defined in subclasses of Backend::File
-    allow_any_instance_of(Backend::File).to receive(:full_path) do
-      URI.encode(somefile_txt_url)
+  # Needed because full_path is only defined in subclasses of Backend::File
+  class TestBackendFile < Backend::File
+    attr_accessor :somefile
+    def full_path(_query)
+      URI.encode(somefile)
     end
   end
 
-  subject { Backend::File.new(name: 'fake_filename') }
+  subject { TestBackendFile.new(name: 'fake_filename', somefile: somefile_txt_url) }
 
   describe '#initialize' do
     context 'without any param' do
@@ -99,8 +100,6 @@ RSpec.describe Backend::File, vcr: true do
       end
 
       context 'and a valid object' do
-        subject { Backend::File.new(name: 'fake_filename') }
-
         before do
           login user
 
