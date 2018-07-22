@@ -9,13 +9,6 @@ RSpec.configure do |config|
   config.use_transactional_fixtures = false
 
   config.before(:suite) do
-    # Before the test suites runs make sure the database is empty
-    log_level = Rails.logger.level
-    Rails.logger.level = :fatal
-    DatabaseCleaner.clean_with(:truncation)
-    # and is seeded
-    load "#{Rails.root}/db/seeds.rb"
-    Rails.logger.level = log_level
     # Truncate all tables loaded in db/seeds.rb, except the static ones, in the
     # beginning to be consistent.
     DatabaseCleaner.clean_with(:truncation, except: STATIC_TABLES)
