@@ -199,8 +199,7 @@ module ObsFactory
     #
     # @return [String] ISO file name
     def iso
-      return @iso if @iso
-      @iso = distribution.openqa_iso(self)
+      @iso ||= distribution.openqa_iso(self)
     end
 
     def self.attributes
