@@ -153,13 +153,8 @@ module ObsFactory
     # @return ActiveRecord::Relation of BsRequest objects
     def selected_requests
       if @selected_requests.nil?
-        requests = meta["requests"]
-        if requests
-          ids = requests.map { |i| i['id'].to_i }
-          @selected_requests = BsRequest.where(number: ids).includes(:reviews, :bs_request_actions)
-        else
-          @selected_requests = []
-        end
+        ids = meta["requests"].try(:map) { |i| i['id'] }
+        @selected_requests = BsRequest.where(number: ids).includes(:reviews, :bs_request_actions)
       end
       @selected_requests
     end
