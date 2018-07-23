@@ -152,11 +152,7 @@ module ObsFactory
     #
     # @return ActiveRecord::Relation of BsRequest objects
     def selected_requests
-      if @selected_requests.nil?
-        ids = meta["requests"].try(:map) { |i| i['id'] }
-        @selected_requests = BsRequest.where(number: ids).includes(:reviews, :bs_request_actions)
-      end
-      @selected_requests
+      @selected_requests ||= fetch_requests_from_meta
     end
 
     # Reviews that need to be accepted in order to be able to accept the
@@ -316,6 +312,13 @@ module ObsFactory
       if @building_repositories.present?
         @broken_packages = @broken_packages.reject { |p| p['state'] == 'unresolvable' }
       end
+    end
+
+    private
+
+    def fetch_requests_from_meta
+      ids = meta["requests"].try(:map) { |i| i['id'] }
+      BsRequest.where(number: ids).includes(:reviews, :bs_request_actions)
     end
   end
 end
