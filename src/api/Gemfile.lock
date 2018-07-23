@@ -62,7 +62,7 @@ GEM
     autoprefixer-rails (9.0.0)
       execjs
     bcrypt (3.1.12)
-    bootstrap (4.1.1)
+    bootstrap (4.1.2)
       autoprefixer-rails (>= 6.0.3)
       popper_js (>= 1.12.9, < 2)
       sass (>= 3.5.2)
