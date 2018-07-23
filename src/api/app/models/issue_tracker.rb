@@ -11,20 +11,22 @@ class IssueTracker < ApplicationRecord
   validates :name, :regex, :url, :kind, presence: true
   validates :name, :regex, uniqueness: true
   validates :kind, inclusion: { in: ['other', 'bugzilla', 'cve', 'fate', 'trac', 'launchpad', 'sourceforge', 'github'] }
+  validates :description, presence: true
+  validates :show_url, presence: true
 
-  if CONFIG['global_write_through']
-    after_save :delayed_write_to_backend
-    after_save :update_package_meta
-  end
+  after_save :delayed_write_to_backend
+  after_save :update_package_meta
 
   # FIXME: issues_updated should not be hidden, but it should also not break our api
   DEFAULT_RENDER_PARAMS = { except: [:id, :password, :user, :issues_updated], dasherize: true, skip_types: true, skip_instruct: true }.freeze
 
   def delayed_write_to_backend
+    return unless CONFIG['global_write_through']
     IssueTrackerWriteToBackendJob.perform_later
   end
 
   def update_package_meta
+    return unless CONFIG['global_write_through']
     # We need to parse again ALL sources ...
     UpdatePackageMetaJob.perform_later
   end
