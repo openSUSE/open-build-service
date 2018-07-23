@@ -207,7 +207,7 @@ if ($digestfile) {
   die("Usage: bs_notar -l notaryserver gun [what]\n") unless @ARGV == 2 || @ARGV == 3;
   ($notaryserver, $gun) = @ARGV;
 } elsif ($delete_mode) {
-  die("Usage: bs_notar -D notaryserver\n") unless @ARGV == 2;
+  die("Usage: bs_notar -D notaryserver gun\n") unless @ARGV == 2;
   ($notaryserver, $gun) = @ARGV;
 } elsif ($registryserver) {
   die("Usage: bs_notar -p pubkeyfile -R registryserver notaryserver gun tags...\n") unless @ARGV >= 2;
