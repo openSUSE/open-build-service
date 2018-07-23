@@ -247,13 +247,6 @@ class BsRequest < ApplicationRecord
     end
   end
 
-  def self.build_from_params(action, params)
-    req = BsRequest.new(state: 'new', description: params[:description])
-    params.delete :description
-    req.bs_request_actions.build(params.merge(type: action.to_s))
-    req
-  end
-
   def self.sourcediff_has_shown_attribute?(sourcediff)
     if sourcediff && sourcediff['files']
       # the 'shown' attribute is only set if the backend truncated the diff
