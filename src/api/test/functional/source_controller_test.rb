@@ -1039,7 +1039,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     pkg = 'pack'
     resp1 = :success
     resp2 = 403
-    aresp = { tag: 'status', attributes: { code: 'change_package_no_permission' } }
+    aresp = { tag: 'status', attributes: { code: 'update_project_not_authorized' } }
     match = nil
     # uninvolved user
     login_fred
@@ -1087,7 +1087,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     d.add_attribute('name', 'kdelibs3')
     put url_for(controller: :source_project_package_meta, action: :update, project: 'kde4', package: 'kdelibs3'), params: newdoc.to_s
     assert_response 403
-    assert_xml_tag(tag: 'status', attributes: { code: 'create_package_no_permission' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'update_project_not_authorized' })
 
     # cleanup
     login_king
@@ -1412,7 +1412,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # uninvolved user
     resp1 = :success
     resp2 = 403
-    atag2 = { tag: 'status', attributes: { code: 'change_package_no_permission' } }
+    atag2 = { tag: 'status', attributes: { code: 'update_project_not_authorized' } }
     resp3 = :success
     asel3 = nil
     login_fred
