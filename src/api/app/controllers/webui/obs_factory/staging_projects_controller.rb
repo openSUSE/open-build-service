@@ -24,12 +24,12 @@ module Webui::ObsFactory
             @backlog_requests_ignored = @backlog_requests.select { |req| @ignored_requests.key?(req.number) }
             @backlog_requests = @backlog_requests.select { |req| !@ignored_requests.key?(req.number) }
             @requests_state_new = @requests_state_new.select { |req| !@ignored_requests.key?(req.number) }
-            @backlog_requests_ignored.sort! { |x,y| x.package <=> y.package }
+            @backlog_requests_ignored.sort! { |x,y| x.first_target_package <=> y.first_target_package }
           else
             @backlog_requests_ignored = []
           end
-          @backlog_requests.sort! { |x,y| x.package <=> y.package }
-          @requests_state_new.sort! { |x,y| x.package <=> y.package }
+          @backlog_requests.sort! { |x,y| x.first_target_package <=> y.first_target_package }
+          @requests_state_new.sort! { |x,y| x.first_target_package <=> y.first_target_package }
           # For the breadcrumbs
           @project = @distribution.project
         end
