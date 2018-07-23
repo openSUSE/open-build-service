@@ -316,6 +316,18 @@ sub mergebininfofile {
   $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
 }
 
+# notify remote build services of repository changes or block state changes
+sub sendrepochangeevent {
+  my ($gctx, $prp) = @_;
+  my $repounchanged = $gctx->{'repounchanged'};
+  if (!$repounchanged->{$prp}) {
+    BSSched::EventSource::Directory::sendrepochangeevent($gctx, $prp);
+    $repounchanged->{$prp} = 1;
+  } elsif ($repounchanged->{$prp} == 2) {
+    BSSched::EventSource::Directory::sendrepochangeevent($gctx, $prp, 'repoinfo');
+    $repounchanged->{$prp} = 1;
+  }
+}
 
 ##########################################################################
 ##########################################################################
@@ -982,6 +994,7 @@ eval {
       }
       $details ||= $state;
       print "  - $prp: $details\n";
+      sendrepochangeevent($gctx, $prp);
       next;
     }
     print "  - $prp\n";
@@ -1008,6 +1021,7 @@ eval {
       $ctx->set_repo_state($state, $details);
       print "    $details\n";
       print "    (delayed)\n" if $ctx->{'havedelayed'};
+      sendrepochangeevent($gctx, $prp);
       next;
     }
 
@@ -1023,6 +1037,7 @@ eval {
     if ($state ne 'scheduling') {
       $ctx->set_repo_state($state, $details);
       print "    $details\n";
+      sendrepochangeevent($gctx, $prp);
       next;
     }
 
@@ -1032,18 +1047,12 @@ eval {
     ($state, $details) = $ctx->checkpkgs();
 
     my $unfinished = $ctx->{'unfinished'};
-    # notify remote build services of repository changes or block state
-    # changes
-    # we alse send it if we finish a prp to give linked aggregates a
-    # chance to work
-    my $repounchanged = $gctx->{'repounchanged'};
-    if (!$repounchanged->{$prp} || (!%$unfinished && !$gctx->{'prpfinished'}->{$prp})) {
-      BSSched::EventSource::Directory::sendrepochangeevent($gctx, $prp);
-      $repounchanged->{$prp} = 1;
-    } elsif ($repounchanged->{$prp} == 2) {
-      BSSched::EventSource::Directory::sendrepochangeevent($gctx, $prp, 'repoinfo');
-      $repounchanged->{$prp} = 1;
-    }
+    my $isfinished = !%$unfinished && !$ctx->{'havedelayed'} ? 1 : 0;
+
+    # notify remote build services of repository changes or block state changes
+    # we alse send it if we finish a prp to give linked aggregates a chance to work
+    delete $gctx->{'repounchanged'}->{$prp} if $isfinished && !$gctx->{'prpfinished'}->{$prp};
+    sendrepochangeevent($gctx, $prp);
 
     # free memory
     Build::forgetdeps($ctx->{'conf'});
@@ -1056,14 +1065,14 @@ eval {
     }
 
     # we always publish kiwi...
-    if ((!%$unfinished && !$ctx->{'havedelayed'}) || $ctx->{'prptype'} eq 'kiwi') {
+    if ($isfinished || $ctx->{'prptype'} eq 'kiwi') {
       ($state, $details) = $ctx->publish($state, $details);
     }
 
     my $wasfinished = $gctx->{'prpfinished'}->{$prp};
 
     # clean up and free memory if we are finished
-    if (!%$unfinished && !$ctx->{'havedelayed'} && $state eq 'finished') {
+    if ($isfinished && $state eq 'finished') {
       $gctx->{'prpfinished'}->{$prp} = 1;
       # write out lastcheck cache and delete it
       my $lastcheck = $gctx->{'lastcheck'}->{$prp};
@@ -1135,7 +1144,7 @@ eval {
     my @relsync1 = stat("$gdst/:relsync");
     my @relsync2 = stat("$gdst/:relsync.sent");
     if (@relsync1 && (!@relsync2 || "$relsync1[9]/$relsync1[7]/$relsync1[1]" ne "$relsync2[9]/$relsync2[7]/$relsync2[1]")) {
-      sendrelsyncupdate($gctx, $prp, %$unfinished ? 0 : 1);
+      sendrelsyncupdate($gctx, $prp, $isfinished);
     }
 
     BSSched::Remote::cleanup_remotepackstatus($gctx, $prp) if $gctx->{'remotepackstatus_cleanup'}->{$prp} && !$ctx->{'havedelayed'};
