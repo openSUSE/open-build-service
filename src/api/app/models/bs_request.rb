@@ -33,6 +33,8 @@ class BsRequest < ApplicationRecord
 
   VALID_REQUEST_STATES = [:new, :deleted, :declined, :accepted, :review, :revoked, :superseded].freeze
 
+  OBSOLETE_STATES = ['declined', 'superseded', 'revoked'].freeze
+
   ACTION_NOTIFY_LIMIT = 50
 
   scope :to_accept, -> { where(state: 'new').where('accept_at < ?', DateTime.now) }
@@ -262,11 +264,45 @@ class BsRequest < ApplicationRecord
   end
   private_class_method :sourcediff_has_shown_attribute?
 
+  # Requests in 'review' state that have new reviews for the given project
+  #
+  # @param [Hash] props can contain :by_project, :by_group, :by_user, :by_package
+  #               or :target_project
+  # @return [Array]  Array of Request objects
+  def self.with_open_reviews_for(props)
+    reviews = Review.includes(bs_request: [:reviews, :bs_request_actions])
+    conds = props.dup
+    target_project = conds.delete(:target_project)
+    reviews = reviews.where(conds.merge(state: 'new', 'bs_requests.state' => 'review'))
+    if target_project
+      reviews = reviews.where('bs_request_actions.target_project' => target_project)
+    end
+    reviews.map(&:bs_request)
+  end
+
+  def self.in_state_new(props)
+    reviews = Review.includes(bs_request: [:reviews, :bs_request_actions])
+    conds = props.dup
+    target_project = conds.delete(:target_project)
+    reviews = reviews.where(conds.merge('bs_requests.state' => 'new'))
+    if target_project
+      reviews = reviews.where('bs_request_actions.target_project' => target_project)
+    end
+    reviews.map(&:bs_request)
+  end
+
   def save!(args = {})
     new = created_at ? nil : 1
     sanitize! if new && !@skip_sanitize
     super
     notify if new
+  end
+
+  # Checks if the request is obsolete
+  #
+  # @return [Boolean] true if the request is declined, superseded or revoked
+  def obsolete?
+    OBSOLETE_STATES.include? state.to_s
   end
 
   def history_elements
@@ -322,6 +358,10 @@ class BsRequest < ApplicationRecord
 
   def superseding
     BsRequest.where(superseded_by: number)
+  end
+
+  def first_target_package
+    bs_request_actions.first.target_package
   end
 
   def state

@@ -55,28 +55,28 @@ module ObsFactory
       return @classified_requests unless requests
 
       reviews = Hash.new
-      missing_reviews.each do |r|
-        reviews[r[:request]] ||= []
-        r[:icon] = self.class.review_icon(r[:by])
-        reviews[r[:request]] << r
+      missing_reviews.each do |missing_review|
+        reviews[missing_review[:request]] ||= []
+        missing_review[:icon] = self.class.review_icon(missing_review[:by])
+        reviews[missing_review[:request]] << missing_review
       end
       requests.each do |req|
-        r = { number: req.number, package: req.package }
+        request_hash = { number: req.number, package: req.first_target_package }
         css = 'ok'
-        r[:missing_reviews] = reviews[req.number]
-        unless r[:missing_reviews].blank?
+        request_hash[:missing_reviews] = reviews[req.number]
+        unless request_hash[:missing_reviews].blank?
           css = 'review'
         end
         if req.obsolete?
           css = 'obsolete'
         end
-        r[:css] = css
-        r[:request_type] = req.request_type
-        @classified_requests << r
+        request_hash[:css] = css
+        request_hash[:request_type] = req.bs_request_actions.first.type
+        @classified_requests << request_hash
       end
       # now append untracked reqs
       untracked_requests.each do |req|
-        @classified_requests << { number: req.number, package: req.package, css: 'untracked' }
+        @classified_requests << { number: req.number, package: req.first_target_package, css: 'untracked' }
       end
       @classified_requests.sort! { |x, y| x[:package] <=> y[:package] }
       @classified_requests

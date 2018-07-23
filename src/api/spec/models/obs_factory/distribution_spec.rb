@@ -169,8 +169,7 @@ openSUSE-20180606-i586-x86_64-Build261.1
       subject { distribution.requests_with_reviews_for_user(user.login) }
 
       it { expect(subject.count).to eq(1) }
-      it { expect(subject.first.class).to eq(ObsFactory::Request) }
-      it { expect(subject.first.bs_request).to eq(review_request) }
+      it { expect(subject.first).to eq(review_request) }
     end
 
     context 'group' do
@@ -196,8 +195,7 @@ openSUSE-20180606-i586-x86_64-Build261.1
       subject { distribution.requests_with_reviews_for_group(group.title) }
 
       it { expect(subject.count).to eq(1) }
-      it { expect(subject.first.class).to eq(ObsFactory::Request) }
-      it { expect(subject.first.bs_request).to eq(review_request) }
+      it { expect(subject.first).to eq(review_request) }
     end
   end
 
