@@ -69,7 +69,9 @@ class IssueTest < ActiveSupport::TestCase
 
     cve = IssueTracker.find_by_name('cve')
     cve.enable_fetch = 1
-    cve.save
+    Backend::Test.without_global_write_through do
+      cve.save
+    end
     cve.issues.create name: 'CVE-1999-0001'
 
     stub_request(:head, 'http://cve.mitre.org/data/downloads/allitems.xml.gz').
@@ -92,7 +94,9 @@ class IssueTest < ActiveSupport::TestCase
 
     fate = IssueTracker.find_by_name('fate')
     fate.enable_fetch = 1
-    fate.save
+    Backend::Test.without_global_write_through do
+      fate.save
+    end
     fate.issues.create name: 'fate#2282'
 
     IssueTracker.update_all_issues
