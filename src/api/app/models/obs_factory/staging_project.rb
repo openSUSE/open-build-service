@@ -169,7 +169,6 @@ module ObsFactory
         attribs = [:by_group, :by_user, :by_project, :by_package]
 
         (open_requests + selected_requests).uniq.each do |req|
-          package = req.bs_request_actions.first.target_package
           req.reviews.each do |rev|
             next if rev.state.to_s == 'accepted' || rev.by_project == name
             # FIXME: this loop (and the inner if) would not be needed
@@ -179,7 +178,7 @@ module ObsFactory
             # who = rev.by_group || rev.by_user || rev.by_project || rev.by_package
             attribs.each do |att|
               if who = rev.send(att)
-                @missing_reviews << { id: rev.id, request: req.number, state: rev.state.to_s, package: package, by: who }
+                @missing_reviews << { id: rev.id, request: req.number, state: rev.state.to_s, package: req.first_target_package, by: who }
               end
             end
           end

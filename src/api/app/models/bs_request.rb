@@ -360,6 +360,10 @@ class BsRequest < ApplicationRecord
     BsRequest.where(superseded_by: number)
   end
 
+  def first_target_package
+    bs_request_actions.first.target_package
+  end
+
   def state
     self[:state].to_sym
   end
