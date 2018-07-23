@@ -95,7 +95,6 @@ RSpec.feature 'Packages', type: :feature, js: true do
     end
 
     scenario 'editing an existing file' do
-      skip('This started to fail due to js issues in rails 5. Please fix it:-)')
       # somefile.txt is a file of our test package
       click_link('somefile.txt')
       # Workaround to update codemirror text field

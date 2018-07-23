@@ -184,7 +184,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
         login admin_user
       end
 
-      scenario 'adding DoD repositories', retry: 3 do
+      scenario 'adding DoD repositories' do
         visit(project_repositories_path(project: admin_user.home_project_name))
         click_link('Add DoD repository')
         fill_in('Repository name', with: 'My DoD repository')
