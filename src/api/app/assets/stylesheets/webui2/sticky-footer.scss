@@ -8,4 +8,13 @@ body {
 
 #footer {
   background-color: $gray-200;
+
+  & a {
+    font-size: .9rem;
+    color: $main_green;
+
+    &:hover {
+        color: $main_blue;
+    }
+}
 }
