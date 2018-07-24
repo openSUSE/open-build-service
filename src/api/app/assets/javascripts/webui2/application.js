@@ -15,3 +15,6 @@
 //= require peek
 //= require popper
 //= require bootstrap
+//= require jquery
+//
+//= require webui/application/kiwi_editor
