@@ -395,7 +395,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     put '/source/RemoteInstance:BaseDistro2.0/pack/_meta', params: '<package name="pack" project="RemoteInstance:BaseDistro2.0">
            <title/><description/></package>'
     assert_response 403
-    assert_xml_tag tag: 'status', attributes: { code: 'create_package_no_permission' }
+    assert_xml_tag tag: 'status', attributes: { code: 'update_project_not_authorized' }
   end
 
   def test_invalid_submit_to_remote_instance

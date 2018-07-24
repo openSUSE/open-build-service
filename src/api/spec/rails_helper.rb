@@ -77,3 +77,6 @@ require 'support/delayed_job'
 
 # Cache reset
 require 'support/cache'
+
+# silence migration tests
+require 'support/migration'

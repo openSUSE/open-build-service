@@ -9,8 +9,8 @@ module Webui::ObsFactory
       respond_to do |format|
         format.html do
           @staging_projects = ::ObsFactory::StagingProjectPresenter.sort(@distribution.staging_projects_all)
-          @backlog_requests = ::ObsFactory::Request.with_open_reviews_for(by_group: @distribution.staging_manager, target_project: @distribution.name)
-          @requests_state_new = ::ObsFactory::Request.in_state_new(by_group: @distribution.staging_manager, target_project: @distribution.name)
+          @backlog_requests = BsRequest.with_open_reviews_for(by_group: @distribution.staging_manager, target_project: @distribution.name)
+          @requests_state_new = BsRequest.in_state_new(by_group: @distribution.staging_manager, target_project: @distribution.name)
 
           staging_project = Project.find_by_name("#{@distribution.project}:Staging")
           dashboard_package = Package.find_by_project_and_name(staging_project.name, 'dashboard')
@@ -24,12 +24,12 @@ module Webui::ObsFactory
             @backlog_requests_ignored = @backlog_requests.select { |req| @ignored_requests.key?(req.number) }
             @backlog_requests = @backlog_requests.select { |req| !@ignored_requests.key?(req.number) }
             @requests_state_new = @requests_state_new.select { |req| !@ignored_requests.key?(req.number) }
-            @backlog_requests_ignored.sort! { |x,y| x.package <=> y.package }
+            @backlog_requests_ignored.sort! { |x,y| x.first_target_package <=> y.first_target_package }
           else
             @backlog_requests_ignored = []
           end
-          @backlog_requests.sort! { |x,y| x.package <=> y.package }
-          @requests_state_new.sort! { |x,y| x.package <=> y.package }
+          @backlog_requests.sort! { |x,y| x.first_target_package <=> y.first_target_package }
+          @requests_state_new.sort! { |x,y| x.first_target_package <=> y.first_target_package }
           # For the breadcrumbs
           @project = @distribution.project
         end

@@ -45,6 +45,9 @@ class BsRequestActionSubmit < BsRequestAction
         instantiate_container(target_project, linked_package.update_instance, opts)
         target_package = target_project.packages.find_by_name(linked_package.name)
       else
+        # check the permissions again, because the target_package could
+        # have been deleted after the previous check_action_permission! call
+        check_action_permission!(skip_source: true) if initialize_devel_package
         # new package, base container on source container
         newxml = Xmlhash.parse(Backend::Api::Sources::Package.meta(source_project, source_package))
         newxml['name'] = self.target_package
@@ -112,8 +115,11 @@ class BsRequestActionSubmit < BsRequestAction
     target_package = target_project.packages.find_by_name(self.target_package)
     initialize_devel_package = target_project.find_attribute('OBS', 'InitializeDevelPackage')
     return if target_package || !initialize_devel_package
-    source_package = Package.get_by_project_and_name(source_project, self.source_package)
-    return if !source_package || User.current.can_modify?(source_package)
+    opts = { follow_project_links: false }
+    source_package = Package.get_by_project_and_name!(source_project,
+                                                      self.source_package,
+                                                      opts)
+    return if User.current.can_modify?(source_package)
     msg = 'No permission to initialize the source package as a devel package'
     raise PostRequestNoPermission, msg
   end

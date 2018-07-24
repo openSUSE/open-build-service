@@ -145,23 +145,14 @@ module ObsFactory
     #
     # @return [Array] Array of BsRequest objects
     def open_requests
-      @open_requests ||= Request.with_open_reviews_for(by_project: name)
+      @open_requests ||= BsRequest.with_open_reviews_for(by_project: name)
     end
 
     # Requests selected in the project
     #
-    # @return [Array] Array of BsRequest objects
+    # @return ActiveRecord::Relation of BsRequest objects
     def selected_requests
-      if @selected_requests.nil?
-        requests = meta["requests"]
-        if requests
-          ids = requests.map { |i| i['id'].to_i }
-          @selected_requests = Request.find(ids)
-        else
-          @selected_requests = []
-        end
-      end
-      @selected_requests
+      @selected_requests ||= fetch_requests_from_meta
     end
 
     # Reviews that need to be accepted in order to be able to accept the
@@ -187,7 +178,7 @@ module ObsFactory
             # who = rev.by_group || rev.by_user || rev.by_project || rev.by_package
             attribs.each do |att|
               if who = rev.send(att)
-                @missing_reviews << { id: rev.id, request: req.number, state: rev.state.to_s, package: req.package, by: who }
+                @missing_reviews << { id: rev.id, request: req.number, state: rev.state.to_s, package: req.first_target_package, by: who }
               end
             end
           end
@@ -207,8 +198,7 @@ module ObsFactory
     #
     # @return [String] ISO file name
     def iso
-      return @iso if @iso
-      @iso = distribution.openqa_iso(self)
+      @iso ||= distribution.openqa_iso(self)
     end
 
     def self.attributes
@@ -320,6 +310,13 @@ module ObsFactory
       if @building_repositories.present?
         @broken_packages = @broken_packages.reject { |p| p['state'] == 'unresolvable' }
       end
+    end
+
+    private
+
+    def fetch_requests_from_meta
+      ids = meta["requests"].try(:map) { |i| i['id'] }
+      BsRequest.where(number: ids).includes(:reviews, :bs_request_actions)
     end
   end
 end

@@ -1,7 +1,6 @@
-class SourceAttributeController < ApplicationController
+class SourceAttributeController < SourceController
   include ValidationHelper
-
-  before_action :require_valid_project_name
+  before_action :set_request_data, only: [:update]
   before_action :find_attribute_container
 
   class RemoteProject < APIException
@@ -59,14 +58,9 @@ class SourceAttributeController < ApplicationController
   # /source/:project/:package/:binary/_attribute/:attribute
   #--------------------------------------------------------
   def update
-    # init
-    req = Xmlhash.parse(request.raw_post)
-    # Keep compat exception
-    raise ActiveXML::ParseError unless req
-
     # This is necessary for checking the authorization and do not create the attribute
     # The attribute creation will happen in @attribute_container.store_attribute_xml
-    req.elements('attribute') do |attr|
+    @request_data.elements('attribute') do |attr|
       attrib_type = AttribType.find_by_namespace_and_name!(attr.value('namespace'), attr.value('name'))
       attrib = Attrib.new(attrib_type: attrib_type)
 
@@ -84,7 +78,7 @@ class SourceAttributeController < ApplicationController
     end
 
     # exec
-    req.elements('attribute') do |attr|
+    @request_data.elements('attribute') do |attr|
       @attribute_container.store_attribute_xml(attr, @binary)
     end
     render_ok
@@ -104,7 +98,9 @@ class SourceAttributeController < ApplicationController
     @binary = params[:binary]
     # valid post commands
     if params[:package] && params[:package] != '_project'
-      @attribute_container = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
+      @attribute_container = Package.get_by_project_and_name(params[:project],
+                                                             params[:package],
+                                                             use_source: false)
     else
       # project
       raise RemoteProject if Project.is_remote_project?(params[:project])

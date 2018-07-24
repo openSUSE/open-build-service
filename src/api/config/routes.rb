@@ -752,18 +752,22 @@ OBSApi::Application.routes.draw do
   end
 
   controller :source do
+    # package level
+    get '/source/:project/_project/:filename' => :get_file, constraints: cons
+  end
+
+  controller :source_project_package_meta do
+    get 'source/:project/:package/_meta' => :show, constraints: cons
+    put 'source/:project/:package/_meta' => :update, constraints: cons
+  end
+
+  controller :source do
     get 'source' => :index
     post 'source' => :global_command_createmaintenanceincident, constraints: ->(req) { req.params[:cmd] == 'createmaintenanceincident' }
     post 'source' => :global_command_branch,                    constraints: ->(req) { req.params[:cmd] == 'branch' }
     post 'source' => :global_command_orderkiwirepos,            constraints: ->(req) { req.params[:cmd] == 'orderkiwirepos' }
     get 'source/:project/_pubkey' => :show_project_pubkey, constraints: cons
     delete 'source/:project/_pubkey' => :delete_project_pubkey, constraints: cons
-
-    # package level
-    get '/source/:project/_project/:filename' => :get_file, constraints: cons
-
-    get '/source/:project/:package/_meta' => :show_package_meta, constraints: cons
-    put '/source/:project/:package/_meta' => :update_package_meta, constraints: cons
 
     get 'source/:project/:package/:filename' => :get_file, constraints: cons
     delete 'source/:project/:package/:filename' => :delete_file, constraints: cons

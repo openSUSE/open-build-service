@@ -1,5 +1,7 @@
 require 'rails_helper'
 
+# CONFIG['global_write_through'] = true
+
 RSpec.describe SourceProjectConfigController, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:project) { user.home_project }
@@ -44,6 +46,18 @@ RSpec.describe SourceProjectConfigController, vcr: true do
 
       it { expect(response).to be_success }
       it { expect(project.config.content).to include('Updated', 'by', 'test') }
+    end
+
+    context 'we are updating the _config file' do
+      let(:config) { 'Preinstall: filesystem' }
+
+      before do
+        login user
+        put :update, params: { project: project, comment: 'add preinstall' }, body: config
+      end
+
+      it { expect(response).to be_success }
+      it { expect(project.config.content).to include('Preinstall') }
     end
   end
 end

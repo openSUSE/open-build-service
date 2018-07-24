@@ -135,8 +135,7 @@ RSpec.describe ObsFactory::StagingProject do
 
   describe '#obsolete_requests' do
     include_context 'a staging project with description'
-    let(:bs_request_1) { create(:bs_request, number: 614_459) }
-    let!(:request_1) { ObsFactory::Request.new(bs_request_1) }
+    let!(:bs_request_1) { create(:bs_request, number: 614_459) }
 
     subject { ObsFactory::StagingProject.new(project: staging_h, distribution: factory_distribution) }
 
@@ -145,7 +144,7 @@ RSpec.describe ObsFactory::StagingProject do
       let(:source_project) { create(:project, name: 'source_project') }
       let(:target_package) { create(:package, name: 'target_package', project: target_project) }
       let(:source_package) { create(:package, name: 'source_package', project: source_project) }
-      let(:bs_request_2) do
+      let!(:bs_request_2) do
         create(:declined_bs_request,
                target_project: target_project.name,
                target_package: target_package.name,
@@ -153,14 +152,12 @@ RSpec.describe ObsFactory::StagingProject do
                source_package: source_package.name,
                number: 614_471)
       end
-      let!(:request_2) { ObsFactory::Request.new(bs_request_2) }
 
-      it { expect(subject.obsolete_requests).to eq([request_2]) }
+      it { expect(subject.obsolete_requests).to contain_exactly(bs_request_2) }
     end
 
     context 'without obsolete requests' do
-      let(:bs_request_2) { create(:bs_request, number: 614_471) }
-      let!(:request_2) { ObsFactory::Request.new(bs_request_2) }
+      let!(:bs_request_2) { create(:bs_request, number: 614_471) }
 
       it { expect(subject.obsolete_requests).to eq([]) }
     end
@@ -390,14 +387,12 @@ RSpec.describe ObsFactory::StagingProject do
 
   describe '#selected_requests' do
     include_context 'a staging project with description'
-    let(:bs_request_1) { create(:bs_request, number: 614_459) }
-    let(:bs_request_2) { create(:bs_request, number: 614_471) }
-    let!(:request_1) { ObsFactory::Request.new(bs_request_1) }
-    let!(:request_2) { ObsFactory::Request.new(bs_request_2) }
+    let!(:bs_request_1) { create(:bs_request, number: 614_459) }
+    let!(:bs_request_2) { create(:bs_request, number: 614_471) }
 
     subject { ObsFactory::StagingProject.new(project: staging_h, distribution: factory_distribution) }
 
-    it { expect(subject.selected_requests).to eq([request_1, request_2]) }
+    it { expect(subject.selected_requests).to contain_exactly(bs_request_1, bs_request_2) }
   end
 
   describe '#missing_reviews' do

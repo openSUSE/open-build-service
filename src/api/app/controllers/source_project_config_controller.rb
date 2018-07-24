@@ -1,6 +1,6 @@
 class SourceProjectConfigController < SourceController
   # GET /source/:project/_config
-  append_before_action :ensure_project_exist, only: [:show, :update]
+  before_action :ensure_project_exist, only: [:show, :update]
 
   def show
     config = get_config(@project)
@@ -20,8 +20,9 @@ class SourceProjectConfigController < SourceController
 
   # PUT /source/:project/_config
   def update
-    ensure_local_project!(@project)
-    ensure_access!(User.current, @project)
+    # necessary to pass the policy_class here
+    # if its remote prj is a string
+    authorize @project, :update?, policy_class: ProjectPolicy
 
     params[:user] = User.current.login
     @project.config.file = request.body
@@ -60,19 +61,5 @@ class SourceProjectConfigController < SourceController
     @project = Project.get_by_name(params[:project])
   rescue Project::ReadAccessError, Project::UnknownObjectError => e
     render_404(e)
-  end
-
-  def ensure_access!(user, project)
-    unless user.can_modify?(project) # rubocop:disable Style/GuardClause
-      raise PutProjectConfigNoPermission,
-            "No permission to write build configuration for project '#{params[:project]}'"
-    end
-  end
-
-  def ensure_local_project!(project)
-    if project.is_a?(String) # rubocop:disable Style/GuardClause
-      raise PutProjectConfigNoPermission,
-            'Can\'t write on an remote instance'
-    end
   end
 end

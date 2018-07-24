@@ -34,25 +34,25 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller d
           let(:group) { create(:group, title: 'factory-staging') }
           let!(:create_review_requests) do
             [613_048, 99_999].map do |number|
-              ObsFactory::Request.new(create(:review_bs_request_by_group,
-                                             number: number,
-                                             reviewer: group.title,
-                                             target_project: factory.name,
-                                             target_package: target_package.name,
-                                             source_project: source_package.project.name,
-                                             source_package: source_package.name))
+              create(:review_bs_request_by_group,
+                     number: number,
+                     reviewer: group.title,
+                     target_project: factory.name,
+                     target_package: target_package.name,
+                     source_project: source_package.project.name,
+                     source_package: source_package.name)
             end
           end
           let!(:create_review_requests_in_state_new) do
             [617_649, 111_111].map do |number|
-              ObsFactory::Request.new(create(:review_bs_request_by_group,
-                                             number: number,
-                                             reviewer: group.title,
-                                             request_state: 'new',
-                                             target_project: factory.name,
-                                             target_package: target_package.name,
-                                             source_project: source_package.project.name,
-                                             source_package: source_package.name))
+              create(:review_bs_request_by_group,
+                     number: number,
+                     reviewer: group.title,
+                     request_state: 'new',
+                     target_project: factory.name,
+                     target_package: target_package.name,
+                     source_project: source_package.project.name,
+                     source_package: source_package.name)
             end
           end
           let(:backend_response) do

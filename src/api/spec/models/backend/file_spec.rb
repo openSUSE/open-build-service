@@ -200,6 +200,7 @@ RSpec.describe Backend::File, vcr: true do
   describe '#save' do
     context 'with a backend error' do
       before do
+        somefile_txt_url # create the package before we break put
         allow(Backend::Connection).to receive(:put).and_raise(StandardError, 'message')
       end
 

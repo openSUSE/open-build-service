@@ -315,7 +315,7 @@ class Webui::WebuiController < ActionController::Base
       # In test environment we want to enable the
       # bootstrap theme independent from the user
       # The feature switch depends on the user (e.g. Admin or Staff)
-      ENV['BOOTSTRAP'].present
+      ENV['BOOTSTRAP'].present?
     else
       Feature.active?(:bootstrap)
     end

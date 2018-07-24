@@ -32,8 +32,8 @@ class Webui::RequestController < Webui::WebuiController
       end
       opts[:comment] = params[:review_comment] if params[:review_comment]
 
-      req = BsRequest.find_by_number!(params[:number])
-      req.addreview(opts)
+      request = BsRequest.find_by_number!(params[:number])
+      request.addreview(opts)
     rescue BsRequestPermissionCheck::AddReviewNotPermitted
       flash[:error] = "Not permitted to add a review to '#{params[:number]}'"
     rescue ActiveRecord::RecordInvalid, APIException => e
@@ -45,10 +45,10 @@ class Webui::RequestController < Webui::WebuiController
   def modify_review
     opts = {}
     state = nil
-    req = nil
+    request = nil
     params.each do |key, value|
       state = key if  key.in?(['accepted', 'declined', 'new'])
-      req = BsRequest.find_by_number(value) if key.starts_with?('review_request_number_')
+      request = BsRequest.find_by_number(value) if key.starts_with?('review_request_number_')
 
       # Our views are valid XHTML. So, several forms 'POST'-ing to the same action have different
       # HTML ids. Thus we have to parse 'params' a bit:
@@ -59,7 +59,7 @@ class Webui::RequestController < Webui::WebuiController
       opts[:by_package] = value if key.starts_with?('review_by_package_')
     end
 
-    if req.nil?
+    if request.nil?
       flash[:error] = 'Unable to load request'
       redirect_back(fallback_location: user_show_path(User.current))
       return
@@ -67,8 +67,8 @@ class Webui::RequestController < Webui::WebuiController
       flash[:error] = 'Unknown state to set'
     else
       begin
-        req.permission_check_change_review!(opts)
-        req.change_review_state(state, opts)
+        request.permission_check_change_review!(opts)
+        request.change_review_state(state, opts)
       rescue BsRequestPermissionCheck::ReviewChangeStateNoPermission => e
         flash[:error] = "Not permitted to change review state: #{e.message}"
       rescue APIException => e
@@ -76,7 +76,7 @@ class Webui::RequestController < Webui::WebuiController
       end
     end
 
-    redirect_to request_show_path(number: req), success: 'Successfully submitted review'
+    redirect_to request_show_path(number: request), success: 'Successfully submitted review'
   end
 
   def show
@@ -188,17 +188,12 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def delete_request
-    req = nil
+    request = nil
     begin
-      BsRequest.transaction do
-        opts = { target_project: params[:project], description: params[:description] }
-        opts[:target_package] = params[:package] if params[:package]
-        opts[:target_repository] = params[:repository] if params[:repository]
-        req = BsRequest.build_from_params(:delete, opts)
-        req.save!
-      end
-
-      request_link = ActionController::Base.helpers.link_to("repository delete request #{req.number}", request_show_path(req.number))
+      request = BsRequest.create!(
+        description: params[:description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:delete))]
+      )
+      request_link = ActionController::Base.helpers.link_to("repository delete request #{request.number}", request_show_path(request.number))
       flash[:success] = "Created #{request_link}"
     rescue APIException => e
       flash[:error] = e.message
@@ -209,7 +204,7 @@ class Webui::RequestController < Webui::WebuiController
       end
       return
     end
-    redirect_to request_show_path(number: req.number)
+    redirect_to request_show_path(number: request.number)
   end
 
   def add_role_request_dialog
@@ -219,24 +214,17 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def add_role_request
-    req = nil
+    request = nil
     begin
-      BsRequest.transaction do
-        opts = { target_project: params[:project],
-                 role:           params[:role],
-                 description: params[:description] }
-        opts[:target_package] = params[:package] if params[:package]
-        opts[:person_name] = params[:user] if params[:user]
-        opts[:group_name] = params[:group] if params[:group]
-        req = BsRequest.build_from_params(:add_role, opts)
-        req.save!
-      end
+      request = BsRequest.create!(
+        description: params[:description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:add_role))]
+      )
     rescue APIException => e
       flash[:error] = e.message
       redirect_to(controller: :package, action: :show, package: params[:package], project: params[:project]) && return if params[:package]
       redirect_to(controller: :project, action: :show, project: params[:project]) && return
     end
-    redirect_to controller: :request, action: :show, number: req.number
+    redirect_to controller: :request, action: :show, number: request.number
   end
 
   def set_bugowner_request_dialog
@@ -245,22 +233,17 @@ class Webui::RequestController < Webui::WebuiController
 
   def set_bugowner_request
     required_parameters :project, :user, :group
-    req = nil
+    request = nil
     begin
-      BsRequest.transaction do
-        opts = { target_project: params[:project], description: params[:description] }
-        opts[:target_package] = params[:package] if params[:package]
-        opts[:person_name] = params[:user] if params[:user]
-        opts[:group_name] = params[:group] if params[:group]
-        req = BsRequest.build_from_params(:set_bugowner, opts)
-        req.save!
-      end
+      request = BsRequest.create!(
+        description: params[:description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:set_bugowner))]
+      )
     rescue APIException => e
       flash[:error] = e.message
       redirect_to(controller: :package, action: :show, package: params[:package], project: params[:project]) && return if params[:package]
       redirect_to(controller: :project, action: :show, project: params[:project]) && return
     end
-    redirect_to controller: :request, action: :show, number: req.number
+    redirect_to controller: :request, action: :show, number: request.number
   end
 
   def change_devel_request_dialog
@@ -273,17 +256,11 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def change_devel_request
-    req = nil
+    request = nil
     begin
-      BsRequest.transaction do
-        opts = { target_project: params[:project],
-                 description: params[:description],
-                 target_package: params[:package],
-                 source_project: params[:devel_project] }
-        opts[:source_package] = params[:devel_package] || params[:package]
-        req = BsRequest.build_from_params(:change_devel, opts)
-        req.save!
-      end
+      request = BsRequest.create!(
+        description: params[:description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:change_devel))]
+      )
     rescue BsRequestAction::UnknownProject,
            Package::UnknownObjectError,
            BsRequestAction::UnknownTargetPackage => e
@@ -295,7 +272,7 @@ class Webui::RequestController < Webui::WebuiController
       redirect_to package_show_path(project: params[:project], package: params[:package])
       return
     end
-    redirect_to request_show_path(number: req.number)
+    redirect_to request_show_path(number: request.number)
   end
 
   def set_incident_dialog
@@ -303,15 +280,15 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def set_incident
-    req = BsRequest.find_by_number(params[:number])
-    if req.nil?
+    request = BsRequest.find_by_number(params[:number])
+    if request.nil?
       flash[:error] = 'Unable to load request'
     elsif params[:incident_project].blank?
       flash[:error] = 'Unknown incident project to set'
     else
       begin
-        req.setincident(params[:incident_project])
-        flash[:notice] = "Set target of request #{req.number} to incident #{params[:incident_project]}"
+        request.setincident(params[:incident_project])
+        flash[:notice] = "Set target of request #{request.number} to incident #{params[:incident_project]}"
       rescue Project::UnknownObjectError => e
         flash[:error] = "Incident #{e.message} does not exist"
       rescue APIException => e
@@ -351,8 +328,8 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def change_state(newstate, params)
-    req = BsRequest.find_by_number(params[:number])
-    if req.nil?
+    request = BsRequest.find_by_number(params[:number])
+    if request.nil?
       flash[:error] = 'Unable to load request'
     else
       # FIXME: make force optional, it hides warnings!
@@ -363,7 +340,7 @@ class Webui::RequestController < Webui::WebuiController
         comment:  params[:reason]
       }
       begin
-        req.change_state(opts)
+        request.change_state(opts)
         flash[:notice] = "Request #{newstate}!"
         return true
       rescue APIException => e
@@ -388,7 +365,7 @@ class Webui::RequestController < Webui::WebuiController
     # split off 'forward_' and split into project and package
     tgt_prj, tgt_pkg = params[fwd].split('_#_')
     begin
-      forwarded_request = @bs_request.forward_to(project: tgt_prj, package: tgt_pkg, options: params.slice(:description, :sourceupdate))
+      forwarded_request = @bs_request.forward_to(project: tgt_prj, package: tgt_pkg, options: params.slice(:description))
     rescue APIException, ActiveRecord::RecordInvalid => e
       error_string = "Failed to forward BsRequest: #{@bs_request.number}, error: #{e}, params: #{params.inspect}"
       error_string << ", request: #{e.record.inspect}" if e.respond_to?(:record)
@@ -400,5 +377,19 @@ class Webui::RequestController < Webui::WebuiController
     target_link = ActionController::Base.helpers.link_to("#{tgt_prj} / #{tgt_pkg}", package_show_url(project: tgt_prj, package: tgt_pkg))
     request_link = ActionController::Base.helpers.link_to(forwarded_request.number, request_show_path(forwarded_request.number))
     flash[:notice] += " and forwarded to #{target_link} (request #{request_link})"
+  end
+
+  def request_action_attributes(type)
+    {
+      target_project:    params[:project],
+      target_package:    params[:package],
+      source_project:    params[:devel_project],
+      source_package:    params[:devel_package] || params[:package],
+      target_repository: params[:repository],
+      person_name:       params[:user],
+      group_name:        params[:group],
+      role:              params[:role],
+      type:              type.to_s
+    }
   end
 end
