@@ -24,7 +24,7 @@ module ObsFactory
     end
 
     def openqa_iso_prefix
-      "openSUSE-Leap-#{opensuse_leap_version}-Staging"
+      "openSUSE-Leap:#{opensuse_leap_version}-Staging"
     end
 
     def published_arch
