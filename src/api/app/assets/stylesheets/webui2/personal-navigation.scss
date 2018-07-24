@@ -1,0 +1,14 @@
+#personal-navigation {
+    & .nav-item a {
+        font-size: 0.9rem;
+        color: $main_green;
+
+        &:hover {
+            color: $main_blue;
+        }
+    }
+
+    & .nav-link {
+        padding: 0.5rem 0.6rem;
+    }
+}
