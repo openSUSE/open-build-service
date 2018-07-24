@@ -64,22 +64,6 @@ Url:            http://www.openbuildservice.org
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        open-build-service-%version.tar.xz
 BuildRequires:  python-devel
-# needed for native extensions
-BuildRequires:  autoconf
-BuildRequires:  automake
-BuildRequires:  gcc
-BuildRequires:  gcc-c++
-BuildRequires:  cyrus-sasl-devel
-BuildRequires:  glibc-devel
-BuildRequires:  libtool
-BuildRequires:  libxml2-devel
-BuildRequires:  libxslt-devel
-BuildRequires:  make
-BuildRequires:  mysql-devel
-BuildRequires:  nodejs
-BuildRequires:  openldap2-devel
-BuildRequires:  ruby2.5-devel
-BuildRequires:  phantomjs
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
 # atm the obs rails version patch above unifies that setting among the applications
@@ -258,8 +242,8 @@ BuildRequires:  mysql
 BuildRequires:  netcfg
 # write down dependencies for production
 BuildRequires:  rubygem(bundler)
-Source2:        Gemfile
-Source3:        Gemfile.lock
+BuildRequires:  obs-bundled-gems = %{version}
+Requires:       obs-bundled-gems = %{version}
 # for rebuild_time
 Requires:       perl(GD)
 
@@ -316,10 +300,6 @@ This package contains all the necessary tools for upload images to the cloud.
 
 #--------------------------------------------------------------------------------
 %prep
-# Ensure there are ruby, gem and irb commands without ruby suffix
-mkdir ~/bin
-for i in ruby gem irb; do ln -s /usr/bin/$i.ruby2.5 ~/bin/$i; done
-
 %setup -q -n open-build-service-%version
 
 # We don't need our docker files in our packages
@@ -330,18 +310,8 @@ rm src/api/Dockerfile.frontend-base
 rm -rf src/backend/build
 
 find -name .keep -o -name .gitignore | xargs rm -rf
-# copy gem files into cache
-mkdir -p src/api/vendor/cache
-cp %{_sourcedir}/vendor/cache/*.gem src/api/vendor/cache
 
 %build
-export PATH=~/bin:$PATH
-export GEM_HOME=~/.gems
-pushd src/api/
-bundle config build.nokogiri --use-system-libraries
-bundle --local --path %{buildroot}/%_libdir/obs-api/
-popd
-
 export DESTDIR=$RPM_BUILD_ROOT
 
 #
@@ -361,25 +331,6 @@ export DESTDIR=$RPM_BUILD_ROOT
   perl -p -i -e 's/^APACHE_USER=.*/APACHE_USER=apache/' Makefile.include
   perl -p -i -e 's/^APACHE_GROUP=.*/APACHE_GROUP=apache/' Makefile.include
 %endif
-
-# run gem clean up script
-/usr/lib/rpm/gem_build_cleanup.sh %{buildroot}/%_libdir/obs-api/ruby/*/
-# remove cached gems
-rm -rf src/api/vendor/cache/*
-# Remove sources of extensions, we don't need them
-rm -rf %{buildroot}/%_libdir/obs-api/ruby/*/gems/*/ext/
-
-# remove gem files to fix rpmlint errors
-rm -rf %{buildroot}/%_libdir/obs-api/ruby/*/gems/diff-lcs-*/bin
-# remove spec / test files from gems as they shouldn't be shipped in gems anyway
-# and often cause errors / warning in rpmlint
-rm -rf %{buildroot}/%_libdir/obs-api/ruby/*/gems/*/spec/
-rm -rf %{buildroot}/%_libdir/obs-api/ruby/*/gems/*/test/
-# we do not verify signing of the gem
-rm -rf %{buildroot}/%_libdir/obs-api/ruby/*/gems/mousetrap-rails-*/gem-public_cert.pem
-
-# remove all gitignore files to fix rpmlint version-control-internal-file
-find %{buildroot}/%_libdir/obs-api -name .gitignore | xargs rm -rf
 
 export OBS_VERSION="%{version}"
 DESTDIR=%{buildroot} make install FILLUPDIR=%{_fillupdir}
@@ -567,8 +518,8 @@ touch /srv/www/obs/api/log/production.log
 chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
 %restart_on_update memcached
-# We need to touch the last_deploy file in the post hook 
-# to update the timestamp which we use to display the 
+# We need to touch the last_deploy file in the post hook
+# to update the timestamp which we use to display the
 # last deployment time in the API
 touch /srv/www/obs/api/last_deploy || true
 
