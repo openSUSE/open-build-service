@@ -1,10 +1,13 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe Webui::ObsFactory::DistributionsController, type: :controller do
+RSpec.describe Webui::ObsFactory::DistributionsController, type: :controller, vcr: true do
+  render_views
+
   let(:factory) { create(:project, name: 'openSUSE:Factory') }
   let!(:factory_staging_a) { create(:project, name: 'openSUSE:Factory:Staging:A', description: 'Factory staging project A') }
   let!(:factory_ring_bootstrap) { create(:project, name: 'openSUSE:Factory:Rings:0-Bootstrap', description: 'Factory ring project') }
+  let!(:minimal_x) { create(:project, name: 'openSUSE:Factory:Rings:1-MinimalX') }
   let(:target_package) { create(:package, name: 'target_package', project: factory) }
   let(:source_project) { create(:project, name: 'source_project') }
   let(:source_package) { create(:package, name: 'source_package', project: source_project) }
@@ -21,7 +24,6 @@ RSpec.describe Webui::ObsFactory::DistributionsController, type: :controller do
         and_return(body: 'openSUSE-20180721-i586-x86_64-Build373.1')
       stub_request(:get, mock_totest_version).and_return(body: '')
       stub_request(:get, mock_source_version).and_return(body: opensuse_product)
-      allow(::ObsFactory::OpenqaJob).to receive(:find_all_by).and_return([:fake, :content])
 
       get :show, params: { project: factory.name }
     end
@@ -40,7 +42,7 @@ RSpec.describe Webui::ObsFactory::DistributionsController, type: :controller do
       expect(assigns(:standard).nickname).to eq('standard')
       expect(assigns(:images).nickname).to eq('images')
       expect(assigns(:live)).to be_nil
-      expect(assigns(:openqa_jobs)).to eq([:fake, :content])
+      expect(assigns(:openqa_jobs)).to eq({})
     end
 
     context 'calculate_reviews' do
