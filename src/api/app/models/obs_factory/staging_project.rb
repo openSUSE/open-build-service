@@ -10,7 +10,6 @@ module ObsFactory
 
     attr_accessor :project, :distribution, :parent
 
-    OBSOLETE_STATES = ['declined', 'superseded', 'revoked'].freeze
     NAME_PREFIX = ":Staging:".freeze
     ADI_NAME_PREFIX = ":Staging:adi:".freeze
 
