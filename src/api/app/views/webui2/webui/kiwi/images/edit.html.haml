@@ -1,0 +1,23 @@
+- @layouttype = 'custom'
+= content_for :ready_function do
+  isOutdatedUrl = '#{url_for(controller: 'kiwi/images', action: :show, id: @image)}'
+
+= form_for @image, html: { id: 'kiwi-image-update-form' } do |f|
+  .card.mb-3
+    = render partial: 'webui/kiwi/tabs'
+    = render partial: 'base_info', locals: { f: f }
+
+  .card.mb-3#kiwi-preferences{ style: "#{'display: none' if @is_edit_software_action}" }
+    = render partial: 'webui/kiwi/images/preferences', locals: { f: f }
+
+  .card.mb-3#kiwi-image-repositories-section{ style: "#{'display: none' unless @is_edit_software_action}" }
+    = render partial: 'webui/kiwi/images/repositories', locals: { f: f }
+
+  .card.mb-3#kiwi-image-packages-section{ style: "#{'display: none' unless @is_edit_software_action}" }
+    = render partial: 'webui/kiwi/images/packages', locals: { f: f }
+
+  .d-flex
+    .btn.btn-primary.ml-auto
+      #kiwi-image-update-form-save= sprite_tag("page_save", title: 'Save') + ' Save'
+    .btn.btn-secondary.ml-3
+      #kiwi-image-update-form-revert{ class: "#{'enabled' if flash[:error]}" }= sprite_tag("page_save", title: 'Revert') + ' Revert'

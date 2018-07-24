@@ -1,0 +1,18 @@
+.card-body
+  %h3 Repositories
+  #kiwi-use-project-repositories
+    %p
+      = f.check_box :use_project_repositories
+      = f.label :use_project_repositories
+    %p.ui-state-highlight#use-project-repositories-text{ class: "#{'hidden' unless f.object.use_project_repositories?}"}
+      = image_tag("icons/info", title: 'Add package')
+      This option will use the repositories from the current project. Other repositories set in this Kiwi Image will be REMOVED.
+%hr
+.card-body
+  #kiwi-repositories-list{ class: "#{'hidden' if f.object.use_project_repositories?}"}
+
+    %p#no-repositories{ class: "#{'hidden' if @image.repositories.present?}" }= 'There are no repositories.'
+    = f.fields_for :repositories do |repository_fields|
+      = render 'repository_fields', f: repository_fields
+    %p
+      = link_to_add_association(image_tag("drive_add", title: 'Add repository') + ' Add repository', f, :repositories)

@@ -1,0 +1,10 @@
+.card-body
+  %h3 Packages
+  #kiwi-packages-list
+    %p#no-packages{ class: "#{'hidden' if @package_groups.packages.present?}" }= 'There are no packages.'
+
+    = f.fields_for :package_groups, @package_groups  do |package_group_fields|
+      = package_group_fields.fields_for :packages do |kiwi_package_fields|
+        = render 'package_fields', f: kiwi_package_fields
+      %p
+        = link_to_add_association(image_tag("package_add", title: 'Add package') + ' Add package', package_group_fields, :packages)

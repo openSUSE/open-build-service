@@ -1,0 +1,14 @@
+- @layouttype = 'custom'
+
+= form_for @image, html: { id: 'kiwi-image-update-form' } do |f|
+  .row
+    .col-12
+      .card.mb-3
+        = render partial: 'webui/kiwi/tabs'
+        = render partial: 'base_info'
+    .col-md-8
+      .card.mb-3
+        = render partial: 'details_overview'
+    .col-md-4
+      .card.mb-3
+        = render partial: 'build_info'

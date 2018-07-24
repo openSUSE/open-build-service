@@ -1,0 +1,63 @@
+%div{ class: "kiwi_list_item #{'has-error' if f.object.errors.present?}"}
+  %span
+    = link_to f.object.name, '#', class: 'repository_edit kiwi_element_name'
+  %span.kiwi_actions{style: 'display: none'}
+    = link_to_remove_association(sprite_tag("req-decline", title: 'Delete Repository'), f)
+
+%div{ style: "#{'display: none' if f.object.source_path.present?}", class: "#{'new_element' if f.object.new_record?}" }
+  .card.mb-3
+    %h5.card-header #{f.object.source_path.present? ? 'Edit' : 'Add'} repository
+
+    .card-body
+      .normal-mode
+        %p
+          = label_tag 'Project:'
+          = text_field_tag 'target_project', f.object.project_for_type_obs,
+            data: { ajaxurl: url_for(controller: '/webui/project', action: 'autocomplete_projects'), default: f.object.project_for_type_obs }, class: 'form-control'
+        = label_tag 'Repository:'
+        .form-inline
+          = select_tag "target_repo", options_for_select([f.object.repository_for_type_obs]), disabled: !f.object.obs_source_path?,
+            data: { ajaxurl: url_for(controller: '/webui/project', action: :autocomplete_repositories), default: f.object.repository_for_type_obs }, class: 'custom-select'
+          %span.ui-autocomplete-loading{style: 'display: none'}
+            = image_tag('ajax-loader.gif')
+        %p
+          = label_tag 'Alias:'
+          = text_field_tag 'alias_for_repo', f.object.alias, data: { default: f.object.alias }, class: 'form-control'
+      .expert-mode{style: 'display: none'}
+        .form-inline
+          = f.hidden_field :order, data: { default: f.object.order }
+          = f.label :repo_type, 'Type:'
+          = f.select :repo_type, Kiwi::Repository::REPO_TYPES, {}, { data: {default: f.object.repo_type }, class: 'custom-select'}
+          = f.label :priority, 'Priority:'
+          = f.number_field :priority, maxlength: 4, in: 0...99, data: { default: f.object.priority }, class: 'custom-select'
+          = f.label :alias, 'Alias:'
+          = f.text_field :alias, data: { default: f.object.alias }, class: 'form-control'
+        %p
+          = f.label :source_path, 'Source:'
+          = f.text_field :source_path, data: { default: f.object.source_path }, class: 'form-control'
+          %span.small-text
+            Write a valid source path
+
+        %p
+          = f.label :username, 'User:'
+          = f.text_field :username, data: { default: f.object.username }, class: 'form-control'
+          = f.label :password, 'Password:'
+          = f.text_field :password, data: { default: f.object.password }, class: 'form-control'
+
+        .custom-control.custom-checkbox
+          = f.check_box :prefer_license, data: { default: f.object.prefer_license }, class: 'custom-control-input'
+          = f.label :prefer_license, class: 'custom-control-label'
+        .custom-control.custom-checkbox
+          = f.check_box :imageinclude, data: { default: f.object.imageinclude }, class: 'custom-control-input'
+          = f.label :imageinclude, 'Image include', class: 'custom-control-label'
+        .custom-control.custom-checkbox
+          = f.check_box :replaceable, data: { default: f.object.replaceable }, class: 'custom-control-input'
+          = f.label :replaceable, class: 'custom-control-label'
+
+      %p#flash-messages
+        %p.alert.alert-danger{style: 'display: none'}
+
+    .card-footer.d-flex
+      = link_to('Expert Mode', '#', title: 'Mode Toggle', class: 'kiwi-repository-mode-toggle btn btn-warning ml-auto')
+      = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog btn btn-secondary ml-3')
+      = link_to('Continue', '#', title: 'Continue', class: 'close-dialog btn btn-primary ml-3')

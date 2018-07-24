@@ -1,0 +1,25 @@
+#kiwi-description
+  .nested-fields.card-body
+    %h2#image-name
+      = @image.name
+    %p.detailed-info{ class: "#{'hidden' if @is_edit_software_action}" }
+      %span.fill{ data: { tag: 'specification' }}
+        = @description
+    %ul.inline.detailed-info.nav.flex-column{ class: "#{'hidden' unless @is_edit_details_action}" }
+      %li
+        %strong Author:
+        %span.fill{ data: { tag: 'author' }}= @author
+      %li
+        %strong Contact:
+        %span.fill{ data: { tag: 'contact' }}= @contact
+    %ul.nav.row
+      %li.nav-item
+        = link_to(image_tag('package', title: 'View Package') + ' View Package', package_show_path(@package.project, @package), class: 'nav-link')
+      %li.nav-item{ class: "#{'d-none' unless @is_edit_details_action}" }
+        = link_to(image_tag('package_edit', title: 'Edit details') + ' Edit details', '#editCollapse', class: "nav-link", "aria-expanded": "false", "aria-controlls": "editCollapse", "data-toggle": "collapse")
+      - if Feature.active?(:cloud_upload) && !User.current.is_nobody?
+        %li.nav-item
+          = link_to(image_tag('drive_web', title: 'Cloud Upload') + ' Cloud Upload', cloud_upload_index_path, id: 'cloud-upload', class: 'nav-link')
+    - if action_name == 'edit'
+      .collapse#editCollapse
+        = render partial: 'description_form', locals: { f: f }
