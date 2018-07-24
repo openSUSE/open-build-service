@@ -29,17 +29,19 @@ RSpec.describe Webui::ObsFactory::DistributionsController, type: :controller do
     it { expect(response).to have_http_status(:success) }
     it { expect(response).to render_template(:show) }
 
-    it { expect(assigns(:staging_projects).first.project).to eq(factory_staging_a) }
+    it 'sets up the required variables' do
+      expect(assigns(:staging_projects).first.project).to eq(factory_staging_a)
 
-    it { expect(assigns(:versions)[:source]).to eq(assigns(:distribution).source_version) }
-    it { expect(assigns(:versions)[:totest]).to eq(assigns(:distribution).totest_version) }
-    it { expect(assigns(:versions)[:published]).to eq(assigns(:distribution).published_version) }
+      expect(assigns(:versions)[:source]).to eq(assigns(:distribution).source_version)
+      expect(assigns(:versions)[:totest]).to eq(assigns(:distribution).totest_version)
+      expect(assigns(:versions)[:published]).to eq(assigns(:distribution).published_version)
 
-    it { expect(assigns(:ring_prjs).first.project).to eq(factory_ring_bootstrap) }
-    it { expect(assigns(:standard).nickname).to eq('standard') }
-    it { expect(assigns(:images).nickname).to eq('images') }
-    it { expect(assigns(:live)).to be_nil }
-    it { expect(assigns(:openqa_jobs)).to eq([:fake, :content]) }
+      expect(assigns(:ring_prjs).first.project).to eq(factory_ring_bootstrap)
+      expect(assigns(:standard).nickname).to eq('standard')
+      expect(assigns(:images).nickname).to eq('images')
+      expect(assigns(:live)).to be_nil
+      expect(assigns(:openqa_jobs)).to eq([:fake, :content])
+    end
 
     context 'calculate_reviews' do
       let!(:repo_checker_user) { create(:user, login: 'repo-checker') }
@@ -65,11 +67,13 @@ RSpec.describe Webui::ObsFactory::DistributionsController, type: :controller do
         get :show, params: { project: factory.name }
       end
 
-      it { expect(assigns(:reviews)[:review_team]).to eq(1) }
-      it { expect(assigns(:reviews)[:factory_auto]).to eq(1) }
-      it { expect(assigns(:reviews)[:legal_auto]).to eq(1) }
-      it { expect(assigns(:reviews)[:legal_team]).to eq(1) }
-      it { expect(assigns(:reviews)[:repo_checker]).to eq(1) }
+      it 'sets up the required variables' do
+        expect(assigns(:reviews)[:review_team]).to eq(1)
+        expect(assigns(:reviews)[:factory_auto]).to eq(1)
+        expect(assigns(:reviews)[:legal_auto]).to eq(1)
+        expect(assigns(:reviews)[:legal_team]).to eq(1)
+        expect(assigns(:reviews)[:repo_checker]).to eq(1)
+      end
     end
 
     it { expect(assigns(:project)).to eq(factory) }
