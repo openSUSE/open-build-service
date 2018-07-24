@@ -8,10 +8,7 @@ class Webui::PatchinfoController < Webui::WebuiController
   before_action :require_login, except: [:show]
 
   def new_patchinfo
-    unless User.current.can_create_package_in? @project
-      flash[:error] = 'No permission to create packages'
-      redirect_to(controller: 'project', action: 'show', project: @project) && return
-    end
+    authorize @project, :update?, policy_class: ProjectPolicy
 
     unless @project.exists_package? 'patchinfo'
       unless Patchinfo.new.create_patchinfo(@project.name, nil)
