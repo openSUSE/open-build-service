@@ -12,7 +12,7 @@
     = render partial: 'systemstatus'
   .col-md-4
     - if User.current.is_nobody? and can_register
-      .card
+      .card.mb-3
         %h2.card-header New here? Sign up!
         .card-body
           = render partial: 'shared/sign_up'
