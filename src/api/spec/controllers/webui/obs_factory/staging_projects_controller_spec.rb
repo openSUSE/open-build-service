@@ -108,8 +108,29 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
   end
 
   describe 'GET #show' do
+    let(:source_package) { create(:package) }
+    let(:target_package) { create(:package, name: 'target_package', project: factory) }
+    let(:bs_request) do
+      create(:bs_request_with_submit_action,
+             target_project: factory.name,
+             target_package: target_package.name,
+             source_project: source_package.project.name,
+             source_package: source_package.name)
+    end
+    let(:description) do
+      <<-DESCRIPTION
+        requests:
+          - { id: #{bs_request.number} }
+      DESCRIPTION
+    end
+
     context 'with a existent factory_staging_project' do
       subject { get :show, params: { project: factory, project_name: 'A' } }
+
+      before do
+        bs_request.update(state: 'declined')
+        factory_staging_a.update(description: description)
+      end
 
       it { expect(subject).to have_http_status(:success) }
       it { expect(subject).to render_template(:show) }
