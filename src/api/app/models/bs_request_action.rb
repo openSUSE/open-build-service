@@ -357,12 +357,6 @@ class BsRequestAction < ApplicationRecord
         if source_package
           spkg = Package.find_by_project_and_name source_project, source_package
           if spkg && !User.current.can_modify_package?(spkg)
-            if action_type == :submit
-              if sourceupdate || updatelink
-                # FIXME: completely misplaced in this function
-                raise LackingMaintainership
-              end
-            end
             if  !spkg.project.find_attribute('OBS', 'ApprovedRequestSource') &&
                 !spkg.find_attribute('OBS', 'ApprovedRequestSource')
               reviews.push(spkg)
@@ -371,9 +365,6 @@ class BsRequestAction < ApplicationRecord
         else
           sprj = Project.find_by_name source_project
           if sprj && !User.current.can_modify_project?(sprj) && !sprj.find_attribute('OBS', 'ApprovedRequestSource')
-            if action_type == :submit
-              raise LackingMaintainership if sourceupdate || updatelink
-            end
             reviews.push(sprj) unless sprj.find_attribute('OBS', 'ApprovedRequestSource')
           end
         end
@@ -734,10 +725,13 @@ class BsRequestAction < ApplicationRecord
     unless sprj.class == Project || action_type.in?([:submit, :maintenance_incident])
       raise NotSupported, "Source project #{source_project} is not a local project. This is not supported yet."
     end
+
     if source_package
       spkg = Package.get_by_project_and_name(source_project, source_package, use_source: true, follow_project_links: true)
       spkg.check_weak_dependencies! if spkg && sourceupdate == 'cleanup'
     end
+
+    check_permissions_for_sources!
 
     sprj
   end
@@ -949,6 +943,16 @@ class BsRequestAction < ApplicationRecord
     self.target_project_object = Project.find_by_name(target_project)
   end
 
+  private
+
+  def check_permissions_for_sources!
+    return unless sourceupdate.in?(['update', 'cleanup']) || updatelink
+
+    source_object = Package.find_by_project_and_name(source_project, source_package) ||
+                    Project.get_by_name(source_project)
+
+    raise LackingMaintainership if !source_object.is_a?(String) && !User.current.can_modify?(source_object)
+  end
   #### Alias of methods
 end
 

@@ -425,6 +425,19 @@ class User < ApplicationRecord
     end
   end
 
+  def can_modify?(object, ignore_lock = nil)
+    case object
+    when Project
+      can_modify_project?(object, ignore_lock)
+    when Package
+      can_modify_package?(object, ignore_lock)
+    when nil
+      false
+    else
+      raise ArgumentError, "Wrong type of object: '#{object.class}' instead of Project or Package."
+    end
+  end
+
   # project is instance of Project
   def can_modify_project?(project, ignore_lock = nil)
     unless project.is_a? Project
