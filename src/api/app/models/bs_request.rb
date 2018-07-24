@@ -33,7 +33,7 @@ class BsRequest < ApplicationRecord
 
   VALID_REQUEST_STATES = [:new, :deleted, :declined, :accepted, :review, :revoked, :superseded].freeze
 
-  OBSOLETE_STATES = ['declined', 'superseded', 'revoked'].freeze
+  OBSOLETE_STATES = [:declined, :superseded, :revoked].freeze
 
   ACTION_NOTIFY_LIMIT = 50
 
@@ -295,7 +295,7 @@ class BsRequest < ApplicationRecord
   #
   # @return [Boolean] true if the request is declined, superseded or revoked
   def obsolete?
-    OBSOLETE_STATES.include? state.to_s
+    OBSOLETE_STATES.include? state.to_sym
   end
 
   def history_elements
