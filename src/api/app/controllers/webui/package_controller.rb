@@ -221,13 +221,12 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to action: :show, project: @project.name, package: @package.name
       return
     end
-    @lastrev = params[:rev].try(:to_i) || @package.rev.to_i
-    if params[:showall] || @lastrev < 21
-      @revisions = (1..@lastrev).to_a.reverse
-    else
-      @revisions = []
-      @lastrev.downto(@lastrev - 19) { |n| @revisions << n }
-    end
+
+    revision = (params[:rev] || @package.rev).to_i
+    per_page = params['show_all'] ? revision : 20
+    @revisions = Kaminari.paginate_array((1..revision).to_a.reverse).page(params[:page]).per(per_page)
+
+    switch_to_webui2
   end
 
   def submit_request_dialog
