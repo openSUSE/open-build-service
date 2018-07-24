@@ -1219,7 +1219,6 @@ class BsRequest < ApplicationRecord
                  target_project: project,
                  target_package: package,
                  type:           action.type }
-        opts[:sourceupdate] = options[:sourceupdate] if options[:sourceupdate]
         new_request.bs_request_actions.build(opts)
 
         new_request.save!

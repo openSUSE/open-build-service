@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta
+    uri: http://backend:5352/source/target_project/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Little Foxes</title>
+          <title>Blue Remembered Earth</title>
           <description/>
         </project>
     headers:
@@ -29,49 +29,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '107'
+      - '112'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Little Foxes</title>
+          <title>Blue Remembered Earth</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/target_project/_config
-    body:
-      encoding: UTF-8
-      string: "<project name=\"target_project\">\n  <title/>\n  <description/>\n  \n</project>\n"
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
+  recorded_at: Mon, 16 Jul 2018 08:17:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/target_package/_meta?user=_nobody_
@@ -79,8 +46,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>The Widening Gyre</title>
-          <description>Nihil pariatur ipsam enim quam doloribus dignissimos.</description>
+          <title>All Passion Spent</title>
+          <description>Et fugiat fugit officia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -101,25 +68,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>The Widening Gyre</title>
-          <description>Nihil pariatur ipsam enim quam doloribus dignissimos.</description>
+          <title>All Passion Spent</title>
+          <description>Et fugiat fugit officia.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
+  recorded_at: Mon, 16 Jul 2018 08:17:01 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/target_package/_meta
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>The Widening Gyre</title>
-          <description>Nihil pariatur ipsam enim quam doloribus dignissimos.</description>
+          <title>All Passion Spent</title>
+          <description>Et fugiat fugit officia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -140,24 +107,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>The Widening Gyre</title>
-          <description>Nihil pariatur ipsam enim quam doloribus dignissimos.</description>
+          <title>All Passion Spent</title>
+          <description>Et fugiat fugit officia.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
+  recorded_at: Mon, 16 Jul 2018 08:17:02 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_meta
+    uri: http://backend:5352/source/source_project/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>The Other Side of Silence</title>
+          <title>The Parliament of Man</title>
           <description/>
         </project>
     headers:
@@ -179,49 +146,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '116'
+      - '112'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>The Other Side of Silence</title>
+          <title>The Parliament of Man</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/source_project/_config
-    body:
-      encoding: UTF-8
-      string: "<project name=\"source_project\">\n  <title/>\n  <description/>\n  \n</project>\n"
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
+  recorded_at: Mon, 16 Jul 2018 08:17:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=_nobody_
@@ -229,8 +163,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Everything is Illuminated</title>
-          <description>Omnis neque quo debitis rerum ducimus.</description>
+          <title>Jesting Pilate</title>
+          <description>Fugit cupiditate maiores ea.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -251,25 +185,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '179'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Everything is Illuminated</title>
-          <description>Omnis neque quo debitis rerum ducimus.</description>
+          <title>Jesting Pilate</title>
+          <description>Fugit cupiditate maiores ea.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
+  recorded_at: Mon, 16 Jul 2018 08:17:02 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/source_package/_meta
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Everything is Illuminated</title>
-          <description>Omnis neque quo debitis rerum ducimus.</description>
+          <title>Jesting Pilate</title>
+          <description>Fugit cupiditate maiores ea.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -290,16 +224,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '179'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Everything is Illuminated</title>
-          <description>Omnis neque quo debitis rerum ducimus.</description>
+          <title>Jesting Pilate</title>
+          <description>Fugit cupiditate maiores ea.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
+  recorded_at: Mon, 16 Jul 2018 08:17:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user_1/_meta?user=user_1
@@ -340,7 +274,7 @@ http_interactions:
           <person userid="user_1" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
+  recorded_at: Mon, 16 Jul 2018 08:17:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux/_meta?user=tux
@@ -381,7 +315,7 @@ http_interactions:
           <person userid="tux" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
+  recorded_at: Mon, 16 Jul 2018 08:17:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -407,15 +341,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '89'
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="56" vrev="56" srcmd5="efbe5f0a5dd48df5129b4319df43aa45">
-          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1530301540" />
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
+  recorded_at: Mon, 16 Jul 2018 08:17:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -441,15 +374,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '89'
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="56" vrev="56" srcmd5="efbe5f0a5dd48df5129b4319df43aa45">
-          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1530301540" />
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
+  recorded_at: Mon, 16 Jul 2018 08:17:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -475,18 +407,52 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '89'
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="56" vrev="56" srcmd5="efbe5f0a5dd48df5129b4319df43aa45">
-          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1530301540" />
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
+  recorded_at: Mon, 16 Jul 2018 08:17:02 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Mon, 16 Jul 2018 08:17:02 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/target_project/target_package?cmd=diff&expand=1&filelimit=10000&orev=0&rev=56&tarlimit=10000
+    uri: http://backend:5352/source/target_project/target_package?cmd=diff&expand=1&filelimit=10000&orev=0&rev=&tarlimit=10000
     body:
       encoding: UTF-8
       string: ''
@@ -501,39 +467,28 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 200
-      message: OK
+      code: 400
+      message: revision is empty
     headers:
       Content-Type:
-      - text/plain
-      Content-Length:
-      - '165'
+      - text/xml
       Cache-Control:
       - no-cache
       Connection:
       - close
+      Content-Length:
+      - '69'
     body:
       encoding: UTF-8
-      string: |2
-
-        new:
-        ----
-          somefile.txt
-
-        other changes:
-        --------------
-
-        ++++++ somefile.txt (new)
-        --- somefile.txt
-        +++ somefile.txt
-        @@ -0,0 +1,1 @@
-        +1
-        \ No newline at end of file
+      string: |
+        <status code="400">
+          <summary>revision is empty</summary>
+        </status>
     http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
+  recorded_at: Mon, 16 Jul 2018 08:17:02 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/target_project/target_package?expand=1&rev=56
+    uri: http://backend:5352/source/target_project/target_package?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -556,13 +511,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '89'
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="56" vrev="56" srcmd5="efbe5f0a5dd48df5129b4319df43aa45">
-          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1530301540" />
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
+  recorded_at: Mon, 16 Jul 2018 08:17:02 GMT
 recorded_with: VCR 4.0.0

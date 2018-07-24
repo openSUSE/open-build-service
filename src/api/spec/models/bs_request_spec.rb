@@ -386,9 +386,8 @@ RSpec.describe BsRequest, vcr: true do
 
   context '#forward_to' do
     before do
-      submit_request
-      # This avoids failures in the permission validation caused by mocking User.current
-      allow(User).to receive(:current).and_return(user)
+      submit_request.bs_request_actions.first.update(sourceupdate: 'cleanup')
+      login user
     end
 
     it 'only forwards submit requests' do
@@ -410,9 +409,12 @@ RSpec.describe BsRequest, vcr: true do
                  target_project: user.home_project.name,
                  target_package: target_package.name,
                  source_project: target_package.project.name,
-                 source_package: target_package.name,
-                 sourceupdate:   nil
+                 source_package: target_package.name
         )).to exist
+      end
+
+      it 'does not set the sourceupdate' do
+        expect(subject.bs_request_actions.first.sourceupdate).to be_nil
       end
 
       it 'sets the logged in user as creator of the request' do
@@ -439,10 +441,7 @@ RSpec.describe BsRequest, vcr: true do
       subject do
         submit_request.forward_to(
           project: user.home_project.name,
-          options: {
-            sourceupdate: 'noupdate',
-            description:  'my description'
-          }
+          options: { description: 'my description' }
         )
       end
 
@@ -452,8 +451,52 @@ RSpec.describe BsRequest, vcr: true do
 
       it 'creates a submit request action with the correct target' do
         expect(subject.bs_request_actions.count).to eq 1
-        expect(subject.bs_request_actions.where(type: 'submit', sourceupdate: 'noupdate')).to exist
+        expect(subject.bs_request_actions.where(type: 'submit')).to exist
       end
+    end
+  end
+
+  describe 'creating a BsRequest that has a project link' do
+    include_context 'a BsRequest that has a project link'
+
+    context 'via #new' do
+      context 'when sourceupdate is not set to cleanup' do
+        include_context 'when sourceupdate is set to' do
+          let(:sourceupdate_type) { 'cleanup' }
+        end
+
+        it { expect { subject.save! }.to raise_error BsRequestAction::LackingMaintainership }
+      end
+
+      context 'when sourceupdate is not set to update' do
+        include_context 'when sourceupdate is set to' do
+          let(:sourceupdate_type) { 'update' }
+        end
+
+        it { expect { subject.save! }.to raise_error BsRequestAction::LackingMaintainership }
+      end
+
+      context 'when sourceupdate is set to noupdate' do
+        include_context 'when sourceupdate is set to' do
+          let(:sourceupdate_type) { 'noupdate' }
+        end
+
+        it { expect { subject.save! }.not_to raise_error }
+      end
+
+      context 'when sourceupdate is not set' do
+        include_context 'when sourceupdate is set to' do
+          let(:sourceupdate_type) { nil }
+        end
+
+        it { expect { subject.save! }.not_to raise_error }
+      end
+    end
+
+    context 'via #new_from_xml' do
+      subject { BsRequest.new_from_xml(xml) }
+
+      it { expect { subject.save! }.to raise_error BsRequestAction::LackingMaintainership }
     end
   end
 end
