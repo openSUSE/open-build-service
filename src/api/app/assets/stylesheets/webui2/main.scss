@@ -1,0 +1,9 @@
+#personal-navigation ul.nav >li.nav-item > a {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+#personal-navigation ul.nav > li.nav-item:not(:last-child) > a::after {
+  color: initial;
+  content: "|";
+}
