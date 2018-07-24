@@ -1295,7 +1295,7 @@ sub deleterepo {
   if ($container_repositories) {
     my $notary_uploads = {};
     my %containers;
-    upload_all_containers($extrep, $projid, $repoid, \%containers, $notary_uploads, 0, undef, {}, $container_repositories);
+    upload_all_containers($extrep, $projid, $repoid, \%containers, $notary_uploads, 0, undef, $container_repositories);
     delete_from_notary($projid, $notary_uploads);
   }
   
@@ -1990,7 +1990,7 @@ sub publish {
     if ($blobdir) {
       $_->{'blobdir'} = $blobdir for values %containers;
     }
-    upload_all_containers($extrep, $projid, $repoid, \%containers, $notary_uploads, $multicontainer, \%deleted_bins, $container_repositories, $repoinfo->{'container_repositories'} || {});
+    $container_repositories = upload_all_containers($extrep, $projid, $repoid, \%containers, $notary_uploads, $multicontainer, \%deleted_bins, $repoinfo->{'container_repositories'} || {});
     $changed = 1;		# FIXME
   }
   if ($blobdir) {
@@ -2753,10 +2753,12 @@ sub default_container_mapper {
 =cut
 
 sub upload_all_containers {
-  my ($extrep, $projid, $repoid, $containers, $notary_uploads, $multicontainer, $deleted, $container_repositories, $old_container_repositories) = @_;
+  my ($extrep, $projid, $repoid, $containers, $notary_uploads, $multicontainer, $deleted, $old_container_repositories) = @_;
 
   my @registries = registries_for_prp($projid, $repoid);
   my %allrefs;
+  my %container_repositories;
+  $old_container_repositories ||= {};
   for my $registry (@registries) {
     my $regname = $registry->{'_name'};
 
@@ -2778,7 +2780,7 @@ sub upload_all_containers {
 
     # ok, now go through every repository and upload all tags
     for my $repository (sort keys %uploads) {
-      $container_repositories->{$regname}->{$repository} = 1;
+      $container_repositories{$regname}->{$repository} = 1;
       # find common containerinfos so that we can push multiple tags in one go
       my $uptags = $uploads{$repository};
       my %todo;
@@ -2804,7 +2806,7 @@ sub upload_all_containers {
     }
 
     # delete repositories of former publish runs that are now empty
-    for my $repository (sort keys %{$old_container_repositories->{$regname} || {}}) {
+    for my $repository (@{$old_container_repositories->{$regname} || []}) {
       next if $uploads{$repository};
       my $containerdigests = '';
       add_notary_upload($notary_uploads, $registry, $repository, $containerdigests);
@@ -2847,6 +2849,10 @@ sub upload_all_containers {
       symlink("$allrefs_pp_lastp{$p}", "$extrep/$p");
     }
   }
+
+  # turn container repos into arrays and return
+  $_ = [ sort keys %$_ ] for values %container_repositories;
+  return \%container_repositories
 }
 
 =head2 upload_to_registry - upload containers
