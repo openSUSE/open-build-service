@@ -34,19 +34,6 @@ In particular, this community seeks the following types of contributions:
 
 ## How to write proper commit messages
 
-- **Tag your commits**
-
-  We tag our commits depending on the area that is affected by the change. All commits should start with at least one tag from:
-
-  * [api]     - Changes in api related parts of app/model/ and lib/ as well as app/controllers/\*.rb and its views
-  * [backend] - Changes in the perl-written backend of OBS
-  * [ci]      - Changes that affect our test suite
-  * [dist]    - Modifies something inside /dist directory
-  * [doc]     - Any documentation related changes
-  * [webui]   - Changes in webui related parts of app/model/ and lib/ as well as app/controllers/webui/ and its views
-
-  In case of having more than one tag, they should be alphabetically ordered.
-  
 - **Leave a blank line between the commit subject and body**
 
   Tools like rebase could not work properly otherwise.
@@ -79,6 +66,16 @@ In particular, this community seeks the following types of contributions:
 - **Preferably use `-` for lists**
 
   Do not use `*` as it is also used for _emphasis_.
+
+**Please note** that we used to tag our commits to specify the areas affected by the change.
+We are not tagging commits anymore, but these are the labels and their descriptions in case you review some old code:
+
+  * [api]     - Changes in api related parts of app/model/ and lib/ as well as app/controllers/\*.rb and its views
+  * [backend] - Changes in the perl-written backend of OBS
+  * [ci]      - Changes that affect our test suite
+  * [dist]    - Modifies something inside /dist directory
+  * [doc]     - Any documentation related changes
+  * [webui]   - Changes in webui related parts of app/model/ and lib/ as well as app/controllers/webui/ and its views
 
 ## How to review code submissions
 We make use of GitHub [pull request reviews](https://help.github.com/articles/about-pull-request-reviews/) and we...
