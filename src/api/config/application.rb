@@ -94,18 +94,6 @@ module OBSApi
                                  'webui/application/cm2/index-xml.js',
                                  'webui/application/cm2/index-prjconf.js']
 
-    config.assets.precompile += ['dataTables/back_disabled.png',
-                                 'dataTables/back_enabled_hover.png',
-                                 'dataTables/back_enabled.png',
-                                 'dataTables/forward_disabled.png',
-                                 'dataTables/forward_enabled_hover.png',
-                                 'dataTables/forward_enabled.png',
-                                 'dataTables/sort_asc_disabled.png',
-                                 'dataTables/sort_asc.png',
-                                 'dataTables/sort_both.png',
-                                 'dataTables/sort_desc_disabled.png',
-                                 'dataTables/sort_desc.png']
-
     config.action_controller.action_on_unpermitted_parameters = :raise
 
     config.action_dispatch.rescue_responses['ActiveXML::Transport::UnauthorizedError'] = 401

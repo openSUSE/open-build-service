@@ -20,3 +20,4 @@
 //= require jquery.flot.time
 //= require jquery.flot.stack.js
 //= require webui2/plotbusyworkers.js
+//= require webui2/datatables.js
