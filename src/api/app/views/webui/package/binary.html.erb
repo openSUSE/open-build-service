@@ -1,7 +1,8 @@
 <% @pagetitle = "Detailed Information About #{@filename}"
   @metarobots = 'noindex' # files change too often
-  package_bread_crumb(link_to('Binaries', package_binaries_path(project: @project, package: @package, repository: @repository, arch: @arch)),
-                      truncate(@filename, length: 30))
+  package_bread_crumb(link_to('Binaries',
+                              package_binaries_path(project: @project, package: @package, repository: @repository.name, arch: @arch.name)),
+                              truncate(@filename, length: 30))
 -%>
 
 <%= render :partial => "tabs" %>
