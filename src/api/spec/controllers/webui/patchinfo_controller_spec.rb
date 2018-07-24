@@ -64,8 +64,8 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
         post :new_patchinfo, params: { project: other_user.home_project }
       end
 
-      it { expect(response).to redirect_to(project_show_path(other_user.home_project)) }
-      it { expect(flash[:error]).to eq 'No permission to create packages' }
+      it { expect(response).to have_http_status(:redirect) }
+      it { expect(flash[:error]).to eq 'Sorry, you are not authorized to update this Project.' }
     end
 
     context 'when it fails to create the patchinfo package' do
@@ -138,15 +138,27 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
   end
 
   describe 'GET #show' do
-    before do
-      login user
-      get :show, params: { project: user.home_project_name, package: patchinfo_package.name }
+    context 'package do not exist' do
+      before do
+        login user
+        get :show, params: { project: user.home_project_name, package: 'foo' }
+      end
+
+      it { expect(flash[:error]).to eq("Patchinfo 'foo' not found in project '#{user.home_project_name}'") }
+      it { expect(response).to have_http_status(:redirect) }
     end
 
-    it { expect(response).to have_http_status(:success) }
-    it { expect(assigns(:binaries)).to be_a Array }
-    it { expect(assigns(:pkg_names)).to be_empty }
-    it { expect(assigns(:packager)).to eq(user) }
+    context 'project and package exist' do
+      before do
+        login user
+        get :show, params: { project: user.home_project_name, package: patchinfo_package.name }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(assigns(:binaries)).to be_a Array }
+      it { expect(assigns(:pkg_names)).to be_empty }
+      it { expect(assigns(:packager)).to eq(user) }
+    end
   end
 
   describe 'POST #save' do
@@ -271,15 +283,29 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     end
 
     context 'if issues are ok' do
-      before do
-        get :new_tracker, params: { project: user.home_project_name, package: patchinfo_package.name, issues: ['bgo#132412'] }
+      context 'non-cve issues' do
+        before do
+          get :new_tracker, params: { project: user.home_project_name, package: patchinfo_package.name, issues: ['bgo#132412'] }
+        end
+
+        it do
+          expect(JSON.parse(response.body)).to eq('error'  => '',
+                                                  'issues' => [['bgo', '132412', 'https://bugzilla.gnome.org/show_bug.cgi?id=132412', '']])
+        end
+        it { expect(response).to have_http_status(:success) }
       end
 
-      it do
-        expect(JSON.parse(response.body)).to eq('error'  => '',
-                                                'issues' => [['bgo', '132412', 'https://bugzilla.gnome.org/show_bug.cgi?id=132412', '']])
+      context 'cve issues' do
+        before do
+          get :new_tracker, params: { project: user.home_project_name, package: patchinfo_package.name, issues: ['CVE-2010-31337'] }
+        end
+
+        it do
+          expect(JSON.parse(response.body)).to eq('error'  => '',
+                                                  'issues' => [['cve', 'CVE-2010-31337', 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-31337', '']])
+        end
+        it { expect(response).to have_http_status(:success) }
       end
-      it { expect(response).to have_http_status(:success) }
     end
 
     context 'if issues are wrongly formatted' do
@@ -290,5 +316,28 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       it { expect(JSON.parse(response.body)).to eq('error' => "hell is not a valid tracker.\n", 'issues' => []) }
       it { expect(response).to have_http_status(:success) }
     end
+
+    context 'if cve issue are wrong formatted' do
+      before do
+        get :new_tracker, params: { project: user.home_project_name, package: patchinfo_package.name, issues: ['CVE-2017-31337ABC'] }
+      end
+
+      it {
+        error_message = 'cve  has no valid format. (Correct formats are e.g. boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)'
+        expect(JSON.parse(response.body)).to eq('error' =>
+                                                error_message,
+                                                'issues' => [])
+      }
+      it { expect(response).to have_http_status(:success) }
+    end
+  end
+
+  describe 'GET #delete_dialog' do
+    before do
+      login user
+      get :delete_dialog, xhr: true, params: { project: user.home_project_name, package: patchinfo_package.name }
+    end
+
+    it { expect(response).to have_http_status(:success) }
   end
 end
