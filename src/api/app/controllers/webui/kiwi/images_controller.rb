@@ -31,6 +31,7 @@ module Webui
       end
 
       def show
+        switch_to_webui2
         @package = @image.package
         @project = @package.project
         @image.build_description if @image.description.nil?
@@ -52,6 +53,7 @@ module Webui
       end
 
       def edit
+        switch_to_webui2
         @image.build_description if @image.description.nil?
         @image.build_preference(type_image: 'docker') if @image.preference.nil?
         @description = @image.description.specification
