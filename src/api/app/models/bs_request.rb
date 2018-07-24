@@ -75,6 +75,7 @@ class BsRequest < ApplicationRecord
   scope :for_group, ->(params) { BsRequest::FindFor::Group.new(params).all }
   scope :for_project, ->(params) { BsRequest::FindFor::Project.new(params).all }
   scope :find_for, ->(params) { BsRequest::FindFor::Query.new(params).all }
+  scope :obsolete, -> { where(state: OBSOLETE_STATES) }
 
   before_save :assign_number
   has_many :bs_request_actions, -> { includes([:bs_request_action_accept_info]) }, dependent: :destroy
@@ -289,13 +290,6 @@ class BsRequest < ApplicationRecord
     sanitize! if new && !@skip_sanitize
     super
     notify if new
-  end
-
-  # Checks if the request is obsolete
-  #
-  # @return [Boolean] true if the request is declined, superseded or revoked
-  def obsolete?
-    OBSOLETE_STATES.include? state.to_sym
   end
 
   def history_elements

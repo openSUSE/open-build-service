@@ -85,7 +85,7 @@ module ObsFactory
     #
     # @return [ActiveRecord::Relation] Obsolete requests
     def obsolete_requests
-      selected_requests.select(&:obsolete?)
+      selected_requests.obsolete
     end
 
     # Associated openQA jobs.

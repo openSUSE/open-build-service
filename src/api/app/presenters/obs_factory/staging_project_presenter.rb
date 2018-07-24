@@ -67,7 +67,7 @@ module ObsFactory
         unless request_hash[:missing_reviews].blank?
           css = 'review'
         end
-        if req.obsolete?
+        if req.obsolete.exists?
           css = 'obsolete'
         end
         request_hash[:css] = css
