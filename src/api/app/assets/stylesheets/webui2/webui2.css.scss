@@ -11,12 +11,17 @@
  *= require peek
 */
 
-$link-color: #690;
-$link-hover-color: #39c;
-$headings-color: $link-color;
+$body-bg: #f6f6f6;
 $gray-100: #f8f9fa;
-$body-bg: $gray-100;
+$gray-150: #f0f0f0;
 $gray-200: #e9ecef;
+$main_green: #693;
+$main_blue: #069;
+
+$link-hover-color: $main_green;
+$link-color: $main_blue;
+$primary: $main_green;
+$secondary: $main_blue;
 
 @import "font-awesome-sprockets";
 @import 'font-awesome';
