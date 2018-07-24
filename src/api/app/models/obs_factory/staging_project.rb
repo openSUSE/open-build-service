@@ -10,7 +10,6 @@ module ObsFactory
 
     attr_accessor :project, :distribution, :parent
 
-    OBSOLETE_STATES = ['declined', 'superseded', 'revoked'].freeze
     NAME_PREFIX = ":Staging:".freeze
     ADI_NAME_PREFIX = ":Staging:adi:".freeze
 
@@ -86,7 +85,7 @@ module ObsFactory
     #
     # @return [ActiveRecord::Relation] Obsolete requests
     def obsolete_requests
-      selected_requests.select(&:obsolete?)
+      selected_requests.obsolete
     end
 
     # Associated openQA jobs.
