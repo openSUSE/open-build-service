@@ -17,6 +17,8 @@ RSpec.describe Webui::ObsFactory::DistributionsController, type: :controller do
     let(:mock_source_version) { "#{CONFIG['source_url']}/source/#{factory}/000product/openSUSE.product" }
 
     before do
+      stub_request(:get, 'http://download.opensuse.org/tumbleweed/repo/oss/media.1/media').
+        and_return(body: 'openSUSE-20180721-i586-x86_64-Build373.1')
       stub_request(:get, mock_totest_version).and_return(body: '')
       stub_request(:get, mock_source_version).and_return(body: opensuse_product)
       allow(::ObsFactory::OpenqaJob).to receive(:find_all_by).and_return([:fake, :content])
