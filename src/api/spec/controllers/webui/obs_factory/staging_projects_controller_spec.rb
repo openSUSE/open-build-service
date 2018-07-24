@@ -15,10 +15,13 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller d
 
       it { expect(response).to have_http_status(:success) }
       it { expect(response).to render_template(:index) }
-      it { expect(assigns(:backlog_requests_ignored)).to be_empty }
-      it { expect(assigns(:backlog_requests)).to be_empty }
-      it { expect(assigns(:requests_state_new)).to be_empty }
-      it { expect(assigns(:project)).to eq(factory) }
+
+      it 'sets up the required variables' do
+        expect(assigns(:backlog_requests_ignored)).to be_empty
+        expect(assigns(:backlog_requests)).to be_empty
+        expect(assigns(:requests_state_new)).to be_empty
+        expect(assigns(:project)).to eq(factory)
+      end
     end
 
     context 'with dashboard package' do
@@ -71,10 +74,13 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller d
 
           it { expect(response).to have_http_status(:success) }
           it { expect(response).to render_template(:index) }
-          it { expect(assigns(:backlog_requests_ignored)).to contain_exactly(create_review_requests.first) }
-          it { expect(assigns(:backlog_requests)).to contain_exactly(create_review_requests.last) }
-          it { expect(assigns(:requests_state_new)).to contain_exactly(create_review_requests_in_state_new.last) }
-          it { expect(assigns(:project)).to eq(factory) }
+
+          it 'sets up the required variables' do
+            expect(assigns(:backlog_requests_ignored)).to contain_exactly(create_review_requests.first)
+            expect(assigns(:backlog_requests)).to contain_exactly(create_review_requests.last)
+            expect(assigns(:requests_state_new)).to contain_exactly(create_review_requests_in_state_new.last)
+            expect(assigns(:project)).to eq(factory)
+          end
         end
 
         context 'without content' do
@@ -87,10 +93,13 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller d
 
           it { expect(response).to have_http_status(:success) }
           it { expect(response).to render_template(:index) }
-          it { expect(assigns(:backlog_requests_ignored)).to be_empty }
-          it { expect(assigns(:backlog_requests)).to be_empty }
-          it { expect(assigns(:requests_state_new)).to be_empty }
-          it { expect(assigns(:project)).to eq(factory) }
+
+          it 'sets up the required variables' do
+            expect(assigns(:backlog_requests_ignored)).to be_empty
+            expect(assigns(:backlog_requests)).to be_empty
+            expect(assigns(:requests_state_new)).to be_empty
+            expect(assigns(:project)).to eq(factory)
+          end
         end
       end
     end
