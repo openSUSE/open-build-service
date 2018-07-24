@@ -1,0 +1,22 @@
+%li.nav-item
+  = link_to(home_path, id: 'link-to-user-home', class: 'nav-link') do
+    = User.current.login
+%li.nav-item
+  - tasks = User.current.tasks
+  = link_to(user_tasks_path, class: 'nav-link') do
+    - if tasks.positive?
+      %span{title: 'where an action is requested from you' }
+        = pluralize(tasks, 'Task')
+    - else
+      Tasks
+%li.nav-item
+  - if User.current.home_project
+    = link_to(project_show_path(User.current.home_project), class: 'nav-link') do
+      Home Project
+  - else
+    = link_to(new_project_path(name: User.current.home_project_name), class: 'nav-link') do
+      Create Home
+%li.nav-item
+  = link_to(session_destroy_path, method: :delete, id: 'logout-link', class: 'nav-link') do
+    Logout
+

@@ -25,7 +25,9 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
 
       login(user)
       visit root_path
-      find('.proceed_text > a', text: 'New Image').click
+      within('#proceed-list') do
+        click_link('New Image', match: :first)
+      end
 
       expect(page).to have_text(package1.title)
       expect(page).to have_selector("input[data-package='#{package1}']:checked", visible: false)
@@ -52,7 +54,9 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
 
       login(user)
       visit root_path
-      find('.proceed_text > a', text: 'New Image').click
+      within('#proceed-list') do
+        click_link('New Image', match: :first)
+      end
 
       expect(page).to have_text(package1.title)
       expect(page).to have_selector("input[data-package='#{package1}']:checked", visible: false)
@@ -83,8 +87,6 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
 
       scenario 'disabled' do
         Feature.run_with_deactivated(:image_templates) do
-          visit root_path
-          expect(page).to have_link('New Image')
           visit image_templates_path
           # should be controller test
           expect(page).not_to have_content 'Sorry but the page you are looking for'

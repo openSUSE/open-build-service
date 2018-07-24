@@ -1,0 +1,15 @@
+.card.mb-3
+  .card-header.d-flex.justify-content-between
+    %h5
+      News
+    .float-right
+      = link_to(news_feed_path(format: 'rss'), title: 'RSS Feed') do
+        %i.fa.fa-rss
+  - @status_messages.each do |message|
+    = render partial: 'status_messages/card', locals: { message: message }
+  - if User.current.is_admin?
+    .card-footer
+      = link_to('#', 'data-toggle': 'modal', 'data-target': '#status-message-modal') do
+        %i.fa.fa-comment
+        Add new status message
+    = render partial: 'add_status_message_modal'

@@ -1,0 +1,20 @@
+%li
+  = link_to 'Sign Up', "#{CONFIG['proxy_auth_register_page']}?%22"
+%li
+  = link_to 'Log In', session_new_path, id: 'login-trigger'
+%li
+.login-form
+  = form_tag(CONFIG['proxy_auth_login_page'], method: :post, id: 'login_form', enctype: 'application/x-www-form-urlencoded') do
+    %p
+      = hidden_field_tag(:context, 'default')
+      = hidden_field_tag(:proxypath, 'reserve')
+      = hidden_field_tag(:message, 'Please log in')
+      = hidden_field_tag(:url, request.fullpath)
+      = label_tag(:username, 'Username')
+      = text_field_tag(:username, '')
+    %p
+      = label_tag(:password, 'Password')
+      = password_field_tag(:password, '')
+    %p= submit_tag('Log In', onclick: 'fillEmptyFields();')
+    %p.slim-footer= link_to('Cancel', '#', id: 'close-login')
+

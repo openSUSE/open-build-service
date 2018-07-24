@@ -1,0 +1,10 @@
+- if User.current.is_admin?
+  = render partial: 'admin_proceed-list'
+- else
+  = render partial: 'user_proceed-list'
+- unless @spider_bot
+  .col
+    = link_to(monitor_path, class: 'btn btn-default') do
+      %i.fas.fa-heartbeat
+      %br
+      Status Monitor

@@ -41,5 +41,6 @@ class Webui::MainController < Webui::WebuiController
       sysstats[:users] = User.count
       sysstats
     end
+    switch_to_webui2
   end
 end
