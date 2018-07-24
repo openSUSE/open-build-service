@@ -1,0 +1,26 @@
+.card
+  %h2.card-header Edit Kiwi Details
+
+  .card-body
+    %p
+      = f.label :name
+      = f.text_field :name, data: { default: f.object.name }, class: 'form-control'
+
+    %p
+      = f.fields_for :description, f.object.description do |description_fields|
+        %p
+          = description_fields.label :author
+          = description_fields.text_field :author, data: { default: description_fields.object.author }, class: 'form-control'
+        %p
+          = description_fields.label :contact
+          = description_fields.text_field :contact, data: { default: description_fields.object.contact }, class: 'form-control'
+        %p
+          = description_fields.label :specification
+          = description_fields.text_field :specification, data: { default: description_fields.object.specification }, class: 'form-control'
+
+    .alert.alert-danger#flash-messages
+      Kiwi Image name can not be empty!
+
+  .card-footer.d-flex
+    = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog btn btn-secondary ml-auto')
+    = link_to('Continue', '#', title: 'Continue', class: 'close-description-dialog btn btn-primary ml-3')

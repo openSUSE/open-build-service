@@ -1,0 +1,24 @@
+= content_for :ready_function do
+  $("#kiwi_details_trigger").click(function() {
+  $("#kiwi-image-details-section").show();
+  $("#kiwi-preferences").show();
+  $(".detailed-info").show();
+  $("#kiwi-image-repositories-section").hide();
+  $("#kiwi-image-packages-section").hide();
+  });
+  
+  $("#kiwi_software_trigger").click(function() {
+  $("#kiwi-image-repositories-section").show();
+  $("#kiwi-image-packages-section").show();
+  $("#kiwi-preferences").hide();
+  $(".detailed-info").hide();
+  $("#kiwi-image-details-section").hide();
+  });
+- kiwi_image_breadcrumb(@image, @image.name)
+.bg-light
+  %ul.nav.nav-tabs.pt-2.px-3
+    = content_tag('li', link_to('Overview', {controller: 'kiwi/images', action: 'show'}, class: "nav-link #{'active' if  action_name == 'show'}"), class: "nav-item" )
+    - link_to_details =  (action_name == 'edit') ? '#' : { controller: 'kiwi/images', action: 'edit', section: 'details' }
+    - link_to_software =  (action_name == 'edit') ? '#' : { controller: 'kiwi/images', action: 'edit', section: 'software' }
+    = content_tag('li', link_to('Details', link_to_details, { id: "kiwi_details_trigger", class: "nav-link #{'active' if @is_edit_details_action}"}), id: "kiwi_details_tab", class: "nav-item" )
+    = content_tag('li', link_to('Software', link_to_software, { id: "kiwi_software_trigger", class: "nav-link #{'active' if @is_edit_software_action}"}), id: "kiwi_software_tab", class: "nav-item" )

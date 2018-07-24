@@ -1,0 +1,45 @@
+.card-body
+  %h2#image-name
+    Preferences
+  %ul.nav.flex-column
+    %li.nav-item
+      %strong Image type:
+      %span.fill{ data: { tag: 'type_image' }}= @image.preference.type_image
+    %li.nav-item
+      %strong Version:
+      %span.fill{ data: { tag: 'version' }}= @image.preference.version
+    - if @image.preference.containerconfig_fields_editable?
+      %li.nav-item
+        %strong Container config name:
+        %span.fill{ data: { tag: 'type_containerconfig_name' }}= @image.preference.type_containerconfig_name
+      %li.nav-item
+        %strong Container config tag:
+        %span.fill{ data: { tag: 'type_containerconfig_tag' }}= @image.preference.type_containerconfig_tag
+  .row
+    = link_to image_tag('icons/package_edit', title: 'Edit preferences') + ' Edit preferences', '#preferencesCollapse', class: "nav-link", "aria-expanded": "false", "aria-controlls": "preferencesCollapse", "data-toggle": "collapse"
+
+  .collapse#preferencesCollapse
+    .card
+      %h5.card-header Edit Kiwi Preferences
+
+      .card-body
+        %p
+          = f.fields_for :preference, f.object.preference do |preference_fields|
+            %p
+              = preference_fields.label :version, 'Version (must be in form Major.Minor.Release)'
+              = preference_fields.text_field :version, data: { default: preference_fields.object.version }, class: 'form-control'
+            - if @image.preference.containerconfig_fields_editable?
+              %p
+                = preference_fields.label :type_containerconfig_name, 'Container Config Name'
+                = preference_fields.text_field :type_containerconfig_name, data: { default: preference_fields.object.type_containerconfig_name }, class: 'form-control'
+              %p
+                = preference_fields.label :type_containerconfig_tag, 'Container Config Tag'
+                = preference_fields.text_field :type_containerconfig_tag, data: { default: preference_fields.object.type_containerconfig_tag }, class: 'form-control'
+
+      %p#flash-messages
+        %p.alert.alert-danger{ style: 'display: none' }
+          Kiwi Image name can not be empty!
+
+      .card-footer.d-flex
+        = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog btn btn-secondary ml-auto')
+        = link_to('Continue', '#', title: 'Continue', class: 'close-preferences-dialog btn btn-primary ml-3')

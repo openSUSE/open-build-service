@@ -1,0 +1,37 @@
+.d-inline-block
+  %div{ class: "kiwi_list_item #{'has-error' if f.object.errors.present?}"}
+    %span
+      = link_to "##{f.object.name}", "aria-expanded": "false", "aria-controlls": "#{f.object.name}", "data-toggle": "collapse", class: "package_edit kiwi_element_name" do
+        = f.object.name
+        - if f.object.arch.present?
+          %small (#{f.object.arch})
+    %span.kiwi_actions{style: 'display: none'}
+      = link_to_remove_association image_tag("icons/req-decline", title: 'remove'), f
+
+  .collapse{id: "#{f.object.name}", class: "#{'new_element' if f.object.new_record?}"}
+    .card
+      %h5.card-header #{f.object.name.present? ? 'Edit' : 'Add'} package
+
+      .card-body
+        %p
+          = f.label :name, 'Name:'
+          = f.text_field :name, data: { ajaxurl: url_for(controller: '/webui/kiwi/images', action: 'autocomplete_binaries'), default: f.object.name }, class: 'form-control'
+        .form-inline
+          = f.label :arch, 'Arch:'
+          = f.text_field :arch, data: { default: f.object.arch }, class: 'form-control mx-2'
+          = f.label :replaces, 'Replaces:'
+          = f.text_field :replaces, data: { default: f.object.replaces }, class: 'form-control mx-2'
+        .custom-control.custom-checkbox
+          = f.check_box :bootinclude, data: { default: f.object.bootinclude }, class: 'custom-control-input'
+          = f.label :bootinclude, class: 'custom-control-label'
+        .custom-control.custom-checkbox
+          = f.check_box :bootdelete, data: { default: f.object.bootdelete }, class: 'custom-control-input'
+          = f.label :bootdelete, class: 'custom-control-label'
+
+        %p#flash-messages
+          %p.alert.alert-danger{style: 'display: none'}
+            The name can not be empty!
+
+      .card-footer.d-flex
+        = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog btn btn-secondary ml-auto')
+        = link_to('Continue', '#', title: 'Continue', class: 'close-dialog btn btn-primary ml-3')

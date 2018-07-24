@@ -21,7 +21,11 @@
 //= require jquery.flot.time
 //= require jquery.flot.stack.js
 //= require jquery_ujs
+<<<<<<< HEAD
+//= require webui/application/datatables
+=======
 //= require datatables/jquery.dataTables
+>>>>>>> Introduce webui2 version of kiwi images
 //= require cocoon
 //= require moment
 //= require mousetrap
