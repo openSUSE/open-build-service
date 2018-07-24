@@ -27,7 +27,7 @@ RSpec.describe ObsFactory::DistributionStrategyOpenSUSELeap15 do
   end
 
   describe '#openqa_iso_prefix' do
-    it { expect(strategy.openqa_iso_prefix).to eq('openSUSE-Leap-15.1-Staging') }
+    it { expect(strategy.openqa_iso_prefix).to eq('openSUSE-Leap:15.1-Staging') }
   end
 
   describe '#published_arch' do
