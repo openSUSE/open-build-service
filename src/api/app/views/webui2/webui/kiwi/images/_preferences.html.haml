@@ -16,9 +16,9 @@
         %strong Container config tag:
         %span.fill{ data: { tag: 'type_containerconfig_tag' }}= @image.preference.type_containerconfig_tag
   .row
-    = link_to image_tag('icons/package_edit', title: 'Edit preferences') + ' Edit preferences', '#preferencesCollapse', class: "nav-link", "aria-expanded": "false", "aria-controlls": "preferencesCollapse", "data-toggle": "collapse"
+    = link_to image_tag('icons/package_edit', title: 'Edit preferences') + ' Edit preferences', '#preferences-collapse', class: "nav-link", "aria-expanded": "false", "aria-controlls": "preferences-collapse", "data-toggle": "collapse"
 
-  .collapse#preferencesCollapse
+  .collapse#preferences-collapse
     .card
       %h5.card-header Edit Kiwi Preferences
 
