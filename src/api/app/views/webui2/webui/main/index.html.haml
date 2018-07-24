@@ -7,7 +7,7 @@
         %h2
           Welcome to #{@configuration['title']}
         = raw @configuration['description']
-        .row.no-gutters#proceed-list
+        .row.no-gutters.text-center#proceed-list
           = render partial: 'proceed-list'
     = render partial: 'systemstatus'
   .col-md-4

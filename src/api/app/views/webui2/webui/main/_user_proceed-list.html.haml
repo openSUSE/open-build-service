@@ -1,22 +1,22 @@
 - unless User.current.is_nobody?
   .col
     = link_to(user_show_path(User.current), class: 'btn btn-default') do
-      %i.fas.fa-home
+      %i.fas.fa-home.fa-2x
       %br
       Your Home
 .col
   = link_to(projects_path, class: 'btn btn-default') do
-    %i.fas.fa-list
+    %i.fas.fa-list.fa-2x
     %br
     All Projects
 .col
   = link_to(new_project_path, ns: User.current.home_project_name, class: 'btn btn-default') do
-    %i.fas.fa-plus-square
+    %i.fas.fa-plus-square.fa-2x
     %br
     New Project
 - if Feature.active?(:image_templates)
   .col
     = link_to(image_templates_path, class: 'btn btn-default', title: 'New Image') do
-      %i.fas.fa-compact-disc
+      %i.fas.fa-compact-disc.fa-2x
       %br
       New Image
