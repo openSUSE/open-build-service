@@ -1,7 +1,9 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller do
+RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, vcr: true do
+  render_views
+
   let(:factory) { create(:project, name: 'openSUSE:Factory') }
   let!(:factory_staging_a) { create(:project, name: 'openSUSE:Factory:Staging:A', description: 'Factory staging project A') }
 
