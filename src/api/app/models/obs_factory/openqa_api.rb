@@ -45,16 +45,14 @@ module ObsFactory
     # A get that follows redirects - openqa redirects to https
     def _get(uri, counter_redirects)
       req_path = uri.path
-      req_path << "?" + uri.query if uri.query.present?
+      req_path << "?#{uri.query}" if uri.query.present?
       req = Net::HTTP::Get.new(req_path)
       resp = Net::HTTP.start(uri.host, use_ssl: uri.scheme == "https") { |http| http.request(req) }
       # Prevent endless loop in case response is always 301 or 302
-      unless counter_redirects >= 5
-        if resp.code.to_i == 302 or resp.code.to_i == 301
-          counter_redirects += 1
-          Rails.logger.debug "following to #{resp.header['location']}"
-          return _get(URI.parse(resp.header['location']), counter_redirects)
-        end
+      if counter_redirects < 5 && resp.code.to_i.in?([302, 301])
+        counter_redirects += 1
+        Rails.logger.debug "following to #{resp.header['location']}"
+        return _get(URI.parse(resp.header['location']), counter_redirects)
       end
       return resp
     end
