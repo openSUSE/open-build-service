@@ -492,7 +492,7 @@ done
 
 if [ ! -s %{secret_key_file} ]; then
   pushd /srv/www/obs/api
-  RAILS_ENV=production bundle.ruby2.5 exec rails secret > %{secret_key_file}
+  RAILS_ENV=production bin/rails secret > %{secret_key_file}
   popd
 fi
 chmod 0640 %{secret_key_file}
