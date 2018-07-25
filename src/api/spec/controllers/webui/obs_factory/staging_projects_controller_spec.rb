@@ -125,15 +125,32 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
     end
 
     context 'with a existent factory_staging_project' do
-      subject { get :show, params: { project: factory, project_name: 'A' } }
-
       before do
         bs_request.update(state: 'declined')
         factory_staging_a.update(description: description)
       end
 
-      it { expect(subject).to have_http_status(:success) }
-      it { expect(subject).to render_template(:show) }
+      context 'requesting html' do
+        subject { get :show, params: { project: factory, project_name: 'A' } }
+
+        it { expect(subject).to have_http_status(:success) }
+        it { expect(subject).to render_template(:show) }
+      end
+
+      context 'requesting json' do
+        subject { get :show, params: { project: factory, project_name: 'A' }, format: :json }
+
+        it { is_expected.to have_http_status(:success) }
+        it 'responds with a json representation of the staging project' do
+          response = JSON.parse(subject.body)
+          expect(response).to include(
+            'name'              => 'openSUSE:Factory:Staging:A',
+            'description'       => description,
+            'obsolete_requests' => [JSON.parse(bs_request.to_json)],
+            'overall_state'     => 'unacceptable'
+          )
+        end
+      end
     end
 
     context 'with a non-existent factory_staging_project' do
