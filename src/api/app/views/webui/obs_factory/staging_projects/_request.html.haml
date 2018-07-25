@@ -1,5 +1,5 @@
 %li{class: "#{request[:css]} #{request[:request_type]} request"}
-  = link_to request[:package], main_app.request_show_path(request[:number])
+  = link_to request[:package], request_show_path(request[:number])
   - mrs = request[:missing_reviews] || []
   - mrs.each do |mr|
-    = link_to content_tag(:i, nil, class: "fa-#{mr[:icon]} fa missing_review"), main_app.request_show_path(request[:number])
+    = link_to content_tag(:i, nil, class: "fa-#{mr[:icon]} fa missing_review"), request_show_path(request[:number])

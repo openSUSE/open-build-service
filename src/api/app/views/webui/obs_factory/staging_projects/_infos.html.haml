@@ -3,7 +3,7 @@
 
   %p Empty Projects:
   - empties = @staging_projects.select { |p| p.overall_state == :empty && p.name =~ /Staging:[A-Z]?$/ }
-  - empties = empties.map { |p| link_to(p.letter, main_app.project_show_path(p.name)) }
+  - empties = empties.map { |p| link_to(p.letter, project_show_path(p.name)) }
 
   %p
     - if empties.empty?
@@ -11,7 +11,7 @@
     - else
       = empties.sort.join(' &ndash; ').html_safe
 
-  %p= link_to 'Backlog:', main_app.group_show_path(title: @distribution.staging_manager)
+  %p= link_to 'Backlog:', group_show_path(title: @distribution.staging_manager)
   - if @backlog_requests.empty?
     %p
       %i Empty
@@ -19,7 +19,7 @@
     %ul.staging_backlog
       - @backlog_requests.each_with_index do |req,counter|
         %li
-          = link_to elide(req.first_target_package, length = 19), main_app.request_show_path(req.number)
+          = link_to elide(req.first_target_package, length = 19), request_show_path(req.number)
         - if counter > 5 && @backlog_requests.size > counter + 1
           %li ... #{@backlog_requests.size - counter} more
           - break
@@ -32,7 +32,7 @@
     %ul.staging_backlog
       - @requests_state_new.each_with_index do |req,counter|
         %li
-          = link_to elide(req.first_target_package, length = 19), main_app.request_show_path(req.number)
+          = link_to elide(req.first_target_package, length = 19), request_show_path(req.number)
         - if counter > 5 && @requests_state_new.size > counter + 1
           %li ... #{@requests_state_new.size - counter} more
           - break
@@ -42,7 +42,7 @@
     %ul.staging_backlog_ignored
       - @backlog_requests_ignored.each_with_index do |req,counter|
         %li
-          = link_to elide(req.first_target_package, length = 19), main_app.request_show_path(req.number), title: @ignored_requests[req.number]
+          = link_to elide(req.first_target_package, length = 19), request_show_path(req.number), title: @ignored_requests[req.number]
         - if counter > 5 && @backlog_requests_ignored.size > counter + 1
           %li ... #{@backlog_requests_ignored.size - counter} more
           - break

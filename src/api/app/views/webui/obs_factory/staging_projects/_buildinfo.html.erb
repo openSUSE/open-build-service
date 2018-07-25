@@ -6,7 +6,7 @@
 <% else %>
   <% building = project.building_repositories.map do |repo| %>
     <% link_to "#{repo['repository']}-#{repo['arch']} (#{repo['state']})".html_safe,
-                main_app.project_repository_state_url(project.name, repo['repository']) %>
+                project_repository_state_url(project.name, repo['repository']) %>
   <% end %>
   <%= building.to_sentence.html_safe %>
 <% end %>
@@ -19,7 +19,7 @@
 <% else %>
   <% broken = project.broken_packages.map do |pack| %>
     <% link_to "#{pack['package']} (#{pack['state']})".html_safe,
-              main_app.package_show_url(project.name, pack['package']) %>
+              package_show_url(project.name, pack['package']) %>
   <% end %>
   <%= broken.to_sentence.html_safe %>
 <% end %>
