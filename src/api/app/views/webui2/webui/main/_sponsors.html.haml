@@ -2,7 +2,8 @@
   - sponsor = CONFIG['sponsors'].sample
   .card.mb-3
     %h5.card-header Sponsor
-    .card-body
-      = link_to(sprite_tag(sponsor['icon']), sponsor['url'], { title: sponsor['name'] })
-      %p
-        %em= sponsor['description']
+    .card-body.text-center
+      %figure.figure.mb-0
+        = link_to(sprite_tag(sponsor['icon'], class: 'figure-img img-fluid'), sponsor['url'], { title: sponsor['name'] })
+        %figcaption.figure-caption
+          = sponsor['description']
