@@ -11,4 +11,8 @@
     & .nav-link {
         padding: 0.5rem 0.6rem;
     }
+
+    .nav-pills .show > .nav-link {
+        color: #fff !important;
+    }
 }
