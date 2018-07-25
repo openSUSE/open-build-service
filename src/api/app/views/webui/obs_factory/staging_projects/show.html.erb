@@ -40,7 +40,7 @@
           None.
         <% else %>
           <% missing = @staging_project.missing_reviews.map do |rev| %>
-            <% link_to "#{rev[:package]} by #{rev[:by]}".html_safe, main_app.request_show_url(number: rev[:request]) %>
+            <% link_to "#{rev[:package]} by #{rev[:by]}".html_safe, request_show_url(number: rev[:request]) %>
           <% end %>
           <%= missing.to_sentence.html_safe %>.
         <% end %>
