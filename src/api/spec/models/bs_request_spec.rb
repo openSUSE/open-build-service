@@ -499,4 +499,50 @@ RSpec.describe BsRequest, vcr: true do
       it { expect { subject.save! }.to raise_error BsRequestAction::LackingMaintainership }
     end
   end
+
+  describe '::in_state_new' do
+    let(:reviewer) { create(:confirmed_user, login: 'reviewer') }
+    let(:group) { create(:group, title: 'request_reviewer') }
+    let(:source_project) { create(:project_with_package, name: 'source_project') }
+    let(:target_project) { create(:project_with_package, name: 'target_project') }
+    let(:target_package) { target_project.packages.first }
+    let!(:bs_request) do
+      create(:review_bs_request,
+             target_project: target_project,
+             target_package: target_package,
+             source_project: source_project,
+             source_package: source_project.packages.first,
+             reviewer: reviewer.login)
+    end
+
+    context "when request state is not 'new'" do
+      subject { BsRequest.in_state_new(by_user: reviewer.login) }
+
+      it { expect(subject).to be_empty }
+    end
+
+    context "when request state is 'new'" do
+      before do
+        bs_request.update(state: 'new')
+      end
+
+      it 'queries requests with reviews by user' do
+        expect(BsRequest.in_state_new(by_user: reviewer.login)).to contain_exactly(bs_request)
+      end
+
+      it 'queries requests with reviews by group' do
+        bs_request.reviews.create!(by_group: group.title)
+        expect(BsRequest.in_state_new(by_group: group.title)).to contain_exactly(bs_request)
+      end
+
+      it 'queries requests with reviews by package' do
+        bs_request.reviews.create!(by_package: target_package, by_project: target_project)
+        expect(BsRequest.in_state_new(by_package: target_package.name)).to contain_exactly(bs_request)
+      end
+
+      it 'queries requests with reviews by target project of bs request' do
+        expect(BsRequest.in_state_new(target_project: target_project.name)).to contain_exactly(bs_request)
+      end
+    end
+  end
 end
