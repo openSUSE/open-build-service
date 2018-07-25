@@ -275,12 +275,11 @@ class BsRequest < ApplicationRecord
   end
 
   def self.in_state_new(props)
-    conds = props.dup
-    target_project = conds.delete(:target_project)
+    conds = props.slice(:by_project, :by_group, :by_user, :by_package)
 
     reviews = Review.where(conds).where('bs_requests.state': 'new').
       includes(bs_request: [:reviews, :bs_request_actions])
-    reviews = reviews.where('bs_request_actions.target_project': target_project) if target_project
+    reviews = reviews.where('bs_request_actions.target_project': conds[:target_project]) if conds[:target_project]
     reviews.map(&:bs_request)
   end
 
