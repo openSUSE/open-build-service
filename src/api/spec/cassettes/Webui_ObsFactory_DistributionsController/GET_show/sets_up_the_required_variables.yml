@@ -1,0 +1,264 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title>Antic Hay</title>
+          <description>Factory staging project A</description>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '137'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title>Antic Hay</title>
+          <description>Factory staging project A</description>
+        </project>
+    http_version: 
+  recorded_at: Tue, 24 Jul 2018 07:53:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Rings:0-Bootstrap/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Rings:0-Bootstrap">
+          <title>Butter In a Lordly Dish</title>
+          <description>Factory ring project</description>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Rings:0-Bootstrap">
+          <title>Butter In a Lordly Dish</title>
+          <description>Factory ring project</description>
+        </project>
+    http_version: 
+  recorded_at: Tue, 24 Jul 2018 07:53:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Rings:1-MinimalX/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Rings:1-MinimalX">
+          <title>The Heart Is a Lonely Hunter</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '138'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Rings:1-MinimalX">
+          <title>The Heart Is a Lonely Hunter</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Tue, 24 Jul 2018 07:53:59 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>Death Be Not Proud</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>Death Be Not Proud</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Tue, 24 Jul 2018 07:53:59 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/openSUSE:Factory:Rings:0-Bootstrap/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Tue, 24 Jul 2018 07:53:59 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/openSUSE:Factory:Rings:1-MinimalX/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Tue, 24 Jul 2018 07:53:59 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/openSUSE:Factory/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Tue, 24 Jul 2018 07:53:59 GMT
+recorded_with: VCR 4.0.0
