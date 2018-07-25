@@ -1,7 +1,5 @@
 module ObsFactory
-
   class DistributionStrategyCasp < DistributionStrategyFactory
-
     def casp_version
       match = project.name.match(/^SUSE:SLE-12-SP.*CASP(\d*)/ )
       match[1]
@@ -30,11 +28,9 @@ module ObsFactory
     #
     # @return [String] file name
     def project_iso(project)
-      arch = self.arch
       buildresult = Buildresult.find_hashed(project: project.name, package: "CAASP-dvd5-DVD-#{arch}",
                                             repository: 'images',
                                             view: 'binarylist')
-      binaries = []
       # we get multiple architectures, but only one with binaries
       buildresult.elements('result') do |r|
         r['binarylist'].elements('binary') do |b|
@@ -43,6 +39,5 @@ module ObsFactory
       end
       nil
     end
-
   end
 end
