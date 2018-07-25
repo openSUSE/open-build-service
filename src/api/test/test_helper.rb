@@ -195,7 +195,10 @@ module Webui
     # Make the Capybara DSL available
     include Capybara::DSL
 
-    def login_user(user, password, opts = {})
+    def login_king(opts = {})
+      user = 'king'
+      password = 'sunflower'
+      opts[:do_assert] = false
       # no idea why calling it twice would help
       WebMock.disable_net_connect!(allow_localhost: true)
       visit session_new_path
@@ -213,47 +216,8 @@ module Webui
       prepare_request_with_user(user, password)
     end
 
-    # will provide a user without special permissions
-    def login_tom(opts = {})
-      login_user('tom', 'buildservice', opts)
-    end
-
-    def login_Iggy(opts = {})
-      login_user('Iggy', 'buildservice', opts)
-    end
-
-    def login_adrian(opts = {})
-      login_user('adrian', 'buildservice', opts)
-    end
-
-    def login_king(opts = {})
-      login_user('king', 'sunflower', opts.merge(do_assert: false))
-    end
-
-    def login_fred(opts = {})
-      login_user('fred', 'buildservice', opts)
-    end
-
-    def login_dmayr(opts = {})
-      login_user 'dmayr', 'buildservice', opts
-    end
-
-    def logout
-      @current_user = nil
-      ll = page.first('#logout-link')
-      ll.click if ll
-    end
-
     def current_user
       @current_user
-    end
-
-    def self.load_fixture(path)
-      File.open(File.join(ActionController::TestCase.fixture_path, path)).read
-    end
-
-    def self.load_backend_file(path)
-      load_fixture("backend/#{path}")
     end
 
     self.use_transactional_tests = true
@@ -264,14 +228,9 @@ module Webui
       # crude work around - one day I will dig into why this is necessary
       Minitest::Spec.new('MINE') unless Minitest::Spec.current
       Backend::Test.start
-      # Capybara.current_driver = Capybara.javascript_driver
       @starttime = Time.now
       WebMock.disable_net_connect!(allow_localhost: true)
       CONFIG['global_write_through'] = true
-    end
-
-    def use_js
-      Capybara.current_driver = Capybara.javascript_driver
     end
 
     teardown do
@@ -288,85 +247,6 @@ module Webui
       Rails.cache.clear
       WebMock.reset!
       ActiveRecord::Base.clear_active_connections!
-
-      DatabaseCleaner.clean_with :deletion unless run_in_transaction?
-
-      # puts "#{self.__name__} took #{Time.now - @starttime}"
-    end
-
-    def fill_autocomplete(field, options = {})
-      fill_in field, with: options[:with]
-
-      page.execute_script "$('##{field}').trigger('focus')"
-      page.execute_script "$('##{field}').trigger('keydown')"
-
-      page.must_have_selector('ul.ui-autocomplete li.ui-menu-item a')
-      ret = []
-      all('ul.ui-autocomplete li.ui-menu-item a').each do |l|
-        ret << l.text
-      end
-      ret.must_include options[:select]
-      page.execute_script "select_from_autocomplete('#{options[:select]}')"
-      ret
-    end
-
-    # ============================================================================
-    # Checks if a flash message is displayed on screen
-    #
-    def flash_message_appeared?
-      flash_message_type != nil
-    end
-
-    # ============================================================================
-    # Returns the text of the flash message currenlty on screen
-    # @note Doesn't fail if no message is on screen. Returns empty string instead.
-    # @return [String]
-    #
-    def flash_message
-      results = all(:css, 'div#flash-messages p')
-      return 'none' if results.empty?
-      if results.count > 1
-        texts = results.map(&:text)
-        raise "One flash expected, but we had #{texts.inspect}"
-      end
-      results.first.text
-    end
-
-    # ============================================================================
-    # Returns the text of the flash messages currenlty on screen
-    # @note Doesn't fail if no message is on screen. Returns empty list instead.
-    # @return [array]
-    #
-    def flash_messages
-      results = all(:css, 'div#flash-messages p')
-      ret = []
-      results.each { |r| ret << r.text }
-      ret
-    end
-
-    # ============================================================================
-    # Returns the type of the flash message currenlty on screen
-    # @note Does not fail if no message is on screen! Returns nil instead!
-    # @return [:info, :alert]
-    #
-    def flash_message_type
-      result = first(:css, 'div#flash-messages span')
-      return unless result
-      return :info if result['class'].include? 'info'
-      return :alert if result['class'].include? 'alert'
-    end
-
-    # helper function for teardown
-    def delete_package(project, package)
-      visit package_show_path(package: package, project: project)
-      find(:id, 'delete-package').click
-      find(:id, 'del_dialog').must_have_text 'Do you really want to delete this package?'
-      find_button('Ok').click
-      find('#flash-messages').must_have_text 'Package was successfully removed.'
-    end
-
-    def valid_xml_id(rawid)
-      Webui::WebuiController.new.valid_xml_id(rawid)
     end
   end
 end
