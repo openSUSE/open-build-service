@@ -4,7 +4,7 @@
   = render partial: 'user_proceed-list'
 - unless @spider_bot
   .col
-    = link_to(monitor_path, class: 'btn btn-default') do
-      %i.fas.fa-heartbeat.fa-2x
+    = link_to(monitor_path, class: 'btn btn-default', title: 'See the status of the builds') do
+      %i.fas.fa-heartbeat.fa-2x.text-danger
       %br
       Status Monitor
