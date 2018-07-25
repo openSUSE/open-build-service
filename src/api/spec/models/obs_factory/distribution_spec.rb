@@ -68,22 +68,6 @@ RSpec.describe ObsFactory::Distribution do
     it { expect(distribution.description).to eq(project.description) }
   end
 
-  describe '#published_version' do
-    let(:backend_url) { 'http://download.opensuse.org/tumbleweed/repo/oss/media.1/media' }
-    let(:backend_response) do
-      %(openSUSE - openSUSE-20180606-i586-x86_64-Build261.1-Media
-openSUSE-20180606-i586-x86_64-Build261.1
-1
-)
-    end
-
-    before do
-      stub_request(:get, backend_url).and_return(body: backend_response)
-    end
-
-    it { expect(distribution.published_version).to eq('20180606') }
-  end
-
   describe '#staging_projects' do
     context 'with staging projects' do
       let!(:staging_project) { create(:project, name: 'openSUSE:Factory:Staging') }
@@ -244,5 +228,29 @@ openSUSE-20180606-i586-x86_64-Build261.1
     it { expect(distribution.rings_project_name).to eq('openSUSE:Factory:Rings') }
   end
 
-  # TODO: OpenQA => openqa_filter and openqa_jobs_for
+  describe '#openqa_filter' do
+    let(:staging_project_a) { create(:project, name: 'openSUSE:Factory:Staging:A') }
+    let(:staging_project) { ObsFactory::StagingProject.new(project: staging_project_a, distribution: distribution) }
+
+    it { expect(distribution.openqa_filter(staging_project)).to eq('match=Staging:A') }
+  end
+
+  describe '#openqa_jobs_for' do
+    before do
+      allow(ObsFactory::OpenqaJob).to receive(:find_all_by)
+    end
+
+    shared_examples 'calls find_all_by' do |version, expected_build|
+      it "performs find_all_by with #{version} version" do
+        allow(distribution).to receive("#{version}_version").and_return(expected_build)
+        distribution.openqa_jobs_for(version)
+        expect(ObsFactory::OpenqaJob).to have_received(:find_all_by).with({ distri: 'opensuse', version: 'Tumbleweed', build: expected_build, group: 'openSUSE Tumbleweed' },
+                                                                          exclude_modules: true)
+      end
+    end
+
+    include_examples 'calls find_all_by', 'totest', '20180701'
+    include_examples 'calls find_all_by', 'published', '20180702'
+    include_examples 'calls find_all_by', 'source', '20180703'
+  end
 end
