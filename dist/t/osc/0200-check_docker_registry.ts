@@ -62,8 +62,9 @@ SKIP: {
     last if $timeout < 1;
     sleep 1;
   }
+  my $expected = qr{basecontainer/images/(?:x86_64/)?opensuse};
 
-  is($repo, "basecontainer/images/opensuse", "Found repository 'basecontainer/images/opensuse' in registry");
+  like($repo, $expected, "Checking upload to registry");
 }
 
 exit 0;

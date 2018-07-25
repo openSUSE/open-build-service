@@ -754,7 +754,7 @@ if (open(FILE, "<", "/proc/cpuinfo")) {
       # aarch64
       my @cpuflags = split(' ', $1);
       $hw->{'cpu'}->{'flag'} = \@cpuflags;
-    } elsif (/^CPU implementer\s*:\s0x43/) {
+    } elsif (/^CPU implementer\s*:\s0x43/ || /^CPU implementer\s*:\s0x51/) {
       # aarch64 special case: does not support armvXl instruction set
       $hw->{'nativeonly'} = undef;
     } elsif (/^cpu\s*:\sPOWER8/) {

@@ -1,0 +1,7 @@
+version: "2"
+exclude_patterns:
+  - "dist/"
+  - "src/api/test/"
+  - "src/api/spec/"
+  - "docs/api/restility"
+  - "src/api/app/assets/javascripts/webui"

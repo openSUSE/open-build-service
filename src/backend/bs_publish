@@ -1290,6 +1290,15 @@ sub deleterepo {
     $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo", 1) || {};
     delete $repoinfo->{'splitdebug'} if $dbgsplit;	# do not recurse!
   }
+  # delete all containers from the registories
+  my $container_repositories = $repoinfo->{'container_repositories'};
+  if ($container_repositories) {
+    my $notary_uploads = {};
+    my %containers;
+    upload_all_containers($extrep, $projid, $repoid, \%containers, $notary_uploads, 0, undef, $container_repositories);
+    delete_from_notary($projid, $notary_uploads);
+  }
+  
   # delete all binaries
   my $subdir = $repoinfo->{'subdir'} || '';
   my @archs = sort(ls($extrep));
@@ -1973,14 +1982,16 @@ sub publish {
     $changed = 1;
   }
 
+  my $container_repositories = {};
   my $notary_uploads = {};
   my %deleted_bins;
-  if (%containers) {
+  if (%containers || $repoinfo->{'container_repositories'}) {
     # found some containers. upload if requested
     if ($blobdir) {
       $_->{'blobdir'} = $blobdir for values %containers;
     }
-    upload_all_containers($extrep, $projid, $repoid, \%containers, $notary_uploads, $multicontainer, \%deleted_bins);
+    $container_repositories = upload_all_containers($extrep, $projid, $repoid, \%containers, $notary_uploads, $multicontainer, \%deleted_bins, $repoinfo->{'container_repositories'} || {});
+    $changed = 1;		# FIXME
   }
   if ($blobdir) {
     # get rid of the blobdir
@@ -1988,8 +1999,6 @@ sub publish {
     rmdir($blobdir);
     undef $blobdir;
   }
-
-  $changed = 1 if %$notary_uploads;	# FIXME
 
   if (!$changed && !$dbgsplit) {
     print "    nothing changed\n";
@@ -2181,6 +2190,7 @@ sub publish {
   $repoinfo->{'splitdebug'} = $repotype{'splitdebug'}->[0] if defined $dbgsplit;
   $repoinfo->{'subdir'} = $subdir if $subdir;
   $repoinfo->{'base'} = $repo->{'base'} if $repo->{'base'};
+  $repoinfo->{'container_repositories'} = $container_repositories if %$container_repositories;
 
   # store repoinfo on disk
   if (!$dbgsplit) {
@@ -2717,7 +2727,7 @@ sub registries_for_prp {
       print "no valid registry config for '$registry'\n";
       next;
     }
-    push @registries, $cr;
+    push @registries, { %$cr, '_name' => $registry };
   }
   return @registries;
 }
@@ -2743,12 +2753,15 @@ sub default_container_mapper {
 =cut
 
 sub upload_all_containers {
-  my ($extrep, $projid, $repoid, $containers, $notary_uploads, $multicontainer, $deleted) = @_;
+  my ($extrep, $projid, $repoid, $containers, $notary_uploads, $multicontainer, $deleted, $old_container_repositories) = @_;
 
-  return unless %{$containers || {}};
   my @registries = registries_for_prp($projid, $repoid);
   my %allrefs;
+  my %container_repositories;
+  $old_container_repositories ||= {};
   for my $registry (@registries) {
+    my $regname = $registry->{'_name'};
+
     # collect uploads over all containers
     my %uploads;
     my $mapper = $registry->{'mapper'} || \&default_container_mapper;
@@ -2766,8 +2779,8 @@ sub upload_all_containers {
     }
 
     # ok, now go through every repository and upload all tags
-    my $containerdigests = '';
     for my $repository (sort keys %uploads) {
+      $container_repositories{$regname}->{$repository} = 1;
       # find common containerinfos so that we can push multiple tags in one go
       my $uptags = $uploads{$repository};
       my %todo;
@@ -2779,14 +2792,24 @@ sub upload_all_containers {
 	$todo_p{$joinp} = \@p;
       }
       # now do the upload
+      my $containerdigests = '';
       for my $joinp (sort keys %todo) {
 	my @tags = @{$todo{$joinp}};
 	my @containerinfos = map {$containers->{$_}} @{$todo_p{$joinp}};
-	my ($digest, @refs) = upload_to_registry($registry, \@containerinfos, $repository, \@tags, $notary_uploads);
+	my ($digest, @refs) = upload_to_registry($registry, \@containerinfos, $repository, \@tags);
+	add_notary_upload($notary_uploads, $registry, $repository, $digest, \@tags);
 	$containerdigests .= $digest;
 	push @{$allrefs{$_}}, @refs for @{$todo_p{$joinp}};
       }
       # all is pushed, now clean the rest
+      delete_obsolete_tags_from_registry($registry, $repository, $containerdigests);
+    }
+
+    # delete repositories of former publish runs that are now empty
+    for my $repository (@{$old_container_repositories->{$regname} || []}) {
+      next if $uploads{$repository};
+      my $containerdigests = '';
+      add_notary_upload($notary_uploads, $registry, $repository, $containerdigests);
       delete_obsolete_tags_from_registry($registry, $repository, $containerdigests);
     }
   }
@@ -2826,6 +2849,10 @@ sub upload_all_containers {
       symlink("$allrefs_pp_lastp{$p}", "$extrep/$p");
     }
   }
+
+  # turn container repos into arrays and return
+  $_ = [ sort keys %$_ ] for values %container_repositories;
+  return \%container_repositories
 }
 
 =head2 upload_to_registry - upload containers
@@ -2843,7 +2870,7 @@ sub upload_all_containers {
 =cut
 
 sub upload_to_registry {
-  my ($registry, $containerinfos, $repository, $tags, $notary_uploads) = @_;
+  my ($registry, $containerinfos, $repository, $tags) = @_;
 
   return unless @{$containerinfos || []} && @{$tags || []};
   
@@ -2890,14 +2917,6 @@ sub upload_to_registry {
   unlink($_) for @tempfiles;
   die("Error while uploading to registry: $result\n") if $result;
 
-  if ($registry->{'notary'}) {
-    my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
-    $gun =~ s/^https?:\/\///;
-    print "adding notary upload for $gun/$repository: @$tags\n";
-    $notary_uploads->{"$gun/$repository"} ||= {'registry' => $registry, 'digests' => '', 'gun' => "$gun/$repository"};
-    $notary_uploads->{"$gun/$repository"}->{'digests'} .= $containerdigests if $containerdigests;
-  }
-
   # return digest and public references
   $repository =~ s/^library\/([^\/]+)$/$1/ if $pullserver eq '';
   return ($containerdigests, map {"$pullserver$repository:$_"} @$tags);
@@ -2905,6 +2924,8 @@ sub upload_to_registry {
 
 sub delete_obsolete_tags_from_registry {
   my ($registry, $repository, $containerdigests) = @_;
+
+  return if $registry->{'nodelete'};
   mkdir_p($uploaddir);
   my $containerdigestfile = "$uploaddir/publisher.$$.containerdigests";
   writestr($containerdigestfile, undef, $containerdigests);
@@ -2915,6 +2936,29 @@ sub delete_obsolete_tags_from_registry {
   unlink($containerdigestfile);
   die("Error while deleting tags from registry: $result\n") if $result;
 }
+
+=head2 add_notary_upload - add notary upload information for a repository
+
+=cut
+
+sub add_notary_upload {
+  my ($notary_uploads, $registry, $repository, $digest, $tags) = @_;
+
+  return unless $registry->{'notary'};
+  my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
+  $gun =~ s/^https?:\/\///;
+  if ($tags) {
+    print "adding notary upload for $gun/$repository: @$tags\n";
+  } else {
+    print "adding empty notary upload for $gun/$repository\n";
+  }
+  $notary_uploads->{"$gun/$repository"} ||= {'registry' => $registry, 'digests' => '', 'gun' => "$gun/$repository"};
+  $notary_uploads->{"$gun/$repository"}->{'digests'} .= $digest if $digest;
+}
+
+=head2 upload_to_notary - do all the collected notary uploads
+
+=cut
 
 sub upload_to_notary {
   my ($projid, $notary_uploads, $signargs, $pubkey) = @_;
@@ -2966,6 +3010,24 @@ sub upload_to_notary {
     }
   }
   unlink($pubkeyfile);
+}
+
+=head2 delete_from_notary - delete collected repositories
+
+=cut
+
+sub delete_from_notary {
+  my ($projid, $notary_uploads) = @_;
+
+  for my $uploadkey (sort keys %$notary_uploads) {
+    my $uploaddata = $notary_uploads->{$uploadkey};
+    die("delete_from_notary: digest not empty\n") if $uploaddata->{'digests'};
+    my $registry = $uploaddata->{'registry'};
+    my @cmd = ("$INC[0]/bs_notar", '--dest-creds', '-', '-D', $registry->{'notary'}, $uploaddata->{'gun'});
+    print "Deleting from notary: @cmd\n";
+    my $result = qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', '', @cmd);
+    die("Error while uploading to notary: $result\n") if $result;
+  }
 }
 
 =head2 decompress_container - decompress or copy container into a temporary file
