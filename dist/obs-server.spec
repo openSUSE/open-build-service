@@ -1,7 +1,7 @@
 #
 # spec file for package obs-server
 #
-# Copyright (c) 2014 SUSE LINUX Products GmbH, Nuernberg, Germany.
+# Copyright (c) 2018 SUSE LINUX GmbH, Nuernberg, Germany.
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -32,6 +32,8 @@
 
 %define secret_key_file /srv/www/obs/api/config/secret.key
 
+%define rake_version 12.3.1
+
 %if ! %{defined _fillupdir}
   %define _fillupdir %{_localstatedir}/adm/fillup-templates
 %endif
@@ -54,16 +56,13 @@
 
 Name:           obs-server
 Summary:        The Open Build Service -- Server Component
-License:        GPL-2.0 and GPL-3.0
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
+License:        GPL-2.0-only AND GPL-3.0-only
 Group:          Productivity/Networking/Web/Utilities
-%endif
 Version:        2.10~pre
 Release:        0
 Url:            http://www.openbuildservice.org
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        open-build-service-%version.tar.xz
-Source1:        find-requires.sh
 BuildRequires:  python-devel
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
@@ -71,6 +70,7 @@ BuildRequires:  python-devel
 # also see requires in the obs-server-api sub package
 BuildRequires:  build >= 20170315
 BuildRequires:  inst-source-utils
+BuildRequires:  openssl
 BuildRequires:  perl-BSSolv >= 0.28
 BuildRequires:  perl-Compress-Zlib
 BuildRequires:  perl-Diff-LibXDiff
@@ -81,11 +81,10 @@ BuildRequires:  perl-Socket-MsgHdr
 BuildRequires:  perl-TimeDate
 BuildRequires:  perl-XML-Parser
 BuildRequires:  perl-XML-Simple
+BuildRequires:  procps
+BuildRequires:  timezone /usr/bin/xmllint
 BuildRequires:  perl(Devel::Cover)
 BuildRequires:  perl(Test::Simple) > 1
-BuildRequires:  procps
-# Required by the test suite
-BuildRequires:  xorg-x11-fonts
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 BuildArch:      noarch
 Requires(pre):  obs-common
@@ -116,7 +115,9 @@ PreReq:         %insserv_prereq permissions pwdutils
 %endif
 
 %if 0%{?disable_obs_frontend_test_suite:1} < 1 && 0%{?disable_obs_test_suite} < 1
+# Required by the test suite
 BuildRequires:  chromedriver
+BuildRequires:  xorg-x11-fonts
 %endif
 
 %if 0%{?suse_version:1}
@@ -140,17 +141,15 @@ Requires:       perl-Socket-MsgHdr
 Requires:       perl-XML-Parser
 Requires:       perl-XML-Simple
 
-Obsoletes:	obs-source_service < 2.9
-Obsoletes:	obs-productconverter < 2.9
-Provides:	obs-source_service = %version
-Provides:	obs-productconverter = %version
+Obsoletes:      obs-productconverter < 2.9
+Obsoletes:      obs-source_service < 2.9
+Provides:       obs-productconverter = %version
+Provides:       obs-source_service = %version
 
 Recommends:     obs-service-download_url
 Recommends:     obs-service-verify_file
 
-%if 0%{?suse_version} >= 1210
-BuildRequires: systemd-rpm-macros
-%endif
+BuildRequires:  systemd-rpm-macros
 
 %{?systemd_requires}
 
@@ -175,15 +174,7 @@ Requires:       bash
 Requires:       binutils
 Requires:       bsdtar
 Summary:        The Open Build Service -- Build Host Component
-%if 0%{?suse_version} && 0%{?suse_version} < 1210
 Group:          Productivity/Networking/Web/Utilities
-%endif
-%if 0%{?suse_version}
-PreReq:         %insserv_prereq
-%endif
-%if 0%{?suse_version} <= 1030
-Requires:       lzma
-%endif
 Requires:       util-linux >= 2.16
 # the following may not even exist depending on the architecture
 Recommends:     powerpc32
@@ -195,10 +186,8 @@ run a local playground test installation.
 
 %package -n obs-common
 Summary:        The Open Build Service -- base configuration files
-Requires(pre):  shadow
-%if 0%{?suse_version} && 0%{?suse_version} < 1210
 Group:          Productivity/Networking/Web/Utilities
-%endif
+Requires(pre):  shadow
 %if 0%{?suse_version}
 PreReq:         %fillup_prereq
 %endif
@@ -208,19 +197,19 @@ This is a package providing basic configuration files.
 
 %package -n obs-api
 Summary:        The Open Build Service -- The API and WEBUI
-%if 0%{?suse_version} && 0%{?suse_version} < 1210
 Group:          Productivity/Networking/Web/Utilities
-%endif
 %if 0%{?suse_version}
-PreReq:         %insserv_prereq
 Requires(pre):  obs-common
 %endif
 %if 0%{?suse_version} >= 1330
 Requires(pre):  group(www)
 %endif
 
-#For apache
-Requires:       apache2 apache2-mod_xforward rubygem-passenger-apache2 ruby2.5-rubygem-passenger
+# For apache
+Requires:       apache2
+Requires:       apache2-mod_xforward
+Requires:       ruby2.5-rubygem-passenger
+Requires:       rubygem-passenger-apache2
 
 # memcache is required for session data
 Requires:       memcached
@@ -228,13 +217,10 @@ Conflicts:      memcached < 1.4
 
 Requires:       mysql
 
-Requires:       ruby(abi) >= 2.0
+Requires:       ruby(abi) = 2.5.0
 # needed for fulltext searching
 Requires:       sphinx >= 2.1.8
-BuildRequires:  obs-api-testsuite-deps
-BuildRequires:  rubygem(ruby-ldap)
-# For doc generation
-BuildRequires:  rubygem(i18n)
+BuildRequires:  sphinx >= 2.1.8
 # for test suite:
 BuildRequires:  createrepo
 BuildRequires:  curl
@@ -242,9 +228,16 @@ BuildRequires:  memcached >= 1.4
 BuildRequires:  mysql
 BuildRequires:  netcfg
 # write down dependencies for production
-BuildRequires:  rubygem(bundler)
-Requires:       %(echo `bash %{S:1} %{S:0} "ruby:2.5.0" "production"`)
+BuildRequires:  obs-bundled-gems
+BuildRequires:  rubygem(ruby:2.5.0:bundler)
+Requires:       rubygem(ruby:2.5.0:bundler)
+# for compiling assets
+BuildRequires:  nodejs
+Requires:       obs-bundled-gems = %{version}
+BuildRequires:  rubygem(ruby:2.5.0:rake:%{rake_version})
+Requires:       rubygem(ruby:2.5.0:rake:%{rake_version})
 # for rebuild_time
+BuildRequires:  perl(GD)
 Requires:       perl(GD)
 
 Requires:       ghostscript-fonts-std
@@ -255,9 +248,7 @@ OBS.
 
 %package -n obs-utils
 Summary:        The Open Build Service -- utilities
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 Group:          Productivity/Networking/Web/Utilities
-%endif
 Requires:       build
 Requires:       osc
 
@@ -265,16 +256,11 @@ Requires:       osc
 obs_project_update is a tool to copy a packages of a project from one obs to another
 
 %package -n obs-tests-appliance
-
-Summary:  The Open Build Service -- Test cases for installed appliances
-
-Requires: obs-server = %{version}
-Requires: obs-api = %{version}
-Requires: perl(Test::Most)
-
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
+Summary:        The Open Build Service -- Test cases for installed appliances
 Group:          Productivity/Networking/Web/Utilities
-%endif
+Requires:       obs-api = %{version}
+Requires:       obs-server = %{version}
+Requires:       perl(Test::Most)
 
 %description -n obs-tests-appliance
 This package contains test cases for testing a installed appliances.
@@ -284,24 +270,26 @@ This package contains test cases for testing a installed appliances.
  * checks if required service came up properly
 
 %package -n obs-cloud-uploader
-Summary:       The Open Build Service -- Image Cloud Uploader
-Requires:      obs-server
-Requires:      aws-cli
-Requires:      azure-cli
+Summary:        The Open Build Service -- Image Cloud Uploader
+Group:          Productivity/Networking/Web/Utilities
+Requires:       aws-cli
+Requires:       azure-cli
+Requires:       obs-server
 %if 0%{?suse_version} > 1315
-Requires:      python3-ec2uploadimg
+Requires:       python3-ec2uploadimg
 %else
-Requires:      python-ec2uploadimg
+Requires:       python-ec2uploadimg
 %endif
-Group:         Productivity/Networking/Web/Utilities
 
 %description -n obs-cloud-uploader
 This package contains all the necessary tools for upload images to the cloud.
 
 #--------------------------------------------------------------------------------
 %prep
-
 %setup -q -n open-build-service-%version
+
+# test that the rake_version macro is still matching our Gemfile
+test -f %_libdir/obs-api/ruby/2.5.0/gems/rake-%{rake_version}/rake.gemspec
 
 # We don't need our docker files in our packages
 rm -r src/{api,backend}/docker-files
@@ -314,6 +302,11 @@ find -name .keep -o -name .gitignore | xargs rm -rf
 
 %build
 export DESTDIR=$RPM_BUILD_ROOT
+
+pushd src/api
+# configure to the bundled gems
+bundle --local --path %_libdir/obs-api/
+popd
 
 #
 # generate apidocs
@@ -344,14 +337,8 @@ fi
 # turn duplicates into hard links
 #
 # There's dupes between webui and api:
-%if 0%{?suse_version} >= 1030
+%if 0%{?suse_version}
 %fdupes $RPM_BUILD_ROOT/srv/www/obs
-%endif
-
-# fix build for SLE 11
-%if 0%{?suse_version} < 1315
-touch %{buildroot}/%{secret_key_file}
-chmod 0640 %{buildroot}/%{secret_key_file}
 %endif
 
 # drop testcases for now
@@ -503,10 +490,9 @@ for i in production.rb ; do
   fi
 done
 
-if [ ! -e %{secret_key_file} ]; then
-  pushd .
-  cd /srv/www/obs/api/config
-  ( umask 0077; RAILS_ENV=production bundle.ruby2.5 exec rails.ruby2.5 secret > %{secret_key_file} ) || exit 1
+if [ ! -s %{secret_key_file} ]; then
+  pushd /srv/www/obs/api
+  RAILS_ENV=production bin/rails secret > %{secret_key_file}
   popd
 fi
 chmod 0640 %{secret_key_file}
@@ -518,8 +504,8 @@ touch /srv/www/obs/api/log/production.log
 chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
 %restart_on_update memcached
-# We need to touch the last_deploy file in the post hook 
-# to update the timestamp which we use to display the 
+# We need to touch the last_deploy file in the post hook
+# to update the timestamp which we use to display the
 # last deployment time in the API
 touch /srv/www/obs/api/last_deploy || true
 
@@ -672,9 +658,8 @@ usermod -a -G docker obsservicerun
 /srv/www/obs/api/test
 /srv/www/obs/docs
 
-
 /srv/www/obs/api/config/locales
-/srv/www/obs/api/vendor
+%dir /srv/www/obs/api/vendor
 /srv/www/obs/api/vendor/diststats
 
 #
@@ -722,7 +707,6 @@ usermod -a -G docker obsservicerun
 /etc/init.d/obsstoragesetup
 /usr/sbin/rcobsstoragesetup
 
-
 %files -n obs-utils
 %defattr(-,root,root)
 /usr/sbin/obs_project_update
@@ -750,9 +734,7 @@ usermod -a -G docker obsservicerun
 
 %package -n obs-container-registry
 Summary:        The Open Build Service -- container registry
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 Group:          Productivity/Networking/Web/Utilities
-%endif
 Requires:       docker-distribution-registry
 
 %description -n obs-container-registry

@@ -32,7 +32,7 @@ Note: Update from OBS 2.5 should also work, but is untested.
   5) Migrate database
 
         cd /srv/www/obs/api/
-        RAILS_ENV="production" rails.ruby2.5 db:migrate:with_data
+        RAILS_ENV="production" bin/rails db:migrate:with_data
 
   6) Make sure that log and tmp are owned by wwwrun
 
@@ -88,7 +88,7 @@ Note: Update from OBS 2.5 should also work, but is untested.
   5) Migrate database
 
         cd /srv/www/obs/api/
-        RAILS_ENV="production" rails.ruby2.5 db:migrate:with_data
+        RAILS_ENV="production" bin/rails db:migrate:with_data
 
   6) Make sure that log and tmp are owned by wwwrun
 
@@ -562,5 +562,3 @@ following commands:
 
       # cd /srv/www/obs/api/
       # RAILS_ENV="production" rails db:migrate
-
-
