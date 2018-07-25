@@ -32,6 +32,8 @@
 
 %define secret_key_file /srv/www/obs/api/config/secret.key
 
+%define rake_version 12.3.1
+
 %if ! %{defined _fillupdir}
   %define _fillupdir %{_localstatedir}/adm/fillup-templates
 %endif
@@ -228,10 +230,12 @@ BuildRequires:  netcfg
 # write down dependencies for production
 BuildRequires:  obs-bundled-gems
 BuildRequires:  rubygem(ruby:2.5.0:bundler)
+Requires:       rubygem(ruby:2.5.0:bundler)
 # for compiling assets
 BuildRequires:  nodejs
 Requires:       obs-bundled-gems = %{version}
-Requires:       rubygem(ruby:2.5.0:bundler)
+BuildRequires:  rubygem(ruby:2.5.0:rake:%{rake_version})
+Requires:       rubygem(ruby:2.5.0:rake:%{rake_version})
 # for rebuild_time
 BuildRequires:  perl(GD)
 Requires:       perl(GD)
@@ -283,6 +287,9 @@ This package contains all the necessary tools for upload images to the cloud.
 #--------------------------------------------------------------------------------
 %prep
 %setup -q -n open-build-service-%version
+
+# test that the rake_version macro is still matching our Gemfile
+test -f %_libdir/obs-api/ruby/2.5.0/gems/rake-%{rake_version}/rake.gemspec
 
 # We don't need our docker files in our packages
 rm -r src/{api,backend}/docker-files
