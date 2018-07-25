@@ -148,9 +148,9 @@ module Webui::WebuiHelper
 
   def elide_two(text1, text2, overall_length = 40, mode = :middle)
     half_length = overall_length / 2
-    text1_free = half_length - text1.length
+    text1_free = half_length - text1.to_s.length
     text1_free = 0 if text1_free < 0
-    text2_free = half_length - text2.length
+    text2_free = half_length - text2.to_s.length
     text2_free = 0 if text2_free < 0
     [elide(text1, half_length + text2_free, mode), elide(text2, half_length + text1_free, mode)]
   end
