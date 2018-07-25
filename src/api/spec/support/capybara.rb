@@ -1,6 +1,7 @@
 
 Capybara.default_max_wait_time = 6
 Capybara.save_path = Rails.root.join('tmp', 'capybara')
+Capybara.server = :puma, { Silent: true }
 
 # we use RSPEC_HOST as trigger to use remote selenium
 if ENV['RSPEC_HOST'].blank?
@@ -35,7 +36,6 @@ else
     config.app_host = "http://#{ENV['RSPEC_HOST']}:3005"
   end
 
-  Capybara.server = :puma, { Silent: true }
   Capybara.server_host = '0.0.0.0'
   Capybara.server_port = 3005
   Capybara.javascript_driver = :chrome
