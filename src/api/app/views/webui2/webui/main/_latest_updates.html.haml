@@ -5,18 +5,22 @@
     .float-right
       = link_to(latest_updates_feed_path(format: 'rss'), title: 'RSS Feed') do
         %i.fa.fa-rss
-  .card-body.p-0
-    %ul.list-group
-      - @latest_updates.each do |update|
-        %li.list-group-item.rounded-0.small
-          %span.d-inline-block.text-truncate{style: 'max-width: 180px;'}
+  .list-group
+    - @latest_updates.each do |update|
+      .list-group-item.list-group-item-integrated.border-left-0.border-right-0.small
+        .row
+          .col-2.pl-2
             - if update[1] == :package
-              %i.fa.fa-archive.align-middle{title: 'Package'}
-              = link_to(package_show_path(project: update[3], package: update[2])) do
-                = update[2]
+              %i.fa.fa-archive.fa-2x.text-package.pt-2{title: 'Package'}
             - else
-              %i.fa.fa-cubes{title: 'Project'}
-              = link_to(project_show_path(update[1])) do
-                = update[1]
-          %p.small.mb-0
-            = fuzzy_time(update[0])
+              %i.fa.fa-cubes.fa-2x.text-info.pt-2{title: 'Project'}
+          .col-10.pl-0
+            %span.d-inline-block.text-truncate{style: 'max-width: 180px;'}
+              - if update[1] == :package
+                = link_to(package_show_path(project: update[3], package: update[2])) do
+                  = update[2]
+              - else
+                = link_to(project_show_path(update[1])) do
+                  = update[1]
+            %p.small.mb-0
+              = fuzzy_time(update[0])
