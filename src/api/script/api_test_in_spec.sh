@@ -51,19 +51,19 @@ EOF
 
 # migration test
 export RAILS_ENV=development
-bundle.ruby2.5 exec rake.ruby2.5 db:create || exit 1
+bundle.ruby2.5 exec rake db:create || exit 1
 mv db/structure.sql db/structure.sql.git
 xzcat test/dump_2.5.sql.xz | mysql  -u root --socket=$MYSQL_SOCKET || exit 1
-bundle.ruby2.5 exec rake.ruby2.5 db:migrate:with_data db:structure:dump db:drop || exit 1
+bundle.ruby2.5 exec rake db:migrate:with_data db:structure:dump db:drop || exit 1
 ./script/compare_structure_sql.sh db/structure.sql.git db/structure.sql || exit 1
 
 # entire test suite
 export RAILS_ENV=test
-bundle.ruby2.5 exec rake.ruby2.5 db:create db:setup || exit 1
+bundle.ruby2.5 exec rake db:create db:setup || exit 1
 
 bundle.ruby2.5 exec rails assets:precompile
 
-for suite in "rake.ruby2.5 test:api" "rake.ruby2.5 test:spider" "rspec"; do
+for suite in "rake test:api" "rake test:spider" "rspec"; do
   rm -f log/test.log
 
   # Configure the frontend<->backend connection settings

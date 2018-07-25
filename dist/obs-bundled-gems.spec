@@ -42,7 +42,7 @@ BuildRequires:  nodejs
 BuildRequires:  openldap2-devel
 BuildRequires:  python-devel
 BuildRequires:  ruby2.5-devel
-BuildRequires:  rubygem(bundler)
+BuildRequires:  rubygem(ruby:2.5.0:bundler)
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description

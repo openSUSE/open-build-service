@@ -227,10 +227,11 @@ BuildRequires:  mysql
 BuildRequires:  netcfg
 # write down dependencies for production
 BuildRequires:  obs-bundled-gems
-BuildRequires:  rubygem(bundler)
+BuildRequires:  rubygem(ruby:2.5.0:bundler)
 # for compiling assets
 BuildRequires:  nodejs
 Requires:       obs-bundled-gems = %{version}
+Requires:       rubygem(ruby:2.5.0:bundler)
 # for rebuild_time
 BuildRequires:  perl(GD)
 Requires:       perl(GD)
@@ -482,10 +483,9 @@ for i in production.rb ; do
   fi
 done
 
-if [ ! -e %{secret_key_file} ]; then
-  pushd .
-  cd /srv/www/obs/api/config
-  ( umask 0077; RAILS_ENV=production bundle.ruby2.5 exec rails.ruby2.5 secret > %{secret_key_file} ) || exit 1
+if [ ! -s %{secret_key_file} ]; then
+  pushd /srv/www/obs/api
+  RAILS_ENV=production bundle.ruby2.5 exec rails secret > %{secret_key_file}
   popd
 fi
 chmod 0640 %{secret_key_file}
