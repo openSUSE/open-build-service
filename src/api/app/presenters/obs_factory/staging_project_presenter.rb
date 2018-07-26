@@ -147,24 +147,24 @@ module ObsFactory
     # the lower the number, the earlier it is in the list - acceptable A first
     def sort_key
       main = case overall_state
-      when :acceptable then
-        0
-      when :review then
-        10000 - review_percentage * 100
-      when :testing then
-        20000 - testing_percentage * 100
-      when :building then
-        30000 - build_progress[:percentage] * 100
-      when :failed then
-        40000
-      when :unacceptable then
-        50000
-      when :empty
-        60000
-      else
-        Rails.logger.error "untracked #{overall_state}"
-        return
-      end
+             when :acceptable then
+               0
+             when :review then
+               10000 - review_percentage * 100
+             when :testing then
+               20000 - testing_percentage * 100
+             when :building then
+               30000 - build_progress[:percentage] * 100
+             when :failed then
+               40000
+             when :unacceptable then
+               50000
+             when :empty
+               60000
+             else
+               Rails.logger.error "untracked #{overall_state}"
+               return
+             end
       main + letter.ord()
     end
   end
