@@ -263,24 +263,20 @@ class BsRequest < ApplicationRecord
   # @param [Hash] props can contain :by_project, :by_group, :by_user, :by_package
   #               or :target_project
   # @return [Array]  Array of Request objects
-  def self.with_open_reviews_for(props)
-    reviews = Review.includes(bs_request: [:reviews, :bs_request_actions])
-    conds = props.dup
-    target_project = conds.delete(:target_project)
-    reviews = reviews.where(conds.merge(state: 'new', 'bs_requests.state' => 'review'))
-    if target_project
-      reviews = reviews.where('bs_request_actions.target_project' => target_project)
-    end
-    reviews.map(&:bs_request)
+  def self.with_open_reviews_for(attributes)
+    with_reviews(attributes).where(state: 'new').rewhere('bs_requests.state': 'review').map(&:bs_request)
   end
 
-  def self.in_state_new(props)
-    conds = props.slice(:by_project, :by_group, :by_user, :by_package)
+  def self.in_state_new(attributes)
+    with_reviews(attributes).where('bs_requests.state': 'new').map(&:bs_request)
+  end
 
-    reviews = Review.where(conds).where('bs_requests.state': 'new').
-      includes(bs_request: [:reviews, :bs_request_actions])
-    reviews = reviews.where('bs_request_actions.target_project': conds[:target_project]) if conds[:target_project]
-    reviews.map(&:bs_request)
+  def self.with_reviews(attributes)
+    review_attributes = attributes.slice(:by_project, :by_group, :by_user, :by_package, :state)
+
+    reviews = Review.where(review_attributes).includes(bs_request: [:reviews, :bs_request_actions])
+    return reviews unless attributes[:target_project]
+    reviews.where('bs_request_actions.target_project': attributes[:target_project])
   end
 
   def save!(args = {})
