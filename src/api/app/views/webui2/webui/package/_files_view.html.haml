@@ -39,16 +39,18 @@
       });
   - else
     %i This package has no files yet
-- if User.current.can_modify? @package
-  .p-3
-    = link_to image_tag('icons/page_white_add', title: 'Add file') + ' Add file', :action => :add_file, :project => @project, :package => @package
+  - if User.current.can_modify? @package
+    .pt-4
+      = link_to(package_add_file_path(@project, @package)) do
+        %i.fas.fa-plus-square.text-primary
+        Add file
 - unless @files.blank? || @spider_bot
   - if @revision.present?
     - unless @is_current_rev
-      %h5.card-header.border-top.mt-3
+      %h5.card-header.border-top
         Revision #{@revision} (latest revision is #{@current_rev})
     - else
-      %h5.card-header.border-top.mt-3 Latest Revision
+      %h5.card-header.border-top Latest Revision
     .card-body
       = render :partial => 'commit_item', :locals => { revision: @revision, commit: @package.commit(@revision) }
   - elsif @srcmd5
