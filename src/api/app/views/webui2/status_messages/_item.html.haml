@@ -1,0 +1,22 @@
+.list-group-item.list-group-item-integrated.border-left-0.border-right-0.small
+  .row
+    .col-2.pl-2.text-center
+      - case message.severity.to_i
+        - when 1
+          %i.fa.fa-check-circle.fa-2x.text-primary.pt-3{title: 'Success'}
+        - when 2
+          %i.fa.fa-exclamation-circle.fa-2x.text-warning.pt-3{title: 'Warning'}
+        - when 3
+          %i.fa.fa-times-circle.fa-2x.text-danger.pt-3{title: 'Alert'}
+        - else
+          %i.fa.fa-info-circle.fa-2x.text-info.pt-3{title: 'Info'}
+    .col-10.pl-0
+      %small
+        = user_with_realname_and_icon(message.user, short: true)
+        wrote #{time_ago_in_words(message.created_at)} ago
+      - if User.current.is_admin?
+        .float-right
+          = link_to(status_message_path(message), method: :delete, title: 'Remove status message') do
+            %i.fa.fa-times
+      .mt-2.mb-0
+        = comment_body(message.message)

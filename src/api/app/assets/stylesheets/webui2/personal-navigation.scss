@@ -1,0 +1,18 @@
+#personal-navigation {
+    & .nav-item a {
+        font-size: 0.9rem;
+        color: $obs_green;
+
+        &:hover {
+            color: $obs_blue;
+        }
+    }
+
+    & .nav-link {
+        padding: 0.5rem 0.6rem;
+    }
+
+    .nav-pills .show > .nav-link {
+        color: #fff !important;
+    }
+}

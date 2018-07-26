@@ -1,22 +1,22 @@
 - unless User.current.is_nobody?
   .col
-    = link_to(user_show_path(User.current), class: 'btn btn-default') do
-      %i.fas.fa-home
+    = link_to(user_show_path(User.current), class: 'btn btn-default', title: 'Go to your home project') do
+      %i.fas.fa-home.fa-2x.text-dark
       %br
       Your Home
 .col
-  = link_to(projects_path, class: 'btn btn-default') do
-    %i.fas.fa-list
+  = link_to(projects_path, class: 'btn btn-default', title: 'See all projects') do
+    %i.fas.fa-list.fa-2x.text-muted
     %br
     All Projects
 .col
-  = link_to(new_project_path, ns: User.current.home_project_name, class: 'btn btn-default') do
-    %i.fas.fa-plus-square
+  = link_to(new_project_path, ns: User.current.home_project_name, class: 'btn btn-default', title: 'Create a new project') do
+    %i.fas.fa-plus-square.fa-2x.text-primary
     %br
     New Project
 - if Feature.active?(:image_templates)
   .col
-    = link_to(image_templates_path, class: 'btn btn-default', title: 'New Image') do
-      %i.fas.fa-compact-disc
+    = link_to(image_templates_path, class: 'btn btn-default', title: 'Create a new image') do
+      %i.fas.fa-compact-disc.fa-2x.text-info
       %br
       New Image

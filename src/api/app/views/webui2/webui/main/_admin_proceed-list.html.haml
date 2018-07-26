@@ -1,10 +1,10 @@
 .col
-  = link_to(configuration_path, class: 'btn btn-default') do
-    %i.fas.fa-cogs
+  = link_to(configuration_path, class: 'btn btn-default', title: 'Configure this instance') do
+    %i.fas.fa-cogs.fa-2x.text-warning
     %br
     Configuration
 .col
-  = link_to(projects_path, class: 'btn btn-default') do
-    %i.fas.fa-list
+  = link_to(projects_path, class: 'btn btn-default', title: 'See all projects') do
+    %i.fas.fa-list.fa-2x.text-muted
     %br
     All Projects

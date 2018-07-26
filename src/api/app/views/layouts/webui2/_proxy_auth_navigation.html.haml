@@ -1,8 +1,8 @@
-%li
-  = link_to 'Sign Up', "#{CONFIG['proxy_auth_register_page']}?%22"
-%li
-  = link_to 'Log In', session_new_path, id: 'login-trigger'
-%li
+%ul.nav.nav-pills.justify-content-end
+  %li.nav-item
+    = link_to('Sign Up', "#{CONFIG['proxy_auth_register_page']}?%22", class: 'nav-link')
+  %li.nav-item
+    = link_to('Log In', session_new_path, id: 'login-trigger', class: 'nav-link')
 .login-form
   = form_tag(CONFIG['proxy_auth_login_page'], method: :post, id: 'login_form', enctype: 'application/x-www-form-urlencoded') do
     %p
