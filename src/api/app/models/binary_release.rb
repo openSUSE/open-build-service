@@ -48,9 +48,11 @@ class BinaryRelease < ApplicationRecord
                  modify_time:    nil }
         # check for existing entry
         matching_binaries = oldlist.where(hash)
-        Rails.logger.info "ERROR: multiple matches, cleaning up: #{matching_binaries.inspect}" if matching_binaries.exists?
-        # double definition means broken DB entries
-        matching_binaries.offset(1).destroy_all
+        if matching_binaries.count > 1
+          Rails.logger.info "ERROR: multiple matches, cleaning up: #{matching_binaries.inspect}"
+          # double definition means broken DB entries
+          matching_binaries.offset(1).destroy_all
+        end
 
         # compare with existing entry
         entry = matching_binaries.first
