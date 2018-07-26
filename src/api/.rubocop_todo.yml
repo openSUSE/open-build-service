@@ -28,14 +28,6 @@ Capybara/FeatureMethods:
 Layout/AlignHash:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, IndentationWidth.
-# SupportedStyles: with_first_parameter, with_fixed_indentation
-Layout/AlignParameters:
-  Exclude:
-    - 'app/models/obs_factory/distribution.rb'
-
 # Offense count: 14
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, IndentOneStep, IndentationWidth.
