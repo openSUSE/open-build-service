@@ -23,7 +23,6 @@ module ObsFactory
       params
     end
 
-
     def summary
       return @summary if @summary
       building = false

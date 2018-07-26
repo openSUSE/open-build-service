@@ -73,13 +73,6 @@ Layout/EmptyComment:
     - 'app/models/bs_request_action_maintenance_release.rb'
     - 'app/models/bs_request_action_set_bugowner.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AllowAdjacentOneLineDefs, NumberOfEmptyLines.
-Layout/EmptyLineBetweenDefs:
-  Exclude:
-    - 'app/presenters/obs_factory/obs_project_presenter.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 Layout/EmptyLines:
