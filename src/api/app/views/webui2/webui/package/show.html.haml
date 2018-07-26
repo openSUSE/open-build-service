@@ -15,7 +15,7 @@
           - if @package.url.present?
             %small
               = link_to(@package.url, @package.url)
-        = description_wrapper(@package.description)
+        = webui2_description_wrapper(@package.description)
       .col-3
         = possibly_empty_ul class: :clean_list do
           - if @failures > 0
