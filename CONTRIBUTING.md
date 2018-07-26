@@ -17,7 +17,7 @@ In particular, this community seeks the following types of contributions:
 * copy editing: fix typos, clarify language, and generally improve the quality of the content of the Open Build Service
 
 # How to contribute code
-* Prerequisites: familiarity with [GitHub Pull Requests](https://help.github.com/articles/using-pull-requests.)
+* Prerequisites: familiarity with [GitHub Pull Requests](https://help.github.com/articles/using-pull-requests)
 * Fork the repository and make a pull-request with your changes
   * Please make sure to mind what our test suite in [travis](https://travis-ci.org/openSUSE/open-build-service) tells you
   * Please always increase our [code coverage](https://codeclimate.com/github/openSUSE/open-build-service) by your pull request
