@@ -64,7 +64,9 @@ build: config
 test_unit:
 	[ -d log ] || mkdir log
 	echo > log/test.log
-	./script/api_test_in_spec.sh
+	sh -x ./script/prepare_spec_tests.sh
+	sh -x ./script/api_minitest.sh
+	# rspec runs independently
 clean:
 	rm -rf ../../docs/api/html
 

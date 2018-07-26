@@ -114,12 +114,6 @@ BuildRequires:  fdupes
 PreReq:         %insserv_prereq permissions pwdutils
 %endif
 
-%if 0%{?disable_obs_frontend_test_suite:1} < 1 && 0%{?disable_obs_test_suite} < 1
-# Required by the test suite
-BuildRequires:  chromedriver
-BuildRequires:  xorg-x11-fonts
-%endif
-
 %if 0%{?suse_version:1}
 Recommends:     yum yum-metadata-parser repoview dpkg
 Recommends:     deb >= 1.5
