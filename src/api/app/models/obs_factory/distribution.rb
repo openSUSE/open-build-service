@@ -23,8 +23,8 @@ module ObsFactory
 
     def self.attributes
       %w(name description staging_projects openqa_version openqa_group
-      source_version totest_version published_version staging_manager
-      standard_project live_project images_project ring_projects)
+         source_version totest_version published_version staging_manager
+         standard_project live_project images_project ring_projects)
     end
 
     def attributes

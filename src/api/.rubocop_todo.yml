@@ -19,12 +19,6 @@ Capybara/CurrentPathExpectation:
 Capybara/FeatureMethods:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Layout/AlignArray:
-  Exclude:
-    - 'app/models/obs_factory/distribution.rb'
-
 # Offense count: 236
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedHashRocketStyle, EnforcedColonStyle, EnforcedLastArgumentHashStyle.
