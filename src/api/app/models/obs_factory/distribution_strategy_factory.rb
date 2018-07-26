@@ -115,7 +115,7 @@ module ObsFactory
     def published_version
       begin
         f = open(repo_url)
-      rescue ::OpenURI::HTTPError => e
+      rescue ::OpenURI::HTTPError
         return 'unknown'
       end
       matchdata = /openSUSE-(.*)-#{published_arch}-.*/.match(f.read)

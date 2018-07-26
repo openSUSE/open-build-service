@@ -214,11 +214,6 @@ Lint/UnneededCopEnableDirective:
 Lint/UriEscapeUnescape:
   Enabled: false
 
-# Offense count: 1
-Lint/UselessAssignment:
-  Exclude:
-    - 'app/models/obs_factory/distribution_strategy_factory.rb'
-
 # Offense count: 900
 Metrics/AbcSize:
   Max: 239
