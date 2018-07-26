@@ -131,13 +131,6 @@ Layout/Tab:
     - 'db/migrate/20170123115500_remove_duplicate_indexes.rb'
 
 # Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AllowInHeredoc.
-Layout/TrailingWhitespace:
-  Exclude:
-    - 'app/models/obs_factory/distribution_strategy_sle12_sp1.rb'
-
-# Offense count: 1
 # Configuration parameters: AllowSafeAssignment.
 Lint/AssignmentInCondition:
   Exclude:

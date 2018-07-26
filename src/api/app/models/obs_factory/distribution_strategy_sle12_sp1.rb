@@ -4,7 +4,7 @@ module ObsFactory
       match = project.name.match(/SLE-12-(.*):GA/)
       match[1]
     end
- 
+
     def staging_manager
       'sle-staging-managers'
     end
