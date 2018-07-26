@@ -17,30 +17,17 @@
 
 
 Name:           obs-api-testsuite-rspec
-Version:        2.10~alpha.20180726T073243.bd007edee
+Version:        2.10~pre
 Release:        0
 Summary:        The Open Build Service -- RSpec test suite
 License:        GPL-2.0-only
 Group:          Productivity/Networking/Web/Utilities
 Url:            http://www.openbuildservice.org
 Source0:        open-build-service-%version.tar.xz
+BuildRequires:  obs-api-testsuite-deps
 # rspec specific dependencies
 BuildRequires:  chromedriver
 BuildRequires:  xorg-x11-fonts
-
-# shared dependencies
-BuildRequires:  perl(GD)
-BuildRequires:  rubygem(ruby:2.5.0:bundler)
-# TODO: move to bundled gems
-BuildRequires:  build >= 20170315
-BuildRequires:  inst-source-utils
-BuildRequires:  memcached >= 1.4
-BuildRequires:  mysql
-BuildRequires:  nodejs
-BuildRequires:  obs-bundled-gems
-BuildRequires:  sphinx >= 2.1.8
-BuildRequires:  rubygem(ruby:2.5.0:rake:12.3.1)
-
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 ExclusiveArch:  x86_64
 
