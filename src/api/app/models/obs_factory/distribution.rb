@@ -1,7 +1,6 @@
 require 'open-uri'
 
 module ObsFactory
-
   class UnknownDistribution < Exception
   end
 
@@ -122,7 +121,7 @@ module ObsFactory
     # @param [#to_s] version must be :source, :totest or :published
     # @return [Array] list of OpenqaJob objects
     def openqa_jobs_for(version)
-      filter = {distri: 'opensuse', version: strategy.openqa_version, build: send(:"#{version}_version"), group: strategy.openqa_group}
+      filter = { distri: 'opensuse', version: strategy.openqa_version, build: send(:"#{version}_version"), group: strategy.openqa_group }
       OpenqaJob.find_all_by(filter, exclude_modules: true)
     end
 
@@ -185,7 +184,7 @@ module ObsFactory
     #
     # @return [Array] list of ObsProject objects nicknamed with numbers
     def ring_projects
-      @ring_projects ||= strategy.rings.each_with_index.map do |r,idx|
+      @ring_projects ||= strategy.rings.each_with_index.map do |r, idx|
         ObsProject.new("#{rings_project_name}:#{idx}-#{r}", "#{idx}-#{r}")
       end
     end

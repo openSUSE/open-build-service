@@ -73,32 +73,6 @@ Layout/EmptyComment:
     - 'app/models/bs_request_action_maintenance_release.rb'
     - 'app/models/bs_request_action_set_bugowner.rb'
 
-# Offense count: 9
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty_lines, empty_lines_except_namespace, empty_lines_special, no_empty_lines, beginning_only, ending_only
-Layout/EmptyLinesAroundClassBody:
-  Exclude:
-    - 'app/models/obs_factory/distribution_strategy_factory_ppc.rb'
-    - 'app/models/obs_factory/distribution_strategy_sle12_sp1.rb'
-    - 'app/models/obs_factory/distribution_strategy_sle15.rb'
-    - 'app/models/obs_factory/obs_project.rb'
-    - 'app/models/obs_factory/openqa_api.rb'
-    - 'app/models/obs_factory/openqa_job.rb'
-    - 'app/presenters/obs_factory/obs_project_presenter.rb'
-    - 'app/presenters/obs_factory/staging_project_presenter.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty_lines, empty_lines_except_namespace, empty_lines_special, no_empty_lines
-Layout/EmptyLinesAroundModuleBody:
-  Exclude:
-    - 'app/models/obs_factory/distribution.rb'
-    - 'app/models/obs_factory/distribution_strategy_factory_ppc.rb'
-    - 'app/models/obs_factory/distribution_strategy_sle12_sp1.rb'
-    - 'app/presenters/obs_factory/obs_project_presenter.rb'
-
 # Offense count: 8
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyleAlignWith, AutoCorrect, Severity.
@@ -134,13 +108,6 @@ Layout/IndentationWidth:
 Layout/LeadingBlankLines:
   Enabled: false
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Layout/SpaceAfterComma:
-  Exclude:
-    - 'app/controllers/webui/obs_factory/staging_projects_controller.rb'
-    - 'app/models/obs_factory/distribution.rb'
-
 # Offense count: 30
 # Cop supports --auto-correct.
 # Configuration parameters: AllowForAlignment.
@@ -156,46 +123,12 @@ Layout/SpaceAroundOperators:
     - 'test/functional/request_controller_test.rb'
     - 'test/functional/search_controller_test.rb'
 
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBraces, SpaceBeforeBlockParameters.
-# SupportedStyles: space, no_space
-# SupportedStylesForEmptyBraces: space, no_space
-Layout/SpaceInsideBlockBraces:
-  Exclude:
-    - 'app/models/obs_factory/openqa_job.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBraces.
-# SupportedStyles: space, no_space, compact
-# SupportedStylesForEmptyBraces: space, no_space
-Layout/SpaceInsideHashLiteralBraces:
-  Exclude:
-    - 'app/models/obs_factory/distribution.rb'
-    - 'app/models/obs_factory/openqa_job.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: space, no_space
-Layout/SpaceInsideParens:
-  Exclude:
-    - 'app/models/obs_factory/distribution_strategy_casp.rb'
-
 # Offense count: 23
 # Cop supports --auto-correct.
 # Configuration parameters: IndentationWidth.
 Layout/Tab:
   Exclude:
     - 'db/migrate/20170123115500_remove_duplicate_indexes.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AllowInHeredoc.
-Layout/TrailingWhitespace:
-  Exclude:
-    - 'app/models/obs_factory/distribution_strategy_sle12_sp1.rb'
 
 # Offense count: 1
 # Configuration parameters: AllowSafeAssignment.

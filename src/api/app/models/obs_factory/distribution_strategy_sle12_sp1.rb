@@ -1,12 +1,10 @@
 module ObsFactory
-
   class DistributionStrategySLE12SP1 < DistributionStrategyFactory
-
     def sp_version
       match = project.name.match(/SLE-12-(.*):GA/)
       match[1]
     end
- 
+
     def staging_manager
       'sle-staging-managers'
     end
@@ -28,6 +26,5 @@ module ObsFactory
       ending.gsub!(/.*-Build/, '')
       "SLE12-#{sp_version}-Staging:#{project.letter}-Test-Server-DVD-#{arch}-Build#{project.letter}.#{ending}"
     end
-
   end
 end
