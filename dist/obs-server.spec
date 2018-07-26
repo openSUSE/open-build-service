@@ -32,8 +32,6 @@
 
 %define secret_key_file /srv/www/obs/api/config/secret.key
 
-%define rake_version 12.3.1
-
 %if ! %{defined _fillupdir}
   %define _fillupdir %{_localstatedir}/adm/fillup-templates
 %endif
@@ -68,8 +66,7 @@ BuildRequires:  python-devel
 # config/environment.rb of the various applications.
 # atm the obs rails version patch above unifies that setting among the applications
 # also see requires in the obs-server-api sub package
-BuildRequires:  build >= 20170315
-BuildRequires:  inst-source-utils
+BuildRequires:  /usr/bin/xmllint
 BuildRequires:  openssl
 BuildRequires:  perl-BSSolv >= 0.28
 BuildRequires:  perl-Compress-Zlib
@@ -82,7 +79,7 @@ BuildRequires:  perl-TimeDate
 BuildRequires:  perl-XML-Parser
 BuildRequires:  perl-XML-Simple
 BuildRequires:  procps
-BuildRequires:  timezone /usr/bin/xmllint
+BuildRequires:  timezone
 BuildRequires:  perl(Devel::Cover)
 BuildRequires:  perl(Test::Simple) > 1
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
@@ -112,12 +109,6 @@ BuildRequires:  xz
 %if 0%{?suse_version:1}
 BuildRequires:  fdupes
 PreReq:         %insserv_prereq permissions pwdutils
-%endif
-
-%if 0%{?disable_obs_frontend_test_suite:1} < 1 && 0%{?disable_obs_test_suite} < 1
-# Required by the test suite
-BuildRequires:  chromedriver
-BuildRequires:  xorg-x11-fonts
 %endif
 
 %if 0%{?suse_version:1}
@@ -210,37 +201,18 @@ Requires:       apache2
 Requires:       apache2-mod_xforward
 Requires:       ruby2.5-rubygem-passenger
 Requires:       rubygem-passenger-apache2
-
-# memcache is required for session data
-Requires:       memcached
 Conflicts:      memcached < 1.4
 
-Requires:       mysql
-
 Requires:       ruby(abi) = 2.5.0
-# needed for fulltext searching
-Requires:       sphinx >= 2.1.8
-BuildRequires:  sphinx >= 2.1.8
 # for test suite:
 BuildRequires:  createrepo
 BuildRequires:  curl
-BuildRequires:  memcached >= 1.4
-BuildRequires:  mysql
 BuildRequires:  netcfg
 # write down dependencies for production
-BuildRequires:  obs-bundled-gems
-BuildRequires:  rubygem(ruby:2.5.0:bundler)
-Requires:       rubygem(ruby:2.5.0:bundler)
-# for compiling assets
-BuildRequires:  nodejs
-Requires:       obs-bundled-gems = %{version}
-BuildRequires:  rubygem(ruby:2.5.0:rake:%{rake_version})
-Requires:       rubygem(ruby:2.5.0:rake:%{rake_version})
-# for rebuild_time
-BuildRequires:  perl(GD)
-Requires:       perl(GD)
-
+BuildRequires:  obs-api-testsuite-deps
 Requires:       ghostscript-fonts-std
+Requires:       obs-api-deps = %{version}
+Requires:       obs-bundled-gems = %{version}
 
 %description -n obs-api
 This is the API server instance, and the web client for the
@@ -287,9 +259,6 @@ This package contains all the necessary tools for upload images to the cloud.
 #--------------------------------------------------------------------------------
 %prep
 %setup -q -n open-build-service-%version
-
-# test that the rake_version macro is still matching our Gemfile
-test -f %_libdir/obs-api/ruby/2.5.0/gems/rake-%{rake_version}/rake.gemspec
 
 # We don't need our docker files in our packages
 rm -r src/{api,backend}/docker-files
