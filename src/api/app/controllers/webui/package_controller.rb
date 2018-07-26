@@ -81,6 +81,8 @@ class Webui::PackageController < Webui::WebuiController
     @comment = Comment.new
     @requests = []
     @services = Service.find(project: @project.name, package: @package.name)
+
+    switch_to_webui2
   end
 
   def main_object

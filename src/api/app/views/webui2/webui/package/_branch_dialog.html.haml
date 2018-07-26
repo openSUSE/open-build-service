@@ -1,0 +1,25 @@
+.modal.fade#branchModal{ "tabindex": "-1", "role": "dialog", "aria-labelledby": "branchModalLabel", "aria-hidden": "true"}
+  .modal-dialog{ "role": "document" }
+    .modal-content
+      .modal-header
+        %h5.modal-title#branchModalLabel Branch Confirmation
+        %button.close{ "type": "button", "data-dismiss": "modal", "aria-label": "Close" }
+          %span{ "aria-hidden": "true" } &times;
+      .modal-body
+        - branch_project = User.current.branch_project_name(@project.name)
+        %strong Source
+        %p
+          = package_link(@package, short: true)
+        %strong Destination
+        %p
+          = project_or_package_link(project: branch_project, short: true)
+      = form_tag({controller: :package, action: :branch}, method: :post) do
+        .modal-body
+          %details
+            %summary More options
+            = hidden_field_tag :linked_project, @project.name
+            = hidden_field_tag :linked_package, @package.name
+            = render partial: 'shared/package_branch_form', locals: {show_project_field: true, target_project: branch_project}
+        .modal-footer
+          %button.btn.btn-secondary{ "type": "button", "data-dismiss": "modal"} Cancel
+          = submit_tag('Ok', class: "btn btn-primary")
