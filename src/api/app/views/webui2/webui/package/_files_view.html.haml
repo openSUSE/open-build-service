@@ -22,7 +22,7 @@
               %span{style: "display: none"}= file[:mtime]
               = fuzzy_time_string(Time.at(file[:mtime].to_i).to_s)
             / limit download for anonymous user to avoid getting killed by crawlers
-            %td
+            %td.text-center
               - if !User.current.is_nobody? || file[:size].to_i < (4 * 1024 * 1024)
                 = link_to(file_url(@project.name, @package.name, file[:name], file[:srcmd5]), title: 'Download file') do
                   %i.fas.fa-arrow-circle-down.text-secondary
