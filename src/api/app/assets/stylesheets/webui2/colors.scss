@@ -3,15 +3,15 @@ $gray-100: #f8f9fa;
 $gray-150: #f0f0f0;
 $gray-200: #e9ecef;
 
-$main_green: #693;
-$main_blue: #069;
-$main_yellow: #f0ad4e;
+$obs_green: #693;
+$obs_blue: #069;
+$obs_yellow: #f0ad4e;
 
-$link-hover-color: $main_green;
-$link-color: $main_blue;
-$primary: $main_green;
-$secondary: $main_blue;
+$link-hover-color: $obs_green;
+$link-color: $obs_blue;
+$primary: $obs_green;
+$secondary: $obs_blue;
 
 .text-package {
-    color: $main_yellow;
+    color: $obs_yellow;
 }
