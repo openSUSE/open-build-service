@@ -9,8 +9,7 @@ AllCops:
     - 'docs/api/restility/**/*'
     - 'src/backend/**/*'
     # These files are RPM spec files
-    - 'dist/obs-api-deps.spec'
-    - 'dist/obs-server.spec'
+    - 'dist/*.spec'
     - 'dist/t/spec/fixtures/ctris.spec'
 
 #################### Layout ###########################

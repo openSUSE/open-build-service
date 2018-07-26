@@ -70,7 +70,7 @@ module ObsFactory
       return nil if iso.nil?
       ending = iso.gsub!(/.*-Build/, '')
       suffix = /DVD$/ =~ project.name ? 'Staging2' : 'Staging'
-      openqa_iso_prefix + ":#{project.letter}-#{suffix}-DVD-#{arch}-Build#{ending}"
+      "#{openqa_iso_prefix}:#{project.letter}-#{suffix}-DVD-#{arch}-Build#{ending}"
     end
 
     # Name of the ISO file produced by the given staging project's Test-DVD
@@ -79,11 +79,9 @@ module ObsFactory
     #
     # @return [String] file name
     def project_iso(project)
-      arch = self.arch
       buildresult = Buildresult.find_hashed(project: project.name, package: "#{test_dvd_prefix}-#{arch}",
                                             repository: 'images',
                                             view: 'binarylist')
-      binaries = []
       # we get multiple architectures, but only one with binaries
       buildresult.elements('result') do |r|
         r.get('binarylist').elements('binary') do |b|

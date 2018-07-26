@@ -36,13 +36,13 @@ module Webui::ObsFactory
     def require_distribution
       @distribution = ::ObsFactory::Distribution.find(params[:project])
       unless @distribution
-        redirect_to main_app.root_path, flash: { error: "#{params[:project]} is not a valid openSUSE distribution, can't offer dashboard" }
+        redirect_to root_path, flash: { error: "#{params[:project]} is not a valid openSUSE distribution, can't offer dashboard" }
       end
     end
 
     def require_dashboard
       if @distribution.staging_projects.empty?
-        redirect_to main_app.root_path, flash: { error: "#{params[:project]} does not offer a dashboard" }
+        redirect_to root_path, flash: { error: "#{params[:project]} does not offer a dashboard" }
       end
     end
   end

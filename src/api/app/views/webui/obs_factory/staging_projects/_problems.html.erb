@@ -23,7 +23,7 @@ end -%>
 
 <% problems += failed_packages.map do |name, attrs|
   versions = attrs[:versions].map do |v|
-    link_to(v[:arch], main_app.package_live_build_log_url(v.merge(package: name, repository: attrs[:repository])))
+    link_to(v[:arch], package_live_build_log_url(v.merge(package: name, repository: attrs[:repository])))
   end
   label = "Build failed #{name} (" + versions.join(", ") + ")"
   content_tag(:li, label.html_safe, class: "failed_pkg status_failed")
@@ -33,7 +33,7 @@ end -%>
   st = pack[:state]
   name = pack[:name]
   label = "Build #{st}: #{name}"
-  content_tag(:li, link_to(label.html_safe, main_app.package_show_url(pack[:project], name)), class: "failed_pkg status_#{st}")
+  content_tag(:li, link_to(label.html_safe, package_show_url(pack[:project], name)), class: "failed_pkg status_#{st}")
 end -%>
 
 <% if problems.empty? %>

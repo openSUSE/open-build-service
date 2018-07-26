@@ -1,7 +1,9 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller do
+RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, vcr: true do
+  render_views
+
   let(:factory) { create(:project, name: 'openSUSE:Factory') }
   let!(:factory_staging_a) { create(:project, name: 'openSUSE:Factory:Staging:A', description: 'Factory staging project A') }
 
@@ -15,10 +17,13 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller d
 
       it { expect(response).to have_http_status(:success) }
       it { expect(response).to render_template(:index) }
-      it { expect(assigns(:backlog_requests_ignored)).to be_empty }
-      it { expect(assigns(:backlog_requests)).to be_empty }
-      it { expect(assigns(:requests_state_new)).to be_empty }
-      it { expect(assigns(:project)).to eq(factory) }
+
+      it 'sets up the required variables' do
+        expect(assigns(:backlog_requests_ignored)).to be_empty
+        expect(assigns(:backlog_requests)).to be_empty
+        expect(assigns(:requests_state_new)).to be_empty
+        expect(assigns(:project)).to eq(factory)
+      end
     end
 
     context 'with dashboard package' do
@@ -71,10 +76,13 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller d
 
           it { expect(response).to have_http_status(:success) }
           it { expect(response).to render_template(:index) }
-          it { expect(assigns(:backlog_requests_ignored)).to contain_exactly(create_review_requests.first) }
-          it { expect(assigns(:backlog_requests)).to contain_exactly(create_review_requests.last) }
-          it { expect(assigns(:requests_state_new)).to contain_exactly(create_review_requests_in_state_new.last) }
-          it { expect(assigns(:project)).to eq(factory) }
+
+          it 'sets up the required variables' do
+            expect(assigns(:backlog_requests_ignored)).to contain_exactly(create_review_requests.first)
+            expect(assigns(:backlog_requests)).to contain_exactly(create_review_requests.last)
+            expect(assigns(:requests_state_new)).to contain_exactly(create_review_requests_in_state_new.last)
+            expect(assigns(:project)).to eq(factory)
+          end
         end
 
         context 'without content' do
@@ -87,18 +95,42 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller d
 
           it { expect(response).to have_http_status(:success) }
           it { expect(response).to render_template(:index) }
-          it { expect(assigns(:backlog_requests_ignored)).to be_empty }
-          it { expect(assigns(:backlog_requests)).to be_empty }
-          it { expect(assigns(:requests_state_new)).to be_empty }
-          it { expect(assigns(:project)).to eq(factory) }
+
+          it 'sets up the required variables' do
+            expect(assigns(:backlog_requests_ignored)).to be_empty
+            expect(assigns(:backlog_requests)).to be_empty
+            expect(assigns(:requests_state_new)).to be_empty
+            expect(assigns(:project)).to eq(factory)
+          end
         end
       end
     end
   end
 
   describe 'GET #show' do
+    let(:source_package) { create(:package) }
+    let(:target_package) { create(:package, name: 'target_package', project: factory) }
+    let(:bs_request) do
+      create(:bs_request_with_submit_action,
+             target_project: factory.name,
+             target_package: target_package.name,
+             source_project: source_package.project.name,
+             source_package: source_package.name)
+    end
+    let(:description) do
+      <<-DESCRIPTION
+        requests:
+          - { id: #{bs_request.number} }
+      DESCRIPTION
+    end
+
     context 'with a existent factory_staging_project' do
       subject { get :show, params: { project: factory, project_name: 'A' } }
+
+      before do
+        bs_request.update(state: 'declined')
+        factory_staging_a.update(description: description)
+      end
 
       it { expect(subject).to have_http_status(:success) }
       it { expect(subject).to render_template(:show) }

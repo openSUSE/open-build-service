@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby.ruby2.5
+#!/usr/bin/ruby.ruby2.5
 
 require 'optparse'
 require 'rubygems'
@@ -45,7 +45,7 @@ class Options
 
     opt.on( "--outline", "Create outline output" ) do
       options.outline = true
-    end 
+    end
 
     opt.on( "-o", "=DIRECTORY", "Output directory" ) do |val|
       options.output_dir = val
@@ -105,4 +105,3 @@ begin
 rescue Errno::ENOENT
   puts $!
 end
-

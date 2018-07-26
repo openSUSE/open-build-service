@@ -15,26 +15,26 @@
 
     %h2
       %i.fa.fa-2.fa-circle-o
-      = link_to 'Ring Projects', main_app.project_subprojects_path(project: @distribution.rings_project_name)
+      = link_to 'Ring Projects', project_subprojects_path(project: @distribution.rings_project_name)
     %ul.project-results#ring-projects
       - @ring_prjs.each do |rp|
         %li{class: "project-result-#{rp.summary[0]}"}
-          = link_to rp.summary[1], main_app.project_monitor_path(rp.build_and_failed_params)
+          = link_to rp.summary[1], project_monitor_path(rp.build_and_failed_params)
 
     %p.clear
 
     %h2
       %i.fa.fa-2.fa-building
-      = link_to "Repositories of #{@distribution.name}", main_app.project_show_path(project: "#{@distribution.name}")
+      = link_to "Repositories of #{@distribution.name}", project_show_path(project: "#{@distribution.name}")
 
     %ul.project-results#factory-build-status
       %li{class: "project-result-#{@standard.summary[0]} "}
-        = link_to @standard.summary[1], main_app.project_monitor_path(@standard.build_and_failed_params)
+        = link_to @standard.summary[1], project_monitor_path(@standard.build_and_failed_params)
       - if @live
         %li{class: "project-result-#{@live.summary[0]}"}
-          = link_to @live.summary[1], main_app.project_monitor_path(@live.build_and_failed_params)
+          = link_to @live.summary[1], project_monitor_path(@live.build_and_failed_params)
       %li{class: "project-result-#{@images.summary[0]}"}
-        = link_to @images.summary[1], main_app.project_monitor_path(@images.build_and_failed_params)
+        = link_to @images.summary[1], project_monitor_path(@images.build_and_failed_params)
 
 
     %p.clear
@@ -70,7 +70,7 @@
       - if @versions[:source]
         %li
           Source:
-          = link_to @versions[:source], main_app.package_show_path(project: "#{@distribution.name}", package: '000product')
+          = link_to @versions[:source], package_show_path(project: "#{@distribution.name}", package: '000product')
 
       - if @versions[:totest]
         %li

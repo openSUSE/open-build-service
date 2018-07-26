@@ -141,7 +141,7 @@ function get_hostname {
   else
      FQHOSTNAME=`hostname -f 2>/dev/null`
   fi
-  
+
   if type -p ec2-public-hostname; then
     FQHOSTNAME=`ec2-public-hostname`
   fi
@@ -173,7 +173,7 @@ function get_hostname {
       SHORTHOSTNAME=$(echo $FQHOSTNAME | perl -pe 's/^([\w\-_]*)\..*/$1/')
     else
       SHORTHOSTNAME=$FQHOSTNAME
-    fi 
+    fi
   fi
 }
 ###############################################################################
@@ -188,7 +188,7 @@ function generate_proposed_dnsnames {
 
   if [[ $FQHOSTNAME == $SHORTHOSTNAME ]];then
     DNSNAMES="$SHORTHOSTNAME $LOCAL_HOST"
-  else 
+  else
     DNSNAMES="$SHORTHOSTNAME $FQHOSTNAME $LOCAL_HOST"
   fi
   ask "Proposed DNS names: " "$DNSNAMES"
@@ -229,7 +229,7 @@ function adapt_worker_jobs {
 function prepare_database_setup {
 
   cd /srv/www/obs/api
-  RAILS_ENV=production rails.ruby2.5 db:migrate:status > /dev/null
+  RAILS_ENV=production bin/rails db:migrate:status > /dev/null
 
   if [[ $? > 0 ]];then
     echo "Initialize MySQL databases (first time only)"
@@ -270,11 +270,11 @@ function prepare_database_setup {
   logline "Setting up rails environment"
   for cmd in $RAKE_COMMANDS
   do
-    logline " - Doing 'rails.ruby2.5 $cmd'"
-    RAILS_ENV=production bundle exec rails.ruby2.5 $cmd >> $apidir/log/db_migrate.log
+    logline " - Doing 'rails $cmd'"
+    RAILS_ENV=production bin/rails $cmd >> $apidir/log/db_migrate.log
     if [[ $? > 0 ]];then
       (>&2 echo "Command $cmd FAILED")
-      exit 1  
+      exit 1
     fi
   done
 
@@ -422,7 +422,7 @@ function ask {
 ###############################################################################
 function check_required_backend_services {
 
-  [[ $SETUP_ONLY == 1 ]] && return 
+  [[ $SETUP_ONLY == 1 ]] && return
   REQUIRED_SERVICES="obsrepserver obssrcserver obsscheduler obsdispatcher obspublisher"
 
   for srv in $REQUIRED_SERVICES ;do
@@ -436,7 +436,7 @@ function check_required_backend_services {
 ###############################################################################
 function check_recommended_backend_services {
 
-  [[ $SETUP_ONLY == 1 ]] && return 
+  [[ $SETUP_ONLY == 1 ]] && return
   RECOMMENDED_SERVICES="obsdodup obsdeltastore obssigner obssignd obsservicedispatch"
 
   for srv in $RECOMMENDED_SERVICES;do
@@ -461,7 +461,7 @@ function check_optional_backend_services {
     DEFAULT_ANSWER="y"
   fi
 
-  [[ $SETUP_ONLY == 1 ]] && return 
+  [[ $SETUP_ONLY == 1 ]] && return
   OPTIONAL_SERVICES="obswarden obsapisetup obsstoragesetup obsworker obsservice"
 
   for srv in $OPTIONAL_SERVICES;do
@@ -480,7 +480,7 @@ function check_optional_backend_services {
 ###############################################################################
 function prepare_apache2 {
 
-  [[ $SETUP_ONLY == 1 ]] && return 
+  [[ $SETUP_ONLY == 1 ]] && return
 
   PACKAGES="apache2 apache2-mod_xforward rubygem-passenger-apache2 memcached"
   PKG2INST=""
@@ -511,7 +511,7 @@ function prepare_passenger {
   perl -p -i -e \
     's#^(\s*)PassengerRuby "/usr/bin/ruby"#$1\PassengerRuby "/usr/bin/ruby.ruby2.5"#' \
       /etc/apache2/conf.d/mod_passenger.conf
- 
+
 
 }
 ###############################################################################
@@ -748,7 +748,7 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
 
   prepare_apache2
 
-  prepare_passenger 
+  prepare_passenger
 
   check_service apache2
 

@@ -11,7 +11,7 @@ ExecStart=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/ap
 ExecStart=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb --queue=mailers start -i 1020"
 ExecStart=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb start -i 1030"
 ExecStart=/bin/bash -c "/usr/bin/echo -n 'Starting OBS api clock daemon'"
-ExecStart=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec /usr/bin/clockworkd --log-dir=log -l -c config/clock.rb start"
+ExecStart=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec clockworkd --log-dir=log -l -c config/clock.rb start"
 ExecStop=/bin/bash -c "/usr/bin/echo -n 'Shutting down OBS api delayed job handler'"
 ExecStop=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb --queue=quick stop -n 3"
 ExecStop=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb --queue=releasetracking stop -i 1000"
@@ -19,7 +19,7 @@ ExecStop=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api
 ExecStop=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb --queue=mailers stop -i 1020"
 ExecStop=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb stop -i 1030"
 ExecStop=/bin/bash -c "/usr/bin/echo -n 'Shutting down OBS api clock daemon'"
-ExecStop=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec /usr/bin/clockworkd --log-dir=log -l -c config/clock.rb stop"
+ExecStop=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec clockworkd --log-dir=log -l -c config/clock.rb stop"
 KillMode=process 
 
 [Install]
