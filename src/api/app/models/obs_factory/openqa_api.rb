@@ -3,7 +3,6 @@ require 'net/http'
 # Commodity class to encapsulate calls to the openQA API.
 module ObsFactory
   class OpenqaApi
-
     class OpenqaFailure < APIException
       setup 408
     end

@@ -118,6 +118,5 @@ module ObsFactory
     def attributes
       Hash[self.class.attributes.map { |a| [a, nil] }]
     end
-
   end
 end

@@ -2,7 +2,6 @@ module ObsFactory
 
   # PowerPC to Factory Diff
   class DistributionStrategyFactoryPPC < DistributionStrategyFactory
-
     def root_project_name
       "openSUSE:Factory"
     end

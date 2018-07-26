@@ -1,7 +1,6 @@
 module ObsFactory
   # View decorator for StagingProject
   class StagingProjectPresenter < BasePresenter
-
     def self.sort(collection)
       prjs = wrap(collection)
       prjs.sort_by! { |a| a.sort_key }
