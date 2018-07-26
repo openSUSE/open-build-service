@@ -289,7 +289,7 @@ Naming/AccessorMethodName:
     - 'app/models/bs_request_action.rb'
     - 'app/models/bs_request_action_maintenance_release.rb'
     - 'app/models/group.rb'
-    - 'app/models/issue_tracker.rb'
+    - 'app/models/issue_tracker/cve_parser.rb'
     - 'app/models/package.rb'
     - 'app/models/user.rb'
     - 'test/functional/search_controller_test.rb'
@@ -816,7 +816,6 @@ Style/ClassAndModuleChildren:
 # Offense count: 33
 Style/ClassVars:
   Exclude:
-    - 'app/models/issue_tracker.rb'
     - 'app/models/obs_factory/openqa_job.rb'
     - 'app/models/user.rb'
     - 'app/models/user_ldap_strategy.rb'

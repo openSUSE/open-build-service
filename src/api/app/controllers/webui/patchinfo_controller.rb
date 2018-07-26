@@ -182,45 +182,41 @@ class Webui::PatchinfoController < Webui::WebuiController
     invalid_format = ''
     # params[:issues] = list of new issues to add
     params[:issues].each do |new_issue|
-      # issue = collecting all informations of an new issue
-      issue = []
-      if new_issue.starts_with? 'CVE-'
-        issue[0] = 'cve'
-        issue[1] = new_issue
-      else
-        issue = new_issue.split('#')
-      end
-      if issue.length > 1
+      issue = IssueTracker::IssueTrackerHelper.new(new_issue)
+      if issue.valid?
         begin
-          issueurl = IssueTracker.find_by_name(issue[0])
-          if issueurl
-            Rails.logger.debug "URL2 #{issueurl.inspect}"
-            issue << issueurl.show_url_for(issue[1])
-            issuesum = get_issue_sum(issue[0], issue[1])
-            unless issuesum
-              invalid_format += "#{issue[0]} "
+          issue_tracker = IssueTracker.find_by_name(issue.tracker)
+          if issue_tracker
+            issue.url = issue_tracker.show_url_for(issue.issue_id)
+            issue_summary = get_issue_summary(issue.tracker, issue.issue_id)
+            unless issue_summary
+              invalid_format += "#{issue.tracker} "
               next
             end
-            issue << issuesum
-            issue_collection << issue
+            issue.summary = issue_summary
+            issue_collection << issue.to_a
           else
-            error << "#{issue[0]} is not a valid tracker.\n"
+            error << "#{issue.tracker} is not a valid tracker.\n"
           end
         rescue ActiveXML::Transport::NotFoundError
-          invalid_format += "#{issue[0]} "
+          invalid_format += "#{issue.tracker} "
         end
       else
-        invalid_format += "#{issue[0]} "
+        invalid_format += "#{issue.tracker} "
       end
     end
-    unless invalid_format.empty?
-      error += "#{invalid_format} has no valid format. (Correct formats are e.g. " \
-               'boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)'
-    end
+
+    error += print_invalid_format(invalid_format) unless invalid_format.empty?
+
     render json: { error: error, issues: issue_collection }
   end
 
   private
+
+  def print_invalid_format(invalid_format)
+    "#{invalid_format.strip} has no valid format. (Correct formats are e.g. " \
+             'boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)'
+  end
 
   def read_patchinfo
     @binaries = []
@@ -239,19 +235,19 @@ class Webui::PatchinfoController < Webui::WebuiController
           # old uploaded patchinfos could have broken tracker-names like "bnc "
           # instead of "bnc". Catch these.
           begin
-            a.text = get_issue_sum(a.value(:tracker), a.value(:id))
+            a.text = get_issue_summary(a.value(:tracker), a.value(:id))
           rescue ActiveXML::Transport::NotFoundError
             a.text = 'PLEASE CHECK THE FORMAT OF THE ISSUE'
           end
         end
 
-        issueurl = IssueTracker.find_by_name(a.value(:tracker)).
-                   try(:show_url_for, a.value(:id)).to_s
+        issue_tracker = IssueTracker.find_by_name(a.value(:tracker)).
+                        try(:show_url_for, a.value(:id)).to_s
 
         @issues << [
           a.value(:tracker),
           a.value(:id),
-          issueurl,
+          issue_tracker,
           a.text
         ]
       end
@@ -280,24 +276,11 @@ class Webui::PatchinfoController < Webui::WebuiController
       name.length > [params[:summary].length, 50].max
   end
 
-  # returns issue summary of an issue
-  # returns empty string in case of ActiveXML::Transport::Error exception
-  # returns nil in case of error (bug mismatches tracker result regex)
-  def get_issue_sum(tracker, issueid)
-    if !issueid.starts_with? 'CVE-'
-      bug = tracker + '#' + issueid
-    else
-      bug = issueid
-    end
-
-    issue_tracker = IssueTracker.find_by(name: tracker)
-    return unless issue_tracker
-    return unless bug =~ /^#{issue_tracker.regex}$/
-
-    issue = Issue.find_or_create_by_name_and_tracker(issueid, issue_tracker.name)
-    issue.fetch_updates if issue && issue.summary.blank?
-    return issue.summary.gsub(/\\|'/) { '' } if issue.summary
-    return ''
+  def get_issue_summary(tracker, issueid)
+    issue_summary = IssueTracker::IssueSummary.new(tracker, issueid)
+    return unless issue_summary.issue_tracker
+    return unless issue_summary.belongs_bug_to_tracker?
+    issue_summary.issue_summary
   end
 
   def get_binaries

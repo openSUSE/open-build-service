@@ -65,7 +65,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       end
 
       it { expect(response).to have_http_status(:redirect) }
-      it { expect(flash[:error]).to eq 'Sorry, you are not authorized to update this Project.' }
+      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this Project.') }
     end
 
     context 'when it fails to create the patchinfo package' do
@@ -75,7 +75,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       end
 
       it { expect(response).to redirect_to(project_show_path(user.home_project)) }
-      it { expect(flash[:error]).to eq 'Error creating patchinfo' }
+      it { expect(flash[:error]).to eq('Error creating patchinfo') }
     end
 
     context 'when the patchinfo package file is not found' do
@@ -133,12 +133,12 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     end
 
     it { expect(response).to have_http_status(:success) }
-    it { expect(assigns(:binaries)).to be_a Array }
+    it { expect(assigns(:binaries)).to be_a(Array) }
     it { expect(assigns(:tracker)).to eq(::Configuration.default_tracker) }
   end
 
   describe 'GET #show' do
-    context 'package do not exist' do
+    context 'package does not exist' do
       before do
         login user
         get :show, params: { project: user.home_project_name, package: 'foo' }
@@ -155,7 +155,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       end
 
       it { expect(response).to have_http_status(:success) }
-      it { expect(assigns(:binaries)).to be_a Array }
+      it { expect(assigns(:binaries)).to be_a(Array) }
       it { expect(assigns(:pkg_names)).to be_empty }
       it { expect(assigns(:packager)).to eq(user) }
     end
@@ -323,7 +323,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       end
 
       it {
-        error_message = 'cve  has no valid format. (Correct formats are e.g. boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)'
+        error_message = 'cve has no valid format. (Correct formats are e.g. boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)'
         expect(JSON.parse(response.body)).to eq('error' =>
                                                 error_message,
                                                 'issues' => [])
