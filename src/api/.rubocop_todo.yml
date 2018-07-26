@@ -73,17 +73,6 @@ Layout/EmptyComment:
     - 'app/models/bs_request_action_maintenance_release.rb'
     - 'app/models/bs_request_action_set_bugowner.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty_lines, empty_lines_except_namespace, empty_lines_special, no_empty_lines
-Layout/EmptyLinesAroundModuleBody:
-  Exclude:
-    - 'app/models/obs_factory/distribution.rb'
-    - 'app/models/obs_factory/distribution_strategy_factory_ppc.rb'
-    - 'app/models/obs_factory/distribution_strategy_sle12_sp1.rb'
-    - 'app/presenters/obs_factory/obs_project_presenter.rb'
-
 # Offense count: 8
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyleAlignWith, AutoCorrect, Severity.

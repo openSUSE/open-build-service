@@ -1,5 +1,4 @@
 module ObsFactory
-
   # View decorator for a Project
   class ObsProjectPresenter < BasePresenter
     def build_and_failed_params

@@ -1,7 +1,6 @@
 require 'open-uri'
 
 module ObsFactory
-
   class UnknownDistribution < Exception
   end
 
