@@ -121,7 +121,7 @@ module ObsFactory
     # @param [#to_s] version must be :source, :totest or :published
     # @return [Array] list of OpenqaJob objects
     def openqa_jobs_for(version)
-      filter = {distri: 'opensuse', version: strategy.openqa_version, build: send(:"#{version}_version"), group: strategy.openqa_group}
+      filter = { distri: 'opensuse', version: strategy.openqa_version, build: send(:"#{version}_version"), group: strategy.openqa_group }
       OpenqaJob.find_all_by(filter, exclude_modules: true)
     end
 

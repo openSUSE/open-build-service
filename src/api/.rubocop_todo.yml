@@ -123,16 +123,6 @@ Layout/SpaceAroundOperators:
     - 'test/functional/request_controller_test.rb'
     - 'test/functional/search_controller_test.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBraces.
-# SupportedStyles: space, no_space, compact
-# SupportedStylesForEmptyBraces: space, no_space
-Layout/SpaceInsideHashLiteralBraces:
-  Exclude:
-    - 'app/models/obs_factory/distribution.rb'
-    - 'app/models/obs_factory/openqa_job.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

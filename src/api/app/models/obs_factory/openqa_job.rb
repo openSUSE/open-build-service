@@ -40,7 +40,7 @@ module ObsFactory
       filter = args.symbolize_keys.slice(:iso, :state, :build, :maxage, :distri, :version, :group)
 
       # We are only interested in current results
-      get_params = {scope: 'current'}
+      get_params = { scope: 'current' }
 
       # If searching for the whole list of jobs, it caches the jobs
       # per ISO name.
