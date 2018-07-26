@@ -184,7 +184,7 @@ module ObsFactory
     #
     # @return [Array] list of ObsProject objects nicknamed with numbers
     def ring_projects
-      @ring_projects ||= strategy.rings.each_with_index.map do |r,idx|
+      @ring_projects ||= strategy.rings.each_with_index.map do |r, idx|
         ObsProject.new("#{rings_project_name}:#{idx}-#{r}", "#{idx}-#{r}")
       end
     end

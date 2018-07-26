@@ -108,13 +108,6 @@ Layout/IndentationWidth:
 Layout/LeadingBlankLines:
   Enabled: false
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Layout/SpaceAfterComma:
-  Exclude:
-    - 'app/controllers/webui/obs_factory/staging_projects_controller.rb'
-    - 'app/models/obs_factory/distribution.rb'
-
 # Offense count: 30
 # Cop supports --auto-correct.
 # Configuration parameters: AllowForAlignment.
