@@ -123,14 +123,6 @@ Layout/SpaceAroundOperators:
     - 'test/functional/request_controller_test.rb'
     - 'test/functional/search_controller_test.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: space, no_space
-Layout/SpaceInsideParens:
-  Exclude:
-    - 'app/models/obs_factory/distribution_strategy_casp.rb'
-
 # Offense count: 23
 # Cop supports --auto-correct.
 # Configuration parameters: IndentationWidth.
