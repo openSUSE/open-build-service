@@ -28,15 +28,6 @@ Capybara/FeatureMethods:
 Layout/AlignHash:
   Enabled: false
 
-# Offense count: 14
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, IndentOneStep, IndentationWidth.
-# SupportedStyles: case, end
-Layout/CaseIndentation:
-  Exclude:
-    - 'app/models/obs_factory/distribution.rb'
-    - 'app/presenters/obs_factory/staging_project_presenter.rb'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 Layout/ClosingHeredocIndentation:
