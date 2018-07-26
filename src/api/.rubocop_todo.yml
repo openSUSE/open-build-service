@@ -354,12 +354,6 @@ Naming/VariableNumber:
     - 'spec/features/webui/projects_spec.rb'
     - 'test/unit/project_test.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Performance/RegexpMatch:
-  Exclude:
-    - 'app/models/obs_factory/distribution_strategy_factory.rb'
-
 # Offense count: 69
 RSpec/AnyInstance:
   Enabled: false

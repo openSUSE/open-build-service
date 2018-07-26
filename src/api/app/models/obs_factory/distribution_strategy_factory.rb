@@ -69,7 +69,7 @@ module ObsFactory
       iso = project_iso(project)
       return nil if iso.nil?
       ending = iso.gsub!(/.*-Build/, '')
-      suffix = /DVD$/ =~ project.name ? 'Staging2' : 'Staging'
+      suffix = /DVD$/.match?(project.name) ? 'Staging2' : 'Staging'
       "#{openqa_iso_prefix}:#{project.letter}-#{suffix}-DVD-#{arch}-Build#{ending}"
     end
 
