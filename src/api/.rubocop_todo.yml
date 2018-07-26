@@ -19,14 +19,6 @@ Capybara/CurrentPathExpectation:
 Capybara/FeatureMethods:
   Enabled: false
 
-# Offense count: 8
-# Cop supports --auto-correct.
-FactoryBot/DynamicAttributeDefinedStatically:
-  Exclude:
-    - 'spec/factories/attrib_default_values.rb'
-    - 'spec/factories/issue.rb'
-    - 'spec/factories/issue_tracker.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 Layout/AlignArray:
