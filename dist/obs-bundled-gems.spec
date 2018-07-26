@@ -68,8 +68,9 @@ bundle --local --path %{buildroot}/%_libdir/obs-api/
 # Remove sources of extensions, we don't need them
 rm -rf %{buildroot}/%_libdir/obs-api/ruby/*/gems/*/ext/
 
-# remove bins - the uninstalled # ones contain invalid interpreters
-rm -rf %{buildroot}/%_libdir/obs-api/ruby/*/gems/*/bin
+# remove binaries with invalid interpreters
+rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/diff-lcs-*/bin
+
 # remove spec / test files from gems as they shouldn't be shipped in gems anyway
 # and often cause errors / warning in rpmlint
 rm -rf %{buildroot}/%_libdir/obs-api/ruby/*/gems/*/spec/
