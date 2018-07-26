@@ -63,7 +63,7 @@ module ObsFactory
         request_hash = { number: req.number, package: req.first_target_package }
         css = 'ok'
         request_hash[:missing_reviews] = reviews[req.number]
-        unless request_hash[:missing_reviews].blank?
+        if request_hash[:missing_reviews].present?
           css = 'review'
         end
         if req.state.in?(BsRequest::OBSOLETE_STATES)

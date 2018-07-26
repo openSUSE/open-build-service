@@ -711,13 +711,6 @@ Rails/Presence:
 
 # Offense count: 1
 # Cop supports --auto-correct.
-# Configuration parameters: NotNilAndNotEmpty, NotBlank, UnlessBlank.
-Rails/Present:
-  Exclude:
-    - 'app/presenters/obs_factory/staging_project_presenter.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
 # Configuration parameters: Include.
 # Include: **/test/**/*
 Rails/RefuteMethods:
