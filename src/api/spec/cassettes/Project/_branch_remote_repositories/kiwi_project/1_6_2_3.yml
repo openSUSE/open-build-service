@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE_41">
-          <title>Pale Kings and Princes</title>
+          <title>Lilies of the Field</title>
           <description/>
         </project>
     headers:
@@ -29,16 +29,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '110'
+      - '107'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE_41">
-          <title>Pale Kings and Princes</title>
+          <title>Lilies of the Field</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Wed, 18 Jul 2018 13:43:04 GMT
+  recorded_at: Wed, 18 Jul 2018 13:42:29 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE.org/_meta?user=_nobody_
@@ -46,9 +46,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE.org">
-          <title>Vile Bodies</title>
-          <description>Minima saepe ipsam sint.</description>
-          <remoteurl>http://wymanhowe.com/jake.turcotte</remoteurl>
+          <title>The Grapes of Wrath</title>
+          <description>Mollitia maxime nemo minima.</description>
+          <remoteurl>http://toywisozk.info/delmer</remoteurl>
         </project>
     headers:
       Accept-Encoding:
@@ -69,17 +69,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '184'
+      - '190'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE.org">
-          <title>Vile Bodies</title>
-          <description>Minima saepe ipsam sint.</description>
-          <remoteurl>http://wymanhowe.com/jake.turcotte</remoteurl>
+          <title>The Grapes of Wrath</title>
+          <description>Mollitia maxime nemo minima.</description>
+          <remoteurl>http://toywisozk.info/delmer</remoteurl>
         </project>
     http_version: 
-  recorded_at: Wed, 18 Jul 2018 13:43:04 GMT
+  recorded_at: Wed, 18 Jul 2018 13:42:29 GMT
 - request:
     method: get
     uri: http://backend:5352/source/openSUSE_41/_config
@@ -115,5 +115,5 @@ http_interactions:
         Patterntype: none
         %endif
     http_version: 
-  recorded_at: Wed, 18 Jul 2018 13:43:04 GMT
+  recorded_at: Wed, 18 Jul 2018 13:42:29 GMT
 recorded_with: VCR 4.0.0

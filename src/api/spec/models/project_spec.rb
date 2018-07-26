@@ -139,7 +139,7 @@ RSpec.describe Project, vcr: true do
           </project>
         XML_DATA
       end
-      let(:local_xml_meta) do
+      let(:expected_xml_meta) do
         <<-XML_DATA
           <project name="#{project}">
             <title>#{project.title}</title>
@@ -153,11 +153,14 @@ RSpec.describe Project, vcr: true do
           </project>
         XML_DATA
       end
-      let(:expected_xml) { Nokogiri::XML(local_xml_meta) }
 
       before do
         branch_remote_repositories
         project.reload
+      end
+
+      it 'has proper project xml' do
+        expect(Xmlhash.parse(project.render_xml)).to eq(Xmlhash.parse(expected_xml_meta))
       end
 
       context 'keeps original repository' do
@@ -199,7 +202,7 @@ RSpec.describe Project, vcr: true do
         </project>
         XML_DATA
       end
-      let(:local_xml_meta) do
+      let(:expected_xml_meta) do
         <<-XML_DATA
         <project name="#{project}">
           <title>#{project.title}</title>
@@ -216,16 +219,18 @@ RSpec.describe Project, vcr: true do
         </project>
       XML_DATA
       end
-      let(:expected_xml) { Nokogiri::XML(local_xml_meta) }
 
       before do
         branch_remote_repositories
         project.reload
       end
 
-      let(:new_repository) { project.repositories.second }
-      let(:path_elements) { new_repository.path_elements.first.link }
       let(:path_elements2) { new_repository.path_elements.second.link }
+      let(:path_elements) { new_repository.path_elements.first.link }
+      let(:new_repository) { project.repositories.second }
+      it 'has proper project xml' do
+        expect(Xmlhash.parse(project.render_xml)).to eq(Xmlhash.parse(expected_xml_meta))
+      end
 
       it { expect(new_repository.name).to eq('images') }
       it { expect(new_repository.architectures.first.name).to eq('x86_64') }
