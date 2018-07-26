@@ -363,6 +363,7 @@ if (!$dodelete) {
       $snapshot_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_snapshot_id};
     }
   };
+  die($@) if $@ && $@ =~ /^5/;
   warn($@) if $@ && $@ !~ /^404 /;
 }
 
@@ -454,6 +455,7 @@ eval {
   $oldtargets = BSRPC::rpc($param, \&JSON::XS::decode_json);
   $targets_version = 1 + $oldtargets->{'signed'}->{'version'};
 };
+die($@) if $justadd && $@ && $@ =~ /^5/;
 if ($justadd && $oldtargets) {
   for my $tag (sort keys %{$oldtargets->{'signed'}->{'targets'} || {}}) {
     next if $manifests->{$tag};
