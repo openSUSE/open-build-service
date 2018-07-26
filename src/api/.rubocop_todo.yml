@@ -151,14 +151,6 @@ Lint/DuplicateMethods:
 Lint/HandleExceptions:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: runtime_error, standard_error
-Lint/InheritException:
-  Exclude:
-    - 'app/models/obs_factory/distribution.rb'
-
 # Offense count: 9
 # Configuration parameters: MaximumRangeSize.
 Lint/MissingCopEnableDirective:
