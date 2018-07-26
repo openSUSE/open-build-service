@@ -29,7 +29,12 @@ BuildRequires:  obs-api-testsuite-deps
 BuildRequires:  chromedriver
 BuildRequires:  xorg-x11-fonts
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+%if 0%{?disable_obs_frontend_test_suite} || 0%{?disable_obs_test_suite}
+ExclusiveArch:  nothere
+%else
 ExclusiveArch:  x86_64
+%endif
+
 
 %description
 Running the RSpec test suite of the OBS frontend independently
@@ -63,6 +68,7 @@ bin/rspec -f d
 
 %install
 
+# no result
 %files
 
 %changelog
