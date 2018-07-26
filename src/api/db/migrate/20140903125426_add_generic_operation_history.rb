@@ -1,7 +1,7 @@
 class AddGenericOperationHistory < ActiveRecord::Migration[4.2]
   def self.up
     create_table :history_elements do |t|
-      t.string :type, charset: 'utf8', null: false
+      t.string :type, null: false
       t.integer :op_object_id, null: false # id of request/project/...
       t.datetime :created_at, null: false
       t.references :user, null: false

@@ -1,6 +1,6 @@
 class UpdateinfoTrackingSecondAttempt < ActiveRecord::Migration[4.2]
   def up
-    add_column :binary_releases, :binary_updateinfo, :string, charset: 'utf8'
+    add_column :binary_releases, :binary_updateinfo, :string
     add_column :binary_releases, :binary_updateinfo_version, :string
     add_index :binary_releases, :binary_updateinfo
 

@@ -4,7 +4,7 @@ class AddUpdateinfoTracking < ActiveRecord::Migration[4.2]
       t.references :repository, null: false
       t.references :package,    null: false
       t.datetime :created_at, null: false
-      t.string :identifier, null: false, charset: 'utf8'
+      t.string :identifier, null: false
     end
 
     add_index :updateinfos, :identifier

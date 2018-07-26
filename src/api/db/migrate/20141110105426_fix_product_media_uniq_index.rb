@@ -15,7 +15,7 @@ class FixProductMediaUniqIndex < ActiveRecord::Migration[4.2]
       t.references :product
       t.references :repository
       t.integer :arch_filter_id
-      t.string :name, charset: 'utf8'
+      t.string :name
     end
     add_index :product_media, :product_id
     add_index :product_media, :arch_filter_id

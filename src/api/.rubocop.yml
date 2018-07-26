@@ -76,7 +76,6 @@ Rails/BulkChangeTable:
     - 'db/migrate/20170516140442_add_several_fields_to_kiwi_repositories.rb'
     - 'db/migrate/20170607110443_add_and_remove_some_index_in_bs_request_actions.rb'
     - 'db/migrate/20170630121602_add_index_bs_requests_action.rb'
-    - 'db/migrate/20170619111734_alter_notifications_to_use_polymorphic.rb'
     - 'db/migrate/20170905081525_add_has_secure_password_support.rb'
     - 'db/migrate/20170911142301_change_kiwi_package_groups_columns_from_big_int_to_int.rb'
     - 'db/migrate/20170912140257_change_kiwi_packages_columns_from_big_int_to_int.rb'
