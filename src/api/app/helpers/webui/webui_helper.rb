@@ -180,6 +180,16 @@ module Webui::WebuiHelper
     end
   end
 
+  def webui2_description_wrapper(description)
+    if description.blank?
+      content_tag(:p, id: 'description-text') do
+        content_tag(:i, 'No description set')
+      end
+    else
+      content_tag(:p, simple_format(description), id: 'description-text', class: 'plain')
+    end
+  end
+
   def is_advanced_tab?
     action_name.in?(['prjconf', 'index', 'meta', 'status', 'pulse'])
   end
