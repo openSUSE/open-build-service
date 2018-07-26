@@ -11,7 +11,7 @@ production:
   database: api_production
   username: root
   password: opensuse
-  encoding: utf8mb4
+  encoding: utf8
   timeout: 15
   pool: 30
 
@@ -20,7 +20,7 @@ development:
   database: api_development
   username: root
   password: opensuse
-  encoding: utf8mb4
+  encoding: utf8
   timeout: 15
   pool: 30
   
@@ -32,7 +32,7 @@ test:
   database: api_test
   username: root
   password: opensuse
-  encoding: utf8mb4
+  encoding: utf8
   timeout: 15
   pool: 30
 
