@@ -210,13 +210,6 @@ Lint/UnneededCopEnableDirective:
   Exclude:
     - 'test/unit/schema_test.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoreEmptyBlocks, AllowUnusedKeywordArguments.
-Lint/UnusedBlockArgument:
-  Exclude:
-    - 'app/controllers/webui/obs_factory/application_controller.rb'
-
 # Offense count: 39
 Lint/UriEscapeUnescape:
   Enabled: false
