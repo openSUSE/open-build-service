@@ -83,6 +83,8 @@ class Webui::PackageController < Webui::WebuiController
     @comment = Comment.new
     @requests = []
     @services = Backend::Api::Sources::Package.service(@project.name, @package.name)
+
+    switch_to_webui2
   end
 
   def main_object
