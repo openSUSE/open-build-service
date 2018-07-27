@@ -289,7 +289,7 @@ sub create_dist_manifest {
 sub create_dist_manifest_list {
   my ($manifest) = @_;
   my %m = %$manifest;
-  $_ = _orderhash($_, $imagemani_order) for @{$m{'manifests'} || []};
+  $m{'manifests'} = [ map {_orderhash($_, $imagemani_order)} @{$m{'manifests'}} ] if $m{'manifests'};
   $manifest = _orderhash(\%m, $distmanilist_order);
   my $json = JSON::XS->new->utf8->canonical->pretty->encode($manifest);
   $json =~ s/!!!\d_//g;
