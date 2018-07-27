@@ -3653,6 +3653,17 @@ sub publishedfile {
   return undef;
 }
 
+sub published_status {
+  my ($cgi, $projid, $repoid) = @_;
+  my $repoinfo = BSUtil::retrieve("$reporoot/$projid/$repoid/:repoinfo", 1) || {};
+  my $status = { 'code' => ($repoinfo->{'code'} || 'unknown') };
+  $status->{'starttime'} = $repoinfo->{'starttime'} if $repoinfo->{'starttime'};
+  $status->{'endtime'} = $repoinfo->{'endtime'} if $repoinfo->{'endtime'};
+  $status->{'buildid'} = $repoinfo->{'publishid'} if $repoinfo->{'publishid'};
+  $status->{'details'} = $repoinfo->{'details'} if $repoinfo->{'details'};
+  return ($status, $BSXML::buildstatus);
+}
+
 sub getrelsync {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my $prp = "$projid/$repoid";
@@ -4059,6 +4070,7 @@ my $dispatches = [
   '/published' => \&publisheddir,
   '/published/$project' => \&publisheddir,
   '/published/$project/$repository' => \&publisheddir,
+  '/published/$project/$repository view=status' => \&published_status,
   '/published/$project/$repository/$arch:filename view:?' => \&publisheddir,
   '/published/$project/$repository/$arch:filename/$filename view:?' => \&publishedfile,
   '/published/$project/$repository/$arch:filename/$filename/$subfilename:filename view:?' => \&publishedfile,

@@ -26,6 +26,7 @@ use File::Temp qw/tempfile/;
 
 use BSConfiguration;
 use BSPublisher::Util;
+use BSPublisher::Registry;
 use BSUtil;
 use BSTar;
 use BSRepServer::Containerinfo;
@@ -120,8 +121,16 @@ sub upload_all_containers {
     # ok, now go through every repository and upload all tags
     for my $repository (sort keys %uploads) {
       $container_repositories{$regname}->{$repository} = 1;
-      # find common containerinfos so that we can push multiple tags in one go
+
       my $uptags = $uploads{$repository};
+
+      # do local publishing if requested
+      if ($registry->{'server'} eq 'local:') {
+        do_local_uploads($extrep, $projid, $repoid, $repository, $containers, $notary_uploads, $multicontainer, $uptags);
+	next;
+      }
+
+      # find common containerinfos so that we can push multiple tags in one go
       my %todo;
       my %todo_p;
       for my $tag (sort keys %$uptags) {
@@ -147,6 +156,10 @@ sub upload_all_containers {
     # delete repositories of former publish runs that are now empty
     for my $repository (@{$old_container_repositories->{$regname} || []}) {
       next if $uploads{$repository};
+      if ($registry->{'server'} eq 'local:') {
+	do_local_uploads($extrep, $projid, $repoid, $repository, $containers, $notary_uploads, $multicontainer, {});
+	next;
+      }
       my $containerdigests = '';
       add_notary_upload($notary_uploads, $registry, $repository, $containerdigests);
       delete_obsolete_tags_from_registry($registry, $repository, $containerdigests);
@@ -427,6 +440,36 @@ sub delete_container_repositories {
   my %containers;
   upload_all_containers($extrep, $projid, $repoid, \%containers, $notary_uploads, 0, $old_container_repositories);
   delete_from_notary($projid, $notary_uploads);
+}
+
+sub do_local_uploads {
+  my ($extrep, $projid, $repoid, $repository, $containers, $notary_uploads, $multicontainer, $uptags) = @_;
+
+  my %todo;
+  my @tempfiles;
+  for my $tag (sort keys %$uptags) {
+    my $archs = $uptags->{$tag};
+    for my $arch (sort keys %{$archs || {}}) {
+      my $p = $archs->{$arch};
+      my $containerinfo = $containers->{$p};
+      my $file = $containerinfo->{'publishfile'};
+      if (!defined($file)) {
+        die("need a blobdir for containerinfo uploads\n") unless $containerinfo->{'blobdir'};
+      } elsif ($file =~ /\.tar$/) {
+	$containerinfo->{'uploadfile'} = $file;
+      } else {
+        my $tmpfile = decompress_container($file);
+	$containerinfo->{'uploadfile'} = $tmpfile;
+        push @tempfiles, $tmpfile;
+      }
+      push @{$todo{$tag}}, $containerinfo;
+    }
+  }
+  eval {
+    BSPublisher::Registry::push_containers("$projid/$repoid", $repository, $multicontainer, \%todo);
+  };
+  unlink($_) for @tempfiles;
+  die($@) if $@;
 }
 
 1;
