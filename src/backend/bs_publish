@@ -55,6 +55,7 @@ use BSPGP;
 use BSRepServer::Containerinfo;
 use BSPublisher::Container;
 use BSPublisher::Util;
+use BSPublisher::Blobstore;
 
 use strict;
 
@@ -1262,6 +1263,16 @@ sub sync_to_stage {
   }
 }
 
+sub clean_blobdir {
+  my ($blobdir) = @_;
+  return unless $blobdir;
+  for my $blobid (sort(ls($blobdir))) {
+    unlink("$blobdir/$blobid");
+    BSPublisher::Blobstore::blobstore_chk($blobid);
+  }
+  rmdir($blobdir);
+}
+
 sub deleterepo {
   my ($projid, $repoid, $dbgsplit) = @_;
   my $prp = "$projid/$repoid";
@@ -1988,16 +1999,18 @@ sub publish {
     if ($blobdir) {
       $_->{'blobdir'} = $blobdir for values %containers;
     }
-    ($container_repositories, $deleted_container_bins) = BSPublisher::Container::upload_all_containers($extrep, $projid, $repoid, \%containers, $notary_uploads, $multicontainer, $repoinfo->{'container_repositories'} || {});
+    eval {
+      ($container_repositories, $deleted_container_bins) = BSPublisher::Container::upload_all_containers($extrep, $projid, $repoid, \%containers, $notary_uploads, $multicontainer, $repoinfo->{'container_repositories'} || {});
+    };
+    if ($@) {
+      clean_blobdir($blobdir);
+      die($@);
+    }
     $changed = 1;		# FIXME
   }
 
-  if ($blobdir) {
-    # get rid of the blobdir
-    BSUtil::cleandir($blobdir);
-    rmdir($blobdir);
-    undef $blobdir;
-  }
+  clean_blobdir($blobdir);
+  undef $blobdir;
 
   if (!$changed && !$dbgsplit) {
     print "    nothing changed\n";
