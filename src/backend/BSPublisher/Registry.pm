@@ -369,7 +369,9 @@ sub push_containers {
     unlink("$repodir/info");
     disownrepo($prp, $repo);
   } else {
-    BSUtil::store("$repodir/.info.$$", "$repodir/info", \%info);
+    my ($projid, $repoid) = split('/', $prp, 2);
+    my $info = { 'project' => $projid, 'repository' => $repoid, 'tags' => \%info };
+    BSUtil::store("$repodir/.info.$$", "$repodir/info", $info);
   }
 
   # and we're done, return digests
