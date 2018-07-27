@@ -639,6 +639,8 @@ our $buildstatus = [
 	'starttime',
 	'endtime',
 
+	'buildid',	# some id identifying the build
+
 	'job',		# internal, job when building
 
 	'uri',		# obsolete

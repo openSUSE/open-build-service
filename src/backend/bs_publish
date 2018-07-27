@@ -1385,6 +1385,8 @@ sub publish {
   my ($projid, $repoid, $dbgsplit, $dbgpacktrack) = @_;
   my $prp = "$projid/$repoid";
   BSUtil::printlog("publishing $prp");
+  my $starttime = time();
+  my $publishid;
 
   # get info from source server about this project/repository
   # we specify "withsrcmd5" so that we get the patternmd5. It still
@@ -1975,19 +1977,21 @@ sub publish {
   $state = Digest::MD5::md5_hex($state) if $state ne '';
 
   # get us the old repoinfo, so we can compare the state
-  my $repoinfo = {};
+  my $oldrepoinfo = {};
   my $packtrackcache;
   if (-s "$reporoot/$prp/:repoinfo") {
-    $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo") || {};
-    $packtrackcache = $repoinfo->{'trackercache'} if $repoinfo->{'trackercache'} && ($repoinfo->{'trackercacheversion'} || '') eq '1';
+    $oldrepoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo");
+    $packtrackcache = $oldrepoinfo->{'trackercache'} if $oldrepoinfo->{'trackercache'} && ($oldrepoinfo->{'trackercacheversion'} || '') eq '1';
+    $publishid = $oldrepoinfo->{'publishid'} + 1 if $oldrepoinfo->{'publishid'};
   }
+  $publishid ||= $starttime;
 
-  if (($repoinfo->{'state'} || '') ne $state) {
+  if (($oldrepoinfo->{'state'} || '') ne $state) {
     $changed = 1;
   }
 
-  if (($repoinfo->{'splitdebug'} || '') ne (($repotype{'splitdebug'} || [])->[0] || '')) {
-    deleterepo($projid, $repoid, $repoinfo->{'splitdebug'}) if $repoinfo->{'splitdebug'};
+  if (($oldrepoinfo->{'splitdebug'} || '') ne (($repotype{'splitdebug'} || [])->[0] || '')) {
+    deleterepo($projid, $repoid, $oldrepoinfo->{'splitdebug'}) if $oldrepoinfo->{'splitdebug'};
     $changed = 1;
   }
 
@@ -1995,12 +1999,12 @@ sub publish {
   my $notary_uploads = {};
   my $container_repositories;
   my $deleted_container_bins;
-  if (%containers || $repoinfo->{'container_repositories'}) {
+  if (%containers || $oldrepoinfo->{'container_repositories'}) {
     if ($blobdir) {
       $_->{'blobdir'} = $blobdir for values %containers;
     }
     eval {
-      ($container_repositories, $deleted_container_bins) = BSPublisher::Container::upload_all_containers($extrep, $projid, $repoid, \%containers, $notary_uploads, $multicontainer, $repoinfo->{'container_repositories'} || {});
+      ($container_repositories, $deleted_container_bins) = BSPublisher::Container::upload_all_containers($extrep, $projid, $repoid, \%containers, $notary_uploads, $multicontainer, $oldrepoinfo->{'container_repositories'} || {});
     };
     if ($@) {
       clean_blobdir($blobdir);
@@ -2191,7 +2195,7 @@ sub publish {
   delete $binaryorigins->{$_} for keys %{$deleted_container_bins || {}};
 
   # create and store the new repoinfo
-  $repoinfo = {
+  my $repoinfo = {
     'prpsearchpath' => $prpsearchpath,
     'binaryorigins' => $binaryorigins,
     'title' => $title,
@@ -2203,6 +2207,9 @@ sub publish {
   $repoinfo->{'subdir'} = $subdir if $subdir;
   $repoinfo->{'base'} = $repo->{'base'} if $repo->{'base'};
   $repoinfo->{'container_repositories'} = $container_repositories if %{$container_repositories || {}};
+  $repoinfo->{'publishid'} = $publishid;
+  $repoinfo->{'code'} = 'building';
+  $repoinfo->{'starttime'} = $starttime;
 
   # store repoinfo on disk
   if (!$dbgsplit) {
@@ -2475,14 +2482,28 @@ publishprog_done:
     BSNotify::notify('PACKTRACK', { project => $projid , 'repo' => $repoid }, Storable::nfreeze([ map { $packtrack->{$_} } sort keys %$packtrack ]));
   }
 
+  # update repoinfo with status
+  if (!$dbgsplit && $state ne '') {
+    $repoinfo->{'code'} = 'succeeded';
+    $repoinfo->{'starttime'} = $starttime;
+    $repoinfo->{'endtime'} = time();
+    $repoinfo->{'publishid'} = $publishid;
+    BSUtil::store("$reporoot/$prp/.:repoinfo", "$reporoot/$prp/:repoinfo", $repoinfo);
+  }
 }
 
 sub clear_repoinfo_state {
-  my ($prp) = @_;
+  my ($prp, $details) = @_;
   if (-s "$reporoot/$prp/:repoinfo") {
     my $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo", 1) || {};
-    if ($repoinfo->{'state'}) {
+    if ($repoinfo->{'state'} || ($repoinfo->{'code'} || '') eq 'building') {
       delete $repoinfo->{'state'};
+      if (($repoinfo->{'code'} || '') eq 'building') {
+	delete $repoinfo->{'details'};
+        $repoinfo->{'code'} = 'failed';
+        $repoinfo->{'endtime'} = time();
+        $repoinfo->{'details'} = $details if $details;
+      }
       BSUtil::store("$reporoot/$prp/.:repoinfo$$", "$reporoot/$prp/:repoinfo", $repoinfo);
     }
   }
@@ -2580,7 +2601,9 @@ sub publishevent {
   if ($@) {
     warn("publish failed for $projid/$repoid : $@");
     # delete state from repoinfo so that we will always re-publish
-    clear_repoinfo_state($prp);
+    my $err = $@;
+    $err =~ s/\n.*//s;
+    clear_repoinfo_state($prp, $err);
     set_publish_retry($req, time() + 60);
     db_sync();
     BSUtil::printlog("publish failed for $prp") if $req->{'forked'};

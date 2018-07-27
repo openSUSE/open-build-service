@@ -5022,6 +5022,18 @@ sub published {
   return ({'entry' => \@res}, $BSXML::dir);
 }
 
+sub published_status {
+  my ($cgi, $projid, $repoid) = @_;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
+  my $param = {
+    'uri' => "$reposerver/published/$projid/$repoid",
+    'ignorestatus' => 1,
+    'receiver' => \&BSServer::reply_receiver,
+  };
+  BSWatcher::rpc($param, undef, "view=status");
+  return undef;
+}
+
 sub published_path {
   my ($cgi, $projid, $repoid) = @_;
   my $medium = $cgi->{'medium'};
@@ -6348,6 +6360,7 @@ my $dispatches = [
   '/published' => \&published,
   '/published/$project' => \&published,
   '/published/$project/$repository view=publishedpath medium:?' => \&published_path,
+  '/published/$project/$repository view=status' => \&published_status,
   '/published/$project/$repository' => \&published,
   '/published/$project/$repository/$arch:filename view:?' => \&published,
   '/published/$project/$repository/$arch:filename/$filename view:?' => \&published,
