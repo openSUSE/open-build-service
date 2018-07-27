@@ -68,7 +68,7 @@ class SearchController < ApplicationController
   def missing_owner
     params[:limit] ||= '0' # unlimited by default
 
-    @owners = Owner.search(params, nil).map(&:to_hash)
+    @owners = Owner.missing(params).map(&:to_hash)
   end
 
   def owner

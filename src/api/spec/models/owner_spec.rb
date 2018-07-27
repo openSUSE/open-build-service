@@ -41,9 +41,9 @@ RSpec.describe Owner do
       end
     end
 
-    context 'for missing owners' do
+    context '#missing' do
       it 'returns results for packages without bugowner' do
-        subject = Owner.search({ devel: false, filter: 'bugowner' }, nil).first
+        subject = Owner.missing({ devel: false, filter: 'bugowner' }).first
         expect(subject.rootproject).to eq('home:Iggy')
         expect(subject.project).to eq('home:Iggy')
         expect(subject.package).to eq('TestPack')
@@ -52,7 +52,7 @@ RSpec.describe Owner do
       it 'returns nothing for packages with bugowner' do
         create(:relationship_package_user, package: package, user: user, role: Role.find_by_title('bugowner'))
 
-        subject = Owner.search({ devel: false, filter: 'bugowner' }, nil)
+        subject = Owner.missing({ devel: false, filter: 'bugowner' })
         expect(subject).to eq([])
       end
 
@@ -60,7 +60,7 @@ RSpec.describe Owner do
         create(:relationship_package_user, package: package, user: user, role: Role.find_by_title('bugowner'))
         user.update_attributes(state: :locked)
 
-        subject = Owner.search({ devel: false, filter: 'bugowner' }, nil).first
+        subject = Owner.missing({ devel: false, filter: 'bugowner' }).first
         expect(subject.rootproject).to eq('home:Iggy')
         expect(subject.project).to eq('home:Iggy')
         expect(subject.package).to eq('TestPack')
@@ -71,12 +71,12 @@ RSpec.describe Owner do
         create(:relationship_package_user, package: package, user: user, role: Role.find_by_title('bugowner'))
         user.update_attributes(owner: develuser)
 
-        subject = Owner.search({ devel: false, filter: 'bugowner' }, nil)
+        subject = Owner.missing({ devel: false, filter: 'bugowner' })
         expect(subject).to eq([])
 
         develuser.update_attributes(state: :locked)
 
-        subject = Owner.search({ devel: false, filter: 'bugowner' }, nil).first
+        subject = Owner.missing({ devel: false, filter: 'bugowner' }).first
         expect(subject.rootproject).to eq('home:Iggy')
         expect(subject.project).to eq('home:Iggy')
         expect(subject.package).to eq('TestPack')

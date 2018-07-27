@@ -24,6 +24,10 @@ class Owner
     hash
   end
 
+  def self.missing(params)
+    self.search(params, nil)
+  end
+
   def self.search(params, obj)
     params[:attribute] ||= 'OBS:OwnerRootProject'
     at = AttribType.find_by_name!(params[:attribute])
