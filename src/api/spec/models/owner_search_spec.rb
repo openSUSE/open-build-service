@@ -20,7 +20,7 @@ RSpec.describe OwnerSearch do
       end
 
       it 'returns results' do
-        subject = OwnerSearch.new.for(package).first
+        subject = OwnerOfContainerSearch.new.for(package).first
         expect(subject.users).to eq('maintainer' => ['Iggy'])
       end
 
@@ -29,7 +29,7 @@ RSpec.describe OwnerSearch do
         create(:relationship_package_user, package: package, user: user, role: Role.find_by_title('bugowner'))
         user.update_attributes(owner: develuser)
 
-        subject = OwnerSearch.new(devel: false, filter: 'bugowner').for(package).first
+        subject = OwnerOfContainerSearch.new(devel: false, filter: 'bugowner').for(package).first
         expect(subject.users['bugowner']).to eq([user.login])
       end
 
@@ -37,14 +37,14 @@ RSpec.describe OwnerSearch do
         create(:relationship_package_user, package: package, user: user, role: Role.find_by_title('bugowner'))
         user.update_attributes(state: :locked)
 
-        subject = OwnerSearch.new(devel: false, filter: 'bugowner').for(package)
+        subject = OwnerOfContainerSearch.new(devel: false, filter: 'bugowner').for(package)
         expect(subject).to eq([])
       end
     end
 
     context '#missing' do
       it 'returns results for packages without bugowner' do
-        subject = OwnerSearch.new(devel: false, filter: 'bugowner').missing.first
+        subject = OwnerMissingSearch.new(devel: false, filter: 'bugowner').find.first
         expect(subject.rootproject).to eq('home:Iggy')
         expect(subject.project).to eq('home:Iggy')
         expect(subject.package).to eq('TestPack')
@@ -53,7 +53,7 @@ RSpec.describe OwnerSearch do
       it 'returns nothing for packages with bugowner' do
         create(:relationship_package_user, package: package, user: user, role: Role.find_by_title('bugowner'))
 
-        subject = OwnerSearch.new(devel: false, filter: 'bugowner').missing
+        subject = OwnerMissingSearch.new(devel: false, filter: 'bugowner').find
         expect(subject).to eq([])
       end
 
@@ -61,7 +61,7 @@ RSpec.describe OwnerSearch do
         create(:relationship_package_user, package: package, user: user, role: Role.find_by_title('bugowner'))
         user.update_attributes(state: :locked)
 
-        subject = OwnerSearch.new(devel: false, filter: 'bugowner').missing.first
+        subject = OwnerMissingSearch.new(devel: false, filter: 'bugowner').find.first
         expect(subject.rootproject).to eq('home:Iggy')
         expect(subject.project).to eq('home:Iggy')
         expect(subject.package).to eq('TestPack')
@@ -72,12 +72,12 @@ RSpec.describe OwnerSearch do
         create(:relationship_package_user, package: package, user: user, role: Role.find_by_title('bugowner'))
         user.update_attributes(owner: develuser)
 
-        subject = OwnerSearch.new(devel: false, filter: 'bugowner').missing
+        subject = OwnerMissingSearch.new(devel: false, filter: 'bugowner').find
         expect(subject).to eq([])
 
         develuser.update_attributes(state: :locked)
 
-        subject = OwnerSearch.new(devel: false, filter: 'bugowner').missing.first
+        subject = OwnerMissingSearch.new(devel: false, filter: 'bugowner').find.first
         expect(subject.rootproject).to eq('home:Iggy')
         expect(subject.project).to eq('home:Iggy')
         expect(subject.package).to eq('TestPack')

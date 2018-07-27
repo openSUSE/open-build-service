@@ -5,8 +5,6 @@ class OwnerSearch
     setup 'attribute_not_set', 400
   end
 
-  attr_accessor :params, :attribute, :limit
-
   def initialize(params = {})
     self.params = params
     self.attribute = AttribType.find_by_name!(params[:attribute] || 'OBS:OwnerRootProject')
@@ -14,15 +12,26 @@ class OwnerSearch
     self.limit = params[:limit] || 1
   end
 
-  def missing
-    return self.for(nil)
+  def for(obj)
+    # search in each marked project
+    owners = []
+    object_projects(obj).each do |project|
+      if obj.is_a? String
+        owners += find_assignees(project, obj, limit.to_i, !devel_disabled?(project),
+                                 (true if params[:webui_mode].present?))
+      else
+        owners += find_containers(project, obj, !devel_disabled?(project))
+      end
+    end
+
+    owners
   end
 
-  def object_projects(obj)
-    return [obj] if obj.is_a? Project
+  protected
 
-    return [obj.project] if obj.is_a? Package
+  attr_accessor :params, :attribute, :limit
 
+  def object_projects(_obj)
     # default project specified
     return [Project.get_by_name(params[:project])] if params[:project]
 
@@ -32,42 +41,30 @@ class OwnerSearch
     raise AttributeNotSetError, "The attribute #{attribute.fullname} is not set to define default projects."
   end
 
-  def for(obj)
-    # search in each marked project
-    owners = []
-    object_projects(obj).each do |project|
-      attrib = project.attribs.find_by(attrib_type: attribute)
-      filter = ['maintainer', 'bugowner']
-      devel  = true
-      if params[:filter]
-        filter = params[:filter].split(',')
-      else
-        v = attrib.values.where(value: 'BugownerOnly').exists? if attrib
-        filter = ['bugowner'] if attrib && v
-      end
-      if params[:devel]
-        devel = false if ['0', 'false'].include? params[:devel]
-      else
-        v = attrib.values.where(value: 'DisableDevel').exists? if attrib
-        devel = false if attrib && v
-      end
-
-      if obj.nil?
-        owners += find_containers_without_definition(project, devel, filter)
-      elsif obj.is_a? String
-        owners += find_assignees(project, obj, limit.to_i, devel,
-                                 filter, (true if params[:webui_mode].present?))
-      elsif obj.is_a?(Project) || obj.is_a?(Package)
-        owners += find_maintainers(obj, filter)
-      else
-        owners += find_containers(project, obj, devel, filter)
-      end
-    end
-
-    owners
+  def project_attrib(project)
+    return unless project
+    project.attribs.find_by(attrib_type: attribute)
   end
 
-  def find_assignees(rootproject, binary_name, limit = 1, devel = true, filter = ['maintainer', 'bugowner'], webui_mode = false)
+  def filter(project)
+    return params[:filter].split(',') if params[:filter]
+
+    attrib = project_attrib(project)
+    if attrib && attrib.values.where(value: 'BugownerOnly').exists?
+      ['bugowner']
+    else
+      ['maintainer', 'bugowner']
+    end
+  end
+
+  def devel_disabled?(project = nil)
+    return ['0', 'false'].include?(params[:devel]) if params[:devel]
+
+    attrib = project_attrib(project)
+    attrib && attrib.values.where(value: 'DisableDevel').exists?
+  end
+
+  def find_assignees(rootproject, binary_name, limit = 1, devel = true, webui_mode = false)
     projects = rootproject.expand_all_projects(allow_remote_projects: false)
     instances_without_definition = []
     maintainers = []
@@ -81,6 +78,7 @@ class OwnerSearch
     # found binary package?
     return [] if data['matches'].to_i.zero?
 
+    filter = self.filter(rootproject)
     already_checked = {}
     deepest_match = nil
     projects.each do |prj| # project link order
@@ -93,7 +91,7 @@ class OwnerSearch
         next if pkg.nil? || pkg.is_patchinfo?
 
         # the "" means any matching relationships will get taken
-        m, limit, already_checked = lookup_package_owner(rootproject, pkg, '', limit, devel, filter, deepest, already_checked)
+        m, limit, already_checked = lookup_package_owner(rootproject, pkg, '', limit, devel, deepest, already_checked)
 
         unless m
           # collect all no matched entries
@@ -122,73 +120,11 @@ class OwnerSearch
     maintainers
   end
 
-  def find_containers_without_definition(rootproject, devel = true, filter = ['maintainer', 'bugowner'])
-    projects = rootproject.expand_all_projects(allow_remote_projects: false)
-    roles = []
-    filter.each do |f|
-      roles << Role.find_by_title!(f)
-    end
-
-    # find all groups which have an active user
-    maintained_groups = Group.joins(:groups_users).joins(:users).where("users.state = 'confirmed'").to_a
-
-    # fast find packages with defintions
-    # relationship in package object by user
-    defined_packages = Package.where(project_id: projects).joins(relationships: :user).\
-                       joins('LEFT JOIN users AS owners ON owners.id = users.owner_id').\
-                       where(["relationships.role_id IN (?) AND
-                              ((ISNULL(users.owner_id) AND users.state = 'confirmed') OR
-                              owners.state = 'confirmed')", roles]).pluck(:name)
-    # relationship in package object by group
-    defined_packages += Package.where(project_id: projects).joins(:relationships).where(['relationships.role_id IN (?) AND group_id IN (?)',
-                                                                                         roles, maintained_groups]).pluck(:name)
-    # relationship in project object by user
-    Project.joins(relationships: :user).where("projects.id in (?) AND role_id in (?) AND users.state = 'confirmed'",
-                                              projects, roles).find_each do |prj|
-      defined_packages += prj.packages.pluck(:name)
-    end
-    # relationship in project object by group
-    Project.joins(:relationships).
-      where('projects.id in (?) AND role_id in (?) AND group_id IN (?)', projects, roles, maintained_groups).find_each do |prj|
-        defined_packages += prj.packages.pluck(:name)
-      end
-    # accept all incident containers in release projects. the main package (link) is enough here
-    defined_packages +=
-      Package.where(project_id: projects).
-      joins('LEFT JOIN projects ON packages.project_id=projects.id LEFT JOIN package_kinds ON packages.id=package_kinds.package_id').
-      distinct.where("projects.kind='maintenance_release' AND (ISNULL(package_kinds.kind) OR package_kinds.kind='patchinfo')").pluck(:name)
-
-    if devel == true
-      # FIXME: add devel packages, but how do recursive lookup fast in SQL?
-    end
-    defined_packages.uniq!
-
-    all_packages = Package.where(project_id: projects).pluck(:name)
-
-    undefined_packages = all_packages - defined_packages
-    maintainers = []
-
-    undefined_packages.each do |p|
-      next if p =~ /\A_product:\w[-+\w\.]*\z/
-
-      pkg = rootproject.find_package(p)
-
-      m = Owner.new
-      m.rootproject = rootproject.name
-      m.project = pkg.project.name
-      m.package = pkg.name
-
-      maintainers << m
-    end
-
-    maintainers
-  end
-
-  def find_containers(rootproject, owner, devel = true, filter = ['maintainer', 'bugowner'])
+  def find_containers(rootproject, owner, devel = true)
     projects = rootproject.expand_all_projects(allow_remote_projects: false)
 
     roles = []
-    filter.each do |f|
+    filter(rootproject).each do |f|
       roles << Role.find_by_title!(f)
     end
 
@@ -226,42 +162,13 @@ class OwnerSearch
     maintainers
   end
 
-  def find_maintainers(container, filter)
-    maintainers = []
-    sql = _build_rolefilter_sql(filter)
-    add_owners = proc do |cont|
-      m = Owner.new
-      m.rootproject = ''
-      if cont.is_a? Package
-        m.project = cont.project.name
-        m.package = cont.name
-      else
-        m.project = cont.name
-      end
-      m.filter = filter
-      _extract_from_container(m, cont.relationships, sql, nil)
-      maintainers << m unless m.users.nil? && m.groups.nil?
-    end
-    project = container
-    if container.is_a? Package
-      add_owners.call container
-      project = container.project
-    end
-    # add maintainers from parent projects
-    until project.nil?
-      add_owners.call(project)
-      project = project.parent
-    end
-    maintainers
-  end
-
-  def lookup_package_owner(rootproject, pkg, owner, limit, devel, filter, deepest, already_checked = {})
+  def lookup_package_owner(rootproject, pkg, owner, limit, devel, deepest, already_checked = {})
     return nil, limit, already_checked if already_checked[pkg.id]
 
     # optional check for devel package instance first
     m = nil
-    m = extract_maintainer(rootproject, pkg.resolve_devel_package, filter, owner) if devel == true
-    m ||= extract_maintainer(rootproject, pkg, filter, owner)
+    m = extract_maintainer(rootproject, pkg.resolve_devel_package, owner) if devel == true
+    m ||= extract_maintainer(rootproject, pkg, owner)
 
     already_checked[pkg.id] = 1
 
@@ -275,8 +182,8 @@ class OwnerSearch
 
       already_checked[p.id] = 1
 
-      m = extract_maintainer(rootproject, p.resolve_devel_package, filter, owner) if devel == true
-      m ||= extract_maintainer(rootproject, p, filter, owner)
+      m = extract_maintainer(rootproject, p.resolve_devel_package, owner) if devel == true
+      m ||= extract_maintainer(rootproject, p, owner)
 
       break if m && !deepest
     end
@@ -285,11 +192,12 @@ class OwnerSearch
     [m, (limit - 1), already_checked]
   end
 
-  def extract_maintainer(rootproject, pkg, rolefilter, objfilter = nil)
+  def extract_maintainer(rootproject, pkg, objfilter = nil)
     return unless pkg
     return unless Package.check_access?(pkg)
     m = Owner.new
 
+    rolefilter = filter(rootproject)
     m.rootproject = rootproject.name
     m.project = pkg.project.name
     m.package = pkg.name
@@ -297,14 +205,14 @@ class OwnerSearch
 
     # no filter defined, so do not check for roles and just return container
     return m if rolefilter.empty?
-    sql = _build_rolefilter_sql(rolefilter)
+    sql = build_rolefilter_sql(rolefilter)
     # lookup in package container
-    m = _extract_from_container(m, pkg.relationships, sql, objfilter)
+    m = extract_from_container(m, pkg.relationships, sql, objfilter)
 
     # did it it match? if not fallback to project level
     unless m.users || m.groups
       m.package = nil
-      m = _extract_from_container(m, pkg.project.relationships, sql, objfilter)
+      m = extract_from_container(m, pkg.project.relationships, sql, objfilter)
     end
     # still not matched? Ignore it
     return unless m.users || m.groups
@@ -312,13 +220,13 @@ class OwnerSearch
     m
   end
 
-  def _extract_from_container(m, r, sql, objfilter)
-    usersql = groupsql = sql
-    usersql  = sql << ' AND user_id = ' << objfilter.id.to_s  if objfilter.class == User
-    groupsql = sql << ' AND group_id = ' << objfilter.id.to_s if objfilter.class == Group
-
+  def extract_from_container(m, r, sql, objfilter)
     unless objfilter.class == Group
-      r.users.where(usersql).find_each do |p|
+      rel = r.users.where(sql)
+      if objfilter.class == User
+        rel = rel.where(user: objfilter)
+      end
+      rel.find_each do |p|
         next unless p.user.state == 'confirmed'
         m.users ||= {}
         m.users[p.role.title] ||= []
@@ -327,7 +235,11 @@ class OwnerSearch
     end
 
     unless objfilter.class == User
-      r.groups.where(groupsql).find_each do |p|
+      rel = r.groups.where(sql)
+      if objfilter.class == Group
+        rel = rel.where(group: objfilter)
+      end
+      rel.find_each do |p|
         next if p.group.users.where(state: 'confirmed').empty?
         m.groups ||= {}
         m.groups[p.role.title] ||= []
@@ -337,7 +249,7 @@ class OwnerSearch
     m
   end
 
-  def _build_rolefilter_sql(rolefilter)
+  def build_rolefilter_sql(rolefilter)
     # construct where condition
     sql = nil
     if rolefilter.present?
