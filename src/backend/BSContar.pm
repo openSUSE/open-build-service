@@ -278,7 +278,7 @@ sub create_dist_manifest {
   my ($manifest) = @_;
   my %m = %$manifest;
   $m{'config'} = _orderhash($m{'config'}, $blob_order) if $m{'config'};
-  $_ = _orderhash($_, $blob_order) for @{$m{'layers'} || []};
+  $m{'layers'} = [ map {_orderhash($_, $blob_order)} @{$m{'layers'}} ] if $m{'layers'};
   $manifest = _orderhash(\%m, $distmani_order);
   my $json = JSON::XS->new->utf8->canonical->pretty->encode($manifest);
   $json =~ s/!!!\d_//g;
