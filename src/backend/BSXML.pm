@@ -1914,4 +1914,11 @@ our $clouduploadjoblist = [
       [ $clouduploadjob ],
 ];
 
+our $regrepoowner = [
+    'regrepoowner' =>
+	'regrepo',
+	'project',
+	'repository',
+];
+
 1;
