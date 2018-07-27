@@ -518,6 +518,7 @@ touch /srv/www/obs/api/last_deploy || true
 /usr/lib/obs/server/BSRepServer
 /usr/lib/obs/server/BSSched
 /usr/lib/obs/server/BSSrcServer
+/usr/lib/obs/server/BSPublisher
 /usr/lib/obs/server/XML
 /usr/lib/obs/server/*.pm
 /usr/lib/obs/server/BSConfig.pm.template
