@@ -9,7 +9,12 @@ RSpec.describe Webui::SearchController, vcr: true do
   let!(:develuser) { create(:confirmed_user, login: 'DevelIggy') }
   let!(:package) { create(:package, name: 'TestPack', project: Project.find_by(name: 'home:Iggy')) }
   let!(:develpackage) { create(:package, name: 'DevelPack', project: Project.find_by(name: 'home:DevelIggy')) }
-  let!(:owner_attrib) { create(:attrib, attrib_type: AttribType.where(name: 'OwnerRootProject').first, project: Project.find_by(name: 'home:Iggy')) }
+  let(:owner_attrib) { create(:attrib, attrib_type: AttribType.where(name: 'OwnerRootProject').first, project: Project.find_by(name: 'home:Iggy')) }
+
+  before do
+    login user
+    owner_attrib
+  end
 
   describe 'GET #owner' do
     it 'just returns with blank search text' do

@@ -1,7 +1,6 @@
 require 'open-uri'
 
 module ObsFactory
-
   class UnknownDistribution < Exception
   end
 
@@ -23,8 +22,8 @@ module ObsFactory
 
     def self.attributes
       %w(name description staging_projects openqa_version openqa_group
-      source_version totest_version published_version staging_manager
-      standard_project live_project images_project ring_projects)
+         source_version totest_version published_version staging_manager
+         standard_project live_project images_project ring_projects)
     end
 
     def attributes
@@ -32,7 +31,7 @@ module ObsFactory
     end
 
     def_delegators :@strategy, :root_project_name, :url_suffix, :openqa_version,
-                               :openqa_iso, :arch, :openqa_group, :staging_manager
+                   :openqa_iso, :arch, :openqa_group, :staging_manager
 
     # Find a distribution by id
     #
@@ -122,7 +121,7 @@ module ObsFactory
     # @param [#to_s] version must be :source, :totest or :published
     # @return [Array] list of OpenqaJob objects
     def openqa_jobs_for(version)
-      filter = {distri: 'opensuse', version: strategy.openqa_version, build: send(:"#{version}_version"), group: strategy.openqa_group}
+      filter = { distri: 'opensuse', version: strategy.openqa_version, build: send(:"#{version}_version"), group: strategy.openqa_group }
       OpenqaJob.find_all_by(filter, exclude_modules: true)
     end
 
@@ -185,7 +184,7 @@ module ObsFactory
     #
     # @return [Array] list of ObsProject objects nicknamed with numbers
     def ring_projects
-      @ring_projects ||= strategy.rings.each_with_index.map do |r,idx|
+      @ring_projects ||= strategy.rings.each_with_index.map do |r, idx|
         ObsProject.new("#{rings_project_name}:#{idx}-#{r}", "#{idx}-#{r}")
       end
     end
@@ -209,14 +208,14 @@ module ObsFactory
 
     def distribution_strategy_for_project(project)
       s = case project.name
-        when 'openSUSE:Factory' then DistributionStrategyFactory.new
-        when 'openSUSE:Factory:PowerPC' then DistributionStrategyFactoryPPC.new
-        when /^openSUSE:Leap:15\.*/ then DistributionStrategyOpenSUSELeap15.new
-        when /^SUSE:SLE-12-SP\d:GA/ then DistributionStrategySLE12SP1.new
-        when 'SUSE:SLE-15:GA' then DistributionStrategySLE15.new
-        when /^SUSE:SLE-15-SP\d:GA/ then DistributionStrategySLE15.new
-        when /^SUSE:SLE-12-SP.*CASP\d*/ then DistributionStrategyCasp.new
-        else raise UnknownDistribution
+          when 'openSUSE:Factory' then DistributionStrategyFactory.new
+          when 'openSUSE:Factory:PowerPC' then DistributionStrategyFactoryPPC.new
+          when /^openSUSE:Leap:15\.*/ then DistributionStrategyOpenSUSELeap15.new
+          when /^SUSE:SLE-12-SP\d:GA/ then DistributionStrategySLE12SP1.new
+          when 'SUSE:SLE-15:GA' then DistributionStrategySLE15.new
+          when /^SUSE:SLE-15-SP\d:GA/ then DistributionStrategySLE15.new
+          when /^SUSE:SLE-12-SP.*CASP\d*/ then DistributionStrategyCasp.new
+          else raise UnknownDistribution
       end
       s.project = project
       s

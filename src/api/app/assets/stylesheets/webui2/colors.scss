@@ -1,0 +1,17 @@
+$body-bg: #f6f6f6;
+$gray-100: #f8f9fa;
+$gray-150: #f0f0f0;
+$gray-200: #e9ecef;
+
+$obs_green: #693;
+$obs_blue: #069;
+$obs_yellow: #f0ad4e;
+
+$link-hover-color: $obs_green;
+$link-color: $obs_blue;
+$primary: $obs_green;
+$secondary: $obs_blue;
+
+.text-package {
+    color: $obs_yellow;
+}

@@ -142,7 +142,7 @@ GEM
     ffi (1.9.25)
     flot-rails (0.0.7)
       jquery-rails
-    font-awesome-sass (5.0.13)
+    font-awesome-sass (5.2.0)
       sassc (>= 1.11)
     globalid (0.4.1)
       activesupport (>= 4.2.0)

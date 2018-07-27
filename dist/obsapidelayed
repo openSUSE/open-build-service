@@ -38,7 +38,7 @@
 . /etc/rc.status
 
 API_ROOT=/srv/www/obs/api
-CLOCKWORKD=/usr/lib64/obs-api/bin/clockworkd
+CLOCKWORKD=/usr/lib64/obs-api/ruby/2.5.0/bin/clockworkd
 
 # If you are using newrelic_rpm you need this
 # to fix detection of our delay_job.api daemons

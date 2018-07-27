@@ -7,15 +7,15 @@
         %h2
           Welcome to #{@configuration['title']}
         = raw @configuration['description']
-        .row.no-gutters#proceed-list
+        .row.no-gutters.text-center#proceed-list
           = render partial: 'proceed-list'
     = render partial: 'systemstatus'
   .col-md-4
     - if User.current.is_nobody? and can_register
-      .card
-        %h2.card-header New here? Sign up!
+      .card.mb-3
+        %h5.card-header New here? Sign up!
         .card-body
-          = render partial: 'shared/sign_up'
+          = render partial: 'webui2/shared/sign_up'
     = render partial: 'sponsors'
     - if @status_messages.present? || User.current.is_admin?
       = render partial: 'status_messages'

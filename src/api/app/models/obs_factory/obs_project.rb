@@ -2,7 +2,6 @@ module ObsFactory
   # A wrapper around Project, containing a reference to the original Project
   # object and adding some methods and attributes.
   class ObsProject
-
     attr_accessor :project, :nickname, :exclusive_repository
 
     def initialize(name, nick)

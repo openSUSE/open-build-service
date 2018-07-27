@@ -499,4 +499,70 @@ RSpec.describe BsRequest, vcr: true do
       it { expect { subject.save! }.to raise_error BsRequestAction::LackingMaintainership }
     end
   end
+
+  describe '::in_state_new' do
+    include_context 'a BsRequest with reviews'
+
+    context "when request state is not 'new'" do
+      subject { BsRequest.in_state_new(by_user: reviewer.login) }
+
+      it { expect(subject).to be_empty }
+    end
+
+    context "when request state is 'new'" do
+      before do
+        bs_request.update(state: 'new')
+      end
+
+      it 'queries requests with reviews by user' do
+        expect(BsRequest.in_state_new(by_user: reviewer.login)).to contain_exactly(bs_request)
+      end
+
+      it 'queries requests with reviews by group' do
+        bs_request.reviews.create!(by_group: group.title)
+        expect(BsRequest.in_state_new(by_group: group.title)).to contain_exactly(bs_request)
+      end
+
+      it 'queries requests with reviews by package' do
+        bs_request.reviews.create!(by_package: target_package, by_project: target_project)
+        expect(BsRequest.in_state_new(by_package: target_package.name)).to contain_exactly(bs_request)
+      end
+
+      it 'queries requests with reviews by target project of bs request' do
+        expect(BsRequest.in_state_new(target_project: target_project.name)).to contain_exactly(bs_request)
+      end
+    end
+  end
+
+  describe '::with_open_reviews_for' do
+    include_context 'a BsRequest with reviews'
+
+    context "when request state is 'review' but review state is not 'new'" do
+      before do
+        bs_request.reviews.first.update(state: 'accepted')
+      end
+
+      it { expect(BsRequest.with_open_reviews_for(by_user: reviewer.login)).to be_empty }
+    end
+
+    context "when request state is 'review' and review state is 'new'" do
+      it 'queries requests with reviews by user' do
+        expect(BsRequest.with_open_reviews_for(by_user: reviewer.login)).to contain_exactly(bs_request)
+      end
+
+      it 'queries requests with reviews by group' do
+        bs_request.reviews.create!(by_group: group.title)
+        expect(BsRequest.with_open_reviews_for(by_group: group.title)).to contain_exactly(bs_request)
+      end
+
+      it 'queries requests with reviews by package' do
+        bs_request.reviews.create!(by_package: target_package, by_project: target_project)
+        expect(BsRequest.with_open_reviews_for(by_package: target_package.name)).to contain_exactly(bs_request)
+      end
+
+      it 'queries requests with reviews by target project of bs request' do
+        expect(BsRequest.with_open_reviews_for(target_project: target_project.name)).to contain_exactly(bs_request)
+      end
+    end
+  end
 end

@@ -1,0 +1,18 @@
+- if CONFIG['proxy_auth_mode'] == :on
+  - if CONFIG['proxy_auth_register_page'].blank?
+    %p Sorry, signing up is currently disabled
+  - else
+    %p= link_to 'Use this link to Sign Up', CONFIG['proxy_auth_register_page']
+- else
+  = form_tag({ controller: 'user', action: 'register', method: :post }, { class: 'sign-up', autocomplete: 'off' }) do
+    .form-group
+      = text_field_tag 'login', nil, placeholder: 'Username', autocomplete: 'off', class: 'form-control'
+    .form-group
+      = text_field_tag 'email', nil, placeholder: 'Email address', autocomplete: 'off', class: 'form-control'
+    .form-group
+      = password_field_tag :password, nil, id: 'pwd', placeholder: 'Enter a password', autocomplete: 'off', class: 'form-control'
+    .form-group
+      = password_field_tag :password_confirmation, nil, id: 'pwd_confirmation', placeholder: 'Password confirmation', autocomplete: 'off', class: 'form-control'
+    = hidden_field_tag 'register', 'true'
+    .text-center
+      = submit_tag 'Sign Up', class: 'btn btn-primary'

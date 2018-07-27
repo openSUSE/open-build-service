@@ -97,14 +97,14 @@ RSpec.describe SourceAttributeController, vcr: true do
       end
 
       it { expect(response).to be_success }
-      it { expect(project.attribs).to be_empty }
+      it { expect(project.reload.attribs).to be_empty }
     end
 
     context 'with invalid user' do
       let(:wrong_user) { create(:confirmed_user, login: 'tomtom') }
       before do
-        main_attribute
         login wrong_user
+        main_attribute
         delete :delete, params: { project: project,
                                   attribute: main_attribute.fullname,
                                   format: :xml }

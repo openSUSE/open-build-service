@@ -7,19 +7,19 @@
     = render partial: 'layouts/webui2/proxy_auth_navigation'
   - else
     - if can_register
-      = link_to 'Sign Up', user_register_user_path
-      &nbsp|
-    .dropdown
-      = link_to('#', id: 'login-trigger', class: 'dropdown-toggle', "data-toggle": "dropdown") do
-        &nbsp; Log In
-      .dropdown-menu.dropdown-menu-right.shadow-lg.bg-dark{"aria-labelledby": "dropdownMenuButton", style: 'width: 350px'}
-        #login-form
-          = form_tag(session_create_path, class: 'px-4 py-3') do
-            .form-group
-              = label_tag(:username, 'Username', class: 'text-light')
-              = text_field_tag(:username, nil, placeholder: 'User Name', class: 'form-control')
-            .form-group
-              = label_tag(:password, 'Password', class: 'text-light')
-              = password_field_tag(:password, nil, placeholder: 'Password', class: 'form-control')
-            .float-right
-              = submit_tag('Log In', class: 'btn btn-success')
+      %li.nav-item
+        = link_to('Sign Up', user_register_user_path, class: 'nav-link')
+      %li.nav-item.dropdown
+        = link_to('#', id: 'login-trigger', class: 'nav-link dropdown-toggle', "data-toggle": "dropdown") do
+          Log In
+        .dropdown-menu.dropdown-menu-right.shadow-lg.bg-dark{"aria-labelledby": "dropdownMenuButton", style: 'width: 350px'}
+          #login-form
+            = form_tag(session_create_path, class: 'px-4 py-3') do
+              .form-group
+                = label_tag(:username, 'Username', class: 'text-light')
+                = text_field_tag(:username, nil, placeholder: 'User Name', class: 'form-control')
+              .form-group
+                = label_tag(:password, 'Password', class: 'text-light')
+                = password_field_tag(:password, nil, placeholder: 'Password', class: 'form-control')
+              .float-right
+                = submit_tag('Log In', class: 'btn btn-success')

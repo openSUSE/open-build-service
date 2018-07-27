@@ -32,6 +32,5 @@ module ObsFactory
       version = sp ? ('15-' + sp) : '15'
       "SLE-#{version}-Staging:#{project.letter}-Installer-DVD-#{arch}-Build#{project.letter}.#{ending}"
     end
-
   end
 end

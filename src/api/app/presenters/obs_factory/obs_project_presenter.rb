@@ -1,9 +1,6 @@
 module ObsFactory
-
   # View decorator for a Project
   class ObsProjectPresenter < BasePresenter
-
-
     def build_and_failed_params
       params = { project: self.name, defaults: 0 }
       Buildresult.avail_status_values.each do |s|
@@ -22,7 +19,6 @@ module ObsFactory
       params['arch_local'] = 1
       params
     end
-
 
     def summary
       return @summary if @summary
