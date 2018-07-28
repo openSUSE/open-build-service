@@ -118,9 +118,9 @@ RSpec.describe OwnerSearch do
       end
 
       it 'respects maintenance project suffixes' do
-        expect(OwnerSearch.new.for('package').first.users).to eq('bugowner' => ['hans'])
-        expect(OwnerSearch.new.for('package_42').first.users).to eq('bugowner' => ['hans'])
-        expect(OwnerSearch.new.for('patchinfo_42').first.users).to eq('bugowner' => ['hans'])
+        expect(OwnerAssigneeSearch.new.for('package').first.users).to eq('bugowner' => ['hans'])
+        expect(OwnerAssigneeSearch.new.for('package_42').first.users).to eq('bugowner' => ['hans'])
+        expect(OwnerAssigneeSearch.new.for('patchinfo_42').first.users).to eq('bugowner' => ['hans'])
       end
     end
   end

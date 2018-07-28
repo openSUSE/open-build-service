@@ -38,7 +38,7 @@ class OwnerMissingSearch < OwnerSearch
 
   def packages_with_maintainer_user_in_project
     ret = []
-    Project.where(id: @projects).joins(relationships: :user).where(relationships: { role: @roles, users: { state: 'confirmed'} }).find_each do |prj|
+    Project.where(id: @projects).joins(relationships: :user).where(relationships: { role: @roles, users: { state: 'confirmed' } }).find_each do |prj|
       ret += prj.packages.pluck(:name)
     end
     ret
