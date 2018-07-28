@@ -75,6 +75,7 @@ use BSSrcServer::Service;
 use BSSrcServer::Product;
 use BSSrcServer::Multibuild;
 use BSSrcServer::Blame;
+use BSSrcServer::Registry;
 
 # configure modules
 $BSSrcServer::Projlink::getrev       = \&getrev;
@@ -5021,6 +5022,18 @@ sub published {
   return ({'entry' => \@res}, $BSXML::dir);
 }
 
+sub published_status {
+  my ($cgi, $projid, $repoid) = @_;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
+  my $param = {
+    'uri' => "$reposerver/published/$projid/$repoid",
+    'ignorestatus' => 1,
+    'receiver' => \&BSServer::reply_receiver,
+  };
+  BSWatcher::rpc($param, undef, "view=status");
+  return undef;
+}
+
 sub published_path {
   my ($cgi, $projid, $repoid) = @_;
   my $medium = $cgi->{'medium'};
@@ -6256,6 +6269,22 @@ sub cloudupload_log {
   return undef; # always streams result
 }
 
+sub registry_ownrepo {
+  my ($cgi, $projid, $repoid, $regrepo) = @_;
+  my $prp = "$projid/$repoid";
+  my $oprp = BSSrcServer::Registry::ownrepo($prp, $regrepo);
+  my ($oprojid, $orepoid) = split('/', $oprp, 2);
+  my $owner = { 'regrepo' => $regrepo, 'project' => $oprojid, 'repository' => $orepoid };
+  return ($owner, $BSXML::regrepoowner);
+}
+
+sub registry_disownrepo {
+  my ($cgi, $projid, $repoid, $regrepo) = @_;
+  my $prp = "$projid/$repoid";
+  BSSrcServer::Registry::disownrepo($prp, $regrepo);
+  return $BSStdServer::return_ok;
+}
+
 ####################################################################
 
 my $dispatches = [
@@ -6331,6 +6360,7 @@ my $dispatches = [
   '/published' => \&published,
   '/published/$project' => \&published,
   '/published/$project/$repository view=publishedpath medium:?' => \&published_path,
+  '/published/$project/$repository view=status' => \&published_status,
   '/published/$project/$repository' => \&published,
   '/published/$project/$repository/$arch:filename view:?' => \&published,
   '/published/$project/$repository/$arch:filename/$filename view:?' => \&published,
@@ -6434,6 +6464,10 @@ my $dispatches = [
   '/cloudupload/$job' => \&cloudupload_status,
   '/cloudupload/$job/_log nostream:bool? start:intnum? end:num? view:?' => \&cloudupload_log,
   '/cloudupload name:num*' => \&cloudupload_joblist,
+
+  # publisher registry own/disown
+  'POST:/ownregistryrepo $project $repository $regrepo' => \&registry_ownrepo,
+  'POST:/disownregistryrepo $project $repository $regrepo' => \&registry_disownrepo,
 
   '/ajaxstatus' => \&getajaxstatus,
   '/serverstatus' => \&BSStdServer::serverstatus,

@@ -258,4 +258,43 @@ sub normalize_container {
   return (\@newtar, $mtime, $config, $newconfig);
 }
 
+sub _orderhash {
+  my ($h, $o) = @_;
+  my $n = 0;
+  my %h = %$h;
+  for (@$o) {
+    $h{"!!!${n}_$_"} = delete $h{$_} if exists $h{$_};
+    $n++;
+  }
+  return \%h;
+}
+
+my $blob_order = [ qw{mediaType size digest} ];
+my $distmani_order = [ qw{schemaVersion mediaType config layers} ];
+my $imagemani_order = [ qw{mediaType size digest platform} ];
+my $distmanilist_order = [ qw{schemaVersion mediaType manifests} ];
+
+sub create_dist_manifest {
+  my ($manifest) = @_;
+  my %m = %$manifest;
+  $m{'config'} = _orderhash($m{'config'}, $blob_order) if $m{'config'};
+  $m{'layers'} = [ map {_orderhash($_, $blob_order)} @{$m{'layers'}} ] if $m{'layers'};
+  $manifest = _orderhash(\%m, $distmani_order);
+  my $json = JSON::XS->new->utf8->canonical->pretty->encode($manifest);
+  $json =~ s/!!!\d_//g;
+  $json =~ s/\n$//s;
+  return $json;
+}
+
+sub create_dist_manifest_list {
+  my ($manifest) = @_;
+  my %m = %$manifest;
+  $m{'manifests'} = [ map {_orderhash($_, $imagemani_order)} @{$m{'manifests'}} ] if $m{'manifests'};
+  $manifest = _orderhash(\%m, $distmanilist_order);
+  my $json = JSON::XS->new->utf8->canonical->pretty->encode($manifest);
+  $json =~ s/!!!\d_//g;
+  $json =~ s/\n$//s;
+  return $json;
+}
+
 1;

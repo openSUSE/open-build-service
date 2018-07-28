@@ -639,6 +639,8 @@ our $buildstatus = [
 	'starttime',
 	'endtime',
 
+	'buildid',	# some id identifying the build
+
 	'job',		# internal, job when building
 
 	'uri',		# obsolete
@@ -1912,6 +1914,13 @@ our $clouduploadjob = [
 our $clouduploadjoblist = [
     'clouduploadjoblist' =>
       [ $clouduploadjob ],
+];
+
+our $regrepoowner = [
+    'regrepoowner' =>
+	'regrepo',
+	'project',
+	'repository',
 ];
 
 1;

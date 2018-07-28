@@ -202,6 +202,23 @@ sub verify_resultview {
 sub verify_workerid {
 }
 
+sub verify_regrepo {
+  my ($repo) = @_;
+  die("bad repo name '$repo'\n") if !defined($repo) || $repo eq '';
+  die("bad repo name '$repo'\n") if $repo =~ /^[:\.]/s;
+  die("bad repo name '$repo'\n") if "/$repo/" =~ /\/\//;
+  for my $p (split('/', $repo)) {
+    die("component '$p' is illegal\n") if $p =~ /[\/\000-\037]/s;
+    die("component '$p' is illegal\n") if $p =~ /^\./s;
+  }
+}
+
+sub verify_regtag {
+  my ($tag) = @_;
+  die("illegal characters in tag '$tag'\n") if $tag =~ /[^\-+=\.,0-9%{}\@#%A-Z_a-z~\200-\377]/s;
+  die("illegal tag '$tag'\n") if $tag =~ /^\./;
+}
+
 sub verify_disableenable {
   my ($disen) = @_;
   for my $d (@{$disen->{'disable'} || []}, @{$disen->{'enable'} || []}) {
@@ -539,6 +556,8 @@ our $verifiers = {
   'resultview' => \&verify_resultview,
   'jobid' => \&verify_md5,
   'workerid' => \&verify_workerid,
+  'regrepo' => \&verify_regrepo,
+  'regtag' => \&verify_regtag,
 };
 
 1;

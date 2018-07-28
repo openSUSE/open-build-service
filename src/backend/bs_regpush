@@ -541,9 +541,9 @@ for my $tarfile (@tarfiles) {
   my $config_blobid = BSContar::blobid_entry($config_ent);
   # create layer data
   my $config_data = { 
-    'xxx1_mediaType' => 'application/vnd.docker.container.image.v1+json',
-    'xxx2_size' => $config_ent->{'size'},
-    'xxx3_digest' => $config_blobid,
+    'mediaType' => 'application/vnd.docker.container.image.v1+json',
+    'size' => $config_ent->{'size'},
+    'digest' => $config_blobid,
   }; 
   # upload to server
   blob_upload($config_blobid, $config_ent);
@@ -573,9 +573,9 @@ for my $tarfile (@tarfiles) {
 
     # create layer data
     my $layer_data = {
-      'xxx1_mediaType' => 'application/vnd.docker.image.rootfs.diff.tar.gzip',
-      'xxx2_size' => $layer_ent->{'size'},
-      'xxx3_digest' => $blobid,
+      'mediaType' => 'application/vnd.docker.image.rootfs.diff.tar.gzip',
+      'size' => $layer_ent->{'size'},
+      'digest' => $blobid,
     };
     push @layer_data, $layer_data;
     $layer_datas{$layer_file} = $layer_data;
@@ -586,22 +586,20 @@ for my $tarfile (@tarfiles) {
   close $tarfd if $tarfd;
 
   my $mani = {
-    'xxx1_schemaVersion' => 2,
-    'xxx2_mediaType' => 'application/vnd.docker.distribution.manifest.v2+json',
-    'xxx3_config' => $config_data,
-    'xxx4_layers' => \@layer_data,
+    'schemaVersion' => 2,
+    'mediaType' => 'application/vnd.docker.distribution.manifest.v2+json',
+    'config' => $config_data,
+    'layers' => \@layer_data,
   };
-  my $mani_json = JSON::XS->new->utf8->canonical->pretty->encode($mani);
-  $mani_json =~ s/xxx\d_//g;
-  $mani_json =~ s/\n$//s;
+  my $mani_json = BSContar::create_dist_manifest($mani);
 
   if ($multiarch) {
     manifest_upload($mani_json, undef);		# upload anonymous image
     my $multimani = {
-      'xxx1_mediaType' => 'application/vnd.docker.image.manifest.v2+json',
-      'xxx2_size' => length($mani_json),
-      'xxx3_digest' => 'sha256:'.Digest::SHA::sha256_hex($mani_json),
-      'xxx4_platform' => {'architecture' => $config->{'architecture'}, 'os' => $config->{'os'}},
+      'mediaType' => 'application/vnd.docker.image.manifest.v2+json',
+      'size' => length($mani_json),
+      'digest' => 'sha256:'.Digest::SHA::sha256_hex($mani_json),
+      'platform' => {'architecture' => $config->{'architecture'}, 'os' => $config->{'os'}},
     };
     push @multimanifests, $multimani;
   } else {
@@ -612,13 +610,11 @@ for my $tarfile (@tarfiles) {
 if ($multiarch) {
   my $ct = 'application/vnd.docker.distribution.manifest.list.v2+json';
   my $mani = {
-    'xxx1_schemaVersion' => 2,
-    'xxx2_mediaType' => $ct,
-    'xxx3_manifests' => \@multimanifests,
+    'schemaVersion' => 2,
+    'mediaType' => $ct,
+    'manifests' => \@multimanifests,
   };
-  my $mani_json = JSON::XS->new->utf8->canonical->pretty->encode($mani);
-  $mani_json =~ s/xxx\d_//g;
-  $mani_json =~ s/\n$//s;
+  my $mani_json = BSContar::create_dist_manifest_list($mani);
   manifest_upload_tags($mani_json, \@tags, $ct);
 }
 

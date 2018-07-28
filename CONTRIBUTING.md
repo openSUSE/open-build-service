@@ -1,14 +1,5 @@
-# Table of Contents
-
-1. [Request for contributions](#request-for-contributions)
-2. [How to contribute code](#how-to-contribute-code)
-3. [How to contribute issues](#how-to-contribute-issues)
-4. [How to contribute documentation](#how-to-contribute-documentation)
-5. [How to conduct yourself when contributing](#how-to-conduct-yourself-when-contributing)
-6. [How to setup an OBS development environment](#how-to-setup-an-obs-development-environment)
-
-# Request for contributions
-We are always looking for contributions to the Open Build Service. Read this guide on how to do that.
+# Request for Contributions
+We are always looking for contributions to the Open Build Service.
 
 In particular, this community seeks the following types of contributions:
 
@@ -16,37 +7,73 @@ In particular, this community seeks the following types of contributions:
 * ideas: participate in an issues thread or start your own to have your voice heard.
 * copy editing: fix typos, clarify language, and generally improve the quality of the content of the Open Build Service
 
-# How to contribute code
-* Prerequisites: familiarity with [GitHub Pull Requests](https://help.github.com/articles/using-pull-requests)
-* Fork the repository and make a pull-request with your changes
-  * Please make sure to mind what our test suite in [travis](https://travis-ci.org/openSUSE/open-build-service) tells you
-  * Please always increase our [code coverage](https://codeclimate.com/github/openSUSE/open-build-service) by your pull request
-  * To help to write better commit messages we use a [template](https://github.com/openSUSE/open-build-service/blob/master/.gitmessage).
-    Set it up with the following command:
-    ```
-    git config commit.template .gitmessage
-    ```
-    Alternatively, [setting up the OBS development environment](#how-to-setup-an-obs-development-environment) will take care of this.
+Read this guide on how to do that.
 
-* A developer of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) will review your pull-request
-  * If the pull request gets a positive review the reviewer will merge it
+1. [How to contribute code](#how-to-contribute-code)
+1. [How to review code submissions](#how-to-review-code-submissions)
+1. [How to contribute issues](#how-to-contribute-issues)
+1. [How to contribute documentation](#how-to-contribute-documentation)
+1. [How to conduct yourself when contributing](#how-to-conduct-yourself-when-contributing)
+1. [How to setup an OBS development environment](#how-to-setup-an-obs-development-environment)
 
 
-## How to write proper commit messages
+# How to Contribute Code
+**Prerequisites**: familiarity with [GitHub Pull Requests](https://help.github.com/articles/using-pull-requests)
+
+If you want to contribute code, fork the repository and make a pull-request
+with your changes. A developer of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service)
+will review your pull-request. And if the pull request gets a positive review
+the reviewer will merge it.
+
+However, please bear in mind the following things:
+
+## Discuss Large Changes in Advance
+
+If you see a glaring flaw within the Open Build Service, resist the urge to
+jump into the code and make sweeping changes right away. We know it can be
+tempting, but especially for large, structural changes(bug fixes or features)
+it's a wiser choice to first discuss them on the
+developer [mailing list](https://lists.opensuse.org/obs-devel).
+It may turn out that someone is already working on this or that someone already
+has tried to solve this and hit a roadblock, maybe there even is a good reason
+why that flaw exists. If nothing else, a discussion of the change will usually
+familiarize the reviewer with your proposed changes and streamline the review
+process when you finally create a pull request.
+
+A good rule of thumb for when you should discuss on the mailing list is to
+estimate how much time would be wasted if the pull request was rejected. If
+it's a couple of hours then you can probably dive head first and eat the loss
+in the worst case. Otherwise, making a quick check with the other developers
+could save you lots of time down the line.
+
+## Small Commits & Pull Request Scope
+
+A commit should contain a single logical change, the scope should be as small
+as possible. And a pull request should only consist of the commits that you
+need for your change (bug fix or feature). If it's possible for you to split
+larger changes into smaller blocks please do so.
+
+Limiting the scope of commits/pull requests makes reviewing much easier.
+Because it will usually mean each commit can be evaluated independently and a
+smaller amount of commits per pull request usually also means a smaller amount
+of code to be reviewed.
+
+## Proper Commit Messages
+
+We are keen on proper commit messages because they will help us to maintain
+this piece of code in the future.
+
+- The title of your commit should summarizes **what** has been done
+  - If the title is to small to explain **what** you have done then elaborate on it in the body
+- Explain **why** you have changed this instead of the *how*. This is the most important content of the message.
+- Explain potential side-effects of this change, if there are any
+
+Please also:
 
 - **Leave a blank line between the commit subject and body**
 
   Tools like rebase could not work properly otherwise.
 
-- **Preferably include a commit description**
-  
-  There is always some useful information to add in your commit. If you don't include a commit description, more likely you are missing something.
-  
-- **Summarize what has been done and why**
-
-  The commit message body should explain **what** & **why** the changes have been made.
-  Explain potential side-effects of the changes, if there are any.
- 
 - **Mention related issues**
 
   If this commit fixes an issue you need to mention it like `Fixes #1234`
@@ -77,7 +104,26 @@ We are not tagging commits anymore, but these are the labels and their descripti
   * [doc]     - Any documentation related changes
   * [webui]   - Changes in webui related parts of app/model/ and lib/ as well as app/controllers/webui/ and its views
 
-## How to review code submissions
+## Mind the Automated Reviews
+Please make sure to mind our continuous integration cycle that includes:
+
+- code style linting with tools like rubocop, jshint, haml-lint etc.
+- static code analysis with [codeclimate](https://codeclimate.com/github/openSUSE/open-build-service)
+- security code analysis with [hakiri](https://hakiri.io/github/openSUSE/open-build-service/)
+- automated test runs for the frontend and backend test suites with [circle-ci](https://circleci.com/gh/openSUSE/workflows/open-build-service)
+
+If one of the goes wrong for your pull request please address the issue.
+
+## Tell Us If You Need Help
+
+The Open Build Service developer community is here for you. If you are stuck
+with some problem or decision, have no time to drive a pull-request over the
+finishing line or if you just want to ask a simple question just get in contact
+with us in the pull-request, over the
+developer [mailing list](https://lists.opensuse.org/obs-devel) or our
+IRC channel (irc://irc.freenode.net/openSUSE-buildservice).
+
+# How to Review Code Submissions
 We make use of GitHub [pull request reviews](https://help.github.com/articles/about-pull-request-reviews/) and we...
 
 - ...mark nitpicks inside the comment somehow (with the 💭 emoji or *nitpick*: blah blah)
@@ -91,7 +137,7 @@ Nitpicks are things you as reviewer don't care about if they end up in the code-
 - Bigger refactorings that are out of scope for the pull-request
 - Things new to you that you don't understand and would like to have an explanation for
 
-# How to contribute issues
+# How to Contribute Bug Reports
 * Prerequisites: familiarity with [GitHub Issues](https://guides.github.com/features/issues/).
 * Enter your issue and a member of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) will label and prioritize it for you.
 
@@ -101,16 +147,16 @@ We are using priority labels from **P1** to **P4** for our issues. So if you are
 * P3: Medium - Fix this when you have time.
 * P4: Low  - Fix this when you don't see any issues with the other priorities.
 
-# How to contribute documentation
+# How to Contribute Documentation
 The Open Build Service documentation is hosted in a separated repository called [obs-docu](https://github.com/openSUSE/obs-docu). Please send pull-requests against this repository. 
 
-# How to conduct yourself when contributing
+# How to Conduct Yourself when Contributing
 The Open Build Service is part of the openSUSE project. We follow all the [openSUSE Guiding
 Principles!](http://en.opensuse.org/openSUSE:Guiding_principles) If you think
 someone doesn't do that, please let any of the [openSUSE
 owners](https:/en.openSUSE.org/openSUSE:Board) know!
 
-# How to setup an OBS development environment
+# How to Setup an OBS Development Environment
 We are using [docker](https://www.docker.com/) to create our development
 environment. All the tools needed for this are available for Linux, MacOS and
 Windows.
@@ -176,4 +222,5 @@ You can access the frontend at [localhost:3000](http://localhost:3000). Whatever
 
 11. You can find more details about the development environment [in our wiki](https://github.com/openSUSE/open-build-service/wiki/Development-Environment).
 
-Happy Hacking! - :heart: Your Open Build Service Team
+# Happy Hacking! - :heart: Your Open Build Service Team
+
