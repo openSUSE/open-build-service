@@ -1,41 +1,44 @@
 class OwnerOfContainerSearch < OwnerSearch
-  def for(obj)
-    if obj.is_a? Project
-      project = obj
+  def for(container)
+    if container.is_a?(Project)
+      project = container
     else
-      project = obj.project
+      project = container.project
     end
-    find_maintainers(obj, filter(project))
+    @filter = filter(project)
+    find_maintainers(container)
   end
 
   protected
 
-  def find_maintainers(container, filter)
-    maintainers = []
-    sql = build_rolefilter_sql(filter)
-    add_owners = proc do |cont|
-      m = Owner.new
-      m.rootproject = ''
-      if cont.is_a? Package
-        m.project = cont.project.name
-        m.package = cont.name
-      else
-        m.project = cont.name
-      end
-      m.filter = filter
-      extract_from_container(m, cont.relationships, sql, nil)
-      maintainers << m unless m.users.nil? && m.groups.nil?
+  def add_owners(container)
+    owner = Owner.new
+    owner.rootproject = ''
+    if container.is_a?(Package)
+      owner.project = container.project.name
+      owner.package = container.name
+    else
+      owner.project = container.name
     end
-    project = container
-    if container.is_a? Package
-      add_owners.call container
+    owner.filter = @filter
+    extract_from_container(owner, container, @filter, nil)
+    return if owner.users.nil? && owner.groups.nil?
+    @maintainers << owner
+  end
+
+  def find_maintainers(container)
+    @maintainers = []
+    if container.is_a?(Package)
+      add_owners(container)
       project = container.project
+    else
+      project = container
     end
     # add maintainers from parent projects
-    until project.nil?
-      add_owners.call(project)
+    while project
+      add_owners(project)
       project = project.parent
     end
-    maintainers
+    @maintainers
   end
 end

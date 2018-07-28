@@ -92,7 +92,6 @@ class OwnerSearch
 
         # the "" means any matching relationships will get taken
         m, limit, already_checked = lookup_package_owner(rootproject, pkg, '', limit, devel, deepest, already_checked)
-
         unless m
           # collect all no matched entries
           m = Owner.new(rootproject: rootproject.name, project: pkg.project.name, package: pkg.name, filter: filter)
@@ -205,14 +204,13 @@ class OwnerSearch
 
     # no filter defined, so do not check for roles and just return container
     return m if rolefilter.empty?
-    sql = build_rolefilter_sql(rolefilter)
     # lookup in package container
-    m = extract_from_container(m, pkg.relationships, sql, objfilter)
+    extract_from_container(m, pkg, rolefilter, objfilter)
 
     # did it it match? if not fallback to project level
     unless m.users || m.groups
       m.package = nil
-      m = extract_from_container(m, pkg.project.relationships, sql, objfilter)
+      extract_from_container(m, pkg.project, rolefilter, objfilter)
     end
     # still not matched? Ignore it
     return unless m.users || m.groups
@@ -220,52 +218,41 @@ class OwnerSearch
     m
   end
 
-  def extract_from_container(m, r, sql, objfilter)
-    unless objfilter.class == Group
-      rel = r.users.where(sql)
-      if objfilter.class == User
-        rel = rel.where(user: objfilter)
-      end
-      rel.find_each do |p|
-        next unless p.user.state == 'confirmed'
-        m.users ||= {}
-        m.users[p.role.title] ||= []
-        m.users[p.role.title] << p.user.login
-      end
-    end
-
-    unless objfilter.class == User
-      rel = r.groups.where(sql)
-      if objfilter.class == Group
-        rel = rel.where(group: objfilter)
-      end
-      rel.find_each do |p|
-        next if p.group.users.where(state: 'confirmed').empty?
-        m.groups ||= {}
-        m.groups[p.role.title] ||= []
-        m.groups[p.role.title] << p.group.title
-      end
-    end
-    m
+  def filter_roles(relation, rolefilter)
+    return relation if rolefilter.empty?
+    role_ids = rolefilter.map { |r| Role.find_by_title!(r).id }
+    relation.where(role_id: role_ids)
   end
 
-  def build_rolefilter_sql(rolefilter)
-    # construct where condition
-    sql = nil
-    if rolefilter.present?
-      rolefilter.each do |rf|
-        if sql.nil?
-          sql = '( '
-        else
-          sql << ' OR '
-        end
-        role = Role.find_by_title!(rf)
-        sql << 'role_id = ' << role.id.to_s
-      end
-    else
-      # match all roles
-      sql = '( 1 '
+  def filter_users(owner, container, rolefilter, objfilter)
+    rel = filter_roles(container.relationships.users, rolefilter)
+    if objfilter.class == User
+      rel = rel.where(user: objfilter)
     end
-    sql << ' )'
+    rel.find_each do |p|
+      next unless p.user.state == 'confirmed'
+      owner.users ||= {}
+      owner.users[p.role.title] ||= []
+      owner.users[p.role.title] << p.user.login
+    end
+  end
+
+  def filter_groups(owner, container, rolefilter, objfilter)
+    rel = filter_roles(container.relationships.groups, rolefilter)
+    if objfilter.class == Group
+      rel = rel.where(group: objfilter)
+    end
+    rel.find_each do |p|
+      next if p.group.users.where(state: 'confirmed').empty?
+      owner.groups ||= {}
+      owner.groups[p.role.title] ||= []
+      owner.groups[p.role.title] << p.group.title
+    end
+  end
+
+  def extract_from_container(owner, container, rolefilter, objfilter)
+    filter_users(owner, container, rolefilter, objfilter) unless objfilter.class == Group
+    filter_groups(owner, container, rolefilter, objfilter) unless objfilter.class == User
+    owner
   end
 end
