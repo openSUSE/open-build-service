@@ -43,6 +43,11 @@ RSpec.describe OwnerSearch do
     end
 
     context '#missing' do
+      it 'returns nothing for default filter' do
+        subject = OwnerMissingSearch.new.find
+        expect(subject).to be_empty
+      end
+
       it 'returns results for packages without bugowner' do
         subject = OwnerMissingSearch.new(devel: false, filter: 'bugowner').find.first
         expect(subject.rootproject).to eq('home:Iggy')
