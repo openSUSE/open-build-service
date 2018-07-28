@@ -9,7 +9,7 @@ class OwnerSearch
     self.params = params
     self.attribute = AttribType.find_by_name!(params[:attribute] || 'OBS:OwnerRootProject')
 
-    self.limit = params[:limit] || 1
+    self.limit = (params[:limit] || 1).to_i
   end
 
   def for(owner)
