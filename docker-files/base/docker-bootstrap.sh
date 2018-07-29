@@ -8,12 +8,12 @@ do
       sphinx \
       nodejs6 npm6 \
       mariadb-client \
+      mysql-devel \
       sqlite3-devel \
       git-core \
       ruby2.5-devel cyrus-sasl-devel openldap2-devel libxml2-devel zlib-devel libxslt-devel \
       perl-XML-Parser \
       libffi48-devel autoconf \
-      ruby2.5-rubygem-mysql2 \
       ruby2.5-rubygem-bundler
     ;;
 
