@@ -26,34 +26,37 @@ class OwnerAssigneeSearch < OwnerSearch
     Owner.new(rootproject: @rootproject.name, filter: @rolefilter, project: pkg.project.name, package: pkg.name)
   end
 
+  def extract_maintainer_project_level(owner, pkg)
+    return owner if owner.user_or_group?
+
+    owner.package = nil
+    extract_from_container(owner, pkg.project, @rolefilter)
+    # still not matched? Ignore it
+    return owner if owner.user_or_group?
+    nil
+  end
+
   def extract_maintainer(pkg)
     return unless pkg && Package.check_access?(pkg)
 
-    m = create_owner(pkg)
+    owner = create_owner(pkg)
     # no filter defined, so do not check for roles and just return container
-    return m if @rolefilter.empty?
+    return owner if @rolefilter.empty?
     # lookup in package container
-    extract_from_container(m, pkg, @rolefilter)
+    extract_from_container(owner, pkg, @rolefilter)
 
-    # did it it match? if not fallback to project level
-    unless m.users || m.groups
-      m.package = nil
-      extract_from_container(m, pkg.project, @rolefilter)
-    end
-    # still not matched? Ignore it
-    return unless m.users || m.groups
-
-    m
+    # eventually fallback
+    extract_maintainer_project_level(owner, pkg)
   end
 
   def extract_owner(pkg)
     # optional check for devel package instance first
     if @devel_disabled
-      m = nil
+      owner = nil
     else
-      m = extract_maintainer(pkg.resolve_devel_package)
+      owner = extract_maintainer(pkg.resolve_devel_package)
     end
-    m || extract_maintainer(pkg)
+    owner || extract_maintainer(pkg)
   end
 
   def lookup_package_owner(pkg)
