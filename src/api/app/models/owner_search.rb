@@ -110,19 +110,19 @@ class OwnerSearch
     rel = rel.joins(:user).where(relationships: { users: { state: 'confirmed' } })
     rel.each do |p|
       owner.users ||= {}
-      owner.users.default = []
-      owner.users[p.role.title] <<= p.user.login
+      entries = owner.users.fetch(p.role.title, []) << p.user.login
+      owner.users[p.role.title] = entries
     end
   end
 
   def filter_groups(owner, container, rolefilter, group)
     rel = filter_roles(container.relationships.groups, rolefilter)
     rel = rel.where(group: group) if group
-    rel.find_each do |p|
-      next if p.group.users.where(state: 'confirmed').empty?
+    rel.each do |p|
+      next unless p.group.any_confirmed_users?
       owner.groups ||= {}
-      owner.groups[p.role.title] ||= []
-      owner.groups[p.role.title] << p.group.title
+      entries = owner.groups.fetch(p.role.title, []) << p.group.title
+      owner.groups[p.role.title] = entries
     end
   end
 
