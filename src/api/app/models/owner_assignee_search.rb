@@ -26,19 +26,19 @@ class OwnerAssigneeSearch < OwnerSearch
     Owner.new(rootproject: @rootproject.name, filter: @rolefilter, project: pkg.project.name, package: pkg.name)
   end
 
-  def extract_maintainer(pkg, objfilter = nil)
+  def extract_maintainer(pkg)
     return unless pkg && Package.check_access?(pkg)
 
     m = create_owner(pkg)
     # no filter defined, so do not check for roles and just return container
     return m if @rolefilter.empty?
     # lookup in package container
-    extract_from_container(m, pkg, @rolefilter, objfilter)
+    extract_from_container(m, pkg, @rolefilter)
 
     # did it it match? if not fallback to project level
     unless m.users || m.groups
       m.package = nil
-      extract_from_container(m, pkg.project, @rolefilter, objfilter)
+      extract_from_container(m, pkg.project, @rolefilter)
     end
     # still not matched? Ignore it
     return unless m.users || m.groups
@@ -46,23 +46,23 @@ class OwnerAssigneeSearch < OwnerSearch
     m
   end
 
-  def extract_owner(pkg, owner)
+  def extract_owner(pkg)
     # optional check for devel package instance first
     if @devel_disabled
       m = nil
     else
-      m = extract_maintainer(pkg.resolve_devel_package, owner)
+      m = extract_maintainer(pkg.resolve_devel_package)
     end
-    m || extract_maintainer(pkg, owner)
+    m || extract_maintainer(pkg)
   end
 
-  def lookup_package_owner(pkg, owner)
+  def lookup_package_owner(pkg)
     return nil if @already_checked[pkg.id]
 
     @already_checked[pkg.id] = 1
     @lookup_limit -= 1
 
-    m = extract_owner(pkg, owner)
+    m = extract_owner(pkg)
     # found entry
     return m if m
 
@@ -73,7 +73,7 @@ class OwnerAssigneeSearch < OwnerSearch
 
       @already_checked[p.id] = 1
 
-      m = extract_owner(p, owner)
+      m = extract_owner(p)
       break if m && !@deepest
     end
 
@@ -89,8 +89,7 @@ class OwnerAssigneeSearch < OwnerSearch
     pkg = prj.packages.find_by_name(package_name)
     return if pkg.nil? || pkg.is_patchinfo?
 
-    # the "" means any matching relationships will get taken
-    m = lookup_package_owner(pkg, '')
+    m = lookup_package_owner(pkg)
     unless m
       # collect all no matched entries
       @instances_without_definition << create_owner(pkg)

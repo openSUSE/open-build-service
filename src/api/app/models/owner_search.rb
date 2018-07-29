@@ -104,24 +104,20 @@ class OwnerSearch
     relation.where(role_id: role_ids)
   end
 
-  def filter_users(owner, container, rolefilter, objfilter)
+  def filter_users(owner, container, rolefilter, user)
     rel = filter_roles(container.relationships.users, rolefilter)
-    if objfilter.class == User
-      rel = rel.where(user: objfilter)
-    end
-    rel.find_each do |p|
-      next unless p.user.state == 'confirmed'
+    rel = rel.where(user: user) if user
+    rel = rel.joins(:user).where(relationships: { users: { state: 'confirmed' } })
+    rel.each do |p|
       owner.users ||= {}
-      owner.users[p.role.title] ||= []
-      owner.users[p.role.title] << p.user.login
+      owner.users.default = []
+      owner.users[p.role.title] <<= p.user.login
     end
   end
 
-  def filter_groups(owner, container, rolefilter, objfilter)
+  def filter_groups(owner, container, rolefilter, group)
     rel = filter_roles(container.relationships.groups, rolefilter)
-    if objfilter.class == Group
-      rel = rel.where(group: objfilter)
-    end
+    rel = rel.where(group: group) if group
     rel.find_each do |p|
       next if p.group.users.where(state: 'confirmed').empty?
       owner.groups ||= {}
@@ -130,9 +126,9 @@ class OwnerSearch
     end
   end
 
-  def extract_from_container(owner, container, rolefilter, objfilter)
-    filter_users(owner, container, rolefilter, objfilter) unless objfilter.class == Group
-    filter_groups(owner, container, rolefilter, objfilter) unless objfilter.class == User
+  def extract_from_container(owner, container, rolefilter, user_or_group = nil)
+    filter_users(owner, container, rolefilter, user_or_group) unless user_or_group.class == Group
+    filter_groups(owner, container, rolefilter, user_or_group) unless user_or_group.class == User
     owner
   end
 end
