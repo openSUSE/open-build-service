@@ -105,6 +105,19 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
         end
       end
     end
+
+    context 'requesting json' do
+      let!(:factory_staging_b) { create(:project, name: 'openSUSE:Factory:Staging:B', description: '') }
+      let(:factory_distribution) { ::ObsFactory::Distribution.find(factory.name) }
+      let(:staging_projects) { ::ObsFactory::StagingProject.for(factory_distribution) }
+
+      subject { get :index, params: { project: factory }, format: :json }
+
+      it { is_expected.to have_http_status(:success) }
+      it 'responds with a json representation of the staging project' do
+        expect(JSON.parse(subject.body)).to eq(JSON.parse(staging_projects.to_json))
+      end
+    end
   end
 
   describe 'GET #show' do
