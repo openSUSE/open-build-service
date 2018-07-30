@@ -49,7 +49,7 @@ RSpec.describe Webui::ProjectHelper, type: :helper do
         @spider_bot = true
       end
 
-      it { expect(project_bread_crumb).to be nil }
+      it { expect(project_bread_crumb).to be(nil) }
     end
   end
 

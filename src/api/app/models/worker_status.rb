@@ -13,7 +13,7 @@ class WorkerStatus
     end
     ws.each('building') do |b|
       # no prj -> we are not allowed
-      next if names.key? b.value(:project)
+      next if names.key?(b.value(:project))
       Rails.logger.debug "workerstatus2clean: hiding #{b.value(:project)} for user #{User.current.login}"
       b.set_attribute('project', '---')
       b.set_attribute('repository', '---')
@@ -43,7 +43,7 @@ class WorkerStatus
       end
       parse_worker_infos(wdata)
       @squeues.each_pair do |key, value|
-        StatusHistory.create time: @mytime, key: key, value: value
+        StatusHistory.create(time: @mytime, key: key, value: value)
       end
     end
     ret
@@ -77,7 +77,7 @@ class WorkerStatus
     ['building', 'idle', 'dead', 'down', 'away'].each do |state|
       wdata.elements(state) do |e|
         id = e['workerid']
-        if workers.key? id
+        if workers.key?(id)
           Rails.logger.debug 'building+idle worker'
           next
         end

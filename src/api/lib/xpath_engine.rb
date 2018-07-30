@@ -375,10 +375,10 @@ class XpathEngine
       when :function
         fname = stack.shift
         fname_int = 'xpath_func_' + fname.tr('-', '_')
-        unless respond_to? fname_int
+        unless respond_to?(fname_int)
           raise IllegalXpathError, "unknown xpath function '#{fname}'"
         end
-        __send__ fname_int, root, *stack.shift
+        __send__(fname_int, root, *stack.shift)
       when :child
         t = stack.shift
         if t == :qname
@@ -403,10 +403,10 @@ class XpathEngine
       when *@operators
         opname = token.to_s
         opname_int = 'xpath_op_' + opname
-        unless respond_to? opname_int
+        unless respond_to?(opname_int)
           raise IllegalXpathError, "unhandled xpath operator '#{opname}'"
         end
-        __send__ opname_int, root, *stack
+        __send__(opname_int, root, *stack)
         stack = []
       else
         raise IllegalXpathError, "illegal token X '#{token.inspect}'"
@@ -450,7 +450,7 @@ class XpathEngine
         raise IllegalXpathError, "illegal token: '#{token.inspect}'"
       end
     end
-    key = (root + a).join '/'
+    key = (root + a).join('/')
     # this is a wild hack - we need to save the key, so we can possibly split the next
     # literal. The real fix is to translate the xpath into SQL directly
     @last_key = key

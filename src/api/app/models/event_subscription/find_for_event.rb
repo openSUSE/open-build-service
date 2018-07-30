@@ -53,10 +53,10 @@ class EventSubscription
       new_receivers = []
 
       receivers.each do |receiver|
-        if receiver.is_a? User
+        if receiver.is_a?(User)
           new_receivers << receiver
 
-        elsif receiver.is_a? Group
+        elsif receiver.is_a?(Group)
 
           if receiver.email.present?
             new_receivers << receiver

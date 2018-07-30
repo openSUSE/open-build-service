@@ -85,9 +85,9 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(response).to redirect_to(project_show_path(project)) }
-      it { expect(flash[:notice]).to eq 'Project was successfully updated.' }
-      it { expect(project.title).to eq 'My projects title' }
-      it { expect(project.description).to eq 'My projects description' }
+      it { expect(flash[:notice]).to eq('Project was successfully updated.') }
+      it { expect(project.title).to eq('My projects title') }
+      it { expect(project.description).to eq('My projects description') }
     end
 
     context 'with invalid data' do
@@ -98,9 +98,9 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(response).to have_http_status(:success) }
-      it { expect(flash[:error]).to eq 'Failed to update project' }
-      it { expect(project.title).to be nil }
-      it { expect(project.description).to be nil }
+      it { expect(flash[:error]).to eq('Failed to update project') }
+      it { expect(project.title).to be(nil) }
+      it { expect(project.description).to be(nil) }
     end
   end
 
@@ -1132,7 +1132,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         post :new_release_request, params: { project: apache_maintenance_incident_project }
       end
 
-      it { expect(flash[:error]).to eq 'Internal problem while release request creation' }
+      it { expect(flash[:error]).to eq('Internal problem while release request creation') }
       it { expect(response).to redirect_to(project_show_path(apache_maintenance_incident_project)) }
     end
 
@@ -1142,7 +1142,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         post :new_release_request, params: { project: apache_maintenance_incident_project }
       end
 
-      it { expect(flash[:error]).to eq "boom #{exception_class}" }
+      it { expect(flash[:error]).to eq("boom #{exception_class}") }
       it { expect(response).to redirect_to(project_show_path(apache_maintenance_incident_project)) }
     end
 
@@ -1167,7 +1167,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         post :new_release_request, params: { project: apache_maintenance_incident_project }
       end
 
-      it { expect(flash[:success]).to eq "Created maintenance release request <a href='http://test.host/request/show/1'>1</a>" }
+      it { expect(flash[:success]).to eq("Created maintenance release request <a href='http://test.host/request/show/1'>1</a>") }
       it { expect(response).to redirect_to(project_show_path(apache_maintenance_incident_project)) }
     end
   end

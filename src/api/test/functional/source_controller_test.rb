@@ -203,7 +203,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'project', attributes: { name: 'SourceprotectedProject' }
     # retry with maintainer
     reset_auth
-    prepare_request_with_user 'sourceaccess_homer', 'buildservice'
+    prepare_request_with_user('sourceaccess_homer', 'buildservice')
     get '/source/SourceprotectedProject/_meta'
     assert_response :success
     assert_xml_tag tag: 'project', attributes: { name: 'SourceprotectedProject' }
@@ -246,7 +246,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
     # retry with maintainer
     reset_auth
-    prepare_request_with_user 'sourceaccess_homer', 'buildservice'
+    prepare_request_with_user('sourceaccess_homer', 'buildservice')
     get '/source/SourceprotectedProject/pack'
     assert_response :success
     assert_xml_tag tag: 'directory', child: { tag: 'entry' }
@@ -289,7 +289,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'package', attributes: { name: 'pack', project: 'SourceprotectedProject' }
     # retry with maintainer
     reset_auth
-    prepare_request_with_user 'sourceaccess_homer', 'buildservice'
+    prepare_request_with_user('sourceaccess_homer', 'buildservice')
     get '/source/SourceprotectedProject/pack/_meta'
     assert_response :success
     assert_xml_tag tag: 'package', attributes: { name: 'pack', project: 'SourceprotectedProject' }
@@ -369,7 +369,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   # project_meta does not require auth
   def test_invalid_user
-    prepare_request_with_user 'king123', 'buildservice'
+    prepare_request_with_user('king123', 'buildservice')
     get '/source/kde4/_meta'
     assert_response 401
   end
@@ -402,14 +402,14 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     ### admin only tag
     # remote instance connection
     login_fred
-    doc.add_child '<remoteurl>http://localhost:5352</remoteurl>'
+    doc.add_child('<remoteurl>http://localhost:5352</remoteurl>')
     put url_for(controller: :source_project_meta, action: :update, project: 'kde4'), params: doc.to_xml
     assert_response 403
     assert_match(/admin rights are required to change projects using remote resources/, @response.body)
     # DoD remote repository
     doc = Nokogiri::XML(xml).root
-    r = doc.add_child '<repository name="download_on_demand"/>'
-    r.first.add_child '<download arch="i586" url="http://somewhere" repotype="rpmmd"/>'
+    r = doc.add_child('<repository name="download_on_demand"/>')
+    r.first.add_child('<download arch="i586" url="http://somewhere" repotype="rpmmd"/>')
     put url_for(controller: :source_project_meta, action: :update, project: 'kde4'), params: doc.to_xml
     assert_response 403
     assert_match(/admin rights are required to change projects using remote resources/, @response.body)
@@ -513,7 +513,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_king
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # maintainer
-    prepare_request_with_user 'hidden_homer', 'buildservice'
+    prepare_request_with_user('hidden_homer', 'buildservice')
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # FIXME: maintainer via group
   end
@@ -539,7 +539,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_king
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # maintainer
-    prepare_request_with_user 'sourceaccess_homer', 'buildservice'
+    prepare_request_with_user('sourceaccess_homer', 'buildservice')
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
   end
 
@@ -679,7 +679,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_select 'project[name=kde5]'
     assert_select 'person[userid=king][role=maintainer]', {}, 'Creator was not added as project maintainer'
 
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     delete '/source/kde5'
     assert_response 403
     login_fred
@@ -998,7 +998,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # maintainer via user
     login_fred
     do_change_package_meta_test(prj, pkg, resp1, resp2, aresp, match)
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user('fredlibs', 'buildservice')
     do_change_package_meta_test(prj, pkg, resp1, resp2, aresp, match)
     # maintainer via group
     login_adrian
@@ -1029,7 +1029,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_king
     do_change_package_meta_test(prj, pkg, resp1, resp2, aresp, match)
     # maintainer
-    prepare_request_with_user 'hidden_homer', 'buildservice'
+    prepare_request_with_user('hidden_homer', 'buildservice')
     do_change_package_meta_test(prj, pkg, resp1, resp2, aresp, match)
   end
 
@@ -1051,7 +1051,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_king
     do_change_package_meta_test(prj, pkg, resp1, resp2, aresp, match)
     # maintainer
-    prepare_request_with_user 'sourceaccess_homer', 'buildservice'
+    prepare_request_with_user('sourceaccess_homer', 'buildservice')
     do_change_package_meta_test(prj, pkg, resp1, resp2, aresp, match)
   end
 
@@ -1423,12 +1423,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     atag2 = { tag: 'status', attributes: { code: 'ok' } }
     resp3 = :success
     asel3 = 'package > build > enable'
-    prepare_request_with_user 'sourceaccess_homer', 'buildservice'
+    prepare_request_with_user('sourceaccess_homer', 'buildservice')
     do_test_change_package_meta(prj, pkg, resp1, resp2, atag2, resp3, asel3)
   end
 
   def test_put_invalid_package_meta
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user('fredlibs', 'buildservice')
     # Get meta file
     get url_for(controller: :source_project_package_meta, action: :show, project: 'kde4', package: 'kdelibs')
     assert_response :success
@@ -1470,7 +1470,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_read_file_hidden_proj
     # nobody
-    prepare_request_with_user 'adrian_nobody', 'buildservice'
+    prepare_request_with_user('adrian_nobody', 'buildservice')
     get '/source/HiddenProject/pack/my_file'
 
     assert_response 404
@@ -1483,7 +1483,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # reader
     # downloader
     # maintainer
-    prepare_request_with_user 'hidden_homer', 'buildservice'
+    prepare_request_with_user('hidden_homer', 'buildservice')
     get '/source/HiddenProject/pack/my_file'
     assert_response :success
     assert_equal(@response.body.to_s, 'Protected Content')
@@ -1496,7 +1496,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_read_filelist_sourceaccess_proj
     # nobody
-    prepare_request_with_user 'adrian_nobody', 'buildservice'
+    prepare_request_with_user('adrian_nobody', 'buildservice')
     get '/source/SourceprotectedProject/pack'
     assert_response 403
     assert_xml_tag tag: 'status', attributes: { code: 'source_access_no_permission' }
@@ -1508,7 +1508,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # reader
     # downloader
     # maintainer
-    prepare_request_with_user 'sourceaccess_homer', 'buildservice'
+    prepare_request_with_user('sourceaccess_homer', 'buildservice')
     get '/source/SourceprotectedProject/pack'
     assert_response :success
     assert_xml_tag tag: 'directory'
@@ -1529,7 +1529,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 401
     assert_xml_tag tag: 'status', attributes: { code: 'anonymous_user' }
     # nobody
-    prepare_request_with_user 'adrian_nobody', 'buildservice'
+    prepare_request_with_user('adrian_nobody', 'buildservice')
     get '/source/SourceprotectedProject/pack/my_file'
     assert_response 403
     assert_xml_tag tag: 'status', attributes: { code: 'source_access_no_permission' }
@@ -1541,7 +1541,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # reader
     # downloader
     # maintainer
-    prepare_request_with_user 'sourceaccess_homer', 'buildservice'
+    prepare_request_with_user('sourceaccess_homer', 'buildservice')
     get '/source/SourceprotectedProject/pack/my_file'
     assert_response :success
     assert_equal(@response.body.to_s, 'Protected Content')
@@ -1579,7 +1579,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_add_file_to_package_hidden
     # uninvolved user
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user('fredlibs', 'buildservice')
     url1 = '/source/HiddenProject/pack'
     asserttag1 = { tag: 'status', attributes: { code: 'unknown_project' } }
     url2 = '/source/HiddenProject/pack/testfile'
@@ -1593,12 +1593,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                         assertselect2, assertselect2rev,
                         assertresp3, asserteq3, assertresp4)
     # nobody
-    prepare_request_with_user 'adrian_nobody', 'buildservice'
+    prepare_request_with_user('adrian_nobody', 'buildservice')
     add_file_to_package(url1, asserttag1, url2, assertresp2,
                         assertselect2, assertselect2rev,
                         assertresp3, asserteq3, assertresp4)
     # maintainer
-    prepare_request_with_user 'hidden_homer', 'buildservice'
+    prepare_request_with_user('hidden_homer', 'buildservice')
     asserttag1 = { tag: 'directory', attributes: { srcmd5: 'b47be8b05a188d62b40c9d65cf490618' } }
     assertresp2 = :success
     assertselect2 = 'revision > srcmd5'
@@ -1618,7 +1618,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_add_file_to_package_sourceaccess_protect
     # uninvolved user
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user('fredlibs', 'buildservice')
     url1 = '/source/SourceprotectedProject/pack'
     url2 = '/source/SourceprotectedProject/pack/testfile'
     assertresp2 = 403
@@ -1631,12 +1631,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                         assertselect2, assertselect2rev,
                         assertresp3, asserteq3, assertresp4)
     # nobody
-    prepare_request_with_user 'adrian_nobody', 'buildservice'
+    prepare_request_with_user('adrian_nobody', 'buildservice')
     add_file_to_package(url1, nil, url2, assertresp2,
                         assertselect2, assertselect2rev,
                         assertresp3, asserteq3, assertresp4)
     # maintainer
-    prepare_request_with_user 'sourceaccess_homer', 'buildservice'
+    prepare_request_with_user('sourceaccess_homer', 'buildservice')
     asserttag1 = { tag: 'directory', attributes: { srcmd5: 'b47be8b05a188d62b40c9d65cf490618' } }
     assertresp2 = :success
     assertselect2 = 'revision > srcmd5'
@@ -1664,7 +1664,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assertresp3 = :success
     asserteq3 = true
     assertresp4 = :success
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user('fredlibs', 'buildservice')
     add_file_to_package(url1, asserttag1, url2, assertresp2,
                         assertselect2, assertselect2rev,
                         assertresp3, asserteq3, assertresp4)
@@ -1696,7 +1696,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     delete '/source/kde4/kdelibs/my_patch.diff'
     assert_response 401
 
-    prepare_request_with_user 'adrian_nobody', 'buildservice'
+    prepare_request_with_user('adrian_nobody', 'buildservice')
     delete '/source/kde4/kdelibs/my_patch.diff'
     assert_response 403
 
@@ -1710,7 +1710,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_get_package_meta_history
     get '/source/kde4/kdelibs/_history'
     assert_response 401
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user('fredlibs', 'buildservice')
     get '/source/kde4/kdelibs/_history'
     assert_response :success
     assert_xml_tag(tag: 'revisionlist')
@@ -1731,7 +1731,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_get_project_meta_history
     get '/source/kde4/_project/_history'
     assert_response 401
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user('fredlibs', 'buildservice')
     get '/source/kde4/_project/_history'
     assert_response :success
     assert_xml_tag(tag: 'revisionlist')
@@ -1778,7 +1778,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_get_package_meta_file
     get '/source/kde4/kdelibs/_history'
     assert_response 401
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user('fredlibs', 'buildservice')
     get '/source/kde4/kdelibs/_meta?meta=1'
     assert_response :success
     assert_xml_tag(tag: 'package')
@@ -1809,7 +1809,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_invalid_package_command
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user('fredlibs', 'buildservice')
     post '/source/kde4/kdelibs'
     assert_response 400
     assert_xml_tag(tag: 'status', attributes: { code: 'missing_parameter' })
@@ -1818,7 +1818,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'status', attributes: { code: 'illegal_request' }
     assert_xml_tag tag: 'summary', content: 'invalid_command'
 
-    prepare_request_with_user 'adrian_nobody', 'buildservice'
+    prepare_request_with_user('adrian_nobody', 'buildservice')
     post '/source/kde4/kdelibs'
     assert_response 400
     assert_xml_tag(tag: 'status', attributes: { code: 'missing_parameter' })
@@ -1829,7 +1829,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_blame_view
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user('fredlibs', 'buildservice')
     raw_put '/source/kde4/BLAME/_meta', '<package name="BLAME" project="kde4"><title/><description/></package>'
     assert_response :success
 
@@ -1879,7 +1879,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 401
 
     # delete single package in project
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user('fredlibs', 'buildservice')
     put '/source/kde4/kdelibs/DUMMYFILE', params: 'dummy'
     assert_response :success
     # to have different revision number in meta and plain files
@@ -1935,7 +1935,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # admin only operations
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user('fredlibs', 'buildservice')
     delete '/source/kde4/kdelibs'
     assert_response :success
     login_king
@@ -1950,7 +1950,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'time', content: mytime)
 
     # delete entire project
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user('fredlibs', 'buildservice')
     get '/source/kde4/_meta'
     assert_response :success
     meta_before_delete = @response.body
@@ -1983,7 +1983,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 200
     assert_xml_tag(tag: 'entry', attributes: { name: 'kde4' })
 
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user('fredlibs', 'buildservice')
     get '/source', params: { deleted: 1 }
     assert_response 403
     assert_match(/only admins can see deleted projects/, @response.body)
@@ -2002,7 +2002,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     revision = node.elements('revision').last['rev']
     assert_equal expected_revision, revision.to_i
 
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user('fredlibs', 'buildservice')
     # undelete project
     post '/source/kde4', params: { cmd: :undelete }
     assert_response 403
@@ -2087,7 +2087,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     assert_xml_tag tag: 'status', attributes: { code: 'unknown_project' } # was package
 
-    prepare_request_with_user 'hidden_homer', 'buildservice'
+    prepare_request_with_user('hidden_homer', 'buildservice')
     post '/source/HiddenProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff'
     assert_response :success
     assert_match(/Minimal rpm package for testing the build controller/, @response.body)
@@ -2117,7 +2117,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
     assert_xml_tag tag: 'status', attributes: { code: 'source_access_no_permission' }
 
-    prepare_request_with_user 'sourceaccess_homer', 'buildservice'
+    prepare_request_with_user('sourceaccess_homer', 'buildservice')
     post '/source/SourceprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff'
     assert_response :success
     assert_match(/Protected Content/, @response.body)
@@ -2162,7 +2162,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put '/source/kde4/_pattern/mypattern', params: load_backend_file('pattern/digiKam.xml')
     assert_response 401
 
-    prepare_request_with_user 'adrian_nobody', 'buildservice'
+    prepare_request_with_user('adrian_nobody', 'buildservice')
     get '/source/DoesNotExist/_pattern'
     assert_response 404
     get '/source/kde4/_pattern'
@@ -2189,7 +2189,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_match(/_pattern/, @response.body)
 
     # delete failure
-    prepare_request_with_user 'adrian_nobody', 'buildservice'
+    prepare_request_with_user('adrian_nobody', 'buildservice')
     delete '/source/home:coolo:test/_pattern/mypattern'
     assert_response 403
 
@@ -2208,7 +2208,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_prjconf
     get url_for(controller: :source_project_config, action: :show, project: 'DoesNotExist')
     assert_response 401
-    prepare_request_with_user 'adrian_nobody', 'buildservice'
+    prepare_request_with_user('adrian_nobody', 'buildservice')
     get url_for(controller: :source_project_config, action: :show, project: 'DoesNotExist')
     assert_response 404
     get url_for(controller: :source_project_config, action: :show, project: 'kde4')
@@ -2219,7 +2219,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put url_for(controller: :source_project_config, action: :update, project: 'RemoteInstance:BaseDistro'), params: 'Substitute: nix da'
     assert_response 403
 
-    prepare_request_with_user 'adrian_nobody', 'buildservice'
+    prepare_request_with_user('adrian_nobody', 'buildservice')
     put url_for(controller: :source_project_config, action: :update, project: 'kde4'), params: 'Substitute: nix da'
     assert_response 403
 
@@ -2613,8 +2613,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     orig_project_meta = @response.body
     doc = REXML::Document.new(@response.body)
     rt = doc.elements["/project/repository'"].add_element 'releasetarget'
-    rt.add_attribute REXML::Attribute.new('project', 'home:adrian:RT')
-    rt.add_attribute REXML::Attribute.new('repository', 'rt')
+    rt.add_attribute(REXML::Attribute.new('project', 'home:adrian:RT'))
+    rt.add_attribute(REXML::Attribute.new('repository', 'rt'))
     put '/source/home:Iggy/_meta', params: doc.to_s
     assert_response :success
 
@@ -2626,7 +2626,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # add correct trigger
     login_Iggy
-    rt.add_attribute REXML::Attribute.new('trigger', 'manual')
+    rt.add_attribute(REXML::Attribute.new('trigger', 'manual'))
     put '/source/home:Iggy/_meta', params: doc.to_s
     assert_response :success
 
@@ -2710,8 +2710,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     orig_project_meta = @response.body
     doc = REXML::Document.new(@response.body)
     rt = doc.elements["/project/repository'"].add_element 'releasetarget'
-    rt.add_attribute REXML::Attribute.new('project', 'home:adrian:RT')
-    rt.add_attribute REXML::Attribute.new('repository', 'rt')
+    rt.add_attribute(REXML::Attribute.new('project', 'home:adrian:RT'))
+    rt.add_attribute(REXML::Attribute.new('repository', 'rt'))
     put '/source/home:Iggy/_meta', params: doc.to_s
     assert_response :success
     post '/source/home:Iggy/TestPack?cmd=branch&target_project=home:Iggy&target_package=TestPackBranch'
@@ -2727,7 +2727,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # add correct trigger
     login_Iggy
-    rt.add_attribute REXML::Attribute.new('trigger', 'manual')
+    rt.add_attribute(REXML::Attribute.new('trigger', 'manual'))
     put '/source/home:Iggy/_meta', params: doc.to_s
     assert_response :success
 
@@ -2830,14 +2830,14 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     orig_project_meta = @response.body
     doc = REXML::Document.new(@response.body)
     rt = doc.elements["/project/repository'"].add_element 'releasetarget'
-    rt.add_attribute REXML::Attribute.new('project', 'home:adrian:RT')
-    rt.add_attribute REXML::Attribute.new('repository', 'rt')
+    rt.add_attribute(REXML::Attribute.new('project', 'home:adrian:RT'))
+    rt.add_attribute(REXML::Attribute.new('repository', 'rt'))
     put '/source/home:Iggy/_meta', params: doc.to_s
     assert_response :success
 
     # add correct trigger
     login_Iggy
-    rt.add_attribute REXML::Attribute.new('trigger', 'manual')
+    rt.add_attribute(REXML::Attribute.new('trigger', 'manual'))
     put '/source/home:Iggy/_meta', params: doc.to_s
     assert_response :success
 
@@ -3562,7 +3562,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 401
     assert_xml_tag tag: 'status', attributes: { code: 'authentication_required' }
 
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user('fredlibs', 'buildservice')
     # ensure he has no home project
     get '/source/home:fredlibs'
     assert_response 404
@@ -3580,7 +3580,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put '/source/home:fredlibs/_meta', params: "<project name='home:fredlibs'><title/><description/> <person role='maintainer' userid='fredlibs'/> </project>"
     assert_response :success
 
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user('fredlibs', 'buildservice')
     post '/source/home:Iggy/TestPack', params: { cmd: :branch }
     assert_response :success
 
@@ -3624,7 +3624,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     post '/source/home:Iggy/TestPack', params: { cmd: :branch, target_project: 'home:coolo:test' }
     assert_response 401
     assert_xml_tag tag: 'status', attributes: { code: 'authentication_required' }
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user('fredlibs', 'buildservice')
     post '/source/home:Iggy/TestPack', params: { cmd: :branch, target_project: 'NotExisting' }
     assert_response 403
     assert_match(/no permission to create project/, @response.body)

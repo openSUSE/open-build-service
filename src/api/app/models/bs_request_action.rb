@@ -206,9 +206,9 @@ class BsRequestAction < ApplicationRecord
 
   def xml_package_attributes(source_or_target)
     attributes = {}
-    value = send "#{source_or_target}_project"
+    value = send("#{source_or_target}_project")
     attributes[:project] = value if value.present?
-    value = send "#{source_or_target}_package"
+    value = send("#{source_or_target}_package")
     attributes[:package] = value if value.present?
     attributes
   end
@@ -216,13 +216,13 @@ class BsRequestAction < ApplicationRecord
   def render_xml_source(node)
     attributes = xml_package_attributes('source')
     attributes[:rev] = source_rev if source_rev.present?
-    node.source attributes
+    node.source(attributes)
   end
 
   def render_xml_target(node)
     attributes = xml_package_attributes('target')
     attributes[:releaseproject] = target_releaseproject if target_releaseproject.present?
-    node.target attributes
+    node.target(attributes)
   end
 
   def render_xml_attributes(node)
@@ -233,13 +233,13 @@ class BsRequestAction < ApplicationRecord
   end
 
   def render_xml(builder)
-    builder.action type: action_type do |action|
+    builder.action(type: action_type) do |action|
       render_xml_attributes(action)
       if sourceupdate || updatelink || makeoriginolder
         action.options do
-          action.sourceupdate sourceupdate if sourceupdate
-          action.updatelink 'true' if updatelink
-          action.makeoriginolder 'true' if makeoriginolder
+          action.sourceupdate(sourceupdate) if sourceupdate
+          action.updatelink('true') if updatelink
+          action.makeoriginolder('true') if makeoriginolder
         end
       end
       bs_request_action_accept_info.render_xml(builder) unless bs_request_action_accept_info.nil?
@@ -315,7 +315,7 @@ class BsRequestAction < ApplicationRecord
     reviews = []
     return reviews unless target_project
 
-    tprj = Project.get_by_name target_project
+    tprj = Project.get_by_name(target_project)
     if tprj.class == String
       raise RemoteTarget, 'No support to target to remote projects. Create a request in remote instance instead.'
     end
@@ -325,19 +325,19 @@ class BsRequestAction < ApplicationRecord
         # use orignal/stripped name and also GA projects for maintenance packages.
         # But do not follow project links, if we have a branch target project, like in Evergreen case
         if tprj.find_attribute('OBS', 'BranchTarget')
-          tpkg = tprj.packages.find_by_name target_package.gsub(/\.[^\.]*$/, '')
+          tpkg = tprj.packages.find_by_name(target_package.gsub(/\.[^\.]*$/, ''))
         else
-          tpkg = tprj.find_package target_package.gsub(/\.[^\.]*$/, '')
+          tpkg = tprj.find_package(target_package.gsub(/\.[^\.]*$/, ''))
         end
       elsif action_type.in?([:set_bugowner, :add_role, :change_devel, :delete])
         # target must exists
-        tpkg = tprj.packages.find_by_name! target_package
+        tpkg = tprj.packages.find_by_name!(target_package)
       else
         # just the direct affected target
-        tpkg = tprj.packages.find_by_name target_package
+        tpkg = tprj.packages.find_by_name(target_package)
       end
     elsif source_package
-      tpkg = tprj.packages.find_by_name source_package
+      tpkg = tprj.packages.find_by_name(source_package)
     end
 
     if source_project
@@ -351,7 +351,7 @@ class BsRequestAction < ApplicationRecord
         # to avoid that random people can submit versions without talking to the maintainers
         # projects may skip this by setting OBS:ApprovedRequestSource attributes
         if source_package
-          spkg = Package.find_by_project_and_name source_project, source_package
+          spkg = Package.find_by_project_and_name(source_project, source_package)
           if spkg && !User.current.can_modify?(spkg)
             if  !spkg.project.find_attribute('OBS', 'ApprovedRequestSource') &&
                 !spkg.find_attribute('OBS', 'ApprovedRequestSource')
@@ -359,7 +359,7 @@ class BsRequestAction < ApplicationRecord
             end
           end
         else
-          sprj = Project.find_by_name source_project
+          sprj = Project.find_by_name(source_project)
           if sprj && !User.current.can_modify?(sprj) && !sprj.find_attribute('OBS', 'ApprovedRequestSource')
             reviews.push(sprj) unless sprj.find_attribute('OBS', 'ApprovedRequestSource')
           end
@@ -473,7 +473,7 @@ class BsRequestAction < ApplicationRecord
     new_targets = []
 
     packages.each do |pkg|
-      unless pkg.is_a? Package
+      unless pkg.is_a?(Package)
         raise RemoteSource, 'No support for auto expanding from remote instance. You need to submit a full specified request in that case.'
       end
       # find target via linkinfo or submit to all.
@@ -706,7 +706,7 @@ class BsRequestAction < ApplicationRecord
   def check_action_permission_source!
     return unless source_project
 
-    sprj = Project.get_by_name source_project
+    sprj = Project.get_by_name(source_project)
     raise UnknownProject, "Unknown source project #{source_project}" unless sprj
     unless sprj.class == Project || action_type.in?([:submit, :maintenance_incident])
       raise NotSupported, "Source project #{source_project} is not a local project. This is not supported yet."
@@ -799,8 +799,8 @@ class BsRequestAction < ApplicationRecord
   def check_action_permission_target!
     return unless target_project
 
-    tprj = Project.get_by_name target_project
-    if tprj.is_a? Project
+    tprj = Project.get_by_name(target_project)
+    if tprj.is_a?(Project)
       if tprj.is_maintenance_release? && action_type == :submit
         raise SubmitRequestRejected, "The target project #{target_project} is a maintenance release project, " \
                                      'a submit self is not possible, please use the maintenance workflow instead.'
@@ -815,7 +815,7 @@ class BsRequestAction < ApplicationRecord
     if target_package
       if Package.exists_by_project_and_name(target_project, target_package) ||
          action_type.in?([:delete, :change_devel, :add_role, :set_bugowner])
-        tpkg = Package.get_by_project_and_name target_project, target_package
+        tpkg = Package.get_by_project_and_name(target_project, target_package)
       end
       a = tpkg.find_attribute('OBS', 'RejectRequests') if defined?(tpkg) && tpkg
       if defined?(a) && a && a.values.first

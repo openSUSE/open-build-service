@@ -49,7 +49,7 @@ RSpec.shared_examples 'user tab' do
       expect(page).to have_text("Added user #{other_user.login} with role maintainer")
       within('#user-table') do
         # package / project owner plus other user and reader
-        expect(find_all('tbody tr').count).to eq 3
+        expect(find_all('tbody tr').count).to eq(3)
       end
 
       # Adding a user twice...
@@ -59,7 +59,7 @@ RSpec.shared_examples 'user tab' do
       expect(page).to have_text('Relationship already exists')
       click_link('Users')
       within('#user-table') do
-        expect(find_all('tbody tr').count).to eq 3
+        expect(find_all('tbody tr').count).to eq(3)
       end
     end
 
@@ -130,7 +130,7 @@ RSpec.shared_examples 'user tab' do
       expect(page).to have_text("Added group #{other_group.title} with role maintainer")
       within('#group-table') do
         # existing group plus new one
-        expect(find_all('tbody tr').count).to eq 2
+        expect(find_all('tbody tr').count).to eq(2)
       end
 
       # Adding a group twice...
@@ -140,7 +140,7 @@ RSpec.shared_examples 'user tab' do
       expect(page).to have_text('Relationship already exists')
       click_link('Users')
       within('#group-table') do
-        expect(find_all('tbody tr').count).to eq 2
+        expect(find_all('tbody tr').count).to eq(2)
       end
     end
 

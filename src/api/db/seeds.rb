@@ -42,13 +42,13 @@ EOT
 end
 
 puts 'Seeding roles table...'
-admin_role      = Role.where(title: 'Admin').first_or_create global: true
+admin_role      = Role.where(title: 'Admin').first_or_create(global: true)
 maintainer_role = Role.where(title: 'maintainer').first_or_create
 bugowner_role   = Role.where(title: 'bugowner').first_or_create
 reviewer_role   = Role.where(title: 'reviewer').first_or_create
 downloader_role = Role.where(title: 'downloader').first_or_create
 reader_role     = Role.where(title: 'reader').first_or_create
-Role.where(title: 'Staff').first_or_create global: true
+Role.where(title: 'Staff').first_or_create(global: true)
 
 puts 'Seeding users table...'
 admin = User.where(login: 'Admin').first_or_create(login: 'Admin', email: 'root@localhost',
@@ -93,7 +93,7 @@ puts 'Seeding static permissions for downloader role in roles_static_permissions
 end
 
 puts 'Seeding attrib_namespaces table...'
-ans = AttribNamespace.first_or_create name: 'OBS'
+ans = AttribNamespace.first_or_create(name: 'OBS')
 ans.attrib_namespace_modifiable_bies.first_or_create(user_id: admin.id)
 
 puts 'Seeding attrib_types table...'

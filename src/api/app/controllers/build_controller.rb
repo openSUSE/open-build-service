@@ -4,7 +4,7 @@ class BuildController < ApplicationController
     if params[:package] && !['_repository', '_jobhistory'].include?(params[:package])
       Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_multibuild: true)
     else
-      Project.get_by_name params[:project]
+      Project.get_by_name(params[:project])
     end
 
     if request.get?
@@ -25,7 +25,7 @@ class BuildController < ApplicationController
   def project_index
     prj = nil
     unless params[:project] == '_dispatchprios'
-      prj = Project.get_by_name params[:project]
+      prj = Project.get_by_name(params[:project])
     end
 
     if request.get?
@@ -35,14 +35,14 @@ class BuildController < ApplicationController
       # check if user has project modify rights
       allowed = false
       allowed = true if permissions.global_project_change
-      allowed = true if permissions.project_change? prj
+      allowed = true if permissions.project_change?(prj)
 
       # check for cmd parameter
       if params[:cmd].nil?
         raise MissingParameterError, "Missing parameter 'cmd'"
       end
 
-      unless ['wipe', 'restartbuild', 'killbuild', 'abortbuild', 'rebuild', 'unpublish', 'sendsysrq'].include? params[:cmd]
+      unless ['wipe', 'restartbuild', 'killbuild', 'abortbuild', 'rebuild', 'unpublish', 'sendsysrq'].include?(params[:cmd])
         render_error status: 400, errorcode: 'illegal_request',
           message: "unsupported POST command #{params[:cmd]} to #{request.url}"
         return
@@ -58,14 +58,14 @@ class BuildController < ApplicationController
         [params[:package]].flatten.each do |pack_name|
           pkg = Package.find_by_project_and_name(prj.name, pack_name)
           if pkg.nil?
-            allowed = permissions.project_change? prj
+            allowed = permissions.project_change?(prj)
             unless allowed
               render_error status: 403, errorcode: 'execute_cmd_no_permission',
                 message: "No permission to execute command on package #{pack_name} in project #{prj.name}"
               return
             end
           else
-            allowed = permissions.package_change? pkg
+            allowed = permissions.package_change?(pkg)
             unless allowed
               render_error status: 403, errorcode: 'execute_cmd_no_permission',
                 message: "No permission to execute command on package #{pack_name}"
@@ -103,15 +103,15 @@ class BuildController < ApplicationController
     # just for permission checking
     if request.post? && Package.striping_multibuild_suffix(params[:package]) == '_repository'
       # for osc local package build in this repository
-      Project.get_by_name params[:project]
+      Project.get_by_name(params[:project])
     else
-      Package.get_by_project_and_name params[:project], params[:package], use_source: false, follow_multibuild: true
+      Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_multibuild: true)
     end
 
     path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_buildinfo"
     path += "?#{request.query_string}" unless request.query_string.empty?
 
-    pass_to_backend path
+    pass_to_backend(path)
   end
 
   # /build/:project/:repository/:arch/_builddepinfo
@@ -119,17 +119,17 @@ class BuildController < ApplicationController
     required_parameters :project, :repository, :arch
 
     # just for permission checking
-    Project.get_by_name params[:project]
+    Project.get_by_name(params[:project])
 
     path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/_builddepinfo"
     path += "?#{request.query_string}" unless request.query_string.empty?
 
-    pass_to_backend path
+    pass_to_backend(path)
   end
 
   def logfile
     # for permission check
-    pkg = Package.get_by_project_and_name params[:project], params[:package], use_source: true, follow_project_links: true, follow_multibuild: true
+    pkg = Package.get_by_project_and_name(params[:project], params[:package], use_source: true, follow_project_links: true, follow_multibuild: true)
 
     if pkg.class == Package && pkg.project.disabled_for?('binarydownload', params[:repository], params[:arch]) &&
        !User.current.can_download_binaries?(pkg.project)
@@ -148,7 +148,7 @@ class BuildController < ApplicationController
     return result_lastsuccess if params.key?(:lastsuccess)
 
     # for permission check
-    Project.get_by_name params[:project]
+    Project.get_by_name(params[:project])
 
     pass_to_backend
   end
@@ -160,7 +160,7 @@ class BuildController < ApplicationController
                                           use_source: false, follow_project_links: true, follow_multibuild: true)
     raise RemoteProjectError, 'The package lifes in a remote project, this is not supported atm' unless pkg
 
-    tprj = Project.get_by_name params[:pathproject]
+    tprj = Project.get_by_name(params[:pathproject])
     multibuild_package = params[:package] if params[:package].include?(':')
     bs = PackageBuildStatus.new(pkg).result(target_project: tprj, srcmd5: params[:srcmd5], multibuild_pkg: multibuild_package)
     @result = []

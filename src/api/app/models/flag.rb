@@ -59,7 +59,7 @@ class Flag < ApplicationRecord
     repo_flag = main_object.flags.find_by('flag = ? AND repo = ? AND architecture_id IS NULL', flag, repo)
     arch_flag = main_object.flags.find_by('flag = ? AND repo IS NULL AND architecture_id = ?', flag, architecture_id)
     same_flag = main_object.flags.find_by('flag = ? AND repo = ? AND architecture_id = ?', flag, repo, architecture_id)
-    if main_object.is_a? Package
+    if main_object.is_a?(Package)
       if variant == 'effective'
         same_flag = main_object.project.flags.find_by('flag = ? AND repo = ? AND architecture_id = ?', flag, repo, architecture_id) unless
           all_flag || same_flag || repo_flag || arch_flag
@@ -89,7 +89,7 @@ class Flag < ApplicationRecord
       if same_flag || arch_flag || repo_flag
         return all_flag.status if all_flag
       end
-      if main_object.is_a? Package
+      if main_object.is_a?(Package)
         all_flag = main_object.project.flags.find_by('flag = ? AND repo IS NULL AND architecture_id IS NULL', flag)
         return all_flag.status if all_flag
       end

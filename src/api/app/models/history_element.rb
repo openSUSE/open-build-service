@@ -32,8 +32,8 @@ class HistoryElement::Request < ::HistoryElement::Base
   def render_xml(builder)
     attributes = { who: user.login, when: created_at.strftime('%Y-%m-%dT%H:%M:%S') }
     builder.history(attributes) do
-      builder.description! description
-      builder.comment! comment if comment.present?
+      builder.description!(description)
+      builder.comment!(comment) if comment.present?
     end
   end
 end
@@ -160,8 +160,8 @@ class HistoryElement::Review < ::HistoryElement::Base
   def render_xml(builder)
     attributes = { who: user.login, when: created_at.strftime('%Y-%m-%dT%H:%M:%S') }
     builder.history(attributes) do
-      builder.description! description
-      builder.comment! comment if comment.present?
+      builder.description!(description)
+      builder.comment!(comment) if comment.present?
     end
   end
 end

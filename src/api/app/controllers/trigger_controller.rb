@@ -41,7 +41,7 @@ class TriggerController < ApplicationController
     path = pkg.source_path
     params = { cmd: 'runservice', comment: 'runservice via trigger', user: token.user.login }
     path << build_query_from_hash(params, [:cmd, :comment, :user])
-    pass_to_backend path
+    pass_to_backend(path)
 
     pkg.sources_changed
   end

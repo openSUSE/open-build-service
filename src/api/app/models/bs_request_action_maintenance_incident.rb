@@ -74,7 +74,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     pkg_description = ''
 
     # patchinfos are handled as new packages
-    if kinds.include? 'patchinfo'
+    if kinds.include?('patchinfo')
       if Package.exists_by_project_and_name(incident_project.name, source_package, follow_project_links: false)
         new_pkg = Package.get_by_project_and_name(incident_project.name, source_package, use_source: false, follow_project_links: false)
       else
@@ -190,7 +190,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     # find maintenance project
     maintenance_project = nil
     if target_project
-      maintenance_project = Project.get_by_name target_project
+      maintenance_project = Project.get_by_name(target_project)
     else
       maintenance_project = Project.get_maintenance_project
       self.target_project = maintenance_project.name

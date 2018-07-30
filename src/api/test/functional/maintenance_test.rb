@@ -242,7 +242,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_match(/^\+argl/, @response.body)
 
     # accept request
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     post "/request/#{id1}?cmd=changestate&newstate=accepted&force=1"
     assert_response :success
 
@@ -300,7 +300,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_match(/^\+argl/, @response.body)
 
     # accept request
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
 
     # not allowed to remove project
     delete '/source/home:tom:branches:kde4'
@@ -336,7 +336,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'patchinfo', attributes: { incident: '1' })
 
     # reopen ...
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     post "/request/#{id2}?cmd=changestate&newstate=new"
     assert_response 403
 
@@ -544,7 +544,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # setup maintained attributes
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     # an entire project
     post '/source/BaseDistro/_attribute', params: "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
@@ -730,7 +730,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag(parent: { tag: 'access' }, tag: 'disable', content: nil)
 
     # switch user, still diffable
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     get '/source/home:tom:branches:OBS_Maintained:pack2/_meta'
     assert_response 404 # due to noaccess
     post "/request/#{id}?cmd=diff&view=xml"
@@ -823,7 +823,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'incident_has_no_maintenance_project' }
 
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     # create a public maintenance incident
     post '/source/Temp:Maintenance', params: { cmd: 'createmaintenanceincident' }
     assert_response :success
@@ -908,7 +908,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     put '/source/My:Maintenance/_meta', params: maintenance_project_meta.to_s
     assert_response :success
 
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     raw_post '/source/My:Maintenance/_attribute', "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-%N-%Y-%C</value></attribute></attributes>"
     assert_response :success
 
@@ -986,7 +986,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/source/#{incident_project}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>INVALID_DATE_STRING</value></attribute></attributes>"
     assert_response :success
 
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
 
     # create some changes, including issue tracker references
     Timecop.freeze(1)
@@ -1024,7 +1024,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/' + incident_project + '/_meta'
     assert_response :success
     meta = Nokogiri::XML(@response.body).root
-    meta.add_child '<person userid="adrian" role="reader"/>'
+    meta.add_child('<person userid="adrian" role="reader"/>')
     Timecop.freeze(1)
     put '/source/' + incident_project + '/_meta', params: meta.to_xml
     assert_response :success
@@ -1160,7 +1160,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/source/#{incident_project}/patchinfo/_patchinfo"
     assert_response :success
     pi = Nokogiri::XML(@response.body).root
-    pi.add_child '<stopped>The issue is not fixed for real yet</stopped>'
+    pi.add_child('<stopped>The issue is not fixed for real yet</stopped>')
     put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
     assert_response :success
     # collect the job results
@@ -1377,7 +1377,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     node = Xmlhash.parse(@response.body)
     assert node['id']
     nreqid = node['id']
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     post "/request/#{nreqid}?cmd=changestate&newstate=accepted"
     assert_response 403
     post "/request/#{nreqid}?cmd=changestate&newstate=declined"
@@ -1411,8 +1411,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     email = ActionMailer::Base.deliveries.last
     assert_equal ['dirkmueller@example.com', 'fred@feuerstein.de', 'test_group@testsuite.org'], email.to.sort
 
-    EventSubscription.create eventtype: 'Event::CommentForRequest', receiver_role: :source_maintainer,
-                             user: users(:maintenance_assi), channel: :instant_email
+    EventSubscription.create(eventtype: 'Event::CommentForRequest', receiver_role: :source_maintainer,
+                             user: users(:maintenance_assi), channel: :instant_email)
 
     # now leave another comment and hope the assi gets it too
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
@@ -1612,7 +1612,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
       hashed = Xmlhash.parse(io.read)
     end
     # STDERR.puts JSON.pretty_generate(hashed)
-    assert hashed['package'].map { |f| f['file'] }.include? '/my_packaged_file'
+    assert hashed['package'].map { |f| f['file'] }.include?('/my_packaged_file')
     # master tags
     IO.popen("cat #{ENV['OBS_BACKEND_TEMP']}/data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/repomd.xml") do |io|
       hashed = Xmlhash.parse(io.read)
@@ -1931,7 +1931,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # Run without server side expansion
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     rq = '<request>
            <action type="maintenance_release">
              <source project="home:tom:branches:BaseDistro:Update" package="pack1" />
@@ -1964,13 +1964,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     meta = REXML::Document.new(@response.body)
     meta.elements['//repository'].add_element 'releasetarget'
-    meta.elements['//releasetarget'].add_attribute REXML::Attribute.new('project', 'BaseDistro:Update')
-    meta.elements['//releasetarget'].add_attribute REXML::Attribute.new('repository', 'BaseDistroUpdateProject_repo')
+    meta.elements['//releasetarget'].add_attribute(REXML::Attribute.new('project', 'BaseDistro:Update'))
+    meta.elements['//releasetarget'].add_attribute(REXML::Attribute.new('repository', 'BaseDistroUpdateProject_repo'))
     put '/source/home:tom:branches:BaseDistro:Update/_meta', params: meta.to_s
     assert_response :success
 
     # retry
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     post '/request?cmd=create', params: rq
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'missing_patchinfo' }
@@ -1988,13 +1988,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post '/source/home:tom:branches:BaseDistro:Update?cmd=createpatchinfo&force=1'
     assert_response :success
 
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     post '/request?cmd=create', params: rq
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'build_not_finished' }
 
     # _patchinfo still incomplete
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     post '/request?cmd=create&ignore_build_state=1', params: rq
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'incomplete_patchinfo' }
@@ -2020,7 +2020,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
            </action>
            <state name="new" />
          </request>'
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     post '/request?cmd=create&ignore_build_state=1', params: rq
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'repository_without_architecture' }
@@ -2032,7 +2032,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     put '/source/home:tom:branches:BaseDistro:Update/_meta', params: meta.to_s
     assert_response :success
 
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     post '/request?cmd=create&ignore_build_state=1', params: rq
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'architecture_order_missmatch' }
@@ -2370,7 +2370,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'status', attributes: { package: 'pack2', code: 'succeeded' }
 
-    sleep 1 # to ensure that the timestamp becomes newer
+    sleep(1) # to ensure that the timestamp becomes newer
     post '/source/CopyOfBaseDistro3?cmd=copy&oproject=BaseDistro3&withhistory=1&withbinaries=1&nodelay=1'
     assert_response :success
     get '/source/CopyOfBaseDistro3/_meta'

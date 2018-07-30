@@ -21,12 +21,12 @@ module Suse
       # is the owner of the project
       logger.debug "User #{@user.login} wants to change the project"
 
-      if project.is_a? Project
+      if project.is_a?(Project)
         prj = project
-      elsif project.is_a? String
+      elsif project.is_a?(String)
         prj = Project.find_by_name(project)
         # avoid remote projects
-        return false unless prj.is_a? Project
+        return false unless prj.is_a?(Project)
       end
 
       raise ArgumentError, "unable to find project object for #{project}" if prj.nil?
@@ -46,7 +46,7 @@ module Suse
       logger.debug "User #{@user.login} wants to change the package"
 
       # Get DbPackage object
-      if package.is_a? Package
+      if package.is_a?(Package)
         pkg = package
       else
         if project.nil?
@@ -67,7 +67,7 @@ module Suse
       logger.debug "Dynamic Permission requested: <#{perm}>"
 
       if @user
-        if @user.has_global_permission? perm.to_s
+        if @user.has_global_permission?(perm.to_s)
           logger.debug "User #{@user.login} has permission #{perm}"
           return true
         else

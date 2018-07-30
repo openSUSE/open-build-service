@@ -19,7 +19,7 @@ class EventMailerTest < ActionMailer::TestCase
     EventSubscription.delete_all
 
     # just one subscription
-    EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :maintainer, user: users(:Iggy)
+    EventSubscription.create(eventtype: 'Event::BuildFail', receiver_role: :maintainer, user: users(:Iggy))
     Backend::Test.start(wait_for_scheduler: true)
 
     mail = EventMailer.event([users(:Iggy)], events(:build_failure_for_iggy)).encoded.lines.map(&:chomp).join("\n")
@@ -37,7 +37,7 @@ class EventMailerTest < ActionMailer::TestCase
     EventSubscription.delete_all
 
     # just one subscription
-    EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :reader, user: users(:fred)
+    EventSubscription.create(eventtype: 'Event::BuildFail', receiver_role: :reader, user: users(:fred))
     Backend::Test.start(wait_for_scheduler: true)
 
     mail = EventMailer.event([users(:fred)], events(:build_failure_for_reader)).encoded.lines.map(&:chomp).join("\n")

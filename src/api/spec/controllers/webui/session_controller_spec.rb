@@ -143,7 +143,7 @@ RSpec.describe Webui::SessionController do
 
     it 'does not log in any user when no header is set' do
       get :new
-      expect(User.current.login).to eq '_nobody_'
+      expect(User.current.login).to eq('_nobody_')
     end
 
     it 'creates a new user account if user does not exist in OBS' do

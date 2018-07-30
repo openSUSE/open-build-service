@@ -16,7 +16,7 @@ end
 def yaml_to_json(yaml)
   YAML.safe_load(yaml)
       .traverse do |value|
-        if value.is_a? String
+        if value.is_a?(String)
           value.force_encoding('UTF-8')
         else
           value
@@ -41,10 +41,10 @@ class Hash
   private
 
   def traverse_value(value, &block)
-    if value.is_a? Hash
+    if value.is_a?(Hash)
       value.each { |key, sub_value| value[key] = traverse_value(sub_value, &block) }
 
-    elsif value.is_a? Array
+    elsif value.is_a?(Array)
       value.map { |element| traverse_value(element, &block) }
 
     else

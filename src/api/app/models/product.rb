@@ -7,7 +7,7 @@ class Product < ApplicationRecord
 
   def self.find_or_create_by_name_and_package(name, package)
     raise Product::NotFoundError, 'Error: Package not valid.' unless package.class == Package
-    product = find_by_name_and_package name, package
+    product = find_by_name_and_package(name, package)
 
     product = create(name: name, package: package) if product.empty?
 

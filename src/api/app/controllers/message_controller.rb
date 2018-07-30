@@ -10,8 +10,8 @@ class MessageController < ApplicationController
     # get project and package if params are set
     return unless params[:project]
 
-    @project = Project.find_by_name! params[:project]
-    @package = @project.packages.find_by_name! params[:package] if params[:package]
+    @project = Project.find_by_name!(params[:project])
+    @package = @project.packages.find_by_name!(params[:package]) if params[:package]
   end
 
   def list

@@ -77,7 +77,7 @@ class BsRequestActionGroup < BsRequestAction
 
   def render_xml_attributes(node)
     bs_requests.each do |r|
-      node.grouped id: r.number
+      node.grouped(id: r.number)
     end
   end
 
@@ -87,7 +87,7 @@ class BsRequestActionGroup < BsRequestAction
   end
 
   def remove_request(oldid)
-    req = BsRequest.find_by_number oldid
+    req = BsRequest.find_by_number(oldid)
     unless req
       raise NotInGroup, "Request #{oldid} can't be removed from group request #{bs_request.number}"
     end
@@ -95,7 +95,7 @@ class BsRequestActionGroup < BsRequestAction
   end
 
   def request_changes_state(state)
-    return unless [:revoked, :declined, :superseded].include? state
+    return unless [:revoked, :declined, :superseded].include?(state)
 
     # now comes the heavy lifting. we need to make sure all requests
     # get their right state

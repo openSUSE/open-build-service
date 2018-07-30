@@ -28,7 +28,7 @@ class StatusController < ApplicationController
 
     new_messages = ActiveXML::Node.new(request.raw_post)
 
-    if new_messages.has_element? 'message'
+    if new_messages.has_element?('message')
       # message(s) are wrapped in outer xml tag 'status_messages'
       new_messages.each('message') do |msg|
         save_new_message(msg)
@@ -61,17 +61,17 @@ class StatusController < ApplicationController
   end
 
   def workerstatus
-    send_data WorkerStatus.hidden.dump_xml
+    send_data(WorkerStatus.hidden.dump_xml)
   end
 
   def workercapability
-    pass_to_backend request.path_info
+    pass_to_backend(request.path_info)
   end
 
   def workercommand
     required_parameters :cmd, :project, :package, :repository, :arch
 
-    unless ['checkconstraints'].include? params[:cmd]
+    unless ['checkconstraints'].include?(params[:cmd])
       raise UnknownCommandError, "Unknown command '#{params[:cmd]}' for path #{request.path}"
     end
 
@@ -80,7 +80,7 @@ class StatusController < ApplicationController
 
     path = request.path_info
     path += build_query_from_hash(params, [:cmd, :project, :package, :repository, :arch])
-    pass_to_backend path
+    pass_to_backend(path)
   end
 
   def history

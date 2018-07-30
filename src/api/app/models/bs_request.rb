@@ -405,12 +405,12 @@ class BsRequest < ApplicationRecord
       attributes = { name: state, who: commenter, when: updated_when.strftime('%Y-%m-%dT%H:%M:%S') }
       attributes[:superseded_by] = superseded_by if superseded_by
 
-      r.priority priority unless priority == 'moderate'
+      r.priority(priority) unless priority == 'moderate'
 
       r.state(attributes) do |s|
         comment = self.comment
         comment ||= ''
-        s.comment! comment
+        s.comment!(comment)
       end
 
       reviews.each do |review|
@@ -421,8 +421,8 @@ class BsRequest < ApplicationRecord
         attributes = { who: creator, when: created_at.strftime('%Y-%m-%dT%H:%M:%S') }
         builder.history(attributes) do
           # request description is on purpose the comment in history:
-          builder.description! 'Request created'
-          builder.comment! description if description.present?
+          builder.description!('Request created')
+          builder.comment!(description) if description.present?
         end
       end
       if opts[:withfullhistory]
@@ -437,11 +437,11 @@ class BsRequest < ApplicationRecord
         end
       end
 
-      r.accept_at accept_at unless accept_at.nil?
-      r.description description unless description.nil?
+      r.accept_at(accept_at) unless accept_at.nil?
+      r.description(description) unless description.nil?
     end
-    builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                              Nokogiri::XML::Node::SaveOptions::FORMAT
+    builder.to_xml(save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                              Nokogiri::XML::Node::SaveOptions::FORMAT)
   end
 
   def is_reviewer?(user)
@@ -451,13 +451,13 @@ class BsRequest < ApplicationRecord
       if r.by_user
         return true if user.login == r.by_user
       elsif r.by_group
-        return true if user.is_in_group? r.by_group
+        return true if user.is_in_group?(r.by_group)
       elsif r.by_project
         if r.by_package
-          pkg = Package.find_by_project_and_name r.by_project, r.by_package
+          pkg = Package.find_by_project_and_name(r.by_project, r.by_package)
           return true if pkg && user.can_modify?(pkg)
         else
-          prj = Project.find_by_name r.by_project
+          prj = Project.find_by_name(r.by_project)
           return true if prj && user.can_modify?(prj)
         end
       end
@@ -573,7 +573,7 @@ class BsRequest < ApplicationRecord
 
       next unless action.is_maintenance_incident?
 
-      target_project = Project.get_by_name action.target_project
+      target_project = Project.get_by_name(action.target_project)
       # create a new incident if needed
       next unless target_project.is_maintenance?
       # create incident if it is a maintenance project
@@ -868,7 +868,7 @@ class BsRequest < ApplicationRecord
     # all maintenance_incident actions go into the same incident project
     p = { request: self, user_id: User.current.id }
     bs_request_actions.where(type: 'maintenance_incident').find_each do |action|
-      tprj = Project.get_by_name action.target_project
+      tprj = Project.get_by_name(action.target_project)
 
       # use an existing incident
       if tprj.is_maintenance?
@@ -971,7 +971,7 @@ class BsRequest < ApplicationRecord
     return unless state == :new || state == :review
 
     with_lock do
-      User.current ||= User.find_by_login creator
+      User.current ||= User.find_by_login(creator)
 
       begin
         change_state(newstate: 'accepted', comment: 'Auto accept')
@@ -1068,7 +1068,7 @@ class BsRequest < ApplicationRecord
 
   def notify
     notify = notify_parameters
-    Event::RequestCreate.create notify
+    Event::RequestCreate.create(notify)
 
     reviews.each do |review|
       review.create_notification(notify)
@@ -1179,7 +1179,7 @@ class BsRequest < ApplicationRecord
     # will become an empty request
     raise MissingAction if newactions.empty? && oldactions.size == bs_request_actions.size
 
-    oldactions.each { |a| bs_request_actions.destroy a }
+    oldactions.each { |a| bs_request_actions.destroy(a) }
     newactions.each { |a| bs_request_actions << a }
   end
 

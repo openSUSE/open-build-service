@@ -6,7 +6,7 @@ RSpec.shared_examples 'a ldap connection' do
     end
 
     it 'returns the connection object' do
-      expect(UserLdapStrategy.initialize_ldap_con('tux', 'tux_password')).to be ldap_mock
+      expect(UserLdapStrategy.initialize_ldap_con('tux', 'tux_password')).to be(ldap_mock)
     end
   end
 
@@ -16,7 +16,7 @@ RSpec.shared_examples 'a ldap connection' do
       allow(ldap_mock).to receive(:bound?).and_return(false)
     end
 
-    it { expect(UserLdapStrategy.initialize_ldap_con('tux', 'tux_password')).to be nil }
+    it { expect(UserLdapStrategy.initialize_ldap_con('tux', 'tux_password')).to be(nil) }
   end
 
   context 'when establishing a connection fails with an error' do
@@ -29,6 +29,6 @@ RSpec.shared_examples 'a ldap connection' do
       allow(ldap_mock).to receive(:err2string).with(err_object).and_return('something happened')
     end
 
-    it { expect(UserLdapStrategy.initialize_ldap_con('tux', 'tux_password')).to be nil }
+    it { expect(UserLdapStrategy.initialize_ldap_con('tux', 'tux_password')).to be(nil) }
   end
 end

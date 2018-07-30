@@ -125,7 +125,7 @@ class StatisticsController < ApplicationController
     projects = Project.limit(@limit).order('created_at DESC, name').to_a
 
     list = projects
-    list.concat packages
+    list.concat(packages)
     list.sort! { |a, b| b.created_at <=> a.created_at }
 
     if @limit

@@ -121,7 +121,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_get_invalid_1
-    prepare_request_with_user 'Iggy', 'xxx'
+    prepare_request_with_user('Iggy', 'xxx')
     get '/request/0815'
     assert_response 401
   end
@@ -139,7 +139,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_submit_request_of_new_package_with_devel_package
-    prepare_request_with_user 'Iggy', 'buildservice'
+    prepare_request_with_user('Iggy', 'buildservice')
 
     # we have a devel package definition in source
     get '/source/BaseDistro:Update/pack2/_meta'
@@ -202,7 +202,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   def test_submit_request_of_new_package
     Backend::Test.start(wait_for_scheduler: true)
 
-    prepare_request_with_user 'Iggy', 'buildservice'
+    prepare_request_with_user('Iggy', 'buildservice')
     post '/source/home:Iggy/NEW_PACKAGE', params: { cmd: :branch }
     assert_response 404
     assert_xml_tag(tag: 'status', attributes: { code: 'unknown_package' })
@@ -1407,7 +1407,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   # osc is still submitting with old style by default
   def test_old_style_submit_request
-    prepare_request_with_user 'hidden_homer', 'buildservice'
+    prepare_request_with_user('hidden_homer', 'buildservice')
     post '/request?cmd=create', params: '<request type="submit">
                                    <submit>
                                      <source project="HiddenProject" package="pack" rev="1"/>
@@ -1448,7 +1448,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response 403
 
-    prepare_request_with_user 'hidden_homer', 'buildservice'
+    prepare_request_with_user('hidden_homer', 'buildservice')
     post '/request?cmd=create', params: '<request>
                                    <action type="submit">
                                      <source project="HiddenProject" package="pack" rev="1"/>
@@ -1463,7 +1463,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post "/request/#{id}?cmd=changestate&newstate=revoked"
     assert_response :success
 
-    prepare_request_with_user 'sourceaccess_homer', 'buildservice'
+    prepare_request_with_user('sourceaccess_homer', 'buildservice')
     post '/request?cmd=create', params: '<request>
                                    <action type="submit">
                                      <source project="SourceprotectedProject" package="pack" rev="1"/>
@@ -1897,7 +1897,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post "/request/#{id}?cmd=changestate&newstate=new"
     assert_response 403
     # and reopen it as a non-source-maintainer is not working
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user('fredlibs', 'buildservice')
     post "/request/#{id}?cmd=changestate&newstate=new"
     assert_response 403
 
@@ -1935,7 +1935,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
 
     # and reopen it as a different maintainer from target
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user('fredlibs', 'buildservice')
     post "/request/#{id}?cmd=changestate&newstate=new"
     assert_response :success
     get "/request/#{id}"
@@ -2834,7 +2834,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   #
   #
   def test_submit_from_source_protected_project
-    prepare_request_with_user 'sourceaccess_homer', 'buildservice'
+    prepare_request_with_user('sourceaccess_homer', 'buildservice')
     post '/request?cmd=create', params: load_backend_file('request/from_source_protected_valid')
     assert_response :success
     assert_xml_tag(tag: 'request')
@@ -2863,7 +2863,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', params: req
     assert_response 401
     assert_select 'status[code] > summary', /Authentication required/
-    prepare_request_with_user user, pass
+    prepare_request_with_user(user, pass)
     post '/request?cmd=create', params: req
   end
 
@@ -3477,7 +3477,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_ordering_of_requests
-    prepare_request_with_user 'Iggy', 'buildservice'
+    prepare_request_with_user('Iggy', 'buildservice')
 
     Timecop.freeze(2010, 7, 12)
     post '/request?cmd=create', params: '<request>

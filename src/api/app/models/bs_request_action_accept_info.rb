@@ -23,7 +23,7 @@ class BsRequestActionAcceptInfo < ApplicationRecord
     attributes[:osrcmd5] = osrcmd5 if osrcmd5.present?
     attributes[:xsrcmd5] = xsrcmd5 if xsrcmd5.present?
     attributes[:oxsrcmd5] = oxsrcmd5 if oxsrcmd5.present?
-    builder.acceptinfo attributes
+    builder.acceptinfo(attributes)
   end
 
   #### Alias of methods

@@ -37,8 +37,8 @@ class BsRequestActionSetBugowner < BsRequestAction
 
   def render_xml_attributes(node)
     render_xml_target(node)
-    node.person name: person_name if person_name
-    node.group name: group_name   if group_name
+    node.person(name: person_name) if person_name
+    node.group(name: group_name)   if group_name
   end
 
   #### Alias of methods

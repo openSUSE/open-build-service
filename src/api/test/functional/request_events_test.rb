@@ -96,7 +96,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     end
     email = nil
     ActionMailer::Base.deliveries.each do |m|
-      email = m if m.to.include? 'Iggy@pop.org'
+      email = m if m.to.include?('Iggy@pop.org')
     end
 
     assert_equal "Request #{myid} changed to declined (set_bugowner home:tom)", email.subject

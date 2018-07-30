@@ -270,7 +270,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
     assert_xml_tag(tag: 'status', attributes: { code: 'source_access_no_permission' })
     # retry with maintainer
-    prepare_request_with_user 'sourceaccess_homer', 'buildservice'
+    prepare_request_with_user('sourceaccess_homer', 'buildservice')
     get '/build/SourceprotectedProject/repo/i586/pack/_log'
     assert_response :success
   end
@@ -294,7 +294,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_match(/download_binary_no_permission/, @response.body)
     # retry with maintainer
     reset_auth
-    prepare_request_with_user 'binary_homer', 'buildservice'
+    prepare_request_with_user('binary_homer', 'buildservice')
     get '/build/BinaryprotectedProject/nada/i586/bdpack/_log'
     assert_response :success
   end
@@ -378,7 +378,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_match(/download_binary_no_permission/, @response.body)
     # success on valid
     reset_auth
-    prepare_request_with_user 'binary_homer', 'buildservice'
+    prepare_request_with_user('binary_homer', 'buildservice')
     get '/build/BinaryprotectedProject/nada/i586/bdpack/package?view=fileinfo'
     assert_response 404
     assert_match(/No such file or directory/, @response.body)

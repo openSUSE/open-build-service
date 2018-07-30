@@ -38,7 +38,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
   def test_userinfo_for_deleted_user
     login_adrian
     # it exists
-    user = User.find_by_login 'deleted'
+    user = User.find_by_login('deleted')
     assert_not_nil user
     assert_equal user.state, 'deleted'
     # but is not visible since it is tagged as deleted
@@ -197,7 +197,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     doc = REXML::Document.new(userinfo_xml)
     doc.elements['//realname'].text = new_name
     doc.elements['//watchlist'].add_element 'project'
-    doc.elements['//project'].add_attribute REXML::Attribute.new('name', 'home:tom')
+    doc.elements['//project'].add_attribute(REXML::Attribute.new('name', 'home:tom'))
     r = REXML::Element.new('globalrole')
     r.text = 'Admin'
     doc.elements['/person'].insert_after(doc.elements['//state'], r)
@@ -301,7 +301,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'owner', attributes: { userid: 'adrian' }
 
-    lost_guy = User.find_by_login! 'lost_guy'
+    lost_guy = User.find_by_login!('lost_guy')
     assert_equal 'subaccount', lost_guy[:state]
     assert_equal 'confirmed', lost_guy.state
 
@@ -424,7 +424,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     post '/person?cmd=register', params: data
     assert_response :success
 
-    u = User.find_by_login 'adrianSuSE'
+    u = User.find_by_login('adrianSuSE')
     assert_not_nil u
     assert_equal 'adrianSuSE', u.login
     assert_equal 'adrian@example.com', u.email
@@ -451,7 +451,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     post '/person/adrianSuSE?cmd=change_password', params: data
     assert_response :success
     # test login with new password
-    prepare_request_with_user 'adrianSuSE', data
+    prepare_request_with_user('adrianSuSE', data)
     get '/person/adrianSuSE'
     assert_response :success
 
@@ -473,7 +473,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     post '/person/register', params: data
     assert_response :success
 
-    u = User.find_by_login 'adrianSuSE'
+    u = User.find_by_login('adrianSuSE')
     assert_not_nil u
     assert_equal u.login, 'adrianSuSE'
     assert_equal u.email, 'adrian@example.com'

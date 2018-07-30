@@ -53,7 +53,7 @@ class PackageBuildStatus
     @tpackages = {}
     vprojects = {}
     trepo.each do |p, _|
-      next if vprojects.key? p
+      next if vprojects.key?(p)
       prj = Project.find_by_name(p)
       next unless prj # in case of remote projects
       prj.packages.pluck(:name).each { |n| @tpackages[n] = p }
@@ -126,7 +126,7 @@ class PackageBuildStatus
       end
 
       buildinfo.get('package').elements('pkgdep') do |b|
-        missingdeps << b unless @tpackages.key? b
+        missingdeps << b unless @tpackages.key?(b)
       end
 
     end

@@ -4,7 +4,7 @@ module ObsFactory
     def build_and_failed_params
       params = { project: self.name, defaults: 0 }
       Buildresult.avail_status_values.each do |s|
-        next if %w(succeeded excluded disabled).include? s.to_s
+        next if %w(succeeded excluded disabled).include?(s.to_s)
         params[s] = 1
       end
 

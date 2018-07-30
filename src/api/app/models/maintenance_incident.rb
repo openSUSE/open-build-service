@@ -95,7 +95,7 @@ class MaintenanceIncident < ApplicationRecord
 
   # execute a sql query + escaped string
   def self.exec_query(query)
-    connection.execute escape_sql query
+    connection.execute(escape_sql(query))
   end
 end
 

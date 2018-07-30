@@ -13,7 +13,7 @@ class IchainNotifierTest < ActiveSupport::TestCase
     ActionMailer::Base.perform_deliveries = true
     ActionMailer::Base.deliveries = []
 
-    @user = User.find_by_login 'tom'
+    @user = User.find_by_login('tom')
     assert @user.valid?
 
     @expected = TMail::Mail.new
