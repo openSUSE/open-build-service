@@ -146,7 +146,7 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
       context 'requesting html' do
         subject { get :show, params: { project: factory, project_name: 'A' } }
 
-        it { expect(subject).to have_http_status(:success) }
+        it { is_expected.to have_http_status(:success) }
         it { expect(subject).to render_template(:show) }
       end
 
@@ -169,7 +169,7 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
     context 'with a non-existent factory_staging_project' do
       subject { get :show, params: { project: factory, project_name: 'B' } }
 
-      it { expect(subject).to have_http_status(:found) }
+      it { is_expected.to have_http_status(:found) }
       it { expect(subject).to redirect_to(root_path) }
     end
   end
