@@ -73,23 +73,19 @@ class SearchController < ApplicationController
 
   def owner_group_or_user
     if params[:user].present?
-      obj = User.find_by_login!(params[:user])
+      User.find_by_login!(params[:user])
     elsif params[:group].present?
-      obj = Group.find_by_title!(params[:group])
-    else
-      return
+      Group.find_by_title!(params[:group])
     end
-    OwnerSearch.new(params).for(obj)
   end
 
   def owner_package_or_project
     return if params[:project].blank?
     if params[:package].present?
-      obj = Package.get_by_project_and_name(params[:project], params[:package])
+      Package.get_by_project_and_name(params[:project], params[:package])
     else
-      obj = Project.get_by_name(params[:project])
+      Project.get_by_name(params[:project])
     end
-    OwnerOfContainerSearch.new(params).for(obj)
   end
 
   def owner
@@ -97,10 +93,12 @@ class SearchController < ApplicationController
 
     if params[:binary].present?
       owners = OwnerAssigneeSearch.new(params).for(params[:binary])
-    else
-      owners = owner_group_or_user
+    elsif (obj = owner_group_or_user)
+      owners = OwnerSearch.new(params).for(obj)
     end
-    owners ||= owner_package_or_project
+    if owners.nil? && (obj = owner_package_or_project)
+      owners = OwnerOfContainerSearch.new(params).for(obj)
+    end
 
     if owners.nil?
       render_error status: 400, errorcode: 'no_binary',
