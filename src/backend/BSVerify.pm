@@ -209,7 +209,7 @@ sub verify_regrepo {
   die("bad repo name '$repo'\n") if "/$repo/" =~ /\/\//;
   for my $p (split('/', $repo)) {
     die("component '$p' is illegal\n") if $p =~ /[\/\000-\037]/s;
-    die("component '$p' is illegal\n") if $p =~ /^\./s;
+    die("component '$p' is illegal\n") if $p =~ /^[:\.]/s;
   }
 }
 

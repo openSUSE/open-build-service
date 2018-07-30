@@ -118,41 +118,46 @@ sub push_blob {
   my ($repodir, $containerinfo, $ent) = @_;
 
   my $blobid = $ent->{'blobid'} || BSContar::blobid_entry($ent);
-  return $blobid if -e "$repodir/blobs/$blobid";
-  mkdir_p("$repodir/blobs") unless -d "$repodir/blobs";
-  unlink("$repodir/blobs/.$blobid.$$");
+  my $dir = "$repodir/:blobs";
+  return $blobid if -e "$dir/$blobid";
+  mkdir_p($dir) unless -d $dir;
+  unlink("$dir/.$blobid.$$");
   if ($containerinfo->{'uploadfile'}) {
-    BSContar::write_entry($ent, "$repodir/blobs/.$blobid.$$");
+    BSContar::write_entry($ent, "$dir/.$blobid.$$");
   } else {
     my $blobdir = $containerinfo->{'blobdir'};
-    link("$blobdir/_blob.$blobid", "$repodir/blobs/.$blobid.$$") || die("link $blobdir/_blob.$blobid $repodir/blobs/.$blobid.$$: $!\n");
+    link("$blobdir/_blob.$blobid", "$dir/.$blobid.$$") || die("link $blobdir/_blob.$blobid $dir/.$blobid.$$: $!\n");
   }
-  rename("$repodir/blobs/.$blobid.$$", "$repodir/blobs/$blobid") || die("rename $repodir/blobs/.$blobid.$$ $repodir/blobs/$blobid: $!\n");
-  unlink("$repodir/blobs/.$blobid.$$");
-  #BSPublisher::Blobstore::blobstore_lnk($blobid, "$repodir/blobs/$blobid");
+  rename("$dir/.$blobid.$$", "$dir/$blobid") || die("rename $dir/.$blobid.$$ $dir/$blobid: $!\n");
+  unlink("$dir/.$blobid.$$");
+  #BSPublisher::Blobstore::blobstore_lnk($blobid, "$dir/$blobid");
   return $blobid;
 }
 
 sub push_manifest {
   my ($repodir, $mani_json) = @_;
   my $mani_id = 'sha256:'.Digest::SHA::sha256_hex($mani_json);
-  return $mani_id if -e "$repodir/manifests/$mani_id";
-  mkdir_p("$repodir/manifests") unless -d "$repodir/manifests";
-  unlink("$repodir/manifests/.$mani_id.$$");
-  writestr("$repodir/manifests/.$mani_id.$$", "$repodir/manifests/$mani_id", $mani_json);
+  my $dir = "$repodir/:manifests";
+  return $mani_id if -e "$dir/$mani_id";
+  mkdir_p($dir) unless -d $dir;
+  unlink("$dir/.$mani_id.$$");
+  writestr("$dir/.$mani_id.$$", "$dir/$mani_id", $mani_json);
   return $mani_id;
 }
 
 sub push_tag {
   my ($repodir, $tag, $mani_id) = @_;
-  my @s1 = stat("$repodir/tags/$tag");
-  my @s2 = stat("$repodir/manifests/$mani_id");
-  return if @s1 && @s2 && "$s1[0]/$s1[1]" eq "$s2[0]/$s2[1]";
-  unlink("$repodir/manifests/.$mani_id.$$");
-  link("$repodir/manifests/$mani_id", "$repodir/manifests/.$mani_id.$$") || die("link $repodir/manifests/$mani_id $repodir/manifests/.$mani_id.$$: $!\n");
-  mkdir_p("$repodir/tags") unless -d "$repodir/tags";
-  rename("$repodir/manifests/.$mani_id.$$", "$repodir/tags/$tag") || die("rename $repodir/manifests/.$mani_id.$$ $repodir/tags/$tag: $!\n");
-  unlink("$repodir/manifests/.$mani_id.$$");
+  my $dir = "$repodir/:tags";
+  my $mdir = "$repodir/:manifests";
+  my @s1 = stat("$dir/$tag");
+  my @s2 = stat("$mdir/$mani_id");
+  return 0 if @s1 && @s2 && "$s1[0]/$s1[1]" eq "$s2[0]/$s2[1]";
+  mkdir_p($dir) unless -d $dir;
+  unlink("$mdir/.$mani_id.$$");
+  link("$mdir/$mani_id", "$mdir/.$mani_id.$$") || die("link $mdir/$mani_id $mdir/.$mani_id.$$: $!\n");
+  rename("$mdir/.$mani_id.$$", "$dir/$tag") || die("rename $mdir/.$mani_id.$$ $dir/$tag: $!\n");
+  unlink("$mdir/.$mani_id.$$");
+  return 1;
 }
 
 sub construct_container_tar {
@@ -350,28 +355,30 @@ sub push_containers {
   }
 
   # now get rid of old entries
-  for (sort(ls("$repodir/tags"))) {
-    unlink("$repodir/tags/$_") unless $knowntags{$_};
+  for (sort(ls("$repodir/:tags"))) {
+    next if $knowntags{$_};
+    unlink("$repodir/:tags/$_");
   }
-  for (sort(ls("$repodir/manifests"))) {
-    unlink("$repodir/manifests/$_") unless $knownmanifests{$_};
+  for (sort(ls("$repodir/:manifests"))) {
+    next if $knownmanifests{$_};
+    unlink("$repodir/:manifests/$_");
   }
-  for (sort(ls("$repodir/blobs"))) {
+  for (sort(ls("$repodir/:blobs"))) {
     next if $knownblobs{$_};
-    unlink("$repodir/blobs/$_");
+    unlink("$repodir/:blobs/$_");
     BSPublisher::Blobstore::blobstore_chk($_);
   }
 
   if (!%knowntags && !%knownmanifests && !%knownblobs) {
-    rmdir("$repodir/tags");
-    rmdir("$repodir/manifests");
-    rmdir("$repodir/blobs");
-    unlink("$repodir/info");
+    rmdir("$repodir/:tags");
+    rmdir("$repodir/:manifests");
+    rmdir("$repodir/:blobs");
+    unlink("$repodir/:info");
     disownrepo($prp, $repo);
   } else {
     my ($projid, $repoid) = split('/', $prp, 2);
     my $info = { 'project' => $projid, 'repository' => $repoid, 'tags' => \%info };
-    BSUtil::store("$repodir/.info.$$", "$repodir/info", $info);
+    BSUtil::store("$repodir/.info.$$", "$repodir/:info", $info);
   }
 
   # and we're done, return digests
