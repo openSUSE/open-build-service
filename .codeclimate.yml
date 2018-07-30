@@ -3,5 +3,6 @@ exclude_patterns:
   - "dist/"
   - "src/api/test/"
   - "src/api/spec/"
+  - "src/api/db/"
   - "docs/api/restility"
   - "src/api/app/assets/javascripts/webui"
