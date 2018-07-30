@@ -183,7 +183,7 @@ sub prune_lastnotifications {
     if (! -e "$eventdir/.lastnotifications.$$") {
       BSFileDB::fdb_add_multiple("$eventdir/.lastnotifications.$$", $notificationlay, @l);
       rename("$eventdir/.lastnotifications.$$", "$eventdir/lastnotifications") || die("rename $eventdir/.lastnotifications.$$ $eventdir/lastnotifications: $!\n");
-      prune_notificationpayloads($l[0]->{'time'} - 240 * 3600) if -d $notificationpayloaddir;	# keep 10 days
+      #prune_notificationpayloads($l[0]->{'time'} - 240 * 3600) if -d $notificationpayloaddir;	# keep 10 days
     }
   }
   close F;
