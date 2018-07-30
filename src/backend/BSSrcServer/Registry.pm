@@ -20,6 +20,7 @@ use strict;
 
 use BSConfiguration;
 use BSUtil;
+use BSSrcServer::Partition;
 
 my $registrydir = "$BSConfig::bsdir/registry";
 
@@ -53,6 +54,21 @@ sub disownrepo {
   delete $registries->{$repo};
   BSUtil::store("$registrydir/:repos.new.$$", "$registrydir/:repos", $registries);
   close($lck);
+}
+
+sub catalog {
+  my $registries = BSUtil::retrieve("$registrydir/:repos", 1) || {};
+  return sort keys %$registries;
+}
+
+sub regrepo2reposerver {
+  my ($repo) = @_;
+  my $registries = BSUtil::retrieve("$registrydir/:repos", 1) || {};
+  my $prp = $registries->{$repo};
+  return undef unless $prp;
+  my ($projid) = split('/', $prp, 2);
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
+  return $reposerver;
 }
 
 1;

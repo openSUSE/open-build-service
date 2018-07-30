@@ -455,7 +455,7 @@ sub reply {
   push @hdrs, "Connection: close";
   push @hdrs, "Content-Length: ".length($str) if defined($str);
   my $data = join("\r\n", @hdrs)."\r\n\r\n";
-  $data .= $str if defined $str;
+  $data .= $str if defined($str) && $req->{'action'} ne 'HEAD';
 
 #  if ($replying && $replying == 2) {
 #    # Already replying. As we're in chunked mode, we can attach
@@ -707,6 +707,7 @@ sub reply_stream {
   my $chunked = $param->{'chunked'};
   my $req = $BSServer::request || {};
   reply(undef, @hdrs); 
+  return if $req->{'action'} eq 'HEAD';
   $req->{'replying'} = 2 if $chunked;
   $sender->($param, $req->{'__socket'});
   swrite("0\r\n\r\n") if $chunked;
