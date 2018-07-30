@@ -138,7 +138,7 @@ sub compile {
         my $vartype = $var;
 	($var, $vartype) = ($1, $2) if $var =~ /^(.*):(.*)/;
         die("no verifier for $vartype\n") unless $vartype eq '' || $verifiers->{$vartype};
-        $pp = '([^\/]*)';
+        $pp = $var eq '...' ? '(.*)' : '([^\/]*)';
         $code .= "\$cgi->{'$var'} = \$$num;\n";
         $code2 .= "\$verifiers->{'$vartype'}->(\$cgi->{'$var'});\n" if $vartype ne '';
 	push @args, $var;
@@ -156,9 +156,6 @@ sub compile {
     } else {
       $p[0] = "(?:GET|HEAD|POST):$p[0]";	# our default
     }
-    # implement ... and $... hack
-    $p[-1] = '.*' if $p[-1] eq '\.\.\.';
-    $p[-1] = '(.*)' if $p[-1] eq '([^\/]*)' && $args[-1] eq '...';
     my $pathre = '^'.join('/', @p).'$';	# anchor
 
     my $multis = '';
