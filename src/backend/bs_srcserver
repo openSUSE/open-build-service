@@ -60,6 +60,7 @@ use BSSrcrep;
 use BSRevision;
 use BSKiwiXML;
 use BSUrlmapper;
+use BSRegistryServer;
 
 use BSXPath;
 use BSXPathKeys;
@@ -6269,6 +6270,8 @@ sub cloudupload_log {
   return undef; # always streams result
 }
 
+####################################################################
+
 sub registry_ownrepo {
   my ($cgi, $projid, $repoid, $regrepo) = @_;
   my $prp = "$projid/$repoid";
@@ -6283,6 +6286,43 @@ sub registry_disownrepo {
   my $prp = "$projid/$repoid";
   BSSrcServer::Registry::disownrepo($prp, $regrepo);
   return $BSStdServer::return_ok;
+}
+
+sub registry_forward {
+  my ($cgi, $regrepo) = @_;
+  my $repserver = BSSrcServer::Registry::regrepo2reposerver($regrepo);
+  die("404 NAME_UNKNOWN\n") unless $repserver;
+  my $req = $BSServer::request;
+  my $path = $req->{'path'};
+  $path =~ s/^\/[^\/]+\///;
+  my @hdrs;
+  my $range = BSServer::header('Range');
+  push @hdrs, "Range: $range" if $range;
+  my $param = {
+    'uri' => "$repserver/registry/$path",
+    'request' => $req->{'action'},
+    'ignorestatus' => 1,
+    'receiver' => \&BSServer::reply_receiver,
+    'headers' => \@hdrs,
+  };
+  BSWatcher::rpc($param, undef);
+  return undef;
+}
+
+sub registry_catalog {
+  my ($cgi) = @_;
+  my @repos = BSSrcServer::Registry::catalog();
+  my $ret = {
+    'repositories' => \@repos,
+  };
+  BSRegistryServer::reply($ret);
+  return undef;
+}
+
+sub registry_version {
+  my ($cgi) = @_;
+  BSRegistryServer::reply({});
+  return undef;
 }
 
 ####################################################################
@@ -6469,6 +6509,14 @@ my $dispatches = [
   'POST:/ownregistryrepo $project $repository $regrepo' => \&registry_ownrepo,
   'POST:/disownregistryrepo $project $repository $regrepo' => \&registry_disownrepo,
 
+  # registry
+  'GET|HEAD:/registry/$...:regrepo/manifests/$manifest:' => \&registry_forward,
+  'GET|HEAD:/registry/$...:regrepo/blobs/$blob:' => \&registry_forward,
+  'GET|HEAD:/registry/$...:regrepo/tags/list' => \&registry_forward,
+  'GET|HEAD:/registry/$...:regrepo/info.json' => \&registry_forward,
+  'GET|HEAD:/registry/_catalog' => \&registry_catalog,
+  'GET|HEAD:/registry' => \&registry_version,
+
   '/ajaxstatus' => \&getajaxstatus,
   '/serverstatus' => \&BSStdServer::serverstatus,
 ];
@@ -6502,6 +6550,7 @@ my $conf = {
   'maxchild' => 20,
   'maxchild2' => 20,
   'slowrequestthr' => 10,
+  'errorreply' => \&BSRegistryServer::errreply,
 };
 
 my $aconf = {

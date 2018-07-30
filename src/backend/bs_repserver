@@ -64,6 +64,7 @@ use BSDB;
 use BSDBIndex;
 use BSNotify;
 use BSUrlmapper;
+use BSRegistryServer;
 
 use BSSolv;
 
@@ -99,6 +100,7 @@ my $eventdir = "$BSConfig::bsdir/events";
 my $infodir = "$BSConfig::bsdir/info";
 my $uploaddir = "$BSConfig::bsdir/upload";
 my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
+my $registrydir = "$BSConfig::bsdir/registry";
 my $extrepodir = "$BSConfig::bsdir/repos";
 my $extrepodb = "$BSConfig::bsdir/db/published";
 
@@ -4006,6 +4008,92 @@ sub checkconstraints {
   return ({'entry' => \@comp_workers}, $BSXML::dir);
 }
 
+sub registry_manifest {
+  my ($cgi, $regrepo, $manifest) = @_;
+  my $repodir = "$registrydir/$regrepo";
+  die("404 NAME_UNKNOWN\n") unless -d $repodir;
+  my $mani_json;
+  if ($manifest !~ /^sha256:[0-9a-f]{64}$/s) {
+    $mani_json = readstr("$repodir/:tags/$manifest", 1);
+  } else {
+    $mani_json = readstr("$repodir/:manifests/$manifest", 1);
+  }
+  # sigh, need the type
+  die("404 MANIFEST_UNKNOWN\n") unless $mani_json;
+  my $mani_id = "sha256:".Digest::SHA::sha256_hex($mani_json);
+  my $mani = JSON::XS::decode_json($mani_json);
+  my $ct = $mani->{'mediaType'} || 'application/vnd.docker.distribution.manifest.v2+json';
+  BSRegistryServer::reply($mani_json, "Content-Type: $ct", "Docker-Content-Digest: $mani_id", "Etag: \"$mani_id\"");
+  return undef;
+}
+
+sub registry_blob {
+  my ($cgi, $regrepo, $blob) = @_;
+  die("400 DIGEST_INVALID\n") unless $blob =~ /^sha256:[0-9a-f]{64}$/s;
+  my $repodir = "$registrydir/$regrepo";
+  die("404 NAME_UNKNOWN\n") unless -f "$repodir/:info";
+  my $fd;
+  open($fd, '<', "$repodir/:blobs/$blob") || die("404 BLOB_UNKNOWN\n");
+  my @s = stat($fd);
+  my $size = $s[7];
+  my $req = $BSServer::request;
+  my $range = $req->{'action'} eq 'GET' ? BSServer::header('Range') : undef;
+  my @rangehdr;
+  if ($range && $range =~ /^bytes=(\d*)-(\d*)$/ && (defined($1) || defined($2))) {
+    my ($start, $end) = ($1, $2);
+    $end = $size - 1 if $end eq '';
+    ($start, $end) = ($size - $end, $size - 1) if $start eq '';
+    $start = 0 if $start < 0;
+    die("416 RANGE_NOT_SATISFIABLE $size\n") if $start >= $size || $end < $start;
+    $end = $size - 1 if $end >= $size;
+    @rangehdr = ("Content-Range: bytes $start-$end/$size");
+    $start == 0 || defined(sysseek($fd, $start, Fcntl::SEEK_SET)) || die("sysseek: $!\n");
+    $size = $end - $start + 1;
+  }
+  my $param = {'filename' => $fd};
+  BSServer::reply_file($fd, "Content-Type: application/octet-stream", "Content-Length: $size", @rangehdr, "Docker-Content-Digest: $blob", "Etag: \"$blob\"", $BSRegistryServer::registry_api_hdr);
+  return undef;
+}
+
+sub registry_taglist {
+  my ($cgi, $regrepo) = @_;
+  my $repodir = "$registrydir/$regrepo";
+  die("404 NAME_UNKNOWN\n") unless -f "$repodir/:info";
+  my @tags = sort(grep {/^\./} ls("$repodir/:tags"));
+  my $ret = {
+    'name' => $regrepo,
+    'tags' => \@tags,
+  };
+  BSRegistryServer::reply($ret);
+  return undef;
+}
+
+sub registry_info {
+  my ($cgi, $regrepo) = @_;
+  my $repodir = "$registrydir/$regrepo";
+  my $ret = BSUtil::retrieve("$repodir/:info", 1);
+  die("404 NAME_UNKNOWN\n") unless $ret;
+  BSRegistryServer::reply($ret);
+  return undef;
+}
+
+sub registry_catalog {
+  my ($cgi) = @_;
+  my $registries = BSUtil::retrieve("$registrydir/:repos", 1) || {};
+  my @repos = sort keys %$registries;
+  my $ret = {
+    'repositories' => \@repos,
+  };
+  BSRegistryServer::reply($ret);
+  return undef;
+}
+
+sub registry_version {
+  my ($cgi) = @_;
+  BSRegistryServer::reply({});
+  return undef;
+}
+
 sub hello {
   my ($cgi) = @_;
   my $part = "";
@@ -4089,6 +4177,14 @@ my $dispatches = [
   # info
   '/workerstatus daemonsonly:bool? arch* type:*' => \&workerstatus,
 
+  # registry
+  'GET|HEAD:/registry/$...:regrepo/manifests/$manifest:' => \&registry_manifest,
+  'GET|HEAD:/registry/$...:regrepo/blobs/$blob:' => \&registry_blob,
+  'GET|HEAD:/registry/$...:regrepo/tags/list' => \&registry_taglist,
+  'GET|HEAD:/registry/$...:regrepo/info.json' => \&registry_info,
+  'GET|HEAD:/registry/_catalog' => \&registry_catalog,
+  'GET|HEAD:/registry' => \&registry_version,
+
   # configuration
   'PUT:/configuration' => \&putconfiguration,
   '/configuration' => \&getconfiguration,
@@ -4117,6 +4213,7 @@ my $conf = {
   'maxchild' => 20,
   'maxchild2' => 20,
   'slowrequestthr' => 10,
+  'errorreply' => \&BSRegistryServer::errreply,
 };
 
 my $aconf = {
