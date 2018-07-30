@@ -30,7 +30,7 @@ module Build
 
     # DELETE /build/:project/:repository/:arch/:package/:filename
     def destroy
-      unless permissions.project_change? params[:project]
+      unless permissions.project_change?(params[:project])
         render_error status: 403, errorcode: 'delete_binary_no_permission',
           message: "No permission to delete binaries from project #{params[:project]}"
         return
@@ -55,7 +55,7 @@ module Build
     def project
       @project ||=
         if params[:package] == '_repository'
-          Project.get_by_name params[:project]
+          Project.get_by_name(params[:project])
         else
           package = Package.get_by_project_and_name(
             params[:project], params[:package], use_source: false, follow_multibuild: true

@@ -38,11 +38,11 @@ namespace :ci do
     end
 
     # upload the result for all
-    SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new [
-      Coveralls::SimpleCov::Formatter,
-      SimpleCov::Formatter::HTMLFormatter,
-      SimpleCov::Formatter::Codecov
-    ]
+    SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
+                                                                     Coveralls::SimpleCov::Formatter,
+                                                                     SimpleCov::Formatter::HTMLFormatter,
+                                                                     SimpleCov::Formatter::Codecov
+                                                                   ])
     merged_results('resultset*.json').format!
 
     # render subsets

@@ -159,8 +159,8 @@ RSpec.describe Webui::AttributeController do
       end
 
       it { expect(response).to redirect_to(edit_attribs_path(attribute: attrib.fullname, project: user.home_project.to_s, package: '')) }
-      it { expect(flash[:notice]).to eq 'Attribute was successfully updated.' }
-      it { expect(attrib.attrib_type_id).to eq new_attrib_type.id }
+      it { expect(flash[:notice]).to eq('Attribute was successfully updated.') }
+      it { expect(attrib.attrib_type_id).to eq(new_attrib_type.id) }
     end
 
     context 'with non valid parameters' do
@@ -186,7 +186,7 @@ RSpec.describe Webui::AttributeController do
         delete :destroy, params: { id: attrib.id }
       end.to change(Attrib, :count).by(-1)
       expect(response).to redirect_to(root_path)
-      expect(flash[:notice]).to eq 'Attribute sucessfully deleted!'
+      expect(flash[:notice]).to eq('Attribute sucessfully deleted!')
     end
   end
 end

@@ -10,7 +10,7 @@ class APIException < RuntimeError
     @default_message = nil
 
     def setup(setvalue, status = nil, message = nil)
-      if setvalue.is_a? String
+      if setvalue.is_a?(String)
         @errorcode = setvalue
         @status = status || 400
         @default_message = message

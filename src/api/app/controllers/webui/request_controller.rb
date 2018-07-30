@@ -138,7 +138,7 @@ class Webui::RequestController < Webui::WebuiController
   def changerequest
     changestate = nil
     ['accepted', 'declined', 'revoked', 'new'].each do |s|
-      if params.key? s
+      if params.key?(s)
         changestate = s
         break
       end
@@ -154,7 +154,7 @@ class Webui::RequestController < Webui::WebuiController
           if tpkg
             target = Package.find_by_project_and_name(tprj, tpkg)
           else
-            target = Project.find_by_name tprj
+            target = Project.find_by_name(tprj)
           end
           if target.can_be_modified_by?(User.current)
             # the request action type might be permitted in future, but that doesn't mean we
@@ -301,7 +301,7 @@ class Webui::RequestController < Webui::WebuiController
 
   # used by mixins
   def main_object
-    BsRequest.find_by_number params[:number]
+    BsRequest.find_by_number(params[:number])
   end
 
   private
@@ -316,7 +316,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def require_request
     required_parameters :number
-    @bs_request = BsRequest.find_by_number params[:number]
+    @bs_request = BsRequest.find_by_number(params[:number])
     return if @bs_request
     flash[:error] = "Can't find request #{params[:number]}"
     redirect_back(fallback_location: user_show_path(User.current)) && return

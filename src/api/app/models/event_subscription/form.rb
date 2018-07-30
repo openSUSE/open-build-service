@@ -26,9 +26,9 @@ class EventSubscription
     def find_or_initialize_subscription(eventtype, receiver_role)
       opts = { eventtype: eventtype, receiver_role: receiver_role }
 
-      if subscriber.is_a? User
+      if subscriber.is_a?(User)
         opts[:user] = subscriber
-      elsif subscriber.is_a? Group
+      elsif subscriber.is_a?(Group)
         opts[:group] = subscriber
       elsif subscriber.nil?
         opts[:user] = nil

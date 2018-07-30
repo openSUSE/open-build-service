@@ -46,10 +46,10 @@ RSpec.describe ObsFactory::StagingProject do
       let!(:project) { create(:project, name: 'openSUSE:Factory:Staging:42') }
 
       it 'returns the staging project' do
-        is_expected.to be_kind_of ObsFactory::StagingProject
-        expect(subject.name).to eq 'openSUSE:Factory:Staging:42'
-        expect(subject.project).to eq project
-        expect(subject.distribution).to eq factory_distribution
+        is_expected.to be_kind_of(ObsFactory::StagingProject)
+        expect(subject.name).to eq('openSUSE:Factory:Staging:42')
+        expect(subject.project).to eq(project)
+        expect(subject.distribution).to eq(factory_distribution)
       end
     end
 
@@ -78,13 +78,13 @@ RSpec.describe ObsFactory::StagingProject do
     context "when the project name includes 'Staging:adi'" do
       let(:project) { create(:project, name: 'openSUSE:Factory:Staging:adi:42') }
 
-      it { expect(subject.adi_staging?).to be true }
+      it { expect(subject.adi_staging?).to be(true) }
     end
 
     context "when the project name does not include 'Staging:adi'" do
       let(:project) { create(:project, name: 'openSUSE:Factory:Staging:42') }
 
-      it { expect(subject.adi_staging?).to be false }
+      it { expect(subject.adi_staging?).to be(false) }
     end
   end
 

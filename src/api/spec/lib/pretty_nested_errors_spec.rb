@@ -56,7 +56,7 @@ RSpec.describe PrettyNestedErrors do
     end
 
     ActiveRecord::Base.connection.create_table(:spokes) do |t|
-      t.float :tension
+      t.float(:tension)
       t.integer :number
       t.integer :wheel_id
     end

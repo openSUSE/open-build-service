@@ -57,7 +57,7 @@ RSpec.describe Cloud::UploadJob, type: :model, vcr: true do
 
     context 'with an invalid Backend::UploadJob' do
       before do
-        exception = ActiveXML::Transport::Error.new 'no cloud upload server configured'
+        exception = ActiveXML::Transport::Error.new('no cloud upload server configured')
         allow(Backend::Api::Cloud).to receive(:upload).with(params).and_raise(exception)
       end
 

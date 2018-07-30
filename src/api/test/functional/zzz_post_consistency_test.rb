@@ -43,11 +43,11 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
         next if line.blank?
 
         # catch progress lines
-        if line.starts_with? 'PROGRESS:'
+        if line.starts_with?('PROGRESS:')
           progress = line
           next
         end
-        next if line.starts_with? 'DBPROGRESS:'
+        next if line.starts_with?('DBPROGRESS:')
 
         # acceptable during test suite run
         next if line =~ /jobs.dispatchprios missing/

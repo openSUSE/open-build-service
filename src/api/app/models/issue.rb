@@ -105,7 +105,7 @@ class Issue < ApplicationRecord
 
       if owner_id
         # self.owner must not by used, since it is reserved by rails
-        o = User.find owner_id
+        o = User.find(owner_id)
         issue.owner do |owner|
           owner.login(o.login)
           owner.email(o.email)

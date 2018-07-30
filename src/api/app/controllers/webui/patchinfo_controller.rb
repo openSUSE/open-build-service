@@ -10,7 +10,7 @@ class Webui::PatchinfoController < Webui::WebuiController
   def new_patchinfo
     authorize @project, :update?, policy_class: ProjectPolicy
 
-    unless @project.exists_package? 'patchinfo'
+    unless @project.exists_package?('patchinfo')
       unless Patchinfo.new.create_patchinfo(@project.name, nil)
         flash[:error] = 'Error creating patchinfo'
         redirect_to(controller: 'project', action: 'show', project: @project) && return
@@ -51,10 +51,10 @@ class Webui::PatchinfoController < Webui::WebuiController
     flash[:error] = nil
     # Note: At this point a patchinfo already got created by
     #       Patchinfo.new.create_patchinfo in the new_patchinfo action
-    unless valid_summary? params[:summary]
+    unless valid_summary?(params[:summary])
       flash[:error] = '|| Summary is too short (should have more than 10 signs)'
     end
-    unless valid_description? params[:description]
+    unless valid_description?(params[:description])
       flash[:error] = "#{flash[:error]} || Description is too short (should have more than 50 signs and longer than summary)"
     end
 

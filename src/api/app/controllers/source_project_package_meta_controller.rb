@@ -75,7 +75,7 @@ class SourceProjectPackageMetaController < SourceController
     @project_name = params[:project]
     @package_name = params[:package]
 
-    valid_package_name! @package_name
+    valid_package_name!(@package_name)
   end
 
   def user_not_authorized(exception)

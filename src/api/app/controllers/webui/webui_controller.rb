@@ -120,7 +120,7 @@ class Webui::WebuiController < ActionController::Base
 
   def required_parameters(*parameters)
     parameters.each do |parameter|
-      unless params.include? parameter.to_s
+      unless params.include?(parameter.to_s)
         raise MissingParameterError, "Required Parameter #{parameter} missing"
       end
     end

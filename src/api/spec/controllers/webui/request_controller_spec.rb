@@ -409,7 +409,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         }
       end
 
-      it { expect(bs_request).not_to be nil }
+      it { expect(bs_request).not_to be(nil) }
       it { expect(bs_request.description).to eq('blah blah blash') }
       it { expect(response).to redirect_to(request_show_path(number: bs_request)) }
     end
@@ -427,8 +427,8 @@ RSpec.describe Webui::RequestController, vcr: true do
       end
 
       it { expect(response).to redirect_to(request_show_path(number: bs_request)) }
-      it { expect(flash[:success]).to be nil }
-      it { expect(bs_request).not_to be nil }
+      it { expect(flash[:success]).to be(nil) }
+      it { expect(bs_request).not_to be(nil) }
       it { expect(bs_request.description).to eq('change it!') }
 
       it 'creates a request action with correct data' do
@@ -454,7 +454,7 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       it { expect(flash[:error]).to eq("No such package: #{source_project.name}/non-existant") }
       it { expect(response).to redirect_to(package_show_path(project: target_project, package: target_package)) }
-      it { expect(bs_request).to be nil }
+      it { expect(bs_request).to be(nil) }
     end
   end
 

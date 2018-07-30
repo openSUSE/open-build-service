@@ -89,7 +89,7 @@ RSpec.describe Attrib, type: :model do
         attribute.save
       end
 
-      it { expect(attribute.update_with_associations).to be false }
+      it { expect(attribute.update_with_associations).to be(false) }
 
       context 'add an issue' do
         let(:issue_tracker) { create(:issue_tracker) }
@@ -99,7 +99,7 @@ RSpec.describe Attrib, type: :model do
 
         subject { attribute_with_type_issue.update_with_associations([], [issue]) }
 
-        it { expect(subject).to be true }
+        it { expect(subject).to be(true) }
         it { expect { subject }.to change { attribute_with_type_issue.issues.count }.by(1) }
       end
 
@@ -108,7 +108,7 @@ RSpec.describe Attrib, type: :model do
 
         subject { attribute.update_with_associations([attrib_value], []) }
 
-        it { expect(subject).to be true }
+        it { expect(subject).to be(true) }
         it { expect { subject }.to change { attribute.values.count }.by(1) }
       end
 
@@ -117,9 +117,9 @@ RSpec.describe Attrib, type: :model do
         let(:values2) { ['green', 'blue'] }
 
         it 'resorts attribute values' do
-          expect(attribute.update_with_associations(values1, [])).to be true
+          expect(attribute.update_with_associations(values1, [])).to be(true)
           expect(attribute.values.map(&:value)).to eq(values1)
-          expect(attribute.update_with_associations(values2, [])).to be true
+          expect(attribute.update_with_associations(values2, [])).to be(true)
           expect(attribute.values.map(&:value)).to eq(values2)
         end
       end

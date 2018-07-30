@@ -196,7 +196,7 @@ class Repository < ApplicationRecord
 
   def clone_repository_from(source_repository)
     source_repository.repository_architectures.each do |ra|
-      repository_architectures.create architecture: ra.architecture, position: ra.position
+      repository_architectures.create(architecture: ra.architecture, position: ra.position)
     end
 
     position = 1
@@ -248,7 +248,7 @@ class Repository < ApplicationRecord
 
   def remote_project_name_not_nill
     return unless remote_project_name.nil?
-    errors.add :remote_project_name, 'cannot be nil'
+    errors.add(:remote_project_name, 'cannot be nil')
   end
 end
 

@@ -1,6 +1,6 @@
 
 def update_all_attrib_type_descriptions
-  ans = AttribNamespace.find_by_name 'OBS'
+  ans = AttribNamespace.find_by_name('OBS')
 
   # rubocop:disable Metrics/LineLength
   d = {

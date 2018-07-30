@@ -1,6 +1,6 @@
 class PublishedController < ApplicationController
   def index
-    prj = Project.find_by_name! params[:project]
+    prj = Project.find_by_name!(params[:project])
 
     # binarydownload is no security feature (read the docu :)
     if prj.disabled_for?('binarydownload', params[:repository], params[:arch]) && !User.current.can_download_binaries?(prj)

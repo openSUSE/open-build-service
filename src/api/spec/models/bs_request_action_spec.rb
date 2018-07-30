@@ -35,7 +35,7 @@ RSpec.describe BsRequestAction, vcr: true do
       allow(User).to receive(:current).and_return(user)
     end
 
-    it { expect(bs_request_action.sourcediff.valid_encoding?).to be true }
+    it { expect(bs_request_action.sourcediff.valid_encoding?).to be(true) }
     it { expect(bs_request_action.sourcediff).to include(utf8_encoded_file_content) }
   end
 

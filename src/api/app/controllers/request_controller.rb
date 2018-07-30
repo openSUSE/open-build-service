@@ -35,7 +35,7 @@ class RequestController < ApplicationController
     rel = BsRequest.find_for(params).includes(bs_request_actions: :bs_request_action_accept_info)
     rel = rel.limit(params[:limit].to_i) if params[:limit].to_i > 0
 
-    xml = ActiveXML::Node.new '<collection/>'
+    xml = ActiveXML::Node.new('<collection/>')
     matches = 0
     rel.each do |r|
       matches += 1
@@ -120,7 +120,7 @@ class RequestController < ApplicationController
       req.save!
 
       notify[:who] = User.current.login
-      Event::RequestChange.create notify
+      Event::RequestChange.create(notify)
 
       render xml: req.render_xml
     end
@@ -132,7 +132,7 @@ class RequestController < ApplicationController
     notify = request.notify_parameters
     request.destroy # throws us out of here if failing
     notify[:who] = User.current.login
-    Event::RequestDelete.create notify
+    Event::RequestDelete.create(notify)
     render_ok
   end
 

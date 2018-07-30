@@ -65,7 +65,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 403
 
     # reader access
-    prepare_request_with_user 'sourceaccess_homer', 'buildservice'
+    prepare_request_with_user('sourceaccess_homer', 'buildservice')
     get '/source/SourceprotectedProject'
     assert_response :success
     get '/source/SourceprotectedProject/_meta'
@@ -119,7 +119,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
   end
 
   def do_read_access_all_pathes(user, response)
-    prepare_request_with_user user, 'buildservice'
+    prepare_request_with_user(user, 'buildservice')
     get '/source/HiddenProject/_meta'
     assert_response response
     get '/source/HiddenProject'
@@ -171,7 +171,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     delresp = 404
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # maintainer
-    prepare_request_with_user 'hidden_homer', 'buildservice'
+    prepare_request_with_user('hidden_homer', 'buildservice')
     tprj = 'home:hidden_homer:tmp'
     get "/source/#{tprj}"
     assert_response 404
@@ -208,7 +208,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # maintainer
 
-    prepare_request_with_user 'hidden_homer', 'buildservice'
+    prepare_request_with_user('hidden_homer', 'buildservice')
     get "/source/#{tprj}/_meta"
     assert :success
     resp = :success
@@ -240,7 +240,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     delresp = 404
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # maintainer
-    prepare_request_with_user 'sourceaccess_homer', 'buildservice'
+    prepare_request_with_user('sourceaccess_homer', 'buildservice')
     tprj = 'home:sourceaccess_homer'
     resp = :success
     match = 'SourceprotectedProject'
@@ -304,7 +304,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     delresp = 200
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # maintainer
-    prepare_request_with_user 'hidden_homer', 'buildservice'
+    prepare_request_with_user('hidden_homer', 'buildservice')
     # flag not inherited
     resp = :success
     delresp = :success
@@ -331,7 +331,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     delresp = 404    # project does not exist, it seems ...
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # maintainer
-    prepare_request_with_user 'hidden_homer', 'buildservice'
+    prepare_request_with_user('hidden_homer', 'buildservice')
     # flag not inherited - should we inherit in any case to be on the safe side ?
     resp = :success
     delresp = :success
@@ -357,7 +357,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     delresp = 200
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # maintainer
-    prepare_request_with_user 'sourceaccess_homer', 'buildservice'
+    prepare_request_with_user('sourceaccess_homer', 'buildservice')
     resp = :success
     delresp = :success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
@@ -383,7 +383,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     delresp = 403
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # maintainer
-    prepare_request_with_user 'sourceaccess_homer', 'buildservice'
+    prepare_request_with_user('sourceaccess_homer', 'buildservice')
     resp = :success
     delresp = :success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
@@ -786,7 +786,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
   def test_project_paths_to_download_protected_projects
     # NOTE: we documented that binarydownload can be workarounded, it is NO security feature, just convenience.
     # try to access it with a user permitted for binarydownload
-    prepare_request_with_user 'binary_homer', 'buildservice'
+    prepare_request_with_user('binary_homer', 'buildservice')
 
     # check if sufficiently protected projects can access protected projects
     put url_for(controller: :source_project_meta, action: :update, project: 'home:binary_homer:ProtectedProject1'),
@@ -856,7 +856,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 404
 
     # check if access protected project has access binarydownload protected project
-    prepare_request_with_user 'binary_homer', 'buildservice'
+    prepare_request_with_user('binary_homer', 'buildservice')
     put url_for(controller: :source_project_meta, action: :update, project: 'home:binary_homer:ProtectedProject3'),
         params: '<project name="home:binary_homer:ProtectedProject3"> <title/> <description/> <access><disable/></access> </project>'
     # STDERR.puts(@response.body)

@@ -50,7 +50,7 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
 
     get '/status/messages'
-    messages = ActiveXML::Node.new @response.body
+    messages = ActiveXML::Node.new(@response.body)
     assert_equal 0, messages.each.size
   end
 

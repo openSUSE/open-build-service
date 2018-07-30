@@ -35,13 +35,13 @@ RSpec.describe DB::Checker do
   end
 
   describe '#contraints_to_check' do
-    it { expect(checker.contraints_to_check).to be_a Array }
+    it { expect(checker.contraints_to_check).to be_a(Array) }
     it { expect(checker.contraints_to_check).not_to be_empty }
     it 'constraints are well defined' do
       checker.contraints_to_check.each do |constraint|
-        expect(constraint).to be_a Array
+        expect(constraint).to be_a(Array)
         expect(constraint.size).to be >= 3
-        expect(constraint[0, 3]).to all(be_a Symbol)
+        expect(constraint[0, 3]).to all(be_a(Symbol))
         expect(constraint[3]).to be_in([true, false, nil])
       end
     end

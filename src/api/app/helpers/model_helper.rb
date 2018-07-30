@@ -22,7 +22,7 @@ module ModelHelper
       inhasharray.each do |hash|
         key = ''
         keys.each do |k|
-          raise 'MissingKey', k unless hash.key? k
+          raise 'MissingKey', k unless hash.key?(k)
           key << "#{hash[k]}::"
         end
         if entries[key]

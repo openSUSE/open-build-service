@@ -24,8 +24,8 @@ RSpec.describe User do
   end
 
   context 'is_admin?' do
-    it { expect(admin_user.is_admin?).to be true }
-    it { expect(user.is_admin?).to be false }
+    it { expect(admin_user.is_admin?).to be(true) }
+    it { expect(user.is_admin?).to be(false) }
   end
 
   describe '#is_active?' do
@@ -50,7 +50,7 @@ RSpec.describe User do
 
   describe '#find_by_login!' do
     it 'returns a user if it exists' do
-      expect(User.find_by_login!(user.login)).to eq user
+      expect(User.find_by_login!(user.login)).to eq(user)
     end
 
     it 'raises an exception if user does not exist' do
@@ -59,15 +59,15 @@ RSpec.describe User do
   end
 
   describe '#can_modify_user?' do
-    it { expect(admin_user.can_modify_user?(confirmed_user)).to be true }
-    it { expect(user.can_modify_user?(confirmed_user)).to be false }
-    it { expect(user.can_modify_user?(user)).to be true }
+    it { expect(admin_user.can_modify_user?(confirmed_user)).to be(true) }
+    it { expect(user.can_modify_user?(confirmed_user)).to be(false) }
+    it { expect(user.can_modify_user?(user)).to be(true) }
   end
 
   describe 'user creation' do
     it "sets the 'last_logged_in_at' attribute" do
       user = User.new
-      expect(user.last_logged_in_at).to be nil
+      expect(user.last_logged_in_at).to be(nil)
       user.save
       expect(user.last_logged_in_at).to be_within(30.seconds).of(Time.now)
     end
@@ -432,7 +432,7 @@ RSpec.describe User do
     end
 
     it "resets the 'login_failure_count'" do
-      expect(user.reload.login_failure_count).to eq 0
+      expect(user.reload.login_failure_count).to eq(0)
     end
   end
 
@@ -442,20 +442,20 @@ RSpec.describe User do
     context 'when user exists' do
       subject { User.find_with_credentials(user.login, 'buildservice') }
 
-      it { is_expected.to eq user }
-      it { expect(subject.login_failure_count).to eq 0 }
+      it { is_expected.to eq(user) }
+      it { expect(subject.login_failure_count).to eq(0) }
       it { expect(subject.last_logged_in_at).to be > 30.seconds.ago }
     end
 
     context 'when user does not exist' do
-      it { expect(User.find_with_credentials('unknown', 'buildservice')).to be nil }
+      it { expect(User.find_with_credentials('unknown', 'buildservice')).to be(nil) }
     end
 
     context 'when user exist but password was incorrect' do
       subject! { User.find_with_credentials(user.login, '_buildservice') }
 
-      it { is_expected.to be nil }
-      it { expect(user.reload.login_failure_count).to eq 8 }
+      it { is_expected.to be(nil) }
+      it { expect(user.reload.login_failure_count).to eq(8) }
     end
 
     context 'when LDAP mode is enabled' do
@@ -478,13 +478,13 @@ RSpec.describe User do
       context 'and user is already known by OBS' do
         subject { User.find_with_credentials(user.login, 'tux_password') }
 
-        it { is_expected.to eq user }
-        it { expect(subject.login_failure_count).to eq 0 }
+        it { is_expected.to eq(user) }
+        it { expect(subject.login_failure_count).to eq(0) }
         it { expect(subject.last_logged_in_at).to be > 30.seconds.ago }
 
         it 'updates user data received from the LDAP server' do
-          expect(subject.email).to eq 'John@obs.de'
-          expect(subject.realname).to eq 'tux'
+          expect(subject.email).to eq('John@obs.de')
+          expect(subject.realname).to eq('tux')
         end
       end
 
@@ -492,12 +492,12 @@ RSpec.describe User do
         subject { User.find_with_credentials('new_user', 'tux_password') }
 
         it 'creates a new user from the data received by the LDAP server' do
-          expect { subject }.to change(User, :count).by 1
-          expect(subject.email).to eq 'John@obs.de'
-          expect(subject.login).to eq 'new_user'
-          expect(subject.realname).to eq 'new_user'
-          expect(subject.state).to eq 'confirmed'
-          expect(subject.login_failure_count).to eq 0
+          expect { subject }.to change(User, :count).by(1)
+          expect(subject.email).to eq('John@obs.de')
+          expect(subject.login).to eq('new_user')
+          expect(subject.realname).to eq('new_user')
+          expect(subject.state).to eq('confirmed')
+          expect(subject.login_failure_count).to eq(0)
           expect(subject.last_logged_in_at).to be > 30.seconds.ago
         end
       end
@@ -535,20 +535,20 @@ RSpec.describe User do
     end
 
     it 'allows creating home projects' do
-      expect(user.can_create_project?(user.home_project_name)).to be true
+      expect(user.can_create_project?(user.home_project_name)).to be(true)
     end
     it 'allows creating projects below home' do
-      expect(user.can_create_project?(user.branch_project_name('foo'))).to be true
+      expect(user.can_create_project?(user.branch_project_name('foo'))).to be(true)
     end
     it 'allows admins' do
-      expect(admin_user.can_create_project?('foo')).to be true
+      expect(admin_user.can_create_project?('foo')).to be(true)
     end
     it 'considers global StaticPermission' do
-      expect(maintainer.can_create_project?('foo')).to be true
+      expect(maintainer.can_create_project?('foo')).to be(true)
     end
     it 'considers parent projects' do
       create(:project, name: 'foo', maintainer: user)
-      expect(user.can_create_project?('foo:bar')).to be true
+      expect(user.can_create_project?('foo:bar')).to be(true)
     end
   end
 end

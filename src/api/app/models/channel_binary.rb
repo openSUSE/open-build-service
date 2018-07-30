@@ -17,7 +17,7 @@ class ChannelBinary < ApplicationRecord
   end
 
   def self.find_by_project_and_package(project, package)
-    project = Project.find_by_name(project) if project.is_a? String
+    project = Project.find_by_name(project) if project.is_a?(String)
 
     # find maintained projects filter
     maintained_projects = Project.get_maintenance_project.expand_maintained_projects

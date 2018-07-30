@@ -206,7 +206,7 @@ class Project < ApplicationRecord
     # We often use select in a query which would raise a MissingAttributeError
     # if the kind attribute hasn't been included in the select clause.
     # Therefore it's necessary to check self.has_attribute? :kind
-    self.kind ||= 'standard' if has_attribute? :kind
+    self.kind ||= 'standard' if has_attribute?(:kind)
     @config = nil
   end
 
@@ -363,7 +363,7 @@ class Project < ApplicationRecord
     find_repos(:linking_repositories) do |link_rep|
       link_rep.path_elements.includes(:link).each do |pe|
         next unless Repository.find(pe.repository_id).db_project_id == id
-        if link_rep.path_elements.find_by_repository_id Repository.deleted_instance
+        if link_rep.path_elements.find_by_repository_id(Repository.deleted_instance)
           # repository has already a path to deleted repo
           pe.destroy
         else
@@ -399,7 +399,7 @@ class Project < ApplicationRecord
     return false if project.nil?
     # check for 'access' flag
 
-    return true unless Relationship.forbidden_project_ids.include? project.id
+    return true unless Relationship.forbidden_project_ids.include?(project.id)
 
     # simple check for involvement --> involved users can access project.id, User.current
     project.relationships.groups.includes(:group).any? do |grouprel|
@@ -425,7 +425,7 @@ class Project < ApplicationRecord
     end
     if opts[:includeallpackages]
       Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").find_each do |pkg|
-        raise ReadAccessError, name unless Package.check_access? pkg
+        raise ReadAccessError, name unless Package.check_access?(pkg)
       end
     end
 
@@ -565,7 +565,7 @@ class Project < ApplicationRecord
 
     # do not allow to remove maintenance master projects if there are incident projects
     return unless is_maintenance?
-    return unless MaintenanceIncident.find_by_maintenance_db_project_id id
+    return unless MaintenanceIncident.find_by_maintenance_db_project_id(id)
 
     raise DeleteError, 'This maintenance project has incident projects and can therefore not be deleted.'
   end
@@ -962,7 +962,7 @@ class Project < ApplicationRecord
   end
 
   def branch_to_repositories_from(project, pkg_to_enable = nil, opts = {})
-    if project.is_a? Project
+    if project.is_a?(Project)
       branch_local_repositories(project, pkg_to_enable, opts)
     else
       branch_remote_repositories(project)
@@ -978,7 +978,7 @@ class Project < ApplicationRecord
 
     # create repository objects first
     project.repositories.each do |repo|
-      next if skip_repos.include? repo.name
+      next if skip_repos.include?(repo.name)
       repo_name = opts[:extend_names] ? repo.extended_name : repo.name
       next if repo.is_local_channel?
       pkg_to_enable.enable_for_repository(repo_name) if pkg_to_enable
@@ -989,13 +989,13 @@ class Project < ApplicationRecord
         next
       end
 
-      repositories.create name: repo_name
+      repositories.create(name: repo_name)
     end
 
     # fill up with data, might refer to a local one
     project.repositories.each do |repo|
       repo_name = opts[:extend_names] ? repo.extended_name : repo.name
-      next if skip_repos.include? repo.name
+      next if skip_repos.include?(repo.name)
       # copy target repository when operating on a channel
       targets = repo.release_targets if pkg_to_enable && pkg_to_enable.is_channel?
       # base is a maintenance incident, take its target instead (kgraft case)
@@ -1012,7 +1012,7 @@ class Project < ApplicationRecord
         # must happen to the right repos in the update project
         target_repos = Repository.find_by_project_and_path(update_project, repo)
       end
-      trepo = repositories.find_by_name repo_name
+      trepo = repositories.find_by_name(repo_name)
       unless trepo
         # channel case
         next unless is_maintenance_incident?
@@ -1193,7 +1193,7 @@ class Project < ApplicationRecord
 
   def _update_backend_packages
     # restore all package meta data objects in DB
-    backend_pkgs = Collection.find :package, match: "@project='#{name}'"
+    backend_pkgs = Collection.find(:package, match: "@project='#{name}'")
     backend_pkgs.each('package') do |package|
       pname = package.value('name')
       p = packages.where(name: pname).first_or_initialize
@@ -1258,7 +1258,7 @@ class Project < ApplicationRecord
   private :bsrequest_repos_map
 
   def self.valid_name?(name)
-    return false unless name.is_a? String
+    return false unless name.is_a?(String)
     return false if name == '0'
     return false if name =~ /::/
     return false if name.end_with?(':')
@@ -1272,7 +1272,7 @@ class Project < ApplicationRecord
 
   # updates packages automatically generated in the backend after submitting a product file
   def update_product_autopackages
-    backend_pkgs = Collection.find :id, what: 'package', match: "@project='#{name}' and starts-with(@name,'_product:')"
+    backend_pkgs = Collection.find(:id, what: 'package', match: "@project='#{name}' and starts-with(@name,'_product:')")
     b_pkg_index = backend_pkgs.each(:package).each_with_object({}) do |elem, hash|
       hash[elem.value(:name)] = elem
       hash

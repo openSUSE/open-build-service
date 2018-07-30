@@ -130,7 +130,7 @@ class PublicController < ApplicationController
     @pkg = Package.find_by_project_and_name(params[:project], params[:package])
 
     begin
-      binaries = Collection.find :id, what: 'published/binary', match: "@project='#{params[:project]}' and @package='#{params[:package]}'"
+      binaries = Collection.find(:id, what: 'published/binary', match: "@project='#{params[:project]}' and @package='#{params[:package]}'")
     rescue
       render_error status: 400, errorcode: 'search_failure', message: "The search can't get executed."
       return

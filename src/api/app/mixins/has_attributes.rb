@@ -44,8 +44,8 @@ module HasAttributes
     unless a
       # create the new attribute
       a = Attrib.create(attrib_type: attrib_type, binary: binary)
-      a.project = self if is_a? Project
-      a.package = self if is_a? Package
+      a.project = self if is_a?(Project)
+      a.package = self if is_a?(Package)
     end
     # write values
     a.update_with_associations(values, issues)

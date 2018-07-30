@@ -11,7 +11,7 @@ module Webui::PackageHelper
   end
 
   def human_readable_fsize(bytes)
-    number_to_human_size bytes
+    number_to_human_size(bytes)
   end
 
   def title_or_name(package)

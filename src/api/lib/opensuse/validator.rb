@@ -40,7 +40,7 @@ module Suse
         controller = controller.to_s
         @schema_map ||= {}
         @schema_map[controller] ||= {}
-        if opt.key? :method
+        if opt.key?(:method)
           key = action.to_s + '-' + opt[:method].to_s
         else
           key = action.to_s
@@ -60,7 +60,7 @@ module Suse
 
         # logger.debug "checking schema map for controller '#{c}', key: '#{key}'"
         return if @schema_map.nil?
-        return unless @schema_map.key? c
+        return unless @schema_map.key?(c)
         @schema_map[c][key] || @schema_map[c][key2]
       end
 
@@ -81,9 +81,9 @@ module Suse
 
         schema_base_filename = schema_location + '/' + schema_file
         schema = nil
-        if File.exist? schema_base_filename + '.rng'
+        if File.exist?(schema_base_filename + '.rng')
           schema = Nokogiri::XML::RelaxNG(File.open(schema_base_filename + '.rng'))
-        elsif File.exist? schema_base_filename + '.xsd'
+        elsif File.exist?(schema_base_filename + '.xsd')
           schema = Nokogiri::XML::Schema(File.open(schema_base_filename + '.xsd'))
         else
           logger.debug "no schema found, skipping validation for #{opt.inspect}"

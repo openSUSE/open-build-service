@@ -339,7 +339,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       it 'does not delete the package and shows an error message' do
         post :remove, params: { project: user.home_project, package: source_package }
 
-        expect(flash[:notice]).to eq "Package can't be removed: used as devel package by #{target_project}/#{devel_project}"
+        expect(flash[:notice]).to eq("Package can't be removed: used as devel package by #{target_project}/#{devel_project}")
         expect(user.home_project.packages).not_to be_empty
       end
 
@@ -349,7 +349,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         end
 
         it 'deletes the package' do
-          expect(flash[:notice]).to eq 'Package was successfully removed.'
+          expect(flash[:notice]).to eq('Package was successfully removed.')
           expect(user.home_project.packages).to be_empty
         end
       end

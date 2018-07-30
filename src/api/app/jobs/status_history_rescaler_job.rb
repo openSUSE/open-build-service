@@ -53,7 +53,7 @@ class StatusHistoryRescalerJob < ApplicationJob
         valuavg = (items.inject(0) { |sum, item| sum + item.value }).to_f / items.length
         Rails.logger.debug "scaling #{key} #{curmintime} #{items.length} #{Time.at(timeavg)} #{valuavg}"
         StatusHistory.delete(items.map(&:id))
-        StatusHistory.create key: key, time: timeavg, value: valuavg
+        StatusHistory.create(key: key, time: timeavg, value: valuavg)
       end
       curmintime += offset
     end

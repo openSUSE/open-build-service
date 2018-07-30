@@ -210,7 +210,7 @@ Project.all.each do |p|
   Backend::Connection.put("/source/#{CGI.escape(p.name)}/_meta?user=king&comment=fixtures", p.to_axml)
 end
 Package.all.each do |p|
-  next if p.name.starts_with? '_product:'
+  next if p.name.starts_with?('_product:')
   Backend::Connection.put("/source/#{CGI.escape(p.project.name)}/#{CGI.escape(p.name)}/_meta?user=king&comment=fixtures", p.to_axml)
 end
 Backend::Connection.put('/issue_trackers', IssueTracker.all.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS))
@@ -301,10 +301,10 @@ FileUtils.mkdir "#{backend_data}/workers/idle"
 FileUtils.cp("#{Rails.root}/test/fixtures/backend/x86_64:build33:1", "#{backend_data}/workers/idle/")
 
 # fix port number in remote projects
-ri = Project.find_by_name 'RemoteInstance'
+ri = Project.find_by_name('RemoteInstance')
 ri.remoteurl = "http://localhost:#{port_src_server}"
 ri.store
-hri = Project.find_by_name 'HiddenRemoteInstance'
+hri = Project.find_by_name('HiddenRemoteInstance')
 hri.remoteurl = "http://localhost:#{port_src_server}"
 hri.store
 
