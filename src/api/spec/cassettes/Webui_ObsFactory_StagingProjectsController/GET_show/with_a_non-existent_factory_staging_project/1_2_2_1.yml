@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging:A">
-          <title>A Catskill Eagle</title>
+          <title>To Your Scattered Bodies Go</title>
           <description>Factory staging project A</description>
         </project>
     headers:
@@ -29,16 +29,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging:A">
-          <title>A Catskill Eagle</title>
+          <title>To Your Scattered Bodies Go</title>
           <description>Factory staging project A</description>
         </project>
     http_version: 
-  recorded_at: Tue, 24 Jul 2018 08:06:15 GMT
+  recorded_at: Mon, 30 Jul 2018 09:10:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:Factory/_meta?user=_nobody_
@@ -46,7 +46,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>The Violent Bear It Away</title>
+          <title>That Hideous Strength</title>
           <description/>
         </project>
     headers:
@@ -68,14 +68,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '117'
+      - '114'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>The Violent Bear It Away</title>
+          <title>That Hideous Strength</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Tue, 24 Jul 2018 08:06:15 GMT
+  recorded_at: Mon, 30 Jul 2018 09:10:08 GMT
 recorded_with: VCR 4.0.0

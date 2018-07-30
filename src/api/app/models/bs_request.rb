@@ -279,6 +279,18 @@ class BsRequest < ApplicationRecord
     reviews.where('bs_request_actions.target_project': attributes[:target_project])
   end
 
+  # Currently only used by staging projects for the obs factories and
+  # customized for that.
+  def as_json(*)
+    super(except: [:state, :comment, :commenter]).tap do |request_hash|
+      request_hash['superseded_by_id'] = superseded_by
+      request_hash['state'] =            state.to_s
+      request_hash['request_type'] =     bs_request_actions.first.type
+      request_hash['package'] =          bs_request_actions.first.target_package
+      request_hash['project'] =          bs_request_actions.first.target_project
+    end
+  end
+
   def save!(args = {})
     new = created_at ? nil : 1
     sanitize! if new && !@skip_sanitize

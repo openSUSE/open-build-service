@@ -565,4 +565,30 @@ RSpec.describe BsRequest, vcr: true do
       end
     end
   end
+
+  describe '#as_json' do
+    before do
+      submit_request.update(superseded_by: delete_request.id)
+    end
+
+    subject { submit_request.as_json }
+
+    it 'returns a json representation of a bs request' do
+      expect(subject).to include(
+        'id' => submit_request.id,
+        'number' => submit_request.number,
+        'creator' => submit_request.creator,
+        'description' => submit_request.description,
+        'project' => 'target_project',
+        'package' => 'target_package',
+        'state' => 'new',
+        'request_type' => 'submit',
+        'priority' => 'moderate',
+        'created_at' => submit_request.created_at,
+        'updated_at' => submit_request.updated_at,
+        'superseded_by' => delete_request.id,
+        'superseded_by_id' => delete_request.id
+      )
+    end
+  end
 end
