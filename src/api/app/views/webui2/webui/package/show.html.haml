@@ -7,41 +7,43 @@
   = render :partial => 'tabs'
   .card-body
     .row
-      .col-9
+      .col-8
         %h3#package_title
           = @package.title.present? ? @package.title : @package.name
           - if @package.url.present?
             %small= link_to(@package.url, @package.url)
         = webui2_description_wrapper(@package.description)
-      .col-3
-        = possibly_empty_ul class: :clean_list do
+      .col-4
+        %ul.no-list-style
           - if true || @failures > 0
-            %li.nav-item
+            %li
               %i.fas.fa-times-circle.text-danger{ title: 'Errors' }
               = @failures
-              = link_to "error#{@failures == 1 ? '' : 's'}", project_monitor_path(project: @project, pkgname: @package.name, succeeded: 0, blocked: 0, finished: 0, signing: 0, dispatching: 0, scheduled: 0, building: 0)
+              = link_to "error#{@failures == 1 ? '' : 's'}", project_monitor_path(project: @project, pkgname: @package.name, succeeded: 0,
+                                                                                  blocked: 0, finished: 0, signing: 0, dispatching: 0,
+                                                                                  scheduled: 0, building: 0)
 
           = render partial: 'shared/open_requests'
 
           - if dpackage
-            %li.nav-item
+            %li
               %i.fas.fa-info-circle.text-info
               Developed at
               = link_to(elide(dpackage.project.name, 44), package_show_path(project: dpackage.project.name, package: dpackage.name))
           - if true || @package.project != @project
-            %li.nav-item
+            %li
               %i.fas.fa-info-circle.text-info
               Sources inherited from project
               = link_to("#{elide(@package.project.name, 40)}", package_show_path(project: @package.project.name, package: @package.name))
           - if true || @package.developed_packages.present?
-            %li.nav-item
+            %li
               %i.fas.fa-info-circle.text-info
               Devel package for
               - @package.developed_packages.each_with_index do |pkg, index|
                 = ',' if index > 0
                 = link_to("#{elide(pkg.project.name, 40)}", package_show_path(project: pkg.project.name, package: pkg.name))
           - if true || @package.is_patchinfo?
-            %li.nav-item
+            %li
               %i.fas.fa-info-circle.text-info
               Has a
               = link_to 'patchinfo', patchinfo_show_path(package: @package, project: @project)
@@ -49,7 +51,7 @@
               = link_to 'maintenance updates', 'http://en.opensuse.org/Portal:Maintenance'
               //TODO: Fix this hard link
           - if @package.linking_packages.present?
-            %li.nav-item
+            %li
               = image_tag 'icons/information', title: ''
               = @package.linking_packages.size
               = link_to('derived packages', { :action => :linking_packages, :project => @project, :package => @package }, :remote => true)
@@ -59,7 +61,7 @@
             Links to
             = project_or_package_link(project: linked_package.project.name, package: linked_package.name, short: true)
             - if @linkinfo[:error]
-              %li.nav-item
+              %li
                 %i.fas.fa-times-circle.text-danger
                 Link has errors:
                 %i= @linkinfo[:error]
