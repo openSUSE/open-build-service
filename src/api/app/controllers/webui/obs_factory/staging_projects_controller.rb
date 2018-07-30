@@ -13,12 +13,7 @@ module Webui::ObsFactory
           @requests_state_new = BsRequest.in_state_new(by_group: @distribution.staging_manager, target_project: @distribution.name)
 
           staging_project = Project.find_by_name("#{@distribution.project}:Staging")
-          dashboard_package = Package.find_by_project_and_name(staging_project.name, 'dashboard')
-
-          if dashboard_package && dashboard_package.file_exists?('ignored_requests')
-            file = ::Backend::Api::Sources::Package.file(staging_project.name, dashboard_package.name, 'ignored_requests')
-            @ignored_requests = YAML.safe_load(file)
-          end
+          @ignored_requests = staging_project.dashboard.try(:ignored_requests)
 
           if @ignored_requests
             @backlog_requests_ignored = @backlog_requests.select { |req| @ignored_requests.key?(req.number) }

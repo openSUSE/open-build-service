@@ -547,6 +547,10 @@ class Package < ApplicationRecord
     package_kinds.where(kind: kind).exists?
   end
 
+  def ignored_requests
+    YAML.load(source_file('ignored_requests')) if file_exists?('ignored_requests')
+  end
+
   def update_issue_list
     current_issues = {}
     if is_patchinfo?

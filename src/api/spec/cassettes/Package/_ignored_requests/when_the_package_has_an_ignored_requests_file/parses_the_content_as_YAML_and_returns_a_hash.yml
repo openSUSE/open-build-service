@@ -1,0 +1,340 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 18:24:28 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>An Acceptable Time</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '105'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>An Acceptable Time</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 18:24:28 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/dashboard_1/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="dashboard_1" project="my_project">
+          <title>In Death Ground</title>
+          <description>Amet itaque unde ut.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="dashboard_1" project="my_project">
+          <title>In Death Ground</title>
+          <description>Amet itaque unde ut.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 18:24:28 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/dashboard_1/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="dashboard_1" project="my_project">
+          <title>In Death Ground</title>
+          <description>Amet itaque unde ut.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="dashboard_1" project="my_project">
+          <title>In Death Ground</title>
+          <description>Amet itaque unde ut.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 18:24:28 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/dashboard_1/_config
+    body:
+      encoding: UTF-8
+      string: A totam deleniti. Vel quibusdam repellat. Debitis asperiores et.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3" vrev="3">
+          <srcmd5>74035bcb47c99320dbe96b226a4ed908</srcmd5>
+          <version>unknown</version>
+          <time>1532975068</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 18:24:28 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/dashboard_1/ignored_requests
+    body:
+      encoding: UTF-8
+      string: 'foo: bar'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>74035bcb47c99320dbe96b226a4ed908</srcmd5>
+          <version>unknown</version>
+          <time>1532975068</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 18:24:28 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/dashboard_1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '301'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="dashboard_1" rev="4" vrev="4" srcmd5="74035bcb47c99320dbe96b226a4ed908">
+          <entry name="_config" md5="b41cc8a3533ec24e8e5e968e386fe438" size="64" mtime="1532975068" />
+          <entry name="ignored_requests" md5="e1dcf98b4c823827be0a0524052ae95a" size="8" mtime="1532970094" />
+        </directory>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 18:24:28 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/dashboard_1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '301'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="dashboard_1" rev="4" vrev="4" srcmd5="74035bcb47c99320dbe96b226a4ed908">
+          <entry name="_config" md5="b41cc8a3533ec24e8e5e968e386fe438" size="64" mtime="1532975068" />
+          <entry name="ignored_requests" md5="e1dcf98b4c823827be0a0524052ae95a" size="8" mtime="1532970094" />
+        </directory>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 18:24:28 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/dashboard_1/ignored_requests
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '8'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: 'foo: bar'
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 18:24:28 GMT
+recorded_with: VCR 4.0.0
