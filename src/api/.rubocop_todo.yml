@@ -151,14 +151,6 @@ Lint/DuplicateMethods:
 Lint/HandleExceptions:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: runtime_error, standard_error
-Lint/InheritException:
-  Exclude:
-    - 'app/models/obs_factory/distribution.rb'
-
 # Offense count: 9
 # Configuration parameters: MaximumRangeSize.
 Lint/MissingCopEnableDirective:
@@ -218,21 +210,9 @@ Lint/UnneededCopEnableDirective:
   Exclude:
     - 'test/unit/schema_test.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoreEmptyBlocks, AllowUnusedKeywordArguments.
-Lint/UnusedBlockArgument:
-  Exclude:
-    - 'app/controllers/webui/obs_factory/application_controller.rb'
-
 # Offense count: 39
 Lint/UriEscapeUnescape:
   Enabled: false
-
-# Offense count: 1
-Lint/UselessAssignment:
-  Exclude:
-    - 'app/models/obs_factory/distribution_strategy_factory.rb'
 
 # Offense count: 900
 Metrics/AbcSize:
@@ -373,12 +353,6 @@ Naming/VariableNumber:
   Exclude:
     - 'spec/features/webui/projects_spec.rb'
     - 'test/unit/project_test.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Performance/RegexpMatch:
-  Exclude:
-    - 'app/models/obs_factory/distribution_strategy_factory.rb'
 
 # Offense count: 69
 RSpec/AnyInstance:
@@ -734,13 +708,6 @@ Rails/Presence:
   Exclude:
     - 'app/helpers/webui/package_helper.rb'
     - 'app/models/kiwi/image/xml_parser.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: NotNilAndNotEmpty, NotBlank, UnlessBlank.
-Rails/Present:
-  Exclude:
-    - 'app/presenters/obs_factory/staging_project_presenter.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.
