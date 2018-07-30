@@ -83,6 +83,15 @@ RSpec.describe Webui::SearchController, vcr: true do
         it { expect(flash[:notice]).to eq('Sorry, this disturl does not compute...') }
         it { is_expected.to redirect_to(root_url) }
       end
+
+      context 'with improper disturl' do
+        before do
+          # https://github.com/openSUSE/open-build-service/issues/5510
+          get :index, params: { search_text: 'obs://openSUSE:Leap:15.0:Update', name: 1, project: 1, package: 1 }
+        end
+
+        it { expect(flash[:notice]).to eq('Sorry, this disturl does not compute...') }
+      end
     end
 
     context 'with no search scope' do
