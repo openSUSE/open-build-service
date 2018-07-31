@@ -41,7 +41,7 @@ RSpec.describe Package, vcr: true do
           package_with_file.delete_file('somefile.txt')
         end
 
-        it 'deletes file' do
+        it 'deletes file', backend: true do
           expect do
             package_with_file.source_file('somefile.txt')
           end.to raise_error(Backend::NotFoundError)
@@ -82,7 +82,7 @@ RSpec.describe Package, vcr: true do
     end
 
     context 'file not found' do
-      it 'raises NotFoundError' do
+      it 'raises NotFoundError', backend: true do
         expect do
           package_with_file.source_file('not_existent.txt')
         end.to raise_error(Backend::NotFoundError)
@@ -142,7 +142,7 @@ RSpec.describe Package, vcr: true do
     end
   end
 
-  describe '#file_exists?' do
+  describe '#file_exists?', backend: true do
     context 'with more than one file' do
       it 'returns true if the file exist' do
         expect(package_with_file.file_exists?('somefile.txt')).to eq(true)
@@ -166,7 +166,7 @@ RSpec.describe Package, vcr: true do
     end
   end
 
-  describe '#has_icon?' do
+  describe '#has_icon?', backend: true do
     it 'returns true if the icon exist' do
       Backend::Connection.put("/source/#{CGI.escape(package_with_file.project.name)}/#{CGI.escape(package_with_file.name)}/_icon",
                               Faker::Lorem.paragraph)
@@ -206,7 +206,7 @@ RSpec.describe Package, vcr: true do
          400 remote error: document element must be 'services', was 'service'"
     end
 
-    it 'returns nil without errors' do
+    it 'returns nil without errors', backend: true do
       stub_request(:get, url).and_return(body: no_error)
       expect(package_with_service.service_error).to be_nil
     end
@@ -576,7 +576,7 @@ RSpec.describe Package, vcr: true do
         create(:kiwi_image_with_package, project: home_project, package_name: 'package_with_kiwi_file', with_kiwi_file: true)
       end
 
-      context 'with same md5' do
+      context 'with same md5', backend: true do
         it { expect(kiwi_image_with_package_with_kiwi_file.package.kiwi_image_outdated?).to be(false) }
       end
 
@@ -602,7 +602,7 @@ RSpec.describe Package, vcr: true do
     end
   end
 
-  describe '#commit_message' do
+  describe '#commit_message', backend: true do
     let(:changes_file) { file_fixture('factory_target_package.changes').read }
     let(:project) { create(:project, name: 'home:foo:Apache') }
     let(:package) { create(:package_with_changes_file, project: project, name: 'package_with_changes_file') }
@@ -709,7 +709,7 @@ RSpec.describe Package, vcr: true do
   describe '#ignored_requests' do
     let(:project) { create(:project, name: 'my_project') }
 
-    context "when the package has an 'ignored_requests' file" do
+    context "when the package has an 'ignored_requests' file", backend: true do
       let(:package) do
         create(:package_with_file, project: project, name: 'dashboard_1', file_name: 'ignored_requests', file_content: 'foo: bar')
       end

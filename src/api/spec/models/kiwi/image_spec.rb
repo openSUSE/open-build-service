@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe Kiwi::Image, type: :model do
+RSpec.describe Kiwi::Image, type: :model, backend: true do
   include_context 'a kiwi image xml'
   include_context 'an invalid kiwi image xml'
 

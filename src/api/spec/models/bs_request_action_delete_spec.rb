@@ -13,7 +13,7 @@ RSpec.describe BsRequestActionDelete, vcr: true do
       it { expect { subject.sourcediff }.to raise_error(BsRequestAction::Errors::DiffError) }
     end
 
-    context 'for package' do
+    context 'for package', backend: true do
       let(:delete_request) { create(:delete_bs_request, target_package: target_package) }
       subject { delete_request.bs_request_actions.first }
 

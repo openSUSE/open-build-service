@@ -154,8 +154,6 @@ group :development, :test do
   gem 'rspec-rails'
   # for fixtures
   gem 'factory_bot_rails'
-  # for mocking the backend
-  gem 'vcr'
   # as alternative to the standard IRB shell
   gem 'pry', '>= 0.9.12'
   # add step-by-step debugging and stack navigation capabilities to pry

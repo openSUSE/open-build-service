@@ -238,7 +238,7 @@ RSpec.describe Project, vcr: true do
 
       it { is_expected.to have_attributes(name: new_project_name, staging_workflow_id: staging_workflow.id) }
 
-      it 'copies the project config' do
+      it 'copies the project config', backend: true do
         expect(subject.config.content).to eq('Prefer: foo')
       end
 

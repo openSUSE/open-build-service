@@ -413,7 +413,7 @@ RSpec.describe Project do
     end
   end
 
-  describe '.restore' do
+  describe '.restore', backend: true do
     let(:admin_user) { create(:admin_user, login: 'Admin') }
     let(:deleted_project) do
       create(:project_with_packages,
@@ -426,13 +426,8 @@ RSpec.describe Project do
 
     # make sure it's gone even if some previous test failed
     def reset_project_in_backend
-<<<<<<< HEAD
-      Backend::Api::Sources::Project.delete 'project_used_for_restoration' if CONFIG['global_write_through']
-    rescue Backend::NotFoundError
-=======
       Backend::Api::Sources::Project.delete 'project_used_for_restoration'
-    rescue ActiveXML::Transport::NotFoundError
->>>>>>> e2780de865... Don't use cassettes for backend
+    rescue Backend::NotFoundError
     end
 
     before do
@@ -481,7 +476,7 @@ RSpec.describe Project do
         expect(subject.packages.size).to eq(2)
       end
 
-      context 'verifies the meta of restored packages' do
+      context 'verifies the meta of restored packages', backend: true do
         it { expect(subject.packages.find_by(name: package1.name).render_xml).to eq(package1_meta_before_deletion) }
         it { expect(subject.packages.find_by(name: package2.name).render_xml).to eq(package2_meta_before_deletion) }
       end
@@ -489,7 +484,7 @@ RSpec.describe Project do
   end
 
   describe '#destroy' do
-    context 'avoid regressions of the issue #3665' do
+    context 'avoid regressions of the issue #3665', backend: true do
       let(:admin_user) { create(:admin_user, login: 'Admin') }
       let(:images_repository) { create(:repository, name: 'images', project: project) }
       let(:apache_repository) { create(:repository, name: 'Apache', project: project) }
