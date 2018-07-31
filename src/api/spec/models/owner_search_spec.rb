@@ -20,7 +20,7 @@ RSpec.describe OwnerSearch do
       end
 
       it 'returns results' do
-        subject = OwnerOfContainerSearch.new.for(package).first
+        subject = OwnerSearch::Container.new.for(package).first
         expect(subject.users).to eq('maintainer' => ['Iggy'])
       end
 
@@ -29,7 +29,7 @@ RSpec.describe OwnerSearch do
         create(:relationship_package_user, package: package, user: user, role: Role.find_by_title('bugowner'))
         user.update_attributes(owner: develuser)
 
-        subject = OwnerOfContainerSearch.new(devel: false, filter: 'bugowner').for(package).first
+        subject = OwnerSearch::Container.new(devel: false, filter: 'bugowner').for(package).first
         expect(subject.users['bugowner']).to eq([user.login])
       end
 
@@ -37,19 +37,19 @@ RSpec.describe OwnerSearch do
         create(:relationship_package_user, package: package, user: user, role: Role.find_by_title('bugowner'))
         user.update_attributes(state: :locked)
 
-        subject = OwnerOfContainerSearch.new(devel: false, filter: 'bugowner').for(package)
+        subject = OwnerSearch::Container.new(devel: false, filter: 'bugowner').for(package)
         expect(subject).to eq([])
       end
     end
 
     context '#missing' do
       it 'returns nothing for default filter' do
-        subject = OwnerMissingSearch.new.find
+        subject = OwnerSearch::Missing.new.find
         expect(subject).to be_empty
       end
 
       it 'returns results for packages without bugowner' do
-        subject = OwnerMissingSearch.new(devel: false, filter: 'bugowner').find.first
+        subject = OwnerSearch::Missing.new(devel: false, filter: 'bugowner').find.first
         expect(subject.rootproject).to eq('home:Iggy')
         expect(subject.project).to eq('home:Iggy')
         expect(subject.package).to eq('TestPack')
@@ -58,7 +58,7 @@ RSpec.describe OwnerSearch do
       it 'returns nothing for packages with bugowner' do
         create(:relationship_package_user, package: package, user: user, role: Role.find_by_title('bugowner'))
 
-        subject = OwnerMissingSearch.new(devel: false, filter: 'bugowner').find
+        subject = OwnerSearch::Missing.new(devel: false, filter: 'bugowner').find
         expect(subject).to eq([])
       end
 
@@ -66,7 +66,7 @@ RSpec.describe OwnerSearch do
         create(:relationship_package_user, package: package, user: user, role: Role.find_by_title('bugowner'))
         user.update_attributes(state: :locked)
 
-        subject = OwnerMissingSearch.new(devel: false, filter: 'bugowner').find.first
+        subject = OwnerSearch::Missing.new(devel: false, filter: 'bugowner').find.first
         expect(subject.rootproject).to eq('home:Iggy')
         expect(subject.project).to eq('home:Iggy')
         expect(subject.package).to eq('TestPack')
@@ -77,12 +77,12 @@ RSpec.describe OwnerSearch do
         create(:relationship_package_user, package: package, user: user, role: Role.find_by_title('bugowner'))
         user.update_attributes(owner: develuser)
 
-        subject = OwnerMissingSearch.new(devel: false, filter: 'bugowner').find
+        subject = OwnerSearch::Missing.new(devel: false, filter: 'bugowner').find
         expect(subject).to eq([])
 
         develuser.update_attributes(state: :locked)
 
-        subject = OwnerMissingSearch.new(devel: false, filter: 'bugowner').find.first
+        subject = OwnerSearch::Missing.new(devel: false, filter: 'bugowner').find.first
         expect(subject.rootproject).to eq('home:Iggy')
         expect(subject.project).to eq('home:Iggy')
         expect(subject.package).to eq('TestPack')
@@ -118,9 +118,9 @@ RSpec.describe OwnerSearch do
       end
 
       it 'respects maintenance project suffixes' do
-        expect(OwnerAssigneeSearch.new.for('package').first.users).to eq('bugowner' => ['hans'])
-        expect(OwnerAssigneeSearch.new.for('package_42').first.users).to eq('bugowner' => ['hans'])
-        expect(OwnerAssigneeSearch.new.for('patchinfo_42').first.users).to eq('bugowner' => ['hans'])
+        expect(OwnerSearch::Assignee.new.for('package').first.users).to eq('bugowner' => ['hans'])
+        expect(OwnerSearch::Assignee.new.for('package_42').first.users).to eq('bugowner' => ['hans'])
+        expect(OwnerSearch::Assignee.new.for('patchinfo_42').first.users).to eq('bugowner' => ['hans'])
       end
     end
   end

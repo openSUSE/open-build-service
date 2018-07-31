@@ -1,23 +1,23 @@
 module OwnerSearch
   class Owned < Base
-
     def for(owner)
+      @maintainers = []
       # search in each marked project
       object_projects(owner).map do |project|
+        @roles = []
+        filter(rootproject).each do |f|
+          @roles << Role.find_by_title!(f)
+        end
+        @projects = project.expand_all_projects(allow_remote_projects: false)
         find_containers(project, owner)
-      end.flatten
+      end
+      @maintainers
     end
 
-    def find_containers(rootproject, owner, devel)
-      projects = rootproject.expand_all_projects(allow_remote_projects: false)
+    def find_containers(rootproject, owner)
 
-      roles = []
-      filter(rootproject).each do |f|
-        roles << Role.find_by_title!(f)
-      end
-
-      found_packages = Relationship.where(role_id: roles, package_id: Package.where(project_id: projects).pluck(:id))
-      found_projects = Relationship.where(role_id: roles, project_id: projects)
+      found_packages = Relationship.where(role_id: @roles, package_id: Package.where(project_id: @projects).pluck(:id))
+      found_projects = Relationship.where(role_id: @roles, project_id: @projects)
       # fast find packages with defintions
       case owner.class
       when User
@@ -39,17 +39,12 @@ module OwnerSearch
       found_packages = found_packages.pluck(:package_id).uniq
       found_projects = found_projects.pluck(:project_id).uniq
 
-      maintainers = []
-
       Project.where(id: found_projects).pluck(:name).each do |prj|
-        maintainers << Owner.new(rootproject: rootproject.name, project: prj)
+        @maintainers << Owner.new(rootproject: rootproject.name, project: prj)
       end
       Package.where(id: found_packages).find_each do |pkg|
-        maintainers << Owner.new(rootproject: rootproject.name, project: pkg.project.name, package: pkg.name)
+        @maintainers << Owner.new(rootproject: rootproject.name, project: pkg.project.name, package: pkg.name)
       end
-
-      maintainers
     end
-
   end
 end

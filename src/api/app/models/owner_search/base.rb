@@ -6,14 +6,14 @@ module OwnerSearch
       setup 'attribute_not_set', 400
     end
 
+    protected
+
     def initialize(params = {})
       self.params = params
       self.attribute = AttribType.find_by_name!(params[:attribute] || 'OBS:OwnerRootProject')
 
       self.limit = (params[:limit] || 1).to_i
     end
-
-    protected
 
     attr_accessor :params, :attribute, :limit
 
@@ -50,7 +50,7 @@ module OwnerSearch
       attrib && attrib.values.where(value: 'DisableDevel').exists?
     end
 
-   def filter_roles(relation, rolefilter)
+    def filter_roles(relation, rolefilter)
       return relation if rolefilter.empty?
       role_ids = rolefilter.map { |r| Role.find_by_title!(r).id }
       relation.where(role_id: role_ids)

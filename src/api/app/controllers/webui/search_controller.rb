@@ -17,7 +17,7 @@ class Webui::SearchController < Webui::WebuiController
       return
     end
 
-    @results = OwnerAssigneeSearch.new(limit: @owner_limit.to_s, devel: @owner_devel.to_s).for(@search_text)
+    @results = OwnerSearch::Assignee.new(limit: @owner_limit.to_s, devel: @owner_devel.to_s).for(@search_text)
     flash[:notice] = 'Your search did not return any results.' if @results.empty?
   end
 

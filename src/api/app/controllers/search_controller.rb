@@ -68,7 +68,7 @@ class SearchController < ApplicationController
   def missing_owner
     params[:limit] ||= '0' # unlimited by default
 
-    @owners = OwnerMissingSearch.new(params).find.map(&:to_hash)
+    @owners = OwnerSearch::Missing.new(params).find.map(&:to_hash)
   end
 
   def owner_group_or_user
@@ -92,12 +92,12 @@ class SearchController < ApplicationController
     Backend::Test.start if Rails.env.test?
 
     if params[:binary].present?
-      owners = OwnerAssigneeSearch.new(params).for(params[:binary])
+      owners = OwnerSearch::Assignee.new(params).for(params[:binary])
     elsif (obj = owner_group_or_user)
       owners = OwnerSearch::Owned.new(params).for(obj)
     end
     if owners.nil? && (obj = owner_package_or_project)
-      owners = OwnerOfContainerSearch.new(params).for(obj)
+      owners = OwnerSearch::Container.new(params).for(obj)
     end
 
     if owners.nil?
