@@ -1108,6 +1108,19 @@ CREATE TABLE `static_permissions` (
   UNIQUE KEY `static_permissions_title_index` (`title`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
+CREATE TABLE `status_checks` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `state` varchar(255) DEFAULT NULL,
+  `url` varchar(255) DEFAULT NULL,
+  `short_description` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `checkable_id` int(11) DEFAULT NULL,
+  `checkable_type` varchar(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `status_histories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `time` int(11) DEFAULT NULL,
