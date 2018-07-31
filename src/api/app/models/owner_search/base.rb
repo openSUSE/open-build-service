@@ -17,7 +17,7 @@ module OwnerSearch
 
     attr_accessor :params, :attribute, :limit
 
-    def object_projects(_obj)
+    def projects_to_look_at
       # default project specified
       return [Project.get_by_name(params[:project])] if params[:project]
 

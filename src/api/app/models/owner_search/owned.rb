@@ -3,11 +3,8 @@ module OwnerSearch
     def for(owner)
       @maintainers = []
       # search in each marked project
-      object_projects(owner).map do |project|
-        @roles = []
-        filter(rootproject).each do |f|
-          @roles << Role.find_by_title!(f)
-        end
+      projects_to_look_at.map do |project|
+        @roles = filter(project).map { |f| Role.find_by_title!(f) }
         @projects = project.expand_all_projects(allow_remote_projects: false)
         find_containers(project, owner)
       end
@@ -15,11 +12,10 @@ module OwnerSearch
     end
 
     def find_containers(rootproject, owner)
-
       found_packages = Relationship.where(role_id: @roles, package_id: Package.where(project_id: @projects).pluck(:id))
       found_projects = Relationship.where(role_id: @roles, project_id: @projects)
       # fast find packages with defintions
-      case owner.class
+      case owner
       when User
         # user in package object
         found_packages = found_packages.where(user_id: owner)
@@ -31,9 +27,9 @@ module OwnerSearch
         # group in project object
         found_projects = found_projects.where(group_id: owner)
       else
-        raise ArgumentError, 'illegal object handed to find_containers'
+        raise ArgumentError, "illegal object #{owner.class} handed to find_containers"
       end
-      unless devel_disabled?(project)
+      unless devel_disabled?(rootproject)
         # FIXME: add devel packages, but how do recursive lookup fast in SQL?
       end
       found_packages = found_packages.pluck(:package_id).uniq

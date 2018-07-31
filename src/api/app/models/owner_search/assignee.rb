@@ -8,7 +8,7 @@ module OwnerSearch
       @maintainers = []
 
       # search in each marked project
-      object_projects(search_string).each do |project|
+      projects_to_look_at.each do |project|
         @rolefilter = filter(project)
         @already_checked = {}
         @rootproject = project
