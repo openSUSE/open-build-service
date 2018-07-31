@@ -745,11 +745,6 @@ Rails/SkipsModelValidations:
 Rails/TimeZone:
   Enabled: false
 
-# Offense count: 1
-Security/Open:
-  Exclude:
-    - 'app/models/obs_factory/distribution_strategy_factory.rb'
-
 # Offense count: 29
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: inline, group

@@ -1,4 +1,3 @@
-require 'open-uri'
 require 'project'
 
 class Webui::PackageController < Webui::WebuiController
