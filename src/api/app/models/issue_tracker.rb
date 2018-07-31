@@ -132,7 +132,7 @@ class IssueTracker < ApplicationRecord
     # new file exists
     h = http.get('/data/downloads/allitems.xml.gz')
     unzipedio = StringIO.new(h.body) # Net::HTTP is decompressing already
-    listener = CVEparser.new
+    listener = IssueTracker::CVEParser.new
     listener.set_tracker(self)
     parser = Nokogiri::XML::SAX::Parser.new(listener)
     parser.parse_io(unzipedio)
@@ -338,50 +338,6 @@ class IssueTracker < ApplicationRecord
     end
 
     response
-  end
-end
-
-# internal CVE parser class
-class CVEparser < Nokogiri::XML::SAX::Document
-  @@my_tracker = nil
-  @@my_issue = nil
-  @@my_summary = ''
-  @@is_desc = false
-
-  def set_tracker(tracker)
-    @@my_tracker = tracker
-  end
-
-  def start_element(name, attrs = [])
-    if name == 'item'
-      cve = nil
-      attrs.each_index do |i|
-        cve = attrs[i][1] if attrs[i][0] == 'name'
-      end
-
-      @@my_issue = Issue.find_or_create_by_name_and_tracker(cve.gsub(/^CVE-/, ''), @@my_tracker.name)
-      @@my_summary = ''
-      @@is_desc = false
-    end
-    if @@my_issue && name == 'desc'
-      @@is_desc = true
-    else
-      @@is_desc = false
-    end
-  end
-
-  def characters(content)
-    return unless @@is_desc
-    @@my_summary += content.chomp
-  end
-
-  def end_element(name)
-    return unless name == 'item'
-    if @@my_summary.present?
-      @@my_issue.summary = @@my_summary[0..254]
-      @@my_issue.save
-    end
-    @@my_issue = nil
   end
 end
 
