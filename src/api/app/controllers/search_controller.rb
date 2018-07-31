@@ -94,7 +94,7 @@ class SearchController < ApplicationController
     if params[:binary].present?
       owners = OwnerAssigneeSearch.new(params).for(params[:binary])
     elsif (obj = owner_group_or_user)
-      owners = OwnerSearch.new(params).for(obj)
+      owners = OwnerSearch::Owned.new(params).for(obj)
     end
     if owners.nil? && (obj = owner_package_or_project)
       owners = OwnerOfContainerSearch.new(params).for(obj)
