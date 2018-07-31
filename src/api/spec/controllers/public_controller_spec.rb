@@ -68,6 +68,7 @@ RSpec.describe PublicController, vcr: true do
   describe 'GET #project_index' do
     context 'without view specified' do
       before do
+        package
         get :project_index, params: { project: project.name }
       end
 
