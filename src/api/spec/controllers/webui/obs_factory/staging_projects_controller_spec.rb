@@ -147,7 +147,7 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
         subject { get :show, params: { project: factory, project_name: 'A' } }
 
         it { is_expected.to have_http_status(:success) }
-        it { expect(subject).to render_template(:show) }
+        it { is_expected.to render_template(:show) }
       end
 
       context 'requesting json' do
@@ -170,7 +170,7 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
       subject { get :show, params: { project: factory, project_name: 'B' } }
 
       it { is_expected.to have_http_status(:found) }
-      it { expect(subject).to redirect_to(root_path) }
+      it { is_expected.to redirect_to(root_path) }
     end
   end
 end

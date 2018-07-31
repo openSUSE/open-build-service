@@ -506,7 +506,7 @@ RSpec.describe BsRequest, vcr: true do
     context "when request state is not 'new'" do
       subject { BsRequest.in_state_new(by_user: reviewer.login) }
 
-      it { expect(subject).to be_empty }
+      it { is_expected.to be_empty }
     end
 
     context "when request state is 'new'" do
@@ -574,7 +574,7 @@ RSpec.describe BsRequest, vcr: true do
     subject { submit_request.as_json }
 
     it 'returns a json representation of a bs request' do
-      expect(subject).to include(
+      is_expected.to include(
         'id' => submit_request.id,
         'number' => submit_request.number,
         'creator' => submit_request.creator,
