@@ -28,14 +28,6 @@ after_failure: dist/ci/travis_after_failure.sh
 before_script: sudo chown 1000:100 $TRAVIS_BUILD_DIR -R
 script: "dist/ci/travis_script.sh $TEST_SUITE"
 
-# Notifications
-notifications:
-  irc:
-     channels:
-       - "chat.freenode.net#opensuse-buildservice"
-     on_success: change
-     on_failure: change
-
 # Jobs matrix and stages 
 jobs:
   include:
