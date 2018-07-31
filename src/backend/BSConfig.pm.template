@@ -218,7 +218,7 @@ if (-r $hostconfig) {
 #  return 1;
 #}
 
-# use createrepo_c instead of createrepo
+# use createrepo_c instead of createrepo. This gets selected via update-alternatives usualy.
 #our $createrepo = '/usr/bin/createrepo_c';
 # use modifyrepo_c instead of modifyrepo
 #our $modifyrepo = '/usr/bin/modifyrepo_c';
