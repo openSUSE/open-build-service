@@ -1,7 +1,7 @@
 require 'open-uri'
 
 module ObsFactory
-  class UnknownDistribution < Exception
+  class UnknownDistribution < RuntimeError
   end
 
   # A Distribution. Contains a reference to the corresponding Project object.
