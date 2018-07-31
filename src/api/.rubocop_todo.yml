@@ -750,12 +750,6 @@ Security/Open:
   Exclude:
     - 'app/models/obs_factory/distribution_strategy_factory.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Security/YAMLLoad:
-  Exclude:
-    - 'app/controllers/webui/obs_factory/staging_projects_controller.rb'
-
 # Offense count: 29
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: inline, group

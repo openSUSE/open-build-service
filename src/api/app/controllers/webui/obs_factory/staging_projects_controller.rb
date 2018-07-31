@@ -17,7 +17,7 @@ module Webui::ObsFactory
 
           if dashboard_package && dashboard_package.file_exists?('ignored_requests')
             file = ::Backend::Api::Sources::Package.file(staging_project.name, dashboard_package.name, 'ignored_requests')
-            @ignored_requests = YAML.load(file)
+            @ignored_requests = YAML.safe_load(file)
           end
 
           if @ignored_requests
