@@ -7,7 +7,7 @@ class AddPackageTracking < ActiveRecord::Migration[4.2]
 
       t.integer :release_package_id
 
-      t.string :binary_name, null: false
+      t.string :binary_name, null: false, charset: 'utf8'
       t.string :binary_epoch,                    limit: 64
       t.string :binary_version,     null: false, limit: 64
       t.string :binary_release,     null: false, limit: 64

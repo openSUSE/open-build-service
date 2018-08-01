@@ -5,7 +5,7 @@ class ProductVersionTracking < ActiveRecord::Migration[4.2]
     add_column :products, :patchlevel, :string
     add_column :products, :release, :string
 
-    rename_column :product_media, :medium, :name
+    execute 'ALTER TABLE `product_media` CHANGE `medium` `name` varchar(255) CHARSET utf8 DEFAULT NULL'
   end
 
   def down
