@@ -44,12 +44,12 @@ module ObsFactory
     # @return [String] version string
     def published_version
       begin
-        f = URI(repo_url).open
+        stream = URI(repo_url)
       rescue ::OpenURI::HTTPError
         return 'unknown'
       end
-      matchdata = %r{openSUSE-#{opensuse_leap_version}-#{published_arch}-Build(.*)-Media}.match(f.read)
-      matchdata[1]
+
+      stream.read[/openSUSE-#{opensuse_leap_version}-#{published_arch}-Build(.*)-Media/, 1]
     end
 
     # URL parameter for Leap

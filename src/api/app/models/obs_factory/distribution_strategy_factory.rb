@@ -117,8 +117,7 @@ module ObsFactory
         return 'unknown'
       end
 
-      matchdata = /openSUSE-(.*)-#{published_arch}-.*/.match(stream.read)
-      matchdata[1]
+      stream.read[/openSUSE-(.*)-#{published_arch}-.*/, 1]
     end
 
     def openqa_filter(project)
