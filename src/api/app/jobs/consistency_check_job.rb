@@ -8,7 +8,7 @@ class ConsistencyCheckJob < ApplicationJob
     init
     @errors = project_existence_consistency_check(fix)
     Project.find_each(batch_size: 100) do |project|
-      unless Project.valid_name? project.name
+      unless Project.valid_name?(project.name)
         @errors << "Invalid project name #{project.name}\n"
         if fix
           # just remove it, the backend won't accept it anyway
@@ -124,7 +124,7 @@ class ConsistencyCheckJob < ApplicationJob
       if fix
         # just delete ... if it exists in backend it can be undeleted
         diff.each do |project|
-          project = Project.find_by_name project
+          project = Project.find_by_name(project)
           project.destroy if project
         end
       end
@@ -172,7 +172,7 @@ class ConsistencyCheckJob < ApplicationJob
     # valid package names?
     package_list_api = project.packages.pluck(:name)
     package_list_api.each do |name|
-      next if Package.valid_name? name
+      next if Package.valid_name?(name)
       errors << "Invalid package name #{name} in project #{project.name}\n"
       next unless fix
       # just remove it, the backend won't accept it anyway

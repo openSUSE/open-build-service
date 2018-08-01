@@ -197,7 +197,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     # An incident has a patchinfo if there is a package 'patchinfo' with file '_patchinfo', try to find that:
     @has_patchinfo = false
-    if @packages.map { |p| p[0] }.include? 'patchinfo'
+    if @packages.map { |p| p[0] }.include?('patchinfo')
       Directory.hashed(project: @project.name, package: 'patchinfo').elements('entry') do |e|
         @has_patchinfo = true if e['name'] == '_patchinfo'
       end
@@ -414,7 +414,7 @@ class Webui::ProjectController < Webui::WebuiController
     end
 
     @buildresult = @buildresult.to_hash
-    unless @buildresult.key? 'result'
+    unless @buildresult.key?('result')
       @buildresult_unavailable = true
       return
     end
@@ -439,7 +439,7 @@ class Webui::ProjectController < Webui::WebuiController
       hash.each do |arch, packages|
         has_packages = false
         packages.each do |p, _|
-          if packagename_hash.key? p
+          if packagename_hash.key?(p)
             has_packages = true
             break
           end
@@ -481,7 +481,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def toggle_watch
-    if User.current.watches? @project.name
+    if User.current.watches?(@project.name)
       logger.debug "Remove #{@project} from watchlist for #{User.current}"
       User.current.remove_watched_project @project.name
     else
@@ -591,7 +591,7 @@ class Webui::ProjectController < Webui::WebuiController
     @package = @project.find_package(params[:package])
 
     at = AttribType.find_by_namespace_and_name!('OBS', 'ProjectStatusPackageFailComment')
-    unless User.current.can_create_attribute_in? @package, at
+    unless User.current.can_create_attribute_in?(@package, at)
       @comment = params[:last_comment]
       @error = "Can't create attributes in #{@package}"
       return
@@ -866,7 +866,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     currentpack['requests_from'] = []
     key = @api_obj.name + '/' + pname
-    if @submits.key? key
+    if @submits.key?(key)
       return if @ignore_pending
       currentpack['requests_from'].concat(@submits[key])
     end
@@ -965,9 +965,9 @@ class Webui::ProjectController < Webui::WebuiController
       end
       if filter_for_user
         if value.develpack
-          next unless packages_to_filter_for.include? value.develpack.package_id
+          next unless packages_to_filter_for.include?(value.develpack.package_id)
         else
-          next unless packages_to_filter_for.include? value.package_id
+          next unless packages_to_filter_for.include?(value.package_id)
         end
       end
       @status[value.package_id] = value
@@ -1047,8 +1047,8 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def filter_packages(project, filterstring)
-    result = Collection.find :id, what: 'package',
-      predicate: "@project='#{project}' and contains(@name,'#{filterstring}')"
+    result = Collection.find(:id, what: 'package',
+      predicate: "@project='#{project}' and contains(@name,'#{filterstring}')")
     result.each.map(&:name)
   end
 

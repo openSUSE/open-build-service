@@ -109,7 +109,7 @@ RSpec.describe Webui::DownloadOnDemandController do
       end
 
       it { is_expected.to redirect_to(root_path) }
-      it { expect(flash[:error]).to eq "Download on Demand can't be removed: DoD Repositories must have at least one repository." }
+      it { expect(flash[:error]).to eq("Download on Demand can't be removed: DoD Repositories must have at least one repository.") }
       it { expect(DownloadRepository.where(id: dod_repository.id)).to exist }
     end
   end

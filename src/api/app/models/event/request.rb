@@ -64,7 +64,7 @@ module Event
     def calculate_diff(a)
       return if a['type'] != 'submit'
       raise 'We need action_id' unless a['action_id']
-      action = BsRequestAction.find a['action_id']
+      action = BsRequestAction.find(a['action_id'])
       begin
         action.sourcediff(view: nil, withissues: 0)
       rescue BsRequestAction::DiffError

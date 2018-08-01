@@ -6,7 +6,7 @@
 # no regular words or you'll be exposed to dictionary attacks.
 
 # obs-api package is generating this file during installation
-if File.exist? "#{Rails.root}/config/secret.key"
+if File.exist?("#{Rails.root}/config/secret.key")
   OBSApi::Application.config.secret_key_base = File.read "#{Rails.root}/config/secret.key"
 elsif Rails.env.production?
   raise 'Missing config/secret.key file!'

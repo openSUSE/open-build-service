@@ -31,9 +31,9 @@ class Owner
     limit = params[:limit] || 1
 
     projects = []
-    if obj.is_a? Project
+    if obj.is_a?(Project)
       projects = [obj]
-    elsif obj.is_a? Package
+    elsif obj.is_a?(Package)
       projects = [obj.project]
     elsif params[:project]
       # default project specified
@@ -60,7 +60,7 @@ class Owner
         filter = ['bugowner'] if attrib && v
       end
       if params[:devel]
-        devel = false if ['0', 'false'].include? params[:devel]
+        devel = false if ['0', 'false'].include?(params[:devel])
       else
         v = attrib.values.where(value: 'DisableDevel').exists? if attrib
         devel = false if attrib && v
@@ -68,7 +68,7 @@ class Owner
 
       if obj.nil?
         owners += find_containers_without_definition(project, devel, filter)
-      elsif obj.is_a? String
+      elsif obj.is_a?(String)
         owners += find_assignees(project, obj, limit.to_i, devel,
                                  filter, (true if params[:webui_mode].present?))
       elsif obj.is_a?(Project) || obj.is_a?(Package)
@@ -242,7 +242,7 @@ class Owner
     add_owners = proc do |cont|
       m = Owner.new
       m.rootproject = ''
-      if cont.is_a? Package
+      if cont.is_a?(Package)
         m.project = cont.project.name
         m.package = cont.name
       else
@@ -253,7 +253,7 @@ class Owner
       maintainers << m unless m.users.nil? && m.groups.nil?
     end
     project = container
-    if container.is_a? Package
+    if container.is_a?(Package)
       add_owners.call container
       project = container.project
     end

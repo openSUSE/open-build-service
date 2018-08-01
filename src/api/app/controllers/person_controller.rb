@@ -125,7 +125,7 @@ class PersonController < ApplicationController
 
       if xml['owner']
         user.state = :subaccount
-        user.owner = User.find_by_login! xml['owner']['userid']
+        user.owner = User.find_by_login!(xml['owner']['userid'])
         if user.owner.owner
           render_error(status: 400, errorcode: 'subaccount_chaining',
             message: "A subaccount can not be assigned to subaccount #{user.owner.login}") && return
@@ -144,7 +144,7 @@ class PersonController < ApplicationController
   def grouplist
     raise NoPermissionToGroupList unless User.current
 
-    user = User.find_by_login! params[:login]
+    user = User.find_by_login!(params[:login])
     @list = User.lookup_strategy.groups(user)
   end
 

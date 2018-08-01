@@ -32,15 +32,15 @@ class Comment < ApplicationRecord
       params[:package] = commentable.name
       params[:project] = commentable.project.name
       # call the action
-      Event::CommentForPackage.create params
+      Event::CommentForPackage.create(params)
     when 'Project'
       params[:project] = commentable.name
       # call the action
-      Event::CommentForProject.create params
+      Event::CommentForProject.create(params)
     when 'BsRequest'
       params = commentable.notify_parameters(params)
       # call the action
-      Event::CommentForRequest.create params
+      Event::CommentForRequest.create(params)
     end
   end
 

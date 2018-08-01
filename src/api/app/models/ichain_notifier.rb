@@ -5,7 +5,7 @@ class IchainNotifier < ActionMailer::Base
     from ::Configuration.admin_email
     sent_on Time.now
     content_type 'text/plain'
-    body 'user' => recipient
+    body('user' => recipient)
     headers 'Precedence' => 'bulk'
   end
 
@@ -15,7 +15,7 @@ class IchainNotifier < ActionMailer::Base
     from ::Configuration.admin_email
     sent_on Time.now
     content_type 'text/plain'
-    body 'user' => recipient
+    body('user' => recipient)
     headers 'Precedence' => 'bulk'
   end
 end

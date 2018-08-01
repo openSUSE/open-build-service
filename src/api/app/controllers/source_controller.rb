@@ -34,7 +34,7 @@ class SourceController < ApplicationController
     # access checks
     #--------------
 
-    if params.key? :deleted
+    if params.key?(:deleted)
       raise NoPermissionForDeleted unless admin_user
       pass_to_backend
     else
@@ -84,8 +84,8 @@ class SourceController < ApplicationController
       raise PackageExists, 'the package is not deleted' if tpkg
 
       validate_read_access_of_deleted_package(@target_project_name, @target_package_name)
-    elsif ['_project', '_pattern'].include? @target_package_name
-      Project.get_by_name @target_project_name
+    elsif ['_project', '_pattern'].include?(@target_package_name)
+      Project.get_by_name(@target_project_name)
     else
       @tpkg = Package.get_by_project_and_name(@target_project_name, @target_package_name, use_source: true, follow_project_links: true)
     end
@@ -147,7 +147,7 @@ class SourceController < ApplicationController
     # init and validation
     #--------------------
     # admin_user = User.current.is_admin?
-    @deleted_package = params.key? :deleted
+    @deleted_package = params.key?(:deleted)
 
     # FIXME: for OBS 3, api of branch and copy calls have target and source in the opossite place
     if params[:cmd].in?(['branch', 'release'])
@@ -196,33 +196,33 @@ class SourceController < ApplicationController
 
     if params[:oproject]
       origin_project_name = params[:oproject]
-      valid_project_name! origin_project_name
+      valid_project_name!(origin_project_name)
     end
     if params[:opackage]
       origin_package_name = params[:opackage]
-      valid_package_name! origin_package_name
+      valid_package_name!(origin_package_name)
     end
 
     required_parameters :oproject if origin_package_name
 
-    valid_project_name! params[:target_project] if params[:target_project]
-    valid_package_name! params[:target_package] if params[:target_package]
+    valid_project_name!(params[:target_project]) if params[:target_project]
+    valid_package_name!(params[:target_package]) if params[:target_package]
 
     # Check for existence/access of origin package when specified
     @spkg = nil
-    Project.get_by_name origin_project_name if origin_project_name
+    Project.get_by_name(origin_project_name) if origin_project_name
     if origin_package_name && !origin_package_name.in?(['_project', '_pattern']) && !(params[:missingok] && @command.in?(['branch', 'release']))
       @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name)
     end
     unless PACKAGE_CREATING_COMMANDS.include?(@command) && !Project.exists_by_name(@target_project_name)
-      valid_project_name! params[:project]
+      valid_project_name!(params[:project])
       if @command == 'release' # wipe and rebuild should become supported as well
         valid_multibuild_package_name!(params[:package])
       else
         valid_package_name!(params[:package])
       end
       # even when we can create the package, an existing instance must be checked if permissions are right
-      @project = Project.get_by_name @target_project_name
+      @project = Project.get_by_name(@target_project_name)
       # rubocop:disable Metrics/LineLength
       if !PACKAGE_CREATING_COMMANDS.include?(@command) || Package.exists_by_project_and_name(@target_project_name,
                                                                                              @target_package_name,
@@ -328,7 +328,7 @@ class SourceController < ApplicationController
         pass_to_backend path
         return
       end
-      break unless upper_project.include? ':'
+      break unless upper_project.include?(':')
       upper_project = upper_project.gsub(/:[^:]*$/, '')
     end
 
@@ -395,7 +395,7 @@ class SourceController < ApplicationController
     @allowed = false
 
     if @package_name == '_project' || @package_name == '_pattern'
-      @allowed = permissions.project_change? @prj
+      @allowed = permissions.project_change?(@prj)
 
       if @file == '_attribute' && @package_name == '_project'
         raise WrongRouteForAttribute, "Attributes need to be changed through #{change_attribute_path(project: params[:project])}"
@@ -403,7 +403,7 @@ class SourceController < ApplicationController
     else
       # we need a local package here in any case for modifications
       @pack = Package.get_by_project_and_name(@project_name, @package_name)
-      @allowed = permissions.package_change? @pack
+      @allowed = permissions.package_change?(@pack)
     end
   end
 
@@ -587,7 +587,7 @@ class SourceController < ApplicationController
 
   def private_plain_backend_command
     # is there any value in this call?
-    Project.find_by_name params[:project]
+    Project.find_by_name(params[:project])
 
     path = request.path_info
     path += build_query_from_hash(params, [:cmd, :user, :comment])
@@ -622,16 +622,16 @@ class SourceController < ApplicationController
   def project_command_release
     params[:user] = User.current.login
 
-    @project = Project.get_by_name params[:project], includeallpackages: 1
+    @project = Project.get_by_name(params[:project], includeallpackages: 1)
     verify_repos_match!(@project)
 
-    if @project.is_a? String # remote project
+    if @project.is_a?(String) # remote project
       render_error status: 404, errorcode: 'remote_project',
         message: 'The release from remote projects is currently not supported'
       return
     end
 
-    if params.key? :nodelay
+    if params.key?(:nodelay)
       @project.do_project_release(params)
       render_ok
     else
@@ -716,7 +716,7 @@ class SourceController < ApplicationController
       end
     end
 
-    if oprj.is_a? String # remote project
+    if oprj.is_a?(String) # remote project
       raise RemoteProjectError, 'The copy from remote projects is currently not supported'
     end
 
@@ -725,7 +725,7 @@ class SourceController < ApplicationController
         raise ProjectCopyNoPermission, 'no permission to copy project with binaries for non admins'
       end
 
-      unless oprj.is_a? String
+      unless oprj.is_a?(String)
         oprj.packages.each do |pkg|
           next unless pkg.disabled_for?('sourceaccess', nil, nil)
           raise ProjectCopyNoPermission, "no permission to copy project due to source protected package #{pkg.name}"
@@ -736,19 +736,19 @@ class SourceController < ApplicationController
     # create new project object based on oproject
     unless @project
       Project.transaction do
-        if oprj.is_a? String # remote project
+        if oprj.is_a?(String) # remote project
           rdata = Xmlhash.parse(Backend::Api::Sources::Project.meta(oprj))
-          @project = Project.new name: project_name, title: rdata['title'], description: rdata['description']
+          @project = Project.new(name: project_name, title: rdata['title'], description: rdata['description'])
         else # local project
-          @project = Project.new name: project_name, title: oprj.title, description: oprj.description
+          @project = Project.new(name: project_name, title: oprj.title, description: oprj.description)
           @project.save
           oprj.flags.each do |f|
             @project.flags.create(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo) unless f.flag == 'lock'
           end
           oprj.repositories.each do |repo|
-            r = @project.repositories.create name: repo.name
+            r = @project.repositories.create(name: repo.name)
             repo.repository_architectures.each do |ra|
-              r.repository_architectures.create! architecture: ra.architecture, position: ra.position
+              r.repository_architectures.create!(architecture: ra.architecture, position: ra.position)
             end
             position = 0
             repo.path_elements.each do |pe|
@@ -761,7 +761,7 @@ class SourceController < ApplicationController
       end
     end
 
-    if params.key? :nodelay
+    if params.key?(:nodelay)
       @project.do_project_copy(params)
       render_ok
     else
@@ -1064,7 +1064,7 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=release
   def package_command_release
-    pkg = Package.get_by_project_and_name params[:project], params[:package], use_source: true, follow_project_links: false, follow_multibuild: true
+    pkg = Package.get_by_project_and_name(params[:project], params[:package], use_source: true, follow_project_links: false, follow_multibuild: true)
     multibuild_container = nil
     if params[:package].include?(':') && !params[:package].starts_with?('_product:')
       multibuild_container = params[:package].gsub(/^.*:/, '')
@@ -1184,9 +1184,9 @@ class SourceController < ApplicationController
     if ret[:text]
       render plain: ret[:text]
     else
-      Event::BranchCommand.create project: params[:project], package: params[:package],
+      Event::BranchCommand.create(project: params[:project], package: params[:package],
                                   targetproject: params[:target_project], targetpackage: params[:target_package],
-                                  user: User.current.login
+                                  user: User.current.login)
       render_ok ret
     end
   end
@@ -1252,13 +1252,13 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=remove_flag&repository=:opt&arch=:opt&flag=flag
   def package_command_remove_flag
     required_parameters :flag
-    obj_remove_flag @package
+    obj_remove_flag(@package)
   end
 
   # POST /source/<project>?cmd=remove_flag&repository=:opt&arch=:opt&flag=flag
   def project_command_remove_flag
     required_parameters :flag
-    obj_remove_flag @project
+    obj_remove_flag(@project)
   end
 
   def obj_remove_flag(obj)

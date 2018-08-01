@@ -51,7 +51,7 @@ class Group < ApplicationRecord
     xmlhash.elements('maintainer') do |maintainer|
       next unless maintainer['userid']
       user = User.find_by_login!(maintainer['userid'])
-      if cache.key? user.id
+      if cache.key?(user.id)
         # user has already a role in this package
         cache.delete(user.id)
       else
@@ -70,7 +70,7 @@ class Group < ApplicationRecord
       persons.elements('person') do |person|
         next unless person['userid']
         user = User.find_by_login!(person['userid'])
-        if cache.key? user.id
+        if cache.key?(user.id)
           # user has already a role in this package
           cache.delete(user.id)
         else
@@ -86,7 +86,7 @@ class Group < ApplicationRecord
   end
 
   def add_user(user)
-    return if users.find_by_id user.id # avoid double creation
+    return if users.find_by_id(user.id) # avoid double creation
     gu = GroupsUser.create(user: user, group: self)
     gu.save!
   end
@@ -154,7 +154,7 @@ class Group < ApplicationRecord
   end
 
   def display_name
-    address = Mail::Address.new email
+    address = Mail::Address.new(email)
     address.display_name = title
     address.format
   end

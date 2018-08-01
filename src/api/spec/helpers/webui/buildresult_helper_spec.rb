@@ -27,14 +27,14 @@ RSpec.describe Webui::BuildresultHelper do
       context 'without status and statushash' do
         let(:statushash) { { repo.name => { arch => { package.name => { 'code' => key, 'details' => description } } } } }
 
-        it { expect(helper.arch_repo_table_cell(repo.name, arch, package.name)).to eq result }
+        it { expect(helper.arch_repo_table_cell(repo.name, arch, package.name)).to eq(result) }
       end
 
       context 'with status and without enable_help' do
         let(:hash_key) { key == 'scheduled' ? 'unknown' : 'scheduled' } # to have different key in the statushash
         let(:statushash) { { repo.name => { arch => { package.name => { 'code' => hash_key, 'details' => description } } } } }
 
-        it { expect(helper.arch_repo_table_cell(repo.name, arch, package.name, status, false)).to eq result2 }
+        it { expect(helper.arch_repo_table_cell(repo.name, arch, package.name, status, false)).to eq(result2) }
       end
     end
 
@@ -94,7 +94,7 @@ RSpec.describe Webui::BuildresultHelper do
         "<td class=\"  buildstatus nowrap\"><a rel=\"nofollow\" href=\"/package/live_build_log/#{project}/#{package}/#{repo}/#{arch}\"></a></td>"
       end
 
-      it { expect(helper.arch_repo_table_cell(repo.name, arch, package.name)).to eq result }
+      it { expect(helper.arch_repo_table_cell(repo.name, arch, package.name)).to eq(result) }
     end
   end
 end

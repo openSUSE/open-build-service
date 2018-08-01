@@ -211,7 +211,7 @@ class Review < ApplicationRecord
     params[:reviewers] = map_objects_to_ids(users_and_groups_for_review)
 
     # send email later
-    Event::ReviewWanted.create params
+    Event::ReviewWanted.create(params)
   end
 
   def reviewable_by?(opts)

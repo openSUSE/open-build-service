@@ -238,13 +238,13 @@ RSpec.feature 'Projects', type: :feature, js: true do
         click_button('Update Download on Demand')
 
         download_repository.reload
-        expect(download_repository.arch).to eq 'i586'
-        expect(download_repository.repotype).to eq 'deb'
-        expect(download_repository.url).to eq 'http://some_random_url_2.es'
-        expect(download_repository.archfilter).to eq 'i586, noarch'
-        expect(download_repository.masterurl).to eq 'http://some_other_url.es'
-        expect(download_repository.mastersslfingerprint).to eq 'test'
-        expect(download_repository.pubkey).to eq 'some_key'
+        expect(download_repository.arch).to eq('i586')
+        expect(download_repository.repotype).to eq('deb')
+        expect(download_repository.url).to eq('http://some_random_url_2.es')
+        expect(download_repository.archfilter).to eq('i586, noarch')
+        expect(download_repository.masterurl).to eq('http://some_other_url.es')
+        expect(download_repository.mastersslfingerprint).to eq('test')
+        expect(download_repository.pubkey).to eq('some_key')
       end
 
       scenario 'removing download repositories' do
@@ -257,13 +257,13 @@ RSpec.feature 'Projects', type: :feature, js: true do
           find(:xpath, "//a[@href='/download_repositories/#{download_repository.id}?project=#{project_with_dod_repo}'][text()='Delete']").click
         end
         expect(page).to have_text 'Successfully removed Download on Demand'
-        expect(repository.download_repositories.count).to eq 1
+        expect(repository.download_repositories.count).to eq(1)
 
         accept_alert do
           find(:xpath, "//a[@href='/download_repositories/#{download_repository_2.id}?project=#{project_with_dod_repo}'][text()='Delete']").click
         end
         expect(page).to have_text "Download on Demand can't be removed: DoD Repositories must have at least one repository."
-        expect(repository.download_repositories.count).to eq 1
+        expect(repository.download_repositories.count).to eq(1)
       end
 
       scenario 'adding DoD repositories via meta editor' do

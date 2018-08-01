@@ -414,10 +414,10 @@ RSpec.describe Review do
     let(:review_by_package) { create(:review, by_project: project.name, by_package: package.name) }
 
     it 'returns true if review configuration matches provided hash' do
-      expect(review_by_user.reviewable_by?(by_user:       user.login)).to be true
-      expect(review_by_group.reviewable_by?(by_group:     group.title)).to be true
-      expect(review_by_project.reviewable_by?(by_project: project.name)).to be true
-      expect(review_by_package.reviewable_by?(by_package: package.name)).to be true
+      expect(review_by_user.reviewable_by?(by_user:       user.login)).to be(true)
+      expect(review_by_group.reviewable_by?(by_group:     group.title)).to be(true)
+      expect(review_by_project.reviewable_by?(by_project: project.name)).to be(true)
+      expect(review_by_package.reviewable_by?(by_package: package.name)).to be(true)
     end
 
     it 'returns false if review configuration does not match provided hash' do

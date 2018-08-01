@@ -148,9 +148,9 @@ module NodeMatcher #:nodoc:
     # test attributes
     (conditions[:attributes] || {}).each do |key, value|
       if value.nil?
-        return false if node.has_attribute? key.to_s
+        return false if node.has_attribute?(key.to_s)
       else
-        return false unless node.has_attribute? key.to_s
+        return false unless node.has_attribute?(key.to_s)
         return false unless match_condition(node.value(key), value)
       end
     end

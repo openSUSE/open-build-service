@@ -171,7 +171,7 @@ class Project
           )
         end
         Rails.logger.debug "deleting repository '#{name}'"
-        project.repositories.destroy object
+        project.repositories.destroy(object)
       end
       # save memory
       @repocache = nil

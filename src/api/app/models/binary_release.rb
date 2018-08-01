@@ -154,7 +154,7 @@ class BinaryRelease < ApplicationRecord
 
       binary.supportstatus binary_supportstatus if binary_supportstatus
       binary.updateinfo(id: binary_updateinfo, version: binary_updateinfo_version) if binary_updateinfo
-      binary.maintainer binary_maintainer if binary_maintainer
+      binary.maintainer(binary_maintainer) if binary_maintainer
       binary.disturl binary_disturl if binary_disturl
 
       update_for_product.each do |up|

@@ -224,7 +224,7 @@ module ObsFactory
     end
 
     def all_passed?
-      openqa_jobs.all? { |job| ['passed', 'softfailed'].include? job.result }
+      openqa_jobs.all? { |job| ['passed', 'softfailed'].include?(job.result) }
     end
 
     # check openQA jobs for all projects not building right now - or that are known to be broken

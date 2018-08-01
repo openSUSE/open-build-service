@@ -28,7 +28,7 @@ class StatusController < ApplicationController
 
     new_messages = ActiveXML::Node.new(request.raw_post)
 
-    if new_messages.has_element? 'message'
+    if new_messages.has_element?('message')
       # message(s) are wrapped in outer xml tag 'status_messages'
       new_messages.each('message') do |msg|
         save_new_message(msg)
@@ -71,7 +71,7 @@ class StatusController < ApplicationController
   def workercommand
     required_parameters :cmd, :project, :package, :repository, :arch
 
-    unless ['checkconstraints'].include? params[:cmd]
+    unless ['checkconstraints'].include?(params[:cmd])
       raise UnknownCommandError, "Unknown command '#{params[:cmd]}' for path #{request.path}"
     end
 

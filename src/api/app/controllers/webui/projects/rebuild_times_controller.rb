@@ -12,7 +12,7 @@ module Webui
         @arch = params[:arch]
         @hosts = (params[:hosts] || 40).to_i
         @scheduler = params[:scheduler] || 'needed'
-        unless ['fifo', 'lifo', 'random', 'btime', 'needed', 'neededb', 'longest_data', 'longested_triedread', 'longest'].include? @scheduler
+        unless ['fifo', 'lifo', 'random', 'btime', 'needed', 'neededb', 'longest_data', 'longested_triedread', 'longest'].include?(@scheduler)
           flash[:error] = 'Invalid scheduler type, check mkdiststats docu - aehm, source'
           redirect_to controller: '/webui/project', action: :show, project: @project
           return

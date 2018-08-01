@@ -27,7 +27,7 @@ class IssueTest < ActiveSupport::TestCase
     # pkg = Package.find( 10095 )
     iggy = User.find_by_email('Iggy@pop.org')
     bnc = IssueTracker.find_by_name('bnc')
-    issue = Issue.create name: '0815', issue_tracker: bnc
+    issue = Issue.create(name: '0815', issue_tracker: bnc)
     issue.save
     issue.summary = 'This unit test is not working'
     issue.state = Issue.bugzilla_state('NEEDINFO')
@@ -72,7 +72,7 @@ class IssueTest < ActiveSupport::TestCase
     Backend::Test.without_global_write_through do
       cve.save
     end
-    cve.issues.create name: 'CVE-1999-0001'
+    cve.issues.create(name: 'CVE-1999-0001')
 
     stub_request(:head, 'http://cve.mitre.org/data/downloads/allitems.xml.gz').
       to_return(status: 200, headers: { 'Last-Modified' => 2.days.ago })
@@ -97,7 +97,7 @@ class IssueTest < ActiveSupport::TestCase
     Backend::Test.without_global_write_through do
       fate.save
     end
-    fate.issues.create name: 'fate#2282'
+    fate.issues.create(name: 'fate#2282')
 
     IssueTracker.update_all_issues
   end

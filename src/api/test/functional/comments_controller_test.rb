@@ -21,7 +21,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     get comments_project_path(project: 'HiddenProject')
     assert_response 404 # huh? Nothing here
 
-    prepare_request_with_user 'hidden_homer', 'buildservice'
+    prepare_request_with_user('hidden_homer', 'buildservice')
     get comments_project_path(project: 'HiddenProject')
     assert_response :success
   end

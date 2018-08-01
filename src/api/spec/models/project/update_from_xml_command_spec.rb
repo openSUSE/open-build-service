@@ -23,22 +23,22 @@ RSpec.describe Project::UpdateFromXmlCommand do
       end
 
       it 'updates repositories association of a project' do
-        expect(project.repositories.count).to eq 2
+        expect(project.repositories.count).to eq(2)
         expect(project.repositories.where(name: 'repo_1')).to exist
         expect(project.repositories.where(name: 'new_repo')).to exist
       end
 
       it 'updates repository attributes of existing repositories' do
-        expect(repository_1.reload.rebuild).to be nil
-        expect(repository_1.block).to be nil
-        expect(repository_1.linkedbuild).to be nil
+        expect(repository_1.reload.rebuild).to be(nil)
+        expect(repository_1.block).to be(nil)
+        expect(repository_1.linkedbuild).to be(nil)
       end
 
       it 'imports repository attributes of newly created repositories' do
         new_repo = project.repositories.find_by(name: 'new_repo')
-        expect(new_repo.rebuild).to eq 'local'
-        expect(new_repo.block).to eq 'never'
-        expect(new_repo.linkedbuild).to eq 'all'
+        expect(new_repo.rebuild).to eq('local')
+        expect(new_repo.block).to eq('never')
+        expect(new_repo.linkedbuild).to eq('all')
       end
     end
 
@@ -63,8 +63,8 @@ RSpec.describe Project::UpdateFromXmlCommand do
         )
         Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
 
-        expect(repository_1.release_targets.count).to eq 1
-        expect(repository_1.release_targets.first.trigger).to eq 'manual'
+        expect(repository_1.release_targets.count).to eq(1)
+        expect(repository_1.release_targets.first.trigger).to eq('manual')
       end
 
       it 'raises an error if target repository does not exist' do
@@ -120,8 +120,8 @@ RSpec.describe Project::UpdateFromXmlCommand do
 
       it 'updates the hostsystem of a repository' do
         Project::UpdateFromXmlCommand.new(project).send(:update_repositories, @xml_hash, false)
-        expect(repository_1.reload.hostsystem).to be nil
-        expect(repository_2.reload.hostsystem).to eq target_repository
+        expect(repository_1.reload.hostsystem).to be(nil)
+        expect(repository_2.reload.hostsystem).to eq(target_repository)
       end
 
       it 'raises an error if hostsystem refers itself' do
@@ -161,9 +161,9 @@ RSpec.describe Project::UpdateFromXmlCommand do
         )
         Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
 
-        expect(repository_1.architectures.map(&:name).sort).to eq ['i586', 'x86_64']
-        expect(repository_1.repository_architectures.where(position: 1).first.architecture.name).to eq 'x86_64'
-        expect(repository_1.repository_architectures.where(position: 2).first.architecture.name).to eq 'i586'
+        expect(repository_1.architectures.map(&:name).sort).to eq(['i586', 'x86_64'])
+        expect(repository_1.repository_architectures.where(position: 1).first.architecture.name).to eq('x86_64')
+        expect(repository_1.repository_architectures.where(position: 2).first.architecture.name).to eq('i586')
       end
 
       it 'should raise an error for unkown architectures' do
@@ -225,18 +225,18 @@ RSpec.describe Project::UpdateFromXmlCommand do
 
           dod_repo = project.repositories.find_by(name: 'dod_repo')
           expect(dod_repo).not_to be_nil
-          expect(dod_repo.download_repositories.count).to eq 1
+          expect(dod_repo.download_repositories.count).to eq(1)
         end
 
         it 'updates download_repository attributes' do
           download_repository = project.repositories.find_by(name: 'dod_repo').download_repositories.first
-          expect(download_repository.arch).to eq 'i586'
-          expect(download_repository.repotype).to eq 'rpmmd'
-          expect(download_repository.url).to eq 'http://opensuse.org'
-          expect(download_repository.archfilter).to eq 'i586, noarch'
-          expect(download_repository.masterurl).to eq 'http://master.opensuse.org'
-          expect(download_repository.mastersslfingerprint).to eq 'my_fingerprint'
-          expect(download_repository.pubkey).to eq 'my_pubkey'
+          expect(download_repository.arch).to eq('i586')
+          expect(download_repository.repotype).to eq('rpmmd')
+          expect(download_repository.url).to eq('http://opensuse.org')
+          expect(download_repository.archfilter).to eq('i586, noarch')
+          expect(download_repository.masterurl).to eq('http://master.opensuse.org')
+          expect(download_repository.mastersslfingerprint).to eq('my_fingerprint')
+          expect(download_repository.pubkey).to eq('my_pubkey')
         end
       end
 
@@ -292,19 +292,19 @@ RSpec.describe Project::UpdateFromXmlCommand do
         end
 
         it 'updates path elements' do
-          expect(repository_1.path_elements.count).to eq 2
+          expect(repository_1.path_elements.count).to eq(2)
 
-          expect(repository_1.path_elements.find_by(position: 1).link.name).to eq 'other_repo'
-          expect(repository_1.path_elements.find_by(position: 2).link.name).to eq 'repo_3'
+          expect(repository_1.path_elements.find_by(position: 1).link.name).to eq('other_repo')
+          expect(repository_1.path_elements.find_by(position: 2).link.name).to eq('repo_3')
         end
 
         it 'can handle dependencies between repositories' do
-          expect(repository_2.path_elements.count).to eq 1
-          expect(repository_2.path_elements.find_by(position: 1).link.name).to eq 'repo_3'
+          expect(repository_2.path_elements.count).to eq(1)
+          expect(repository_2.path_elements.find_by(position: 1).link.name).to eq('repo_3')
         end
 
         it 'removes path elements' do
-          expect(repository_3.path_elements.count).to eq 0
+          expect(repository_3.path_elements.count).to eq(0)
         end
       end
 

@@ -111,7 +111,7 @@ module OBSApi
     # we don't want factory_bot to interfer with the legacy test suite
     # based on minitest
     config.generators do |g|
-      g.factory_bot false
+      g.factory_bot(false)
       g.test_framework :rspec
     end
 

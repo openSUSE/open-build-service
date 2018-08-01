@@ -69,7 +69,7 @@ RSpec.describe Webui::StatusMessagesController do
         post :create, params: { message: 'Some message', severity: 'Green' }
       end
 
-      it { expect(flash[:error]).not_to be nil }
+      it { expect(flash[:error]).not_to be(nil) }
     end
   end
 
@@ -92,7 +92,7 @@ RSpec.describe Webui::StatusMessagesController do
 
       it "can't delete messages" do
         expect(response).to redirect_to(root_path)
-        expect(message.reload.deleted_at).to be nil
+        expect(message.reload.deleted_at).to be(nil)
       end
     end
   end

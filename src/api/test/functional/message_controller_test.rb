@@ -44,7 +44,7 @@ class MessageControllerTest < ActionDispatch::IntegrationTest
 
     get '/message'
     assert_response :success
-    ret = ActiveXML::Node.new @response.body
+    ret = ActiveXML::Node.new(@response.body)
     ret.each('message') do |m|
       msg_id = m.value('msg_id')
       # test show too
@@ -66,7 +66,7 @@ class MessageControllerTest < ActionDispatch::IntegrationTest
 
     get '/message'
     assert_response :success
-    ret = ActiveXML::Node.new @response.body
+    ret = ActiveXML::Node.new(@response.body)
     ret.each('message') do |m|
       delete "/message/#{m.value('msg_id')}"
       assert_response :success

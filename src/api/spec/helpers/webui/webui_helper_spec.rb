@@ -209,7 +209,7 @@ RSpec.describe Webui::WebuiHelper do
       end
 
       context 'and no fallback option is given' do
-        it { expect(possibly_empty_ul({}, &@cont)).to be nil }
+        it { expect(possibly_empty_ul({}, &@cont)).to be(nil) }
       end
     end
   end
@@ -222,7 +222,7 @@ RSpec.describe Webui::WebuiHelper do
           allow(controller).to receive(:action_name).and_return(action)
         end
 
-        it { expect(is_advanced_tab?).to be true }
+        it { expect(is_advanced_tab?).to be(true) }
       end
     end
 
@@ -231,7 +231,7 @@ RSpec.describe Webui::WebuiHelper do
         allow(controller).to receive(:action_name).and_return('some_action')
       end
 
-      it { expect(is_advanced_tab?).to be false }
+      it { expect(is_advanced_tab?).to be(false) }
     end
   end
 
@@ -303,11 +303,11 @@ RSpec.describe Webui::WebuiHelper do
 
   describe '#creator_intentions' do
     it 'do not show the requester if he is the same as the creator' do
-      expect(creator_intentions(nil)).to eq 'become bugowner (previous bugowners will be deleted)'
+      expect(creator_intentions(nil)).to eq('become bugowner (previous bugowners will be deleted)')
     end
 
     it 'show the requester if he is different as the creator' do
-      expect(creator_intentions('bugowner')).to eq 'get the role bugowner'
+      expect(creator_intentions('bugowner')).to eq('get the role bugowner')
     end
   end
 

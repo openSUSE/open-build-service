@@ -23,7 +23,7 @@ module FlagHelper
   end
 
   def validate_type(flag)
-    raise InvalidFlag, "Error: unknown flag type '#{flag}' not found." unless TYPES.key? flag.to_s
+    raise InvalidFlag, "Error: unknown flag type '#{flag}' not found." unless TYPES.key?(flag.to_s)
   end
 
   def update_all_flags(xmlhash)
@@ -97,7 +97,7 @@ module FlagHelper
     validate_type flag
 
     prj = self
-    prj = project if is_a? Package
+    prj = project if is_a?(Package)
     update = nil
 
     # we find all repositories targeted by given products
@@ -142,7 +142,7 @@ module FlagHelper
     state = flag.try(:status) || :default
 
     if state == :default
-      if respond_to? 'project'
+      if respond_to?('project')
         logger.debug 'flagcheck: package has default state, checking project'
         state = project.find_flag_state(flag_type, repo, arch)
       else
