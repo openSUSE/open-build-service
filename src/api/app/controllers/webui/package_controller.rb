@@ -29,6 +29,9 @@ class Webui::PackageController < Webui::WebuiController
                                          :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
                                          :attributes, :edit, :import_spec, :files, :users, :binary_download]
 
+  before_action :require_repository, only: :binary
+  before_action :require_architecture, only: :binary
+
   # make sure it's after the require_, it requires both
   before_action :require_login, except: [:show, :linking_packages, :linking_packages, :dependency,
                                          :binary, :binaries, :users, :requests, :statistics, :commit,
@@ -143,27 +146,24 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def binary
-    @arch = Architecture.find_by_name(params[:arch]).name
-    @repository = params[:repository]
     @package_name = params[:package]
     # Ensure it really is just a file name, no '/..', etc.
     @filename = File.basename(params[:filename])
 
     begin
-      @fileinfo = Fileinfo.find(project: @project, package: params[:package], repository: @repository, arch: @arch,
+      @fileinfo = Fileinfo.find(project: @project, package: params[:package], repository: @repository.name, arch: @arch.name,
         filename: @filename, view: 'fileinfo_ext')
     rescue ActiveXML::Transport::ForbiddenError, ActiveXML::Transport::Error => e
       flash[:error] = "File #{@filename} can not be downloaded from #{@project}: #{e.summary}"
     end
     unless @fileinfo
-      flash[:error] = "File \"#{@filename}\" could not be found in #{@repository}/#{@arch}"
+      flash[:error] = "File \"#{@filename}\" could not be found in #{@repository.name}/#{@arch.name}"
       redirect_to controller: :package, action: :binaries, project: @project,
-                  package: @package, repository: @repository, nextstatus: 404
+        package: @package, repository: @repository.name, nextstatus: 404
       return
     end
 
-    repository = Repository.find_by_project_and_name(@project.to_s, @repository.to_s)
-    @durl = download_url_for_file_in_repo(@project, @package_name, repository, @arch, @filename)
+    @durl = download_url_for_file_in_repo(@project, @package_name, @repository, @arch.name, @filename)
 
     logger.debug "accepting #{request.accepts.join(',')} format:#{request.format}"
     # little trick to give users eager to download binaries a single click
@@ -1139,5 +1139,21 @@ class Webui::PackageController < Webui::WebuiController
     return download_url if download_url && file_available?(download_url)
     # only use API for logged in users if the mirror is not available - return nil otherwise
     rpm_url(project, package_name, repository.name, architecture, filename) unless User.current.is_nobody?
+  end
+
+  def require_repository
+    @repository = @project.repositories.find_by(name: params[:repository])
+    return if @repository
+
+    flash[:error] = "Couldn't find repository '#{params[:repository]}'"
+    redirect_to package_show_path(project: @project, package: @package)
+  end
+
+  def require_architecture
+    @arch = Architecture.archcache[params[:arch]]
+    return if @arch
+
+    flash[:error] = "Couldn't find architecture '#{params[:arch]}'"
+    redirect_to package_binaries_path(project: @project, package: @package, repository: @repository.name)
   end
 end
