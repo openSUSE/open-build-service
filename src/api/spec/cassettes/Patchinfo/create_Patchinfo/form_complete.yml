@@ -1,0 +1,974 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:04 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/_keyinfo?donotcreatecert=1&withsslcert=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1537'
+    body:
+      encoding: UTF-8
+      string: |
+        <keyinfo project="home:tom">
+          <pubkey keyid="f72cca49" algo="rsa" keysize="2048" expires="1601814142" fingerprint="5f24 7d11 1373 515c fa00 a47d d4e5 6230 f72c ca49">-----BEGIN PGP PUBLIC KEY BLOCK-----
+        Version: GnuPG v2
+
+        mQENBFtbDn4BCADOX4INz0CNqGJ9lNCFchjAQcy5EIUBA7oHjv1IVsEWuhaKLBvV
+        HOcMtU+X0HrYCUaGbeZxSEpRM+Gpxx0leYFFXe3mQ4PbyM8KUrCjZWirU4qkKgxu
+        LWd5xIeA87/n/jGzUFr/WS77bpbJUD4LDWzDhJkfriV/+nReEX+oX8w8r7Oneuj1
+        2GH3wKQfSG7+5Keef6tXFDJZ52gFStB66aoaRuMXchK9jkR1e/dbC1NLxdRtBEJm
+        LTZKlHiK1A+7c/nd1lKMwHadIfikbIY6Y7MEezfvv2jGPKu9fH/Ke2BBXLBGljNs
+        cImylssI8WWNT+xyOq10mYmGNLdjEq0Cv1+JABEBAAG0J2hvbWU6dG9tIE9CUyBQ
+        cm9qZWN0IDxob21lOnRvbUBwcml2YXRlPokBPwQTAQIAKQUCW1sOfgIbAwUJBB6w
+        AAcLCQgHAwIBBhUIAgkKCwQWAgMBAh4BAheAAAoJENTlYjD3LMpJfnIH/1rDT4C4
+        NESi85xc/hQtsoIA0x01CynfwrrQFvkkHdyWBysPf2FzeKqTvOf5met5G3nr3GhH
+        9g2HVt1KABeX4giGLwsg3ZQTIKDwizTHIi0YDPsDh65y92FfOMzkT+vUXBV5Qfok
+        vOPpa5JZ8opfj5/XVk0i4ziO+GprGjqsVVUwc/d3Kb+f/bLacHQTh+Ym0sLshk25
+        Q2ew+Q1Vp5NS7TfkpGeheCsF6kbE74gw5HS7J7e9WQGtfg618iXOxI2s5pstaZ6Z
+        UXieHYcN/vynGufK1JwrvVCVzAzR6Xxx/nXi/AVZB5WBwf2obTakBMHm6l2Nr08V
+        AKMRnz3JMFbfrRyJARwEEwECAAYFAltbDn4ACgkQv/X5J7hHHOs8KQf/XnWdlvqN
+        W2DGniTLyDU8M7Mp0R+wKdUTgiwyHAF+KVgPgBGJglcuIEVnbhNYlAQmO6v+zv13
+        gKidAY5P8Rb1ES3/FKNT4i0Xjm4ViYI9mecTFkABui1abAJQnCJ+Ua1jSpXO70Fs
+        kHWJE3aTqIXsoRFh1Rv6Xm2UToUaV2g5MFocf0YfflHrcEqwU7ya/va3/brJSXo/
+        5vJT9Q6fMCwTFxUa8H/fZmc3IUvASz7rGsKh33972GVw8CLsI6bGBsm85BFsce00
+        JvAIh5F2CedCoT6BGfSIYEbowcZqiuXNudv2n4y7iU0DLOlFwWnK2OnuI6TEm2fq
+        TL+BVr5caDr2nw==
+        =jE9n
+        -----END PGP PUBLIC KEY BLOCK-----
+        </pubkey>
+        </keyinfo>
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom/_result?view=binarylist
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/patchinfo/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="home:tom">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '268'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="home:tom">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable />
+          </build>
+          <publish>
+            <enable />
+          </publish>
+          <useforbuild>
+            <disable />
+          </useforbuild>
+        </package>
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo?comment=generated%20by%20createpatchinfo%20call&user=tom
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo>
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>tom</packager>
+          <summary/>
+          <description/>
+        </patchinfo>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '236'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>e45d013f24b032bd54480cfc08ca5401</srcmd5>
+          <version>unknown</version>
+          <time>1532728809</time>
+          <user>tom</user>
+          <comment>generated by createpatchinfo call</comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/patchinfo/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="home:tom">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '268'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="home:tom">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable />
+          </build>
+          <publish>
+            <enable />
+          </publish>
+          <useforbuild>
+            <disable />
+          </useforbuild>
+        </package>
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '200'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="1" vrev="1" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1532694150" />
+        </directory>
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/patchinfo?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '185'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="patchinfo" rev="1" vrev="1" srcmd5="e45d013f24b032bd54480cfc08ca5401" verifymd5="e45d013f24b032bd54480cfc08ca5401">
+          <filename>_patchinfo</filename>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '200'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="1" vrev="1" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1532694150" />
+        </directory>
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '139'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo>
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>tom</packager>
+          <summary/>
+          <description/>
+        </patchinfo>
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '139'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo>
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>tom</packager>
+          <summary/>
+          <description/>
+        </patchinfo>
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom/_result?view=binarylist
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '139'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo>
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>tom</packager>
+          <summary/>
+          <description/>
+        </patchinfo>
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '139'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo>
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>tom</packager>
+          <summary/>
+          <description/>
+        </patchinfo>
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="tom">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>AAAAAAAAAAAAAAA</summary>
+          <description>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</description>
+        </patchinfo>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>528f1469b0f1892730c6a6b1deb1d409</srcmd5>
+          <version>unknown</version>
+          <time>1532728810</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/patchinfo/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="home:tom">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '268'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="home:tom">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable />
+          </build>
+          <publish>
+            <enable />
+          </publish>
+          <useforbuild>
+            <disable />
+          </useforbuild>
+        </package>
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '200'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="2" vrev="2" srcmd5="528f1469b0f1892730c6a6b1deb1d409">
+          <entry name="_patchinfo" md5="891ea69ccbc41681bcb6801e215e27d2" size="247" mtime="1532708180" />
+        </directory>
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/patchinfo?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '185'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="patchinfo" rev="2" vrev="2" srcmd5="528f1469b0f1892730c6a6b1deb1d409" verifymd5="528f1469b0f1892730c6a6b1deb1d409">
+          <filename>_patchinfo</filename>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '200'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="2" vrev="2" srcmd5="528f1469b0f1892730c6a6b1deb1d409">
+          <entry name="_patchinfo" md5="891ea69ccbc41681bcb6801e215e27d2" size="247" mtime="1532708180" />
+        </directory>
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '247'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="tom">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>AAAAAAAAAAAAAAA</summary>
+          <description>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</description>
+        </patchinfo>
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '247'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="tom">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>AAAAAAAAAAAAAAA</summary>
+          <description>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</description>
+        </patchinfo>
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '247'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="tom">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>AAAAAAAAAAAAAAA</summary>
+          <description>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</description>
+        </patchinfo>
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 22:00:11 GMT
+recorded_with: VCR 4.0.0
