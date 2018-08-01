@@ -15,8 +15,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'source_project' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -25,16 +25,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '89'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'source_project' does not exist</summary>
-          <details>404 project 'source_project' does not exist</details>
-        </status>
+        <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
     http_version: 
-  recorded_at: Thu, 22 Mar 2018 14:11:30 GMT
+  recorded_at: Wed, 01 Aug 2018 17:28:03 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=42&opackage=target_package&oproject=target_project&rev=2&tarlimit=43&view=xml&withissues=1
@@ -53,7 +51,7 @@ http_interactions:
   response:
     status:
       code: 404
-      message: project 'source_project' does not exist
+      message: no such revision
     headers:
       Content-Type:
       - text/xml
@@ -62,14 +60,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '110'
     body:
       encoding: UTF-8
       string: |
         <status code="404">
-          <summary>project 'source_project' does not exist</summary>
-          <details>404 project 'source_project' does not exist</details>
+          <summary>no such revision</summary>
+          <details>404 no such revision</details>
         </status>
     http_version: 
-  recorded_at: Thu, 22 Mar 2018 14:11:30 GMT
+  recorded_at: Wed, 01 Aug 2018 17:28:03 GMT
 recorded_with: VCR 4.0.0
