@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/public_controller_project/_meta
+    uri: http://backend:5352/source/public_controller_project/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -38,14 +38,17 @@ http_interactions:
           <description></description>
         </project>
     http_version: 
-  recorded_at: Thu, 13 Oct 2016 08:34:33 GMT
+  recorded_at: Tue, 31 Jul 2018 20:34:59 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/public_controller_project/_config
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
-      string: Ducimus laudantium voluptates ullam aspernatur at quo sit. Laborum laudantium
-        consequatur ipsa quaerat. Quis enim sed eum modi sit perferendis.
+      string: |
+        <package name="public_controller_package" project="public_controller_project">
+          <title>Consider the Lilies</title>
+          <description>Eaque blanditiis eum est.</description>
+        </package>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -65,14 +68,133 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '21'
+      - '182'
     body:
       encoding: UTF-8
-      string: '<status code="ok" />
-
-'
+      string: |
+        <package name="public_controller_package" project="public_controller_project">
+          <title>Consider the Lilies</title>
+          <description>Eaque blanditiis eum est.</description>
+        </package>
     http_version: 
-  recorded_at: Thu, 13 Oct 2016 08:34:33 GMT
+  recorded_at: Tue, 31 Jul 2018 20:35:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="public_controller_package" project="public_controller_project">
+          <title>Consider the Lilies</title>
+          <description>Eaque blanditiis eum est.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '182'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="public_controller_package" project="public_controller_project">
+          <title>Consider the Lilies</title>
+          <description>Eaque blanditiis eum est.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 31 Jul 2018 20:35:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_config
+    body:
+      encoding: UTF-8
+      string: Ratione laudantium qui. Sed nemo ut. Modi perspiciatis sed.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>414e844bbaa6fa81a859f64ffe1d73d9</srcmd5>
+          <version>unknown</version>
+          <time>1533069300</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 31 Jul 2018 20:35:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Placeat velit ea. Ea fuga culpa. Quas aut et.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>793d3ab8d5a4977471010e49d698f6a6</srcmd5>
+          <version>unknown</version>
+          <time>1533069300</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 31 Jul 2018 20:35:00 GMT
 - request:
     method: get
     uri: http://backend:5352/source/public_controller_project?expand=1&noorigins=1
@@ -106,5 +228,5 @@ http_interactions:
           <entry name="public_controller_package" />
         </directory>
     http_version: 
-  recorded_at: Thu, 13 Oct 2016 08:34:33 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Tue, 31 Jul 2018 20:35:00 GMT
+recorded_with: VCR 4.0.0

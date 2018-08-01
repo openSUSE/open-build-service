@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/public_controller_project/_meta
+    uri: http://backend:5352/source/public_controller_project/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -38,14 +38,17 @@ http_interactions:
           <description></description>
         </project>
     http_version: 
-  recorded_at: Thu, 13 Oct 2016 08:34:33 GMT
+  recorded_at: Tue, 31 Jul 2018 20:35:01 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/public_controller_project/_config
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
-      string: Sint fugit quia fuga est voluptate sed perspiciatis. Magni expedita
-        et natus aperiam a. Architecto quia voluptas et.
+      string: |
+        <package name="public_controller_package" project="public_controller_project">
+          <title>Beyond the Mexique Bay</title>
+          <description>Et molestias repellat qui.</description>
+        </package>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -65,14 +68,133 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '21'
+      - '186'
     body:
       encoding: UTF-8
-      string: '<status code="ok" />
-
-'
+      string: |
+        <package name="public_controller_package" project="public_controller_project">
+          <title>Beyond the Mexique Bay</title>
+          <description>Et molestias repellat qui.</description>
+        </package>
     http_version: 
-  recorded_at: Thu, 13 Oct 2016 08:34:33 GMT
+  recorded_at: Tue, 31 Jul 2018 20:35:01 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="public_controller_package" project="public_controller_project">
+          <title>Beyond the Mexique Bay</title>
+          <description>Et molestias repellat qui.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '186'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="public_controller_package" project="public_controller_project">
+          <title>Beyond the Mexique Bay</title>
+          <description>Et molestias repellat qui.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 31 Jul 2018 20:35:01 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_config
+    body:
+      encoding: UTF-8
+      string: Sit incidunt aut. Neque dolorem corporis. Ipsa explicabo ab.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="5" vrev="5">
+          <srcmd5>116f29d820f91d2870e8d9e0b978d8ca</srcmd5>
+          <version>unknown</version>
+          <time>1533069301</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 31 Jul 2018 20:35:01 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Placeat velit ea. Ea fuga culpa. Quas aut et.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="6" vrev="6">
+          <srcmd5>116f29d820f91d2870e8d9e0b978d8ca</srcmd5>
+          <version>unknown</version>
+          <time>1533069301</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 31 Jul 2018 20:35:01 GMT
 - request:
     method: get
     uri: http://backend:5352/source/public_controller_project?expand=1&noorigins=1
@@ -106,5 +228,5 @@ http_interactions:
           <entry name="public_controller_package" />
         </directory>
     http_version: 
-  recorded_at: Thu, 13 Oct 2016 08:34:33 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Tue, 31 Jul 2018 20:35:01 GMT
+recorded_with: VCR 4.0.0
