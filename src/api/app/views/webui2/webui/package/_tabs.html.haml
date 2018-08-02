@@ -1,0 +1,31 @@
+.bg-light
+  %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
+    %li.nav-item
+      %a.nav-link{ href: package_show_path, class: [current_page?(package_show_path) && 'active']}
+        Overview
+    - if @package.name == 'patchinfo'
+      %li.nav-item
+        %a.nav-link{ href: patchinfo_show_path, class: [current_page?(patchinfo_show_path) && 'active']}
+          Details
+    - unless @spider_bot
+      %li.nav-item
+        %a.nav-link{ href: repositories_path, class: [current_page?(repositories_path) && 'active']}
+          Repositories
+      %li.nav-item
+        %a.nav-link{ href: package_view_revisions_path, class: [current_page?(package_view_revisions_path) && 'active']}
+          Revisions
+      %li.nav-item
+        %a.nav-link{ href: package_requests_path, class: [current_page?(package_requests_path) && 'active']}
+          Requests
+      %li.nav-item
+        %a.nav-link{ href: package_users_path, class: [current_page?(package_users_path) && 'active']}
+          Users
+      %li.nav-item
+        %a.nav-link{ href: index_attribs_path(@project, @package), class: [current_page?(index_attribs_path(@project, @package)) && 'active']}
+          Attributes
+      %li.nav-item
+        %a.nav-link{ href: package_meta_path, class: [current_page?(package_meta_path) && 'active']}
+          Meta
+    %li.nav-item.dropdown
+      %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', 'role': 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
+      .dropdown-menu.dropdown-menu-right

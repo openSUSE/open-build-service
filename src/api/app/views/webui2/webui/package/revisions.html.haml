@@ -1,0 +1,24 @@
+- page_title = "Revisions of #{@package}"
+- package_bread_crumb 'Revisions'
+
+.card
+  = render partial: 'tabs'
+
+  .card-body
+    - if @revisions
+      %h3 #{page_title} (#{@revisions.count})
+      .list-group
+        - @revisions.each do |revision|
+          .list-group-item{ id: "commit_item_#{revision}" }
+            - commit = @package.commit(revision)
+            - if commit
+              = render(partial: 'commit_item', locals: { revision: revision, commit: commit })
+            - else
+              %i Revision #{revision} not found
+      - unless params['show_all']
+        = paginate @revisions
+        = link_to('Show all', action: 'revisions', project: @project, package: @package, show_all: 1)
+    - else
+      %h3= page_title
+      %p
+        %i No commits exists yet.
