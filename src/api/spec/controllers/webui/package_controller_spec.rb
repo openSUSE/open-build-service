@@ -695,57 +695,80 @@ RSpec.describe Webui::PackageController, vcr: true do
         package.destroy
       end
 
-      it { expect(assigns(:project)).to eq(source_project) }
-      it { expect(assigns(:package)).to eq(package) }
-
-      context 'with no revisions' do
-        it { expect(assigns(:lastrev)).to eq(1) }
-        it { expect(assigns(:revisions)).to eq([1]) }
+      it 'sets the project' do
+        expect(assigns(:project)).to eq(source_project)
       end
 
-      context 'with less than 21 revisions' do
-        let(:package_with_commits) { create(:package_with_revisions, name: 'package_with_20_revisions', revision_count: 20, project: source_project) }
+      it 'sets the package' do
+        expect(assigns(:package)).to eq(package)
+      end
+
+      context 'when not passing the rev parameter' do
+        let(:package_with_revisions) { create(:package_with_revisions, name: "package_with_#{revision_count}_revisions", revision_count: revision_count, project: source_project) }
+        let(:revision_count) { 25 }
 
         before do
-          get :revisions, params: { project: source_project, package: package_with_commits }
+          get :revisions, params: { project: source_project, package: package_with_revisions }
         end
 
         after do
           # Delete revisions that got created in the backend
-          package_with_commits.destroy
+          package_with_revisions.destroy
         end
 
-        it { expect(assigns(:lastrev)).to eq(20) }
-        it { expect(assigns(:revisions)).to eq((1..20).to_a.reverse) }
-      end
-
-      context 'with 21 revisions' do
-        let(:package_with_more_commits) do
-          create(:package_with_revisions, name: 'package_with_21_revisions', revision_count: 21, project: source_project)
+        it 'returns revisions with the default pagination' do
+          expect(assigns(:revisions)).to eq((6..revision_count).to_a.reverse)
         end
 
-        before do
-          get :revisions, params: { project: source_project, package: package_with_more_commits }
-        end
-
-        after do
-          # Delete revisions that got created in the backend
-          package_with_more_commits.destroy
-        end
-
-        it { expect(assigns(:lastrev)).to eq(21) }
-
-        it 'lists the last 20 revisions' do
-          expect(assigns(:revisions)).to eq((2..21).to_a.reverse)
-        end
-
-        context 'with showall parameter set' do
+        context 'and passing the show_all parameter' do
           before do
-            get :revisions, params: { project: source_project, package: package_with_more_commits, showall: true }
+            get :revisions, params: { project: source_project, package: package_with_revisions, show_all: 1 }
           end
 
-          it 'lists all revisions' do
-            expect(assigns(:revisions)).to eq((1..21).to_a.reverse)
+          it 'returns revisions without pagination' do
+            expect(assigns(:revisions)).to eq((1..revision_count).to_a.reverse)
+          end
+        end
+
+        context 'and passing the page parameter' do
+          before do
+            get :revisions, params: { project: source_project, package: package_with_revisions, page: 2 }
+          end
+
+          it "returns the paginated revisions for the page parameter's value" do
+            expect(assigns(:revisions)).to eq((1..5).to_a.reverse)
+          end
+        end
+      end
+
+      context 'when passing the rev parameter' do
+        before do
+          get :revisions, params: { project: source_project, package: package, rev: param_rev }
+        end
+
+        let(:param_rev) { 23 }
+
+        it "returns revisions up to rev parameter's value with the default pagination" do
+          expect(assigns(:revisions)).to eq((4..param_rev).to_a.reverse)
+        end
+
+        context 'and passing the show_all parameter' do
+          before do
+            get :revisions, params: { project: source_project, package: package, rev: param_rev, show_all: 1 }
+          end
+
+          it "returns revisions up to rev parameter's value without pagination" do
+            expect(assigns(:revisions)).to eq((1..param_rev).to_a.reverse)
+          end
+        end
+
+        context 'and passing the page parameter' do
+          before do
+            get :revisions, params: { project: source_project, package: package, rev: param_rev, page: 2 }
+          end
+
+          it "returns the paginated revisions for the page parameter's value" do
+            expect(assigns(:revisions)).to eq((1..3).to_a.reverse)
           end
         end
       end
