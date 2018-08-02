@@ -4,18 +4,18 @@
 - package_bread_crumb
 
 .card.mb-3
-  = render :partial => 'tabs'
+  = render partial: 'tabs'
   .card-body
     .row
-      .col-8
+      .col-md-8
         %h3#package_title
           = @package.title.present? ? @package.title : @package.name
           - if @package.url.present?
             %small= link_to(@package.url, @package.url)
         = webui2_description_wrapper(@package.description)
-      .col-4
+      .col-md-4
         %ul.no-list-style
-          - if true || @failures > 0
+          - if @failures > 0
             %li
               %i.fas.fa-times-circle.text-danger{ title: 'Errors' }
               = @failures
@@ -30,19 +30,19 @@
               %i.fas.fa-info-circle.text-info
               Developed at
               = link_to(elide(dpackage.project.name, 44), package_show_path(project: dpackage.project.name, package: dpackage.name))
-          - if true || @package.project != @project
+          - if @package.project != @project
             %li
               %i.fas.fa-info-circle.text-info
               Sources inherited from project
               = link_to("#{elide(@package.project.name, 40)}", package_show_path(project: @package.project.name, package: @package.name))
-          - if true || @package.developed_packages.present?
+          - if @package.developed_packages.present?
             %li
               %i.fas.fa-info-circle.text-info
               Devel package for
               - @package.developed_packages.each_with_index do |pkg, index|
                 = ',' if index > 0
                 = link_to("#{elide(pkg.project.name, 40)}", package_show_path(project: pkg.project.name, package: pkg.name))
-          - if true || @package.is_patchinfo?
+          - if @package.is_patchinfo?
             %li
               %i.fas.fa-info-circle.text-info
               Has a
@@ -138,24 +138,24 @@
         - if @linkinfo && @revision_parameter.nil?
           %small
             - if @expand && @expand.to_s == '1' || @forced_unexpand.present?
-              = link_to '(show unmerged sources)', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '0'
+              = link_to('(show unmerged sources)', package_show_path(project: @project.name, package: @package.name, rev: @revision_parameter, expand: '0'))
             - else
-              = link_to '(show merged sources derived from linked package)', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '1'
+              = link_to('(show merged sources derived from linked package)', package_show_path(project: @project.name, package: @package.name, rev: @revision_parameter, expand: '1'))
       - unless @forced_unexpand.blank?
         %p.card-body
           %i
             Sources could not be expanded:
             = @forced_unexpand
-          = link_to 'Show unmerged sources', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '0'
+          = link_to('Show unmerged sources', package_show_path(project: @project.name, package: @package.name, rev: @revision_parameter, expand: '0'))
       - else
-        = render :partial => 'files_view'
+        = render partial: 'files_view'
     .card.mb-3
       %h5.card-header
         Comments for
         = @project.name
         (#{ @comments.length})
-      .card-body
-        = render :partial => 'webui/comment/show', locals: { commentable: @package }
+      .card-body#comments
+        = render partial: 'webui2/webui/comment/show', locals: { commentable: @package }
   .col-lg-4
     = render :partial => 'shared/buildresult_box', :locals => { :project => @project.name, :package => @package.name }
 

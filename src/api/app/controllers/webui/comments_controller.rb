@@ -1,8 +1,11 @@
 class Webui::CommentsController < Webui::WebuiController
+  include Webui2::CommentsController
+
   before_action :require_login
   before_action :find_commentable, only: :create
 
   def create
+    return if switch_to_webui2
     comment = @commented.comments.new(permitted_params)
     User.current.comments << comment
 
