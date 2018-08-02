@@ -74,7 +74,7 @@ RSpec.describe BsRequestAction::Differ::ForSource, vcr: true do
       let(:path) { "#{CONFIG['source_url']}/source/#{source_project}/#{source_package}" }
       let(:no_such_revision) { '<status code="404"><summary>no such revision</summary><details>404 no such revision</details></status>' }
       before do
-        stub_request(:post, path).with(query: hash_including('cmd' => 'diff', 'opackage' => target_package)).and_return(body: no_such_revision, status: 404)
+        stub_request(:post, path).with(query: hash_including('cmd' => 'diff', 'opackage' => target_package.name)).and_return(body: no_such_revision, status: 404)
       end
 
       it { expect { subject.perform }.to raise_error(BsRequestAction::DiffError, %r{The diff call for source_project/source_package failed: no such revision}) }
