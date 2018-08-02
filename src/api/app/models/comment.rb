@@ -51,10 +51,9 @@ class Comment < ApplicationRecord
     Comment.where(commentable: commentable).find_each do |comment|
       # take the one making the comment
       users << comment.user_id
-      # check if users are mentioned
-      comment.body.split.each do |word|
-        user_is_mentioned = /^@(?<user>.+)/ =~ word
-        users_mentioned << user if user_is_mentioned
+      # check if users are mentioned (regexp borrowed from user model - with whitespace removed)
+      comment.body.scan(%r{@([\w\^\-\.#\*\+&'"]*)}).each do |user|
+        users_mentioned << user[0]
       end
     end
     users += User.where(login: users_mentioned.to_a).pluck(:id)
