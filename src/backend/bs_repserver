@@ -4060,7 +4060,7 @@ sub registry_taglist {
   my ($cgi, $regrepo) = @_;
   my $repodir = "$registrydir/$regrepo";
   die("404 NAME_UNKNOWN\n") unless -f "$repodir/:info";
-  my @tags = sort(grep {/^\./} ls("$repodir/:tags"));
+  my @tags = sort(grep {!/^\./} ls("$repodir/:tags"));
   my $ret = {
     'name' => $regrepo,
     'tags' => \@tags,
@@ -4087,6 +4087,32 @@ sub registry_catalog {
   };
   BSRegistryServer::reply($ret);
   return undef;
+}
+
+sub registry_tuf {
+  my ($cgi, $gunprefix, $regrepo, $filename) = @_;
+  my $repodir = "$registrydir/$regrepo";
+  die("404 METADATA_NOT_FOUND\n") unless $filename eq 'root.json' || $filename eq 'targets.json' || $filename eq 'snapshot.json' || $filename eq 'timestamp.json' || $filename eq 'snapshot.key' || $filename eq 'timestamp.key';
+  my $tuf = BSUtil::retrieve("$repodir/:tuf", 1);
+  die("404 METADATA_NOT_FOUND\n") unless $tuf;
+  if ($filename =~ /(.*)\.json$/) {
+    my $data = $tuf->{$1};
+    die("404 METADATA_NOT_FOUND\n") unless $data;
+    BSRegistryServer::reply($data, 'Content-Type: application/json');
+    return undef;
+  }
+  if ($filename =~ /(.*)\.key$/) {
+    my $role = $1;
+    my $root = $tuf->{'root'};
+    die("404 METADATA_NOT_FOUND\n") unless $root;
+    $root = JSON::XS::decode_json($root);
+    my $keyid = $root->{'roles'}->{$role}->{'keyids'}->[0];
+    die("404 METADATA_NOT_FOUND\n") unless $keyid;
+    my $key = $root->{'keys'}->{$keyid};
+    die("404 METADATA_NOT_FOUND\n") unless $key;
+    BSRegistryServer::reply($key);
+  }
+  die("404 METADATA_NOT_FOUND\n");
 }
 
 sub registry_version {
@@ -4179,6 +4205,7 @@ my $dispatches = [
   '/workerstatus daemonsonly:bool? arch* type:*' => \&workerstatus,
 
   # registry
+  'GET|HEAD:/registry/$gunprefix:/$...:regrepo/_trust/tuf/$filename' => \&registry_tuf,
   'GET|HEAD:/registry/$...:regrepo/manifests/$manifest:' => \&registry_manifest,
   'GET|HEAD:/registry/$...:regrepo/blobs/$blob:' => \&registry_blob,
   'GET|HEAD:/registry/$...:regrepo/tags/list' => \&registry_taglist,

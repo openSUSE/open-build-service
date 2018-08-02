@@ -6294,16 +6294,17 @@ sub registry_forward {
   die("404 NAME_UNKNOWN\n") unless $repserver;
   my $req = $BSServer::request;
   my $path = $req->{'path'};
-  $path =~ s/^\/[^\/]+\///;
+  die("400 NAME_INVALID") unless $path =~ s/^\/[^\/]+\///;	# strip 'v2' or 'registry'
   my @hdrs;
   my $range = BSServer::header('Range');
   push @hdrs, "Range: $range" if $range;
   my $param = {
     'uri' => "$repserver/registry/$path",
     'request' => $req->{'action'},
+    'headers' => \@hdrs,
     'ignorestatus' => 1,
     'receiver' => \&BSServer::reply_receiver,
-    'headers' => \@hdrs,
+    'reply_receiver_forward_hdrs' => 1,
   };
   BSWatcher::rpc($param, undef);
   return undef;
@@ -6322,6 +6323,12 @@ sub registry_catalog {
 sub registry_version {
   my ($cgi) = @_;
   BSRegistryServer::reply({});
+  return undef;
+}
+
+sub notary_forward {
+  my ($cgi, $gunprefix, $regrepo, $filename) = @_;
+  registry_forward($cgi, $regrepo);
   return undef;
 }
 
@@ -6510,6 +6517,7 @@ my $dispatches = [
   'POST:/disownregistryrepo $project $repository $regrepo' => \&registry_disownrepo,
 
   # registry
+  'GET|HEAD:/registry/$gunprefix:/$...:regrepo/_trust/tuf/$filename' => \&notary_forward,
   'GET|HEAD:/registry/$...:regrepo/manifests/$manifest:' => \&registry_forward,
   'GET|HEAD:/registry/$...:regrepo/blobs/$blob:' => \&registry_forward,
   'GET|HEAD:/registry/$...:regrepo/tags/list' => \&registry_forward,
