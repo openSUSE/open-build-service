@@ -183,6 +183,10 @@ class Group < ApplicationRecord
         involved_reviews.count
     end
   end
+
+  def any_confirmed_users?
+    !users.where(state: 'confirmed').empty?
+  end
 end
 
 # == Schema Information

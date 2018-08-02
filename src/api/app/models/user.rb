@@ -652,7 +652,7 @@ class User < ApplicationRecord
   def owned_packages
     owned = []
     begin
-      Owner.search({}, self).each do |owner|
+      OwnerSearch::Owned.new.for(self).each do |owner|
         owned << [owner.package, owner.project]
       end
     rescue APIException => e # no attribute set

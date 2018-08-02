@@ -68,26 +68,45 @@ class SearchController < ApplicationController
   def missing_owner
     params[:limit] ||= '0' # unlimited by default
 
-    @owners = Owner.search(params, nil).map(&:to_hash)
+    @owners = OwnerSearch::Missing.new(params).find.map(&:to_hash)
+  end
+
+  def owner_group_or_user
+    if params[:user].present?
+      User.find_by_login!(params[:user])
+    elsif params[:group].present?
+      Group.find_by_title!(params[:group])
+    end
+  end
+
+  def owner_package_or_project
+    return if params[:project].blank?
+    if params[:package].present?
+      Package.get_by_project_and_name(params[:project], params[:package])
+    else
+      Project.get_by_name(params[:project])
+    end
   end
 
   def owner
     Backend::Test.start if Rails.env.test?
 
-    obj = nil
-    obj = params[:binary] if params[:binary].present?
-    obj = User.find_by_login!(params[:user]) if params[:user].present?
-    obj = Group.find_by_title!(params[:group]) if params[:group].present?
-    obj = Package.get_by_project_and_name(params[:project], params[:package]) unless params[:project].blank? || params[:package].blank?
-    obj = Project.get_by_name(params[:project]) if obj.nil? && params[:project].present?
+    if params[:binary].present?
+      owners = OwnerSearch::Assignee.new(params).for(params[:binary])
+    elsif (obj = owner_group_or_user)
+      owners = OwnerSearch::Owned.new(params).for(obj)
+    end
+    if owners.nil? && (obj = owner_package_or_project)
+      owners = OwnerSearch::Container.new(params).for(obj)
+    end
 
-    if obj.blank?
+    if owners.nil?
       render_error status: 400, errorcode: 'no_binary',
-                   message: "The search needs at least a 'binary' or 'user' parameter"
+                    message: "The search needs at least a 'binary' or 'user' parameter"
       return
     end
 
-    @owners = Owner.search(params, obj).map(&:to_hash)
+    @owners = owners.map(&:to_hash)
   end
 
   def predicate_from_match_parameter(p)

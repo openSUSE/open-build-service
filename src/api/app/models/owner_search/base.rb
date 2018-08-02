@@ -1,0 +1,87 @@
+require 'api_exception'
+
+module OwnerSearch
+  class Base
+    class AttributeNotSetError < APIException
+      setup 'attribute_not_set', 400
+    end
+
+    protected
+
+    def initialize(params = {})
+      self.params = params
+      self.attribute = AttribType.find_by_name!(params[:attribute] || 'OBS:OwnerRootProject')
+
+      self.limit = (params[:limit] || 1).to_i
+    end
+
+    attr_accessor :params, :attribute, :limit
+
+    def projects_to_look_at
+      # default project specified
+      return [Project.get_by_name(params[:project])] if params[:project]
+
+      # Find all marked projects
+      projects = Project.find_by_attribute_type(attribute)
+      return projects unless projects.empty?
+      raise AttributeNotSetError, "The attribute #{attribute.fullname} is not set to define default projects."
+    end
+
+    def project_attrib(project)
+      return unless project
+      project.attribs.find_by(attrib_type: attribute)
+    end
+
+    def filter(project)
+      return params[:filter].split(',') if params[:filter]
+
+      attrib = project_attrib(project)
+      if attrib && attrib.values.where(value: 'BugownerOnly').exists?
+        ['bugowner']
+      else
+        ['maintainer', 'bugowner']
+      end
+    end
+
+    def devel_disabled?(project = nil)
+      return ['0', 'false'].include?(params[:devel]) if params[:devel]
+
+      attrib = project_attrib(project)
+      attrib && attrib.values.where(value: 'DisableDevel').exists?
+    end
+
+    def filter_roles(relation, rolefilter)
+      return relation if rolefilter.empty?
+      role_ids = rolefilter.map { |r| Role.find_by_title!(r).id }
+      relation.where(role_id: role_ids)
+    end
+
+    def filter_users(owner, container, rolefilter, user)
+      rel = filter_roles(container.relationships.users, rolefilter)
+      rel = rel.where(user: user) if user
+      rel = rel.joins(:user).where(relationships: { users: { state: 'confirmed' } })
+      rel.each do |p|
+        owner.users ||= {}
+        entries = owner.users.fetch(p.role.title, []) << p.user.login
+        owner.users[p.role.title] = entries
+      end
+    end
+
+    def filter_groups(owner, container, rolefilter, group)
+      rel = filter_roles(container.relationships.groups, rolefilter)
+      rel = rel.where(group: group) if group
+      rel.each do |p|
+        next unless p.group.any_confirmed_users?
+        owner.groups ||= {}
+        entries = owner.groups.fetch(p.role.title, []) << p.group.title
+        owner.groups[p.role.title] = entries
+      end
+    end
+
+    def extract_from_container(owner, container, rolefilter, user_or_group = nil)
+      filter_users(owner, container, rolefilter, user_or_group) unless user_or_group.class == Group
+      filter_groups(owner, container, rolefilter, user_or_group) unless user_or_group.class == User
+      owner
+    end
+  end
+end
