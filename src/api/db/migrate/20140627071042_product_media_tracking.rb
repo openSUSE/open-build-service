@@ -3,7 +3,7 @@ class ProductMediaTracking < ActiveRecord::Migration[4.2]
     create_table :product_media do |t|
       t.references :product
       t.references :repository
-      t.string :medium
+      t.string :medium, charset: 'utf8'
     end
 
     execute('alter table product_media add foreign key (product_id) references products(id)')

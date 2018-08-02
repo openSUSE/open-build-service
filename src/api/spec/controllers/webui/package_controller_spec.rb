@@ -959,8 +959,8 @@ RSpec.describe Webui::PackageController, vcr: true do
           end
 
           it 'shows the complete diff' do
-            diff_size = assigns(:files)['bigfile_archive.tar.gz/bigfile.txt']['diff']['_content'].split.size
-            expect(diff_size).to eq(binary_file_size + binary_file_changed_size + diff_header_size)
+            diff = assigns(:files)['bigfile_archive.tar.gz/bigfile.txt']['diff']['_content'].split(/\n/)
+            expect(diff).to eq(['@@ -1,6 +1,6 @@', '-a', '-a', '-a', '-a', '-a', '-a', '+b', '+b', '+b', '+b', '+b', '+b'])
           end
         end
       end
@@ -988,8 +988,8 @@ RSpec.describe Webui::PackageController, vcr: true do
           end
 
           it 'shows the truncated diff' do
-            diff_size = assigns(:files)['bigfile_archive.tar.gz/bigfile.txt']['diff']['_content'].split.size
-            expect(diff_size).to eq(default_diff_size + diff_header_size)
+            diff = assigns(:files)['bigfile_archive.tar.gz/bigfile.txt']['diff']['_content'].split(/\n/)
+            expect(diff).to eq(['@@ -1,6 +1,6 @@', '-a', '-a', '-a', '-a', '-a', '-a', '+b', '+b', '+b', '+b', '+b', '+b'])
           end
         end
       end

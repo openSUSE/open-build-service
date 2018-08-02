@@ -80,6 +80,9 @@ File.open("#{Rails.root}/../backend/BSConfig.pm.template") do |template|
     line.gsub!(/:5352/, ":#{port_src_server}")
     line.gsub!(/:5252/, ":#{port_rep_server}") # repservier, used via source server
     line.gsub!(/:5152/, ":#{port_service_server}") # source service, used via source server
+    # hardcode createrepo_c
+    line.gsub!(/#our \$createrepo/, 'our $createrepo')
+    line.gsub!(/#our \$modifyrepo/, 'our $modifyrepo')
     file.print line
   end
 end

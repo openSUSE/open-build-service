@@ -199,7 +199,7 @@ Conflicts:      memcached < 1.4
 
 Requires:       ruby(abi) = 2.5.0
 # for test suite:
-BuildRequires:  createrepo
+BuildRequires:  createrepo_c
 BuildRequires:  curl
 BuildRequires:  netcfg
 # write down dependencies for production
