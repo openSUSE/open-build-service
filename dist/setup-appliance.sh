@@ -535,16 +535,14 @@ function prepare_obssigner {
       cat >/tmp/obs-gpg.$$ <<EOF
            %echo Generating a default OBS instance key
            Key-Type: DSA
-           Key-Length: 1024
+           Key-Length: 2048
            Subkey-Type: ELG-E
-           Subkey-Length: 1024
+           Subkey-Length: 2048
            Name-Real: private OBS
            Name-Comment: key without passphrase
            Name-Email: defaultkey@localobs
            Expire-Date: 0
            %no-protection
-           %pubring $backenddir/gnupg/pubring.gpg
-           %secring $backenddir/gnupg/secring.gpg
            %commit
            %echo done
 EOF
