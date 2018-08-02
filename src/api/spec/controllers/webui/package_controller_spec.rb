@@ -1412,4 +1412,68 @@ RSpec.describe Webui::PackageController, vcr: true do
     it { expect(assigns(:tprj)).to eq(source_project.name) }
     it { expect(assigns(:description)).to eq("- Testing the submit diff\n- Temporary hack") }
   end
+
+  describe 'GET #binary' do
+    let(:architecture) { 'x86_64' }
+    let(:package_binaries_page) { package_binaries_path(package: source_package, project: source_project, repository: repo_for_source_project.name) }
+    let(:package_binaries_page_with_status) { package_binaries_path(package: source_package, project: source_project, repository: repo_for_source_project.name, nextstatus: 404) }
+    let(:fake_fileinfo) { { sumary: 'fileinfo', description: 'fake' } }
+
+    before do
+      login(user)
+    end
+
+    context 'with a failure in the backend' do
+      before do
+        allow(Fileinfo).to receive(:find).and_raise(ActiveXML::Transport::Error, 'fake message')
+        get :binary, params: { package: source_package, project: source_project, repository: repo_for_source_project.name, arch: 'x86_64', filename: 'filename.txt' }
+      end
+
+      it { expect(flash[:error]).to eq('File filename.txt can not be downloaded from home:tom: fake message') }
+      it { is_expected.to redirect_to(package_binaries_page_with_status) }
+    end
+
+    context 'without file info' do
+      before do
+        allow(Fileinfo).to receive(:find).and_return(nil)
+        get :binary, params: { package: source_package, project: source_project, repository: repo_for_source_project.name, arch: 'x86_64', filename: 'filename.txt' }
+      end
+
+      it { expect(flash[:error]).to eq("File \"filename.txt\" could not be found in #{repo_for_source_project.name}/x86_64") }
+      it { is_expected.to redirect_to(package_binaries_page_with_status) }
+    end
+
+    context 'without a valid architecture' do
+      before do
+        get :binary, params: { package: source_package, project: source_project, repository: repo_for_source_project.name, arch: 'fake_arch', filename: 'filename.txt' }
+      end
+
+      it { expect(flash[:error]).to eq("Couldn't find architecture 'fake_arch'") }
+      it { is_expected.to redirect_to(package_binaries_page) }
+    end
+
+    context 'with a valid download url' do
+      before do
+        allow(Fileinfo).to receive(:find).and_return(fake_fileinfo)
+        allow_any_instance_of(Webui::PackageController).to receive(:download_url_for_file_in_repo).and_return('http://fake.com/filename.txt')
+      end
+
+      context 'and normal html request' do
+        before do
+          get :binary, params: { package: source_package, project: source_project, repository: repo_for_source_project.name, arch: 'x86_64', filename: 'filename.txt', format: :html }
+        end
+
+        it { expect(response).to have_http_status(:success) }
+      end
+
+      context 'and a non html request' do
+        before do
+          get :binary, params: { package: source_package, project: source_project, repository: repo_for_source_project.name, arch: 'x86_64', filename: 'filename.txt' }
+        end
+
+        it { expect(response).to have_http_status(:redirect) }
+        it { is_expected.to redirect_to('http://fake.com/filename.txt') }
+      end
+    end
+  end
 end
