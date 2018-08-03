@@ -157,6 +157,6 @@
       .card-body#comments
         = render partial: 'webui2/webui/comment/show', locals: { commentable: @package }
   .col-lg-4
-    = render :partial => 'shared/buildresult_box', :locals => { :project => @project.name, :package => @package.name }
+    = render partial: 'webui2/shared/buildresult_box', locals: { project: @project.name, package: @package.name }
 
 = render partial: 'webui/package/branch_dialog'

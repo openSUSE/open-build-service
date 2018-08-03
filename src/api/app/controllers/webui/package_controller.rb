@@ -910,10 +910,12 @@ class Webui::PackageController < Webui::WebuiController
 
   def buildresult
     check_ajax
+
     if @project.repositories.any?
       show_all = params[:show_all] == 'true'
       @index = params[:index]
       @buildresults = @package.buildresult(@project, show_all)
+      switch_to_webui2
       render partial: 'buildstatus'
     else
       render partial: 'no_repositories'
@@ -943,6 +945,7 @@ class Webui::PackageController < Webui::WebuiController
     if @repo_list.empty?
       render partial: 'no_repositories'
     else
+      switch_to_webui2
       render partial: 'rpmlint_result', locals: { index: params[:index] }
     end
   end
@@ -952,6 +955,7 @@ class Webui::PackageController < Webui::WebuiController
     begin
       @log = Backend::Api::BuildResults::Binaries.rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
       @log.encode!(xml: :text)
+      switch_to_webui2
       render partial: 'rpmlint_log'
     rescue ActiveXML::Transport::NotFoundError
       render plain: 'No rpmlint log'

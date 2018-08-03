@@ -1,12 +1,12 @@
 - unless @buildresults.excluded_counter.zero? && !@buildresults.show_all
-  .text-center.card-body.custom-control.custom-checkbox
-    = check_box_tag "show_all_#{@index}", true, @buildresults.show_all, class: "custom-control-input"
+  .mt-3.small.custom-control-checkbox
+    = check_box_tag "show_all_#{@index}", true, @buildresults.show_all, class: 'custom-control-input d-none'
     - label_message = @buildresults.excluded_counter.zero? ? 'Hide' :  "Show #{@buildresults.excluded_counter}"
-    = label_tag "show_all_#{@index}", "#{label_message} excluded results", class: "custom-control-label"
+    = label_tag "show_all_#{@index}", "#{label_message} excluded results", class: "custom-label"
 
 - @buildresults.results.each_pair do |package, results|
-  %h5.text-center= package
-  #package-buildstatus
+  %h5.text-primary.mt-3.mb-3= package
+  .mb-2#package-buildstatus
     %table.table.table-striped.table-sm.mb-0.small
       - if results.present?
         - previous_repo = nil
@@ -18,11 +18,11 @@
                 = link_to(word_break(result.repository, 22), package_binaries_path(project: @project, package: package, repository: result.repository), { title: "Binaries for #{result.repository}" })
             %td.arch
               - if !(repository && repository.architectures.pluck(:name).include?(result.architecture))
-                = sprite_tag "time_error", alt: "Outdated result", title: "This result is outdated"
+                %i.fas.fa-clock.text-package{ title: 'This result is outdated' }
               - else
                 = repo_status_icon_webui2(result.state, result.details)
               = result.architecture
-            = arch_repo_table_cell(result.repository, result.architecture, package, { "code" => result.code, "details" => result.details })
+            = arch_repo_table_cell_webui2(result.repository, result.architecture, package, { "code" => result.code, "details" => result.details })
           - previous_repo = result.repository
       - else
         %tr
