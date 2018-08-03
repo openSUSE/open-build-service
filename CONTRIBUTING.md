@@ -217,7 +217,7 @@ You can access the frontend at [localhost:3000](http://localhost:3000). Whatever
 10. Changed something in the backend? Test your changes!
 
     ```
-    rake docker:test:backend
+    docker-compose run  --rm backend make -C src/backend test
     ```
 
 11. You can find more details about the development environment [in our wiki](https://github.com/openSUSE/open-build-service/wiki/Development-Environment).
