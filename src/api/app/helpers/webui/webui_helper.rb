@@ -1,5 +1,4 @@
-# vim: sw=2 et
-
+# rubocop:disable Metrics/ModuleLength
 module Webui::WebuiHelper
   include ActionView::Helpers::JavaScriptHelper
   include ActionView::Helpers::AssetTagHelper
@@ -81,6 +80,25 @@ module Webui::WebuiHelper
     'outdated_scheduling'  => 'cog_error'
   }.freeze
 
+  REPO_STATUS_ICONS_WEBUI2 = {
+    'published'            => 'truck',
+    'outdated_published'   => 'truck',
+    'publishing'           => 'dolly',
+    'outdated_publishing'  => 'dolly',
+    'unpublished'          => 'truck fa-flip-horizontal',
+    'outdated_unpublished' => 'dolly fa-flip-horizontal',
+    'building'             => 'cog',
+    'outdated_building'    => 'cog',
+    'finished'             => 'check',
+    'outdated_finished'    => 'check',
+    'blocked'              => 'lock',
+    'outdated_blocked'     => 'lock',
+    'broken'               => 'exclamation-triangle',
+    'outdated_broken'      => 'exclamation-triangle',
+    'scheduling'           => 'calendar',
+    'outdated_scheduling'  => 'calendar'
+  }.freeze
+
   REPO_STATUS_DESCRIPTIONS = {
     'published'   => 'Repository has been published',
     'publishing'  => 'Repository is being created right now',
@@ -110,6 +128,24 @@ module Webui::WebuiHelper
     description += ' (' + details + ')' if details
 
     sprite_tag icon, title: description
+  end
+
+  def repo_status_icon_webui2(status, details = nil)
+    icon = REPO_STATUS_ICONS_WEBUI2[status] || 'eye'
+
+    outdated = nil
+    if /^outdated_/.match?(status)
+      status.gsub!(%r{^outdated_}, '')
+      outdated = true
+    end
+
+    description = REPO_STATUS_DESCRIPTIONS[status] || 'Unknown state of repository'
+    description = 'State needs recalculations, former state was: ' + description if outdated
+    description += " (#{details})" if details
+
+    color = outdated ? 'text-gray-400' : 'text-black-50'
+
+    content_tag(:i, nil, class: ['fas', "fa-#{icon}", color], title: description)
   end
 
   def tab(id, text, opts)
@@ -375,3 +411,4 @@ module Webui::WebuiHelper
     link_to(label, url, class: html_class)
   end
 end
+# rubocop:enable Metrics/ModuleLength
