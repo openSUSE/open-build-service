@@ -52,9 +52,9 @@
               //TODO: Fix this hard link
           - if @package.linking_packages.present?
             %li
-              = image_tag 'icons/information', title: ''
+              %i.fas.fa-info-circle.text-info
               = @package.linking_packages.size
-              = link_to('derived packages', { :action => :linking_packages, :project => @project, :package => @package }, :remote => true)
+              = link_to('derived packages', linking_packages_path(project: @project, package: @package), remote: true)
           - if @linkinfo
             - linked_package = @linkinfo[:package]
             %i.fas.fa-link.text-dark
@@ -159,4 +159,4 @@
   .col-lg-4
     = render partial: 'webui2/shared/buildresult_box', locals: { project: @project.name, package: @package.name }
 
-= render partial: 'webui/package/branch_dialog'
+= render partial: 'branch_dialog'

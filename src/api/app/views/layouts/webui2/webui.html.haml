@@ -32,6 +32,7 @@
         .row.justify-content-center
           .col-12
             = render partial: "layouts/webui2/flash", object: flash
+    .modal.fade#modal{ tabindex: '-1', role: 'dialog', aria: { labelledby: 'modalLabel', hidden: true }}
     .container.flex-grow#content
       = yield
     .container-fluid.py-4.mt-4#footer
