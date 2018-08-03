@@ -8,5 +8,5 @@ cd /obs/bs
 git checkout @CIRCLE_SHA1@
 git submodule update --init
 
-/obs/bs/contrib/start_development_backend -d /obs/bs
+/obs/bs/contrib/start_development_backend -d /obs/bs -r /tmp/obs
 
