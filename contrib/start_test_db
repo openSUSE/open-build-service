@@ -1,8 +1,0 @@
-#!/bin/bash
-# Copy our data dir to the tmpfs mount
-cp -a /var/lib/mysql/* /dev/shm
-# Remove all our databases
-rm -rf /dev/shm/api*
-# Configure the new datadir
-echo -e "[mysqld]\ndatadir = /dev/shm" > /etc/my.cnf.d/obs.cnf
-/usr/lib/mysql/mysql-systemd-helper start
