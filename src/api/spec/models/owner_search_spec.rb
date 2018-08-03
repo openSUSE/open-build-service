@@ -3,7 +3,6 @@ require 'rails_helper'
 RSpec.describe OwnerSearch do
   let!(:user) { create(:confirmed_user, login: 'Iggy') }
   let!(:develuser) { create(:confirmed_user, login: 'DevelIggy') }
-  let!(:owner_attrib) { create(:attrib, attrib_type: AttribType.where(name: 'OwnerRootProject').first, project: Project.find_by(name: 'home:Iggy')) }
   let!(:package) { create(:package, name: 'TestPack', project: Project.find_by(name: 'home:Iggy')) }
   let!(:develpackage) { create(:package, name: 'DevelPack', project: Project.find_by(name: 'home:DevelIggy')) }
   let!(:collection) do
@@ -11,6 +10,11 @@ RSpec.describe OwnerSearch do
   end
   let!(:maintenance_collection) do
     file_fixture('owner_search_maintenance_collection.xml').read
+  end
+
+  before do
+    login user
+    create(:attrib, attrib_type: AttribType.where(name: 'OwnerRootProject').first, project: Project.find_by(name: 'home:Iggy'))
   end
 
   describe '#search' do

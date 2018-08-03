@@ -28,6 +28,8 @@ RSpec.describe Webui::SearchController, vcr: true do
     end
 
     it 'assigns results' do
+      collection = file_fixture('owner_search_collection.xml').read
+      stub_request(:post, "#{CONFIG['source_url']}/search/published/binary/id?match=(@name='package'%20and%20(@project='home:Iggy'))").and_return(body: collection)
       get :owner, params: { search_text: 'package', owner: 1 }
       expect(assigns(:results)[0].users).to eq('maintainer'=>['Iggy'])
     end
