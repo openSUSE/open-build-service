@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:15:34 GMT
+  recorded_at: Thu, 02 Aug 2018 15:19:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_one_revision/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_one_revision" project="home:tom">
-          <title>No Highway</title>
-          <description>Doloribus nulla est dignissimos culpa debitis et eos.</description>
+          <title>An Instant In The Wind</title>
+          <description>Mollitia iure hic est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '184'
+      - '165'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_one_revision" project="home:tom">
-          <title>No Highway</title>
-          <description>Doloribus nulla est dignissimos culpa debitis et eos.</description>
+          <title>An Instant In The Wind</title>
+          <description>Mollitia iure hic est.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:15:34 GMT
+  recorded_at: Thu, 02 Aug 2018 15:19:35 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/package_with_one_revision/_meta
+    uri: http://backend:5352/source/home:tom/package_with_one_revision/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_one_revision" project="home:tom">
-          <title>No Highway</title>
-          <description>Doloribus nulla est dignissimos culpa debitis et eos.</description>
+          <title>An Instant In The Wind</title>
+          <description>Mollitia iure hic est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '184'
+      - '165'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_one_revision" project="home:tom">
-          <title>No Highway</title>
-          <description>Doloribus nulla est dignissimos culpa debitis et eos.</description>
+          <title>An Instant In The Wind</title>
+          <description>Mollitia iure hic est.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:15:34 GMT
+  recorded_at: Thu, 02 Aug 2018 15:19:35 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_one_revision/somefile.txt
@@ -148,16 +148,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
+        <revision rev="1" vrev="1">
           <srcmd5>cabf9a1f9a0b7c19d4f7ff46166f4ee0</srcmd5>
           <version>unknown</version>
-          <time>1493190934</time>
+          <time>1533223175</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:15:34 GMT
+  recorded_at: Thu, 02 Aug 2018 15:19:35 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_one_revision/_meta?user=tom
@@ -165,8 +165,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_one_revision" project="home:tom">
-          <title>No Highway</title>
-          <description>Doloribus nulla est dignissimos culpa debitis et eos.</description>
+          <title>An Instant In The Wind</title>
+          <description>Mollitia iure hic est.</description>
           <sourceaccess>
             <disable/>
           </sourceaccess>
@@ -190,17 +190,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '235'
+      - '216'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_one_revision" project="home:tom">
-          <title>No Highway</title>
-          <description>Doloribus nulla est dignissimos culpa debitis et eos.</description>
+          <title>An Instant In The Wind</title>
+          <description>Mollitia iure hic est.</description>
           <sourceaccess>
             <disable />
           </sourceaccess>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:15:34 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Thu, 02 Aug 2018 15:19:36 GMT
+recorded_with: VCR 4.0.0

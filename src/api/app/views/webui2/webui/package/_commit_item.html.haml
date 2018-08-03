@@ -1,0 +1,31 @@
+- user = User.find_by_login(commit['user'])
+- if user
+  = user_image_tag(user)
+  = link_to(user_show_path(user)) do
+    = user.realname.present? ? "#{user.realname} (#{user})" : user
+- else
+  %i= commit['user'] || '-'
+
+- if commit['requestid']
+  accepted
+  = link_to("request #{commit['requestid']}", request_show_path(commit['requestid']))
+- else
+  committed
+
+%u= fuzzy_time(Time.at(commit['time'].to_i))
+
+(revision #{commit['rev']})
+
+- if commit['comment'].present?
+  %pre.plain= commit['comment']
+
+%ul.nav.float-right
+  - if commit['rev'] != '1'
+    %li.nav-item
+      = link_to(package_rdiff_path(@project, @package, rev: commit['rev'], linkrev: 'base'), class: 'nav-link') do
+        %i.fas.fa-clone.fa-lg
+        Files Changed
+  %li.nav-item
+    = link_to(package_show_path(@project, @package, rev: commit['rev']), class: 'nav-link') do
+      %i.fas.fa-folder-open.fa-lg
+      Browse Source

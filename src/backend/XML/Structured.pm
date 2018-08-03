@@ -1,5 +1,8 @@
 
-package XML::Structured;
+# the newline is intended to avoid the provides in the package
+# of this embedded modul
+package
+  XML::Structured;
 
 use vars qw($VERSION @ISA @EXPORT);
 
