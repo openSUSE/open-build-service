@@ -23,7 +23,7 @@
           = render partial: 'edit_repository', locals: { project: @project, repository: repository }
       - if User.current.can_modify?(@project)
         = sprite_tag('drive_delete', title: 'Delete repository')
-        = link_to('Delete repository', { action: :destroy, project: @project, target: repository.name }, |
+        = link_to('Delete repository', { action: :destroy, project: @project, target: repository.name },
                       { data: { confirm: "Really remove repository '#{repository.name}'?" }, class: 'x', method: :post })
       - elsif !User.current.is_nobody?
         = sprite_tag('drive_delete', title: 'Delete repository')
