@@ -261,13 +261,18 @@ RSpec.describe Webui::PackageController do
       expect(response).to redirect_to(root_path)
     end
 
-    it "shows an error if current revision parameter is provided, but there wasn't any revision before" do
-      post :branch, params: { linked_project: source_project, linked_package: source_package, current_revision: true, revision: 2 }
-      expect(flash[:error]).to eq('Package has no source revision yet')
-      expect(response).to redirect_to(root_path)
+    context 'without revision' do
+      let(:source_package) { create(:package, name: 'revless_package', project: source_project) }
+
+      it 'shows an error if current revision parameter is provided' do
+        post :branch, params: { linked_project: source_project, linked_package: source_package, current_revision: true, revision: 2 }
+        expect(flash[:error]).to eq('Package has no source revision yet')
+        expect(response).to redirect_to(root_path)
+      end
     end
 
     context 'with target package name' do
+      let(:source_package) { create(:package, name: 'package_to_branch', project: source_project) }
       before do
         post :branch, params: { linked_project: source_project, linked_package: source_package, target_package: 'new_package_name' }
       end
