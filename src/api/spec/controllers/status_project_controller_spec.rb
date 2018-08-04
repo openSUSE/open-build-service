@@ -5,23 +5,21 @@ RSpec.describe StatusProjectController do
 
   describe 'GET #show' do
     let(:admin_user) { create(:admin_user) }
-    let(:project) { create(:project, name: 'Apache') }
-    let!(:package) { create(:package_with_file, name: 'apache2', project: project) }
+    let(:project) { create(:project) }
+    let!(:package) { create(:package_with_file, project: project) }
 
-    context 'with default attributes' do
+    context 'on empty package' do
       before do
         login(admin_user)
         get :show, params: { project: project.name, format: :xml }
       end
 
-      it { is_expected.to respond_with(:success) }
-      it { expect(response.body).to include("project=\"#{project.name}\"") }
-      it { expect(response.body).to include("name=\"#{package.name}\"") }
-      it { expect(response.body).to include('srcmd5=') }
-      it { expect(response.body).to include('changesmd5=') }
-      it { expect(response.body).to include('maxmtime=') }
-      it { expect(response.body).to include('release=') }
-      it { expect(response.body).not_to include('verifymd5=') }
+      it { expect(response).to have_http_status(:success) }
+      subject { Xmlhash.parse(response.body)['package'] }
+
+      it { is_expected.to include('project' => project.name, 'name' => package.name, 'version' => '', 'release' => '', 'changesmd5' => '', 'maxmtime' => '') }
+      it { is_expected.not_to include('verifymd5') }
+      it { is_expected.to include('srcmd5') }
     end
 
     context 'with verifymd5 attribute' do
