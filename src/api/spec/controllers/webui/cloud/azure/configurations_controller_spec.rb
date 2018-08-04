@@ -4,6 +4,7 @@ RSpec.describe Webui::Cloud::Azure::ConfigurationsController, type: :controller 
   let!(:user) { create(:confirmed_user, login: 'tom') }
 
   before do
+    skip('https://github.com/openSUSE/open-build-service/issues/5548') if ENV['RPM_BUILD_ROOT']
     login(user)
   end
 
