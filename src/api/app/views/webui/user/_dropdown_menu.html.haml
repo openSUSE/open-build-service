@@ -1,7 +1,7 @@
-%a.dropdown-menu(id="actions-trigger-#{user.login.gsub('.', '-')}" href="#")
+%a.dropdown-menu{ id: "actions-trigger-#{user.login.gsub('.', '-')}", href: '#' }
   %strong
     Actions
-%ul.dropdown-menu-content(id="actions-trigger-#{user.login.gsub('.', '-')}-content" style="z-index:1;")
+%ul.dropdown-menu-content{ id: "actions-trigger-#{user.login.gsub('.', '-')}-content", style: 'z-index:1;' }
   %li
     = sprite_tag('accessories-text-editor')
     = link_to('Edit user', user_edit_path(user.login))
