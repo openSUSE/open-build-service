@@ -56,12 +56,6 @@ linters:
       - "app/views/webui/user/edit.html.haml"
 
   # Offense count: 2
-  RubyComments:
-    exclude:
-      - "app/views/webui/repositories/_dod_repository_form.html.haml"
-      - "app/views/webui/repositories/_repository_entry.html.haml"
-
-  # Offense count: 2
   ImplicitDiv:
     exclude:
       - "app/views/webui/repositories/_repository_entry.html.haml"

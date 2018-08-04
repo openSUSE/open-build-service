@@ -11,7 +11,7 @@
     %div
       %h4
         = "Download on Demand Source"
-      - # Note: Mostly C&P from app/views/webui/download_on_demand/_form.html.erb
+      -# Note: Mostly C&P from app/views/webui/download_on_demand/_form.html.erb
       %div{ style: "margin-bottom: 1.2em; margin-left: 2em" }
         = label_tag :arch, "Architecture", style: "display:inline-block;width:100px;"
         = select_tag :arch, options_for_select(Architecture.available, ""), required: true
