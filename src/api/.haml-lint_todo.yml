@@ -48,13 +48,6 @@ linters:
       - "app/views/webui/repositories/_repository_entry.html.haml"
       - "app/views/webui/user/_dropdown_menu.html.haml"
 
-  # Offense count: 4
-  UnnecessaryStringOutput:
-    exclude:
-      - "app/views/webui/repositories/_dod_repository_form.html.haml"
-      - "app/views/webui/repositories/_repository_entry.html.haml"
-      - "app/views/webui/user/edit.html.haml"
-
   # Offense count: 15
   RepeatedId:
     exclude:
