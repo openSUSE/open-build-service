@@ -19,7 +19,7 @@
         %span.edit-repository-field
           = sprite_tag('drive_edit')
           = link_to('Edit repository', '#', data: { "repository-edit": true })
-        %div.hidden.edit-repository-container
+        .hidden.edit-repository-container
           = render partial: 'edit_repository', locals: { project: @project, repository: repository }
       - if User.current.can_modify?(@project)
         = sprite_tag('drive_delete', title: 'Delete repository')

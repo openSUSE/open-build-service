@@ -56,12 +56,6 @@ linters:
       - "app/views/webui/user/edit.html.haml"
 
   # Offense count: 2
-  ImplicitDiv:
-    exclude:
-      - "app/views/webui/repositories/_repository_entry.html.haml"
-      - "app/views/webui/repositories/index.html.haml"
-
-  # Offense count: 2
   SpaceBeforeScript:
     exclude:
       - "app/views/webui/search/owner.html.haml"
