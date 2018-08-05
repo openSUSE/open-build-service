@@ -180,7 +180,7 @@ Otherwise these tests get fast hard to refactor and review.
 In our experience, shared examples are used mainly for controllers. Since models are pretty different from each other, they (usually) do not share much logic.
 
 ### Continuous Integration
-We use [travis-ci](https://travis-ci.org/) and [CircleCI](https://circleci.com) for continuous integration.
+We use [CircleCI](https://circleci.com) for continuous integration.
 
 #### Setup
 In both services we use docker containers for running our tests. The docker containers are built with OBS in the container subprojects of [O:S:U](https://build.opensuse.org/project/subprojects/OBS:Server:Unstable) (e.g. https://build.opensuse.org/project/show/OBS:Server:Unstable:container:SLE12:SP3). With this approach we can test on our supported platforms like openSUSE or SLE and easily migrate to new platforms if necessary.

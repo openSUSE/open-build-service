@@ -1,8 +1,5 @@
 fixes:
   - "::src/api/"
-codecov:
-  ci:
-    - !travis-ci.org
 coverage:
   status:
     project:

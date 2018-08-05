@@ -41,11 +41,6 @@ linters:
       - "app/views/webui/user/show.html.haml"
       - "app/views/webui/cloud/azure/configurations/show.html.haml"
 
-  # Offense count: 1
-  MultilineScript:
-    exclude:
-      - "app/views/webui/package/_rpmlint_log.html.haml"
-
   # Offense count: 6
   MultilinePipe:
     exclude:

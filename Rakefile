@@ -21,55 +21,6 @@ namespace :docker do
     end
   end
 
-  namespace :test do
-    desc 'Run our frontend tests in the docker container'
-    task :rspec do
-      begin
-        sh 'docker-compose', '-f', 'docker-compose.ci.yml', '-p', 'rspec', 'run', '--use-aliases', *environment_vars, '--rm', 'rspec'
-      ensure
-        sh 'docker-compose -f docker-compose.ci.yml -p rspec stop'
-      end
-    end
-
-    desc 'Run our backend tests in the docker container'
-    task :backend do
-      begin
-        sh 'docker-compose -f docker-compose.ci.yml -p backend_test run --rm backend_test'
-      ensure
-        sh 'docker-compose -f docker-compose.ci.yml -p backend_test stop'
-      end
-    end
-
-    desc 'Scan the code base for syntax/code problems'
-    task :lint do
-      begin
-        sh 'docker-compose', '-f', 'docker-compose.ci.yml', '-p', 'lint', 'run', *environment_vars(false),
-           '--rm', 'rspec', '../../contrib/start_lint'
-      ensure
-        sh 'docker-compose -f docker-compose.ci.yml -p lint stop'
-      end
-    end
-
-    desc 'Run our old api minitest test suite in the docker container'
-    task :minitest do
-      begin
-        sh 'docker-compose', '-f', 'docker-compose.ci.yml', '-p', 'minitest', 'run', *environment_vars, '--rm', 'minitest'
-      ensure
-        sh 'docker-compose -f docker-compose.ci.yml -p minitest stop'
-      end
-    end
-
-    desc 'Run the spider test to crawl all pages and fail for exceptions'
-    task :spider do
-      begin
-        sh 'docker-compose', '-f', 'docker-compose.ci.yml', '-p', 'spider', 'run', *environment_vars(false), '--rm',
-           'minitest', '/bin/bash', '-c', '../../contrib/start_spider'
-      ensure
-        sh 'docker-compose -f docker-compose.ci.yml -p spider stop'
-      end
-    end
-  end
-
   namespace :maintainer do
     def tags_for(container_type)
       "-t openbuildservice/#{container_type}:#{VERSION} -t openbuildservice/#{container_type}"
@@ -145,16 +96,9 @@ namespace :docker do
 end
 
 def environment_vars(with_coverage = true)
-  environment = travis_environment_variables
+  environment = []
   environment.concat(['-e', 'DO_COVERAGE=1']) if with_coverage && ENV['CIRCLECI']
   environment.concat(['-e', 'EAGER_LOAD=1'])
   environment.concat(['-e', "TEST_SUITE='#{ENV['TEST_SUITE']}'"])
   environment
-end
-
-def travis_environment_variables
-  return [] unless ENV['TRAVIS']
-  result = ENV.to_h.keep_if { |key, _| key.start_with?('TRAVIS') }.map { |key, value| ['-e', "#{key}='#{value}'"] }.flatten
-
-  result.concat(['-e', "CI='#{ENV['CI']}'"])
 end

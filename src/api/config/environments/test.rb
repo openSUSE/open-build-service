@@ -14,7 +14,7 @@ OBSApi::Application.configure do
   # and recreated between test runs. Don't rely on the data there!
   config.cache_classes = true
 
-  # We set eager loading to true in Travis CI
+  # We set eager loading to true in CI
   # to run with the same configuration as in production
   config.eager_load = ENV.fetch('EAGER_LOAD', '0') == '1'
 
