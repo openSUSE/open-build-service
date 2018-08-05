@@ -127,8 +127,8 @@ class Repository < ApplicationRecord
   # [['firefox', 'gtk3'], ['kde', 'qt4']]
   def cycles(arch)
     # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
-    deps = BuilddepInfo.find(project: project.name, package: '-', repository: name, arch: arch)
-    cycles = deps.each(:cycle).map { |cycle| cycle.each(:package).map(&:text) }
+    deps = Backend::Api::BuildResults::Binaries.builddepinfo(project.name, name, arch, '-')
+    cycles = Xmlhash.parse(deps).elements('cycle').map { |cycle| cycle.elements('package') }
 
     merged_cycles = []
     cycles.each do |cycle|
