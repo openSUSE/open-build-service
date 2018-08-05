@@ -8,23 +8,23 @@
       </tr>
     </thead>
     <tbody>
-      <% @fileinfo.each(:provides_ext) do |p|  %>
+      <% @fileinfo.elements('provides_ext') do |p|  %>
         <tr>
-          <td><span title='<%= p.value(:dep) %>' class='nowrap'>
-            <%= truncate(p.value(:dep), :length => 30) %></span></td>
+          <td><span title='<%= p['dep'] %>' class='nowrap'>
+            <%= truncate(p['dep'], :length => 30) %></span></td>
           <td>
-            <% p.each(:requiredby) do |pby| %>
-                <%= link_to pby.value(:name), :action => :dependency,
+            <% p.elements('requiredby') do |pby| %>
+                <%= link_to pby['name'], :action => :dependency,
                             :project => @project,
                             :package => @package,
                             :repository => @repository, :arch => @arch,
-                            :dproject => pby.value(:project), :drepository => pby.value(:repository),
-                            :dname => pby.value(:name), :filename => @filename %>
+                            :dproject => pby['project'], :drepository => pby['repository'],
+                            :dname => pby['name'], :filename => @filename %>
             <% end -%>
           </td>
         </tr>
       <% end -%>
-      <% unless @fileinfo.has_element? 'provides_ext' %>
+      <% unless @fileinfo['provides_ext'] %>
         <tr><td colspan="2"><em>No provides</em></td></tr>
       <% end %>
     </tbody>
@@ -41,20 +41,20 @@
       </tr>
     </thead>
     <tbody>
-      <% @fileinfo.each(:requires_ext) do |p|  %>
+      <% @fileinfo.elements('requires_ext') do |p|  %>
         <tr>
-          <td><span title='<%= p.value(:dep) %>' class='nowrap'><%= truncate(p.value(:dep), :length => 30) %></span></td>
+          <td><span title='<%= p.value('dep') %>' class='nowrap'><%= truncate(p.value('dep'), :length => 30) %></span></td>
           <td>
-            <% p.each(:providedby) do |pby| %>
-                <%= link_to pby.value(:name), :action => :dependency, :project => @project,
+            <% p.elements('providedby') do |pby| %>
+                <%= link_to pby['name'], :action => :dependency, :project => @project,
                             :package => @package, :repository => @repository, :arch => @arch,
-                            :dproject => pby.value(:project), :drepository => pby.value(:repository),
-                            :dname => pby.value(:name), :filename => @filename %>
+                            :dproject => pby['project'], :drepository => pby['repository'],
+                            :dname => pby['name'], :filename => @filename %>
             <% end -%>
           </td>
         </tr>
       <% end -%>
-      <% unless @fileinfo.has_element? 'requires_ext' %>
+      <% unless @fileinfo['requires_ext'] %>
         <tr><td colspan="2"><em>No requires</em></td></tr>
       <% end %>
     </tbody>
