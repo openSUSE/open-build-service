@@ -1448,7 +1448,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'with a failure in the backend' do
       before do
-        allow(Fileinfo).to receive(:find).and_raise(ActiveXML::Transport::Error, 'fake message')
+        allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_raise(ActiveXML::Transport::Error, 'fake message')
         get :binary, params: { package: source_package, project: source_project, repository: repo_for_source_project.name, arch: 'x86_64', filename: 'filename.txt' }
       end
 
@@ -1458,7 +1458,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'without file info' do
       before do
-        allow(Fileinfo).to receive(:find).and_return(nil)
+        allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_return(nil)
         get :binary, params: { package: source_package, project: source_project, repository: repo_for_source_project.name, arch: 'x86_64', filename: 'filename.txt' }
       end
 
@@ -1477,7 +1477,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'with a valid download url' do
       before do
-        allow(Fileinfo).to receive(:find).and_return(fake_fileinfo)
+        allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_return(fake_fileinfo)
         allow_any_instance_of(Webui::PackageController).to receive(:download_url_for_file_in_repo).and_return('http://fake.com/filename.txt')
       end
 
