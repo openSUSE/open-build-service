@@ -17,7 +17,7 @@
 (revision #{commit['rev']})
 
 - if commit['comment'].present?
-  %pre.plain= commit['comment']
+  %pre.plain.mb-0= commit['comment']
 
 %ul.nav.float-right
   - if commit['rev'] != '1'
