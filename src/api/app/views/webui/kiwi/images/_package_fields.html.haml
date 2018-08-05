@@ -1,5 +1,5 @@
 .nested-fields.kiwi_fields
-  %div{ class: "kiwi_list_item #{'has-error' if f.object.errors.present?}"}
+  %div{ class: "kiwi_list_item #{'has-error' if f.object.errors.present?}" }
     %span
       = link_to '#', class: "package_edit kiwi_element_name" do
         = f.object.name
@@ -8,7 +8,7 @@
     %span.kiwi_actions.hidden
       = link_to_remove_association sprite_tag("req-decline", title: 'remove'), f
 
-  .dialog.darkgrey_box{ style: "width: 500px; left: 45%;", class: "#{'hidden' if f.object.name.present?} #{'new_element' if f.object.new_record?}"}
+  .dialog.darkgrey_box{ style: "width: 500px; left: 45%;", class: "#{'hidden' if f.object.name.present?} #{'new_element' if f.object.new_record?}" }
     .box.box-shadow
       %h2.box-header #{f.object.name.present? ? 'Edit' : 'Add'} package
 

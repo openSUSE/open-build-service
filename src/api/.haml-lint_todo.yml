@@ -24,10 +24,6 @@ linters:
   RuboCop:
     enabled: false
 
-  # Offense count: 152
-  SpaceInsideHashAttributes:
-    enabled: false
-
   # Offense count: 64
   InlineStyles:
     enabled: false

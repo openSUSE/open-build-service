@@ -43,11 +43,11 @@
   %p Reviews
   %ul.color-legend
     %li
-      %i{class: "fa fa-#{ObsFactory::StagingProjectPresenter.review_icon('opensuse-review-team')}"}
+      %i{ class: "fa fa-#{ObsFactory::StagingProjectPresenter.review_icon('opensuse-review-team')}" }
       = link_to 'Source Review', group_show_path('opensuse-review-team')
     %li
-      %i{class: "fa fa-#{ObsFactory::StagingProjectPresenter.review_icon('repo-checker')}"}
+      %i{ class: "fa fa-#{ObsFactory::StagingProjectPresenter.review_icon('repo-checker')}" }
       = link_to 'Installation Check', user_show_path('repo-checker')
     %li
-      %i{class: "fa fa-#{ObsFactory::StagingProjectPresenter.review_icon('legal-team')}"}
+      %i{ class: "fa fa-#{ObsFactory::StagingProjectPresenter.review_icon('legal-team')}" }
       = link_to 'Legal Review', group_show_path('legal-team')

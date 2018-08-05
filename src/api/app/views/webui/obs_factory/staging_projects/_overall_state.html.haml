@@ -1,4 +1,4 @@
-%div{class: "overall-state staging-project state-#{project.overall_state}"}
+%div{ class: "overall-state staging-project state-#{project.overall_state}" }
   .letter
     = link_to project.letter, staging_project_path(project: @distribution.name, project_name: project.id)
   .state
@@ -14,7 +14,7 @@
       = link_to "#{openqa_links_helper}/tests?hoursfresh=24&#{@distribution.openqa_filter(project)}" do
         #{project.testing_percentage}%
   - if project.meta['splitter_info']
-    .splitter-info{ title: 'strategy information (name, group)'}
+    .splitter-info{ title: 'strategy information (name, group)' }
       - splitter_info = project.meta['splitter_info']
       .splitter-info-strategy
         #{splitter_info['strategy']['name']}

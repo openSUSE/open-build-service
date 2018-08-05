@@ -11,11 +11,11 @@
         .row
           .col-2.pl-2
             - if update[1] == :package
-              %i.fa.fa-archive.fa-2x.text-package.pt-2{title: 'Package'}
+              %i.fa.fa-archive.fa-2x.text-package.pt-2{ title: 'Package' }
             - else
-              %i.fa.fa-cubes.fa-2x.text-info.pt-2{title: 'Project'}
+              %i.fa.fa-cubes.fa-2x.text-info.pt-2{ title: 'Project' }
           .col-10.pl-0
-            %span.d-inline-block.text-truncate{style: 'max-width: 180px;'}
+            %span.d-inline-block.text-truncate{ style: 'max-width: 180px;' }
               - if update[1] == :package
                 = link_to(package_show_path(project: update[3], package: update[2])) do
                   = update[2]

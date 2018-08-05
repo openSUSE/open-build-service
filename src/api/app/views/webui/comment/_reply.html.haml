@@ -1,4 +1,4 @@
-.comment_new.hidden{id: "reply_form_of_#{comment.id}"}
+.comment_new.hidden{ id: "reply_form_of_#{comment.id}" }
   = form_for @comment, method: :post, remote: true do |f|
     %p
       = hidden_field_tag :commentable_type, commentable.class

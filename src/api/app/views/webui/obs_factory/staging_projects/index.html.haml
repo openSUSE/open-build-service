@@ -5,10 +5,10 @@
 
 .grid_13.alpha
   .nav
-    %input#letterbox{checked: 'checked', name: 'navbar', type: 'radio'}
+    %input#letterbox{ checked: 'checked', name: 'navbar', type: 'radio' }
     %section
       %h2
-        %label{for: 'letterbox'} Letter
+        %label{ for: 'letterbox' } Letter
       .box.box-shadow
         %table.dashboard.staging-dashboard
           %thead
@@ -28,10 +28,10 @@
               %td.broken-packages
                 = render partial: 'problems', locals: { project: project }
 
-    %input#adibox{name: 'navbar', type: 'radio'}
+    %input#adibox{ name: 'navbar', type: 'radio' }
     %section
       %h2
-        %label{for: 'adibox'} ADI
+        %label{ for: 'adibox' } ADI
       .box.box-shadow
         %table.dashboard.staging-dashboard
           %thead

@@ -53,11 +53,11 @@
     .box-header.header-tabs
       %ul
         %li
-          %a{href: "#ipackages", title: "Packages that you are involved with"} Involved Packages
+          %a{ href: "#ipackages", title: "Packages that you are involved with" } Involved Packages
         %li
-          %a{href: "#iprojects", title: "Projects that you are involved with"} Involved Projects
+          %a{ href: "#iprojects", title: "Projects that you are involved with" } Involved Projects
         %li
-          %a{href: "#iowned", title: "Projects/Packages where you are responsible for the maintenance"} Owned Project/Packages
+          %a{ href: "#iowned", title: "Projects/Packages where you are responsible for the maintenance" } Owned Project/Packages
     .tab#ipackages
       - if @ipackages.length > 0
         #ipackages-wrapper{ "data-url": url_for(controller: 'package', action: 'show', project: 'REPLACEPRJ', package: 'REPLACEPKG') }
@@ -76,7 +76,7 @@
             = @displayed_user.login
             is not involved in any projects
       - else
-        #projects-table-wrapper{"data-url" => "#{url_for(controller: 'project', action: 'show', project: 'REPLACEIT')}"}
+        #projects-table-wrapper{ "data-url" => "#{url_for(controller: 'project', action: 'show', project: 'REPLACEIT')}" }
           - content_for :head_javascript do
             var mainProjects = [ #{escape_nested_list(@iprojects)} ];
             var exclProjects = [];

@@ -5,7 +5,7 @@
   - tasks = User.current.tasks
   = link_to(user_tasks_path, class: 'nav-link') do
     - if tasks.positive?
-      %span{title: 'where an action is requested from you' }
+      %span{ title: 'where an action is requested from you' }
         = pluralize(tasks, 'Task')
     - else
       Tasks

@@ -12,7 +12,7 @@
       %li.nav-item.dropdown
         = link_to('#', id: 'login-trigger', class: 'nav-link dropdown-toggle', "data-toggle": "dropdown") do
           Log In
-        .dropdown-menu.dropdown-menu-right.shadow-lg.bg-dark{"aria-labelledby": "dropdownMenuButton", style: 'width: 350px'}
+        .dropdown-menu.dropdown-menu-right.shadow-lg.bg-dark{ "aria-labelledby": "dropdownMenuButton", style: 'width: 350px' }
           #login-form
             = form_tag(session_create_path, class: 'px-4 py-3') do
               .form-group

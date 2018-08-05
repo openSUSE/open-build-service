@@ -1,10 +1,10 @@
 !!!
-%html{lang: "en"}
+%html{ lang: "en" }
   %head
-    %meta{content: "charset=utf-8"}/
-    %meta{name: "viewport", content: "width=device-width, initial-scale=1, shrink-to-fit=no"}
+    %meta{ content: "charset=utf-8" }/
+    %meta{ name: "viewport", content: "width=device-width, initial-scale=1, shrink-to-fit=no" }
     - if @metarobots
-      %meta{:content => "#{@metarobots}", :name => "robots"}/
+      %meta{ content: "#{@metarobots}", name: "robots" }/
     = favicon_link_tag
     %title
       = "#{@pagetitle} - " if @pagetitle

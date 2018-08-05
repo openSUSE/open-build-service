@@ -4,7 +4,7 @@
 - else
   - controller = 'project'
 .box-header.header-tabs
-  %ul{id: "result_select_#{index}"}
+  %ul{ id: "result_select_#{index}" }
     %li.selected
       %a{ href: '#', id: "result_select_link_#{index}_0", data: { id: "result_display_#{index}_0" } } Build Results
       = sprite_tag('reload', title: 'Reload', onclick: "update_build_result_#{index}()", class: "result_reload", id: "result_reload_#{index}_0")
