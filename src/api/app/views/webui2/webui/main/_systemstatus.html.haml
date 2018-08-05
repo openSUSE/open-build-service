@@ -2,7 +2,7 @@
   %h5.card-header System Status
   .card-body
     - if @busy
-      .aligncenter#overallgraph{ style: "height:250px; margin: 0px 20px 20px 20px" }
+      .aligncenter#overallgraph
       %p.text-muted.small
         The above graphs show the number of active build jobs last week,
         currently #{@building_workers} of #{@overall_workers} build hosts
