@@ -1,4 +1,32 @@
-inherits_from: .haml-lint_todo.yml
+linters:
+  LineLength:
+    max: 150
 
 exclude:
 - 'vendor/bundle/**/*'
+# Everything below is the old interface. We only lint the new Bootstrap interface
+- 'app/views/about/**/*'
+- 'app/views/attribute/**/*'
+- 'app/views/attribute_namespace/**/*'
+- 'app/views/build/**/*'
+- 'app/views/comments/**/*'
+- 'app/views/distributions/**/*'
+- 'app/views/event_mailer/**/*'
+- 'app/views/exception_notifier/**/*'
+- 'app/views/group/**/*'
+- 'app/views/ichain_notifier/**/*'
+- 'app/views/layouts/**/*'
+- 'app/views/main/**/*'
+- 'app/views/message/**/*'
+- 'app/views/models/**/*'
+- 'app/views/person/**/*'
+- 'app/views/public/**/*'
+- 'app/views/request/**/*'
+- 'app/views/result/**/*'
+- 'app/views/search/**/*'
+- 'app/views/shared/**/*'
+- 'app/views/source/**/*'
+- 'app/views/source_project/**/*'
+- 'app/views/statistics/**/*'
+- 'app/views/status/**/*'
+- 'app/views/webui/**/*'
