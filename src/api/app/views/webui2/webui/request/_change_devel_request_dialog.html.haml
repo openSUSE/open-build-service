@@ -24,10 +24,15 @@
         = render partial: 'webui2/shared/dialog_action_buttons'
 
 :javascript
-  $("#devel_project").autocomplete({source: '#{url_for controller: 'project', action: 'autocomplete_projects'}', search: function(event, ui) {
-    $(this).addClass('loading-spinner');
-  },
-  response: function(event, ui) {
-    $(this).removeClass('loading-spinner');
-  }, minLength: 2});
+  $("#devel-project").autocomplete({
+    source: '#{url_for controller: 'project', action: 'autocomplete_projects'}',
+    search: function(event, ui) {
+      $(this).addClass('loading-spinner');
+    },
+    response: function(event, ui) {
+      $(this).removeClass('loading-spinner');
+    },
+    minLength: 2});
+
+  $("#devel-project" ).autocomplete( "option", "appendTo", ".modal-body" );
 
