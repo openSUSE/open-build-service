@@ -1,0 +1,5 @@
+ul.ui-autocomplete {
+  @extend .dropdown-menu;
+
+  li { @extend .dropdown-item; }
+}
