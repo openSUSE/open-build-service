@@ -30,12 +30,12 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
 
   describe 'GET #index' do
     context 'without dashboard package' do
-      before do
+      subject! do
         get :index, params: { project: factory }
       end
 
-      it { expect(response).to have_http_status(:success) }
-      it { expect(response).to render_template(:index) }
+      it { is_expected.to have_http_status(:success) }
+      it { is_expected.to render_template(:index) }
 
       it 'sets up the required variables' do
         expect(assigns(:backlog_requests_ignored)).to be_empty
@@ -89,12 +89,14 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
           before do
             allow_any_instance_of(Package).to receive(:file_exists?).with('ignored_requests').and_return(true)
             stub_request(:get, backend_url).and_return(body: backend_response)
+          end
 
+          subject! do
             get :index, params: { project: factory }
           end
 
-          it { expect(response).to have_http_status(:success) }
-          it { expect(response).to render_template(:index) }
+          it { is_expected.to have_http_status(:success) }
+          it { is_expected.to render_template(:index) }
 
           it 'sets up the required variables' do
             expect(assigns(:backlog_requests_ignored)).to contain_exactly(create_review_requests.first)
@@ -109,11 +111,14 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
             allow_any_instance_of(Package).to receive(:file_exists?).with('ignored_requests').and_return(true)
 
             stub_request(:get, backend_url).and_return(body: '')
+          end
+
+          subject! do
             get :index, params: { project: factory }
           end
 
-          it { expect(response).to have_http_status(:success) }
-          it { expect(response).to render_template(:index) }
+          it { is_expected.to have_http_status(:success) }
+          it { is_expected.to render_template(:index) }
 
           it 'sets up the required variables' do
             expect(assigns(:backlog_requests_ignored)).to be_empty
