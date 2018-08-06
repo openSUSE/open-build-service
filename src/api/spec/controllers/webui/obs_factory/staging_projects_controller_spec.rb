@@ -12,8 +12,6 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
   end
   let(:factory) { create(:project, name: 'openSUSE:Factory') }
   let!(:factory_staging) { create(:project, name: 'openSUSE:Factory:Staging') }
-  let!(:factory_staging_a) { create(:project, name: 'openSUSE:Factory:Staging:A', description: description) }
-  let!(:factory_staging_b) { create(:project, name: 'openSUSE:Factory:Staging:B', description: 'Factory staging project B') }
 
   let(:factory_distribution) { ::ObsFactory::Distribution.find(factory.name) }
   let(:staging_projects) { ::ObsFactory::StagingProject.for(factory_distribution) }
@@ -26,6 +24,11 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
            target_package: target_package.name,
            source_project: source_package.project.name,
            source_package: source_package.name)
+  end
+
+  before do
+    create(:project, name: 'openSUSE:Factory:Staging:A', description: description)
+    create(:project, name: 'openSUSE:Factory:Staging:B', description: 'Factory staging project B')
   end
 
   describe 'GET #index' do
