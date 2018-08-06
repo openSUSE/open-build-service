@@ -12,7 +12,8 @@
     .form-group
       = password_field_tag :password, nil, id: 'pwd', placeholder: 'Enter a password', autocomplete: 'off', class: 'form-control'
     .form-group
-      = password_field_tag :password_confirmation, nil, id: 'pwd_confirmation', placeholder: 'Password confirmation', autocomplete: 'off', class: 'form-control'
+      = password_field_tag(:password_confirmation, nil, id: 'pwd_confirmation', placeholder: 'Password confirmation', autocomplete: 'off',
+        class: 'form-control')
     = hidden_field_tag 'register', 'true'
     .text-center
       = submit_tag 'Sign Up', class: 'btn btn-primary'

@@ -8,11 +8,6 @@
 
 linters:
 
-  # Offense count: 1
-  LineLength:
-    exclude:
-      - "app/views/webui2/shared/_sign_up.html.haml"
-
   # Offense count: 12
   RuboCop:
     exclude:
