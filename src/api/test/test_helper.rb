@@ -1,6 +1,7 @@
 ENV['origin_RAILS_ENV'] = ENV['RAILS_ENV']
 
 ENV['RAILS_ENV'] = 'test'
+ENV['RUNNING_MINITEST'] = '1'
 
 require 'simplecov'
 require 'builder'

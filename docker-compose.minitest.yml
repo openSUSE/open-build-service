@@ -1,0 +1,13 @@
+version: "2.1"
+services:
+  minitest:
+    image: openbuildservice/frontend-backend
+    build:
+      dockerfile: docker-files/Dockerfile.frontend-backend
+      context: src/api
+    volumes:
+      - .:/obs
+    depends_on:
+      - db
+      - cache
+
