@@ -5,7 +5,7 @@
     %tbody
       - requests.each do |req|
         %tr
-          %td{style: "border: medium none; padding: 0px;"}
+          %td{ style: "border: medium none; padding: 0px;" }
             = check_box_tag('supersede_request_numbers[]', req.number, false, id: "supersede_request_numbers#{req.number}")
             = link_to(req.number, controller: :request, action: :show, number: req.number)
             by

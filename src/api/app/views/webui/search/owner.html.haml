@@ -44,7 +44,7 @@
             %label{ for: "all" } All
             %input#new{ checked: "checked", name: "limit", type: "radio", value: "1" }/
             %label{ for: "new" } Newest
-          -else
+          - else
             - if params[:limit] == "-1"
               %input#old{ checked: "checked", name: "limit", type: "radio", value: "-1" }/
             - else

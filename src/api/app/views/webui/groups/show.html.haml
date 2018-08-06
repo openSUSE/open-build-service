@@ -6,22 +6,22 @@
   .box-header.header-tabs
     %ul
       %li.selected
-        %a#reviews-in-tab{data: { id: 'reviews-in' } }
+        %a#reviews-in-tab{ data: { id: 'reviews-in' } }
           Incoming Reviews
         = sprite_tag('reload', title: 'Reload', class: 'result_reload', data: { table: 'reviews_in_table' })
         = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
       %li
-        %a#requests-in-tab{data: { id: 'requests-in' } }
+        %a#requests-in-tab{ data: { id: 'requests-in' } }
           Incoming Requests
         = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'requests_in_table' })
         = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
       %li
-        %a#all-requests-tab{data: { id: 'all-requests' } }
+        %a#all-requests-tab{ data: { id: 'all-requests' } }
           All Requests
         = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'all_requests_table' })
         = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
       %li
-        %a#group-members-tab{data: { id: 'group-members' } }
+        %a#group-members-tab{ data: { id: 'group-members' } }
           Group Members
   .grid_16.alpha.content-tabs
     .content-tab#reviews-in

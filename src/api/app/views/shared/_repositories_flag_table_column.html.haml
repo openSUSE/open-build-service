@@ -18,7 +18,7 @@
             architecture: flag.arch },
           id: "#{flag.fullname}_disable", class: "flag_spinner_trigger_#{flag.flag}", method: :post, remote: remote
         .iconwrapper
-          %div{class: "icons-#{flag.flag}_enable_blue icon_24"}
+          %div{ class: "icons-#{flag.flag}_enable_blue icon_24" }
         = link_to 'Enable', { action: :create_flag,
             project: @project,
             package: @package,

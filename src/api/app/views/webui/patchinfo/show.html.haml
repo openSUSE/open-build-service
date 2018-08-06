@@ -4,8 +4,8 @@
 .section
   .grid_8.alpha
     .box.show_left.show_right
-      .box{style: "background-color:#DDDDDD; margin-top: 0"}
-        %h2{style: "display: inline"}
+      .box{ style: "background-color:#DDDDDD; margin-top: 0" }
+        %h2{ style: "display: inline" }
           = @category
           update for #{truncate(@pkg_names.join(', '), length: 20)}
         - if User.current.can_modify?(@package)

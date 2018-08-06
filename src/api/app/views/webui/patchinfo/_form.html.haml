@@ -3,13 +3,13 @@
   .section
     .grid_8.alpha
       .box.show_left.show_right
-        .box{style: "background-color:#DDDDDD; margin-top: 0"}
-          %h2{style: "display: inline"}
+        .box{ style: "background-color:#DDDDDD; margin-top: 0" }
+          %h2{ style: "display: inline" }
             Patchinfo-Editor for #{@project}
         .box.show_left.show_right
           %p
             %strong
-              %label{for: "packager"} Packager:
+              %label{ for: "packager" } Packager:
             %br/
             = text_field_tag 'packager', @packager, required: true
             :javascript
@@ -22,33 +22,33 @@
           %p
             %strong
               = image_tag('info.png', title: 'Enter a short summary. Mainpackage: shortdescription of the mainfix', alt: 'Summaryinfo')
-              %label{for: "summary"} Summary:
+              %label{ for: "summary" } Summary:
             = text_area_tag 'summary', @summary, size: '60x1', required: true, min: 10
           %p
             %strong
               = image_tag('info.png', title: 'Enter a full description what the update fixes', alt: 'Descriptioninfo')
-              %label{for: "description"} Description:
+              %label{ for: "description" } Description:
             = text_area_tag 'description', @description, size: '65x9', required: true, min: 10
           %p
             %strong
               = image_tag('info.png', title: 'Enter a version of this update', alt: 'Versioninfo')
-              %label{for: "version"} Version:
+              %label{ for: "version" } Version:
             %br/
             = text_field_tag 'version', @version
           %p
             %strong
               = image_tag('info.png', title: 'Enter a message', alt: 'Messageinfo')
-              %label{for: "message"} Message:
+              %label{ for: "message" } Message:
             = text_area_tag 'message', @message, size: '65x5'
           %p
             %strong
               = image_tag('info.png', title: 'Choose the category of your update', alt: 'Categoryinfo')
-              %label{for: "category"} Category:
+              %label{ for: "category" } Category:
             = select_tag 'category', options_for_select(Patchinfo::CATEGORIES, @category)
           %p
             %strong
               = image_tag('info.png', title: 'Select the rating of this update', alt: 'Ratinginfo')
-              %label{for: "rating"} Rating:
+              %label{ for: "rating" } Rating:
             = select_tag 'rating', options_for_select(Patchinfo::RATINGS, @rating)
         .box.show_left.show_right
           %p
@@ -58,7 +58,7 @@
           #issuelist
             - if @issues
               - @issues.reject { |issue| issue.blank? }.each do |issue|
-                %div{id: "issue_#{issue[0]}_#{issue[1]}"}
+                %div{ id: "issue_#{issue[0]}_#{issue[1]}" }
                   = link_to image_tag('bug_delete.png', alt: 'Remove Bug', title: 'Remove Bug'), '#', onclick: "$('#issue_#{issue[0]}_#{issue[1]}').remove(); return false;", style: 'clear:both;', id: "remove_#{issue[0]}_#{issue[1]}"
                   = hidden_field_tag 'issueid[]', "#{issue[1]}", id: "issueid_#{issue[0]}_#{issue[1]}"
                   = hidden_field_tag 'issuetracker[]', "#{issue[0]}", id: "issuetracker_#{issue[0]}_#{issue[1]}"
@@ -66,21 +66,21 @@
                   = hidden_field_tag 'issuesum[]', "#{issue[3]}", id: "issuesum_#{issue[0]}_#{issue[1]}"
                   = link_to "#{issue[0].to_s}##{issue[1].to_s}", issue[2].to_s
                   \: 
-                  %div{id: "issue_desc_#{issue[0]}_#{issue[1]}", onclick: "change_issue_desc('#{issue[0]}_#{issue[1]}');"}
+                  %div{ id: "issue_desc_#{issue[0]}_#{issue[1]}", onclick: "change_issue_desc('#{issue[0]}_#{issue[1]}');" }
                     = issue[3].to_s
-                  %div{id: "change_desc_#{issue[0]}_#{issue[1]}", style: "display:none;"}
+                  %div{ id: "change_desc_#{issue[0]}_#{issue[1]}", style: "display:none;" }
                     = text_field_tag 'desc_' + issue[0] + '_' + issue[1], issue[3].to_s, size: issue[3].to_s.length
                     = link_to image_tag('ok.png', alt: 'Ok', title: 'Change description'), '#', onclick: "changeDesc('ok', '#{issue[0]}_#{issue[1]}'); return false;"
                     = link_to image_tag('req-decline.png', alt: 'Cancel', title: 'Cancel changes'), '#', onclick: "changeDesc('cancel', '#{issue[0]}_#{issue[1]}'); return false;"
-          .box.show_right.show_left{style: "margin-top:5px;"}
+          .box.show_right.show_left{ style: "margin-top:5px;" }
             %p
-              %label{for: "issue"}
+              %label{ for: "issue" }
                 Add an additional bug (single or a comma-separated list e.g.: "boo#123456,
                 bgo#654321,CVE-2012-1234)"
                 %br/
                 A list of all supported tracker you can find here:
                 \#{link_to 'Tracker List', 'https://en.opensuse.org/openSUSE:Packaging_Patches_guidelines#Current_set_of_abbreviations'}
-              %input#issue{name: "issuelist", type: "text", value: "#{@issueid}"}
+              %input#issue{ name: "issuelist", type: "text", value: "#{@issueid}" }
                 = link_to image_tag('bug_add.png', alt: 'Add Bug', title: "Add additional issues e.g.: \"bnc#123456, bgo#654321\""), '#', data: { 'add-issue' => true, project: @project.name }
                 = image_tag('ajax-loader.gif', id: 'issue_spinner', class: 'hidden')
           .box.show_left.show_right
@@ -92,13 +92,13 @@
               Required actions:
           %p
             = check_box_tag('zypp_restart_needed', true, @zypp_restart_needed)
-            %label{for: "zypp_restart_needed"} Package-manager restart suggested
+            %label{ for: "zypp_restart_needed" } Package-manager restart suggested
           %p
             = check_box_tag('relogin', true, @relogin)
-            %label{for: "relogin"} Relogin suggested
+            %label{ for: "relogin" } Relogin suggested
           %p
             = check_box_tag('reboot', true, @reboot)
-            %label{for: "reboot"} Reboot suggested
+            %label{ for: "reboot" } Reboot suggested
         .box.show_left.show_right
           %p
             %strong
@@ -109,33 +109,33 @@
             - @binarylist.each { |d| available_bin << "#{d.to_s}" }
             - selected_bin = Array.new
             - @binaries.each { |bin| selected_bin << "#{bin.to_s}" }
-            #avail-bin{style: "float:left; width:44%; margin-left:5px;"}
+            #avail-bin{ style: "float:left; width:44%; margin-left:5px;" }
               = select_tag 'available_binaries', options_for_select(available_bin), multiple: true, size: 6, style: 'width:100%;'
-            #bin-options{style: "float:left; width:28px;"}
-              %input#add{style: "width:28px;", type: "button", value: ">"}/
+            #bin-options{ style: "float:left; width:28px;" }
+              %input#add{ style: "width:28px;", type: "button", value: ">" }/
               %br/
-              %input#add-all{style: "width:28px;", type: "button", value: ">>"}/
+              %input#add-all{ style: "width:28px;", type: "button", value: ">>" }/
               %br/
-              %input#remove-all{style: "width:28px;", type: "button", value: "<<"}/
+              %input#remove-all{ style: "width:28px;", type: "button", value: "<<" }/
               %br/
-              %input#remove{style: "width:28px;", type: "button", value: "<"}/
+              %input#remove{ style: "width:28px;", type: "button", value: "<" }/
               %br/
-            #sele-bin{style: "width:44%; float:left;"}
+            #sele-bin{ style: "width:44%; float:left;" }
               - if !selected_bin.blank?
                 = select_tag 'selected_binaries', options_for_select(selected_bin), multiple: true, size: 6, style: 'width:100%;'
               - else
                 = select_tag 'selected_binaries', "<option value=''></option>".html_safe, multiple: true, size: 6, style: 'width:100%;'
-            %br{style: "clear:both;"}/
+            %br{ style: "clear:both;" }/
           - else
             %strong No binaries available!
-        .box.ui-state-error.ui-widget-shadow.show_left.show_right{style: "padding-bottom:5px;"}
+        .box.ui-state-error.ui-widget-shadow.show_left.show_right{ style: "padding-bottom:5px;" }
           %p
             %strong Block release?
             = check_box_tag('block', 'true', @block)
           %p
             %strong Reason:
             = text_field_tag('block_reason', @block_reason, style: 'width: 99%', disabled: true)
-        %div{style: "margin-left:5px;"}
+        %div{ style: "margin-left:5px;" }
           = submit_tag 'Save Patchinfo'
         = hidden_field_tag "name", @name
 - content_for :ready_function do

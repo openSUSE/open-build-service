@@ -3,10 +3,10 @@
   %p
     = f.check_box :use_project_repositories
     = f.label :use_project_repositories
-  %p.ui-state-highlight#use-project-repositories-text{ class: "#{'hidden' unless f.object.use_project_repositories?}"}
+  %p.ui-state-highlight#use-project-repositories-text{ class: "#{'hidden' unless f.object.use_project_repositories?}" }
     = sprite_tag("info", title: 'Add package')
     This option will use the repositories from the current project. Other repositories set in this Kiwi Image will be REMOVED.
-#kiwi-repositories-list{ class: "#{'hidden' if f.object.use_project_repositories?}"}
+#kiwi-repositories-list{ class: "#{'hidden' if f.object.use_project_repositories?}" }
   %hr
   %p#no-repositories{ class: "#{'hidden' if @image.repositories.present?}" }= 'There are no repositories.'
   = f.fields_for :repositories do |repository_fields|

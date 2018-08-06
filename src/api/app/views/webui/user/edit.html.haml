@@ -5,7 +5,7 @@
 - @crumb_list << @pagetitle
 
 %h2
-  = "Editing User Data for User #{@displayed_user.login}"
+  Editing User Data for User #{@displayed_user.login}
 
 = form_for(@displayed_user, url: user_save_path, method: 'post') do |f|
   = f.hidden_field(:login)

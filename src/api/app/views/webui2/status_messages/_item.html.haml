@@ -3,13 +3,13 @@
     .col-2.pl-2.text-center
       - case message.severity.to_i
         - when 1
-          %i.fa.fa-check-circle.fa-2x.text-primary.pt-3{title: 'Success'}
+          %i.fa.fa-check-circle.fa-2x.text-primary.pt-3{ title: 'Success' }
         - when 2
-          %i.fa.fa-exclamation-circle.fa-2x.text-warning.pt-3{title: 'Warning'}
+          %i.fa.fa-exclamation-circle.fa-2x.text-warning.pt-3{ title: 'Warning' }
         - when 3
-          %i.fa.fa-times-circle.fa-2x.text-danger.pt-3{title: 'Alert'}
+          %i.fa.fa-times-circle.fa-2x.text-danger.pt-3{ title: 'Alert' }
         - else
-          %i.fa.fa-info-circle.fa-2x.text-info.pt-3{title: 'Info'}
+          %i.fa.fa-info-circle.fa-2x.text-info.pt-3{ title: 'Info' }
     .col-10.pl-0
       %small
         = user_with_realname_and_icon(message.user, short: true)

@@ -120,8 +120,7 @@ class Webui::PackageController < Webui::WebuiController
     @dproject = params[:dproject]
     # Ensure it really is just a file name, no '/..', etc.
     @filename = File.basename(params[:filename])
-    @fileinfo = Fileinfo.find(project: params[:dproject], package: '_repository', repository: params[:drepository], arch: @arch,
-      filename: params[:dname], view: 'fileinfo_ext')
+    @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(params[:dproject], '_repository', params[:drepository], @arch, params[:dname])
     @durl = nil
     return if @fileinfo # avoid displaying an error for non-existing packages
     redirect_back(fallback_location: { action: :binary, project: params[:project], package: params[:package],
@@ -151,8 +150,7 @@ class Webui::PackageController < Webui::WebuiController
     @filename = File.basename(params[:filename])
 
     begin
-      @fileinfo = Fileinfo.find(project: @project, package: params[:package], repository: @repository.name, arch: @arch.name,
-        filename: @filename, view: 'fileinfo_ext')
+      @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project, params[:package], @repository.name, @arch.name, @filename)
     rescue ActiveXML::Transport::ForbiddenError, ActiveXML::Transport::Error => e
       flash[:error] = "File #{@filename} can not be downloaded from #{@project}: #{e.summary}"
       redirect_to controller: :package, action: :binaries, project: @project,

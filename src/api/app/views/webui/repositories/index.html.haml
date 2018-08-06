@@ -32,7 +32,7 @@
       = render partial: "repository_entry", locals: { repository: repository }
 
   - if User.current.is_admin?
-    %div.hidden.add-dod-repository-form
+    .hidden.add-dod-repository-form
       = render partial: "dod_repository_form", locals: { project: @project, download_on_demand: DownloadRepository.new }
     %p
       = link_to(sprite_tag("drive_add", title: "Add DoD repository") + " Add DoD repository", "#", id: "add-dod-repository-link")

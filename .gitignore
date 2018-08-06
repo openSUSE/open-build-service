@@ -51,6 +51,8 @@
 /src/backend/sat-solver
 /src/backend/t/tmp
 docker-compose.override.yml
+docker-files/home/.bash_history
+docker-files/home/.irb_history
 contrib/rabbitmqadmin
 
 # All the other crap that fits nowhere specifically

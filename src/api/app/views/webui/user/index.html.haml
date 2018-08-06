@@ -24,7 +24,7 @@
             Actions
       %tbody
         - @users.each do |user|
-          %tr(id="user-#{valid_xml_id(user.login)}")
+          %tr{ id: "user-#{valid_xml_id(user.login)}" }
             %td
               = user_with_realname_and_icon(user, no_icon: true)
             - if Configuration.ldap_enabled?

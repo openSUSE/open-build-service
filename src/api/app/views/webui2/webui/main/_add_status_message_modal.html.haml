@@ -1,10 +1,10 @@
-.modal#status-message-modal{:role => "dialog", :tabindex => "-1"}
-  .modal-dialog{:role => "document"}
+.modal#status-message-modal{ role: 'dialog', tabindex: '-1' }
+  .modal-dialog{ role: 'document' }
     .modal-content
       .modal-header
         %h5.modal-title Add Status Message
-        %button.close{"aria-label" => "Close", "data-dismiss" => "modal", :type => "button"}
-          %span{"aria-hidden" => "true"} ×
+        %button.close{ 'aria-label' => 'Close', 'data-dismiss' => 'modal', type: 'button' }
+          %span{ 'aria-hidden' => 'true' } ×
       .modal-body
         = form_tag({ controller: 'status_messages', action: 'create' }, method: 'post') do
           %p

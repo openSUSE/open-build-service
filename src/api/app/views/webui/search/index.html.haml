@@ -24,7 +24,7 @@
         %h4 Search for:
         %p
           = check_box_tag('project', 1, params[:project].nil? || params[:project] == "1")
-          %label{for: "project" } Projects
+          %label{ for: "project" } Projects
           = check_box_tag('package', 1, params[:package].nil? || params[:package] == "1")
           %label{ for: "package" } Packages
         %h4 Search in:

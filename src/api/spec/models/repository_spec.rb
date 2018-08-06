@@ -44,7 +44,7 @@ RSpec.describe Repository do
       subject { repository.cycles('x64_64') }
 
       before do
-        class_double('BuilddepInfo', find: BuilddepInfo.new(cycles_xml)).as_stubbed_const
+        allow(Backend::Api::BuildResults::Binaries).to receive(:builddepinfo).and_return(cycles_xml)
       end
 
       context 'with no cycle' do

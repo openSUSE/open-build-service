@@ -37,6 +37,19 @@ module Backend
           http_get(['/build/:project/:repository/:architecture/:package/rpmlint.log', project_name, repository_name, architecture_name, package_name])
         end
 
+        # special view on a binary file for details display
+        # @return [Hash]
+        def self.fileinfo_ext(project_name, package_name, repository, arch, filename)
+          fileinfo = http_get(['/build/:project/:repository/:arch/:package/:filename?view=fileinfo_ext', project_name, repository, arch, package_name, filename])
+          Xmlhash.parse(fileinfo) if fileinfo
+        end
+
+        def self.builddepinfo(project_name, repository, arch, package_name = nil)
+          params = {}
+          params[:package] = package_name if package_name
+          http_get(['/build/:project/:repository/:arch/_builddepinfo', project_name, repository, arch], params: params)
+        end
+
         # Returns the build dependency information
         # @return [String]
         def self.build_dependency_info(project_name, package_name, repository_name, architecture_name)
