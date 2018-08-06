@@ -17,11 +17,6 @@ linters:
       - "app/views/webui2/webui/main/about.html.haml"
       - "app/views/webui2/webui/main/index.html.haml"
 
-  # Offense count: 1
-  InlineStyles:
-    exclude:
-      - "app/views/webui2/webui/main/_latest_updates.html.haml"
-
   # Offense count: 8
   InstanceVariables:
     exclude:
