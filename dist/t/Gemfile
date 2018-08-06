@@ -4,4 +4,4 @@ gem 'rspec-core'
 gem 'rspec-expectations'
 gem 'capybara'
 # as driver for capybara
-gem 'poltergeist', '>= 1.4'
+gem 'selenium-webdriver'
