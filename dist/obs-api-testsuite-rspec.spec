@@ -56,10 +56,6 @@ bundle --local --path %_libdir/obs-api/
 
 ./script/prepare_spec_tests.sh
 
-# map to casssettes
-perl -pi -e 's/source_host: localhost/source_host: backend/' config/options.yml
-perl -pi -e 's/source_port: 3200/source_port: 5352/' config/options.yml
-
 export RAILS_ENV=test
 bin/rake db:create db:setup
 bin/rails assets:precompile

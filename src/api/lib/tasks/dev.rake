@@ -4,9 +4,7 @@ require 'fileutils'
 require 'yaml'
 
 namespace :dev do
-  task :prepare, [:old_test_suite] do |_t, args|
-    args.with_defaults(old_test_suite: false)
-
+  task :prepare do |_t, args|
     puts 'Setting up the database configuration...'
     copy_example_file('config/database.yml')
     database_yml = YAML.load_file('config/database.yml') || {}
@@ -19,9 +17,9 @@ namespace :dev do
     puts 'Setting up the application configuration...'
     copy_example_file('config/options.yml')
     options_yml = YAML.load_file('config/options.yml') || {}
-    options_yml['source_host'] = args.old_test_suite ? 'localhost' : 'backend'
+    options_yml['source_host'] = 'backend'
     options_yml['memcached_host'] = 'cache'
-    options_yml['source_port'] = args.old_test_suite ? '3200' : '5352'
+    options_yml['source_port'] = '5352'
     File.open('config/options.yml', 'w') do |f|
       f.write(YAML.dump(options_yml))
     end
