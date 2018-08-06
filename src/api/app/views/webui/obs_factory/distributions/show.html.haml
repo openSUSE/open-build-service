@@ -18,7 +18,7 @@
       = link_to 'Ring Projects', project_subprojects_path(project: @distribution.rings_project_name)
     %ul.project-results#ring-projects
       - @ring_prjs.each do |rp|
-        %li{class: "project-result-#{rp.summary[0]}"}
+        %li{ class: "project-result-#{rp.summary[0]}" }
           = link_to rp.summary[1], project_monitor_path(rp.build_and_failed_params)
 
     %p.clear
@@ -28,12 +28,12 @@
       = link_to "Repositories of #{@distribution.name}", project_show_path(project: "#{@distribution.name}")
 
     %ul.project-results#factory-build-status
-      %li{class: "project-result-#{@standard.summary[0]} "}
+      %li{ class: "project-result-#{@standard.summary[0]} " }
         = link_to @standard.summary[1], project_monitor_path(@standard.build_and_failed_params)
       - if @live
-        %li{class: "project-result-#{@live.summary[0]}"}
+        %li{ class: "project-result-#{@live.summary[0]}" }
           = link_to @live.summary[1], project_monitor_path(@live.build_and_failed_params)
-      %li{class: "project-result-#{@images.summary[0]}"}
+      %li{ class: "project-result-#{@images.summary[0]}" }
         = link_to @images.summary[1], project_monitor_path(@images.build_and_failed_params)
 
 

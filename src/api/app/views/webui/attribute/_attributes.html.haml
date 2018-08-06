@@ -17,7 +17,7 @@
             %ul
             - attribute.values.each do |v|
               %li
-                %pre{ style: "display: inline-flex"}= v.value
+                %pre{ style: "display: inline-flex" }= v.value
             = attribute.issues.map(&:name).join(', ')
           - unless User.current.is_nobody?
             %td

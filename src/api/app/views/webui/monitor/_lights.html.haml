@@ -16,7 +16,7 @@
                 - state = "red"
               - elsif daemon["state"] == "booting"
                 - state = "yellow"
-              %div{ class: "statuslight #{'status_' + state}", style: "margin: auto", title: "#{daemon['state']}"}
+              %div{ class: "statuslight #{'status_' + state}", style: "margin: auto", title: "#{daemon['state']}" }
               .statusarch
                 = daemon["arch"] ? daemon["arch"] : daemon["type"]
               %span.hidden.statustext

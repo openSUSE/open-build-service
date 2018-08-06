@@ -22,6 +22,6 @@
           %div{ class: flash_header }
           .more-info-content
             = simple_format @more_info.gsub(/\\n/, '<br \>')
-      %button.close{type: "button", "data-dismiss": "alert", "aria-label": "Close"}
-        %span{"aria-hidden": "true"}
+      %button.close{ type: "button", "data-dismiss": "alert", "aria-label": "Close" }
+        %span{ "aria-hidden": "true" }
           &times;

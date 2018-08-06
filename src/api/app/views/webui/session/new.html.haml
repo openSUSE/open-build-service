@@ -2,9 +2,9 @@
 - if CONFIG['proxy_auth_mode'] == :on
   %form{ action: "#{CONFIG['proxy_auth_login_page']}", enctype: "application/x-www-form-urlencoded", method: "post" }
     %div
-      %input{name: "context", type: "hidden", value: "default"}/
-      %input{name: "proxypath", type: "hidden", value: "reverse"}/
-      %input{name: "message", type: "hidden", value: "Please log In"}/
+      %input{ name: "context", type: "hidden", value: "default" }/
+      %input{ name: "proxypath", type: "hidden", value: "reverse" }/
+      %input{ name: "message", type: "hidden", value: "Please log In" }/
       = render partial: 'form'
 - elsif CONFIG['kerberos_mode']
   %h2

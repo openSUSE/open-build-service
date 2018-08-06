@@ -1,14 +1,14 @@
-.form#loginform{title: "Account login"}
+.form#loginform{ title: "Account login" }
   %h1= @pagetitle
   %p
-    %label{for: "user-login"} Username:
-    %input#user-login{name: "username", size: "30", type: "text", value: ""}/
+    %label{ for: "user-login" } Username:
+    %input#user-login{ name: "username", size: "30", type: "text", value: "" }/
     %br/
     %br/
-    %label{for: "user-password"} Password:
-    %input#user-password{name: "password", size: "30", type: "password"}/
+    %label{ for: "user-password" } Password:
+    %input#user-password{ name: "password", size: "30", type: "password" }/
   %p
-    %input.primary#log-in-button{name: "login", type: "submit", value: "Log In »"}/
+    %input.primary#log-in-button{ name: "login", type: "submit", value: "Log In »" }/
 %p
   - if CONFIG['proxy_auth_mode'] == :on
     Or

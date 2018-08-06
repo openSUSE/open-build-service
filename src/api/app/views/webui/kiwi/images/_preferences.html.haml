@@ -4,17 +4,17 @@
   %ul.inline
     %li
       %strong Image type:
-      %span.fill{ data: { tag: 'type_image' }}= @image.preference.type_image
+      %span.fill{ data: { tag: 'type_image' } }= @image.preference.type_image
     %li
       %strong Version:
-      %span.fill{ data: { tag: 'version' }}= @image.preference.version
+      %span.fill{ data: { tag: 'version' } }= @image.preference.version
     - if @image.preference.containerconfig_fields_editable?
       %li
         %strong Container config name:
-        %span.fill{ data: { tag: 'type_containerconfig_name' }}= @image.preference.type_containerconfig_name
+        %span.fill{ data: { tag: 'type_containerconfig_name' } }= @image.preference.type_containerconfig_name
       %li
         %strong Container config tag:
-        %span.fill{ data: { tag: 'type_containerconfig_tag' }}= @image.preference.type_containerconfig_tag
+        %span.fill{ data: { tag: 'type_containerconfig_tag' } }= @image.preference.type_containerconfig_tag
   %p
     = link_to sprited_text('package_edit', 'Edit preferences'), '#', class: 'preferences_edit'
 

@@ -24,10 +24,6 @@ linters:
   RuboCop:
     enabled: false
 
-  # Offense count: 152
-  SpaceInsideHashAttributes:
-    enabled: false
-
   # Offense count: 64
   InlineStyles:
     enabled: false
@@ -41,45 +37,8 @@ linters:
       - "app/views/webui/user/show.html.haml"
       - "app/views/webui/cloud/azure/configurations/show.html.haml"
 
-  # Offense count: 6
-  MultilinePipe:
-    exclude:
-      - "app/views/webui/package/_submit_request_dialog.html.haml"
-      - "app/views/webui/repositories/_repository_entry.html.haml"
-      - "app/views/webui/user/_dropdown_menu.html.haml"
-
-  # Offense count: 4
-  UnnecessaryStringOutput:
-    exclude:
-      - "app/views/webui/repositories/_dod_repository_form.html.haml"
-      - "app/views/webui/repositories/_repository_entry.html.haml"
-      - "app/views/webui/user/edit.html.haml"
-
-  # Offense count: 2
-  RubyComments:
-    exclude:
-      - "app/views/webui/repositories/_dod_repository_form.html.haml"
-      - "app/views/webui/repositories/_repository_entry.html.haml"
-
-  # Offense count: 2
-  ImplicitDiv:
-    exclude:
-      - "app/views/webui/repositories/_repository_entry.html.haml"
-      - "app/views/webui/repositories/index.html.haml"
-
-  # Offense count: 2
-  SpaceBeforeScript:
-    exclude:
-      - "app/views/webui/search/owner.html.haml"
-
   # Offense count: 15
   RepeatedId:
     exclude:
       - "app/views/webui/search/owner.html.haml"
       - "app/views/layouts/webui/_personal_navigation.html.haml"
-
-  # Offense count: 3
-  HtmlAttributes:
-    exclude:
-      - "app/views/webui/user/_dropdown_menu.html.haml"
-      - "app/views/webui/user/index.html.haml"

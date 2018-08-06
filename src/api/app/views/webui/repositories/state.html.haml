@@ -3,7 +3,7 @@
 - project_bread_crumb('Repository State')
 = render partial: 'webui/project/tabs'
 / this page will also get other repository informations like jobhistory
-%div{id: "#{valid_xml_id(@repository.name)}", style: "margin-bottom: 1.2em"}
+%div{ id: "#{valid_xml_id(@repository.name)}", style: "margin-bottom: 1.2em" }
   %h3
     State of Repository #{@repository} for #{@project}
   %p

@@ -16,9 +16,9 @@
         %br/
         = label_tag(:targetproject, 'To target project:')
         %br/
-        = text_field_tag(:targetproject, @tprj, size: 40, disabled: params[:readonly], required: true, |
-                         data: { autocomplete_url: url_for(controller: :project, action: :autocomplete_projects), |
-                                 requests_url: url_for(controller: :request, action: :list_small), |
+        = text_field_tag(:targetproject, @tprj, size: 40, disabled: params[:readonly], required: true,
+                         data: { autocomplete_url: url_for(controller: :project, action: :autocomplete_projects),
+                                 requests_url: url_for(controller: :request, action: :list_small),
                                  develpackage_url: url_for(controller: :package, action: :devel_project) })
         %br/
 

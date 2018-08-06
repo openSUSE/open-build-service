@@ -1,6 +1,6 @@
 .box{ style: "margin-left: 20px;" }
   %h3.box-header{ style: "padding-left: 6px;" }
-    = "Add DoD repository"
+    Add DoD repository
 
   = form_tag({ action: :create_dod_repository, project: @project }, method: "post", remote: true) do
     %div
@@ -10,8 +10,8 @@
 
     %div
       %h4
-        = "Download on Demand Source"
-      - # Note: Mostly C&P from app/views/webui/download_on_demand/_form.html.erb
+        Download on Demand Source
+      -# Note: Mostly C&P from app/views/webui/download_on_demand/_form.html.erb
       %div{ style: "margin-bottom: 1.2em; margin-left: 2em" }
         = label_tag :arch, "Architecture", style: "display:inline-block;width:100px;"
         = select_tag :arch, options_for_select(Architecture.available, ""), required: true
