@@ -10,14 +10,14 @@
   %p.description
     = @configuration['title']
     hosts
-    %b= number_with_delimiter @sysstats[:projects]
+    %b= number_with_delimiter @system_stats[:projects]
     projects, with
-    %b= number_with_delimiter @sysstats[:packages]
+    %b= number_with_delimiter @system_stats[:packages]
     packages, in
-    %b= number_with_delimiter @sysstats[:repos]
+    %b= number_with_delimiter @system_stats[:repositories]
     repositories
     and is used by
-    %b= number_with_delimiter @sysstats[:users]
+    %b= number_with_delimiter @system_stats[:users]
     confirmed developers.
 - content_for :ready_function do
   plotbusyworkers(#{Webui::MonitorHelper.print_statistics_array(@busy)});

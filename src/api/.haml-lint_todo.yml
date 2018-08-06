@@ -16,9 +16,3 @@ linters:
       - "app/views/webui2/webui/main/_sponsors.html.haml"
       - "app/views/webui2/webui/main/about.html.haml"
       - "app/views/webui2/webui/main/index.html.haml"
-
-  # Offense count: 8
-  InstanceVariables:
-    exclude:
-      - "app/views/webui2/webui/main/_systemstatus.html.haml"
-      - "app/views/webui2/webui/package/_tabs.html.haml"

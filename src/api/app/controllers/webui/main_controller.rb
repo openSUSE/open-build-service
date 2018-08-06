@@ -33,14 +33,16 @@ class Webui::MainController < Webui::WebuiController
     @busy = Rails.cache.fetch('mainpage_busy', expires_in: 10.minutes) do
       gather_busy
     end
-    @sysstats = Rails.cache.fetch('sysstats_hash', expires_in: 30.minutes) do
-      sysstats = {}
-      sysstats[:projects] = Project.count
-      sysstats[:packages] = Package.count
-      sysstats[:repos] = Repository.count
-      sysstats[:users] = User.count
-      sysstats
+
+    @system_stats = Rails.cache.fetch('system_stats_hash', expires_in: 30.minutes) do
+      {
+        projects: Project.count,
+        packages: Package.count,
+        repositories: Repository.count,
+        users: User.count
+      }
     end
+
     switch_to_webui2
   end
 end
