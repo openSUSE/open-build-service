@@ -1,9 +1,9 @@
 ul.nav.nav-tabs li.nav-item {
   & a {
-    color: $obs_green;
+    color: $obs_blue;
 
     &:hover {
-      color: $obs_blue;
+      color: $obs_green;
     }
 
     &.dropdown-item.active {
