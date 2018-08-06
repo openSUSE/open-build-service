@@ -23,3 +23,5 @@
 //= require webui2/datatables.js
 //= require webui2/tabs.js
 //= require webui/application/comment.js
+//= require webui2/request.js
+//= require webui2/jquery-ui.min.js
