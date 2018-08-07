@@ -7,6 +7,8 @@ class Status::Check < ApplicationRecord
   #### Self config
 
   #### Attributes
+  validates :state, :name, :checkable, presence: true
+  validates :state, inclusion: { in: %w[pending error failure success] }
 
   #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :checkable, polymorphic: true

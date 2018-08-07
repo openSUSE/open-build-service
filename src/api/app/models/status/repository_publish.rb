@@ -7,6 +7,7 @@ class Status::RepositoryPublish < ApplicationRecord
   #### Self config
 
   #### Attributes
+  validates :repository, :build_id, presence: true
 
   #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :repository
