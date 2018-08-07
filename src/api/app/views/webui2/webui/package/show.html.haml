@@ -21,7 +21,7 @@
     .card.mb-3
       %h5.card-header
         Source Files
-        = image_tag('ajax-loader.gif', :id => 'spinner_files', :style => 'display: none')
+        = image_tag('ajax-loader.gif', id: 'spinner_files', style: 'display: none')
         - if @linkinfo && @revision_parameter.nil?
           %small
             - if @expand && @expand.to_s == '1' || @forced_unexpand.present?
