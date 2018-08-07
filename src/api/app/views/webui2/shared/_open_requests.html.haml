@@ -1,0 +1,10 @@
+- unless @requests.blank?
+  %li
+    - if @requests.size == 1
+      - path = request_show_path(@requests[0])
+    - elsif @package
+      - path = package_requests_path(@project, @package)
+    - else
+      - path = project_requests_path(@project)
+    %i.fas.fa-info-circle.text-info
+    = link_to(pluralize(@requests.size, 'open request'), path)
