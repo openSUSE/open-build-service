@@ -15,6 +15,7 @@ class Repository < ApplicationRecord
   has_many :product_medium, dependent: :delete_all
   has_many :repository_architectures, -> { order('position') }, dependent: :destroy, inverse_of: :repository
   has_many :architectures, -> { order('position') }, through: :repository_architectures
+  has_many :status_publishes, class_name: 'Status::RepositoryPublish'
 
   scope :not_remote, -> { where(remote_project_name: '') }
   scope :remote, -> { where.not(remote_project_name: '') }
