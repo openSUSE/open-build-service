@@ -12,7 +12,7 @@
           = select_tag(:role, options_for_select([['Maintainer', 'maintainer'], ['Bugowner', 'bugowner']]), class: 'form-control')
         .form-group
           = label_tag(:user, 'For user:')
-          = text_field_tag(:user, User.current.login, class: 'form-control' )
+          = text_field_tag(:user, User.current.login, class: 'form-control')
         - if defined? @package
           .form-group
             = label_tag(:target_project, 'In target project:')

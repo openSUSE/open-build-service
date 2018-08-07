@@ -1,19 +1,28 @@
-- index ||= ''
-- if defined?(package)
-  - controller = 'package'
-- else
-  - controller = 'project'
+:ruby
+  index ||= ''
+  if defined?(package)
+    controller = 'package'
+  else
+    controller = 'project'
+  end
+  ajax_data = {}
+  ajax_data['project'] = h(project) if defined?(project)
+  ajax_data['package'] = h(package) if defined?(package)
+  ajax_data['index'] = h(index) if defined?(index)
+
 .box-header.header-tabs
 .card.mb-3
   .bg-light
-    %ul.nav.nav-tabs.pt-2.px-3#buildresult-box{ role: 'tablist' }
+    %ul.nav.nav-tabs.pt-2.px-3#buildresult-box{ role: 'tablist', data: ajax_data }
       %li.nav-item
-        = link_to("#build#{index}", id: "build#{index}-tab", class: 'nav-link active', data: { toggle: 'tab' }, role: 'tab', aria: { controls: "build#{index}", selected: true }) do
+        = link_to("#build#{index}", id: "build#{index}-tab", class: 'nav-link active',
+          data: { toggle: 'tab' }, role: 'tab', aria: { controls: "build#{index}", selected: true }) do
           Build Results
           %i.fas.fa-sync-alt{ id: "build#{index}-reload", onclick: "update_build_result_#{index}()" }
       - if controller == 'package'
         %li.nav-item
-          = link_to("#rpm#{index}", id: "rpm#{index}-tab", class: 'nav-link', data: { toggle: 'tab' }, role: 'tab', aria: { controls: "rpm#{index}", selected: false }) do
+          = link_to("#rpm#{index}", id: "rpm#{index}-tab", class: 'nav-link', data: { toggle: 'tab' },
+            role: 'tab', aria: { controls: "rpm#{index}", selected: false }) do
             Rpmlint Results
             %i.fas.fa-sync-alt.invisible{ id: "rpm#{index}-reload", onclick: "update_rpmlint_result_#{index}()" }
   .card-boby
@@ -23,65 +32,57 @@
         - if controller == 'package'
           .tab-pane.fade{ id: "rpm#{index}", role: 'tabpanel', aria: { labelledby: "rpm#{index}-tab" } }
 
-- ajax_data = []
-- ajax_data.push("'project': '#{h(project)}'") if defined?(project)
-- ajax_data.push("'package': '#{h(package)}'") if defined?(package)
-- ajax_data.push("'index': '#{index}'") if defined?(index)
-- ajax_data = raw(ajax_data.join ', ')
-
-= javascript_tag do
-  :plain
-    $(function () {
-      $('#buildresult-box a[data-toggle="tab"]').on('hide.bs.tab', function (e) {
-        var target = $(e.target).attr("href");
-        $(target + '-reload').addClass('invisible');
-      });
-      $('#buildresult-box a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-        var target = $(e.target).attr("href")
-        $(target + '-reload').removeClass('invisible');
-      });
+:javascript
+  $(function () {
+    $('#buildresult-box a[data-toggle="tab"]').on('hide.bs.tab', function (e) {
+      var target = $(e.target).attr("href");
+      $(target + '-reload').addClass('invisible');
     });
+    $('#buildresult-box a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+      var target = $(e.target).attr("href")
+      $(target + '-reload').removeClass('invisible');
+    });
+  });
 
-  - if controller == 'package'
-    :plain
-      function update_rpmlint_result_#{index}() {
-        $('#rpm#{index}-reload').addClass('fa-spin');
-        $.ajax({
-          url: '#{ url_for(controller: controller, action: 'rpmlint_result') }',
-          data: {#{ajax_data}},
-          success: function(data) {
-            $('#rpm#{index}').html(data);
-          },
-          error: function(data) {
-            $('#rpm#{index}').html('<p>No rpmlint results available</p>');
-          },
-          complete: function(data) {
-            $('#rpm#{index}-reload').removeClass('fa-spin');
-          }
-        });
-      }
-
-      update_rpmlint_result_#{index}();
-
-  :plain
-    function update_build_result_#{index}() {
-      $('#build#{index}-reload').addClass('fa-spin');
+- if controller == 'package'
+  :javascript
+    function update_rpmlint_result_#{index}() {
+      $('#rpm#{index}-reload').addClass('fa-spin');
       $.ajax({
-        url: '#{ url_for(controller: controller, action: 'buildresult') }',
-        data: {
-          'show_all': $('#show_all_#{index}').is(':checked'),
-          #{ajax_data}
-        },
+        url: '#{ url_for(controller: controller, action: 'rpmlint_result') }',
+        data: $('#buildresult-box').data(),
         success: function(data) {
-          $('#build#{index}').html(data);
+          $('#rpm#{index}').html(data);
         },
         error: function(data) {
-          $('#build#{index}').html('<p>No build results available</p>');
+          $('#rpm#{index}').html('<p>No rpmlint results available</p>');
         },
         complete: function(data) {
-          $('#build#{index}-reload').removeClass('fa-spin');
+          $('#rpm#{index}-reload').removeClass('fa-spin');
         }
       });
     }
 
-    update_build_result_#{index}();
+    update_rpmlint_result_#{index}();
+
+:javascript
+  function update_build_result_#{index}() {
+    var ajax_data_show = $('#buildresult-box').data();
+    ajax_data_show['show_all'] = $('#show_all_#{index}').is(':checked')
+    $('#build#{index}-reload').addClass('fa-spin');
+    $.ajax({
+      url: '#{ url_for(controller: controller, action: 'buildresult') }',
+      data: ajax_data_show,
+      success: function(data) {
+        $('#build#{index}').html(data);
+      },
+      error: function(data) {
+        $('#build#{index}').html('<p>No build results available</p>');
+      },
+      complete: function(data) {
+        $('#build#{index}-reload').removeClass('fa-spin');
+      }
+    });
+  }
+
+  update_build_result_#{index}();

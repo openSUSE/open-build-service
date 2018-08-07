@@ -4,7 +4,7 @@
   - unless @repo_list.empty?
     = select_tag("rpmlint_repo_select_#{index}", options_for_select(@repo_list.sort))
     - @repo_arch_hash.each do |repo, arches|
-      = select_tag("rpmlint_arch_select_#{index}_#{repo}", options_for_select(arches.reverse), :class => "rpmlint_arch_select_#{index}")
+      = select_tag("rpmlint_arch_select_#{index}_#{repo}", options_for_select(arches.reverse), class: "rpmlint_arch_select_#{index}")
 %pre.rpmlint-result{ id: "rpmlint_display_#{index}" }
 
 :javascript
@@ -18,7 +18,7 @@
     repo_name = $('#rpmlint_repo_select_#{index} option:selected').html();
     repo_key = $('#rpmlint_repo_select_#{index} option:selected').attr('value');
     $.ajax({
-      url: '#{url_for(:controller => 'package', :action => 'rpmlint_log')}',
+      url: '#{url_for(controller: 'package', action: 'rpmlint_log')}',
       data: {
         'project': '#{@project.name}',
         'package': '#{@package.name}',
