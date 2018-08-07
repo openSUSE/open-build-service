@@ -1345,15 +1345,17 @@ RSpec.describe Webui::PackageController, vcr: true do
     end
 
     context 'when backend returns statistics' do
+      render_views
+
       before do
-        allow(Statistic).to receive(:find_hashed).
-          with(project: source_project, package: source_package.name, repository: repository.name, arch: 'i586').
-          and_return(disk: { usage: 20, size: 30 })
+        allow(Backend::Api::BuildResults::Status).to receive(:statistics).
+          with(source_project, source_package.name, repository.name, 'i586').
+          and_return('<buildstatistics><disk><usage><size unit="M">30</size></usage></disk></buildstatistics>')
 
         get :statistics, params: { project: source_project, package: source_package, arch: 'i586', repository: repository.name }
       end
 
-      it { expect(assigns(:statistics)).to eq(disk: { usage: 20, size: 30 }) }
+      it { expect(assigns(:statistics)).to eq('disk' => { 'usage' => { 'size' => { '_content' => '30', 'unit' => 'M' } } }) }
       it { expect(response).to have_http_status(:success) }
     end
 
@@ -1371,8 +1373,8 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'when backend raises an exception' do
       before do
-        allow(Statistic).to receive(:find_hashed).
-          with(project: source_project, package: source_package.name, repository: repository.name, arch: 'i586').
+        allow(Backend::Api::BuildResults::Status).to receive(:statistics).
+          with(source_project, source_package.name, repository.name, 'i586').
           and_raise(ActiveXML::Transport::ForbiddenError)
 
         get :statistics, params: { project: source_project, package: source_package, arch: 'i586', repository: repository.name }
