@@ -18,8 +18,7 @@ module Webui
           return
         end
         bdep = Backend::Api::BuildResults::Binaries.builddepinfo(@project.name, @repository, @arch)
-        jobs = Jobhistory.find(project: @project.name, repository: @repository, arch: @arch,
-                limit: (@packages.size + @ipackages.size) * 3, code: ['succeeded', 'unchanged'])
+        jobs = Backend::Api::BuildResults::JobHistory.not_failed(@project.name, @repository, @arch, (@packages.size + @ipackages.size) * 3)
         unless bdep && jobs
           flash[:error] = "Could not collect infos about repository #{@repository}/#{@arch}"
           redirect_to controller: '/webui/project', action: :show, project: @project
@@ -60,7 +59,7 @@ module Webui
         f.write(bdep)
         f.close
         f = File.open(indir + '/_jobhistory.xml', 'w')
-        f.write(jobs.dump_xml)
+        f.write(jobs)
         f.close
         outdir = Dir.mktmpdir
 

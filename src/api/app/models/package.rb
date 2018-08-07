@@ -933,9 +933,11 @@ class Package < ApplicationRecord
     options[:limit] = 100 if options[:limit].blank?
     options[:package] = name if options[:package].blank?
 
-    results = Jobhistory.find_hashed(project: project.name, package: options[:package],
-                                     repository: repository, arch: arch,
-                                     limit: options[:limit])
+    begin
+      results = Xmlhash.parse(Backend::Api::BuildResults::JobHistory.all_for_package(project.name, options[:package], repository, arch, options[:limit]))
+    rescue ActiveXML::Transport::Error
+      return []
+    end
 
     local_jobs_history = []
     results.elements('jobhist').each_with_index do |result, index|
