@@ -308,10 +308,10 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                  }, node)
 
     # compare times
-    node = ActiveXML::Node.new(@response.body)
-    assert((node.find_first('state').value('when') == node.each(:history).last.value('when')), 'Current state is has NOT same time as last history item')
+    node = Xmlhash.parse(@response.body)
+    assert_equal(node.elements('state').first.value('when'), node.elements('history').last.value('when'), 'Current state is has NOT same time as last history item')
     oldhistory = nil
-    node.each(:history) do |h|
+    node.elements('history') do |h|
       unless h
         assert((h.value('when') > oldhistory.value('when')), 'Current history is not newer than the former history')
       end
@@ -353,8 +353,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id1 = node.value('id')
     post '/request?cmd=create', params: '<request>
                                    <action type="submit">
@@ -364,8 +364,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id2 = node.value('id')
 
     delete '/source/home:Iggy/TestPack.DELETE2'
@@ -397,8 +397,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id1 = node.value('id')
 
     # create conflicts
@@ -488,8 +488,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', params: load_backend_file('request/set_bugowner')
     assert_response :success
     assert_xml_tag(tag: 'person', attributes: { name: 'Iggy' })
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value('id')
     get "/request/#{id}"
     assert_response :success
@@ -498,8 +498,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', params: load_backend_file('request/set_bugowner_group')
     assert_response :success
     assert_xml_tag(tag: 'group', attributes: { name: 'test_group' })
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id2 = node.value('id')
     get "/request/#{id2}"
     assert_response :success
@@ -615,8 +615,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value('id')
 
     login_Iggy
@@ -650,8 +650,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value('id')
 
     login_Iggy
@@ -690,8 +690,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     post '/request?cmd=create', params: load_backend_file('request/add_role')
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value('id')
 
     post "/request/#{id}?cmd=changestate&newstate=revoked"
@@ -711,8 +711,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', params: req
     assert_response :success
     assert_xml_tag(tag: 'request')
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value(:id)
 
     # do the real mbranch for default maintained packages
@@ -744,8 +744,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', params: req
     assert_response :success
     assert_xml_tag(tag: 'request')
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value(:id)
 
     # add reviewer
@@ -801,8 +801,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', params: req
     assert_response :success
     assert_xml_tag(tag: 'request')
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value(:id)
 
     login_tom
@@ -826,8 +826,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', params: req
     assert_response :success
     assert_xml_tag(tag: 'request')
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value(:id)
 
     post "/request/#{id}?cmd=changestate&newstate=superseded&superseded_by=1"
@@ -840,8 +840,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', params: req
     assert_response :success
     assert_xml_tag(tag: 'request')
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value(:id)
 
     # add reviewer
@@ -888,9 +888,9 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     assert_xml_tag(tag: 'request')
-    node = ActiveXML::Node.new(@response.body)
+    node = Xmlhash.parse(@response.body)
     assert_xml_tag(tag: 'state', attributes: { name: 'new' })
-    assert node.has_attribute?(:id)
+    assert node['id']
     id = node.value(:id)
 
     # add reviewer
@@ -1011,8 +1011,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', params: req
     assert_response :success
     assert_xml_tag(tag: 'request')
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value(:id)
 
     # add reviewer group
@@ -1103,8 +1103,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', params: req
     assert_response :success
     assert_xml_tag(tag: 'request')
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value(:id)
 
     # add reviewer
@@ -1176,7 +1176,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     login_tom
     post '/request?cmd=create', params: req
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
+    node = Xmlhash.parse(@response.body)
     id = node.value :id
 
     # admin can define requests in the name of other people
@@ -1282,8 +1282,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     post '/request?cmd=create', params: rq
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value(:id)
 
     # and create a delete request
@@ -1296,8 +1296,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     post '/request?cmd=create', params: rq
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     iddelete = node.value(:id)
 
     # try to approve change_devel
@@ -1416,8 +1416,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value(:id)
     post "/request/#{id}?cmd=changestate&newstate=revoked"
     assert_response :success
@@ -1457,8 +1457,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value(:id)
     post "/request/#{id}?cmd=changestate&newstate=revoked"
     assert_response :success
@@ -1472,8 +1472,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value(:id)
     post "/request/#{id}?cmd=changestate&newstate=revoked"
     assert_response :success
@@ -1491,8 +1491,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id1 = node.value(:id)
 
     login_king
@@ -1527,8 +1527,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response :success
     assert_xml_tag(tag: 'target', attributes: { project: 'kde4', package: 'kdebase' })
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id1 = node.value(:id)
 
     post '/source/home:tom:branches:kde4/kdebase', params: { cmd: :branch }
@@ -1541,8 +1541,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response :success
     assert_xml_tag(tag: 'target', attributes: { project: 'home:tom:branches:kde4', package: 'kdebase' })
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     # id2 = node.value(:id)
 
     # delete projects
@@ -1602,8 +1602,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'review', attributes: { by_project: 'home:Iggy', by_package: 'TestPack' })
     assert_xml_tag(tag: 'review', attributes: { by_user: 'adrian' })
     assert_xml_tag(tag: 'review', attributes: { by_group: 'test_group' })
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id_by_package = node.value(:id)
 
     # find requests which are not in review
@@ -1634,8 +1634,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(tag: 'request')
     assert_no_xml_tag(tag: 'review', attributes: { by_project: 'home:Iggy', by_package: 'TestPack' })
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value(:id)
 
     # add reviewer
@@ -1829,8 +1829,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
       post '/request?cmd=create', params: req
       assert_response :success
       assert_xml_tag(tag: 'state', attributes: { name: 'new' })
-      node = ActiveXML::Node.new(@response.body)
-      assert node.has_attribute?(:id)
+      node = Xmlhash.parse(@response.body)
+      assert node['id']
       id = node.value(:id)
 
       # add reviewer
@@ -1881,8 +1881,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', params: req
     assert_response :success
     assert_xml_tag(tag: 'state', attributes: { name: 'new' })
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value(:id)
 
     # revoke it
@@ -1961,8 +1961,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     post '/request?cmd=create', params: req
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value(:id)
     assert_xml_tag(tag: 'review', attributes: { by_user: 'adrian', state: 'new' })
 
@@ -2096,8 +2096,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # we upload 2 and 2 default reviewers are added
     assert_xml_tag(children: { only: { tag: 'review' }, count: 4 })
     assert_xml_tag(tag: 'state', attributes: { name: 'review' }, parent: { tag: 'request' })
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value(:id)
 
     # test search
@@ -2199,8 +2199,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', params: req
     assert_response :success
     assert_xml_tag(tag: 'request')
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value(:id)
 
     get "/request/#{id}"
@@ -2225,8 +2225,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', params: req
     assert_response :success
     assert_xml_tag(tag: 'request')
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value(:id)
 
     get "/request/#{id}"
@@ -2772,8 +2772,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     get '/source/home:tom:branches:home:Iggy/TestPack?expand=1'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:vrev)
+    node = Xmlhash.parse(@response.body)
+    assert node['vrev']
     vrev = node.value(:vrev)
 
     # create request
@@ -2790,8 +2790,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', params: req
     assert_response :success
     assert_xml_tag(tag: 'request')
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value(:id)
 
     # decline it and try to accept it
@@ -2817,8 +2817,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # vrev must not get smaller after accept
     get '/source/home:tom:branches:home:Iggy/TestPack?expand=1'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:vrev)
+    node = Xmlhash.parse(@response.body)
+    assert node['vrev']
     vrev_after_accept = node.value(:vrev)
     assert vrev <= vrev_after_accept
 
@@ -2838,8 +2838,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', params: load_backend_file('request/from_source_protected_valid')
     assert_response :success
     assert_xml_tag(tag: 'request')
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value('id')
 
     # show diffs
@@ -2941,8 +2941,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value('id')
 
     # accept this request without permissions
@@ -2980,8 +2980,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value('id')
 
     # decline as fred
@@ -2999,8 +2999,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value('id')
 
     # decline as fred
@@ -3069,7 +3069,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', params: req
     assert_response :success
 
-    node = ActiveXML::Node.new(@response.body)
+    node = Xmlhash.parse(@response.body)
     id = node.value :id
     get "/request/#{id}"
     assert_response :success
@@ -3127,8 +3127,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     post '/request?cmd=create', params: rq
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     iddelete = node.value('id')
 
     login_Iggy
@@ -3207,13 +3207,13 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     post '/request?cmd=create', params: rq
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     iddelete = node.value('id')
     post '/request?cmd=create', params: rq
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     iddelete2 = node.value('id')
 
     login_Iggy

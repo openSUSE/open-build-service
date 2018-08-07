@@ -21,11 +21,11 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     # not using assert_xml_tag for doing a propper error message on missing
     # source service packages
     download_url = set_version = download_files = nil
-    services = ActiveXML::Node.new(@response.body)
-    services.each(:service) do |s|
-      download_url = 1 if s.value(:name) == 'download_url'
-      download_files = 1 if s.value(:name) == 'download_files'
-      set_version = 1 if s.value(:name) == 'set_version'
+    services = Xmlhash.parse(@response.body)
+    services.elements('service') do |s|
+      download_url = 1 if s['name'] == 'download_url'
+      download_files = 1 if s['name'] == 'download_files'
+      set_version = 1 if s['name'] == 'set_version'
     end
     assert_xml_tag tag: 'service', attributes: { name: 'set_version' }
     assert_xml_tag tag: 'service', attributes: { name: 'download_url' }
@@ -115,8 +115,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
                                    </action>
                                  </request>'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value('id')
 
     # accept
@@ -154,8 +154,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
                                    </action>
                                  </request>'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
     id = node.value('id')
     # accept
     post "/request/#{id}?cmd=changestate&newstate=accepted"
