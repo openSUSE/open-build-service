@@ -1,4 +1,4 @@
-- if true ||CONFIG['software_opensuse_url']
+- if CONFIG['software_opensuse_url']
   %li
     %i.fas.fa-arrow-circle-down.text-secondary
-    %a{ href: "#{CONFIG['software_opensuse_url']}/download.html?project=#{u @project.name}&package=#{u @package.name}" } Download package
+    = link_to('Download package', "#{CONFIG['software_opensuse_url']}/download.html?project=#{u project.name}&package=#{u package.name}")

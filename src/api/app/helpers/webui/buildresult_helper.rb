@@ -44,7 +44,7 @@ module Webui::BuildresultHelper
     end
   end
 
-  def arch_repo_table_cell_webui2(repo, arch, package_name, status = nil, enable_help = true)
+  def webui2_arch_repo_table_cell(repo, arch, package_name, status = nil, enable_help = true)
     status ||= @statushash[repo][arch][package_name] || { 'package' => package_name }
     status_id = valid_xml_id("id-#{package_name}_#{repo}_#{arch}")
     link_title = status['details']

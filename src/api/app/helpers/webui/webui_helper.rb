@@ -80,7 +80,7 @@ module Webui::WebuiHelper
     'outdated_scheduling'  => 'cog_error'
   }.freeze
 
-  REPO_STATUS_ICONS_WEBUI2 = {
+  WEBUI2_REPO_STATUS_ICONS = {
     'published'            => 'truck',
     'outdated_published'   => 'truck',
     'publishing'           => 'dolly',
@@ -130,8 +130,8 @@ module Webui::WebuiHelper
     sprite_tag icon, title: description
   end
 
-  def repo_status_icon_webui2(status, details = nil)
-    icon = REPO_STATUS_ICONS_WEBUI2[status] || 'eye'
+  def webui2_repo_status_icon(status, details = nil)
+    icon = WEBUI2_REPO_STATUS_ICONS[status] || 'eye'
 
     outdated = nil
     if /^outdated_/.match?(status)

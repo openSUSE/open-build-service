@@ -5,10 +5,12 @@
     .modal-body
       %ul.no-list-style
         - @package.linking_packages.each do |linking_package|
-          - if linking_package.name != @package.name
-            - name = elide_two(linking_package.project.name, linking_package.name, 46).join(' / ')
-          - else
-            - name = elide(linking_package.project.name, 46)
+          :ruby
+            if linking_package.name != @package.name
+              name = elide_two(linking_package.project.name, linking_package.name, 46).join(' / ')
+            else
+              name = elide(linking_package.project.name, 46)
+            end
           %li= link_to(name, package_show_path(project: linking_package.project.name, package: linking_package.name))
     .modal-footer
       %button.btn.btn-sm.btn-outline-danger.px-4{ data: { dismiss: 'modal' } }
