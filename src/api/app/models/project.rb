@@ -1398,24 +1398,24 @@ class Project < ApplicationRecord
     states = {}
     repository_states = {}
 
-    br = Buildresult.find(project: name, view: 'summary')
+    br = Buildresult.find_hashed(project: name, view: 'summary')
     # no longer there?
-    return false unless br
+    return false if br.empty?
 
-    br.each('result') do |result|
-      if repository && result.value(:repository) == repository
+    br.elements('result') do |result|
+      if repository && result['repository'] == repository
         repository_states[repository] ||= {}
-        result.each('summary') do |summary|
-          summary.each('statuscount') do |statuscount|
-            repository_states[repository][statuscount.value('code')] ||= 0
-            repository_states[repository][statuscount.value('code')] += statuscount.value('count').to_i
+        result['summary'] do |summary|
+          summary.elements('statuscount') do |statuscount|
+            repository_states[repository][statuscount['code']] ||= 0
+            repository_states[repository][statuscount['code']] += statuscount['count'].to_i
           end
         end
       else
-        result.each('summary') do |summary|
-          summary.each('statuscount') do |statuscount|
-            states[statuscount.value('code')] ||= 0
-            states[statuscount.value('code')] += statuscount.value('count').to_i
+        result.elements('summary') do |summary|
+          summary.elements('statuscount') do |statuscount|
+            states[statuscount['code']] ||= 0
+            states[statuscount['code']] += statuscount['count'].to_i
           end
         end
       end

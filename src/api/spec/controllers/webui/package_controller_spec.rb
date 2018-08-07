@@ -17,26 +17,30 @@ RSpec.describe Webui::PackageController, vcr: true do
     repo
   end
   let(:fake_build_results) do
-    Buildresult.new("<resultlist state=\"2b71f05ecb8742e3cd7f6066a5097c72\">
-                      <result project=\"home:tom\" repository=\"#{repo_for_source_project.name}\" arch=\"x86_64\"
-                        code=\"unknown\" state=\"unknown\" dirty=\"true\">
-                       <binarylist>
-                          <binary filename=\"image_binary.vhdfixed.xz\" size=\"123312217\"/>
-                          <binary filename=\"image_binary.xz.sha256\" size=\"1531\"/>
-                          <binary filename=\"_statistics\" size=\"4231\"/>
-                          <binary filename=\"updateinfo.xml\" size=\"4231\"/>
-                          <binary filename=\"rpmlint.log\" size=\"121\"/>
-                        </binarylist>
-                      </result>
-                    </resultlist>")
+    <<-HEREDOC
+      <resultlist state=\"2b71f05ecb8742e3cd7f6066a5097c72\">
+        <result project=\"home:tom\" repository=\"#{repo_for_source_project.name}\" arch=\"x86_64\"
+          code=\"unknown\" state=\"unknown\" dirty=\"true\">
+         <binarylist>
+            <binary filename=\"image_binary.vhdfixed.xz\" size=\"123312217\"/>
+            <binary filename=\"image_binary.xz.sha256\" size=\"1531\"/>
+            <binary filename=\"_statistics\" size=\"4231\"/>
+            <binary filename=\"updateinfo.xml\" size=\"4231\"/>
+            <binary filename=\"rpmlint.log\" size=\"121\"/>
+          </binarylist>
+        </result>
+      </resultlist>
+    HEREDOC
   end
   let(:fake_build_results_without_binaries) do
-    Buildresult.new('<resultlist state="2b71f05ecb8742e3cd7f6066a5097c72">
-                      <result project="home:tom" repository="fake_repo_name" arch="i586" code="unknown" state="unknown" dirty="true">
-                       <binarylist>
-                        </binarylist>
-                      </result>
-                    </resultlist>')
+    <<-HEREDOC
+      <resultlist state="2b71f05ecb8742e3cd7f6066a5097c72">
+        <result project="home:tom" repository="fake_repo_name" arch="i586" code="unknown" state="unknown" dirty="true">
+         <binarylist>
+          </binarylist>
+        </result>
+      </resultlist>
+    HEREDOC
   end
 
   describe 'POST #submit_request' do
@@ -364,7 +368,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'with a failure in the backend' do
       before do
-        allow(Buildresult).to receive(:find_hashed).and_raise(ActiveXML::Transport::Error, 'fake message')
+        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_raise(ActiveXML::Transport::Error, 'fake message')
         get :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
       end
 
@@ -374,7 +378,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'without build results' do
       before do
-        allow(Buildresult).to receive(:find_hashed)
+        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_raise(ActiveXML::Transport::NotFoundError)
         get :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
       end
 
@@ -386,7 +390,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       render_views
 
       before do
-        allow(Buildresult).to receive(:find).and_return(fake_build_results_without_binaries)
+        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_build_results_without_binaries)
         get :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
       end
 
@@ -398,7 +402,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       render_views
 
       before do
-        allow(Buildresult).to receive(:find).and_return(fake_build_results)
+        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_build_results)
         allow_any_instance_of(Webui::PackageController).to receive(:download_url_for_file_in_repo).and_return('http://fake.com')
         get :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
       end
@@ -1386,8 +1390,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
   describe '#rpmlint_result' do
     let(:fake_build_result) do
-      Buildresult.new(
-        '
+      <<-XML
         <resultlist state="eb0459ee3b000176bb3944a67b7c44fa">
           <result project="home:tom" repository="openSUSE_Tumbleweed" arch="i586" code="building" state="building">
             <status package="my_package" code="excluded" />
@@ -1400,12 +1403,11 @@ RSpec.describe Webui::PackageController, vcr: true do
             <status package="my_package" code="signing" />
           </result>
         </resultlist>
-        '
-      )
+      XML
     end
 
     before do
-      allow(Buildresult).to receive(:find).and_return(fake_build_result)
+      allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_build_result)
       post :rpmlint_result, xhr: true, params: { package: source_package, project: source_project }
     end
 
