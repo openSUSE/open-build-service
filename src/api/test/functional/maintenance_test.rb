@@ -1625,7 +1625,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # modifyrepo tends to kill that one:
     if File.exist?('/var/adm/fillup-templates') || File.exist?('/usr/share/fillup-templates/')
       # seems to be a SUSE system
-      assert_equal hashed['tags']['repo'], 'obsrepository://obstest/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo'
+      assert_equal hashed['tags']['repo'][0], 'obsrepository://obstest/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo'
+      assert hashed['tags']['repo'][1].match(/^obsbuildid:.*/) # currently a uniq number, but defined as string
+      get '/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo?view=status'
+      assert_response :success
+      assert_xml_tag tag: 'status', attributes: { code: 'succeeded' }
+      assert_xml_tag tag: 'buildid'
     end
 
     # verify that local linked packages still get branched correctly
