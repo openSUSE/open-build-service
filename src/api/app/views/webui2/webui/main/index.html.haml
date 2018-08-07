@@ -6,12 +6,19 @@
       .card-body
         %h2
           Welcome to #{@configuration['title']}
+        -# rubocop:disable Rails/OutputSafety
         = raw @configuration['description']
+        -# rubocop:enable Rails/OutputSafety
         .row.no-gutters.text-center#proceed-list
           = render partial: 'proceed-list'
-    = render partial: 'systemstatus'
+    = render(partial: 'systemstatus', locals: { busy: @busy,
+                                                building_workers: @building_workers,
+                                                overall_workers: @overall_workers,
+                                                waiting_packages: @waiting_packages,
+                                                host_title: @configuration['title'],
+                                                system_stats: @system_stats })
   .col-md-4
-    - if User.current.is_nobody? and can_register
+    - if User.current.is_nobody? && can_register
       .card.mb-3
         %h5.card-header New here? Sign up!
         .card-body
@@ -19,4 +26,4 @@
     = render partial: 'sponsors'
     - if @status_messages.present? || User.current.is_admin?
       = render partial: 'status_messages'
-    = render partial: 'latest_updates' if (@latest_updates and ::Configuration.anonymous)
+    = render(partial: 'latest_updates') if @latest_updates && ::Configuration.anonymous
