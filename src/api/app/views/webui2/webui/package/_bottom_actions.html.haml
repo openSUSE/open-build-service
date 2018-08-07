@@ -1,5 +1,5 @@
 %ul.list-inline.mb-0
-  - if @bugowners_mail.present? and @configuration['bugzilla_url']
+  - if @bugowners_mail.present? && @configuration['bugzilla_url']
     %li.list-inline-item
       = link_to(bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug"), class: 'nav-link') do
         %i.fas.fa-bug.text-danger
@@ -7,7 +7,7 @@
   - unless User.current.is_nobody?
     - if @current_rev
       %li.list-inline-item
-        = link_to('#', class: 'nav-link', data: { "toggle": "modal", "target": "#branchModal" }) do
+        = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#branch-modal' }) do
           %i.fas.fa-code-branch.text-primary
           Branch package
       %li.list-inline-item

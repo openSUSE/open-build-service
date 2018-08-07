@@ -923,7 +923,7 @@ class Webui::PackageController < Webui::WebuiController
       @index = params[:index]
       @buildresults = @package.buildresult(@project, show_all)
       switch_to_webui2
-      render partial: 'buildstatus'
+      render partial: 'buildstatus', locals: { buildresults: @buildresults, index: @index, project: @project }
     else
       render partial: 'no_repositories'
     end

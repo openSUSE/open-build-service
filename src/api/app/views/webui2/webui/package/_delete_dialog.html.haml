@@ -13,7 +13,7 @@
               = project_or_package_link(project: package.project.name, package: package.name, short: true)
       - else
         %p Please confirm deletion of #{package_link @package}
-      = form_tag({controller: :package, action: :remove}, method: :post) do
+      = form_tag({ controller: :package, action: :remove }, method: :post) do
         = hidden_field_tag(:project, @project)
         = hidden_field_tag(:package, @package)
         - if @package.develpackages.any?
