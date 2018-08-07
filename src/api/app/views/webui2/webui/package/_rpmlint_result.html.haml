@@ -5,7 +5,7 @@
     = select_tag("rpmlint_repo_select_#{index}", options_for_select(@repo_list.sort))
     - @repo_arch_hash.each do |repo, arches|
       = select_tag("rpmlint_arch_select_#{index}_#{repo}", options_for_select(arches.reverse), :class => "rpmlint_arch_select_#{index}")
-%pre.rpmlint-result{:id => "rpmlint_display_#{index}"}
+%pre.rpmlint-result{ id: "rpmlint_display_#{index}" }
 
 :javascript
   function update_arch_display(data) {

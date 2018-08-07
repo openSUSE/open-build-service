@@ -8,7 +8,7 @@
   .card-body
     .row
       .col-md-8
-        %h3#package_title
+        %h3#package-title
           = @package.title.present? ? @package.title : @package.name
           - if @package.url.present?
             %small= link_to(@package.url, @package.url)

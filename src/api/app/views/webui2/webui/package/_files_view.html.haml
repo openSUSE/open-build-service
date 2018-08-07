@@ -1,25 +1,25 @@
 .card-body
   - unless @files.blank?
-    %table.table.table-striped.table-bordered.table-responsive.table-sm.dt-responsive.nowrap#files_table
+    %table.table.table-striped.table-bordered.table-responsive.table-sm.dt-responsive.nowrap#files-table
       %thead
         %tr
           %th Filename
           %th Size
           %th Changed
-          %th{:style => "width: 1%"} Actions
+          %th{ style: "width: 1%" } Actions
       %tbody
         - @files.each do |file|
-          %tr{:id => "file-#{valid_xml_id(file[:name])}"}
+          %tr{ id: "file-#{valid_xml_id(file[:name])}" }
             %td
               - link_opts = {action: :view_file, project: @project, package: @package, filename: file[:name], expand: @expand}
               - unless @is_current_rev
                 - link_opts[:rev] = file[:srcmd5]
               = link_to_if(file[:viewable], nbsp(file[:name]), link_opts)
             %td
-              %span{style: "display: none"}= file[:size].rjust(10, '0')
+              %span{ style: "display: none" }= file[:size].rjust(10, '0')
               = human_readable_fsize(file[:size])
             %td
-              %span{style: "display: none"}= file[:mtime]
+              %span{ style: "display: none" }= file[:mtime]
               = fuzzy_time_string(Time.at(file[:mtime].to_i).to_s)
             / limit download for anonymous user to avoid getting killed by crawlers
             %td.text-center
@@ -28,13 +28,13 @@
                   %i.fas.fa-arrow-circle-down.text-secondary
               - unless file[:name] =~ /^_service:/
                 - if User.current.can_modify? @package
-                  = link_to({ action: :remove_file, project: @project.to_param, package: @package.to_param, filename: file[:name]}, |
+                  = link_to({ action: :remove_file, project: @project.to_param, package: @package.to_param, filename: file[:name]},
                     { data: {confirm: "Really remove file '#{file[:name]}'?"}, method: :post, title: 'Remove file' }) do
                     %i.fas.fa-times-circle.text-danger
 
     :javascript
       $(document).ready(function() {
-        $('#files_table').dataTable({
+        $('#files-table').dataTable({
           'columns': [null, null, null, {'orderable': false}],
         });
       });
