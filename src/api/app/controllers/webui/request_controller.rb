@@ -1,5 +1,6 @@
 class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
+  include Webui2::RequestController
 
   before_action :require_login, except: [:show, :sourcediff, :diff]
   # requests do not really add much value for our page rank :)
@@ -186,7 +187,7 @@ class Webui::RequestController < Webui::WebuiController
     @project = params[:project]
     @package = params[:package] if params[:package]
 
-    switch_to_webui2
+    return if switch_to_webui2
 
     render_dialog
   end
@@ -215,7 +216,7 @@ class Webui::RequestController < Webui::WebuiController
     @project = params[:project]
     @package = params[:package] if params[:package]
 
-    switch_to_webui2
+    return if switch_to_webui2
 
     render_dialog
   end
@@ -260,7 +261,7 @@ class Webui::RequestController < Webui::WebuiController
       @current_devel_project = @package.develpackage.project.name
     end
 
-    switch_to_webui2
+    return if switch_to_webui2
 
     render_dialog
   end

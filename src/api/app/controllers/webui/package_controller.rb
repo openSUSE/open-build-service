@@ -7,6 +7,7 @@ class Webui::PackageController < Webui::WebuiController
   include Webui::LoadBuildresults
   include Webui::ManageRelationships
   include BuildLogSupport
+  include Webui2::PackageController
 
   before_action :set_project, only: [:show, :users, :linking_packages, :dependency, :binary, :binaries,
                                      :requests, :statistics, :commit, :revisions, :submit_request_dialog,
@@ -252,7 +253,7 @@ class Webui::PackageController < Webui::WebuiController
 
     @description = @package.commit_message(@tprj, @tpkg)
 
-    switch_to_webui2
+    return if switch_to_webui2
     render_dialog
   end
 
@@ -607,7 +608,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def delete_dialog
-    switch_to_webui2
+    return if switch_to_webui2
     render_dialog
   end
 
@@ -963,7 +964,7 @@ class Webui::PackageController < Webui::WebuiController
     if @repo_list.empty?
       render partial: 'no_repositories'
     else
-      switch_to_webui2
+      return if switch_to_webui2
       render partial: 'rpmlint_result', locals: { index: params[:index] }
     end
   end
