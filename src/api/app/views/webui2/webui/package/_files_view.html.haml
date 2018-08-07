@@ -53,7 +53,7 @@
     - else
       %h5.card-header.border-top Latest Revision
     .card-body
-      = render :partial => 'commit_item', :locals => { revision: @revision, commit: @package.commit(@revision) }
+      = render partial: 'commit_item', locals: { revision: @revision, commit: @package.commit(@revision) }
   - elsif @srcmd5
     %h5
       Source MD5 is #{@srcmd5} (latest revision is #{@current_rev})
