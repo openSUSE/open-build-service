@@ -1,7 +1,7 @@
 - @log.lines.each do |line|
-  - if line =~ /\w+(?:\.\w+)+: W: /
+  - if (line =~ /\w+(?:\.\w+)+: W: /)
     = content_tag(:span, line.strip, style: 'color: olive;')
-  - elsif line =~ /\w+(?:\.\w+)+: E: /
+  - elsif (line =~ /\w+(?:\.\w+)+: E: /)
     = content_tag(:span, line.strip, style: 'color: red;')
   - else
     = line.strip

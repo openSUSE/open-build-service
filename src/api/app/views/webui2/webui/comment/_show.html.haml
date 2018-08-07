@@ -1,6 +1,6 @@
 .comments
   - commentable.comments.walk_tree do |comment, level|
-    %div{class: "comment thread_level_#{level >= 4 ? 4 : level}"}
+    %div{ class: "comment thread_level_#{level >= 4 ? 4 : level}" }
       = user_with_realname_and_icon(comment.user, no_icon: true, short: true)
       wrote
       %span.comment_time= fuzzy_time(comment.created_at)

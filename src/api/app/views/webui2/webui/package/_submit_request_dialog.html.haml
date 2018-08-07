@@ -15,9 +15,9 @@
             = text_field_tag(:sourceproject, elide(@project.name, 40), disabled: true, class: 'form-control')
           .form-group
             = label_tag(:targetproject, 'To target project:')
-            = text_field_tag(:targetproject, @tprj, disabled: params[:readonly], required: true, class: 'form-control', |
-                             data: { autocomplete_url: url_for(controller: :project, action: :autocomplete_projects), |
-                                     requests_url: url_for(controller: :request, action: :list_small), |
+            = text_field_tag(:targetproject, @tprj, disabled: params[:readonly], required: true, class: 'form-control',
+                             data: { autocomplete_url: url_for(controller: :project, action: :autocomplete_projects),
+                                     requests_url: url_for(controller: :request, action: :list_small),
                                      develpackage_url: url_for(controller: :package, action: :devel_project) })
             - if params[:readonly]
               = hidden_field_tag(:targetproject, @tprj)
