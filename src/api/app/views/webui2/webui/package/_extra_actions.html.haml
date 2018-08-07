@@ -1,6 +1,4 @@
 - if true ||CONFIG['software_opensuse_url']
   %li
     %i.fas.fa-arrow-circle-down.text-secondary
-
-    = sprite_tag 'application_get'
     %a{ href: "#{CONFIG['software_opensuse_url']}/download.html?project=#{u @project.name}&package=#{u @package.name}" } Download package
