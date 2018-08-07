@@ -12,8 +12,8 @@
             %br/
             = text_area_tag(:message, '', size: '40x3', required: true, class: 'form-control')
             %br/
-            = label_tag(:severity, "Severity:")
+            = label_tag(:severity, 'Severity:')
             %br/
             = select_tag(:severity, options_for_select([['Information', 0], ['Green', 1], ['Yellow', 2], ['Red', 3]]), class: 'form-control')
           .modal-footer
-            = submit_tag('Save changes', class: "btn btn-success")
+            = submit_tag('Save changes', class: 'btn btn-success')

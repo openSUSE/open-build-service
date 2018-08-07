@@ -79,5 +79,10 @@ CONFIG['frontend_port'] = 3203
 CONFIG['frontend_protocol'] = 'http'
 CONFIG['frontend_ldap_mode'] = :off
 
+if ENV['RUNNING_MINITEST']
+  CONFIG['source_host'] = 'localhost'
+  CONFIG['source_port'] = '3200'
+end
+
 # some defaults enforced
 CONFIG['apidocs_location'] = File.expand_path('../../docs/api/html/')

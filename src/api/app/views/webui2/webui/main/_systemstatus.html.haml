@@ -1,24 +1,24 @@
 .card.mb-3
   %h5.card-header System Status
   .card-body
-    - if @busy
+    - if busy
       .aligncenter#overallgraph
       %p.text-muted.small
         The above graphs show the number of active build jobs last week,
-        currently #{@building_workers} of #{@overall_workers} build hosts
+        currently #{building_workers} of #{overall_workers} build hosts
         are busy building packages.
-        At the moment #{@waiting_packages} packages are waiting on the different architectures.
+        At the moment #{waiting_packages} packages are waiting on the different architectures.
     %p.text-muted.small
-      = @configuration['title']
+      = host_title
       hosts
-      %b= number_with_delimiter @sysstats[:projects]
+      %b= number_with_delimiter(system_stats[:projects])
       projects, with
-      %b= number_with_delimiter @sysstats[:packages]
+      %b= number_with_delimiter(system_stats[:packages])
       packages, in
-      %b= number_with_delimiter @sysstats[:repos]
+      %b= number_with_delimiter(system_stats[:repositories])
       repositories
       and is used by
-      %b= number_with_delimiter @sysstats[:users]
+      %b= number_with_delimiter(system_stats[:users])
       confirmed developers.
   :javascript
-    plotbusyworkers(#{Webui::MonitorHelper.print_statistics_array(@busy)});
+    plotbusyworkers(#{Webui::MonitorHelper.print_statistics_array(busy)});

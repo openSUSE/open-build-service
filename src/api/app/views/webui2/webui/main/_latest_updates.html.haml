@@ -15,7 +15,7 @@
             - else
               %i.fa.fa-cubes.fa-2x.text-info.pt-2{ title: 'Project' }
           .col-10.pl-0
-            %span.d-inline-block.text-truncate{ style: 'max-width: 180px;' }
+            %span.d-inline-block.text-truncate.w-100
               - if update[1] == :package
                 = link_to(package_show_path(project: update[3], package: update[2])) do
                   = update[2]

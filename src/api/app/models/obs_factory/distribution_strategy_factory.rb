@@ -1,5 +1,3 @@
-require 'open-uri'
-
 module ObsFactory
   # this is not a Factory pattern, this is for openSUSE:Factory :/
   class DistributionStrategyFactory
@@ -114,12 +112,12 @@ module ObsFactory
     # @return [String] version string
     def published_version
       begin
-        f = open(repo_url)
+        stream = URI(repo_url)
       rescue ::OpenURI::HTTPError
         return 'unknown'
       end
-      matchdata = /openSUSE-(.*)-#{published_arch}-.*/.match(f.read)
-      matchdata[1]
+
+      stream.read[/openSUSE-(.*)-#{published_arch}-.*/, 1]
     end
 
     def openqa_filter(project)

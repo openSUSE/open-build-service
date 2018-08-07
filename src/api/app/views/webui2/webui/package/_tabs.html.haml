@@ -21,7 +21,7 @@
         %a.nav-link{ href: package_users_path, class: [current_page?(package_users_path) && 'active'] }
           Users
       %li.nav-item
-        %a.nav-link{ href: index_attribs_path(@project, @package), class: [current_page?(index_attribs_path(@project, @package)) && 'active'] }
+        %a.nav-link{ href: index_attribs_path(project, package), class: [current_page?(index_attribs_path(project, package)) && 'active'] }
           Attributes
       %li.nav-item
         %a.nav-link{ href: package_meta_path, class: [current_page?(package_meta_path) && 'active'] }

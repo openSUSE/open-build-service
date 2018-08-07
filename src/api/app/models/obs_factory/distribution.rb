@@ -1,5 +1,3 @@
-require 'open-uri'
-
 module ObsFactory
   class UnknownDistribution < RuntimeError
   end

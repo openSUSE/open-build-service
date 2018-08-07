@@ -230,7 +230,7 @@ sub get_all_tags {
   while (1) {
     undef $replyheaders;
     my $r = BSRPC::rpc($param, \&JSON::XS::decode_json);
-    push @regtags, @{$r->{'tags'}};
+    push @regtags, @{$r->{'tags'} || []};
     last unless $replyheaders->{'link'};
     die unless $replyheaders->{'link'} =~ /^<(\/v2\/.*)>/;
     $param->{'uri'} = "$registryserver$1";

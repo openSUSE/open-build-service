@@ -18,9 +18,6 @@ bin/rake db:create db:setup
 
 bin/rails assets:precompile
 
-perl -pi -e 's/source_host: backend/source_host: localhost/' config/options.yml
-perl -pi -e 's/source_port: 5352/source_port: 3200/' config/options.yml
-
 rm -f log/test.log
 bin/rake test:api test:spider
 

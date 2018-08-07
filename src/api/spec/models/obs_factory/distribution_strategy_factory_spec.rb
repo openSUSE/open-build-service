@@ -146,10 +146,9 @@ RSpec.describe ObsFactory::DistributionStrategyFactory do
   end
 
   describe '#published_version' do
-    let(:file) { StringIO.new('openSUSE-20180604-i586-Build') }
-
     before do
-      allow_any_instance_of(ObsFactory::DistributionStrategyFactory).to receive(:open).and_return(file)
+      stub_request(:get, 'http://download.opensuse.org/tumbleweed/repo/oss/media.1/media').
+        and_return(body: 'openSUSE-20180604-i586-Build')
     end
 
     it { expect(strategy.published_version).to eq('20180604') }

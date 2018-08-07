@@ -25,6 +25,8 @@ services:
 EOF"
       # Build the frontend container and pull newer version of the image if available
       sh 'docker-compose build --pull frontend'
+      # Build the minitest container on top of that
+      sh 'docker-compose -f docker-compose.yml -f docker-compose.minitest.yml build minitest'
       # Bootstrap the app
       sh 'docker-compose up -d db'
       sh 'docker-compose run --no-deps --rm frontend bundle exec rake dev:bootstrap RAILS_ENV=development'
@@ -55,6 +57,9 @@ EOF"
       end
       task 'frontend-base' => [:base] do
         sh "docker build src/api/ #{tags_for('frontend-base')} -f src/api/docker-files/Dockerfile.frontend-base"
+      end
+      task 'frontend-backend' => [:base] do
+        sh "docker build src/api/ #{tags_for('frontend-backend')} -f src/api/docker-files/Dockerfile.frontend-backend"
       end
       task backend: [:base] do
         sh "docker build src/backend/ #{tags_for(:backend)} -f src/backend/docker-files/Dockerfile.backend"

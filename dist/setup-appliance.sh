@@ -534,7 +534,7 @@ function prepare_obssigner {
       chmod -R 0700 "$backenddir"/gnupg
       cat >/tmp/obs-gpg.$$ <<EOF
            %echo Generating a default OBS instance key
-           Key-Type: DSA
+           Key-Type: RSA
            Key-Length: 2048
            Subkey-Type: ELG-E
            Subkey-Length: 2048

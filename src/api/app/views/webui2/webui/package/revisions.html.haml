@@ -2,7 +2,7 @@
 - package_bread_crumb 'Revisions'
 
 .card
-  = render partial: 'tabs'
+  = render(partial: 'tabs', locals: { project: @project, package: @package })
 
   .card-body
     - if @revisions
