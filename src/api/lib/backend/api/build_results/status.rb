@@ -45,6 +45,12 @@ module Backend
           http_get(['/build/:project/_result', project_name], params: params, expand: expand)
         end
 
+        # Lists failed package builds in a project
+        # @return [String]
+        def self.failed_results(project_name)
+          http_get(['/build/:project/_result', project_name], params: { code: %w[failed broken unresolvable] }, expand: [:code])
+        end
+
         # Returns the log's size for a build
         # @return [String]
         def self.build_log_size(project_name, package_name, repository_name, architecture_name)
