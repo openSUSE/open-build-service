@@ -131,13 +131,15 @@ class Webui::PackageController < Webui::WebuiController
     @repository = params[:repository]
     @package_name = params[:package]
 
-    @statistics = nil
     begin
-      @statistics = Statistic.find_hashed(project: @project, package: params[:package], repository: @repository, arch: @arch)
-    rescue ActiveXML::Transport::ForbiddenError
+      xml = Backend::Api::BuildResults::Status.statistics(@project, params[:package], @repository, @arch)
+      if xml
+        @statistics = Xmlhash.parse(xml)
+        return
+      end
+    rescue ActiveXML::Transport::Error
     end
 
-    return if @statistics.present?
     flash[:error] = "No statistics of a successful build could be found in #{@repository}/#{@arch}"
     redirect_to controller: 'package', action: :binaries, project: @project,
                 package: @package, repository: @repository, nextstatus: 404
