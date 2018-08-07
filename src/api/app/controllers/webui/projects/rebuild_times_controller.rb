@@ -55,12 +55,8 @@ module Webui
         @rebuildtime = 0
 
         indir = Dir.mktmpdir
-        f = File.open(indir + '/_builddepinfo.xml', 'w')
-        f.write(bdep)
-        f.close
-        f = File.open(indir + '/_jobhistory.xml', 'w')
-        f.write(jobs)
-        f.close
+        File.open(File.join(indir, '_builddepinfo.xml'), 'w') { |f| f.write(bdep) }
+        File.open(File.join(indir, '_jobhistory.xml'), 'w') { |f| f.write(jobs) }
         outdir = Dir.mktmpdir
 
         logger.debug "cd #{Rails.root.join('vendor', 'diststats')} && perl ./mkdiststats --srcdir=#{indir} --destdir=#{outdir}
