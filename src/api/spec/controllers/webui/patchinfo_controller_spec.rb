@@ -90,7 +90,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
 
     context 'when is successfull creating the patchinfo package' do
       before do
-        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_build_results)
+        allow(Backend::Api::Build::Project).to receive(:binarylist).and_return(fake_build_results)
         allow_any_instance_of(Package).to receive(:patchinfo).and_return(fake_patchinfo_with_binaries)
         post :new_patchinfo, params: { project: user.home_project }
       end
