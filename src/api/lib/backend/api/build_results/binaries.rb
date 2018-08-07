@@ -73,11 +73,6 @@ module Backend
                                                       params: { url: repository_urls, path: repository_paths }, expand: [:url, :path]))
         end
 
-        # Runs the command wipepublishedlocked for that project to cleanup published binaries
-        def self.wipe_published_locked(project_name)
-          http_post(['/build/:project', project_name], params: { cmd: :wipepublishedlocked })
-        end
-
         # TODO: Move this method that transforms the output into another module
         # Transforms the output of the available_in_repositories, available_in_urls and available_in_project methods to a hash containing
         # the name of the binary as keys and the architectures as the value

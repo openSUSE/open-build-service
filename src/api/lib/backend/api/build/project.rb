@@ -17,6 +17,11 @@ module Backend
         def self.wipe_binaries(project_name)
           http_post(['/build/:project', project_name], params: { cmd: :wipe })
         end
+
+        # Runs the command wipepublishedlocked for that project to cleanup published binaries
+        def self.wipe_published_locked(project_name)
+          http_post(['/build/:project', project_name], params: { cmd: :wipepublishedlocked })
+        end
       end
     end
   end
