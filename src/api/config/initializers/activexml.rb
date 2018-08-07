@@ -10,4 +10,3 @@ map.connect :collection, 'rest:///search/:what?:match',
             id: 'rest:///search/:what/id?:match',
             package: 'rest:///search/package?:match',
             project: 'rest:///search/project?:match'
-
