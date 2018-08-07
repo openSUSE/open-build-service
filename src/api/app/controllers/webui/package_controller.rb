@@ -177,7 +177,7 @@ class Webui::PackageController < Webui::WebuiController
     @package_name = params[:package]
 
     results_from_backend = Buildresult.find_hashed(project: @project, package: @package_name, repository: @repository, view: ['binarylist', 'status'])
-    unless results_from_backend
+    if results_from_backend.empty?
       flash[:error] = "Package \"#{@package_name}\" has no build result for repository #{@repository}"
       redirect_to(controller: :package, action: :show, project: @project, package: @package, nextstatus: 404)
       return

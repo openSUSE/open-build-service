@@ -495,11 +495,9 @@ RSpec.feature 'Projects', type: :feature, js: true do
       XML
     end
 
-    let(:build_result) { Buildresult.new(build_results_xml) }
-
     before do
       login admin_user
-      allow(Buildresult).to receive(:find).and_return(build_result)
+      allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(build_results_xml)
       visit project_monitor_path(project.name)
       expect(page).to have_text('Monitor')
     end
