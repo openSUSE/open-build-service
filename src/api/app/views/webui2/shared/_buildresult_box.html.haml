@@ -1,19 +1,24 @@
-- index ||= ''
-- if defined?(package)
-  - controller = 'package'
-- else
-  - controller = 'project'
+:ruby
+  index ||= ''
+  if defined?(package)
+    controller = 'package'
+  else
+    controller = 'project'
+  end
+
 .box-header.header-tabs
 .card.mb-3
   .bg-light
     %ul.nav.nav-tabs.pt-2.px-3#buildresult-box{ role: 'tablist' }
       %li.nav-item
-        = link_to("#build#{index}", id: "build#{index}-tab", class: 'nav-link active', data: { toggle: 'tab' }, role: 'tab', aria: { controls: "build#{index}", selected: true }) do
+        = link_to("#build#{index}", id: "build#{index}-tab", class: 'nav-link active',
+          data: { toggle: 'tab' }, role: 'tab', aria: { controls: "build#{index}", selected: true }) do
           Build Results
           %i.fas.fa-sync-alt{ id: "build#{index}-reload", onclick: "update_build_result_#{index}()" }
       - if controller == 'package'
         %li.nav-item
-          = link_to("#rpm#{index}", id: "rpm#{index}-tab", class: 'nav-link', data: { toggle: 'tab' }, role: 'tab', aria: { controls: "rpm#{index}", selected: false }) do
+          = link_to("#rpm#{index}", id: "rpm#{index}-tab", class: 'nav-link', data: { toggle: 'tab' },
+            role: 'tab', aria: { controls: "rpm#{index}", selected: false }) do
             Rpmlint Results
             %i.fas.fa-sync-alt.invisible{ id: "rpm#{index}-reload", onclick: "update_rpmlint_result_#{index}()" }
   .card-boby
@@ -22,12 +27,12 @@
         .tab-pane.fade.show.active{ id: "build#{index}", role: 'tabpanel', aria: { labelledby: "build#{index}-tab" } }
         - if controller == 'package'
           .tab-pane.fade{ id: "rpm#{index}", role: 'tabpanel', aria: { labelledby: "rpm#{index}-tab" } }
-
-- ajax_data = []
-- ajax_data.push("'project': '#{h(project)}'") if defined?(project)
-- ajax_data.push("'package': '#{h(package)}'") if defined?(package)
-- ajax_data.push("'index': '#{index}'") if defined?(index)
-- ajax_data = raw(ajax_data.join ', ')
+:ruby
+  ajax_data = []
+  ajax_data.push("'project': '#{h(project)}'") if defined?(project)
+  ajax_data.push("'package': '#{h(package)}'") if defined?(package)
+  ajax_data.push("'index': '#{index}'") if defined?(index)
+  ajax_data = raw(ajax_data.join(', '))
 
 = javascript_tag do
   :plain

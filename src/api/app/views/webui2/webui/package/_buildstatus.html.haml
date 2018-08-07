@@ -1,28 +1,30 @@
-- unless @buildresults.excluded_counter.zero? && !@buildresults.show_all
+- unless buildresults.excluded_counter.zero? && !buildresults.show_all
   .mt-3.small.custom-control-checkbox
-    = check_box_tag "show_all_#{@index}", true, @buildresults.show_all, class: 'custom-control-input d-none'
-    - label_message = @buildresults.excluded_counter.zero? ? 'Hide' :  "Show #{@buildresults.excluded_counter}"
-    = label_tag "show_all_#{@index}", "#{label_message} excluded results", class: "custom-label"
+    = check_box_tag "show_all_#{index}", true, buildresults.show_all, class: 'custom-control-input d-none'
+    - label_message = buildresults.excluded_counter.zero? ? 'Hide' : "Show #{buildresults.excluded_counter}"
+    = label_tag "show_all_#{index}", "#{label_message} excluded results", class: 'custom-label'
 
-- @buildresults.results.each_pair do |package, results|
+- buildresults.results.each_pair do |package, results|
   %h5.text-primary.mt-3.mb-3= package
   .mb-2#package-buildstatus
     %table.table.table-striped.table-sm.mb-0.small
       - if results.present?
         - previous_repo = nil
         - results.each do |result|
-          - repository = @project.repositories.find_by_name(result.repository)
+          - repository = project.repositories.find_by_name(result.repository)
           %tr
-            %td{ title: "#{result.repository}" }
+            %td{ title: result.repository.to_s }
               - if result.repository != previous_repo
-                = link_to(word_break(result.repository, 22), package_binaries_path(project: @project, package: package, repository: result.repository), { title: "Binaries for #{result.repository}" })
+                = link_to(word_break(result.repository, 22),
+                  package_binaries_path(project: project, package: package, repository: result.repository),
+                  title: "Binaries for #{result.repository}")
             %td.arch
               - if !(repository && repository.architectures.pluck(:name).include?(result.architecture))
                 %i.fas.fa-clock.text-package{ title: 'This result is outdated' }
               - else
                 = repo_status_icon_webui2(result.state, result.details)
               = result.architecture
-            = arch_repo_table_cell_webui2(result.repository, result.architecture, package, { "code" => result.code, "details" => result.details })
+            = arch_repo_table_cell_webui2(result.repository, result.architecture, package, 'code' => result.code, 'details' => result.details)
           - previous_repo = result.repository
       - else
         %tr
@@ -37,5 +39,5 @@
     alert(title);
   });
 
-  $("#show_all_#{h @index}").change(function(){ update_build_result_#{h @index}(); })
+  $("#show_all_#{h index}").change(function(){ update_build_result_#{h index}(); })
 
