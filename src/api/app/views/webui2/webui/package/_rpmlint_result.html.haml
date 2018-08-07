@@ -1,10 +1,10 @@
 - index ||= ''
 
 .mt-3.mb-3
-  - unless @repo_list.empty?
-    = select_tag("rpmlint_repo_select_#{index}", options_for_select(@repo_list.sort))
-    - @repo_arch_hash.each do |repo, arches|
-      = select_tag("rpmlint_arch_select_#{index}_#{repo}", options_for_select(arches.reverse), class: "rpmlint_arch_select_#{index}")
+  - unless repository_list.empty?
+    = select_tag("rpmlint_repo_select_#{index}", options_for_select(repository_list.sort))
+    - repo_arch_hash.each do |repository, architectures|
+      = select_tag("rpmlint_arch_select_#{index}_#{repository}", options_for_select(architectures.reverse), class: "rpmlint_arch_select_#{index}")
 %pre.rpmlint-result{ id: "rpmlint_display_#{index}" }
 
 :javascript
@@ -20,8 +20,8 @@
     $.ajax({
       url: '#{url_for(controller: 'package', action: 'rpmlint_log')}',
       data: {
-        'project': '#{@project.name}',
-        'package': '#{@package.name}',
+        'project': '#{project.name}',
+        'package': '#{package.name}',
         'repository': repo_name,
         'architecture': $("#rpmlint_arch_select_#{index}_" + repo_key + " option:selected").attr('value')
       },
