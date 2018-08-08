@@ -4,19 +4,41 @@ require 'webmock/rspec'
 RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, vcr: true do
   render_views
 
+  let(:description) do
+    <<-DESCRIPTION
+      requests:
+        - { id: #{declined_bs_request.number} }
+    DESCRIPTION
+  end
   let(:factory) { create(:project, name: 'openSUSE:Factory') }
-  let!(:factory_staging_a) { create(:project, name: 'openSUSE:Factory:Staging:A', description: 'Factory staging project A') }
+  let!(:factory_staging) { create(:project, name: 'openSUSE:Factory:Staging') }
+
+  let(:factory_distribution) { ::ObsFactory::Distribution.find(factory.name) }
+  let(:staging_projects) { ::ObsFactory::StagingProject.for(factory_distribution) }
+
+  let(:source_package) { create(:package) }
+  let(:target_package) { create(:package, name: 'target_package', project: factory) }
+  let(:declined_bs_request) do
+    create(:declined_bs_request,
+           target_project: factory.name,
+           target_package: target_package.name,
+           source_project: source_package.project.name,
+           source_package: source_package.name)
+  end
+
+  before do
+    create(:project, name: 'openSUSE:Factory:Staging:A', description: description)
+    create(:project, name: 'openSUSE:Factory:Staging:B', description: 'Factory staging project B')
+  end
 
   describe 'GET #index' do
-    let!(:factory_staging) { create(:project, name: 'openSUSE:Factory:Staging') }
-
     context 'without dashboard package' do
-      before do
+      subject! do
         get :index, params: { project: factory }
       end
 
-      it { expect(response).to have_http_status(:success) }
-      it { expect(response).to render_template(:index) }
+      it { is_expected.to have_http_status(:success) }
+      it { is_expected.to render_template(:index) }
 
       it 'sets up the required variables' do
         expect(assigns(:backlog_requests_ignored)).to be_empty
@@ -70,12 +92,14 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
           before do
             allow_any_instance_of(Package).to receive(:file_exists?).with('ignored_requests').and_return(true)
             stub_request(:get, backend_url).and_return(body: backend_response)
+          end
 
+          subject! do
             get :index, params: { project: factory }
           end
 
-          it { expect(response).to have_http_status(:success) }
-          it { expect(response).to render_template(:index) }
+          it { is_expected.to have_http_status(:success) }
+          it { is_expected.to render_template(:index) }
 
           it 'sets up the required variables' do
             expect(assigns(:backlog_requests_ignored)).to contain_exactly(create_review_requests.first)
@@ -90,11 +114,14 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
             allow_any_instance_of(Package).to receive(:file_exists?).with('ignored_requests').and_return(true)
 
             stub_request(:get, backend_url).and_return(body: '')
+          end
+
+          subject! do
             get :index, params: { project: factory }
           end
 
-          it { expect(response).to have_http_status(:success) }
-          it { expect(response).to render_template(:index) }
+          it { is_expected.to have_http_status(:success) }
+          it { is_expected.to render_template(:index) }
 
           it 'sets up the required variables' do
             expect(assigns(:backlog_requests_ignored)).to be_empty
@@ -107,10 +134,6 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
     end
 
     context 'requesting json' do
-      let!(:factory_staging_b) { create(:project, name: 'openSUSE:Factory:Staging:B', description: '') }
-      let(:factory_distribution) { ::ObsFactory::Distribution.find(factory.name) }
-      let(:staging_projects) { ::ObsFactory::StagingProject.for(factory_distribution) }
-
       subject { get :index, params: { project: factory }, format: :json }
 
       it { is_expected.to have_http_status(:success) }
@@ -121,33 +144,13 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
   end
 
   describe 'GET #show' do
-    let(:source_package) { create(:package) }
-    let(:target_package) { create(:package, name: 'target_package', project: factory) }
-    let(:bs_request) do
-      create(:bs_request_with_submit_action,
-             target_project: factory.name,
-             target_package: target_package.name,
-             source_project: source_package.project.name,
-             source_package: source_package.name)
-    end
-    let(:description) do
-      <<-DESCRIPTION
-        requests:
-          - { id: #{bs_request.number} }
-      DESCRIPTION
-    end
-
     context 'with a existent factory_staging_project' do
-      before do
-        bs_request.update(state: 'declined')
-        factory_staging_a.update(description: description)
-      end
-
       context 'requesting html' do
-        subject { get :show, params: { project: factory, project_name: 'A' } }
+        subject! { get :show, params: { project: factory, project_name: 'A' } }
 
         it { is_expected.to have_http_status(:success) }
         it { is_expected.to render_template(:show) }
+        it { expect(assigns(:staging_project).obsolete_requests).to contain_exactly(declined_bs_request) }
       end
 
       context 'requesting json' do
@@ -159,7 +162,7 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
           expect(response).to include(
             'name'              => 'openSUSE:Factory:Staging:A',
             'description'       => description,
-            'obsolete_requests' => [JSON.parse(bs_request.to_json)],
+            'obsolete_requests' => [JSON.parse(declined_bs_request.to_json)],
             'overall_state'     => 'unacceptable'
           )
         end
@@ -167,7 +170,7 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
     end
 
     context 'with a non-existent factory_staging_project' do
-      subject { get :show, params: { project: factory, project_name: 'B' } }
+      subject { get :show, params: { project: factory, project_name: 'C' } }
 
       it { is_expected.to have_http_status(:found) }
       it { is_expected.to redirect_to(root_path) }

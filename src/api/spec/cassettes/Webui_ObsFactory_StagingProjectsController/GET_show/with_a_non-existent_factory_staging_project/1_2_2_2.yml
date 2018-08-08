@@ -2,51 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=_nobody_
+    uri: http://backend:5352/source/openSUSE:Factory:Staging/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <project name="openSUSE:Factory:Staging:A">
-          <title>The Painted Veil</title>
-          <description>Factory staging project A</description>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '144'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="openSUSE:Factory:Staging:A">
-          <title>The Painted Veil</title>
-          <description>Factory staging project A</description>
-        </project>
-    http_version: 
-  recorded_at: Mon, 30 Jul 2018 09:10:08 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=_nobody_
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="openSUSE:Factory">
-          <title>Wildfire at Midnight</title>
+        <project name="openSUSE:Factory:Staging">
+          <title>All the King's Men</title>
           <description/>
         </project>
     headers:
@@ -68,14 +29,371 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '113'
+      - '119'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging">
+          <title>All the King's Men</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>Wildfire at Midnight</title>
+          <title>All the King's Men</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>All the King's Men</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 09:10:08 GMT
+  recorded_at: Mon, 30 Jul 2018 19:12:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>Little Hands Clapping</title>
+          <description>Sit qui error iure.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>Little Hands Clapping</title>
+          <description>Sit qui error iure.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>Little Hands Clapping</title>
+          <description>Sit qui error iure.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>Little Hands Clapping</title>
+          <description>Sit qui error iure.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_14/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_14">
+          <title>Little Hands Clapping</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '108'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_14">
+          <title>Little Hands Clapping</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_14/package_14/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_14" project="project_14">
+          <title>Pale Kings and Princes</title>
+          <description>Itaque in consequatur maxime.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '159'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_14" project="project_14">
+          <title>Pale Kings and Princes</title>
+          <description>Itaque in consequatur maxime.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_14/package_14/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_14" project="project_14">
+          <title>Pale Kings and Princes</title>
+          <description>Itaque in consequatur maxime.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '159'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_14" project="project_14">
+          <title>Pale Kings and Princes</title>
+          <description>Itaque in consequatur maxime.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_29/_meta?user=user_29
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_29">
+          <title/>
+          <description/>
+          <person userid="user_29" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '137'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_29">
+          <title></title>
+          <description></description>
+          <person userid="user_29" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title>The Wings of the Dove</title>
+          <description>      requests:
+                - { id: 1 }
+        </description>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title>The Wings of the Dove</title>
+          <description>      requests:
+                - { id: 1 }
+        </description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:21 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:B/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title>Ring of Bright Water</title>
+          <description>Factory staging project B</description>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title>Ring of Bright Water</title>
+          <description>Factory staging project B</description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:21 GMT
 recorded_with: VCR 4.0.0
