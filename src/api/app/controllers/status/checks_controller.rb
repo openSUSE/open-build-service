@@ -2,17 +2,21 @@ class Status::ChecksController < ApplicationController
   before_action :require_checkable, only: [:index, :show, :destroy]
   before_action :require_or_create_checkable, only: :update
   before_action :require_check, only: [:show, :destroy]
+  after_action :verify_authorized
 
   def index
     @checks = @checkable.checks
+    authorize @checks
   end
 
-  def show; end
+  def show
+    authorize @check
+  end
 
   def update
     xml_check = Xmlhash.parse(request.body.read)
     @check = Status::Check.new(checkable: @checkable, url: xml_check['url'], state: xml_check['state'], short_description: xml_check['short_description'], name: xml_check['name'])
-
+    authorize @check
     if @check.save
       render :show
     else
@@ -21,6 +25,7 @@ class Status::ChecksController < ApplicationController
   end
 
   def destroy
+    authorize @check
     if @check.destroy
       render_ok
     else

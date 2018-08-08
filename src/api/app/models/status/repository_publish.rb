@@ -12,6 +12,10 @@ class Status::RepositoryPublish < ApplicationRecord
   #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :repository
   has_many :checks, as: :checkable, dependent: :destroy
+  has_one :project, through: :repository
+  has_many :relationships, through: :project
+  has_many :groups, through: :relationships
+  has_many :groups_users, through: :groups
 
   #### Callbacks macros: before_save, after_save, etc.
 
