@@ -723,7 +723,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # store data for later checks
     get '/source/home:tom:branches:OBS_Maintained:pack2/_meta'
     assert_response :success
-    oprojectmeta = ActiveXML::Node.new(@response.body)
+    oprojectmeta = Xmlhash.parse(@response.body)
 
     get '/source/home:tom:branches:OBS_Maintained:pack2/_meta'
     assert_response :success
@@ -756,16 +756,16 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(parent: { tag: 'build' }, tag: 'disable', content: nil)
     assert_xml_tag(parent: { tag: 'access' }, tag: 'disable', content: nil)
-    node = ActiveXML::Node.new(@response.body)
+    node = Xmlhash.parse(@response.body)
     # repository definition must be the same, except for the maintenance trigger
-    node.each('repository') do |r|
-      rt = r.find_first('releasetarget')
+    node.elements('repository') do |r|
+      rt = r['releasetarget']
       assert_not_nil rt
-      assert_equal 'maintenance', rt.value('trigger')
-      rt.delete_attribute('trigger')
+      assert_equal 'maintenance', rt['trigger']
+      rt.delete('trigger')
     end
-    assert_equal node.find_first('repository').dump_xml, oprojectmeta.find_first('repository').dump_xml
-    assert_equal node.find_first('build').dump_xml, oprojectmeta.find_first('build').dump_xml
+    assert_equal node.elements('repository').first.to_s, oprojectmeta.elements('repository').first.to_s
+    assert_equal node.elements('build').first.to_s, oprojectmeta.elements('build').first.to_s
 
     get "/source/#{incident_project}"
     assert_response :success
@@ -1159,7 +1159,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # block patchinfo build
     get "/source/#{incident_project}/patchinfo/_patchinfo"
     assert_response :success
-    pi = Nokogori::XML(@response.body).root
+    pi = Nokogiri::XML(@response.body).root
     pi.add_child '<stopped>The issue is not fixed for real yet</stopped>'
     put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
     assert_response :success
@@ -1186,7 +1186,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'status', attributes: { code: 'build_not_finished' })
     assert_match(/patchinfo patchinfo is broken/, @response.body)
     # un-block patchinfo build, but filter for an empty result
-    pi.at_xpath('.//stopped').delete
+    pi.css('stopped').remove
     pi.add_child('<binary>does not exist</binary>')
     put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
     assert_response :success
@@ -1199,7 +1199,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject', arch: 'i586', state: 'unpublished' } },
                tag: 'status', attributes: { package: 'patchinfo', code: 'failed' }
     # fix it again
-    pi.at_xpath('binary').delete
+    pi.css('binary').remove
     put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
     assert_response :success
     # collect the job results
@@ -1236,8 +1236,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # mess up patchinfo and try to create release request
-    pi.add_element('binary').text = 'does not exist'
-    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.dump_xml
+    pi.add_child('<binary>does not exist</binary>')
+    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
     assert_response :success
     post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_release">
@@ -1249,8 +1249,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_match(/last patchinfo patchinfo is not yet build/, @response.body)
 
     # revert
-    pi.delete_element 'binary'
-    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.dump_xml
+    pi.css('binary').remove
+    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
     assert_response :success
     run_scheduler('x86_64')
     run_scheduler('i586')
@@ -2052,9 +2052,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     login_king
     get '/source/BaseDistro:Update/_meta'
     assert_response :success
-    meta = originmeta = ActiveXML::Node.new(@response.body)
-    meta.add_element 'person', userid: 'adrian', role: 'reviewer'
-    put '/source/BaseDistro:Update/_meta', params: meta.dump_xml
+    meta = originmeta = Nokogiri::XML(@response.body).root
+    meta.add_child('<person userid="adrian" role="reviewer"/>')
+    put '/source/BaseDistro:Update/_meta', params: meta.to_xml
     assert_response :success
 
     # ensure target package exists
@@ -2134,7 +2134,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # cleanup
     login_king
-    put '/source/BaseDistro:Update/_meta', params: originmeta.dump_xml
+    put '/source/BaseDistro:Update/_meta', params: originmeta.to_xml
     assert_response :success
     delete '/source/home:tom:EVERGREEN'
     assert_response :success

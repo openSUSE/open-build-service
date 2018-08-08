@@ -12,9 +12,9 @@ def resubmit_all_fixtures
   # projects
   get '/source'
   assert_response :success
-  node = ActiveXML::Node.new(@response.body)
-  node.each(:entry) do |e|
-    name = e.value('name')
+  node = Xmlhash.parse(@response.body)
+  node.elements('entry') do |e|
+    name = e['name']
     get "/source/#{name}/_meta"
     assert_response :success
     r = @response.body
