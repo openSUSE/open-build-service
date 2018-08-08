@@ -304,12 +304,12 @@ module ActionDispatch
 
     def assert_xml_tag(conds)
       ret = check_xml_tag(@response.body, conds)
-      raise MiniTest::Assertion, "expected tag, but no tag found matching #{conds.inspect} in:\n#{ret.to_xml}" unless ret
+      raise MiniTest::Assertion, "expected tag, but no tag found matching #{conds.inspect} in:\n#{@response.body}" unless ret
     end
 
     def assert_no_xml_tag(conds)
       ret = check_xml_tag(@response.body, conds)
-      raise MiniTest::Assertion, "expected no tag, but found tag matching #{conds.inspect} in:\n#{node.to_xml}" if ret
+      raise MiniTest::Assertion, "expected no tag, but found tag matching #{conds.inspect} in:\n#{@response.body}" if ret
     end
 
     # useful to fix our test cases

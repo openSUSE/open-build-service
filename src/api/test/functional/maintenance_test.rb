@@ -218,9 +218,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response :success
     assert_xml_tag(tag: 'target', attributes: { project: 'My:Maintenance', releaseproject: 'BaseDistro2.0:LinkedUpdateProject' })
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    id1 = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    id1 = node['id']
 
     # modify source afterwards, must not appear in target after accept
     login_king
@@ -282,9 +282,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     # update project extended ?
     assert_xml_tag(tag: 'target', attributes: { project: 'My:Maintenance', releaseproject: 'BaseDistro2.0:LinkedUpdateProject' })
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    id2 = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    id2 = node['id']
 
     # validate that request is diffable (not broken)
     post "/request/#{id2}?cmd=diff&view=xml"
@@ -494,9 +494,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'target', attributes: { project: 'ServicePack:Update', package: 'pack2.100' }
     assert_xml_tag tag: 'target', attributes: { project: 'ServicePack:Update', package: 'pack2.linked.100' }
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    reqid = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    reqid = node['id']
     # the local linked package delivers not full content
     post "/request/#{reqid}?cmd=diff&view=xml"
     assert_response :success
@@ -705,9 +705,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response :success
     assert_xml_tag(tag: 'target', attributes: { project: 'My:Maintenance' })
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    id = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    id = node['id']
     assert_xml_tag(tag: 'request', children: { count: 3, only: { tag: 'action' } }) # only with changed sources
     assert_xml_tag(tag: 'source', attributes: { project: 'home:tom:branches:OBS_Maintained:pack2' })
     assert_xml_tag(tag: 'target', attributes: { project: 'My:Maintenance' })
@@ -1308,9 +1308,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'review', attributes: { by_user: 'fred' }) # BaseDistro2:Update pack2
     assert_xml_tag(tag: 'priority', content: 'important') # from patchinfo rating
 
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    reqid = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    reqid = node['id']
     post "/request/#{reqid}?cmd=diff&view=xml"
     assert_response :success
     # the diffed packages
@@ -1374,9 +1374,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    nreqid = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    nreqid = node['id']
     prepare_request_with_user 'maintenance_coord', 'buildservice'
     post "/request/#{nreqid}?cmd=changestate&newstate=accepted"
     assert_response 403
@@ -1470,13 +1470,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # vaidate freezing of source
     get "/source/#{incident_project}/pack2.BaseDistro2.0_LinkedUpdateProject/_link"
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert_equal true, node.has_attribute?(:rev)
+    node = Xmlhash.parse(@response.body)
+    assert node['rev'].present?
     # but local link is not frozen
     get "/source/#{incident_project}/pack2.linked.BaseDistro2.0_LinkedUpdateProject/_link"
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert_equal false, node.has_attribute?(:rev)
+    node = Xmlhash.parse(@response.body)
+    assert node['rev'].nil?
 
     # validate result
     get "/source/#{incident_project}/_meta"
@@ -1698,9 +1698,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # get current vrev
     get '/source/BaseDistro2.0:LinkedUpdateProject/pack2?view=info'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:vrev)
-    vrev = node.value(:vrev)
+    node = Xmlhash.parse(@response.body)
+    assert node['vrev']
+    vrev = node['vrev']
     vrev1 = vrev.gsub(/\..*/, '')
     vrev2 = vrev.gsub(/.*\./, '')
     # get a package
@@ -1710,16 +1710,16 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/BaseDistro2.0:LinkedUpdateProject/pack2?view=info'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:vrev)
-    assert_equal node.value(:vrev), "#{vrev1}.#{vrev2}" # untouched
+    node = Xmlhash.parse(@response.body)
+    assert node['vrev']
+    assert_equal node['vrev'], "#{vrev1}.#{vrev2}" # untouched
     get '/source/BaseDistro2.0:ServicePack1/pack2?view=info'
     assert_response :success
     get '/source/BaseDistro2.0:ServicePack1/pack2.linked?view=info'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:vrev)
-    assert_equal "#{vrev1.to_i + 1}.#{1 + 2}", node.value(:vrev) # X gets increased by one, Y set back and used withrevbump=2
+    node = Xmlhash.parse(@response.body)
+    assert node['vrev']
+    assert_equal "#{vrev1.to_i + 1}.#{1 + 2}", node['vrev'] # X gets increased by one, Y set back and used withrevbump=2
 
     # new packages in Update project found, even we just project-link only to GA
     post '/source/BaseDistro2.0:LinkedUpdateProject/packNEW?cmd=copy&oproject=BaseDistro2.0&opackage=pack2'
@@ -1755,9 +1755,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response :success
     assert_xml_tag tag: 'makeoriginolder', content: 'true'
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    reqid = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    reqid = node['id']
     # and accept it
     post "/request/#{reqid}?cmd=changestate&newstate=accepted"
     assert_response :success
@@ -1767,14 +1767,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response 404 # a makeoriginolder copy due to attribute
     get '/source/BaseDistro2.0:ServicePack1/pack2?view=info'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:vrev)
-    assert_equal "#{vrev1.to_i + 1}.#{1 + 1 + 2}", node.value(:vrev) # extendvrev . reset + link + vrevbump=2
+    node = Xmlhash.parse(@response.body)
+    assert node['vrev']
+    assert_equal "#{vrev1.to_i + 1}.#{1 + 1 + 2}", node['vrev'] # extendvrev . reset + link + vrevbump=2
     get '/source/BaseDistro2.0:LinkedUpdateProject/pack2?view=info'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:vrev)
-    assert_equal node.value(:vrev), "#{vrev1}.#{vrev2}" # untouched
+    node = Xmlhash.parse(@response.body)
+    assert node['vrev']
+    assert_equal node['vrev'], "#{vrev1}.#{vrev2}" # untouched
     delete '/source/BaseDistro2.0:ServicePack1/pack2.linked'
     assert_response :success
     delete '/source/BaseDistro2.0:ServicePack1/pack2'
@@ -1793,9 +1793,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response :success
     assert_xml_tag tag: 'makeoriginolder', content: 'true'
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    reqid = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    reqid = node['id']
     # and accept it
     post "/request/#{reqid}?cmd=changestate&newstate=accepted"
     assert_response :success
@@ -1808,9 +1808,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # must be untouched
     get '/source/BaseDistro2.0:LinkedUpdateProject/pack2?view=info'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:vrev)
-    assert_equal node.value(:vrev), "#{vrev1}.#{vrev2}" # untouched
+    node = Xmlhash.parse(@response.body)
+    assert node['vrev']
+    assert_equal node['vrev'], "#{vrev1}.#{vrev2}" # untouched
 
     # cleanup
     system("for i in #{Rails.root}/tmp/backend_data/projects/BaseDistro2.0.pkg/*.rev; do mv $i.backup $i; done")
@@ -2087,9 +2087,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response :success
     assert_xml_tag tag: 'review'
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    reqid = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    reqid = node['id']
     # revoke to unlock the source
     post "/request/#{reqid}?cmd=changestate&newstate=revoked"
     assert_response :success
@@ -2104,9 +2104,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response :success
     assert_no_xml_tag tag: 'review'
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    reqid = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    reqid = node['id']
     # revoke to unlock the source
     post "/request/#{reqid}?cmd=changestate&newstate=revoked"
     assert_response :success
@@ -2125,9 +2125,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response :success
     assert_xml_tag tag: 'review'
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    reqid = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    reqid = node['id']
     # revoke to unlock the source
     post "/request/#{reqid}?cmd=changestate&newstate=revoked"
     assert_response :success
@@ -2174,9 +2174,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    reqid = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    reqid = node['id']
 
     # fail ...
     post "/request/#{reqid}?cmd=changestate&newstate=accepted"
@@ -2220,9 +2220,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    reqid = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    reqid = node['id']
 
     # got locked
     get '/source/home:tom:test/_meta'
@@ -2250,7 +2250,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def last_revision(axml)
-    axml.each('revision').last
+    axml.elements('revision').last
   end
 
   def test_copy_project_for_release
@@ -2321,20 +2321,20 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # compare revisions
     get '/source/BaseDistro/pack2/_history'
     assert_response :success
-    history = ActiveXML::Node.new(@response.body)
-    srcmd5 = last_revision(history).value(:srcmd5)
-    version = last_revision(history).value(:version)
-    time = last_revision(history).value(:time)
-    vrev = last_revision(history).value(:vrev)
+    history = Xmlhash.parse(@response.body)
+    srcmd5 = last_revision(history).value('srcmd5')
+    version = last_revision(history).value('version')
+    time = last_revision(history).value('time')
+    vrev = last_revision(history)['vrev']
     assert_not_nil srcmd5
     get '/source/CopyOfBaseDistro/pack2/_history'
     assert_response :success
-    copyhistory = ActiveXML::Node.new(@response.body)
-    copysrcmd5 = last_revision(copyhistory).value(:srcmd5)
-    copyversion = last_revision(copyhistory).value(:version)
-    copytime = last_revision(copyhistory).value(:time)
+    copyhistory = Xmlhash.parse(@response.body)
+    copysrcmd5 = last_revision(copyhistory).value('srcmd5')
+    copyversion = last_revision(copyhistory).value('version')
+    copytime = last_revision(copyhistory).value('time')
     # copyrev = last_revision(copyhistory).rev
-    copyvrev = last_revision(copyhistory).value(:vrev)
+    copyvrev = last_revision(copyhistory)['vrev']
     assert_equal srcmd5, copysrcmd5
     assert_equal vrev.to_i, copyvrev.to_i - 1 # the copy gets always an additional commit
     assert_equal version, copyversion
@@ -2377,29 +2377,29 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/BaseDistro3'
     assert_response :success
-    opackages = ActiveXML::Node.new(@response.body)
+    opackages = Xmlhash.parse(@response.body)
     get '/source/CopyOfBaseDistro3'
     assert_response :success
-    packages = ActiveXML::Node.new(@response.body)
+    packages = Xmlhash.parse(@response.body)
     assert_equal opackages.to_s, packages.to_s
 
     # compare revisions
     get '/source/BaseDistro3/pack2/_history'
     assert_response :success
-    history = ActiveXML::Node.new(@response.body)
+    history = Xmlhash.parse(@response.body)
     srcmd5 = last_revision(history).value(:srcmd5)
     version = last_revision(history).value(:version)
     time = last_revision(history).value(:time)
-    vrev = last_revision(history).value(:vrev)
+    vrev = last_revision(history)['vrev']
     assert_not_nil srcmd5
     get '/source/CopyOfBaseDistro3/pack2/_history'
     assert_response :success
-    copyhistory = ActiveXML::Node.new(@response.body)
+    copyhistory = Xmlhash.parse(@response.body)
     copysrcmd5 = last_revision(copyhistory).value(:srcmd5)
     copyversion = last_revision(copyhistory).value(:version)
     copytime = last_revision(copyhistory).value(:time)
     # copyrev = last_revision(copyhistory).rev
-    copyvrev = last_revision(copyhistory).value(:vrev)
+    copyvrev = last_revision(copyhistory)['vrev']
     assert_equal srcmd5, copysrcmd5
     assert_equal vrev.to_i + 1, copyvrev.to_i # the copy gets always a higher vrev
     assert_equal version, copyversion
@@ -2436,10 +2436,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     login_king
     get '/source/BaseDistro/pack2/_history'
     assert_response :success
-    originhistory = ActiveXML::Node.new(@response.body)
-    last = originhistory.each('revision').last
-    originsrcmd5 = last.value(:srcmd5)
-    originversion = last.value(:version)
+    originhistory = Xmlhash.parse(@response.body)
+    last = originhistory.elements('revision').last
+    originsrcmd5 = last.value('srcmd5')
+    originversion = last.value('version')
     origintime = last.value('time')
     originvrev = last.value('vrev')
     assert_not_nil originsrcmd5
@@ -2451,43 +2451,43 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/BaseDistro'
     assert_response :success
-    opackages = ActiveXML::Node.new(@response.body)
+    opackages = Xmlhash.parse(@response.body)
     get '/source/CopyOfBaseDistro'
     assert_response :success
-    packages = ActiveXML::Node.new(@response.body)
+    packages = Xmlhash.parse(@response.body)
     assert_equal opackages.to_s, packages.to_s
 
     # compare revisions of source project
     get '/source/BaseDistro/pack2/_history'
     assert_response :success
-    history = ActiveXML::Node.new(@response.body)
-    srcmd5 = last_revision(history).value(:srcmd5)
-    version = last_revision(history).value(:version)
-    time = last_revision(history).value(:time)
+    history = Xmlhash.parse(@response.body)
+    srcmd5 = last_revision(history).value('srcmd5')
+    version = last_revision(history).value('version')
+    time = last_revision(history).value('time')
     # rev = last_revision(history).rev
-    vrev = last_revision(history).value(:vrev)
+    vrev = last_revision(history)['vrev']
     assert_not_nil srcmd5
     assert_equal originsrcmd5, srcmd5
     assert_equal originvrev.to_i + 2, vrev.to_i # vrev jumps two numbers
     assert_equal version, originversion
     assert_not_equal time, origintime
-    assert_equal 'king', last_revision(history).value(:user)
+    assert_equal 'king', last_revision(history).value('user')
 
     # compare revisions of destination project
     get '/source/CopyOfBaseDistro/pack2/_history'
     assert_response :success
-    copyhistory = ActiveXML::Node.new(@response.body)
-    copysrcmd5 = last_revision(copyhistory).value(:srcmd5)
-    copyversion = last_revision(copyhistory).value(:version)
-    copytime = last_revision(copyhistory).value(:time)
+    copyhistory = Xmlhash.parse(@response.body)
+    copysrcmd5 = last_revision(copyhistory).value('srcmd5')
+    copyversion = last_revision(copyhistory).value('version')
+    copytime = last_revision(copyhistory).value('time')
     # copyrev = last_revision(copyhistory).rev
-    copyvrev = last_revision(copyhistory).value(:vrev)
+    copyvrev = last_revision(copyhistory)['vrev']
     assert_equal originsrcmd5, copysrcmd5
     expectedvrev = "#{originvrev.to_i + 1}.1" # the copy gets incremented by one, but also extended to avoid that it can become
     assert_equal expectedvrev, copyvrev # newer than the origin project at any time later.
     assert_equal originversion, copyversion
     assert_not_equal origintime, copytime
-    assert_equal 'king', last_revision(copyhistory).value(:user)
+    assert_equal 'king', last_revision(copyhistory).value('user')
 
     # cleanup
     system("for i in #{ENV['OBS_BACKEND_TEMP']}/data/projects/BaseDistro.pkg/*.rev; do mv $i.backup $i; done")
@@ -2518,10 +2518,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     login_tom
     get '/source/BaseDistro/pack2/_history'
     assert_response :success
-    originhistory = ActiveXML::Node.new(@response.body)
-    last = originhistory.each('revision').last
-    originsrcmd5 = last.value(:srcmd5)
-    originversion = last.value(:version)
+    originhistory = Xmlhash.parse(@response.body)
+    last = originhistory.elements('revision').last
+    originsrcmd5 = last.value('srcmd5')
+    originversion = last.value('version')
     origintime = last.value('time')
     originvrev = last.value('vrev')
     assert_not_nil originsrcmd5
@@ -2534,43 +2534,43 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/BaseDistro'
     assert_response :success
-    opackages = ActiveXML::Node.new(@response.body)
+    opackages = Xmlhash.parse(@response.body)
     get '/source/CopyOfBaseDistro'
     assert_response :success
-    packages = ActiveXML::Node.new(@response.body)
+    packages = Xmlhash.parse(@response.body)
     assert_equal opackages.to_s, packages.to_s
 
     # compare revisions of source project
     get '/source/BaseDistro/pack2/_history'
     assert_response :success
-    history = ActiveXML::Node.new(@response.body)
-    srcmd5 = last_revision(history).value(:srcmd5)
-    version = last_revision(history).value(:version)
-    time = last_revision(history).value(:time)
+    history = Xmlhash.parse(@response.body)
+    srcmd5 = last_revision(history).value('srcmd5')
+    version = last_revision(history).value('version')
+    time = last_revision(history).value('time')
     # rev = last_revision(history).rev
-    vrev = last_revision(history).value(:vrev)
+    vrev = last_revision(history)['vrev']
     assert_not_nil srcmd5
     assert_equal originsrcmd5, srcmd5
     expectedvrev = "#{originvrev.to_i + 1}.1" # the origin gets incremented by one, but also extended to avoid that it can become
     assert_equal expectedvrev, vrev.to_s        # newer than the origin project at any time later.
     assert_equal version, originversion
     assert_not_equal time, origintime
-    assert_equal 'king', last_revision(history).value(:user)
+    assert_equal 'king', last_revision(history).value('user')
 
     # compare revisions of destination project
     get '/source/CopyOfBaseDistro/pack2/_history'
     assert_response :success
-    copyhistory = ActiveXML::Node.new(@response.body)
-    copysrcmd5 = last_revision(copyhistory).value(:srcmd5)
-    copyversion = last_revision(copyhistory).value(:version)
-    copytime = last_revision(copyhistory).value(:time)
+    copyhistory = Xmlhash.parse(@response.body)
+    copysrcmd5 = last_revision(copyhistory).value('srcmd5')
+    copyversion = last_revision(copyhistory).value('version')
+    copytime = last_revision(copyhistory).value('time')
     # copyrev = last_revision(copyhistory).rev
-    copyvrev = last_revision(copyhistory).value(:vrev)
+    copyvrev = last_revision(copyhistory)['vrev']
     assert_equal originsrcmd5, copysrcmd5
     assert_equal (originvrev.to_i + 2).to_s, copyvrev.to_s # the copy is newer
     assert_equal originversion, copyversion
     assert_not_equal origintime, copytime
-    assert_equal 'king', last_revision(copyhistory).value(:user)
+    assert_equal 'king', last_revision(copyhistory).value('user')
 
     # cleanup
     system("for i in #{ENV['OBS_BACKEND_TEMP']}/data/projects/BaseDistro.pkg/*.rev; do mv $i.backup $i; done")
