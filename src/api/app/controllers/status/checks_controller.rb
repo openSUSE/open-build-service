@@ -1,6 +1,6 @@
 class Status::ChecksController < ApplicationController
   before_action :require_checkable, only: [:index, :show, :destroy, :update]
-  before_action :require_or_create_checkable, only: :create
+  before_action :require_or_initialize_checkable, only: :create
   before_action :require_check, only: [:show, :destroy, :update]
   before_action :set_xml_check, only: [:create, :update]
   skip_before_action :require_login, only: [:show, :index]
@@ -46,10 +46,10 @@ class Status::ChecksController < ApplicationController
 
   private
 
-  def require_or_create_checkable
+  def require_or_initialize_checkable
     project = Project.get_by_name(params[:project_name])
     repository = project.repositories.find_by!(name: params[:repository_name])
-    @checkable = repository.status_publishes.find_or_create_by(build_id: params[:status_repository_publish_build_id])
+    @checkable = repository.status_publishes.find_or_initialize_by(build_id: params[:status_repository_publish_build_id])
   end
 
   def require_checkable
