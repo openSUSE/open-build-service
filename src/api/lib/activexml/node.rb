@@ -366,15 +366,6 @@ module ActiveXML
       _data == other.internal_data
     end
 
-    def find_matching(conds)
-      return self if NodeMatcher.match(self, conds) == true
-      each do |c|
-        ret = c.find_matching(conds)
-        return ret if ret
-      end
-      return
-    end
-
     def internal_data
       _data
     end

@@ -1,5 +1,5 @@
 
-module NodeMatcher #:nodoc:
+class NodeMatcher #:nodoc:
   class Conditions < Hash #:nodoc:
     def initialize(hash)
       super()
@@ -45,6 +45,15 @@ module NodeMatcher #:nodoc:
         [k.to_sym, hash[k]]
       end]
     end
+  end
+
+  def initialize(conds)
+    @conditions = Conditions.new(conds)
+  end
+
+  def find_matching(node)
+    return node if match(node, @conditions) == true
+    node.element_children.detect { |child| find_matching(child) }
   end
 
   # Returns +true+ if the node meets any of the given conditions. The
@@ -117,14 +126,16 @@ module NodeMatcher #:nodoc:
   #                           :attributes => { :class => "enum" } },
   #              :descendant => { :tag => "span",
   #                               :child => /hello world/ }
-  def self.match(node, conditions)
+  def match(node, conditions)
     return false unless node
+    # we went too far up
+    return false if node.is_a? Nokogiri::XML::Document
 
     case conditions
     when String
-      return node.text == conditions
+      return node.content == conditions
     when Regexp
-      return node.text =~ conditions
+      return node.content =~ conditions
     when Conditions
       nil
     else
@@ -132,17 +143,17 @@ module NodeMatcher #:nodoc:
     end
     # check content of child nodes
     if conditions[:content]
-      if node.has_elements?
-        # FIXME: This will always be falsy
-        return false unless node.each { |child| match(child, conditions[:content]) }
+      if node.element_children.empty?
+        return false unless match_condition(node.content, conditions[:content])
       else
-        return false unless match_condition(node.text, conditions[:content])
+        # FIXME: This will always be falsy
+        return false unless node.element_children.each { |child| match(child, conditions[:content]) }
       end
     end
 
     # test the name
     if conditions[:tag]
-      return false unless match_condition(node.element_name, conditions[:tag])
+      return false unless match_condition(node.node_name, conditions[:tag])
     end
 
     # test attributes
@@ -151,7 +162,7 @@ module NodeMatcher #:nodoc:
         return false if node.has_attribute? key.to_s
       else
         return false unless node.has_attribute? key.to_s
-        return false unless match_condition(node.value(key), value)
+        return false unless match_condition(node[key], value)
       end
     end
 
@@ -163,7 +174,7 @@ module NodeMatcher #:nodoc:
     # test children
     if conditions[:child]
       found_one = false
-      node.each do |child|
+      node.element_children.each do |child|
         found_one = match(child, conditions[:child])
         break if found_one
       end
@@ -174,7 +185,7 @@ module NodeMatcher #:nodoc:
     if conditions[:ancestor]
       return false unless catch :found do
         p = node.parent
-        while p
+        while p.is_a? Nokogiri::XML::Element
           throw :found, true if match(p, conditions[:ancestor])
           p = p.parent
         end
@@ -184,7 +195,7 @@ module NodeMatcher #:nodoc:
     # test descendants
     if conditions[:descendant]
       found_one = false
-      node.each do |child|
+      node.element_children.each do |child|
         # test the child
         found_one = match(child, conditions[:descendant]) ||
                     # test the child's descendants
@@ -195,40 +206,13 @@ module NodeMatcher #:nodoc:
     end
 
     # count children
-    opts = conditions[:children]
-    if opts
-      matches = []
-      node.each do |child|
-        if opts[:only]
-          matches << child if match(child, opts[:only])
-        else
-          matches << child
-        end
-      end
-
-      opts.each do |key, value|
-        next if key == :only
-        case key
-        when :count
-          if value.is_a?(Integer)
-            return false if matches.length != value
-          else
-            return false unless value.include?(matches.length)
-          end
-        when :less_than
-          return false unless matches.length < value
-        when :greater_than
-          return false unless matches.length > value
-        else raise "unknown count condition #{key}"
-        end
-      end
-    end
+    return false unless matches_child_opts(node, conditions[:children])
 
     # test siblings
     if conditions[:sibling] || conditions[:before] || conditions[:after]
       siblings = []
       self_index = -1
-      node.parent.each_with_index do |child, index|
+      node.parent.element_children.each_with_index do |child, index|
         siblings << child
         self_index = index if child == node
       end
@@ -256,8 +240,38 @@ module NodeMatcher #:nodoc:
     true
   end
 
+  def matches_child_opts(node, opts)
+    return true unless opts
+    matches = []
+    node.element_children.each do |child|
+      if opts[:only]
+        matches << child if match(child, opts[:only])
+      else
+        matches << child
+      end
+    end
+
+    opts.each do |key, value|
+      next if key == :only
+      case key
+      when :count
+        if value.is_a?(Integer)
+          return false if matches.length != value
+        else
+          return false unless value.include?(matches.length)
+        end
+      when :less_than
+        return false unless matches.length < value
+      when :greater_than
+        return false unless matches.length > value
+      else raise "unknown count condition #{key}"
+      end
+    end
+    return true
+  end
+
   # Match the given value to the given condition.
-  def self.match_condition(value, condition)
+  def match_condition(value, condition)
     case condition
     when Symbol
       value && value.to_s == condition.to_s
