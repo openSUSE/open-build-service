@@ -19,11 +19,11 @@ RSpec.describe Webui::Projects::RebuildTimesController do
       end
       let(:bdep_xml) do
         <<-XML
-          "<builddepinfo>" +
-            "<package name=\"gcc6\">" +
-              "<pkgdep>gcc</pkgdep>" +
-            "</package>" +
-          "</builddepinfo>"
+          <builddepinfo>
+            <package name="gcc6">
+              <pkgdep>gcc</pkgdep>
+            </package>
+          </builddepinfo>
         XML
       end
 
@@ -33,11 +33,11 @@ RSpec.describe Webui::Projects::RebuildTimesController do
       end
       let(:jobs_xml) do
         <<-XML
-          "<jobhistory>" +
-            "<package name=\"gcc6\">" +
-              "<pkgdep>gcc</pkgdep>" +
-            "</package>" +
-          "</jobhistory>"
+          <jobhistory>
+            <package name="gcc6">
+              <pkgdep>gcc</pkgdep>
+            </package>
+          </jobhistory>
         XML
       end
 
@@ -67,7 +67,7 @@ RSpec.describe Webui::Projects::RebuildTimesController do
     context 'without build dependency info or jobs history' do
       before do
         allow(Backend::Api::BuildResults::Binaries).to receive(:builddepinfo)
-        allow(Jobhistory).to receive(:find)
+        allow(Backend::Api::BuildResults::JobHistory).to receive(:not_failed)
         get :show, params: { project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
       end
 
@@ -78,14 +78,14 @@ RSpec.describe Webui::Projects::RebuildTimesController do
     context 'normal flow' do
       before do
         allow(Backend::Api::BuildResults::Binaries).to receive(:builddepinfo).and_return([])
-        allow(Jobhistory).to receive(:find).and_return([])
+        allow(Backend::Api::BuildResults::JobHistory).to receive(:not_failed).and_return('<jobhistlist/>')
       end
 
       context 'with diststats generated' do
         before do
           path = Xmlhash::XMLHash.new('package' => 'package_name')
           longestpaths_xml = Xmlhash::XMLHash.new('longestpath' => Xmlhash::XMLHash.new('path' => path))
-          allow_any_instance_of(Webui::Projects::RebuildTimesController).to receive(:call_diststats).and_return(longestpaths_xml)
+          allow(controller).to receive(:call_diststats).and_return(longestpaths_xml)
           get :show, params: { project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
         end
 
@@ -94,7 +94,7 @@ RSpec.describe Webui::Projects::RebuildTimesController do
 
       context 'with diststats not generated' do
         before do
-          allow_any_instance_of(Webui::Projects::RebuildTimesController).to receive(:call_diststats)
+          allow(controller).to receive(:call_diststats)
           get :show, params: { project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
         end
 

@@ -140,11 +140,7 @@ class PackageBuildStatus
 
     # first we check the lastfailures. This route is fast but only has up to
     # two results per package. If the md5sum does not match, we have to dig deeper
-    hist = Jobhistory.find_hashed(project: @pkg.project.name,
-                                  repository: srep['name'],
-                                  package: @pkg.name,
-                                  arch: arch,
-                                  code: 'lastfailures')
+    hist = Xmlhash.parse(Backend::Api::BuildResults::JobHistory.last_failures(@pkg.project.name, @pkg.name, srep['name'], arch))
     return unless hist
     hist.elements('jobhist') do |jh|
       if jh['verifymd5'] == @verifymd5 || jh['srcmd5'] == @srcmd5
@@ -153,12 +149,7 @@ class PackageBuildStatus
     end
 
     unless @everbuilt
-      hist = Jobhistory.find_hashed(project: @pkg.project.name,
-                                    repository: srep['name'],
-                                    package: @pkg.name,
-                                    arch: arch,
-                                    limit: 20,
-                                    expires_in: 15.minutes)
+      hist = Xmlhash.parse(Backend::Api::BuildResults::JobHistory.all_for_package(@pkg.project.name, @pkg.name, srep['name'], arch, 20))
     end
 
     # going through the job history to check if it built and if yes, succeeded
