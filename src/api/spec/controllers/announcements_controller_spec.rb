@@ -50,17 +50,29 @@ RSpec.describe AnnouncementsController, type: :controller do
   end
 
   describe 'GET #show' do
-    subject! { get :show, params: { id: announcement.to_param } }
+    context 'requesting an existing announcement' do
+      subject! { get :show, params: { id: announcement } }
 
-    it 'returns a success response' do
-      is_expected.to have_http_status(:success)
+      it { is_expected.to have_http_status(:success) }
+
+      it 'responds with the announcement' do
+        assert_select 'announcement' do
+          assert_select 'id',      /\d+/
+          assert_select 'title',   announcement.title
+          assert_select 'content', announcement.content
+        end
+      end
     end
 
-    it 'responds with the announcement' do
-      assert_select 'announcement' do
-        assert_select 'id',      /\d+/
-        assert_select 'title',   announcement.title
-        assert_select 'content', announcement.content
+    context 'requesting a non-existing announcement' do
+      subject! { get :show, params: { id: 666 }, format: :xml }
+
+      it { is_expected.to have_http_status(:not_found) }
+
+      it 'responds with an error message' do
+        assert_select 'status[code=not_found]' do
+          assert_select 'summary', "Couldn't find Announcement with 'id'=666"
+        end
       end
     end
   end
