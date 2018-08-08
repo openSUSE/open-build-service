@@ -20,7 +20,13 @@ class Status::ChecksController < ApplicationController
     end
   end
 
-  def destroy; end
+  def destroy
+    if @check.destroy
+      render_ok
+    else
+      render_error(status: 422, errorcode: 'whatever', message: "Could not delete check: #{@check.errors.full_messages.to_sentence}")
+    end
+  end
 
   private
 
