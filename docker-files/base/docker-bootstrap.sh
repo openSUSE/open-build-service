@@ -29,10 +29,11 @@ do
       obs-service-format_spec_file obs-service-kiwi_import \
       perl-Devel-Cover perl-Diff-LibXDiff \
       osc \
-      python3-setuptools \
-      python3-ec2uploadimg \
-      aws-cli \
       azure-cli
+      # AWS client disabled temporarily till python-botocore 1.10.62 can build for Leap 42.3
+      # python3-setuptools \
+      # python3-ec2uploadimg \
+      # aws-cli \
     ;;
 
   memcached)
