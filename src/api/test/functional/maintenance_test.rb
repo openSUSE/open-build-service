@@ -1023,36 +1023,36 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # add reader role for adrian
     get '/source/' + incident_project + '/_meta'
     assert_response :success
-    meta = ActiveXML::Node.new(@response.body)
-    meta.add_element 'person', userid: 'adrian', role: 'reader'
+    meta = Nokogiri::XML(@response.body).root
+    meta.add_child '<person userid="adrian" role="reader"/>'
     Timecop.freeze(1)
-    put '/source/' + incident_project + '/_meta', params: meta.dump_xml
+    put '/source/' + incident_project + '/_meta', params: meta.to_xml
     assert_response :success
     get "/source/#{incident_project}/patchinfo/_patchinfo"
     assert_response :success
     assert_xml_tag(tag: 'patchinfo', attributes: { incident: incident_id })
     # FIXME: add another patchinfo pointing to a third place
     # add required informations about the update
-    pi = ActiveXML::Node.new(@response.body)
-    pi.find_first('summary').text = 'if you are bored'
-    pi.find_first('description').text = 'if you are bored and really want fixes'
-    pi.find_first('rating').text = 'important'
-    pi.add_element('name').text = 'oldname'
-    pi.add_element 'issue', 'id' => '0815', 'tracker' => 'bnc'
-    pi.add_element 'releasetarget', project: 'BaseDistro2.0:LinkedUpdateProject'
-    pi.add_element 'releasetarget', project: 'BaseDistro3'
+    pi = Nokogiri::XML(@response.body).root
+    pi.at_xpath('.//summary').content = 'if you are bored'
+    pi.at_xpath('.//description').content = 'if you are bored and really want fixes'
+    pi.at_xpath('.//rating').content = 'important'
+    pi.add_child('<name>oldname</name>')
+    pi.add_child('<issue id="0815" tracker="bnc"/>')
+    pi.add_child('<releasetarget project="BaseDistro2.0:LinkedUpdateProject"/>')
+    pi.add_child('<releasetarget project="BaseDistro3"/>')
     Timecop.freeze(1)
-    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.dump_xml
+    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
     assert_response :success
     # add broken releasetarget
-    pi.add_element 'releasetarget', project: 'home:tom' # invalid target
+    pi.add_child('<releasetarget project="home:tom"/>') # invalid target
     Timecop.freeze(1)
-    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.dump_xml
+    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
     assert_response 404
     assert_xml_tag tag: 'status', attributes: { code: 'releasetarget_not_found' }
     # add broken tracker
-    pi.add_element 'issue', 'id' => '0815', 'tracker' => 'INVALID' # invalid tracker
-    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.dump_xml
+    pi.add_child('<issue id="0815" tracker="INVALID"/>') # invalid tracker
+    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
     assert_response 404
     assert_xml_tag tag: 'status', attributes: { code: 'tracker_not_found' }
     # continue
@@ -1159,10 +1159,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # block patchinfo build
     get "/source/#{incident_project}/patchinfo/_patchinfo"
     assert_response :success
-    pi = ActiveXML::Node.new(@response.body)
-    s = pi.add_element 'stopped'
-    s.text = 'The issue is not fixed for real yet'
-    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.dump_xml
+    pi = Nokogori::XML(@response.body).root
+    pi.add_child '<stopped>The issue is not fixed for real yet</stopped>'
+    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
     assert_response :success
     # collect the job results
     run_scheduler('x86_64')
@@ -1187,9 +1186,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'status', attributes: { code: 'build_not_finished' })
     assert_match(/patchinfo patchinfo is broken/, @response.body)
     # un-block patchinfo build, but filter for an empty result
-    pi.delete_element 'stopped'
-    pi.add_element('binary').text = 'does not exist'
-    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.dump_xml
+    pi.at_xpath('.//stopped').delete
+    pi.add_child('<binary>does not exist</binary>')
+    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
     assert_response :success
     # collect the job results
     run_scheduler('x86_64')
@@ -1200,8 +1199,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject', arch: 'i586', state: 'unpublished' } },
                tag: 'status', attributes: { package: 'patchinfo', code: 'failed' }
     # fix it again
-    pi.delete_element 'binary'
-    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.dump_xml
+    pi.at_xpath('binary').delete
+    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
     assert_response :success
     # collect the job results
     run_scheduler('x86_64')
@@ -2306,11 +2305,11 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_match %r{Repotype: rpm-md-legacy}, @response.body
     get '/source/BaseDistro'
     assert_response :success
-    opackages = ActiveXML::Node.new(@response.body)
+    opackages = Xmlhash.parse(@response.body)
     get '/source/CopyOfBaseDistro'
     assert_response :success
-    packages = ActiveXML::Node.new(@response.body)
-    assert_equal opackages.dump_xml, packages.dump_xml
+    packages = Xmlhash.parse(@response.body)
+    assert_equal opackages, packages
 
     # compare package meta
     get '/source/CopyOfBaseDistro/pack1/_meta'

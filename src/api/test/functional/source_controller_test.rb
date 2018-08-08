@@ -391,27 +391,26 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # Change description
     xml = @response.body
     new_desc = 'Changed description 1'
-    doc = ActiveXML::Node.new(xml)
-    d = doc.find_first('description')
-    d.text = new_desc
+    doc = Nokogiri::XML(xml).root
+    d = doc.at_xpath('//description')
+    d.content = new_desc
 
     # Write changed data back
-    put url_for(controller: :source_project_meta, action: :update, project: 'kde4'), params: doc.dump_xml
+    put url_for(controller: :source_project_meta, action: :update, project: 'kde4'), params: doc.to_xml
     assert_response 403
 
     ### admin only tag
     # remote instance connection
     login_fred
-    d = doc.add_element 'remoteurl'
-    d.text = 'http://localhost:5352'
-    put url_for(controller: :source_project_meta, action: :update, project: 'kde4'), params: doc.dump_xml
+    doc.add_child '<remoteurl>http://localhost:5352</remoteurl>'
+    put url_for(controller: :source_project_meta, action: :update, project: 'kde4'), params: doc.to_xml
     assert_response 403
     assert_match(/admin rights are required to change projects using remote resources/, @response.body)
     # DoD remote repository
-    doc = ActiveXML::Node.new(xml)
-    r = doc.add_element 'repository', name: 'download_on_demand'
-    r.add_element 'download', arch: 'i586', url: 'http://somewhere', repotype: 'rpmmd'
-    put url_for(controller: :source_project_meta, action: :update, project: 'kde4'), params: doc.dump_xml
+    doc = Nokogiri::XML(xml).root
+    r = doc.add_child '<repository name="download_on_demand"/>'
+    r.first.add_child '<download arch="i586" url="http://somewhere" repotype="rpmmd"/>'
+    put url_for(controller: :source_project_meta, action: :update, project: 'kde4'), params: doc.to_xml
     assert_response 403
     assert_match(/admin rights are required to change projects using remote resources/, @response.body)
 
@@ -1840,8 +1839,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # store current revision
     get '/source/kde4/BLAME/_history'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    rev = node.each(:revision).last.value(:rev).to_i
+    node = Xmlhash.parse(@response.body)
+    rev = node.elements('revision').last['rev'].to_i
 
     # add a file
     raw_put '/source/kde4/BLAME/DUMMYFILE', "dummy1\ndummy2\ndummy3\n"
@@ -1912,8 +1911,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     get '/source/kde4/kdelibs/_history', params: { deleted: 1 }
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    srcmd5 = node.each(:revision).last.value(:srcmd5)
+    node = Xmlhash.parse(@response.body)
+    srcmd5 = node.elements('revision').last['srcmd5']
     get '/source/kde4/kdelibs', params: { deleted: 1, rev: srcmd5 }
     assert_response :success
     get '/source/kde4/kdelibs/my_patch.diff', params: { rev: srcmd5 }
@@ -1960,8 +1959,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/kde4/_project/_history?meta=1'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    revision = node.each(:revision).last.value :rev
+    node = Xmlhash.parse(@response.body)
+    revision = node.elements('revision').last['rev']
     expected_revision = revision.to_i + 1
     delete '/source/kde4?user=illegal&comment=drop%20project'
     assert_response :success
@@ -1999,8 +1998,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(parent: { tag: 'revision' }, tag: 'user', content: 'fredlibs')
     assert_xml_tag(parent: { tag: 'revision' }, tag: 'comment', content: 'drop project')
     # there must be only one change
-    node = ActiveXML::Node.new(@response.body)
-    revision = node.each(:revision).last.value :rev
+    node = Xmlhash.parse(@response.body)
+    revision = node.elements('revision').last['rev']
     assert_equal expected_revision, revision.to_i
 
     prepare_request_with_user 'fredlibs', 'buildservice'
@@ -2906,8 +2905,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:Iggy/TestPack/_history'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    revision = node.each(:revision).last.value :rev
+    node = Xmlhash.parse(@response.body)
+    revision = node.elements('revision').last['rev']
 
     # standard copy
     post '/source/home:fred/DELETE', params: { cmd: :copy, oproject: 'home:Iggy', opackage: 'TestPack' }
@@ -3043,8 +3042,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:Iggy/TestPack/_history'
     assert_response :success
     assert_no_xml_tag tag: 'revisionlist', children: { count: 1 }
-    node = ActiveXML::Node.new(@response.body)
-    revision = node.each(:revision).last.value :rev
+    node = Xmlhash.parse(@response.body)
+    revision = node.elements('revision').last['rev']
     revision = revision.to_i + 1
     raw_post '/source/home:Iggy/TestPack?cmd=commitfilelist', ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
     assert_response :success
