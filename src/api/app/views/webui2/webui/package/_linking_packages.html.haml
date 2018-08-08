@@ -3,7 +3,7 @@
     .modal-header
       %h5.modal-title Derived Packages
     .modal-body
-      %ul.no-list-style
+      %ul.list-unstyled
         - @package.linking_packages.each do |linking_package|
           :ruby
             if linking_package.name != @package.name
