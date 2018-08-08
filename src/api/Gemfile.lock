@@ -340,7 +340,7 @@ GEM
     rubocop-rspec (1.27.0)
       rubocop (>= 0.56.0)
     ruby-ldap (0.9.20)
-    ruby-progressbar (1.9.0)
+    ruby-progressbar (1.10.0)
     rubyzip (1.2.1)
     safe_yaml (1.0.4)
     sanitize (4.6.6)
