@@ -345,11 +345,20 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def set_linkinfo
-    @linkinfo = nil
-    lt = @package.backend_package.links_to
-    return unless lt
-    @linkinfo = { package: lt, error: @package.backend_package.error }
-    @linkinfo[:diff] = true if lt.backend_package.verifymd5 != @package.backend_package.verifymd5
+    return unless @package.is_link?
+
+    linked_package = @package.backend_package.links_to
+    return set_remote_linkinfo unless linked_package
+
+    @linkinfo = { package: linked_package, error: @package.backend_package.error }
+    @linkinfo[:diff] = true if linked_package.backend_package.verifymd5 != @package.backend_package.verifymd5
+  end
+
+  def set_remote_linkinfo
+    linkinfo = @package.linkinfo
+    return unless Package.exists_on_backend?(linkinfo['package'], linkinfo['project'])
+
+    @linkinfo = { remote_project: linkinfo['project'], package: linkinfo['package'] }
   end
 
   def set_file_details
