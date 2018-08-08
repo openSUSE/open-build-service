@@ -50,7 +50,7 @@ sub disownrepo {
   my $lck;
   open($lck, '>>', "$registrydir/:repos");
   my $registries = BSUtil::retrieve("$registrydir/:repos");
-  die("repository '$repo' is owned by $registries->{$repo}\n") if $registries->{$repo} ne $prp;
+  die("repository '$repo' is owned by $registries->{$repo}\n") if $registries->{$repo} && $registries->{$repo} ne $prp;
   delete $registries->{$repo};
   BSUtil::store("$registrydir/:repos.new.$$", "$registrydir/:repos", $registries);
   close($lck);
