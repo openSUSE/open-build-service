@@ -67,10 +67,6 @@ function setupRequestDialog() { // jshint ignore:line
   updateSupersedeAndDevelPackageDisplay();
 }
 
-/*$("#targetpackage").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
- minChars: 0, matchCase: true, max: 50, extraParams: {project: function() { return $("#target_project").val(); }}
- });*/
-
 function requestAddAcceptRequestButton() { // jshint ignore:line
   $('#accept_request_button').click(function () {
     var additionalElement;
