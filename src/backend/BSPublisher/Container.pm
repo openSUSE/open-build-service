@@ -71,6 +71,39 @@ sub registries_for_prp {
   return @registries;
 }
 
+sub get_notary_pubkey {
+  my ($projid, $pubkey, $signargs) = @_;
+
+  my @signargs;
+  push @signargs, '--project', $projid if $BSConfig::sign_project;
+  push @signargs, '--signtype', 'notary' if $BSConfig::sign_type || $BSConfig::sign_type;
+  push @signargs, @{$signargs || []};
+
+  # ask the sign tool for the correct pubkey if we do not have a sign key
+  if (!@$signargs && $BSConfig::sign_project && $BSConfig::sign) {
+    local *S;
+    open(S, '-|', $BSConfig::sign, @signargs, '-p') || die("$BSConfig::sign: $!\n");;
+    $pubkey = '';
+    1 while sysread(S, $pubkey, 4096, length($pubkey));
+    if (!close(S)) {
+      print "sign -p failed: $?\n";
+      $pubkey = undef;
+    }
+  }
+
+  # check pubkey
+  die("could not determine pubkey for notary signing\n") unless $pubkey;
+  my $pkalgo;
+  eval { $pkalgo = BSPGP::pk2algo(BSPGP::unarmor($pubkey)) };
+  if ($pkalgo && $pkalgo ne 'rsa') {
+    print "public key algorithm is '$pkalgo', skipping notary upload\n";
+    return (undef, undef);
+  }
+  # get rid of --project option
+  splice(@signargs, 0, 2) if $BSConfig::sign_project;
+  return ($pubkey, \@signargs);
+}
+
 =head2 default_container_mapper - map container data to registry repository/tags
  
 =cut
@@ -87,15 +120,45 @@ sub default_container_mapper {
   return map {"$repository/$_"} @{$containerinfo->{'tags'} || []};
 }
 
+sub calculate_container_state {
+  my ($projid, $repoid, $containers, $multicontainer) = @_;
+  my @registries = registries_for_prp($projid, $repoid);
+  my $container_state = '';
+  $container_state .= "//multi//" if $multicontainer;
+  my @cs;
+  for my $registry (@registries) {
+    my $regname = $registry->{'_name'};
+    my $mapper = $registry->{'mapper'} || \&default_container_mapper;
+    for my $p (sort keys %$containers) {
+      my $containerinfo = $containers->{$p};
+      my $arch = $containerinfo->{'arch'};
+      my @tags = $mapper->($registry, $containerinfo, $projid, $repoid, $arch);
+      my $prefix = "$containerinfo->{'_id'}/$regname/$containerinfo->{'arch'}/";
+      push @cs, map { "$prefix$_" } @tags;
+    }
+  }
+  $container_state .= join('//', sort @cs);
+  return $container_state;
+}
+
 =head2 upload_all_containers - upload found containers to the configured registries
  
 =cut
 
 sub upload_all_containers {
-  my ($extrep, $projid, $repoid, $containers, $notary_uploads, $multicontainer, $old_container_repositories) = @_;
+  my ($extrep, $projid, $repoid, $containers, $pubkey, $signargs, $multicontainer, $old_container_repositories) = @_;
 
+  my $isdelete;
+  if (!defined($containers)) {
+    $isdelete = 1;
+    $containers = {};
+  } else {
+    ($pubkey, $signargs) = get_notary_pubkey($projid, $pubkey, $signargs);
+  }
+
+  my $notary_uploads = {};
   my @registries = registries_for_prp($projid, $repoid);
-  my %deleted_bins;
+
   my %allrefs;
   my %container_repositories;
   $old_container_repositories ||= {};
@@ -111,9 +174,9 @@ sub upload_all_containers {
       my @tags = $mapper->($registry, $containerinfo, $projid, $repoid, $arch);
       for my $tag (@tags) {
 	if ($tag =~ /^(.*):([^:\/]+)$/) {
-          $uploads{$1}->{$2}->{$arch} = $p;
+	  $uploads{$1}->{$2}->{$arch} = $p;
 	} else {
-          $uploads{$tag}->{'latest'}->{$arch} = $p;
+	  $uploads{$tag}->{'latest'}->{$arch} = $p;
 	}
       }
     }
@@ -126,7 +189,13 @@ sub upload_all_containers {
 
       # do local publishing if requested
       if ($registry->{'server'} eq 'local:') {
-        do_local_uploads($extrep, $projid, $repoid, $repository, $containers, $notary_uploads, $multicontainer, $uptags);
+	my $gun = $registry->{'notary_gunprefix'};
+        if (defined($gun)) {
+          $gun =~ s/^https?:\/\///;
+	  $gun .= "/$repository";
+	  undef $gun unless defined $pubkey;
+	}
+        do_local_uploads($extrep, $projid, $repoid, $repository, $gun, $containers, $pubkey, $signargs, $multicontainer, $uptags);
 	next;
       }
 
@@ -157,7 +226,7 @@ sub upload_all_containers {
     for my $repository (@{$old_container_repositories->{$regname} || []}) {
       next if $uploads{$repository};
       if ($registry->{'server'} eq 'local:') {
-	do_local_uploads($extrep, $projid, $repoid, $repository, $containers, $notary_uploads, $multicontainer, {});
+        do_local_uploads($extrep, $projid, $repoid, $repository, undef, $containers, $pubkey, $signargs, $multicontainer, {});
 	next;
       }
       my $containerdigests = '';
@@ -166,7 +235,7 @@ sub upload_all_containers {
     }
   }
 
-  # postprocessing: delete/reconstruct containers
+  # postprocessing: write readme, create links
   my %allrefs_pp;
   my %allrefs_pp_lastp;
   for my $p (sort keys %$containers) {
@@ -174,26 +243,14 @@ sub upload_all_containers {
     my $pp = $p;
     $pp =~ s/.*?\/// if $multicontainer;
     $allrefs_pp_lastp{$pp} = $p;	# for link creation
-    if (@{$allrefs{$p} || []}) {
-      # we uploaded this container to a registry, so we may delete it
-      $deleted_bins{$p} = 1;
-      $deleted_bins{"$p.sha256"} = 1;
-      unlink("$extrep/$p");
-      unlink("$extrep/$p.sha256");
-      rmdir($1) if $multicontainer && $p =~ /(.*)\//;
-      push @{$allrefs_pp{$pp}}, @{$allrefs{$p} || []};	# collect all archs for the link
-    } elsif (!$containerinfo->{'publishfile'} && ! -e "$extrep/$p") {
-      # container is virtual and was not uploaded, so reconstruct it
-      reconstruct_container($containerinfo, "$extrep/$p");
-    }
+    push @{$allrefs_pp{$pp}}, @{$allrefs{$p} || []};	# collect all archs for the link
   }
-
-  # postprocessing: write readme, create links
   for my $pp (sort keys %allrefs_pp_lastp) {
     mkdir_p($extrep);
+    unlink("$extrep/$pp");
+    unlink("$extrep/$pp.registry.txt");
     if (@{$allrefs_pp{$pp} || []}) {
       # write readme file where to find the container
-      unlink("$extrep/$pp");
       my @r = sort(BSUtil::unify(@{$allrefs_pp{$pp}}));
       my $readme = "This container can be pulled via:\n";
       $readme .= "  docker pull $_\n" for @r;
@@ -201,14 +258,26 @@ sub upload_all_containers {
       writestr("$extrep/$pp.registry.txt", undef, $readme);
     } elsif ($multicontainer && $allrefs_pp_lastp{$pp} ne $pp) {
       # create symlink to last arch
-      unlink("$extrep/$pp");
       symlink("$allrefs_pp_lastp{$pp}", "$extrep/$pp");
+    }
+  }
+
+  # do notary uploads
+  if (%$notary_uploads) {
+    if ($isdelete) {
+      delete_from_notary($projid, $notary_uploads);
+    } else {
+      if (!defined($pubkey)) {
+	print "skipping notary upload\n";
+      } else {
+        upload_to_notary($projid, $notary_uploads, $signargs, $pubkey);
+      }
     }
   }
 
   # turn container repos into arrays and return
   $_ = [ sort keys %$_ ] for values %container_repositories;
-  return (\%container_repositories, \%deleted_bins);
+  return \%container_repositories;
 }
 
 sub reconstruct_container {
@@ -339,29 +408,7 @@ sub upload_to_notary {
 
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
-  push @signargs, '--signtype', 'notary' if $BSConfig::sign_type || $BSConfig::sign_type;
   push @signargs, @{$signargs || []};
-
-  # ask the sign tool for the correct pubkey if we do not have a sign key
-  if (!@$signargs && $BSConfig::sign_project && $BSConfig::sign) {
-    local *S;
-    open(S, '-|', $BSConfig::sign, @signargs, '-p') || die("$BSConfig::sign: $!\n");;
-    $pubkey = '';
-    1 while sysread(S, $pubkey, 4096, length($pubkey));
-    if (!close(S)) {
-      print "sign -p failed: $?\n";
-      $pubkey = undef;
-    }
-  }
-
-  # check pubkey
-  die("could not determine pubkey for notary signing\n") unless $pubkey;
-  my $pkalgo;
-  eval { $pkalgo = BSPGP::pk2algo(BSPGP::unarmor($pubkey)) };
-  if ($pkalgo && $pkalgo ne 'rsa') {
-    print "public key algorithm is '$pkalgo', skipping notary upload\n";
-    return;
-  }
 
   my $pubkeyfile = "$uploaddir/publisher.$$.notarypubkey";
   mkdir_p($uploaddir);
@@ -436,14 +483,11 @@ sub decompress_container {
 sub delete_container_repositories {
   my ($extrep, $projid, $repoid, $old_container_repositories) = @_;
   return unless $old_container_repositories;
-  my $notary_uploads = {};
-  my %containers;
-  upload_all_containers($extrep, $projid, $repoid, \%containers, $notary_uploads, 0, $old_container_repositories);
-  delete_from_notary($projid, $notary_uploads);
+  upload_all_containers($extrep, $projid, $repoid, undef, undef, undef, 0, $old_container_repositories);
 }
 
 sub do_local_uploads {
-  my ($extrep, $projid, $repoid, $repository, $containers, $notary_uploads, $multicontainer, $uptags) = @_;
+  my ($extrep, $projid, $repoid, $repository, $gun, $containers, $pubkey, $signargs, $multicontainer, $uptags) = @_;
 
   my %todo;
   my @tempfiles;
@@ -466,7 +510,7 @@ sub do_local_uploads {
     }
   }
   eval {
-    BSPublisher::Registry::push_containers("$projid/$repoid", $repository, $multicontainer, \%todo);
+    BSPublisher::Registry::push_containers("$projid/$repoid", $repository, $gun, $multicontainer, \%todo, $pubkey, $signargs);
   };
   unlink($_) for @tempfiles;
   die($@) if $@;
