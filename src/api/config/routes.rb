@@ -786,11 +786,7 @@ OBSApi::Application.routes.draw do
     resources :repositories, only: [], param: :name, constraints: cons do
       resources :status_repository_publishes, only: [], param: :build_id, constraints: cons do
         scope module: 'status' do
-          resources :checks, only: [:index, :show, :destroy] do
-            collection do
-              put :update
-            end
-          end
+          resources :checks, only: [:index, :show, :destroy, :update, :create]
         end
       end
     end

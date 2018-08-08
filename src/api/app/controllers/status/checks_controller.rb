@@ -1,7 +1,9 @@
 class Status::ChecksController < ApplicationController
-  before_action :require_checkable, only: [:index, :show, :destroy]
-  before_action :require_or_create_checkable, only: :update
-  before_action :require_check, only: [:show, :destroy]
+  before_action :require_checkable, only: [:index, :show, :destroy, :update]
+  before_action :require_or_create_checkable, only: :create
+  before_action :require_check, only: [:show, :destroy, :update]
+  before_action :set_xml_check, only: [:create, :update]
+  skip_before_action :require_login, only: [:show, :index]
   after_action :verify_authorized
 
   def index
@@ -13,11 +15,20 @@ class Status::ChecksController < ApplicationController
     authorize @check
   end
 
-  def update
-    xml_check = Xmlhash.parse(request.body.read)
-    @check = Status::Check.new(checkable: @checkable, url: xml_check['url'], state: xml_check['state'], short_description: xml_check['short_description'], name: xml_check['name'])
+  def create
+    @xml_check[:checkable] = @checkable
+    @check = Status::Check.new(@xml_check)
     authorize @check
     if @check.save
+      render :show
+    else
+      render_error(status: 422, errorcode: 'whatever', message: "Could not save check: #{@check.errors.full_messages.to_sentence}")
+    end
+  end
+
+  def update
+    authorize @check
+    if @check.update(@xml_check)
       render :show
     else
       render_error(status: 422, errorcode: 'whatever', message: "Could not save check: #{@check.errors.full_messages.to_sentence}")
@@ -55,8 +66,14 @@ class Status::ChecksController < ApplicationController
     render_error(status: 404, errorcode: 'not_found', message: "Unable to find check with id '#{params[:id]}'") unless @check
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
-  def check_params
-    params.require(:check).permit(:url)
+  def set_xml_check
+    @xml_check = xml_hash
+    return if @xml_check.present?
+    render_error status: 404, errorcode: 'empty_body', message: 'Request body is empty!'
+  end
+
+  def xml_hash
+    result = (Xmlhash.parse(request.body.read) || {}).with_indifferent_access
+    result.slice(:url, :state, :short_description, :name)
   end
 end
