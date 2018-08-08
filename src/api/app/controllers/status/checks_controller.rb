@@ -22,7 +22,7 @@ class Status::ChecksController < ApplicationController
     if @check.save
       render :show
     else
-      render_error(status: 422, errorcode: 'whatever', message: "Could not save check: #{@check.errors.full_messages.to_sentence}")
+      render_error(status: 422, errorcode: 'invalid_check', message: "Could not save check: #{@check.errors.full_messages.to_sentence}")
     end
   end
 
@@ -31,7 +31,7 @@ class Status::ChecksController < ApplicationController
     if @check.update(@xml_check)
       render :show
     else
-      render_error(status: 422, errorcode: 'whatever', message: "Could not save check: #{@check.errors.full_messages.to_sentence}")
+      render_error(status: 422, errorcode: 'invalid_check', message: "Could not save check: #{@check.errors.full_messages.to_sentence}")
     end
   end
 
@@ -40,7 +40,7 @@ class Status::ChecksController < ApplicationController
     if @check.destroy
       render_ok
     else
-      render_error(status: 422, errorcode: 'whatever', message: "Could not delete check: #{@check.errors.full_messages.to_sentence}")
+      render_error(status: 422, errorcode: 'invalid_check', message: "Could not delete check: #{@check.errors.full_messages.to_sentence}")
     end
   end
 
