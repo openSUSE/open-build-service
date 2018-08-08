@@ -1,0 +1,12 @@
+- if requests.present?
+  %li
+    :ruby
+      path = if requests.size == 1
+               request_show_path(requests[0])
+             elsif package
+               package_requests_path(project, package)
+             else
+               project_requests_path(project)
+             end
+    %i.fas.fa-info-circle.text-info
+    = link_to(pluralize(requests.size, 'open request'), path)

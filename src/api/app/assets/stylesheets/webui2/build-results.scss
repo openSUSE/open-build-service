@@ -1,0 +1,15 @@
+.rpmlint-result {
+  font-size: .7rem;
+  max-height: 500px;
+  white-space: pre-wrap;
+}
+
+.custom-label {
+  text-decoration: underline;
+  cursor: pointer;
+  color: $link-color;
+}
+
+.text-gray-400 {
+  color: $gray-400;
+}

@@ -1,0 +1,7 @@
+- unless User.current.is_nobody?
+  = form_for @comment, action: 'webui2_create', method: :post, remote: true do |f|
+    = hidden_field_tag :commentable_type, commentable.class
+    = hidden_field_tag :commentable_id, commentable.id
+    ~ f.text_area :body, row: '4', onkeyup: 'sz(this);', onclick: 'sz(this);', placeholder: 'Add a new comment (markdown markup supported)',
+                                                                               required: 'required', class: 'comment-area'
+    = f.submit 'Add comment', class: 'btn btn-primary'

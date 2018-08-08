@@ -1,0 +1,4 @@
+- if CONFIG['software_opensuse_url']
+  %li
+    %i.fas.fa-arrow-circle-down.text-secondary
+    = link_to('Download package', "#{CONFIG['software_opensuse_url']}/download.html?project=#{u project.name}&package=#{u package.name}")

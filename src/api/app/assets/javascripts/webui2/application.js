@@ -22,3 +22,8 @@
 //= require webui2/plotbusyworkers.js
 //= require webui2/datatables.js
 //= require webui2/tabs.js
+//= require webui/application/comment.js
+//= require webui2/request.js
+
+// Vendor
+//= require jquery-ui-1.12.1/jquery-ui.min.js

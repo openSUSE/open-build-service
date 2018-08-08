@@ -1,0 +1,9 @@
+.comment_new.d-none{ id: "reply_form_of_#{comment.id}" }
+  = form_for @comment, method: :post, remote: true do |f|
+    %p
+      = hidden_field_tag :commentable_type, commentable.class
+      = hidden_field_tag :commentable_id, commentable.id
+      ~ f.text_area :body, row: '4', onkeyup: 'sz(this);', onclick: 'sz(this);', class: 'comment-area',
+        id: "reply_body_#{comment.id}", placeholder: 'Comment Text', required: true
+      = f.hidden_field :parent_id, value: comment.id, id: "reply_parent_id_#{comment.id}"
+      = f.submit 'Add reply', id: "add_reply_#{comment.id}", class: 'btn btn-outline-primary'
