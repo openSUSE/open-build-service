@@ -231,17 +231,10 @@ sub update_tuf {
   my $tbscert = BSTUF::mktbscert($gun, $pubkey_times->{'selfsig_create'}, $root_expire, $pub_bin);
 
   my $oldroot = $oldtuf->{'root'} ? JSON::XS::decode_json($oldtuf->{'root'}) : {};
-  my $cert;
   my $cmpres = BSTUF::cmprootcert($oldroot, $tbscert);
-  if ($cmpres == 2) {
-    # reuse cert of old root
-    my $root_id = $oldroot->{'signed'}->{'roles'}->{'root'}->{'keyids'}->[0];
-    my $root_key = $oldroot->{'signed'}->{'keys'}->{$root_id};
-    $cert = MIME::Base64::decode_base64($root_key->{'keyval'}->{'public'});
-  } else {
-    # create new cert
-    $cert = BSTUF::mkcert($tbscert, \@signargs);
-  }
+  my $cert;
+  $cert = BSTUF::getrootcert($oldroot) if $cmpres == 2;		# reuse cert of old root
+  $cert ||= BSTUF::mkcert($tbscert, \@signargs);
 
   if ($cmpres == 0) {
     # pubkey changed, better start from scratch

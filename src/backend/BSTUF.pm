@@ -132,16 +132,22 @@ sub updatedata {
   return signdata($d, $signargs, @keyids);
 }
 
+sub getrootcert {
+  my ($root) = @_;
+  return undef unless $root && $root->{'signed'};
+  my $root_id = $root->{'signed'}->{'roles'}->{'root'}->{'keyids'}->[0];
+  my $root_key = $root->{'signed'}->{'keys'}->{$root_id}; 
+  return undef if !$root_key || $root_key->{'keytype'} ne 'rsa-x509';
+  return MIME::Base64::decode_base64($root_key->{'keyval'}->{'public'});
+}
+
 # 0: different pubkey
 # 1: same pubkey, different cert
 # 2: same cert
 sub cmprootcert {
   my ($root, $tbscert) = @_;
-  return 0 unless $root && $root->{'signed'};
-  my $root_id = $root->{'signed'}->{'roles'}->{'root'}->{'keyids'}->[0];
-  my $root_key = $root->{'signed'}->{'keys'}->{$root_id}; 
-  return 0 if !$root_key || $root_key->{'keytype'} ne 'rsa-x509';
-  my $root_cert = MIME::Base64::decode_base64($root_key->{'keyval'}->{'public'});
+  my $root_cert = getrootcert($root);
+  return 0 unless $root_cert;
   my $root_tbscert = gettbscert($root_cert);
   return 2 if removecertserial($root_tbscert) eq removecertserial($tbscert);
   return 1 if getsubjectkeyinfo($root_tbscert) eq getsubjectkeyinfo($tbscert);
