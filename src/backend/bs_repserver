@@ -42,6 +42,7 @@ use XML::Structured ':bytes';
 use Storable ();
 use Data::Dumper;
 use Digest::MD5 ();
+use Digest::SHA ();
 use List::Util;
 use Symbol;
 use Encode;
@@ -4092,12 +4093,18 @@ sub registry_catalog {
 sub registry_tuf {
   my ($cgi, $gunprefix, $regrepo, $filename) = @_;
   my $repodir = "$registrydir/$regrepo";
+  my $sha256sum;
+  if ($filename =~ /^(.*)\.([a-f0-9]{64})\.json$/) {
+    $filename = "$1.json";
+    $sha256sum = $2;
+  }
   die("404 METADATA_NOT_FOUND\n") unless $filename eq 'root.json' || $filename eq 'targets.json' || $filename eq 'snapshot.json' || $filename eq 'timestamp.json' || $filename eq 'snapshot.key' || $filename eq 'timestamp.key';
   my $tuf = BSUtil::retrieve("$repodir/:tuf", 1);
   die("404 METADATA_NOT_FOUND\n") unless $tuf;
   if ($filename =~ /(.*)\.json$/) {
     my $data = $tuf->{$1};
     die("404 METADATA_NOT_FOUND\n") unless $data;
+    die("404 METADATA_NOT_FOUND\n") if $sha256sum && Digest::SHA::sha256_hex($data) ne $sha256sum;
     BSRegistryServer::reply($data, 'Content-Type: application/json');
     return undef;
   }
