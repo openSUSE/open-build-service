@@ -58,6 +58,7 @@ class Status::ChecksController < ApplicationController
 
   def require_checkable
     @checkable = Status::RepositoryPublish.find_by(build_id: params[:status_repository_publish_build_id]) if params[:status_repository_publish_build_id]
+    render_error(status: 404, errorcode: 'not_found', message: "Unable to find status_repository_publish with id '#{params[:status_repository_publish]}'") unless @checkable
     # TODO: @checkable = ProjectLogEntry.find(params[:log_entry_id]) if params[:log_entry_id]
   end
 
