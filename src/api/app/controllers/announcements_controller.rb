@@ -12,15 +12,8 @@ class AnnouncementsController < ApplicationController
 
   # GET /announcements/1
   def show
-    if @announcement.present?
-      authorize @announcement
-      respond_to do
-        format.xml
-      end
-    else
-      render_error message: 'Unknown announcement',
-                   status: 404, errorcode: 'unknown_announcement'
-    end
+    authorize @announcement
+    render formats: [:xml], locals: { announcement: @announcement }
   end
 
   # POST /announcements
@@ -28,9 +21,10 @@ class AnnouncementsController < ApplicationController
     @announcement = Announcement.new(announcement_params)
     authorize @announcement
     if @announcement.save
-      render_ok
+      render 'show', formats: [:xml], locals: { announcement: @announcement }
     else
-      render :new
+      render_error message: @announcement.errors.full_messages,
+                   status: 400, errorcode: 'invalid_announcement'
     end
   end
 
@@ -66,6 +60,14 @@ class AnnouncementsController < ApplicationController
 
   # Only allow a trusted parameter "white list" through.
   def announcement_params
-    params.slice(:title, :content).permit!
+    xml = Nokogiri::XML(request.raw_post)
+    title = xml.xpath('//announcement/title').text
+    content = xml.xpath('//announcement/content').text
+
+    attributes = {}
+    attributes[:title] = title if title
+    attributes[:content] = content if content
+
+    attributes
   end
 end

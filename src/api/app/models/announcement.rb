@@ -1,4 +1,5 @@
 class Announcement < ApplicationRecord
+  DEFAULT_RENDER_PARAMS = { only: [:id, :content, :title], dasherize: true, skip_types: true, skip_instruct: true }.freeze
   #### Includes and extends
 
   #### Constants
