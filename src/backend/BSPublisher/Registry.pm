@@ -23,6 +23,7 @@
 package BSPublisher::Registry;
 
 use Digest::SHA;
+use JSON::XS ();
 
 use BSConfiguration;
 use BSUtil;
@@ -31,13 +32,13 @@ use BSPublisher::Blobstore;
 use BSContar;
 use BSRPC;
 use BSTUF;
-use JSON::XS ();
 
 my $registrydir = "$BSConfig::bsdir/registry";
 my $uploaddir = "$BSConfig::bsdir/upload";
 
-my $target_expire = 3 * 366 * 24 * 3600;
-my $timestamp_expire = 14 * 24 * 3600;
+my $root_extra_expire = 183 * 24 * 3600;	# 6 months
+my $targets_expire = 3 * 366 * 24 * 3600;	# 3 years
+my $timestamp_expire = 14 * 24 * 3600;		# 14 days
 
 # registry layout:
 #
@@ -184,7 +185,7 @@ sub construct_container_tar {
 }
 
 sub gen_timestampkey {
-  print "generating timestamp keypair...\n";
+  print "local notary: generating timestamp keypair\n";
   my @keyargs = ('rsa@2048', '800');	# expire time does not matter...
   mkdir_p($uploaddir);
   unlink("$uploaddir/timestampkey.$$");
@@ -215,9 +216,9 @@ sub update_tuf {
   push @signargs, @{$signargs || []};
 
   my $repodir = "$registrydir/$repo";
+  my $now = time();
   my $tuf = { 'gun' => $gun };
   my $oldtuf = BSUtil::retrieve("$repodir/:tuf", 1) || {};
-  my $now = time();
 
   my $gpgpubkey = BSPGP::unarmor($pubkey);
   my $pubkey_data = BSPGP::pk2keydata($gpgpubkey) || {};
@@ -226,15 +227,12 @@ sub update_tuf {
   # generate pub key and cert from pgp key data
   my $pub_bin = BSTUF::keydata2asn1($pubkey_data);
 
-  my $tbscert = BSTUF::mktbscert($gun, $pubkey_times->{'selfsig_create'}, $pubkey_times->{'key_expire'}, $pub_bin);
-  my $cmpres = 0;
+  my $root_expire = $pubkey_times->{'key_expire'} + $root_extra_expire;
+  my $tbscert = BSTUF::mktbscert($gun, $pubkey_times->{'selfsig_create'}, $root_expire, $pub_bin);
 
-  my $oldroot = {};
-  if ($oldtuf->{'root'}) {
-    $oldroot = JSON::XS::decode_json($oldtuf->{'root'} || '{}');
-    $cmpres = BSTUF::cmprootcert($oldroot, $tbscert);
-  }
+  my $oldroot = $oldtuf->{'root'} ? JSON::XS::decode_json($oldtuf->{'root'}) : {};
   my $cert;
+  my $cmpres = BSTUF::cmprootcert($oldroot, $tbscert);
   if ($cmpres == 2) {
     # reuse cert of old root
     my $root_id = $oldroot->{'signed'}->{'roles'}->{'root'}->{'keyids'}->[0];
@@ -246,7 +244,7 @@ sub update_tuf {
   }
 
   if ($cmpres == 0) {
-    # pubkey changed, start from scratch
+    # pubkey changed, better start from scratch
     delete $oldtuf->{'timestamp_privkey'};
     delete $oldtuf->{'root'};
     delete $oldtuf->{'targets'};
@@ -254,7 +252,7 @@ sub update_tuf {
     delete $oldtuf->{'timestamp'};
   }
 
-  # generate timestamp sign key if not present or the pubkey changed
+  # generate timestamp sign key if not present
   if (!$oldtuf->{'timestamp_privkey'}) {
     ($tuf->{'timestamp_privkey'}, $tuf->{'timestamp_pubkey'}) = gen_timestampkey();
   } else {
@@ -281,25 +279,24 @@ sub update_tuf {
   $keys->{$timestamp_key_id} = $timestamp_key;
 
   my $roles = {};
-  $roles->{'root'}      = { 'keyids' => [ $root_key_id ],    'threshold' => 1 };
-  $roles->{'snapshot'}  = { 'keyids' => [ $root_key_id ],    'threshold' => 1 };
-  $roles->{'targets'}   = { 'keyids' => [ $root_key_id ],    'threshold' => 1 };
+  $roles->{'root'}      = { 'keyids' => [ $root_key_id ],      'threshold' => 1 };
+  $roles->{'snapshot'}  = { 'keyids' => [ $root_key_id ],      'threshold' => 1 };
+  $roles->{'targets'}   = { 'keyids' => [ $root_key_id ],      'threshold' => 1 };
   $roles->{'timestamp'} = { 'keyids' => [ $timestamp_key_id ], 'threshold' => 1 };
 
   my $root = {
     '_type' => 'Root',
     'consistent_snapshot' => $JSON::XS::false,
-    'expires' => BSTUF::rfc3339time($pubkey_times->{'key_expire'}),
+    'expires' => BSTUF::rfc3339time($root_expire),
     'keys' => $keys,
     'roles' => $roles,
   };
   $root->{'version'} = 1;
   $root->{'version'} = $oldroot->{'signed'}->{'version'} || 1 if $oldroot->{'signed'};
   if (BSTUF::canonical_json($root) eq BSTUF::canonical_json($oldroot->{'signed'} || {})) {
-    print "re-using old root\n";
     $tuf->{'root'} = $oldtuf->{'root'};
   } else {
-    print "updating root\n";
+    print "local notary: updating root\n";
     my @key_ids = ( $root_key_id );
     if ($cmpres == 1) {
       # also add other ids that hopefully have the same public key...
@@ -325,22 +322,24 @@ sub update_tuf {
   my $oldtargets = $oldtuf->{'targets'} ? JSON::XS::decode_json($oldtuf->{'targets'}) : {};
   if ($oldtargets->{'signed'} && $oldtuf->{'root'} && $tuf->{'root'} eq $oldtuf->{'root'}) {
     if (BSUtil::identical($manifests, $oldtargets->{'signed'}->{'targets'})) {
-      print "local notary: no change.\n";
-      return;
+      if (!$tuf->{'targets_expires'} || $now + 183 * 24 * 3600 < $tuf->{'targets_expires'}) {
+        print "local notary: no change.\n";
+        return;
+      }
     }
   }
 
   my $targets = {
     '_type' => 'Targets',
     'delegations' => { 'keys' => {}, 'roles' => []},
-    'expires' => BSTUF::rfc3339time($now + $target_expire),
+    'expires' => BSTUF::rfc3339time($now + $targets_expire),
     'targets' => $manifests,
   };
   $tuf->{'targets'} = BSTUF::updatedata($targets, $oldtargets, \@signargs, $root_key_id);
 
   my $snapshot = {
     '_type' => 'Snapshot',
-    'expires' => BSTUF::rfc3339time($now + $target_expire),
+    'expires' => BSTUF::rfc3339time($now + $targets_expire),
   };
   BSTUF::addmetaentry($snapshot, 'root', $tuf->{'root'});
   BSTUF::addmetaentry($snapshot, 'targets', $tuf->{'targets'});
@@ -363,7 +362,14 @@ sub update_tuf {
   $tuf->{'timestamp'} = BSTUF::updatedata($timestamp, $oldtimestamp, \@signargs_timestamp, $timestamp_key_id);
   unlink("$uploaddir/targetkey.$$");
 
+  # add expire information
+  $tuf->{'targets_expires'} = $now + $targets_expire;
+  $tuf->{'timestamp_expires'} = $now + $timestamp_expire;
+
+  my $fd;
+  BSUtil::lockopen($fd, '>>', "$repodir/:tuf") if -e "$repodir/:tuf";
   BSUtil::store("$repodir/.tuf.$$", "$repodir/:tuf", $tuf);
+  close($fd) if $fd;
 }
 
 sub push_containers {
@@ -568,12 +574,17 @@ sub push_containers {
     my ($projid, $repoid) = split('/', $prp, 2);
     my $info = { 'project' => $projid, 'repository' => $repoid, 'tags' => \%info };
     $info->{'gun'} = $gun if $gun;
-    BSUtil::store("$repodir/.info.$$", "$repodir/:info", $info);
+    my $oldinfo = BSUtil::retrieve("$repodir/:info", 1);
+    if (BSUtil::identical($oldinfo, $info)) {
+      print "local registry: no change\n";
+    } else {
+      BSUtil::store("$repodir/.info.$$", "$repodir/:info", $info);
+    }
   }
 
   if ($gun) {
     update_tuf($prp, $repo, $gun, $containerdigests, $pubkey, $signargs);
-  } else {
+  } elsif (-e "$repodir/:tuf") {
     unlink("$repodir/:tuf");
   }
 

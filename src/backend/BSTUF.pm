@@ -137,6 +137,7 @@ sub updatedata {
 # 2: same cert
 sub cmprootcert {
   my ($root, $tbscert) = @_;
+  return 0 unless $root && $root->{'signed'};
   my $root_id = $root->{'signed'}->{'roles'}->{'root'}->{'keyids'}->[0];
   my $root_key = $root->{'signed'}->{'keys'}->{$root_id}; 
   return 0 if !$root_key || $root_key->{'keytype'} ne 'rsa-x509';
