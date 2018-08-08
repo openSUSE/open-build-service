@@ -48,18 +48,13 @@ class Status::ChecksController < ApplicationController
 
   def require_or_create_checkable
     project = Project.get_by_name(params[:project_name])
-    if params[:status_repository_publish_build_id]
-      repository = project.repositories.find_by!(name: params[:repository_name])
-      @checkable = repository.status_publishes.find_or_create_by(build_id: params[:status_repository_publish_build_id])
-    elsif params[:log_entry_id]
-      # TODO: @checkable = project.project_log_entries.find_or_create(something: params[:log_entry_id])
-    end
+    repository = project.repositories.find_by!(name: params[:repository_name])
+    @checkable = repository.status_publishes.find_or_create_by(build_id: params[:status_repository_publish_build_id])
   end
 
   def require_checkable
     @checkable = Status::RepositoryPublish.find_by(build_id: params[:status_repository_publish_build_id]) if params[:status_repository_publish_build_id]
     render_error(status: 404, errorcode: 'not_found', message: "Unable to find status_repository_publish with id '#{params[:status_repository_publish]}'") unless @checkable
-    # TODO: @checkable = ProjectLogEntry.find(params[:log_entry_id]) if params[:log_entry_id]
   end
 
   def require_check
