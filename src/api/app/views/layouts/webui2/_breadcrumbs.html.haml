@@ -4,7 +4,11 @@
       %li.breadcrumb-item{ class: @breadcrumbs.last == breadcrumb && 'active' , "aria-current" => "page" }
         - if breadcrumb == @breadcrumbs.first
           %i.fas.fa-home
-        - if breadcrumb[:path]
-          = link_to breadcrumb[:name], breadcrumb[:path]
+        - if breadcrumb.is_a?(Array)
+          - breadcrumb.each_with_index do |sub_breadcrumb, index| 
+            = ':' if index > 0
+            = link_to(sub_breadcrumb[:name], sub_breadcrumb[:path])
+        - elsif breadcrumb[:path]
+          = link_to(breadcrumb[:name], breadcrumb[:path])
         - else
           = breadcrumb[:name]

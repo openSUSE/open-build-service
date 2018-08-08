@@ -2,7 +2,7 @@
   @pagetitle = "Show #{@project} / #{@package}"
   @layouttype = 'custom'
   devel_package = @package.develpackage
-  package_bread_crumb
+  webui2_package_bread_crumb
 
 .card.mb-3
   = render partial: 'tabs', locals: { project: @project, package: @pacakge }
