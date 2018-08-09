@@ -1,4 +1,4 @@
-- page_title = "Revisions of #{@package}"
+- @pagetitle = "Revisions of #{@package}"
 - package_bread_crumb 'Revisions'
 
 .card
@@ -6,7 +6,7 @@
 
   .card-body
     - if @revisions
-      %h3 #{page_title} (#{@revisions.count})
+      %h3 #{@pagetitle} (#{@revisions.count})
       .list-group
         - @revisions.each do |revision|
           .list-group-item{ id: "commit_item_#{revision}" }
