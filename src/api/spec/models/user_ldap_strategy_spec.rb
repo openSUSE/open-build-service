@@ -37,12 +37,12 @@ RSpec.describe UserLdapStrategy do
 
       it 'validates a correct password' do
         expect(UserLdapStrategy.authenticate_with_local('cleartext_pw',
-                                                        'CLR_userPassword' => ['cleartext_pw'])).to be true
+                                                        'CLR_userPassword' => ['cleartext_pw'])).to be(true)
       end
 
       it 'does not validate an incorrect password' do
         expect(UserLdapStrategy.authenticate_with_local('wrong_pw',
-                                                        'CLR_userPassword' => ['cleartext_pw'])).to be false
+                                                        'CLR_userPassword' => ['cleartext_pw'])).to be(false)
       end
     end
 
@@ -54,19 +54,19 @@ RSpec.describe UserLdapStrategy do
 
       it 'validates a correct password' do
         expect(UserLdapStrategy.authenticate_with_local('my_password',
-                                                        'MD5_userPassword' => ["{MD5}qGWn4N2/NfpvaiMuCJO+pA==\n"])).to be true
+                                                        'MD5_userPassword' => ["{MD5}qGWn4N2/NfpvaiMuCJO+pA==\n"])).to be(true)
       end
 
       it 'does not validate an incorrect password' do
         expect(UserLdapStrategy.authenticate_with_local('wrong_pw',
-                                                        'MD5_userPassword' => ["{MD5}qGWn4N2/NfpvaiMuCJO+pA==\n"])).to be false
+                                                        'MD5_userPassword' => ["{MD5}qGWn4N2/NfpvaiMuCJO+pA==\n"])).to be(false)
       end
     end
 
     context 'with an unknown ldap auth method' do
       it 'does not validate' do
         expect(UserLdapStrategy.authenticate_with_local('cleartext_pw',
-                                                        'CLR_userPassword' => ['cleartext_pw'])).to be false
+                                                        'CLR_userPassword' => ['cleartext_pw'])).to be(false)
       end
     end
 
@@ -77,14 +77,14 @@ RSpec.describe UserLdapStrategy do
 
       it 'returns false' do
         expect(UserLdapStrategy.authenticate_with_local('cleartext_pw',
-                                                        'CLR_userPassword' => ['cleartext_pw'])).to be false
+                                                        'CLR_userPassword' => ['cleartext_pw'])).to be(false)
       end
     end
   end
 
   describe '.initialize_ldap_con' do
     context 'when no ldap_servers are configured' do
-      it { expect(UserLdapStrategy.initialize_ldap_con('tux', 'tux_password')).to be nil }
+      it { expect(UserLdapStrategy.initialize_ldap_con('tux', 'tux_password')).to be(nil) }
     end
 
     context 'when ldap servers are configured' do
@@ -126,7 +126,7 @@ RSpec.describe UserLdapStrategy do
 
   describe '.find_group_with_ldap' do
     context 'when there is no connection' do
-      it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be false }
+      it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be(false) }
     end
 
     context 'when there is a connection' do
@@ -154,7 +154,7 @@ RSpec.describe UserLdapStrategy do
           ).and_yield(double(dn: 'some_dn', attrs: 'some_attr'))
         end
 
-        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be true }
+        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be(true) }
       end
 
       context "without 'ldap_group_objectclass_attr' configured" do
@@ -166,7 +166,7 @@ RSpec.describe UserLdapStrategy do
           ).and_yield(double(dn: 'some_dn', attrs: 'some_attr'))
         end
 
-        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be true }
+        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be(true) }
       end
 
       context 'when there is no result' do
@@ -176,7 +176,7 @@ RSpec.describe UserLdapStrategy do
           )
         end
 
-        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be false }
+        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be(false) }
       end
     end
   end

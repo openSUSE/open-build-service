@@ -133,7 +133,7 @@ RSpec.describe BsRequest, vcr: true do
     it 'fails with reasonable error' do
       expect { request.addreview(by_user: 'NOEXIST') }.to raise_error do |exception|
         expect(exception).to be_a(BsRequest::InvalidReview)
-        expect(exception.message.to_s).to eq 'Review invalid: By user NOEXIST not found'
+        expect(exception.message.to_s).to eq('Review invalid: By user NOEXIST not found')
       end
     end
   end
@@ -250,7 +250,7 @@ RSpec.describe BsRequest, vcr: true do
         }
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_action)).to eq false }
+      it { expect(BsRequest.truncated_diffs?(request_action)).to eq(false) }
     end
 
     context 'when there is no sourcediff' do
@@ -263,7 +263,7 @@ RSpec.describe BsRequest, vcr: true do
         }
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_action)).to eq false }
+      it { expect(BsRequest.truncated_diffs?(request_action)).to eq(false) }
     end
 
     context 'when the sourcediff is empty' do
@@ -276,7 +276,7 @@ RSpec.describe BsRequest, vcr: true do
         }
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_action)).to eq false }
+      it { expect(BsRequest.truncated_diffs?(request_action)).to eq(false) }
     end
 
     context 'when the diff is at least one diff that has a shown attribute' do
@@ -288,7 +288,7 @@ RSpec.describe BsRequest, vcr: true do
         }
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_action)).to eq true }
+      it { expect(BsRequest.truncated_diffs?(request_action)).to eq(true) }
     end
 
     context 'when none of the diffs has a shown attribute' do
@@ -300,7 +300,7 @@ RSpec.describe BsRequest, vcr: true do
         }
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_action)).to eq false }
+      it { expect(BsRequest.truncated_diffs?(request_action)).to eq(false) }
     end
 
     context "when there is a sourcediff attribute with no 'files'" do
@@ -312,7 +312,7 @@ RSpec.describe BsRequest, vcr: true do
         }
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_action)).to eq false }
+      it { expect(BsRequest.truncated_diffs?(request_action)).to eq(false) }
     end
   end
 
@@ -403,7 +403,7 @@ RSpec.describe BsRequest, vcr: true do
       end
 
       it 'creates a submit request action with the correct target' do
-        expect(subject.bs_request_actions.count).to eq 1
+        expect(subject.bs_request_actions.count).to eq(1)
         expect(subject.bs_request_actions.where(
                  type:           'submit',
                  target_project: user.home_project.name,
@@ -418,7 +418,7 @@ RSpec.describe BsRequest, vcr: true do
       end
 
       it 'sets the logged in user as creator of the request' do
-        expect(subject.creator).to eq user.login
+        expect(subject.creator).to eq(user.login)
       end
     end
 
@@ -426,7 +426,7 @@ RSpec.describe BsRequest, vcr: true do
       subject { submit_request.forward_to(project: user.home_project.name, package: 'my_new_package') }
 
       it 'creates a submit request action with the correct target' do
-        expect(subject.bs_request_actions.count).to eq 1
+        expect(subject.bs_request_actions.count).to eq(1)
         expect(subject.bs_request_actions.where(type: 'submit', target_project: user.home_project.name,
                                                 target_package: 'my_new_package')).to exist
       end
@@ -450,7 +450,7 @@ RSpec.describe BsRequest, vcr: true do
       end
 
       it 'creates a submit request action with the correct target' do
-        expect(subject.bs_request_actions.count).to eq 1
+        expect(subject.bs_request_actions.count).to eq(1)
         expect(subject.bs_request_actions.where(type: 'submit')).to exist
       end
     end

@@ -40,7 +40,7 @@ class EventTest < ActionDispatch::IntegrationTest
     # for this test we don't want fixtures to interfere
     EventSubscription.delete_all
 
-    all_get_events = EventSubscription.create eventtype: 'Event::CommentForProject', receiver_role: :maintainer, channel: :instant_email
+    all_get_events = EventSubscription.create(eventtype: 'Event::CommentForProject', receiver_role: :maintainer, channel: :instant_email)
 
     e = Event::CommentForProject.create(commenter: users(:Iggy).id, comment_body: 'hello world', project: 'kde4')
 
@@ -49,8 +49,8 @@ class EventTest < ActionDispatch::IntegrationTest
     assert_equal ['test_group'], groups_for_event(e)
 
     # now fred configures it off
-    EventSubscription.create eventtype: 'Event::CommentForProject',
-                             user: users(:fred), receiver_role: :maintainer, channel: :disabled
+    EventSubscription.create(eventtype: 'Event::CommentForProject',
+                             user: users(:fred), receiver_role: :maintainer, channel: :disabled)
 
     # fred, fredlibs and king are maintainer, adrian is in test_group - fred disabled it
     assert_equal ['fredlibs', 'king'], users_for_event(e)
@@ -61,9 +61,9 @@ class EventTest < ActionDispatch::IntegrationTest
     assert_equal [], users_for_event(e)
 
     # now fredlibs configures on
-    EventSubscription.create eventtype: 'Event::CommentForProject',
+    EventSubscription.create(eventtype: 'Event::CommentForProject',
                              user: users(:fredlibs),
-                             receiver_role: :maintainer, channel: :instant_email
+                             receiver_role: :maintainer, channel: :instant_email)
 
     assert_equal ['fredlibs'], users_for_event(e)
   end
@@ -74,7 +74,7 @@ class EventTest < ActionDispatch::IntegrationTest
     myid = req.number
     SendEventEmailsJob.new.perform # empty queue
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      req.addreview by_user: 'tom', comment: 'Can you check that?'
+      req.addreview(by_user: 'tom', comment: 'Can you check that?')
       SendEventEmailsJob.new.perform
     end
     email = ActionMailer::Base.deliveries.last
@@ -101,7 +101,7 @@ class EventTest < ActionDispatch::IntegrationTest
     EventSubscription.delete_all
 
     # just one subsciption
-    EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :maintainer, user: users(:Iggy), channel: :instant_email
+    EventSubscription.create(eventtype: 'Event::BuildFail', receiver_role: :maintainer, user: users(:Iggy), channel: :instant_email)
 
     assert_equal ['Iggy'], users_for_event(events(:build_failure_for_iggy))
   end
@@ -111,7 +111,7 @@ class EventTest < ActionDispatch::IntegrationTest
     EventSubscription.delete_all
 
     # just one subsciption
-    EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :reader, user: users(:fred), channel: :instant_email
+    EventSubscription.create(eventtype: 'Event::BuildFail', receiver_role: :reader, user: users(:fred), channel: :instant_email)
 
     assert_equal ['fred'], users_for_event(events(:build_failure_for_reader))
   end
@@ -121,7 +121,7 @@ class EventTest < ActionDispatch::IntegrationTest
     EventSubscription.delete_all
 
     # just one subsciption
-    EventSubscription.create eventtype: 'Event::ServiceFail', receiver_role: :maintainer, user: users(:Iggy), channel: :instant_email
+    EventSubscription.create(eventtype: 'Event::ServiceFail', receiver_role: :maintainer, user: users(:Iggy), channel: :instant_email)
 
     assert_equal ['Iggy'], users_for_event(events(:service_failure_for_iggy))
   end
@@ -133,7 +133,7 @@ class EventTest < ActionDispatch::IntegrationTest
     myid = req.number
     SendEventEmailsJob.new.perform # empty queue
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      req.addreview by_project: 'home:Iggy', by_package: 'TestPack', comment: 'Can you check that?'
+      req.addreview(by_project: 'home:Iggy', by_package: 'TestPack', comment: 'Can you check that?')
       SendEventEmailsJob.new.perform
     end
     email = ActionMailer::Base.deliveries.last
@@ -146,7 +146,7 @@ class EventTest < ActionDispatch::IntegrationTest
     # now verify another review sends other emails
     ActionMailer::Base.deliveries.clear
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      req.addreview by_project: 'Apache', by_package: 'apache2', comment: 'Can you check that?'
+      req.addreview(by_project: 'Apache', by_package: 'apache2', comment: 'Can you check that?')
       SendEventEmailsJob.new.perform
     end
     email = ActionMailer::Base.deliveries.last

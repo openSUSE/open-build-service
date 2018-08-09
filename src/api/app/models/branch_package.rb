@@ -30,8 +30,8 @@ class BranchPackage
     @extend_names = params[:extend_package_names]
     @rebuild_policy = params[:add_repositories_rebuild]
     @block_policy = params[:add_repositories_block]
-    raise InvalidArgument unless [nil, 'all', 'local', 'never'].include? @block_policy
-    raise InvalidArgument unless [nil, 'transitive', 'direct', 'local', 'copy'].include? @rebuild_policy
+    raise InvalidArgument unless [nil, 'all', 'local', 'never'].include?(@block_policy)
+    raise InvalidArgument unless [nil, 'transitive', 'direct', 'local', 'copy'].include?(@rebuild_policy)
     # copy from devel package instead branching ?
     @copy_from_devel = false
     @copy_from_devel = true if params[:newinstance]
@@ -117,7 +117,7 @@ class BranchPackage
           raise DoubleBranchPackageError.new(tprj.name, tpkg.name), "branch target package already exists: #{tprj.name}/#{tpkg.name}"
         end
       else
-        if pac.is_a? Package
+        if pac.is_a?(Package)
           tpkg = tprj.packages.new(name: pack_name, title: pac.title, description: pac.description)
           tpkg.bcntsynctag = pac.bcntsynctag
         else
@@ -144,9 +144,9 @@ class BranchPackage
         Backend::Api::Sources::Package.write_link(tpkg.project.name, tpkg.name, User.current.login, ret.to_xml)
       else
         opackage = p[:package]
-        opackage = p[:package].name if p[:package].is_a? Package
+        opackage = p[:package].name if p[:package].is_a?(Package)
         oproject = p[:link_target_project]
-        oproject = p[:link_target_project].name if p[:link_target_project].is_a? Project
+        oproject = p[:link_target_project].name if p[:link_target_project].is_a?(Project)
 
         # branch sources in backend
         opts = {}
@@ -200,11 +200,11 @@ class BranchPackage
   end
 
   def create_branch_project
-    if Project.exists_by_name @target_project
+    if Project.exists_by_name(@target_project)
       if @noaccess
         raise CreateProjectNoPermission, "The destination project already exists, so the api can't make it not readable"
       end
-      tprj = Project.get_by_name @target_project
+      tprj = Project.get_by_name(@target_project)
     else
       # permission check
       unless User.current.can_create_project?(@target_project)
@@ -219,7 +219,7 @@ class BranchPackage
       end
       @add_repositories = true # new projects shall get repositories
       Project.transaction do
-        tprj = Project.create name: @target_project, title: title, description: description
+        tprj = Project.create(name: @target_project, title: title, description: description)
         tprj.relationships.build(user: User.current, role: Role.find_by_title!('maintainer'))
         tprj.flags.create(flag: 'build', status: 'disable') if @extend_names
         tprj.flags.create(flag: 'access', status: 'disable') if @noaccess
@@ -227,10 +227,10 @@ class BranchPackage
         add_autocleanup_attribute(tprj) if @auto_cleanup
       end
       if params[:request]
-        ans = AttribNamespace.find_by_name 'OBS'
+        ans = AttribNamespace.find_by_name('OBS')
         at = ans.attrib_types.find_by(name: 'RequestCloned')
 
-        tprj = Project.get_by_name @target_project
+        tprj = Project.get_by_name(@target_project)
         a = Attrib.new(project: tprj, attrib_type: at)
         a.values << AttribValue.new(value: params[:request], position: 1)
         a.save
@@ -251,7 +251,7 @@ class BranchPackage
     builder = Builder::XmlMarkup.new(indent: 2)
     builder.collection do
       @packages.each do |p|
-        if p[:package].is_a? Package
+        if p[:package].is_a?(Package)
           builder.package(project: p[:link_target_project].name, package: p[:package].name) do
             builder.devel(project: p[:copy_from_devel].project.name, package: p[:copy_from_devel].name) if p[:copy_from_devel]
             builder.target(project: @target_project, package: p[:target_package])
@@ -282,7 +282,7 @@ class BranchPackage
   end
 
   def lookup_incident_pkg(p)
-    return unless p[:package].is_a? Package
+    return unless p[:package].is_a?(Package)
     @obs_maintenanceproject ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
     @maintenance_projects ||= Project.find_by_attribute_type(@obs_maintenanceproject)
     incident_pkg = nil
@@ -290,7 +290,7 @@ class BranchPackage
       # no defined devel area or no package inside, but we branch from a release are: check in open incidents
 
       # only approved maintenance projects
-      next unless @maintenance_projects.include? mp.maintenance_project
+      next unless @maintenance_projects.include?(mp.maintenance_project)
 
       answer = Backend::Api::Search.incident_packages(p[:link_target_project].name, p[:package].name, mp.maintenance_project.name)
       data = REXML::Document.new(answer)
@@ -312,12 +312,12 @@ class BranchPackage
   end
 
   def determine_details_about_package_to_branch(p)
-    return unless p[:link_target_project].is_a? Project # only for local source projects
+    return unless p[:link_target_project].is_a?(Project) # only for local source projects
 
     check_for_update_project(p) unless params[:ignoredevel]
 
     if params[:newinstance]
-      p[:link_target_project] = Project.get_by_name params[:project]
+      p[:link_target_project] = Project.get_by_name(params[:project])
       p[:target_package] = p[:package].name
       p[:target_package] += ".#{p[:link_target_project].name}" if @extend_names
     end
@@ -328,7 +328,7 @@ class BranchPackage
     # validate and resolve devel package or devel project definitions
     unless params[:ignoredevel] || p[:copy_from_devel]
 
-      devel_package = p[:package].find_devel_package if p[:package].is_a? Package
+      devel_package = p[:package].find_devel_package if p[:package].is_a?(Package)
       if @copy_from_devel && devel_package
         p[:copy_from_devel] = devel_package
         logger.info "sources will get copied from devel package #{devel_package.project.name}/#{devel_package.name}"
@@ -371,7 +371,7 @@ class BranchPackage
   def check_for_update_project(p)
     pkg = p[:package]
     prj = p[:link_target_project]
-    if pkg.is_a? Package
+    if pkg.is_a?(Package)
       logger.debug "Check Package #{p[:package].project.name}/#{p[:package].name}"
       prj = pkg.project
       pkg_name = pkg.name
@@ -418,7 +418,7 @@ class BranchPackage
         # The defined update project can't reach the package instance at all.
         # So we need to create a new package and copy sources
         params[:missingok] = 1 # implicit missingok or better report an error ?
-        p[:copy_from_devel] = p[:package].find_devel_package if p[:package].is_a? Package
+        p[:copy_from_devel] = p[:package].find_devel_package if p[:package].is_a?(Package)
         p[:package] = pkg_name
       end
     end
@@ -426,7 +426,7 @@ class BranchPackage
     # not yet existing target package
     p[:target_package] = p[:package]
     # existing target
-    p[:target_package] = p[:package].name if p[:package].is_a? Package
+    p[:target_package] = p[:package].name if p[:package].is_a?(Package)
     # user specified target name
     p[:target_package] = params[:target_package] if params[:target_package]
     # extend parameter given
@@ -441,7 +441,7 @@ class BranchPackage
 
   # add packages which link them in the same project to support build of source with multiple build descriptions
   def extend_packages_to_link(p)
-    return unless p[:package].is_a? Package # only for local packages
+    return unless p[:package].is_a?(Package) # only for local packages
 
     pkg = p[:package]
     if pkg.is_link?
@@ -497,20 +497,20 @@ class BranchPackage
 
       req.bs_request_actions.each do |action|
         if action.source_package
-          pkg = Package.get_by_project_and_name action.source_project, action.source_package
+          pkg = Package.get_by_project_and_name(action.source_project, action.source_package)
         end
 
         @packages.push(link_target_project: action.source_project, package: pkg, target_package: "#{pkg.name}.#{pkg.project.name}")
       end
     elsif params[:project] && params[:package]
       pkg = nil
-      prj = Project.get_by_name params[:project]
+      prj = Project.get_by_name(params[:project])
       if params[:missingok]
         if Package.exists_by_project_and_name(params[:project], params[:package], follow_project_links: true, allow_remote_packages: true)
           raise NotMissingError, "Branch call with missingok parameter but branched source (#{params[:project]}/#{params[:package]}) exists."
         end
       else
-        pkg = Package.get_by_project_and_name params[:project], params[:package], check_update_project: true
+        pkg = Package.get_by_project_and_name(params[:project], params[:package], check_update_project: true)
         if prj.is_a?(Project) && prj.find_attribute('OBS', 'BranchTarget')
           @copy_from_devel = true
         elsif pkg

@@ -93,7 +93,7 @@ RSpec.describe Webui::UserController do
         it { expect(user.realname).to eq('another real name') }
         it { expect(user.email).to eq('new_valid@email.es') }
         it { expect(user.state).to eq('confirmed') }
-        it { expect(user.ignore_auth_services).to be false }
+        it { expect(user.ignore_auth_services).to be(false) }
         it { is_expected.to redirect_to user_show_path(user) }
       end
 
@@ -151,7 +151,7 @@ RSpec.describe Webui::UserController do
       it { expect(user.realname).to eq('another real name') }
       it { expect(user.email).to eq('new_valid@email.es') }
       it { expect(user.state).to eq('locked') }
-      it { expect(user.ignore_auth_services).to be true }
+      it { expect(user.ignore_auth_services).to be(true) }
       it { is_expected.to redirect_to user_show_path(user) }
       it "updates the user's roles" do
         expect(user.roles).not_to include(old_global_role)
@@ -267,7 +267,7 @@ RSpec.describe Webui::UserController do
 
       it 'marks users to be ignored from LDAP authentication' do
         patch :update, params: { user: { login: user.login, ignore_auth_services: true } }
-        expect(user.reload.ignore_auth_services).to be true
+        expect(user.reload.ignore_auth_services).to be(true)
       end
 
       it 'updates deleted users' do
@@ -348,7 +348,7 @@ RSpec.describe Webui::UserController do
         post :register, params: { login: already_registered_user.login, email: already_registered_user.email, password: 'buildservice' }
       end
 
-      it { expect(flash[:error]).not_to be nil }
+      it { expect(flash[:error]).not_to be(nil) }
       it { expect(response).to redirect_to root_path }
     end
 

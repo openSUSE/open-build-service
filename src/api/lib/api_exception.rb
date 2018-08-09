@@ -10,7 +10,7 @@ class APIException < RuntimeError
     @default_message = nil
 
     def setup(setvalue, status = nil, message = nil)
-      if setvalue.is_a? String
+      if setvalue.is_a?(String)
         @errorcode = setvalue
         @status = status || 400
         @default_message = message
@@ -22,7 +22,7 @@ class APIException < RuntimeError
   end
 
   def errorcode
-    err = self.class.instance_variable_get '@errorcode'
+    err = self.class.instance_variable_get('@errorcode')
     return err if err
     err = self.class.name.demodulize.underscore
     # if the class name stops with Error, strip that
@@ -30,11 +30,11 @@ class APIException < RuntimeError
   end
 
   def status
-    self.class.instance_variable_get '@status'
+    self.class.instance_variable_get('@status')
   end
 
   def default_message
-    self.class.instance_variable_get '@default_message'
+    self.class.instance_variable_get('@default_message')
   end
 end
 

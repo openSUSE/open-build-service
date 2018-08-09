@@ -199,7 +199,7 @@ RSpec.describe PublicController, vcr: true do
       end
 
       it { is_expected.to respond_with(:success) }
-      it { expect(@revisions.count).to eq 1 }
+      it { expect(@revisions.count).to eq(1) }
     end
   end
 end

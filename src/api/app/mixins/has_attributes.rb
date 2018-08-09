@@ -44,8 +44,8 @@ module HasAttributes
     unless a
       # create the new attribute
       a = Attrib.create(attrib_type: attrib_type, binary: binary)
-      a.project = self if is_a? Project
-      a.package = self if is_a? Package
+      a.project = self if is_a?(Project)
+      a.package = self if is_a?(Package)
     end
     # write values
     a.update_with_associations(values, issues)
@@ -75,9 +75,9 @@ module HasAttributes
       # show project values as fallback ?
       project.render_main_attributes(xml, opts) if opts[:with_project]
     end
-    builder.doc.to_xml indent: 2, encoding: 'UTF-8',
+    builder.doc.to_xml(indent: 2, encoding: 'UTF-8',
                               save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                         Nokogiri::XML::Node::SaveOptions::FORMAT
+                                         Nokogiri::XML::Node::SaveOptions::FORMAT)
   end
 
   private

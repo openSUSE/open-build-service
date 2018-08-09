@@ -136,7 +136,7 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
           stub_request(:get, path).and_return(body: xml_response)
         end
 
-        it { expect(Cloud::Backend::UploadJob.find(upload_job.job_id)).to be_kind_of Cloud::Backend::UploadJob }
+        it { expect(Cloud::Backend::UploadJob.find(upload_job.job_id)).to be_kind_of(Cloud::Backend::UploadJob) }
         it { expect(Cloud::Backend::UploadJob.find(upload_job.job_id).id).to eq('2') }
       end
 

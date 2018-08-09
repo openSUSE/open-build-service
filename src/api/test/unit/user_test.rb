@@ -50,20 +50,20 @@ class UserTest < ActiveSupport::TestCase
     assert @project
     assert @user
 
-    a = StaticPermission.new title: 'this-one-should_go_through'
+    a = StaticPermission.new(title: 'this-one-should_go_through')
     assert a.valid?
     a.delete
   end
 
   def test_access
-    assert @user.has_local_permission? 'change_project', @project
-    assert @user.has_local_permission? 'change_package', packages(:home_Iggy_TestPack)
+    assert @user.has_local_permission?('change_project', @project)
+    assert @user.has_local_permission?('change_package', packages(:home_Iggy_TestPack))
 
     m = Role.find_by_title('maintainer')
     assert @user.has_local_role?(m, @project)
     assert @user.has_local_role?(m, packages(:home_Iggy_TestPack))
 
-    b = Role.find_by_title 'bugowner'
+    b = Role.find_by_title('bugowner')
     assert !@user.has_local_role?(b, @project)
     assert !@user.has_local_role?(m, projects(:kde4))
 
@@ -101,9 +101,9 @@ class UserTest < ActiveSupport::TestCase
   end
 
   def test_deleted_user
-    assert_not_nil User.find_by_login 'deleted'
+    assert_not_nil User.find_by_login('deleted')
     assert_raise NotFoundError do
-      User.find_by_login! 'deleted'
+      User.find_by_login!('deleted')
     end
   end
 

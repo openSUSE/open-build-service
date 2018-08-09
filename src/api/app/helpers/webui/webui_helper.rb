@@ -38,7 +38,7 @@ module Webui::WebuiHelper
     human_time_ago = time_ago_in_words(time) + ' ago'
 
     if with_fulltime
-      raw("<span title='#{l time.utc}' class='fuzzy-time'>#{human_time_ago}</span>")
+      raw("<span title='#{l(time.utc)}' class='fuzzy-time'>#{human_time_ago}</span>")
     else
       human_time_ago
     end
@@ -115,7 +115,7 @@ module Webui::WebuiHelper
     opts[:package] = @package.to_s if @package
     opts[:project] = @project.to_s if @project
     link_opts = { id: "tab-#{id}" }
-    if (action_name == opts[:action].to_s && (opts[:controller].to_s.include? controller_name)) || opts[:selected]
+    if (action_name == opts[:action].to_s && opts[:controller].to_s.include?(controller_name)) || opts[:selected]
       link_opts[:class] = 'selected'
     end
     content_tag('li', link_to(h(text), opts), link_opts)
@@ -185,12 +185,12 @@ module Webui::WebuiHelper
   end
 
   def sprite_tag(icon, opts = {})
-    if opts.key? :class
+    if opts.key?(:class)
       opts[:class] += " icons-#{icon}"
     else
       opts[:class] = "icons-#{icon}"
     end
-    unless opts.key? :alt
+    unless opts.key?(:alt)
       alt = icon
       if opts[:title]
         alt = opts[:title]
@@ -228,7 +228,7 @@ module Webui::WebuiHelper
   def package_link(pack, opts = {})
     opts[:project] = pack.project.name
     opts[:package] = pack.name
-    project_or_package_link opts
+    project_or_package_link(opts)
   end
 
   def link_to_package(prj, pkg, opts)

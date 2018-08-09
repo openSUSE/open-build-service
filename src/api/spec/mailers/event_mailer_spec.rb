@@ -68,10 +68,10 @@ RSpec.describe EventMailer, vcr: true do
         expect(ActionMailer::Base.deliveries).to include(mail)
       end
       it 'has subscribers' do
-        expect(mail.to).to eq Event::CommentForProject.last.subscribers.map(&:email)
+        expect(mail.to).to eq(Event::CommentForProject.last.subscribers.map(&:email))
       end
       it 'has a subject' do
-        expect(mail.subject).to eq "New comment in project #{comment.commentable.name} by #{originator.login}"
+        expect(mail.subject).to eq("New comment in project #{comment.commentable.name} by #{originator.login}")
       end
 
       it 'renders links absolute' do

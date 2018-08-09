@@ -17,7 +17,7 @@ class ChannelBinary < ApplicationRecord
   end
 
   def self.find_by_project_and_package(project, package)
-    project = Project.find_by_name(project) if project.is_a? String
+    project = Project.find_by_name(project) if project.is_a?(String)
 
     # find maintained projects filter
     maintained_projects = Project.get_maintenance_project.expand_maintained_projects
@@ -84,8 +84,8 @@ class ChannelBinary < ApplicationRecord
       end
     end
 
-    builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                              Nokogiri::XML::Node::SaveOptions::FORMAT
+    builder.to_xml(save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                              Nokogiri::XML::Node::SaveOptions::FORMAT)
   end
 
   def create_channel_node_element(channel_node, channel_target)

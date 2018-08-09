@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 
-SimpleCov.command_name 'test:api'
+SimpleCov.command_name('test:api')
 
 class PackageTest < ActiveSupport::TestCase
   fixtures :all

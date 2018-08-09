@@ -11,7 +11,7 @@ class Kiwi::Preference < ApplicationRecord
     builder = Nokogiri::XML::Builder.new do |xml|
       xml.containerconfig(name: type_containerconfig_name, type_containerconfig_tag: type_containerconfig_tag)
     end
-    builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION | Nokogiri::XML::Node::SaveOptions::FORMAT
+    builder.to_xml(save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION | Nokogiri::XML::Node::SaveOptions::FORMAT)
   end
 
   # Can the user edit this from the kiwi editor?

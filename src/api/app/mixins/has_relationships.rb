@@ -51,7 +51,7 @@ module HasRelationships
   def remove_role(what, role)
     check_write_access!
 
-    if what.is_a? Group
+    if what.is_a?(Group)
       rel = relationships.where(group_id: what.id)
     else
       rel = relationships.where(user_id: what.id)
@@ -67,7 +67,7 @@ module HasRelationships
     check_write_access!
 
     transaction do
-      if what.is_a? Group
+      if what.is_a?(Group)
         relationships.create!(role: role, group: what)
       else
         relationships.create!(role: role, user: what)
@@ -97,7 +97,7 @@ module HasRelationships
     # delete all roles that weren't found in the uploaded xml
     cache.each do |_, roles|
       roles.each do |_, object|
-        next if [:keep, :new].include? object
+        next if [:keep, :new].include?(object)
         object.destroy
       end
     end
@@ -184,10 +184,10 @@ module HasRelationships
       id = @updater.id(node)
       item = @updater.find!(id)
 
-      if cache.key? id
+      if cache.key?(id)
         # item has already a role in this model
         pcache = cache[id]
-        if pcache.key? role.title
+        if pcache.key?(role.title)
           # role already defined, only remove from cache
           pcache[role.title] = :keep
         else

@@ -15,13 +15,13 @@ class SourceProjectMetaController < SourceController
   # GET /source/:project/_meta
   #---------------------------
   def show
-    if Project.find_remote_project params[:project]
+    if Project.find_remote_project(params[:project])
       # project from remote buildservice, get metadata from backend
       raise InvalidProjectParameters if params[:view]
       pass_to_backend
     else
       # access check
-      prj = Project.get_by_name params[:project]
+      prj = Project.get_by_name(params[:project])
       render xml: prj.to_axml
     end
   end

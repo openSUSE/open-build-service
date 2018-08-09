@@ -27,7 +27,7 @@ class SourceProjectPackageMetaController < SourceController
       # or if meta is specified we need to fetch the meta from the backend
       path = request.path_info
       path += build_query_from_hash(params, [:meta, :rev, :view])
-      pass_to_backend path
+      pass_to_backend(path)
       return
     end
 
@@ -75,7 +75,7 @@ class SourceProjectPackageMetaController < SourceController
     @project_name = params[:project]
     @package_name = params[:package]
 
-    valid_package_name! @package_name
+    valid_package_name!(@package_name)
   end
 
   def user_not_authorized(exception)

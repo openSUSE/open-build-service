@@ -30,7 +30,7 @@ class NodeMatcher #:nodoc:
           raise "illegal key #{k.inspect} => #{v.inspect}"
         end
       end
-      update hash
+      update(hash)
     end
 
     private
@@ -129,7 +129,7 @@ class NodeMatcher #:nodoc:
   def match(node, conditions)
     return false unless node
     # we went too far up
-    return false if node.is_a? Nokogiri::XML::Document
+    return false if node.is_a?(Nokogiri::XML::Document)
 
     case conditions
     when String
@@ -159,9 +159,9 @@ class NodeMatcher #:nodoc:
     # test attributes
     (conditions[:attributes] || {}).each do |key, value|
       if value.nil?
-        return false if node.has_attribute? key.to_s
+        return false if node.has_attribute?(key.to_s)
       else
-        return false unless node.has_attribute? key.to_s
+        return false unless node.has_attribute?(key.to_s)
         return false unless match_condition(node[key], value)
       end
     end
@@ -185,7 +185,7 @@ class NodeMatcher #:nodoc:
     if conditions[:ancestor]
       return false unless catch :found do
         p = node.parent
-        while p.is_a? Nokogiri::XML::Element
+        while p.is_a?(Nokogiri::XML::Element)
           throw :found, true if match(p, conditions[:ancestor])
           p = p.parent
         end

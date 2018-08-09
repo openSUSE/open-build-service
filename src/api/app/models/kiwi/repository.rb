@@ -72,7 +72,7 @@ module Kiwi
         repo.source(path: source_path)
       end
 
-      builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION | Nokogiri::XML::Node::SaveOptions::FORMAT
+      builder.to_xml(save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION | Nokogiri::XML::Node::SaveOptions::FORMAT)
     end
 
     def obs_source_path?

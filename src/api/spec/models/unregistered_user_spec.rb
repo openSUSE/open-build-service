@@ -75,7 +75,7 @@ RSpec.describe UnregisteredUser do
 
       it 'throws an exception' do
         expect { subject }.to raise_error(UnregisteredUser::ErrRegisterSave, 'Sorry, sign up is disabled')
-        expect(User.count).to eq user_count_before
+        expect(User.count).to eq(user_count_before)
       end
     end
 
@@ -97,7 +97,7 @@ RSpec.describe UnregisteredUser do
 
         it 'throws an exception' do
           expect { subject }.to raise_error(UnregisteredUser::ErrRegisterSave, 'Sorry, new users can only sign up via LDAP')
-          expect(User.count).to eq user_count_before
+          expect(User.count).to eq(user_count_before)
         end
       end
 
@@ -113,7 +113,7 @@ RSpec.describe UnregisteredUser do
         end
 
         it 'sets the ignore_auth_services attribute to true' do
-          expect(User.where(attributes_for_query).first.ignore_auth_services).to be true
+          expect(User.where(attributes_for_query).first.ignore_auth_services).to be(true)
         end
       end
     end

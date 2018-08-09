@@ -49,7 +49,7 @@ class ProjectLogEntryTest < ActiveSupport::TestCase
 
   test '#clean_older_than' do
     count = ProjectLogEntry.count
-    ProjectLogEntry.clean_older_than Date.parse('2013-08-09')
+    ProjectLogEntry.clean_older_than(Date.parse('2013-08-09'))
     assert_equal count - 1, ProjectLogEntry.count
   end
 end

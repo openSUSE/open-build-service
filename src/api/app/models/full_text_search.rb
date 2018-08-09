@@ -48,7 +48,7 @@ class FullTextSearch
     end
     args[:classes] = classes.map { |i| i.to_s.classify.constantize } if classes
 
-    @result = ThinkingSphinx.search search_str, args
+    @result = ThinkingSphinx.search(search_str, args)
   end
 
   # Needed by ActiveModel::Serializers

@@ -20,7 +20,7 @@ class PublicController < ApplicationController
     path = unshift_public(request.path_info)
     path += "?#{request.query_string}" unless request.query_string.empty?
 
-    pass_to_backend path
+    pass_to_backend(path)
   end
 
   # GET /public/configuration
@@ -40,7 +40,7 @@ class PublicController < ApplicationController
     # project visible/known ?
     Project.get_by_name(params[:project])
 
-    pass_to_backend unshift_public(request.path_info)
+    pass_to_backend(unshift_public(request.path_info))
   end
 
   # GET /public/source/:project
@@ -68,7 +68,7 @@ class PublicController < ApplicationController
     else
       path += '?expand=1&noorigins=1' # to stay compatible to OBS <2.4
     end
-    pass_to_backend path
+    pass_to_backend(path)
   end
 
   # GET /public/source/:project/_config
@@ -79,7 +79,7 @@ class PublicController < ApplicationController
 
     path = unshift_public(request.path_info)
     path += "?#{request.query_string}" unless request.query_string.empty?
-    pass_to_backend path
+    pass_to_backend(path)
   end
 
   # GET /public/source/:project/:package
@@ -88,14 +88,14 @@ class PublicController < ApplicationController
 
     path = unshift_public(request.path_info)
     path += "?#{request.query_string}" unless request.query_string.empty?
-    pass_to_backend path
+    pass_to_backend(path)
   end
 
   # GET /public/source/:project/:package/_meta
   def package_meta
     check_package_access(params[:project], params[:package], false)
 
-    pass_to_backend unshift_public(request.path_info)
+    pass_to_backend(unshift_public(request.path_info))
   end
 
   # GET /public/source/:project/:package/:filename
@@ -130,7 +130,7 @@ class PublicController < ApplicationController
     @pkg = Package.find_by_project_and_name(params[:project], params[:package])
 
     begin
-      binaries = Collection.find :id, what: 'published/binary', match: "@project='#{params[:project]}' and @package='#{params[:package]}'"
+      binaries = Collection.find(:id, what: 'published/binary', match: "@project='#{params[:project]}' and @package='#{params[:package]}'")
     rescue
       render_error status: 400, errorcode: 'search_failure', message: "The search can't get executed."
       return

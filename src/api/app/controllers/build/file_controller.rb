@@ -8,7 +8,7 @@ module Build
       if regexp
         process_regexp
       else
-        pass_to_backend path
+        pass_to_backend(path)
       end
     end
 
@@ -24,13 +24,13 @@ module Build
           return
         end
 
-        pass_to_backend path
+        pass_to_backend(path)
       end
     end
 
     # DELETE /build/:project/:repository/:arch/:package/:filename
     def destroy
-      unless permissions.project_change? params[:project]
+      unless permissions.project_change?(params[:project])
         render_error status: 403, errorcode: 'delete_binary_no_permission',
           message: "No permission to delete binaries from project #{params[:project]}"
         return
@@ -55,7 +55,7 @@ module Build
     def project
       @project ||=
         if params[:package] == '_repository'
-          Project.get_by_name params[:project]
+          Project.get_by_name(params[:project])
         else
           package = Package.get_by_project_and_name(
             params[:project], params[:package], use_source: false, follow_multibuild: true
@@ -87,7 +87,7 @@ module Build
       # if there is a query, we can't assume it's a simple download, so better leave out the logic (e.g. view=fileinfo)
       return if request.query_string
       # check if binary exists and for size
-      regexp = /name=["']#{Regexp.quote params[:filename]}["'].*size=["']([^"']*)["']/
+      regexp = /name=["']#{Regexp.quote(params[:filename])}["'].*size=["']([^"']*)["']/
       @regexp ||= Backend::Api::BuildResults::Binaries.files(params[:project], params[:repository], params[:arch], params[:package]).match(regexp)
     end
 

@@ -7,7 +7,7 @@ require 'simplecov'
 require 'builder'
 require 'minitest/reporters'
 
-Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
+Minitest::Reporters.use!(Minitest::Reporters::SpecReporter.new)
 
 if ENV['DO_COVERAGE']
   ENV['CODECOV_FLAG'] = ENV['CIRCLE_STAGE']
@@ -50,11 +50,11 @@ end
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
-unless File.exist? '/proc'
+unless File.exist?('/proc')
   print 'ERROR: proc file system not mounted, aborting'
   exit 1
 end
-unless File.exist? '/dev/fd'
+unless File.exist?('/dev/fd')
   print 'ERROR: /dev/fd does not exist, aborting'
   exit 1
 end
@@ -238,7 +238,7 @@ module Webui
       dirpath = Rails.root.join('tmp', 'capybara')
       htmlpath = dirpath.join(name + '.html')
       if !passed?
-        Dir.mkdir(dirpath) unless Dir.exist? dirpath
+        Dir.mkdir(dirpath) unless Dir.exist?(dirpath)
         save_page(htmlpath)
       elsif File.exist?(htmlpath)
         File.unlink(htmlpath)
@@ -283,11 +283,11 @@ module ActionDispatch
 
     # will provide a user without special permissions
     def prepare_request_valid_user
-      prepare_request_with_user 'tom', 'buildservice'
+      prepare_request_with_user('tom', 'buildservice')
     end
 
     def prepare_request_invalid_user
-      prepare_request_with_user 'tom123', 'thunder123'
+      prepare_request_with_user('tom123', 'thunder123')
     end
 
     def load_fixture(path)
@@ -314,38 +314,38 @@ module ActionDispatch
 
     # useful to fix our test cases
     def url_for(hash)
-      raise ArgumentError, 'we need a hash here' unless hash.is_a? Hash
+      raise ArgumentError, 'we need a hash here' unless hash.is_a?(Hash)
       raise ArgumentError, 'we need a :controller' unless hash.key?(:controller)
       raise ArgumentError, 'we need a :action' unless hash.key?(:action)
       super(hash)
     end
 
     def login_king
-      prepare_request_with_user 'king', 'sunflower'
+      prepare_request_with_user('king', 'sunflower')
     end
 
     def login_Iggy
-      prepare_request_with_user 'Iggy', 'buildservice'
+      prepare_request_with_user('Iggy', 'buildservice')
     end
 
     def login_adrian
-      prepare_request_with_user 'adrian', 'buildservice'
+      prepare_request_with_user('adrian', 'buildservice')
     end
 
     def login_adrian_downloader
-      prepare_request_with_user 'adrian_downloader', 'buildservice'
+      prepare_request_with_user('adrian_downloader', 'buildservice')
     end
 
     def login_fred
-      prepare_request_with_user 'fred', 'buildservice'
+      prepare_request_with_user('fred', 'buildservice')
     end
 
     def login_tom
-      prepare_request_with_user 'tom', 'buildservice'
+      prepare_request_with_user('tom', 'buildservice')
     end
 
     def login_dmayr
-      prepare_request_with_user 'dmayr', 'buildservice'
+      prepare_request_with_user('dmayr', 'buildservice')
     end
   end
 end

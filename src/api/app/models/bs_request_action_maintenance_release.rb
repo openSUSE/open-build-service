@@ -123,7 +123,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     end
 
     # creating release requests is also locking the source package, therefore we require write access there.
-    spkg = Package.find_by_project_and_name source_project, source_package
+    spkg = Package.find_by_project_and_name(source_project, source_package)
     return if spkg || !User.current.can_modify?(spkg)
     raise LackingReleaseMaintainership, 'Creating a release request action requires maintainership in source package'
   end
@@ -147,7 +147,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
   def create_post_permissions_hook(opts)
     object = nil
-    spkg = Package.find_by_project_and_name source_project, source_package
+    spkg = Package.find_by_project_and_name(source_project, source_package)
     if opts[:per_package_locking]
       # we avoid patchinfo's to be able to complete meta data about the update
       return if spkg.is_patchinfo?
@@ -166,7 +166,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   end
 
   def minimum_priority
-    spkg = Package.find_by_project_and_name source_project, source_package
+    spkg = Package.find_by_project_and_name(source_project, source_package)
     return unless spkg && spkg.is_patchinfo?
     pi = Xmlhash.parse(spkg.patchinfo.dump_xml)
     pi['rating']

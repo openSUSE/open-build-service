@@ -49,7 +49,7 @@ class Authenticator
     end
 
     if !@http_user && session[:login]
-      @http_user = User.find_by_login session[:login]
+      @http_user = User.find_by_login(session[:login])
     end
 
     check_extracted_user
@@ -90,7 +90,7 @@ class Authenticator
     # 2. for Apache/mod_fastcgi with -pass-header Authorization
     # 3. regular location
     ['X-HTTP_AUTHORIZATION', 'Authorization', 'HTTP_AUTHORIZATION'].each do |header|
-      return request.env[header].to_s.split if request.env.key? header
+      return request.env[header].to_s.split if request.env.key?(header)
     end
     return
   end
@@ -172,7 +172,7 @@ class Authenticator
     # However we have to care for the status of the user that must not be unconfirmed or proxy requested
     if proxy_user
       Rails.logger.info "iChain user extracted from header: #{proxy_user}"
-      @http_user = User.find_by_login proxy_user
+      @http_user = User.find_by_login(proxy_user)
 
       # If we do not find a User here, we need to create a user and wait for
       # the confirmation by the user and the BS Admin Team.
@@ -199,9 +199,9 @@ class Authenticator
     if authorization
       # logger.debug( "AUTH2: #{authorization}" )
       if authorization[0] == 'Basic'
-        extract_basic_user authorization
+        extract_basic_user(authorization)
       elsif authorization[0] == 'Negotiate' && CONFIG['kerberos_mode']
-        extract_krb_user authorization
+        extract_krb_user(authorization)
       else
         Rails.logger.debug "Unsupported authentication string '#{authorization[0]}' received."
       end

@@ -4,7 +4,7 @@ class AttribTest < ActiveSupport::TestCase
   fixtures :all
 
   setup do
-    @namespace = AttribNamespace.find_by name: 'OBS'
+    @namespace = AttribNamespace.find_by(name: 'OBS')
   end
 
   test 'should have an attrib_type' do
@@ -136,7 +136,7 @@ class AttribTest < ActiveSupport::TestCase
   end
 
   test 'find_by_container_and_fullname' do
-    project = Project.find_by name: 'BaseDistro2.0'
+    project = Project.find_by(name: 'BaseDistro2.0')
     attrib = Attrib.find_by_container_and_fullname(project, 'OBS:UpdateProject')
     assert_equal 103, attrib.id
   end
@@ -149,7 +149,7 @@ class AttribTest < ActiveSupport::TestCase
   end
 
   test 'should return container' do
-    project = Project.find_by name: 'BaseDistro2.0'
+    project = Project.find_by(name: 'BaseDistro2.0')
     attrib = Attrib.find_by_container_and_fullname(project, 'OBS:UpdateProject')
     assert_equal 103, attrib.id
     assert_equal project, attrib.project

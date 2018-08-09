@@ -6,7 +6,7 @@ class Channel < ApplicationRecord
   has_many :channel_binary_lists, dependent: :destroy
 
   def self.verify_xml!(xmlhash)
-    xmlhash = Xmlhash.parse(xmlhash) if xmlhash.is_a? String
+    xmlhash = Xmlhash.parse(xmlhash) if xmlhash.is_a?(String)
     xmlhash.elements('target') do |p|
       prj = Project.get_by_name(p['project'])
       unless prj.repositories.find_by_name(p['repository'])
@@ -54,7 +54,7 @@ class Channel < ApplicationRecord
       hasharray << { project: r.project,
                      repository: r, id_template: p['id_template'],
                      requires_issue: p['requires_issue'],
-                     disabled: (p.key? 'disabled') }
+                     disabled: p.key?('disabled') }
     end
     sync_hash_with_model(ChannelTarget, channel_targets, hasharray)
   end
@@ -97,7 +97,7 @@ class Channel < ApplicationRecord
   end
 
   def update_from_xml(xmlhash)
-    xmlhash = Xmlhash.parse(xmlhash) if xmlhash.is_a? String
+    xmlhash = Xmlhash.parse(xmlhash) if xmlhash.is_a?(String)
 
     _update_from_xml_targets(xmlhash)
     _update_from_xml_binary_lists(xmlhash)
@@ -171,7 +171,7 @@ class Channel < ApplicationRecord
         end
       end
       # enable package
-      target_package.enable_for_repository repo_name
+      target_package.enable_for_repository(repo_name)
     end
   end
 end

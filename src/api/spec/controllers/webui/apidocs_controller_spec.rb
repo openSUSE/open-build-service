@@ -22,7 +22,7 @@ RSpec.describe Webui::ApidocsController, type: :controller do
 
       it 'responses without error' do
         expect(response).to have_http_status(:ok)
-        expect(response.content_type).to eq 'text/html'
+        expect(response.content_type).to eq('text/html')
       end
     end
 
@@ -60,7 +60,7 @@ RSpec.describe Webui::ApidocsController, type: :controller do
 
       it 'reponses without error' do
         expect(response).to have_http_status(:ok)
-        expect(response.content_type).to eq 'text/xml'
+        expect(response.content_type).to eq('text/xml')
       end
     end
 

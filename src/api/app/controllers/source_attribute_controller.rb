@@ -43,7 +43,7 @@ class SourceAttributeController < SourceController
     unless attrib
       raise ActiveRecord::RecordNotFound, "Attribute #{params[:attribute]} does not exist"
     end
-    unless User.current.can_create_attribute_in? @attribute_container, @at
+    unless User.current.can_create_attribute_in?(@attribute_container, @at)
       raise ChangeAttributeNoPermission, "User #{user.login} has no permission to change attribute"
     end
 

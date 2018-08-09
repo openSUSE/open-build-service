@@ -502,7 +502,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     get '/source/HiddenRemoteInstance:BaseDistro'
     assert_response 404
     reset_auth
-    prepare_request_with_user 'hidden_homer', 'buildservice'
+    prepare_request_with_user('hidden_homer', 'buildservice')
     get '/source/HiddenRemoteInstance'
     assert_response :success
     get '/source/HiddenRemoteInstance:BaseDistro'
@@ -522,7 +522,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     get '/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/pack1'
     assert_response 404
     reset_auth
-    prepare_request_with_user 'hidden_homer', 'buildservice'
+    prepare_request_with_user('hidden_homer', 'buildservice')
     get '/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository'
     assert_response :success
     get '/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository?view=cache'
