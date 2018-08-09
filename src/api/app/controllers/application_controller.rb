@@ -227,10 +227,10 @@ class ApplicationController < ActionController::Base
     text = exception.message
     http_status = 500
     begin
-      xml = ActiveXML::Node.new(text)
-      http_status = xml.value('code')
-      xml.set_attribute('origin', 'backend') unless xml.has_attribute?('origin')
-      text = xml.dump_xml
+      xml = Nokogiri::XML(text).root
+      http_status = xml['code']
+      xml['origin'] ||= 'backend'
+      text = xml.to_xml
     rescue ActiveXML::ParseError
     end
     render plain: text, status: http_status
