@@ -19,7 +19,7 @@ min_votes_for_rating: 3
 response_schema_validation: false
 
 # backend source server
-source_host: backend
+source_host: localhost
 # NOTE: the source_port setting is ignored and hardcoded for "test" and "development" env
 source_port: 5352
 #source_protocol: https
