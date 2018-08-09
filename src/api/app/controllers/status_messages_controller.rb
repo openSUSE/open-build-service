@@ -22,18 +22,18 @@ class StatusMessagesController < ApplicationController
       raise PermissionDeniedError, 'message(s) cannot be created, you have not sufficient permissions'
     end
 
-    new_messages = ActiveXML::Node.new(request.raw_post)
+    new_messages = Nokogiri::XML(request.raw_post).root
     @messages = []
-    if new_messages.has_element?('message')
+    if new_messages.css('message').present?
       # message(s) are wrapped in outer xml tag 'status_messages'
-      new_messages.each('message') do |msg|
-        @messages << StatusMessage.create!(message: msg.to_s, severity: msg.value(:severity), user: User.current)
+      new_messages.css('message').each do |msg|
+        @messages << StatusMessage.create!(message: msg.content, severity: msg['severity'], user: User.current)
       end
     else
       # TODO: make use of a validator
-      raise CreatingMessagesError, "no message #{new_messages.dump_xml}" if new_messages.element_name != 'message'
+      raise CreatingMessagesError, "no message #{new_messages.to_xml}" if new_messages.name != 'message'
       # just one message, NOT wrapped in outer xml tag 'status_messages'
-      @messages << StatusMessage.create!(message: new_messages.to_s, severity: new_messages.value(:severity), user: User.current)
+      @messages << StatusMessage.create!(message: new_messages.content, severity: new_messages['severity'], user: User.current)
     end
     render :index
   end
