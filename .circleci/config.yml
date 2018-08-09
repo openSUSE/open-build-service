@@ -246,20 +246,38 @@ workflows:
   version: 2
   test_all:
     jobs:
-      - checkout_code
+      - checkout_code:
+          filters:
+            branches:
+              ignore: /^2\.[8-9]/
       - backend_test:
           requires:
             - checkout_code
+          filters:
+            branches:
+              ignore: /^2\.[8-9]/
       - rspec:
           requires:
             - checkout_code
+          filters:
+            branches:
+              ignore: /^2\.[8-9]/
       - minitest:
           requires:
             - checkout_code
+          filters:
+            branches:
+              ignore: /^2\.[8-9]/
       - spider:
           requires:
             - checkout_code
+          filters:
+            branches:
+              ignore: /^2\.[8-9]/
       - coverage:
           requires:
             - rspec
             - minitest
+          filters:
+            branches:
+              ignore: /^2\.[8-9]/
