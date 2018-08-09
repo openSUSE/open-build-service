@@ -13,7 +13,11 @@
           = @package.title.presence || @package.name
           - if @package.url.present?
             %small= link_to(@package.url, @package.url)
-        = webui2_description_wrapper(@package.description)
+        #description-text
+          - if @package.description.blank?
+            %i No description set
+          - else
+            = simple_format(@package.description)
       .col-md-4
         = render partial: 'side_links', locals: { devel_package: devel_package,
                                                   failures: @failures,
