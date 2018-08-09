@@ -3,5 +3,5 @@
     = hidden_field_tag :commentable_type, commentable.class
     = hidden_field_tag :commentable_id, commentable.id
     ~ f.text_area :body, row: '4', onkeyup: 'sz(this);', onclick: 'sz(this);', placeholder: 'Add a new comment (markdown markup supported)',
-                                                                               required: 'required', class: 'comment-area'
+                                                                               required: 'required', class: 'w-100 mb-3'
     = f.submit 'Add comment', class: 'btn btn-primary'
