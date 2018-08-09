@@ -2640,12 +2640,17 @@ sub getresult {
       }
       if ($cgi->{'withbinarylist'}) {
 	my @b;
-	for (sort(ls("$reporoot/$prpa/$packid"))) {
+	my @bins = ls("$reporoot/$prpa/$packid");
+	@bins = BSRepServer::Containertar::add_containers(@bins) if grep {/\.containerinfo$/} @bins;
+	for (sort(@bins)) {
 	  next if $_ eq 'logfile' || $_ eq 'status' || $_ eq 'reason' || $_ eq 'history' || /^\./;
 	  my @s = stat("$reporoot/$prpa/$packid/$_");
-	  next unless @s;
-	  next if -d _;
-	  push @b, {'filename' => $_, 'mtime' => $s[9], 'size' => $s[7]};
+	  if (!@s && /\.tar$/) {
+	    @s = BSRepServer::Containertar::stat_container("$reporoot/$prpa/$packid/$_");
+	    push @b, {'filename' => $_, 'mtime' => $s[9], 'size' => $s[7]} if @s;
+	    next;
+	  }
+	  push @b, {'filename' => $_, 'mtime' => $s[9], 'size' => $s[7]} if @s && ! -d _;
 	}
 	my $bl = {'package' => $packid, 'binary' => \@b};
 	push @{$sl->{'binarylist'}}, $bl;
