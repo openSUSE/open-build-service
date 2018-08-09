@@ -920,9 +920,7 @@ class Package < ApplicationRecord
   end
 
   def services
-    the_services = Service.find(project: project.name, package: name)
-    the_services ||= Service.new(project: project.name, package: name)
-    the_services
+    Service.new(package: self)
   end
 
   def buildresult(prj = project, show_all = false)

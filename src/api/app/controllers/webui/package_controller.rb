@@ -80,7 +80,7 @@ class Webui::PackageController < Webui::WebuiController
     @comments = @package.comments
     @comment = Comment.new
     @requests = []
-    @services = Service.find(project: @project.name, package: @package.name)
+    @services = Backend::Api::Sources::Package.service(@project.name, @package.name)
   end
 
   def main_object

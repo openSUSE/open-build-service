@@ -43,6 +43,14 @@ module Backend
           http_get(['/source/:project/:package/_meta', project_name, package_name])
         end
 
+        # Returns the content of the _service file (if present)
+        # @return [String]
+        def self.service(project_name, package_name)
+          http_get(['/source/:project/:package/_service', project_name, package_name])
+        rescue ActiveXML::Transport::NotFoundError
+          nil
+        end
+
         # It triggers all the services of a package
         # @return [String]
         def self.trigger_services(project_name, package_name, user_login)
@@ -137,13 +145,18 @@ module Backend
 
         # Writes the content of the source file
         # @return [String]
-        def self.write_file(project_name, package_name, file_name, content = '')
-          http_put(['/source/:project/:package/:filename', project_name, package_name, file_name], data: content)
+        def self.write_file(project_name, package_name, file_name, content = '', params = {})
+          http_put(['/source/:project/:package/:filename', project_name, package_name, file_name], data: content, params: params)
         end
 
         # Deletes the package and all the source files inside
         def self.delete(project_name, package_name)
           http_delete(['/source/:project/:package', project_name, package_name])
+        end
+
+        # Deletes a package source file
+        def self.delete_file(project_name, package_name, filename)
+          http_delete(['/source/:project/:package/:filename', project_name, package_name, filename])
         end
       end
     end

@@ -1,58 +1,19 @@
 ---
 http_interactions:
 - request:
-    method: get
-    uri: http://backend:5352/source/home:tom/test_package/_service
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: _service  no such file
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '122'
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>_service: no such file</summary>
-          <details>404 _service: no such file</details>
-        </status>
-    http_version: 
-  recorded_at: Thu, 03 Mar 2016 10:50:51 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/test_package/_service?user=tom
-    body:
-      encoding: UTF-8
-      string: |-
-        <services>
-          <service name="kiwi_import"/>
-        </services>
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
-      Content-Length:
-      - '54'
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -69,20 +30,171 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '129'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="41" vrev="41">
-          <srcmd5>79f9a397cc428871543aa0a314594662</srcmd5>
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 09 Aug 2018 19:17:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title>A Time to Kill</title>
+          <description>Tempore autem aut quisquam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '149'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title>A Time to Kill</title>
+          <description>Tempore autem aut quisquam.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 09 Aug 2018 19:17:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title>A Time to Kill</title>
+          <description>Tempore autem aut quisquam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '149'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title>A Time to Kill</title>
+          <description>Tempore autem aut quisquam.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 09 Aug 2018 19:17:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/test_package/_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '199'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <services>
+          <service name="kiwi_import"/>
+        <service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/></services>
+    http_version: 
+  recorded_at: Thu, 09 Aug 2018 19:17:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/test_package/_service?comment=Modified%20via%20webui&user=tom
+    body:
+      encoding: UTF-8
+      string: |-
+        <services>
+          <service name="kiwi_import"/>
+        <service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/></services>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '223'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="13" vrev="13">
+          <srcmd5>887b6c91a814fb894032d0bb5bd97b10</srcmd5>
           <version>unknown</version>
-          <time>1457002251</time>
+          <time>1533842226</time>
           <user>tom</user>
-          <comment></comment>
+          <comment>Modified via webui</comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 03 Mar 2016 10:50:52 GMT
+  recorded_at: Thu, 09 Aug 2018 19:17:06 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/test_package?cmd=runservice&user=tom
@@ -117,7 +229,46 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Thu, 03 Mar 2016 10:50:52 GMT
+  recorded_at: Thu, 09 Aug 2018 19:17:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title>A Time to Kill</title>
+          <description>Tempore autem aut quisquam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '149'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title>A Time to Kill</title>
+          <description>Tempore autem aut quisquam.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 09 Aug 2018 19:17:06 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package
@@ -143,21 +294,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '432'
+      - '236'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="42" vrev="42" srcmd5="b9cdb04983bb7dd31c9f714a0131fd9d">
+        <directory name="test_package" rev="14" vrev="14" srcmd5="8526d7b75237b20bc22c93c53399751d">
           <serviceinfo code="running" />
-          <entry name="_service" md5="489f334e1b6bcff609a0c01f2d937242" size="54" mtime="1456997438" />
-          <entry name="config.kiwi" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1456997438" />
-          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1457000684" />
+          <entry name="_service" md5="923fbd573860facd416f8e2248c2208f" size="228" mtime="1533842226" />
         </directory>
     http_version: 
-  recorded_at: Thu, 03 Mar 2016 10:50:52 GMT
+  recorded_at: Thu, 09 Aug 2018 19:17:06 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom/test_package?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:tom/test_package?view=info
     body:
       encoding: US-ASCII
       string: ''
@@ -180,15 +329,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '188'
+      - '148'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="test_package" rev="42" vrev="42" srcmd5="21e54cd146816f8bb5cb72ec225e2adf" verifymd5="b7d4b402bd880092f51d7ba209c584b8">
-          <revtime>1457002252</revtime>
+        <sourceinfo package="test_package" rev="14" vrev="14" srcmd5="8526d7b75237b20bc22c93c53399751d">
+          <error>service in progress</error>
         </sourceinfo>
     http_version: 
-  recorded_at: Thu, 03 Mar 2016 10:50:53 GMT
+  recorded_at: Thu, 09 Aug 2018 19:17:06 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package
@@ -214,18 +363,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '477'
+      - '236'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="42" vrev="42" srcmd5="b9cdb04983bb7dd31c9f714a0131fd9d">
-          <serviceinfo code="succeeded" xsrcmd5="21e54cd146816f8bb5cb72ec225e2adf" />
-          <entry name="_service" md5="489f334e1b6bcff609a0c01f2d937242" size="54" mtime="1456997438" />
-          <entry name="config.kiwi" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1456997438" />
-          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1457000684" />
+        <directory name="test_package" rev="14" vrev="14" srcmd5="8526d7b75237b20bc22c93c53399751d">
+          <serviceinfo code="running" />
+          <entry name="_service" md5="923fbd573860facd416f8e2248c2208f" size="228" mtime="1533842226" />
         </directory>
     http_version: 
-  recorded_at: Thu, 03 Mar 2016 10:50:53 GMT
+  recorded_at: Thu, 09 Aug 2018 19:17:06 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -257,15 +404,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="dccb89cc1b5b60909205af3fc98e64c1">
+        <sourcediff key="b76d2db95f1432d54ccf19ab921a9ef8">
           <old project="home:tom" package="test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tom" package="test_package" rev="42" srcmd5="b9cdb04983bb7dd31c9f714a0131fd9d" />
+          <new project="home:tom" package="test_package" rev="14" srcmd5="8526d7b75237b20bc22c93c53399751d" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Thu, 03 Mar 2016 10:50:53 GMT
+  recorded_at: Thu, 09 Aug 2018 19:17:06 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/test_package?cmd=waitservice
@@ -283,8 +430,9 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 200
-      message: OK
+      code: 400
+      message: "/usr/lib/obs/service//kiwi_import 34 in `<main>'  No API url defined.
+        This might be caused by using an older osc version. (RuntimeError)"
     headers:
       Content-Type:
       - text/xml
@@ -293,88 +441,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Thu, 03 Mar 2016 10:50:53 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/home:tom/test_package?cmd=mergeservice&user=tom
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '205'
+      - '194'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="43" vrev="43">
-          <srcmd5>f619aceb9f94380f0b8272f79c9658ab</srcmd5>
-          <version>unknown</version>
-          <time>1457002253</time>
-          <user>tom</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-    http_version: 
-  recorded_at: Thu, 03 Mar 2016 10:50:53 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom/test_package?view=info
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home tom' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '144'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:tom' does not exist</summary>
-          <details>404 project 'home:tom' does not exist</details>
+        <status code="400">
+          <summary>/usr/lib/obs/service//kiwi_import:34:in `&lt;main&gt;': No API url defined. This might be caused by using an older osc version. (RuntimeError)</summary>
         </status>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:43:49 GMT
+  recorded_at: Thu, 09 Aug 2018 19:17:08 GMT
 recorded_with: VCR 4.0.0

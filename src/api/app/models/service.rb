@@ -1,10 +1,18 @@
 # Class to read and write the "_services" file on the Backend
-class Service < ActiveXML::Node
+class Service
+  include ActiveModel::Model
   class InvalidParameter < APIException; end
 
-  #### Class methods using self. (public and then private)
-  def self.make_stub(_opt)
-    '<services/>'
+  attr_accessor :package
+
+  # helper function
+  delegate :project, to: :package
+
+  def document
+    return @document if @document
+    xml = Backend::Api::Sources::Package.service(project.name, package.name)
+    xml ||= '<services/>'
+    @document = Nokogiri::XML(xml)
   end
 
   def self.valid_name?(name)
@@ -62,24 +70,24 @@ class Service < ActiveXML::Node
   def addKiwiImport
     addService('kiwi_import')
     if save
-      logger.debug 'Service successfully saved'
+      Rails.logger.debug 'Service successfully saved'
       begin
-        logger.debug 'Executing waitservice command'
-        Backend::Api::Sources::Package.wait_service(init_options[:project], init_options[:package])
-        logger.debug 'Executing mergeservice command'
-        Backend::Api::Sources::Package.merge_service(init_options[:project], init_options[:package], User.current.login)
+        Rails.logger.debug 'Executing waitservice command'
+        Backend::Api::Sources::Package.wait_service(project.name, package.name)
+        Rails.logger.debug 'Executing mergeservice command'
+        Backend::Api::Sources::Package.merge_service(project.name, package.name, User.current.login)
       rescue ActiveXML::Transport::Error, Timeout::Error => e
-        logger.debug "Error while executing backend command: #{e.message}"
+        Rails.logger.debug "Error while executing backend command: #{e.message}"
       end
     else
-      logger.debug 'Failed to save service'
+      Rails.logger.debug 'Failed to save service'
     end
   end
 
   def fill_params(element, parameters)
     parameters.each do |parameter|
-      param = element.add_element('param', name: parameter[:name])
-      param.text = parameter[:value]
+      param = document.create_element('param', parameter[:value], name: parameter[:name])
+      element.add_child(param)
     end
     true
   end
@@ -88,24 +96,26 @@ class Service < ActiveXML::Node
   def addService(name, parameters = [], mode = nil)
     attribs = { name: name }
     attribs[:mode] =  mode if mode
-    element = add_element('service', attribs)
+    element = document.create_element('service', attribs)
     fill_params(element, parameters)
+    document.root.add_child(element)
   end
 
   def save
-    if !has_element?('/services/service')
+    if document.xpath('//services/service').empty?
       begin
-        delete
+        Backend::Api::Sources::Package.delete_file(project.name, package.name, '_service')
       rescue ActiveXML::Transport::NotFoundError
         # to be ignored, if it's gone, it's gone
       end
     else
-      super(comment: 'Modified via webui', user: User.current.login)
-      package = Package.get_by_project_and_name(init_options[:project], init_options[:package],
-                                                use_source: true, follow_project_links: false)
-      return false unless User.current.can_modify?(package)
-      Backend::Api::Sources::Package.run_service(init_options[:project], init_options[:package], User.current.login)
-      package.sources_changed
+      Backend::Api::Sources::Package.write_file(project.name, package.name, '_service', document.root.to_xml,
+                                                comment: 'Modified via webui', user: User.current.login)
+      service_package = Package.get_by_project_and_name(project.name, package.name,
+                                                        use_source: true, follow_project_links: false)
+      return false unless User.current.can_modify?(service_package)
+      Backend::Api::Sources::Package.run_service(service_package.project.name, service_package.name, User.current.login)
+      service_package.sources_changed
     end
     true
   end
