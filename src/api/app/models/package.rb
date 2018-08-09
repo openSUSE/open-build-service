@@ -506,11 +506,6 @@ class Package < ApplicationRecord
     Backend::Connection.get(source_path(file, opts)).body
   end
 
-  # Reads the source file and converts it into an ActiveXML::Node
-  def source_file_to_axml(file, opts = {})
-    ActiveXML::Node.new(source_file(file, opts))
-  end
-
   def dir_hash(opts = {})
     Directory.hashed(opts.update(project: project.name, package: name))
   end
@@ -1307,20 +1302,18 @@ class Package < ApplicationRecord
     end
 
     # verify link
-    if name == '_link'
-      data = ActiveXML::Node.new(content)
-      if data
-        tproject_name = data.value('project') || pkg.project.name
-        tpackage_name = data.value('package') || pkg.name
-        if data.has_attribute?('missingok')
-          Project.get_by_name(tproject_name) # permission check
-          if Package.exists_by_project_and_name(tproject_name, tpackage_name, follow_project_links: true, allow_remote_packages: true)
-            raise NotMissingError, "Link contains a missingok statement but link target (#{tproject_name}/#{tpackage_name}) exists."
-          end
-        else
-          # permission check
-          Package.get_by_project_and_name(tproject_name, tpackage_name)
+    if name == '_link' && content.present?
+      data = Xmlhash.parse(content)
+      tproject_name = data.value('project') || pkg.project.name
+      tpackage_name = data.value('package') || pkg.name
+      if data['missingok']
+        Project.get_by_name(tproject_name) # permission check
+        if Package.exists_by_project_and_name(tproject_name, tpackage_name, follow_project_links: true, allow_remote_packages: true)
+          raise NotMissingError, "Link contains a missingok statement but link target (#{tproject_name}/#{tpackage_name}) exists."
         end
+      else
+        # permission check
+        Package.get_by_project_and_name(tproject_name, tpackage_name)
       end
     end
 
