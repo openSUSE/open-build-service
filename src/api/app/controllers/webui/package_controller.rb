@@ -1031,18 +1031,17 @@ class Webui::PackageController < Webui::WebuiController
     query[:expand]  = expand  if expand
     query[:rev]     = rev     if rev
 
-    # FIXME: This should be something like ActiveXML::Node.find!
-    # so we can require ActiveXML::Node to tell us when things do not exist
-    dir = ActiveXML::Node.new(@package.source_file(nil, query))
-    return [] unless dir
+    dir_xml = @package.source_file(nil, query)
+    return [] if dir_xml.blank?
 
-    @serviceinfo = dir.find_first(:serviceinfo)
+    dir = Xmlhash.parse(dir_xml)
+    @serviceinfo = dir.elements('serviceinfo').first
     files = []
-    dir.each(:entry) do |entry|
+    dir.elements('entry') do |entry|
       file = Hash[*[:name, :size, :mtime, :md5].map { |x| [x, entry.value(x.to_s)] }.flatten]
       file[:viewable] = !Package.is_binary_file?(file[:name]) && file[:size].to_i < 2**20 # max. 1 MB
       file[:editable] = file[:viewable] && !file[:name].match?(/^_service[_:]/)
-      file[:srcmd5] = dir.value(:srcmd5)
+      file[:srcmd5] = dir.value('srcmd5')
       files << file
     end
     files
