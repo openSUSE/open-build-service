@@ -447,6 +447,8 @@ OBSApi::Application.routes.draw do
 
     resource :configuration, only: [:show, :update, :schedulers]
 
+    resources :announcements, except: [:edit, :new]
+
     ### /person
     post 'person' => 'person#command'
     get 'person' => 'person#show'
