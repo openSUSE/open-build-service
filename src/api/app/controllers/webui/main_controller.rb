@@ -23,7 +23,7 @@ class Webui::MainController < Webui::WebuiController
   def index
     @status_messages = StatusMessage.alive.includes(:user).limit(4).to_a
     @workerstatus = Rails.cache.fetch('workerstatus_hash', expires_in: 10.minutes) do
-      WorkerStatus.hidden.to_hash
+      Xmlhash.parse(WorkerStatus.hidden.to_xml)
     end
     @latest_updates = StatisticsCalculations.get_latest_updated(6)
     @waiting_packages = 0

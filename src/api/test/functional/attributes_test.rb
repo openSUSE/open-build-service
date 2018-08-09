@@ -403,8 +403,8 @@ ription</description>
     # get current
     get '/source/home:tom/_attribute/OBS:Maintained'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert_equal node.has_element?(:attribute), false
+    node = Xmlhash.parse(@response.body)
+    assert node['attribute'].nil?
   end
 
   def test_create_attributes_package
@@ -503,8 +503,8 @@ ription</description>
     assert_response :success
     get '/source/kde4/kdelibs/_attribute/OBS:Maintained'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert_equal node.has_element?(:attribute), false
+    node = Xmlhash.parse(@response.body)
+    assert node['attribute'].nil?
 
     # get old revision
     get "/source/kde4/kdelibs/_attribute?meta=1&rev=#{srcmd5}"

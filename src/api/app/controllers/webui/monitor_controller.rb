@@ -127,7 +127,7 @@ class Webui::MonitorController < Webui::WebuiController
   private
 
   def fetch_workerstatus
-    @workerstatus = WorkerStatus.hidden.to_hash
+    @workerstatus = Xmlhash.parse(WorkerStatus.hidden.to_xml)
   end
 
   def maximumvalue(arr)
