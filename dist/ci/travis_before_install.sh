@@ -8,7 +8,7 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C5C219E7
 
 # Install updates from our own repository
 sudo chmod a+w /etc/apt/sources.list.d
-echo 'deb http://download.opensuse.org/repositories/OBS:/Server:/Unstable/xUbuntu_14.04 /' > /etc/apt/sources.list.d/opensuse.list
+echo 'deb http://download.opensuse.org/repositories/OBS:/Server:/2.9:/Staging/xUbuntu_14.04 /' > /etc/apt/sources.list.d/opensuse.list
 
 # We could use this to only update the package list from the OBS,
 # but apprently this is not possible anymore. So we update all package lists.
