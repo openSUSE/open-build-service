@@ -217,12 +217,6 @@ module Webui::WebuiHelper
     end
   end
 
-  def webui2_description_wrapper(description)
-    content_tag(:p, id: 'description-text', class: description.blank? ? '' : 'plain') do
-      description.blank? ? content_tag(:i, 'No description set') : simple_format(description)
-    end
-  end
-
   def is_advanced_tab?
     action_name.in?(['prjconf', 'index', 'meta', 'status', 'pulse'])
   end
