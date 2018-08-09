@@ -231,17 +231,10 @@ sub update_tuf {
   my $tbscert = BSTUF::mktbscert($gun, $pubkey_times->{'selfsig_create'}, $root_expire, $pub_bin);
 
   my $oldroot = $oldtuf->{'root'} ? JSON::XS::decode_json($oldtuf->{'root'}) : {};
-  my $cert;
   my $cmpres = BSTUF::cmprootcert($oldroot, $tbscert);
-  if ($cmpres == 2) {
-    # reuse cert of old root
-    my $root_id = $oldroot->{'signed'}->{'roles'}->{'root'}->{'keyids'}->[0];
-    my $root_key = $oldroot->{'signed'}->{'keys'}->{$root_id};
-    $cert = MIME::Base64::decode_base64($root_key->{'keyval'}->{'public'});
-  } else {
-    # create new cert
-    $cert = BSTUF::mkcert($tbscert, \@signargs);
-  }
+  my $cert;
+  $cert = BSTUF::getrootcert($oldroot) if $cmpres == 2;		# reuse cert of old root
+  $cert ||= BSTUF::mkcert($tbscert, \@signargs);
 
   if ($cmpres == 0) {
     # pubkey changed, better start from scratch
@@ -360,14 +353,18 @@ sub update_tuf {
   BSTUF::addmetaentry($timestamp, 'snapshot', $tuf->{'snapshot'});
   my $oldtimestamp = $oldtuf->{'timestamp'} ? JSON::XS::decode_json($oldtuf->{'timestamp'}) : {};
   $tuf->{'timestamp'} = BSTUF::updatedata($timestamp, $oldtimestamp, \@signargs_timestamp, $timestamp_key_id);
-  unlink("$uploaddir/targetkey.$$");
+  unlink("$uploaddir/timestampkey.$$");
 
   # add expire information
   $tuf->{'targets_expires'} = $now + $targets_expire;
   $tuf->{'timestamp_expires'} = $now + $timestamp_expire;
 
   my $fd;
-  BSUtil::lockopen($fd, '>>', "$repodir/:tuf") if -e "$repodir/:tuf";
+  if (-e "$repodir/:tuf") {
+    BSUtil::lockopen($fd, '<', "$repodir/:tuf");
+    unlink("$repodir/:tuf.old");
+    link("$repodir/:tuf", "$repodir/:tuf.old");
+  }
   BSUtil::store("$repodir/.tuf.$$", "$repodir/:tuf", $tuf);
   close($fd) if $fd;
 }
@@ -564,27 +561,33 @@ sub push_containers {
   }
 
   if (!%knowntags && !%knownmanifests && !%knownblobs) {
+    # delete empty repository
     rmdir("$repodir/:tags");
     rmdir("$repodir/:manifests");
     rmdir("$repodir/:blobs");
     unlink("$repodir/:info");
+    unlink("$repodir/:tuf.old");
     unlink("$repodir/:tuf");
     disownrepo($prp, $repo);
-  } else {
-    my ($projid, $repoid) = split('/', $prp, 2);
-    my $info = { 'project' => $projid, 'repository' => $repoid, 'tags' => \%info };
-    $info->{'gun'} = $gun if $gun;
-    my $oldinfo = BSUtil::retrieve("$repodir/:info", 1);
-    if (BSUtil::identical($oldinfo, $info)) {
-      print "local registry: no change\n";
-    } else {
-      BSUtil::store("$repodir/.info.$$", "$repodir/:info", $info);
-    }
+    return $containerdigests;
   }
 
+  # write info file
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my $info = { 'project' => $projid, 'repository' => $repoid, 'tags' => \%info };
+  $info->{'gun'} = $gun if $gun;
+  my $oldinfo = BSUtil::retrieve("$repodir/:info", 1);
+  if (BSUtil::identical($oldinfo, $info)) {
+    print "local registry: no change\n";
+  } else {
+    BSUtil::store("$repodir/.info.$$", "$repodir/:info", $info);
+  }
+
+  # write TUF file
   if ($gun) {
     update_tuf($prp, $repo, $gun, $containerdigests, $pubkey, $signargs);
   } elsif (-e "$repodir/:tuf") {
+    unlink("$repodir/:tuf.old");
     unlink("$repodir/:tuf");
   }
 
