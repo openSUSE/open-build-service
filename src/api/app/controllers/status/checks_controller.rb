@@ -1,4 +1,6 @@
 class Status::ChecksController < ApplicationController
+  before_action :require_project
+  before_action :require_repository
   before_action :require_checkable, only: [:index, :show, :destroy, :update]
   before_action :require_or_initialize_checkable, only: :create
   before_action :require_check, only: [:show, :destroy, :update]
@@ -47,14 +49,12 @@ class Status::ChecksController < ApplicationController
   private
 
   def require_or_initialize_checkable
-    project = Project.get_by_name(params[:project_name])
-    repository = project.repositories.find_by!(name: params[:repository_name])
-    @checkable = repository.status_publishes.find_or_initialize_by(build_id: params[:status_repository_publish_build_id])
+    @checkable = @repository.status_publishes.find_or_initialize_by(build_id: params[:status_repository_publish_build_id])
   end
 
   def require_checkable
     @checkable = Status::RepositoryPublish.find_by(build_id: params[:status_repository_publish_build_id]) if params[:status_repository_publish_build_id]
-    render_error(status: 404, errorcode: 'not_found', message: "Unable to find status_repository_publish with id '#{params[:status_repository_publish]}'") unless @checkable
+    render_error(status: 404, errorcode: 'not_found', message: "Unable to find status_repository_publish with id '#{params[:status_repository_publish_build_id]}'") unless @checkable
   end
 
   def require_check
@@ -66,6 +66,15 @@ class Status::ChecksController < ApplicationController
     @xml_check = xml_hash
     return if @xml_check.present?
     render_error status: 404, errorcode: 'empty_body', message: 'Request body is empty!'
+  end
+
+  def require_project
+    @project = Project.get_by_name(params[:project_name])
+  end
+
+  def require_repository
+    @repository = @project.repositories.find_by(name: params[:repository_name])
+    raise UnknownRepository, "Repository does not exist #{params[:repository_name]}" unless @repository
   end
 
   def xml_hash
