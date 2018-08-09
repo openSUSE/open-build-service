@@ -4095,6 +4095,36 @@ sub registry_catalog {
   return undef;
 }
 
+sub extend_timestamp {
+  my ($repodir, $tuf, $expires) = @_;
+
+  my $data = $tuf->{'timestamp'};
+  my $timestamp = JSON::XS::decode_json($data);
+  my $keyid = $timestamp->{'signatures'}->[0]->{'keyid'};
+  $timestamp = $timestamp->{'signed'};
+  die unless $timestamp && $keyid;
+  $timestamp->{'expires'} = BSTUF::rfc3339time($expires);
+  $timestamp->{'version'} = $timestamp->{'version'} + 1;
+  mkdir_p($uploaddir);
+  unlink("$uploaddir/timestampkey.$$");
+  writestr("$uploaddir/timestampkey.$$", undef, $tuf->{'timestamp_privkey'});
+  my @signargs;
+  push @signargs, '--project', ':tmpkey' if $BSConfig::sign_project;
+  push @signargs, '-P', "$uploaddir/timestampkey.$$";
+  $timestamp = BSTUF::signdata($timestamp, \@signargs, $keyid);
+  unlink("$uploaddir/timestampkey.$$");
+  my $fd;
+  BSUtil::lockopen($fd, '<', "$repodir/:tuf");
+  $tuf = BSUtil::retrieve("$repodir/:tuf", 1);
+  if ($tuf && $tuf->{'timestamp'} && $tuf->{'timestamp'} eq $data) {
+    # ok to update
+    $tuf->{'timestamp'} = $timestamp;
+    BSUtil::store("$repodir/.tuf.$$", "$repodir/:tuf", $tuf);
+  }
+  close($fd);
+  return $tuf;
+}
+
 sub registry_tuf {
   my ($cgi, $gunprefix, $regrepo, $filename) = @_;
   my $repodir = "$registrydir/$regrepo";
@@ -4107,9 +4137,23 @@ sub registry_tuf {
   my $tuf = BSUtil::retrieve("$repodir/:tuf", 1);
   die("404 METADATA_NOT_FOUND\n") unless $tuf;
   if ($filename =~ /(.*)\.json$/) {
-    my $data = $tuf->{$1};
+    my $role = $1;
+    my $data = $tuf->{$role};
     die("404 METADATA_NOT_FOUND\n") unless $data;
-    die("404 METADATA_NOT_FOUND\n") if $sha256sum && Digest::SHA::sha256_hex($data) ne $sha256sum;
+    if ($sha256sum && Digest::SHA::sha256_hex($data) ne $sha256sum) {
+      # also look in :tuf.old if we want a consistent entry
+      $tuf = BSUtil::retrieve("$repodir/:tuf.old", 1) || {};
+      $data = $tuf->{$role};
+      die("404 METADATA_NOT_FOUND\n") unless $data && Digest::SHA::sha256_hex($data) eq $sha256sum;
+    }
+    if (!$sha256sum && $filename eq 'timestamp.json' && $BSConfig::sign && $tuf->{'timestamp_expires'} && $tuf->{'timestamp_privkey'}) {
+      my $now = time();
+      if ($tuf->{'timestamp_expires'} < $now + 3600) {
+        $tuf = extend_timestamp($repodir, $tuf, $now + 14 * 24 * 3600);
+        die("404 METADATA_NOT_FOUND\n") unless $tuf && $tuf->{'timestamp'};
+	$data = $tuf->{'timestamp'};
+      }
+    }
     BSRegistryServer::reply($data, 'Content-Type: application/json');
     return undef;
   }
