@@ -53,6 +53,7 @@
 docker-compose.override.yml
 docker-files/home/.bash_history
 docker-files/home/.irb_history
+docker-files/home/.pry_history
 contrib/rabbitmqadmin
 
 # All the other crap that fits nowhere specifically
