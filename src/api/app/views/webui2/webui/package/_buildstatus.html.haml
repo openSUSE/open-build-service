@@ -2,7 +2,8 @@
   .mt-3.small.custom-control-checkbox
     = check_box_tag "show_all_#{index}", true, buildresults.show_all, class: 'custom-control-input d-none'
     - label_message = buildresults.excluded_counter.zero? ? 'Hide' : "Show #{buildresults.excluded_counter}"
-    = label_tag "show_all_#{index}", "#{label_message} excluded results", class: 'custom-label'
+    = label_tag "show_all_#{index}" do
+      %u.custom-label #{label_message} excluded results
 
 - buildresults.results.each_pair do |package, results|
   %h5.text-primary.mt-3.mb-3= package
