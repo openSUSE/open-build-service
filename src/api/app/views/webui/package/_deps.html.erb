@@ -17,7 +17,7 @@
                 <%= link_to pby['name'], :action => :dependency,
                             :project => @project,
                             :package => @package,
-                            :repository => @repository, :arch => @arch,
+                            :repository => @repository.name, :arch => @arch.name,
                             :dproject => pby['project'], :drepository => pby['repository'],
                             :dname => pby['name'], :filename => @filename %>
             <% end -%>
@@ -47,7 +47,7 @@
           <td>
             <% p.elements('providedby') do |pby| %>
                 <%= link_to pby['name'], :action => :dependency, :project => @project,
-                            :package => @package, :repository => @repository, :arch => @arch,
+                            :package => @package, :repository => @repository.name, :arch => @arch.name,
                             :dproject => pby['project'], :drepository => pby['repository'],
                             :dname => pby['name'], :filename => @filename %>
             <% end -%>
