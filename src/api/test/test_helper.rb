@@ -35,7 +35,7 @@ require 'minitest/unit'
 
 require 'webmock/minitest'
 
-require_relative 'activexml_matcher'
+require_relative 'node_matcher'
 require_relative '../lib/obsapi/test_sphinx'
 
 require 'test/unit/assertions'
@@ -298,16 +298,18 @@ module ActionDispatch
       load_fixture("backend/#{path}")
     end
 
+    def check_xml_tag(data, conds)
+      NodeMatcher.new(conds).find_matching(Nokogiri::XML(data).root)
+    end
+
     def assert_xml_tag(conds)
-      node = ActiveXML::Node.new(@response.body)
-      ret = node.find_matching(NodeMatcher::Conditions.new(conds))
-      raise MiniTest::Assertion, "expected tag, but no tag found matching #{conds.inspect} in:\n#{node.dump_xml}" unless ret
+      ret = check_xml_tag(@response.body, conds)
+      raise MiniTest::Assertion, "expected tag, but no tag found matching #{conds.inspect} in:\n#{@response.body}" unless ret
     end
 
     def assert_no_xml_tag(conds)
-      node = ActiveXML::Node.new(@response.body)
-      ret = node.find_matching(NodeMatcher::Conditions.new(conds))
-      raise MiniTest::Assertion, "expected no tag, but found tag matching #{conds.inspect} in:\n#{node.dump_xml}" if ret
+      ret = check_xml_tag(@response.body, conds)
+      raise MiniTest::Assertion, "expected no tag, but found tag matching #{conds.inspect} in:\n#{@response.body}" if ret
     end
 
     # useful to fix our test cases
@@ -352,16 +354,18 @@ class ActiveSupport::TestCase
   set_fixture_class events: Event::Base
   set_fixture_class history_elements: HistoryElement::Base
 
+  def check_xml_tag(data, conds)
+    NodeMatcher.new(conds).find_matching(Nokogiri::XML(data).root)
+  end
+
   def assert_xml_tag(data, conds)
-    node = ActiveXML::Node.new(data)
-    ret = node.find_matching(NodeMatcher::Conditions.new(conds))
-    assert ret, "expected tag, but no tag found matching #{conds.inspect} in:\n#{node.dump_xml}" unless ret
+    ret = check_xml_tag(data, conds)
+    assert ret, "expected tag, but no tag found matching #{conds.inspect} in:\n#{data}" unless ret
   end
 
   def assert_no_xml_tag(data, conds)
-    node = ActiveXML::Node.new(data)
-    ret = node.find_matching(NodeMatcher::Conditions.new(conds))
-    assert !ret, "expected no tag, but found tag matching #{conds.inspect} in:\n#{node.dump_xml}" if ret
+    ret = check_xml_tag(data, conds)
+    assert !ret, "expected no tag, but found tag matching #{conds.inspect} in:\n#{data}" if ret
   end
 
   def load_fixture(path)

@@ -134,14 +134,14 @@ class BranchPackage
         # copy project local linked packages
         Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name, p[:link_target_project].name, p[:package].name, User.current.login)
         # and fix the link
-        ret = ActiveXML::Node.new(tpkg.source_file('_link'))
-        ret.delete_attribute('project') # its a local link, project name not needed
+        ret = Nokogiri::XML(tpkg.source_file('_link')).root
+        ret.remove_attribute('project') # its a local link, project name not needed
         linked_package = p[:link_target_package]
         # user enforce a rename of base package
-        linked_package = params[:target_package] if params[:target_package] && params[:package] == ret.value('package')
+        linked_package = params[:target_package] if params[:target_package] && params[:package] == ret['package']
         linked_package += '.' + p[:link_target_project].name.tr(':', '_') if @extend_names
-        ret.set_attribute('package', linked_package)
-        Backend::Api::Sources::Package.write_link(tpkg.project.name, tpkg.name, User.current.login, ret.dump_xml)
+        ret['package'] = linked_package
+        Backend::Api::Sources::Package.write_link(tpkg.project.name, tpkg.name, User.current.login, ret.to_xml)
       else
         opackage = p[:package]
         opackage = p[:package].name if p[:package].is_a? Package

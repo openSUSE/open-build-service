@@ -92,13 +92,13 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
 
     get '/source/BaseDistro'
     assert_response :success
-    packages = ActiveXML::Node.new(@response.body)
+    packages = Xmlhash.parse(@response.body)
     vrevs = {}
-    packages.each(:entry) do |p|
-      get "/source/BaseDistro/#{p.value(:name)}"
+    packages.elements('entry') do |p|
+      get "/source/BaseDistro/#{p['name']}"
       assert_response :success
-      files = ActiveXML::Node.new(@response.body)
-      vrevs[p.value(:name)] = files.value(:vrev)
+      files = Xmlhash.parse(@response.body)
+      vrevs[p['name']] = files['vrev']
     end
     assert_not_equal vrevs.count, 0
 
@@ -111,19 +111,19 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     vrevs.each_key do |k|
       get "/source/BaseDistro/#{k}"
       assert_response :success
-      files = ActiveXML::Node.new(@response.body)
+      files = Xmlhash.parse(@response.body)
       revision_parts = vrevs[k].to_s.split(/(.*\.)([^.]*)$/)
       expectedvrev = (revision_parts[0].to_i + 2).to_s # no dot inside of vrev as fallback
       expectedvrev = "#{revision_parts[1]}#{revision_parts[2].to_i + 2}" if revision_parts.count > 1
-      assert_equal expectedvrev, files.value(:vrev)
+      assert_equal expectedvrev, files['vrev']
     end
 
     # the copy must have a vrev by one higher and an extended .1
     vrevs.each_key do |k|
       get "/source/TEST:BaseDistro/#{k}"
       assert_response :success
-      files = ActiveXML::Node.new(@response.body)
-      assert_equal "#{vrevs[k].to_i + 1}.1", files.value(:vrev)
+      files = Xmlhash.parse(@response.body)
+      assert_equal "#{vrevs[k].to_i + 1}.1", files['vrev']
     end
 
     # cleanup
@@ -138,16 +138,16 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     vrevs.each_key do |k|
       get "/source/BaseDistro/#{k}"
       assert_response :success
-      files = ActiveXML::Node.new(@response.body)
-      assert_equal (vrevs[k].to_i + 4).to_s, files.value(:vrev)
+      files = Xmlhash.parse(@response.body)
+      assert_equal (vrevs[k].to_i + 4).to_s, files['vrev']
     end
 
     # the copy must have a vrev by 3 higher and an extended .1
     vrevs.each_key do |k|
       get "/source/TEST:BaseDistro/#{k}"
       assert_response :success
-      files = ActiveXML::Node.new(@response.body)
-      assert_equal "#{vrevs[k].to_i + 3}.1", files.value(:vrev)
+      files = Xmlhash.parse(@response.body)
+      assert_equal "#{vrevs[k].to_i + 3}.1", files['vrev']
     end
 
     # cleanup
