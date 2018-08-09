@@ -4,7 +4,7 @@
 <%= render :partial => 'tabs' %>
 
 <% if @revisions %>
-  <h3><%= "#{@pagetitle} (#{@lastrev})" %></h3>
+  <h3><%= "#{@pagetitle} (#{@revisions.count})" %></h3>
   <div id="revisions_view" style="margin-left: 1.2em">
     <% @revisions.each do |rev| %>
       <div id="commit_item_<%= rev %>" class="commit_item">
