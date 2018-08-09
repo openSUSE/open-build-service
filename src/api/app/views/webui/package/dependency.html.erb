@@ -11,8 +11,8 @@
 
 <div>
   <p><strong>Name:</strong> <%= @fileinfo.value :name %></p>
-  <p><strong>Project:</strong> <%= @dproject %></p>
-  <p><strong>Repository:</strong> <%= @drepository %></p>
+  <p><strong>Project:</strong> <%= @dependant_project %></p>
+  <p><strong>Repository:</strong> <%= @dependant_repository %></p>
   <p><strong>Title:</strong> <%= @fileinfo.value :summary %></p>
   <p><strong>Description:</strong><br/>
     <% description = @fileinfo.value :description %>
