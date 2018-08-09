@@ -13,7 +13,7 @@
 .box-header.header-tabs
 .card.mb-3
   .bg-light
-    %ul.nav.nav-tabs.pt-2.px-3#buildresult-box{ role: 'tablist', data: ajax_data }
+    %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible#buildresult-box{ role: 'tablist', data: ajax_data }
       %li.nav-item
         = link_to("#build#{index}", id: "build#{index}-tab", class: 'nav-link active',
           data: { toggle: 'tab' }, role: 'tab', aria: { controls: "build#{index}", selected: true }) do
@@ -25,6 +25,9 @@
             role: 'tab', aria: { controls: "rpm#{index}", selected: false }) do
             Rpmlint Results
             %i.fas.fa-sync-alt.invisible{ id: "rpm#{index}-reload", onclick: "update_rpmlint_result_#{index}()" }
+      %li.nav-item.dropdown
+        %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', 'role': 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
+        .dropdown-menu.dropdown-menu-right
   .card-boby
     .col-12
       .tab-content
