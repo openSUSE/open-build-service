@@ -12,7 +12,7 @@
           Branch package
       %li.list-inline-item
         = link_to(package_submit_request_dialog_path(project: @project, package: @package, revision: @revision), remote: true, class: 'nav-link') do
-          %i.fas.fa-share-square.text-package
+          %i.fas.fa-share-square.text-obs-yellow
           Submit package
       - if User.current.can_modify?(@package)
         %li.list-inline-item
@@ -38,7 +38,7 @@
         - if @services.present?
           %li.list-inline-item
             = link_to(package_trigger_services_path(package: @package, project: @project), method: :post, class: 'nav-link') do
-              %i.fas.fa-project-diagram.text-package
+              %i.fas.fa-project-diagram.text-obs-yellow
               Trigger services
         %li.list-inline-item
           = link_to(request_add_role_dialog_path(project: @project, package: @package), remote: true, class: 'nav-link') do
