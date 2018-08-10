@@ -164,6 +164,7 @@ sub upload_all_containers {
   $old_container_repositories ||= {};
   for my $registry (@registries) {
     my $regname = $registry->{'_name'};
+    my $registryserver = $registry->{pushserver} || $registry->{server};
 
     # collect uploads over all containers
     my %uploads;
@@ -188,14 +189,25 @@ sub upload_all_containers {
       my $uptags = $uploads{$repository};
 
       # do local publishing if requested
-      if ($registry->{'server'} eq 'local:') {
-	my $gun = $registry->{'notary_gunprefix'};
+      if ($registryserver eq 'local:') {
+	my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
+	undef $gun if $gun && $gun eq 'local:';
         if (defined($gun)) {
           $gun =~ s/^https?:\/\///;
 	  $gun .= "/$repository";
 	  undef $gun unless defined $pubkey;
 	}
         do_local_uploads($extrep, $projid, $repoid, $repository, $gun, $containers, $pubkey, $signargs, $multicontainer, $uptags);
+	my $pullserver = $registry->{'server'};
+	undef $pullserver if $pullserver && $pullserver eq 'local:';
+	if ($pullserver) {
+	  $pullserver =~ s/https?:\/\///;
+	  $pullserver =~ s/\/?$/\//;
+	  for my $tag (sort keys %$uptags) {
+	    my @p = sort(values %{$uptags->{$tag}});
+	    push @{$allrefs{$_}}, "$pullserver$repository:$tag" for @p;
+	  }
+	}
 	next;
       }
 
@@ -225,7 +237,7 @@ sub upload_all_containers {
     # delete repositories of former publish runs that are now empty
     for my $repository (@{$old_container_repositories->{$regname} || []}) {
       next if $uploads{$repository};
-      if ($registry->{'server'} eq 'local:') {
+      if ($registryserver eq 'local:') {
         do_local_uploads($extrep, $projid, $repoid, $repository, undef, $containers, $pubkey, $signargs, $multicontainer, {});
 	next;
       }
