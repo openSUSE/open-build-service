@@ -1724,9 +1724,9 @@ class Project < ApplicationRecord
   def collect_patchinfo_data(patchinfo)
     if patchinfo
       {
-        summary:  patchinfo.value('summary'),
-        category: patchinfo.value('category'),
-        stopped:  patchinfo.value('stopped')
+        summary:  patchinfo.document.at_css('summary').try(:content),
+        category: patchinfo.document.at_css('category').try(:content),
+        stopped:  patchinfo.document.at_css('stopped').try(:content)
       }
     else
       {}

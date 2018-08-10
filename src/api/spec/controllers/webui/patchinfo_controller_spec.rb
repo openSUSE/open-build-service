@@ -220,7 +220,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       before do
         post :new_patchinfo, params: { project: user.home_project } # this creates the patchinfo without summary and description
         do_proper_post_save
-        @patchinfo = Package.get_by_project_and_name(user.home_project_name, 'patchinfo', use_source: false).patchinfo.to_hash
+        @patchinfo = Package.get_by_project_and_name(user.home_project_name, 'patchinfo', use_source: false).patchinfo.hashed
       end
 
       it { expect(@patchinfo['summary']).to eq('long enough summary is ok') }

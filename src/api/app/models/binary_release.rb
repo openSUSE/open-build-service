@@ -88,7 +88,7 @@ class BinaryRelease < ApplicationRecord
           rescue ActiveXML::Transport::NotFoundError
             # patchinfo disappeared meanwhile
           end
-          hash[:binary_maintainer] = patchinfo.to_hash['packager'] if patchinfo && patchinfo.to_hash['packager']
+          hash[:binary_maintainer] = patchinfo.hashed['packager'] if patchinfo && patchinfo.hashed['packager']
         end
 
         # new entry, also for modified binaries.
