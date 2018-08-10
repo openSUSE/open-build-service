@@ -3,7 +3,7 @@ FROM openbuildservice/base
 RUN /root/bin/docker-bootstrap.sh backend
 
 # Add our configurations
-ADD docker-files/configurations.tar.bz2 /
+ADD src/backend/docker-files/configurations.tar.bz2 /
 
 # Run our command
 WORKDIR /obs
