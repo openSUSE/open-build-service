@@ -28,9 +28,7 @@ module ObsFactory
     #
     # @return [String] file name
     def project_iso(project)
-      buildresult = Buildresult.find_hashed(project: project.name, package: "CAASP-dvd5-DVD-#{arch}",
-                                            repository: 'images',
-                                            view: 'binarylist')
+      buildresult = Buildresult.find_hashed(project: project.name, package: "CAASP-dvd5-DVD-#{arch}", repository: 'images', view: 'binarylist')
       # we get multiple architectures, but only one with binaries
       buildresult.elements('result') do |r|
         r['binarylist'].elements('binary') do |b|

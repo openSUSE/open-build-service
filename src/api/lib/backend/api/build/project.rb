@@ -17,6 +17,17 @@ module Backend
         def self.wipe_binaries(project_name)
           http_post(['/build/:project', project_name], params: { cmd: :wipe })
         end
+
+        # Runs the command wipepublishedlocked for that project to cleanup published binaries
+        def self.wipe_published_locked(project_name)
+          http_post(['/build/:project', project_name], params: { cmd: :wipepublishedlocked })
+        end
+
+        # Returns the binaries of a project (used in patchinfo controller)
+        # @return [String]
+        def self.binarylist(project_name)
+          http_get(['/build/:project/_result', project_name], params: { view: 'binarylist' })
+        end
       end
     end
   end

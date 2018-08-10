@@ -22,8 +22,8 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
   end
 
   let(:fake_build_results) do
-    Buildresult.new(
-      '<resultlist state="2b71f05ecb8742e3cd7f6066a5097c72">
+    <<-HEREDOC
+      <resultlist state="2b71f05ecb8742e3cd7f6066a5097c72">
         <result project="home:macario" repository="fake_repo" arch="i586" code="unknown" state="unknown" dirty="true">
          <binarylist>
             <binary filename="fake_binary_001"/>
@@ -32,8 +32,8 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
             <binary filename="rpmlint.log"/>
           </binarylist>
         </result>
-      </resultlist>'
-    )
+      </resultlist>
+    HEREDOC
   end
 
   let(:fake_patchinfo_with_binaries) do
@@ -90,7 +90,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
 
     context 'when is successfull creating the patchinfo package' do
       before do
-        allow(Buildresult).to receive(:find).and_return(fake_build_results)
+        allow(Backend::Api::Build::Project).to receive(:binarylist).and_return(fake_build_results)
         allow_any_instance_of(Package).to receive(:patchinfo).and_return(fake_patchinfo_with_binaries)
         post :new_patchinfo, params: { project: user.home_project }
       end
