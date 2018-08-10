@@ -36,9 +36,11 @@ OBSApi::Application.routes.draw do
     project:      %r{[^\/]*},
     project_name: %r{[^\/]*},
     repository:   %r{[^\/]*},
+    repository_name:   %r{[^\/]*},
     service:      %r{\w[^\/]*},
     title:        %r{[^\/]*},
-    user:         %r{[^\/]*}
+    user:         %r{[^\/]*},
+    status_repository_publish_build_id: %r{[^\/]*}
   }
 
   constraints(WebuiMatcher) do
@@ -778,6 +780,16 @@ OBSApi::Application.routes.draw do
     get 'source/:project/:package' => :show_package, constraints: cons
     post 'source/:project/:package' => :package_command, constraints: cons
     delete 'source/:project/:package' => :delete_package, constraints: cons
+  end
+
+  resources :projects, only: [], param: :name, constraints: cons do
+    resources :repositories, only: [], param: :name, constraints: cons do
+      resources :status_repository_publishes, only: [], param: :build_id, constraints: cons do
+        scope module: 'status' do
+          resources :checks, only: [:index, :show, :destroy, :update, :create]
+        end
+      end
+    end
   end
 
   controller :comments do
