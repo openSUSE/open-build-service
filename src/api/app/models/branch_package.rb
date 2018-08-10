@@ -1,7 +1,7 @@
 class BranchPackage
-  class InvalidArgument < APIException; end
-  class InvalidFilelistError < APIException; end
-  class DoubleBranchPackageError < APIException
+  class InvalidArgument < APIError; end
+  class InvalidFilelistError < APIError; end
+  class DoubleBranchPackageError < APIError
     attr_reader :project, :package
 
     def initialize(project, package)

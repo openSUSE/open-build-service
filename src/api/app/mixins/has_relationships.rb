@@ -1,6 +1,6 @@
 # a model that has relationships - e.g. a project and a package
 module HasRelationships
-  class SaveError < APIException
+  class SaveError < APIError
   end
 
   def add_user(user, role, ignore_lock = nil)

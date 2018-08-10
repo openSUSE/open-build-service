@@ -3,10 +3,10 @@ require 'xmlrpc/client'
 class IssueTracker < ApplicationRecord
   has_many :issues, dependent: :destroy
 
-  class NotFoundError < APIException
+  class NotFoundError < APIError
     setup 'issue_tracker_not_found', 404, 'Issue Tracker not found'
   end
-  class InvalidIssueName < APIException; end
+  class InvalidIssueName < APIError; end
 
   validates :name, :regex, :url, :kind, presence: true
   validates :name, :regex, uniqueness: true

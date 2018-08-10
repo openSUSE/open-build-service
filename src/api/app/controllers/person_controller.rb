@@ -137,7 +137,7 @@ class PersonController < ApplicationController
     render_ok
   end
 
-  class NoPermissionToGroupList < APIException
+  class NoPermissionToGroupList < APIError
     setup 401, 'No user logged in, permission to grouplist denied'
   end
 
@@ -153,7 +153,7 @@ class PersonController < ApplicationController
     internal_register
   end
 
-  class ErrRegisterSave < APIException
+  class ErrRegisterSave < APIError
   end
 
   def internal_register

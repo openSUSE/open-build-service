@@ -18,7 +18,7 @@ module Webui
         @package = ::Package.get_by_project_and_name(@project.to_param, params[:package_name],
                                                      use_source: false, follow_project_links: true, follow_multibuild: true)
         @is_link = @package.is_link? || @package.is_local_link?
-      rescue APIException
+      rescue APIError
         flash[:error] = "Package \"#{params[:package_name]}\" not found in project \"#{params[:project]}\""
         redirect_to project_show_path(project: @project, nextstatus: 404)
       end

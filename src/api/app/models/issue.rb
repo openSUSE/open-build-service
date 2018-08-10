@@ -1,7 +1,7 @@
 require 'api_exception'
 
 class Issue < ApplicationRecord
-  class NotFoundError < APIException
+  class NotFoundError < APIError
     setup 'issue_not_found', 404, 'Issue not found'
   end
 

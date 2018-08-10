@@ -8,7 +8,7 @@ require 'api_exception'
 # you can easily provide your own model files without having to all lines
 # from the engine's directory
 class Role < ApplicationRecord
-  class NotFound < APIException
+  class NotFound < APIError
     setup 404
   end
 

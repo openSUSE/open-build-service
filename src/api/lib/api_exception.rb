@@ -1,5 +1,5 @@
 
-class APIException < RuntimeError
+class APIError < RuntimeError
   def self.abstract_class?
     true
   end
@@ -39,47 +39,47 @@ class APIException < RuntimeError
 end
 
 # 403 errors (how about a subclass?)
-class NoPermission < APIException
+class NoPermission < APIError
   setup 403
 end
-class CreateProjectNoPermission < APIException
+class CreateProjectNoPermission < APIError
   setup 403
 end
-class DeleteFileNoPermission < APIException
+class DeleteFileNoPermission < APIError
   setup 403
 end
-class PostRequestNoPermission < APIException
+class PostRequestNoPermission < APIError
   setup 403
 end
-class OpenReleaseRequest < APIException
+class OpenReleaseRequest < APIError
   setup 403
 end
 
 # 404 errors
-class NotFoundError < APIException
+class NotFoundError < APIError
   setup 404
 end
-class UnknownPackage < APIException
+class UnknownPackage < APIError
   setup 404
 end
-class UnknownRepository < APIException
+class UnknownRepository < APIError
   setup 404
 end
-class RepositoryMissing < APIException
+class RepositoryMissing < APIError
   setup 404
 end
 
 # 400 errors
-class MissingParameterError < APIException; end
-class RemoteProjectError < APIException; end
-class InvalidParameterError < APIException; end
-class InvalidProjectNameError < APIException; end
-class UnknownCommandError < APIException; end
-class NotMissingError < APIException; end
-class PackageAlreadyExists < APIException; end
-class ExpandError < APIException
+class MissingParameterError < APIError; end
+class RemoteProjectError < APIError; end
+class InvalidParameterError < APIError; end
+class InvalidProjectNameError < APIError; end
+class UnknownCommandError < APIError; end
+class NotMissingError < APIError; end
+class PackageAlreadyExists < APIError; end
+class ExpandError < APIError
   setup 'expand_error'
 end
-class ProjectNotLocked < APIException
+class ProjectNotLocked < APIError
   setup 'not_locked'
 end

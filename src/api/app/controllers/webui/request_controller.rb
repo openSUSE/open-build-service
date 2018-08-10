@@ -36,7 +36,7 @@ class Webui::RequestController < Webui::WebuiController
       request.addreview(opts)
     rescue BsRequestPermissionCheck::AddReviewNotPermitted
       flash[:error] = "Not permitted to add a review to '#{params[:number]}'"
-    rescue ActiveRecord::RecordInvalid, APIException => e
+    rescue ActiveRecord::RecordInvalid, APIError => e
       flash[:error] = "Unable add review to '#{params[:number]}': #{e.message}"
     end
     redirect_to controller: :request, action: 'show', number: params[:number]
@@ -71,7 +71,7 @@ class Webui::RequestController < Webui::WebuiController
         request.change_review_state(state, opts)
       rescue BsRequestPermissionCheck::ReviewChangeStateNoPermission => e
         flash[:error] = "Not permitted to change review state: #{e.message}"
-      rescue APIException => e
+      rescue APIError => e
         flash[:error] = "Unable changing review state: #{e.message}"
       end
     end
@@ -195,7 +195,7 @@ class Webui::RequestController < Webui::WebuiController
       )
       request_link = ActionController::Base.helpers.link_to("repository delete request #{request.number}", request_show_path(request.number))
       flash[:success] = "Created #{request_link}"
-    rescue APIException => e
+    rescue APIError => e
       flash[:error] = e.message
       if params[:package]
         redirect_to package_show_path(project: params[:project], package: params[:package])
@@ -219,7 +219,7 @@ class Webui::RequestController < Webui::WebuiController
       request = BsRequest.create!(
         description: params[:description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:add_role))]
       )
-    rescue APIException => e
+    rescue APIError => e
       flash[:error] = e.message
       redirect_to(controller: :package, action: :show, package: params[:package], project: params[:project]) && return if params[:package]
       redirect_to(controller: :project, action: :show, project: params[:project]) && return
@@ -238,7 +238,7 @@ class Webui::RequestController < Webui::WebuiController
       request = BsRequest.create!(
         description: params[:description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:set_bugowner))]
       )
-    rescue APIException => e
+    rescue APIError => e
       flash[:error] = e.message
       redirect_to(controller: :package, action: :show, package: params[:package], project: params[:project]) && return if params[:package]
       redirect_to(controller: :project, action: :show, project: params[:project]) && return
@@ -267,7 +267,7 @@ class Webui::RequestController < Webui::WebuiController
       flash[:error] = "No such package: #{e.message}"
       redirect_to package_show_path(project: params[:project], package: params[:package])
       return
-    rescue APIException => e
+    rescue APIError => e
       flash[:error] = "Unable to create request: #{e.message}"
       redirect_to package_show_path(project: params[:project], package: params[:package])
       return
@@ -291,7 +291,7 @@ class Webui::RequestController < Webui::WebuiController
         flash[:notice] = "Set target of request #{request.number} to incident #{params[:incident_project]}"
       rescue Project::UnknownObjectError => e
         flash[:error] = "Incident #{e.message} does not exist"
-      rescue APIException => e
+      rescue APIError => e
         flash[:error] = "Not able to set incident: #{e.message}"
       end
     end
@@ -343,7 +343,7 @@ class Webui::RequestController < Webui::WebuiController
         request.change_state(opts)
         flash[:notice] = "Request #{newstate}!"
         return true
-      rescue APIException => e
+      rescue APIError => e
         flash[:error] = "Failed to change state: #{e.message}!"
         return false
       end
@@ -366,7 +366,7 @@ class Webui::RequestController < Webui::WebuiController
     tgt_prj, tgt_pkg = params[fwd].split('_#_')
     begin
       forwarded_request = @bs_request.forward_to(project: tgt_prj, package: tgt_pkg, options: params.slice(:description))
-    rescue APIException, ActiveRecord::RecordInvalid => e
+    rescue APIError, ActiveRecord::RecordInvalid => e
       error_string = "Failed to forward BsRequest: #{@bs_request.number}, error: #{e}, params: #{params.inspect}"
       error_string << ", request: #{e.record.inspect}" if e.respond_to?(:record)
       Airbrake.notify(error_string)

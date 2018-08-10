@@ -3,19 +3,19 @@ require 'xmlhash'
 include MaintenanceHelper
 
 class BsRequest < ApplicationRecord
-  class InvalidStateError < APIException
+  class InvalidStateError < APIError
     setup 'request_not_modifiable', 404
   end
-  class InvalidReview < APIException
+  class InvalidReview < APIError
     setup 'invalid_review', 400, 'request review item is not specified via by_user, by_group or by_project'
   end
-  class InvalidDate < APIException
+  class InvalidDate < APIError
     setup 'invalid_date', 400
   end
-  class UnderEmbargo < APIException
+  class UnderEmbargo < APIError
     setup 'under_embargo', 400
   end
-  class SaveError < APIException
+  class SaveError < APIError
     setup 'request_save_error'
   end
 
@@ -318,7 +318,7 @@ class BsRequest < ApplicationRecord
     errors.add(:creator, 'No creator defined') unless creator
     user = User.not_deleted.find_by(login: creator)
     # FIXME: We should run the authorization on controller level
-    raise APIException unless User.current.can_modify_user?(user)
+    raise APIError unless User.current.can_modify_user?(user)
     errors.add(:creator, "Invalid creator specified #{creator}") unless user
     return if user.is_active?
     errors.add(:creator, "Login #{user.login} is not an active user")
@@ -979,7 +979,7 @@ class BsRequest < ApplicationRecord
         change_state(newstate: 'revoked', comment: 'Target disappeared')
       rescue PostRequestNoPermission
         change_state(newstate: 'revoked', comment: 'Permission problem')
-      rescue APIException
+      rescue APIError
         change_state(newstate: 'declined', comment: 'Unhandled error during accept')
       end
     end

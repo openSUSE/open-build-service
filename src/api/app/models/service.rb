@@ -1,7 +1,7 @@
 # Class to read and write the "_services" file on the Backend
 class Service
   include ActiveModel::Model
-  class InvalidParameter < APIException; end
+  class InvalidParameter < APIError; end
 
   attr_accessor :package
 

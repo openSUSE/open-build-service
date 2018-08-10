@@ -219,10 +219,10 @@ class Webui::RepositoriesController < Webui::WebuiController
 
   def find_repository_parent
     if params[:package]
-      # FIXME: Handle APIException different, this is just c&p from packages_controller
+      # FIXME: Handle APIError different, this is just c&p from packages_controller
       begin
         @main_object = @package = Package.get_by_project_and_name(@project.to_param, params[:package], use_source: false, follow_project_links: true)
-      rescue APIException
+      rescue APIError
         flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
         redirect_to project_show_path(project: @project, nextstatus: 404)
         return
