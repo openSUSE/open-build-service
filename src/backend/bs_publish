@@ -2407,7 +2407,6 @@ sub publish {
     my $obsname = $BSConfig::obsname || 'build.opensuse.org';
     push @repotags, "obsrepository://$obsname/$projid/$repoid";
   }
-  push @repotags, "obsbuildid:$repoinfo->{'publishid'}" if $repoinfo->{'publishid'};
 
   my $data = {
     'subdir' => $subdir,
