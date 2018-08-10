@@ -451,7 +451,7 @@ sub reply {
     unshift @hdrs, "HTTP/1.1 200 OK";
     $req->{'statuscode'} ||= 200;
   }
-  push @hdrs, "Cache-Control: no-cache";
+  push @hdrs, "Cache-Control: no-cache" unless grep {/^cache-control:/i} @hdrs;
   push @hdrs, "Connection: close";
   push @hdrs, "Content-Length: ".length($str) if defined($str);
   my $data = join("\r\n", @hdrs)."\r\n\r\n";
@@ -764,7 +764,7 @@ sub reply_receiver {
   push @hdrs, "Content-Length: $cl" if defined($cl) && !$chunked;
   push @hdrs, 'Transfer-Encoding: chunked' if $chunked;
   if ($param->{'reply_receiver_forward_hdrs'}) {
-    push @hdrs, BSHTTP::forwardheaders($req, 'status', 'content-type', 'content-length', 'transfer-encoding', 'cache-control', 'connection');
+    push @hdrs, BSHTTP::forwardheaders($req, 'status', 'content-type', 'content-length', 'transfer-encoding', 'connection');
   }
   my $reply_param = {'reply_req' => $req};
   $reply_param->{'chunked'} = 1 if $chunked;

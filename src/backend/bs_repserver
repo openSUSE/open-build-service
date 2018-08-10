@@ -4020,16 +4020,20 @@ sub registry_manifest {
   my $repodir = "$registrydir/$regrepo";
   die("404 NAME_UNKNOWN\n") unless -d $repodir;
   my $mani_json;
+  my $is_manifest;
   if ($manifest !~ /^sha256:[0-9a-f]{64}$/s) {
     $mani_json = readstr("$repodir/:tags/$manifest", 1);
   } else {
     $mani_json = readstr("$repodir/:manifests/$manifest", 1);
+    $is_manifest = 1;
   }
   # sigh, need the type
   die("404 MANIFEST_UNKNOWN\n") unless $mani_json;
   my $mani_id = "sha256:".Digest::SHA::sha256_hex($mani_json);
   my $mani = JSON::XS::decode_json($mani_json);
   my $ct = $mani->{'mediaType'} || 'application/vnd.docker.distribution.manifest.v2+json';
+  my @hdrs = ("Content-Type: $ct", "Docker-Content-Digest: $mani_id", "Etag: \"$mani_id\"");
+  push @hdrs, 'Cache-Control: max-age=2678400' if $is_manifest;
   BSRegistryServer::reply($mani_json, "Content-Type: $ct", "Docker-Content-Digest: $mani_id", "Etag: \"$mani_id\"");
   return undef;
 }
@@ -4058,7 +4062,9 @@ sub registry_blob {
     $size = $end - $start + 1;
   }
   my $param = {'filename' => $fd};
-  BSServer::reply_file($fd, "Content-Type: application/octet-stream", "Content-Length: $size", @rangehdr, "Docker-Content-Digest: $blob", "Etag: \"$blob\"", $BSRegistryServer::registry_api_hdr);
+  my @hdrs = ("Content-Type: application/octet-stream", "Content-Length: $size", @rangehdr, "Docker-Content-Digest: $blob", "Etag: \"$blob\"", $BSRegistryServer::registry_api_hdr);
+  push @hdrs, 'Cache-Control: max-age=2678400';
+  BSServer::reply_file($fd, @hdrs);
   return undef;
 }
 
@@ -4146,7 +4152,7 @@ sub registry_tuf {
       $data = $tuf->{$role};
       die("404 METADATA_NOT_FOUND\n") unless $data && Digest::SHA::sha256_hex($data) eq $sha256sum;
     }
-    if (!$sha256sum && $filename eq 'timestamp.json' && $BSConfig::sign && $tuf->{'timestamp_expires'} && $tuf->{'timestamp_privkey'}) {
+    if (!$sha256sum && $role eq 'timestamp' && $BSConfig::sign && $tuf->{'timestamp_expires'} && $tuf->{'timestamp_privkey'}) {
       my $now = time();
       if ($tuf->{'timestamp_expires'} < $now + 3600) {
         $tuf = extend_timestamp($repodir, $tuf, $now + 14 * 24 * 3600);
@@ -4154,7 +4160,8 @@ sub registry_tuf {
 	$data = $tuf->{'timestamp'};
       }
     }
-    BSRegistryServer::reply($data, 'Content-Type: application/json');
+    my @hdrs = ('Content-Type: application/json');
+    BSRegistryServer::reply($data, @hdrs);
     return undef;
   }
   if ($filename =~ /(.*)\.key$/) {

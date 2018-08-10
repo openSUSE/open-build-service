@@ -111,7 +111,7 @@ sub reply {
   } else {
     unshift @hdrs, "HTTP/1.1 200 OK";
   }
-  push @hdrs, "Cache-Control: no-cache";
+  push @hdrs, "Cache-Control: no-cache" unless grep {/^cache-control:/i} @hdrs;
   push @hdrs, "Connection: close";
   push @hdrs, "Content-Length: ".length($str) if defined $str;
   my $data = join("\r\n", @hdrs)."\r\n\r\n";
