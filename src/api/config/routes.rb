@@ -755,7 +755,7 @@ OBSApi::Application.routes.draw do
 
   controller :source do
     # package level
-    get '/source/:project/_project/:filename' => :get_file, constraints: cons
+    get '/source/:project/_project/:filename' => :get_file, constraints: cons, defaults: { format: 'xml' }
   end
 
   controller :source_project_package_meta do
@@ -771,7 +771,7 @@ OBSApi::Application.routes.draw do
     get 'source/:project/_pubkey' => :show_project_pubkey, constraints: cons
     delete 'source/:project/_pubkey' => :delete_project_pubkey, constraints: cons
 
-    get 'source/:project/:package/:filename' => :get_file, constraints: cons
+    get 'source/:project/:package/:filename' => :get_file, constraints: cons, defaults: { format: 'xml' }
     delete 'source/:project/:package/:filename' => :delete_file, constraints: cons
     put 'source/:project/:package/:filename' => :update_file, constraints: cons
 
