@@ -1,5 +1,6 @@
 require 'webmock/rspec'
 require 'rails_helper'
+
 # WARNING: If you change owner tests make sure you uncomment this line
 # and start a test backend. Some of the Owner methods
 # require real backend answers for projects/packages.
@@ -1633,6 +1634,45 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       it { is_expected.to have_http_status(:success) }
       it { is_expected.to render_template('webui/package/_rpmlint_log') }
+    end
+  end
+
+  describe 'POST #save_new' do
+    let(:package_name) { 'new-package' }
+    let(:my_user) { user }
+
+    before do
+      login(my_user)
+      post :save_new, params: { project: source_project, name: package_name,
+                                title: 'package foo',
+                                description: 'awesome package foo' }
+    end
+
+    context 'valid package name' do
+      it { expect(response).to redirect_to(package_show_path(source_project, package_name)) }
+      it { expect(flash[:notice]).to eq("Package 'new-package' was created successfully") }
+    end
+
+    context 'invalid package name' do
+      let(:package_name) { 'A' * 250 }
+
+      it { expect(response).to redirect_to(project_new_package_path(source_project)) }
+      it { expect(flash[:error]).to match("Invalid package name:\s.*") }
+    end
+
+    context 'package already exist' do
+      let(:package_name) { package.name }
+
+      it { expect(response).to redirect_to(project_new_package_path(source_project)) }
+      it { expect(flash[:error]).to start_with("Package '#{package.name}' already exists in project") }
+    end
+
+    context 'not allowed to create package in' do
+      let(:package_name) { 'foo' }
+      let(:my_user) { create(:confirmed_user, login: 'another_user') }
+
+      it { expect(response).to redirect_to(project_new_package_path(source_project)) }
+      it { expect(flash[:error]).to eq("You can't create packages in #{source_project.name}") }
     end
   end
 end
