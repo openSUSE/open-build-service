@@ -1046,12 +1046,6 @@ class Webui::ProjectController < Webui::WebuiController
     ret
   end
 
-  def filter_packages(project, filterstring)
-    result = Collection.find(:id, what: 'package',
-      predicate: "@project='#{project}' and contains(@name,'#{filterstring}')")
-    result.each.map(&:name)
-  end
-
   def users_path
     url_for(action: :users, project: @project.name)
   end

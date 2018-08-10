@@ -132,9 +132,9 @@ class Project < ApplicationRecord
       project.store
 
       # restore all package meta data objects in DB
-      backend_packages = Collection.find(:package, match: "@project='#{project_name}'")
-      backend_packages.each('package') do |package|
-        package = project.packages.new(name: package.value(:name))
+      backend_packages = Xmlhash.parse(Backend::Api::Search.packages_for_project(project_name))
+      backend_packages.elements('package') do |package|
+        package = project.packages.new(name: package['name'])
         package_meta = Xmlhash.parse(package.meta.content)
 
         Package.transaction do
@@ -1170,9 +1170,9 @@ class Project < ApplicationRecord
 
   def _update_backend_packages
     # restore all package meta data objects in DB
-    backend_pkgs = Collection.find(:package, match: "@project='#{name}'")
-    backend_pkgs.each('package') do |package|
-      pname = package.value('name')
+    backend_pkgs = Xmlhash.parse(Backend::Api::Search.packages_for_project(name))
+    backend_pkgs.elements('package') do |package|
+      pname = package['name']
       p = packages.where(name: pname).first_or_initialize
       p.update_from_xml(Xmlhash.parse(Backend::Api::Sources::Package.meta(name, pname)))
       p.save! # do not store
@@ -1251,9 +1251,9 @@ class Project < ApplicationRecord
 
   # updates packages automatically generated in the backend after submitting a product file
   def update_product_autopackages
-    backend_pkgs = Collection.find(:id, what: 'package', match: "@project='#{name}' and starts-with(@name,'_product:')")
-    b_pkg_index = backend_pkgs.each(:package).each_with_object({}) do |elem, hash|
-      hash[elem.value(:name)] = elem
+    backend_pkgs = Xmlhash.parse(Backend::Api::Search.product_ids(name))
+    b_pkg_index = backend_pkgs.elements('package').each_with_object({}) do |elem, hash|
+      hash[elem['name']] = elem
       hash
     end
     frontend_pkgs = packages.where("`packages`.name LIKE '_product:%'")
@@ -1268,7 +1268,7 @@ class Project < ApplicationRecord
       if b_pkg_index.key?(pkg) && !f_pkg_index.key?(pkg)
         # new autopackage, import in database
         p = packages.new(name: pkg)
-        p.update_from_xml(Xmlhash.parse(b_pkg_index[pkg].dump_xml))
+        p.update_from_xml(b_pkg_index[pkg])
         p.store
       elsif f_pkg_index.key?(pkg) && !b_pkg_index.key?(pkg)
         # autopackage was removed, remove from database

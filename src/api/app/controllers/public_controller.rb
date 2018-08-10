@@ -130,17 +130,17 @@ class PublicController < ApplicationController
     @pkg = Package.find_by_project_and_name(params[:project], params[:package])
 
     begin
-      binaries = Collection.find(:id, what: 'published/binary', match: "@project='#{params[:project]}' and @package='#{params[:package]}'")
-    rescue
+      binaries = Xmlhash.parse(Backend::Api::Search.published_binaries_for_package(params[:project], params[:package]))
+    rescue ActiveXML::Transport::Error
       render_error status: 400, errorcode: 'search_failure', message: "The search can't get executed."
       return
     end
 
     binary_map = {}
-    binaries.each do |bin|
-      repo_string = bin.value(:repository)
+    binaries.elements('binary') do |bin|
+      repo_string = bin['repository']
       next if bin.value(:arch) == 'src'
-      next unless bin.value(:filepath)
+      next unless bin['filepath']
       binary_map[repo_string] ||= []
       binary_map[repo_string] << bin
     end
@@ -162,15 +162,15 @@ class PublicController < ApplicationController
 
         @binary_links[dist_id][:binary] ||= []
         binary_map[repo.name].each do |b|
-          binary_type = b.value(:type)
+          binary_type = b['type']
           # filepath is historic and contains unfortunatly the old repo mapping already.
           # So we have to revert this here...
-          filepath = b.value(:filepath)
+          filepath = b['filepath']
           # having both gsub! in one line can crash with some ruby builds
           filepath.gsub!(/:\//, ':')
           filepath.gsub!(/^[^\/]*\/[^\/]*\//, '')
 
-          @binary_links[dist_id][:binary] << { type: binary_type, arch: b.value(:arch), url: repo.download_url(filepath) }
+          @binary_links[dist_id][:binary] << { type: binary_type, arch: b['arch'], url: repo.download_url(filepath) }
           if @binary_links[dist_id][:repository].blank?
             repo_filename = binary_type == 'rpm' ? "#{@pkg.project.name}.repo" : ''
             @binary_links[dist_id][:repository] ||= { url: repo.download_url(repo_filename) }
