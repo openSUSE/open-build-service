@@ -1184,7 +1184,8 @@ class SourceController < ApplicationController
 
   def set_request_data
     @request_data = Xmlhash.parse(request.raw_post)
-    raise ActiveXML::ParseError unless @request_data
+    return if @request_data
+    render_error status: 400, errorcode: 'invalid_xml', message: 'Invalid XML'
   end
 
   def render_error_for_package_or_project(err_code, err_message, xml_obj, obj)

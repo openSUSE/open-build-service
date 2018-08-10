@@ -209,10 +209,6 @@ class ApplicationController < ActionController::Base
     render_error status: 408, errorcode: 'timeout_error', message: exception.message
   end
 
-  rescue_from ActiveXML::ParseError do
-    render_error status: 400, errorcode: 'invalid_xml', message: 'Invalid XML'
-  end
-
   rescue_from APIError do |exception|
     bt = exception.backtrace.join("\n")
     logger.debug "#{exception.class.name} #{exception.message} #{bt}"
@@ -225,14 +221,10 @@ class ApplicationController < ActionController::Base
 
   rescue_from ActiveXML::Transport::Error do |exception|
     text = exception.message
-    http_status = 500
-    begin
-      xml = Nokogiri::XML(text).root
-      http_status = xml['code']
-      xml['origin'] ||= 'backend'
-      text = xml.to_xml
-    rescue ActiveXML::ParseError
-    end
+    xml = Nokogiri::XML(text).root
+    http_status = xml['code'] || 500
+    xml['origin'] ||= 'backend'
+    text = xml.to_xml
     render plain: text, status: http_status
   end
 
