@@ -1708,6 +1708,10 @@ class Project < ApplicationRecord
     @key_info ||= KeyInfo.find_by_project(self)
   end
 
+  def dashboard
+    packages.find_by(name: 'dashboard')
+  end
+
   private
 
   def discard_cache

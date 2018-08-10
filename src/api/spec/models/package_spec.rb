@@ -713,5 +713,25 @@ Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
       end
     end
   end
+
+  describe '#ignored_requests' do
+    let(:project) { create(:project, name: 'my_project') }
+
+    context "when the package has an 'ignored_requests' file" do
+      let(:package) do
+        create(:package_with_file, project: project, name: 'dashboard_1', file_name: 'ignored_requests', file_content: 'foo: bar')
+      end
+
+      it 'parses the content as YAML and returns a hash' do
+        expect(package.ignored_requests).to eq('foo' => 'bar')
+      end
+    end
+
+    context "when the package has no 'ignored_requests' file" do
+      let(:package) { create(:package, project: project, name: 'dashboard_2') }
+
+      it { expect(package.ignored_requests).to be_nil }
+    end
+  end
 end
 # rubocop:enable Metrics/BlockLength

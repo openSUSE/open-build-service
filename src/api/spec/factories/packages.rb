@@ -23,6 +23,7 @@ FactoryBot.define do
 
     factory :package_with_file do
       transient do
+        file_name 'somefile.txt'
         file_content Faker::Lorem.paragraph
       end
 
@@ -31,7 +32,9 @@ FactoryBot.define do
         # ensure the backend knows the project
         if CONFIG['global_write_through']
           Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_config", Faker::Lorem.paragraph)
-          Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/somefile.txt", evaluator.file_content)
+          Backend::Connection.put(
+            "/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/#{evaluator.file_name}", evaluator.file_content
+          )
         end
       end
     end
