@@ -166,6 +166,7 @@ Style/MethodCallWithArgsParentheses:
     - mkdir
     - must_be
     - not_to
+    - orm
     - parse
     - post
     - print

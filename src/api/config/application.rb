@@ -113,6 +113,7 @@ module OBSApi
     config.generators do |g|
       g.factory_bot(false)
       g.test_framework :rspec
+      g.orm :active_record, primary_key_type: :integer
     end
 
     unless Rails.env.test?
