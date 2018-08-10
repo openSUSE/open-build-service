@@ -12,5 +12,3 @@ map.connect :collection, 'rest:///search/:what?:match',
             project: 'rest:///search/project?:match'
 
 map.connect :buildresult, 'rest:///build/:project/_result?:view&:package&:code&:lastbuild&:arch&:repository&:multibuild&:locallink'
-
-map.connect :service, 'rest:///source/:project/:package/_service?:user'
