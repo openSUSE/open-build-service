@@ -7,6 +7,7 @@ class Webui::PackageController < Webui::WebuiController
   include Webui::LoadBuildresults
   include Webui::ManageRelationships
   include BuildLogSupport
+  include Webui2::PackageController
 
   before_action :set_project, only: [:show, :users, :linking_packages, :dependency, :binary, :binaries,
                                      :requests, :statistics, :commit, :revisions, :submit_request_dialog,
@@ -81,6 +82,8 @@ class Webui::PackageController < Webui::WebuiController
     @comment = Comment.new
     @requests = []
     @services = Backend::Api::Sources::Package.service(@project.name, @package.name)
+
+    switch_to_webui2
   end
 
   def main_object
@@ -88,6 +91,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def linking_packages
+    switch_to_webui2
     render_dialog
   end
 
@@ -249,6 +253,7 @@ class Webui::PackageController < Webui::WebuiController
 
     @description = @package.commit_message(@tprj, @tpkg)
 
+    return if switch_to_webui2
     render_dialog
   end
 
@@ -603,6 +608,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def delete_dialog
+    return if switch_to_webui2
     render_dialog
   end
 
@@ -923,11 +929,13 @@ class Webui::PackageController < Webui::WebuiController
 
   def buildresult
     check_ajax
+
     if @project.repositories.any?
       show_all = params[:show_all] == 'true'
       @index = params[:index]
       @buildresults = @package.buildresult(@project, show_all)
-      render partial: 'buildstatus'
+      switch_to_webui2
+      render partial: 'buildstatus', locals: { buildresults: @buildresults, index: @index, project: @project }
     else
       render partial: 'no_repositories'
     end
@@ -956,6 +964,7 @@ class Webui::PackageController < Webui::WebuiController
     if @repo_list.empty?
       render partial: 'no_repositories'
     else
+      return if switch_to_webui2
       render partial: 'rpmlint_result', locals: { index: params[:index] }
     end
   end
@@ -965,6 +974,7 @@ class Webui::PackageController < Webui::WebuiController
     begin
       @log = Backend::Api::BuildResults::Binaries.rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
       @log.encode!(xml: :text)
+      switch_to_webui2
       render partial: 'rpmlint_log'
     rescue ActiveXML::Transport::NotFoundError
       render plain: 'No rpmlint log'

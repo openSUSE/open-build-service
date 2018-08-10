@@ -1,0 +1,52 @@
+.modal-dialog{ role: 'document' }
+  .modal-content
+    = form_tag({ controller: 'package', action: 'submit_request' }, method: 'post') do
+      .modal-header
+        %h5.modal-title Create Submit Request
+      .modal-body
+        %p
+          Do you want to submit #{package_link package, rev: revision}?
+
+          = hidden_field_tag(:project, project)
+          = hidden_field_tag(:package, package)
+          = hidden_field_tag(:rev, revision)
+          .form-group
+            = label_tag(:sourceproject, 'From source project:')
+            = text_field_tag(:sourceproject, elide(project.name, 40), disabled: true, class: 'form-control')
+          .form-group
+            = label_tag(:targetproject, 'To target project:')
+            = text_field_tag(:targetproject, target_project, disabled: params[:readonly], required: true, class: 'form-control',
+                             data: { autocomplete_url: url_for(controller: :project, action: :autocomplete_projects),
+                                     requests_url: url_for(controller: :request, action: :list_small),
+                                     develpackage_url: url_for(controller: :package, action: :devel_project) })
+            - if params[:readonly]
+              = hidden_field_tag(:targetproject, target_project)
+
+          .form-group
+            = label_tag(:targetpackage, 'To target package:')
+            = text_field_tag(:targetpackage, target_package, disabled: params[:readonly], class: 'form-control')
+            - if params[:readonly]
+              = hidden_field_tag(:targetpackage, target_package)
+
+          .form-group
+            = label_tag(:description, 'Description:')
+            ~ text_area_tag(:description, description, size: '40x3', class: 'form-control')
+
+          .form-group.d-none#supersede-display
+            = label_tag(:supersede_requests, 'Supersede requests:')
+            %br/
+            %span#supersede-requests
+
+          .form-group.form-check#sourceupdate-display
+            = check_box_tag(:sourceupdate, 'cleanup', cleanup_source, class: 'form-check-input')
+            = label_tag(:sourceupdate, 'Remove local package if request is accepted', class: 'form-check-label')
+
+          %p.d-none#devel-project-warning
+            You are about to bypass the devel project, please submit to
+            %b#devel-project-name
+            instead.
+
+      .modal-footer
+        = render partial: 'webui2/shared/dialog_action_buttons'
+
+= javascript_tag 'setupRequestDialog();'

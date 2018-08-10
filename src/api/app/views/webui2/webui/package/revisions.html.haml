@@ -1,5 +1,5 @@
-- @pagetitle = "Revisions of #{@package}"
-- package_bread_crumb 'Revisions'
+- @page_title = "Revisions of #{@package}"
+- webui2_package_bread_crumb(name: 'Revisions')
 
 .card
   = render(partial: 'tabs', locals: { project: @project, package: @package })

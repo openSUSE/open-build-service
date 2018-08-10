@@ -1,0 +1,26 @@
+- if show_project_field
+  %p
+    %strong Change Branch Destination
+  .form-group
+    %label{ for: 'target_project' }
+      %strong Branch project name
+    = text_field_tag 'target_project', target_project, size: 80, maxlength: 200, class: 'form-control'
+.form-group
+  %label{ for: 'target_package' }
+    %strong Branch package name
+  = text_field_tag 'target_package', package.try(:name), size: 80, maxlength: 200, class: 'form-control'
+.form-group.form-check
+  = check_box_tag(:current_revision, false, class: 'form-check-input')
+  = label_tag(:current_revision, class: 'form-check-label') do
+    Stay on current revision
+    - if revision
+      (##{revision})
+- if show_project_field && Configuration.cleanup_after_days
+  .form-group.form-check
+    %input.form-check-input#disable-autocleanup{ type: 'checkbox' }
+    %label.form-check-label{ for: 'disable-autocleanup' } Disable Autocleanup
+  = hidden_field_tag(:autocleanup, true)
+  :javascript
+    $('#disable-autocleanup').click(function(){
+      $('#autocleanup').val($('#disable-autocleanup').prop('checked') ? 'false' : 'true');
+    });

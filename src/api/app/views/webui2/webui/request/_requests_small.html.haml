@@ -1,0 +1,12 @@
+- if requests.blank?
+  %p No requests.
+- else
+  %ul.list-unstyled
+    - requests.each do |req|
+      %li
+        .form-group.form-check
+          = check_box_tag('supersede_request_numbers[]', req.number, false, id: "supersede_request_numbers#{req.number}", class: 'form-check-input')
+          = link_to(req.number, controller: :request, action: :show, number: req.number)
+          by
+          = user_with_realname_and_icon(req.creator, short: true)
+          (#{fuzzy_time(req.created_at)})
