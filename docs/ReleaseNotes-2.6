@@ -1,11 +1,7 @@
+== Open Build Service 2.6
 
-#
-# Open Build Service 2.6
-#
 
-WARNING:
 WARNING: This is a development release, not for production usage!
-WARNING:
 
 
 
@@ -13,19 +9,18 @@ WARNING:
 Please read the README.SETUP file for initial installation
 instructions or use the OBS Appliance from
 
-  http://openbuildservice.org/download/
+http://openbuildservice.org/download/
 
 There is also an install medium with installs OBS on hard disc now.
 
 dist/README.UPDATERS file has informations for updaters.
 
-OBS Appliance users who have setup their LVM can just replace 
-their appliance image without data loss. The migration will 
+OBS Appliance users who have setup their LVM can just replace
+their appliance image without data loss. The migration will
 happen automatically.
 
 
-Features
-========
+=== Features
 
  * Debian live build image generation support (thanks to Jan Blunck)
 
@@ -42,20 +37,18 @@ Features
    first and by the age of the request second. 
 
  * The request history system got a big overhaul
-   - reviews have a history too now
-   - more fine granular history elements which can be displayed more flexible
+   ** reviews have a history too now
+   ** more fine granular history elements which can be displayed more flexible
 
  * EXPERIMENTAL: Entire projects can be linked now with frozen source revisions.
 
-Changes on purpose:
-===================
+=== Changes on purpose:
 
  * some delayed jobs run in seperate queues now to avoid to block other jobs
 
-Incompatible changes:
-=====================
+=== Incompatible changes:
 
- * You get also an update of sphinx searchd. The on-disk db files became 
+ * You get also an update of sphinx searchd. The on-disk db files became
    incompatible, so please remove all files in following directory to
    enforce a re-index to avoid problems:
 
@@ -63,19 +56,18 @@ Incompatible changes:
 
  * maintenance tag handling via _channel files got replaced with an option
    to re-define the updateinfo scheme template.
-     We are only aware of one instance using this feature, in case it troubles
+   We are only aware of one instance using this feature, in case it troubles
    someone else, please speak up and we will introduce some compatibility handling.
 
  * Reworked request history:
-    - We do not support to import history elements of requests anymore.
-      => do not update OBS instances older than 2.4 directly to OBS 2.6!
+    ** We do not support to import history elements of requests anymore.
+      *** do not update OBS instances older than 2.4 directly to OBS 2.6!
         (we do support updates from 2.5 only anyway)
-    - Also old clients will not show history anymore by default. Use osc 0.148
+    ** Also old clients will not show history anymore by default. Use osc 0.148
       for full new support of request histories
       
 
-Notes for systems using systemd:
-================================
+=== Notes for systems using systemd:
 
 OBS is using init scripts, not systemd style .service files. This will stay until
 we will switch from SLES 11 to SLES 12 as default production platform.
@@ -96,3 +88,6 @@ To avoid these problems you need switch directory to avoid the systemd mapper:
  # cd /etc/init.d
  # ./obssrcserver status|stop|start
 
+////
+vim: syntax=asciidoc
+////

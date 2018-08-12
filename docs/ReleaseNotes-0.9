@@ -1,19 +1,21 @@
-1. Inter Buildservice Connectivity
-----------------------------------
+== Inter Buildservice Connectivity
 
-To make the projects of another buildservice available at
-http://remote.buildservice.net available, create a project in your
+To make the projects of another buildservice available at +
+http://remote.buildservice.net available, create a project in your +
 build service containing a "remoteurl" element.
 
 Example:
 
+----
 <project name="openSUSE.org">
   <title>The openSUSE Build Service</title>
   <remoteurl>https://api.opensuse.org/public</remoteurl>
 </project>
+----
 
 This allows access to the sources and repositories of the remote
 service:
+
 - repository pathes can contain remote repository elements
 - source links can refer to remote sources
 - aggregations can refer to remote packages
@@ -28,6 +30,7 @@ You must be the build service administrator to create projects
 containing the remoteurl element.
 
 Limitations (aka bugs to be fixed):
+
 - each build service can only be referenced once in your project tree
 - remote projects cannot itself be remote on the other service
 - remote aggregates must specify which packages to take the binaries
@@ -35,5 +38,8 @@ Limitations (aka bugs to be fixed):
 - failing builds because of server unavaiability will not automatically
   be retried
 
-Hava a lot of fun!
+Have a lot of fun!
 
+////
+vim: syntax=asciidoc
+////

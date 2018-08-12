@@ -1,11 +1,6 @@
+== Open Build Service 2.8
 
-#
-# Open Build Service 2.8
-#
-
-WARNING:
 WARNING: This is a development release, not for production usage!
-WARNING:
 
 
 
@@ -13,7 +8,7 @@ WARNING:
 Please read the README.SETUP file for initial installation
 instructions or use the OBS Appliance from
 
-  http://openbuildservice.org/download/
+http://openbuildservice.org/download/
 
 There is also an install medium with installs OBS on hard disc now.
 
@@ -24,10 +19,9 @@ their appliance image without data loss. The migration will
 happen automatically.
 
 
-Features
-========
+=== Features
 
-UI:
+.UI:
  * Allow triggering services from the UI.
  * Show a hint to project maintainers, when he/she is not a package maintainer of
    the target package of a request
@@ -35,13 +29,13 @@ UI:
  * Users can download the public key and SSL certificate for a project via the project home page
  * import of kiwi build descriptions is supported (obs-service-kiwi_import)
 
-API:
+.API:
  * Allow admins to lock or delete users and their home projects via new command
  * Users can be declared as sub accounts of other users. Useful for automated scripts.
  * New API route to get public key and SSL certificate: GET /source/:project_name/_keyinfo
  * New feature toggle config file. Use config/feature.yml to enable/disable features in the OBS.
 
-Backend:
+.Backend:
  * multibuild: allow to build multiple jobs from one source package without the need
                of creating local links
  * experimental support of snap package format
@@ -49,17 +43,16 @@ Backend:
  * worker capabilities can be requested
  * usable workers can be requested with uncommited constraints
  * functionality to remove published packages (osc unpublish)
- * New obsservicedispatch service to handle source service runs in a queue
+ * New obsservicedispatch service to handle source service runs in a queue +
    and asynchron.
  * preinstall images can be used for local building
  * improved speed of diffing sources
  * Support caching of pulled git sources
 
-Shipment:
+.Shipment:
  * optional docker container to run source services is provided
 
-Wanted changes:
-===============
+=== Wanted changes:
 
  * kiwi builds: build configuration changes from the project where the kiwi
                 file is stored have always an effect now.
@@ -70,8 +63,8 @@ Wanted changes:
 
  * service wrapper script for LXC got replaced by a docker alternative
 
-Other changes
-=============
+=== Other changes
+
  * Server side pagination on user show page for improving the performance.
 
  * The way to identify spiders got changed. A separate configuration via
@@ -79,8 +72,7 @@ Other changes
 
  * Frontend stack is using ruby 2.4 and rails 5.0.1 now
 
-Notes for systems using systemd:
-================================
+=== Notes for systems using systemd:
 
 OBS is using init scripts, not systemd style .service files. This will stay until
 we will switch from SLES 11 to SLES 12 as default production platform.
@@ -100,3 +92,7 @@ To avoid these problems you need switch directory to avoid the systemd mapper:
 
  # cd /etc/init.d
  # ./obssrcserver status|stop|start
+
+////
+vim: syntax=asciidoc
+////

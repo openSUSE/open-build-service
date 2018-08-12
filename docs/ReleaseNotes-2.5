@@ -1,7 +1,4 @@
-
-#
-# Open Build Service 2.5
-#
+== Open Build Service 2.5
 
 
 Please read the README.SETUP file for initial installation
@@ -13,13 +10,12 @@ There is also an install medium with installs OBS on hard disc now.
 
 dist/README.UPDATERS file has informations for updaters.
 
-OBS Appliance users who have setup their LVM can just replace 
-their appliance image without data loss. The migration will 
+OBS Appliance users who have setup their LVM can just replace
+their appliance image without data loss. The migration will
 happen automatically.
 
 
-Features
-========
+=== Features
 
  * Support multiple binary backends in one OBS instance. This means that
    multiple separate servers can host a defined part of the binary results.
@@ -27,9 +23,9 @@ Features
  * The api can be configured to protect access to all newly created projects by default
 
  * configuration data which is used by multiple obs parts is stored in the /configuration
-   path. This is the configuration.xml file in the backend. It contains 
-    - enabled scheduler architectures
-    - OBS instance name and description
+   path. This is the configuration.xml file in the backend. It contains
+    ** enabled scheduler architectures
+    ** OBS instance name and description
 
  * kiwi image building understands "obsrepositories:/" as repository. OBS will expand
    the repositories as defined in the local project definition. This allows to move
@@ -64,8 +60,7 @@ Features
  * Manual release mechanism, to release sources and binaries without rebuild.
    Target definition in repositories configuration of projects.
 
-Changes on purpose:
-===================
+=== Changes on purpose:
 
  * webui and api have merged into a single rails process. Details are described
    in README.Update file.
@@ -83,18 +78,16 @@ Changes on purpose:
 
  * /about api route is publicly accessible now for system live checks.
 
-Incompatible changes:
-=====================
+=== Incompatible changes:
 
  * The /architectures route is not providing the attributes "recommended" and "available"
    anymore. It just provides a fixed list of all known architectures in general.
-   => Use /configuration route to configure the available architectures for your instance.
+   ** Use /configuration route to configure the available architectures for your instance.
       This is also used by the backend now.
-   => Define the used architectures for default targets directly in /distribution.
-   => Modification of architectures is not supported in this route anymore.
+   ** Define the used architectures for default targets directly in /distribution.
+   ** Modification of architectures is not supported in this route anymore.
 
-Notes for systems using systemd:
-================================
+=== Notes for systems using systemd:
 
 OBS is using init scripts, not systemd style .service files. This will stay until
 we will switch from SLES 11 to SLES 12 as default production platform.
@@ -115,3 +108,6 @@ To avoid these problems you need switch directory to avoid the systemd wrapper:
  # cd /etc/init.d
  # ./obssrcserver status|stop|start
 
+////
+vim: syntax=asciidoc
+////

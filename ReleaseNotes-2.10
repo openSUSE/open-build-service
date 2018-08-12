@@ -1,10 +1,6 @@
-#
-# Open Build Service 2.10
-#
+== Open Build Service 2.10
 
-WARNING:
 WARNING: This is a development release, not for production usage!
-WARNING:
 
 
 
@@ -23,15 +19,14 @@ their appliance image without data loss. The migration will
 happen automatically.
 
 
-Features
-========
+=== Features
 
-Generic:
+.Generic:
 
-Frontend:
+.Frontend:
  * Improved UI/UX for package live build log:
-    * Show a hint to know what is happening.
-    * Clicking on the hint can starts or stop the loading of the content.
+    ** Show a hint to know what is happening.
+    ** Clicking on the hint can starts or stop the loading of the content.
  * Do not show excluded entries in package build results by default.
  * Microsoft Azure cloud upload support
  * API routes for Amazon ec2 cloud feature
@@ -41,39 +36,36 @@ Frontend:
  * Text fields are stored as 4 byte UTF-8 which allows to use emojis. To use this
    feature, switch database.yml to utf8mb4 encoding
 
-Backend:
+.Backend:
 
-Shipment:
+.Shipment:
 
-Bugfixes:
+.Bugfixes:
 
-  * Binary view now shows correct data for multibuild packages
-  * Source diffs with mixed encoding were causing failures when processing notification
+=== Intentional changes:
+
+* Binary view now shows correct data for multibuild packages
+* Source diffs with mixed encoding were causing failures when processing notification
     mails. This is fixed now.
-  * Improved explanatory text for role changes on request review page.
+* Improved explanatory text for role changes on request review page.
+* Excluded entries in package build results are not shown by default anymore.
 
-
-Intentional changes:
-====================
-
-  * Excluded entries in package build results are not shown by default anymore.
-
-  * OBS is now using the lograge gem to generate production logs. We are now logging (in one line per request):
-    * Timestamp
-    * Request: Method + Controller + Action + Path + Params
-    * Response status
-    * Duration: Overall / View / DB
-    * Remote IP
-    * User login
+* OBS is now using the lograge gem to generate production logs. We are now logging (in one line per request):
+    ** Timestamp
+    ** Request: Method + Controller + Action + Path + Params
+    ** Response status
+    ** Duration: Overall / View / DB
+    ** Remote IP
+    ** User login
 
   You can see an example of the output here:
-    ```
+    ----
     method=POST path=/comments format=js controller=Webui::CommentsController action=create status=200 duration=1436.57 view=77.25 db=13.92 params={"utf8"=>"✓", "commentable_type"=>"Project", "commentable_id"=>"1", "comment"=>{"body"=>"hola que tal"}, "commit"=>"Add comment"} host=127.0.0.1 time=2018-05-14 15:59:03 +0000 user=Admin
-    ```
+    ----
 
     This will condense the output generated, before it was something like this:
 
-    ```
+    ----
     Started POST "/" for 127.0.0.1 at 2012-03-10 14:28:14 +0100
     Processing by HomeController#index as HTML
       Rendered text template within layouts/application (0.0ms)
@@ -82,7 +74,8 @@ Intentional changes:
       Rendered layouts/_about.html.erb (0.3ms)
       Rendered layouts/_google_analytics.html.erb (0.4ms)
     Completed 200 OK in 79ms (Views: 78.8ms | ActiveRecord: 0.0ms)
-    ```
+    ----
+    
  * In previous releases it was possible to delete attributes through
    /source/<project>/_attribute/?namespace=OBS&name=VeryImportantProject (or similiar
    for packages). You need to follow the documentation now and the proper
@@ -96,12 +89,10 @@ Intentional changes:
    '/_attribute/:attribute' keeps returning only the given attribute (as documented)
 
 
-Other changes
-=============
+=== Other changes
 
 
-Notes for systems using systemd:
-================================
+=== Notes for systems using systemd:
 
 OBS is using init scripts, not systemd style .service files. This will stay until
 we will switch from SLES 11 to SLES 12 as default production platform.
@@ -121,3 +112,7 @@ To avoid these problems you need switch directory to avoid the systemd mapper:
 
  # cd /etc/init.d
  # ./obssrcserver status|stop|start
+
+////
+vim: syntax=asciidoc
+////
