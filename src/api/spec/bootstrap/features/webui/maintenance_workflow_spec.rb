@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
+RSpec.feature 'Bootstrap_MaintenanceWorkflow', type: :feature, js: true, vcr: true do
   let(:admin_user) { create(:admin_user) }
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:maintenance_coord_user) { create(:confirmed_user, login: 'maintenance_coord') }
@@ -22,8 +22,6 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
   end
 
   scenario 'maintenance workflow' do
-    skip_if_bootstrap
-
     # Step 1: The user branches a package
     ####################################
     login(user)
@@ -33,7 +31,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
     click_link('Branch package')
     expect(page).to have_text('Source')
 
-    click_button('Ok')
+    click_button('Accept')
     expect(page).to have_text('Successfully branched package')
 
     # change the package sources so we have a difference
