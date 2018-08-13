@@ -366,12 +366,19 @@ OBSApi::Application.routes.draw do
       get 'user/edit/:user' => :edit, constraints: cons, as: 'user_edit'
 
       get 'user/show/:user' => :show, constraints: cons, as: 'user_show'
+
       # Only here to make old /home url's work
       get 'home/' => :home, as: 'home'
       get 'home/my_work' => :home
       get 'home/list_my' => :home
       get 'home/home_project' => :home_project
     end
+
+    controller 'webui/users/announcements' do
+      post 'users/announcements/:id' => :create, as: 'user_announcements'
+    end
+
+    resources :announcements, only: :show, controller: 'webui/announcements'
 
     controller 'webui/session' do
       get 'session/new' => :new

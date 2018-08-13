@@ -1,0 +1,30 @@
+// Place all the styles related to the announcements controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+#announcements {
+  .announcement {
+    background-color: #fff6ef;
+    border: 1px solid #d2702e;
+    margin-bottom: 15px;
+
+    h3 {
+      margin: 0;
+      color: #d2702e;
+    }
+
+    p {
+      margin-bottom: 10px;
+      font-size: 0.9em;
+      color: #666;
+
+      a {
+        font-size: 0.8em;
+        color: #069;
+        &:hover { color: #690; }
+      }
+    }
+  }
+}
+
+.announcement-actions { margin: 10px; }

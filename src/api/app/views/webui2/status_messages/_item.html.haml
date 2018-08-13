@@ -19,4 +19,4 @@
           = link_to(status_message_path(message), method: :delete, title: 'Remove status message') do
             %i.fa.fa-times
       .mt-2.mb-0
-        = comment_body(message.message)
+        = render_as_markdown(message.message)

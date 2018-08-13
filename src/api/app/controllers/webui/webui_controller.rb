@@ -17,6 +17,7 @@ class Webui::WebuiController < ActionController::Base
   before_action :check_user
   before_action :check_anonymous
   before_action :require_configuration
+  before_action :set_pending_announcement
   after_action :clean_cache
 
   # :notice and :alert are default, we add :success and :error
@@ -333,5 +334,10 @@ class Webui::WebuiController < ActionController::Base
       return true
     end
     @switch_to_webui2 = false
+  end
+
+  def set_pending_announcement
+    return if Announcement.last.in?(User.current.announcements)
+    @pending_announcement = Announcement.last
   end
 end

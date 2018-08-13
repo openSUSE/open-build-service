@@ -29,6 +29,9 @@
         %a{ href: 'http://en.opensuse.org/Portal:Build_service' } OBS Portal
       %li
         %a{ href: 'http://openbuildservice.org/support/' } Reporting a Bug
+      - if Announcement.last.present?
+        %li
+          %a{ href: announcement_path(Announcement.last) } Terms of Service
   .col
     %strong Contact
     %ul

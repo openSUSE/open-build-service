@@ -1,0 +1,9 @@
+- @pagetitle = "Announcement – #{@announcement.title}"
+- @layouttype = 'custom'
+
+.grid_16.alpha.box.box-shadow
+  %h2= @announcement.title
+  %p= render_as_markdown(@announcement.content)
+  - if !User.current.is_nobody? && @announcement == @pending_announcement
+    = form_tag(user_announcements_path(@announcement), remote: true, class: 'announcement-actions') do
+      = submit_tag 'Got it'
