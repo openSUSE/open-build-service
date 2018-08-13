@@ -188,7 +188,11 @@ production:
 
 test:
   <<: *default
+  source_host: backend
+  memcached_host: cache
 
 development:
   <<: *default
+  source_host: backend
+  memcached_host: cache
 
