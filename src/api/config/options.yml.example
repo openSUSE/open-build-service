@@ -2,182 +2,193 @@
 # This file contains the default configuration of the Open Build Service API.
 #
 
-#read_only_hosts: [ "build.opensuse.org", "software.opensuse.org" ]
+default: &default
+  #read_only_hosts: [ "build.opensuse.org", "software.opensuse.org" ]
 
-# Make use of mod_xforward module in apache
-#use_xforward: true
+  # Make use of mod_xforward module in apache
+  #use_xforward: true
 
-# Make use of X-Accel-Redirect for Nginx.
-# http://kovyrin.net/2010/07/24/nginx-fu-x-accel-redirect-remote
-#use_nginx_redirect: /internal_redirect
+  # Make use of X-Accel-Redirect for Nginx.
+  # http://kovyrin.net/2010/07/24/nginx-fu-x-accel-redirect-remote
+  #use_nginx_redirect: /internal_redirect
 
-# Minimum count of rating votes a project/package needs to # be taken in account
-# for global statistics:
-min_votes_for_rating: 3
+  # Minimum count of rating votes a project/package needs to # be taken in account
+  # for global statistics:
+  min_votes_for_rating: 3
 
-# Set to true to verify XML reponses comply to the schema
-response_schema_validation: false
+  # Set to true to verify XML reponses comply to the schema
+  response_schema_validation: false
 
-# backend source server
-source_host: localhost
-# NOTE: the source_port setting is ignored and hardcoded for "test" and "development" env
-source_port: 5352
-#source_protocol: https
+  # backend source server
+  source_host: localhost
+  # NOTE: the source_port setting is ignored and hardcoded for "test" and "development" env
+  source_port: 5352
+  #source_protocol: https
 
-# api access to this instance
-frontend_host: localhost
-frontend_port: 443
-frontend_protocol: https
-# if your users access the hosts through a proxy (or just a different name, use this to
-# overwrite the settings for users)
-#external_frontend_host: api.opensuse.org
-#external_frontend_port: 443
-#external_frontend_protocol: https
+  # api access to this instance
+  frontend_host: localhost
+  frontend_port: 443
+  frontend_protocol: https
+  # if your users access the hosts through a proxy (or just a different name, use this to
+  # overwrite the settings for users)
+  #external_frontend_host: api.opensuse.org
+  #external_frontend_port: 443
+  #external_frontend_protocol: https
 
-extended_backend_log: false
+  extended_backend_log: false
 
-# proxy_auth_mode can be :off, :on or :simulate
-proxy_auth_mode: :off
+  # proxy_auth_mode can be :off, :on or :simulate
+  proxy_auth_mode: :off
 
-# ATTENTION: If proxy_auth_mode'is :on, the frontend takes the user
-# name that is coming as headervalue X-username as a
-# valid user does no further authentication. So take care...
-proxy_auth_test_user: coolguy
-proxy_auth_test_email: coolguy@example.com
+  # ATTENTION: If proxy_auth_mode'is :on, the frontend takes the user
+  # name that is coming as headervalue X-username as a
+  # valid user does no further authentication. So take care...
+  proxy_auth_test_user: coolguy
+  proxy_auth_test_email: coolguy@example.com
 
-### Kerberos configuration
+  ### Kerberos configuration
 
-# can be true or false
-kerberos_mode: false
+  # can be true or false
+  kerberos_mode: false
 
-#kerberos_keytab: "/etc/krb5.keytab"
-#kerberos_service_principal: "HTTP/hostname.example.com@EXAMPLE.COM"
-#kerberos_realm: "EXAMPLE.COM"
+  #kerberos_keytab: "/etc/krb5.keytab"
+  #kerberos_service_principal: "HTTP/hostname.example.com@EXAMPLE.COM"
+  #kerberos_realm: "EXAMPLE.COM"
 
 
-#schema_location
+  #schema_location
 
-#version
+  #version
 
-# if set to false, the API will only fake writes to backend (useful in testing)
-# global_write_through: true
+  # if set to false, the API will only fake writes to backend (useful in testing)
+  # global_write_through: true
 
-# see http://colszowka.heroku.com/2011/02/22/setting-up-your-custom-hoptoad-notifier-endpoint-for-free-using-errbit-on-heroku
-#errbit_api_key: api_key_of_your_app
-#errbit_project_id:
-#errbit_host: installation.of.errbit.com
+  # see http://colszowka.heroku.com/2011/02/22/setting-up-your-custom-hoptoad-notifier-endpoint-for-free-using-errbit-on-heroku
+  #errbit_api_key: api_key_of_your_app
+  #errbit_project_id:
+  #errbit_host: installation.of.errbit.com
 
-##################
-# LDAP options
-##################
+  ##################
+  # LDAP options
+  ##################
 
-#### WARNING: LDAP mode is not official supported by OBS!
-ldap_mode: :off
-#### WARNING: LDAP mode is not official supported by OBS!
+  #### WARNING: LDAP mode is not official supported by OBS!
+  ldap_mode: :off
+  #### WARNING: LDAP mode is not official supported by OBS!
 
-# LDAP Servers separated by ':'.
-# OVERRIDE with your company's ldap servers. Servers are picked randomly for
-# each connection to distribute load.
-ldap_servers: ldap1.mycompany.com:ldap2.mycompany.com
+  # LDAP Servers separated by ':'.
+  # OVERRIDE with your company's ldap servers. Servers are picked randomly for
+  # each connection to distribute load.
+  ldap_servers: ldap1.mycompany.com:ldap2.mycompany.com
 
-# Max number of times to attempt to contact the LDAP servers
-ldap_max_attempts: 15
+  # Max number of times to attempt to contact the LDAP servers
+  ldap_max_attempts: 15
 
-# The attribute the user memberof is stored in
-ldap_user_memberof_attr: memberof
+  # The attribute the user memberof is stored in
+  ldap_user_memberof_attr: memberof
 
-# Perform the group_user search with the member attribute of group entry or memberof attribute of user entry
-# It depends on your ldap define
-# The attribute the group member is stored in
-ldap_group_member_attr: member
+  # Perform the group_user search with the member attribute of group entry or memberof attribute of user entry
+  # It depends on your ldap define
+  # The attribute the group member is stored in
+  ldap_group_member_attr: member
 
-# If you're using ldap_authenticate=:ldap then you should ensure that
-# ldaps is used to transfer the credentials over SSL or use the StartTLS extension
-ldap_ssl: :on
+  # If you're using ldap_authenticate=:ldap then you should ensure that
+  # ldaps is used to transfer the credentials over SSL or use the StartTLS extension
+  ldap_ssl: :on
 
-# Use StartTLS extension of LDAP
-ldap_start_tls: :off
+  # Use StartTLS extension of LDAP
+  ldap_start_tls: :off
 
-# LDAP port defaults to 636 for ldaps and 389 for ldap and ldap with StartTLS
-#ldap_port:
-# Authentication with Windows 2003 AD requires
-ldap_referrals: :off
+  # LDAP port defaults to 636 for ldaps and 389 for ldap and ldap with StartTLS
+  #ldap_port:
+  # Authentication with Windows 2003 AD requires
+  ldap_referrals: :off
 
-# OVERRIDE with your company's ldap search base for the users who will use OBS
-ldap_search_base: OU=Organizational Unit,DC=Domain Component
-# Sam Account Name is the login name for LDAP
-ldap_search_attr: sAMAccountName
-# The attribute the users name is stored in
-ldap_name_attr: cn
-# The attribute the users email is stored in
-ldap_mail_attr: mail
-# Credentials to use to search ldap for the username
-ldap_search_user: ""
-ldap_search_auth: ""
+  # OVERRIDE with your company's ldap search base for the users who will use OBS
+  ldap_search_base: OU=Organizational Unit,DC=Domain Component
+  # Sam Account Name is the login name for LDAP
+  ldap_search_attr: sAMAccountName
+  # The attribute the users name is stored in
+  ldap_name_attr: cn
+  # The attribute the users email is stored in
+  ldap_mail_attr: mail
+  # Credentials to use to search ldap for the username
+  ldap_search_user: ""
+  ldap_search_auth: ""
 
-# By default any LDAP user can be used to authenticate to the OBS
-# In some deployments this may be too broad and certain criteria should
-# be met; eg group membership
-#
-# To allow only users in a specific group uncomment this line:
-#ldap_user_filter: (memberof=CN=group,OU=Groups,DC=Domain Component)
-#
-# Note this is joined to the normal selection like so:
-# (&(#{ldap_search_attr}=#{login})#{ldap_user_filter})
-# giving an ldap search of:
-#  (&(sAMAccountName=#{login})(memberof=CN=group,OU=Groups,DC=Domain Component))
-#
-# Also note that openLDAP must be configured to use the memberOf overlay
+  # By default any LDAP user can be used to authenticate to the OBS
+  # In some deployments this may be too broad and certain criteria should
+  # be met; eg group membership
+  #
+  # To allow only users in a specific group uncomment this line:
+  #ldap_user_filter: (memberof=CN=group,OU=Groups,DC=Domain Component)
+  #
+  # Note this is joined to the normal selection like so:
+  # (&(#{ldap_search_attr}=#{login})#{ldap_user_filter})
+  # giving an ldap search of:
+  #  (&(sAMAccountName=#{login})(memberof=CN=group,OU=Groups,DC=Domain Component))
+  #
+  # Also note that openLDAP must be configured to use the memberOf overlay
 
-# ldap_authenticate says how the credentials are verified:
-#   :ldap = attempt to bind to ldap as user using supplied credentials
-#   :local = compare the credentials supplied with those in
-#            LDAP using #{ldap_auth_attr} & #{ldap_auth_mech}
-#       if :local is used then ldap_auth_mech can be
-#       :md5
-#       :cleartext
-ldap_authenticate: :ldap
-ldap_auth_mech: :md5
-# This is a string
-ldap_auth_attr: userPassword
+  # ldap_authenticate says how the credentials are verified:
+  #   :ldap = attempt to bind to ldap as user using supplied credentials
+  #   :local = compare the credentials supplied with those in
+  #            LDAP using #{ldap_auth_attr} & #{ldap_auth_mech}
+  #       if :local is used then ldap_auth_mech can be
+  #       :md5
+  #       :cleartext
+  ldap_authenticate: :ldap
+  ldap_auth_mech: :md5
+  # This is a string
+  ldap_auth_attr: userPassword
 
-# Whether to search group info from ldap, it does not take effect
-# when LDAP_GROUP_SUPPOR is not set.
-# Please also set below LDAP_GROUP_* configs correctly to ensure the operation works properly
-ldap_group_support: :off
-# OVERRIDE with your company's ldap search base for groups
-ldap_group_search_base: ou=OBSGROUPS,dc=EXAMPLE,dc=COM
-# The attribute the group name is stored in
-ldap_group_title_attr: cn
-# The value of the group objectclass attribute, leave it as "" if objectclass attr doesn't exist
-ldap_group_objectclass_attr: groupOfNames
+  # Whether to search group info from ldap, it does not take effect
+  # when LDAP_GROUP_SUPPOR is not set.
+  # Please also set below LDAP_GROUP_* configs correctly to ensure the operation works properly
+  ldap_group_support: :off
+  # OVERRIDE with your company's ldap search base for groups
+  ldap_group_search_base: ou=OBSGROUPS,dc=EXAMPLE,dc=COM
+  # The attribute the group name is stored in
+  ldap_group_title_attr: cn
+  # The value of the group objectclass attribute, leave it as "" if objectclass attr doesn't exist
+  ldap_group_objectclass_attr: groupOfNames
 
-# Data to locate the database backup
-# Will be used in the script/import_database.rb script
-backup_server: foo.bar
-backup_user: tux
-backup_location: /home/tux
-backup_filename: obs_production.sql.bz2
-backup_port: 22
+  # Data to locate the database backup
+  # Will be used in the script/import_database.rb script
+  backup_server: foo.bar
+  backup_user: tux
+  backup_location: /home/tux
+  backup_filename: obs_production.sql.bz2
+  backup_port: 22
 
-# Rabbitmq based message bus
-#
-# Prefix of the message bus rooting key
-# amqp_namespace: 'opensuse.obs'
-#
-# Connection options -> http://rubybunny.info/articles/connecting.html
-# amqp_options:
-#   host: rabbit.example.com
-#   port: 5672
-#   user: guest
-#   pass: guest
-#   vhost: vhost
-#
-# Exchange options -> http://rubybunny.info/articles/exchanges.html
-# amqp_exchange_name: pubsub
-# amqp_exchange_options:
-#  type: :topic
-#  auto_delete: false
-#  arguments:
-#    persistent: true
-#    passive: true
+  # Rabbitmq based message bus
+  #
+  # Prefix of the message bus rooting key
+  # amqp_namespace: 'opensuse.obs'
+  #
+  # Connection options -> http://rubybunny.info/articles/connecting.html
+  # amqp_options:
+  #   host: rabbit.example.com
+  #   port: 5672
+  #   user: guest
+  #   pass: guest
+  #   vhost: vhost
+  #
+  # Exchange options -> http://rubybunny.info/articles/exchanges.html
+  # amqp_exchange_name: pubsub
+  # amqp_exchange_options:
+  #  type: :topic
+  #  auto_delete: false
+  #  arguments:
+  #    persistent: true
+  #    passive: true
+
+production:
+  <<: *default
+
+test:
+  <<: *default
+
+development:
+  <<: *default
+

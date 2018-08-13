@@ -17,9 +17,12 @@ namespace :dev do
     puts 'Setting up the application configuration...'
     copy_example_file('config/options.yml')
     options_yml = YAML.load_file('config/options.yml') || {}
-    options_yml['source_host'] = 'backend'
-    options_yml['memcached_host'] = 'cache'
-    options_yml['source_port'] = '5352'
+    options_yml['default']['source_host'] = 'backend'
+    options_yml['default']['memcached_host'] = 'cache'
+    options_yml['default']['source_port'] = '5352'
+    options_yml['development']['source_host'] = 'backend'
+    options_yml['development']['memcached_host'] = 'cache'
+    options_yml['development']['source_port'] = '5352'
     File.open('config/options.yml', 'w') do |f|
       f.write(YAML.dump(options_yml))
     end
