@@ -28,7 +28,7 @@ RSpec.describe Review do
   let(:user) { create(:user, login: 'King') }
   let(:group) { create(:group, title: 'Staff') }
 
-  it { should belong_to(:bs_request).touch(true) }
+  it { is_expected.to belong_to(:bs_request).touch(true) }
 
   describe 'validations' do
     it 'is not allowed to specify by_user and any other reviewable' do
