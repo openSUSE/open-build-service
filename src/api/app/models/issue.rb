@@ -105,7 +105,7 @@ class Issue < ApplicationRecord
 
       if owner_id
         # self.owner must not by used, since it is reserved by rails
-        o = User.find owner_id
+        o = User.find(owner_id)
         issue.owner do |owner|
           owner.login(o.login)
           owner.email(o.email)
@@ -119,9 +119,9 @@ class Issue < ApplicationRecord
     builder = Nokogiri::XML::Builder.new do |node|
       render_body node
     end
-    builder.to_xml indent: 2, encoding: 'UTF-8',
+    builder.to_xml(indent: 2, encoding: 'UTF-8',
                                save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                          Nokogiri::XML::Node::SaveOptions::FORMAT
+                                          Nokogiri::XML::Node::SaveOptions::FORMAT)
   end
 
   def to_axml(_opts = {})

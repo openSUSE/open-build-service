@@ -14,7 +14,7 @@ module Webui::FlashHelper
       end
     else
       body = flash.gsub(/\\n/, '')
-      sanitize body, tags: ['a', 'b', 'ul', 'li', 'br', 'u'], attributes: ['href', 'title']
+      sanitize(body, tags: ['a', 'b', 'ul', 'li', 'br', 'u'], attributes: ['href', 'title'])
     end
   end
 end

@@ -83,8 +83,8 @@ namespace :remote do
   end
 end
 
-desc 'Push the latest revision into production (delegates to remote:deploy)'
+desc('Push the latest revision into production (delegates to remote:deploy)')
 task deploy: 'remote:deploy'
 
-desc 'Rollback to the release before the current release in production (delegates to remote:rollback)'
+desc('Rollback to the release before the current release in production (delegates to remote:rollback)')
 task rollback: 'remote:rollback'

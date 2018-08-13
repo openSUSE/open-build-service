@@ -335,7 +335,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_release_targets_ng
-    User.current = User.find_by_login 'king'
+    User.current = User.find_by_login('king')
 
     project = Project.create(name: 'ABC', kind: 'maintenance')
     project.store

@@ -1,0 +1,6 @@
+<check>
+  <url>http://checks.example.com/12345</url>
+  <state>pending</state>
+  <short_description>The test failed on Example CI</short_description>
+  <name>ci/example: example test</name>
+</check>

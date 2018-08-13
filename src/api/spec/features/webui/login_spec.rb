@@ -25,7 +25,7 @@ RSpec.feature 'Login', type: :feature, js: true do
     fill_in 'Password', with: 'buildservice'
     click_button('Log In')
 
-    expect(find('#link-to-user-home').text).to eq user.login
+    expect(find('#link-to-user-home').text).to eq(user.login)
   end
 
   scenario 'login via widget' do
@@ -38,7 +38,7 @@ RSpec.feature 'Login', type: :feature, js: true do
       click_button('Log In')
     end
 
-    expect(find('#link-to-user-home').text).to eq user.login
+    expect(find('#link-to-user-home').text).to eq(user.login)
   end
 
   scenario 'login with wrong data' do
@@ -93,7 +93,7 @@ RSpec.feature 'Login', type: :feature, js: true do
       fill_in 'Password', with: 'tux_password'
       click_button('Log In')
 
-      expect(find('#link-to-user-home').text).to eq 'tux'
+      expect(find('#link-to-user-home').text).to eq('tux')
       expect(page).to have_content('Logout')
     end
   end

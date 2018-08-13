@@ -55,7 +55,7 @@ module Webui::UserHelper
     defaults = { short: false, no_icon: false }
     opts = defaults.merge(opts)
 
-    user = User.find_by_login(user) unless user.is_a? User
+    user = User.find_by_login(user) unless user.is_a?(User)
     return '' unless user
 
     Rails.cache.fetch([user, 'realname_and_icon', opts, ::Configuration.first]) do

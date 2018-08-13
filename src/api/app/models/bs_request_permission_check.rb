@@ -77,7 +77,7 @@ class BsRequestPermissionCheck
     return unless action.makeoriginolder && Package.exists_by_project_and_name(action.target_project, action.target_package)
 
     # the target project may link to another project where we need to check modification permissions
-    originpkg = Package.get_by_project_and_name action.target_project, action.target_package
+    originpkg = Package.get_by_project_and_name(action.target_project, action.target_package)
     return if User.current.can_modify?(originpkg, true)
 
     raise PostRequestNoPermission, 'Package target can not get initialized using makeoriginolder.' \
@@ -113,7 +113,7 @@ class BsRequestPermissionCheck
     @source_project.repositories.each do |repo|
       repo.release_targets.each do |releasetarget|
         next unless releasetarget.trigger == 'maintenance'
-        unless User.current.can_modify? releasetarget.target_repository.project
+        unless User.current.can_modify?(releasetarget.target_repository.project)
           raise ReleaseTargetNoPermission, "Release target project #{releasetarget.target_repository.project.name} is not writable by you"
         end
       end
@@ -180,7 +180,7 @@ class BsRequestPermissionCheck
     if action.source_project
       @source_project = Project.find_by_name(action.source_project)
       if action.source_package && @source_project
-        @source_package = Package.find_by_project_and_name action.source_project, action.source_package
+        @source_package = Package.find_by_project_and_name(action.source_project, action.source_package)
       end
     end
 

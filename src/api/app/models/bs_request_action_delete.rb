@@ -37,7 +37,7 @@ class BsRequestActionDelete < BsRequestAction
   def render_xml_attributes(node)
     attributes = xml_package_attributes('target')
     attributes[:repository] = target_repository if target_repository.present?
-    node.target attributes
+    node.target(attributes)
   end
 
   def sourcediff(opts = {})
@@ -65,7 +65,7 @@ class BsRequestActionDelete < BsRequestAction
                                                 use_source: true, follow_project_links: false)
       package.commit_opts = { comment: bs_request.description, request: bs_request }
       package.destroy
-      return Package.source_path target_project, target_package
+      return Package.source_path(target_project, target_package)
     else
       project = Project.get_by_name(target_project)
       project.commit_opts = { comment: bs_request.description, request: bs_request }

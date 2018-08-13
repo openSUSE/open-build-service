@@ -319,6 +319,48 @@ sub getpatterns {
 
 ##########################################################################
 
+sub getsigndata {
+  my ($projid) = @_;
+
+  my $signargs = [];
+  my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid", "withpubkey=1", "autoextend=1", "withalgo=1");
+  my $pubkey;
+  if ($signkey) {
+    ($signkey, $pubkey) = split("\n", $signkey, 2);
+    undef $signkey unless $signkey && length($signkey) > 10;	# not a valid signkey
+    undef $pubkey unless $pubkey && length($pubkey) > 10;	# not a valid pubkey
+    if ($signkey) {
+      my $algo;
+      $algo = $1 if $signkey && $signkey =~ s/^(\S+)://;
+      mkdir_p("$uploaddir");
+      writestr("$uploaddir/publisher.$$", undef, $signkey);
+      $signargs = [ '-P', "$uploaddir/publisher.$$" ];
+      push @$signargs, '-h', 'sha256' if $algo && $algo eq 'rsa';
+    }
+  }
+  if (!$pubkey) {
+    if ($BSConfig::sign_project && $BSConfig::sign) {
+      local *S;
+      open(S, '-|', $BSConfig::sign, '--project', $projid, '-p') || die("$BSConfig::sign: $!\n");;
+      $pubkey = '';
+      1 while sysread(S, $pubkey, 4096, length($pubkey));
+      if (!close(S)) {
+	print "sign -p failed: $?\n";
+	$pubkey = undef;
+      }
+    } elsif ($BSConfig::keyfile) {
+      if (-e $BSConfig::keyfile) {
+        $pubkey = readstr($BSConfig::keyfile);
+      } else {
+        print "WARNING: configured sign key $BSConfig::keyfile does not exist\n";
+      }
+    }
+  }
+  return ($pubkey, $signargs);
+}
+
+##########################################################################
+
 sub addsizechecksum {
   my ($filename, $d, $sum) = @_;
 
@@ -652,8 +694,8 @@ sub createrepo_virtbuilder {
 
   # Sign the index
   if ($BSConfig::sign && -e "$extrep/index") {
-    my @signargs;
     print "Signing the index for $projid/$repoid\n";
+    my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, @{$data->{'signargs'} || []};
     print "Running command: $BSConfig::sign @signargs -c $extrep/index\n";
@@ -1268,7 +1310,7 @@ sub clean_blobdir {
   return unless $blobdir;
   for my $blobid (sort(ls($blobdir))) {
     unlink("$blobdir/$blobid");
-    BSPublisher::Blobstore::blobstore_chk($blobid);
+    BSPublisher::Blobstore::blobstore_chk($blobid) if $blobid =~ /^_blob/;
   }
   rmdir($blobdir);
 }
@@ -1639,11 +1681,15 @@ sub publish {
 	} elsif ($bin =~ /\.raw(?:\.install)?(?:\.(?:gz|bz2|xz))?(?:\.sha256)?$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.containerinfo$/) {
-	  # handle the case wjere there is a containerinfo with no tar file
+	  # handle the case where there is a containerinfo with no tar file
+	  my @s = stat("$r/$bin");
+	  next unless @s;
 	  eval { $containerinfo = BSRepServer::Containerinfo::readcontainerinfo($r, $bin) };
 	  next unless $containerinfo;
 	  next unless $containerinfo->{'tar_manifest'} && $containerinfo->{'file'} =~ /\.tar$/ && ! -e "$r/$containerinfo->{'file'}";
 	  $containerinfo->{'arch'} = $arch;
+	  $containerinfo->{'_id'} = "$s[9]/$s[7]/$s[1]";
+	  $containerinfo->{'_origin'} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
 	  $p = $multicontainer ? "$arch/$containerinfo->{'file'}" : $containerinfo->{'file'};
 	  $containers{$p} = $containerinfo;
 	  if ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.containerinfo$/) {
@@ -1651,17 +1697,22 @@ sub publish {
 	  } elsif ($bin =~ /(.*)\.containerinfo$/) {
             $kiwimedium{$p} = "$arch/$1" if -e "$r/$1.packages";
 	  }
+	  $binaryorigins->{$p} = $containerinfo->{'_origin'} if $containerinfo->{'_origin'};
 	  next;
 	} elsif ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256)?$/) {
           # kiwi image case
           $p = $bin;
 	  $kiwimedium = "$arch/$2" if !$3 && -e "$r/$2.packages";
           if (-e "$r/$1.containerinfo") {
+	    my @s = stat _;
+	    next unless @s;
 	    eval { $containerinfo = BSRepServer::Containerinfo::readcontainerinfo($r, "$1.containerinfo") };
 	    warn("$@") if $@;
 	    if ($containerinfo) {
 	      $p = "$arch/$bin" if $multicontainer;
 	      $containerinfo->{'arch'} = $arch;
+	      $containerinfo->{'_id'} = "$s[9]/$s[7]/$s[1]";
+	      $containerinfo->{'_origin'} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
 	      $containerinfo->{'publishfile'} = "$extrep/$p";
 	      undef $containerinfo if $3;
 	    }
@@ -1671,11 +1722,15 @@ sub publish {
           $p = $bin;
 	  $kiwimedium = "$arch/$1" if !$2 && -e "$r/$1.packages";
           if (-e "$r/$1.containerinfo") {
+	    my @s = stat _;
+	    next unless @s;
 	    eval { $containerinfo = BSRepServer::Containerinfo::readcontainerinfo($r, "$1.containerinfo") };
 	    warn("$@") if $@;
 	    if ($containerinfo) {
 	      $p = "$arch/$bin" if $multicontainer;
 	      $containerinfo->{'arch'} = $arch;
+	      $containerinfo->{'_id'} = "$s[9]/$s[7]/$s[1]";
+	      $containerinfo->{'_origin'} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
 	      $containerinfo->{'publishfile'} = "$extrep/$p";
 	      undef $containerinfo if $2;
 	    }
@@ -1810,12 +1865,72 @@ sub publish {
     }
   }
 
-  # now update external repository
   my $changed = 0;
+  my @changed;  	# all changed files for hooks.
 
+  # decide what to do with containers
+  my %containerextras;
+  my @containerregistries;
+  @containerregistries = BSPublisher::Container::registries_for_prp($projid, $repoid) if %containers;
+  if (@containerregistries) {
+    # replace all containers with readme files pointing to the registries
+    for my $p (sort keys %containers) {
+      my $pp = $p =~ /\/(.*)$/ ? $1 : $p;
+      $containerextras{"$pp.registry.txt"} = 1;
+      my $containerinfo = $containers{$p};
+      if ($containerinfo->{'publishfile'}) {
+	# link container into the blobdir
+	if (!$blobdir) {
+	  $blobdir = "$uploaddir/publisher.$$.blobs";
+	  BSUtil::cleandir($blobdir);
+	  mkdir_p($blobdir);
+	}
+	my $tmpfile = "$blobdir/$containerinfo->{'arch'}:$pp";
+	link($bins{$p}, $tmpfile) || die("link $bins{$p} $tmpfile: $!\n");
+	$containerinfo->{'publishfile'} = $tmpfile;
+      }
+      delete $bins{$p};
+      delete $bins{"$p.sha256"};
+      delete $binaryorigins->{$p};
+      delete $binaryorigins->{"$p.sha256"};
+    }
+  } else {
+    # reconstruct missing virtual containers
+    for my $p (sort keys %containers) {
+      my $pp = $p =~ /\/(.*)$/ ? $1 : $p;
+      $containerextras{$pp} = 1 if $multicontainer && $p ne $pp;
+      my $containerinfo = $containers{$p};
+      next if $containerinfo->{'publishfile'};
+      next unless $containerinfo->{'tar_sha256sum'};
+      my $fd;
+      if (open($fd, '<', "$extrep/$p")) {
+	my @s = stat($fd);
+	# can we re-use the old container?
+	my $ctx = Digest->new("SHA-256");
+        $ctx->addfile($fd);
+	my $sha256sum = $ctx->hexdigest();
+	if ($sha256sum eq $containerinfo->{'tar_sha256sum'}) {
+	  $bins{$p} = undef;
+	  $bins_id{$p} = "$s[9]/$s[7]/$s[1]";
+	  next;
+	}
+	close($fd);
+        print "      ! $p\n";
+      } else {
+        print "      + $p\n";
+      }
+      BSPublisher::Container::reconstruct_container($containerinfo, "$extrep/$p");
+      my @s = stat("$extrep/$p");
+      $bins{$p} = undef;
+      $bins_id{$p} = "$s[9]/$s[7]/$s[1]";
+      push @changed, "$extrep/$p";
+      $changed = 1;
+    }
+  }
+
+  # now update external repository
   my @db_deleted;  	# for published db update
   my @db_changed;	# for published db update
-  my @changed;  	# all changed files for hooks.
 
   my %bins_done;
   @archs = sort(ls($extrep));
@@ -1827,6 +1942,7 @@ sub publish {
     next if $arch eq 'repodata' || $arch eq 'repocache' || $arch eq 'media.1' || $arch eq 'descr';
     next if $arch =~ /\.repo$/;
     next if $arch eq 'Packages' || $arch eq 'Packages.gz' || $arch eq 'Sources' || $arch eq 'Sources.gz' || $arch eq 'Release' || $arch eq 'Release.gz' || $arch eq 'Release.key';
+    next if $containerextras{$arch};		# keep the old readme/symlink
     my $r = "$extrep/$arch";
     if (-f $r) {
       $r = $extrep;
@@ -1961,6 +2077,12 @@ sub publish {
 
   close F;     # release repository lock
 
+  # add state for external container registries
+  my $container_state = '';
+  if (%containers) {
+    $container_state = BSPublisher::Container::calculate_container_state($projid, $repoid, \%containers, $multicontainer);
+  }
+
   my $title = $proj->{'title'} || $projid;
   $title .= " ($repoid)";
   $title =~ s/\n/ /sg;
@@ -1974,6 +2096,7 @@ sub publish {
   $state .= "\0".$updateinfos_state if $updateinfos_state;
   $state .= "\0".$appdatas_state if $appdatas_state;
   $state .= "\0".$deltainfos_state if $deltainfos_state;
+  $state .= "\0".$container_state if $container_state;
   $state = Digest::MD5::md5_hex($state) if $state ne '';
 
   # get us the old repoinfo, so we can compare the state
@@ -1995,80 +2118,40 @@ sub publish {
     $changed = 1;
   }
 
-  # upload all containers to configured registries
-  my $notary_uploads = {};
-  my $container_repositories;
-  my $deleted_container_bins;
-  if (%containers || $oldrepoinfo->{'container_repositories'}) {
-    if ($blobdir) {
-      $_->{'blobdir'} = $blobdir for values %containers;
-    }
-    eval {
-      ($container_repositories, $deleted_container_bins) = BSPublisher::Container::upload_all_containers($extrep, $projid, $repoid, \%containers, $notary_uploads, $multicontainer, $oldrepoinfo->{'container_repositories'} || {});
-    };
-    if ($@) {
-      clean_blobdir($blobdir);
-      die($@);
-    }
-    $changed = 1;		# FIXME
-  }
-
-  clean_blobdir($blobdir);
-  undef $blobdir;
-
   if (!$changed && !$dbgsplit) {
     print "    nothing changed\n";
+    clean_blobdir($blobdir);
     return;
   }
 
   mkdir_p($extrep) unless -d $extrep;
 
-  # get sign key
-  my $signargs = [];
-  my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid", "withpubkey=1", "autoextend=1", "withalgo=1");
-  my $pubkey;
-  if ($signkey) {
-    ($signkey, $pubkey) = split("\n", $signkey, 2);
-    undef $signkey unless $signkey && length($signkey) > 10;	# not a valid signkey
-    undef $pubkey unless $pubkey && length($pubkey) > 10;	# not a valid pubkey
-    if ($signkey) {
-      my $algo;
-      $algo = $1 if $signkey && $signkey =~ s/^(\S+)://;
-      mkdir_p("$uploaddir");
-      writestr("$uploaddir/publisher.$$", undef, $signkey);
-      $signargs = [ '-P', "$uploaddir/publisher.$$" ];
-      push @$signargs, '-h', 'sha256' if $algo && $algo eq 'rsa';
-    }
-  }
-  if (!$pubkey) {
-    if ($BSConfig::sign_project && $BSConfig::sign) {
-      local *S;
-      open(S, '-|', $BSConfig::sign, '--project', $projid, '-p') || die("$BSConfig::sign: $!\n");;
-      $pubkey = '';
-      1 while sysread(S, $pubkey, 4096, length($pubkey));
-      if (!close(S)) {
-	print "sign -p failed: $?\n";
-	$pubkey = undef;
-      }
-    } elsif ($BSConfig::keyfile) {
-      if (-e $BSConfig::keyfile) {
-        $pubkey = readstr($BSConfig::keyfile);
-      } else {
-        print "WARNING: configured sign key $BSConfig::keyfile does not exist\n";
-      }
-    }
-  }
-
-  # do notary uploads
-  if (%$notary_uploads) {
-    BSPublisher::Container::upload_to_notary($projid, $notary_uploads, $signargs, $pubkey);
-  }
+  # get sign data
+  my ($pubkey, $signargs) = getsigndata($projid);
 
   # get all patterns
   my $patterns = [];
   if ($proj->{'patternmd5'}) {
     $patterns = getpatterns($projid);
   }
+
+  # upload all containers to configured registries
+  my $container_repositories;
+  if (%containers || $oldrepoinfo->{'container_repositories'}) {
+    if ($blobdir) {
+      $_->{'blobdir'} = $blobdir for values %containers;
+    }
+    eval {
+      $container_repositories = BSPublisher::Container::upload_all_containers($extrep, $projid, $repoid, \%containers, $pubkey, $signargs, $multicontainer, $oldrepoinfo->{'container_repositories'} || {});
+    };
+    if ($@) {
+      clean_blobdir($blobdir);
+      unlink("$uploaddir/publisher.$$") if @$signargs;
+      die($@);
+    }
+  }
+  clean_blobdir($blobdir);
+  undef $blobdir;
 
   # collect packtrack data (if needed)
   my $packtrack;
@@ -2122,7 +2205,7 @@ sub publish {
 	  $pt->{$_} = $lnk->{$_} if defined $lnk->{$_};
 	}
 	$pt->{'binaryarch'} = $lnk->{'arch'} || 'noarch';
-	$pt->{'package'} = $binaryorigins->{$bin} if $binaryorigins->{$bin};
+	$pt->{'package'} = $containerinfo->{'_origin'} if $containerinfo->{'_origin'};
 	for (qw{arch disturl buildtime}) {
 	  $pt->{$_} = $containerinfo->{$_} if defined $containerinfo->{$_};
 	}
@@ -2190,9 +2273,6 @@ sub publish {
     }
   }
   undef $packtrackcache;
-
-  # remove deleted container files from binaryorigins
-  delete $binaryorigins->{$_} for keys %{$deleted_container_bins || {}};
 
   # create and store the new repoinfo
   my $repoinfo = {
@@ -2330,8 +2410,8 @@ sub publish {
 
   my $data = {
     'subdir' => $subdir,
-    'signargs' => $signargs,
     'pubkey' => $pubkey,
+    'signargs' => $signargs,
     'repoinfo' => $repoinfo,
     'updateinfos' => \@updateinfos,
     'deltainfos' => \%deltainfos,
@@ -2397,7 +2477,7 @@ sub publish {
   }
 
 publishprog_done:
-  unlink("$uploaddir/publisher.$$") if $signkey;
+  unlink("$uploaddir/publisher.$$") if @$signargs;
 
   # post process step: create directory listing for poor YaST
   if ($repotype{'suse'}) {

@@ -1,14 +1,20 @@
 require 'capybara'
 require 'capybara/dsl'
-require 'capybara/poltergeist'
+require 'selenium-webdriver'
 require 'socket'
 
-Capybara.register_driver :poltergeist do |app|
-  Capybara::Poltergeist::Driver.new(app, debug: false, timeout: 60)
+Selenium::WebDriver::Chrome.driver_path = '/usr/lib64/chromium/chromedriver'
+
+Capybara.register_driver :selenium_chrome_headless do |app|
+  browser_options = ::Selenium::WebDriver::Chrome::Options.new
+  browser_options.args << '--headless'
+  browser_options.args << '--no-sandbox'
+  browser_options.args << '--allow-insecure-localhost'
+  Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options)
 end
 
-Capybara.default_driver = :poltergeist
-Capybara.javascript_driver = :poltergeist
+Capybara.default_driver = :selenium_chrome_headless
+Capybara.javascript_driver = :selenium_chrome_headless
 Capybara.save_path = '/tmp/rspec_screens'
 
 # Set hostname

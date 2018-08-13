@@ -36,9 +36,11 @@ OBSApi::Application.routes.draw do
     project:      %r{[^\/]*},
     project_name: %r{[^\/]*},
     repository:   %r{[^\/]*},
+    repository_name:   %r{[^\/]*},
     service:      %r{\w[^\/]*},
     title:        %r{[^\/]*},
-    user:         %r{[^\/]*}
+    user:         %r{[^\/]*},
+    status_repository_publish_build_id: %r{[^\/]*}
   }
 
   constraints(WebuiMatcher) do
@@ -447,6 +449,8 @@ OBSApi::Application.routes.draw do
 
     resource :configuration, only: [:show, :update, :schedulers]
 
+    resources :announcements, except: [:edit, :new]
+
     ### /person
     post 'person' => 'person#command'
     get 'person' => 'person#show'
@@ -753,7 +757,7 @@ OBSApi::Application.routes.draw do
 
   controller :source do
     # package level
-    get '/source/:project/_project/:filename' => :get_file, constraints: cons
+    get '/source/:project/_project/:filename' => :get_file, constraints: cons, defaults: { format: 'xml' }
   end
 
   controller :source_project_package_meta do
@@ -769,13 +773,23 @@ OBSApi::Application.routes.draw do
     get 'source/:project/_pubkey' => :show_project_pubkey, constraints: cons
     delete 'source/:project/_pubkey' => :delete_project_pubkey, constraints: cons
 
-    get 'source/:project/:package/:filename' => :get_file, constraints: cons
+    get 'source/:project/:package/:filename' => :get_file, constraints: cons, defaults: { format: 'xml' }
     delete 'source/:project/:package/:filename' => :delete_file, constraints: cons
     put 'source/:project/:package/:filename' => :update_file, constraints: cons
 
     get 'source/:project/:package' => :show_package, constraints: cons
     post 'source/:project/:package' => :package_command, constraints: cons
     delete 'source/:project/:package' => :delete_package, constraints: cons
+  end
+
+  resources :projects, only: [], param: :name, constraints: cons do
+    resources :repositories, only: [], param: :name, constraints: cons do
+      resources :status_repository_publishes, only: [], param: :build_id, constraints: cons do
+        scope module: 'status' do
+          resources :checks, only: [:index, :show, :destroy, :update, :create]
+        end
+      end
+    end
   end
 
   controller :comments do

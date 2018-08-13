@@ -2,51 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=_nobody_
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="openSUSE:Factory:Staging:A">
-          <title>When the Green Woods Laugh</title>
-          <description>Factory staging project A</description>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '154'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="openSUSE:Factory:Staging:A">
-          <title>When the Green Woods Laugh</title>
-          <description>Factory staging project A</description>
-        </project>
-    http_version: 
-  recorded_at: Tue, 24 Jul 2018 08:06:20 GMT
-- request:
-    method: put
     uri: http://backend:5352/source/openSUSE:Factory:Staging/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging">
-          <title>The Golden Apples of the Sun</title>
+          <title>The Stars' Tennis Balls</title>
           <description/>
         </project>
     headers:
@@ -68,94 +29,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '124'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging">
-          <title>The Golden Apples of the Sun</title>
+          <title>The Stars' Tennis Balls</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Tue, 24 Jul 2018 08:06:20 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/openSUSE:Factory:Staging/dashboard/_meta?user=_nobody_
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="dashboard" project="openSUSE:Factory:Staging">
-          <title>In a Glass Darkly</title>
-          <description>Dignissimos nisi officiis voluptatem.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '175'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="dashboard" project="openSUSE:Factory:Staging">
-          <title>In a Glass Darkly</title>
-          <description>Dignissimos nisi officiis voluptatem.</description>
-        </package>
-    http_version: 
-  recorded_at: Tue, 24 Jul 2018 08:06:20 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/openSUSE:Factory:Staging/dashboard/_meta?user=_nobody_
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="dashboard" project="openSUSE:Factory:Staging">
-          <title>In a Glass Darkly</title>
-          <description>Dignissimos nisi officiis voluptatem.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '175'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="dashboard" project="openSUSE:Factory:Staging">
-          <title>In a Glass Darkly</title>
-          <description>Dignissimos nisi officiis voluptatem.</description>
-        </package>
-    http_version: 
-  recorded_at: Tue, 24 Jul 2018 08:06:20 GMT
+  recorded_at: Mon, 30 Jul 2018 19:12:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:Factory/_meta?user=_nobody_
@@ -163,7 +46,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>Surprised by Joy</title>
+          <title>A Summer Bird-Cage</title>
           <description/>
         </project>
     headers:
@@ -185,14 +68,476 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '111'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>Surprised by Joy</title>
+          <title>A Summer Bird-Cage</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Tue, 24 Jul 2018 08:06:20 GMT
+  recorded_at: Mon, 30 Jul 2018 19:12:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>Mr Standfast</title>
+          <description>Eum aliquam quia aliquid.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '155'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>Mr Standfast</title>
+          <description>Eum aliquam quia aliquid.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>Mr Standfast</title>
+          <description>Eum aliquam quia aliquid.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '155'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>Mr Standfast</title>
+          <description>Eum aliquam quia aliquid.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_8/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_8">
+          <title>An Evil Cradling</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '102'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_8">
+          <title>An Evil Cradling</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_8/package_8/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_8" project="project_8">
+          <title>Françoise Sagan</title>
+          <description>Necessitatibus voluptatem eum saepe.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0icGFja2FnZV84IiBwcm9qZWN0PSJwcm9qZWN0XzgiPgogIDx0aXRsZT5GcmFuw6dvaXNlIFNhZ2FuPC90aXRsZT4KICA8ZGVzY3JpcHRpb24+TmVjZXNzaXRhdGlidXMgdm9sdXB0YXRlbSBldW0gc2FlcGUuPC9kZXNjcmlwdGlvbj4KPC9wYWNrYWdlPgo=
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_8/package_8/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_8" project="project_8">
+          <title>Françoise Sagan</title>
+          <description>Necessitatibus voluptatem eum saepe.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0icGFja2FnZV84IiBwcm9qZWN0PSJwcm9qZWN0XzgiPgogIDx0aXRsZT5GcmFuw6dvaXNlIFNhZ2FuPC90aXRsZT4KICA8ZGVzY3JpcHRpb24+TmVjZXNzaXRhdGlidXMgdm9sdXB0YXRlbSBldW0gc2FlcGUuPC9kZXNjcmlwdGlvbj4KPC9wYWNrYWdlPgo=
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_8/_meta?user=user_8
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_8">
+          <title/>
+          <description/>
+          <person userid="user_8" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_8">
+          <title></title>
+          <description></description>
+          <person userid="user_8" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title>The Painted Veil</title>
+          <description>      requests:
+                - { id: 1 }
+        </description>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '155'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title>The Painted Veil</title>
+          <description>      requests:
+                - { id: 1 }
+        </description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:B/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title>Those Barren Leaves, Thrones, Dominations</title>
+          <description>Factory staging project B</description>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '169'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title>Those Barren Leaves, Thrones, Dominations</title>
+          <description>Factory staging project B</description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging/dashboard/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="dashboard" project="openSUSE:Factory:Staging">
+          <title>An Acceptable Time</title>
+          <description>Vero et dolore et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="dashboard" project="openSUSE:Factory:Staging">
+          <title>An Acceptable Time</title>
+          <description>Vero et dolore et.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging/dashboard/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="dashboard" project="openSUSE:Factory:Staging">
+          <title>An Acceptable Time</title>
+          <description>Vero et dolore et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="dashboard" project="openSUSE:Factory:Staging">
+          <title>An Acceptable Time</title>
+          <description>Vero et dolore et.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/openSUSE:Factory:Staging:A/_result?package=Test-DVD-x86_64&repository=images&view=binarylist
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: unknown repository 'images'
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '132'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>unknown repository 'images'</summary>
+          <details>404 unknown repository 'images'</details>
+        </status>
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/openSUSE:Factory:Staging:A/_result?code=unresolvable
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Mon, 30 Jul 2018 19:12:06 GMT
 recorded_with: VCR 4.0.0

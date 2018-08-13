@@ -15,16 +15,16 @@ module Webui::BuildresultHelper
 
     content_tag(:td, class: [theclass, 'buildstatus', 'nowrap']) do
       if code.in?(['-', 'unresolvable', 'blocked', 'excluded', 'scheduled'])
-        concat link_to(code, '#', title: link_title, id: status_id, class: code)
+        concat(link_to(code, '#', title: link_title, id: status_id, class: code))
       else
-        concat link_to(code.gsub(/\s/, '&nbsp;'),
+        concat(link_to(code.gsub(/\s/, '&nbsp;'),
                        package_live_build_log_path(project: @project.to_s, package: package_name, repository: repo, arch: arch),
-                       title: link_title, rel: 'nofollow')
+                       title: link_title, rel: 'nofollow'))
       end
 
       if enable_help && status['code']
-        concat ' '
-        concat sprite_tag('help', title: Buildresult.status_description(status['code']))
+        concat(' ')
+        concat(sprite_tag('help', title: Buildresult.status_description(status['code'])))
       end
     end
   end

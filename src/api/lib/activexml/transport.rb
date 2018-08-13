@@ -38,13 +38,13 @@ module ActiveXML
 
       def details
         parse!
-        return @xml['details'] if @xml.key? 'details'
+        return @xml['details'] if @xml.key?('details')
         return
       end
 
       def summary
         parse!
-        return @xml['summary'] if @xml.key? 'summary'
+        return @xml['summary'] if @xml.key?('summary')
         return message
       end
 
@@ -78,7 +78,7 @@ module ActiveXML
       uri = URI(target)
       replace_server_if_needed(uri)
       # logger.debug "setting up transport for model #{model}: #{uri} opts: #{opt}"
-      raise "overwriting #{model}" if @mapping.key? model
+      raise "overwriting #{model}" if @mapping.key?(model)
       @mapping[model] = { target_uri: uri, opt: opt }
     end
 
@@ -91,7 +91,7 @@ module ActiveXML
 
     def target_for(model)
       # logger.debug "retrieving target_uri for model '#{model.inspect}' #{@mapping.inspect}"
-      raise "Model #{model.inspect} is not configured" unless @mapping.key? model
+      raise "Model #{model.inspect} is not configured" unless @mapping.key?(model)
       @mapping[model][:target_uri]
     end
 
@@ -134,8 +134,8 @@ module ActiveXML
         if args.length > 1
           #:conditions triggers atm. always a post request, the conditions are
           # transmitted as post-data
-          data = args[1][:conditions] if args[1].key? :conditions
-          params = args[1].merge params
+          data = args[1][:conditions] if args[1].key?(:conditions)
+          params = args[1].merge(params)
         end
       when String
         raise ArgumentError, "find with string is no longer allowed #{args.inspect}"
@@ -201,13 +201,13 @@ module ActiveXML
 
     # delete a header field set with set_additional_header
     def delete_additional_header(key)
-      @http_header.delete key if @http_header.key? key
+      @http_header.delete key if @http_header.key?(key)
     end
 
     # TODO: get rid of this very thin wrapper
     def direct_http(url, opt = {})
       defaults = { method: 'GET' }
-      opt = defaults.merge opt
+      opt = defaults.merge(opt)
 
       logger.debug "--> direct_http url: #{url}"
 
@@ -242,11 +242,11 @@ module ActiveXML
             # any other case, stringify param and put it in url
             next if !params.key?(Regexp.last_match(1).to_sym) || params[Regexp.last_match(1).to_sym].nil?
             sub_val = params[Regexp.last_match(1).to_sym]
-            if sub_val.is_a? Array
+            if sub_val.is_a?(Array)
               sub_val.each do |val|
                 new_pairs << Regexp.last_match(1) + '=' + CGI.escape(val)
               end
-            elsif sub_val.is_a? Hash
+            elsif sub_val.is_a?(Hash)
               sub_val.each_key do |key|
                 new_pairs << CGI.escape(key) + '=' + CGI.escape(sub_val[key])
               end
@@ -276,9 +276,9 @@ module ActiveXML
 
     def http_do(method, url, opt = {})
       defaults = { timeout: 60 }
-      opt = defaults.merge opt
+      opt = defaults.merge(opt)
 
-      url = URI(url) if url.is_a? String
+      url = URI(url) if url.is_a?(String)
 
       # set default host if not set in uri
       unless url.host

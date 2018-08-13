@@ -10,11 +10,11 @@ RSpec.describe StatusHistoryRescalerJob, type: :job do
       now = Time.now.to_i - 2.days
       StatusHistory.transaction do
         1000.times do |i|
-          StatusHistory.create time: now + i, key: 'idle_x86_64', value: i
+          StatusHistory.create(time: now + i, key: 'idle_x86_64', value: i)
         end
       end
 
-      StatusHistory.create time: Time.now.to_i, key: 'busy_x86_64', value: 100
+      StatusHistory.create(time: Time.now.to_i, key: 'busy_x86_64', value: 100)
     end
 
     after do

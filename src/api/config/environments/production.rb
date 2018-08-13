@@ -56,7 +56,7 @@ OBSApi::Application.configure do
   config.i18n.fallbacks = true
 
   # compress our HTML
-  config.middleware.use Rack::Deflater
+  config.middleware.use(Rack::Deflater)
 
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = ::Logger::Formatter.new

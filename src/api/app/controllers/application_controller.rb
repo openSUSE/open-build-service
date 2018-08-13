@@ -95,7 +95,7 @@ class ApplicationController < ActionController::Base
     params.each do |key, value|
       next if value.nil?
       next if key == 'xmlhash' # perfectly fine
-      unless value.is_a? String
+      unless value.is_a?(String)
         raise InvalidParameterError, "Parameter #{key} has non String class #{value.class}"
       end
     end
@@ -278,7 +278,7 @@ class ApplicationController < ActionController::Base
   end
 
   def require_parameter!(parameter)
-    raise MissingParameterError, "Required Parameter #{parameter} missing" unless params.include? parameter.to_s
+    raise MissingParameterError, "Required Parameter #{parameter} missing" unless params.include?(parameter.to_s)
   end
 
   def required_parameters(*parameters)
@@ -369,7 +369,7 @@ class ApplicationController < ActionController::Base
   def dispatch_command(action, cmd)
     cmd_handler = "#{action}_#{cmd}"
     logger.debug "dispatch_command: trying to call method '#{cmd_handler}'"
-    __send__ cmd_handler
+    __send__(cmd_handler)
   end
 
   def build_query_from_hash(hash, key_list = nil)
@@ -407,7 +407,7 @@ class ApplicationController < ActionController::Base
     opt[:method] = request.method.to_s
     opt[:type] = 'response'
     ms = Benchmark.ms do
-      if response.body.respond_to? :call
+      if response.body.respond_to?(:call)
         sio = StringIO.new
         response.body.call(nil, sio) # send_file can return a block that takes |response, output|
         str = sio.string

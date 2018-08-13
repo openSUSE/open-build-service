@@ -3,11 +3,11 @@ class UserLdapStrategy
   @@ldap_search_con = nil
 
   def is_in_group?(user, group)
-    user_in_group_ldap? user.login, group
+    user_in_group_ldap?(user.login, group)
   end
 
   def local_role_check(role, object)
-    local_role_check_with_ldap role, object
+    local_role_check_with_ldap(role, object)
   end
 
   def local_permission_check(roles, object)
@@ -99,10 +99,10 @@ class UserLdapStrategy
     group_dn = ''
     group_member_attr = ''
     grouplist.each do |eachgroup|
-      group = eachgroup if eachgroup.is_a? String
-      group = eachgroup.title if eachgroup.is_a? Group
+      group = eachgroup if eachgroup.is_a?(String)
+      group = eachgroup.title if eachgroup.is_a?(Group)
 
-      unless group.is_a? String
+      unless group.is_a?(String)
         raise ArgumentError, "illegal parameter type to UserLdapStrategy#render_grouplist_ldap?: #{eachgroup.class.name}"
       end
 

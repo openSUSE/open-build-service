@@ -2,8 +2,8 @@ class SourceProjectController < SourceController
   # GET /source/:project
   def show
     project_name = params[:project]
-    if params.key? :deleted
-      unless Project.find_by_name project_name
+    if params.key?(:deleted)
+      unless Project.find_by_name(project_name)
         # project is deleted or not accessable
         validate_visibility_of_deleted_project(project_name)
       end
@@ -20,7 +20,7 @@ class SourceProjectController < SourceController
     @project = Project.find_by_name(project_name)
     raise Project::UnknownObjectError, project_name unless @project
     # we let the backend list the packages after we verified the project is visible
-    if params.key? :view
+    if params.key?(:view)
       if params[:view] == 'verboseproductlist'
         @products = Product.all_products(@project, params[:expand])
         render 'source/verboseproductlist'

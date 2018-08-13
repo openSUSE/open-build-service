@@ -47,18 +47,18 @@ RSpec.describe PrettyNestedErrors do
 
   before do
     ActiveRecord::Base.connection.create_table(:bicycles) do |t|
-      t.string :name
+      t.string(:name)
     end
 
     ActiveRecord::Base.connection.create_table(:wheels) do |t|
-      t.string :name
-      t.integer :bicycle_id
+      t.string(:name)
+      t.integer(:bicycle_id)
     end
 
     ActiveRecord::Base.connection.create_table(:spokes) do |t|
-      t.float :tension
-      t.integer :number
-      t.integer :wheel_id
+      t.float(:tension)
+      t.integer(:number)
+      t.integer(:wheel_id)
     end
   end
 

@@ -12,14 +12,13 @@ module Webui
         @arch = params[:arch]
         @hosts = (params[:hosts] || 40).to_i
         @scheduler = params[:scheduler] || 'needed'
-        unless ['fifo', 'lifo', 'random', 'btime', 'needed', 'neededb', 'longest_data', 'longested_triedread', 'longest'].include? @scheduler
+        unless ['fifo', 'lifo', 'random', 'btime', 'needed', 'neededb', 'longest_data', 'longested_triedread', 'longest'].include?(@scheduler)
           flash[:error] = 'Invalid scheduler type, check mkdiststats docu - aehm, source'
           redirect_to controller: '/webui/project', action: :show, project: @project
           return
         end
         bdep = Backend::Api::BuildResults::Binaries.builddepinfo(@project.name, @repository, @arch)
-        jobs = Jobhistory.find(project: @project.name, repository: @repository, arch: @arch,
-                limit: (@packages.size + @ipackages.size) * 3, code: ['succeeded', 'unchanged'])
+        jobs = Backend::Api::BuildResults::JobHistory.not_failed(@project.name, @repository, @arch, (@packages.size + @ipackages.size) * 3)
         unless bdep && jobs
           flash[:error] = "Could not collect infos about repository #{@repository}/#{@arch}"
           redirect_to controller: '/webui/project', action: :show, project: @project
@@ -56,12 +55,8 @@ module Webui
         @rebuildtime = 0
 
         indir = Dir.mktmpdir
-        f = File.open(indir + '/_builddepinfo.xml', 'w')
-        f.write(bdep)
-        f.close
-        f = File.open(indir + '/_jobhistory.xml', 'w')
-        f.write(jobs.dump_xml)
-        f.close
+        File.open(File.join(indir, '_builddepinfo.xml'), 'w') { |f| f.write(bdep) }
+        File.open(File.join(indir, '_jobhistory.xml'), 'w') { |f| f.write(jobs) }
         outdir = Dir.mktmpdir
 
         logger.debug "cd #{Rails.root.join('vendor', 'diststats')} && perl ./mkdiststats --srcdir=#{indir} --destdir=#{outdir}
@@ -91,8 +86,8 @@ module Webui
         end
         @rebuildtime = Integer(longest['rebuildtime'])
         f.close
-        FileUtils.rm_rf indir
-        FileUtils.rm_rf outdir
+        FileUtils.rm_rf(indir)
+        FileUtils.rm_rf(outdir)
         longest
       end
 

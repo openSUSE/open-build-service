@@ -15,7 +15,7 @@ def force_hash(record)
   record.each do |key, value|
     key = key.dup.force_encoding('UTF-8')
     if value
-      value = value.dup.force_encoding('UTF-8') if value.is_a? String
+      value = value.dup.force_encoding('UTF-8') if value.is_a?(String)
       ret[key] = value
     end
   end
@@ -45,7 +45,7 @@ namespace :db do
       end
       idtokey = {}
       force_hash(oldhash).each do |key, record|
-        next unless record.key? 'id'
+        next unless record.key?('id')
         key = key.dup.force_encoding('UTF-8')
         id = Integer(record['id'])
         idtokey[id] = key
@@ -55,7 +55,7 @@ namespace :db do
 
       classname = HistoryElement::Base if table_name == 'history_elements'
 
-      next if %(architectures_distributions roles_static_permissions).include? table_name
+      next if %(architectures_distributions roles_static_permissions).include?(table_name)
 
       begin
         classname ||= table_name.classify.constantize
@@ -70,14 +70,14 @@ namespace :db do
         data = ActiveRecord::Base.connection.select_all(sql % table_name)
         hash = {}
         data.each do |record|
-          record = force_hash record
+          record = force_hash(record)
           id = i.succ!
           if classname
             primary = classname.primary_key
           else
             primary = 'id'
           end
-          id = Integer(record[primary]) if record.key? primary
+          id = Integer(record[primary]) if record.key?(primary)
           if record.key?('user_id')
             user = User.find(record.delete('user_id'))
             record['user'] = user.login
@@ -149,14 +149,14 @@ namespace :db do
             key = record['name'].tr(':', '_')
             record.delete(primary)
           end
-          if ['static_permissions', 'packages'].include? table_name
+          if ['static_permissions', 'packages'].include?(table_name)
             key = classname.find(record.delete(primary)).fixtures_name
           end
           defaultkey = record['package'] if table_name == 'backend_packages'
           if ['event_subscriptions', 'ratings', 'package_kinds', 'package_issues',
               'linked_db_projects', 'relationships', 'watched_projects', 'path_elements',
               'groups_users', 'flags', 'taggings', 'bs_request_histories',
-              'bs_request_actions', 'project_log_entries'].include? table_name
+              'bs_request_actions', 'project_log_entries'].include?(table_name)
 
             record.delete(primary)
             t = record.to_a.sort
@@ -179,7 +179,7 @@ namespace :db do
           end
           # puts "#{table_name} #{record.inspect} -#{key}-"
           key ||= defaultkey
-          raise "duplicated record #{table_name}:#{key}" if hash.key? key
+          raise "duplicated record #{table_name}:#{key}" if hash.key?(key)
           hash[key] = record
         end
         local_to_yaml(hash, file)

@@ -8,7 +8,7 @@ module MaintenanceHelper
   class MultipleUpdateInfoTemplate < APIException; end
 
   def _release_product(source_package, target_project, action)
-    product_package = Package.find_by_project_and_name source_package.project.name, '_product'
+    product_package = Package.find_by_project_and_name(source_package.project.name, '_product')
     # create package container, if missing
     tpkg = create_package_container_if_missing(product_package, '_product', target_project)
     # copy sources
@@ -43,7 +43,7 @@ module MaintenanceHelper
   def release_package(source_package, target, target_package_name,
                       filter_source_repository = nil, multibuild_container = nil, action = nil,
                       setrelease = nil, manual = nil)
-    if target.is_a? Repository
+    if target.is_a?(Repository)
       target_project = target.project
     else
       # project
@@ -61,7 +61,7 @@ module MaintenanceHelper
     end
 
     # copy binaries
-    if target.is_a? Repository
+    if target.is_a?(Repository)
       u_ids = copy_binaries_to_repository(filter_source_repository, source_package, target, target_package_name, multibuild_container, setrelease)
     else
       u_ids = copy_binaries(filter_source_repository, source_package, target_package_name, target_project, multibuild_container, setrelease)
@@ -225,7 +225,7 @@ module MaintenanceHelper
     }
     cp_params[:setupdateinfoid] = update_info_id if update_info_id
     cp_params[:setrelease] = setrelease if setrelease
-    cp_params[:multibuild] = '1' unless source_package_name.include? ':'
+    cp_params[:multibuild] = '1' unless source_package_name.include?(':')
     # rubocop:disable Metrics/LineLength
     cp_path = "/build/#{CGI.escape(target_repository.project.name)}/#{URI.escape(target_repository.name)}/#{URI.escape(arch.name)}/#{URI.escape(target_package_name)}"
     # rubocop:enable Metrics/LineLength

@@ -7,10 +7,8 @@ module APIInstrumentation
     def append_info_to_payload(payload)
       super
       payload[:backend_runtime] = Backend::Logger.runtime * 1000
-      payload[:xml_runtime] = ActiveXML::Node.runtime * 1000
       Backend::Logger.reset_runtime
-      ActiveXML::Node.reset_runtime
-      runtime = { view: payload[:view_runtime], db: payload[:db_runtime], backend: payload[:backend_runtime], xml: payload[:xml_runtime] }
+      runtime = { view: payload[:view_runtime], db: payload[:db_runtime], backend: payload[:backend_runtime] }
       response.headers['X-Opensuse-Runtimes'] = ActiveSupport::JSON.encode(runtime)
     end
 
@@ -18,9 +16,7 @@ module APIInstrumentation
       def log_process_action(payload)
         messages = super
         backend_runtime = payload[:backend_runtime]
-        xml_runtime = payload[:xml_runtime]
         messages << format('Backend: %.1fms', backend_runtime.to_f) if backend_runtime
-        messages << format('XML: %.1fms', xml_runtime.to_f) if xml_runtime
         messages
       end
     end

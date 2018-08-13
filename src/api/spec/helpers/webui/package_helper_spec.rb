@@ -119,11 +119,11 @@ RSpec.describe Webui::PackageHelper, type: :helper do
     end
 
     context 'is makefile' do
-      it { expect(guess_code_class('debian.rules')).to eq 'makefile' }
+      it { expect(guess_code_class('debian.rules')).to eq('makefile') }
     end
 
     context 'is baselibs' do
-      it { expect(guess_code_class('baselibs.conf')).to eq 'baselibs' }
+      it { expect(guess_code_class('baselibs.conf')).to eq('baselibs') }
     end
 
     context 'is spec' do
@@ -202,7 +202,7 @@ RSpec.describe Webui::PackageHelper, type: :helper do
     end
 
     context 'other' do
-      it { expect(guess_code_class('other')).to eq '' }
+      it { expect(guess_code_class('other')).to eq('') }
     end
   end
 

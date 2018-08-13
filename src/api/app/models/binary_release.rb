@@ -141,7 +141,7 @@ class BinaryRelease < ApplicationRecord
   def render_xml
     builder = Nokogiri::XML::Builder.new
     builder.binary(render_attributes) do |binary|
-      binary.operation operation
+      binary.operation(operation)
 
       node = {}
       node[:package] = release_package.name if release_package
@@ -152,10 +152,10 @@ class BinaryRelease < ApplicationRecord
       binary.modify(time: modify_time) if modify_time
       binary.obsolete(time: obsolete_time) if obsolete_time
 
-      binary.supportstatus binary_supportstatus if binary_supportstatus
+      binary.supportstatus(binary_supportstatus) if binary_supportstatus
       binary.updateinfo(id: binary_updateinfo, version: binary_updateinfo_version) if binary_updateinfo
-      binary.maintainer binary_maintainer if binary_maintainer
-      binary.disturl binary_disturl if binary_disturl
+      binary.maintainer(binary_maintainer) if binary_maintainer
+      binary.disturl(binary_disturl) if binary_disturl
 
       update_for_product.each do |up|
         binary.updatefor(up.extend_id_hash(project: up.package.project.name, product: up.name))
@@ -165,15 +165,15 @@ class BinaryRelease < ApplicationRecord
         binary.product(product_medium.product.extend_id_hash(name: product_medium.product.name))
       end
     end
-    builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                              Nokogiri::XML::Node::SaveOptions::FORMAT
+    builder.to_xml(save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                              Nokogiri::XML::Node::SaveOptions::FORMAT)
   end
 
   def to_axml_id
     builder = Nokogiri::XML::Builder.new
     builder.binary(render_attributes)
-    builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                              Nokogiri::XML::Node::SaveOptions::FORMAT
+    builder.to_xml(save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                              Nokogiri::XML::Node::SaveOptions::FORMAT)
   end
 
   def to_axml(_opts = {})

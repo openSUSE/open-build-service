@@ -21,6 +21,8 @@ gem 'thinking-sphinx', '> 3.1'
 gem 'kaminari'
 # for abstract HTML
 gem 'haml'
+# streamline HAML's integration in Rails
+gem 'haml-rails'
 # to avoid tilt downgrade
 gem 'tilt', '>= 1.4.1'
 # to use markdown in the comment system
@@ -145,6 +147,8 @@ group :development, :test do
   gem 'vcr'
   # as alternative to the standard IRB shell
   gem 'pry', '>= 0.9.12'
+  # add step-by-step debugging and stack navigation capabilities to pry
+  gem 'pry-byebug'
   # for style checks
   gem 'rubocop', require: false
   # for rspec style checks

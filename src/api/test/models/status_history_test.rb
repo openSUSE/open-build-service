@@ -15,10 +15,10 @@ class StatusHistoryTest < ActiveSupport::TestCase
       yesterday = Time.now.to_i - 1.day
       StatusHistory.transaction do
         10.times do |i|
-          StatusHistory.create time: day_before_yesterday + i, key: 'squeue_low_aarch64', value: i
+          StatusHistory.create(time: day_before_yesterday + i, key: 'squeue_low_aarch64', value: i)
         end
         5.times do |i|
-          StatusHistory.create time: yesterday + i, key: 'squeue_low_aarch64', value: i
+          StatusHistory.create(time: yesterday + i, key: 'squeue_low_aarch64', value: i)
         end
       end
       assert_equal 5, StatusHistory.history_by_key_and_hours('squeue_low_aarch64', 25).count

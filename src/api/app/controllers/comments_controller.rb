@@ -11,7 +11,7 @@ class CommentsController < ApplicationController
   end
 
   def destroy
-    comment = Comment.find params[:id]
+    comment = Comment.find(params[:id])
     authorize comment, :destroy?
     comment.blank_or_destroy
     render_ok

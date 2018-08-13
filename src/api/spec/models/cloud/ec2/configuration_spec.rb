@@ -14,9 +14,9 @@ RSpec.describe Cloud::Ec2::Configuration, type: :model, vcr: true do
 
     subject { ec2_config.upload_parameters }
 
-    it { expect(subject.keys.count).to be 3 }
-    it { expect(subject['arn']).to eq ec2_config.arn }
-    it { expect(subject['user_id']).to eq ec2_config.user_id }
-    it { expect(subject['external_id']).to eq ec2_config.external_id }
+    it { expect(subject.keys.count).to be(3) }
+    it { expect(subject['arn']).to eq(ec2_config.arn) }
+    it { expect(subject['user_id']).to eq(ec2_config.user_id) }
+    it { expect(subject['external_id']).to eq(ec2_config.external_id) }
   end
 end

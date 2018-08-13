@@ -34,7 +34,7 @@ module Backend
       marker = Rails.root.join('tmp', 'scheduler.done')
       while counter < 100
         return if ::File.exist?(marker)
-        sleep 0.5
+        sleep(0.5)
         counter += 1
       end
     end

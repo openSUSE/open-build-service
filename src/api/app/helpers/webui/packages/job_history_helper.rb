@@ -6,6 +6,6 @@ module Webui::Packages::JobHistoryHelper
     params = { project: project, package: package }
     params = is_link ? params.merge(srcmd5: jobhistory.srcmd5) : params.merge(rev: jobhistory.revision)
 
-    link_to sprite_tag('req-showdiff', title: title), package_show_path(params)
+    link_to(sprite_tag('req-showdiff', title: title), package_show_path(params))
   end
 end

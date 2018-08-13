@@ -26,7 +26,7 @@ ActiveXML::Node.config do |conf|
   conf.lazy_evaluation = true
 
   conf.setup_transport do |map|
-    map.default_server :rest, "#{CONFIG['source_protocol']}://#{CONFIG['source_host']}:#{CONFIG['source_port']}"
+    map.default_server(:rest, "#{CONFIG['source_protocol']}://#{CONFIG['source_host']}:#{CONFIG['source_port']}")
 
     map.connect :xproject, 'rest:///source/:name/_meta',
                 all: 'rest:///source/:name'
@@ -44,11 +44,11 @@ end
 def store_project(p)
   STDERR.print "  #{p.name} => "
   begin
-    create_missing_users_for p
+    create_missing_users_for(p)
 
     p.save
     STDERR.puts 'success'
-    store_packages_for p
+    store_packages_for(p)
     return true
   rescue Project::SaveError => e
     if /^unable to walk on path/.match?(e.message)
@@ -63,11 +63,11 @@ end
 
 def store_packages_for(p)
   STDERR.puts "  --> storing packages for project '#{p.name}'"
-  list = Xpackage.find :all, project: p.name
+  list = Xpackage.find(:all, project: p.name)
   xpack = nil
   list.each_entry do |entry|
     STDERR.print "     #{entry.name} => "
-    xpack = Xpackage.find entry.name, project: p.name
+    xpack = Xpackage.find(entry.name, project: p.name)
     # remove devel entries
     xpack.data.each_element('devel') { |e| xpack.data.delete_element e }
     pack = Package.new(xpack.dump_xml, project: p.name)
@@ -82,7 +82,7 @@ rescue Object => e
   # remove whole project to cause missing packages to be read at next run
   STDERR.puts '### store_packages exception handling'
   Project.find_by_name(p.name.to_s).destroy
-  xmldebug xpack.dump_xml
+  xmldebug(xpack.dump_xml)
   raise e
 end
 
@@ -97,10 +97,10 @@ end
 def create_missing_users_for(meta)
   return unless CREATE_MISSING_USERS
   meta.each_person do |person|
-    u = User.find_by_login person.userid.to_s
+    u = User.find_by_login(person.userid.to_s)
     next if u
-    attribs = { login: person.userid.to_s }.merge DUMMY_USER_ATTR
-    u = User.create attribs
+    attribs = { login: person.userid.to_s }.merge(DUMMY_USER_ATTR)
+    u = User.create(attribs)
     u.save
   end
 end
@@ -121,7 +121,7 @@ STDERR.puts '--> storing projects'
 projects.each_entry do |entry|
   # if filter is set, only fetch the projects in the array
   unless filter.empty?
-    next unless filter.include? entry.name
+    next unless filter.include?(entry.name)
   end
 
   p = nil
@@ -131,7 +131,7 @@ projects.each_entry do |entry|
   end
   next if p
 
-  backend_project = Xproject.find entry.name
+  backend_project = Xproject.find(entry.name)
   p = Project.new(backend_project.dump_xml)
 
   cache[entry.name] = p unless store_project(p)

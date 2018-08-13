@@ -63,6 +63,8 @@ class User < ApplicationRecord
 
   has_many :rss_feed_items, -> { order(created_at: :desc) }, class_name: 'Notification::RssFeedItem', as: :subscriber, dependent: :destroy
 
+  has_and_belongs_to_many :announcements
+
   scope :all_without_nobody, -> { where('login != ?', NOBODY_LOGIN) }
   scope :not_deleted, -> { where.not(state: 'deleted') }
   scope :with_login_prefix, ->(prefix) { where('login LIKE ?', "#{prefix}%") }
@@ -438,7 +440,7 @@ class User < ApplicationRecord
 
   # project is instance of Project
   def can_modify_project?(project, ignore_lock = nil)
-    unless project.is_a? Project
+    unless project.is_a?(Project)
       raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
     end
 
@@ -453,13 +455,13 @@ class User < ApplicationRecord
   # package is instance of Package
   def can_modify_package?(package, ignore_lock = nil)
     return false if package.nil? # happens with remote packages easily
-    unless package.is_a? Package
+    unless package.is_a?(Package)
       raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}"
     end
     return false if !ignore_lock && package.is_locked?
     return true if is_admin?
-    return true if has_global_permission? 'change_package'
-    return true if has_local_permission? 'change_package', package
+    return true if has_global_permission?('change_package')
+    return true if has_local_permission?('change_package', package)
     false
   end
 
@@ -469,14 +471,14 @@ class User < ApplicationRecord
 
   # project is instance of Project
   def can_create_package_in?(project, ignore_lock = nil)
-    unless project.is_a? Project
+    unless project.is_a?(Project)
       raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end
 
     return false if !ignore_lock && project.is_locked?
     return true if is_admin?
-    return true if has_global_permission? 'create_package'
-    return true if has_local_permission? 'create_package', project
+    return true if has_global_permission?('create_package')
+    return true if has_local_permission?('create_package', project)
     false
   end
 
@@ -504,8 +506,8 @@ class User < ApplicationRecord
   end
 
   def can_create_attribute_definition?(object)
-    object = object.attrib_namespace if object.is_a? AttribType
-    unless object.is_a? AttribNamespace
+    object = object.attrib_namespace if object.is_a?(AttribType)
+    unless object.is_a?(AttribNamespace)
       raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}"
     end
 
@@ -560,7 +562,7 @@ class User < ApplicationRecord
       return true if lookup_strategy.local_role_check(role, object)
     end
 
-    return has_local_role?(role, object.project) if object.is_a? Package
+    return has_local_role?(role, object.project) if object.is_a?(Package)
 
     false
   end
@@ -811,7 +813,7 @@ class User < ApplicationRecord
   end
 
   def watches?(name)
-    watched_project_names.include? name
+    watched_project_names.include?(name)
   end
 
   def update_globalroles(global_roles)
@@ -823,7 +825,7 @@ class User < ApplicationRecord
   end
 
   def display_name
-    address = Mail::Address.new email
+    address = Mail::Address.new(email)
     address.display_name = realname
     address.format
   end
@@ -850,8 +852,8 @@ class User < ApplicationRecord
     return false if !ignore_lock && project.is_locked?
     return true if is_admin?
 
-    return true if has_global_permission? 'change_project'
-    return true if has_local_permission? 'change_project', project
+    return true if has_global_permission?('change_project')
+    return true if has_local_permission?('change_project', project)
     return true if project.name == home_project_name # users tend to remove themself, allow to re-add them
     false
   end

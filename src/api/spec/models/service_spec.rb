@@ -28,7 +28,7 @@ RSpec.describe Service, vcr: true do
     end
 
     it 'has a kiwi_import service' do
-      expect(service.has_element?("/services/service[@name='kiwi_import']")).to be true
+      expect(service.document.xpath("/services/service[@name='kiwi_import']")).not_to be_empty
     end
   end
 end

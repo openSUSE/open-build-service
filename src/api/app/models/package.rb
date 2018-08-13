@@ -139,7 +139,7 @@ class Package < ApplicationRecord
     @key[:user] = User.current.cache_key if User.current
 
     # the cache is only valid if the user, prj and pkg didn't change
-    if project.is_a? Project
+    if project.is_a?(Project)
       @key[:project] = project.id
     else
       @key[:project] = project
@@ -154,7 +154,7 @@ class Package < ApplicationRecord
   end
 
   def self.internal_get_project(project)
-    if project.is_a? Project
+    if project.is_a?(Project)
       prj = project
     else
       return if Project.is_remote_project?(project)
@@ -202,7 +202,7 @@ class Package < ApplicationRecord
       # in case we link to a remote project we need to assume that the
       # backend may be able to find it even when we don't have the package local
       prj.expand_all_projects.each do |p|
-        return nil unless p.is_a? Project
+        return nil unless p.is_a?(Project)
       end
     end
 
@@ -230,7 +230,7 @@ class Package < ApplicationRecord
     rescue Project::UnknownObjectError
       return false
     end
-    unless prj.is_a? Project
+    unless prj.is_a?(Project)
       return opts[:allow_remote_packages] && exists_on_backend?(package, project)
     end
     prj.exists_package?(package, opts)
@@ -263,14 +263,14 @@ class Package < ApplicationRecord
 
     if package
       sql += ' AND pack.name = ? GROUP by pack.id'
-      ret = Package.find_by_sql [sql, attrib_type.id.to_s, attrib_type.id.to_s, package]
+      ret = Package.find_by_sql([sql, attrib_type.id.to_s, attrib_type.id.to_s, package])
       ret.each do |dbpkg|
         ret.delete(dbpkg) unless Package.check_access?(dbpkg)
       end
       return ret
     end
     sql += ' GROUP by pack.id'
-    ret = Package.find_by_sql [sql, attrib_type.id.to_s, attrib_type.id.to_s]
+    ret = Package.find_by_sql([sql, attrib_type.id.to_s, attrib_type.id.to_s])
     ret.each do |dbpkg|
       ret.delete(dbpkg) unless Package.check_access?(dbpkg)
     end
@@ -289,14 +289,14 @@ class Package < ApplicationRecord
 
     if package
       sql += ' AND pack.name = ?'
-      ret = Package.find_by_sql [sql, attrib_type.id.to_s, value.to_s, package]
+      ret = Package.find_by_sql([sql, attrib_type.id.to_s, value.to_s, package])
       ret.each do |dbpkg|
         ret.delete(dbpkg) unless Package.check_access?(dbpkg)
       end
       return ret
     end
     sql += ' GROUP by pack.id'
-    ret = Package.find_by_sql [sql, attrib_type.id.to_s, value.to_s]
+    ret = Package.find_by_sql([sql, attrib_type.id.to_s, value.to_s])
     ret.each do |dbpkg|
       ret.delete(dbpkg) unless Package.check_access?(dbpkg)
     end
@@ -330,7 +330,7 @@ class Package < ApplicationRecord
   end
 
   def is_locked?
-    return true if flags.find_by_flag_and_status 'lock', 'enable'
+    return true if flags.find_by_flag_and_status('lock', 'enable')
     project.is_locked?
   end
 
@@ -386,7 +386,7 @@ class Package < ApplicationRecord
   end
 
   def can_be_modified_by?(user, ignore_lock = nil)
-    user.can_modify? master_product_object, ignore_lock
+    user.can_modify?(master_product_object, ignore_lock)
   end
 
   def check_write_access!(ignore_lock = nil)
@@ -412,7 +412,7 @@ class Package < ApplicationRecord
     return if packs.empty?
 
     msg = packs.map { |p| p.project.name + '/' + p.name }.join(', ')
-    de = DeleteError.new "Package is used by following packages as devel package: #{msg}"
+    de = DeleteError.new("Package is used by following packages as devel package: #{msg}")
     de.packages = packs
     raise de
   end
@@ -449,14 +449,14 @@ class Package < ApplicationRecord
     kinds = Package.detect_package_kinds(dir)
 
     package_kinds.each do |pk|
-      if kinds.include? pk.kind
+      if kinds.include?(pk.kind)
         kinds.delete(pk.kind)
       else
         pk.delete
       end
     end
     kinds.each do |k|
-      package_kinds.create kind: k
+      package_kinds.create(kind: k)
     end
   end
 
@@ -477,12 +477,12 @@ class Package < ApplicationRecord
 
     # mark the backend infos "dirty"
     BackendPackage.where(package_id: id).delete_all
-    if dir_xml.is_a? Net::HTTPSuccess
+    if dir_xml.is_a?(Net::HTTPSuccess)
       dir_xml = dir_xml.body
     else
       dir_xml = source_file(nil)
     end
-    private_set_package_kind Xmlhash.parse(dir_xml)
+    private_set_package_kind(Xmlhash.parse(dir_xml))
     update_project_for_product
     if opts[:wait_for_update]
       update_if_dirty
@@ -528,23 +528,27 @@ class Package < ApplicationRecord
   end
 
   def is_patchinfo?
-    is_of_kind? :patchinfo
+    is_of_kind?(:patchinfo)
   end
 
   def is_link?
-    is_of_kind? :link
+    is_of_kind?(:link)
   end
 
   def is_channel?
-    is_of_kind? :channel
+    is_of_kind?(:channel)
   end
 
   def is_product?
-    is_of_kind? :product
+    is_of_kind?(:product)
   end
 
   def is_of_kind?(kind)
     package_kinds.where(kind: kind).exists?
+  end
+
+  def ignored_requests
+    YAML.safe_load(source_file('ignored_requests')) if file_exists?('ignored_requests')
   end
 
   def update_issue_list
@@ -616,7 +620,7 @@ class Package < ApplicationRecord
       end
 
       issue_change.keys.each do |tracker|
-        t = IssueTracker.find_by_name tracker
+        t = IssueTracker.find_by_name(tracker)
 
         # create new issues
         issue_change[tracker].keys.each do |name|
@@ -685,7 +689,7 @@ class Package < ApplicationRecord
   end
 
   def self.detect_package_kinds(directory)
-    raise ArgumentError, 'neh!' if directory.key? 'time'
+    raise ArgumentError, 'neh!' if directory.key?('time')
     ret = []
     directory.elements('entry') do |e|
       ['patchinfo', 'aggregate', 'link', 'channel'].each do |kind|
@@ -920,9 +924,7 @@ class Package < ApplicationRecord
   end
 
   def services
-    the_services = Service.find(project: project.name, package: name)
-    the_services ||= Service.new(project: project.name, package: name)
-    the_services
+    Service.new(package: self)
   end
 
   def buildresult(prj = project, show_all = false)
@@ -933,9 +935,11 @@ class Package < ApplicationRecord
     options[:limit] = 100 if options[:limit].blank?
     options[:package] = name if options[:package].blank?
 
-    results = Jobhistory.find_hashed(project: project.name, package: options[:package],
-                                     repository: repository, arch: arch,
-                                     limit: options[:limit])
+    begin
+      results = Xmlhash.parse(Backend::Api::BuildResults::JobHistory.all_for_package(project.name, options[:package], repository, arch, options[:limit]))
+    rescue ActiveXML::Transport::Error
+      return []
+    end
 
     local_jobs_history = []
     results.elements('jobhist').each_with_index do |result, index|
@@ -998,14 +1002,14 @@ class Package < ApplicationRecord
   end
 
   def modify_channel(mode = :add_disabled)
-    raise InvalidParameterError unless [:add_disabled, :enable_all].include? mode
+    raise InvalidParameterError unless [:add_disabled, :enable_all].include?(mode)
     channel = channels.first
     return unless channel
     channel.add_channel_repos_to_project(self, mode)
   end
 
   def add_channels(mode = :add_disabled)
-    raise InvalidParameterError unless [:add_disabled, :skip_disabled, :enable_all].include? mode
+    raise InvalidParameterError unless [:add_disabled, :skip_disabled, :enable_all].include?(mode)
     return if is_channel?
 
     opkg = origin_container(local: false)
@@ -1035,7 +1039,7 @@ class Package < ApplicationRecord
 
     # and all possible existing local links
     if opkg.project.is_maintenance_release? && opkg.is_link?
-      opkg = opkg.project.packages.find_by_name opkg.linkinfo['package']
+      opkg = opkg.project.packages.find_by_name(opkg.linkinfo['package'])
     end
 
     opkg.find_project_local_linking_packages.each do |p|
@@ -1068,7 +1072,7 @@ class Package < ApplicationRecord
   end
 
   def self.valid_name?(name, allow_multibuild = false)
-    return false unless name.is_a? String
+    return false unless name.is_a?(String)
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200
     return false if name == '0'
@@ -1234,7 +1238,7 @@ class Package < ApplicationRecord
     delete_opt[:user] = User.current.login
     delete_opt[:comment] = opt[:comment] if opt[:comment]
 
-    unless User.current.can_modify? self
+    unless User.current.can_modify?(self)
       raise DeleteFileNoPermission, 'Insufficient permissions to delete file'
     end
 
@@ -1320,7 +1324,7 @@ class Package < ApplicationRecord
       if data
         tproject_name = data.value('project') || pkg.project.name
         tpackage_name = data.value('package') || pkg.name
-        if data.has_attribute? 'missingok'
+        if data.has_attribute?('missingok')
           Project.get_by_name(tproject_name) # permission check
           if Package.exists_by_project_and_name(tproject_name, tpackage_name, follow_project_links: true, allow_remote_packages: true)
             raise NotMissingError, "Link contains a missingok statement but link target (#{tproject_name}/#{tpackage_name}) exists."
@@ -1447,7 +1451,7 @@ class Package < ApplicationRecord
   end
 
   def last_build_reason(repo, arch, package_name = nil)
-    repo = repo.name if repo.is_a? Repository
+    repo = repo.name if repo.is_a?(Repository)
 
     begin
       build_reason = Backend::Api::BuildResults::Status.build_reason(project.name, package_name || name, repo, arch)

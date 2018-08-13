@@ -111,8 +111,8 @@ RSpec.describe Comment do
 
       it "shouldn't be destroyed" do
         expect { comment_package.blank_or_destroy }.not_to(change(Comment, :count))
-        expect(comment_package.body).to eq 'This comment has been deleted'
-        expect(comment_package.user.login).to eq '_nobody_'
+        expect(comment_package.body).to eq('This comment has been deleted')
+        expect(comment_package.user.login).to eq('_nobody_')
       end
     end
   end

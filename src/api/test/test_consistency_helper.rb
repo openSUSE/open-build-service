@@ -8,13 +8,13 @@ require 'source_controller'
 def resubmit_all_fixtures
   # this just reads and writes again the meta data. 1st run the fixtures and on 2nd all left
   # overs from other other tests
-  prepare_request_with_user 'king', 'sunflower'
+  prepare_request_with_user('king', 'sunflower')
   # projects
   get '/source'
   assert_response :success
-  node = ActiveXML::Node.new(@response.body)
-  node.each(:entry) do |e|
-    name = e.value('name')
+  node = Xmlhash.parse(@response.body)
+  node.elements('entry') do |e|
+    name = e['name']
     get "/source/#{name}/_meta"
     assert_response :success
     r = @response.body

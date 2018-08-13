@@ -15,6 +15,7 @@ class Repository < ApplicationRecord
   has_many :product_medium, dependent: :delete_all
   has_many :repository_architectures, -> { order('position') }, dependent: :destroy, inverse_of: :repository
   has_many :architectures, -> { order('position') }, through: :repository_architectures
+  has_many :status_publishes, class_name: 'Status::RepositoryPublish'
 
   scope :not_remote, -> { where(remote_project_name: '') }
   scope :remote, -> { where.not(remote_project_name: '') }
@@ -196,7 +197,7 @@ class Repository < ApplicationRecord
 
   def clone_repository_from(source_repository)
     source_repository.repository_architectures.each do |ra|
-      repository_architectures.create architecture: ra.architecture, position: ra.position
+      repository_architectures.create(architecture: ra.architecture, position: ra.position)
     end
 
     position = 1
@@ -248,7 +249,7 @@ class Repository < ApplicationRecord
 
   def remote_project_name_not_nill
     return unless remote_project_name.nil?
-    errors.add :remote_project_name, 'cannot be nil'
+    errors.add(:remote_project_name, 'cannot be nil')
   end
 end
 

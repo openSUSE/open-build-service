@@ -62,7 +62,7 @@ class Buildresult < ActiveXML::Node
     local_build_results = {}
     results.elements('result').sort_by { |a| a['repository'] }.each do |result|
       state =
-        if result.key? 'dirty'
+        if result.key?('dirty')
           'outdated_' + result['state']
         else
           result['state']

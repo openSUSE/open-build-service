@@ -96,7 +96,7 @@ module ObsFactory
     #
     # @return [Array] array of module names
     def failing_modules
-      modules.reject { |m| %w(passed softfailed running none).include? m['result'] }.map { |m| m['name'] }
+      modules.reject { |m| %w(passed softfailed running none).include?(m['result']) }.map { |m| m['name'] }
     end
 
     # Result of the job, or its state if no result is available yet

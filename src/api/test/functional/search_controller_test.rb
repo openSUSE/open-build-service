@@ -562,8 +562,8 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
 
     # set devel package (this one has another devel package in home:coolo:test)
-    pkg = Package.find_by_project_and_name 'home:Iggy', 'TestPack'
-    pkg.develpackage = Package.find_by_project_and_name 'kde4', 'kdelibs'
+    pkg = Package.find_by_project_and_name('home:Iggy', 'TestPack')
+    pkg.develpackage = Package.find_by_project_and_name('kde4', 'kdelibs')
     pkg.save
 
     # include devel package
@@ -665,7 +665,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag tag: 'owner', attributes: { project: 'home:coolo:test' }
     assert_no_xml_tag tag: 'group', attributes: { name: 'test_group', role: 'bugowner' }
     # disable a user and check that he disappears
-    u = User.find_by_login 'Iggy'
+    u = User.find_by_login('Iggy')
     u.state = 'unconfirmed'
     u.save!
     get '/search/owner?project=TEMPORARY&binary=package&filter=bugowner'

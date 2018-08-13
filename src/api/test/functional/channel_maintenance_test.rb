@@ -26,7 +26,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     put '/source/BaseDistro3/pack2/file', params: 'NOOP'
     assert_response :success
     # setup maintained attributes
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     # single packages
     post '/source/BaseDistro2.0/pack2/_attribute', params: "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
@@ -93,9 +93,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_no_xml_tag(tag: 'source', attributes: { rev: nil })
     assert_xml_tag(tag: 'target', attributes: { project: 'My:Maintenance' })
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    id1 = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    id1 = node['id']
 
     # validate that request is diffable (not broken)
     post "/request/#{id1}?cmd=diff&view=xml"
@@ -121,7 +121,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'collection' }, tag: 'request', attributes: { id: id1 }
 
     # accept request
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     post "/request/#{id1}?cmd=changestate&newstate=accepted"
     assert_response :success
 
@@ -144,12 +144,10 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # add an old style patch name, only used via %N (in BaseDistro3Channel at the end of this test)
     get "/source/#{incident_project}/patchinfo/_patchinfo"
     assert_response :success
-    pi = ActiveXML::Node.new(@response.body)
-    e = pi.add_element 'name'
-    e.text = 'patch_name'
-    e = pi.add_element 'message'
-    e.text = 'During reboot a popup with a question will appear'
-    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.dump_xml
+    pi = Nokogiri::XML(@response.body).root
+    pi.add_child('<name>patch_name</name>')
+    pi.add_child('<message>During reboot a popup with a question will appear</message>')
+    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
     assert_response :success
 
     # create maintenance request with invalid target
@@ -171,9 +169,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response :success
     assert_xml_tag(tag: 'target', attributes: { project: incident_project })
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    id2 = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    id2 = node['id']
     # ... but do not use it
     post "/request/#{id2}?cmd=changestate&newstate=revoked"
     assert_response :success
@@ -192,9 +190,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response :success
     assert_xml_tag(tag: 'target', attributes: { project: 'My:Maintenance' })
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    id2 = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    id2 = node['id']
     post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2.BaseDistro2.0_LinkedUpdateProject" />
@@ -207,9 +205,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response :success
     assert_xml_tag(tag: 'target', attributes: { project: 'My:Maintenance' })
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    id3 = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    id3 = node['id']
 
     # second one for failing permission test on lock
     put '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject/dummy', params: 'dummy change'
@@ -223,9 +221,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response :success
     assert_xml_tag(tag: 'target', attributes: { project: 'My:Maintenance' })
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    id4 = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    id4 = node['id']
 
     # validate that request is diffable and that the linked package is not double diffed
     post "/request/#{id2}?cmd=diff&view=xml"
@@ -234,7 +232,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'file', attributes: { state: 'added' } }, tag: 'new', attributes: { name: 'new_file' }
 
     # set incident to merge into existing one
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     post "/request/#{id2}?cmd=setincident&incident=#{incident_project.gsub(/.*:/, '')}"
     assert_response :success
 
@@ -245,13 +243,13 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_equal incident_project, maintenance_not_new_project
 
     # try to do it again
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     post "/request/#{id2}?cmd=setincident&incident=#{incident_project.gsub(/.*:/, '')}"
     assert_response 404
     assert_xml_tag tag: 'status', attributes: { code: 'target_not_maintenance' }
 
     # accept request
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     post "/request/#{id2}?cmd=changestate&newstate=accepted&force=1" # ignore reviews and accept
     assert_response :success
 
@@ -300,9 +298,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/My:Maintenance/_meta'
     assert_response :success
-    meta = ActiveXML::Node.new(@response.body)
-    meta.find_first('maintenance').add_element 'maintains', project: 'Channel'
-    put '/source/My:Maintenance/_meta', params: meta.dump_xml
+    meta = Nokogiri::XML(@response.body).root
+    meta.at_xpath('maintenance').add_child('<maintains project="Channel"/>')
+    put '/source/My:Maintenance/_meta', params: meta.to_xml
     assert_response :success
 
     # create channel package
@@ -339,7 +337,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     login_adrian
     post "/source/#{incident_project}?cmd=addchannels"
     assert_response 403
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     post "/source/#{incident_project}?cmd=addchannels"
     assert_response :success
     get "/source/#{incident_project}/BaseDistro2.Channel/_meta"
@@ -366,7 +364,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # accept another request to check that addchannel is working automatically
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     post "/request/#{id3}?cmd=changestate&newstate=accepted&force=1" # ignore reviews and accept
     assert_response :success
     get "/request/#{id3}"
@@ -422,7 +420,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     login_adrian
     post "/source/#{incident_project}?cmd=addchannels"
     assert_response 403
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     post "/source/#{incident_project}?cmd=addchannels&mode=skip_disabled"
     assert_response :success
     get "/source/#{incident_project}/BaseDistro2.0.Channel/_meta"
@@ -479,7 +477,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
               File.open("#{Rails.root}/test/fixtures/backend/source/simple_product/#{file}").read
       assert_response :success
     end
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
     get "/source/#{incident_project}/BaseDistro2.0.Channel/_meta"
     old_meta = @response.body
     assert_response :success
@@ -514,16 +512,16 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     login_king
     delete '/source/BaseDistro2.0/_product'
     assert_response :success
-    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    prepare_request_with_user('maintenance_coord', 'buildservice')
 
     # no updateinfo create, so add an issue to the patchinfo
     get "/build/#{incident_project}/BaseDistro3Channel/i586/patchinfo/updateinfo.xml"
     assert_response 404
     get "/source/#{incident_project}/patchinfo/_patchinfo"
     assert_response :success
-    pi = ActiveXML::Node.new(@response.body)
-    pi.add_element 'issue', 'id' => '0815', 'tracker' => 'bnc'
-    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.dump_xml
+    pi = Nokogiri::XML(@response.body).root
+    pi.add_child('<issue id="0815" tracker="bnc"/>')
+    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
     assert_response :success
 
     # create and check updateinfo
@@ -564,9 +562,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'review', attributes: { by_group: 'test_group', state: 'new' }
     # no submit action
     assert_no_xml_tag tag: 'action', attributes: { type: 'submit' }
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    reqid = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    reqid = node['id']
 
     # we are not allowed to modify the target anymore, because packages are locked now
     post "/request/#{id4}?cmd=setincident&incident=#{incident_project.gsub(/.*:/, '')}"
@@ -621,9 +619,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    reqid = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    reqid = node['id']
     # submit action
     assert_xml_tag tag: 'target', attributes: { project: 'Channel', package: 'BaseDistro3' },
                    parent: { tag: 'action', attributes: { type: 'submit' } }
@@ -862,9 +860,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_no_xml_tag(tag: 'source', attributes: { rev: nil })
     assert_xml_tag(tag: 'target', attributes: { project: 'My:Maintenance' })
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    reqid2 = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    reqid2 = node['id']
 
     # accept
     post "/request/#{reqid2}?cmd=changestate&newstate=accepted&force=1"

@@ -24,6 +24,7 @@ package BSTUF;
 
 use JSON::XS ();
 use MIME::Base64 ();
+use Digest::SHA;
 
 use BSConfiguration;
 use BSUtil;
@@ -75,8 +76,7 @@ sub mktbscert {
 }
 
 sub mkcert {
-  my ($cn, $not_before, $not_after, $subjectkeyinfo, $signargs) = @_;
-  my $tbscert = mktbscert($cn, $not_before, $not_after, $subjectkeyinfo);
+  my ($tbscert, $signargs) = @_;
   my $sigalgo = BSASN1::asn1_sequence($BSASN1::oid_sha256withrsaencryption, BSASN1::asn1_null());
   my $signature = sign($tbscert, $signargs);
   my $cert = BSASN1::asn1_sequence($tbscert, $sigalgo, BSASN1::asn1_pack($BSASN1::BIT_STRING,  pack("C", 0), $signature));
@@ -123,6 +123,47 @@ sub signdata {
   $d = canonical_json($d);
   $d =~ s/AAA_signed/signed/;
   return $d;
+}
+
+sub updatedata {
+  my ($d, $oldd, $signargs, @keyids) = @_;
+  $d->{'version'} = 1;
+  $d->{'version'} = ($oldd->{'signed'}->{'version'} || 0) + 1 if $oldd && $oldd->{'signed'};
+  return signdata($d, $signargs, @keyids);
+}
+
+sub getrootcert {
+  my ($root) = @_;
+  return undef unless $root && $root->{'signed'};
+  my $root_id = $root->{'signed'}->{'roles'}->{'root'}->{'keyids'}->[0];
+  my $root_key = $root->{'signed'}->{'keys'}->{$root_id}; 
+  return undef if !$root_key || $root_key->{'keytype'} ne 'rsa-x509';
+  return MIME::Base64::decode_base64($root_key->{'keyval'}->{'public'});
+}
+
+# 0: different pubkey
+# 1: same pubkey, different cert
+# 2: same cert
+sub cmprootcert {
+  my ($root, $tbscert) = @_;
+  my $root_cert = getrootcert($root);
+  return 0 unless $root_cert;
+  my $root_tbscert = gettbscert($root_cert);
+  return 2 if removecertserial($root_tbscert) eq removecertserial($tbscert);
+  return 1 if getsubjectkeyinfo($root_tbscert) eq getsubjectkeyinfo($tbscert);
+  return 0;
+}
+
+sub addmetaentry {
+  my ($d, $name, $content) = @_;
+  my $entry = {
+    'hashes' => {
+      'sha256' => MIME::Base64::encode_base64(Digest::SHA::sha256($content), ''),
+      'sha512' => MIME::Base64::encode_base64(Digest::SHA::sha512($content), ''),
+    },
+    'length' => length($content),
+  };
+  $d->{'meta'}->{$name} = $entry;
 }
 
 1;

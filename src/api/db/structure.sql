@@ -1,3 +1,21 @@
+CREATE TABLE `announcements` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `content` text COLLATE utf8mb4_unicode_ci,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE `announcements_users` (
+  `user_id` int(11) DEFAULT NULL,
+  `announcement_id` int(11) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  KEY `index_announcements_users_on_user_id` (`user_id`),
+  KEY `index_announcements_users_on_announcement_id` (`announcement_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
 CREATE TABLE `ar_internal_metadata` (
   `key` varchar(255) CHARACTER SET utf8 NOT NULL,
   `value` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
@@ -1108,6 +1126,19 @@ CREATE TABLE `static_permissions` (
   UNIQUE KEY `static_permissions_title_index` (`title`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
+CREATE TABLE `status_checks` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `state` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `short_description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `checkable_id` int(11) DEFAULT NULL,
+  `checkable_type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
 CREATE TABLE `status_histories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `time` int(11) DEFAULT NULL,
@@ -1128,6 +1159,16 @@ CREATE TABLE `status_messages` (
   PRIMARY KEY (`id`),
   KEY `user` (`user_id`) USING BTREE,
   KEY `index_status_messages_on_deleted_at_and_created_at` (`deleted_at`,`created_at`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE `status_repository_publishes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `build_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `repository_id` int(11) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_status_repository_publishes_on_repository_id` (`repository_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `tokens` (
@@ -1333,6 +1374,9 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20180307074538'),
 ('20180516074538'),
 ('20180523123532'),
-('20180720082742');
+('20180720082742'),
+('20180731124926'),
+('20180731125103'),
+('20180807114201');
 
 

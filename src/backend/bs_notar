@@ -226,7 +226,7 @@ my $pubkey_data = BSPGP::pk2keydata($gpgpubkey) || {};
 die("need an rsa pubkey for container signing\n") unless ($pubkey_data->{'algo'} || '') eq 'rsa';
 my $pubkey_times = BSPGP::pk2times($gpgpubkey) || {};
 # generate pub key and cert from pgp key data
-my $pub_bin = keydata2asn1($pubkey_data);
+my $pub_bin = BSTUF::keydata2asn1($pubkey_data);
 
 my $cert;
 my $root_key;
@@ -239,6 +239,9 @@ my $targets_version = 1;
 
 my $dodelete;		# new key, hopeless, need to delete old data
 my $dorootupdate;	# same key with different cert
+
+# create new to-be-signed cert
+my $tbscert = BSTUF::mktbscert($gun, $pubkey_times->{'selfsig_create'}, $pubkey_times->{'key_expire'}, $pub_bin);
 
 #
 # reuse data from old root entry if we can
@@ -259,16 +262,15 @@ if (!$dodelete) {
     my $oldroot_root_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_root_id};
     die("oldroot is not of type rsa-x509\n") if $oldroot_root_key->{'keytype'} ne 'rsa-x509';
     my $oldroot_root_cert = MIME::Base64::decode_base64($oldroot_root_key->{'keyval'}->{'public'});
-    my $oldroot_root_tbscert = gettbscert($oldroot_root_cert);
-    my $new_tbscert = mktbscert($gun, $pubkey_times->{'selfsig_create'}, $pubkey_times->{'key_expire'}, $pub_bin);
-    if (removecertserial($oldroot_root_tbscert) eq removecertserial($new_tbscert)) {
+    my $oldroot_root_tbscert = BSTUF::gettbscert($oldroot_root_cert);
+    if (BSTUF::removecertserial($oldroot_root_tbscert) eq BSTUF::removecertserial($tbscert)) {
       # same cert (possibly with different serial). reuse old cert.
       $cert = $oldroot_root_cert;
       $root_key = $oldroot_root_key;
       $targets_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_targets_id};
       $timestamp_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_timestamp_id};
       $snapshot_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_snapshot_id};
-    } elsif (getsubjectkeyinfo($oldroot_root_tbscert) eq getsubjectkeyinfo($new_tbscert)) {
+    } elsif (BSTUF::getsubjectkeyinfo($oldroot_root_tbscert) eq BSTUF::getsubjectkeyinfo($tbscert)) {
       # different cert but same pubkey, e.g. different expiration time
       $dorootupdate = $oldroot_root_id;
       $timestamp_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_timestamp_id};
@@ -293,7 +295,7 @@ if ($dodelete) {
 # setup needed keys
 #
 if (!$cert) {
-  $cert = mkcert($gun, $pubkey_times->{'selfsig_create'}, $pubkey_times->{'key_expire'}, $pub_bin, \@signargs);
+  $cert = BSTUF::mkcert($tbscert, \@signargs);
 }
 if (!$root_key) {
   $root_key = {
@@ -324,10 +326,10 @@ if (!$snapshot_key) {
   $snapshot_key = BSRPC::rpc($param, \&JSON::XS::decode_json);
 }
 
-my $root_key_id = Digest::SHA::sha256_hex(canonical_json($root_key));
-my $targets_key_id = Digest::SHA::sha256_hex(canonical_json($targets_key));
-my $timestamp_key_id = Digest::SHA::sha256_hex(canonical_json($timestamp_key));
-my $snapshot_key_id = Digest::SHA::sha256_hex(canonical_json($snapshot_key));
+my $root_key_id = Digest::SHA::sha256_hex(BSTUF::canonical_json($root_key));
+my $targets_key_id = Digest::SHA::sha256_hex(BSTUF::canonical_json($targets_key));
+my $timestamp_key_id = Digest::SHA::sha256_hex(BSTUF::canonical_json($timestamp_key));
+my $snapshot_key_id = Digest::SHA::sha256_hex(BSTUF::canonical_json($snapshot_key));
 
 #
 # setup root 
@@ -348,7 +350,7 @@ $roles->{'timestamp'} = { 'keyids' => [ $timestamp_key_id ], 'threshold' => 1 };
 my $root = {
   '_type' => 'Root',
   'consistent_snapshot' => $JSON::XS::false,
-  'expires' => rfc3339time($pubkey_times->{'key_expire'}),
+  'expires' => BSTUF::rfc3339time($pubkey_times->{'key_expire'}),
   'keys' => $keys,
   'roles' => $roles,
   'version' => $root_version,
@@ -383,7 +385,7 @@ if (!$dodelete && !$dorootupdate && BSUtil::identical($manifests, $oldtargets->{
 my $targets = {
   '_type' => 'Targets',
   'delegations' => { 'keys' => {}, 'roles' => []},
-  'expires' => rfc3339time(time() + $targets_expire_delta),
+  'expires' => BSTUF::rfc3339time(time() + $targets_expire_delta),
   'targets' => $manifests,
   'version' => $targets_version,
 };

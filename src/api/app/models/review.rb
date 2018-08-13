@@ -168,7 +168,7 @@ class Review < ApplicationRecord
 
   def render_xml(builder)
     builder.review(_get_attributes) do
-      builder.comment! reason if reason
+      builder.comment!(reason) if reason
       history_elements.each do |history|
         history.render_xml(builder)
       end
@@ -211,7 +211,7 @@ class Review < ApplicationRecord
     params[:reviewers] = map_objects_to_ids(users_and_groups_for_review)
 
     # send email later
-    Event::ReviewWanted.create params
+    Event::ReviewWanted.create(params)
   end
 
   def reviewable_by?(opts)

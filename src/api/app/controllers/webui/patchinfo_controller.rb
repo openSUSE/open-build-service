@@ -10,7 +10,7 @@ class Webui::PatchinfoController < Webui::WebuiController
   def new_patchinfo
     authorize @project, :update?, policy_class: ProjectPolicy
 
-    unless @project.exists_package? 'patchinfo'
+    unless @project.exists_package?('patchinfo')
       unless Patchinfo.new.create_patchinfo(@project.name, nil)
         flash[:error] = 'Error creating patchinfo'
         redirect_to(controller: 'project', action: 'show', project: @project) && return
@@ -51,10 +51,10 @@ class Webui::PatchinfoController < Webui::WebuiController
     flash[:error] = nil
     # Note: At this point a patchinfo already got created by
     #       Patchinfo.new.create_patchinfo in the new_patchinfo action
-    unless valid_summary? params[:summary]
+    unless valid_summary?(params[:summary])
       flash[:error] = '|| Summary is too short (should have more than 10 signs)'
     end
-    unless valid_description? params[:description]
+    unless valid_description?(params[:description])
       flash[:error] = "#{flash[:error]} || Description is too short (should have more than 50 signs and longer than summary)"
     end
 
@@ -76,8 +76,8 @@ class Webui::PatchinfoController < Webui::WebuiController
         params[:selected_binaries].to_a.each do |binary|
           node.binary(binary) if binary.present?
         end
-        node.name params[:name] if params[:name].present?
-        node.packager params[:packager]
+        node.name(params[:name]) if params[:name].present?
+        node.packager(params[:packager])
         issues.to_a.each do |issue|
           unless IssueTracker.find_by_name(issue[1])
             flash[:error] = "Unknown Issue tracker #{issue[1]}"
@@ -88,12 +88,12 @@ class Webui::PatchinfoController < Webui::WebuiController
           issue[0].gsub!(/^(CVE|cve)-/, '') if issue[1] == 'cve'
           node.issue(issue[2], tracker: issue[1], id: issue[0])
         end
-        node.category params[:category].try(:strip)
-        node.rating params[:rating].try(:strip)
-        node.summary params[:summary].try(:strip)
-        node.description params[:description].gsub("\r\n", "\n")
+        node.category(params[:category].try(:strip))
+        node.rating(params[:rating].try(:strip))
+        node.summary(params[:summary].try(:strip))
+        node.description(params[:description].gsub("\r\n", "\n"))
         @file.each(:package) do |pkg|
-          node.package pkg.text
+          node.package(pkg.text)
         end
         @file.each(:releasetarget) do |release_target|
           attributes = { project: release_target.value(:project) }

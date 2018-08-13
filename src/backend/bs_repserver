@@ -42,6 +42,7 @@ use XML::Structured ':bytes';
 use Storable ();
 use Data::Dumper;
 use Digest::MD5 ();
+use Digest::SHA ();
 use List::Util;
 use Symbol;
 use Encode;
@@ -2639,12 +2640,17 @@ sub getresult {
       }
       if ($cgi->{'withbinarylist'}) {
 	my @b;
-	for (sort(ls("$reporoot/$prpa/$packid"))) {
+	my @bins = ls("$reporoot/$prpa/$packid");
+	@bins = BSRepServer::Containertar::add_containers(@bins) if grep {/\.containerinfo$/} @bins;
+	for (sort(@bins)) {
 	  next if $_ eq 'logfile' || $_ eq 'status' || $_ eq 'reason' || $_ eq 'history' || /^\./;
 	  my @s = stat("$reporoot/$prpa/$packid/$_");
-	  next unless @s;
-	  next if -d _;
-	  push @b, {'filename' => $_, 'mtime' => $s[9], 'size' => $s[7]};
+	  if (!@s && /\.tar$/) {
+	    @s = BSRepServer::Containertar::stat_container("$reporoot/$prpa/$packid/$_");
+	    push @b, {'filename' => $_, 'mtime' => $s[9], 'size' => $s[7]} if @s;
+	    next;
+	  }
+	  push @b, {'filename' => $_, 'mtime' => $s[9], 'size' => $s[7]} if @s && ! -d _;
 	}
 	my $bl = {'package' => $packid, 'binary' => \@b};
 	push @{$sl->{'binarylist'}}, $bl;
@@ -4014,16 +4020,20 @@ sub registry_manifest {
   my $repodir = "$registrydir/$regrepo";
   die("404 NAME_UNKNOWN\n") unless -d $repodir;
   my $mani_json;
+  my $is_manifest;
   if ($manifest !~ /^sha256:[0-9a-f]{64}$/s) {
     $mani_json = readstr("$repodir/:tags/$manifest", 1);
   } else {
     $mani_json = readstr("$repodir/:manifests/$manifest", 1);
+    $is_manifest = 1;
   }
   # sigh, need the type
   die("404 MANIFEST_UNKNOWN\n") unless $mani_json;
   my $mani_id = "sha256:".Digest::SHA::sha256_hex($mani_json);
   my $mani = JSON::XS::decode_json($mani_json);
   my $ct = $mani->{'mediaType'} || 'application/vnd.docker.distribution.manifest.v2+json';
+  my @hdrs = ("Content-Type: $ct", "Docker-Content-Digest: $mani_id", "Etag: \"$mani_id\"");
+  push @hdrs, 'Cache-Control: max-age=2678400' if $is_manifest;
   BSRegistryServer::reply($mani_json, "Content-Type: $ct", "Docker-Content-Digest: $mani_id", "Etag: \"$mani_id\"");
   return undef;
 }
@@ -4052,7 +4062,9 @@ sub registry_blob {
     $size = $end - $start + 1;
   }
   my $param = {'filename' => $fd};
-  BSServer::reply_file($fd, "Content-Type: application/octet-stream", "Content-Length: $size", @rangehdr, "Docker-Content-Digest: $blob", "Etag: \"$blob\"", $BSRegistryServer::registry_api_hdr);
+  my @hdrs = ("Content-Type: application/octet-stream", "Content-Length: $size", @rangehdr, "Docker-Content-Digest: $blob", "Etag: \"$blob\"", $BSRegistryServer::registry_api_hdr);
+  push @hdrs, 'Cache-Control: max-age=2678400';
+  BSServer::reply_file($fd, @hdrs);
   return undef;
 }
 
@@ -4089,16 +4101,67 @@ sub registry_catalog {
   return undef;
 }
 
+sub extend_timestamp {
+  my ($repodir, $tuf, $expires) = @_;
+
+  my $data = $tuf->{'timestamp'};
+  my $timestamp = JSON::XS::decode_json($data);
+  my $keyid = $timestamp->{'signatures'}->[0]->{'keyid'};
+  $timestamp = $timestamp->{'signed'};
+  die unless $timestamp && $keyid;
+  $timestamp->{'expires'} = BSTUF::rfc3339time($expires);
+  $timestamp->{'version'} = $timestamp->{'version'} + 1;
+  mkdir_p($uploaddir);
+  unlink("$uploaddir/timestampkey.$$");
+  writestr("$uploaddir/timestampkey.$$", undef, $tuf->{'timestamp_privkey'});
+  my @signargs;
+  push @signargs, '--project', ':tmpkey' if $BSConfig::sign_project;
+  push @signargs, '-P', "$uploaddir/timestampkey.$$";
+  $timestamp = BSTUF::signdata($timestamp, \@signargs, $keyid);
+  unlink("$uploaddir/timestampkey.$$");
+  my $fd;
+  BSUtil::lockopen($fd, '<', "$repodir/:tuf");
+  $tuf = BSUtil::retrieve("$repodir/:tuf", 1);
+  if ($tuf && $tuf->{'timestamp'} && $tuf->{'timestamp'} eq $data) {
+    # ok to update
+    $tuf->{'timestamp'} = $timestamp;
+    BSUtil::store("$repodir/.tuf.$$", "$repodir/:tuf", $tuf);
+  }
+  close($fd);
+  return $tuf;
+}
+
 sub registry_tuf {
   my ($cgi, $gunprefix, $regrepo, $filename) = @_;
   my $repodir = "$registrydir/$regrepo";
+  my $sha256sum;
+  if ($filename =~ /^(.*)\.([a-f0-9]{64})\.json$/) {
+    $filename = "$1.json";
+    $sha256sum = $2;
+  }
   die("404 METADATA_NOT_FOUND\n") unless $filename eq 'root.json' || $filename eq 'targets.json' || $filename eq 'snapshot.json' || $filename eq 'timestamp.json' || $filename eq 'snapshot.key' || $filename eq 'timestamp.key';
   my $tuf = BSUtil::retrieve("$repodir/:tuf", 1);
   die("404 METADATA_NOT_FOUND\n") unless $tuf;
   if ($filename =~ /(.*)\.json$/) {
-    my $data = $tuf->{$1};
+    my $role = $1;
+    my $data = $tuf->{$role};
     die("404 METADATA_NOT_FOUND\n") unless $data;
-    BSRegistryServer::reply($data, 'Content-Type: application/json');
+    if ($sha256sum && Digest::SHA::sha256_hex($data) ne $sha256sum) {
+      # also look in :tuf.old if we want a consistent entry
+      $tuf = BSUtil::retrieve("$repodir/:tuf.old", 1) || {};
+      $data = $tuf->{$role};
+      die("404 METADATA_NOT_FOUND\n") unless $data && Digest::SHA::sha256_hex($data) eq $sha256sum;
+    }
+    if (!$sha256sum && $role eq 'timestamp' && $BSConfig::sign && $tuf->{'timestamp_expires'} && $tuf->{'timestamp_privkey'}) {
+      my $now = time();
+      if ($tuf->{'timestamp_expires'} < $now + 3600) {
+        $tuf = extend_timestamp($repodir, $tuf, $now + 14 * 24 * 3600);
+        die("404 METADATA_NOT_FOUND\n") unless $tuf && $tuf->{'timestamp'};
+	$data = $tuf->{'timestamp'};
+      }
+    }
+    my @hdrs = ('Content-Type: application/json');
+    BSRegistryServer::reply($data, @hdrs);
     return undef;
   }
   if ($filename =~ /(.*)\.key$/) {

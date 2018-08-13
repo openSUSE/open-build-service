@@ -68,7 +68,7 @@ class Patchinfo < ActiveXML::Node
     @project = project
     data = Xmlhash.parse(raw_post)
     # check the packager field
-    User.find_by_login! data['packager'] if data['packager']
+    User.find_by_login!(data['packager']) if data['packager']
     # valid tracker?
     data.elements('issue').each do |i|
       tracker = IssueTracker.find_by_name(i['tracker'])
@@ -83,8 +83,8 @@ class Patchinfo < ActiveXML::Node
     tracker = issue.issue_tracker
     return if @patchinfo.has_element?("issue[(@id='#{issue.name}' and @tracker='#{tracker.name}')]")
     e = @patchinfo.add_element 'issue'
-    e.set_attribute 'tracker', tracker.name
-    e.set_attribute 'id', issue.name
+    e.set_attribute('tracker', tracker.name)
+    e.set_attribute('id', issue.name)
     @patchinfo.find_first('category').text = 'security' if tracker.kind == 'cve'
   end
 
@@ -162,7 +162,7 @@ class Patchinfo < ActiveXML::Node
 
   def require_package_for_patchinfo(project, pkg_name, force)
     pkg_name ||= 'patchinfo'
-    valid_package_name! pkg_name
+    valid_package_name!(pkg_name)
 
     # create patchinfo package
     unless Package.exists_by_project_and_name(project, pkg_name)
@@ -171,7 +171,7 @@ class Patchinfo < ActiveXML::Node
       return
     end
 
-    @pkg = Package.get_by_project_and_name project, pkg_name
+    @pkg = Package.get_by_project_and_name(project, pkg_name)
     return if force
     if @pkg.is_patchinfo?
       raise PatchinfoFileExists, "createpatchinfo command: the patchinfo #{pkg_name} exists already. " \

@@ -50,8 +50,7 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
 
     get '/status/messages'
-    messages = ActiveXML::Node.new @response.body
-    assert_equal 0, messages.each.size
+    assert_match %r{status_messages count="0"}, @response.body
   end
 
   def test_calculate_workers_by_constraints

@@ -80,7 +80,7 @@ class Webui::PackageController < Webui::WebuiController
     @comments = @package.comments
     @comment = Comment.new
     @requests = []
-    @services = Service.find(project: @project.name, package: @package.name)
+    @services = Backend::Api::Sources::Package.service(@project.name, @package.name)
   end
 
   def main_object
@@ -321,7 +321,7 @@ class Webui::PackageController < Webui::WebuiController
     if params[:supersede_request_numbers]
       params[:supersede_request_numbers].each do |request_number|
         begin
-          r = BsRequest.find_by_number! request_number
+          r = BsRequest.find_by_number!(request_number)
           opts = {
             newstate:      'superseded',
             reason:        "Superseded by request #{req.number}",
@@ -478,10 +478,10 @@ class Webui::PackageController < Webui::WebuiController
     @package.title = params[:title]
     @package.description = params[:description]
     if params[:source_protection]
-      @package.flags.build flag: :sourceaccess, status: :disable
+      @package.flags.build(flag: :sourceaccess, status: :disable)
     end
     if params[:disable_publishing]
-      @package.flags.build flag: :publish, status: :disable
+      @package.flags.build(flag: :publish, status: :disable)
     end
     if @package.save
       flash[:notice] = "Package '#{@package.name}' was created successfully"
@@ -493,18 +493,18 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def check_package_name_for_new
-    unless Package.valid_name? @package_name
+    unless Package.valid_name?(@package_name)
       flash[:error] = "Invalid package name: '#{@package_name}'"
       redirect_to controller: :project, action: :new_package, project: @project
       return false
     end
-    if Package.exists_by_project_and_name @project.name, @package_name
+    if Package.exists_by_project_and_name(@project.name, @package_name)
       flash[:error] = "Package '#{@package_name}' already exists in project '#{@project}'"
       redirect_to controller: :project, action: :new_package, project: @project
       return false
     end
     @project = @project.api_obj
-    unless User.current.can_create_package_in? @project
+    unless User.current.can_create_package_in?(@project)
       flash[:error] = "You can't create packages in #{@project.name}"
       redirect_to controller: :project, action: :new_package, project: @project
       return false
@@ -587,7 +587,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def save
-    unless User.current.can_modify? @package
+    unless User.current.can_modify?(@package)
       redirect_to action: :show, project: params[:project], package: params[:package], error: 'No permission to save'
       return
     end
@@ -702,7 +702,7 @@ class Webui::PackageController < Webui::WebuiController
 
     filename = params[:filename]
     begin
-      @package.delete_file filename
+      @package.delete_file(filename)
       flash[:notice] = "File '#{filename}' removed successfully"
     rescue ActiveXML::Transport::NotFoundError
       flash[:notice] = "Failed to remove file '#{filename}'"
@@ -1067,7 +1067,7 @@ class Webui::PackageController < Webui::WebuiController
     http.read_timeout = 15
     response = http.head uri.path
     if response.code.to_i == 302 && response['location'] && max_redirects > 0
-      return file_available? response['location'], (max_redirects - 1)
+      return file_available?(response['location'], (max_redirects - 1))
     end
     return response.code.to_i == 200
   rescue Object => e
