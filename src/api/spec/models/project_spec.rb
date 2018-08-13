@@ -20,6 +20,7 @@ RSpec.describe Project, vcr: true do
     it { is_expected.to validate_length_of(:title).is_at_most(250) }
     it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_uniqueness_of(:name) }
+    it { should_not allow_value('0').for(:name) }
     it { should_not allow_value('foo::bar').for(:name) }
     it { should_not allow_value('foo:_bar').for(:name) }
     it { should_not allow_value('foo:.bar').for(:name) }
