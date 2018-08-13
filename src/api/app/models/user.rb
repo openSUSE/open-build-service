@@ -74,8 +74,9 @@ class User < ApplicationRecord
   validates :login,
             uniqueness: { message: 'is the name of an already existing user' }
 
+  # NOTE: This has to cover at least the forbidden project names ('home:$login')
   validates :login,
-            format: { with:    %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
+            format: { with:    %r{\A[[:alnum:]\$\^\-#\*\+&'"][\w \$\^\-\.#\*\+&'"]*\z},
                       message: 'must not contain invalid characters' }
   validates :login,
             length: { in: 2..100, allow_nil: true,

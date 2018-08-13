@@ -21,6 +21,11 @@ RSpec.describe User do
     it { expect(user.state).to eq('unconfirmed') }
 
     it { expect(create(:user)).to validate_uniqueness_of(:login).with_message('is the name of an already existing user') }
+
+    it { is_expected.not_to allow_value('.tux').for(:login) }
+    it { is_expected.not_to allow_value('_tux').for(:login) }
+    it { is_expected.not_to allow_value(':tux').for(:login) }
+    it { is_expected.to     allow_value('tux_.:1$&^+-#*\'"').for(:login) }
   end
 
   context 'is_admin?' do
