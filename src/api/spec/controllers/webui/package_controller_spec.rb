@@ -16,7 +16,7 @@ RSpec.describe Webui::PackageController, vcr: true do
   let(:service_package) { create(:package_with_service, name: 'package_with_service', project: source_project) }
   let(:broken_service_package) { create(:package_with_broken_service, name: 'package_with_broken_service', project: source_project) }
   let(:repo_for_source_project) do
-    repo = create(:repository, project: source_project, architectures: ['i586'])
+    repo = create(:repository, project: source_project, architectures: ['i586'], name: 'source_repo')
     source_project.store
     repo
   end
@@ -1498,6 +1498,80 @@ RSpec.describe Webui::PackageController, vcr: true do
 
         it { expect(response).to have_http_status(:redirect) }
         it { is_expected.to redirect_to('http://fake.com/filename.txt') }
+      end
+    end
+  end
+
+  describe 'GET #dependency' do
+    before do
+      allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_return(fileinfo)
+
+      get :dependency, params: { project: source_project, package: source_package }.merge(params)
+    end
+
+    let(:fileinfo) { { summary: 'fileinfo', description: 'fake' } }
+
+    context 'when passing params referring to an invalid project' do
+      let(:params) { { dependant_project: 'project' } }
+
+      it { expect(flash[:error]).to eq("Project '#{params[:dependant_project]}' is invalid.") }
+      it { expect(response).to have_http_status(:redirect) }
+    end
+
+    context 'when passing params referring to a valid project and an invalid architecture' do
+      let(:params) { { dependant_project: source_project.name, arch: '123' } }
+
+      it { expect(flash[:error]).to eq("Architecture '#{params[:arch]}' is invalid.") }
+      it { expect(response).to have_http_status(:redirect) }
+    end
+
+    context 'when passing params referring to valid project/architecture and an invalid repository' do
+      let(:params) { { dependant_project: source_project.name, arch: 'i586', repository: 'something' } }
+
+      it { expect(flash[:error]).to eq("Repository '#{params[:repository]}' is invalid.") }
+      it { expect(response).to have_http_status(:redirect) }
+    end
+
+    context 'when passing params referring to valid project/architecture/repository and an invalid repository' do
+      let(:params) do
+        {
+          dependant_project: source_project.name,
+          arch: 'i586',
+          repository: repo_for_source_project.name,
+          dependant_repository: 'something'
+        }
+      end
+
+      it { expect(flash[:error]).to eq("Repository '#{params[:dependant_repository]}' is invalid.") }
+      it { expect(response).to have_http_status(:redirect) }
+    end
+
+    context 'when passing params referring to valid project/architecture/repositories and a filename' do
+      let(:another_repo_for_source_project) do
+        create(:repository, project: source_project, architectures: ['i586'], name: 'source_repo_2').tap { |_| source_project.store }
+      end
+
+      let(:params) do
+        {
+          dependant_project: source_project.name,
+          arch: 'i586',
+          repository: repo_for_source_project.name,
+          dependant_repository: another_repo_for_source_project.name,
+          filename: 'test.rpm'
+        }
+      end
+
+      it { expect(assigns(:arch)).to eq(params[:arch]) }
+      it { expect(assigns(:repository)).to eq(params[:repository]) }
+      it { expect(assigns(:dependant_repository)).to eq(params[:dependant_repository]) }
+      it { expect(assigns(:dependant_project)).to eq(params[:dependant_project]) }
+      it { expect(assigns(:filename)).to eq(params[:filename]) }
+      it { expect(response).to have_http_status(:success) }
+
+      context 'and fileinfo is nil' do
+        let(:fileinfo) { nil }
+
+        it { expect(response).to have_http_status(:redirect) }
       end
     end
   end
