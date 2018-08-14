@@ -754,9 +754,10 @@ if (open(FILE, "<", "/proc/cpuinfo")) {
       # aarch64
       my @cpuflags = split(' ', $1);
       $hw->{'cpu'}->{'flag'} = \@cpuflags;
-    } elsif (/^CPU implementer\s*:\s0x43/ || /^CPU implementer\s*:\s0x51/) {
-      # aarch64 special case: does not support armvXl instruction set
-      $hw->{'nativeonly'} = undef;
+    } elsif (/^CPU implementer\s*:\s(.*)$/) {
+      $hw->{'cpu'}->{'implementer'} = $1;
+    } elsif (/^CPU variant\s*:\s(.*)$/) {
+      $hw->{'cpu'}->{'variant'} = $1;
     } elsif (/^cpu\s*:\sPOWER8/) {
       # PowerPC kernel does not provide any flags, but we need to be able
       # to distinguish between power7 and 8 at least
@@ -767,6 +768,31 @@ if (open(FILE, "<", "/proc/cpuinfo")) {
   }
   close FILE;
 }
+
+# Check for aarch64/aarch32 compatibility
+if (exists($hw->{'cpu'}->{'implementer'})) {
+  my $supports_aarch32 = 0;
+
+  if ($hw->{'cpu'}->{'implementer'} eq "0x50") {
+    # Applied Micro / Ampere Computing
+    if ($hw->{'cpu'}->{'variant'} eq "0x0") {
+      # APM X-Gene 1 supports aarch32
+      $supports_aarch32 = 1;
+    } elsif ($hw->{'cpu'}->{'variant'} eq "0x1") {
+      # APM X-Gene 2 supports aarch32
+      $supports_aarch32 = 1;
+    }
+  } elsif ($hw->{'cpu'}->{'implementer'} eq "0x41") {
+    # ARM Inc. - all variants support aarch32 compat for now
+    $supports_aarch32 = 1;
+  }
+
+  if (!$supports_aarch32) {
+    $hw->{'nativeonly'} = undef;
+  }
+}
+
+
 $hw->{'jobs'} = $jobs if $jobs;
 $hw->{'memory'} = $vm_memory if $vm_memory;
 $hw->{'swap'} = $vmdisk_swapsize if $vmdisk_swapsize;
