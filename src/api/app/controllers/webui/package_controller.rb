@@ -40,6 +40,8 @@ class Webui::PackageController < Webui::WebuiController
 
   before_action :check_build_log_access, only: [:live_build_log, :update_build_log]
 
+  before_action :check_package_name_for_new, only: [:save_new]
+
   prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binary, :binaries, :requests, :binary_download]
 
   def show
@@ -473,12 +475,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def save_new
-    @package_name = params[:name]
-    @package_title = params[:title]
-    @package_description = params[:description]
-
-    return unless check_package_name_for_new
-
     @package = @project.packages.build(name: @package_name)
     @package.title = params[:title]
     @package.description = params[:description]
@@ -498,6 +494,10 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def check_package_name_for_new
+    @package_name = params[:name]
+    @package_title = params[:title]
+    @package_description = params[:description]
+
     unless Package.valid_name?(@package_name)
       flash[:error] = "Invalid package name: '#{@package_name}'"
       redirect_to controller: :project, action: :new_package, project: @project
@@ -516,6 +516,8 @@ class Webui::PackageController < Webui::WebuiController
     end
     true
   end
+
+  private :check_package_name_for_new
 
   def branch
     params.fetch(:linked_project) { raise ArgumentError, 'Linked Project parameter missing' }
