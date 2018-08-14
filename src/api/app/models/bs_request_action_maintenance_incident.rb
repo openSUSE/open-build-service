@@ -6,7 +6,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
   #### Constants
 
   #### Self config
-  class NoMaintenanceReleaseTarget < APIException
+  class NoMaintenanceReleaseTarget < APIError
     setup 'no_maintenance_release_target'
   end
 

@@ -1,40 +1,40 @@
 class BsRequestPermissionCheck
-  class AddReviewNotPermitted < APIException
+  class AddReviewNotPermitted < APIError
     setup 403
   end
 
-  class NotExistingTarget < APIException
+  class NotExistingTarget < APIError
     setup 404
   end
 
-  class SourceChanged < APIException
+  class SourceChanged < APIError
   end
 
-  class ReleaseTargetNoPermission < APIException
+  class ReleaseTargetNoPermission < APIError
     setup 403
   end
 
-  class ProjectLocked < APIException
+  class ProjectLocked < APIError
     setup 403, 'The target project is locked'
   end
 
-  class TargetNotMaintenance < APIException
+  class TargetNotMaintenance < APIError
     setup 404
   end
 
-  class SourceMissing < APIException
+  class SourceMissing < APIError
     setup 'unknown_package', 404
   end
 
-  class SetPriorityNoPermission < APIException
+  class SetPriorityNoPermission < APIError
     setup 403
   end
 
-  class ReviewChangeStateNoPermission < APIException
+  class ReviewChangeStateNoPermission < APIError
     setup 403
   end
 
-  class ReviewNotSpecified < APIException
+  class ReviewNotSpecified < APIError
   end
 
   def check_accepted_action(action)
@@ -120,7 +120,7 @@ class BsRequestPermissionCheck
     end
   end
 
-  # check if the action can change state - or throw an APIException if not
+  # check if the action can change state - or throw an APIError if not
   def check_newstate_action!(action, opts)
     # relaxed checks for final exit states
     return if opts[:newstate].in?(['declined', 'revoked', 'superseded'])
@@ -366,7 +366,7 @@ class BsRequestPermissionCheck
 
   attr_accessor :opts, :req
 
-  # check if the request can change state - or throw an APIException if not
+  # check if the request can change state - or throw an APIError if not
   def initialize(request, options)
     self.req = request
     self.opts = options

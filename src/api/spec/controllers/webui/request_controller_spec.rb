@@ -220,13 +220,13 @@ RSpec.describe Webui::RequestController, vcr: true do
       end
 
       it { expect(response).to redirect_to(request_show_path(number: subject)) }
-      it { expect(flash[:success]).to match("Created .+repository delete request #{subject.number}") }
+      it { expect(flash[:success]).to match("Created .+delete request #{subject.number}") }
       it { expect(subject.description).to eq('delete it!') }
     end
 
-    context 'a request causing a APIException' do
+    context 'a request causing a APIError' do
       before do
-        allow_any_instance_of(BsRequest).to receive(:save!).and_raise(APIException, 'something happened')
+        allow_any_instance_of(BsRequest).to receive(:save!).and_raise(APIError, 'something happened')
         post :delete_request, params: { project: target_project, package: target_package, description: 'delete it!' }
       end
 
@@ -379,7 +379,7 @@ RSpec.describe Webui::RequestController, vcr: true do
 
     context 'when forwarding the request fails' do
       before do
-        allow(BsRequestActionSubmit).to receive(:new).and_raise(APIException, 'some error')
+        allow(BsRequestActionSubmit).to receive(:new).and_raise(APIError, 'some error')
         login(receiver)
       end
 

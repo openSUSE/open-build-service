@@ -6,11 +6,11 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   #### Constants
 
   #### Self config
-  class LackingReleaseMaintainership < APIException; setup 'lacking_maintainership', 403; end
-  class RepositoryWithoutReleaseTarget < APIException; setup 'repository_without_releasetarget'; end
-  class RepositoryWithoutArchitecture < APIException; setup 'repository_without_architecture'; end
-  class ArchitectureOrderMissmatch < APIException; setup 'architecture_order_missmatch'; end
-  class OpenReleaseRequests < APIException; setup 'open_release_requests'; end
+  class LackingReleaseMaintainership < APIError; setup 'lacking_maintainership', 403; end
+  class RepositoryWithoutReleaseTarget < APIError; setup 'repository_without_releasetarget'; end
+  class RepositoryWithoutArchitecture < APIError; setup 'repository_without_architecture'; end
+  class ArchitectureOrderMissmatch < APIError; setup 'architecture_order_missmatch'; end
+  class OpenReleaseRequests < APIError; setup 'open_release_requests'; end
 
   #### Attributes
 

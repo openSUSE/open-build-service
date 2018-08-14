@@ -1,6 +1,6 @@
 # we take everything here that is not XML - the default mimetype is xml though
 class WebuiMatcher
-  class InvalidRequestFormat < APIException
+  class InvalidRequestFormat < APIError
   end
 
   def self.matches?(request)
@@ -792,16 +792,18 @@ OBSApi::Application.routes.draw do
     end
   end
 
-  controller :comments do
-    get 'comments/request/:request_number' => :index, constraints: cons, as: :comments_request
-    post 'comments/request/:request_number' => :create, constraints: cons, as: :create_request_comment
-    get 'comments/package/:project/:package' => :index, constraints: cons, as: :comments_package
-    post 'comments/package/:project/:package' => :create, constraints: cons, as: :create_package_comment
-    get 'comments/project/:project' => :index, constraints: cons, as: :comments_project
-    post 'comments/project/:project' => :create, constraints: cons, as: :create_project_comment
-    get 'comments/user' => :index, constraints: cons, as: :comments_user
+  defaults format: 'xml' do
+    controller :comments do
+      get 'comments/request/:request_number' => :index, constraints: cons, as: :comments_request
+      post 'comments/request/:request_number' => :create, constraints: cons, as: :create_request_comment
+      get 'comments/package/:project/:package' => :index, constraints: cons, as: :comments_package
+      post 'comments/package/:project/:package' => :create, constraints: cons, as: :create_package_comment
+      get 'comments/project/:project' => :index, constraints: cons, as: :comments_project
+      post 'comments/project/:project' => :create, constraints: cons, as: :create_project_comment
+      get 'comments/user' => :index, constraints: cons, as: :comments_user
 
-    delete 'comment/:id' => :destroy, constraints: cons, as: :comment_delete
+      delete 'comment/:id' => :destroy, constraints: cons, as: :comment_delete
+    end
   end
 
   # this can be requested by non browsers (like HA proxies :)

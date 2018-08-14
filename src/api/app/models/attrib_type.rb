@@ -3,10 +3,10 @@ class AttribType < ApplicationRecord
   #### Includes and extends
   #### Constants
   #### Self config
-  class UnknownAttributeTypeError < APIException
+  class UnknownAttributeTypeError < APIError
     setup 'unknown_attribute_type', 404, 'Unknown Attribute Type'
   end
-  class InvalidAttributeError < APIException
+  class InvalidAttributeError < APIError
   end
 
   #### Attributes

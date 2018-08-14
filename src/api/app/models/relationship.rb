@@ -1,5 +1,5 @@
 class Relationship < ApplicationRecord
-  class SaveError < APIException; end
+  class SaveError < APIError; end
 
   belongs_to :role
 

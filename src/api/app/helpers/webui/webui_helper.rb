@@ -318,7 +318,7 @@ module Webui::WebuiHelper
 
     begin
       UnregisteredUser.can_register?
-    rescue APIException
+    rescue APIError
       return false
     end
     true

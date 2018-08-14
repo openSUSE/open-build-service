@@ -585,4 +585,17 @@ RSpec.describe Project, vcr: true do
       expect(project_release.packages.where(name: 'my_release_target')).to exist
     end
   end
+
+  describe '#expand_flags' do
+    let!(:maintenance_incident_project) { create(:maintenance_incident_project) }
+    it {
+      expect(maintenance_incident_project.expand_flags).to eq('lock' => [['disable', {}]],
+      'build' => [['disable', { explicit: '1' }]],
+      'publish' => [['disable', { explicit: '1' }]],
+      'debuginfo' => [['disable', {}]],
+      'useforbuild' => [['enable', {}]],
+      'binarydownload' => [['enable', {}]],
+      'sourceaccess' => [['enable', {}]], 'access' => [['enable', {}]])
+    }
+  end
 end

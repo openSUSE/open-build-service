@@ -148,7 +148,8 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
     end
     if File.exist?('/var/adm/fillup-templates') || File.exist?('/usr/share/fillup-templates/')
       # seems to be a SUSE system
-      assert_equal hashed['tags']['repo'], 'obsrepository://obstest/BaseDistro3/BaseDistro3_repo'
+      assert_equal hashed['tags']['repo'][0], 'obsrepository://obstest/BaseDistro3/BaseDistro3_repo'
+      assert hashed['tags']['repo'][1].match(/^obsbuildid:.*/)
     else
       puts 'WARNING: some tests are skipped on non-SUSE systems. rpmmd meta data may not be complete.'
     end

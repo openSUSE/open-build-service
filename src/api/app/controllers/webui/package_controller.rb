@@ -92,22 +92,25 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def dependency
-    unless Project.find_by_name(params[:dproject].to_s)
-      flash[:error] = "Project '#{params[:dproject]}' is invalid."
+    dependant_project = Project.find_by_name(params[:dependant_project]) || Project.find_remote_project(params[:dependant_project]).try(:first)
+    unless dependant_project
+      flash[:error] = "Project '#{params[:dependant_project]}' is invalid."
       redirect_back(fallback_location: root_path)
       return
     end
 
     unless Architecture.archcache.include?(params[:arch])
       flash[:error] = "Architecture '#{params[:arch]}' is invalid."
-      redirect_back(fallback_location: project_show_path(project: params[:dproject]))
+      redirect_back(fallback_location: project_show_path(project: @project.name))
       return
     end
-    project_repositories = Project.find_by_name(params[:dproject]).repositories.pluck(:name)
-    [:repository, :drepository].each do |repo_key|
+
+    # FIXME: It can't check repositories of remote projects
+    project_repositories = dependant_project.remoteurl.blank? ? dependant_project.repositories.pluck(:name) : []
+    [:repository, :dependant_repository].each do |repo_key|
       next if project_repositories.include?(params[repo_key])
       flash[:error] = "Repository '#{params[repo_key]}' is invalid."
-      redirect_back(fallback_location: project_show_path(project: params[:dproject]))
+      redirect_back(fallback_location: project_show_path(project: @project.name))
       # rubocop:disable Lint/NonLocalExitFromIterator
       return
       # rubocop:enable Lint/NonLocalExitFromIterator
@@ -115,12 +118,12 @@ class Webui::PackageController < Webui::WebuiController
 
     @arch = params[:arch]
     @repository = params[:repository]
-    @drepository = params[:drepository]
-    @dproject = params[:dproject]
+    @dependant_repository = params[:dependant_repository]
+    @dependant_project = params[:dependant_project]
     # Ensure it really is just a file name, no '/..', etc.
     @filename = File.basename(params[:filename])
-    @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(params[:dproject], '_repository', params[:drepository], @arch, params[:dname])
-    @durl = nil
+    @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(params[:dependant_project], '_repository', params[:dependant_repository],
+                                                                  @arch, params[:dependant_name])
     return if @fileinfo # avoid displaying an error for non-existing packages
     redirect_back(fallback_location: { action: :binary, project: params[:project], package: params[:package],
                                        repository: @repository, arch: @arch, filename: @filename })
@@ -301,7 +304,7 @@ class Webui::PackageController < Webui::WebuiController
            BsRequestAction::UnknownTargetPackage => e
       redirect_back(fallback_location: root_path, error: "Unable to submit (missing target): #{e.message}")
       return
-    rescue APIException, ActiveRecord::RecordInvalid => e
+    rescue APIError, ActiveRecord::RecordInvalid => e
       flash[:error] = "Unable to submit: #{e.message}"
     rescue ActiveRecord::RecordInvalid => e
       flash[:error] = "Unable to submit: #{e.message}"
@@ -328,7 +331,7 @@ class Webui::PackageController < Webui::WebuiController
             superseded_by: req.number
           }
           r.change_state(opts)
-        rescue APIException => e
+        rescue APIError => e
           supersede_errors << e.message.to_s
         end
       end
@@ -416,7 +419,7 @@ class Webui::PackageController < Webui::WebuiController
     return
   end
 
-  class DiffError < APIException
+  class DiffError < APIError
   end
 
   def get_diff(project, package, options = {})
@@ -581,7 +584,7 @@ class Webui::PackageController < Webui::WebuiController
   rescue CreateProjectNoPermission
     flash[:error] = 'Sorry, you are not authorized to create this Project.'
     redirect_back(fallback_location: root_path)
-  rescue APIException, ActiveRecord::RecordInvalid, ActiveXML::Transport::Error => exception
+  rescue APIError, ActiveRecord::RecordInvalid, ActiveXML::Transport::Error => exception
     flash[:error] = "Failed to branch: #{exception.message}"
     redirect_back(fallback_location: root_path)
   end
@@ -667,7 +670,7 @@ class Webui::PackageController < Webui::WebuiController
       else
         errors << 'No file or URI given'
       end
-    rescue APIException => e
+    rescue APIError => e
       errors << e.message
     rescue ActiveXML::Transport::Error => e
       errors << Xmlhash::XMLHash.new(error: e.summary)[:error]

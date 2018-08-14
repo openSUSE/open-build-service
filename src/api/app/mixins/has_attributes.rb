@@ -6,7 +6,7 @@ module HasAttributes
     end
   end
 
-  class AttributeSaveError < APIException
+  class AttributeSaveError < APIError
   end
 
   def write_attributes

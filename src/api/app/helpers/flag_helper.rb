@@ -1,5 +1,5 @@
 module FlagHelper
-  class InvalidFlag < APIException
+  class InvalidFlag < APIError
     setup 'invalid_flag'
   end
 

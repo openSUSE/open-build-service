@@ -111,7 +111,7 @@ class Webui::PatchinfoController < Webui::WebuiController
 
         begin
           Package.verify_file!(@package, '_patchinfo', xml)
-        rescue APIException => e
+        rescue APIError => e
           flash[:error] = "patchinfo is invalid: #{e.message}"
           render action: 'edit_patchinfo', project: @project, package: @package
           return

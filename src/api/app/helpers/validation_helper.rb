@@ -1,10 +1,10 @@
 require 'api_exception'
 
 module ValidationHelper
-  class InvalidProjectNameError < APIException
+  class InvalidProjectNameError < APIError
   end
 
-  class InvalidPackageNameError < APIException
+  class InvalidPackageNameError < APIError
   end
 
   def valid_project_name?(name)

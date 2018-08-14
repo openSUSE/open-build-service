@@ -4,12 +4,12 @@ class BsRequestActionGroup < BsRequestAction
   #### Constants
 
   #### Self config
-  class AlreadyGrouped < APIException; end
-  class CantGroupInGroups < APIException; end
-  class CantGroupRequest < APIException; 403; end
-  class GroupActionMustBeSingle < APIException; end
-  class NotInGroup < APIException; setup 404; end
-  class RequireId < APIException; end
+  class AlreadyGrouped < APIError; end
+  class CantGroupInGroups < APIError; end
+  class CantGroupRequest < APIError; 403; end
+  class GroupActionMustBeSingle < APIError; end
+  class NotInGroup < APIError; setup 404; end
+  class RequireId < APIError; end
 
   #### Attributes
   #### Associations macros (Belongs to, Has one, Has many)

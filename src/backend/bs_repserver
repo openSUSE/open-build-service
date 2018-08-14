@@ -4247,8 +4247,8 @@ my $dispatches = [
   # published files
   '/published' => \&publisheddir,
   '/published/$project' => \&publisheddir,
-  '/published/$project/$repository' => \&publisheddir,
   '/published/$project/$repository view=status' => \&published_status,
+  '/published/$project/$repository' => \&publisheddir,
   '/published/$project/$repository/$arch:filename view:?' => \&publisheddir,
   '/published/$project/$repository/$arch:filename/$filename view:?' => \&publishedfile,
   '/published/$project/$repository/$arch:filename/$filename/$subfilename:filename view:?' => \&publishedfile,

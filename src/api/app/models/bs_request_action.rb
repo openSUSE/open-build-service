@@ -8,28 +8,28 @@ class BsRequestAction < ApplicationRecord
   VALID_SOURCEUPDATE_OPTIONS = ['update', 'noupdate', 'cleanup'].freeze
 
   #### Self config
-  class DiffError < APIException; setup 404; end # a diff error can have many reasons, but most likely something within us
-  class RemoteSource < APIException; end
-  class RemoteTarget < APIException; end
-  class InvalidReleaseTarget < APIException; end
-  class LackingMaintainership < APIException
+  class DiffError < APIError; setup 404; end # a diff error can have many reasons, but most likely something within us
+  class RemoteSource < APIError; end
+  class RemoteTarget < APIError; end
+  class InvalidReleaseTarget < APIError; end
+  class LackingMaintainership < APIError
     setup 'lacking_maintainership', 403, 'Creating a submit request action with options requires maintainership in source package'
   end
-  class NoMaintenanceProject < APIException; end
-  class UnknownAttribute < APIException; setup 404; end
-  class IncidentHasNoMaintenanceProject < APIException; end
-  class NotSupported < APIException; end
-  class SubmitRequestRejected < APIException; end
-  class RequestRejected < APIException; setup 403; end
-  class UnknownProject < APIException; setup 404; end
-  class UnknownRole < APIException; setup 404; end
-  class IllegalRequest < APIException; end
-  class BuildNotFinished < APIException; end
-  class UnknownTargetProject < APIException; end
-  class UnknownTargetPackage < APIException; end
-  class WrongLinkedPackageSource < APIException; end
-  class MissingPatchinfo < APIException; end
-  class VersionReleaseDiffers < APIException; end
+  class NoMaintenanceProject < APIError; end
+  class UnknownAttribute < APIError; setup 404; end
+  class IncidentHasNoMaintenanceProject < APIError; end
+  class NotSupported < APIError; end
+  class SubmitRequestRejected < APIError; end
+  class RequestRejected < APIError; setup 403; end
+  class UnknownProject < APIError; setup 404; end
+  class UnknownRole < APIError; setup 404; end
+  class IllegalRequest < APIError; end
+  class BuildNotFinished < APIError; end
+  class UnknownTargetProject < APIError; end
+  class UnknownTargetPackage < APIError; end
+  class WrongLinkedPackageSource < APIError; end
+  class MissingPatchinfo < APIError; end
+  class VersionReleaseDiffers < APIError; end
 
   #### Attributes
 

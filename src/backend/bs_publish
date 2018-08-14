@@ -2407,6 +2407,7 @@ sub publish {
     my $obsname = $BSConfig::obsname || 'build.opensuse.org';
     push @repotags, "obsrepository://$obsname/$projid/$repoid";
   }
+  push @repotags, "obsbuildid:$repoinfo->{'publishid'}" if $repoinfo->{'publishid'};
 
   my $data = {
     'subdir' => $subdir,
@@ -2532,7 +2533,7 @@ publishprog_done:
     qsystem(@$hook, $prp, $extrep, @changed) && die("    @$hook failed: $?\n");
   }
 
-  BSNotify::notify('REPO_PUBLISHED', { project => $projid , 'repo' => $repoid });
+  BSNotify::notify('REPO_PUBLISHED', { project => $projid , 'repo' => $repoid, 'buildid' => $publishid});
 
   # all done. till next time...
   if ($BSConfig::publishprogram && $BSConfig::publishprogram->{$prp}) {

@@ -5,14 +5,14 @@
 class Patchinfo < ActiveXML::Node
   include ValidationHelper
 
-  class PatchinfoFileExists < APIException; end
-  class IncompletePatchinfo < APIException; end
+  class PatchinfoFileExists < APIError; end
+  class IncompletePatchinfo < APIError; end
 
-  class ReleasetargetNotFound < APIException
+  class ReleasetargetNotFound < APIError
     setup 404
   end
 
-  class TrackerNotFound < APIException
+  class TrackerNotFound < APIError
     setup 404
   end
 
