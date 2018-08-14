@@ -10,11 +10,6 @@ class Package < ApplicationRecord
   include CanRenderModel
   include HasRelationships
   include Package::Errors
-
-  has_many :relationships, dependent: :destroy, inverse_of: :package
-  belongs_to :kiwi_image, class_name: 'Kiwi::Image', inverse_of: :package
-  accepts_nested_attributes_for :kiwi_image
-
   include HasRatings
   include HasAttributes
 
@@ -24,6 +19,10 @@ class Package < ApplicationRecord
                        '.pdf', '.pk3', '.png', '.ps', '.rpm', '.sig', '.svgz', '.tar',
                        '.taz', '.tb2', '.tbz', '.tbz2', '.tgz', '.tlz', '.txz', '.ucode',
                        '.xpm', '.xz', '.z', '.zip', '.ttf'].freeze
+
+  has_many :relationships, dependent: :destroy, inverse_of: :package
+  belongs_to :kiwi_image, class_name: 'Kiwi::Image', inverse_of: :package
+  accepts_nested_attributes_for :kiwi_image
 
   belongs_to :project, inverse_of: :packages
   delegate :name, to: :project, prefix: true
