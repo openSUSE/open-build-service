@@ -56,6 +56,9 @@ Bugfixes:
 Intentional changes:
 ====================
 
+  * User login names are now prohibited to start with '_', '.', ':'. Please ensure that your OBS instance
+    does not contain users that match this pattern. If they do, it's recommended to rename them.
+
   * Excluded entries in package build results are not shown by default anymore.
 
   * OBS is now using the lograge gem to generate production logs. We are now logging (in one line per request):
