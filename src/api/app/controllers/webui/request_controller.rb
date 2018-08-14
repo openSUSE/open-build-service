@@ -193,7 +193,7 @@ class Webui::RequestController < Webui::WebuiController
       request = BsRequest.create!(
         description: params[:description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:delete))]
       )
-      request_link = ActionController::Base.helpers.link_to("repository delete request #{request.number}", request_show_path(request.number))
+      request_link = ActionController::Base.helpers.link_to("delete request #{request.number}", request_show_path(request.number))
       flash[:success] = "Created #{request_link}"
     rescue APIError => e
       flash[:error] = e.message

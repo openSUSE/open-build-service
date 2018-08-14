@@ -121,8 +121,8 @@ RSpec.feature 'Packages', type: :feature, js: true do
     click_link('Request deletion')
     expect(page).to have_text('Do you really want to request the deletion of package ')
     click_button('Ok')
-    expect(page).to have_text('Created repository delete request')
-    find('a', text: /repository delete request \d+/).click
+    expect(page).to have_text('Created delete request')
+    find('a', text: /delete request \d+/).click
     expect(page.current_path).to match('/request/show/\\d+')
   end
 
