@@ -255,7 +255,7 @@ RSpec.describe Project, vcr: true do
 
       it 'has ::' do
         property_of do
-          string = sized(1) { string(/[a-zA-Z0-9\-+\.:]/) } + sized(range(1, 199)) { string(/[-+\w\.:]/) }
+          string = sized(1) { string(/[a-zA-Z0-9\-+]/) } + sized(range(1, 199)) { string(/[-+\w\.:]/) }
           index = range(0, (string.length - 2))
           string[index] = string[index + 1] = ':'
           string
@@ -266,7 +266,7 @@ RSpec.describe Project, vcr: true do
 
       it 'end with :' do
         property_of do
-          string = sized(1) { string(/[a-zA-Z0-9\-+\.:]/) } + sized(range(0, 198)) { string(/[-+\w\.:]/) } + ':'
+          string = sized(1) { string(/[a-zA-Z0-9\-+]/) } + sized(range(0, 198)) { string(/[-+\w\.:]/) } + ':'
           guard string !~ /:[:\._]/
           string
         end.check do |string|
@@ -286,7 +286,7 @@ RSpec.describe Project, vcr: true do
 
       it 'has more than 200 characters' do
         property_of do
-          string = sized(1) { string(/[a-zA-Z0-9\-+\.:]/) } + sized(200) { string(/[-+\w\.:]/) }
+          string = sized(1) { string(/[a-zA-Z0-9\-+]/) } + sized(200) { string(/[-+\w\.:]/) }
           guard string[-1] != ':' && string !~ /:[:\._]/
           string
         end.check(3) do |string|
