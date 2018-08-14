@@ -1,11 +1,11 @@
 include ValidationHelper
 
 module MaintenanceHelper
-  class MissingAction < APIException
+  class MissingAction < APIError
     setup 400, 'The request contains no actions. Submit requests without source changes may have skipped!'
   end
 
-  class MultipleUpdateInfoTemplate < APIException; end
+  class MultipleUpdateInfoTemplate < APIError; end
 
   def _release_product(source_package, target_project, action)
     product_package = Package.find_by_project_and_name(source_package.project.name, '_product')

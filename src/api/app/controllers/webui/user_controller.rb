@@ -94,7 +94,7 @@ class Webui::UserController < Webui::WebuiController
 
     begin
       UnregisteredUser.register(opts)
-    rescue APIException => e
+    rescue APIError => e
       flash[:error] = e.message
       redirect_back(fallback_location: root_path)
       return

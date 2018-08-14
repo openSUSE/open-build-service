@@ -80,14 +80,14 @@ class Webui::AttributeController < Webui::WebuiController
   def set_container
     begin
       @project = Project.get_by_name(params[:project])
-    rescue APIException
+    rescue APIError
       flash[:error] = "Project not found: #{params[:project]}"
       redirect_to(controller: 'project') && return
     end
     if params[:package]
       begin
         @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
-      rescue APIException
+      rescue APIError
         redirect_to(project_show_path(@project.to_s), error: "Package #{params[:package]} not found") && (return)
       end
       @container = @package

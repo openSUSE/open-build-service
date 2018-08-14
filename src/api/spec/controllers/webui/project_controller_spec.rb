@@ -1126,9 +1126,9 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { expect(response).to redirect_to(project_show_path(apache_maintenance_incident_project)) }
     end
 
-    context 'when raises an APIException' do
+    context 'when raises an APIError' do
       before do
-        allow_any_instance_of(BsRequest).to receive(:save!).and_raise(APIException)
+        allow_any_instance_of(BsRequest).to receive(:save!).and_raise(APIError)
         post :new_release_request, params: { project: apache_maintenance_incident_project }
       end
 
@@ -1136,17 +1136,17 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { expect(response).to redirect_to(project_show_path(apache_maintenance_incident_project)) }
     end
 
-    shared_examples 'a non APIException' do |exception_class|
+    shared_examples 'a non APIError' do |error_class|
       before do
-        allow_any_instance_of(BsRequest).to receive(:save!).and_raise(exception_class, "boom #{exception_class}")
+        allow_any_instance_of(BsRequest).to receive(:save!).and_raise(error_class, "boom #{error_class}")
         post :new_release_request, params: { project: apache_maintenance_incident_project }
       end
 
-      it { expect(flash[:error]).to eq("boom #{exception_class}") }
+      it { expect(flash[:error]).to eq("boom #{error_class}") }
       it { expect(response).to redirect_to(project_show_path(apache_maintenance_incident_project)) }
     end
 
-    context 'when raises a non APIException' do
+    context 'when raises a non APIError' do
       [Patchinfo::IncompletePatchinfo,
        BsRequestAction::UnknownProject,
        BsRequestAction::BuildNotFinished,
@@ -1155,8 +1155,8 @@ RSpec.describe Webui::ProjectController, vcr: true do
        BsRequestActionMaintenanceRelease::ArchitectureOrderMissmatch,
        BsRequestAction::VersionReleaseDiffers,
        BsRequestAction::UnknownTargetProject,
-       BsRequestAction::UnknownTargetPackage].each do |exception_class|
-        it_behaves_like 'a non APIException', exception_class
+       BsRequestAction::UnknownTargetPackage].each do |error_class|
+        it_behaves_like 'a non APIError', error_class
       end
     end
 

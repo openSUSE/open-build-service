@@ -1,7 +1,7 @@
 require_dependency 'status_helper'
 
 class StatusController < ApplicationController
-  class PermissionDeniedError < APIException
+  class PermissionDeniedError < APIError
     setup 403
   end
 
@@ -17,7 +17,7 @@ class StatusController < ApplicationController
     render xml: render_to_string(partial: 'messages')
   end
 
-  class CreatingMessagesError < APIException
+  class CreatingMessagesError < APIError
   end
 
   def update_messages
@@ -150,13 +150,13 @@ class StatusController < ApplicationController
     render xml: render_to_string(partial: 'bsrequest')
   end
 
-  class NotFoundError < APIException
+  class NotFoundError < APIError
     setup 404
   end
 
-  class MultipleNotSupported < APIException
+  class MultipleNotSupported < APIError
   end
 
-  class NotSubmitRequest < APIException
+  class NotSubmitRequest < APIError
   end
 end

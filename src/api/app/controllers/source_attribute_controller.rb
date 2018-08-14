@@ -3,14 +3,14 @@ class SourceAttributeController < SourceController
   before_action :set_request_data, only: [:update]
   before_action :find_attribute_container
 
-  class RemoteProject < APIException
+  class RemoteProject < APIError
     setup 400, 'Attribute access to remote project is not yet supported'
   end
 
-  class InvalidAttribute < APIException
+  class InvalidAttribute < APIError
   end
 
-  class ChangeAttributeNoPermission < APIException
+  class ChangeAttributeNoPermission < APIError
     setup 403
   end
 
@@ -71,7 +71,7 @@ class SourceAttributeController < SourceController
       attrib.container = @attribute_container
 
       unless attrib.valid?
-        raise APIException, message: attrib.errors.full_messages.join('\n'), status: 400
+        raise APIError, message: attrib.errors.full_messages.join('\n'), status: 400
       end
 
       authorize attrib, :create?

@@ -39,7 +39,7 @@ class ProjectLogEntry < ApplicationRecord
 
   def package
     @package ||= package_name.blank? ? nil : Package.get_by_project_and_name(project.name, package_name)
-  rescue APIException, ActiveRecord::RecordNotFound
+  rescue APIError, ActiveRecord::RecordNotFound
     @package ||= nil
   end
 

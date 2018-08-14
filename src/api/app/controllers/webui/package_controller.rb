@@ -304,7 +304,7 @@ class Webui::PackageController < Webui::WebuiController
            BsRequestAction::UnknownTargetPackage => e
       redirect_back(fallback_location: root_path, error: "Unable to submit (missing target): #{e.message}")
       return
-    rescue APIException, ActiveRecord::RecordInvalid => e
+    rescue APIError, ActiveRecord::RecordInvalid => e
       flash[:error] = "Unable to submit: #{e.message}"
     rescue ActiveRecord::RecordInvalid => e
       flash[:error] = "Unable to submit: #{e.message}"
@@ -331,7 +331,7 @@ class Webui::PackageController < Webui::WebuiController
             superseded_by: req.number
           }
           r.change_state(opts)
-        rescue APIException => e
+        rescue APIError => e
           supersede_errors << e.message.to_s
         end
       end
@@ -419,7 +419,7 @@ class Webui::PackageController < Webui::WebuiController
     return
   end
 
-  class DiffError < APIException
+  class DiffError < APIError
   end
 
   def get_diff(project, package, options = {})
@@ -584,7 +584,7 @@ class Webui::PackageController < Webui::WebuiController
   rescue CreateProjectNoPermission
     flash[:error] = 'Sorry, you are not authorized to create this Project.'
     redirect_back(fallback_location: root_path)
-  rescue APIException, ActiveRecord::RecordInvalid, ActiveXML::Transport::Error => exception
+  rescue APIError, ActiveRecord::RecordInvalid, ActiveXML::Transport::Error => exception
     flash[:error] = "Failed to branch: #{exception.message}"
     redirect_back(fallback_location: root_path)
   end
@@ -670,7 +670,7 @@ class Webui::PackageController < Webui::WebuiController
       else
         errors << 'No file or URI given'
       end
-    rescue APIException => e
+    rescue APIError => e
       errors << e.message
     rescue ActiveXML::Transport::Error => e
       errors << Xmlhash::XMLHash.new(error: e.summary)[:error]

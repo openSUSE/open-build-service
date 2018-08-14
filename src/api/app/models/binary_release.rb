@@ -2,7 +2,7 @@ class BinaryRelease < ApplicationRecord
   #### Includes and extends
   #### Constants
   #### Self config
-  class SaveError < APIException; end
+  class SaveError < APIError; end
 
   #### Attributes
   #### Associations macros (Belongs to, Has one, Has many)

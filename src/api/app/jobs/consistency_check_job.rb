@@ -151,7 +151,7 @@ class ConsistencyCheckJob < ApplicationJob
     project.update_from_xml!(Xmlhash.parse(meta))
     project.save!
     return ''
-  rescue APIException => e
+  rescue APIError => e
     return "Invalid project meta data hosted in src server for project #{project}: #{e}"
   rescue ActiveRecord::RecordInvalid
     Backend::Api::Sources::Project.delete(project)

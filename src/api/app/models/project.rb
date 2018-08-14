@@ -8,28 +8,10 @@ class Project < ApplicationRecord
   include HasRatings
   include HasAttributes
   include MaintenanceHelper
+  include Project::Errors
 
-  class CycleError < APIException
-    setup 'project_cycle'
-  end
-  class DeleteError < APIException
-    setup 'delete_error'
-  end
-  # unknown objects and no read access permission are handled in the same way by default
-  class UnknownObjectError < APIException
-    setup 'unknown_project', 404, 'Unknown project'
-  end
-  class ReadAccessError < UnknownObjectError; end
-  class SaveError < APIException
-    setup 'project_save_error'
-  end
-  class WritePermissionError < APIException
-    setup 'project_write_permission_error'
-  end
-  class ForbiddenError < APIException
-    setup('change_project_protection_level', 403,
-          "admin rights are required to raise the protection level of a project (it won't be safe anyway)")
-  end
+  TYPES = ['standard', 'maintenance', 'maintenance_incident',
+           'maintenance_release'].freeze
 
   before_destroy :cleanup_before_destroy
   after_destroy_commit :delete_on_backend
@@ -123,7 +105,8 @@ class Project < ApplicationRecord
   validates :name, presence: true, length: { maximum: 200 }, uniqueness: true
   validates :title, length: { maximum: 250 }
   validate :valid_name
-  validates :kind, inclusion: { in: ['standard', 'maintenance', 'maintenance_incident', 'maintenance_release'] }
+
+  validates :kind, inclusion: { in: TYPES }
 
   def self.home?(name)
     name.start_with?('home:')
@@ -217,7 +200,8 @@ class Project < ApplicationRecord
   def self.deleted_instance
     project = Project.find_by(name: 'deleted')
     unless project
-      project = Project.create(title: 'Place holder for a deleted project instance', name: 'deleted')
+      project = Project.create(title: 'Place holder for a deleted project instance',
+                               name: 'deleted')
       project.store
     end
     project
@@ -232,14 +216,6 @@ class Project < ApplicationRecord
 
     # find linking target repositories
     cleanup_linking_targets
-
-    # deleting local devel packages
-    packages.each do |pkg|
-      if pkg.develpackage_id
-        pkg.develpackage_id = nil
-        pkg.save
-      end
-    end
 
     revoke_requests # Revoke all requests that have this project as source/target
     cleanup_packages # Deletes packages (only in DB)
@@ -256,14 +232,11 @@ class Project < ApplicationRecord
 
   def siblingprojects
     parent_name = parent.try(:name)
-    siblings = []
-    if parent_name
-      Project.where('name like (?) and name != (?)', "#{parent_name}:%", name).order(:name).each do |sib|
-        sib_parent = sib.possible_ancestor_names.first
-        siblings << sib if sib_parent == parent_name
-      end
+    return [] unless parent_name
+    Project.where('name like (?) and name != (?)', "#{parent_name}:%", name).
+      order(:name).select do |sib|
+      sib if parent_name == sib.possible_ancestor_names.first
     end
-    siblings
   end
 
   def maintained_project_names
@@ -600,7 +573,7 @@ class Project < ApplicationRecord
   def update_from_xml(xmlhash, force = nil)
     update_from_xml!(xmlhash, force)
     {}
-  rescue APIException, ActiveRecord::RecordInvalid => e
+  rescue APIError, ActiveRecord::RecordInvalid => e
     { error: e.message }
   end
 
@@ -720,9 +693,7 @@ class Project < ApplicationRecord
       end
     end
 
-    flags.sort! { |a, b| a.specifics <=> b.specifics }
-
-    flags.each do |f|
+    flags.sort_by(&:specifics).each do |f|
       ret = f.status
       expl = f.is_explicit_for?(repo, arch)
     end
@@ -735,8 +706,8 @@ class Project < ApplicationRecord
       # in case we look at a package, the project flags are not explicit
       expl = false
     end
-    flags.sort! { |a, b| a.specifics <=> b.specifics }
-    flags.each do |f|
+
+    flags.sort_by(&:specifics).each do |f|
       ret = f.status
       expl = f.is_explicit_for?(repo, arch)
     end
@@ -745,10 +716,16 @@ class Project < ApplicationRecord
     opts[:repository] = repo if repo
     opts[:arch] = arch if arch
     opts[:explicit] = '1' if expl
-    ret = 'enable' if ret == :enabled
-    ret = 'disable' if ret == :disabled
+    ret_str = case ret
+              when :enabled
+                'enable'
+              when :disabled
+                'disable'
+              else
+                ret
+              end
     # we allow to only check the return value
-    [ret, opts]
+    [ret_str, opts]
   end
 
   # give out the XML for all repos/arch combos
@@ -795,17 +772,17 @@ class Project < ApplicationRecord
   end
 
   def exists_package?(name, opts = {})
-    if opts[:follow_project_links]
-      # Look for any package with name in all our linked projects
-      pkg = Package.find_by(project: expand_linking_to, name: name)
-    else
-      pkg = packages.find_by_name(name)
-    end
+    pkg = if opts[:follow_project_links]
+            # Look for any package with name in all our linked projects
+            Package.find_by(project: expand_linking_to, name: name)
+          else
+            packages.find_by_name(name)
+          end
     if pkg.nil?
       # local project, but package may be in a linked remote one
       opts[:allow_remote_packages] && Package.exists_on_backend?(name, self.name)
     else
-      pkg && Package.check_access?(pkg)
+      Package.check_access?(pkg)
     end
   end
 
@@ -915,7 +892,7 @@ class Project < ApplicationRecord
       end
     end
 
-    packages.sort! { |a, b| a.first.downcase <=> b.first.downcase }
+    packages.sort_by { |package| package.first.downcase }
   end
 
   # return array of [:name, :package_id] tuples for all products

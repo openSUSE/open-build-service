@@ -2,7 +2,7 @@ require 'api_exception'
 
 module OwnerSearch
   class Base
-    class AttributeNotSetError < APIException
+    class AttributeNotSetError < APIError
       setup 'attribute_not_set', 400
     end
 

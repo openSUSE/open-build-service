@@ -4,7 +4,7 @@ include ValidationHelper
 require 'builder/xchar'
 
 class SourceController < ApplicationController
-  class IllegalRequest < APIException
+  class IllegalRequest < APIError
     setup 404, 'Illegal request'
   end
 
@@ -20,7 +20,7 @@ class SourceController < ApplicationController
                                                       :global_command_orderkiwirepos, :global_command_branch,
                                                       :global_command_createmaintenanceincident]
 
-  class NoPermissionForDeleted < APIException
+  class NoPermissionForDeleted < APIError
     setup 403, 'only admins can see deleted projects'
   end
 
@@ -54,15 +54,15 @@ class SourceController < ApplicationController
     @login = params[:login]
   end
 
-  class NoLocalPackage < APIException; end
+  class NoLocalPackage < APIError; end
 
-  class ChangePackageProtectionLevelError < APIException
+  class ChangePackageProtectionLevelError < APIError
     setup 'change_package_protection_level',
           403,
           'admin rights are required to raise the protection level of a package'
   end
 
-  class CmdExecutionNoPermission < APIException
+  class CmdExecutionNoPermission < APIError
     setup 403
   end
 
@@ -102,14 +102,14 @@ class SourceController < ApplicationController
     pass_to_backend(path)
   end
 
-  class DeletePackageNoPermission < APIException
+  class DeletePackageNoPermission < APIError
     setup 403
   end
 
-  class ProjectExists < APIException
+  class ProjectExists < APIError
   end
 
-  class PackageExists < APIException
+  class PackageExists < APIError
   end
 
   def delete_package
@@ -160,7 +160,7 @@ class SourceController < ApplicationController
     end
   end
 
-  class NoMatchingReleaseTarget < APIException
+  class NoMatchingReleaseTarget < APIError
     setup 404, 'No defined or matching release target'
   end
 
@@ -266,22 +266,22 @@ class SourceController < ApplicationController
     validate_read_access_of_deleted_package(@target_project_name, @target_package_name) if @package.nil? && @deleted_package
   end
 
-  class ChangeProjectNoPermission < APIException
+  class ChangeProjectNoPermission < APIError
     setup 403
   end
 
-  class InvalidProjectParameters < APIException
+  class InvalidProjectParameters < APIError
     setup 404
   end
 
-  class ProjectNameMismatch < APIException
+  class ProjectNameMismatch < APIError
   end
 
-  class RepositoryAccessFailure < APIException
+  class RepositoryAccessFailure < APIError
     setup 404
   end
 
-  class ProjectReadAccessFailure < APIException
+  class ProjectReadAccessFailure < APIError
     setup 404
   end
 
@@ -293,7 +293,7 @@ class SourceController < ApplicationController
     raise ChangeProjectNoPermission, result[:error] if !opts[:force] && result[:error]
   end
 
-  class PutProjectConfigNoPermission < APIException
+  class PutProjectConfigNoPermission < APIError
     setup 403
   end
 
@@ -312,7 +312,7 @@ class SourceController < ApplicationController
     pass_to_backend(path)
   end
 
-  class DeleteProjectPubkeyNoPermission < APIException
+  class DeleteProjectPubkeyNoPermission < APIError
     setup 403
   end
 
@@ -375,11 +375,11 @@ class SourceController < ApplicationController
     pass_to_backend(path)
   end
 
-  class PutFileNoPermission < APIException
+  class PutFileNoPermission < APIError
     setup 403
   end
 
-  class WrongRouteForAttribute < APIException; end
+  class WrongRouteForAttribute < APIError; end
 
   def check_permissions_for_file
     @project_name = params[:project]
@@ -493,11 +493,11 @@ class SourceController < ApplicationController
 
   private
 
-  class AttributeNotFound < APIException
+  class AttributeNotFound < APIError
     setup 'not_found', 404
   end
 
-  class ModifyProjectNoPermission < APIException
+  class ModifyProjectNoPermission < APIError
     setup 403
   end
 
@@ -516,7 +516,7 @@ class SourceController < ApplicationController
     end
   end
 
-  class RepoDependency < APIException
+  class RepoDependency < APIError
   end
 
   # create a id collection of all projects doing a project link to this one
@@ -662,10 +662,10 @@ class SourceController < ApplicationController
     raise NoMatchingReleaseTarget, 'No defined or matching release target' unless repo_matches
   end
 
-  class RemoteProjectError < APIException
+  class RemoteProjectError < APIError
     setup 'remote_project', 404
   end
-  class ProjectCopyNoPermission < APIException
+  class ProjectCopyNoPermission < APIError
     setup 403
   end
 
@@ -801,7 +801,7 @@ class SourceController < ApplicationController
     render_ok
   end
 
-  class NotLocked < APIException; end
+  class NotLocked < APIError; end
 
   # unlock a package
   # POST /source/<project>/<package>?cmd=unlock
@@ -1228,7 +1228,7 @@ class SourceController < ApplicationController
     obj_set_flag(@project)
   end
 
-  class InvalidFlag < APIException; end
+  class InvalidFlag < APIError; end
 
   def obj_set_flag(obj)
     obj.transaction do

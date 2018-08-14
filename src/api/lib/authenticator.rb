@@ -2,27 +2,27 @@ require_dependency 'opensuse/permission'
 require_dependency 'gssapi' if CONFIG['kerberos_service_principal']
 
 class Authenticator
-  class AuthenticationRequiredError < APIException
+  class AuthenticationRequiredError < APIError
     setup 401, 'Authentication required'
   end
 
-  class AnonymousUser < APIException
+  class AnonymousUser < APIError
     setup 401
   end
 
-  class NoPublicAccessError < APIException
+  class NoPublicAccessError < APIError
     setup 401
   end
 
-  class InactiveUserError < APIException
+  class InactiveUserError < APIError
     setup 403
   end
 
-  class UnconfirmedUserError < APIException
+  class UnconfirmedUserError < APIError
     setup 403
   end
 
-  class AdminUserRequiredError < APIException
+  class AdminUserRequiredError < APIError
     setup('put_request_no_permission', 403)
   end
 

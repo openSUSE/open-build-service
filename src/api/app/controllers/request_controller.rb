@@ -17,7 +17,7 @@ class RequestController < ApplicationController
     @request_list = BsRequest.order(:number).pluck(:number)
   end
 
-  class RequireFilter < APIException
+  class RequireFilter < APIError
     setup 404, 'This call requires at least one filter, either by user, project or package or states or types or reviewstates'
   end
 
@@ -200,11 +200,11 @@ class RequestController < ApplicationController
     end
   end
 
-  class PostRequestMissingParamater < APIException
+  class PostRequestMissingParamater < APIError
     setup 403
   end
 
-  class GroupRequestSpecial < APIException
+  class GroupRequestSpecial < APIError
     setup 'command_only_valid_for_group'
   end
 
@@ -249,7 +249,7 @@ class RequestController < ApplicationController
     render_ok
   end
 
-  class MultipleMaintenanceIncidents < APIException
+  class MultipleMaintenanceIncidents < APIError
     setup 404
   end
 

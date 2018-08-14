@@ -7,7 +7,7 @@ require 'stringio'
 # types are RelaxNG and XML Schema (xsd).
 
 module Suse
-  class ValidationError < APIException
+  class ValidationError < APIError
     setup 'validation_failed'
   end
 

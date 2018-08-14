@@ -213,7 +213,7 @@ class ApplicationController < ActionController::Base
     render_error status: 400, errorcode: 'invalid_xml', message: 'Invalid XML'
   end
 
-  rescue_from APIException do |exception|
+  rescue_from APIError do |exception|
     bt = exception.backtrace.join("\n")
     logger.debug "#{exception.class.name} #{exception.message} #{bt}"
     message = exception.message

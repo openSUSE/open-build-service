@@ -1,7 +1,7 @@
 require_dependency 'api_exception'
 
 class UnregisteredUser < User
-  class ErrRegisterSave < APIException
+  class ErrRegisterSave < APIError
   end
 
   # Raises an exception if registration is disabled for a user

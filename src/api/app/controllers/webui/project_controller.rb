@@ -184,7 +184,7 @@ class Webui::ProjectController < Webui::WebuiController
              BsRequestAction::UnknownTargetPackage => e
         flash[:error] = e.message
         redirect_back(fallback_location: { action: 'show', project: params[:project] }) && return
-      rescue APIException
+      rescue APIError
         flash[:error] = 'Internal problem while release request creation'
         redirect_back(fallback_location: { action: 'show', project: params[:project] }) && return
       end

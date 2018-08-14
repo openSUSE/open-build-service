@@ -44,7 +44,7 @@ RSpec.describe Role do
     end
 
     context 'called for a non-existing record' do
-      it 'raises an APIException' do
+      it 'raises an APIError' do
         expect { Role.find_by_title!('foobar') }.to raise_error(Role::NotFound, "Couldn't find Role 'foobar'")
       end
     end
