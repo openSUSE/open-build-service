@@ -11,4 +11,7 @@
         %p
           = f.label(:email, "e-Mail:")
           = f.text_field(:email, required: true, email: true)
+        %p
+          = f.label(:in_beta, 'Join the beta?')
+          = f.check_box(:in_beta)
         = render partial: '/webui/shared/dialog_action_buttons'

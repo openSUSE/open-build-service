@@ -37,7 +37,7 @@ class Webui::UserController < Webui::WebuiController
     end
 
     if @configuration.accounts_editable?(@displayed_user)
-      @displayed_user.assign_attributes(params[:user].slice(:realname, :email).permit!)
+      @displayed_user.assign_attributes(params[:user].slice(:realname, :email, :in_beta).permit!)
     end
 
     if User.current.is_admin?

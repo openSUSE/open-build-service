@@ -29,6 +29,9 @@
     %ul
       - @role_titles.each do |title|
         %li= title
+  / beta
+  - if @displayed_user.in_beta?
+    %p Participates in public beta program
   / edit
   - if @is_displayed_user
     %p

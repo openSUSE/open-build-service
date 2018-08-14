@@ -3,13 +3,47 @@ require 'rails_helper'
 RSpec.describe Webui::ImageTemplatesController, type: :controller do
   describe 'GET #index' do
     context 'image_templates feature is disabled' do
+      context 'for an anonymous user' do
+        before do
+          Feature.run_with_deactivated(:image_templates) do
+            get :index
+          end
+        end
+
+        it { is_expected.to respond_with(:not_found) }
+      end
+
+      context 'for a user' do
+        before do
+          login user
+
+          Feature.run_with_deactivated(:image_templates) do
+            get :index
+          end
+        end
+
+        context 'participating in the beta' do
+          let(:user) { create(:confirmed_user, :in_beta) }
+
+          it { is_expected.to respond_with(:success) }
+        end
+
+        context 'not participating in the beta' do
+          let(:user) { create(:confirmed_user) }
+
+          it { is_expected.to respond_with(:not_found) }
+        end
+      end
+    end
+
+    context 'image_templates feature is enabled' do
       before do
-        Feature.run_with_deactivated(:image_templates) do
+        Feature.run_with_activated(:image_templates) do
           get :index
         end
       end
 
-      it { is_expected.to respond_with(:not_found) }
+      it { is_expected.to respond_with(:success) }
     end
 
     context 'without image templates' do
