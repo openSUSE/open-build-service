@@ -30,10 +30,10 @@
       });
     <% end %>
 
-    <%= auto_discovery_link_tag(:rss, news_feed_path(format: 'rss'), {:title => 'News'}) %>
+    <%= auto_discovery_link_tag(:rss, news_feed_path(format: 'rss'), { title: 'News' }) %>
     <% unless CONFIG['feeds'].nil? or CONFIG['feeds'].empty? %>
       <% CONFIG['feeds'].each do |feed| %>
-        <%= auto_discovery_link_tag(:rss, feed['url'], {:title => feed['name']}) %>
+        <%= auto_discovery_link_tag(:rss, feed['url'], { title: feed['name'] }) %>
       <% end %>
     <% end %>
     <%= csrf_meta_tag %>
@@ -45,7 +45,7 @@
     <div class="overlay"></div>
 
     <%= render 'peek/bar' %>
-    <%= render :partial => 'layouts/webui/header' %>
+    <%= render partial: 'layouts/webui/header' %>
 
     <div id="subheader" class="container_16">
       <div id="breadcrump" class="grid_10 alpha">
@@ -62,14 +62,14 @@
         <% end %>
       </div>
 
-      <%= render :partial => "layouts/webui/personal_navigation"  %>
+      <%= render partial: 'layouts/webui/personal_navigation'  %>
     </div>
 
 
-    <%= render partial: "layouts/webui/flash", object: flash  %>
+    <%= render partial: 'layouts/webui/flash', object: flash  %>
 
     <% unless @hide_announcement_notification %>
-      <%= render partial: "layouts/webui/announcement" %>
+      <%= render partial: 'layouts/webui/announcement' %>
     <% end %>
 
     <!-- this is needed for the delete confirm dialogues -->
