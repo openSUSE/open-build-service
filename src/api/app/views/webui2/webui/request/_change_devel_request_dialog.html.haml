@@ -13,10 +13,10 @@
             Do you want to request to set the devel project for #{package_link(package)}?
         .form-group
           - if current_devel_project && current_devel_package
-            = label_tag('devel-project', 'New Devel project (leave free to delete the current one):')
+            = label_tag(:devel_project, 'New Devel project (leave free to delete the current one):')
           - else
-            = label_tag('devel-project', 'Devel project:')
-          = text_field_tag('devel-project', '', required: true, class: 'form-control')
+            = label_tag(:devel_project, 'Devel project:')
+          = text_field_tag(:devel_project, '', required: true, class: 'form-control')
         .form-group
           = label_tag(:description, 'Description:')
           = text_area_tag(:description, '', row: 3, class: 'form-control')
@@ -24,7 +24,7 @@
         = render partial: 'webui2/shared/dialog_action_buttons'
 
 :javascript
-  $("#devel-project").autocomplete({
+  $("#devel_project").autocomplete({
     source: '#{url_for controller: 'project', action: 'autocomplete_projects'}',
     search: function(event, ui) {
       $(this).addClass('loading-spinner');
@@ -34,5 +34,5 @@
     },
     minLength: 2});
 
-  $("#devel-project" ).autocomplete( "option", "appendTo", ".modal-body" );
+  $("#devel_project" ).autocomplete( "option", "appendTo", ".modal-body" );
 

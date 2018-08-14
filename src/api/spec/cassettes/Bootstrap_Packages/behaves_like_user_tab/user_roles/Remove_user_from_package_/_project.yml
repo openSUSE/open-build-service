@@ -1,0 +1,690 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/_meta?user=package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:package_test_user">
+          <title/>
+          <description/>
+          <person userid="package_test_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:package_test_user">
+          <title></title>
+          <description></description>
+          <person userid="package_test_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 21 Aug 2018 15:57:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_tab_user/_meta?user=user_tab_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_tab_user">
+          <title/>
+          <description/>
+          <person userid="user_tab_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '149'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_tab_user">
+          <title></title>
+          <description></description>
+          <person userid="user_tab_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 21 Aug 2018 15:57:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="group_test_package" project="home:user_tab_user">
+          <title>Dulce et Decorum Est</title>
+          <description>Occaecati voluptates qui nisi.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '174'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="group_test_package" project="home:user_tab_user">
+          <title>Dulce et Decorum Est</title>
+          <description>Occaecati voluptates qui nisi.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 21 Aug 2018 15:57:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="group_test_package" project="home:user_tab_user">
+          <title>Dulce et Decorum Est</title>
+          <description>Occaecati voluptates qui nisi.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '174'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="group_test_package" project="home:user_tab_user">
+          <title>Dulce et Decorum Est</title>
+          <description>Occaecati voluptates qui nisi.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 21 Aug 2018 15:57:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_user/_meta?user=other_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_user">
+          <title/>
+          <description/>
+          <person userid="other_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '143'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_user">
+          <title></title>
+          <description></description>
+          <person userid="other_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 21 Aug 2018 15:57:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_user">
+          <title>Sleep the Brave</title>
+          <description>Ipsa nisi quidem itaque.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '161'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_user">
+          <title>Sleep the Brave</title>
+          <description>Ipsa nisi quidem itaque.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 21 Aug 2018 15:57:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_user">
+          <title>Sleep the Brave</title>
+          <description>Ipsa nisi quidem itaque.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '161'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_user">
+          <title>Sleep the Brave</title>
+          <description>Ipsa nisi quidem itaque.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 21 Aug 2018 15:57:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_config
+    body:
+      encoding: UTF-8
+      string: Voluptatem eos harum. Laudantium inventore exercitationem. Non quia
+        rerum.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="145" vrev="145">
+          <srcmd5>3d83a50de9b6ee082dc88bdc24f299aa</srcmd5>
+          <version>unknown</version>
+          <time>1534867051</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 21 Aug 2018 15:57:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_user/branch_test_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Earum impedit omnis. Quo quis vel. Esse reprehenderit reiciendis.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="146" vrev="146">
+          <srcmd5>aec5ae69d80730d34dc600b74244565a</srcmd5>
+          <version>unknown</version>
+          <time>1534867051</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 21 Aug 2018 15:57:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:reader_user/_meta?user=reader_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:reader_user">
+          <title/>
+          <description/>
+          <person userid="reader_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '145'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:reader_user">
+          <title></title>
+          <description></description>
+          <person userid="reader_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 21 Aug 2018 15:57:32 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '93'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Tue, 21 Aug 2018 15:57:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '93'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Tue, 21 Aug 2018 15:57:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: _service  no such file
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '122'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>_service: no such file</summary>
+          <details>404 _service: no such file</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 21 Aug 2018 15:57:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '93'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Tue, 21 Aug 2018 15:57:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '93'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Tue, 21 Aug 2018 15:57:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:user_tab_user/_result?package=group_test_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Tue, 21 Aug 2018 15:57:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_tab_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="group_test_package" project="home:user_tab_user">
+          <title>Dulce et Decorum Est</title>
+          <description>Occaecati voluptates qui nisi.</description>
+          <person userid="user_tab_user" role="bugowner"/>
+          <person userid="user_tab_user" role="maintainer"/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '280'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="group_test_package" project="home:user_tab_user">
+          <title>Dulce et Decorum Est</title>
+          <description>Occaecati voluptates qui nisi.</description>
+          <person userid="user_tab_user" role="bugowner" />
+          <person userid="user_tab_user" role="maintainer" />
+        </package>
+    http_version: 
+  recorded_at: Tue, 21 Aug 2018 15:57:35 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_tab_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="group_test_package" project="home:user_tab_user">
+          <title>Dulce et Decorum Est</title>
+          <description>Occaecati voluptates qui nisi.</description>
+          <person userid="user_tab_user" role="bugowner"/>
+          <person userid="user_tab_user" role="maintainer"/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '280'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="group_test_package" project="home:user_tab_user">
+          <title>Dulce et Decorum Est</title>
+          <description>Occaecati voluptates qui nisi.</description>
+          <person userid="user_tab_user" role="bugowner" />
+          <person userid="user_tab_user" role="maintainer" />
+        </package>
+    http_version: 
+  recorded_at: Tue, 21 Aug 2018 15:57:35 GMT
+recorded_with: VCR 4.0.0

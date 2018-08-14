@@ -40,6 +40,7 @@
             = link_to(package_trigger_services_path(package: @package, project: @project), method: :post, class: 'nav-link') do
               %i.fas.fa-project-diagram.text-obs-yellow
               Trigger services
+      - else
         %li.list-inline-item
           = link_to(request_add_role_dialog_path(project: @project, package: @package), remote: true, class: 'nav-link') do
             %i.fas.fa-user-plus.text-primary
