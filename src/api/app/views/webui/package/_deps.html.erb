@@ -17,7 +17,8 @@
                 <%= link_to pby['name'], :action => :dependency,
                             :project => @project,
                             :package => @package,
-                            :repository => @repository.name, :arch => @arch.name,
+                            :repository => @repository.try(:name) || @repository,
+                            :arch => @arch.try(:name) || @arch,
                             :dependant_project => pby['project'],
                             :dependant_repository => pby['repository'],
                             :dependant_name => pby['name'], :filename => @filename %>
@@ -50,7 +51,8 @@
                 <%= link_to pby['name'], :action => :dependency,
                             :project => @project,
                             :package => @package,
-                            :repository => @repository.name, :arch => @arch.name,
+                            :repository => @repository.try(:name) || @repository,
+                            :arch => @arch.try(:name) || @arch,
                             :dependant_project => pby['project'],
                             :dependant_repository => pby['repository'],
                             :dependant_name => pby['name'], :filename => @filename %>
