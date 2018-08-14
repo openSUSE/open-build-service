@@ -1,0 +1,12 @@
+%dt
+  = sprite_tag(icon_for_checks(@checks))
+  Checks
+  = "(#{@build_id})"
+%dd
+  - if @checks.empty?
+    None.
+  - else
+    %ul
+      - @checks.each do |check|
+        %li
+          = link_to "#{check.name} (#{check.state} - #{time_ago_in_words(check.updated_at)} ago)", check.url, class: "check-#{check.state}", title: "#{check.short_description} (#{check.updated_at})"

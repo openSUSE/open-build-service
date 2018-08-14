@@ -22,15 +22,15 @@
 }
 
 /* openQA */
-a.openqa-passed {
+a.openqa-passed, a.check-success {
     color: #6eb927
 }
 
-a.openqa-failed {
+a.openqa-failed, a.check-error, a.check-failure {
     color: red
 }
 
-a.openqa-none {
+a.openqa-none, a.check-pending {
     color: #006699
 }
 

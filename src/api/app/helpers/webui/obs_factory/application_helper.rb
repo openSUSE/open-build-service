@@ -8,4 +8,10 @@ module Webui::ObsFactory::ApplicationHelper
     path << "&build=#{version}" if version
     path
   end
+
+  def icon_for_checks(checks)
+    return 'eye' if checks.any? { |check| check.state == 'pending' }
+    return 'accept' if checks.all? { |check| check.state == 'success' }
+    'error'
+  end
 end
