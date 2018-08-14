@@ -56,6 +56,10 @@ Bugfixes:
 Intentional changes:
 ====================
 
+  * The format of the OBS options.yml is now distinguishing between Rails environments.
+    You can convert your old configuration by running:
+      (cd /srv/www/obs/api/; rake migrate_options_yml)
+
   * Excluded entries in package build results are not shown by default anymore.
 
   * OBS is now using the lograge gem to generate production logs. We are now logging (in one line per request):

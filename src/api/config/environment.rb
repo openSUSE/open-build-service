@@ -6,7 +6,7 @@ require_relative 'application'
 path = Rails.root.join('config', 'options.yml')
 
 begin
-  CONFIG = YAML.load_file(path)
+  CONFIG = YAML.load_file(path)[Rails.env]
 rescue Exception
   puts "Error while parsing config file #{path}"
   # rubocop:disable Style/MutableConstant
