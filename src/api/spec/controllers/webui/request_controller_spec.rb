@@ -220,7 +220,7 @@ RSpec.describe Webui::RequestController, vcr: true do
       end
 
       it { expect(response).to redirect_to(request_show_path(number: subject)) }
-      it { expect(flash[:success]).to match("Created .+repository delete request #{subject.number}") }
+      it { expect(flash[:success]).to match("Created .+delete request #{subject.number}") }
       it { expect(subject.description).to eq('delete it!') }
     end
 
