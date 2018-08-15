@@ -11,7 +11,7 @@ begin
     CONFIG = config[Rails.env]
   else
     # FIXME: Remove with the next stable release (v2.10 or v3.0)
-    Rails.logger.info "DEPRECATED: Please update your options.yml by running 'rake migrate_options_yml'"
+    puts "DEPRECATED: Please update your options.yml by running 'rake migrate_options_yml'"
     CONFIG = config
   end
 rescue Exception
