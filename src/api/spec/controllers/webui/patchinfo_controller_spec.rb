@@ -280,13 +280,12 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
   describe 'GET #new_tracker' do
     before do
       login user
+      get :new_tracker, params: { project: user.home_project_name, package: patchinfo_package.name, issues: my_issues }
     end
 
     context 'if issues are ok' do
       context 'non-cve issues' do
-        before do
-          get :new_tracker, params: { project: user.home_project_name, package: patchinfo_package.name, issues: ['bgo#132412'] }
-        end
+        let(:my_issues) { ['bgo#132412'] }
 
         it do
           expect(JSON.parse(response.body)).to eq('error'  => '',
@@ -296,9 +295,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       end
 
       context 'cve issues' do
-        before do
-          get :new_tracker, params: { project: user.home_project_name, package: patchinfo_package.name, issues: ['CVE-2010-31337'] }
-        end
+        let(:my_issues) { ['CVE-2010-31337'] }
 
         it do
           expect(JSON.parse(response.body)).to eq('error'  => '',
@@ -309,18 +306,14 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     end
 
     context 'if issues are wrongly formatted' do
-      before do
-        get :new_tracker, params: { project: user.home_project_name, package: patchinfo_package.name, issues: ['hell#666'] }
-      end
+      let(:my_issues) { ['hell#666'] }
 
       it { expect(JSON.parse(response.body)).to eq('error' => "hell is not a valid tracker.\n", 'issues' => []) }
       it { expect(response).to have_http_status(:success) }
     end
 
     context 'if cve issue are wrong formatted' do
-      before do
-        get :new_tracker, params: { project: user.home_project_name, package: patchinfo_package.name, issues: ['CVE-2017-31337ABC'] }
-      end
+      let(:my_issues) { ['CVE-2017-31337ABC'] }
 
       it {
         error_message = 'cve has no valid format. (Correct formats are e.g. boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)'
