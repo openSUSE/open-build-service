@@ -44,7 +44,7 @@ module ObsFactory
     # @return [String] version string
     def published_version
       begin
-        stream = URI(repo_url)
+        stream = URI.open(repo_url)
       rescue ::OpenURI::HTTPError
         return 'unknown'
       end
