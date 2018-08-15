@@ -16,6 +16,15 @@ class Repository < ApplicationRecord
   has_many :repository_architectures, -> { order('position') }, dependent: :destroy, inverse_of: :repository
   has_many :architectures, -> { order('position') }, through: :repository_architectures
   has_many :status_publishes, class_name: 'Status::RepositoryPublish'
+  has_many :checks, through: :status_publishes, class_name: 'Status::Check' do
+    def for_build_id(build_id)
+      where(status_repository_publishes: { build_id: build_id })
+    end
+
+    def latest
+      for_build_id(proxy_association.owner.build_id)
+    end
+  end
 
   scope :not_remote, -> { where(remote_project_name: '') }
   scope :remote, -> { where.not(remote_project_name: '') }
@@ -250,6 +259,10 @@ class Repository < ApplicationRecord
   def remote_project_name_not_nill
     return unless remote_project_name.nil?
     errors.add(:remote_project_name, 'cannot be nil')
+  end
+
+  def build_id
+    Backend::Api::Published.build_id(project.name, name)
   end
 end
 

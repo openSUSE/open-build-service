@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging">
-          <title>An Evil Cradling</title>
+          <title>Bury My Heart at Wounded Knee</title>
           <description/>
         </project>
     headers:
@@ -29,16 +29,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '117'
+      - '130'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging">
-          <title>An Evil Cradling</title>
+          <title>Bury My Heart at Wounded Knee</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:14 GMT
+  recorded_at: Tue, 14 Aug 2018 08:01:22 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:Factory/_meta?user=_nobody_
@@ -46,7 +46,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>Beneath the Bleeding</title>
+          <title>Pale Kings and Princes</title>
           <description/>
         </project>
     headers:
@@ -68,16 +68,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '113'
+      - '115'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>Beneath the Bleeding</title>
+          <title>Pale Kings and Princes</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:14 GMT
+  recorded_at: Tue, 14 Aug 2018 08:01:22 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=_nobody_
@@ -85,8 +85,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="openSUSE:Factory">
-          <title>This Lime Tree Bower</title>
-          <description>Reprehenderit totam omnis earum.</description>
+          <title>The Violent Bear It Away</title>
+          <description>Enim aut libero enim.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -107,16 +107,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '163'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="openSUSE:Factory">
-          <title>This Lime Tree Bower</title>
-          <description>Reprehenderit totam omnis earum.</description>
+          <title>The Violent Bear It Away</title>
+          <description>Enim aut libero enim.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:14 GMT
+  recorded_at: Tue, 14 Aug 2018 08:01:22 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=_nobody_
@@ -124,8 +124,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="openSUSE:Factory">
-          <title>This Lime Tree Bower</title>
-          <description>Reprehenderit totam omnis earum.</description>
+          <title>The Violent Bear It Away</title>
+          <description>Enim aut libero enim.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -146,24 +146,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '163'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="openSUSE:Factory">
-          <title>This Lime Tree Bower</title>
-          <description>Reprehenderit totam omnis earum.</description>
+          <title>The Violent Bear It Away</title>
+          <description>Enim aut libero enim.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:14 GMT
+  recorded_at: Tue, 14 Aug 2018 08:01:22 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_9/_meta?user=_nobody_
+    uri: http://backend:5352/source/project_10/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <project name="project_9">
-          <title>Dance Dance Dance</title>
+        <project name="project_10">
+          <title>Number the Stars</title>
           <description/>
         </project>
     headers:
@@ -189,21 +189,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <project name="project_9">
-          <title>Dance Dance Dance</title>
+        <project name="project_10">
+          <title>Number the Stars</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:14 GMT
+  recorded_at: Tue, 14 Aug 2018 08:01:22 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_9/package_9/_meta?user=_nobody_
+    uri: http://backend:5352/source/project_10/package_10/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <package name="package_9" project="project_9">
-          <title>I Sing the Body Electric</title>
-          <description>Reprehenderit aliquid incidunt autem.</description>
+        <package name="package_10" project="project_10">
+          <title>A Glass of Blessings</title>
+          <description>Tempore odio perspiciatis placeat.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -224,25 +224,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '167'
+      - '162'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_9" project="project_9">
-          <title>I Sing the Body Electric</title>
-          <description>Reprehenderit aliquid incidunt autem.</description>
+        <package name="package_10" project="project_10">
+          <title>A Glass of Blessings</title>
+          <description>Tempore odio perspiciatis placeat.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:14 GMT
+  recorded_at: Tue, 14 Aug 2018 08:01:22 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_9/package_9/_meta?user=_nobody_
+    uri: http://backend:5352/source/project_10/package_10/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <package name="package_9" project="project_9">
-          <title>I Sing the Body Electric</title>
-          <description>Reprehenderit aliquid incidunt autem.</description>
+        <package name="package_10" project="project_10">
+          <title>A Glass of Blessings</title>
+          <description>Tempore odio perspiciatis placeat.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -263,26 +263,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '167'
+      - '162'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_9" project="project_9">
-          <title>I Sing the Body Electric</title>
-          <description>Reprehenderit aliquid incidunt autem.</description>
+        <package name="package_10" project="project_10">
+          <title>A Glass of Blessings</title>
+          <description>Tempore odio perspiciatis placeat.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:15 GMT
+  recorded_at: Tue, 14 Aug 2018 08:01:22 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_24/_meta?user=user_24
+    uri: http://backend:5352/source/home:user_25/_meta?user=user_25
     body:
       encoding: UTF-8
       string: |
-        <project name="home:user_24">
+        <project name="home:user_25">
           <title/>
           <description/>
-          <person userid="user_24" role="maintainer"/>
+          <person userid="user_25" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -307,13 +307,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <project name="home:user_24">
+        <project name="home:user_25">
           <title></title>
           <description></description>
-          <person userid="user_24" role="maintainer" />
+          <person userid="user_25" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:15 GMT
+  recorded_at: Tue, 14 Aug 2018 08:01:23 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=_nobody_
@@ -321,7 +321,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging:A">
-          <title>That Hideous Strength</title>
+          <title>Mother Night</title>
           <description>      requests:
                 - { id: 1 }
         </description>
@@ -345,18 +345,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging:A">
-          <title>That Hideous Strength</title>
+          <title>Mother Night</title>
           <description>      requests:
                 - { id: 1 }
         </description>
         </project>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:15 GMT
+  recorded_at: Tue, 14 Aug 2018 08:01:23 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:Factory:Staging:B/_meta?user=_nobody_
@@ -364,7 +364,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging:B">
-          <title>An Evil Cradling</title>
+          <title>The Other Side of Silence</title>
           <description>Factory staging project B</description>
         </project>
     headers:
@@ -386,16 +386,49 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '153'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging:B">
-          <title>An Evil Cradling</title>
+          <title>The Other Side of Silence</title>
           <description>Factory staging project B</description>
         </project>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:15 GMT
+  recorded_at: Tue, 14 Aug 2018 08:01:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/published/openSUSE:Factory:Staging:A/images?view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '26'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: '<status code="unknown" />
+
+'
+    http_version: 
+  recorded_at: Tue, 14 Aug 2018 08:01:23 GMT
 - request:
     method: get
     uri: http://backend:5352/build/openSUSE:Factory:Staging:A/_result?code=unresolvable
@@ -430,7 +463,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:15 GMT
+  recorded_at: Tue, 14 Aug 2018 08:01:23 GMT
 - request:
     method: get
     uri: http://backend:5352/build/openSUSE:Factory:Staging:A/_result?package=Test-DVD-x86_64&repository=images&view=binarylist
@@ -467,5 +500,5 @@ http_interactions:
           <details>404 unknown repository 'images'</details>
         </status>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:15 GMT
+  recorded_at: Tue, 14 Aug 2018 08:01:23 GMT
 recorded_with: VCR 4.0.0

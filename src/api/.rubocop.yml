@@ -133,6 +133,7 @@ Style/MethodCallWithArgsParentheses:
     - define
     - delete
     - delete_element
+    - desc
     - describe
     - drop_table
     - entry

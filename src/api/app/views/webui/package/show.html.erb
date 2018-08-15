@@ -74,7 +74,11 @@
             <% linked_package = @linkinfo[:package] %>
             <li>
               <%= sprite_tag 'package_link', title: '' %> Links to
+            <% if @linkinfo[:remote_project] %>
+              remote <i><%= @linkinfo[:remote_project] %></i> / <i><%= linked_package %></i>
+            <% else %>
               <%= project_or_package_link project: linked_package.project.name, package: linked_package.name, short: true %>
+            <% end %>
             </li>
             <% if @linkinfo[:error] %>
                 <li><%= sprite_tag 'exclamation', title: '' %> Link has errors: <i><%= @linkinfo[:error] %></i></li>

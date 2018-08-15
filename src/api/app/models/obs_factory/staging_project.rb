@@ -9,6 +9,7 @@ module ObsFactory
     include ActiveModel::Serializers::JSON
 
     attr_accessor :project, :distribution, :parent
+    delegate :repositories, to: :project
 
     NAME_PREFIX = ":Staging:".freeze
     ADI_NAME_PREFIX = ":Staging:adi:".freeze
