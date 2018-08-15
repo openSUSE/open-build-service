@@ -1,8 +1,8 @@
 FactoryBot.define do
   factory :project do
     transient do
-      link_to nil
-      maintainer nil
+      link_to { nil }
+      maintainer { nil }
     end
 
     sequence(:name) { |n| "project_#{n}" }
@@ -35,8 +35,8 @@ FactoryBot.define do
 
     factory :project_with_package do
       transient do
-        package_name nil
-        create_patchinfo false
+        package_name { nil }
+        create_patchinfo { false }
       end
 
       after(:create) do |project, evaluator|
@@ -50,11 +50,11 @@ FactoryBot.define do
 
     factory :project_with_packages do
       transient do
-        package_name nil
-        package_title nil
-        package_description nil
-        package_count 2
-        create_patchinfo false
+        package_name { nil }
+        package_title { nil }
+        package_description { nil }
+        package_count { 2 }
+        create_patchinfo { false }
       end
 
       after(:create) do |project, evaluator|
@@ -107,7 +107,7 @@ FactoryBot.define do
     end
 
     factory :maintenance_incident_project do
-      kind 'maintenance_incident'
+      kind { 'maintenance_incident' }
 
       transient do
         maintenance_project { create(:maintenance_project) }
@@ -126,11 +126,11 @@ FactoryBot.define do
     end
 
     factory :maintenance_project do
-      kind 'maintenance'
+      kind { 'maintenance' }
 
       transient do
-        target_project nil
-        create_patchinfo false
+        target_project { nil }
+        create_patchinfo { false }
       end
 
       after(:create) do |project, evaluator|
@@ -153,7 +153,7 @@ FactoryBot.define do
     end
 
     factory :update_project do
-      kind 'maintenance_release'
+      kind { 'maintenance_release' }
 
       transient do
         target_project { create(:project_with_repository) }

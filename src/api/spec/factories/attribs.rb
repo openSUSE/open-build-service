@@ -4,7 +4,7 @@ FactoryBot.define do
     project
 
     transient do
-      package nil
+      package { nil }
     end
 
     after(:create) do |attrib, evaluator|
@@ -32,7 +32,7 @@ FactoryBot.define do
 
     factory :update_project_attrib do
       transient do
-        update_project nil
+        update_project { nil }
       end
 
       attrib_type { AttribType.find_by_namespace_and_name!('OBS', 'UpdateProject') }

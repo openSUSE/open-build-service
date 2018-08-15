@@ -1,17 +1,17 @@
 FactoryBot.define do
   factory :bs_request do
     description { Faker::Lorem.paragraph }
-    state 'new'
+    state { 'new' }
 
     transient do
-      type nil
-      source_project nil
-      source_package nil
-      target_project nil
-      target_package nil
-      target_repository nil
-      reviewer nil
-      request_state 'review'
+      type { nil }
+      source_project { nil }
+      source_package { nil }
+      target_project { nil }
+      target_package { nil }
+      target_repository { nil }
+      reviewer { nil }
+      request_state { 'review' }
     end
 
     before(:create) do |request, evaluator|

@@ -1,9 +1,9 @@
 FactoryBot.define do
   factory :status_history do
     transient do
-      source 'source'
-      architecture 'x86_64'
-      range 0..0
+      source { 'source' }
+      architecture { 'x86_64' }
+      range { 0..0 }
     end
 
     key { "#{source}_#{architecture}" }

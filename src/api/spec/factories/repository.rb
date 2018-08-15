@@ -4,7 +4,7 @@ FactoryBot.define do
     sequence(:name) { |n| "repository_#{n}" }
 
     transient do
-      architectures []
+      architectures { [] }
     end
 
     after(:create) do |repository, evaluator|

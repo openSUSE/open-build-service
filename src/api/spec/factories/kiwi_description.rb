@@ -3,8 +3,8 @@ FactoryBot.define do
     association :image, factory: :kiwi_image
 
     description_type { Kiwi::Description.description_types.keys.first }
-    author 'example_author'
-    contact 'example_contact'
-    specification 'example_specification'
+    author { 'example_author' }
+    contact { 'example_contact' }
+    specification { 'example_specification' }
   end
 end
