@@ -1,4 +1,8 @@
 module Webui::PackageHelper
+  def removable_file?(file_name:, package:)
+    !file_name.start_with?('_service:') && !package.belongs_to_product?
+  end
+
   def file_url(project, package, filename, revision = nil)
     opts = {}
     opts[:rev] = revision if revision
