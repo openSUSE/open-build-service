@@ -350,7 +350,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
                                               { 'id' => 'bcrypt', 'label' => 'bcrypt', 'value' => 'bcrypt' }])
     end
 
-    context do
+    context 'for the term "ap"' do
       let(:term) { 'ap' }
       it do
         expect(JSON.parse(subject.body)).to eq([{ 'id' => 'apache', 'label' => 'apache', 'value' => 'apache' },
@@ -359,17 +359,17 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
       end
     end
 
-    context do
+    context 'for the term "app"' do
       let(:term) { 'app' }
       it { expect(JSON.parse(subject.body)).to eq([{ 'id' => 'appArmor', 'label' => 'appArmor', 'value' => 'appArmor' }]) }
     end
 
-    context do
+    context 'for the term "b"' do
       let(:term) { 'b' }
       it { expect(JSON.parse(subject.body)).to eq([{ 'id' => 'bcrypt', 'label' => 'bcrypt', 'value' => 'bcrypt' }]) }
     end
 
-    context do
+    context 'for the term "c"' do
       let(:term) { 'c' }
       it { expect(JSON.parse(subject.body)).to be_empty }
     end
