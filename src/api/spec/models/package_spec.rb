@@ -420,8 +420,6 @@ RSpec.describe Package, vcr: true do
       before do
         # check_write_access! depends on the Rails env. We have to workaround this here.
         allow(Rails.env).to receive(:test?).and_return false
-
-        allow(Backend::Connection).to receive(:post).never
       end
 
       subject { package.backend_build_command(:rebuild, other_project.name, params) }
