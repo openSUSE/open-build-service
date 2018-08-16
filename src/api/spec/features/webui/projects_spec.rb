@@ -46,6 +46,8 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'with valid data' do
+      skip_if_bootstrap
+
       fill_in 'name', with: 'coolstuff'
       fill_in 'title', with: 'cool stuff everyone needs'
       fill_in 'description', with: very_long_description
