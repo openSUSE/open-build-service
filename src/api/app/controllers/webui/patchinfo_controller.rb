@@ -132,8 +132,8 @@ class Webui::PatchinfoController < Webui::WebuiController
       @tracker = params[:tracker]
       @version = params[:version]
       @packager = params[:packager]
-      @binaries = params[:selected_binaries]
-      @binarylist = params[:available_binaries]
+      @binaries = params[:selected_binaries] || []
+      @binarylist = params[:available_binaries] || []
       @issues = []
       params[:issueid].to_a.each_with_index do |new_issue, index|
         @issues << [
