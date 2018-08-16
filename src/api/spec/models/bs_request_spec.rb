@@ -156,6 +156,43 @@ RSpec.describe BsRequest, vcr: true do
         expect(request.history_elements.first.type).to eq('HistoryElement::RequestDeleted')
       end
     end
+
+    context 'final state declined cannot be changed ' do
+      let(:request) do
+        create(:declined_bs_request,
+               target_package: target_package,
+               target_project: target_project,
+               source_package: source_package,
+               source_project: source_project)
+      end
+
+      before do
+        User.current = user
+      end
+
+      it { expect { request.change_state(newstate: 'review') }.to raise_error(PostRequestNoPermission) }
+    end
+
+    context 'final state accepted cannot be changed' do
+      let!(:request) do
+        create(:bs_request_with_submit_action,
+               target_project: target_project.name,
+               source_project: source_package.project.name,
+               source_package: source_package.name)
+      end
+      let!(:relationship_project_user) { create(:relationship_project_user, project: target_project) }
+      let(:user) { relationship_project_user.user }
+      before do
+        User.current = user
+        request.state = 'accepted'
+        request.save
+      end
+
+      it 'raises and keep accepted state' do
+        expect { request.change_state(newstate: 'review') }.to raise_error(PostRequestNoPermission)
+        expect(request.state).to eq(:accepted)
+      end
+    end
   end
 
   describe '#update_cache' do
