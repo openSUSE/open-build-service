@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/public_controller_project/_meta
+    uri: http://backend:5352/source/public_controller_project/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -38,42 +38,7 @@ http_interactions:
           <description></description>
         </project>
     http_version: 
-  recorded_at: Thu, 13 Oct 2016 08:34:37 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/public_controller_project/_config
-    body:
-      encoding: UTF-8
-      string: Suscipit sequi nihil. Nesciunt aut sapiente suscipit dicta consequatur
-        facilis voluptatibus. Et et adipisci ut. Et ducimus quas rerum voluptatem
-        dolor.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Thu, 13 Oct 2016 08:34:37 GMT
+  recorded_at: Thu, 16 Aug 2018 07:37:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/public_controller_project/public_controller_package/_meta?user=_nobody_
@@ -81,8 +46,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="public_controller_package" project="public_controller_project">
-          <title/>
-          <description/>
+          <title>The Heart Is a Lonely Hunter</title>
+          <description>Corporis quia quam quibusdam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -103,25 +68,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '138'
+      - '195'
     body:
       encoding: UTF-8
       string: |
         <package name="public_controller_package" project="public_controller_project">
-          <title></title>
-          <description></description>
+          <title>The Heart Is a Lonely Hunter</title>
+          <description>Corporis quia quam quibusdam.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 13 Oct 2016 08:34:37 GMT
+  recorded_at: Thu, 16 Aug 2018 07:37:11 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/public_controller_project/public_controller_package/_meta
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="public_controller_package" project="public_controller_project">
-          <title/>
-          <description/>
+          <title>The Heart Is a Lonely Hunter</title>
+          <description>Corporis quia quam quibusdam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -142,23 +107,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '138'
+      - '195'
     body:
       encoding: UTF-8
       string: |
         <package name="public_controller_package" project="public_controller_project">
-          <title></title>
-          <description></description>
+          <title>The Heart Is a Lonely Hunter</title>
+          <description>Corporis quia quam quibusdam.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 13 Oct 2016 08:34:37 GMT
+  recorded_at: Thu, 16 Aug 2018 07:37:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/public_controller_project/public_controller_package/_config
     body:
       encoding: UTF-8
-      string: Dolores quaerat commodi. Harum est aliquid iure dolorem cum magni. Neque
-        fugit ut at voluptatibus.
+      string: Iusto earum nisi. Quo sunt aut. Aut enim rerum.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -182,23 +146,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="39" vrev="39">
-          <srcmd5>119089475962cd28cbddff5975872482</srcmd5>
+        <revision rev="13" vrev="13">
+          <srcmd5>3c5400192acd439e010aa34c31941f93</srcmd5>
           <version>unknown</version>
-          <time>1476347677</time>
+          <time>1534405031</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 13 Oct 2016 08:34:37 GMT
+  recorded_at: Thu, 16 Aug 2018 07:37:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/public_controller_project/public_controller_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Vel assumenda voluptas. Dolores nostrum vitae voluptatibus est. Et ex
-        est omnis ut voluptatem.
+      string: Qui id tenetur. Sed totam in. Magni aut debitis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -222,16 +185,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="40" vrev="40">
-          <srcmd5>9ef4ec9815ab272331be0202bea6e298</srcmd5>
+        <revision rev="14" vrev="14">
+          <srcmd5>ee317e2f9ed7559ed7a31c72f9165eb8</srcmd5>
           <version>unknown</version>
-          <time>1476347677</time>
+          <time>1534405031</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 13 Oct 2016 08:34:37 GMT
+  recorded_at: Thu, 16 Aug 2018 07:37:11 GMT
 - request:
     method: get
     uri: http://backend:5352/search/published/binary/id?match=@project='public_controller_project'%20and%20@package='public_controller_package'
@@ -266,5 +229,5 @@ http_interactions:
         <collection matches="0">
         </collection>
     http_version: 
-  recorded_at: Thu, 13 Oct 2016 08:34:37 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Thu, 16 Aug 2018 07:37:41 GMT
+recorded_with: VCR 4.0.0

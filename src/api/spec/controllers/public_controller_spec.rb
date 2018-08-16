@@ -173,12 +173,29 @@ RSpec.describe PublicController, vcr: true do
   end
 
   describe 'GET #binary_packages' do
-    before do
-      get :binary_packages, params: { project: project.name, package: package.name }
+    context 'if package does not exist' do
+      before do
+        get :binary_packages, params: { project: project.name, package: package.name }
+      end
+
+      it { is_expected.to respond_with(:success) }
+      it { expect(assigns(:pkg)).to eq(package) }
     end
 
-    it { is_expected.to respond_with(:success) }
-    it { expect(assigns(:pkg)).to eq(package) }
+    context 'if package does not exist' do
+      render_views
+
+      before do
+        get :binary_packages, params: { project: project.name, package: 'nonexistant' }
+      end
+
+      it { is_expected.to respond_with(:not_found) }
+      it "responds with a status code 'unknown_package'" do
+        assert_select 'status[code=unknown_package]' do
+          assert_select 'summary', 'public_controller_project / nonexistant'
+        end
+      end
+    end
   end
 
   describe 'GET #source_file history' do
