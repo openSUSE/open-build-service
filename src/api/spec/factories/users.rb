@@ -5,6 +5,10 @@ FactoryBot.define do
     sequence(:login) { |n| "user_#{n}" }
     password { 'buildservice' }
 
+    trait :in_beta do
+      in_beta true
+    end
+
     factory :confirmed_user do
       state { 'confirmed' }
 

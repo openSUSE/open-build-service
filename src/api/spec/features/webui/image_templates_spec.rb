@@ -77,47 +77,4 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
       expect(page).to have_text('home:tom:branches:my_project > package_with_kiwi_image')
     end
   end
-
-  context 'feature switch' do
-    context 'privileged user' do
-      let(:admin) { create(:admin_user, login: 'admin') }
-      before do
-        login admin
-      end
-
-      scenario 'disabled' do
-        Feature.run_with_deactivated(:image_templates) do
-          visit image_templates_path
-          # should be controller test
-          expect(page).not_to have_content 'Sorry but the page you are looking for'
-        end
-      end
-    end
-
-    context 'unprivileged user' do
-      before do
-        login user
-      end
-
-      scenario 'enabled' do
-        Feature.run_with_activated(:image_templates) do
-          visit root_path
-          expect(page).to have_link('New Image')
-          visit image_templates_path
-          # should be controller test
-          expect(page).not_to have_content 'Sorry but the page you are looking for'
-        end
-      end
-
-      scenario 'disabled' do
-        Feature.run_with_deactivated(:image_templates) do
-          visit root_path
-          expect(page).not_to have_link('New Image')
-          visit image_templates_path
-          # this should be a controller test
-          expect(page).to have_content 'Sorry but the page you are looking for'
-        end
-      end
-    end
-  end
 end

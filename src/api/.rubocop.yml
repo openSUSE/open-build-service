@@ -118,6 +118,7 @@ Style/MethodCallWithArgsParentheses:
     - assert_select
     - assert_xml_tag
     - authorize
+    - be
     - belongs_to
     - call
     - change_column
