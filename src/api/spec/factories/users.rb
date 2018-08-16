@@ -6,7 +6,7 @@ FactoryBot.define do
     password { 'buildservice' }
 
     trait :in_beta do
-      in_beta true
+      in_beta { true }
     end
 
     factory :confirmed_user do
