@@ -187,7 +187,7 @@ class Webui::RequestController < Webui::WebuiController
     @project = params[:project]
     @package = params[:package] if params[:package]
 
-    return if switch_to_webui2
+    return if params[:package].present? && switch_to_webui2
 
     render_dialog
   end
@@ -216,7 +216,7 @@ class Webui::RequestController < Webui::WebuiController
     @project = params[:project]
     @package = params[:package] if params[:package]
 
-    return if switch_to_webui2
+    return if params[:package].present? && switch_to_webui2
 
     render_dialog
   end

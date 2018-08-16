@@ -14,41 +14,41 @@
         = link_to(package_submit_request_dialog_path(project: @project, package: @package, revision: @revision), remote: true, class: 'nav-link') do
           %i.fas.fa-share-square.text-obs-yellow
           Submit package
-      - if User.current.can_modify?(@package)
-        %li.list-inline-item
-          = link_to(package_edit_path(project: @project, package: @package, spec_count: @spec_count), class: 'nav-link') do
-            %i.fas.fa-edit.text-info
-            Edit description
-        %li.list-inline-item
-          = link_to(package_delete_dialog_path(package: @package, project: @project), remote: true, id: 'delete-package', class: 'nav-link') do
-            %i.fas.fa-times-circle.text-danger
-            Delete package
-        - Feature.with(:kiwi_image_editor) do
-          - if @package.kiwi_image? && policy(@package).update?
-            %li.list-inline-item
-              = link_to(import_kiwi_image_path(@package.id), id: 'edit-kiwi', class: 'nav-link') do
-                %i.fas.fa-compact-disc.text-primary
-                View Image
-        - if Feature.active?(:cloud_upload) && !User.current.is_nobody?
-          - if @package.kiwi_image?
-            %li.list-inline-item
-              = link_to(cloud_upload_index_path, id: 'cloud-upload', class: 'nav-link') do
-                %i.fas.fa-cloud-upload-alt.text-info
-                Cloud Upload
-        - if @services.present?
+    - if User.current.can_modify?(@package)
+      %li.list-inline-item
+        = link_to(package_edit_path(project: @project, package: @package, spec_count: @spec_count), class: 'nav-link') do
+          %i.fas.fa-edit.text-info
+          Edit description
+      %li.list-inline-item
+        = link_to(package_delete_dialog_path(package: @package, project: @project), remote: true, id: 'delete-package', class: 'nav-link') do
+          %i.fas.fa-times-circle.text-danger
+          Delete package
+      - Feature.with(:kiwi_image_editor) do
+        - if @package.kiwi_image? && policy(@package).update?
           %li.list-inline-item
-            = link_to(package_trigger_services_path(package: @package, project: @project), method: :post, class: 'nav-link') do
-              %i.fas.fa-project-diagram.text-obs-yellow
-              Trigger services
-      - else
+            = link_to(import_kiwi_image_path(@package.id), id: 'edit-kiwi', class: 'nav-link') do
+              %i.fas.fa-compact-disc.text-primary
+              View Image
+      - if Feature.active?(:cloud_upload) && !User.current.is_nobody?
+        - if @package.kiwi_image?
+          %li.list-inline-item
+            = link_to(cloud_upload_index_path, id: 'cloud-upload', class: 'nav-link') do
+              %i.fas.fa-cloud-upload-alt.text-info
+              Cloud Upload
+      - if @services.present?
         %li.list-inline-item
-          = link_to(request_add_role_dialog_path(project: @project, package: @package), remote: true, class: 'nav-link') do
-            %i.fas.fa-user-plus.text-primary
-            Request role addition
-        %li.list-inline-item
-          = link_to(request_delete_dialog_path(project: @project, package: @package), remote: true, class: 'nav-link') do
-            %i.fas.fa-list-alt.text-danger
-            Request deletion
+          = link_to(package_trigger_services_path(package: @package, project: @project), method: :post, class: 'nav-link') do
+            %i.fas.fa-project-diagram.text-obs-yellow
+            Trigger services
+    - else
+      %li.list-inline-item
+        = link_to(request_add_role_dialog_path(project: @project, package: @package), remote: true, class: 'nav-link') do
+          %i.fas.fa-user-plus.text-primary
+          Request role addition
+      %li.list-inline-item
+        = link_to(request_delete_dialog_path(project: @project, package: @package), remote: true, class: 'nav-link') do
+          %i.fas.fa-list-alt.text-danger
+          Request deletion
       //TODO: only users w/o rights should see this, maintainers should get a different dialog:
     - if @package.develpackage
       %li.list-inline-item
