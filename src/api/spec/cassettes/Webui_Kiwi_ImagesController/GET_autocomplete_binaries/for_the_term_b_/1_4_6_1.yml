@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 21 Sep 2017 11:57:20 GMT
+  recorded_at: Wed, 15 Aug 2018 11:00:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_kiwi_image/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>East of Eden</title>
-          <description>Ea deleniti nostrum nisi minus nihil non voluptate fugit.</description>
+          <title>Rosemary Sutcliff</title>
+          <description>At aspernatur porro ea.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '188'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>East of Eden</title>
-          <description>Ea deleniti nostrum nisi minus nihil non voluptate fugit.</description>
+          <title>Rosemary Sutcliff</title>
+          <description>At aspernatur porro ea.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 21 Sep 2017 11:57:20 GMT
+  recorded_at: Wed, 15 Aug 2018 11:00:15 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/package_with_kiwi_image/_meta
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_image/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>East of Eden</title>
-          <description>Ea deleniti nostrum nisi minus nihil non voluptate fugit.</description>
+          <title>Rosemary Sutcliff</title>
+          <description>At aspernatur porro ea.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,30 +109,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '188'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>East of Eden</title>
-          <description>Ea deleniti nostrum nisi minus nihil non voluptate fugit.</description>
+          <title>Rosemary Sutcliff</title>
+          <description>At aspernatur porro ea.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 21 Sep 2017 11:57:20 GMT
+  recorded_at: Wed, 15 Aug 2018 11:00:15 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi
     body:
       encoding: UTF-8
-      string: |
-        <?xml version="1.0" encoding="utf-8"?>
-        <image schemaversion="6.2" name="suse-13.2-live">
-          <description type="system">
-          </description>
-          <preferences>
-            <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
-          </preferences>
-        </image>
+      string: "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n  <image schemaversion=\"6.2\"
+        name=\"suse-13.2-live\">\n    <description type=\"system\">\n    </description>\n
+        \   <preferences>\n      <version>0.0.1</version>\n      <type image=\"oem\"
+        primary=\"true\" boot=\"oemboot/suse-13.2\"/>\n    </preferences>\n  </image>\n
+        \ "
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -152,20 +148,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '205'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="49" vrev="49">
-          <srcmd5>82f39606fd3c729f7f16de7d227e6dae</srcmd5>
-          <version>unknown</version>
-          <time>1505995040</time>
+        <revision rev="1" vrev="1">
+          <srcmd5>801c545be09c1c468ff2d99b40415aac</srcmd5>
+          <version>0.0.1</version>
+          <time>1534330815</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 21 Sep 2017 11:57:20 GMT
+  recorded_at: Wed, 15 Aug 2018 11:00:16 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_kiwi_image/_meta?user=tom
@@ -173,8 +169,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>East of Eden</title>
-          <description>Ea deleniti nostrum nisi minus nihil non voluptate fugit.</description>
+          <title>Rosemary Sutcliff</title>
+          <description>At aspernatur porro ea.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -195,16 +191,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '188'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>East of Eden</title>
-          <description>Ea deleniti nostrum nisi minus nihil non voluptate fugit.</description>
+          <title>Rosemary Sutcliff</title>
+          <description>At aspernatur porro ea.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 21 Sep 2017 11:57:21 GMT
+  recorded_at: Wed, 15 Aug 2018 11:00:16 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_image
@@ -230,13 +226,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '234'
+      - '232'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="49" vrev="49" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
-          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1505991770" />
+        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="801c545be09c1c468ff2d99b40415aac">
+          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1534330815" />
         </directory>
     http_version: 
-  recorded_at: Thu, 21 Sep 2017 11:57:21 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Wed, 15 Aug 2018 11:00:16 GMT
+recorded_with: VCR 4.0.0

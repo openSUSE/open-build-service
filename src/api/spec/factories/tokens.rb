@@ -3,10 +3,10 @@ FactoryBot.define do
     string { Faker::Lorem.characters(32) }
 
     factory :service_token, class: Token::Service do
-      type 'Token::Service'
+      type { 'Token::Service' }
     end
     factory :rss_token, class: Token::Rss do
-      type 'Token::Rss'
+      type { 'Token::Rss' }
     end
   end
 end
