@@ -187,28 +187,28 @@ class PublicController < ApplicationController
     path =~ %r{/public(.*)} ? Regexp.last_match(1) : path
   end
 
-  def check_package_access(project, package, use_source = true)
+  def check_package_access(project_name, package_name, use_source = true)
     # don't use the cache for use_source
     if use_source
       begin
-        Package.get_by_project_and_name(project, package)
+        Package.get_by_project_and_name(project_name, package_name)
       rescue Authenticator::AnonymousUser
         # TODO: Use pundit for authorization instead
-        raise Package::ReadSourceAccessError, "#{project} / #{package} "
+        raise Package::ReadSourceAccessError, "#{project_name} / #{package_name} "
       end
       return
     end
 
     # generic access checks
-    key = 'public_package:' + project + ':' + package
+    key = 'public_package:' + project_name + ':' + package_name
     allowed = Rails.cache.fetch(key, expires_in: 30.minutes) do
       begin
-        Package.get_by_project_and_name(project, package, use_source: false)
+        Package.get_by_project_and_name(project_name, package_name, use_source: false)
         true
       rescue Exception
         false
       end
     end
-    raise Package::UnknownObjectError, "#{project} / #{package} " unless allowed
+    raise Package::UnknownObjectError, "#{project_name} / #{package_name} " unless allowed
   end
 end
