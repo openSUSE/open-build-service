@@ -199,16 +199,19 @@ class PublicController < ApplicationController
       return
     end
 
+    project = Project.find_by(name: project_name)
+    # This could still be a remote project. Thus take the project_name
+    project_cache_key = project.try(:cache_key) || project_name
     # generic access checks
-    key = 'public_package:' + project_name + ':' + package_name
-    allowed = Rails.cache.fetch(key, expires_in: 30.minutes) do
+    allowed = Rails.cache.fetch("public_package:#{project_cache_key}:#{package_name}", expires_in: 30.minutes) do
       begin
         Package.get_by_project_and_name(project_name, package_name, use_source: false)
         true
       rescue Exception
         false
       end
+
+      raise Package::UnknownObjectError, "#{project_name} / #{package_name} " unless allowed
     end
-    raise Package::UnknownObjectError, "#{project_name} / #{package_name} " unless allowed
   end
 end
