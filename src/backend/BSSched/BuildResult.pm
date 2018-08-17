@@ -713,6 +713,15 @@ sub wipe {
   my $projpacks = $gctx->{'projpacks'};
   my $proj = $projpacks->{$projid};
   my $pdata = (($proj || {})->{'package'} || {})->{$packid} || {};
+
+  my $prjlocked = 0;
+  my $pkglocked = 0;
+  $prjlocked = BSUtil::enabled($repoid, $projpacks->{$projid}->{'lock'}, 0, $myarch) if $projpacks->{$projid}->{'lock'};
+  $pkglocked = BSUtil::enabled($repoid, $pdata->{$packid}->{'lock'}, 0, $myarch) if $pdata->{$packid}->{'lock'};
+  if ($prjlocked || $pkglocked) {
+    print "Ignore wipe event, package $projid/$packid is locked!\n";
+    return;
+  }
   my $useforbuildenabled = 1;
   $useforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled, $myarch) if $proj;
   $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
