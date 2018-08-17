@@ -57,7 +57,7 @@ sub reply {
   my ($ret, @hdrs) = @_;
   return unless defined $ret;
   if (ref($ret)) {
-    $ret = JSON::XS->new->utf8->canonical->encode($ret) if ref($ret);
+    $ret = JSON::XS->new->utf8->canonical->encode($ret);
     unshift @hdrs, 'Content-Type: application/json' unless grep {/^content-type:/i} @hdrs;
   }
   push @hdrs, $registry_api_hdr;

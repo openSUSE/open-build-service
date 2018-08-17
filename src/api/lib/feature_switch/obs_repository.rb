@@ -8,14 +8,23 @@ module Feature
         cloud_upload:    false
       }.freeze
 
-      # Returns list of active features
+      # Read given file, perform erb evaluation and yaml parsing
       #
-      # @return [Array<Symbol>] list of active features
+      # @param file_name [String] the file name fo the yaml config
+      # @return [Hash]
       #
-      def active_features
-        data = read_file(@yaml_file_name).with_indifferent_access
+      def read_file(file_name)
+        super.with_indifferent_access
+      end
+
+      # Extracts active features from given hash
+      #
+      # @param data [Hash] hash parsed from yaml file
+      # @param selector [String] uses the value for this key as source of feature data
+      #
+      def get_active_features(data, selector)
         data[@environment]['features'] = DEFAULTS.merge(data[@environment]['features'])
-        get_active_features(data, @environment)
+        super
       end
     end
   end

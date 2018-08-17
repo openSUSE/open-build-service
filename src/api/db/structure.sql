@@ -1224,6 +1224,7 @@ CREATE TABLE `users` (
   `state` enum('unconfirmed','confirmed','locked','deleted','subaccount') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'unconfirmed',
   `owner_id` int(11) DEFAULT NULL,
   `ignore_auth_services` tinyint(1) DEFAULT '0',
+  `in_beta` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_login_index` (`login`(255)) USING BTREE,
   KEY `users_password_index` (`deprecated_password`) USING BTREE
@@ -1377,6 +1378,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20180720082742'),
 ('20180731124926'),
 ('20180731125103'),
-('20180807114201');
+('20180807114201'),
+('20180814112739');
 
 

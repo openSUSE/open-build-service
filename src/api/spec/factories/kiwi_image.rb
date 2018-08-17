@@ -1,16 +1,16 @@
 FactoryBot.define do
   factory :kiwi_image, class: Kiwi::Image do
     name { Faker::Name.name }
-    md5_last_revision nil
+    md5_last_revision { nil }
     association :preference, factory: :kiwi_preference
 
     factory :kiwi_image_with_package do
       transient do
-        package_name 'package_with_kiwi_image'
-        with_kiwi_file false
+        package_name { 'package_with_kiwi_image' }
+        with_kiwi_file { false }
         kiwi_file_name { "#{package_name}.kiwi" }
         file_content { Kiwi::Image::DEFAULT_KIWI_BODY }
-        project nil
+        project { nil }
       end
 
       after(:create) do |image, evaluator|

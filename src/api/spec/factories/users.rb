@@ -3,10 +3,14 @@ FactoryBot.define do
     email { Faker::Internet.email }
     realname { Faker::Name.name }
     sequence(:login) { |n| "user_#{n}" }
-    password 'buildservice'
+    password { 'buildservice' }
+
+    trait :in_beta do
+      in_beta { true }
+    end
 
     factory :confirmed_user do
-      state 'confirmed'
+      state { 'confirmed' }
 
       factory :admin_user do
         roles { [Role.find_by_title('admin')] }
@@ -42,12 +46,12 @@ FactoryBot.define do
     end
 
     factory :deleted_user do
-      login 'deleted'
-      state 'deleted'
+      login { 'deleted' }
+      state { 'deleted' }
     end
 
     factory :user_nobody do
-      login '_nobody_'
+      login { '_nobody_' }
     end
 
     # This is needed because the salt is random

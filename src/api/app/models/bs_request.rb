@@ -821,9 +821,8 @@ class BsRequest < ApplicationRecord
   private :create_new_review
 
   def addreview(opts)
-    permission_check_addreview!
-
     with_lock do
+      permission_check_addreview!
       check_if_valid_review!(opts)
 
       self.state = 'review'

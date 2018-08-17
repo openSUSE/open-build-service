@@ -9,37 +9,9 @@ class Package < ApplicationRecord
   include FlagHelper
   include CanRenderModel
   include HasRelationships
-  has_many :relationships, dependent: :destroy, inverse_of: :package
-  belongs_to :kiwi_image, class_name: 'Kiwi::Image', inverse_of: :package
-  accepts_nested_attributes_for :kiwi_image
-
+  include Package::Errors
   include HasRatings
   include HasAttributes
-
-  class PackageError < StandardError; end
-
-  class CycleError < APIError
-    setup 'cycle_error'
-  end
-  class DeleteError < APIError
-    attr_accessor :packages
-    setup 'delete_error'
-  end
-  class SaveError < APIError
-    setup 'package_save_error'
-  end
-  class WritePermissionError < APIError
-    setup 'package_write_permission_error'
-  end
-  class UnknownObjectError < APIError
-    setup 'unknown_package', 404, 'Unknown package'
-  end
-  class ReadAccessError < UnknownObjectError; end
-  class ReadSourceAccessError < APIError
-    setup 'source_access_no_permission', 403, 'Source Access not allowed'
-  end
-  class IllegalFileName < APIError; setup 'invalid_file_name_error'; end
-  class PutFileNoPermission < APIError; setup 403; end
 
   BINARY_EXTENSIONS = ['.0', '.bin', '.bin_mid', '.bz', '.bz2', '.ccf', '.cert',
                        '.chk', '.der', '.dll', '.exe', '.fw', '.gem', '.gif', '.gz',
@@ -47,6 +19,10 @@ class Package < ApplicationRecord
                        '.pdf', '.pk3', '.png', '.ps', '.rpm', '.sig', '.svgz', '.tar',
                        '.taz', '.tb2', '.tbz', '.tbz2', '.tgz', '.tlz', '.txz', '.ucode',
                        '.xpm', '.xz', '.z', '.zip', '.ttf'].freeze
+
+  has_many :relationships, dependent: :destroy, inverse_of: :package
+  belongs_to :kiwi_image, class_name: 'Kiwi::Image', inverse_of: :package
+  accepts_nested_attributes_for :kiwi_image
 
   belongs_to :project, inverse_of: :packages
   delegate :name, to: :project, prefix: true

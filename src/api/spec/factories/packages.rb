@@ -9,7 +9,7 @@ FactoryBot.define do
 
     factory :package_with_revisions do
       transient do
-        revision_count 2
+        revision_count { 2 }
       end
 
       after(:create) do |package, evaluator|
@@ -23,8 +23,8 @@ FactoryBot.define do
 
     factory :package_with_file do
       transient do
-        file_name 'somefile.txt'
-        file_content Faker::Lorem.paragraph
+        file_name { 'somefile.txt' }
+        file_content { Faker::Lorem.paragraph }
       end
 
       after(:create) do |package, evaluator|
@@ -41,8 +41,8 @@ FactoryBot.define do
 
     factory :package_with_binary do
       transient do
-        target_file_name 'bigfile_archive.tar.gz'
-        file_name 'spec/support/files/bigfile_archive.tar.gz'
+        target_file_name { 'bigfile_archive.tar.gz' }
+        file_name { 'spec/support/files/bigfile_archive.tar.gz' }
       end
 
       after(:create) do |package, evaluator|
@@ -89,16 +89,17 @@ FactoryBot.define do
 
     factory :package_with_changes_file do
       transient do
-        changes_file_content '
--------------------------------------------------------------------
-Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org
+        changes_file_content do
+          '
+        -------------------------------------------------------------------
+        Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org
 
-- Testing the submit diff
+        - Testing the submit diff
 
--------------------------------------------------------------------
-Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
-
-- Temporary hack'
+        -------------------------------------------------------------------
+        Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
+        - Temporary hack'
+        end
         changes_file_name { "#{name}.changes" }
       end
 
@@ -114,18 +115,20 @@ Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
 
     factory :package_with_kiwi_file do
       transient do
-        kiwi_file_content '<?xml version="1.0" encoding="UTF-8"?>
-<image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
-  <description type="system">
-    <author>Christian Bruckmayer</author>
-    <contact>noemail@example.com</contact>
-    <specification>Tiny, minimalistic appliances</specification>
-  </description>
-  <preferences>
-    <type image="docker" boot="grub"/>
-    <version>2.0.0</version>
-  </preferences>
-</image>'
+        kiwi_file_content do
+          '<?xml version="1.0" encoding="UTF-8"?>
+        <image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
+          <description type="system">
+            <author>Christian Bruckmayer</author>
+            <contact>noemail@example.com</contact>
+            <specification>Tiny, minimalistic appliances</specification>
+          </description>
+          <preferences>
+            <type image="docker" boot="grub"/>
+            <version>2.0.0</version>
+          </preferences>
+        </image>'
+        end
         kiwi_file_name { "#{name}.kiwi" }
       end
 
