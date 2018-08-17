@@ -276,6 +276,7 @@ sub createProductOptions($$$)
     $varsH{MULTIPLE_MEDIA} = "true" if (defined($medium->{'debugmedia'}) && $medium->{'debugmedia'} > 1);
     $varsH{RUN_MEDIA_CHECK} = "true" if (defined($medium->{'run_media_check'})) && $medium->{'run_media_check'} ne "no" && $medium->{'run_media_check'} eq "false";
     $varsH{RUN_ISOHYBRID} = "true" if (defined($medium->{'run_hybridiso'})) && $medium->{'run_hybridiso'} eq "true";
+    $varsH{RUN_RPIHYBRID} = "true" if (defined($medium->{'run_rpihybridiso'})) && $medium->{'run_rpihybridiso'} eq "true";
     $varsH{CREATE_REPOMD} = "true" if (defined($medium->{'create_repomd'})) && $medium->{'create_repomd'} ne "no" && $medium->{'create_repomd'} ne "false";
     $varsH{MAKE_LISTINGS} = 'false' if (defined($medium->{'run_make_listings'})) && $medium->{'run_make_listings'} ne "yes" && $medium->{'run_make_listings'} ne "true";
     $varsH{SHA1OPT} = "-x";
@@ -1584,6 +1585,7 @@ foreach my $medium ( @$media ){
 	      my $attrs = {image => "product"};
 	      $attrs->{'firmware'} = $medium->{'firmware'} if $medium->{'firmware'};
 	      $attrs->{'hybrid'} = 'true' if (defined($medium->{'run_hybridiso'})) && $medium->{'run_hybridiso'} eq "true";
+	      $attrs->{'hybrid'} = 'true' if (defined($medium->{'run_rpihybridiso'})) && $medium->{'run_rpihybridiso'} eq "true";
 	      $kiwi->{preferences}->{type} = [$attrs];
 	  }else{
 	      # the schemE vs. schemA is intended by kiwi!
