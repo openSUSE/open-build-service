@@ -2,8 +2,8 @@ $( document ).ready(function() {
   $('.requests-datatable').each(function(index){
     // 1. Create DataTable
     var dataTableId = $(this).attr('id');
-    var type_dropdown = $('select[name=request_type_select][data-table=' + dataTableId + ']');
-    var state_dropdown = $('select[name=request_state_select][data-table=' + dataTableId + ']');
+    var typeDropdown = $('select[name=request_type_select][data-table=' + dataTableId + ']');
+    var stateDropdown = $('select[name=request_state_select][data-table=' + dataTableId + ']');
     var url = $(this).data('source');
 
     var table = $(this).dataTable({
@@ -27,8 +27,8 @@ $( document ).ready(function() {
         url: url,
         data: function(d) {
           d.dataTableId = dataTableId;
-          d.type = type_dropdown.val();
-          d.state = state_dropdown.val();
+          d.type = typeDropdown.val();
+          d.state = stateDropdown.val();
         }
       }
     }).on('xhr.dt', function ( e, settings, json, xhr ) {
@@ -38,36 +38,36 @@ $( document ).ready(function() {
     });
 
     // 2. Reload button (if it exists)
-    var reload_button = $('.result_reload[data-table=' + dataTableId + ']');
+    var reloadButton = $('.result_reload[data-table=' + dataTableId + ']');
 
-    reload_button.click(function(){
-      var loading_spinner = $(reload_button).siblings('.result_spinner');
-      reload_button.hide();
-      loading_spinner.show();
+    reloadButton.click(function(){
+      var loadingSpinner = $(reloadButton).siblings('.result_spinner');
+      reloadButton.hide();
+      loadingSpinner.show();
 
       table.api().ajax.reload(function(){
-        reload_button.show();
-        loading_spinner.hide();
+        reloadButton.show();
+        loadingSpinner.hide();
       });
     });
 
     // 3. Type dropdown (if it exists)
-    var loading_spinner = $('#spinner');
+    var loadingSpinner = $('#spinner');
 
-    type_dropdown.change(function(){
-      loading_spinner.show();
+    typeDropdown.change(function(){
+      loadingSpinner.show();
 
       table.api().ajax.reload(function(){
-        loading_spinner.hide();
+        loadingSpinner.hide();
       }, false);
     });
 
     // 4. State dropdown (if it exists)
-    state_dropdown.change(function(){
-      loading_spinner.show();
+    stateDropdown.change(function(){
+      loadingSpinner.show();
 
       table.api().ajax.reload(function(){
-        loading_spinner.hide();
+        loadingSpinner.hide();
       }, false);
     });
   });
