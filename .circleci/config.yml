@@ -48,19 +48,19 @@ aliases:
 
   # keep the prefix for the following aligned
   - &save_repo_cache_key
-    key: v3-repo-{{ .Branch }}-{{ .Revision }}
+    key: v4-repo-{{ .Branch }}-{{ .Revision }}
 
   - &initial_repo_restore
     restore_cache:
       keys:
-        - v3-repo-{{ .Branch }}-{{ .Revision }}
-        - v3-repo-{{ .Branch }}
-        - v3-repo
+        - v4-repo-{{ .Branch }}-{{ .Revision }}
+        - v4-repo-{{ .Branch }}
+        - v4-repo
 
   - &restore_repo
     restore_cache:
       keys:
-        - v3-repo-{{ .Branch }}-{{ .Revision }}
+        - v4-repo-{{ .Branch }}-{{ .Revision }}
 
   - &store_minitest_artefacts
     store_artifacts:
