@@ -1635,17 +1635,32 @@ RSpec.describe Webui::PackageController, vcr: true do
   describe 'POST #save_new' do
     let(:package_name) { 'new-package' }
     let(:my_user) { user }
-
+    let(:post_params) do
+      { project: source_project, name: package_name,
+                              title: 'package foo',
+                              description: 'awesome package foo' }
+    end
     before do
       login(my_user)
-      post :save_new, params: { project: source_project, name: package_name,
-                                title: 'package foo',
-                                description: 'awesome package foo' }
+      post :save_new, params: post_params
     end
 
     context 'valid package name' do
       it { expect(response).to redirect_to(package_show_path(source_project, package_name)) }
       it { expect(flash[:notice]).to eq("Package 'new-package' was created successfully") }
+      it { expect(Package.find_by(name: package_name).flags).to be_empty }
+    end
+
+    context 'valid package with source_protection enabled' do
+      let(:post_params) do
+        { project: source_project, name: package_name,
+                                title: 'package foo',
+                                description: 'awesome package foo', source_protection: 'foo',
+                                disable_publishing: 'bar' }
+      end
+
+      it { expect(Package.find_by(name: package_name).flags).to include(Flag.find_by_flag('sourceaccess')) }
+      it { expect(Package.find_by(name: package_name).flags).to include(Flag.find_by_flag('publish')) }
     end
 
     context 'invalid package name' do
