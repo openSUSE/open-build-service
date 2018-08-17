@@ -31,10 +31,6 @@ $( document ).ready(function() {
           d.state = stateDropdown.val();
         }
       }
-    }).on('xhr.dt', function ( e, settings, json, xhr ) {
-      if (json) {
-        $('#request_count').text('(' + json.recordsTotal + ')');
-      }
     });
 
     // 2. Reload button (if it exists)
@@ -72,3 +68,11 @@ $( document ).ready(function() {
     });
   });
 });
+
+$(document).on('xhr.dt', '.requests-datatable', function(e, settings, json) {
+  if (json) {
+    $('#request_count').text('(' + json.recordsTotal + ')');
+  }
+});
+
+
