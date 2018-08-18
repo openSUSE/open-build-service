@@ -110,7 +110,10 @@ jobs:
       - <<: *frontend_base
       - <<: *mariadb
     steps:
-      - *restore_repo
+      - checkout
+      - run:
+          name: Setup application
+          command: cd src/api; bundle exec rake dev:prepare assets:precompile RAILS_ENV=test FORCE_EXAMPLE_FILES=1
       - run: *install_dependencies
       - run: *wait_for_database
       - run: *create_test_db
@@ -162,7 +165,7 @@ jobs:
       - <<: *frontend_backend
       - <<: *mariadb
     steps:
-      - *restore_repo
+      - checkout
       - run: *install_dependencies
       - run: *init_git_submodule
       - run: *wait_for_database
@@ -199,7 +202,7 @@ jobs:
       - <<: *frontend_backend
       - <<: *mariadb
     steps:
-      - *restore_repo
+      - checkout
       - run: *install_dependencies
       - run: *init_git_submodule
       - run: *wait_for_database
@@ -214,7 +217,7 @@ jobs:
       - image: *backend
     working_directory: /home/frontend/project
     steps:
-      - *restore_repo
+      - checkout
       - run: *init_git_submodule
       - run:
           name: backend
@@ -225,7 +228,7 @@ jobs:
       - <<: *frontend_base
 
     steps:
-      - *restore_repo
+      - checkout
       - run: *install_dependencies
       - attach_workspace:
          at: .
