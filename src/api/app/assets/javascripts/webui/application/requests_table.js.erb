@@ -46,26 +46,6 @@ $( document ).ready(function() {
         loadingSpinner.hide();
       });
     });
-
-    // 3. Type dropdown (if it exists)
-    var loadingSpinner = $('#spinner');
-
-    typeDropdown.change(function(){
-      loadingSpinner.show();
-
-      table.api().ajax.reload(function(){
-        loadingSpinner.hide();
-      }, false);
-    });
-
-    // 4. State dropdown (if it exists)
-    stateDropdown.change(function(){
-      loadingSpinner.show();
-
-      table.api().ajax.reload(function(){
-        loadingSpinner.hide();
-      }, false);
-    });
   });
 });
 
@@ -75,4 +55,13 @@ $(document).on('xhr.dt', '.requests-datatable', function(e, settings, json) {
   }
 });
 
+// The dropdowns on the package request tabs
+$(document).on('change', 'select[data-table]', function() {
+  var loadingSpinner = $('#spinner'),
+      tableSelector = '#' + $(this).data('table');
 
+  loadingSpinner.show();
+  $(tableSelector).DataTable().ajax.reload(function(){
+    loadingSpinner.hide();
+  }, false);
+});
