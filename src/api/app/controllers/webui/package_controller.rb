@@ -28,8 +28,8 @@ class Webui::PackageController < Webui::WebuiController
                                          :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
                                          :attributes, :edit, :import_spec, :files, :users, :binary_download]
 
-  before_action :require_repository, only: :binary
-  before_action :require_architecture, only: :binary
+  before_action :require_repository, only: [:binary, :binary_download]
+  before_action :require_architecture, only: [:binary, :binary_download]
 
   # make sure it's after the require_, it requires both
   before_action :require_login, except: [:show, :linking_packages, :linking_packages, :dependency,
