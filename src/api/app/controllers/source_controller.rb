@@ -4,9 +4,7 @@ include ValidationHelper
 require 'builder/xchar'
 
 class SourceController < ApplicationController
-  class IllegalRequest < APIError
-    setup 404, 'Illegal request'
-  end
+  include Source::Errors
 
   validate_action index: { method: :get, response: :directory }
   validate_action projectlist: { method: :get, response: :directory }
@@ -19,10 +17,6 @@ class SourceController < ApplicationController
   before_action :require_valid_project_name, except: [:index, :lastevents, :lastevents_public,
                                                       :global_command_orderkiwirepos, :global_command_branch,
                                                       :global_command_createmaintenanceincident]
-
-  class NoPermissionForDeleted < APIError
-    setup 403, 'only admins can see deleted projects'
-  end
 
   # GET /source
   #########
@@ -52,18 +46,6 @@ class SourceController < ApplicationController
     @filter_changes = params[:changes].split(',') if params[:changes]
     @states = params[:states].split(',') if params[:states]
     @login = params[:login]
-  end
-
-  class NoLocalPackage < APIError; end
-
-  class ChangePackageProtectionLevelError < APIError
-    setup 'change_package_protection_level',
-          403,
-          'admin rights are required to raise the protection level of a package'
-  end
-
-  class CmdExecutionNoPermission < APIError
-    setup 403
   end
 
   def show_package_issues
@@ -100,16 +82,6 @@ class SourceController < ApplicationController
                                            :deleted, :parse, :arch,
                                            :repository, :product, :nofilename])
     pass_to_backend(path)
-  end
-
-  class DeletePackageNoPermission < APIError
-    setup 403
-  end
-
-  class ProjectExists < APIError
-  end
-
-  class PackageExists < APIError
   end
 
   def delete_package
@@ -158,10 +130,6 @@ class SourceController < ApplicationController
       @target_project_name = params[:project]
       @target_package_name = params[:package]
     end
-  end
-
-  class NoMatchingReleaseTarget < APIError
-    setup 404, 'No defined or matching release target'
   end
 
   def verify_can_modify_target_package!
@@ -266,35 +234,12 @@ class SourceController < ApplicationController
     validate_read_access_of_deleted_package(@target_project_name, @target_package_name) if @package.nil? && @deleted_package
   end
 
-  class ChangeProjectNoPermission < APIError
-    setup 403
-  end
-
-  class InvalidProjectParameters < APIError
-    setup 404
-  end
-
-  class ProjectNameMismatch < APIError
-  end
-
-  class RepositoryAccessFailure < APIError
-    setup 404
-  end
-
-  class ProjectReadAccessFailure < APIError
-    setup 404
-  end
-
   def check_and_remove_repositories!(repositories, opts)
     result = Project.check_repositories(repositories) unless opts[:force]
     raise RepoDependency, result[:error] if !opts[:force] && result[:error]
 
     result = Project.remove_repositories(repositories, opts)
     raise ChangeProjectNoPermission, result[:error] if !opts[:force] && result[:error]
-  end
-
-  class PutProjectConfigNoPermission < APIError
-    setup 403
   end
 
   def pubkey_path
@@ -310,10 +255,6 @@ class SourceController < ApplicationController
 
     # GET /source/:project/_pubkey
     pass_to_backend(path)
-  end
-
-  class DeleteProjectPubkeyNoPermission < APIError
-    setup 403
   end
 
   # DELETE /source/:project/_pubkey
@@ -374,12 +315,6 @@ class SourceController < ApplicationController
     path += build_query_from_hash(params, [:rev, :meta, :deleted, :limit, :expand, :view])
     pass_to_backend(path)
   end
-
-  class PutFileNoPermission < APIError
-    setup 403
-  end
-
-  class WrongRouteForAttribute < APIError; end
 
   def check_permissions_for_file
     @project_name = params[:project]
@@ -493,14 +428,6 @@ class SourceController < ApplicationController
 
   private
 
-  class AttributeNotFound < APIError
-    setup 'not_found', 404
-  end
-
-  class ModifyProjectNoPermission < APIError
-    setup 403
-  end
-
   def actually_create_incident(project)
     unless User.current.can_modify?(project)
       raise ModifyProjectNoPermission, "no permission to modify project '#{project.name}'"
@@ -514,9 +441,6 @@ class SourceController < ApplicationController
       render_error status: 400, errorcode: 'incident_has_no_maintenance_project',
                    message: 'incident projects shall only create below maintenance projects'
     end
-  end
-
-  class RepoDependency < APIError
   end
 
   # create a id collection of all projects doing a project link to this one
@@ -662,13 +586,6 @@ class SourceController < ApplicationController
     raise NoMatchingReleaseTarget, 'No defined or matching release target' unless repo_matches
   end
 
-  class RemoteProjectError < APIError
-    setup 'remote_project', 404
-  end
-  class ProjectCopyNoPermission < APIError
-    setup 403
-  end
-
   # POST /source/<project>?cmd=move&oproject=<project>
   def project_command_move
     unless User.current.is_admin?
@@ -800,8 +717,6 @@ class SourceController < ApplicationController
 
     render_ok
   end
-
-  class NotLocked < APIError; end
 
   # unlock a package
   # POST /source/<project>/<package>?cmd=unlock
@@ -1227,8 +1142,6 @@ class SourceController < ApplicationController
 
     obj_set_flag(@project)
   end
-
-  class InvalidFlag < APIError; end
 
   def obj_set_flag(obj)
     obj.transaction do
