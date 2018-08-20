@@ -1,0 +1,9 @@
+= render partial: 'webui/main/breadcrumb_items'
+- if current_page?(projects_path)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Projects
+- else
+  %li.breadcrumb-item
+    = link_to 'Projects', projects_path
+  %li.breadcrumb-item
+    = link_to @project, project_show_path(@project)
