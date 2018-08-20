@@ -6,7 +6,7 @@ $( document ).ready(function() {
     var stateDropdown = $('select[name=request_state_select][data-table=' + dataTableId + ']');
     var url = $(this).data('source');
 
-    var table = $(this).dataTable({
+    $(this).dataTable({
       order: [[0,'desc']],
       info: false,
       columnDefs: [
@@ -32,20 +32,6 @@ $( document ).ready(function() {
         }
       }
     });
-
-    // 2. Reload button (if it exists)
-    var reloadButton = $('.result_reload[data-table=' + dataTableId + ']');
-
-    reloadButton.click(function(){
-      var loadingSpinner = $(reloadButton).siblings('.result_spinner');
-      reloadButton.hide();
-      loadingSpinner.show();
-
-      table.api().ajax.reload(function(){
-        reloadButton.show();
-        loadingSpinner.hide();
-      });
-    });
   });
 });
 
@@ -64,4 +50,19 @@ $(document).on('change', 'select[data-table]', function() {
   $(tableSelector).DataTable().ajax.reload(function(){
     loadingSpinner.hide();
   }, false);
+});
+
+// The reload button on the user request page
+$(document).on('click', '.result_reload[data-table]', function() {
+  var tableSelector = '#' + $(this).data('table'),
+      loadingSpinner = $(this).siblings('.result_spinner'),
+      reloadButton = $(this);
+
+  $(this).hide();
+  loadingSpinner.show();
+
+  $(tableSelector).DataTable().ajax.reload(function(){
+    reloadButton.show();
+    loadingSpinner.hide();
+  });
 });
