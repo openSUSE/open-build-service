@@ -3,7 +3,7 @@
     %li.nav-item
       %a.nav-link{ href: package_show_path, class: [current_page?(package_show_path) && 'active'] }
         Overview
-    - if @package.name == 'patchinfo'
+    - if package.name == 'patchinfo'
       %li.nav-item
         %a.nav-link{ href: patchinfo_show_path, class: [current_page?(patchinfo_show_path) && 'active'] }
           Details
