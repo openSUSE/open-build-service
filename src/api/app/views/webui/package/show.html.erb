@@ -111,7 +111,7 @@
             <% end %>
             <% if User.current.can_modify? @package %>
                 <li>
-                  <%= link_to sprited_text('package_edit', 'Edit description'), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
+                  <%= link_to sprited_text('package_edit', 'Edit description'), :action => 'edit', :project => @project, :package => @package %>
                 </li>
                 <li>
                   <%= link_to(sprited_text('package_delete', 'Delete package'), { :action => :delete_dialog, :package => @package, :project => @project }, :remote => true, id: 'delete-package') %>
