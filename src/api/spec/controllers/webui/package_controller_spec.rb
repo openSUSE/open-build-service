@@ -1607,4 +1607,32 @@ RSpec.describe Webui::PackageController, vcr: true do
       it { expect(flash[:error]).to eq("Couldn't find architecture 'invalid'") }
     end
   end
+
+  describe 'GET #rpmlint_log' do
+    describe 'when no rpmlint log is available' do
+      render_views
+
+      subject do
+        get :rpmlint_log, params: { project: source_project, package: source_package, repository: repo_for_source_project.name, architecture: 'i586' }
+      end
+
+      it { is_expected.to have_http_status(:success) }
+      it { expect(subject.body).to eq('No rpmlint log') }
+    end
+
+    describe 'when there is a rpmlint log' do
+      before do
+        allow(Backend::Api::BuildResults::Binaries).to receive(:rpmlint_log).
+          with(source_project.name, source_package.name, repo_for_source_project.name, 'i586').
+          and_return('test_package.i586: W: description-shorter-than-summary\ntest_package.src: W: description-shorter-than-summary')
+      end
+
+      subject do
+        get :rpmlint_log, params: { project: source_project, package: source_package, repository: repo_for_source_project.name, architecture: 'i586' }
+      end
+
+      it { is_expected.to have_http_status(:success) }
+      it { is_expected.to render_template('webui/package/_rpmlint_log') }
+    end
+  end
 end
