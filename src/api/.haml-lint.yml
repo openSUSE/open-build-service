@@ -2,6 +2,13 @@ linters:
   LineLength:
     max: 150
 
+  # Apply lint in all partials, but exclude 'breadcrumb_items' partials
+  InstanceVariables:
+    enabled: true
+    file_types: not_breadcrumb_items
+    matchers:
+      not_breadcrumb_items: \A_(?!breadcrumb_items).*\.haml\z
+
 exclude:
 - 'vendor/bundle/**/*'
 # Everything below is the old interface. We only lint the new Bootstrap interface
