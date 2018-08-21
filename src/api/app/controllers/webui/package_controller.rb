@@ -359,6 +359,8 @@ class Webui::PackageController < Webui::WebuiController
 
   def set_remote_linkinfo
     linkinfo = @package.linkinfo
+
+    return unless linkinfo['package'] && linkinfo['project']
     return unless Package.exists_on_backend?(linkinfo['package'], linkinfo['project'])
 
     @linkinfo = { remote_project: linkinfo['project'], package: linkinfo['package'] }
