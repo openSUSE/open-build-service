@@ -54,6 +54,8 @@ puts 'Seeding users table...'
 admin = User.where(login: 'Admin').first_or_create(login: 'Admin', email: 'root@localhost',
                                                     realname: 'OBS Instance Superuser', state: 'confirmed',
                                                     password: 'opensuse')
+admin.update!(in_beta: true) if Rails.env.development?
+
 User.where(login: '_nobody_').first_or_create(login: '_nobody_', email: 'nobody@localhost',
                                               realname: 'Anonymous User', state: 'locked',
                                               password: '123456')
