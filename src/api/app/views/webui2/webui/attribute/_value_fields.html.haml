@@ -1,0 +1,19 @@
+.nested-fields
+  .field.form-row.form-group
+    - if attribute.values_addable?
+      .col-auto.col-form-label
+        = f.label(:position, 'Position:')
+      .col-1
+        = f.number_field(:position, class: 'form-control', min: 1)
+    .col-auto.col-form-label
+      = f.label(:value, 'Value:')
+    - if allowed_values.present?
+      .col-auto
+        = f.select(:value, allowed_values, {}, class: 'form-control')
+    - else
+      .col
+        = f.text_area(:value, class: 'form-control')
+    - if attribute.values_removeable?
+      .col-auto.col-form-label
+        = link_to_remove_association(f, title: 'Delete value') do
+          %i.fas.fa-minus-circle

@@ -1,0 +1,20 @@
+- @pagetitle = 'Add Attribute'
+
+.card
+  = render(partial: 'webui/package/tabs', locals: { project: @project, package: @package })
+
+  .card-body
+    %h3= @pagetitle
+    = form_for(@attribute) do |form|
+      .form-row.form-group
+        = form.hidden_field(:project_id)
+        - if @attribute.package_id
+          = form.hidden_field(:package_id)
+        .col-auto
+          = form.collection_select(:attrib_type_id, @attribute_types, :id, :fullname, {}, class: 'form-control')
+        .col.col-form-label
+          - @attribute_types.each do |attribute_type|
+            %p.d-none{ id: "attribute_type-description-#{attribute_type.id}" }
+              = attribute_type.description.presence || 'Sorry, this attribute has no description'
+      = form.submit('Add', class: 'btn btn-primary')
+      = link_to('Back', index_attribs_path, class: 'btn btn-secondary', role: 'button')

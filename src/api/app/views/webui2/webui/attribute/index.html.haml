@@ -1,0 +1,48 @@
+- @pagetitle = "Attributes of #{@package} (Project #{@project})"
+- package_bread_crumb 'Attributes'
+
+.card
+  = render(partial: 'webui/package/tabs', locals: { project: @project, package: @package })
+
+  .card-body
+    %h3= @pagetitle
+    - if @attributes.present?
+      .table-responsive
+        %table.table.table-hover#attributes
+          %thead.thead-light
+            %tr
+              %th.col-auto{ scope: 'col' } Attributes
+              %th.col{ scope: 'col' } Values
+              - if policy(@package).update?
+                %th.col-auto{ scope: 'col' } Actions
+          %tbody
+            - @attributes.each do |attribute|
+              %tr
+                %td= attribute.fullname
+                %td
+                  %ul
+                    - unless attribute.values.empty?
+                      - attribute.values.each do |v|
+                        %li.value
+                          %pre.d-inline= v.value
+                    - unless attribute.issues.empty?
+                      %li= attribute.issues.map(&:name).to_sentence
+                - if policy(@package).update?
+                  %td
+                    - if attribute.values_editable?
+                      = link_to(edit_attribs_path(project: @project.name, package: @package, attribute: attribute.fullname), title: 'Edit values') do
+                        %i.fas.fa-edit
+                    = link_to(attrib_path(attribute),
+                              data: { confirm: "Delete attribute '#{attribute.fullname}'?" },
+                              method: :delete,
+                              title: 'Delete attribute') do
+                      %i.fas.fa-minus-circle
+    - else
+      %p
+        %em No attributes set
+
+    - if policy(@package).update?
+      %p
+        = link_to(new_attribs_path(project: @project.name, package: @package), title: 'Add a new attribute') do
+          %i.fas.fa-plus-square
+          Add a new attribute

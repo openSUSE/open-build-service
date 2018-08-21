@@ -1,0 +1,14 @@
+= render partial: 'webui/package/breadcrumb_items'
+
+- if current_page?(index_attribs_path)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Attributes
+- else
+  %li.breadcrumb-item
+    = link_to('Attributes', index_attribs_path)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    - case request.path
+      - when new_attribs_path(@project, @package)
+        Add
+      - when edit_attribs_path(@project, @package, @attribute.fullname)
+        = @attribute.fullname
