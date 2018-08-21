@@ -1,11 +1,11 @@
 %p
   Display
   = select_tag('request_type_select',
-               options_for_select(@available_types, @default_request_type),
+               options_for_select(Webui::RequestHelper::AVAILABLE_TYPES, @default_request_type),
                data: { table: 'all_requests_table' })
   requests in state
   = select_tag('request_state_select',
-               options_for_select(@available_states, @default_request_state),
+               options_for_select(Webui::RequestHelper::AVAILABLE_STATES, @default_request_state),
                data: { table: 'all_requests_table' })
   %span#request_count
   \:

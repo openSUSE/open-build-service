@@ -7,6 +7,9 @@ module Webui::RequestHelper
     'superseded' => 'red'
   }.freeze
 
+  AVAILABLE_TYPES = ['all', 'submit', 'delete', 'add_role', 'change_devel', 'maintenance_incident', 'maintenance_release'].freeze
+  AVAILABLE_STATES = ['new or review', 'new', 'review', 'accepted', 'declined', 'revoked', 'superseded'].freeze
+
   def request_state_color(state)
     STATE_COLORS[state.to_s] || ''
   end
