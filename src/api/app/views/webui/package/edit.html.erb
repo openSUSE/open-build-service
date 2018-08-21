@@ -11,23 +11,9 @@
     <label for="title"><strong>Title:</strong></label><br/>
     <%= text_field_tag( 'title', @package.title, :size => 80 ) %><br/>
     <label for="description"><strong>Description:</strong></label>
-    <% if params[:spec_count] == "1" %>
-      <%= link_to('Import from specfile', {:action => 'import_spec', :project => @project, :package => @package, :import => 'description'}, {:id => 'import-spec-link', :remote => true}) %>
-      <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>
-    <% end %><br/>
     <%= text_area_tag( "description", @package.description, :cols => "80", :rows => "20" ) %><br/>
     <%= hidden_field_tag( "project", @project.name ) %>
     <%= hidden_field_tag( "package", @package.name ) %>
   </p>
   <p><%= submit_tag %></p>
-<% end %>
-
-<%= javascript_tag do %>
-  $(function() {
-    var toggleLoading = function () { $('#spinner').toggle(); };
-    $('#import-spec-link')
-      .bind('ajax:loading', toggleLoading)
-      .bind('ajax:complete', toggleLoading)
-      .bind('ajax:success', function (event, data, status, xhr) { $("#description").html(data); });
-  });
 <% end %>

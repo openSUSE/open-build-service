@@ -11,8 +11,8 @@
         - if User.current.can_modify?(@package)
           %ul.horizontal-list
             %li
-              = link_to sprite_tag('package_edit'), { action: 'edit_patchinfo', project: @project, package: @package, spec_count: @spec_count }
-              = link_to "Edit patchinfo", { action: 'edit_patchinfo', project: @project, package: @package, spec_count: @spec_count }, id: 'edit-patchinfo'
+              = link_to sprite_tag('package_edit'), { action: 'edit_patchinfo', project: @project, package: @package }
+              = link_to "Edit patchinfo", { action: 'edit_patchinfo', project: @project, package: @package }, id: 'edit-patchinfo'
             %li
               = link_to(sprite_tag('package_delete'), { action: :delete_dialog, package: @package, project: @project }, remote: true)
               = link_to('Delete patchinfo', { action: :delete_dialog, package: @package, project: @project }, remote: true, id: 'delete-patchinfo')
