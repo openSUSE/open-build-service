@@ -215,9 +215,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def requests
     @default_request_type = params[:type] if params[:type]
-    @available_types = ['all', 'submit', 'delete', 'add_role', 'change_devel', 'maintenance_incident', 'maintenance_release']
     @default_request_state = params[:state] if params[:state]
-    @available_states = ['new or review', 'new', 'review', 'accepted', 'declined', 'revoked', 'superseded']
   end
 
   def revisions

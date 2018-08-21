@@ -1,0 +1,10 @@
+- @pagetitle = "Requests for #{@package}"
+- package_bread_crumb('Requests')
+
+= render :partial => 'tabs'
+
+%h3= @pagetitle
+
+= render(partial: 'webui/shared/requests_state_and_type_form')
+
+= render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: packages_requests_path(project: @project, package: @package) })
