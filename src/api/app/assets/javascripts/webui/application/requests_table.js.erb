@@ -37,7 +37,7 @@ $( document ).ready(function() {
 
 $(document).on('xhr.dt', '.requests-datatable', function(e, settings, json) {
   if (json) {
-    $('#request_count').text('(' + json.recordsTotal + ')');
+    $('#request-count').text('(' + json.recordsTotal + ')');
   }
 });
 

@@ -7,6 +7,6 @@
   = select_tag('request_state_select',
                options_for_select(Webui::RequestHelper::AVAILABLE_STATES, @default_request_state),
                data: { table: 'all_requests_table' })
-  %span#request_count
+  %span#request-count
   \:
   = image_tag('ajax-loader.gif', id: 'spinner', class: 'hidden')
