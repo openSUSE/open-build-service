@@ -5,6 +5,8 @@ module Event
     self.inheritance_column = 'eventtype'
     self.table_name = 'events'
 
+    validate :expected_payload
+
     after_create :create_project_log_entry_job, if: -> { (PROJECT_CLASSES | PACKAGE_CLASSES).include?(self.class.name) }
 
     EXPLANATION_FOR_NOTIFICATIONS =  {
@@ -84,6 +86,10 @@ module Event
       def message_bus_routing_key
         raise NotImplementedError
       end
+    end
+
+    def expected_payload
+      # if missing/extra keys is true, add validation error
     end
 
     # just for convenience
