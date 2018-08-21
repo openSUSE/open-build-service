@@ -4,3 +4,6 @@
 - if current_page?(package_view_revisions_path)
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Revisions
+- if current_page?(package_show_path)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Overview
