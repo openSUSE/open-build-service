@@ -38,13 +38,13 @@ aliases:
     name: Init submodule
     command: git submodule update --init --recursive --remote
 
-  - &create_test_db
-    name: Create database
-    command: cd src/api; bundle exec rake db:create db:setup RAILS_ENV=test
-
   - &bootstrap_old_test_suite
     name: Setup application
     command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test FORCE_EXAMPLE_FILES=1
+
+  - &bootstrap_rspec
+    name: Setup application
+    command: cd src/api; bundle exec rake dev:bootstrap RAILS_ENV=test FORCE_EXAMPLE_FILES=1
 
   # keep the prefix for the following aligned
   - &save_repo_cache_key
@@ -110,10 +110,10 @@ jobs:
       - <<: *frontend_base
       - <<: *mariadb
     steps:
-      - *restore_repo
+      - checkout
       - run: *install_dependencies
       - run: *wait_for_database
-      - run: *create_test_db
+      - run: *bootstrap_rspec
       - run: mkdir /home/frontend/rspec
       - run:
           name: Run rspec
@@ -162,7 +162,7 @@ jobs:
       - <<: *frontend_backend
       - <<: *mariadb
     steps:
-      - *restore_repo
+      - checkout
       - run: *install_dependencies
       - run: *init_git_submodule
       - run: *wait_for_database
@@ -199,7 +199,7 @@ jobs:
       - <<: *frontend_backend
       - <<: *mariadb
     steps:
-      - *restore_repo
+      - checkout
       - run: *install_dependencies
       - run: *init_git_submodule
       - run: *wait_for_database
@@ -214,7 +214,7 @@ jobs:
       - image: *backend
     working_directory: /home/frontend/project
     steps:
-      - *restore_repo
+      - checkout
       - run: *init_git_submodule
       - run:
           name: backend
@@ -225,7 +225,7 @@ jobs:
       - <<: *frontend_base
 
     steps:
-      - *restore_repo
+      - checkout
       - run: *install_dependencies
       - attach_workspace:
          at: .

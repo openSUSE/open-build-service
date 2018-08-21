@@ -1575,4 +1575,64 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
     end
   end
+
+  describe 'GET #binary_download' do
+    before do
+      login(user)
+    end
+
+    context 'when the backend has a build result' do
+      subject do
+        get :binary_download, params: { package: source_package, project: source_project, repository: repo_for_source_project.name, arch: 'i586', filename: 'my_file' }
+      end
+
+      it { is_expected.to redirect_to('http://localhost:3203/build/home:tom/source_repo/i586/my_package/my_file') }
+    end
+
+    context 'when requesting a result for an invalid repository' do
+      subject! do
+        get :binary_download, params: { package: source_package, project: source_project, repository: 'invalid', arch: 'i586', filename: 'my_file' }
+      end
+
+      it { is_expected.to redirect_to(package_show_path(project: source_project, package: source_package)) }
+      it { expect(flash[:error]).to eq("Couldn't find repository 'invalid'") }
+    end
+
+    context 'when requesting a result for an invalid architecture' do
+      subject! do
+        get :binary_download, params: { package: source_package, project: source_project, repository: repo_for_source_project.name, arch: 'invalid', filename: 'my_file' }
+      end
+
+      it { is_expected.to redirect_to(package_binaries_path(project: source_project, package: source_package, repository: repo_for_source_project.name)) }
+      it { expect(flash[:error]).to eq("Couldn't find architecture 'invalid'") }
+    end
+  end
+
+  describe 'GET #rpmlint_log' do
+    describe 'when no rpmlint log is available' do
+      render_views
+
+      subject do
+        get :rpmlint_log, params: { project: source_project, package: source_package, repository: repo_for_source_project.name, architecture: 'i586' }
+      end
+
+      it { is_expected.to have_http_status(:success) }
+      it { expect(subject.body).to eq('No rpmlint log') }
+    end
+
+    describe 'when there is a rpmlint log' do
+      before do
+        allow(Backend::Api::BuildResults::Binaries).to receive(:rpmlint_log).
+          with(source_project.name, source_package.name, repo_for_source_project.name, 'i586').
+          and_return('test_package.i586: W: description-shorter-than-summary\ntest_package.src: W: description-shorter-than-summary')
+      end
+
+      subject do
+        get :rpmlint_log, params: { project: source_project, package: source_package, repository: repo_for_source_project.name, architecture: 'i586' }
+      end
+
+      it { is_expected.to have_http_status(:success) }
+      it { is_expected.to render_template('webui/package/_rpmlint_log') }
+    end
+  end
 end
