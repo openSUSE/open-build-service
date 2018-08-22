@@ -14,10 +14,22 @@ module ObsFactory
     NAME_PREFIX = ":Staging:".freeze
     ADI_NAME_PREFIX = ":Staging:adi:".freeze
 
+    # DEFINITIONS...
+    # distribution = The top project (example: openSUSE:Factory)
+    # ring project = A project (example: openSUSE:Factory:Rings:0-Bootstrap)
+    # letter staging project = A project with requests going to a ring project (example: openSUSE:Factory:Staging:A)
+    # ADI staging project = A project with requests NOT going to a ring project (example: openSUSE:Factory:Staging:adi:1)
+
     # Find all staging projects for a given distribution
     #
     # @param [Boolean] only_letter  only letter stagings, otherwise all stagings
     # @return [Array] array of StagingProject objects
+    #
+    # NOTE: Move to Project
+    # It should include:
+    #   project.find_staging_projects
+    #   project.find_adi_projects
+    #   project.find_staging_and_adi_projects
     def self.for(distribution, only_letter = true)
       wildcard = only_letter ? "_" : "%"
       ::Project.where(["name like ?", "#{distribution.root_project_name}#{NAME_PREFIX}#{wildcard}"]).
@@ -27,6 +39,11 @@ module ObsFactory
     # Find a staging project by distribution and id
     #
     # @return [StagingProject] the project
+    #
+    # NOTE: Move to Project
+    # It should include:
+    #   project.find_staging_projects where id is A
+    #   project.find_adi_projects where id is adi:1
     def self.find(distribution, id)
       project = ::Project.find_by_name("#{distribution.root_project_name}#{NAME_PREFIX}#{id}")
       if project
@@ -37,16 +54,22 @@ module ObsFactory
     # Name of the associated project
     #
     # @return [String] name of the Project object
+    #
+    # NOTE: In both ADI and letter staging projects
     delegate :name, to: :project
 
     # Description of the associated project
     #
     # @return [String] description of the Project object
+    #
+    # NOTE: In both ADI and letter staging projects
     delegate :description, to: :project
 
     # Checks if the project is adi staging project
     #
     # @return [Boolean] true if the project is adi staging project
+    #
+    # NOTE: In both ADI and letter staging projects
     def adi_staging?
       /#{ADI_NAME_PREFIX}/.match?(name)
     end
@@ -55,6 +78,8 @@ module ObsFactory
     # distribution
     #
     # @return [String] the name excluding the id
+    #
+    # NOTE: In both ADI and letter staging projects
     def prefix
       if adi_staging?
         "#{distribution.root_project_name}#{ADI_NAME_PREFIX}"
@@ -66,6 +91,10 @@ module ObsFactory
     # Letter of the staging project, extracted from its name
     #
     # @return [String] just the letter
+    #
+    # NOTE: In both ADI and letter staging projects
+    #   It returns 'A' for openSUSE:Factory:Staging:A
+    #   It returns '1' for openSUSE:Factory:Staging:adi:1
     def letter
       adi_staging? ? name[prefix.size..-1] : name[prefix.size, 1]
     end
@@ -73,6 +102,10 @@ module ObsFactory
     # Id of the staging project, extracted from its name
     #
     # @return [String] the name excluding the common prefix
+    #
+    # NOTE: In both ADI and letter staging projects
+    #   It returns 'A' for openSUSE:Factory:Staging:A
+    #   It returns 'adi:1' for openSUSE:Factory:Staging:adi:1
     def id
       if adi_staging?
         'adi:' + name[prefix.size..-1]
@@ -85,6 +118,8 @@ module ObsFactory
     # due to its state (declined, superseded or revoked).
     #
     # @return [ActiveRecord::Relation] Obsolete requests
+    #
+    # NOTE: In both ADI and letter staging projects
     def obsolete_requests
       selected_requests.obsolete
     end
@@ -95,12 +130,16 @@ module ObsFactory
     # @see #iso
     #
     # @return [Array] Array of OpenqaJob objects
+    #
+    # NOTE: In both ADI and letter staging projects add our own tools class
     def openqa_jobs
       return @openqa_jobs unless @openqa_jobs.nil?
       @openqa_jobs ||= openqa_results_relevant? ? OpenqaJob.find_all_by(iso: iso) : []
     end
 
     # only check the openqa jobs if the project is under specific conditions
+    #
+    # NOTE: In both ADI and letter staging projects add our own tools class
     def openqa_results_relevant?
       return false if iso.nil?
       return false if overall_state == :building
@@ -117,6 +156,7 @@ module ObsFactory
     # 'package', 'state', 'details', 'repository', 'arch'
     #
     # @return [Array] Array of hashes
+    # NOTE: In both ADI and letter staging projects
     def broken_packages
       set_buildinfo if @broken_packages.nil?
       @broken_packages
@@ -128,6 +168,7 @@ module ObsFactory
     # 'repository', 'arch', 'code', 'state', 'dirty'
     #
     # @return [Array] Array of hashes
+    # NOTE: In both ADI and letter staging projects
     def building_repositories
       set_buildinfo if @building_repositories.nil?
       @building_repositories
@@ -137,6 +178,7 @@ module ObsFactory
     # project
     #
     # @return [Array] Array of Request objects
+    # NOTE: In both ADI and letter staging projects
     def untracked_requests
       open_requests - selected_requests
     end
@@ -144,6 +186,7 @@ module ObsFactory
     # Requests with open reviews
     #
     # @return [Array] Array of BsRequest objects
+    # NOTE: In both ADI and letter staging projects
     def open_requests
       @open_requests ||= BsRequest.with_open_reviews_for(by_project: name)
     end
@@ -151,6 +194,7 @@ module ObsFactory
     # Requests selected in the project
     #
     # @return ActiveRecord::Relation of BsRequest objects
+    # NOTE: In both ADI and letter staging projects
     def selected_requests
       @selected_requests ||= fetch_requests_from_meta
     end
@@ -163,6 +207,7 @@ module ObsFactory
     #
     # @return [Array] array of hashes with the following keys: :id, :state,
     #                 :request, :package and :by.
+    # NOTE: In both ADI and letter staging projects
     def missing_reviews
       if @missing_reviews.nil?
         @missing_reviews = []
@@ -190,6 +235,7 @@ module ObsFactory
     # Metadata stored in the description field
     #
     # @return [Hash] Hash with the metadata (currently the list of requests)
+    # NOTE: In both ADI and letter staging projects
     def meta
       @meta ||= YAML.safe_load(description) || {}
     end
@@ -197,10 +243,13 @@ module ObsFactory
     # Name of the ISO file generated by the staging project.
     #
     # @return [String] ISO file name
+    # NOTE: In both ADI and letter staging projects
     def iso
       @iso ||= distribution.openqa_iso(self)
     end
 
+    # NOTE: In both ADI and letter staging projects
+    # This is for deciding which attributes end up in the json API
     def self.attributes
       ['name', 'description', 'obsolete_requests', 'openqa_jobs',
        'building_repositories', 'broken_packages',
@@ -209,26 +258,32 @@ module ObsFactory
     end
 
     # Required by ActiveModel::Serializers
+    # NOTE: In both ADI and letter staging projects
+    # This is for deciding which attributes end up in the json API
     def attributes
       Hash[self.class.attributes.map { |a| [a, nil] }]
     end
 
+    # NOTE: In both ADI and letter staging projects
     def build_state
       return :building if building_repositories.present?
       return :failed if broken_packages.present?
       :acceptable
     end
 
+    # NOTE: In both ADI and letter staging projects add our own tools class
     def testing?
       # empty == the ISOs may still be syncing
       openqa_jobs.empty? || openqa_jobs.any? { |job| job.result == 'none' }
     end
 
+    # NOTE: In both ADI and letter staging projects add our own tools class
     def all_passed?
       openqa_jobs.all? { |job| ['passed', 'softfailed'].include?(job.result) }
     end
 
     # check openQA jobs for all projects not building right now - or that are known to be broken
+    # NOTE: In both ADI and letter staging projects add our own tools class
     def openqa_state
       # no openqa result for adi staging project
       return :acceptable if adi_staging?
@@ -240,6 +295,7 @@ module ObsFactory
     end
 
     # calculate the overall state of the project
+    # NOTE: In both ADI and letter staging projects
     def overall_state
       return @state unless @state.nil?
       @state = :empty
@@ -268,6 +324,7 @@ module ObsFactory
 
     protected
 
+    # NOTE: In both ADI and letter staging projects
     # Used internally to calculate #broken_packages and #building_repositories
     def set_buildinfo
       buildresult = Buildresult.find_hashed(project: name, code: ['failed', 'broken', 'unresolvable'])
@@ -314,6 +371,7 @@ module ObsFactory
 
     private
 
+    # NOTE: In both ADI and letter staging projects
     def fetch_requests_from_meta
       ids = meta["requests"].try(:map) { |i| i['id'] }
       BsRequest.where(number: ids).includes(:reviews, :bs_request_actions)
