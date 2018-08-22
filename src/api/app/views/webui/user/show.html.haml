@@ -38,7 +38,6 @@
       - if @configuration.accounts_editable?(@displayed_user)
         - if @account_edit_link.present?
           = link_to sprited_text('user_edit', 'Edit your account'), @account_edit_link
-          %br/
         - else
           = link_to(sprited_text('user_edit', 'Edit your account'), { controller: 'user', action: 'save_dialog', user: User.current }, {id: 'save_dialog', remote: true})
         %br/
