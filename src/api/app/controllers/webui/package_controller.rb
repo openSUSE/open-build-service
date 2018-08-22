@@ -16,7 +16,7 @@ class Webui::PackageController < Webui::WebuiController
                                      :save_group, :remove_role, :view_file,
                                      :abort_build, :trigger_rebuild, :trigger_services,
                                      :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
-                                     :save_meta, :attributes, :edit, :import_spec, :files, :binary_download]
+                                     :save_meta, :attributes, :edit, :files, :binary_download]
 
   before_action :require_package, only: [:show, :linking_packages, :dependency, :binary, :binaries,
                                          :requests, :statistics, :commit, :revisions, :submit_request_dialog,
@@ -26,7 +26,7 @@ class Webui::PackageController < Webui::WebuiController
                                          :save_group, :remove_role, :view_file,
                                          :abort_build, :trigger_rebuild, :trigger_services,
                                          :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
-                                         :attributes, :edit, :import_spec, :files, :users, :binary_download]
+                                         :attributes, :edit, :files, :users, :binary_download]
 
   before_action :require_repository, only: [:binary, :binary_download]
   before_action :require_architecture, only: [:binary, :binary_download]
@@ -215,9 +215,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def requests
     @default_request_type = params[:type] if params[:type]
-    @available_types = ['all', 'submit', 'delete', 'add_role', 'change_devel', 'maintenance_incident', 'maintenance_release']
     @default_request_state = params[:state] if params[:state]
-    @available_states = ['new or review', 'new', 'review', 'accepted', 'declined', 'revoked', 'superseded']
   end
 
   def revisions
@@ -359,6 +357,8 @@ class Webui::PackageController < Webui::WebuiController
 
   def set_remote_linkinfo
     linkinfo = @package.linkinfo
+
+    return unless linkinfo['package'] && linkinfo['project']
     return unless Package.exists_on_backend?(linkinfo['package'], linkinfo['project'])
 
     @linkinfo = { remote_project: linkinfo['project'], package: linkinfo['package'] }
@@ -392,11 +392,6 @@ class Webui::PackageController < Webui::WebuiController
       end
       @files = []
       return false
-    end
-
-    @spec_count = 0
-    @files.each do |file|
-      @spec_count += 1 if file[:ext] == 'spec'
     end
 
     true
@@ -909,28 +904,6 @@ class Webui::PackageController < Webui::WebuiController
     tgt_pkg = Package.find_by_project_and_name(params[:project], params[:package])
 
     render plain: tgt_pkg.try(:develpackage).try(:project).to_s
-  end
-
-  def import_spec
-    all_files = package_files
-    all_files.each do |file|
-      @specfile_name = file[:name] if file[:name].end_with?('.spec')
-    end
-    if @specfile_name.blank?
-      render json: {}
-      return
-    end
-    specfile_content = @package.source_file(@specfile_name)
-
-    description = []
-    lines = specfile_content.split(/\n/)
-    line = lines.shift until line =~ /^%description\s*$/
-    description << lines.shift until description.last =~ /^%/
-    # maybe the above end-detection of the description-section could be improved like this:
-    # description << lines.shift until description.last =~ /^%\{?(debug_package|prep|pre|preun|....)/
-    description.pop
-
-    render json: { description: description }
   end
 
   def buildresult

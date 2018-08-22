@@ -2,11 +2,11 @@ $( document ).ready(function() {
   $('.requests-datatable').each(function(index){
     // 1. Create DataTable
     var dataTableId = $(this).attr('id');
-    var type_dropdown = $('select[name=request_type_select][data-table=' + dataTableId + ']');
-    var state_dropdown = $('select[name=request_state_select][data-table=' + dataTableId + ']');
+    var typeDropdown = $('select[name=request_type_select][data-table=' + dataTableId + ']');
+    var stateDropdown = $('select[name=request_state_select][data-table=' + dataTableId + ']');
     var url = $(this).data('source');
 
-    var table = $(this).dataTable({
+    $(this).dataTable({
       order: [[0,'desc']],
       info: false,
       columnDefs: [
@@ -27,48 +27,42 @@ $( document ).ready(function() {
         url: url,
         data: function(d) {
           d.dataTableId = dataTableId;
-          d.type = type_dropdown.val();
-          d.state = state_dropdown.val();
+          d.type = typeDropdown.val();
+          d.state = stateDropdown.val();
         }
       }
-    }).on('xhr.dt', function ( e, settings, json, xhr ) {
-      if (json) {
-        $('#request_count').text('(' + json.recordsTotal + ')');
-      }
     });
+  });
+});
 
-    // 2. Reload button (if it exists)
-    var reload_button = $('.result_reload[data-table=' + dataTableId + ']');
+$(document).on('xhr.dt', '.requests-datatable', function(e, settings, json) {
+  if (json) {
+    $('#request-count').text('(' + json.recordsTotal + ')');
+  }
+});
 
-    reload_button.click(function(){
-      var loading_spinner = $(reload_button).siblings('.result_spinner');
-      reload_button.hide();
-      loading_spinner.show();
+// The dropdowns on the package request tabs
+$(document).on('change', 'select[data-table]', function() {
+  var loadingSpinner = $('#spinner'),
+      tableSelector = '#' + $(this).data('table');
 
-      table.api().ajax.reload(function(){
-        reload_button.show();
-        loading_spinner.hide();
-      });
-    });
+  loadingSpinner.show();
+  $(tableSelector).DataTable().ajax.reload(function(){
+    loadingSpinner.hide();
+  }, false);
+});
 
-    // 3. Type dropdown (if it exists)
-    var loading_spinner = $('#spinner');
+// The reload button on the user request page
+$(document).on('click', '.result_reload[data-table]', function() {
+  var tableSelector = '#' + $(this).data('table'),
+      loadingSpinner = $(this).siblings('.result_spinner'),
+      reloadButton = $(this);
 
-    type_dropdown.change(function(){
-      loading_spinner.show();
+  $(this).hide();
+  loadingSpinner.show();
 
-      table.api().ajax.reload(function(){
-        loading_spinner.hide();
-      }, false);
-    });
-
-    // 4. State dropdown (if it exists)
-    state_dropdown.change(function(){
-      loading_spinner.show();
-
-      table.api().ajax.reload(function(){
-        loading_spinner.hide();
-      }, false);
-    });
+  $(tableSelector).DataTable().ajax.reload(function(){
+    reloadButton.show();
+    loadingSpinner.hide();
   });
 });

@@ -772,7 +772,7 @@ if (open(FILE, "<", "/proc/cpuinfo")) {
   close FILE;
 
   # Check for aarch64/aarch32 compatibility
-  if ($hw->{'arch'} eq 'aarch64' && $cpu_implementer) {
+  if ($hostarch eq 'aarch64' && $cpu_implementer) {
     my $supports_aarch32;
 
     if ($cpu_implementer eq "0x50") {

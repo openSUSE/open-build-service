@@ -38,10 +38,14 @@
       - if @configuration.accounts_editable?(@displayed_user)
         - if @account_edit_link.present?
           = link_to sprited_text('user_edit', 'Edit your account'), @account_edit_link
-          %br/
         - else
           = link_to(sprited_text('user_edit', 'Edit your account'), { controller: 'user', action: 'save_dialog', user: User.current }, {id: 'save_dialog', remote: true})
         %br/
+      - if @displayed_user.in_beta?
+        = link_to(sprited_text('user_delete', 'Leave public beta program'), user_save_path(user: { login: @displayed_user.login, in_beta: 0}), method: :post)
+      - else
+        = link_to(sprited_text('user_add', 'Join public beta program'), user_save_path(user: { login: @displayed_user.login, in_beta: 1 }), method: :post)
+      %br/
       - if @configuration.passwords_changable?(User.current)
         = link_to(sprited_text('key', 'Change your password'), { controller: 'user', action: 'password_dialog', user: User.current }, {id: 'password_dialog', remote: true})
         %br/

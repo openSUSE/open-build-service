@@ -360,4 +360,11 @@ module Webui::WebuiHelper
     end
     short + long
   end
+
+  def tab_link(label, url)
+    html_class = 'nav-link'
+    html_class << ' active' if current_page?(url)
+
+    link_to(label, url, class: html_class)
+  end
 end

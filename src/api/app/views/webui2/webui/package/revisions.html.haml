@@ -5,8 +5,8 @@
   = render(partial: 'tabs', locals: { project: @project, package: @package })
 
   .card-body
-    - if @revisions
-      %h3 #{@pagetitle} (#{@revisions.count})
+    %h3 #{@pagetitle} (#{@revisions.count})
+    - if @revisions.present?
       .list-group
         - @revisions.each do |revision|
           .list-group-item{ id: "commit_item_#{revision}" }
@@ -19,6 +19,5 @@
         = paginate @revisions
         = link_to('Show all', action: 'revisions', project: @project, package: @package, show_all: 1)
     - else
-      %h3= page_title
       %p
         %i No commits exists yet.

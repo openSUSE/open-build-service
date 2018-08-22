@@ -250,9 +250,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   def requests
     @requests = @project.open_requests
-    @available_types = ['all', 'submit', 'delete', 'add_role', 'change_devel', 'maintenance_incident', 'maintenance_release']
     @default_request_type = params[:type] if params[:type]
-    @available_states = ['new or review', 'new', 'review', 'accepted', 'declined', 'revoked', 'superseded']
     @default_request_state = params[:state] if params[:state]
   end
 
