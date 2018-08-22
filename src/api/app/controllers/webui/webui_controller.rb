@@ -302,9 +302,9 @@ class Webui::WebuiController < ActionController::Base
   end
 
   # dialog_init is a function name called before dialog is shown
-  def render_dialog(dialog_init = nil)
+  def render_dialog(dialog_init = nil, locals = {})
     check_ajax
-    @dialog_html = ActionController::Base.helpers.escape_javascript(render_to_string(partial: action_name))
+    @dialog_html = ActionController::Base.helpers.escape_javascript(render_to_string(partial: action_name, locals: locals))
     @dialog_init = dialog_init
     render partial: 'dialog', content_type: 'application/javascript'
   end

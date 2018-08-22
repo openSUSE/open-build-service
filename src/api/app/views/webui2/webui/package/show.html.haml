@@ -1,0 +1,71 @@
+:ruby
+  @pagetitle = "Show #{@project} / #{@package}"
+  @layouttype = 'custom'
+  devel_package = @package.develpackage
+  package_bread_crumb
+
+.card.mb-3
+  = render partial: 'tabs', locals: { project: @project, package: @package }
+  .card-body
+    .row
+      .col-md-8
+        %h3#package-title
+          = @package.title.presence || @package.name
+          - if @package.url.present?
+            %small= link_to(@package.url, @package.url)
+        #description-text
+          - if @package.description.blank?
+            %i No description set
+          - else
+            = simple_format(@package.description)
+      .col-md-4
+        = render partial: 'side_links', locals: { devel_package: devel_package,
+                                                  failures: @failures,
+                                                  linkinfo: @linkinfo,
+                                                  revision: @revision,
+                                                  requests: @requests,
+                                                  project: @project,
+                                                  package: @package }
+      = render partial: 'bottom_actions'
+.row
+  .col-lg-8
+    .card.mb-3
+      %h5.card-header
+        Source Files
+        = image_tag('ajax-loader.gif', id: 'spinner_files', style: 'display: none')
+        - if @linkinfo && @revision_parameter.nil?
+          %small
+            - if @expand && @expand.to_s == '1' || @forced_unexpand.present?
+              = link_to('(show unmerged sources)', package_show_path(project: @project.name, package: @package.name,
+                                                                     rev: @revision_parameter, expand: '0'))
+            - else
+              = link_to('(show merged sources derived from linked package)', package_show_path(project: @project.name, package: @package.name,
+                                                                                               rev: @revision_parameter, expand: '1'))
+      - if @forced_unexpand.present?
+        %p.card-body
+          %i
+            Sources could not be expanded:
+            = @forced_unexpand
+          = link_to('Show unmerged sources', package_show_path(project: @project.name, package: @package.name,
+                                                               rev: @revision_parameter, expand: '0'))
+      - else
+        = render partial: 'files_view', locals: { project: @project,
+                                                  package: @package,
+                                                  files: @files,
+                                                  expand: @expand,
+                                                  is_current_rev: @is_current_rev,
+                                                  current_rev: @current_rev,
+                                                  revision: @revision,
+                                                  srcmd5: @srcmd5,
+                                                  spider_bot: @spider_bot }
+    .card.mb-3
+      %h5.card-header
+        Comments for
+        = @project.name
+        (#{ @comments.length})
+      .card-body#comments
+        = render partial: 'webui2/webui/comment/show', locals: { commentable: @package }
+  .col-lg-4
+    = render partial: 'webui2/shared/buildresult_box', locals: { project: @project.name, package: @package.name }
+
+= render partial: 'branch_dialog', locals: { project: @project, package: @package, revision: @revision }

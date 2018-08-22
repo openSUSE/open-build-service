@@ -1,0 +1,38 @@
+.modal-dialog{ role: 'document' }
+  .modal-content
+    = form_tag({ action: :change_devel_request, project: project, package: package }, method: :post) do
+      .modal-header
+        %h5.modal-title Change Devel Project Request
+      .modal-body
+        - if current_devel_project && current_devel_package
+          %p
+            Do you want to request to change the devel project for #{package_link(package)} from
+            \#{project_or_package_link(project: current_devel_project)}?
+        - else
+          %p
+            Do you want to request to set the devel project for #{package_link(package)}?
+        .form-group
+          - if current_devel_project && current_devel_package
+            = label_tag(:devel_project, 'New Devel project (leave free to delete the current one):')
+          - else
+            = label_tag(:devel_project, 'Devel project:')
+          = text_field_tag(:devel_project, '', required: true, class: 'form-control')
+        .form-group
+          = label_tag(:description, 'Description:')
+          = text_area_tag(:description, '', row: 3, class: 'form-control')
+      .modal-footer
+        = render partial: 'webui2/shared/dialog_action_buttons'
+
+:javascript
+  $("#devel_project").autocomplete({
+    source: '#{url_for controller: 'project', action: 'autocomplete_projects'}',
+    search: function(event, ui) {
+      $(this).addClass('loading-spinner');
+    },
+    response: function(event, ui) {
+      $(this).removeClass('loading-spinner');
+    },
+    minLength: 2});
+
+  $("#devel_project" ).autocomplete( "option", "appendTo", ".modal-body" );
+

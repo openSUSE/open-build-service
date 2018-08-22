@@ -83,6 +83,8 @@ RSpec.feature 'Requests', type: :feature, js: true do
 
     describe 'for packages' do
       it 'can be submitted' do
+        skip_if_bootstrap
+
         login submitter
         visit package_show_path(project: target_project, package: target_package)
         click_link 'Request role addition'

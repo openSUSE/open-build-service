@@ -63,6 +63,8 @@ RSpec.feature 'Packages', type: :feature, js: true do
     end
 
     scenario 'with AutoCleanup' do
+      skip_if_bootstrap
+
       click_button('Ok')
 
       expect(page).to have_text('Successfully branched package')
@@ -73,6 +75,8 @@ RSpec.feature 'Packages', type: :feature, js: true do
       expect(page).to have_text('OBS:AutoCleanup')
     end
     scenario 'without AutoCleanup' do
+      skip_if_bootstrap
+
       find('.show-hide', visible: false).click
       check('Disable Autocleanup')
       click_button('Ok')
@@ -107,6 +111,8 @@ RSpec.feature 'Packages', type: :feature, js: true do
   end
 
   scenario 'deleting a package' do
+    skip_if_bootstrap
+
     login user
     visit package_show_path(package: package, project: user.home_project)
     click_link('delete-package')
@@ -116,6 +122,8 @@ RSpec.feature 'Packages', type: :feature, js: true do
   end
 
   scenario 'requesting package deletion' do
+    skip_if_bootstrap
+
     login user
     visit package_show_path(package: other_users_package, project: other_user.home_project)
     click_link('Request deletion')
@@ -127,6 +135,8 @@ RSpec.feature 'Packages', type: :feature, js: true do
   end
 
   scenario "changing the package's devel project" do
+    skip_if_bootstrap
+
     login user
     visit package_show_path(package: package_with_develpackage, project: user.home_project)
     click_link('Request devel project change')
@@ -216,6 +226,8 @@ RSpec.feature 'Packages', type: :feature, js: true do
     end
 
     scenario 'download logfile succesfully' do
+      skip_if_bootstrap
+
       visit package_show_path(project: user.home_project, package: package)
       # test reload and wait for the build to finish
       find('.icons-reload').click
