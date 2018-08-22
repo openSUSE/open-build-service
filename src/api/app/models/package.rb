@@ -24,7 +24,7 @@ class Package < ApplicationRecord
   belongs_to :kiwi_image, class_name: 'Kiwi::Image', inverse_of: :package
   accepts_nested_attributes_for :kiwi_image
 
-  belongs_to :project, inverse_of: :packages
+  belongs_to :project, inverse_of: :packages, touch: true
   delegate :name, to: :project, prefix: true
   delegate :repositories, to: :project
   delegate :architectures, to: :project

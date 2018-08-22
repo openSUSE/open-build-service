@@ -187,28 +187,31 @@ class PublicController < ApplicationController
     path =~ %r{/public(.*)} ? Regexp.last_match(1) : path
   end
 
-  def check_package_access(project, package, use_source = true)
+  def check_package_access(project_name, package_name, use_source = true)
     # don't use the cache for use_source
     if use_source
       begin
-        Package.get_by_project_and_name(project, package)
+        Package.get_by_project_and_name(project_name, package_name)
       rescue Authenticator::AnonymousUser
         # TODO: Use pundit for authorization instead
-        raise Package::ReadSourceAccessError, "#{project} / #{package} "
+        raise Package::ReadSourceAccessError, "#{project_name} / #{package_name} "
       end
       return
     end
 
+    project = Project.find_by(name: project_name)
+    # This could still be a remote project. Thus take the project_name
+    project_cache_key = project.try(:cache_key) || project_name
     # generic access checks
-    key = 'public_package:' + project + ':' + package
-    allowed = Rails.cache.fetch(key, expires_in: 30.minutes) do
+    allowed = Rails.cache.fetch("public_package:#{project_cache_key}:#{package_name}", expires_in: 30.minutes) do
       begin
-        Package.get_by_project_and_name(project, package, use_source: false)
+        Package.get_by_project_and_name(project_name, package_name, use_source: false)
         true
       rescue Exception
         false
       end
+
+      raise Package::UnknownObjectError, "#{project_name} / #{package_name} " unless allowed
     end
-    raise Package::UnknownObjectError, "#{project} / #{package} " unless allowed
   end
 end
