@@ -1,3 +1,11 @@
-.breadcrumb-item > a {
-    color: $gray-600;
+ol.breadcrumb {
+  padding-top: 0.5rem;
+
+  & li.breadcrumb-item {
+    font-size: 0.9rem;
+
+    & a {
+      color: $gray-600;
+    }
+  }
 }
