@@ -1640,49 +1640,63 @@ RSpec.describe Webui::PackageController, vcr: true do
                               title: 'package foo',
                               description: 'awesome package foo' }
     end
-    before do
-      login(my_user)
-      post :save_new, params: post_params
-    end
 
-    context 'valid package name' do
-      it { expect(response).to redirect_to(package_show_path(source_project, package_name)) }
-      it { expect(flash[:notice]).to eq("Package 'new-package' was created successfully") }
-      it { expect(Package.find_by(name: package_name).flags).to be_empty }
-    end
-
-    context 'valid package with source_protection enabled' do
-      let(:post_params) do
-        { project: source_project, name: package_name,
-                                title: 'package foo',
-                                description: 'awesome package foo', source_protection: 'foo',
-                                disable_publishing: 'bar' }
+    context 'Package#save failed' do
+      before do
+        allow_any_instance_of(Package).to receive(:save).and_return(false)
+        login(my_user)
+        post :save_new, params: post_params
       end
 
-      it { expect(Package.find_by(name: package_name).flags).to include(Flag.find_by_flag('sourceaccess')) }
-      it { expect(Package.find_by(name: package_name).flags).to include(Flag.find_by_flag('publish')) }
+      it { expect(response).to redirect_to(project_show_path(source_project)) }
+      it { expect(flash[:notice]).to eq("Failed to create package '#{package_name}'") }
     end
 
-    context 'invalid package name' do
-      let(:package_name) { 'A' * 250 }
+    context 'package creation' do
+      before do
+        login(my_user)
+        post :save_new, params: post_params
+      end
 
-      it { expect(response).to redirect_to(project_new_package_path(source_project)) }
-      it { expect(flash[:error]).to match("Invalid package name:\s.*") }
-    end
+      context 'valid package name' do
+        it { expect(response).to redirect_to(package_show_path(source_project, package_name)) }
+        it { expect(flash[:notice]).to eq("Package 'new-package' was created successfully") }
+        it { expect(Package.find_by(name: package_name).flags).to be_empty }
+      end
 
-    context 'package already exist' do
-      let(:package_name) { package.name }
+      context 'valid package with source_protection enabled' do
+        let(:post_params) do
+          { project: source_project, name: package_name,
+                                  title: 'package foo',
+                                  description: 'awesome package foo', source_protection: 'foo',
+                                  disable_publishing: 'bar' }
+        end
 
-      it { expect(response).to redirect_to(project_new_package_path(source_project)) }
-      it { expect(flash[:error]).to start_with("Package '#{package.name}' already exists in project") }
-    end
+        it { expect(Package.find_by(name: package_name).flags).to include(Flag.find_by_flag('sourceaccess')) }
+        it { expect(Package.find_by(name: package_name).flags).to include(Flag.find_by_flag('publish')) }
+      end
 
-    context 'not allowed to create package in' do
-      let(:package_name) { 'foo' }
-      let(:my_user) { create(:confirmed_user, login: 'another_user') }
+      context 'invalid package name' do
+        let(:package_name) { 'A' * 250 }
 
-      it { expect(response).to redirect_to(project_new_package_path(source_project)) }
-      it { expect(flash[:error]).to eq("You can't create packages in #{source_project.name}") }
+        it { expect(response).to redirect_to(project_new_package_path(source_project)) }
+        it { expect(flash[:error]).to match("Invalid package name:\s.*") }
+      end
+
+      context 'package already exist' do
+        let(:package_name) { package.name }
+
+        it { expect(response).to redirect_to(project_new_package_path(source_project)) }
+        it { expect(flash[:error]).to start_with("Package '#{package.name}' already exists in project") }
+      end
+
+      context 'not allowed to create package in' do
+        let(:package_name) { 'foo' }
+        let(:my_user) { create(:confirmed_user, login: 'another_user') }
+
+        it { expect(response).to redirect_to(project_new_package_path(source_project)) }
+        it { expect(flash[:error]).to eq("You can't create packages in #{source_project.name}") }
+      end
     end
   end
 end
