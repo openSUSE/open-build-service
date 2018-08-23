@@ -67,7 +67,7 @@ module Event
       action = BsRequestAction.find(a['action_id'])
       begin
         action.sourcediff(view: nil, withissues: 0)
-      rescue BsRequestAction::DiffError
+      rescue BsRequestAction::Errors::DiffError
         return # can't help
       end
     end

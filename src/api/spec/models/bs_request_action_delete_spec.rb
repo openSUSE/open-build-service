@@ -14,7 +14,7 @@ RSpec.describe BsRequestActionDelete, vcr: true do
       let(:delete_request) { create(:delete_bs_request, target_project: target_project) }
       subject { delete_request.bs_request_actions.first }
 
-      it { expect { subject.sourcediff }.to raise_error(BsRequestAction::DiffError) }
+      it { expect { subject.sourcediff }.to raise_error(BsRequestAction::Errors::DiffError) }
     end
 
     context 'for package' do

@@ -22,7 +22,7 @@ class BsRequestActionWebuiInfosJob < ApplicationJob
 
   def silent
     yield
-  rescue BsRequestAction::DiffError, Project::UnknownObjectError, Package::UnknownObjectError
+  rescue BsRequestAction::Errors::DiffError, Project::UnknownObjectError, Package::UnknownObjectError
     # as this is only for caching, we can ignore these errors
   end
 

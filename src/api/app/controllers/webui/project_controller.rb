@@ -180,7 +180,7 @@ class Webui::ProjectController < Webui::WebuiController
              BsRequestAction::BuildNotFinished,
              BsRequestAction::VersionReleaseDiffers,
              BsRequestAction::UnknownProject,
-             BsRequestAction::UnknownTargetProject,
+             BsRequestAction::Errors::UnknownTargetProject,
              BsRequestAction::UnknownTargetPackage => e
         flash[:error] = e.message
         redirect_back(fallback_location: { action: 'show', project: params[:project] }) && return
@@ -343,7 +343,7 @@ class Webui::ProjectController < Webui::WebuiController
       flash[:success] = "Created <a href='#{url_for(controller: 'request',
                                                     action: 'show',
                                                     number: req.number)}'>repository delete request #{req.number}</a>"
-    rescue BsRequestAction::UnknownTargetProject,
+    rescue BsRequestAction::Errors::UnknownTargetProject,
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = e.message
       redirect_to(action: :index, controller: :repositories, project: params[:project]) && return
