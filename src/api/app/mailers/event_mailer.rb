@@ -1,5 +1,5 @@
 class EventMailer < ActionMailer::Base
-  helper :comment
+  helper 'webui/markdown'
 
   def set_headers
     @host = ::Configuration.obs_url

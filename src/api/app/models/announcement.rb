@@ -14,6 +14,7 @@ class Announcement < ApplicationRecord
   #### Callbacks macros: before_save, after_save, etc.
 
   #### Scopes (first the default_scope macro if is used)
+  default_scope { order(:created_at) }
 
   #### Validations macros
 

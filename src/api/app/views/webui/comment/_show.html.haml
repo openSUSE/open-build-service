@@ -5,7 +5,7 @@
       wrote
       %span.comment_time
         = fuzzy_time(comment.created_at)
-      = comment_body(comment)
+      = render_as_markdown(comment)
       = render partial: 'webui/comment/links', locals: { comment: comment }
       = render partial: 'webui/comment/reply', locals: { comment: comment, level: 0, commentable: commentable }
   .comment_new.alpha.omega

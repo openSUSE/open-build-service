@@ -683,7 +683,6 @@ Rails/LexicallyScopedActionFilter:
 # Offense count: 31
 Rails/OutputSafety:
   Exclude:
-    - 'app/helpers/comment_helper.rb'
     - 'app/helpers/webui/package_helper.rb'
     - 'app/helpers/webui/project_helper.rb'
     - 'app/helpers/webui/request_helper.rb'

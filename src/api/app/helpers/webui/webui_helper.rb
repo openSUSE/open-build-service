@@ -1,4 +1,5 @@
 # vim: sw=2 et
+
 module Webui::WebuiHelper
   include ActionView::Helpers::JavaScriptHelper
   include ActionView::Helpers::AssetTagHelper

@@ -3,4 +3,4 @@
 %p
   = event['commenter'].realname
   wrote in project #{event['project']}:
-%div= comment_body(event['comment_body'])
+%div= render_as_markdown(event['comment_body'])

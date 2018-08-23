@@ -1,0 +1,10 @@
+- if @pending_announcement.present?
+  .container_16#announcements
+    .ui-widget.grid_16.alpha.omega.announcement
+      %div
+        %p
+          There has been new announcements!
+          = link_to('Read more', announcement_path(@pending_announcement))
+      - unless User.current.is_nobody?
+        = form_tag(user_announcements_path(@pending_announcement), remote: true, class: 'announcement-actions') do
+          = submit_tag 'Got it'

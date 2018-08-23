@@ -4,46 +4,40 @@
       %strong
         = User.current
       %ul
-        %li= link_to "Your Profile", user_show_path(User.current)
+        %li= link_to('Your Profile', user_show_path(User.current))
         - if User.current.home_project
-          %li= link_to "Home Project", project_show_path(User.current.home_project)
+          %li= link_to('Home Project', project_show_path(User.current.home_project))
         - else
-          %li= link_to "Create Home Project", new_project_path(name: User.current.home_project_name)
-        %li= link_to 'Logout', session_destroy_path, method: :delete
+          %li= link_to('Create Home Project', new_project_path(name: User.current.home_project_name))
+        %li= link_to('Logout', session_destroy_path, method: :delete)
   - if ::Configuration.anonymous
     .col
       %strong Locations
       %ul
-        %li= link_to "Projects", projects_path
-        %li= link_to "Search", search_path, class: 'search-link'
+        %li= link_to('Projects', projects_path)
+        %li= link_to('Search', search_path, class: 'search-link')
         - unless @spider_bot
-          %li= link_to "Status Monitor", monitor_path
+          %li= link_to('Status Monitor', monitor_path)
   .col
     %strong Help
     %ul
-      %li
-        %a{ href: 'http://openbuildservice.org/' } Open Build Service
-      %li
-        %a{ href: 'http://openbuildservice.org/help/manuals/' } OBS Manuals
-      %li
-        %a{ href: 'http://en.opensuse.org/Portal:Build_service' } OBS Portal
-      %li
-        %a{ href: 'http://openbuildservice.org/support/' } Reporting a Bug
+      %li= link_to('Open Build Service', 'http://openbuildservice.org/')
+      %li= link_to('OBS Manuals', 'http://openbuildservice.org/help/manuals/')
+      %li= link_to('OBS Portal', 'http://en.opensuse.org/Portal:Build_service')
+      %li= link_to('Reporting a Bug', 'http://openbuildservice.org/support/')
+      - if Announcement.last.present?
+        %li= link_to('Terms of Service', announcement_path(Announcement.last))
   .col
     %strong Contact
     %ul
-      %li
-        %a{ href: 'http://lists.opensuse.org/opensuse-buildservice/' } Mailing List
-      %li
-        %a{ href: 'http://forums.opensuse.org/forumdisplay.php/692-Open-Build-Service-%28OBS%29' } Forums
-      %li
-        %a{ href: 'irc://irc.opensuse.org/opensuse-buildservice' } Chat (IRC)
-      %li
-        %a{ href: 'http://twitter.com/OBShq' } Twitter
+      %li= link_to('Mailing List', 'http://lists.opensuse.org/opensuse-buildservice/')
+      %li= link_to('Forums', 'http://forums.opensuse.org/forumdisplay.php/692-Open-Build-Service-%28OBS%29')
+      %li= link_to('Chat (IRC)', 'irc://irc.opensuse.org/opensuse-buildservice')
+      %li= link_to('Twitter', 'http://twitter.com/OBShq')
 .row#footer-legal
   .col
     %p.text-center
-      %a{ href: "http://openbuildservice.org" } Open Build Service (OBS)
+      = link_to('Open Build Service (OBS)', 'http://openbuildservice.org')
       is an
-      = succeed "." do
-        %a{ href: "http://www.opensuse.org" } openSUSE project
+      = succeed '.' do
+        = link_to('openSUSE project', 'http://www.opensuse.org')
