@@ -103,7 +103,7 @@ class User < ApplicationRecord
   before_save :send_metric_for_beta_change, if: :in_beta_changed?
 
   def track_create
-    RabbitmqBus.send_to_bus('metrics', "user.create id=#{id}")
+    RabbitmqBus.send_to_bus('metrics', 'user.create value=1')
   end
 
   def create_home_project
@@ -634,7 +634,7 @@ class User < ApplicationRecord
       prj.destroy
     end
 
-    RabbitmqBus.send_to_bus('metrics', "user.delete id=#{id}") unless oldstate == 'deleted'
+    RabbitmqBus.send_to_bus('metrics', 'user.delete value=1') unless oldstate == 'deleted'
     true
   end
 
