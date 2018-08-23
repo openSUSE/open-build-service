@@ -1,0 +1,253 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/project_2/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2">
+          <title>Mother Night</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '98'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2">
+          <title>Mother Night</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Fri, 10 Aug 2018 05:44:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_2/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2">
+          <title>Mother Night</title>
+          <description/>
+          <repository name="repository_3">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '171'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2">
+          <title>Mother Night</title>
+          <description></description>
+          <repository name="repository_3">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    http_version: 
+  recorded_at: Fri, 10 Aug 2018 05:44:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 10 Aug 2018 05:44:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+          <repository name="repository_4">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '202'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+          <repository name="repository_4">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    http_version: 
+  recorded_at: Fri, 10 Aug 2018 05:44:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Clouds of Witness</title>
+          <description>Est non deserunt eveniet.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Clouds of Witness</title>
+          <description>Est non deserunt eveniet.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 10 Aug 2018 05:44:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Clouds of Witness</title>
+          <description>Est non deserunt eveniet.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Clouds of Witness</title>
+          <description>Est non deserunt eveniet.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 10 Aug 2018 05:44:32 GMT
+recorded_with: VCR 4.0.0

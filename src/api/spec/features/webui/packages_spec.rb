@@ -115,6 +115,29 @@ RSpec.feature 'Packages', type: :feature, js: true do
     expect(find('#flash-messages')).to have_text('Package was successfully removed.')
   end
 
+  describe 'existing requests' do
+    let(:source_project) { create(:project_with_package, name: 'source_project') }
+    let(:source_package) { source_project.packages.first }
+    let(:target_project) { user.home_project }
+    let(:target_package) { create(:package, name: 'my_package', project: target_project) }
+    let!(:bs_request) do
+      create(:bs_request_with_submit_action,
+             source_project: source_project,
+                 source_package: source_package,
+                 target_project: target_project,
+                 target_package: package)
+    end
+
+    scenario 'see a request' do
+      login user
+      visit package_show_path(package: package, project: user.home_project)
+      click_link('Requests')
+      expect(page).to have_css('table#all_requests_table tr', count: 1)
+      find('a', class: 'request_link').click
+      expect(page.current_path).to match('/request/show/\\d+')
+    end
+  end
+
   scenario 'requesting package deletion' do
     login user
     visit package_show_path(package: other_users_package, project: other_user.home_project)
