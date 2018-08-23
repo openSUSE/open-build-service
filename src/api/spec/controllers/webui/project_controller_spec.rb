@@ -658,21 +658,21 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'without target project' do
       before do
-        expect(BsRequestActionDelete).to receive(:new).and_raise(BsRequestAction::UnknownTargetProject)
+        expect(BsRequestActionDelete).to receive(:new).and_raise(BsRequestAction::Errors::UnknownTargetProject)
         post :remove_target_request, params: { project: apache_project, description: 'Fake description' }
       end
 
-      it { expect(flash[:error]).to eq('BsRequestAction::UnknownTargetProject') }
+      it { expect(flash[:error]).to eq('BsRequestAction::Errors::UnknownTargetProject') }
       it { is_expected.to redirect_to(action: :index, controller: :repositories, project: apache_project) }
     end
 
     context 'without target package' do
       before do
-        expect(BsRequestActionDelete).to receive(:new).and_raise(BsRequestAction::UnknownTargetPackage)
+        expect(BsRequestActionDelete).to receive(:new).and_raise(BsRequestAction::Errors::UnknownTargetPackage)
         post :remove_target_request, params: { project: apache_project, description: 'Fake description' }
       end
 
-      it { expect(flash[:error]).to eq('BsRequestAction::UnknownTargetPackage') }
+      it { expect(flash[:error]).to eq('BsRequestAction::Errors::UnknownTargetPackage') }
       it { is_expected.to redirect_to(action: :index, project: apache_project, controller: :repositories) }
     end
 
@@ -1154,8 +1154,8 @@ RSpec.describe Webui::ProjectController, vcr: true do
        BsRequestActionMaintenanceRelease::RepositoryWithoutArchitecture,
        BsRequestActionMaintenanceRelease::ArchitectureOrderMissmatch,
        BsRequestAction::VersionReleaseDiffers,
-       BsRequestAction::UnknownTargetProject,
-       BsRequestAction::UnknownTargetPackage].each do |error_class|
+       BsRequestAction::Errors::UnknownTargetProject,
+       BsRequestAction::Errors::UnknownTargetPackage].each do |error_class|
         it_behaves_like 'a non APIError', error_class
       end
     end

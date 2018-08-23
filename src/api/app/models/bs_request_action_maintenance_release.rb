@@ -2,7 +2,6 @@
 class BsRequestActionMaintenanceRelease < BsRequestAction
   #### Includes and extends
   include BsRequestAction::Differ
-  include BsRequestActionMaintenanceRelease::Errors
   #### Constants
 
   #### Self config
