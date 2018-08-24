@@ -1,0 +1,58 @@
+$(document).ready(function() {
+  $('.requests-datatable').each(function(index){
+    // 1. Create DataTable
+    var dataTableId = $(this).attr('id');
+    var typeDropdown = $('select[name=request_type_select][data-table=' + dataTableId + ']');
+    var stateDropdown = $('select[name=request_state_select][data-table=' + dataTableId + ']');
+    var url = $(this).data('source');
+
+    $(this).dataTable({
+      order: [[0,'desc']],
+      columnDefs: [
+        // We dont allow ordering by the request link.
+        // Columns: created, source, target, requester, type, priority, request link.
+        // First column has index 0.
+        { orderable: false, targets: [6] }
+      ],
+      paging: 25,
+      pageLength: 25,
+      pagingType: "full_numbers",
+      processing: true,
+      language: {
+        processing: "<span>Processing...<i class='fas fa-spinner fa-spin'></span>"
+      },
+      responsive: true,
+      serverSide: true,
+      ajax: {
+        url: url,
+        data: function(d) {
+          d.dataTableId = dataTableId;
+          d.type = typeDropdown.val();
+          d.state = stateDropdown.val();
+        }
+      }
+    });
+  });
+});
+
+// The dropdowns on the package request tabs
+$(document).on('change', 'select[data-table]', function() {
+  var tableSelector = '#' + $(this).data('table');
+
+  $(tableSelector).DataTable().ajax.reload();
+});
+
+// The reload button on the user request page
+$(document).on('click', '.result_reload[data-table]', function() {
+  var tableSelector = '#' + $(this).data('table'),
+      loadingSpinner = $(this).siblings('.result_spinner'),
+      reloadButton = $(this);
+
+  $(this).hide();
+  loadingSpinner.removeClass('invisible');
+
+  $(tableSelector).DataTable().ajax.reload(function(){
+    reloadButton.show();
+    loadingSpinner.addClass('invisible');
+  });
+});

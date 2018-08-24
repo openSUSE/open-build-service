@@ -12,6 +12,7 @@ if ENV['RSPEC_HOST'].blank?
     browser_options = ::Selenium::WebDriver::Chrome::Options.new
     browser_options.args << '--headless'
     browser_options.args << '--no-sandbox' # to run in docker
+    browser_options.args << '--window-size=1280,1024'
     Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options)
   end
 

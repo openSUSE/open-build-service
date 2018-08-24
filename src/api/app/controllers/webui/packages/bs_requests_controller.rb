@@ -13,7 +13,11 @@ module Webui
         session[:request_numbers] = requests_query.requests.map(&:number)
 
         respond_to do |format|
-          format.json
+          if switch_to_webui2?
+            format.json { render 'webui2/shared/bs_requests/index' }
+          else
+            format.json
+          end
         end
       end
     end
