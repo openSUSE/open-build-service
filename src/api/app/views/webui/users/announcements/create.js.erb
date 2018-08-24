@@ -1,0 +1,8 @@
+<% if flash[:error] %>
+  $('#flash-messages').replaceWith('<%= escape_javascript( render layout: false, partial: 'layouts/webui/flash', object: flash, formats: [ :html ]) %>');
+<% else %>
+  // At announcement's view the button disappears
+  $('.announcement-actions input[type="submit"]').fadeOut()
+  // In the rest of the views, the whole banner disappears
+  $('#announcements').fadeOut()
+<% end %>

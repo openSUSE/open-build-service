@@ -77,7 +77,7 @@ RSpec.describe BsRequestAction::Differ::ForSource, vcr: true do
         stub_request(:post, path).with(query: hash_including('cmd' => 'diff', 'opackage' => target_package.name)).and_return(body: no_such_revision, status: 404)
       end
 
-      it { expect { subject.perform }.to raise_error(BsRequestAction::DiffError, %r{The diff call for source_project/source_package failed: no such revision}) }
+      it { expect { subject.perform }.to raise_error(BsRequestAction::Errors::DiffError, %r{The diff call for source_project/source_package failed: no such revision}) }
     end
 
     context 'with superseded request' do

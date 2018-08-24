@@ -22,7 +22,7 @@
           = sprite_tag('accept', alt: 'Green')
         - else
           = sprite_tag('information', alt: 'Information')
-        = comment_body(msg.message)
+        = render_as_markdown(msg.message)
       .clear
     - if User.current.is_admin?
       %p

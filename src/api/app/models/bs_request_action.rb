@@ -3,33 +3,11 @@ require 'api_exception'
 class BsRequestAction < ApplicationRecord
   #### Includes and extends
   include ParsePackageDiff
-
+  include BsRequestAction::Errors
   #### Constants
   VALID_SOURCEUPDATE_OPTIONS = ['update', 'noupdate', 'cleanup'].freeze
 
   #### Self config
-  class DiffError < APIError; setup 404; end # a diff error can have many reasons, but most likely something within us
-  class RemoteSource < APIError; end
-  class RemoteTarget < APIError; end
-  class InvalidReleaseTarget < APIError; end
-  class LackingMaintainership < APIError
-    setup 'lacking_maintainership', 403, 'Creating a submit request action with options requires maintainership in source package'
-  end
-  class NoMaintenanceProject < APIError; end
-  class UnknownAttribute < APIError; setup 404; end
-  class IncidentHasNoMaintenanceProject < APIError; end
-  class NotSupported < APIError; end
-  class SubmitRequestRejected < APIError; end
-  class RequestRejected < APIError; setup 403; end
-  class UnknownProject < APIError; setup 404; end
-  class UnknownRole < APIError; setup 404; end
-  class IllegalRequest < APIError; end
-  class BuildNotFinished < APIError; end
-  class UnknownTargetProject < APIError; end
-  class UnknownTargetPackage < APIError; end
-  class WrongLinkedPackageSource < APIError; end
-  class MissingPatchinfo < APIError; end
-  class VersionReleaseDiffers < APIError; end
 
   #### Attributes
 
@@ -276,7 +254,7 @@ class BsRequestAction < ApplicationRecord
 
   def contains_change?
     return sourcediff.present?
-  rescue BsRequestAction::DiffError
+  rescue BsRequestAction::Errors::DiffError
     # if the diff can'be created we can't say
     # but let's assume the reason for the problem lies in the change
     return true
