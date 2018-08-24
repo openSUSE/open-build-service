@@ -179,6 +179,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_equal(@response.body, original_file)
     post '/source/home:tom/copied_service', params: { cmd: 'copy', opackage: 'service', oproject: 'home:tom' }
     assert_response :success
+    post '/source/home:tom/copied_service?cmd=waitservice'
+    assert_response :success
     get '/source/home:tom/copied_service?expand=1'
     assert_response :success
     assert_xml_tag tag: 'entry', attributes: { name: '_service:download_url:file' }
