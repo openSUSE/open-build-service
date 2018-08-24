@@ -77,12 +77,4 @@ class SourceProjectPackageMetaController < SourceController
 
     valid_package_name!(@package_name)
   end
-
-  def user_not_authorized(exception)
-    policy_name = exception.policy.class.to_s.underscore == :package_policy ? :package : :project
-
-    render_error status: 403,
-                 errorcode: "update_#{policy_name}_not_authorized",
-                 message: "You are not authorized to update this #{policy_name}"
-  end
 end

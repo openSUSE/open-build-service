@@ -197,6 +197,22 @@ class ApplicationController < ActionController::Base
   end
   public :pass_to_backend
 
+  def pundit_action(pundit_action)
+    case pundit_action
+    when 'index?' then 'list'
+    when 'show?' then 'view'
+    when 'create?' then 'create'
+    when 'new?' then 'create'
+    when 'update?' then 'update'
+    when 'edit?' then 'edit'
+    when 'destroy?' then 'delete'
+    when 'delete?' then 'delete'
+    when 'branch?' then 'branch'
+    else
+      'unknown'
+    end
+  end
+
   rescue_from ActiveRecord::RecordInvalid do |exception|
     render_error status: 400, errorcode: 'invalid_record', message: exception.record.errors.full_messages.join('\n')
   end
@@ -255,25 +271,14 @@ class ApplicationController < ActionController::Base
   rescue_from Pundit::NotAuthorizedError do |exception|
     message = 'You are not authorized to perform this action.'
 
-    pundit_action =
-      case exception.try(:query).to_s
-      when 'index?' then 'list'
-      when 'show?' then 'view'
-      when 'create?' then 'create'
-      when 'new?' then 'create'
-      when 'update?' then 'update'
-      when 'edit?' then 'edit'
-      when 'destroy?' then 'delete'
-      when 'branch?' then 'branch'
-      else exception.try(:query)
-      end
+    pundit_action_name = pundit_action(exception.try(:query).to_s)
 
-    if pundit_action && exception.record
-      message = "You are not authorized to #{pundit_action} this #{ActiveSupport::Inflector.underscore(exception.record.class.to_s).humanize}."
+    if pundit_action_name && exception.record
+      message = "You are not authorized to #{pundit_action_name} this #{ActiveSupport::Inflector.underscore(exception.record.class.to_s).humanize}."
     end
 
     render_error status: 403,
-                 errorcode: "#{pundit_action}_#{ActiveSupport::Inflector.underscore(exception.record.class.to_s)}_not_authorized",
+                 errorcode: "#{pundit_action_name}_#{ActiveSupport::Inflector.underscore(exception.record.class.to_s)}_not_authorized",
                  message: message
   end
 
