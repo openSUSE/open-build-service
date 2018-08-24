@@ -5,6 +5,7 @@ class Webui::Users::AnnouncementsController < Webui::WebuiController
     announcement = Announcement.find_by(id: params[:id])
     if announcement
       User.current.announcements << announcement
+      RabbitmqBus.send_to_bus('metrics', "user.acknowledged_announcement announcement_id=#{announcement.id}")
     else
       flash.now[:error] = "Couldn't find Announcement"
     end

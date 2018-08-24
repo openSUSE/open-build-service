@@ -40,6 +40,8 @@ Frontend:
    the cloud directly from here.
  * Text fields are stored as 4 byte UTF-8 which allows to use emojis. To use this
    feature, switch database.yml to utf8mb4 encoding
+ * Admins can write Terms of Services, via the API, and they will be shown in the WebUI to
+   users unless they acknowledge them.
 
 Backend:
 
