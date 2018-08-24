@@ -100,9 +100,10 @@ class User < ApplicationRecord
   validates :password, confirmation: true, allow_blank: true
 
   after_create :create_home_project, :track_create
+  before_save :send_metric_for_beta_change, if: :in_beta_changed?
 
   def track_create
-    RabbitmqBus.send_to_bus('metrics', "user.create id=#{id}")
+    RabbitmqBus.send_to_bus('metrics', 'user.create value=1')
   end
 
   def create_home_project
@@ -633,7 +634,7 @@ class User < ApplicationRecord
       prj.destroy
     end
 
-    RabbitmqBus.send_to_bus('metrics', "user.delete id=#{id}") unless oldstate == 'deleted'
+    RabbitmqBus.send_to_bus('metrics', 'user.delete value=1') unless oldstate == 'deleted'
     true
   end
 
@@ -838,6 +839,11 @@ class User < ApplicationRecord
 
   def mark_login!
     update_attributes(last_logged_in_at: Time.now, login_failure_count: 0)
+  end
+
+  def send_metric_for_beta_change
+    channel = (in_beta? ? 'joined_beta' : 'left_beta')
+    RabbitmqBus.send_to_bus('metrics', "user.#{channel} value=1")
   end
 
   private
