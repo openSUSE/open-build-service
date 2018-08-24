@@ -294,6 +294,7 @@ our $productdesc = [
             'skip_release_package',         # skip adding the release packages to the media
             'run_media_check',
             'run_hybridiso',
+            'run_rpihybridiso',
             'run_make_listings',
             'use_recommended',
             'use_suggested',
