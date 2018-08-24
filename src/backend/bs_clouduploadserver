@@ -51,11 +51,11 @@ my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $jobdir = "$BSConfig::bsdir/cloudupload";
 my $eventdir = "$BSConfig::bsdir/events";
 
-my $pubkeyfile = "/etc/obs/cloudupload/_pubkey";
+my $pubkeyfile = $BSConfig::cloudupload_pubkey || "/etc/obs/cloudupload/_pubkey";
 
 my $ajaxsocket = "$rundir/bs_clouduploadserver.ajax";
 
-my $maxchild = $BSConfig::cloudupload_maxchild || $BSConfig::cloudupload_maxchild || 5;
+my $maxchild = $BSConfig::cloudupload_maxchild || 5;
 
 my $jobdonedir = "$jobdir/done";
 
