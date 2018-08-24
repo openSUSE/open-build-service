@@ -137,6 +137,8 @@ Nitpicks are things you as reviewer don't care about if they end up in the code-
 - Bigger refactorings that are out of scope for the pull-request
 - Things new to you that you don't understand and would like to have an explanation for
 
+We don't dismiss open review requests unless we know the reviewer is not going to be reachable for a while (a few days, for example) and feedback has been addressed.
+
 # How to Contribute Bug Reports
 * Prerequisites: familiarity with [GitHub Issues](https://guides.github.com/features/issues/).
 * Enter your issue and a member of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) will label and prioritize it for you.
