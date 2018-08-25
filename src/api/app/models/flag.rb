@@ -19,7 +19,7 @@ class Flag < ApplicationRecord
 
   validate :validate_custom_save
   def validate_custom_save
-    errors.add(:name, 'Please set either project or package') unless project.nil? ^ package.nil?
+    errors.add(:name, 'Please set either project or package') if project ^ package
     errors.add(:flag, 'There needs to be a valid flag') unless FlagHelper::TYPES.key?(flag)
     errors.add(:status, 'Status needs to be enable or disable') unless status && (status.to_sym == :enable || status.to_sym == :disable)
   end
