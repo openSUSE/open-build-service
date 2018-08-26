@@ -283,20 +283,20 @@ OBSApi::Application.routes.draw do
       get 'project/toggle_watch/:project' => :toggle_watch, constraints: cons, as: 'project_toggle_watch'
       get 'project/meta/:project' => :meta, constraints: cons, as: 'project_meta'
       post 'project/save_meta/:project' => :save_meta, constraints: cons
-      get 'project/prjconf/:project' => :prjconf, constraints: cons
+      get 'project/prjconf/:project' => :prjconf, constraints: cons, as: :project_config
       post 'project/save_prjconf/:project' => :save_prjconf, constraints: cons
       get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons
       get 'project/edit/:project' => :edit, constraints: cons
       get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons
       post 'project/edit_comment/:project' => :edit_comment, constraints: cons
       get 'project/status/(:project)' => :status, constraints: cons, as: 'project_status'
-      get 'project/maintained_projects/:project' => :maintained_projects, constraints: cons
+      get 'project/maintained_projects/:project' => :maintained_projects, constraints: cons, as: :project_maintained_projects
       get 'project/add_maintained_project_dialog' => :add_maintained_project_dialog, constraints: cons
       post 'project/add_maintained_project' => :add_maintained_project, constraints: cons
       post 'project/remove_maintained_project/:project' => :remove_maintained_project, constraints: cons
-      get 'project/maintenance_incidents/:project' => :maintenance_incidents, constraints: cons
+      get 'project/maintenance_incidents/:project' => :maintenance_incidents, constraints: cons, as: :project_maintenance_incidents
       get 'project/list_incidents/:project' => :list_incidents, constraints: cons
-      get 'project/pulse/:project' => :pulse, constraints: cons
+      get 'project/pulse/:project' => :pulse, constraints: cons, as: :project_pulse
       get 'project/unlock_dialog' => :unlock_dialog
       post 'project/unlock' => :unlock
     end
