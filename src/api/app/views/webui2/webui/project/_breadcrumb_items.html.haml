@@ -7,3 +7,6 @@
     = link_to 'Projects', projects_path
   %li.breadcrumb-item
     = link_to @project, project_show_path(@project)
+  - if current_page?(project_requests_path)
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      Requests

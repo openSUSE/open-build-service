@@ -14,6 +14,7 @@ module Webui
         respond_to do |format|
           format.json
         end
+        switch_to_webui2
       end
     end
   end
