@@ -619,7 +619,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def delete_dialog
-    return if switch_to_webui2
     render_dialog
   end
 

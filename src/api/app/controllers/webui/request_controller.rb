@@ -186,9 +186,6 @@ class Webui::RequestController < Webui::WebuiController
   def delete_request_dialog
     @project = params[:project]
     @package = params[:package] if params[:package]
-
-    return if params[:package].present? && switch_to_webui2
-
     render_dialog
   end
 
@@ -215,9 +212,6 @@ class Webui::RequestController < Webui::WebuiController
   def add_role_request_dialog
     @project = params[:project]
     @package = params[:package] if params[:package]
-
-    return if params[:package].present? && switch_to_webui2
-
     render_dialog
   end
 

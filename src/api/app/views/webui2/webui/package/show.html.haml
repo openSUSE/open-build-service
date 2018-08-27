@@ -68,4 +68,11 @@
   .col-lg-4
     = render partial: 'webui2/shared/buildresult_box', locals: { project: @project.name, package: @package.name }
 
-= render partial: 'branch_dialog', locals: { project: @project, package: @package, revision: @revision }
+- unless User.current.is_nobody?
+  - if @current_rev
+    = render partial: 'branch_dialog', locals: { project: @project, package: @package, revision: @revision }
+  - if User.current.can_modify?(@package)
+    = render partial: 'delete_dialog', locals: { project: @project, package: @package, cleanup_source: @cleanup_source }
+  - else
+    = render partial: 'webui2/webui/request/add_role_request_dialog', locals: { project: @project, package: @package }
+    = render partial: 'webui2/webui/request/delete_request_dialog', locals: { project: @project, package: @package }

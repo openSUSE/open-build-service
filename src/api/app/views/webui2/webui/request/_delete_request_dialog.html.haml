@@ -1,20 +1,21 @@
-.modal-dialog{ role: 'document' }
-  .modal-content
-    = form_tag(delete_request_path(project: project), method: :post) do
-      .modal-header
-        %h5.modal-title Create Delete Request
-      .modal-body
-        %p
-          Do you really want to request the deletion of #{project_or_package_link(project: project, package: package)}?
-        = hidden_field_tag(:package, package) if defined?(package)
-        %p
-          - if defined?(package)
-            .form-group
-              = label_tag(:target_project, 'In target project:')
-              = text_field_tag(:target_project, project, disabled: true, class: 'form-control')
-        .form-group
-          = label_tag(:description, 'Please explain why:')
-          = text_area_tag(:description, '', row: 3, class: 'form-control')
-      .modal-footer
-        = render partial: 'webui2/shared/dialog_action_buttons'
+.modal.fade#delete-request-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-request-modal-label', hidden: true } }
+  .modal-dialog{ role: 'document' }
+    .modal-content
+      = form_tag(delete_request_path(project: project), method: :post) do
+        .modal-header
+          %h5.modal-title#delete-request-modal-label Create Delete Request
+        .modal-body
+          %p
+            Do you really want to request the deletion of #{project_or_package_link(project: project.name, package: package.name)}?
+          = hidden_field_tag(:package, package) if defined?(package)
+          %p
+            - if defined?(package)
+              .form-group
+                = label_tag(:target_project, 'In target project:')
+                = text_field_tag(:target_project, project, disabled: true, class: 'form-control')
+          .form-group
+            = label_tag(:description, 'Please explain why:')
+            = text_area_tag(:description, '', row: 3, class: 'form-control')
+        .modal-footer
+          = render partial: 'webui2/shared/dialog_action_buttons'
 

@@ -20,7 +20,7 @@
           %i.fas.fa-edit.text-info
           Edit description
       %li.list-inline-item
-        = link_to(package_delete_dialog_path(package: @package, project: @project), remote: true, id: 'delete-package', class: 'nav-link') do
+        = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#delete-modal' }) do
           %i.fas.fa-times-circle.text-danger
           Delete package
       - Feature.with(:kiwi_image_editor) do
@@ -42,11 +42,11 @@
             Trigger services
     - else
       %li.list-inline-item
-        = link_to(request_add_role_dialog_path(project: @project, package: @package), remote: true, class: 'nav-link') do
+        = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#add-role-modal' }) do
           %i.fas.fa-user-plus.text-primary
           Request role addition
       %li.list-inline-item
-        = link_to(request_delete_dialog_path(project: @project, package: @package), remote: true, class: 'nav-link') do
+        = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#delete-request-modal' }) do
           %i.fas.fa-list-alt.text-danger
           Request deletion
       //TODO: only users w/o rights should see this, maintainers should get a different dialog:
