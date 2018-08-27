@@ -1,6 +1,6 @@
 .modal-dialog{ role: 'document' }
   .modal-content
-    = form_tag({ action: :change_devel_request, project: project, package: package }, method: :post) do
+    = form_tag(change_devel_request_path(project: project, package: package), method: :post) do
       .modal-header
         %h5.modal-title Change Devel Project Request
       .modal-body

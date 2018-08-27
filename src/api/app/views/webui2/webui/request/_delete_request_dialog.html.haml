@@ -1,6 +1,6 @@
 .modal-dialog{ role: 'document' }
   .modal-content
-    = form_tag({ action: :delete_request, project: project }, method: :post) do
+    = form_tag(delete_request_path(project: project), method: :post) do
       .modal-header
         %h5.modal-title Create Delete Request
       .modal-body
