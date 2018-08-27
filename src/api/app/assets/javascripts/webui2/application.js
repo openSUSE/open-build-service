@@ -22,3 +22,4 @@
 //= require webui2/plotbusyworkers.js
 //= require webui2/datatables.js
 //= require webui2/tabs.js
+//= require webui2/requests_table.js

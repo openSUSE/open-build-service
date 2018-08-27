@@ -41,22 +41,18 @@ end -%>
 <% else %>
   <ul class='problem_list'>
     <%- problems.sort! -%>
-    <%- max = 5 -%>
+    <%- num_elements = 6 -%>
     <%- count = problems.size -%>
-    <% if count <= max+1 # Prevent the "1 more" link %>
-      <% problems.each do |p| %>
-        <%= p %>
-      <% end %>
-    <% else %>
-      <% problems[0,max].each do |p| %>
-        <%= p %>
-      <% end %>
+    <% problems[0, num_elements - 1].each do |p| %>
+      <%= p %>
+    <% end %>
+    <% if count > num_elements # Prevent the "1 more" link %>
       <%- name = project.letter %>
       <li>
-        <%= link_to "...#{count - max} more problems", "#", class: "staging_expand staging_#{name}", data: {name: name} %>
+        <%= link_to "...#{count - (num_elements - 1)} more problems", "#", class: "staging_expand staging_#{name}", data: {name: name} %>
       </li>
       <div class="staging_collapsible staging_<%= name %>" style="display:none">
-        <% problems[max..-1].each do |p| %>
+        <% problems[(num_elements - 1)..-1].each do |p| %>
           <%= p %>
         <% end %>
         <li>
