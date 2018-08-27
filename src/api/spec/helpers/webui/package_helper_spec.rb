@@ -2,6 +2,43 @@ require 'rails_helper'
 require 'rantly/rspec_extensions'
 
 RSpec.describe Webui::PackageHelper, type: :helper do
+  describe '#removable_file?' do
+    let(:package) { create(:package, name: 'bar') }
+
+    it { expect(removable_file?(file_name: 'foo',               package: package)).to be true }
+    it { expect(removable_file?(file_name: '_service',          package: package)).to be true }
+    it { expect(removable_file?(file_name: '_service:sub_file', package: package)).to be false }
+
+    context 'a product package (_product)' do
+      let(:package) { create(:package, name: '_product') }
+
+      it 'can be removed' do
+        expect(removable_file?(file_name: 'foo', package: package)).to be true
+      end
+    end
+
+    context 'a product sub package (_product:*)' do
+      let(:project) { create(:project) }
+      let(:product_sub_package) { create(:package, name: '_product:foo', project: project) }
+
+      context 'that belongs to a _product file' do
+        before do
+          allow(product_sub_package).to receive(:belongs_to_product?).and_return(true)
+        end
+
+        it { expect(removable_file?(file_name: 'foo', package: product_sub_package)).to be false }
+      end
+
+      context 'that does not belong to a _product file' do
+        before do
+          allow(product_sub_package).to receive(:belongs_to_product?).and_return(false)
+        end
+
+        it { expect(removable_file?(file_name: 'foo', package: product_sub_package)).to be true }
+      end
+    end
+  end
+
   describe '#nbsp' do
     it 'produces a SafeBuffer' do
       sanitized_string = nbsp('a')

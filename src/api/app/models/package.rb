@@ -92,6 +92,8 @@ class Package < ApplicationRecord
   scope :for_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id, role_id: Role.hashed['maintainer'] }) }
   scope :for_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] }) }
 
+  scope :with_product_name, -> { where(name: '_product') }
+
   validates :name, presence: true, length: { maximum: 200 }
   validates :releasename, length: { maximum: 200 }
   validates :title, length: { maximum: 250 }
@@ -357,8 +359,12 @@ class Package < ApplicationRecord
 
   def master_product_object
     # test _product permissions if any other _product: subcontainer is used and _product exists
-    product_object = project.packages.find_by(name: '_product') if name =~ /\A_product:\w[-+\w\.]*\z/
-    product_object || self
+    return self unless belongs_to_product?
+    project.packages.with_product_name.first
+  end
+
+  def belongs_to_product?
+    /\A_product:\w[-+\w\.]*\z/.match?(name) && project.packages.with_product_name.exists?
   end
 
   def can_be_modified_by?(user, ignore_lock = nil)
@@ -804,7 +810,7 @@ class Package < ApplicationRecord
 
     # not really packages...
     # everything below _product:
-    return if name =~ /\A_product:\w[-+\w\.]*\z/ && master_product_object != self
+    return if belongs_to_product?
     return if name == '_project'
 
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
