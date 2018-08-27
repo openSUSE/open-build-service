@@ -789,12 +789,21 @@ OBSApi::Application.routes.draw do
     resources :projects, only: [], param: :name, constraints: cons do
       resources :repositories, only: [], param: :name, constraints: cons do
         scope module: :status do
-          resources :repository_publishes, only: [], param: :build_id, constraints: cons do
-            resources :checks, only: [:index, :show, :destroy, :update, :create]
-          end
           resources :required_checks, except: [:show, :update, :new, :edit], param: :name
         end
       end
+    end
+  end
+
+  concern :checkable do
+    scope module: 'status' do
+      resources :checks, only: [:index, :show, :destroy, :update, :create]
+    end
+  end
+
+  resources :projects, only: [], param: :name, constraints: cons do
+    resources :repositories, only: [], param: :name, constraints: cons do
+      resources :repository_publishes, only: [], param: :build_id, constraints: cons, concerns: :checkable
     end
   end
 
