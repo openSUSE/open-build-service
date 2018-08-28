@@ -12,7 +12,7 @@
           = hidden_field_tag(:rev, revision)
           .form-group
             = label_tag(:sourceproject, 'From source project:')
-            = text_field_tag(:sourceproject, elide(project.name, 40), disabled: true, class: 'form-control')
+            = text_field_tag(:sourceproject, project.name, disabled: true, class: 'form-control text-truncate')
           .form-group
             = label_tag(:targetproject, 'To target project:')
             = text_field_tag(:targetproject, target_project, disabled: params[:readonly], required: true, class: 'form-control',
@@ -34,8 +34,7 @@
 
           .form-group.d-none#supersede-display
             = label_tag(:supersede_requests, 'Supersede requests:')
-            %br/
-            %span#supersede-requests
+            %p#supersede-requests
 
           .form-group.form-check#sourceupdate-display
             = check_box_tag(:sourceupdate, 'cleanup', cleanup_source, class: 'form-check-input')
