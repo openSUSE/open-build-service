@@ -271,6 +271,7 @@ CREATE TABLE `bs_requests` (
   `priority` enum('critical','important','moderate','low') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'moderate',
   `number` int(11) DEFAULT NULL,
   `updated_when` datetime DEFAULT NULL,
+  `required_checks` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_bs_requests_on_number` (`number`),
   KEY `index_bs_requests_on_creator` (`creator`) USING BTREE,
@@ -1381,6 +1382,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20180731125103'),
 ('20180807114201'),
 ('20180814112739'),
-('20180903135535');
+('20180903135535'),
+('20180906115417');
 
 

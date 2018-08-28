@@ -12,15 +12,15 @@ RSpec.describe Status::ChecksController, type: :controller do
 
   describe 'GET index' do
     context 'with checks' do
-      let!(:check1) { create(:check, checkable: status_repository_publish) }
-      let!(:check2) { create(:check, checkable: status_repository_publish) }
+      let(:repository) { project.repositories.first }
+      let!(:check) { create(:check, status_report: status_report) }
+      let!(:other_check) { create(:check, status_report: status_report) }
 
       before do
-        repository.update!(required_checks: ['missing', check1.name])
-        get :index, params: { project_name: project.name,
-                              repository_name: repository.name,
-                              repository_publish_build_id: status_repository_publish.build_id }, format: :xml
+        repository.update(required_checks: ['missing'])
       end
+
+      subject! { get :index, params: { status_report_id: status_report.id }, format: :xml }
 
       it { expect(assigns(:checks)).to include(check1) }
       it { expect(assigns(:checks)).to include(check2) }

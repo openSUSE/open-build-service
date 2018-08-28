@@ -807,6 +807,8 @@ OBSApi::Application.routes.draw do
     end
   end
 
+  resources :bs_requests, only: [], path: :request, param: :number, constraints: cons, concerns: :checkable
+
   defaults format: 'xml' do
     controller :comments do
       get 'comments/request/:request_number' => :index, constraints: cons, as: :comments_request

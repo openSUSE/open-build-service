@@ -8,9 +8,9 @@ class Status::ChecksController < ApplicationController
 
   # GET /projects/:project_name/repositories/:repository_name/repository_publishes/:repository_publish_build_id/checks
   def index
-    @checks = @checkable.checks
-    @missing_checks = @checkable.missing_checks
-    authorize @checks
+    authorize @status_report
+    @checks = @status_report.checks
+    @missing_checks = @status_report.missing_checks
   end
 
   # GET /projects/:project_name/repositories/:repository_name/repository_publishes/:repository_publish_build_id/checks/:id
@@ -52,17 +52,30 @@ class Status::ChecksController < ApplicationController
 
   private
 
-  def require_or_initialize_checkable
+  def set_repository_checkable
     project = Project.get_by_name(params[:project_name])
     repository = project.repositories.find_by(name: params[:repository_name])
     raise UnknownRepository, "Repository does not exist #{params[:repository_name]}" unless repository
     @checkable = repository.status_publishes.find_or_initialize_by(build_id: params[:repository_publish_build_id])
   end
 
+  def require_or_initialize_checkable
+    if params[:status_repository_publish_build_id]
+      set_repository_checkable
+    elsif params[:bs_request_number]
+      @checkable = BsRequest.find(params[:bs_request_number])
+    end
+
+    raise NotFoundError, "Couldn't find any checkable object." unless @checkable
+  end
+
   def require_checkable
     if params[:repository_publish_build_id]
       @checkable = Status::RepositoryPublish.find_by(build_id: params[:repository_publish_build_id])
+    elsif params[:bs_request_number]
+      @checkable = BsRequest.with_submit_requests.find(params[:bs_request_number])
     end
+
     unless @checkable
       render_error(status: 404, errorcode: 'not_found',
                    message: "Unable to find status_repository_publish with id '#{params[:repository_publish_build_id]}'")

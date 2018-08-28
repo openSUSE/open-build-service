@@ -37,6 +37,8 @@ class BsRequest < ApplicationRecord
 
   ACTION_NOTIFY_LIMIT = 50
 
+  serialize :required_checks, Array
+
   scope :to_accept, -> { where(state: 'new').where('accept_at < ?', DateTime.now) }
   # Scopes for collections
   scope :with_actions, -> { includes(:bs_request_actions).references(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
@@ -65,6 +67,7 @@ class BsRequest < ApplicationRecord
   }
 
   scope :with_actions_and_reviews, -> { joins(:bs_request_actions).left_outer_joins(:reviews).distinct.order(priority: :asc, id: :desc) }
+  scope :with_submit_requests, -> { joins(:bs_request_actions).where(bs_request_actions: { type: 'submit' }) }
 
   scope :by_user_reviews, ->(user_ids) { where(reviews: { user: user_ids }) }
   scope :by_project_reviews, ->(project_ids) { where(reviews: { project: project_ids }) }
@@ -84,6 +87,7 @@ class BsRequest < ApplicationRecord
   has_many :comments, as: :commentable, dependent: :delete_all
   has_many :request_history_elements, -> { order(:created_at) }, class_name: 'HistoryElement::Request', foreign_key: :op_object_id
   has_many :review_history_elements, through: :reviews, source: :history_elements
+  has_many :checks, as: :checkable, class_name: 'Status::Check', dependent: :destroy
 
   validates :state, inclusion: { in: VALID_REQUEST_STATES }
   validates :creator, presence: true
