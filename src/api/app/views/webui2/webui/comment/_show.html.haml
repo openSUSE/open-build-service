@@ -1,14 +1,6 @@
 .comments
-  - commentable.comments.walk_tree do |comment, level|
-    - indentation = level >= 4 ? 'ml-7' : "ml-#{level + 3}"
-    - indentation = '' if level.zero?
-    .comment{ class: indentation }
-      = user_with_realname_and_icon(comment.user, no_icon: true, short: true)
-      wrote
-      %span.comment_time= fuzzy_time(comment.created_at)
-      %hr
-      = comment_body(comment)
-      = render partial: 'webui2/webui/comment/links', locals: { comment: comment }
-      = render partial: 'webui2/webui/comment/reply', locals: { comment: comment, level: 0, commentable: commentable }
+  - commentable.comments.without_parent.each do |comment|
+    = render partial: 'webui2/webui/comment/content', locals: { comment: comment, commentable: commentable, level: 1 }
+
   .comment_new
     = render partial: 'webui2/webui/comment/new', locals: { commentable: commentable }

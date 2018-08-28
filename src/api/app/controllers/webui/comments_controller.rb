@@ -25,6 +25,8 @@ class Webui::CommentsController < Webui::WebuiController
   end
 
   def destroy
+    return if switch_to_webui2
+
     comment = Comment.find(params[:id])
     authorize comment, :destroy?
 

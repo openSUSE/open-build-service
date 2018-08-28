@@ -80,7 +80,7 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
 
-    @comments = @package.comments
+    @comments = @package.comments.includes(:user)
     @comment = Comment.new
     @requests = []
     @services = Backend::Api::Sources::Package.service(@project.name, @package.name)

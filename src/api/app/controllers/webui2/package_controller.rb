@@ -1,4 +1,8 @@
 module Webui2::PackageController
+  def webui2_show
+    @comments = @package.comments.includes(:user, :children)
+  end
+
   def webui2_submit_request_dialog
     respond_to do |format|
       format.js { render 'submit_request_dialog' }
