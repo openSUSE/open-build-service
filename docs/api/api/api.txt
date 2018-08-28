@@ -1854,6 +1854,76 @@ PUT /message/?project=<project>&package=<package>
 XmlBody :message
 XmlResult: message
 
+== Status Checks
+  WARNING: This API is currently in beta and unstable
+
+=== Repositories
+
+<project>: The name of a project, e.g. home:user1
+<repository>: The name of a repository of the project, e.g. openSUSE_Tumbleweed
+<build_id>: The build id you have received for the repository, e.g. 12345
+
+GET /status_reports/published/<project>/<repository>/reports/<build_id>
+  Get a status report with this build id
+XmlResult: status_report
+
+
+PUT /status_reports/published/<project>/<repository>/reports/<build_id>
+  Create or update check data
+XmlResult: check
+
+=== Requests
+
+<request>: The number of the request, e.g. 12345
+
+GET /status_reports/requests/<request>/reports
+  Get a the status report for this request
+XmlResult: status_report
+
+
+PUT /status_reports/requests/<request>/reports
+  Create or update check data
+XmlResult: check
+
+== Required Status Checks
+  WARNING: This API is currently in beta and unstable
+
+=== Projects
+
+<project>: The name of a project, e.g. home:user1
+<check>: The name of the required check
+
+GET /status_reports/projects/<project>/required_checks
+  Get all required checks for this project
+XmlResult: required_checks
+
+POST /status_reports/projects/<project>/required_checks/<check>
+  Create a required check
+XmlResult: required_checks
+
+DELETE /status_reports/projects/<project>/required_checks/<check>
+  Delete a required check
+XmlResult: required_checks
+
+=== Repositories
+
+<project>: The name of a project, e.g. home:user1
+<repository>: The name of a repository of the project, e.g. openSUSE_Tumbleweed
+<check>: The name of the required check
+
+GET /status_reports/repositories/<project>/<repository>/required_checks
+  Get all required checks for this repository
+XmlResult: required_checks
+
+
+POST /status_reports/repositories/<project>/<repository>/required_checks/<check>
+  Create a required check
+XmlResult: required_checks
+
+
+DELETE /status_reports/repositories/<project>/<repository>/required_checks/<check>
+  Delete a required check
+XmlResult: required_checks
 
 == Internal only routes
 
