@@ -143,6 +143,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
     visit package_show_path(package: other_users_package, project: other_user.home_project)
     click_link('Request deletion')
     expect(page).to have_text('Do you really want to request the deletion of package ')
+    fill_in 'description', with: 'Hey, why not?'
     click_button('Ok')
     expect(page).to have_text('Created delete request')
     find('a', text: /delete request \d+/).click
