@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<check id="4711">
+  <url>https://ci.example.com/jobs/12345</url>
+  <short_description>Unit tests running on Example CI</short_description>
+  <name>ci/example: unit</name>
+  <state>success</state>
+</check>
