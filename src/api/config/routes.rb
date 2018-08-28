@@ -139,8 +139,8 @@ OBSApi::Application.routes.draw do
           delete 'package/wipe_binaries/:project/:package' => :wipe_binaries, constraints: cons
         end
         get 'package/devel_project/:project/:package' => :devel_project, constraints: cons
-        get 'package/buildresult' => :buildresult, constraints: cons
-        get 'package/rpmlint_result' => :rpmlint_result, constraints: cons
+        get 'package/buildresult' => :buildresult, constraints: cons, as: 'package_buildresult'
+        get 'package/rpmlint_result' => :rpmlint_result, constraints: cons, as: 'rpmlint_result'
         get 'package/rpmlint_log' => :rpmlint_log, constraints: cons
         get 'package/meta/:project/:package' => :meta, constraints: cons, as: 'package_meta'
         post 'package/save_meta/:project/:package' => :save_meta, constraints: cons
@@ -256,7 +256,7 @@ OBSApi::Application.routes.draw do
       get 'project/linking_projects/:project' => :linking_projects, constraints: cons
       get 'project/add_person/:project' => :add_person, constraints: cons
       get 'project/add_group/:project' => :add_group, constraints: cons
-      get 'project/buildresult' => :buildresult, constraints: cons
+      get 'project/buildresult' => :buildresult, constraints: cons, as: 'project_buildresult'
       get 'project/delete_dialog' => :delete_dialog
       get 'project/new' => :new, as: 'new_project'
       post 'project/create' => :create, constraints: cons, as: 'projects_create'

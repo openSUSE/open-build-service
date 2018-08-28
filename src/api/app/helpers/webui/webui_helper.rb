@@ -145,7 +145,8 @@ module Webui::WebuiHelper
 
     color = outdated ? 'text-gray-400' : 'text-black-50'
 
-    content_tag(:i, nil, class: ['fas', "fa-#{icon}", color], title: description)
+    content_tag(:i, nil, class: ['fas', "fa-#{icon}", color],
+                data: { content: description, placement: 'top', toggle: 'popover' })
   end
 
   def tab(id, text, opts)

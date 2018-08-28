@@ -10,7 +10,11 @@ module Webui2::PackageController
   end
 
   def webui2_rpmlint_result
-    render partial: 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
-                                                repository_list: @repo_list, repo_arch_hash: @repo_arch_hash }
+    if @repo_list.empty?
+      render partial: 'no_repositories', locals: { project: @project }
+    else
+      render partial: 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
+                                                  repository_list: @repo_list, repo_arch_hash: @repo_arch_hash }
+    end
   end
 end

@@ -48,28 +48,27 @@ module Webui::BuildresultHelper
     status ||= @statushash[repo][arch][package_name] || { 'package' => package_name }
     status_id = valid_xml_id("id-#{package_name}_#{repo}_#{arch}")
     link_title = status['details']
+    code = ''
+    theclass = ' '
+
     if status['code']
       code = status['code']
       theclass = "text-#{STATUS_COLOR_HASH[code.gsub(/[- ]/, '_')]}"
       # special case for scheduled jobs with constraints limiting the workers a lot
       theclass = 'text-warning' if code == 'scheduled' && link_title.present?
-    else
-      code = ''
-      theclass = ' '
     end
 
-    content_tag(:td, class: ['buildstatus', 'nowrap']) do
+    capture_haml do
+      if enable_help && status['code']
+        concat(content_tag(:i, nil, class: ['fa', 'fa-question-circle', 'text-info', 'mr-1'],
+                           data: { content: Buildresult.status_description(status['code']), placement: 'top', toggle: 'popover' }))
+      end
       if code.in?(['-', 'unresolvable', 'blocked', 'excluded', 'scheduled'])
-        concat(link_to(code, '#', title: link_title, id: status_id, class: theclass))
+        concat(link_to(code, '#', id: status_id, class: theclass, data: { content: link_title, placement: 'top', toggle: 'popover' }))
       else
         concat(link_to(code.gsub(/\s/, '&nbsp;'),
                        package_live_build_log_path(project: @project.to_s, package: package_name, repository: repo, arch: arch),
-                       title: link_title, rel: 'nofollow', class: theclass))
-      end
-
-      if enable_help && status['code']
-        concat(' ')
-        concat(content_tag(:i, nil, class: ['fa', 'fa-info-circle', 'text-info'], title: Buildresult.status_description(status['code'])))
+                       data: { content: link_title, placement: 'top', toggle: 'popover' }, rel: 'nofollow', class: theclass))
       end
     end
   end

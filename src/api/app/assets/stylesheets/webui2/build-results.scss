@@ -8,3 +8,13 @@
   cursor: pointer;
   color: $link-color;
 }
+
+#buildresult-box {
+  .nav-link {
+    .fa-sync-alt { @extend .invisible; }
+
+    &.active {
+      .fa-sync-alt { @extend .visible; }
+    }
+  }
+}

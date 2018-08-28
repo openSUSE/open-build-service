@@ -28,7 +28,9 @@
                                                   package: @package }
       = render partial: 'bottom_actions'
 .row
-  .col-lg-8
+  .col-xl-4.order-xl-1
+    = render partial: 'webui2/shared/buildresult_box', locals: { project: @project.name, package: @package.name }
+  .col-xl-8.order-xl-0
     .card.mb-3
       %h5.card-header
         Source Files
@@ -65,8 +67,6 @@
         (#{ @comments.length})
       .card-body#comments
         = render partial: 'webui2/webui/comment/show', locals: { commentable: @package }
-  .col-lg-4
-    = render partial: 'webui2/shared/buildresult_box', locals: { project: @project.name, package: @package.name }
 
 - unless User.current.is_nobody?
   - if @current_rev

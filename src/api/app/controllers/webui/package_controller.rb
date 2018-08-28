@@ -925,7 +925,8 @@ class Webui::PackageController < Webui::WebuiController
       switch_to_webui2
       render partial: 'buildstatus', locals: { buildresults: @buildresults, index: @index, project: @project }
     else
-      render partial: 'no_repositories'
+      switch_to_webui2
+      render partial: 'no_repositories', locals: { project: @project }
     end
   end
 
@@ -949,10 +950,12 @@ class Webui::PackageController < Webui::WebuiController
     repos.uniq.each do |repo_name|
       @repo_list << [repo_name, valid_xml_id(elide(repo_name, 30))]
     end
+
+    return if switch_to_webui2
+
     if @repo_list.empty?
-      render partial: 'no_repositories'
+      render partial: 'no_repositories', locals: { project: @project }
     else
-      return if switch_to_webui2
       render partial: 'rpmlint_result', locals: { index: params[:index] }
     end
   end

@@ -27,3 +27,4 @@
 //= require webui2/buildresult.js
 //= require webui2/request.js
 //= require webui2/jquery-ui.min.js
+//= require webui2/buildresult.js
