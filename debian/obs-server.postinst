@@ -28,7 +28,9 @@ chown obsrun:obsrun /srv/obs/repos
 #deb-systemd-helper enable obsscheduler\@x86_64.service
 #deb-systemd-helper enable obsscheduler\@armv7hl.service
 # FIXME manually creating symlink, deb-systemd-helper does not support
-# template services yet.
+# template services yet. See #801822
+# FIXME make sure multi-user.target.wants directory created before creating symlink. See #870841
+mkdir -p /etc/systemd/system/multi-user.target.wants
 ln -sf /lib/systemd/system/obsscheduler@.service \
    /etc/systemd/system/multi-user.target.wants/obsscheduler\@i586.service
 ln -sf /lib/systemd/system/obsscheduler@.service \
