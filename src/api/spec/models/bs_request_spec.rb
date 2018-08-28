@@ -436,7 +436,7 @@ RSpec.describe BsRequest, vcr: true do
       subject { submit_request.forward_to(project: user.home_project.name) }
 
       it 'creates a new submit request open for review' do
-        is_expected.to have_attributes(state: :review, priority: 'moderate')
+        expect(subject).to have_attributes(state: :review, priority: 'moderate')
       end
 
       it 'creates a submit request action with the correct target' do
@@ -483,7 +483,7 @@ RSpec.describe BsRequest, vcr: true do
       end
 
       it 'sets the given description' do
-        is_expected.to have_attributes(description: 'my description')
+        expect(subject).to have_attributes(description: 'my description')
       end
 
       it 'creates a submit request action with the correct target' do
@@ -611,7 +611,7 @@ RSpec.describe BsRequest, vcr: true do
     subject { submit_request.as_json }
 
     it 'returns a json representation of a bs request' do
-      is_expected.to include(
+      expect(subject).to include(
         'id' => submit_request.id,
         'number' => submit_request.number,
         'creator' => submit_request.creator,

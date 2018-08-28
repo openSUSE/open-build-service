@@ -747,12 +747,12 @@ RSpec.describe Webui::ProjectController, vcr: true do
     it 'redirects to back if a referer is there' do
       request.env['HTTP_REFERER'] = root_url # Needed for the redirect_to :back
       get :toggle_watch, params: { project: user.home_project }
-      is_expected.to redirect_to(root_url)
+      expect(subject).to redirect_to(root_url)
     end
 
     it 'redirects to project#show' do
       get :toggle_watch, params: { project: user.home_project }
-      is_expected.to redirect_to(project_show_path(user.home_project))
+      expect(subject).to redirect_to(project_show_path(user.home_project))
     end
   end
 

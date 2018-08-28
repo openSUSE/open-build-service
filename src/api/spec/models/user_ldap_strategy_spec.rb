@@ -215,7 +215,7 @@ RSpec.describe UserLdapStrategy do
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
 
         it 'returns nil because the user was not found' do
-          is_expected.to be_nil
+          expect(subject).to be_nil
         end
       end
 
@@ -232,7 +232,7 @@ RSpec.describe UserLdapStrategy do
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
 
         it 'returns nil because the user was not found' do
-          is_expected.to be_nil
+          expect(subject).to be_nil
         end
       end
 
@@ -250,7 +250,7 @@ RSpec.describe UserLdapStrategy do
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
 
         it 'returns nil' do
-          is_expected.to be_nil
+          expect(subject).to be_nil
         end
       end
 
@@ -268,7 +268,7 @@ RSpec.describe UserLdapStrategy do
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
 
         it 'returns nil' do
-          is_expected.to be_nil
+          expect(subject).to be_nil
         end
       end
 
@@ -286,7 +286,7 @@ RSpec.describe UserLdapStrategy do
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
 
         it 'returns nil' do
-          is_expected.to be_nil
+          expect(subject).to be_nil
         end
       end
 
@@ -303,7 +303,7 @@ RSpec.describe UserLdapStrategy do
         subject! { UserLdapStrategy.find_with_ldap('tux', nil) }
 
         it 'returns nil' do
-          is_expected.to be_nil
+          expect(subject).to be_nil
         end
       end
 
@@ -317,7 +317,7 @@ RSpec.describe UserLdapStrategy do
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
 
         it 'returns name and username' do
-          is_expected.to eq(['John', 'tux'])
+          expect(subject).to eq(['John', 'tux'])
         end
       end
 
@@ -345,7 +345,7 @@ RSpec.describe UserLdapStrategy do
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
 
         it 'returns empty string and username' do
-          is_expected.to eq(['', 'tux'])
+          expect(subject).to eq(['', 'tux'])
         end
       end
 
@@ -363,7 +363,7 @@ RSpec.describe UserLdapStrategy do
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
 
         it 'returns the users ldap_name_attr and username' do
-          is_expected.to eq(['John', 'S'])
+          expect(subject).to eq(['John', 'S'])
         end
       end
 

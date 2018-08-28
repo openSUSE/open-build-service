@@ -28,7 +28,7 @@ RSpec.describe Project do
     subject { subproject.possible_ancestor_names }
 
     it 'returns an ordered list of possible parent project names' do
-      is_expected.to contain_exactly('A', 'A:B', 'A:B:C')
+      expect(subject).to contain_exactly('A', 'A:B', 'A:B:C')
       expect(subject[0]).to eq('A:B:C')
       expect(subject[1]).to eq('A:B')
       expect(subject[2]).to eq('A')
