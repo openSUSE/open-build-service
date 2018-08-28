@@ -7,6 +7,6 @@ module Webui2::PackageController
 
   def webui2_rpmlint_result
     render partial: 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
-                                                repository_list: @repo_list, repo_arch_list: @repo_arch_list }
+                                                repository_list: @repo_list, repo_arch_hash: @repo_arch_hash }
   end
 end
