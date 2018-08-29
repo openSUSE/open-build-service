@@ -4,6 +4,8 @@
 
     %p
       Do you want to submit #{package_link @package, rev: @revision}?
+    %p.smaller
+      = "You are about to send a request to the owner of the original #{ @package ? 'package' : 'project' }. Please describe what you have done and why they should apply your changes. The owner will be notified with the following details."
 
     = form_tag({controller: 'package', action: 'submit_request'}, method: 'post') do
       = hidden_field_tag(:project, @project)
@@ -34,7 +36,7 @@
 
         = label_tag(:description, 'Description:')
         %br/
-        ~ text_area_tag(:description, @description, size: '40x3')
+        ~ text_area_tag(:description, @description, size: '40x3', required: true)
         %br/
 
         %span.hidden#supersede-display
