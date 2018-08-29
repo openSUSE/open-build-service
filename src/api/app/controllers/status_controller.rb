@@ -137,7 +137,6 @@ class StatusController < ApplicationController
 
     @result = {}
     BsRequest.find_by_number!(params[:id]).bs_request_actions.each do |action|
-      # raise NotSubmitRequest.new 'Not submit' unless action.action_type == :submit
       sproj = Project.find_by_name!(action.source_project)
       tproj = Project.find_by_name!(action.target_project)
       spkg = sproj.packages.find_by_name!(action.source_package)
@@ -148,15 +147,5 @@ class StatusController < ApplicationController
       @result.deep_merge!(PackageBuildStatus.new(spkg).result(target_project: tproj, srcmd5: dir['srcmd5']))
     end
     render xml: render_to_string(partial: 'bsrequest')
-  end
-
-  class NotFoundError < APIError
-    setup 404
-  end
-
-  class MultipleNotSupported < APIError
-  end
-
-  class NotSubmitRequest < APIError
   end
 end
