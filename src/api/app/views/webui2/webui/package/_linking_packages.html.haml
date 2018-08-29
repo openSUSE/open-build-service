@@ -6,6 +6,7 @@
       %ul.list-unstyled
         - @package.linking_packages.each do |linking_package|
           :ruby
+            # FIXME: get rid of these helpers
             if linking_package.name != @package.name
               name = elide_two(linking_package.project.name, linking_package.name, 46).join(' / ')
             else

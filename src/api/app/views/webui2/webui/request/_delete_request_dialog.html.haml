@@ -6,6 +6,7 @@
           %h5.modal-title#delete-request-modal-label Create Delete Request
         .modal-body
           %p
+            -# FIXME: get rid of this helper
             Do you really want to request the deletion of #{project_or_package_link(project: project.name, package: package.name)}?
           = hidden_field_tag(:package, package) if defined?(package)
           %p

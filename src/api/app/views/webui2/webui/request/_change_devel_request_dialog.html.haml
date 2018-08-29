@@ -6,10 +6,12 @@
       .modal-body
         - if current_devel_project && current_devel_package
           %p
+            -# FIXME: get rid of this helper
             Do you want to request to change the devel project for #{package_link(package)} from
             \#{project_or_package_link(project: current_devel_project)}?
         - else
           %p
+            -# FIXME: get rid of this helper
             Do you want to request to set the devel project for #{package_link(package)}?
         .form-group
           - if current_devel_project && current_devel_package

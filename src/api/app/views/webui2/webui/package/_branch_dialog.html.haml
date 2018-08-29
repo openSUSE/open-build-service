@@ -9,9 +9,11 @@
         - branch_project = User.current.branch_project_name(project.name)
         %strong Source
         %p
+          -# FIXME: get rid of this helper
           = package_link(package, short: true)
         %strong Destination
         %p
+          -# FIXME: get rid of this helper
           = project_or_package_link(project: branch_project, short: true)
       = form_tag({ controller: :package, action: :branch }, method: :post) do
         .modal-body
