@@ -18,18 +18,18 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_new_message
-    put '/status/messages'
+    post '/status/messages'
     assert_response 403
 
     login_king
-    put '/status/messages', params: '<whereareyou/>'
+    post '/status/messages', params: '<whereareyou/>'
     assert_response 400
 
-    put '/status/messages', params: '<messages><message>nada</message></messages>'
+    post '/status/messages', params: '<messages><message>nada</message></messages>'
     assert_response 400
     assert_xml_tag attributes: { code: 'invalid_record' }
 
-    put '/status/messages', params: '<message severity="1">I have nothing to say</message>'
+    post '/status/messages', params: '<message severity="1">I have nothing to say</message>'
     assert_response :success
 
     # delete it again

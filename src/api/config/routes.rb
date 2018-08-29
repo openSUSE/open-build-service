@@ -605,26 +605,17 @@ OBSApi::Application.routes.draw do
     end
 
     ### /status_message
+    resources :status_messages, only: [:show, :index, :create, :destroy], path: 'status/messages'
 
     controller :status do
       # Routes for status_messages
       # --------------------------
-      get 'status_message' => 'status#messages'
+      get 'status_message' => 'status_messages#index'
 
-      get 'status/messages' => :list_messages
-      put 'status/messages' => :update_messages
-      get 'status/messages/:id' => :show_message, constraints: cons
-      delete 'status/messages/:id' => :delete_message, constraints: cons
       get 'status/workerstatus' => :workerstatus
       get 'status/history' => :history
       get 'status/project/:project' => :project, constraints: cons
       get 'status/bsrequest' => :bsrequest
-
-      get 'public/status/list_messages' => :list_messages
-      get 'public/status/show_message' => :show_message
-      get 'public/status/update_messages' => :update_messages
-      get 'public/status/save_new_message' => :save_new_message
-      get 'public/status/delete_message' => :delete_message
       get 'public/status/workerstatus' => :workerstatus
       get 'public/status/history' => :history
       get 'public/status/role_from_cache' => :role_from_cache
