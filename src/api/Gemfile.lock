@@ -176,7 +176,7 @@ GEM
     mousetrap-rails (1.4.6)
     mysql2 (0.4.4)
     nio4r (1.2.1)
-    nokogiri (1.8.1)
+    nokogiri (1.8.4)
       mini_portile2 (~> 2.3.0)
     nokogumbo (1.4.9)
       nokogiri
@@ -388,7 +388,7 @@ DEPENDENCIES
   momentjs-rails
   mousetrap-rails
   mysql2
-  nokogiri (~> 1.8.1)
+  nokogiri (~> 1.8.4)
   nyan-cat-formatter
   poltergeist
   pry (>= 0.9.12)
