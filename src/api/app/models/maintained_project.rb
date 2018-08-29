@@ -1,6 +1,13 @@
 class MaintainedProject < ApplicationRecord
   belongs_to :project, foreign_key: :project_id
   belongs_to :maintenance_project, class_name: 'Project', foreign_key: :maintenance_project_id
+
+  validates :project_id, uniqueness: {
+    scope: :maintenance_project_id,
+    message: lambda do |object, _data|
+      "is already maintained by the maintenance project ##{object.maintenance_project_id}"
+    end
+  }
 end
 
 # == Schema Information
