@@ -1,4 +1,3 @@
-# we take everything here that is not XML - the default mimetype is xml though
 class WebuiMatcher
   class InvalidRequestFormat < APIError
   end
@@ -776,11 +775,14 @@ OBSApi::Application.routes.draw do
     delete 'source/:project/:package' => :delete_package, constraints: cons
   end
 
-  resources :projects, only: [], param: :name, constraints: cons do
-    resources :repositories, only: [], param: :name, constraints: cons do
-      resources :status_repository_publishes, only: [], param: :build_id, constraints: cons do
-        scope module: 'status' do
-          resources :checks, only: [:index, :show, :destroy, :update, :create]
+  defaults format: 'xml' do
+    resources :projects, only: [], param: :name, constraints: cons do
+      resources :repositories, only: [], param: :name, constraints: cons do
+        scope module: :status do
+          resources :repository_publishes, only: [], param: :build_id, constraints: cons do
+            resources :checks, only: [:index, :show, :destroy, :update, :create]
+          end
+          resources :required_checks, except: [:show, :update, :new, :edit], param: :name
         end
       end
     end

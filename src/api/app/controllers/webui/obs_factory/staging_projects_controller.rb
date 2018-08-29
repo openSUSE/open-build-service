@@ -42,8 +42,12 @@ module Webui::ObsFactory
           # For the breadcrumbs
           @project = @distribution.project
           return if images_repository.blank?
+
           @build_id = images_repository.build_id
-          @checks = images_repository.checks.for_build_id(@build_id)
+          status = images_repository.status_publishes.find_by(build_id: @build_id)
+          return if status.nil?
+          @missing_checks = status.missing_checks
+          @checks = status.checks
         end
         format.json { render json: @staging_project }
       end

@@ -30,7 +30,7 @@ a.openqa-failed, a.check-error, a.check-failure {
     color: red
 }
 
-a.openqa-none, a.check-pending {
+a.openqa-none, span.check-pending {
     color: #006699
 }
 

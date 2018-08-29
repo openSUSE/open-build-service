@@ -1,4 +1,3 @@
-# TODO: Please overwrite this comment with something explaining the model target
 class Status::RepositoryPublish < ApplicationRecord
   #### Includes and extends
 
@@ -29,6 +28,9 @@ class Status::RepositoryPublish < ApplicationRecord
   #### private
 
   #### Instance methods (public and then protected/private)
+  def missing_checks
+    repository.required_checks - checks.pluck(:name)
+  end
 
   #### Alias of methods
 end

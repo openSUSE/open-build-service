@@ -12,24 +12,27 @@ RSpec.describe Status::ChecksController, type: :controller do
 
   describe 'GET index' do
     context 'with checks' do
-      let(:check1) { create(:check, checkable: status_repository_publish) }
-      let(:check2) { create(:check, checkable: status_repository_publish) }
+      let!(:check1) { create(:check, checkable: status_repository_publish) }
+      let!(:check2) { create(:check, checkable: status_repository_publish) }
 
       before do
+        repository.update!(required_checks: ['missing', check1.name])
         get :index, params: { project_name: project.name,
                               repository_name: repository.name,
-                              status_repository_publish_build_id: status_repository_publish.build_id }, format: :xml
+                              repository_publish_build_id: status_repository_publish.build_id }, format: :xml
       end
 
       it { expect(assigns(:checks)).to include(check1) }
       it { expect(assigns(:checks)).to include(check2) }
+      it { expect(assigns(:missing_checks)).to include('missing') }
+      it { expect(assigns(:missing_checks)).not_to include(check1.name) }
     end
 
     context 'without checks' do
       before do
         get :index, params: { project_name: project.name,
                               repository_name: repository.name,
-                              status_repository_publish_build_id: status_repository_publish.build_id }, format: :xml
+                              repository_publish_build_id: status_repository_publish.build_id }, format: :xml
       end
 
       it { expect(assigns(:checks)).to be_empty }
@@ -43,7 +46,7 @@ RSpec.describe Status::ChecksController, type: :controller do
       before do
         get :show, params: { project_name: project.name,
                              repository_name: repository.name,
-                             status_repository_publish_build_id: status_repository_publish.build_id,
+                             repository_publish_build_id: status_repository_publish.build_id,
                              id: check.id }, format: :xml
       end
 
@@ -54,7 +57,7 @@ RSpec.describe Status::ChecksController, type: :controller do
       before do
         get :show, params: { project_name: project.name,
                              repository_name: repository.name,
-                             status_repository_publish_build_id: status_repository_publish.build_id,
+                             repository_publish_build_id: status_repository_publish.build_id,
                              id: '42' }, format: :xml
       end
 
@@ -74,7 +77,7 @@ RSpec.describe Status::ChecksController, type: :controller do
         expect do
           post :create, body: check_xml, params: { project_name: project.name,
                                                    repository_name: repository.name,
-                                                   status_repository_publish_build_id: 6789 }, format: :xml
+                                                   repository_publish_build_id: 6789 }, format: :xml
         end.to change(Status::RepositoryPublish, :count).by(1)
         expect(repository.status_publishes.first.build_id).to eq('6789')
       end
@@ -83,7 +86,7 @@ RSpec.describe Status::ChecksController, type: :controller do
         expect do
           post :create, body: check_xml, params: { project_name: project.name,
                                                    repository_name: repository.name,
-                                                   status_repository_publish_build_id: 1312 }, format: :xml
+                                                   repository_publish_build_id: 1312 }, format: :xml
         end.to change(Status::Check, :count).by(1)
         expect(repository.status_publishes.first.checks.first.url).to eq('http://checks.example.com/12345')
       end
@@ -94,7 +97,7 @@ RSpec.describe Status::ChecksController, type: :controller do
         expect do
           post :create, body: check_xml, params: { project_name: project.name,
                                                    repository_name: repository.name,
-                                                   status_repository_publish_build_id: 6789 }, format: :xml
+                                                   repository_publish_build_id: 6789 }, format: :xml
         end.not_to change(Status::RepositoryPublish, :count)
       end
 
@@ -102,7 +105,7 @@ RSpec.describe Status::ChecksController, type: :controller do
         expect do
           post :create, body: check_xml, params: { project_name: project.name,
                                                    repository_name: repository.name,
-                                                   status_repository_publish_build_id: 1312 }, format: :xml
+                                                   repository_publish_build_id: 1312 }, format: :xml
         end.not_to change(Status::Check, :count)
       end
     end
@@ -130,7 +133,7 @@ RSpec.describe Status::ChecksController, type: :controller do
       before do
         put :update, body: '<check><state>success</state></check>', params: { project_name: project.name,
                                                  repository_name: repository.name,
-                                                 status_repository_publish_build_id: status_repository_publish.build_id, id: check.id }, format: :xml
+                                                 repository_publish_build_id: status_repository_publish.build_id, id: check.id }, format: :xml
       end
 
       it { expect(check.reload.state).to eq('success') }
@@ -140,7 +143,7 @@ RSpec.describe Status::ChecksController, type: :controller do
       before do
         put :update, body: '<check><state>success</state></check>', params: { project_name: project.name,
                                                  repository_name: repository.name,
-                                                 status_repository_publish_build_id: status_repository_publish.build_id, id: check.id }, format: :xml
+                                                 repository_publish_build_id: status_repository_publish.build_id, id: check.id }, format: :xml
       end
 
       it { expect(check.reload.state).to eq('pending') }
@@ -152,7 +155,7 @@ RSpec.describe Status::ChecksController, type: :controller do
       before do
         put :update, body: '<check><state>not-allowed</state></check>', params: { project_name: project.name,
                                                  repository_name: repository.name,
-                                                 status_repository_publish_build_id: status_repository_publish.build_id, id: check.id }, format: :xml
+                                                 repository_publish_build_id: status_repository_publish.build_id, id: check.id }, format: :xml
       end
 
       it { expect(check.reload.state).to eq('pending') }
@@ -170,7 +173,7 @@ RSpec.describe Status::ChecksController, type: :controller do
         expect do
           delete :destroy, params: { project_name: project.name,
                                                    repository_name: repository.name,
-                                                   status_repository_publish_build_id: status_repository_publish.build_id, id: check.id }, format: :xml
+                                                   repository_publish_build_id: status_repository_publish.build_id, id: check.id }, format: :xml
         end.to change(Status::Check, :count).by(-1)
       end
     end
@@ -180,7 +183,7 @@ RSpec.describe Status::ChecksController, type: :controller do
         expect do
           delete :destroy, params: { project_name: project.name,
                                                    repository_name: repository.name,
-                                                   status_repository_publish_build_id: status_repository_publish.build_id, id: check.id }, format: :xml
+                                                   repository_publish_build_id: status_repository_publish.build_id, id: check.id }, format: :xml
         end.not_to change(Status::Check, :count)
       end
     end
