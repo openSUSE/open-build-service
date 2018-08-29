@@ -6,7 +6,6 @@
       = link_to "error#{failures == 1 ? '' : 's'}", project_monitor_path(project: project, pkgname: package.name, succeeded: 0,
                                                                          blocked: 0, finished: 0, signing: 0, dispatching: 0,
                                                                          scheduled: 0, building: 0)
-  = render partial: 'webui2/shared/open_requests', locals: { requests: requests, package: package, project: project }
 
   - if devel_package
     %li
