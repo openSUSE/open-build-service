@@ -52,7 +52,7 @@ RSpec.describe IssueTracker do
       end
 
       it 'returns nil' do
-        is_expected.to be_nil
+        expect(subject).to be_nil
       end
     end
   end

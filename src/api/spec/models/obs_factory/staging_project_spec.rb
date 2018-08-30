@@ -46,7 +46,7 @@ RSpec.describe ObsFactory::StagingProject do
       let!(:project) { create(:project, name: 'openSUSE:Factory:Staging:42') }
 
       it 'returns the staging project' do
-        is_expected.to be_kind_of(ObsFactory::StagingProject)
+        expect(subject).to be_kind_of(ObsFactory::StagingProject)
         expect(subject.name).to eq('openSUSE:Factory:Staging:42')
         expect(subject.project).to eq(project)
         expect(subject.distribution).to eq(factory_distribution)

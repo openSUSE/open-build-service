@@ -28,7 +28,7 @@ RSpec.describe Kiwi::Repository, type: :model do
       it { is_expected.to validate_presence_of(:source_path).with_message(/can't be nil/) }
 
       it 'obsrepositories should be valid' do
-        is_expected.to allow_value('obsrepositories:/').for(:source_path)
+        expect(subject).to allow_value('obsrepositories:/').for(:source_path)
       end
 
       ['dir', 'iso', 'smb', 'this'].each do |protocol|
@@ -36,7 +36,7 @@ RSpec.describe Kiwi::Repository, type: :model do
           property_of do
             protocol + '://' + sized(range(1, 199)) { string(/./) }
           end.check(3) do |string|
-            is_expected.to allow_value(string).for(:source_path)
+            expect(subject).to allow_value(string).for(:source_path)
           end
         end
       end
@@ -47,7 +47,7 @@ RSpec.describe Kiwi::Repository, type: :model do
             # TODO: improve regular expression to generate the URI
             protocol + '://' + sized(range(1, 199)) { string(/[\w]/) }
           end.check(3) do |string|
-            is_expected.to allow_value(string).for(:source_path)
+            expect(subject).to allow_value(string).for(:source_path)
           end
         end
       end
@@ -65,7 +65,7 @@ RSpec.describe Kiwi::Repository, type: :model do
           path = "obs://#{project.join(':')}/#{repository.join(':')}"
           path
         end.check(3) do |string|
-          is_expected.to allow_value(string).for(:source_path)
+          expect(subject).to allow_value(string).for(:source_path)
         end
       end
 
@@ -82,7 +82,7 @@ RSpec.describe Kiwi::Repository, type: :model do
           guard !['ftp', 'http', 'https', 'plain', 'dir', 'iso', 'smb', 'this', 'obs'].include?(string[0..index - 1])
           string
         end.check(3) do |string|
-          is_expected.not_to allow_value(string).for(:source_path)
+          expect(subject).not_to allow_value(string).for(:source_path)
         end
       end
 
@@ -95,7 +95,7 @@ RSpec.describe Kiwi::Repository, type: :model do
             string[index] = uri_character
             protocol + '://' + string
           end.check(3) do |string|
-            is_expected.not_to allow_value(string).for(:source_path)
+            expect(subject).not_to allow_value(string).for(:source_path)
           end
         end
       end
@@ -113,8 +113,8 @@ RSpec.describe Kiwi::Repository, type: :model do
     # Remove `.on(:save)` when it's solved.
     it { is_expected.to validate_inclusion_of(:repo_type).in_array(Kiwi::Repository::REPO_TYPES).on(:save) }
     it do
-      is_expected.to validate_numericality_of(:priority).is_greater_than_or_equal_to(0).is_less_than(100)
-                                                        .with_message(/must be between 0 and 99/)
+      expect(subject).to validate_numericality_of(:priority).is_greater_than_or_equal_to(0).is_less_than(100)
+                                                            .with_message(/must be between 0 and 99/)
     end
     it { is_expected.to validate_numericality_of(:order).is_greater_than_or_equal_to(1) }
     it { is_expected.to allow_value(nil).for(:imageinclude) }
