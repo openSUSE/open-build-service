@@ -25,7 +25,15 @@
                                                   revision: @revision,
                                                   project: @project,
                                                   package: @package }
-      = render partial: 'bottom_actions'
+      = render partial: 'bottom_actions', locals: { bugowners_mail: @bugowners_mail,
+                                                    configuration: @configuration,
+                                                    revision: @revision,
+                                                    current_rev: @current_rev,
+                                                    spec_count: @spec_count,
+                                                    cleanup_source: @cleanup_source,
+                                                    services: @services,
+                                                    project: @project,
+                                                    package: @package }
 .row
   .col-xl-4.order-xl-1
     = render partial: 'webui2/shared/buildresult_box', locals: { project: @project.name, package: @package.name }
