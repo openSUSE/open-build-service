@@ -1,0 +1,13 @@
+- @pagetitle = "Requests for #{@project}"
+
+.card
+  = render(partial: 'tabs', locals: { project: @project })
+
+  .card-body
+    %h3= @pagetitle
+
+    = render(partial: 'webui2/shared/requests_state_and_type_form',
+             locals: { selected_type: @default_request_type, selected_state: @default_request_state })
+
+    = render(partial: 'webui2/shared/requests_table',
+             locals: { id: 'all_requests_table', source_url: projects_requests_path(project: @project) })

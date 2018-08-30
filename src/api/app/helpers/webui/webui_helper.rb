@@ -363,7 +363,7 @@ module Webui::WebuiHelper
   end
 
   def tab_link(label, url)
-    html_class = 'nav-link'
+    html_class = 'nav-link text-nowrap'
     html_class << ' active' if current_page?(url)
 
     link_to(label, url, class: html_class)

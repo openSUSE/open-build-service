@@ -1,0 +1,35 @@
+.bg-light
+  %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
+    %li.nav-item
+      = tab_link('Overview', project_show_path(project))
+    - unless @spider_bot
+      - if project.is_maintenance?
+        %li.nav-item
+          = tab_link('Incidents', project_maintenance_incidents_path)
+        %li.nav-item
+          = tab_link('Maintained Projects', project_maintained_projects_path)
+      - unless project.defines_remote_instance? || project.is_maintenance?
+        %li.nav-item
+          = tab_link('Repositories', repositories_path)
+      %li.nav-item
+        = tab_link('Requests', project_requests_path)
+      - unless project.defines_remote_instance?
+        %li.nav-item
+          = tab_link('Users', project_users_path)
+      - unless project.defines_remote_instance? || project.is_maintenance?
+        %li.nav-item
+          = tab_link('Subprojects', project_subprojects_path(project))
+        %li.nav-item
+          = tab_link('Project Config', project_config_path)
+      %li.nav-item
+        = tab_link('Attributes', index_attribs_path(project))
+      %li.nav-item
+        = tab_link('Meta', project_meta_path)
+      - unless project.defines_remote_instance? || project.is_maintenance?
+        %li.nav-item
+          = tab_link('Status', project_status_path(project))
+      %li.nav-item
+        = tab_link('Pulse', project_pulse_path)
+    %li.nav-item.dropdown
+      %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', 'role': 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
+      .dropdown-menu.dropdown-menu-right
