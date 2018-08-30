@@ -16,9 +16,9 @@
           .form-group
             = label_tag(:targetproject, 'To target project:')
             = text_field_tag(:targetproject, target_project, disabled: params[:readonly], required: true, class: 'form-control',
-                             data: { autocomplete_url: url_for(controller: :project, action: :autocomplete_projects),
-                                     requests_url: url_for(controller: :request, action: :list_small),
-                                     develpackage_url: url_for(controller: :package, action: :devel_project) })
+                             data: { autocomplete_url: autocomplete_projects_path,
+                                     requests_url: request_list_small_path,
+                                     develpackage_url: package_devel_project_path })
             - if params[:readonly]
               = hidden_field_tag(:targetproject, target_project)
 
@@ -48,4 +48,5 @@
       .modal-footer
         = render partial: 'webui2/shared/dialog_action_buttons'
 
-= javascript_tag 'setupRequestDialog();'
+:javascript
+  setupRequestDialog();

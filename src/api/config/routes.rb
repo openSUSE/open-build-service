@@ -138,7 +138,7 @@ OBSApi::Application.routes.draw do
           post 'package/trigger_services/:project/:package' => :trigger_services, constraints: cons, as: 'package_trigger_services'
           delete 'package/wipe_binaries/:project/:package' => :wipe_binaries, constraints: cons
         end
-        get 'package/devel_project/:project/:package' => :devel_project, constraints: cons
+        get 'package/devel_project/:project/:package' => :devel_project, constraints: cons, as: 'package_devel_project'
         get 'package/buildresult' => :buildresult, constraints: cons, as: 'package_buildresult'
         get 'package/rpmlint_result' => :rpmlint_result, constraints: cons, as: 'rpmlint_result'
         get 'package/rpmlint_log' => :rpmlint_log, constraints: cons
@@ -327,7 +327,7 @@ OBSApi::Application.routes.draw do
       post 'request/sourcediff' => :sourcediff
       post 'request/changerequest' => :changerequest
       get 'request/diff/:number' => :diff
-      get 'request/list_small' => :list_small
+      get 'request/list_small' => :list_small, as: 'request_list_small'
       get 'request/delete_request_dialog' => :delete_request_dialog, as: 'request_delete_dialog'
       post 'request/delete_request/:project' => :delete_request, constraints: cons, as: 'delete_request'
       get 'request/add_role_request_dialog' => :add_role_request_dialog, as: 'request_add_role_dialog'

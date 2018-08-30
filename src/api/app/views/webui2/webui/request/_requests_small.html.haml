@@ -9,4 +9,6 @@
           = link_to(req.number, controller: :request, action: :show, number: req.number)
           by
           = user_with_realname_and_icon(req.creator, short: true)
-          (#{fuzzy_time(req.created_at)})
+          = surround '(', ')' do
+            %u{ title: l(req.created_at.utc) }
+              = time_ago_in_words(req.created_at)
