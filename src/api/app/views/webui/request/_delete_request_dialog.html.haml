@@ -1,0 +1,21 @@
+.dialog.darkgrey_box
+  .box.box-shadow
+    %h2.box-header Create Delete Request
+    .dialog-content
+      %p
+        Do you really want to request the deletion of #{project_or_package_link project: @project, package: @package}?
+      %p.smaller
+        = "You are about to send a request to the owner of the original #{ @package ? 'package' : 'project' }. Please describe your reasons to request the deletion of this #{ @package ? 'package' : 'project' }. The owner will be notified with the following details."
+
+      = form_tag({ action: :delete_request, project: @project }, method: :post) do
+        = hidden_field_tag(:package, @package) if defined? @package
+        %p
+          - if defined? @package
+            = label_tag(:target_project, 'In target project:')
+            %br/
+            = text_field_tag(:target_project, @project, size: 40, disabled: true)
+            %br/
+          = label_tag(:description, 'Please explain why:')
+          %br/
+          = text_area_tag(:description, '', size: '40x3', required: true)
+        = render partial: '/webui/shared/dialog_action_buttons'
