@@ -1,4 +1,5 @@
 class SourceProjectController < SourceController
+  rescue_from Pundit::NotAuthorizedError, with: :handle_pundit_not_authorized
   # GET /source/:project
   def show
     project_name = params[:project]
@@ -52,15 +53,14 @@ class SourceProjectController < SourceController
 
   # DELETE /source/:project
   def delete
-    project = Project.get_by_name(params[:project])
-
-    # checks
-    unless project.is_a?(Project) && User.current.can_modify?(project)
-      logger.debug "No permission to delete project #{project}"
-      render_error status: 403, errorcode: 'delete_project_no_permission',
-                   message: "Permission denied (delete project #{project})"
-      return
+    begin
+      project = Project.get_by_name(params[:project])
+    rescue UnknownObjectError, ReadAccessError
+      raise Pundit::NotAuthorizedError
     end
+    # checks
+    authorize(project, :local_project_and_allowed_to_modify?, policy_class: ProjectPolicy)
+
     project.check_weak_dependencies!
     opts = { no_write_to_backend: true,
              force:               params[:force].present?,
@@ -116,5 +116,10 @@ class SourceProjectController < SourceController
     else
       raise CmdExecutionNoPermission, "no permission to execute command '#{command}'"
     end
+  end
+
+  def handle_pundit_not_authorized(exception)
+    render_error status: 403, errorcode: 'delete_project_no_permission',
+                 message: "Permission denied (delete project #{exception.record})"
   end
 end

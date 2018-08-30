@@ -32,6 +32,14 @@ class ProjectPolicy < ApplicationPolicy
     @user.can_create_package_in?(@record)
   end
 
+  def can_modify?
+    @user.can_modify?(@record)
+  end
+
+  def local_project_and_allowed_to_modify?
+    local? && can_modify?
+  end
+
   def local_project_and_allowed_to_create_package_in?
     local? && can_create_package_in?
   end
