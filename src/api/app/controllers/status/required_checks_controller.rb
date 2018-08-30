@@ -60,8 +60,8 @@ class Status::RequiredChecksController < ApplicationController
   private
 
   def set_checkable
-    @project = Project.get_by_name(params[:project_name])
     if params[:repository_name]
+      @project = Project.get_by_name(params[:project_name])
       @checkable = @project.repositories.find_by(name: params[:repository_name])
       return if @checkable
 
