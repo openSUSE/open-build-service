@@ -25,6 +25,7 @@
 //= require webui2/requests_table.js
 
 // FIXME refactor these files
+//= require webui2/autocomplete.js
 //= require webui2/comment.js
 //= require webui2/request.js
 //= require webui2/buildresult.js

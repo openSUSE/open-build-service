@@ -237,7 +237,7 @@ OBSApi::Application.routes.draw do
       get 'project/list_public' => :index
       get 'project/list_all' => :index, show_all: true
       get 'project/list' => :index
-      get 'project/autocomplete_projects' => :autocomplete_projects
+      get 'project/autocomplete_projects' => :autocomplete_projects, as: 'autocomplete_projects'
       get 'project/autocomplete_incidents' => :autocomplete_incidents
       get 'project/autocomplete_packages' => :autocomplete_packages
       get 'project/autocomplete_repositories' => :autocomplete_repositories
