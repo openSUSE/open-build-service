@@ -1795,15 +1795,21 @@ XmlResult: newest_stats
 <limit>: limit count of messages. optional, defaults to unlimited.
 
 
-GET /status_message/?limit=<limit>
+GET /status/message/<id>
+  Get a the status message that matches <id>.
+XmlResult: status_message
+
+GET /status/message/?limit=<limit>
   Get a list of status messages.
 XmlResult: status_messages
 
-
-PUT /status_message/
+POST /status/message/
   Send a new status message to the build service. User needs to have
   appropriate permissions.
 XmlResult: status_message
+
+DELETE /status/message/<id>
+  Delete a status message. User needs to have appropriate permissions.
 
 
 == Messages (for projects/packages)
