@@ -40,16 +40,16 @@ http_interactions:
           <person userid="package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:47 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:07 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=package_test_user
+    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>In Dubious Battle</title>
-          <description>Alias nulla dignissimos deserunt enim accusamus.</description>
+          <title>Now Sleeps the Crimson Petal</title>
+          <description>Delectus nobis consectetur repellat.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '187'
+      - '186'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>In Dubious Battle</title>
-          <description>Alias nulla dignissimos deserunt enim accusamus.</description>
+          <title>Now Sleeps the Crimson Petal</title>
+          <description>Delectus nobis consectetur repellat.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:47 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:07 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:package_test_user/test_package/_meta
+    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>In Dubious Battle</title>
-          <description>Alias nulla dignissimos deserunt enim accusamus.</description>
+          <title>Now Sleeps the Crimson Petal</title>
+          <description>Delectus nobis consectetur repellat.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,23 +109,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '187'
+      - '186'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>In Dubious Battle</title>
-          <description>Alias nulla dignissimos deserunt enim accusamus.</description>
+          <title>Now Sleeps the Crimson Petal</title>
+          <description>Delectus nobis consectetur repellat.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:48 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_config
     body:
       encoding: UTF-8
-      string: Ex provident velit dignissimos. Expedita velit est. Quidem qui laboriosam
-        iste.
+      string: Eos dolor voluptate. Autem ea est. Corrupti amet mollitia.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -149,24 +148,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="24" vrev="24">
-          <srcmd5>6971a68e85941fe035670cab7224fa2b</srcmd5>
+        <revision rev="19" vrev="19">
+          <srcmd5>63f2a65bd55a2120f8a110e7a7b5d00f</srcmd5>
           <version>unknown</version>
-          <time>1516111308</time>
+          <time>1535646787</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:48 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Officia quia repellendus quis. Velit ullam et. Praesentium dolorem quos
-        quae dolorum illum libero sit. Culpa officia autem voluptatem assumenda. Officiis
-        repudiandae et in.
+      string: Eum non voluptas. Et ea quia. Numquam laborum illo.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -190,16 +187,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="25" vrev="25">
-          <srcmd5>6971a68e85941fe035670cab7224fa2b</srcmd5>
+        <revision rev="20" vrev="20">
+          <srcmd5>43283773b646e89be77be04205743e0f</srcmd5>
           <version>unknown</version>
-          <time>1516111308</time>
+          <time>1535646787</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:48 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/_meta?user=other_package_test_user
@@ -240,16 +237,16 @@ http_interactions:
           <person userid="other_package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:48 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:07 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=package_test_user
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>The Stars' Tennis Balls</title>
-          <description>Est dolorem corrupti veniam sed.</description>
+          <title>Absalom, Absalom!</title>
+          <description>Nam dicta enim et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -270,25 +267,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '190'
+      - '170'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>The Stars' Tennis Balls</title>
-          <description>Est dolorem corrupti veniam sed.</description>
+          <title>Absalom, Absalom!</title>
+          <description>Nam dicta enim et.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:48 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:07 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>The Stars' Tennis Balls</title>
-          <description>Est dolorem corrupti veniam sed.</description>
+          <title>Absalom, Absalom!</title>
+          <description>Nam dicta enim et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -309,24 +306,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '190'
+      - '170'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>The Stars' Tennis Balls</title>
-          <description>Est dolorem corrupti veniam sed.</description>
+          <title>Absalom, Absalom!</title>
+          <description>Nam dicta enim et.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:48 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_config
     body:
       encoding: UTF-8
-      string: Nesciunt ducimus fugit et et qui mollitia. Asperiores quibusdam et.
-        Adipisci vero dolor cumque ut eos. Eos ut ipsa unde earum ut quis. Itaque
-        natus beatae perferendis facilis.
+      string: Doloremque quia saepe. Voluptas ducimus repellendus. Rerum cum eos.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -350,24 +345,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="11" vrev="11">
-          <srcmd5>036a47ea8b014dc89ec1544921b9ad4c</srcmd5>
+        <revision rev="41" vrev="41">
+          <srcmd5>130d7dbc28a5f166f805df562adee048</srcmd5>
           <version>unknown</version>
-          <time>1516111308</time>
+          <time>1535646787</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:48 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Officia quia repellendus quis. Velit ullam et. Praesentium dolorem quos
-        quae dolorum illum libero sit. Culpa officia autem voluptatem assumenda. Officiis
-        repudiandae et in.
+      string: Voluptates voluptatem est. Ratione eos quisquam. Corporis vel alias.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -391,16 +384,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="12" vrev="12">
-          <srcmd5>036a47ea8b014dc89ec1544921b9ad4c</srcmd5>
+        <revision rev="42" vrev="42">
+          <srcmd5>4c58d0577592a3d98b5a526d5b7ea1e5</srcmd5>
           <version>unknown</version>
-          <time>1516111308</time>
+          <time>1535646787</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:48 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:07 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/package_test_repository/x86_64/test_package/_jobstatus
@@ -435,7 +428,7 @@ http_interactions:
           <details>404 project 'home:package_test_user' has no repository 'package_test_repository'</details>
         </status>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:48 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:09 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/package_test_repository/x86_64/test_package/_log?view=entry
@@ -470,42 +463,7 @@ http_interactions:
           <details>404 project 'home:package_test_user' has no repository 'package_test_repository'</details>
         </status>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:49 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/home:package_test_user/package_test_repository/x86_64/test_package/_log?end=65536&nostream=1&start=0
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' has no repository 'package_test_repository'
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '230'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' has no repository 'package_test_repository'</summary>
-          <details>404 project 'home:package_test_user' has no repository 'package_test_repository'</details>
-        </status>
-    http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:49 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:09 GMT
 - request:
     method: post
     uri: http://backend:5352/build/home:package_test_user?arch=x86_64&cmd=rebuild&package=test_package&repository=package_test_repository
@@ -541,7 +499,7 @@ http_interactions:
           <summary>no repository defined</summary>
         </status>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:49 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:09 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/_result?package=test_package&repository=package_test_repository&view=status
@@ -578,5 +536,5 @@ http_interactions:
           <details>404 unknown repository 'package_test_repository'</details>
         </status>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:49 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:09 GMT
 recorded_with: VCR 4.0.0

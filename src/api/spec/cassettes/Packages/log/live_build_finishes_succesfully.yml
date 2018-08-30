@@ -40,7 +40,7 @@ http_interactions:
           <person userid="package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 15 Mar 2018 12:37:27 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=_nobody_
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>Unweaving the Rainbow</title>
-          <description>Rem nobis consequatur laudantium aut.</description>
+          <title>O Jerusalem!</title>
+          <description>Non ab nihil magnam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '180'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>Unweaving the Rainbow</title>
-          <description>Rem nobis consequatur laudantium aut.</description>
+          <title>O Jerusalem!</title>
+          <description>Non ab nihil magnam.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 15 Mar 2018 12:37:28 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:13 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:package_test_user/test_package/_meta
+    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>Unweaving the Rainbow</title>
-          <description>Rem nobis consequatur laudantium aut.</description>
+          <title>O Jerusalem!</title>
+          <description>Non ab nihil magnam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,23 +109,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '180'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>Unweaving the Rainbow</title>
-          <description>Rem nobis consequatur laudantium aut.</description>
+          <title>O Jerusalem!</title>
+          <description>Non ab nihil magnam.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 15 Mar 2018 12:37:28 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_config
     body:
       encoding: UTF-8
-      string: Enim eaque qui. Non laborum necessitatibus excepturi recusandae itaque
-        eos quia. Ut dicta omnis aliquam. Temporibus vitae nobis exercitationem.
+      string: Quo maiores eius. Sit eos occaecati. Veritatis earum aut.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -145,27 +144,27 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5" vrev="5">
-          <srcmd5>2ee1e9d3b94891b5f00c5035082bdc70</srcmd5>
+        <revision rev="23" vrev="23">
+          <srcmd5>8b744c0bc687e9c74c52421ab05fc424</srcmd5>
           <version>unknown</version>
-          <time>1521117448</time>
+          <time>1535646853</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 15 Mar 2018 12:37:28 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Quia eum hic dolore qui tempore. Quos vel voluptate beatae aut qui earum
-        illo. Et nulla maxime cumque. Aut libero accusantium enim.
+      string: Dolorum voluptate voluptatem. Maiores rerum velit. Occaecati voluptatibus
+        magnam.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,20 +184,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6" vrev="6">
-          <srcmd5>55059587a3a5d10a7f359dcdb8432246</srcmd5>
+        <revision rev="24" vrev="24">
+          <srcmd5>76cb54c0dd538818dff3d8df15848ee6</srcmd5>
           <version>unknown</version>
-          <time>1521117448</time>
+          <time>1535646853</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 15 Mar 2018 12:37:28 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/_meta?user=other_package_test_user
@@ -239,7 +238,7 @@ http_interactions:
           <person userid="other_package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 15 Mar 2018 12:37:28 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=_nobody_
@@ -247,8 +246,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>By Grand Central Station I Sat Down and Wept</title>
-          <description>Ut sint consectetur consequatur.</description>
+          <title>Some Buried Caesar</title>
+          <description>Voluptatem minus velit minima.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -269,25 +268,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '183'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>By Grand Central Station I Sat Down and Wept</title>
-          <description>Ut sint consectetur consequatur.</description>
+          <title>Some Buried Caesar</title>
+          <description>Voluptatem minus velit minima.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 15 Mar 2018 12:37:28 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:14 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>By Grand Central Station I Sat Down and Wept</title>
-          <description>Ut sint consectetur consequatur.</description>
+          <title>Some Buried Caesar</title>
+          <description>Voluptatem minus velit minima.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -308,24 +307,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '183'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>By Grand Central Station I Sat Down and Wept</title>
-          <description>Ut sint consectetur consequatur.</description>
+          <title>Some Buried Caesar</title>
+          <description>Voluptatem minus velit minima.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 15 Mar 2018 12:37:28 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_config
     body:
       encoding: UTF-8
-      string: Ullam odio consequatur culpa voluptates commodi. Odit asperiores dolor
-        officiis. Occaecati temporibus fugit corrupti voluptas. Est dolor non corporis
-        cumque quas omnis. Tempora natus molestiae fuga laboriosam.
+      string: Voluptatem ex repudiandae. Tenetur est dolores. Asperiores doloremque
+        tenetur.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -345,27 +343,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5" vrev="5">
-          <srcmd5>e957c20cac6132012f623a4e058cbdec</srcmd5>
+        <revision rev="45" vrev="45">
+          <srcmd5>3c0886c4a4315f62b0d9de933d5fb269</srcmd5>
           <version>unknown</version>
-          <time>1521117448</time>
+          <time>1535646854</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 15 Mar 2018 12:37:28 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Quia eum hic dolore qui tempore. Quos vel voluptate beatae aut qui earum
-        illo. Et nulla maxime cumque. Aut libero accusantium enim.
+      string: Dolor laudantium labore. Quis quam est. Perspiciatis quam quas.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -385,20 +382,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6" vrev="6">
-          <srcmd5>820627a68ef273bd0a8589e5e23ea6c2</srcmd5>
+        <revision rev="46" vrev="46">
+          <srcmd5>366749f391edb1c1ccd6c7e194a2b7b1</srcmd5>
           <version>unknown</version>
-          <time>1521117448</time>
+          <time>1535646854</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 15 Mar 2018 12:37:28 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:14 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/package_test_repository/i586/test_package/_jobstatus
@@ -433,5 +430,5 @@ http_interactions:
           <details>404 project 'home:package_test_user' has no repository 'package_test_repository'</details>
         </status>
     http_version: 
-  recorded_at: Thu, 15 Mar 2018 12:37:31 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:15 GMT
 recorded_with: VCR 4.0.0
