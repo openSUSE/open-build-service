@@ -66,6 +66,11 @@ RSpec.describe StatusMessagesController, type: :controller do
       subject! { post :create, body: request_xml, format: :xml }
 
       it { is_expected.to have_http_status(:success) }
+      it 'responds with the created message' do
+        assert_select 'status_messages' do
+          assert_select 'message', 'New message was sent!'
+        end
+      end
       it { expect(StatusMessage.last.message).to eq('New message was sent!') }
     end
   end
