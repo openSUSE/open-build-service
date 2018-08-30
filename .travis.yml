@@ -30,11 +30,5 @@ matrix:
         - tmp/rubocop_cache
     before_install: ''
     before_script: ''
-notifications:
-  irc:
-     channels:
-       - "chat.freenode.net#opensuse-buildservice"
-     on_success: change
-     on_failure: change
 services:
   - memcached
