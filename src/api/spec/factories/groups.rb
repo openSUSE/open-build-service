@@ -5,7 +5,7 @@ FactoryBot.define do
 
     factory :group_with_user do
       after(:create) do |group|
-        group.groups_users.create(user: create(:user))
+        group.groups_users.create(user: create(:confirmed_user))
       end
     end
   end
