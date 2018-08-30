@@ -2,7 +2,6 @@
   @pagetitle = "Show #{@project} / #{@package}"
   @layouttype = 'custom'
   devel_package = @package.develpackage
-  package_bread_crumb
 
 .card.mb-3
   = render partial: 'tabs', locals: { project: @project, package: @package }
@@ -41,7 +40,6 @@
     .card.mb-3
       %h5.card-header
         Source Files
-        = image_tag('ajax-loader.gif', id: 'spinner_files', style: 'display: none')
         - if @linkinfo && @revision_parameter.nil?
           %small
             - if @expand && @expand.to_s == '1' || @forced_unexpand.present?
