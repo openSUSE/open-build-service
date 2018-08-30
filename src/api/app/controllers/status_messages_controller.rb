@@ -27,13 +27,13 @@ class StatusMessagesController < ApplicationController
     if new_messages.has_element?('message')
       # message(s) are wrapped in outer xml tag 'status_messages'
       new_messages.each('message') do |msg|
-        save_new_message(msg)
+        StatusMessage.create!(message: msg.to_s, severity: msg.value(:severity), user: User.current)
       end
     else
       # TODO: make use of a validator
       raise CreatingMessagesError, "no message #{new_messages.dump_xml}" if new_messages.element_name != 'message'
       # just one message, NOT wrapped in outer xml tag 'status_messages'
-      save_new_message(new_messages)
+      StatusMessage.create!(message: new_messages.to_s, severity: new_messages.value(:severity), user: User.current)
     end
     render_ok
   end
@@ -46,15 +46,5 @@ class StatusMessagesController < ApplicationController
 
     StatusMessage.find(params[:id]).delete
     render_ok
-  end
-
-  private
-
-  def save_new_message(msg)
-    message = StatusMessage.new
-    message.message = msg.to_s
-    message.severity = msg.value :severity
-    message.user = User.current
-    message.save!
   end
 end
