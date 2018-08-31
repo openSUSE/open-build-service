@@ -1337,11 +1337,10 @@ class Package < ApplicationRecord
       raise PutFileNoPermission, "Insufficient permissions to store file in package #{name}, project #{project.name}"
     end
 
-    put_opt = {}
-    put_opt[:comment] = opt[:comment] if opt[:comment]
-    put_opt[:user] = User.current.login
-    path = source_path(opt[:filename], put_opt)
-    ActiveXML.backend.http_do :put, path, data: content, timeout: 500
+    params = {}
+    params[:comment] = opt[:comment] if opt[:comment]
+    params[:user] = User.current.login
+    Backend::Api::Sources::Package.write_file(project.name, name, opt[:filename], content, params)
 
     # KIWI file
     if /\.kiwi\.txz$/.match?(opt[:filename])

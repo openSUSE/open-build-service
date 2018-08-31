@@ -154,7 +154,6 @@ Style/MethodCallWithArgsParentheses:
     - head
     - headers
     - hook_into
-    - http_do
     - ignore_hosts
     - include
     - index

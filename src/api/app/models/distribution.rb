@@ -41,7 +41,7 @@ class Distribution < ApplicationRecord
     Project.remote.each do |prj|
       body = Rails.cache.fetch("remote_distribution_#{prj.id}", expires_in: 1.hour) do
         begin
-          ActiveXML.backend.load_external_url(prj.remoteurl + '/distributions.xml')
+          ActiveXML::Transport.load_external_url(prj.remoteurl + '/distributions.xml')
         rescue OpenSSL::SSL::SSLError
           # skip, but do not die if remote instance have invalid SSL
           Rails.logger.error "Remote instance #{prj.remoteurl} has no valid SSL certificate"
