@@ -1197,4 +1197,13 @@ class SourceController < ApplicationController
                                         rdata_field,
                                         object)
   end
+
+  def user_not_authorized(exception)
+    policy_name = exception.policy.class.to_s.underscore == :package_policy ? :package : :project
+    pundit_action_name = pundit_action(exception.try(:query).to_s)
+
+    render_error status: 403,
+                 errorcode: "#{pundit_action_name}_#{policy_name}_not_authorized",
+                 message: "You are not authorized to #{pundit_action_name} this #{policy_name}"
+  end
 end

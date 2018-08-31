@@ -385,7 +385,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     login_king
     delete '/source/RemoteInstance:BaseDistro2.0'
     assert_response 403
-    assert_xml_tag tag: 'status', attributes: { code: 'delete_project_no_permission' }
+    assert_xml_tag tag: 'status', attributes: { code: 'delete_project_not_authorized' }
     delete '/source/RemoteInstance:BaseDistro2.0/pack2'
     assert_response 403
     assert_xml_tag tag: 'status', attributes: { code: 'delete_package_no_permission' }
