@@ -29,7 +29,7 @@ RSpec.describe Webui::DownloadOnDemandController do
 
   it 'uses strong parameters' do
     login(admin_user)
-    is_expected.to permit(:arch, :repotype, :url, :repository_id, :archfilter, :masterurl, :mastersslfingerprint, :pubkey).
+    expect(subject).to permit(:arch, :repotype, :url, :repository_id, :archfilter, :masterurl, :mastersslfingerprint, :pubkey).
       for(:create, params: { params: dod_parameters }).on(:download_repository)
   end
 

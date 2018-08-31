@@ -24,7 +24,7 @@ RSpec.describe UpdatePackagesIfDirtyJob, type: :job, vcr: true do
       subject { UpdatePackagesIfDirtyJob.new.perform(123) }
 
       it 'returns nil' do
-        is_expected.to be_nil
+        expect(subject).to be_nil
       end
     end
   end

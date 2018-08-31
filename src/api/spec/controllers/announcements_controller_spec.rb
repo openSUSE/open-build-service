@@ -18,7 +18,7 @@ RSpec.describe AnnouncementsController, type: :controller do
       subject! { get :index, format: :xml }
 
       it 'returns a success response' do
-        is_expected.to have_http_status(:success)
+        expect(subject).to have_http_status(:success)
       end
 
       it 'returns all announcements' do
@@ -38,7 +38,7 @@ RSpec.describe AnnouncementsController, type: :controller do
       subject! { get :index, format: :xml }
 
       it 'returns a success response' do
-        is_expected.to have_http_status(:success)
+        expect(subject).to have_http_status(:success)
       end
 
       it 'returns an empty announcements xml' do
@@ -110,7 +110,7 @@ RSpec.describe AnnouncementsController, type: :controller do
       subject! { post :create, params: { id: announcement }, body: invalid_announcement_xml, format: :xml }
 
       it 'returns a with an error' do
-        is_expected.to have_http_status(:bad_request)
+        expect(subject).to have_http_status(:bad_request)
         assert_select 'status[code=invalid_announcement]' do
           assert_select 'summary', "[\"Content can't be blank\"]"
         end
@@ -137,7 +137,7 @@ RSpec.describe AnnouncementsController, type: :controller do
 
       it 'updates the requested announcement' do
         expect(announcement.reload.title).to eq('Changed title')
-        is_expected.to have_http_status(:success)
+        expect(subject).to have_http_status(:success)
       end
     end
 
@@ -145,7 +145,7 @@ RSpec.describe AnnouncementsController, type: :controller do
       subject! { put :update, params: { id: announcement }, body: invalid_announcement_xml, format: :xml }
 
       it 'returns an error' do
-        is_expected.to have_http_status(:bad_request)
+        expect(subject).to have_http_status(:bad_request)
         assert_select 'status[code=invalid_announcement]' do
           assert_select 'summary', "[\"Title can't be blank\"]"
         end
