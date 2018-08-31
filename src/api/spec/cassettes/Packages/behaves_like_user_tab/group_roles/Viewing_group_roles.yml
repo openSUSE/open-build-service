@@ -40,7 +40,7 @@ http_interactions:
           <person userid="package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:21 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:03 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user_tab_user/_meta?user=user_tab_user
@@ -81,16 +81,16 @@ http_interactions:
           <person userid="user_tab_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:21 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:03 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_tab_user
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>Mr Standfast</title>
-          <description>Dolorem aut eos accusamus voluptatibus quaerat accusantium sed amet.</description>
+          <title>Of Mice and Men</title>
+          <description>Magnam ea dolores sit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -111,25 +111,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '204'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>Mr Standfast</title>
-          <description>Dolorem aut eos accusamus voluptatibus quaerat accusantium sed amet.</description>
+          <title>Of Mice and Men</title>
+          <description>Magnam ea dolores sit.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:21 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:03 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>Mr Standfast</title>
-          <description>Dolorem aut eos accusamus voluptatibus quaerat accusantium sed amet.</description>
+          <title>Of Mice and Men</title>
+          <description>Magnam ea dolores sit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -150,16 +150,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '204'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>Mr Standfast</title>
-          <description>Dolorem aut eos accusamus voluptatibus quaerat accusantium sed amet.</description>
+          <title>Of Mice and Men</title>
+          <description>Magnam ea dolores sit.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:21 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:03 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/_meta?user=other_user
@@ -200,16 +200,16 @@ http_interactions:
           <person userid="other_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:21 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:03 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=user_tab_user
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>Endless Night</title>
-          <description>Delectus quis fugiat atque sed placeat repudiandae eius.</description>
+          <title>No Country for Old Men</title>
+          <description>Quo harum autem vel.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -230,25 +230,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '191'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>Endless Night</title>
-          <description>Delectus quis fugiat atque sed placeat repudiandae eius.</description>
+          <title>No Country for Old Men</title>
+          <description>Quo harum autem vel.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:21 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:03 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>Endless Night</title>
-          <description>Delectus quis fugiat atque sed placeat repudiandae eius.</description>
+          <title>No Country for Old Men</title>
+          <description>Quo harum autem vel.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -269,24 +269,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '191'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>Endless Night</title>
-          <description>Delectus quis fugiat atque sed placeat repudiandae eius.</description>
+          <title>No Country for Old Men</title>
+          <description>Quo harum autem vel.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:21 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:03 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/branch_test_package/_config
     body:
       encoding: UTF-8
-      string: Pariatur perferendis at provident. Quibusdam dolore aliquam doloribus
-        aperiam. Sit ex et. Fugiat laboriosam cupiditate aut iusto qui tempore eum.
-        Explicabo minus veritatis.
+      string: Est necessitatibus eius. Quasi ea architecto. Odio voluptatem dicta.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -310,24 +308,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="23" vrev="23">
-          <srcmd5>130fa0f79cf2c90949cbde2e2f56c290</srcmd5>
+        <revision rev="35" vrev="35">
+          <srcmd5>c12ce0ede8de6dcb0608b87953595575</srcmd5>
           <version>unknown</version>
-          <time>1516111281</time>
+          <time>1535646843</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:21 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:03 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Officia quia repellendus quis. Velit ullam et. Praesentium dolorem quos
-        quae dolorum illum libero sit. Culpa officia autem voluptatem assumenda. Officiis
-        repudiandae et in.
+      string: Vitae reiciendis hic. Incidunt alias voluptatum. Nisi fugiat laudantium.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -351,50 +347,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="24" vrev="24">
-          <srcmd5>130fa0f79cf2c90949cbde2e2f56c290</srcmd5>
+        <revision rev="36" vrev="36">
+          <srcmd5>8283a84d1a690ecec90f79d66ed6f829</srcmd5>
           <version>unknown</version>
-          <time>1516111281</time>
+          <time>1535646843</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:21 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package?nofilename=1&view=info&withchangesmd5=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '156'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourceinfo package="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
-          <revtime/>
-        </sourceinfo>
-    http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:22 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:03 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -427,78 +389,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:22 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '314'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourcediff key="04429e5eb3523e7cb3e15ee88d1605d6">
-          <old project="home:user_tab_user" package="group_test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:user_tab_user" package="group_test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <files />
-        </sourcediff>
-    http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:22 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '93'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-    http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:22 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:05 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package?expand=1
@@ -531,42 +422,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:22 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '93'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-    http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:22 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:05 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package/_service
@@ -574,10 +430,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -603,7 +457,7 @@ http_interactions:
           <details>404 _service: no such file</details>
         </status>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:22 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:05 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -636,7 +490,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:22 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:05 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -669,7 +523,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:22 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:05 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:user_tab_user/_result?package=group_test_package&view=status
@@ -704,40 +558,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 03 Jan 2018 13:15:39 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package?view=info
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home user_tab_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '164'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:user_tab_user' does not exist</summary>
-          <details>404 project 'home:user_tab_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:11:50 GMT
+  recorded_at: Thu, 30 Aug 2018 16:34:05 GMT
 recorded_with: VCR 4.0.0
