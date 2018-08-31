@@ -89,7 +89,11 @@ class SourceProjectController < SourceController
                       'createkey', 'extendkey', 'copy', 'createmaintenanceincident', 'lock',
                       'unlock', 'release', 'addchannels', 'modifychannels', 'move', 'freezelink']
 
-    if params[:cmd] && !params[:cmd].in?(valid_commands)
+    unless params.key?(:cmd)
+      raise IllegalRequest, 'missing_command'
+    end
+
+    unless valid_commands.include?(params[:cmd])
       raise IllegalRequest, 'invalid_command'
     end
 
