@@ -119,7 +119,8 @@ class BsRequestActionSubmit < BsRequestAction
     source_package = Package.get_by_project_and_name!(source_project,
                                                       self.source_package,
                                                       opts)
-    return if User.current.can_modify?(source_package)
+    creator_user = User.find_by_login(bs_request.creator)
+    return if creator_user && creator_user.can_modify?(source_package)
     msg = 'No permission to initialize the source package as a devel package'
     raise PostRequestNoPermission, msg
   end
