@@ -7,7 +7,7 @@ module Statistics
       if @project.is_a?(String)
         # FIXME: This could be simplified by redirecting to the remote instead
         remote_instance, remote_project = Project.find_remote_project(@project)
-        remote_response = Project::RemoteURL.load(remote_instance.remoteurl, maintenance_statistics_path(project: remote_project))
+        remote_response = Project::RemoteURL.load(remote_instance, maintenance_statistics_path(project: remote_project))
         if remote_response
           render xml: remote_response
         else
