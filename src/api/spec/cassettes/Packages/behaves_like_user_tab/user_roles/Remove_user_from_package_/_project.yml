@@ -40,7 +40,7 @@ http_interactions:
           <person userid="package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:38 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user_tab_user/_meta?user=user_tab_user
@@ -81,16 +81,16 @@ http_interactions:
           <person userid="user_tab_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:38 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:11 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_tab_user
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>If Not Now, When?</title>
-          <description>Velit ut aut temporibus rerum reprehenderit et.</description>
+          <title>The Grapes of Wrath</title>
+          <description>Delectus architecto praesentium maxime.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -111,25 +111,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '188'
+      - '182'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>If Not Now, When?</title>
-          <description>Velit ut aut temporibus rerum reprehenderit et.</description>
+          <title>The Grapes of Wrath</title>
+          <description>Delectus architecto praesentium maxime.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:38 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:11 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>If Not Now, When?</title>
-          <description>Velit ut aut temporibus rerum reprehenderit et.</description>
+          <title>The Grapes of Wrath</title>
+          <description>Delectus architecto praesentium maxime.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -150,16 +150,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '188'
+      - '182'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>If Not Now, When?</title>
-          <description>Velit ut aut temporibus rerum reprehenderit et.</description>
+          <title>The Grapes of Wrath</title>
+          <description>Delectus architecto praesentium maxime.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:38 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/_meta?user=other_user
@@ -200,16 +200,16 @@ http_interactions:
           <person userid="other_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:38 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:11 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=user_tab_user
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>The Moving Toyshop</title>
-          <description>Est magni at rem fuga.</description>
+          <title>The Little Foxes</title>
+          <description>Doloribus adipisci iste quidem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -230,25 +230,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>The Moving Toyshop</title>
-          <description>Est magni at rem fuga.</description>
+          <title>The Little Foxes</title>
+          <description>Doloribus adipisci iste quidem.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:38 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:11 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>The Moving Toyshop</title>
-          <description>Est magni at rem fuga.</description>
+          <title>The Little Foxes</title>
+          <description>Doloribus adipisci iste quidem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -269,23 +269,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>The Moving Toyshop</title>
-          <description>Est magni at rem fuga.</description>
+          <title>The Little Foxes</title>
+          <description>Doloribus adipisci iste quidem.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:38 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/branch_test_package/_config
     body:
       encoding: UTF-8
-      string: Est suscipit sed sunt cupiditate nihil quam. Dolores molestias id hic
-        sed. Sapiente ratione omnis velit ea nostrum doloremque.
+      string: Amet doloremque id. Perspiciatis modi iste. Deleniti qui itaque.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -309,24 +308,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="33" vrev="33">
-          <srcmd5>5d1a1744e6e794bdf07c83ab2ed4717a</srcmd5>
+        <revision rev="19" vrev="19">
+          <srcmd5>8b9936993ff8c7ff34c88460bd51e889</srcmd5>
           <version>unknown</version>
-          <time>1516111298</time>
+          <time>1535646791</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:38 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Officia quia repellendus quis. Velit ullam et. Praesentium dolorem quos
-        quae dolorum illum libero sit. Culpa officia autem voluptatem assumenda. Officiis
-        repudiandae et in.
+      string: Accusamus ut consequatur. Iusto minima similique. Velit impedit molestiae.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -350,16 +347,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="34" vrev="34">
-          <srcmd5>5d1a1744e6e794bdf07c83ab2ed4717a</srcmd5>
+        <revision rev="20" vrev="20">
+          <srcmd5>ce0e4abcf4378fb18c0e990de38bba65</srcmd5>
           <version>unknown</version>
-          <time>1516111298</time>
+          <time>1535646791</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:38 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:reader_user/_meta?user=reader_user
@@ -400,41 +397,7 @@ http_interactions:
           <person userid="reader_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:38 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package?nofilename=1&view=info&withchangesmd5=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '156'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourceinfo package="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
-          <revtime/>
-        </sourceinfo>
-    http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:39 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:11 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -467,78 +430,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:39 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '314'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourcediff key="04429e5eb3523e7cb3e15ee88d1605d6">
-          <old project="home:user_tab_user" package="group_test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:user_tab_user" package="group_test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <files />
-        </sourcediff>
-    http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:39 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '93'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-    http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:39 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package?expand=1
@@ -571,42 +463,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:39 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '93'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-    http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:39 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package/_service
@@ -614,10 +471,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -643,7 +498,7 @@ http_interactions:
           <details>404 _service: no such file</details>
         </status>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:39 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -676,7 +531,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:39 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -709,7 +564,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:39 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:13 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:user_tab_user/_result?package=group_test_package&view=status
@@ -744,7 +599,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:39 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_tab_user
@@ -752,8 +607,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>If Not Now, When?</title>
-          <description>Velit ut aut temporibus rerum reprehenderit et.</description>
+          <title>The Grapes of Wrath</title>
+          <description>Delectus architecto praesentium maxime.</description>
           <person userid="user_tab_user" role="bugowner"/>
           <person userid="user_tab_user" role="maintainer"/>
         </package>
@@ -776,18 +631,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '294'
+      - '288'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>If Not Now, When?</title>
-          <description>Velit ut aut temporibus rerum reprehenderit et.</description>
+          <title>The Grapes of Wrath</title>
+          <description>Delectus architecto praesentium maxime.</description>
           <person userid="user_tab_user" role="bugowner" />
           <person userid="user_tab_user" role="maintainer" />
         </package>
     http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:01:39 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:15 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_tab_user
@@ -795,8 +650,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>If Not Now, When?</title>
-          <description>Velit ut aut temporibus rerum reprehenderit et.</description>
+          <title>The Grapes of Wrath</title>
+          <description>Delectus architecto praesentium maxime.</description>
           <person userid="user_tab_user" role="bugowner"/>
           <person userid="user_tab_user" role="maintainer"/>
         </package>
@@ -819,51 +674,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '294'
+      - '288'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>If Not Now, When?</title>
-          <description>Velit ut aut temporibus rerum reprehenderit et.</description>
+          <title>The Grapes of Wrath</title>
+          <description>Delectus architecto praesentium maxime.</description>
           <person userid="user_tab_user" role="bugowner" />
           <person userid="user_tab_user" role="maintainer" />
         </package>
     http_version: 
-  recorded_at: Wed, 03 Jan 2018 13:16:53 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package?view=info
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home user_tab_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '164'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:user_tab_user' does not exist</summary>
-          <details>404 project 'home:user_tab_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:11:28 GMT
+  recorded_at: Thu, 30 Aug 2018 16:33:15 GMT
 recorded_with: VCR 4.0.0

@@ -101,6 +101,13 @@ Intentional changes:
    documented and was removed now. '/_attribute' will return all attributes, while
    '/_attribute/:attribute' keeps returning only the given attribute (as documented)
 
+ * Public routes for status messages have been dropped. Dropped routes:
+   - GET 'public/status/delete_message'
+   - GET 'public/status/list_messages'
+   - GET 'public/status/show_message'
+   - GET 'public/status/update_messages'
+   - GET 'public/status/save_new_message'
+   - GET 'public/status/delete_message'
 
 Other changes
 =============

@@ -228,6 +228,19 @@ RSpec.feature 'Requests', type: :feature, js: true do
       click_link('>>')
       expect(page).to have_text("Request #{request_2.id} (new)")
     end
+
+    scenario 'selecting a request via request table' do
+      let!(:request_4) { create(:declined_bs_request, source_project: project) }
+
+      login(submitter)
+      visit project_requests_path(project: project)
+
+      select('submit', from: 'Display')
+      select('declined', from: 'Requests in state')
+      click_link("Show request ##{request_4.id}")
+
+      expect(page).to have_text("Request #{request_4.id} (declined)")
+    end
   end
 
   describe 'shows the correct auto accepted message' do

@@ -19,6 +19,7 @@ module Webui
             format.json
           end
         end
+        switch_to_webui2
       end
     end
   end
