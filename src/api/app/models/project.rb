@@ -167,9 +167,10 @@ class Project < ApplicationRecord
   def self.load_from_remote(project, path)
     Rails.cache.fetch("remote_image_templates_#{project.id}", expires_in: 1.hour) do
       begin
-        return ActiveXML::Transport.load_external_url("#{project.remoteurl}#{path}")
+        Project::RemoteURL.load(project.remoteurl, path)
       rescue OpenSSL::SSL::SSLError
         Rails.logger.error "Remote instance #{project.remoteurl} has no valid SSL certificate"
+        nil
       end
     end
   end

@@ -183,7 +183,7 @@ Lint/RescueException:
 # Offense count: 1
 Lint/ShadowedException:
   Exclude:
-    - 'lib/activexml/transport.rb'
+    - 'app/models/project/remote_url.rb'
 
 # Offense count: 17
 # Cop supports --auto-correct.
