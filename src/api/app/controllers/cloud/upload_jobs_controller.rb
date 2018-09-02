@@ -27,7 +27,7 @@ module Cloud
     def destroy
       ::Backend::Api::Cloud.destroy(@upload_job.job_id)
       render_ok
-    rescue ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => exception
+    rescue ::Backend::Error => exception
       render_error status: 500,
                    errorcode: 'cloud_upload_job_error',
                    message:  exception.message

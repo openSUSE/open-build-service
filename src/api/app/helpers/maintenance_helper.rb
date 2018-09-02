@@ -28,7 +28,7 @@ module MaintenanceHelper
         link = source_package.source_file('_link')
         link = Nokogiri::XML(link).root
         links_to_source = link['project'].nil? || link['project'] == source_package.project.name
-      rescue ActiveXML::Transport::Error
+      rescue Backend::Error
       end
     end
     if links_to_source

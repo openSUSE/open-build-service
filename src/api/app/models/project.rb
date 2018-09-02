@@ -252,7 +252,7 @@ class Project < ApplicationRecord
   def number_of_build_problems
     begin
       result = Backend::Api::BuildResults::Status.build_problems(name)
-    rescue ActiveXML::Transport::NotFoundError
+    rescue Backend::NotFoundError
       return 0
     end
     ret = {}
@@ -602,7 +602,7 @@ class Project < ApplicationRecord
         options = { user: User.current_login, comment: @commit_opts[:comment] }
         options[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
         Backend::Api::Sources::Project.delete(name, options)
-      rescue ActiveXML::Transport::NotFoundError
+      rescue Backend::NotFoundError
         # ignore this error, backend was out of sync
         logger.warn("Project #{name} was already missing on backend on removal")
       end
@@ -1157,7 +1157,7 @@ class Project < ApplicationRecord
                                                         [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory,
                                                          :makeolder, :makeoriginolder, :noservice])
       Backend::Connection.post path
-    rescue ActiveXML::Transport::Error => e
+    rescue Backend::Error => e
       logger.debug "copy failed: #{e.summary}"
       # we need to check results of backend in any case (also timeout error eg)
     end
@@ -1212,7 +1212,7 @@ class Project < ApplicationRecord
     Rails.cache.fetch("bsrequest_repos_map-#{project}", expires_in: 2.hours) do
       begin
         xml = Xmlhash.parse(Backend::Api::Sources::Project.repositories(project.to_s))
-      rescue ActiveXML::Transport::Error
+      rescue Backend::Error
         return {}
       end
 

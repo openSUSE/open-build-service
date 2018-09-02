@@ -30,7 +30,7 @@ class Webui::MonitorController < Webui::WebuiController
     else
       begin
         fetch_workerstatus
-      rescue ActiveXML::Transport::NotFoundError
+      rescue Backend::NotFoundError
         @workerstatus = {}
       end
 

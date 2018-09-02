@@ -1374,7 +1374,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       context 'without buildresult and defaults set to a non-integer' do
         before do
-          allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_raise(ActiveXML::Transport::NotFoundError)
+          allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_raise(Backend::NotFoundError)
           post :monitor, params: { project: user.home_project, defaults: 'abc' }
         end
 

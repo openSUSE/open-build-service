@@ -224,7 +224,7 @@ class Package < ApplicationRecord
     begin
       answer = Backend::Connection.get(Package.source_path(project, package))
       return true if answer
-    rescue ActiveXML::Transport::Error
+    rescue Backend::Error
       # ignored
     end
     false
@@ -559,7 +559,7 @@ class Package < ApplicationRecord
   def parse_issues_xml(query, force_state = nil)
     begin
       answer = Backend::Connection.post(source_path(nil, query))
-    rescue ActiveXML::Transport::Error => e
+    rescue Backend::Error => e
       Rails.logger.debug "failed to parse issues: #{e.inspect}"
       return {}
     end
@@ -822,7 +822,7 @@ class Package < ApplicationRecord
       path << Backend::Connection.build_query_from_hash(h, [:user, :comment, :requestid])
       begin
         Backend::Connection.delete path
-      rescue ActiveXML::Transport::NotFoundError
+      rescue Backend::NotFoundError
         # ignore this error, backend was out of sync
         logger.tagged('backend_sync') { logger.warn("Package #{project.name}/#{name} was already missing on backend on removal") }
       end
@@ -920,7 +920,7 @@ class Package < ApplicationRecord
 
     begin
       results = Xmlhash.parse(Backend::Api::BuildResults::JobHistory.all_for_package(project.name, options[:package], repository, arch, options[:limit]))
-    rescue ActiveXML::Transport::Error
+    rescue Backend::Error
       return []
     end
 
@@ -1211,7 +1211,7 @@ class Package < ApplicationRecord
 
   def patchinfo
     Patchinfo.new(source_file('_patchinfo'))
-  rescue ActiveXML::Transport::NotFoundError
+  rescue Backend::NotFoundError
     nil
   end
 
@@ -1252,7 +1252,7 @@ class Package < ApplicationRecord
     begin
       dir = Directory.hashed(project: project.name, package: name)
       return dir['serviceinfo'] if dir
-    rescue ActiveXML::Transport::NotFoundError
+    rescue Backend::NotFoundError
     end
     {}
   end
@@ -1409,7 +1409,7 @@ class Package < ApplicationRecord
 
       # do not use project.name because we missuse the package source container for build container operations
       Backend::Connection.post("/build/#{URI.escape(build_project)}?cmd=#{command}&#{permitted_params.to_h.to_query}")
-    rescue ActiveXML::Transport::Error, Timeout::Error, Project::WritePermissionError => e
+    rescue Backend::Error, Timeout::Error, Project::WritePermissionError => e
       errors.add(:base, e.message)
       return false
     end
@@ -1427,7 +1427,7 @@ class Package < ApplicationRecord
   def self.what_depends_on(project, package, repository, architecture)
     path = "/build/#{project}/#{repository}/#{architecture}/_builddepinfo?package=#{package}&view=revpkgnames"
     [Xmlhash.parse(Backend::Connection.get(path).body).try(:[], 'package').try(:[], 'pkgdep')].flatten.compact
-  rescue ActiveXML::Transport::NotFoundError
+  rescue Backend::NotFoundError
     []
   end
 
@@ -1436,7 +1436,7 @@ class Package < ApplicationRecord
 
     begin
       build_reason = Backend::Api::BuildResults::Status.build_reason(project.name, package_name || name, repo, arch)
-    rescue ActiveXML::Transport::NotFoundError
+    rescue Backend::NotFoundError
       return PackageBuildReason.new
     end
 

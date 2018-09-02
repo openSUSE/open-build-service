@@ -93,7 +93,7 @@ class PackageBuildStatus
       resultlist.elements('result') do |r|
         r.elements('status') { |s| currentcode = s['code'] }
       end
-    rescue ActiveXML::Transport::Error
+    rescue Backend::Error
       currentcode = nil
     end
     if currentcode.in?(['unresolvable', 'failed', 'broken'])
@@ -120,7 +120,7 @@ class PackageBuildStatus
     if @eversucceeded
       begin
         buildinfo = Xmlhash.parse(Backend::Api::BuildResults::Binaries.build_dependency_info(@pkg.project.name, @pkg.name, srep['name'], arch))
-      rescue ActiveXML::Transport::Error => e
+      rescue Backend::Error => e
         # if there is an error, we ignore
         raise FailedToRetrieveBuildInfo, "Can't get buildinfo: #{e.summary}"
       end

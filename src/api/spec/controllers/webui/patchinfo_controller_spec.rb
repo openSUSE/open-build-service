@@ -232,7 +232,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     context 'without permission to edit the patchinfo-file' do
       before do
         patchinfo_package
-        allow(Backend::Connection).to receive(:put).and_raise(ActiveXML::Transport::ForbiddenError)
+        allow(Backend::Connection).to receive(:put).and_raise(Backend::ForbiddenError)
         do_proper_post_save
       end
 

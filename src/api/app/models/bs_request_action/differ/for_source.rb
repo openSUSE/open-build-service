@@ -53,7 +53,7 @@ class BsRequestAction
         Backend::Api::Sources::Package.source_diff(project_name, package_name, query)
       rescue Timeout::Error
         raise BsRequestAction::Errors::DiffError, "Timeout while diffing #{project_name}/#{package_name}"
-      rescue ActiveXML::Transport::Error => e
+      rescue Backend::Error => e
         raise BsRequestAction::Errors::DiffError, "The diff call for #{project_name}/#{package_name} failed: #{e.summary}"
       end
 

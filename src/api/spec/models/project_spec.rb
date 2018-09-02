@@ -431,7 +431,7 @@ RSpec.describe Project, vcr: true do
     # make sure it's gone even if some previous test failed
     def reset_project_in_backend
       Backend::Api::Sources::Project.delete 'project_used_for_restoration' if CONFIG['global_write_through']
-    rescue ActiveXML::Transport::NotFoundError
+    rescue Backend::NotFoundError
     end
 
     before do

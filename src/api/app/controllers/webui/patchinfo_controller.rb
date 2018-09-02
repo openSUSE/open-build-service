@@ -155,7 +155,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       @block_reason = params[:block_reason]
       render action: 'edit_patchinfo', project: @project, package: @package
     end
-  rescue ActiveXML::Transport::ForbiddenError
+  rescue Backend::ForbiddenError
     flash[:error] = 'No permission to edit the patchinfo-file.'
     redirect_to action: 'show', project: @project.name, package: @package.name
   end
@@ -198,7 +198,7 @@ class Webui::PatchinfoController < Webui::WebuiController
           else
             error << "#{issue.tracker} is not a valid tracker.\n"
           end
-        rescue ActiveXML::Transport::NotFoundError
+        rescue Backend::NotFoundError
           invalid_format += "#{issue.tracker} "
         end
       else
@@ -237,7 +237,7 @@ class Webui::PatchinfoController < Webui::WebuiController
           # instead of "bnc". Catch these.
           begin
             a['_content'] = get_issue_summary(a['tracker'], a['id'])
-          rescue ActiveXML::Transport::NotFoundError
+          rescue Backend::NotFoundError
             a['_content'] = 'PLEASE CHECK THE FORMAT OF THE ISSUE'
           end
         end

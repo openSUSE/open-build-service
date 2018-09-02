@@ -363,7 +363,7 @@ class BranchPackage
   def expand_rev_to_srcmd5(p)
     begin
       dir = Xmlhash.parse(Backend::Api::Sources::Package.files(params[:project], params[:package], rev: params[:rev]))
-    rescue ActiveXML::Transport::NotFoundError
+    rescue Backend::NotFoundError
       raise InvalidFilelistError, 'no such revision'
     end
     p[:rev] = dir['srcmd5']

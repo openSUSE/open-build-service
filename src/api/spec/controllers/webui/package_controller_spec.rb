@@ -368,7 +368,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'with a failure in the backend' do
       before do
-        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_raise(ActiveXML::Transport::Error, 'fake message')
+        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_raise(Backend::Error, 'fake message')
         get :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
       end
 
@@ -378,7 +378,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'without build results' do
       before do
-        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_raise(ActiveXML::Transport::NotFoundError)
+        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_raise(Backend::NotFoundError)
         get :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
       end
 
@@ -508,7 +508,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         # Uploading a remote file creates a service instead of downloading it directly!
         it 'creates a valid service file' do
           expect { source_package.source_file('_service') }.not_to raise_error
-          expect { source_package.source_file('remote_file') }.to raise_error ActiveXML::Transport::NotFoundError
+          expect { source_package.source_file('remote_file') }.to raise_error Backend::NotFoundError
 
           created_service = source_package.source_file('_service')
           expect(created_service).to eq(<<-EOT.strip_heredoc.strip)
@@ -642,7 +642,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'with not successful backend call' do
       before do
-        allow_any_instance_of(Package).to receive(:delete_file).and_raise(ActiveXML::Transport::NotFoundError)
+        allow_any_instance_of(Package).to receive(:delete_file).and_raise(Backend::NotFoundError)
         remove_file_post
       end
 
@@ -907,7 +907,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'when connection with the backend fails' do
       before do
-        allow_any_instance_of(Package).to receive(:update_from_xml).and_raise(ActiveXML::Transport::Error, 'fake message')
+        allow_any_instance_of(Package).to receive(:update_from_xml).and_raise(Backend::Error, 'fake message')
 
         post :save_meta, params: { project: source_project, package: source_package, meta: valid_meta }
       end
@@ -1375,7 +1375,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       before do
         allow(Backend::Api::BuildResults::Status).to receive(:statistics).
           with(source_project, source_package.name, repository.name, 'i586').
-          and_raise(ActiveXML::Transport::ForbiddenError)
+          and_raise(Backend::ForbiddenError)
 
         get :statistics, params: { project: source_project, package: source_package, arch: 'i586', repository: repository.name }
       end
@@ -1448,7 +1448,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'with a failure in the backend' do
       before do
-        allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_raise(ActiveXML::Transport::Error, 'fake message')
+        allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_raise(Backend::Error, 'fake message')
         get :binary, params: { package: source_package, project: source_project, repository: repo_for_source_project.name, arch: 'x86_64', filename: 'filename.txt' }
       end
 

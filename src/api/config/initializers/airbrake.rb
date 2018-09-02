@@ -79,7 +79,7 @@ def ignore_by_class?(notice)
                           'CGI::Session::CookieStore::TamperedWithCookie', 'ActionController::UnknownAction',
                           'AbstractController::ActionNotFound', 'ActionView::MissingTemplate',
                           'Timeout::Error', 'Net::HTTPBadResponse', 'WebuiMatcher::InvalidRequestFormat',
-                          'ActionController::UnknownFormat', 'ActiveXML::Transport::NotFoundError']
+                          'ActionController::UnknownFormat', 'Backend::NotFoundError']
 
   (notice[:errors].map { |error| error[:type] } & exceptions_to_ignore).any?
 end

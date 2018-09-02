@@ -66,7 +66,7 @@ class BsRequestAction
         return if action.target_package && action.action_type == :maintenance_incident
         begin
           data = Xmlhash.parse(Backend::Api::Sources::Package.files(action.source_project, spkg))
-        rescue ActiveXML::Transport::Error
+        rescue Backend::Error
           return
         end
         linkinfo = data['linkinfo']

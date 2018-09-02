@@ -131,7 +131,7 @@ class PublicController < ApplicationController
 
     begin
       binaries = Xmlhash.parse(Backend::Api::Search.published_binaries_for_package(params[:project], params[:package]))
-    rescue ActiveXML::Transport::Error
+    rescue Backend::Error
       render_error status: 400, errorcode: 'search_failure', message: "The search can't get executed."
       return
     end

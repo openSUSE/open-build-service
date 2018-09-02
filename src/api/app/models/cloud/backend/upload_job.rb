@@ -27,7 +27,7 @@ module Cloud
         xml = ::Backend::Api::Cloud.upload(params)
 
         new(xml: xml)
-      rescue ActiveXML::Transport::Error, Timeout::Error => exception
+      rescue ::Backend::Error, Timeout::Error => exception
         new(exception: exception.message)
       end
 
@@ -37,7 +37,7 @@ module Cloud
         xml_hash = Xmlhash.parse(xml)['clouduploadjob']
         return if xml_hash.blank?
         new(xml_object: OpenStruct.new(xml_hash))
-      rescue ActiveXML::Transport::Error, Timeout::Error
+      rescue Backend::Error, Timeout::Error
         nil
       end
 
@@ -47,7 +47,7 @@ module Cloud
         [Xmlhash.parse(xml)['clouduploadjob']].flatten.compact.map do |xml_hash|
           new(xml_object: OpenStruct.new(xml_hash))
         end
-      rescue ActiveXML::Transport::Error, Timeout::Error
+      rescue Backend::Error, Timeout::Error
         []
       end
 

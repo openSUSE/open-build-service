@@ -849,7 +849,7 @@ class SourceController < ApplicationController
       render_error status: 400, errorcode: 'spec_file_exists',
         message: 'SPEC file already exists.'
       return
-    rescue ActiveXML::Transport::NotFoundError
+    rescue Backend::NotFoundError
       specfile_content = File.read("#{Rails.root}/files/specfiletemplate")
       Backend::Api::Sources::Package.write_file(params[:project], params[:package], "#{params[:package]}.spec", specfile_content)
     end

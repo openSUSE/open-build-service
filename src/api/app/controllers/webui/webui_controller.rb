@@ -52,7 +52,7 @@ class Webui::WebuiController < ActionController::Base
   # Also it would be better, but also more complicated, to just raise
   # HTTPPaymentRequired, UnauthorizedError or Forbidden
   # here so the exception handler catches it but what the heck...
-  rescue_from ActiveXML::Transport::ForbiddenError do |exception|
+  rescue_from Backend::ForbiddenError do |exception|
     case exception.code
     when 'unregistered_ichain_user'
       render template: 'user/request_ichain'

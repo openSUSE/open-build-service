@@ -453,7 +453,7 @@ class Webui::ProjectController < Webui::WebuiController
     check_ajax
     begin
       @buildresult = Buildresult.find_hashed(project: params[:project], package: params[:package], view: 'status', lastbuild: 1)
-    rescue ActiveXML::Transport::Error # wild work around for backend bug (sends 400 for 'not found')
+    rescue Backend::Error # wild work around for backend bug (sends 400 for 'not found')
     end
     @repohash = {}
     @statushash = {}

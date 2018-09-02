@@ -42,7 +42,7 @@ class Buildresult
   def self.find_hashed(opts = {})
     begin
       xml = Backend::Api::BuildResults::Status.result_swiss_knife(opts.delete(:project), opts)
-    rescue  ActiveXML::Transport::NotFoundError
+    rescue  Backend::NotFoundError
       xml = nil
     end
     return Xmlhash::XMLHash.new({}) unless xml

@@ -21,7 +21,7 @@ class BinaryRelease < ApplicationRecord
   def self.update_binary_releases(repository, key, time = Time.now)
     begin
       notification_payload = ActiveSupport::JSON.decode(Backend::Api::Server.notification_payload(key))
-    rescue ActiveXML::Transport::NotFoundError
+    rescue Backend::NotFoundError
       logger.error("Payload got removed for #{key}")
       return
     end
@@ -85,7 +85,7 @@ class BinaryRelease < ApplicationRecord
         if binary['patchinforef']
           begin
             patchinfo = Patchinfo.new(Backend::Api::Sources::Project.patchinfo(binary['patchinforef']))
-          rescue ActiveXML::Transport::NotFoundError
+          rescue Backend::NotFoundError
             # patchinfo disappeared meanwhile
           end
           hash[:binary_maintainer] = patchinfo.hashed['packager'] if patchinfo && patchinfo.hashed['packager']

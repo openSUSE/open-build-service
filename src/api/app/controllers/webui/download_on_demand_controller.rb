@@ -14,7 +14,7 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
         @download_on_demand.save!
         @project.store
       end
-    rescue ActiveRecord::RecordInvalid, ActiveXML::Transport::Error => exception
+    rescue ActiveRecord::RecordInvalid, Backend::Error => exception
       redirect_back(fallback_location: root_path, error: "Download on Demand can't be created: #{exception.message}")
       return
     end
@@ -35,7 +35,7 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
         @download_on_demand.update_attributes!(permitted_params)
         @project.store
       end
-    rescue ActiveRecord::RecordInvalid, ActiveXML::Transport::Error => exception
+    rescue ActiveRecord::RecordInvalid, Backend::Error => exception
       redirect_back(fallback_location: root_path, error: "Download on Demand can't be updated: #{exception.message}")
       return
     end
@@ -57,7 +57,7 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
         @download_on_demand.destroy!
         @project.store
       end
-    rescue ActiveRecord::RecordInvalid, ActiveXML::Transport::Error => exception
+    rescue ActiveRecord::RecordInvalid, Backend::Error => exception
       redirect_back(fallback_location: root_path, error: "Download on Demand can't be removed: #{exception.message}")
       return
     end

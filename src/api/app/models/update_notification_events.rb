@@ -54,7 +54,7 @@ class UpdateNotificationEvents
 
         begin
           @last = Xmlhash.parse(Backend::Api::Server.last_notifications(nr))
-        rescue Net::ReadTimeout, EOFError, ActiveXML::Transport::Error
+        rescue Net::ReadTimeout, EOFError, Backend::Error
           return
         end
 
