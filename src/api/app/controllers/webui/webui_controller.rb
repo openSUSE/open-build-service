@@ -48,27 +48,6 @@ class Webui::WebuiController < ActionController::Base
     end
   end
 
-  # FIXME: This belongs into the user controller my dear.
-  # Also it would be better, but also more complicated, to just raise
-  # HTTPPaymentRequired, UnauthorizedError or Forbidden
-  # here so the exception handler catches it but what the heck...
-  rescue_from Backend::ForbiddenError do |exception|
-    case exception.code
-    when 'unregistered_ichain_user'
-      render template: 'user/request_ichain'
-    when 'unregistered_user'
-      render file: Rails.root.join('public/403'), formats: [:html], status: 402, layout: false
-    when 'unconfirmed_user'
-      render file: Rails.root.join('public/402'), formats: [:html], status: 402, layout: false
-    else
-      if User.current.is_nobody?
-        render file: Rails.root.join('public/401'), formats: [:html], status: :unauthorized, layout: false
-      else
-        render file: Rails.root.join('public/403'), formats: [:html], status: :forbidden, layout: false
-      end
-    end
-  end
-
   # FIXME: This is more than stupid. Why do we tell the user that something isn't found
   # just because there is some data missing to compute the request? Someone needs to read
   # http://guides.rubyonrails.org/active_record_validations.html

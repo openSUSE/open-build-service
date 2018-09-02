@@ -1375,7 +1375,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       before do
         allow(Backend::Api::BuildResults::Status).to receive(:statistics).
           with(source_project, source_package.name, repository.name, 'i586').
-          and_raise(Backend::ForbiddenError)
+          and_raise(Backend::NotFoundError)
 
         get :statistics, params: { project: source_project, package: source_package, arch: 'i586', repository: repository.name }
       end

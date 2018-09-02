@@ -157,7 +157,7 @@ class Webui::PackageController < Webui::WebuiController
 
     begin
       @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project, params[:package], @repository.name, @arch.name, @filename)
-    rescue Backend::ForbiddenError, Backend::Error => e
+    rescue Backend::Error => e
       flash[:error] = "File #{@filename} can not be downloaded from #{@project}: #{e.summary}"
       redirect_to controller: :package, action: :binaries, project: @project,
                   package: @package, repository: @repository.name, nextstatus: 404

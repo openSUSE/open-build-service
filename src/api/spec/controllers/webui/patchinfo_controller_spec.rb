@@ -232,7 +232,8 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     context 'without permission to edit the patchinfo-file' do
       before do
         patchinfo_package
-        allow(Backend::Connection).to receive(:put).and_raise(Backend::ForbiddenError)
+        # FIXME: Backend::Connection does not raise permission problem
+        allow(Backend::Connection).to receive(:put).and_raise(Backend::Error)
         do_proper_post_save
       end
 

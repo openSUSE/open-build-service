@@ -96,8 +96,6 @@ module OBSApi
 
     config.action_controller.action_on_unpermitted_parameters = :raise
 
-    config.action_dispatch.rescue_responses['Backend::UnauthorizedError'] = 401
-    config.action_dispatch.rescue_responses['Backend::ConnectionError'] = 503
     config.action_dispatch.rescue_responses['Backend::Error'] = 500
     config.action_dispatch.rescue_responses['Timeout::Error'] = 408
     config.action_dispatch.rescue_responses['ActionController::InvalidAuthenticityToken'] = 403

@@ -21,9 +21,5 @@ module Backend
     end
   end
 
-  class ConnectionError < Error; end
-  class UnauthorizedError < Error; end
-  class ForbiddenError < Error; end
   class NotFoundError < Error; end
-  class NotImplementedError < Error; end
 end

@@ -155,7 +155,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       @block_reason = params[:block_reason]
       render action: 'edit_patchinfo', project: @project, package: @package
     end
-  rescue Backend::ForbiddenError
+  rescue Backend::Error
     flash[:error] = 'No permission to edit the patchinfo-file.'
     redirect_to action: 'show', project: @project.name, package: @package.name
   end
