@@ -284,8 +284,8 @@ class BsRequest < ApplicationRecord
   # customized for that.
   def as_json(*)
     super(except: [:state, :comment, :commenter]).tap do |request_hash|
-      request_hash['superseded_by_id'] = superseded_by
-      request_hash['state'] =            state.to_s
+      request_hash['superseded_by_id'] = superseded_by if has_attribute?(:superseded_by)
+      request_hash['state'] =            state.to_s if has_attribute?(:state)
       request_hash['request_type'] =     bs_request_actions.first.type
       request_hash['package'] =          bs_request_actions.first.target_package
       request_hash['project'] =          bs_request_actions.first.target_project
