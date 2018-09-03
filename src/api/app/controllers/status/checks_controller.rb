@@ -1,28 +1,26 @@
 class Status::ChecksController < ApplicationController
-  before_action :require_checkable, only: [:index, :show, :destroy, :update]
-  before_action :require_or_initialize_checkable, only: :create
+  before_action :require_status_report
   before_action :require_check, only: [:show, :destroy, :update]
   before_action :set_xml_check, only: [:create, :update]
   skip_before_action :require_login, only: [:show, :index]
   after_action :verify_authorized
 
-  # GET /projects/:project_name/repositories/:repository_name/repository_publishes/:repository_publish_build_id/checks
+  # GET /status/reports/:report_id/checks
   def index
     authorize @status_report
     @checks = @status_report.checks
     @missing_checks = @status_report.missing_checks
   end
 
-  # GET /projects/:project_name/repositories/:repository_name/repository_publishes/:repository_publish_build_id/checks/:id
+  # GET /status/reports/:report_id/checks/:id
   def show
-    authorize @check
+    authorize @status_report
   end
 
-  # POST /projects/:project_name/repositories/:repository_name/repository_publishes/:repository_publish_build_id/checks
+  # POST /status/reports/:report_id/checks
   def create
-    @xml_check[:checkable] = @checkable
-    @check = Status::Check.new(@xml_check)
-    authorize @check
+    authorize @status_report
+    @check = @status_report.checks.build(@xml_check)
     if @check.save
       render :show
     else
@@ -30,9 +28,10 @@ class Status::ChecksController < ApplicationController
     end
   end
 
-  # PATCH /projects/:project_name/repositories/:repository_name/repository_publishes/:repository_publish_build_id/checks/:id
+  # PATCH /status/reports/:report_id/checks/:id
+  # PUT   /status/reports/:report_id/checks/:id
   def update
-    authorize @check
+    authorize @status_report
     if @check.update(@xml_check)
       render :show
     else
@@ -40,9 +39,9 @@ class Status::ChecksController < ApplicationController
     end
   end
 
-  # DELETE /projects/:project_name/repositories/:repository_name/repository_publishes/:repository_publish_build_id/checks/:id
+  # DELETE /status/reports/:report_id/checks/:id
   def destroy
-    authorize @check
+    authorize @status_report
     if @check.destroy
       render_ok
     else
@@ -52,38 +51,46 @@ class Status::ChecksController < ApplicationController
 
   private
 
-  def set_repository_checkable
-    project = Project.get_by_name(params[:project_name])
-    repository = project.repositories.find_by(name: params[:repository_name])
-    raise UnknownRepository, "Repository does not exist #{params[:repository_name]}" unless repository
-    @checkable = repository.status_publishes.find_or_initialize_by(build_id: params[:repository_publish_build_id])
+  def require_status_report
+    if params[:report_uuid]
+      @status_report = Status::Report.find_by(uuid: params[:report_uuid])
+    else
+      @status_report = fetch_status_report_from_checkable
+    end
+
+    raise ActiveRecord::RecordNotFound unless @status_report
   end
 
-  def require_or_initialize_checkable
-    if params[:status_repository_publish_build_id]
-      set_repository_checkable
-    elsif params[:bs_request_number]
-      @checkable = BsRequest.find(params[:bs_request_number])
-    end
+  # Parses <params> and returns a <checkable> object.
+  # Raises ActiveRecord::RecordNotFound if no <checkable> was found.
+  def fetch_checkable_from_params
+    checkable = if params[:repository_name] && params[:project_name]
+                  project = Project.find_by(name: params[:project_name])
+                  project.repositories.find_by(name: params[:repository_name]) if project
+                elsif params[:bs_request_number]
+                  BsRequest.with_submit_requests.find_by(number: params[:bs_request_number])
+                end
 
-    raise NotFoundError, "Couldn't find any checkable object." unless @checkable
+    raise ActiveRecord::RecordNotFound unless checkable
+
+    checkable
   end
 
-  def require_checkable
-    if params[:repository_publish_build_id]
-      @checkable = Status::RepositoryPublish.find_by(build_id: params[:repository_publish_build_id])
-    elsif params[:bs_request_number]
-      @checkable = BsRequest.with_submit_requests.find(params[:bs_request_number])
-    end
+  def fetch_status_report_from_checkable
+    checkable = fetch_checkable_from_params
 
-    unless @checkable
-      render_error(status: 404, errorcode: 'not_found',
-                   message: "Unable to find status_repository_publish with id '#{params[:repository_publish_build_id]}'")
-    end
+    status_report = if params[:report_uuid]
+                      checkable.status_reports.find_or_create_by(uuid: params[:report_uuid])
+                    else
+                      checkable.status_reports.create
+                    end
+    raise ActiveRecord::RecordNotFound unless status_report
+
+    status_report
   end
 
   def require_check
-    @check = @checkable.checks.find_by(id: params[:id])
+    @check = @status_report.checks.find_by(id: params[:id])
     render_error(status: 404, errorcode: 'not_found', message: "Unable to find check with id '#{params[:id]}'") unless @check
   end
 

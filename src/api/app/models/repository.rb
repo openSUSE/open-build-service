@@ -17,13 +17,13 @@ class Repository < ApplicationRecord
   has_many :repository_architectures, -> { order('position') }, dependent: :destroy, inverse_of: :repository
   has_many :architectures, -> { order('position') }, through: :repository_architectures
   has_many :status_publishes, class_name: 'Status::RepositoryPublish'
-  has_many :checks, through: :status_publishes, class_name: 'Status::Check' do
+  has_many :status_reports, as: :checkable, class_name: 'Status::Report', dependent: :destroy do
     def for_build_id(build_id)
-      where(status_repository_publishes: { build_id: build_id })
+      where(status_report: { uuid: build_id })
     end
 
     def latest
-      for_build_id(proxy_association.owner.build_id)
+      for_build_id(proxy_association.owner.uuid)
     end
   end
 

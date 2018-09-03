@@ -87,7 +87,7 @@ class BsRequest < ApplicationRecord
   has_many :comments, as: :commentable, dependent: :delete_all
   has_many :request_history_elements, -> { order(:created_at) }, class_name: 'HistoryElement::Request', foreign_key: :op_object_id
   has_many :review_history_elements, through: :reviews, source: :history_elements
-  has_many :checks, as: :checkable, class_name: 'Status::Check', dependent: :destroy
+  has_many :status_reports, as: :checkable, class_name: 'Status::Report', dependent: :destroy
 
   validates :state, inclusion: { in: VALID_REQUEST_STATES }
   validates :creator, presence: true

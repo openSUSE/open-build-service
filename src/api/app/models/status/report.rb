@@ -1,4 +1,4 @@
-class Status::RepositoryPublish < ApplicationRecord
+class Status::Report < ApplicationRecord
   #### Includes and extends
 
   #### Constants
@@ -6,31 +6,29 @@ class Status::RepositoryPublish < ApplicationRecord
   #### Self config
 
   #### Attributes
-  validates :repository, :build_id, presence: true
 
   #### Associations macros (Belongs to, Has one, Has many)
-  belongs_to :repository
-  has_many :checks, as: :checkable, dependent: :destroy
-  has_one :project, through: :repository
-  has_many :relationships, through: :project
-  has_many :groups, through: :relationships
-  has_many :groups_users, through: :groups
+  belongs_to :checkable, polymorphic: true
+  has_many :checks, class_name: 'Status::Check', dependent: :destroy, foreign_key: 'status_reports_id'
 
   #### Callbacks macros: before_save, after_save, etc.
 
   #### Scopes (first the default_scope macro if is used)
 
   #### Validations macros
+  validates :checkable, presence: true
+  validates :uuid, presence: true, if: proc { |record| record.checkable.is_a?(Repository) }
 
   #### Class methods using self. (public and then private)
 
   #### To define class methods as private use private_class_method
   #### private
 
-  #### Instance methods (public and then protected/private)
   def missing_checks
-    repository.required_checks - checks.pluck(:name)
+    checkable.required_checks - checks.pluck(:name)
   end
+
+  #### Instance methods (public and then protected/private)
 
   #### Alias of methods
 end
