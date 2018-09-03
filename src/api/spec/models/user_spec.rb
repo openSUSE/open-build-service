@@ -421,7 +421,7 @@ RSpec.describe User do
     end
   end
 
-  describe '.mark_login!' do
+  describe '::mark_login!' do
     before do
       user.update_attributes!(login_failure_count: 7, last_logged_in_at: 3.hours.ago)
       user.mark_login!
@@ -521,7 +521,7 @@ RSpec.describe User do
     end
   end
 
-  describe '.can_create_project' do
+  describe '::can_create_project' do
     let(:user) { create(:confirmed_user, login: 'toni') }
     let(:admin_user) { create(:admin_user, login: 'bierhoff') }
     let(:maintainer) do

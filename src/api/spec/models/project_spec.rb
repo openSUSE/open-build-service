@@ -31,7 +31,7 @@ RSpec.describe Project, vcr: true do
     it { is_expected.to allow_value('fOO:123:+-_.').for(:name) }
   end
 
-  describe '.image_templates' do
+  describe '::image_templates' do
     let(:attrib) { create(:attrib, attrib_type: attribute_type, project: leap_project) }
 
     it 'has leap template' do
@@ -391,7 +391,7 @@ RSpec.describe Project, vcr: true do
     end
   end
 
-  describe '.deleted?' do
+  describe '::deleted?' do
     it 'returns false if the project exists in the app' do
       expect(Project.deleted?(project.name)).to be_falsey
     end
@@ -417,7 +417,7 @@ RSpec.describe Project, vcr: true do
     end
   end
 
-  describe '.restore' do
+  describe '::restore' do
     let(:admin_user) { create(:admin_user, login: 'Admin') }
     let(:deleted_project) do
       create(:project_with_packages,

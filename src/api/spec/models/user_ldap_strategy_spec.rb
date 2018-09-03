@@ -5,7 +5,7 @@ RSpec.describe UserLdapStrategy do
   let(:dn_string_no_dc)    { 'cn=jsmith,ou=Promotions,uid=dister' }
   let(:dn_string_complete) { 'cn=jsmith,ou=Promotions,dc=noam,dc=com,uid=dister' }
 
-  describe '.dn2user_principal_name' do
+  describe '::dn2user_principal_name' do
     context 'when no user id is provided' do
       it 'returns an empty string' do
         expect(UserLdapStrategy.dn2user_principal_name(dn_string_no_uid)).to eq('')
@@ -28,7 +28,7 @@ RSpec.describe UserLdapStrategy do
     end
   end
 
-  describe '.authenticate_with_local' do
+  describe '::authenticate_with_local' do
     context "with ldap auth method ':cleartext'" do
       before do
         stub_const('CONFIG', CONFIG.merge('ldap_auth_mech' => :cleartext,
@@ -82,7 +82,7 @@ RSpec.describe UserLdapStrategy do
     end
   end
 
-  describe '.initialize_ldap_con' do
+  describe '::initialize_ldap_con' do
     context 'when no ldap_servers are configured' do
       it { expect(UserLdapStrategy.initialize_ldap_con('tux', 'tux_password')).to be(nil) }
     end
@@ -124,7 +124,7 @@ RSpec.describe UserLdapStrategy do
     end
   end
 
-  describe '.find_group_with_ldap' do
+  describe '::find_group_with_ldap' do
     context 'when there is no connection' do
       it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be(false) }
     end

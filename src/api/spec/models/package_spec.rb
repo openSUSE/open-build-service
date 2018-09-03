@@ -314,7 +314,7 @@ RSpec.describe Package, vcr: true do
     end
   end
 
-  describe '.what_depends_on' do
+  describe '::what_depends_on' do
     let(:repository) { 'openSUSE_Leap_42.1' }
     let(:architecture) { 'x86_64' }
     let(:parameter) { "package=#{package.name}&view=revpkgnames" }
@@ -564,7 +564,7 @@ RSpec.describe Package, vcr: true do
     end
   end
 
-  describe '.kiwi_image_outdated?' do
+  describe '::kiwi_image_outdated?' do
     context 'without a kiwi_image' do
       it { expect(package.kiwi_image_outdated?).to be(true) }
     end
@@ -674,7 +674,7 @@ Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
     end
   end
 
-  describe '.exists_by_project_and_name' do
+  describe '::exists_by_project_and_name' do
     subject { package.name }
 
     let(:project_name) { package.project.name }
