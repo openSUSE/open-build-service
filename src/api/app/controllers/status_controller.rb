@@ -1,29 +1,6 @@
 require_dependency 'status_helper'
 
 class StatusController < ApplicationController
-  def workerstatus
-    send_data(WorkerStatus.hidden.to_xml)
-  end
-
-  def workercapability
-    pass_to_backend(request.path_info)
-  end
-
-  def workercommand
-    required_parameters :cmd, :project, :package, :repository, :arch
-
-    unless ['checkconstraints'].include?(params[:cmd])
-      raise UnknownCommandError, "Unknown command '#{params[:cmd]}' for path #{request.path}"
-    end
-
-    # read permission checking
-    Package.get_by_project_and_name(params[:project], params[:package])
-
-    path = request.path_info
-    path += build_query_from_hash(params, [:cmd, :project, :package, :repository, :arch])
-    pass_to_backend(path)
-  end
-
   def history
     required_parameters :hours, :key
 
