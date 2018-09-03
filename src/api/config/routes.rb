@@ -618,10 +618,6 @@ OBSApi::Application.routes.draw do
       get 'status/bsrequest' => :bsrequest
       get 'public/status/workerstatus' => :workerstatus
       get 'public/status/history' => :history
-      get 'public/status/role_from_cache' => :role_from_cache
-      get 'public/status/user_from_cache' => :user_from_cache
-      get 'public/status/group_from_cache' => :group_from_cache
-      get 'public/status/find_relationships_for_packages' => :find_relationships_for_packages
       get 'public/status/project' => :project
       get 'public/status/bsrequest' => :bsrequest
     end
