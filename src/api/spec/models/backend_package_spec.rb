@@ -6,7 +6,7 @@ require 'rails_helper'
 # CONFIG['global_write_through'] = true
 
 RSpec.describe BackendPackage, vcr: true do
-  describe '.refresh_dirty' do
+  describe '::refresh_dirty' do
     let!(:project) { create(:project, name: 'apache') }
     let!(:package) { create(:package_with_file, project: project, name: 'mod_ssl') }
 

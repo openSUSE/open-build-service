@@ -48,21 +48,21 @@ RSpec.describe Review do
     end
   end
 
-  describe '.assigned' do
+  describe '::assigned' do
     include_context 'some assigned reviews and some unassigned reviews'
 
     subject { Review.assigned }
     it { is_expected.to match_array([review_assigned1, review_assigned2]) }
   end
 
-  describe '.unassigned' do
+  describe '::unassigned' do
     include_context 'some assigned reviews and some unassigned reviews'
 
     subject { Review.unassigned }
     it { is_expected.to match_array([review_unassigned1, review_unassigned2]) }
   end
 
-  describe '.set_associations' do
+  describe '::set_associations' do
     context 'with valid attributes' do
       it 'sets user association when by_user object exists' do
         review = create(:review, by_user: user.login)
@@ -428,7 +428,7 @@ RSpec.describe Review do
     end
   end
 
-  describe '.new_from_xml_hash' do
+  describe '::new_from_xml_hash' do
     let(:request_xml) do
       "<request>
         <review state='accepted' by_user='#{user}'/>

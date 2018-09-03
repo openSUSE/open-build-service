@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'webmock/rspec'
 
 RSpec.describe IssueTracker do
-  describe '.update_all_issues' do
+  describe '::update_all_issues' do
     let!(:issue_tracker) { create(:issue_tracker, enable_fetch: true) }
 
     before do

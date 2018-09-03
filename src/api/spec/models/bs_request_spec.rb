@@ -353,7 +353,7 @@ RSpec.describe BsRequest, vcr: true do
     end
   end
 
-  describe '.delayed_auto_accept' do
+  describe '::delayed_auto_accept' do
     let!(:project) { create(:project) }
     let!(:admin) { create(:admin_user) }
     let!(:request) do

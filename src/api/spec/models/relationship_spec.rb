@@ -14,7 +14,7 @@ RSpec.describe Relationship do
     ActionController::Base.perform_caching = @caching_state
   end
 
-  describe '.add_user' do
+  describe '::add_user' do
     let(:role) { normal_role }
     let(:user) { create(:confirmed_user, login: 'other_user') }
     let(:project) { user.home_project }
@@ -52,7 +52,7 @@ RSpec.describe Relationship do
     end
   end
 
-  describe '.add_group' do
+  describe '::add_group' do
     let(:role) { normal_role }
     let(:user) { admin_user }
     let(:project) { user.home_project }
@@ -91,7 +91,7 @@ RSpec.describe Relationship do
     end
   end
 
-  describe '.forbidden_project_ids' do
+  describe '::forbidden_project_ids' do
     let(:confirmed_user) { create(:confirmed_user) }
     let(:project) { create(:forbidden_project) }
 
