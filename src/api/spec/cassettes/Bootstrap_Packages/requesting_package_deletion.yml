@@ -40,7 +40,7 @@ http_interactions:
           <person userid="package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:55:56 GMT
+  recorded_at: Tue, 04 Sep 2018 10:50:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=_nobody_
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>The Glory and the Dream</title>
-          <description>Facere distinctio ut temporibus.</description>
+          <title>A Scanner Darkly</title>
+          <description>Quia in quidem cum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '177'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>The Glory and the Dream</title>
-          <description>Facere distinctio ut temporibus.</description>
+          <title>A Scanner Darkly</title>
+          <description>Quia in quidem cum.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:55:56 GMT
+  recorded_at: Tue, 04 Sep 2018 10:50:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=_nobody_
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>The Glory and the Dream</title>
-          <description>Facere distinctio ut temporibus.</description>
+          <title>A Scanner Darkly</title>
+          <description>Quia in quidem cum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,22 +109,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '177'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>The Glory and the Dream</title>
-          <description>Facere distinctio ut temporibus.</description>
+          <title>A Scanner Darkly</title>
+          <description>Quia in quidem cum.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:55:56 GMT
+  recorded_at: Tue, 04 Sep 2018 10:50:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_config
     body:
       encoding: UTF-8
-      string: Voluptas odit vel. Nisi velit consequatur. Laboriosam voluptatum et.
+      string: Illum cumque voluptate. Eligendi eum excepturi. Officia corporis non.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -148,22 +148,23 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>d1926717fbb8178dce32571c43d31021</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>fdd0d0b7e8a29a63f302203085d1f510</srcmd5>
           <version>unknown</version>
-          <time>1534866956</time>
+          <time>1536058239</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:55:56 GMT
+  recorded_at: Tue, 04 Sep 2018 10:50:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Sunt consequuntur rerum. Adipisci quia error. Rerum enim aut.
+      string: Aut qui culpa. Cupiditate perferendis voluptatibus. Voluptatum fuga
+        et.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -187,16 +188,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
-          <srcmd5>b7934c188fa3990b5685daf4e8351436</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>d494341ce53513c3a7f2a6075b093be3</srcmd5>
           <version>unknown</version>
-          <time>1534866956</time>
+          <time>1536058239</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:55:56 GMT
+  recorded_at: Tue, 04 Sep 2018 10:50:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/_meta?user=other_package_test_user
@@ -237,7 +238,7 @@ http_interactions:
           <person userid="other_package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:55:56 GMT
+  recorded_at: Tue, 04 Sep 2018 10:50:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=_nobody_
@@ -245,8 +246,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>Carrion Comfort</title>
-          <description>Sed iste aliquid voluptas.</description>
+          <title>If Not Now, When?</title>
+          <description>Aliquid quis sequi deleniti.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -267,16 +268,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '176'
+      - '180'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>Carrion Comfort</title>
-          <description>Sed iste aliquid voluptas.</description>
+          <title>If Not Now, When?</title>
+          <description>Aliquid quis sequi deleniti.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:55:56 GMT
+  recorded_at: Tue, 04 Sep 2018 10:50:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=_nobody_
@@ -284,8 +285,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>Carrion Comfort</title>
-          <description>Sed iste aliquid voluptas.</description>
+          <title>If Not Now, When?</title>
+          <description>Aliquid quis sequi deleniti.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -306,22 +307,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '176'
+      - '180'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>Carrion Comfort</title>
-          <description>Sed iste aliquid voluptas.</description>
+          <title>If Not Now, When?</title>
+          <description>Aliquid quis sequi deleniti.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:55:56 GMT
+  recorded_at: Tue, 04 Sep 2018 10:50:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_config
     body:
       encoding: UTF-8
-      string: Eligendi doloremque sunt. Nostrum laboriosam qui. Assumenda non aut.
+      string: Est aut placeat. Aliquam quasi rerum. Sapiente sed porro.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -345,22 +346,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="27" vrev="27">
-          <srcmd5>75005410b59191332cb05fe0a6bfaaf6</srcmd5>
+        <revision rev="15" vrev="15">
+          <srcmd5>f031e61b53ccae924e4005240d83081b</srcmd5>
           <version>unknown</version>
-          <time>1534866956</time>
+          <time>1536058239</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:55:56 GMT
+  recorded_at: Tue, 04 Sep 2018 10:50:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Labore est nihil. Dolores et explicabo. Sunt repellat officiis.
+      string: Labore odit qui. Sit beatae est. Vitae odit ad.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -384,16 +385,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="28" vrev="28">
-          <srcmd5>c7e9ac94fd6de3dfb95ab16c7720f114</srcmd5>
+        <revision rev="16" vrev="16">
+          <srcmd5>3fef5db8b64bdfd9394d51f66cb75487</srcmd5>
           <version>unknown</version>
-          <time>1534866956</time>
+          <time>1536058239</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:55:56 GMT
+  recorded_at: Tue, 04 Sep 2018 10:50:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package
@@ -423,15 +424,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="branch_test_package" rev="28" vrev="28" srcmd5="c7e9ac94fd6de3dfb95ab16c7720f114">
-          <entry name="_config" md5="2da9ab9ec98dc9ccfbc29b232e571119" size="68" mtime="1534866956" />
-          <entry name="somefile.txt" md5="0170b56f155fdca7ca2ff788231860b1" size="63" mtime="1534866956" />
+        <directory name="branch_test_package" rev="16" vrev="16" srcmd5="3fef5db8b64bdfd9394d51f66cb75487">
+          <entry name="_config" md5="bb05dde6c2105ddbb30420e7cc29141b" size="57" mtime="1536058239" />
+          <entry name="somefile.txt" md5="5c431f23d3d7a4d0b6c3858d5e4fa020" size="47" mtime="1536058239" />
         </directory>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:55:58 GMT
+  recorded_at: Tue, 04 Sep 2018 10:50:41 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package?expand=1&rev=28
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package?expand=1&rev=16
     body:
       encoding: US-ASCII
       string: ''
@@ -458,12 +459,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="branch_test_package" rev="28" vrev="28" srcmd5="c7e9ac94fd6de3dfb95ab16c7720f114">
-          <entry name="_config" md5="2da9ab9ec98dc9ccfbc29b232e571119" size="68" mtime="1534866956" />
-          <entry name="somefile.txt" md5="0170b56f155fdca7ca2ff788231860b1" size="63" mtime="1534866956" />
+        <directory name="branch_test_package" rev="16" vrev="16" srcmd5="3fef5db8b64bdfd9394d51f66cb75487">
+          <entry name="_config" md5="bb05dde6c2105ddbb30420e7cc29141b" size="57" mtime="1536058239" />
+          <entry name="somefile.txt" md5="5c431f23d3d7a4d0b6c3858d5e4fa020" size="47" mtime="1536058239" />
         </directory>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:55:58 GMT
+  recorded_at: Tue, 04 Sep 2018 10:50:41 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_service
@@ -498,7 +499,7 @@ http_interactions:
           <details>404 _service: no such file</details>
         </status>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:55:58 GMT
+  recorded_at: Tue, 04 Sep 2018 10:50:41 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_history
@@ -524,182 +525,110 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '5165'
+      - '2957'
     body:
       encoding: UTF-8
       string: |
         <revisionlist>
           <revision rev="1" vrev="1">
-            <srcmd5>caa40595e5c2f997921cc00856f3d6b3</srcmd5>
+            <srcmd5>df24bbf67148333bf797d4626c3ff4ea</srcmd5>
             <version>unknown</version>
-            <time>1534865529</time>
+            <time>1536057948</time>
             <user>unknown</user>
           </revision>
           <revision rev="2" vrev="2">
-            <srcmd5>9825fa5f595360ff1547eb72b6bb6473</srcmd5>
+            <srcmd5>03e5b185e89ba1a7dc37404ad35cad5a</srcmd5>
             <version>unknown</version>
-            <time>1534865529</time>
+            <time>1536057949</time>
             <user>unknown</user>
           </revision>
           <revision rev="3" vrev="3">
-            <srcmd5>4f4597a4bb2f0c292a6a512b49af1d82</srcmd5>
+            <srcmd5>8d53b1273da0428dfb4050557a803e83</srcmd5>
             <version>unknown</version>
-            <time>1534865578</time>
+            <time>1536057962</time>
             <user>unknown</user>
           </revision>
           <revision rev="4" vrev="4">
-            <srcmd5>4230a243e9074345de2df5aaf5c78b9b</srcmd5>
+            <srcmd5>6e557801b6f414b3bfe3013e49eda41e</srcmd5>
             <version>unknown</version>
-            <time>1534865578</time>
+            <time>1536057962</time>
             <user>unknown</user>
           </revision>
           <revision rev="5" vrev="5">
-            <srcmd5>7ea58fdb06f0c00a497ebb776f128067</srcmd5>
+            <srcmd5>cab47c2fde8167497ef7b69278f219bf</srcmd5>
             <version>unknown</version>
-            <time>1534865626</time>
+            <time>1536057975</time>
             <user>unknown</user>
           </revision>
           <revision rev="6" vrev="6">
-            <srcmd5>b2e78cac189be8877011b8020313eb62</srcmd5>
+            <srcmd5>daf7369fef63e9a7a783d8958a7f9f4b</srcmd5>
             <version>unknown</version>
-            <time>1534865626</time>
+            <time>1536057975</time>
             <user>unknown</user>
           </revision>
           <revision rev="7" vrev="7">
-            <srcmd5>6dc7a0591628fdca5639be10fa2f0bbd</srcmd5>
+            <srcmd5>513380c011c7f3210f76d0b0fbf43c14</srcmd5>
             <version>unknown</version>
-            <time>1534865695</time>
+            <time>1536058085</time>
             <user>unknown</user>
           </revision>
           <revision rev="8" vrev="8">
-            <srcmd5>c3b6330696dbcd7778775d27ab4afe38</srcmd5>
+            <srcmd5>5365d987371c0475d3d2e56586426f15</srcmd5>
             <version>unknown</version>
-            <time>1534865695</time>
+            <time>1536058085</time>
             <user>unknown</user>
           </revision>
           <revision rev="9" vrev="9">
-            <srcmd5>d355992090a5aba05fc44e2a879080e4</srcmd5>
+            <srcmd5>6c83dbef46f21fea22e7a851d827c969</srcmd5>
             <version>unknown</version>
-            <time>1534865784</time>
+            <time>1536058097</time>
             <user>unknown</user>
           </revision>
           <revision rev="10" vrev="10">
-            <srcmd5>64eb2701208a947799a77cb202920bf7</srcmd5>
+            <srcmd5>f42cb5a0428e1418f7a74936847b3bfb</srcmd5>
             <version>unknown</version>
-            <time>1534865784</time>
+            <time>1536058097</time>
             <user>unknown</user>
           </revision>
           <revision rev="11" vrev="11">
-            <srcmd5>db4e4bbbb792488f02eb3a5d713e10ea</srcmd5>
+            <srcmd5>10efdbd02bcf9819f430b89f1921a35a</srcmd5>
             <version>unknown</version>
-            <time>1534865875</time>
+            <time>1536058109</time>
             <user>unknown</user>
           </revision>
           <revision rev="12" vrev="12">
-            <srcmd5>a00e5f8d41f63c43c7e35882795d8378</srcmd5>
+            <srcmd5>3b2fab6eda5c343871d7c65090db7ad4</srcmd5>
             <version>unknown</version>
-            <time>1534865875</time>
+            <time>1536058109</time>
             <user>unknown</user>
           </revision>
           <revision rev="13" vrev="13">
-            <srcmd5>3a4323b8b10a6ec4f6a1331f0b5e233b</srcmd5>
+            <srcmd5>62d0a022ceb0b48715d45810a0153ed0</srcmd5>
             <version>unknown</version>
-            <time>1534866135</time>
+            <time>1536058227</time>
             <user>unknown</user>
           </revision>
           <revision rev="14" vrev="14">
-            <srcmd5>9b0ba8b04bb265d566519c06e97da18d</srcmd5>
+            <srcmd5>6acfb52abc27e5cb149dc1404c4dd17c</srcmd5>
             <version>unknown</version>
-            <time>1534866135</time>
+            <time>1536058227</time>
             <user>unknown</user>
           </revision>
           <revision rev="15" vrev="15">
-            <srcmd5>58ac7404cb439d2d94d7b222e2cb323a</srcmd5>
+            <srcmd5>f031e61b53ccae924e4005240d83081b</srcmd5>
             <version>unknown</version>
-            <time>1534866605</time>
+            <time>1536058239</time>
             <user>unknown</user>
           </revision>
           <revision rev="16" vrev="16">
-            <srcmd5>21bbd44225a33288862a91af504dcf07</srcmd5>
+            <srcmd5>3fef5db8b64bdfd9394d51f66cb75487</srcmd5>
             <version>unknown</version>
-            <time>1534866605</time>
-            <user>unknown</user>
-          </revision>
-          <revision rev="17" vrev="17">
-            <srcmd5>9855cb408bc390c6896945d6bb8870ce</srcmd5>
-            <version>unknown</version>
-            <time>1534866650</time>
-            <user>unknown</user>
-          </revision>
-          <revision rev="18" vrev="18">
-            <srcmd5>1c380325beec65ab9c48f2ab02f12079</srcmd5>
-            <version>unknown</version>
-            <time>1534866650</time>
-            <user>unknown</user>
-          </revision>
-          <revision rev="19" vrev="19">
-            <srcmd5>8a41ab795ec79d8362df20ee01fc0bf4</srcmd5>
-            <version>unknown</version>
-            <time>1534866845</time>
-            <user>unknown</user>
-          </revision>
-          <revision rev="20" vrev="20">
-            <srcmd5>decbc00ecb40b39b9592d54bacd8508a</srcmd5>
-            <version>unknown</version>
-            <time>1534866845</time>
-            <user>unknown</user>
-          </revision>
-          <revision rev="21" vrev="21">
-            <srcmd5>cde84a2bfb8ee16451a27261140ae884</srcmd5>
-            <version>unknown</version>
-            <time>1534866887</time>
-            <user>unknown</user>
-          </revision>
-          <revision rev="22" vrev="22">
-            <srcmd5>cc3185658133d181612427f3b72be7e4</srcmd5>
-            <version>unknown</version>
-            <time>1534866887</time>
-            <user>unknown</user>
-          </revision>
-          <revision rev="23" vrev="23">
-            <srcmd5>81dd3c570fbc3fa7983175d3da436bd9</srcmd5>
-            <version>unknown</version>
-            <time>1534866933</time>
-            <user>unknown</user>
-          </revision>
-          <revision rev="24" vrev="24">
-            <srcmd5>d8d2b1203d240eacd0859a0c3a91e468</srcmd5>
-            <version>unknown</version>
-            <time>1534866933</time>
-            <user>unknown</user>
-          </revision>
-          <revision rev="25" vrev="25">
-            <srcmd5>1d25c9d1cba87290ad77c907702c311e</srcmd5>
-            <version>unknown</version>
-            <time>1534866945</time>
-            <user>unknown</user>
-          </revision>
-          <revision rev="26" vrev="26">
-            <srcmd5>d28c6f1b5292a7d79cfdbf9955cefdba</srcmd5>
-            <version>unknown</version>
-            <time>1534866945</time>
-            <user>unknown</user>
-          </revision>
-          <revision rev="27" vrev="27">
-            <srcmd5>75005410b59191332cb05fe0a6bfaaf6</srcmd5>
-            <version>unknown</version>
-            <time>1534866956</time>
-            <user>unknown</user>
-          </revision>
-          <revision rev="28" vrev="28">
-            <srcmd5>c7e9ac94fd6de3dfb95ab16c7720f114</srcmd5>
-            <version>unknown</version>
-            <time>1534866956</time>
+            <time>1536058239</time>
             <user>unknown</user>
           </revision>
         </revisionlist>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:55:58 GMT
+  recorded_at: Tue, 04 Sep 2018 10:50:41 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:other_package_test_user/_result?package=branch_test_package&view=status
@@ -734,7 +663,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:55:58 GMT
+  recorded_at: Tue, 04 Sep 2018 10:50:41 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package?cmd=diff&expand=1&filelimit=0&rev=0&view=xml
@@ -762,32 +691,32 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '868'
+      - '841'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="e9cf8c0d9fb3f25276c1ecfa9c8bb960">
-          <old project="home:other_package_test_user" package="branch_test_package" rev="28" srcmd5="c7e9ac94fd6de3dfb95ab16c7720f114" />
+        <sourcediff key="8239906d018aae407c4545f8bf2ba706">
+          <old project="home:other_package_test_user" package="branch_test_package" rev="16" srcmd5="3fef5db8b64bdfd9394d51f66cb75487" />
           <new project="home:other_package_test_user" package="branch_test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
           <files>
             <file state="deleted">
-              <old name="_config" md5="2da9ab9ec98dc9ccfbc29b232e571119" size="68" />
+              <old name="_config" md5="bb05dde6c2105ddbb30420e7cc29141b" size="57" />
               <diff lines="3">@@ -1,1 +0,0 @@
-        -Eligendi doloremque sunt. Nostrum laboriosam qui. Assumenda non aut.
+        -Est aut placeat. Aliquam quasi rerum. Sapiente sed porro.
         \ No newline at end of file
         </diff>
             </file>
             <file state="deleted">
-              <old name="somefile.txt" md5="0170b56f155fdca7ca2ff788231860b1" size="63" />
+              <old name="somefile.txt" md5="5c431f23d3d7a4d0b6c3858d5e4fa020" size="47" />
               <diff lines="3">@@ -1,1 +0,0 @@
-        -Labore est nihil. Dolores et explicabo. Sunt repellat officiis.
+        -Labore odit qui. Sit beatae est. Vitae odit ad.
         \ No newline at end of file
         </diff>
             </file>
           </files>
         </sourcediff>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:55:59 GMT
+  recorded_at: Tue, 04 Sep 2018 10:50:42 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package?cmd=diff&expand=1&filelimit=0&rev=0&view=xml
@@ -811,7 +740,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '868'
+      - '841'
       Cache-Control:
       - no-cache
       Connection:
@@ -819,26 +748,26 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="e9cf8c0d9fb3f25276c1ecfa9c8bb960">
-          <old project="home:other_package_test_user" package="branch_test_package" rev="28" srcmd5="c7e9ac94fd6de3dfb95ab16c7720f114" />
+        <sourcediff key="8239906d018aae407c4545f8bf2ba706">
+          <old project="home:other_package_test_user" package="branch_test_package" rev="16" srcmd5="3fef5db8b64bdfd9394d51f66cb75487" />
           <new project="home:other_package_test_user" package="branch_test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
           <files>
             <file state="deleted">
-              <old name="_config" md5="2da9ab9ec98dc9ccfbc29b232e571119" size="68" />
+              <old name="_config" md5="bb05dde6c2105ddbb30420e7cc29141b" size="57" />
               <diff lines="3">@@ -1,1 +0,0 @@
-        -Eligendi doloremque sunt. Nostrum laboriosam qui. Assumenda non aut.
+        -Est aut placeat. Aliquam quasi rerum. Sapiente sed porro.
         \ No newline at end of file
         </diff>
             </file>
             <file state="deleted">
-              <old name="somefile.txt" md5="0170b56f155fdca7ca2ff788231860b1" size="63" />
+              <old name="somefile.txt" md5="5c431f23d3d7a4d0b6c3858d5e4fa020" size="47" />
               <diff lines="3">@@ -1,1 +0,0 @@
-        -Labore est nihil. Dolores et explicabo. Sunt repellat officiis.
+        -Labore odit qui. Sit beatae est. Vitae odit ad.
         \ No newline at end of file
         </diff>
             </file>
           </files>
         </sourcediff>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:56:02 GMT
+  recorded_at: Tue, 04 Sep 2018 10:50:45 GMT
 recorded_with: VCR 4.0.0

@@ -27,7 +27,9 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
     end
 
     scenario 'with AutoCleanup' do
-      click_button('Accept')
+      within('#branch-modal .modal-footer') do
+        click_button('Accept')
+      end
 
       expect(page).to have_text('Successfully branched package')
       expect(page).to have_current_path(
@@ -39,8 +41,10 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
 
     scenario 'without AutoCleanup' do
       find('summary').click
-      find('label[for=disable-autocleanup]').click
-      click_button('Accept')
+      check('disable-autocleanup')
+      within('#branch-modal .modal-footer') do
+        click_button('Accept')
+      end
 
       expect(page).to have_text('Successfully branched package')
       expect(page).to have_current_path(
@@ -54,10 +58,12 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
   scenario 'deleting a package' do
     login user
     visit package_show_path(package: package, project: user.home_project)
-    click_link('delete-package')
+    click_link('Delete package')
 
-    expect(find('#del-dialog')).to have_text('Do you really want to delete this package?')
-    click_button('Accept')
+    expect(find('#delete-modal')).to have_text('Do you really want to delete this package?')
+    within('#delete-modal .modal-footer') do
+      click_button('Accept')
+    end
 
     expect(find('#flash-messages')).to have_text('Package was successfully removed.')
   end
@@ -69,7 +75,9 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
     click_link('Request deletion')
 
     expect(page).to have_text('Do you really want to request the deletion of package ')
-    click_button('Accept')
+    within('#delete-request-modal .modal-footer') do
+      click_button('Accept')
+    end
 
     expect(page).to have_text('Created delete request')
     find('a', text: /delete request \d+/).click
@@ -125,7 +133,7 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
     scenario 'download logfile succesfully' do
       visit package_show_path(project: user.home_project, package: package)
       # test reload and wait for the build to finish
-      find('#build-reload').click
+      find('.build-refresh').click
       find('.buildstatus a', text: 'succeeded').click
       expect(page).to have_text('[1] this is my dummy logfile -> ümlaut')
       first(:link, 'Download logfile').click

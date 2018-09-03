@@ -40,7 +40,7 @@ http_interactions:
           <person userid="package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:58:06 GMT
+  recorded_at: Tue, 04 Sep 2018 10:53:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=_nobody_
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>In Death Ground</title>
-          <description>Vel odio natus est.</description>
+          <title>A Time to Kill</title>
+          <description>Harum eos ut ducimus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>In Death Ground</title>
-          <description>Vel odio natus est.</description>
+          <title>A Time to Kill</title>
+          <description>Harum eos ut ducimus.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:58:06 GMT
+  recorded_at: Tue, 04 Sep 2018 10:53:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=_nobody_
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>In Death Ground</title>
-          <description>Vel odio natus est.</description>
+          <title>A Time to Kill</title>
+          <description>Harum eos ut ducimus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,22 +109,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>In Death Ground</title>
-          <description>Vel odio natus est.</description>
+          <title>A Time to Kill</title>
+          <description>Harum eos ut ducimus.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:58:06 GMT
+  recorded_at: Tue, 04 Sep 2018 10:53:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_config
     body:
       encoding: UTF-8
-      string: Qui iusto tempora. Doloremque dolore ratione. Aspernatur ut et.
+      string: Nihil itaque dolorem. Nostrum ducimus libero. Odio libero cupiditate.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -148,22 +148,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="7" vrev="7">
-          <srcmd5>62794b4ef7df28dfd92f0339ee4bdd85</srcmd5>
+        <revision rev="9" vrev="9">
+          <srcmd5>866e0fbec3b491b0b0104efe611c997e</srcmd5>
           <version>unknown</version>
-          <time>1534867086</time>
+          <time>1536058385</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:58:06 GMT
+  recorded_at: Tue, 04 Sep 2018 10:53:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Adipisci quasi illum. Omnis officiis sunt. Qui alias non.
+      string: Sapiente dolor vero. Facere voluptatum quia. Fugiat explicabo delectus.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -183,20 +183,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="8" vrev="8">
-          <srcmd5>0b87dbcb8bed0aac9984ec14d783806f</srcmd5>
+        <revision rev="10" vrev="10">
+          <srcmd5>d3e077018d9683bb7c1afd6a26b086a0</srcmd5>
           <version>unknown</version>
-          <time>1534867086</time>
+          <time>1536058385</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:58:06 GMT
+  recorded_at: Tue, 04 Sep 2018 10:53:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/_meta?user=other_package_test_user
@@ -237,7 +237,7 @@ http_interactions:
           <person userid="other_package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:58:06 GMT
+  recorded_at: Tue, 04 Sep 2018 10:53:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=_nobody_
@@ -245,8 +245,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>The Wealth of Nations</title>
-          <description>Qui ea alias eos.</description>
+          <title>Quo Vadis</title>
+          <description>Odit id aut magni.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -267,16 +267,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '173'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>The Wealth of Nations</title>
-          <description>Qui ea alias eos.</description>
+          <title>Quo Vadis</title>
+          <description>Odit id aut magni.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:58:06 GMT
+  recorded_at: Tue, 04 Sep 2018 10:53:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=_nobody_
@@ -284,8 +284,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>The Wealth of Nations</title>
-          <description>Qui ea alias eos.</description>
+          <title>Quo Vadis</title>
+          <description>Odit id aut magni.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -306,22 +306,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '173'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>The Wealth of Nations</title>
-          <description>Qui ea alias eos.</description>
+          <title>Quo Vadis</title>
+          <description>Odit id aut magni.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:58:06 GMT
+  recorded_at: Tue, 04 Sep 2018 10:53:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_config
     body:
       encoding: UTF-8
-      string: Vero labore deleniti. Natus maxime sed. Et aut est.
+      string: Dolorem vel amet. Odit labore quia. Odio at deserunt.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -345,22 +345,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="31" vrev="31">
-          <srcmd5>16c7b9abe95f6020bd99bbed18f908cb</srcmd5>
+        <revision rev="23" vrev="23">
+          <srcmd5>ab07de44c2a3a01023c3dfb4f9429270</srcmd5>
           <version>unknown</version>
-          <time>1534867086</time>
+          <time>1536058385</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:58:06 GMT
+  recorded_at: Tue, 04 Sep 2018 10:53:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Placeat repudiandae in. Aspernatur sunt sed. Voluptatum fuga animi.
+      string: Quo molestias voluptatem. Nam recusandae ex. Dolor nihil iure.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -384,16 +384,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="32" vrev="32">
-          <srcmd5>2cd52f933fda86ddbe0ad2dd8e2915a3</srcmd5>
+        <revision rev="24" vrev="24">
+          <srcmd5>de2751dbdba8c4bc33e45aa36c219555</srcmd5>
           <version>unknown</version>
-          <time>1534867086</time>
+          <time>1536058385</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:58:06 GMT
+  recorded_at: Tue, 04 Sep 2018 10:53:05 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package
@@ -419,19 +419,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '299'
+      - '301'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="8" vrev="8" srcmd5="0b87dbcb8bed0aac9984ec14d783806f">
-          <entry name="_config" md5="26f3a8c6cd485ef1d9b771766cdad19a" size="63" mtime="1534867086" />
-          <entry name="somefile.txt" md5="bb748fc2b5deb8b1eca774f3b7193925" size="57" mtime="1534867086" />
+        <directory name="test_package" rev="10" vrev="10" srcmd5="d3e077018d9683bb7c1afd6a26b086a0">
+          <entry name="_config" md5="f4f70529616428cd3d2d102b5e7d8c2c" size="69" mtime="1536058385" />
+          <entry name="somefile.txt" md5="689711396777ad6b64e9d8a74f2a7e93" size="71" mtime="1536058385" />
         </directory>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:58:08 GMT
+  recorded_at: Tue, 04 Sep 2018 10:53:07 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:package_test_user/test_package?expand=1&rev=8
+    uri: http://backend:5352/source/home:package_test_user/test_package?expand=1&rev=10
     body:
       encoding: US-ASCII
       string: ''
@@ -454,16 +454,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '299'
+      - '301'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="8" vrev="8" srcmd5="0b87dbcb8bed0aac9984ec14d783806f">
-          <entry name="_config" md5="26f3a8c6cd485ef1d9b771766cdad19a" size="63" mtime="1534867086" />
-          <entry name="somefile.txt" md5="bb748fc2b5deb8b1eca774f3b7193925" size="57" mtime="1534867086" />
+        <directory name="test_package" rev="10" vrev="10" srcmd5="d3e077018d9683bb7c1afd6a26b086a0">
+          <entry name="_config" md5="f4f70529616428cd3d2d102b5e7d8c2c" size="69" mtime="1536058385" />
+          <entry name="somefile.txt" md5="689711396777ad6b64e9d8a74f2a7e93" size="71" mtime="1536058385" />
         </directory>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:58:08 GMT
+  recorded_at: Tue, 04 Sep 2018 10:53:07 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package/_service
@@ -498,7 +498,7 @@ http_interactions:
           <details>404 _service: no such file</details>
         </status>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:58:08 GMT
+  recorded_at: Tue, 04 Sep 2018 10:53:07 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package
@@ -524,16 +524,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '299'
+      - '301'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="8" vrev="8" srcmd5="0b87dbcb8bed0aac9984ec14d783806f">
-          <entry name="_config" md5="26f3a8c6cd485ef1d9b771766cdad19a" size="63" mtime="1534867086" />
-          <entry name="somefile.txt" md5="bb748fc2b5deb8b1eca774f3b7193925" size="57" mtime="1534867086" />
+        <directory name="test_package" rev="10" vrev="10" srcmd5="d3e077018d9683bb7c1afd6a26b086a0">
+          <entry name="_config" md5="f4f70529616428cd3d2d102b5e7d8c2c" size="69" mtime="1536058385" />
+          <entry name="somefile.txt" md5="689711396777ad6b64e9d8a74f2a7e93" size="71" mtime="1536058385" />
         </directory>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:58:08 GMT
+  recorded_at: Tue, 04 Sep 2018 10:53:07 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package
@@ -559,16 +559,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '299'
+      - '301'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="8" vrev="8" srcmd5="0b87dbcb8bed0aac9984ec14d783806f">
-          <entry name="_config" md5="26f3a8c6cd485ef1d9b771766cdad19a" size="63" mtime="1534867086" />
-          <entry name="somefile.txt" md5="bb748fc2b5deb8b1eca774f3b7193925" size="57" mtime="1534867086" />
+        <directory name="test_package" rev="10" vrev="10" srcmd5="d3e077018d9683bb7c1afd6a26b086a0">
+          <entry name="_config" md5="f4f70529616428cd3d2d102b5e7d8c2c" size="69" mtime="1536058385" />
+          <entry name="somefile.txt" md5="689711396777ad6b64e9d8a74f2a7e93" size="71" mtime="1536058385" />
         </directory>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:58:08 GMT
+  recorded_at: Tue, 04 Sep 2018 10:53:07 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package/_history
@@ -594,62 +594,74 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '1487'
+      - '1853'
     body:
       encoding: UTF-8
       string: |
         <revisionlist>
           <revision rev="1" vrev="1">
-            <srcmd5>150f233cc570e3849842c2f1d64c16ec</srcmd5>
+            <srcmd5>fdd0d0b7e8a29a63f302203085d1f510</srcmd5>
             <version>unknown</version>
-            <time>1534866945</time>
+            <time>1536058239</time>
             <user>unknown</user>
           </revision>
           <revision rev="2" vrev="2">
-            <srcmd5>eb0fe5fea7bdcb3e323fa8dfeb379e24</srcmd5>
+            <srcmd5>d494341ce53513c3a7f2a6075b093be3</srcmd5>
             <version>unknown</version>
-            <time>1534866945</time>
+            <time>1536058239</time>
             <user>unknown</user>
           </revision>
           <revision rev="3" vrev="3">
-            <srcmd5>d1926717fbb8178dce32571c43d31021</srcmd5>
+            <srcmd5>ca8aa241e23692bddf0e0567f043fda6</srcmd5>
             <version>unknown</version>
-            <time>1534866956</time>
+            <time>1536058252</time>
             <user>unknown</user>
           </revision>
           <revision rev="4" vrev="4">
-            <srcmd5>b7934c188fa3990b5685daf4e8351436</srcmd5>
+            <srcmd5>b7aa3f60efc2c2cf631ae8e0a7889a68</srcmd5>
             <version>unknown</version>
-            <time>1534866956</time>
+            <time>1536058252</time>
             <user>unknown</user>
           </revision>
           <revision rev="5" vrev="5">
-            <srcmd5>d2b62d6120f73faea3814a7f534ba01e</srcmd5>
+            <srcmd5>d6997ba6053d9f81c798eba8cd0bcc19</srcmd5>
             <version>unknown</version>
-            <time>1534867064</time>
+            <time>1536058263</time>
             <user>unknown</user>
           </revision>
           <revision rev="6" vrev="6">
-            <srcmd5>8a5db50df5b5513d3c3642cdde089803</srcmd5>
+            <srcmd5>e45ad4df126e5b27f321623fce6cf033</srcmd5>
             <version>unknown</version>
-            <time>1534867064</time>
+            <time>1536058263</time>
             <user>unknown</user>
           </revision>
           <revision rev="7" vrev="7">
-            <srcmd5>62794b4ef7df28dfd92f0339ee4bdd85</srcmd5>
+            <srcmd5>b9c7b1510ce939857c74c2a5b5b10141</srcmd5>
             <version>unknown</version>
-            <time>1534867086</time>
+            <time>1536058274</time>
             <user>unknown</user>
           </revision>
           <revision rev="8" vrev="8">
-            <srcmd5>0b87dbcb8bed0aac9984ec14d783806f</srcmd5>
+            <srcmd5>c620dc860e8504736743700caa2f79d8</srcmd5>
             <version>unknown</version>
-            <time>1534867086</time>
+            <time>1536058274</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="9" vrev="9">
+            <srcmd5>866e0fbec3b491b0b0104efe611c997e</srcmd5>
+            <version>unknown</version>
+            <time>1536058385</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="10" vrev="10">
+            <srcmd5>d3e077018d9683bb7c1afd6a26b086a0</srcmd5>
+            <version>unknown</version>
+            <time>1536058385</time>
             <user>unknown</user>
           </revision>
         </revisionlist>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:58:08 GMT
+  recorded_at: Tue, 04 Sep 2018 10:53:07 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/_result?package=test_package&view=status
@@ -684,7 +696,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:58:08 GMT
+  recorded_at: Tue, 04 Sep 2018 10:53:07 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/package_test_repository/i586/test_package/_jobstatus
@@ -719,5 +731,5 @@ http_interactions:
           <details>404 project 'home:package_test_user' has no repository 'package_test_repository'</details>
         </status>
     http_version: 
-  recorded_at: Tue, 21 Aug 2018 15:58:09 GMT
+  recorded_at: Tue, 04 Sep 2018 10:53:08 GMT
 recorded_with: VCR 4.0.0
