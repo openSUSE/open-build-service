@@ -426,15 +426,18 @@ OBSApi::Application.routes.draw do
   scope :worker, as: :worker do
     resources :status, only: [:index], controller: 'worker/status'
     resources :capability, only: [:show], param: :worker, controller: 'worker/capability'
+    resources :command, only: [], controller: 'worker/command' do
+      collection do
+        post 'run'
+      end
+    end
   end
-
-
 
   ### /worker
   get 'worker/_status' => 'worker/status#index'
   get 'build/_workerstatus' => 'worker/status#index' # FIXME3.0: drop this compat route
   get 'worker/:worker' => 'worker/capability#show'
-  post 'worker' => 'status#workercommand'
+  post 'worker' => 'worker/command#run'
 
   ### /build
   get 'build/:project/:repository/:arch/:package/_log' => 'build#logfile', constraints: cons, as: :raw_logfile
