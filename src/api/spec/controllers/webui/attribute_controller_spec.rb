@@ -104,6 +104,12 @@ RSpec.describe Webui::AttributeController do
       it { expect(assigns(:attribute).attrib_type.value_count).to be_nil }
       it { expect(assigns(:attribute).values.length).to eq(attrib_values_length_before) }
     end
+
+    context 'when attribute is not added to the project' do
+      it 'renders the 404 page (production mode)' do
+        expect { get :edit, params: { project: user.home_project, attribute: 'OBS:Issues' } }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
   end
 
   describe 'POST #create' do
