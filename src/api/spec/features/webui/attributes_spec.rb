@@ -2,27 +2,28 @@ require 'browser_helper'
 
 RSpec.feature 'Attributes', type: :feature, js: true do
   let!(:user) { create(:confirmed_user) }
-  let!(:attribute_type) { create(:attrib_type) }
+  # AttribTypes are part of the seeds, so we can reuse them
+  let!(:attribute_type) { AttribType.find_by(name: 'ImageTemplates') }
 
   def add_attribute_with_values(package = nil)
     visit index_attribs_path(project: user.home_project_name, package: package.try(:name))
-    click_link('add-new-attribute')
+    click_link('Add a new attribute')
     expect(page).to have_text('Add Attribute')
     find('select#attrib_attrib_type_id').select(attribute_type.name)
-    click_button 'Create Attribute'
+    click_button('Add')
     expect(page).to have_content('Attribute was successfully created.')
 
-    # Add two values
-    click_link 'add value'
-    click_link 'add value'
-
+    # FIXME: With the cocoon gem, the first click is somehow not registered... but only when testing in Capybara
+    click_link('Add a value')
     fill_in 'Value', with: 'test 1', match: :first
+
+    click_link('Add a value')
     # Workaround to enter data into second textfield
     within('div.nested-fields:nth-of-type(2)') do
       fill_in 'Value', with: "test\n2nd line"
     end
 
-    click_button 'Save Attribute'
+    click_button('Save')
   end
 
   describe 'for a project without packages' do
@@ -39,9 +40,8 @@ RSpec.feature 'Attributes', type: :feature, js: true do
       expect(attrib.values.pluck(:value)).to eq(["test\n2nd line", 'test 1'])
 
       visit index_attribs_path(project: user.home_project_name)
-      tr_tds = page.all('tr.attribute-values:nth-child(3) td').map(&:text)
-      expect(tr_tds[0]).to eq("#{attribute_type.namespace}:#{attribute_type.name}")
-      expect(tr_tds[1]).to eq("test\n2nd line\ntest 1")
+      attribute_type_value = page.all('#attributes tr td', exact_text: attribute_type.fullname)[0].sibling('td', match: :first).text
+      expect(attribute_type_value).to eq("test\n2nd line\ntest 1")
     end
 
     describe 'with values that are not allowed' do
@@ -72,7 +72,7 @@ RSpec.feature 'Attributes', type: :feature, js: true do
         visit index_attribs_path(project: user.home_project_name)
         click_link('Add a new attribute')
         find('select#attrib_attrib_type_id').select('OBS:VeryImportantProject')
-        click_button('Create Attribute')
+        click_button('Add')
         expect(page).to have_content('Sorry, you are not authorized to create this Attrib.')
       end
     end
@@ -96,15 +96,16 @@ RSpec.feature 'Attributes', type: :feature, js: true do
     end
 
     scenario 'add attribute with values' do
+      skip_if_bootstrap
+
       login user
 
       add_attribute_with_values(package)
       expect(page).to have_content('Attribute was successfully updated.')
 
       visit index_attribs_path(project: user.home_project_name, package: package.name)
-      tr_tds = page.all('tr.attribute-values:nth-child(2) td').map(&:text)
-      expect(tr_tds[0]).to eq("#{attribute_type.namespace}:#{attribute_type.name}")
-      expect(tr_tds[1]).to eq("test\n2nd line\ntest 1")
+      attribute_type_value = page.all('#attributes tr td', exact_text: attribute_type.fullname)[0].sibling('td', match: :first).text
+      expect(attribute_type_value).to eq("test\n2nd line\ntest 1")
     end
   end
 end

@@ -12,16 +12,15 @@
     = attribute_form.fields_for :values do |value|
       = render 'value_fields', f: value
     - if @attribute.values_addable?
-      .links
-        %p
-          = link_to_add_association 'add value', attribute_form, :values
+      %p
+        = link_to_add_association('Add a value', attribute_form, :values)
   - if @attribute.attrib_type.issue_list
     #issues
       = attribute_form.fields_for :issues do |issue|
         = render 'issue_fields', f: issue
-    .links
-      = link_to_add_association 'add issue', attribute_form, :issues
+      %p
+        = link_to_add_association 'add issue', attribute_form, :issues
   .actions
     = attribute_form.hidden_field(:attrib_type_id)
     %p
-      = attribute_form.submit "Save Attribute"
+      = attribute_form.submit('Save')
