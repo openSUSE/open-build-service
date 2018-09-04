@@ -615,11 +615,9 @@ OBSApi::Application.routes.draw do
       get 'status/workerstatus' => :workerstatus
       get 'status/history' => :history
       get 'status/project/:project' => :project, constraints: cons
-      get 'status/bsrequest' => :bsrequest
       get 'public/status/workerstatus' => :workerstatus
       get 'public/status/history' => :history
       get 'public/status/project' => :project
-      get 'public/status/bsrequest' => :bsrequest
     end
 
     ### /message
@@ -669,6 +667,7 @@ OBSApi::Application.routes.draw do
 
     post 'request' => 'request#global_command'
     post 'request/:id' => 'request#request_command', constraints: cons
+    get 'request/:id/status' => 'request#status', constraints: cons
 
     ### /lastevents
 
