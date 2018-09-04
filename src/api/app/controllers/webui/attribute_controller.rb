@@ -23,6 +23,7 @@ class Webui::AttributeController < Webui::WebuiController
 
   def edit
     @attribute = Attrib.find_by_container_and_fullname(@container, params[:attribute])
+    raise ActiveRecord::RecordNotFound unless @attribute
 
     authorize @attribute
 
