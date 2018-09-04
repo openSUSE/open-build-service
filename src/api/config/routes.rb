@@ -619,7 +619,6 @@ OBSApi::Application.routes.draw do
       get 'public/status/workerstatus' => :workerstatus
       get 'public/status/history' => :history
       get 'public/status/project' => :project
-      get 'public/status/bsrequest' => :bsrequest
     end
 
     ### /message
