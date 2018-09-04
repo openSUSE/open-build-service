@@ -627,5 +627,9 @@ RSpec.describe BsRequest, vcr: true do
         'superseded_by_id' => delete_request.id
       )
     end
+
+    context 'when called for a request with a subset of attributes' do
+      it { expect { BsRequest.all.select(:id).as_json }.not_to raise_error }
+    end
   end
 end
