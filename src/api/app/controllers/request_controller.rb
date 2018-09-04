@@ -35,14 +35,14 @@ class RequestController < ApplicationController
     rel = BsRequest.find_for(params).includes(bs_request_actions: :bs_request_action_accept_info)
     rel = rel.limit(params[:limit].to_i) if params[:limit].to_i > 0
 
-    xml = ActiveXML::Node.new('<collection/>')
+    xml = Nokogiri::XML('<collection/>').root
     matches = 0
     rel.each do |r|
       matches += 1
-      xml.add_node(r.render_xml(params))
+      xml.add_child(r.render_xml(params))
     end
-    xml.set_attribute('matches', matches.to_s)
-    render xml: xml.dump_xml
+    xml['matches'] = matches.to_s
+    render xml: xml.to_xml
   end
 
   # GET /request/:id
@@ -169,8 +169,8 @@ class RequestController < ApplicationController
     end
 
     diff_text = ''
-    xml_request = if params[:view] == 'xml'
-      ActiveXML::Node.new("<request id='#{req.number}'/>")
+    if params[:view] == 'xml'
+      xml_request = Nokogiri::XML("<request id='#{req.number}'/>").root
     end
 
     req.bs_request_actions.each do |action|
@@ -185,16 +185,16 @@ class RequestController < ApplicationController
         # Inject backend-provided XML diff into action XML:
         builder = Nokogiri::XML::Builder.new
         action.render_xml(builder)
-        a = xml_request.add_node(builder.to_xml)
-        a.add_node(action_diff)
+        xml_request.add_child(builder.to_xml)
+        xml_request.at_css('action').add_child(action_diff)
       else
         diff_text += action_diff
       end
     end
 
     if xml_request
-      xml_request.set_attribute('actions', '0')
-      render xml: xml_request.dump_xml
+      xml_request['actions'] = '0'
+      render xml: xml_request.to_xml
     else
       render plain: diff_text
     end

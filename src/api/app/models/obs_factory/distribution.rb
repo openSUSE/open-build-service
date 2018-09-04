@@ -108,7 +108,7 @@ module ObsFactory
         begin
           p = Xmlhash.parse(Backend::Api::Sources::Package.file(name, SOURCE_VERSION_FILE[:package_name], SOURCE_VERSION_FILE[:filename]))
           p.get('products').get('product').get('version')
-        rescue ActiveXML::Transport::NotFoundError
+        rescue Backend::NotFoundError
           nil
         end
       end

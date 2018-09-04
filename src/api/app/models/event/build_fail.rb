@@ -23,7 +23,7 @@ module Event
       log = log.chomp.lines
       log = log.slice(-29, log.length) if log.length > 30
       log.join
-    rescue ActiveXML::Transport::Error
+    rescue Backend::Error
       nil
     end
 

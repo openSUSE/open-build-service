@@ -35,8 +35,8 @@ module ObsFactory
       '000product:openSUSE-dvd5-dvd'
     end
 
-    def totest_version_file
-      'images/local/000product:openSUSE-cd-mini-x86_64'
+    def totest_version_package
+      '000product:openSUSE-cd-mini-x86_64'
     end
 
     # Version of the published distribution

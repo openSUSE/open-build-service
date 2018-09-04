@@ -1,23 +1,23 @@
 class WorkerStatus
   def self.hidden
     mydata = Rails.cache.read('workerstatus')
-    ws = ActiveXML::Node.new(mydata || Backend::Api::BuildResults::Worker.status)
+    ws = Nokogiri::XML(mydata || Backend::Api::BuildResults::Worker.status).root
     prjs = {}
-    ws.each('building') do |b|
-      prjs[b.value(:project)] = 1
+    ws.css('building').each do |b|
+      prjs[b['project']] = 1
     end
     names = {}
     # now try to find those we have a match for (the rest are hidden from you
     Project.where(name: prjs.keys).pluck(:name).each do |n|
       names[n] = 1
     end
-    ws.each('building') do |b|
+    ws.css('building').each do |b|
       # no prj -> we are not allowed
-      next if names.key?(b.value(:project))
-      Rails.logger.debug "workerstatus2clean: hiding #{b.value(:project)} for user #{User.current.login}"
-      b.set_attribute('project', '---')
-      b.set_attribute('repository', '---')
-      b.set_attribute('package', '---')
+      next if names.key?(b['project'])
+      Rails.logger.debug "workerstatus2clean: hiding #{b['project']} for user #{User.current.login}"
+      b['project'] = '---'
+      b['repository'] = '---'
+      b['package'] = '---'
     end
     ws
   end

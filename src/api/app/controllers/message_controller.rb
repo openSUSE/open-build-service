@@ -36,13 +36,13 @@ class MessageController < ApplicationController
   end
 
   def update
-    new_msg = ActiveXML::Node.new(request.raw_post)
+    new_msg = Nokogiri::XML(request.raw_post).root
     begin
       msg = Message.new
-      msg.text = new_msg.to_s
-      msg.severity = new_msg.value('severity')
-      msg.send_mail = new_msg.value('send_mail')
-      msg.private = new_msg.value('private')
+      msg.text = new_msg.content
+      msg.severity = new_msg['severity']
+      msg.send_mail = new_msg['send_mail']
+      msg.private = new_msg['private']
       msg.user = User.current
       if @package
         @package.messages += [msg]

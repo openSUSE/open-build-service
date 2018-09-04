@@ -270,7 +270,7 @@ module ObsFactory
 
     # Used internally to calculate #broken_packages and #building_repositories
     def set_buildinfo
-      buildresult = Buildresult.find_hashed(project: name, code: ['failed', 'broken', 'unresolvable'])
+      buildresult = Xmlhash.parse(Backend::Api::BuildResults::Status.failed_results(name))
       @broken_packages = []
       @building_repositories = []
       buildresult.elements('result') do |result|

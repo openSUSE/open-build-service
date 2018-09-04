@@ -1268,7 +1268,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context 'with a project' do
       context 'without buildresult' do
         before do
-          allow(Buildresult).to receive(:find).and_return(nil)
+          allow(Buildresult).to receive(:find_hashed).and_return({})
           get :monitor, params: { project: user.home_project, defaults: '1' }
         end
 
@@ -1278,7 +1278,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       context 'without buildresult and with failed param set to an integer' do
         before do
-          allow(Buildresult).to receive(:find).and_return(nil)
+          allow(Buildresult).to receive(:find_hashed).and_return({})
           get :monitor, params: { project: user.home_project, defaults: '1', failed: '2' }
         end
 
@@ -1287,7 +1287,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       context 'without buildresult and with failed param set to a string' do
         before do
-          allow(Buildresult).to receive(:find).and_return(nil)
+          allow(Buildresult).to receive(:find_hashed).and_return({})
           get :monitor, params: { project: user.home_project, defaults: '1', failed: 'abc' }
         end
 
@@ -1302,8 +1302,8 @@ RSpec.describe Webui::ProjectController, vcr: true do
           let!(:repository_achitecture_x86_64) { create(:repository_architecture, repository: repo_for_user, architecture: arch_x86_64) }
           let!(:repository_achitecture_s390x) { create(:repository_architecture, repository: additional_repo, architecture: arch_s390x) }
           let(:fake_buildresult) do
-            Buildresult.new(
-              '<resultlist state="073db4412ce71471edaacf7291404276">
+            <<-XML
+              <resultlist state="073db4412ce71471edaacf7291404276">
                 <result project="home:tom" repository="openSUSE_Tumbleweed" arch="i586" code="published" state="published">
                   <status package="c++" code="succeeded" />
                   <status package="redis" code="failed" />
@@ -1321,8 +1321,8 @@ RSpec.describe Webui::ProjectController, vcr: true do
                   <status package="c++" code="succeeded" />
                   <status package="redis" code="succeeded" />
                 </result>
-              </resultlist>'
-            )
+              </resultlist>
+            XML
           end
           let(:statushash) do
             { 'openSUSE_Tumbleweed' => {
@@ -1344,7 +1344,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           end
 
           before do
-            allow(Buildresult).to receive(:find).and_return(fake_buildresult)
+            allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_buildresult)
             post :monitor, params: { project: user.home_project }
           end
 
@@ -1374,7 +1374,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       context 'without buildresult and defaults set to a non-integer' do
         before do
-          allow(Buildresult).to receive(:find).and_return(nil)
+          allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_raise(Backend::NotFoundError)
           post :monitor, params: { project: user.home_project, defaults: 'abc' }
         end
 

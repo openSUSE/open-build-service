@@ -58,7 +58,7 @@ class ConsistencyCheckJob < ApplicationJob
     # check backend side
     begin
       Backend::Api::Sources::Project.packages(project.name)
-    rescue ActiveXML::Transport::NotFoundError
+    rescue Backend::NotFoundError
       @errors << "Project #{project.name} lost on backend"
       project.commit_opts = { no_backend_write: 1 }
       project.destroy if fix
@@ -84,7 +84,7 @@ class ConsistencyCheckJob < ApplicationJob
     api_meta = project.to_axml
     begin
       backend_meta = Backend::Api::Sources::Project.meta(project.name)
-    rescue ActiveXML::Transport::NotFoundError
+    rescue Backend::NotFoundError
       # project disappeared ... may happen in running system
       return ''
     end
@@ -113,7 +113,7 @@ class ConsistencyCheckJob < ApplicationJob
     project_list_api = Project.all.pluck(:name).sort
     begin
       project_list_backend = dir_to_array(Xmlhash.parse(Backend::Api::Sources::Project.list))
-    rescue ActiveXML::Transport::NotFoundError
+    rescue Backend::NotFoundError
       # project disappeared ... may happen in running system
       return ''
     end
@@ -156,7 +156,7 @@ class ConsistencyCheckJob < ApplicationJob
   rescue ActiveRecord::RecordInvalid
     Backend::Api::Sources::Project.delete(project)
     return "DELETED #{project} on backend due to invalid data\n"
-  rescue ActiveXML::Transport::NotFoundError
+  rescue Backend::NotFoundError
     return "specified #{project} does not exist on backend\n"
   end
 
@@ -186,7 +186,7 @@ class ConsistencyCheckJob < ApplicationJob
     package_list_api = project.packages.pluck(:name)
     begin
       plb = dir_to_array(Xmlhash.parse(Backend::Api::Sources::Project.packages(project.name)))
-    rescue ActiveXML::Transport::NotFoundError
+    rescue Backend::NotFoundError
       # project disappeared ... may happen in running system
       return ''
     end
@@ -219,7 +219,7 @@ class ConsistencyCheckJob < ApplicationJob
             pkg.update_from_xml(Xmlhash.parse(meta), true) # ignore locked project
             pkg.save!
           rescue ActiveRecord::RecordInvalid,
-                 ActiveXML::Transport::NotFoundError
+                 Backend::NotFoundError
             Backend::Api::Sources::Package.delete(project.name, package)
             errors << "DELETED in backend due to invalid data #{project.name}/#{package}\n"
           end

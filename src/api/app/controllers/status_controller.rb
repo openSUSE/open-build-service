@@ -2,7 +2,7 @@ require_dependency 'status_helper'
 
 class StatusController < ApplicationController
   def workerstatus
-    send_data(WorkerStatus.hidden.dump_xml)
+    send_data(WorkerStatus.hidden.to_xml)
   end
 
   def workercapability

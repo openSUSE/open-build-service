@@ -1,4 +1,4 @@
-class Buildresult < ActiveXML::Node
+class Buildresult
   AVAIL_STATUS_VALUES = {
     succeeded:    0,
     failed:       1,
@@ -38,6 +38,16 @@ class Buildresult < ActiveXML::Node
     locked:       'The package is frozen',
     unknown:      'The scheduler has not yet evaluated this package. Should be a short intermediate state for new packages.'
   }.with_indifferent_access.freeze
+
+  def self.find_hashed(opts = {})
+    begin
+      xml = Backend::Api::BuildResults::Status.result_swiss_knife(opts.delete(:project), opts)
+    rescue  Backend::NotFoundError
+      xml = nil
+    end
+    return Xmlhash::XMLHash.new({}) unless xml
+    Xmlhash.parse(xml)
+  end
 
   def self.status_description(status)
     STATUS_DESCRIPTION[status] || 'status explanation not found'

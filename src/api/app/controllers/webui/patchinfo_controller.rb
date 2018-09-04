@@ -92,12 +92,12 @@ class Webui::PatchinfoController < Webui::WebuiController
         node.rating(params[:rating].try(:strip))
         node.summary(params[:summary].try(:strip))
         node.description(params[:description].gsub("\r\n", "\n"))
-        @file.each(:package) do |pkg|
-          node.package(pkg.text)
+        @file.hashed.elements('package') do |pkg|
+          node.package(pkg['_content'])
         end
-        @file.each(:releasetarget) do |release_target|
-          attributes = { project: release_target.value(:project) }
-          attributes[:repository] = release_target.value(:repository) if release_target.value(:repository)
+        @file.hashed.elements('releasetarget') do |release_target|
+          attributes = { project: release_target['project'] }
+          attributes[:repository] = release_target['repository'] if release_target['repository']
           node.releasetarget(attributes)
         end
         node.message params[:message].gsub("\r\n", "\n") if params[:message].present?
@@ -155,7 +155,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       @block_reason = params[:block_reason]
       render action: 'edit_patchinfo', project: @project, package: @package
     end
-  rescue ActiveXML::Transport::ForbiddenError
+  rescue Backend::Error
     flash[:error] = 'No permission to edit the patchinfo-file.'
     redirect_to action: 'show', project: @project.name, package: @package.name
   end
@@ -198,7 +198,7 @@ class Webui::PatchinfoController < Webui::WebuiController
           else
             error << "#{issue.tracker} is not a valid tracker.\n"
           end
-        rescue ActiveXML::Transport::NotFoundError
+        rescue Backend::NotFoundError
           invalid_format += "#{issue.tracker} "
         end
       else
@@ -220,51 +220,52 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def read_patchinfo
     @binaries = []
-    @file.each(:binary) do |binaries|
-      @binaries << binaries.text
+    patchinfo_xml = Xmlhash.parse(@file.document.to_xml)
+    patchinfo_xml.elements('binary').each do |binaries|
+      @binaries << binaries
     end
-    @packager = @file.value(:packager)
-    @version = @file.value(:version)
+    @packager = patchinfo_xml.value('packager')
+    @version = patchinfo_xml['version']
 
     if params[:issueid]
       @issues = params[:issue].to_a << params[:issueid]
     else
       @issues = []
-      @file.each(:issue) do |a|
-        if a.text == ''
+      patchinfo_xml.elements('issue') do |a|
+        if a['_content'].blank?
           # old uploaded patchinfos could have broken tracker-names like "bnc "
           # instead of "bnc". Catch these.
           begin
-            a.text = get_issue_summary(a.value(:tracker), a.value(:id))
-          rescue ActiveXML::Transport::NotFoundError
-            a.text = 'PLEASE CHECK THE FORMAT OF THE ISSUE'
+            a['_content'] = get_issue_summary(a['tracker'], a['id'])
+          rescue Backend::NotFoundError
+            a['_content'] = 'PLEASE CHECK THE FORMAT OF THE ISSUE'
           end
         end
 
-        issue_tracker = IssueTracker.find_by_name(a.value(:tracker)).
-                        try(:show_url_for, a.value(:id)).to_s
+        issue_tracker = IssueTracker.find_by_name(a['tracker']).
+                        try(:show_url_for, a['id']).to_s
 
         @issues << [
-          a.value(:tracker),
-          a.value(:id),
+          a['tracker'],
+          a['id'],
           issue_tracker,
-          a.text
+          a['_content']
         ]
       end
     end
-    @category = @file.value(:category)
-    @rating = @file.value(:rating)
-    @summary = @file.value(:summary)
-    @name = @file.value(:name)
+    @category = patchinfo_xml.value('category')
+    @rating = patchinfo_xml.value('rating')
+    @summary = patchinfo_xml.value('summary')
+    @name = patchinfo_xml.value('name')
 
-    @description = @file.value(:description)
-    @message = @file.value(:message)
-    @relogin = @file.has_element?('relogin_needed')
-    @reboot = @file.has_element?('reboot_needed')
-    @zypp_restart_needed = @file.has_element?('zypp_restart_needed')
-    return unless @file.has_element?('stopped')
+    @description = patchinfo_xml.value('description')
+    @message = patchinfo_xml.value('message')
+    @relogin = patchinfo_xml.value('relogin_needed').present?
+    @reboot = patchinfo_xml.value('reboot_needed').present?
+    @zypp_restart_needed = patchinfo_xml.value('zypp_restart_needed').present?
+    return if patchinfo_xml.value('stopped').nil?
     @block = true
-    @block_reason = @file.value(:stopped)
+    @block_reason = patchinfo_xml.value('stopped')
   end
 
   def valid_summary?(name)
@@ -285,8 +286,8 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def get_binaries
     @binarylist = []
-    binary_list = Buildresult.find(project: params[:project], view: 'binarylist')
-    binary_list.to_hash.elements('result') do |result|
+    binary_list = Xmlhash.parse(Backend::Api::Build::Project.binarylist(params[:project]))
+    binary_list.elements('result') do |result|
       result.elements('binarylist') do |list|
         list.elements('binary') do |bin|
           next if ['rpmlint.log', 'updateinfo.xml'].include?(bin['filename'])

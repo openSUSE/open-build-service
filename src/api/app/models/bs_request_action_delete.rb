@@ -49,7 +49,7 @@ class BsRequestActionDelete < BsRequestAction
       Backend::Api::Sources::Package.source_diff(target_project, target_package, options)
     rescue Timeout::Error
       raise DiffError, "Timeout while diffing #{target_project}/#{target_package}"
-    rescue ActiveXML::Transport::Error => e
+    rescue Backend::Error => e
       raise DiffError, "The diff call for #{target_project}/#{target_package} failed: #{e.summary}"
     end
   end

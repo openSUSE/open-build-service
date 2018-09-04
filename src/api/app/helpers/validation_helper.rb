@@ -40,8 +40,8 @@ module ValidationHelper
     rescue
       raise Package::UnknownObjectError, "#{project}/#{name}"
     end
-    data = ActiveXML::Node.new(revisions_list)
-    lastrev = data.each('revision').last
+    data = Xmlhash.parse(revisions_list)
+    lastrev = data.elements('revision').last
 
     query = { deleted: 1 }
     query[:rev] = lastrev.value('srcmd5') if lastrev
@@ -61,8 +61,8 @@ module ValidationHelper
     rescue
       raise Project::UnknownObjectError, project.to_s
     end
-    data = ActiveXML::Node.new(revisions_list)
-    lastrev = data.each(:revision).last
+    data = Xmlhash.parse(revisions_list)
+    lastrev = data.elements('revision').last
     raise Project::UnknownObjectError, project.to_s unless lastrev
 
     meta = Backend::Api::Sources::Project.meta(project, revision: lastrev.value('srcmd5'), deleted: 1)
