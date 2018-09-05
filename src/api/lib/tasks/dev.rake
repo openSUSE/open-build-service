@@ -193,6 +193,12 @@ namespace :dev do
         target_project: update_project,
         maintainer: admin
       )
+
+      # Create factory dashboard projects
+      create(:project, name: 'openSUSE:Factory', description: 'requests:')
+      create(:project, name: 'openSUSE:Factory:Rings:0-Bootstrap')
+      create(:project, name: 'openSUSE:Factory:Rings:1-MinimalX')
+      create(:project, name: 'openSUSE:Factory:Staging:A')
     end
   end
 end
