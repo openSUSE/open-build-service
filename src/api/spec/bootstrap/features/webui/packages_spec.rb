@@ -40,9 +40,9 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
     end
 
     scenario 'without AutoCleanup' do
-      find('summary').click
-      check('disable-autocleanup')
-      within('#branch-modal .modal-footer') do
+      within('#branch-modal') do
+        find('summary').click
+        find('label[for="disable-autocleanup"]').click
         click_button('Accept')
       end
 
@@ -91,9 +91,11 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
 
     click_link('Request devel project change')
 
-    fill_in 'devel_project', with: third_project.name
-    fill_in 'description', with: 'Hey, why not?'
-    click_button 'Accept'
+    within('#modal') do
+      fill_in('devel_project', with: third_project.name)
+      fill_in('description', with: 'Hey, why not?')
+      click_button('Accept')
+    end
 
     find('#flash-messages', visible: false)
     request = BsRequest.where(description: 'Hey, why not?', creator: user.login, state: 'review')
