@@ -1,0 +1,6 @@
+<required_check>
+  <name>ci/example: example test</name>
+  <not-existent>ci/example: example test</not-existent>
+  <checkable_id>1</checkable_id>
+  <checkable_type>repository</checkable_type>
+</required_check>

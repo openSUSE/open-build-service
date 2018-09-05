@@ -1013,6 +1013,7 @@ CREATE TABLE `repositories` (
   `block` enum('all','local','never') CHARACTER SET utf8 DEFAULT NULL,
   `linkedbuild` enum('off','localdep','all') CHARACTER SET utf8 DEFAULT NULL,
   `hostsystem_id` int(11) DEFAULT NULL,
+  `required_checks` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`db_project_id`,`name`,`remote_project_name`) USING BTREE,
   KEY `remote_project_name_index` (`remote_project_name`) USING BTREE,
@@ -1379,6 +1380,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20180731124926'),
 ('20180731125103'),
 ('20180807114201'),
-('20180814112739');
+('20180814112739'),
+('20180903135535');
 
 
