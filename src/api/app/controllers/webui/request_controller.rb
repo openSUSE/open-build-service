@@ -1,5 +1,6 @@
 class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
+  include Webui2::RequestController
 
   before_action :require_login, except: [:show, :sourcediff, :diff]
   # requests do not really add much value for our page rank :)
@@ -178,6 +179,7 @@ class Webui::RequestController < Webui::WebuiController
   def list_small
     redirect_to(user_show_path(User.current)) && return unless request.xhr? # non ajax request
     requests = BsRequest.list(params)
+    switch_to_webui2
     render partial: 'requests_small', locals: { requests: requests }
   end
 
@@ -252,6 +254,9 @@ class Webui::RequestController < Webui::WebuiController
       @current_devel_package = @package.develpackage.name
       @current_devel_project = @package.develpackage.project.name
     end
+
+    return if switch_to_webui2
+
     render_dialog
   end
 

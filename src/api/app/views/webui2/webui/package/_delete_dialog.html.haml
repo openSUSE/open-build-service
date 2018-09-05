@@ -1,0 +1,27 @@
+.modal.fade#delete-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-modal-label', hidden: true } }
+  .modal-dialog{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title#delete-modal-label Do you really want to delete this package?
+      .modal-body
+        - if package.develpackages.any?
+          %p
+            %i.fas.fa-exclamation-circle.text-danger
+            %span.small Warning: This package is used by the following packages for development
+          %ul.list-unstyled
+            - package.develpackages.each do |devel_package|
+              %li.small
+                -# FIXME: get rid of this helper
+                = project_or_package_link(project: devel_package.project.name, package: devel_package.name, short: true)
+        - else
+          %p Please confirm deletion of #{package_link package}
+        = form_tag({ controller: :package, action: :remove }, method: :post) do
+          = hidden_field_tag(:project, project)
+          = hidden_field_tag(:package, package)
+          - if package.develpackages.any?
+            .form-group.form-check
+              = check_box_tag(:force, 'cleanup', cleanup_source, class: 'form-check-input')
+              = label_tag(:force, 'Delete anyway?', class: 'form-check-label')
+
+          .modal-footer
+            = render partial: 'webui2/shared/dialog_action_buttons'

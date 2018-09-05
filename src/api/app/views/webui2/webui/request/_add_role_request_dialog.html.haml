@@ -1,0 +1,27 @@
+.modal.fade#add-role-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'add-role-modal-label', hidden: true } }
+  .modal-dialog{ role: 'document' }
+    .modal-content
+      = form_tag(add_role_request_path(project: project)) do
+        .modal-header
+          %h5.modal-title#add-role-modal-label Add Role Request
+        .modal-body
+          %p
+            -# FIXME: get rid of this helper
+            Do you want to request a role addition to #{project_or_package_link(project: project.name, package: package.name)}?
+          = hidden_field_tag(:package, package) if defined?(package)
+          .form-group
+            = label_tag(:role, 'Add role:')
+            = select_tag(:role, options_for_select([['Maintainer', 'maintainer'], ['Bugowner', 'bugowner']]), class: 'form-control')
+          .form-group
+            = label_tag(:user, 'For user:')
+            = text_field_tag(:user, User.current.login, class: 'form-control')
+          - if defined?(package)
+            .form-group
+              = label_tag(:target_project, 'In target project:')
+              = text_field_tag(:target_project, project, disabled: true, class: 'form-control')
+          .form-group
+            = label_tag(:description, 'Description:')
+            = text_area_tag(:description, '', row: 3, class: 'form-control')
+          .modal-footer
+            = render partial: 'webui2/shared/dialog_action_buttons'
+

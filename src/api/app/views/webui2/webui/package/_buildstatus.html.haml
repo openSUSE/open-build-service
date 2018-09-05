@@ -1,0 +1,39 @@
+- unless buildresults.excluded_counter.zero? && !buildresults.show_all
+  .mt-3.small.custom-control-checkbox
+    = check_box_tag("show_all_#{index}", true, buildresults.show_all, class: 'custom-control-input d-none',
+                    onchange: "updateBuildResult('#{index}')")
+    - label_message = buildresults.excluded_counter.zero? ? 'Hide' : "Show #{buildresults.excluded_counter}"
+    = label_tag "show_all_#{index}" do
+      %u.custom-label #{label_message} excluded results
+
+- buildresults.results.each_pair do |package, results|
+  %h5.text-primary.mt-3.mb-3= package
+  .mb-2#package-buildstatus
+    .mb-0.small.px-3
+      - if results.present?
+        - previous_repo = nil
+        - results.each do |result|
+          - repository = project.repositories.find_by_name(result.repository)
+          - if result.repository != previous_repo
+            .row.py-1.bg-light
+              .col{ title: result.repository.to_s }
+                = link_to(word_break(result.repository, 22),
+                  package_binaries_path(project: project, package: package, repository: result.repository),
+                  data: { content: "Binaries for #{result.repository}", placement: 'top', toggle: 'popover' })
+          .row.py-1
+            .col.col-sm-2.col-md
+            .col-4.col-sm-3.text-nowrap
+              - if !(repository && repository.architectures.pluck(:name).include?(result.architecture))
+                %i.fas.fa-clock.text-obs-yellow{ title: 'This result is outdated' }
+              - else
+                = webui2_repo_status_icon(result.state, result.details)
+              %span.ml-1
+                = result.architecture
+            .col-6.col-sm-5.buildstatus.text-nowrap
+              = webui2_arch_repo_table_cell(result.repository, result.architecture, package, 'code' => result.code, 'details' => result.details)
+          - previous_repo = result.repository
+      - else
+        .row
+          .col
+            All the results have state
+            %strong excluded

@@ -1,0 +1,19 @@
+%hr
+.media
+  = user_image_tag(comment.user, size: 35, css_class: 'mr-3')
+  .media-body
+    %p
+      = link_to(comment.user, user_show_path(comment.user))
+      wrote
+      %u{ title: l(comment.created_at.utc) }
+        = time_ago_in_words(comment.created_at)
+    = render_as_markdown(comment)
+    = render partial: 'webui2/webui/comment/links', locals: { comment: comment }
+    = render partial: 'webui2/webui/comment/reply', locals: { comment: comment, level: 0, commentable: commentable }
+    - unless level > 3
+      - comment.children.each do |children|
+        = render partial: 'webui2/webui/comment/content', locals: { comment: children, commentable: commentable, level: level + 1 }
+
+- if level > 3
+  - comment.children.each do |children|
+    = render partial: 'webui2/webui/comment/content', locals: { comment: children, commentable: commentable, level: level + 1 }

@@ -120,7 +120,7 @@ OBSApi::Application.routes.draw do
         post 'package/branch' => :branch, constraints: cons
         post 'package/save/:project/:package' => :save, constraints: cons
         post 'package/remove/:project/:package' => :remove, constraints: cons
-        get 'package/add_file/:project/:package' => :add_file, constraints: cons
+        get 'package/add_file/:project/:package' => :add_file, constraints: cons, as: 'package_add_file'
         post 'package/save_file/:project/:package' => :save_file, constraints: cons
         post 'package/remove_file/:project/:package/:filename' => :remove_file, constraints: cons
         post 'package/save_person/:project/:package' => :save_person, constraints: cons
@@ -129,18 +129,18 @@ OBSApi::Application.routes.draw do
         get 'package/view_file/:project/:package/(:filename)' => :view_file, constraints: cons, as: 'package_view_file'
         get 'package/live_build_log/:project/:package/:repository/:arch' => :live_build_log, constraints: cons, as: 'package_live_build_log'
         defaults format: 'js' do
-          get 'package/linking_packages/:project/:package' => :linking_packages, constraints: cons
+          get 'package/linking_packages/:project/:package' => :linking_packages, constraints: cons, as: 'linking_packages'
           get 'package/update_build_log/:project/:package/:repository/:arch' => :update_build_log, constraints: cons
-          get 'package/submit_request_dialog/:project/:package' => :submit_request_dialog, constraints: cons
-          get 'package/delete_dialog/:project/:package' => :delete_dialog, constraints: cons
+          get 'package/submit_request_dialog/:project/:package' => :submit_request_dialog, constraints: cons, as: 'package_submit_request_dialog'
+          get 'package/delete_dialog/:project/:package' => :delete_dialog, constraints: cons, as: 'package_delete_dialog'
           post 'package/trigger_rebuild/:project/:package' => :trigger_rebuild, constraints: cons
           get 'package/abort_build/:project/:package' => :abort_build, constraints: cons
-          post 'package/trigger_services/:project/:package' => :trigger_services, constraints: cons
+          post 'package/trigger_services/:project/:package' => :trigger_services, constraints: cons, as: 'package_trigger_services'
           delete 'package/wipe_binaries/:project/:package' => :wipe_binaries, constraints: cons
         end
-        get 'package/devel_project/:project/:package' => :devel_project, constraints: cons
-        get 'package/buildresult' => :buildresult, constraints: cons
-        get 'package/rpmlint_result' => :rpmlint_result, constraints: cons
+        get 'package/devel_project/:project/:package' => :devel_project, constraints: cons, as: 'package_devel_project'
+        get 'package/buildresult' => :buildresult, constraints: cons, as: 'package_buildresult'
+        get 'package/rpmlint_result' => :rpmlint_result, constraints: cons, as: 'rpmlint_result'
         get 'package/rpmlint_log' => :rpmlint_log, constraints: cons
         get 'package/meta/:project/:package' => :meta, constraints: cons, as: 'package_meta'
         post 'package/save_meta/:project/:package' => :save_meta, constraints: cons
@@ -237,7 +237,7 @@ OBSApi::Application.routes.draw do
       get 'project/list_public' => :index
       get 'project/list_all' => :index, show_all: true
       get 'project/list' => :index
-      get 'project/autocomplete_projects' => :autocomplete_projects
+      get 'project/autocomplete_projects' => :autocomplete_projects, as: 'autocomplete_projects'
       get 'project/autocomplete_incidents' => :autocomplete_incidents
       get 'project/autocomplete_packages' => :autocomplete_packages
       get 'project/autocomplete_repositories' => :autocomplete_repositories
@@ -256,7 +256,7 @@ OBSApi::Application.routes.draw do
       get 'project/linking_projects/:project' => :linking_projects, constraints: cons
       get 'project/add_person/:project' => :add_person, constraints: cons
       get 'project/add_group/:project' => :add_group, constraints: cons
-      get 'project/buildresult' => :buildresult, constraints: cons
+      get 'project/buildresult' => :buildresult, constraints: cons, as: 'project_buildresult'
       get 'project/delete_dialog' => :delete_dialog
       get 'project/new' => :new, as: 'new_project'
       post 'project/create' => :create, constraints: cons, as: 'projects_create'
@@ -327,15 +327,15 @@ OBSApi::Application.routes.draw do
       post 'request/sourcediff' => :sourcediff
       post 'request/changerequest' => :changerequest
       get 'request/diff/:number' => :diff
-      get 'request/list_small' => :list_small
-      get 'request/delete_request_dialog' => :delete_request_dialog
-      post 'request/delete_request/:project' => :delete_request, constraints: cons
-      get 'request/add_role_request_dialog' => :add_role_request_dialog
-      post 'request/add_role_request/:project' => :add_role_request, constraints: cons
+      get 'request/list_small' => :list_small, as: 'request_list_small'
+      get 'request/delete_request_dialog' => :delete_request_dialog, as: 'request_delete_dialog'
+      post 'request/delete_request/:project' => :delete_request, constraints: cons, as: 'delete_request'
+      get 'request/add_role_request_dialog' => :add_role_request_dialog, as: 'request_add_role_dialog'
+      post 'request/add_role_request/:project' => :add_role_request, constraints: cons, as: 'add_role_request'
       get 'request/set_bugowner_request_dialog' => :set_bugowner_request_dialog
       post 'request/set_bugowner_request' => :set_bugowner_request
-      get 'request/change_devel_request_dialog/:project/:package' => :change_devel_request_dialog, constraints: cons
-      post 'request/change_devel_request/:project/:package' => :change_devel_request, constraints: cons
+      get 'request/change_devel_request_dialog/:project/:package' => :change_devel_request_dialog, constraints: cons, as: 'request_change_devel_dialog'
+      post 'request/change_devel_request/:project/:package' => :change_devel_request, constraints: cons, as: 'change_devel_request'
       get 'request/set_incident_dialog' => :set_incident_dialog
       post 'request/set_incident' => :set_incident
     end
