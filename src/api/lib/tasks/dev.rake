@@ -138,7 +138,7 @@ namespace :dev do
   end
   namespace :development_testdata do
     task create: :environment do
-      unless Rails.env.to_s == 'development'
+      unless Rails.env.development?
         puts "You are running this rake task in #{Rails.env} environment."
         puts 'Please only run this task with RAILS_ENV=development'
         puts 'otherwise it will destroy your database data.'
