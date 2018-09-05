@@ -897,7 +897,7 @@ class BsRequestAction < ApplicationRecord
         end
         self.source_rev = dir['srcmd5']
       end
-    rescue ActiveXML::Transport::Error
+    rescue Backend::Error
       raise ExpandError, "The source of package #{source_project}/#{source_package}#{source_rev ? " for revision #{source_rev}" : ''} is broken"
     end
   end

@@ -48,7 +48,7 @@ RSpec.describe Package, vcr: true do
         it 'deletes file' do
           expect do
             package_with_file.source_file('somefile.txt')
-          end.to raise_error(ActiveXML::Transport::NotFoundError)
+          end.to raise_error(Backend::NotFoundError)
         end
 
         it 'sets options correct' do
@@ -89,7 +89,7 @@ RSpec.describe Package, vcr: true do
       it 'raises NotFoundError' do
         expect do
           package_with_file.source_file('not_existent.txt')
-        end.to raise_error(ActiveXML::Transport::NotFoundError)
+        end.to raise_error(Backend::NotFoundError)
       end
     end
   end
@@ -377,7 +377,7 @@ RSpec.describe Package, vcr: true do
 
     context 'with invalid repository or architecture' do
       before do
-        allow(Backend::Connection).to receive(:get).and_raise(ActiveXML::Transport::NotFoundError.new('message'))
+        allow(Backend::Connection).to receive(:get).and_raise(Backend::NotFoundError.new('message'))
       end
 
       it 'returns an empty array' do
@@ -404,7 +404,7 @@ RSpec.describe Package, vcr: true do
     end
 
     context 'backend response fails' do
-      before { stub_request(:post, backend_url).and_raise(ActiveXML::Transport::Error) }
+      before { stub_request(:post, backend_url).and_raise(Backend::Error) }
 
       it { is_expected.to be_falsey }
 
@@ -479,7 +479,7 @@ RSpec.describe Package, vcr: true do
     end
 
     context 'when response fails' do
-      before { stub_request(:get, backend_url).and_raise(ActiveXML::Transport::NotFoundError) }
+      before { stub_request(:get, backend_url).and_raise(Backend::NotFoundError) }
 
       it { is_expected.to eq([]) }
     end

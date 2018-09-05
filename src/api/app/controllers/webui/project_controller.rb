@@ -403,17 +403,16 @@ class Webui::ProjectController < Webui::WebuiController
     monitor_set_filter(defaults)
 
     find_opt = { project: @project, view: 'status', code: @status_filter,
-      arch: @arch_filter, repo: @repo_filter }
+      arch: @arch_filter, repository: @repo_filter }
     find_opt[:lastbuild] = 1 if @lastbuild_switch.present?
 
-    @buildresult = Buildresult.find(find_opt)
-    unless @buildresult
+    @buildresult = Buildresult.find_hashed(find_opt)
+    if @buildresult.empty?
       flash[:warning] = "No build results for project '#{@project}'"
       redirect_to action: :show, project: params[:project]
       return
     end
 
-    @buildresult = @buildresult.to_hash
     unless @buildresult.key?('result')
       @buildresult_unavailable = true
       return
@@ -454,7 +453,7 @@ class Webui::ProjectController < Webui::WebuiController
     check_ajax
     begin
       @buildresult = Buildresult.find_hashed(project: params[:project], package: params[:package], view: 'status', lastbuild: 1)
-    rescue ActiveXML::Transport::Error # wild work around for backend bug (sends 400 for 'not found')
+    rescue Backend::Error # wild work around for backend bug (sends 400 for 'not found')
     end
     @repohash = {}
     @statushash = {}
@@ -1044,12 +1043,6 @@ class Webui::ProjectController < Webui::WebuiController
       end
     end
     ret
-  end
-
-  def filter_packages(project, filterstring)
-    result = Collection.find(:id, what: 'package',
-      predicate: "@project='#{project}' and contains(@name,'#{filterstring}')")
-    result.each.map(&:name)
   end
 
   def users_path

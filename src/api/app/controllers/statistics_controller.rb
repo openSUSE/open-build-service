@@ -1,5 +1,3 @@
-require 'rexml/document'
-require 'rexml/streamlistener'
 require 'statistics_calculations'
 
 class StatisticsController < ApplicationController
@@ -48,16 +46,16 @@ class StatisticsController < ApplicationController
 
       # try to get previous rating of this user for this object
       previous_rating = Rating.where('object_type=? AND object_id=? AND user_id=?', object.class.name, object.id, User.current.id).first
-      data = ActiveXML::Node.new(request.raw_post)
+      data = Xmlhash.parse(request.raw_post)
       if previous_rating
         # update previous rating
-        previous_rating.score = data.to_s.to_i
+        previous_rating.score = data.to_i
         previous_rating.save
       else
         # create new rating entry
         begin
           rating = Rating.new
-          rating.score = data.to_s.to_i
+          rating.score = data.to_i
           rating.object_type = object.class.name
           rating.object_id = object.id
           rating.user_id = User.current.id

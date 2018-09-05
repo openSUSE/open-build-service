@@ -29,8 +29,8 @@ module ObsFactory
       'Test-DVD'
     end
 
-    def totest_version_file
-      'images/local/000product:openSUSE-cd-mini-x86_64'
+    def totest_version_package
+      '000product:openSUSE-cd-mini-x86_64'
     end
 
     def arch
@@ -77,9 +77,7 @@ module ObsFactory
     #
     # @return [String] file name
     def project_iso(project)
-      buildresult = Buildresult.find_hashed(project: project.name, package: "#{test_dvd_prefix}-#{arch}",
-                                            repository: 'images',
-                                            view: 'binarylist')
+      buildresult = Buildresult.find_hashed(project: project.name, package: "#{test_dvd_prefix}-#{arch}", repository: 'images', view: 'binarylist')
       # we get multiple architectures, but only one with binaries
       buildresult.elements('result') do |r|
         r.get('binarylist').elements('binary') do |b|
@@ -98,7 +96,7 @@ module ObsFactory
     #
     # @return [String] version string
     def totest_version
-      d = Xmlhash.parse(ActiveXML.backend.direct_http("/build/#{project.name}:ToTest/#{totest_version_file}"))
+      d = Xmlhash.parse(Backend::Api::BuildResults::Binaries.files("#{project.name}:ToTest", 'images', 'local', totest_version_package))
       d.elements('binary') do |b|
         matchdata = /.*(Snapshot|Build)(.*)-Media\.iso$/.match(b['filename'])
         return matchdata[2] if matchdata

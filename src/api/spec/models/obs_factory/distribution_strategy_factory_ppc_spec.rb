@@ -9,8 +9,8 @@ RSpec.describe ObsFactory::DistributionStrategyFactoryPPC do
     it { expect(strategy.root_project_name).to eq('openSUSE:Factory') }
   end
 
-  describe 'totest_version_file' do
-    it { expect(strategy.totest_version_file).to eq('images/local/000product:openSUSE-cd-mini-ppc64le') }
+  describe 'totest_version_package' do
+    it { expect(strategy.totest_version_package).to eq('000product:openSUSE-cd-mini-ppc64le') }
   end
 
   describe 'arch' do

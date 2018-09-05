@@ -119,11 +119,11 @@ module Backend
       when Net::HTTPSuccess, Net::HTTPRedirection, Net::HTTPOK
         return response
       when Net::HTTPNotFound
-        raise ActiveXML::Transport::NotFoundError, response.read_body.force_encoding('UTF-8')
+        raise Backend::NotFoundError, response.read_body.force_encoding('UTF-8')
       else
         message = response.read_body
         message = response.to_s if message.blank?
-        raise ActiveXML::Transport::Error, message.force_encoding('UTF-8')
+        raise Backend::Error, message.force_encoding('UTF-8')
       end
     end
 

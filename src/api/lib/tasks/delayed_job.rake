@@ -10,7 +10,7 @@ task(importrequests: :environment) do
   while lastrq > 0
     begin
       xml = Backend::Api::Request.info(lastrq)
-    rescue ActiveXML::Transport::Error
+    rescue Backend::Error
       lastrq -= 1
       next
     end

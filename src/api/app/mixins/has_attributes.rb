@@ -17,7 +17,7 @@ module HasAttributes
     else
       Backend::Api::Sources::Project.write_attributes(project_name, User.current.login, render_attribute_axml)
     end
-  rescue ActiveXML::Transport::Error => e
+  rescue Backend::Error => e
     raise AttributeSaveError, e.summary
   end
 

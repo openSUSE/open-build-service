@@ -423,11 +423,21 @@ OBSApi::Application.routes.draw do
     get 'apidocs/(index)' => 'webui/apidocs#index', as: 'apidocs_index'
   end
 
+  scope :worker, as: :worker do
+    resources :status, only: [:index], controller: 'worker/status'
+    resources :capability, only: [:show], param: :worker, controller: 'worker/capability'
+    resources :command, only: [], controller: 'worker/command' do
+      collection do
+        post 'run'
+      end
+    end
+  end
+
   ### /worker
-  get 'worker/_status' => 'status#workerstatus'
-  get 'build/_workerstatus' => 'status#workerstatus' # FIXME3.0: drop this compat route
-  get 'worker/:worker' => 'status#workercapability'
-  post 'worker' => 'status#workercommand'
+  get 'worker/_status' => 'worker/status#index'
+  get 'build/_workerstatus' => 'worker/status#index' # FIXME3.0: drop this compat route
+  get 'worker/:worker' => 'worker/capability#show'
+  post 'worker' => 'worker/command#run'
 
   ### /build
   get 'build/:project/:repository/:arch/:package/_log' => 'build#logfile', constraints: cons, as: :raw_logfile
@@ -612,11 +622,11 @@ OBSApi::Application.routes.draw do
       # --------------------------
       get 'status_message' => 'status_messages#index'
 
-      get 'status/workerstatus' => :workerstatus
+      get 'status/workerstatus' => 'worker/status#index'
       get 'status/history' => :history
       get 'status/project/:project' => :project, constraints: cons
       get 'status/bsrequest' => :bsrequest
-      get 'public/status/workerstatus' => :workerstatus
+      get 'public/status/workerstatus' => 'worker/status#index'
       get 'public/status/history' => :history
       get 'public/status/project' => :project
       get 'public/status/bsrequest' => :bsrequest

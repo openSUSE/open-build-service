@@ -609,12 +609,13 @@ class XpathEngine
       # we used to support it :/
       @condition_values_needed = 2 if expr.first == :attribute
       cond = evaluate_expr(expr, root)
-      condition = "(NOT #{cond} OR ISNULL(#{cond}))"
-      @condition_values_needed = 1
     else
+      @condition_values_needed = 2
       parse_predicate(root, expr)
-      condition = "(#{@conditions.pop})"
+      cond = @conditions.pop
     end
+    condition = "(NOT #{cond} OR ISNULL(#{cond}))"
+    @condition_values_needed = 1
     # logger.debug "-- condition : [#{condition}]"
     @conditions << condition
   end

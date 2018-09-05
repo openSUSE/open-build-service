@@ -145,7 +145,6 @@ Lint/Debugger:
 Lint/DuplicateMethods:
   Exclude:
     - 'app/models/history_element.rb'
-    - 'lib/activexml/node.rb'
 
 # Offense count: 22
 Lint/HandleExceptions:
@@ -183,7 +182,7 @@ Lint/RescueException:
 # Offense count: 1
 Lint/ShadowedException:
   Exclude:
-    - 'lib/activexml/transport.rb'
+    - 'app/models/project/remote_url.rb'
 
 # Offense count: 17
 # Cop supports --auto-correct.
@@ -299,7 +298,6 @@ Naming/HeredocDelimiterNaming:
 Naming/MemoizedInstanceVariableName:
   Exclude:
     - 'app/models/obs_factory/distribution.rb'
-    - 'lib/activexml/transport.rb'
     - 'lib/authenticator.rb'
 
 # Offense count: 11
@@ -338,7 +336,6 @@ Naming/PredicateName:
     - 'app/models/repository.rb'
     - 'app/models/user.rb'
     - 'app/models/user_ldap_strategy.rb'
-    - 'lib/activexml/node.rb'
 
 # Offense count: 62
 # Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
@@ -762,8 +759,6 @@ Style/ClassVars:
     - 'app/models/obs_factory/openqa_job.rb'
     - 'app/models/user.rb'
     - 'app/models/user_ldap_strategy.rb'
-    - 'lib/activexml/node.rb'
-    - 'lib/activexml/transport.rb'
     - 'test/functional/branch_publish_flag_test.rb'
     - 'test/test_helper.rb'
 
@@ -1067,7 +1062,6 @@ Style/SymbolProc:
 # Whitelist: to_ary, to_a, to_c, to_enum, to_h, to_hash, to_i, to_int, to_io, to_open, to_path, to_proc, to_r, to_regexp, to_str, to_s, to_sym
 Style/TrivialAccessors:
   Exclude:
-    - 'lib/activexml/node.rb'
     - 'test/test_helper.rb'
 
 # Offense count: 1
