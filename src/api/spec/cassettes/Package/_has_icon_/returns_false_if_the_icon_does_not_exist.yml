@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:57 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Unweaving the Rainbow</title>
-          <description>Earum maxime nam blanditiis voluptate eius nihil aut eum.</description>
+          <title>The Line of Beauty</title>
+          <description>Et ullam non eum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '143'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Unweaving the Rainbow</title>
-          <description>Earum maxime nam blanditiis voluptate eius nihil aut eum.</description>
+          <title>The Line of Beauty</title>
+          <description>Et ullam non eum.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:57 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/test_package/_meta
+    uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Unweaving the Rainbow</title>
-          <description>Earum maxime nam blanditiis voluptate eius nihil aut eum.</description>
+          <title>The Line of Beauty</title>
+          <description>Et ullam non eum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '143'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Unweaving the Rainbow</title>
-          <description>Earum maxime nam blanditiis voluptate eius nihil aut eum.</description>
+          <title>The Line of Beauty</title>
+          <description>Et ullam non eum.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:57 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package
@@ -144,16 +144,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '298'
+      - '300'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="2" vrev="2" srcmd5="9b1c1ddcaab8327d31b5f9d882782630">
-          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1526982880" />
-          <entry name="foo.spec" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1526982881" />
+        <directory name="test_package" rev="34" vrev="34" srcmd5="9b1c1ddcaab8327d31b5f9d882782630">
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1536154844" />
+          <entry name="foo.spec" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1536154843" />
         </directory>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:57 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package
@@ -179,14 +179,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '298'
+      - '300'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="2" vrev="2" srcmd5="9b1c1ddcaab8327d31b5f9d882782630">
-          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1526982880" />
-          <entry name="foo.spec" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1526982881" />
+        <directory name="test_package" rev="34" vrev="34" srcmd5="9b1c1ddcaab8327d31b5f9d882782630">
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1536154844" />
+          <entry name="foo.spec" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1536154843" />
         </directory>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:57 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
 recorded_with: VCR 4.0.0

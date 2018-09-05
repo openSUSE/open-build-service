@@ -1251,7 +1251,7 @@ class Package < ApplicationRecord
   def serviceinfo
     begin
       dir = Directory.hashed(project: project.name, package: name)
-      return dir['serviceinfo'] if dir
+      return dir.fetch('serviceinfo', {}) if dir
     rescue Backend::NotFoundError
     end
     {}

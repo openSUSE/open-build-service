@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 18:24:28 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:36 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/_meta?user=tom
@@ -48,7 +48,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="my_project">
-          <title>An Acceptable Time</title>
+          <title>Endless Night</title>
           <description/>
         </project>
     headers:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '105'
+      - '100'
     body:
       encoding: UTF-8
       string: |
         <project name="my_project">
-          <title>An Acceptable Time</title>
+          <title>Endless Night</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 18:24:28 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:36 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/dashboard_1/_meta?user=tom
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="dashboard_1" project="my_project">
-          <title>In Death Ground</title>
-          <description>Amet itaque unde ut.</description>
+          <title>The Wings of the Dove</title>
+          <description>Rerum temporibus nisi et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="dashboard_1" project="my_project">
-          <title>In Death Ground</title>
-          <description>Amet itaque unde ut.</description>
+          <title>The Wings of the Dove</title>
+          <description>Rerum temporibus nisi et.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 18:24:28 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:36 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/dashboard_1/_meta?user=tom
@@ -126,8 +126,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="dashboard_1" project="my_project">
-          <title>In Death Ground</title>
-          <description>Amet itaque unde ut.</description>
+          <title>The Wings of the Dove</title>
+          <description>Rerum temporibus nisi et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -148,22 +148,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="dashboard_1" project="my_project">
-          <title>In Death Ground</title>
-          <description>Amet itaque unde ut.</description>
+          <title>The Wings of the Dove</title>
+          <description>Rerum temporibus nisi et.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 18:24:28 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:36 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/dashboard_1/_config
     body:
       encoding: UTF-8
-      string: A totam deleniti. Vel quibusdam repellat. Debitis asperiores et.
+      string: Libero eligendi nulla. Recusandae autem eligendi. Ipsum similique nihil.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -183,20 +183,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>74035bcb47c99320dbe96b226a4ed908</srcmd5>
+        <revision rev="23" vrev="23">
+          <srcmd5>48d0673d36115b67425421897984578b</srcmd5>
           <version>unknown</version>
-          <time>1532975068</time>
+          <time>1536230736</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 18:24:28 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:36 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/dashboard_1/ignored_requests
@@ -222,20 +222,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
-          <srcmd5>74035bcb47c99320dbe96b226a4ed908</srcmd5>
+        <revision rev="24" vrev="24">
+          <srcmd5>48d0673d36115b67425421897984578b</srcmd5>
           <version>unknown</version>
-          <time>1532975068</time>
+          <time>1536230736</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 18:24:28 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:36 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/dashboard_1
@@ -261,16 +261,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '301'
+      - '303'
     body:
       encoding: UTF-8
       string: |
-        <directory name="dashboard_1" rev="4" vrev="4" srcmd5="74035bcb47c99320dbe96b226a4ed908">
-          <entry name="_config" md5="b41cc8a3533ec24e8e5e968e386fe438" size="64" mtime="1532975068" />
-          <entry name="ignored_requests" md5="e1dcf98b4c823827be0a0524052ae95a" size="8" mtime="1532970094" />
+        <directory name="dashboard_1" rev="24" vrev="24" srcmd5="48d0673d36115b67425421897984578b">
+          <entry name="_config" md5="56452786dd612e766f48a902b8057c38" size="72" mtime="1536230736" />
+          <entry name="ignored_requests" md5="e1dcf98b4c823827be0a0524052ae95a" size="8" mtime="1536154843" />
         </directory>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 18:24:28 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:36 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/dashboard_1
@@ -296,16 +296,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '301'
+      - '303'
     body:
       encoding: UTF-8
       string: |
-        <directory name="dashboard_1" rev="4" vrev="4" srcmd5="74035bcb47c99320dbe96b226a4ed908">
-          <entry name="_config" md5="b41cc8a3533ec24e8e5e968e386fe438" size="64" mtime="1532975068" />
-          <entry name="ignored_requests" md5="e1dcf98b4c823827be0a0524052ae95a" size="8" mtime="1532970094" />
+        <directory name="dashboard_1" rev="24" vrev="24" srcmd5="48d0673d36115b67425421897984578b">
+          <entry name="_config" md5="56452786dd612e766f48a902b8057c38" size="72" mtime="1536230736" />
+          <entry name="ignored_requests" md5="e1dcf98b4c823827be0a0524052ae95a" size="8" mtime="1536154843" />
         </directory>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 18:24:28 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:36 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/dashboard_1/ignored_requests
@@ -336,5 +336,5 @@ http_interactions:
       encoding: UTF-8
       string: 'foo: bar'
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 18:24:28 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:36 GMT
 recorded_with: VCR 4.0.0

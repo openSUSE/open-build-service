@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:48 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>The Millstone</title>
-          <description>Non voluptates et quasi eum maiores architecto.</description>
+          <title>Recalled to Life</title>
+          <description>Nihil beatae sed saepe.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '153'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>The Millstone</title>
-          <description>Non voluptates et quasi eum maiores architecto.</description>
+          <title>Recalled to Life</title>
+          <description>Nihil beatae sed saepe.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:48 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:49 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/package_with_files/_meta
+    uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>The Millstone</title>
-          <description>Non voluptates et quasi eum maiores architecto.</description>
+          <title>Recalled to Life</title>
+          <description>Nihil beatae sed saepe.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,24 +109,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '153'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>The Millstone</title>
-          <description>Non voluptates et quasi eum maiores architecto.</description>
+          <title>Recalled to Life</title>
+          <description>Nihil beatae sed saepe.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:48 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Voluptatem quisquam voluptate sit officiis. Aliquid magnam sed iure
-        et et animi. Eveniet voluptatem quam quia quia. Repellendus vitae numquam
-        tempora ea debitis et.
+      string: Dignissimos cupiditate alias. Velit enim aut. Nesciunt est dolorum.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -146,27 +144,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="14" vrev="14">
-          <srcmd5>d5643c42cd998f24db0557a0cc258ef2</srcmd5>
+        <revision rev="431" vrev="431">
+          <srcmd5>e3c35d1f32aeb20195b22f91492fcc0e</srcmd5>
           <version>unknown</version>
-          <time>1526982888</time>
+          <time>1536230749</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:48 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Id neque aspernatur reprehenderit. Aliquid occaecati explicabo ipsa.
-        Accusamus at non ex delectus.
+      string: Magnam dolores quos. Dolorum aut nostrum. Repellat nisi aliquid.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -186,20 +183,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="15" vrev="15">
-          <srcmd5>d5643c42cd998f24db0557a0cc258ef2</srcmd5>
+        <revision rev="432" vrev="432">
+          <srcmd5>ada867fe73461f69c859c58fbe97ee71</srcmd5>
           <version>unknown</version>
-          <time>1526982888</time>
+          <time>1536230749</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:48 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_files/not_existent.txt
@@ -234,5 +231,5 @@ http_interactions:
           <details>404 not_existent.txt: no such file</details>
         </status>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:48 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:49 GMT
 recorded_with: VCR 4.0.0
