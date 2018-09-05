@@ -1,0 +1,6 @@
+<%# FIXME: get rif of this file %>
+$('#modal').html('<%= raw @dialog_html %>');
+<% unless @dialog_init.blank? -%>
+<%= @dialog_init %>();
+<% end -%>
+$('#modal').modal('show');

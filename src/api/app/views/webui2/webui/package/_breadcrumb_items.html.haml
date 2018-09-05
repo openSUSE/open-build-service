@@ -7,3 +7,6 @@
 - if current_page?(package_requests_path)
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Requests
+- if current_page?(package_show_path)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Overview

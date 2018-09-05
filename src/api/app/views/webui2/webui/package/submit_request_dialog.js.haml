@@ -1,0 +1,6 @@
+:plain
+  $('#modal').html("#{escape_javascript(render(partial: 'submit_request_dialog',
+                                               locals: { project: @project, package: @package,
+                                               revision: @revision, target_project: @tprj, target_package: @tpkg,
+                                               description: @description, cleanup_source: @cleanup_source }))}")
+  $('#modal').modal('show');

@@ -1,0 +1,412 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Jane/_meta?user=Jane
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Jane">
+          <title/>
+          <description/>
+          <person userid="Jane" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '131'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Jane">
+          <title></title>
+          <description></description>
+          <person userid="Jane" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 16 Aug 2018 15:20:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:Jane/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Thu, 16 Aug 2018 15:20:50 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Jane/_keyinfo?donotcreatecert=1&withsslcert=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1538'
+    body:
+      encoding: UTF-8
+      string: |
+        <keyinfo project="home:Jane">
+          <pubkey keyid="0180e39b" algo="rsa" keysize="2048" expires="1603532116" fingerprint="8811 4161 ff0f b89d 617c 984a 3de9 fb77 0180 e39b">-----BEGIN PGP PUBLIC KEY BLOCK-----
+        Version: GnuPG v2
+
+        mQENBFt1RVQBCADnjEvy73awjassKYqKm9rK3vGGiugXXSznR09z5mX2y9wY4b05
+        aXzK76hOS4Bxb/XloPTPzC7u4r7fndumc9+G6liRgdZv8NWxtAUmnXm8mLTmaBbO
+        T8RuOCvHVq7f4H4HuB461hPRMZmya6UdYboiBjC8fml8d60ub0xJZRXlaM9eMTFw
+        JeAhw/JwS95WakRvyT756oc/u1zW3S7UMIzefmYQkwkI1yzkK019WMC2hJIvkEiz
+        sLCdRSlCnDZt60anFg6JS+PX0W/Kv4PSed4zxd6uuLxfR3SKIw+Dix8ZRfRZY30k
+        3rkUXnPM1OTDts2N1YV1ObhWJmRarbTsa/DfABEBAAG0KWhvbWU6SmFuZSBPQlMg
+        UHJvamVjdCA8aG9tZTpKYW5lQHByaXZhdGU+iQE/BBMBAgApBQJbdUVUAhsDBQkE
+        HrAABwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQPen7dwGA45utNgf/d/o4
+        vDfkw0B8EQij4L65Wf5rEIe7Mu5B3ViT6CBS++uRhhTMDE8pPqUzaStRJhxpMSlv
+        nuJfyptV+bDkFf6XocSUM+wAiCYnoxJ4gDQawuRBJu4Hxjc8g8yXhXFScEVGVf2W
+        E6gQ12/sr9K0Yws0PYIKzquLHl8C362elFxDjx20bhB3qF1cZNNKNEJRSCzdMkav
+        HtcCx9bCeuvauXKhxGhBIVkHcjDD6JhkxZEY0/tepZgOB1amdO48sWYOClZwJXcP
+        An4IAvJj7h2sSKd+OA7WnpuNvgKRatHPc97gWRYMdKlGt57YmRj4yREzTpWAvpjD
+        x0CxlQLew6iseVDio4kBHAQTAQIABgUCW3VFVAAKCRC/9fknuEcc6zGlB/96/FS9
+        LqF/LAFRNE+BHJzxEG4Vx+gZ65layXQ9Z20cS9PZ4p1axqVr6N2SqDQgR7bYgXUm
+        sYJFF90GSy/HvH9dZnK24J8+OUOitdojYNFbZgq/6tmr63JhqT1JCEcLWRpsnnme
+        T/SvWRwd3FVlumT11zPbIoeur8UYSlDeW6FdSEL35KRJwE6gsVUhrMwj840fxcf5
+        g9JbMtaBgQiUS7EmmLcD07qwtWCHLk5pUw/O8Lk9nw4EiUmN2MDBol3PSCCDEsBy
+        32jL9aIebqRJlp7Xs+JppaY6peS44BR6757n8OebnK/+WrKyXxz7JVHCe29Omr9o
+        OTTbblQlUKmcXl2l
+        =/Z68
+        -----END PGP PUBLIC KEY BLOCK-----
+        </pubkey>
+        </keyinfo>
+    http_version: 
+  recorded_at: Thu, 16 Aug 2018 15:20:50 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:Jane/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Thu, 16 Aug 2018 15:20:50 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Jane/coolstuff/_meta?user=Jane
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="coolstuff" project="home:Jane">
+          <title>cool stuff everyone needs</title>
+          <description>Totam molestiae ipsum. Rerum accusamus quis. Quis est amet. In ut ratione. Aspernatur esse porro. Et neque sed. Aut et commodi. Asperiores velit dolorum. Ut ratione eum. Aut et eaque. Et neque eos. Aspernatur rem sed. Voluptate et consequuntur. Est et nam. Repellendus asperiores molestiae. Voluptatem natus quos. Corporis error ex. Omnis commodi pariatur. Quam eum sit. Quas corrupti eum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '520'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="coolstuff" project="home:Jane">
+          <title>cool stuff everyone needs</title>
+          <description>Totam molestiae ipsum. Rerum accusamus quis. Quis est amet. In ut ratione. Aspernatur esse porro. Et neque sed. Aut et commodi. Asperiores velit dolorum. Ut ratione eum. Aut et eaque. Et neque eos. Aspernatur rem sed. Voluptate et consequuntur. Est et nam. Repellendus asperiores molestiae. Voluptatem natus quos. Corporis error ex. Omnis commodi pariatur. Quam eum sit. Quas corrupti eum.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 16 Aug 2018 15:20:53 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Jane/coolstuff
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '84'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="coolstuff" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Thu, 16 Aug 2018 15:20:53 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Jane/coolstuff?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '84'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="coolstuff" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Thu, 16 Aug 2018 15:20:53 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Jane/coolstuff/_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: _service  no such file
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '122'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>_service: no such file</summary>
+          <details>404 _service: no such file</details>
+        </status>
+    http_version: 
+  recorded_at: Thu, 16 Aug 2018 15:20:53 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Jane/coolstuff
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '84'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="coolstuff" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Thu, 16 Aug 2018 15:20:53 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Jane/coolstuff
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '84'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="coolstuff" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Thu, 16 Aug 2018 15:20:53 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:Jane/_result?package=coolstuff&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Thu, 16 Aug 2018 15:20:53 GMT
+recorded_with: VCR 4.0.0

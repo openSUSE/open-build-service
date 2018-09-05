@@ -18,6 +18,8 @@ class Comment < ApplicationRecord
   extend ActsAsTree::TreeWalker
   acts_as_tree order: 'created_at'
 
+  scope :without_parent, -> { where(parent_id: nil) }
+
   def to_s
     body
   end

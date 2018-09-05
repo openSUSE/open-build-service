@@ -1,0 +1,37 @@
+:ruby
+  index ||= ''
+  ajax_data = {}
+  ajax_data['project'] = h(project) if defined?(project)
+  ajax_data['package'] = h(package) if defined?(package)
+  ajax_data['index'] = h(index) if defined?(index)
+
+.card.mb-3
+  .bg-light#buildresult-urls{ data: { buildresult_url: defined?(package) ? package_buildresult_path : project_buildresult_path } }
+    %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap#buildresult-box{ role: 'tablist', data: ajax_data }
+      %li.nav-item
+        = link_to("#build#{index}", id: "build#{index}-tab", class: 'nav-link active text-nowrap',
+          data: { toggle: 'tab' }, role: 'tab', aria: { controls: "build#{index}", selected: true }) do
+          Build Results
+      - if defined?(package)
+        %li.nav-item
+          = link_to("#rpm#{index}", id: "rpm#{index}-tab", class: 'nav-link text-nowrap', data: { toggle: 'tab' },
+            role: 'tab', aria: { controls: "rpm#{index}", selected: false }) do
+            RPM Lint
+  .card-boby
+    .col-12
+      .tab-content
+        .tab-pane.fade.show.active{ id: "build#{index}", role: 'tabpanel', aria: { labelledby: "build#{index}-tab" } }
+          .btn.btn-sm.btn-outline-primary.my-2.build-refresh{ onclick: "updateBuildResult('#{index}')", title: 'Refresh Build Results' }
+            Refresh
+            %i.fas.fa-sm.fa-sync-alt{ id: "build#{index}-reload" }
+          .result
+        - if defined?(package)
+          .tab-pane.fade{ id: "rpm#{index}", role: 'tabpanel', aria: { labelledby: "rpm#{index}-tab" } }
+            .btn.btn-sm.btn-outline-primary.my-2{ onclick: "updateRpmlintResult('#{index}')", title: 'Refresh Rpmlint Results' }
+              Refresh
+              %i.fas.fa-sm.fa-sync-alt{ id: "rpm#{index}-reload" }
+            .result
+
+:javascript
+  updateBuildResult('#{index}');
+  if ($('#rpm#{index}').length === 1) updateRpmlintResult('#{index}');

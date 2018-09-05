@@ -33,6 +33,10 @@ $(document).ready(function() {
       }
     });
   });
+
+  $('#files-table').dataTable({
+    'columns': [null, null, null, {'orderable': false}],
+  });
 });
 
 // The dropdowns on the package request tabs
