@@ -947,7 +947,7 @@ class Package < ApplicationRecord
   end
 
   def service_error(revision = nil)
-    revision ||= serviceinfo['xsrcmd5']
+    revision ||= serviceinfo.try { to_hash['xsrcmd5'] }
     return nil unless revision
     PackageServiceErrorFile.new(project_name: project.name, package_name: name).content(rev: revision)
   end
