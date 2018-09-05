@@ -4,6 +4,8 @@ about: Create a report to help us improve
 
 ---
 
+For security issues, please refer to [SECURITY.md](https://github.com/openSUSE/open-build-service/blob/master/SECURITY.md).
+
 Having problems with the OBS command line interface osc? It has its own issue tracker here: https://github.com/openSUSE/osc
 
 Having problems with the obs-build tool that controls the build process? It has its issue tracker here: https://github.com/openSUSE/obs-build
