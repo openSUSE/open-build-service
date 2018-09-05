@@ -624,7 +624,6 @@ OBSApi::Application.routes.draw do
       get 'status/workerstatus' => 'worker/status#index'
       get 'status/history' => :history
       get 'status/project/:project' => :project, constraints: cons
-      get 'status/bsrequest' => :bsrequest
     end
 
     ### /message

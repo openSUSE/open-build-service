@@ -99,12 +99,6 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  def test_bsrequest
-    get '/status/bsrequest?id=1'
-    assert_xml_tag(tag: 'status', attributes: { code: 'not_found' })
-    assert_response 404
-  end
-
   def test_history
     get '/status/history'
     assert_response 400
