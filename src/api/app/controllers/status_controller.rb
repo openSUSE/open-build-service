@@ -1,13 +1,4 @@
-require_dependency 'status_helper'
-
 class StatusController < ApplicationController
-  def history
-    required_parameters :hours, :key
-
-    @samples = [params[:samples].to_i, 1].max
-    @values = StatusHistory.history_by_key_and_hours(params[:key], params[:hours])
-  end
-
   def project
     dbproj = Project.get_by_name(params[:project])
     @packages = ProjectStatus::Calculator.new(dbproj).calc_status
