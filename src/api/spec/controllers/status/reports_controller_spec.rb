@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe Status::ReportsController, type: :controller do
+  render_views
+
   let(:user) { create(:confirmed_user) }
   let(:project) { create(:project_with_repository) }
   let(:source_project) { create(:project_with_package) }
