@@ -12,7 +12,7 @@
           "<%= escape_javascript(user_with_realname_and_icon(row.creator, short: true)) %>",
           "<%= escape_javascript(new_or_update_request(row)) %>",
           "<%= escape_javascript(row.priority) %>",
-          "<%= escape_javascript(link_to(icon('far', 'eye'), request_show_path(row.number), { title: "Show request ##{row.number}", class: :request_link })) %>"
+          "<%= escape_javascript(link_to('<i class="far fa-eye"></i>'.html_safe, request_show_path(row.number), { title: "Show request ##{row.number}", class: :request_link })) %>"
         <% end %>
       ]
       <% unless index == @requests_data_table.rows.length - 1 %>
