@@ -1847,6 +1847,114 @@ PUT /message/?project=<project>&package=<package>
 XmlBody :message
 XmlResult: message
 
+== Status Checks
+
+=== Repositories
+
+<project>: The name of a project, e.g. home:user1
+<repository>: The name of a repository of the project, e.g. openSUSE_Tumbleweed
+<status_report>: The unique identifier you have received for the Repository
+<id>: The numeric ID for the check
+<filter>: ?current=true to only show the current status report (optional)
+
+GET /projects/<project>/repositories/<repository>/status_reports<filter>
+  Get a list of status reports for this particular repository
+XmlResult: status_reports
+
+
+GET /projects/<project>/repositories/<repository>/status_reports/<status_report>
+  Get a list of checks for this particular status report
+XmlResult: status_report
+
+
+POST /projects/<project>/repositories/<repository>/status_reports/<status_report>/checks
+  status/checks#create
+XmlResult: check
+
+
+GET /projects/<project>/repositories/<repository>/status_reports/<status_report>/checks/:id
+  status/checks#show
+XmlResult: check
+
+
+PUT /projects/<project>/repositories/<repository>/status_reports/<status_report>/checks/:id
+  status/checks#update
+XmlBody: check
+XmlResult: check
+
+
+DELETE /projects/<project>/repositories/<repository>/status_reports/<status_report>/checks/:id
+  status/checks#destroy
+XmlResult: check
+
+=== Packages
+
+<project>: The name of a project, e.g. home:user1
+<package>: The name of a package inside the project, e.g. firefox
+<status_report>: The unique identifier you have received for the Package
+<id>: The numeric ID for the check
+<filter>: ?current=true to only show the current status report (optional)
+
+GET /projects/<project>/packages/<package>/status_reports<filter>
+  Get a list of status reports for this particular repository
+XmlResult: status_reports
+
+
+GET /projects/<project>/packages/<package>/status_reports/<status_report>
+  Get a list of checks for this particular status report
+XmlResult: status_report
+
+
+POST /projects/<project>/packages/<package>/status_reports/<status_report>/checks
+  status/checks#create
+XmlResult: check
+
+
+GET /projects/<project>/packages/<package>/status_reports/<status_report>/checks/:id
+  status/checks#show
+XmlResult: check
+
+
+PUT /projects/<project>/packages/<package>/status_reports/<status_report>/checks/:id
+  status/checks#update
+XmlBody: check
+XmlResult: check
+
+
+DELETE /projects/<project>/packages/<package>/status_reports/<status_report>/checks/:id
+  status/checks#destroy
+XmlResult: check
+
+=== Requests
+
+<request>: The number of the Request, e.g. 12345
+<status_report>: The unique identifier you have received for the Request
+<id>: The numeric ID for the check
+
+GET /requests/<rerquest>/status_report
+  Get a list of checks for this particular Request
+XmlResult: status_report
+
+
+POST /requests/<rerquest>/status_report/checks
+  status/checks#create
+XmlResult: check
+
+
+GET /requests/<rerquest>/status_report/checks/:id
+  status/checks#show
+XmlResult: check
+
+
+PUT /requests/<rerquest>/status_report/checks/:id
+  status/checks#update
+XmlBody: check
+XmlResult: check
+
+
+DELETE /requests/<rerquest>/status_report/checks/:id
+  status/checks#destroy
+XmlResult: check
 
 == Internal only routes
 

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	   elementFormDefault="qualified">
+  
+  <xs:annotation>
+    <xs:documentation>
+      This schema describes the format of the status check for the openSUSE API.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="check">
+      <xs:annotation>
+        <xs:documentation>
+          Top level element for check data.
+        </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element ref="url" minOccurs="0"/>
+          <xs:element ref="short_description" minOccurs="0"/>
+          <xs:element ref="name" minOccurs="1"/>
+          <xs:element ref="state" minOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:nonNegativeInteger" />
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="url" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          URL where the user can get more information about this check.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:element>
+
+    <xs:element name="short_description" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Short description of what has been checked. 
+        </xs:documentation>
+      </xs:annotation>
+    </xs:element>
+
+    <xs:element name="name" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          A name to identify the check
+        </xs:documentation>
+      </xs:annotation>
+    </xs:element>
+
+    <xs:element name="state" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          The value for the attribute 'state' has the following meaning:
+          pending: The check is still underway
+          error: The check was not able to start 
+          failure: The check has run and failed
+          success: The check has run and finished successfully
+        </xs:documentation>
+      </xs:annotation>
+    </xs:element>
+</xs:schema>
