@@ -130,23 +130,23 @@ module Webui::WebuiHelper
     sprite_tag icon, title: description
   end
 
-  def webui2_repo_status_icon(status, details = nil)
-    icon = WEBUI2_REPO_STATUS_ICONS[status] || 'eye'
-
-    outdated = nil
+  def webui2_repo_status_description(status, details)
+    description_preface = ''
     if /^outdated_/.match?(status)
       status.gsub!(%r{^outdated_}, '')
-      outdated = true
+      description_preface = 'State needs recalculations, former state was: '
     end
 
     description = REPO_STATUS_DESCRIPTIONS[status] || 'Unknown state of repository'
-    description = 'State needs recalculations, former state was: ' + description if outdated
+    description = description_preface + description
     description += " (#{details})" if details
+    description
+  end
 
-    color = outdated ? 'text-gray-400' : 'text-black-50'
-
-    content_tag(:i, nil, class: ['fas', "fa-#{icon}", color],
-                data: { content: description, placement: 'top', toggle: 'popover' })
+  def webui2_repo_status_icon(status)
+    icon = WEBUI2_REPO_STATUS_ICONS[status] || 'eye'
+    color = /^outdated_/.match?(status) ? 'text-gray-400' : 'text-black-50'
+    "fas fa-#{icon} #{color}"
   end
 
   def tab(id, text, opts)
