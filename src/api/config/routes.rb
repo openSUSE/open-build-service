@@ -624,7 +624,7 @@ OBSApi::Application.routes.draw do
       get 'status_message' => 'status_messages#index'
       get 'status/workerstatus' => 'worker/status#index'
       get 'status/project/:project' => :project, constraints: cons
-   end
+    end
 
     ### /message
 

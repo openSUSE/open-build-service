@@ -8,26 +8,26 @@ class StatusProjectController < ApplicationController
   private
 
   def role_from_cache(role_id)
-    @rolecache[role_id] || (@rolecache[role_id] = Role.find(role_id).title)
+    @rolecache[role_id] ||= Role.find(role_id).title
   end
 
   def user_from_cache(user_id)
-    @usercache[user_id] || (@usercache[user_id] = User.find(user_id).login)
+    @usercache[user_id] ||= User.find(user_id).login
   end
 
   def group_from_cache(group_id)
-    @groupcache[group_id] || (@groupcache[group_id] = Group.find(group_id).title)
+    @groupcache[group_id] ||= Group.find(group_id).title
   end
 
   def find_relationships_for_packages(packages)
+    @usercache = {}
+    @groupcache = {}
+    @rolecache = {}
     package_hash = {}
     packages.each_value do |p|
       package_hash[p.package_id] = p
       package_hash[p.develpack.package_id] = p.develpack if p.develpack
     end
-    @rolecache = {}
-    @usercache = {}
-    @groupcache = {}
     relationships = Relationship.where(package_id: package_hash.keys).pluck(:package_id, :user_id, :group_id, :role_id)
     relationships.each do |package_id, user_id, group_id, role_id|
       if user_id
