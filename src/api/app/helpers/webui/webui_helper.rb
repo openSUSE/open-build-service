@@ -399,11 +399,11 @@ module Webui::WebuiHelper
     short + long
   end
 
-  def tab_link(label, url)
+  def tab_link(label, path)
     html_class = 'nav-link text-nowrap'
-    html_class << ' active' if current_page?(url)
+    html_class << ' active' if request.path.include?(path)
 
-    link_to(label, url, class: html_class)
+    link_to(label, path, class: html_class)
   end
 end
 # rubocop:enable Metrics/ModuleLength
