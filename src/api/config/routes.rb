@@ -616,13 +616,15 @@ OBSApi::Application.routes.draw do
     ### /status_message
     resources :status_messages, only: [:show, :index, :create, :destroy], path: 'status/messages'
 
+    resources :status_project, only: [:show], param: :project, path: 'status/project'
+
     controller :status do
       # Routes for status_messages
       # --------------------------
       get 'status_message' => 'status_messages#index'
       get 'status/workerstatus' => 'worker/status#index'
       get 'status/project/:project' => :project, constraints: cons
-    end
+   end
 
     ### /message
 
