@@ -3,10 +3,13 @@
   Checks
   = "(#{@build_id})"
 %dd
-  - if @checks.empty?
+  - if @checks.empty? && @missing_checks.empty?
     None.
   - else
     %ul
+      - @missing_checks.each do |name|
+        %li
+          %span.check-pending= "#{name} (Expected - Waiting for status to be reported)"
       - @checks.each do |check|
         %li
           = link_to "#{check.name} (#{check.state} - #{time_ago_in_words(check.updated_at)} ago)", check.url, class: "check-#{check.state}", title: "#{check.short_description} (#{check.updated_at})"

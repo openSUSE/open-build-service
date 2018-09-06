@@ -8,15 +8,19 @@ class Status::ChecksController < ApplicationController
   skip_before_action :require_login, only: [:show, :index]
   after_action :verify_authorized
 
+  # GET /projects/:project_name/repositories/:repository_name/repository_publishes/:repository_publish_build_id/checks
   def index
     @checks = @checkable.checks
+    @missing_checks = @checkable.missing_checks
     authorize @checks
   end
 
+  # GET /projects/:project_name/repositories/:repository_name/repository_publishes/:repository_publish_build_id/checks/:id
   def show
     authorize @check
   end
 
+  # POST /projects/:project_name/repositories/:repository_name/repository_publishes/:repository_publish_build_id/checks
   def create
     @xml_check[:checkable] = @checkable
     @check = Status::Check.new(@xml_check)
@@ -28,6 +32,7 @@ class Status::ChecksController < ApplicationController
     end
   end
 
+  # PATCH /projects/:project_name/repositories/:repository_name/repository_publishes/:repository_publish_build_id/checks/:id
   def update
     authorize @check
     if @check.update(@xml_check)
@@ -37,6 +42,7 @@ class Status::ChecksController < ApplicationController
     end
   end
 
+  # DELETE /projects/:project_name/repositories/:repository_name/repository_publishes/:repository_publish_build_id/checks/:id
   def destroy
     authorize @check
     if @check.destroy
@@ -49,12 +55,12 @@ class Status::ChecksController < ApplicationController
   private
 
   def require_or_initialize_checkable
-    @checkable = @repository.status_publishes.find_or_initialize_by(build_id: params[:status_repository_publish_build_id])
+    @checkable = @repository.status_publishes.find_or_initialize_by(build_id: params[:repository_publish_build_id])
   end
 
   def require_checkable
-    @checkable = Status::RepositoryPublish.find_by(build_id: params[:status_repository_publish_build_id]) if params[:status_repository_publish_build_id]
-    render_error(status: 404, errorcode: 'not_found', message: "Unable to find status_repository_publish with id '#{params[:status_repository_publish_build_id]}'") unless @checkable
+    @checkable = Status::RepositoryPublish.find_by(build_id: params[:repository_publish_build_id]) if params[:repository_publish_build_id]
+    render_error(status: 404, errorcode: 'not_found', message: "Unable to find status_repository_publish with id '#{params[:repository_publish_build_id]}'") unless @checkable
   end
 
   def require_check

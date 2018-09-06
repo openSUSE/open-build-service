@@ -1,4 +1,5 @@
 class Repository < ApplicationRecord
+  serialize :required_checks, Array
   belongs_to :project, foreign_key: :db_project_id, inverse_of: :repositories
 
   before_destroy :cleanup_before_destroy

@@ -1,0 +1,10 @@
+$link-hover-color: $obs_green;
+$link-color: $obs_blue;
+
+a {
+    &:hover {
+        i.fa, i.fas, i.fal {            
+            filter: brightness(0.7);
+        }
+    }
+}
