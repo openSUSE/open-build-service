@@ -616,6 +616,8 @@ OBSApi::Application.routes.draw do
     ### /status_message
     resources :status_messages, only: [:show, :index, :create, :destroy], path: 'status/messages'
 
+    resources :status_project, only: [:show], param: :project, path: 'status/project'
+
     controller :status do
       # Routes for status_messages
       # --------------------------
