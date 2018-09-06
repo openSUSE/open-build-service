@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:49 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:40 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>A Darkling Plain</title>
-          <description>Ut eveniet et consectetur libero a.</description>
+          <title>Blue Remembered Earth</title>
+          <description>Rem alias ut molestiae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>A Darkling Plain</title>
-          <description>Ut eveniet et consectetur libero a.</description>
+          <title>Blue Remembered Earth</title>
+          <description>Rem alias ut molestiae.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:49 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:40 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/package_with_files/_meta
+    uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>A Darkling Plain</title>
-          <description>Ut eveniet et consectetur libero a.</description>
+          <title>Blue Remembered Earth</title>
+          <description>Rem alias ut molestiae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,24 +109,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>A Darkling Plain</title>
-          <description>Ut eveniet et consectetur libero a.</description>
+          <title>Blue Remembered Earth</title>
+          <description>Rem alias ut molestiae.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:49 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:40 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Quibusdam beatae ab quas hic dicta molestiae quis. Autem reiciendis
-        molestiae ipsam architecto incidunt aut. Reprehenderit suscipit est sit. Impedit
-        error aut quia sunt laudantium.
+      string: Et excepturi minima. Similique laudantium commodi. Doloremque vero dolor.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -146,27 +144,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="20" vrev="20">
-          <srcmd5>db47353f9072bd182c972bf3c6dbd606</srcmd5>
+        <revision rev="412" vrev="412">
+          <srcmd5>a19a6e7027d087c6aba5e7dc28b571f8</srcmd5>
           <version>unknown</version>
-          <time>1526982889</time>
+          <time>1536230740</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:49 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:40 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Id neque aspernatur reprehenderit. Aliquid occaecati explicabo ipsa.
-        Accusamus at non ex delectus.
+      string: Ut eligendi et. Modi ad ea. Facere sit et.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -186,18 +183,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="21" vrev="21">
-          <srcmd5>db47353f9072bd182c972bf3c6dbd606</srcmd5>
+        <revision rev="413" vrev="413">
+          <srcmd5>0f302852acd1a3959d94169f72259238</srcmd5>
           <version>unknown</version>
-          <time>1526982889</time>
+          <time>1536230740</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:49 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:40 GMT
 recorded_with: VCR 4.0.0

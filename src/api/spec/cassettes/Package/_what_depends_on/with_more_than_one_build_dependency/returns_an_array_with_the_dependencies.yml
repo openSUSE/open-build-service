@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:57 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Endless Night</title>
-          <description>Architecto omnis et id.</description>
+          <title>All the King's Men</title>
+          <description>Blanditiis et voluptate repellat.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Endless Night</title>
-          <description>Architecto omnis et id.</description>
+          <title>All the King's Men</title>
+          <description>Blanditiis et voluptate repellat.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:57 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:47 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/test_package/_meta
+    uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Endless Night</title>
-          <description>Architecto omnis et id.</description>
+          <title>All the King's Men</title>
+          <description>Blanditiis et voluptate repellat.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,14 +109,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Endless Night</title>
-          <description>Architecto omnis et id.</description>
+          <title>All the King's Men</title>
+          <description>Blanditiis et voluptate repellat.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:57 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:47 GMT
 recorded_with: VCR 4.0.0

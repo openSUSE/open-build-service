@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:55 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Butter In a Lordly Dish</title>
-          <description>Esse omnis optio officiis sed nam culpa et.</description>
+          <title>In a Dry Season</title>
+          <description>Veritatis nulla ut voluptas.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Butter In a Lordly Dish</title>
-          <description>Esse omnis optio officiis sed nam culpa et.</description>
+          <title>In a Dry Season</title>
+          <description>Veritatis nulla ut voluptas.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:55 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:45 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/test_package/_meta
+    uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Butter In a Lordly Dish</title>
-          <description>Esse omnis optio officiis sed nam culpa et.</description>
+          <title>In a Dry Season</title>
+          <description>Veritatis nulla ut voluptas.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Butter In a Lordly Dish</title>
-          <description>Esse omnis optio officiis sed nam culpa et.</description>
+          <title>In a Dry Season</title>
+          <description>Veritatis nulla ut voluptas.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:55 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:bob/_meta?user=bob
@@ -159,7 +159,7 @@ http_interactions:
           <person userid="bob" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:55 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -167,8 +167,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Butter In a Lordly Dish</title>
-          <description>Esse omnis optio officiis sed nam culpa et.</description>
+          <title>In a Dry Season</title>
+          <description>Veritatis nulla ut voluptas.</description>
           <person userid="bob" role="maintainer"/>
         </package>
     headers:
@@ -190,15 +190,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '218'
+      - '195'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Butter In a Lordly Dish</title>
-          <description>Esse omnis optio officiis sed nam culpa et.</description>
+          <title>In a Dry Season</title>
+          <description>Veritatis nulla ut voluptas.</description>
           <person userid="bob" role="maintainer" />
         </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:56 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:45 GMT
 recorded_with: VCR 4.0.0
