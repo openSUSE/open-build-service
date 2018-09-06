@@ -414,6 +414,15 @@
  # for delayed tasks
  gem 'delayed_job_active_record', '>= 4.0.0'
  # to fill errbit
+@@ -34,7 +34,7 @@
+ # to escape HTML (FIXME: do we still use this?)
+ gem 'escape_utils'
+ # to sanitize HTML/CSS
+-gem 'sanitize'
++gem 'sanitize', '4.0.0', path: "vendor/gems/sanitize-4.0.0"
+ # as authorization system
+ gem "pundit"
+ #
 @@ -134,7 +134,7 @@
    # to use sass in the asset pipeline
    gem 'sass-rails', '~> 5.0.1'
