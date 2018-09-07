@@ -914,12 +914,9 @@ class Package < ApplicationRecord
     LocalBuildResult::ForPackage.new(package: self, project: prj, show_all: show_all)
   end
 
-  def jobhistory_list(project, repository, arch, options = {})
-    options[:limit] = 100 if options[:limit].blank?
-    options[:package] = name if options[:package].blank?
-
+  def self.jobhistory_list(project_name, repository_name, arch_name, package_name)
     begin
-      results = Xmlhash.parse(Backend::Api::BuildResults::JobHistory.all_for_package(project.name, options[:package], repository, arch, options[:limit]))
+      results = Xmlhash.parse(Backend::Api::BuildResults::JobHistory.all_for_package(project_name, package_name, repository_name, arch_name))
     rescue Backend::Error
       return []
     end
