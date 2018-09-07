@@ -20,6 +20,7 @@ services:
     image: openbuildservice/backend
     volumes:
       - .:/obs
+      - gems:/gems # Cache gems from 'bundler' commands (install, update, etc...) in gems volume
     privileged: true
     depends_on:
       - backend
@@ -32,6 +33,7 @@ services:
       context: src/api
     volumes:
       - .:/obs
+      - gems:/gems # Cache gems from 'bundler' commands (install, update, etc...) in gems volume
     ports:
       - "3000:3000"
       - "1080:1080"
@@ -40,3 +42,7 @@ services:
       - cache
       - backend
       - worker
+
+volumes:
+  # Cache gems from 'bundler' commands (install, update, etc...)
+  gems:
