@@ -18,7 +18,7 @@
     - if attribute.values_addable?
       %p
         = link_to_add_association(form, :values, render_options: { locals: value_fields_locals }, title: 'Add a value') do
-          %i.fas.fa-plus-square
+          %i.fas.fa-plus-circle.text-primary
           Add a value
   - if issue_trackers
     #issues
@@ -26,7 +26,7 @@
         = render('issue_fields', { f: issue }.merge(issue_fields_locals))
     %p
       = link_to_add_association(form, :issues, render_options: { locals: issue_fields_locals }, title: 'Add an issue') do
-        %i.fas.fa-plus-square
+        %i.fas.fa-plus-circle.text-primary
         Add an issue
 
   = form.submit('Save', class: 'btn btn-primary')
