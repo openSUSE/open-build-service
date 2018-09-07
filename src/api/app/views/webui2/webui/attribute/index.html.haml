@@ -31,12 +31,12 @@
                   %td
                     - if attribute.values_editable?
                       = link_to(edit_attribs_path(project: @project.name, package: @package, attribute: attribute.fullname), title: 'Edit values') do
-                        %i.fas.fa-edit
+                        %i.fas.fa-edit.text-info
                     = link_to(attrib_path(attribute),
                               data: { confirm: "Delete attribute '#{attribute.fullname}'?" },
                               method: :delete,
                               title: 'Delete attribute') do
-                      %i.fas.fa-minus-circle
+                      %i.fas.fa-times-circle.text-danger
     - else
       %p
         %em No attributes set
@@ -44,5 +44,5 @@
     - if policy(@package).update?
       %p
         = link_to(new_attribs_path(project: @project.name, package: @package), title: 'Add a new attribute') do
-          %i.fas.fa-plus-square
+          %i.fas.fa-plus-circle.text-primary
           Add a new attribute
