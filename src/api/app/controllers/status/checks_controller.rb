@@ -101,7 +101,10 @@ class Status::ChecksController < ApplicationController
   end
 
   def xml_hash
-    result = (Xmlhash.parse(request.body.read) || {}).with_indifferent_access
-    result.slice(:url, :state, :short_description, :name)
+    result = HashWithIndifferentAccess.new
+    parsed_body = Xmlhash.parse(request.body.read)
+    %w[url state short_description name].each { |key| result[key] = parsed_body.value(key) if parsed_body.value(key) }
+
+    result
   end
 end

@@ -49,7 +49,9 @@ class Status::ReportsController < ApplicationController
   end
 
   def xml_hash
-    result = (Xmlhash.parse(request.body.read) || {}).with_indifferent_access
-    result.slice(:uuid)
+    parsed_body = Xmlhash.parse(request.body.read)
+    return {} unless parsed_body.value(:uuid)
+
+    { uuid: parsed_body.value(:uuid) }
   end
 end

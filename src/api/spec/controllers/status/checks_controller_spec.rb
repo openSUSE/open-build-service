@@ -151,7 +151,6 @@ RSpec.describe Status::ChecksController, type: :controller do
   describe 'PUT update' do
     let!(:check) { create(:check, state: 'pending', status_report: status_report) }
     let(:valid_xml) { '<check><state>success</state></check>' }
-    let(:invalid_xml) { '<check><state>not-allowed</state></check>' }
 
     context 'successfully' do
       let!(:relationship) { create(:relationship_project_user, user: user, project: project) }
@@ -169,8 +168,19 @@ RSpec.describe Status::ChecksController, type: :controller do
       it { expect(check.reload.state).to eq('pending') }
     end
 
+    context 'with xml with empty element' do
+      let!(:relationship) { create(:relationship_project_user, user: user, project: project) }
+      let(:xml_with_empty_field) { '<check><short_description/></check>' }
+
+      subject! { put :update, body: xml_with_empty_field, params: { report_uuid: status_report.uuid, id: check.id }, format: :xml }
+
+      it { is_expected.to have_http_status(:success) }
+      it { expect(check.reload.short_description).to eq('') }
+    end
+
     context 'with invalid xml' do
       let!(:relationship) { create(:relationship_project_user, user: user, project: project) }
+      let(:invalid_xml) { '<check><state>not-allowed</state></check>' }
 
       subject! { put :update, body: invalid_xml, params: { report_uuid: status_report.uuid, id: check.id }, format: :xml }
 
