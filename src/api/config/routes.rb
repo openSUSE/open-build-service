@@ -618,12 +618,8 @@ OBSApi::Application.routes.draw do
 
     resources :status_project, only: [:show], param: :project, path: 'status/project'
 
-    controller :status do
-      # Routes for status_messages
-      # --------------------------
-      get 'status_message' => 'status_messages#index'
-      get 'status/workerstatus' => 'worker/status#index'
-    end
+    get 'status_message' => 'status_messages#index'
+    get 'status/workerstatus' => 'worker/status#index'
 
     ### /message
 
