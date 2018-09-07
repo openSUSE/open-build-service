@@ -85,13 +85,11 @@ class SourceProjectController < SourceController
   def project_command
     # init and validation
     #--------------------
+    required_parameters(:cmd)
+
     valid_commands = ['undelete', 'showlinked', 'remove_flag', 'set_flag', 'createpatchinfo',
                       'createkey', 'extendkey', 'copy', 'createmaintenanceincident', 'lock',
                       'unlock', 'release', 'addchannels', 'modifychannels', 'move', 'freezelink']
-
-    unless params.key?(:cmd)
-      raise IllegalRequest, 'missing_command'
-    end
 
     unless valid_commands.include?(params[:cmd])
       raise IllegalRequest, 'invalid_command'
