@@ -16,3 +16,5 @@ Do-not-ship-database.yml.patch
 localgem.patch
 disable-slp.patch
 CVE-2017-5188.patch
+handle-links-properly.patch
+dist-Use-2.7-packages-for-testing.patch
