@@ -26,11 +26,10 @@
               - if !User.current.is_nobody? || file[:size].to_i < (4 * 1024 * 1024)
                 = link_to(file_url(project.name, package.name, file[:name], file[:srcmd5]), title: 'Download file') do
                   %i.fas.fa-arrow-circle-down.text-secondary
-              - unless /^_service:/.match?(file[:name])
-                - if User.current.can_modify? package
-                  = link_to({ action: :remove_file, project: project.to_param, package: package.to_param, filename: file[:name] },
-                    data: { confirm: "Really remove file '#{file[:name]}'?" }, method: :post, title: 'Remove file') do
-                    %i.fas.fa-times-circle.text-danger
+              - if removable_file?(file_name: file[:name], package: package) && User.current.can_modify?(package)
+                = link_to({ action: :remove_file, project: project.to_param, package: package.to_param, filename: file[:name] },
+                  data: { confirm: "Really remove file '#{file[:name]}'?" }, method: :post, title: 'Remove file') do
+                  %i.fas.fa-times-circle.text-danger
   - else
     %i This package has no files yet
   - if User.current.can_modify?(package)
