@@ -14,7 +14,7 @@ module Backend
         end
 
         # Return all for a package
-        def self.all_for_package(project_name, package_name, repository_name, arch_name, limit)
+        def self.all_for_package(project_name, package_name, repository_name, arch_name, limit = 100)
           http_get(['/build/:project/:repository/:arch/_jobhistory', project_name,
                     repository_name, arch_name],
                    params: { limit: limit, package: package_name })

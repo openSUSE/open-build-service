@@ -73,7 +73,7 @@ GEM
     bunny (2.11.0)
       amq-protocol (~> 2.3.0)
     byebug (10.0.2)
-    capybara (3.7.0)
+    capybara (3.7.1)
       addressable
       mini_mime (>= 0.1.3)
       nokogiri (~> 1.8)
@@ -119,7 +119,7 @@ GEM
     cssmin (1.0.3)
     daemons (1.2.6)
     dalli (2.7.8)
-    data_migrate (4.0.0)
+    data_migrate (5.0.2)
       rails (>= 4.2)
     database_cleaner (1.7.0)
     delayed_job (4.1.5)
@@ -470,7 +470,7 @@ DEPENDENCIES
   cssmin (>= 1.0.2)
   daemons
   dalli
-  data_migrate (= 4.0.0)
+  data_migrate (= 5.0.2)
   database_cleaner (>= 1.0.1)
   delayed_job_active_record (>= 4.0.0)
   escape_utils

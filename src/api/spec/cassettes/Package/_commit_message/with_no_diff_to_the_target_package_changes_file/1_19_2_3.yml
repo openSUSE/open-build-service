@@ -1,0 +1,315 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 06 Sep 2018 10:45:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo:Apache/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:foo:Apache">
+          <title>The Proper Study</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '108'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:foo:Apache">
+          <title>The Proper Study</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 06 Sep 2018 10:45:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="home:foo:Apache">
+          <title>The Last Enemy</title>
+          <description>Rerum eum sit rerum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '162'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="home:foo:Apache">
+          <title>The Last Enemy</title>
+          <description>Rerum eum sit rerum.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Sep 2018 10:45:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="home:foo:Apache">
+          <title>The Last Enemy</title>
+          <description>Rerum eum sit rerum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '162'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="home:foo:Apache">
+          <title>The Last Enemy</title>
+          <description>Rerum eum sit rerum.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Sep 2018 10:45:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/package_with_changes_file.changes
+    body:
+      encoding: UTF-8
+      string: |2-
+
+                -------------------------------------------------------------------
+                Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org
+
+                - Testing the submit diff
+
+                -------------------------------------------------------------------
+                Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
+                - Temporary hack
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="198" vrev="198">
+          <srcmd5>933bab7b52bdcf6f13b559ed54c67caf</srcmd5>
+          <version>unknown</version>
+          <time>1536230733</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 06 Sep 2018 10:45:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '344'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_changes_file" rev="198" vrev="198" srcmd5="933bab7b52bdcf6f13b559ed54c67caf">
+          <entry name="lorem.changes" md5="143070716e28ed45a29514befe95043d" size="19" mtime="1536154840" />
+          <entry name="package_with_changes_file.changes" md5="537b17f421c041e9b54ce8ec7c8ee222" size="326" mtime="1536154836" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 06 Sep 2018 10:45:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/lorem.changes
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '19'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: Lorem ipsum dolorem
+    http_version: 
+  recorded_at: Thu, 06 Sep 2018 10:45:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/package_with_changes_file.changes
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '326'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |2-
+
+                -------------------------------------------------------------------
+                Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org
+
+                - Testing the submit diff
+
+                -------------------------------------------------------------------
+                Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
+                - Temporary hack
+    http_version: 
+  recorded_at: Thu, 06 Sep 2018 10:45:33 GMT
+recorded_with: VCR 4.0.0

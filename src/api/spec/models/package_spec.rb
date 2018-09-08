@@ -230,6 +230,19 @@ RSpec.describe Package, vcr: true do
     end
   end
 
+  describe '#serviceinfo' do
+    let(:url) { "#{CONFIG['source_url']}/source/#{package_with_service.project}/#{package_with_service.name}" }
+    let(:no_serviceinfo) do
+      '<directory name="package_with_service" rev="1" vrev="1" srcmd5="cf9c84e27a27dfc3e289f74fb096b42a">
+          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1530259187" />
+        </directory>'
+    end
+    it 'returns empty hash' do
+      stub_request(:get, url).and_return(body: no_serviceinfo)
+      expect(package_with_service.serviceinfo).to eq({})
+    end
+  end
+
   describe '#self.valid_name?' do
     context 'invalid' do
       it { expect(Package.valid_name?(10)).to be(false) }
@@ -433,10 +446,11 @@ RSpec.describe Package, vcr: true do
     end
   end
 
-  describe '#jobhistory_list' do
+  describe '.jobhistory_list' do
     let(:backend_url) { "#{CONFIG['source_url']}/build/#{home_project}/openSUSE_Tumbleweed/x86_64/_jobhistory?limit=100&package=#{package}" }
 
-    subject { package.jobhistory_list(home_project, 'openSUSE_Tumbleweed', 'x86_64') }
+    # the package name is needed because it could be a multibuild
+    subject { Package.jobhistory_list(home_project, 'openSUSE_Tumbleweed', 'x86_64', package.name) }
 
     context 'when response is successful' do
       let(:local_job_history) do
@@ -602,10 +616,10 @@ RSpec.describe Package, vcr: true do
 
   describe '#commit_message' do
     let(:changes_file) do
-      '-------------------------------------------------------------------
-Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
-
-- Temporary hack'
+      '
+        -------------------------------------------------------------------
+        Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
+        - Temporary hack'
     end
 
     let(:project) { create(:project, name: 'home:foo:Apache') }

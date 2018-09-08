@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:40 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:44 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Françoise Sagan</title>
-          <description>Expedita delectus quas necessitatibus rerum dolorem suscipit qui.</description>
+          <title>The Millstone</title>
+          <description>Eum minima dolor ipsum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,22 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '189'
-    body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PHBhY2thZ2UgbmFtZT0idGVzdF9wYWNrYWdlIiBwcm9qZWN0PSJob21lOnRvbSI+CiAgPHRpdGxlPkZyYW7Dp29pc2UgU2FnYW48L3RpdGxlPgogIDxkZXNjcmlwdGlvbj5FeHBlZGl0YSBkZWxlY3R1cyBxdWFzIG5lY2Vzc2l0YXRpYnVzIHJlcnVtIGRvbG9yZW0gc3VzY2lwaXQgcXVpLjwvZGVzY3JpcHRpb24+CjwvcGFja2FnZT4K
-    http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:40 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/test_package/_meta
+      - '144'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Françoise Sagan</title>
-          <description>Expedita delectus quas necessitatibus rerum dolorem suscipit qui.</description>
+          <title>The Millstone</title>
+          <description>Eum minima dolor ipsum.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Sep 2018 10:45:44 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title>The Millstone</title>
+          <description>Eum minima dolor ipsum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -106,13 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '189'
+      - '144'
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PHBhY2thZ2UgbmFtZT0idGVzdF9wYWNrYWdlIiBwcm9qZWN0PSJob21lOnRvbSI+CiAgPHRpdGxlPkZyYW7Dp29pc2UgU2FnYW48L3RpdGxlPgogIDxkZXNjcmlwdGlvbj5FeHBlZGl0YSBkZWxlY3R1cyBxdWFzIG5lY2Vzc2l0YXRpYnVzIHJlcnVtIGRvbG9yZW0gc3VzY2lwaXQgcXVpLjwvZGVzY3JpcHRpb24+CjwvcGFja2FnZT4K
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title>The Millstone</title>
+          <description>Eum minima dolor ipsum.</description>
+        </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:40 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:44 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/foo.kiwi.txz?user=tom
@@ -120,12 +126,8 @@ http_interactions:
       encoding: UTF-8
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
-      Content-Length:
-      - '0'
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -142,57 +144,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '203'
+      - '205'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
-          <srcmd5>5c6164d882258ac8ef8d0f3f065c7b68</srcmd5>
+        <revision rev="35" vrev="35">
+          <srcmd5>9b1c1ddcaab8327d31b5f9d882782630</srcmd5>
           <version>unknown</version>
-          <time>1526982880</time>
+          <time>1536230744</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:40 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom/test_package/_service
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: _service  no such file
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '122'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>_service: no such file</summary>
-          <details>404 _service: no such file</details>
-        </status>
-    http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:40 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:44 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -200,8 +165,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Françoise Sagan</title>
-          <description>Expedita delectus quas necessitatibus rerum dolorem suscipit qui.</description>
+          <title>The Millstone</title>
+          <description>Eum minima dolor ipsum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -222,13 +187,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '189'
+      - '144'
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PHBhY2thZ2UgbmFtZT0idGVzdF9wYWNrYWdlIiBwcm9qZWN0PSJob21lOnRvbSI+CiAgPHRpdGxlPkZyYW7Dp29pc2UgU2FnYW48L3RpdGxlPgogIDxkZXNjcmlwdGlvbj5FeHBlZGl0YSBkZWxlY3R1cyBxdWFzIG5lY2Vzc2l0YXRpYnVzIHJlcnVtIGRvbG9yZW0gc3VzY2lwaXQgcXVpLjwvZGVzY3JpcHRpb24+CjwvcGFja2FnZT4K
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title>The Millstone</title>
+          <description>Eum minima dolor ipsum.</description>
+        </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:40 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:44 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package
@@ -254,15 +222,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '203'
+      - '300'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="1" vrev="1" srcmd5="5c6164d882258ac8ef8d0f3f065c7b68">
-          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1526982880" />
+        <directory name="test_package" rev="35" vrev="35" srcmd5="9b1c1ddcaab8327d31b5f9d882782630">
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1536154844" />
+          <entry name="foo.spec" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1536154843" />
         </directory>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:40 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:45 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package?view=info
@@ -288,15 +257,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '230'
+      - '188'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="test_package" rev="1" vrev="1" srcmd5="5c6164d882258ac8ef8d0f3f065c7b68" verifymd5="5c6164d882258ac8ef8d0f3f065c7b68">
-          <error>bad build configuration, no build type defined or detected</error>
+        <sourceinfo package="test_package" rev="35" vrev="35" srcmd5="9b1c1ddcaab8327d31b5f9d882782630" verifymd5="9b1c1ddcaab8327d31b5f9d882782630">
+          <filename>foo.spec</filename>
         </sourceinfo>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:41 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:45 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package
@@ -322,15 +291,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '203'
+      - '300'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="1" vrev="1" srcmd5="5c6164d882258ac8ef8d0f3f065c7b68">
-          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1526982880" />
+        <directory name="test_package" rev="35" vrev="35" srcmd5="9b1c1ddcaab8327d31b5f9d882782630">
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1536154844" />
+          <entry name="foo.spec" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1536154843" />
         </directory>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:41 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:45 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -353,22 +323,22 @@ http_interactions:
     headers:
       Content-Type:
       - text/xml
+      Content-Length:
+      - '305'
       Cache-Control:
       - no-cache
       Connection:
       - close
-      Content-Length:
-      - '305'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="b2d51400e13bd93ce5d84184ea673b76">
+        <sourcediff key="70889fc773029f90dd8d34d3d8d178ab">
           <old project="home:tom" package="test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tom" package="test_package" rev="1" srcmd5="5c6164d882258ac8ef8d0f3f065c7b68" />
+          <new project="home:tom" package="test_package" rev="2" srcmd5="9b1c1ddcaab8327d31b5f9d882782630" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:41 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:45 GMT
 recorded_with: VCR 4.0.0

@@ -1,4 +1,6 @@
 class Webui::AttributeController < Webui::WebuiController
+  include Webui2::AttributeController
+
   helper :all
   before_action :set_container, only: [:index, :new, :edit]
   before_action :set_attribute, only: [:update, :destroy]
@@ -9,7 +11,9 @@ class Webui::AttributeController < Webui::WebuiController
   helper 'webui/project'
 
   def index
-    @attributes = @container.attribs
+    @attributes = @container.attribs.includes(:issues, :values, attrib_type: [:attrib_namespace]).sort_by(&:fullname)
+
+    switch_to_webui2 if @container.is_a?(Package)
   end
 
   def new
@@ -18,7 +22,10 @@ class Webui::AttributeController < Webui::WebuiController
     else
       @attribute = Attrib.new(project_id: @project.id)
     end
+
     authorize @attribute, :create?
+
+    switch_to_webui2 if @container.is_a?(Package)
   end
 
   def edit
@@ -27,8 +34,13 @@ class Webui::AttributeController < Webui::WebuiController
 
     authorize @attribute
 
-    return unless @attribute.attrib_type.value_count && (@attribute.attrib_type.value_count > @attribute.values.length)
-    (@attribute.attrib_type.value_count - @attribute.values.length).times { @attribute.values.build(attrib: @attribute) }
+    value_count = @attribute.attrib_type.value_count
+    values_length = @attribute.values.length
+    if value_count && (value_count > values_length)
+      (value_count - values_length).times { @attribute.values.build(attrib: @attribute) }
+    end
+
+    switch_to_webui2 if @container.is_a?(Package)
   end
 
   def create
