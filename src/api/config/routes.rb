@@ -433,8 +433,8 @@ OBSApi::Application.routes.draw do
   end
 
   ### /worker
-  get 'worker/_status' => 'worker/status#index'
-  get 'build/_workerstatus' => 'worker/status#index' # FIXME3.0: drop this compat route
+  get 'worker/_status' => 'worker/status#index', as: :worker_status
+  get 'build/_workerstatus' => 'worker/status#index', as: :build_workerstatus # FIXME3.0: drop this compat route
   get 'worker/:worker' => 'worker/capability#show'
   post 'worker' => 'worker/command#run'
 
