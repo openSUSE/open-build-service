@@ -39,7 +39,7 @@ OBSApi::Application.routes.draw do
     service:      %r{\w[^\/]*},
     title:        %r{[^\/]*},
     user:         %r{[^\/]*},
-    status_repository_publish_build_id: %r{[^\/]*}
+    repository_publish_build_id: %r{[^\/]*}
   }
 
   constraints(WebuiMatcher) do
