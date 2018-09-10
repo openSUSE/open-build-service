@@ -39,7 +39,7 @@ OBSApi::Application.routes.draw do
     service:      %r{\w[^\/]*},
     title:        %r{[^\/]*},
     user:         %r{[^\/]*},
-    status_repository_publish_build_id: %r{[^\/]*}
+    repository_publish_build_id: %r{[^\/]*}
   }
 
   constraints(WebuiMatcher) do
@@ -433,8 +433,8 @@ OBSApi::Application.routes.draw do
   end
 
   ### /worker
-  get 'worker/_status' => 'worker/status#index'
-  get 'build/_workerstatus' => 'worker/status#index' # FIXME3.0: drop this compat route
+  get 'worker/_status' => 'worker/status#index', as: :worker_status
+  get 'build/_workerstatus' => 'worker/status#index', as: :build_workerstatus # FIXME3.0: drop this compat route
   get 'worker/:worker' => 'worker/capability#show'
   post 'worker' => 'worker/command#run'
 
@@ -618,13 +618,8 @@ OBSApi::Application.routes.draw do
 
     resources :status_project, only: [:show], param: :project, path: 'status/project'
 
-    controller :status do
-      # Routes for status_messages
-      # --------------------------
-      get 'status_message' => 'status_messages#index'
-      get 'status/workerstatus' => 'worker/status#index'
-      get 'status/project/:project' => :project, constraints: cons
-    end
+    get 'status_message' => 'status_messages#index'
+    get 'status/workerstatus' => 'worker/status#index'
 
     ### /message
 
