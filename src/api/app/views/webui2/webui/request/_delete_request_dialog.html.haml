@@ -8,6 +8,9 @@
           %p
             -# FIXME: get rid of this helper
             Do you really want to request the deletion of #{project_or_package_link(project: project.name, package: package.name)}?
+          %p.font-italic
+            You are about to send a request to the owner of the original #{package ? 'package' : 'project'}. Please describe your reasons to
+            request the deletion of this #{package ? 'package' : 'project'}. The owner will be notified with the following details.
           = hidden_field_tag(:package, package) if defined?(package)
           %p
             - if defined?(package)
@@ -16,7 +19,7 @@
                 = text_field_tag(:target_project, project, disabled: true, class: 'form-control')
           .form-group
             = label_tag(:description, 'Please explain why:')
-            = text_area_tag(:description, '', row: 3, class: 'form-control')
+            = text_area_tag(:description, '', row: 3, class: 'form-control', required: true)
         .modal-footer
           = render partial: 'webui2/shared/dialog_action_buttons'
 

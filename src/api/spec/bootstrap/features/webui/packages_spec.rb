@@ -75,7 +75,8 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
     click_link('Request deletion')
 
     expect(page).to have_text('Do you really want to request the deletion of package ')
-    within('#delete-request-modal .modal-footer') do
+    within('#delete-request-modal') do
+      fill_in('description', with: 'Hey, why not?')
       click_button('Accept')
     end
 
