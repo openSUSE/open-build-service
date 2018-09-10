@@ -6,6 +6,9 @@
       .modal-body
         %p
           Do you want to submit #{package_link package, rev: revision}?
+        %p.font-italic
+          You are about to send a request to the owner of the original #{package ? 'package' : 'project'}. Please describe what you have done and
+          why they should apply your changes. The owner will be notified with the following details.
 
           = hidden_field_tag(:project, project)
           = hidden_field_tag(:package, package)
@@ -30,7 +33,7 @@
 
           .form-group
             = label_tag(:description, 'Description:')
-            ~ text_area_tag(:description, description, size: '40x3', class: 'form-control')
+            ~ text_area_tag(:description, description, size: '40x3', class: 'form-control', required: true)
 
           .form-group.d-none#supersede-display
             = label_tag(:supersede_requests, 'Supersede requests:')
