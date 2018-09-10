@@ -62,8 +62,12 @@ class Comment < ApplicationRecord
     users.to_a
   end
 
-  def to_xml(builder)
+  def to_xml(builder, include_commentable = false)
     attrs = { who: user, when: created_at, id: id }
+    if include_commentable
+      attrs[commentable.class.name.downcase] = commentable.to_param
+      attrs['project'] = commentable.project if commentable.is_a?(Package)
+    end
     attrs[:parent] = parent_id if parent_id
 
     builder.comment_(attrs) do
