@@ -3,7 +3,7 @@ module Event
     include CommentEvent
     self.description = 'Project was touched'
     payload_keys :project
-    receiver_roles :maintainer, :watcher
+    receiver_roles :maintainer, :bugowner, :watcher
     after_create_commit :send_to_bus
 
     def self.message_bus_routing_key
