@@ -35,7 +35,7 @@ module Webui::WebuiHelper
       return 'now' # rails' 'less than a minute' is a bit long
     end
 
-    human_time_ago = time_ago_in_words(time)
+    human_time_ago = time_ago_in_words(time) + ' ago'
 
     if with_fulltime
       raw("<span title='#{l(time.utc)}' class='fuzzy-time'>#{human_time_ago}</span>")

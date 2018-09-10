@@ -11,4 +11,4 @@
           = user_with_realname_and_icon(req.creator, short: true)
           = surround '(', ')' do
             %u{ title: l(req.created_at.utc) }
-              = time_ago_in_words(req.created_at)
+              #{time_ago_in_words(req.created_at)} ago
