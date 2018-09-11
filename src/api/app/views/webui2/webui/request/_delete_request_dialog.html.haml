@@ -1,5 +1,5 @@
 .modal.fade#delete-request-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-request-modal-label', hidden: true } }
-  .modal-dialog{ role: 'document' }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
     .modal-content
       = form_tag(delete_request_path(project: project), method: :post) do
         .modal-header

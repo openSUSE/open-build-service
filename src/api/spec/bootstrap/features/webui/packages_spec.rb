@@ -24,6 +24,7 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
       login user
       visit package_show_path(project: other_user.home_project, package: other_users_package)
       click_link('Branch package')
+      sleep 1 # Needed to avoid a flickering test. Sometimes the summary is not expanded and its content not visible
     end
 
     scenario 'with AutoCleanup' do
@@ -62,7 +63,7 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
 
     expect(find('#delete-modal')).to have_text('Do you really want to delete this package?')
     within('#delete-modal .modal-footer') do
-      click_button('Accept')
+      click_button('Delete')
     end
 
     expect(find('#flash-messages')).to have_text('Package was successfully removed.')
