@@ -1,6 +1,7 @@
 :ruby
   index ||= ''
   ajax_data = {}
+  ajax_data['switch'] = 'true' # FIXME: Remove this when request show is available in bootstrap
   ajax_data['project'] = h(project) if defined?(project)
   ajax_data['package'] = h(package) if defined?(package)
   ajax_data['index'] = h(index) if defined?(index)
