@@ -483,7 +483,7 @@ DEPENDENCIES
   haml
   haml-rails
   haml_lint
-  jquery-datatables-rails
+  jquery-datatables
   jquery-rails
   jquery-ui-rails (~> 4.2.1)
   kaminari
