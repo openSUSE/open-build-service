@@ -1,18 +1,15 @@
 - @project = @image.package.project
 - @build_results.each_pair do |package, results|
-  #package-buildstatus
-    %table.table.table-stripped.table-sm.table-responsive
-      - results.each do |result|
+  .list-group
+    - results.each do |result|
+      .list-group-item
         - repository = @project.repositories.find_by_name(result.repository)
-        %tr
-          %td.arch
-            .nowrap
-              - if !(repository && repository.architectures.pluck(:name).include?(result.architecture))
-                = image_tag "icons/time_error", alt: "Outdated result", title: "This result is outdated"
-              - else
-                = repo_status_icon(result.state, result.details)
-              = result.architecture
-          = arch_repo_table_cell(result.repository, result.architecture, package, { "code" => result.code, "details" => result.details })
+        - if !(repository && repository.architectures.pluck(:name).include?(result.architecture))
+          = image_tag "icons/time_error", alt: "Outdated result", title: "This result is outdated"
+        - else
+          = repo_status_icon(result.state, result.details)
+        = result.architecture
+        = arch_repo_table_cell(result.repository, result.architecture, package, { "code" => result.code, "details" => result.details })
 %p
   = link_to(image_tag("icons/package_go", alt: "Download Image", title: "Download Image") + ' Download images', package_binaries_path(project: @project, package: @image.package, repository: 'images'), { title: 'Download images' })
 = javascript_tag do
