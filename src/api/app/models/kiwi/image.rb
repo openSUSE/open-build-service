@@ -24,6 +24,7 @@ module Kiwi
     has_one :package, foreign_key: 'kiwi_image_id', class_name: '::Package', dependent: :nullify, inverse_of: :kiwi_image
     has_one :description, inverse_of: :image, dependent: :destroy
     has_one :preference, inverse_of: :image, dependent: :destroy
+    has_many :profiles, inverse_of: :image, dependent: :destroy, index_errors: true
     has_many :repositories, -> { order(order: :asc) }, dependent: :destroy, index_errors: true
     has_many :package_groups, -> { order(:id) }, dependent: :destroy, index_errors: true
     has_many :kiwi_packages, -> { where(kiwi_package_groups: { kiwi_type: Kiwi::PackageGroup.kiwi_types[:image] }) },
