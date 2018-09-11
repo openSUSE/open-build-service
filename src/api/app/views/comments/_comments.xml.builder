@@ -1,3 +1,3 @@
-comments.each do |c|
-  c.to_xml(builder)
+comments.each do |comment|
+  comment.to_xml(builder, @obj.is_a?(User))
 end

@@ -2,7 +2,7 @@ module Event
   class CommentForPackage < Base
     include CommentEvent
     self.description = 'Package was touched'
-    receiver_roles :maintainer, :watcher
+    receiver_roles :maintainer, :bugowner, :watcher
     after_create_commit :send_to_bus
     payload_keys :project, :package, :sender
 
