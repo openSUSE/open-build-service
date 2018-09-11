@@ -11,15 +11,23 @@
  *= require peek
 */
 
-$link-color: #690;
-$link-hover-color: #39c;
-$headings-color: $link-color;
-$gray-100: #f8f9fa;
-$body-bg: $gray-100;
-$gray-200: #e9ecef;
-
+@import 'colors';
+@import 'links';
 @import "font-awesome-sprockets";
 @import 'font-awesome';
+@import 'spacers';
 @import 'bootstrap';
 @import 'sticky-footer';
-@import 'datatables/dataTables.bootstrap4';
+@import 'datatables';
+@import 'card-component';
+@import 'breadcrumbs-component';
+@import 'tabs-component';
+@import 'personal-navigation';
+@import 'list-group-item-integrated';
+@import 'icons';
+@import 'kaminari';
+@import 'system-status';
+@import 'texts';
+@import 'build-results';
+@import 'autocomplete';
+@import 'package-attributes';
