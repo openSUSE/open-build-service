@@ -139,6 +139,11 @@ module Webui
           packages_attributes: [:id, :name, :arch, :replaces, :bootdelete, :bootinclude, :_destroy]
         ]
 
+        profiles_attributes = [
+          :id,
+          :selected
+        ]
+
         params.require(:kiwi_image).permit(
           :use_project_repositories,
           :name,
@@ -147,7 +152,8 @@ module Webui
           description_attributes: description_attributes,
           repositories_attributes: repositories_attributes,
           package_groups_attributes: package_groups_attributes,
-          preference_attributes: preference_attributes
+          preference_attributes: preference_attributes,
+          profiles_attributes: profiles_attributes
         )
       end
 

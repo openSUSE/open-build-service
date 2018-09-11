@@ -369,6 +369,8 @@ $(document).ready(function(){
     enableSave();
   });
 
+  $('[id^="kiwi_image_profiles_attributes_"]').click(enableSave);
+
   // Revert image
   $('#kiwi-image-update-form-revert').click(function(){
     if ($(this).hasClass('enabled')) {

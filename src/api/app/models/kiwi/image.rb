@@ -45,12 +45,14 @@ module Kiwi
     accepts_nested_attributes_for :repositories, allow_destroy: true
     accepts_nested_attributes_for :package_groups, allow_destroy: true
     accepts_nested_attributes_for :kiwi_packages, allow_destroy: true
+    accepts_nested_attributes_for :profiles
 
     nest_errors_for :package_groups_packages, by: ->(kiwi_package) { "Package: #{kiwi_package.name}" }
     nest_errors_for :repositories, by: ->(repository) { "Repository: #{repository.source_path}" }
     nest_errors_for :preference, by: -> { 'Preferences:' }
     nest_errors_for :description, by: -> { 'Details:' }
     nest_errors_for :image, by: -> { 'Image Errors:' }
+    nest_errors_for :profiles, by: ->(profile) { "Profile: #{profile.name}" }
 
     #### Class methods using self. (public and then private)
 

@@ -15,6 +15,7 @@ module Kiwi
         doc = update_repositories(doc)
         doc = update_description(doc)
         doc = update_preferences(doc)
+        doc = update_profiles(doc)
 
         Nokogiri::XML(doc.to_xml, &:noblanks).to_xml(indent: kiwi_indentation(doc))
       end
@@ -109,6 +110,21 @@ module Kiwi
         document.xpath('image/repository').remove
         xml_repos = repositories_for_xml.map(&:to_xml).join("\n")
         repository_position.after(xml_repos)
+        document
+      end
+
+      def update_profiles(document)
+        comment = document.xpath('comment()[contains(., "OBS-Profiles:")]')
+
+        unless comment.empty?
+          document.xpath('comment()[contains(., "OBS-Profiles:")]').remove
+        end
+
+        selected_profiles = @image.profiles.selected.pluck(:name)
+        unless selected_profiles.empty?
+          document.xpath('image').before(Nokogiri::XML::Comment.new(document, " OBS-Profiles: #{selected_profiles.join(' ')} "))
+        end
+
         document
       end
 

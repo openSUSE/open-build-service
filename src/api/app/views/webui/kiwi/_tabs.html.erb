@@ -3,11 +3,13 @@
     $("#kiwi-image-details-section").show();
     $("#kiwi-preferences").show();
     $(".detailed-info").show();
+    $("#kiwi-image-profiles-section").hide();
     $("#kiwi-image-repositories-section").hide();
     $("#kiwi-image-packages-section").hide();
   });
 
   $("#kiwi_software_trigger").click(function() {
+    $("#kiwi-image-profiles-section").show();
     $("#kiwi-image-repositories-section").show();
     $("#kiwi-image-packages-section").show();
     $("#kiwi-preferences").hide();

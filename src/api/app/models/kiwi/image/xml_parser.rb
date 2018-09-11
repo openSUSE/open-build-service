@@ -16,6 +16,7 @@ module Kiwi
         new_image.package_groups = package_groups
         new_image.description = description
         new_image.preference = preference
+        new_image.profiles = profiles
 
         new_image
       end
@@ -132,9 +133,28 @@ module Kiwi
       end
 
       def preference_type_image
+        # FIXME: There can be more than one preference in a Kiwi file (one preference per profile)
         return unless xml_hash['preferences'].present? && xml_hash['preferences']['type'].present?
 
         xml_hash['preferences']['type']['image']
+      end
+
+      def profiles
+        # TODO: Nokogiri::XML(@xml_string).xpath('image/profiles/profile')
+        profiles_hash = xml_hash.dig('profiles', 'profile')
+
+        return if profiles_hash.blank?
+
+        # TODO: Parsing the XML again... everything should be using Nokogiri to not parse the XML twice (once with Xmlhash, once with Nokogiri)
+        selected_profiles = Nokogiri::XML(@xml_string).xpath('/comment()[contains(., "OBS-Profiles:")]')[0]&.text
+
+        profiles_hash.map do |profile_hash|
+          Kiwi::Profile.new(
+            name: profile_hash['name'],
+            description: profile_hash['description'],
+            selected: selected_profiles&.match?(" #{profile_hash['name']} ")
+          )
+        end
       end
     end
   end
