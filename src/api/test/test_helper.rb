@@ -355,7 +355,9 @@ class ActiveSupport::TestCase
   set_fixture_class history_elements: HistoryElement::Base
 
   def check_xml_tag(data, conds)
-    NodeMatcher.new(conds).find_matching(Nokogiri::XML(data).root)
+    xml_data = Nokogiri::XML(data)
+    raise MiniTest::Assertion, "Invalid XML: #{xml_data.errors.join(', ')}" unless xml_data.errors.empty?
+    NodeMatcher.new(conds).find_matching(xml_data.root)
   end
 
   def assert_xml_tag(data, conds)
