@@ -17,3 +17,5 @@ localgem.patch
 disable-slp.patch
 CVE-2017-5188.patch
 fix-kiwitree-symlink.patch
+handle-links-properly.patch
+dist-Use-2.7-packages-for-testing.patch

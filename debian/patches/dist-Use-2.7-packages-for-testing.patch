@@ -1,0 +1,26 @@
+From be9fc5f2f7c564392948f127faff6486225ba8e6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Bj=C3=B6rn=20Geuken?= <bgeuken@suse.de>
+Date: Mon, 26 Jun 2017 15:06:51 +0200
+Subject: [PATCH] [dist] Use 2.7 packages for testing 2.7 branch in travis
+
+---
+ dist/ci/obs_testsuite_travis_install.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Origin: upstream, https://github.com/openSUSE/open-build-service/pull/3284/commits
+diff --git a/dist/ci/obs_testsuite_travis_install.sh b/dist/ci/obs_testsuite_travis_install.sh
+index 85238dbd1..f9ecadaeb 100755
+--- a/dist/ci/obs_testsuite_travis_install.sh
++++ b/dist/ci/obs_testsuite_travis_install.sh
+@@ -8,7 +8,7 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C5C219E7
+ 
+ # Install updates from our own repository
+ sudo chmod a+w /etc/apt/sources.list.d
+-echo 'deb http://download.opensuse.org/repositories/OBS:/Server:/Unstable/xUbuntu_12.04 /' > /etc/apt/sources.list.d/opensuse.list
++echo 'deb http://download.opensuse.org/repositories/OBS:/Server:/2.7/xUbuntu_12.04 /' > /etc/apt/sources.list.d/opensuse.list
+ 
+ # We could use this to only update the package list from the OBS,
+ # but apprently this is not possible anymore. So we update all package lists.
+-- 
+2.11.0
+
