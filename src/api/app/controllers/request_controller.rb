@@ -185,7 +185,7 @@ class RequestController < ApplicationController
         # Inject backend-provided XML diff into action XML:
         builder = Nokogiri::XML::Builder.new
         action.render_xml(builder)
-        xml_request.add_child(builder.to_xml)
+        xml_request.add_child(builder.doc.root.to_xml)
         xml_request.at_css('action').add_child(action_diff)
       else
         diff_text += action_diff
