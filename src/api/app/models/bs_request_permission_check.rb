@@ -50,7 +50,7 @@ class BsRequestPermissionCheck
       query[:rev] = action.source_rev if action.source_rev
       begin
         Backend::Api::Sources::Package.files(action.source_project, action.source_package, query)
-      rescue ActiveXML::Transport::Error
+      rescue Backend::Error
         # rubocop:disable Metrics/LineLength
         raise ExpandError, "The source of package #{action.source_project}/#{action.source_package}#{action.source_rev ? " for revision #{action.source_rev}" : ''} is broken"
         # rubocop:enable Metrics/LineLength

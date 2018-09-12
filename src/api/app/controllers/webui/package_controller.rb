@@ -145,7 +145,7 @@ class Webui::PackageController < Webui::WebuiController
         @statistics = Xmlhash.parse(xml)
         return
       end
-    rescue ActiveXML::Transport::Error
+    rescue Backend::Error
     end
 
     flash[:error] = "No statistics of a successful build could be found in #{@repository}/#{@arch}"
@@ -160,7 +160,7 @@ class Webui::PackageController < Webui::WebuiController
 
     begin
       @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project, params[:package], @repository.name, @arch.name, @filename)
-    rescue ActiveXML::Transport::ForbiddenError, ActiveXML::Transport::Error => e
+    rescue Backend::Error => e
       flash[:error] = "File #{@filename} can not be downloaded from #{@project}: #{e.summary}"
       redirect_to controller: :package, action: :binaries, project: @project,
                   package: @package, repository: @repository.name, nextstatus: 404
@@ -185,7 +185,7 @@ class Webui::PackageController < Webui::WebuiController
     @package_name = params[:package]
 
     results_from_backend = Buildresult.find_hashed(project: @project, package: @package_name, repository: @repository, view: ['binarylist', 'status'])
-    unless results_from_backend
+    if results_from_backend.empty?
       flash[:error] = "Package \"#{@package_name}\" has no build result for repository #{@repository}"
       redirect_to(controller: :package, action: :show, project: @project, package: @package, nextstatus: 404)
       return
@@ -207,7 +207,7 @@ class Webui::PackageController < Webui::WebuiController
 
       @buildresults << build_results_set
     end
-  rescue ActiveXML::Transport::Error => e
+  rescue Backend::Error => e
     flash[:error] = e.message
     redirect_back(fallback_location: { controller: :package, action: :show, project: @project, package: @package })
   end
@@ -385,7 +385,7 @@ class Webui::PackageController < Webui::WebuiController
       @revision = @current_rev if !@revision && !@srcmd5 # on very first page load only
 
       @files = package_files(@srcmd5 || @revision, @expand)
-    rescue ActiveXML::Transport::Error => e
+    rescue Backend::Error => e
       # TODO: crudest hack ever!
       if e.summary == 'service in progress' && @expand == 1
         @expand = 0
@@ -439,11 +439,11 @@ class Webui::PackageController < Webui::WebuiController
     options[:withissues] = 1
     begin
       @rdiff = Backend::Api::Sources::Package.source_diff(project, package, options.merge(expand: 1))
-    rescue ActiveXML::Transport::Error => e
+    rescue Backend::Error => e
       flash[:error] = 'Problem getting expanded diff: ' + e.summary
       begin
         @rdiff = Backend::Api::Sources::Package.source_diff(project, package, options.merge(expand: 0))
-      rescue ActiveXML::Transport::Error => e
+      rescue Backend::Error => e
         flash[:error] = 'Error getting diff: ' + e.summary
         redirect_back(fallback_location: package_show_path(project: @project, package: @package))
         return false
@@ -596,7 +596,7 @@ class Webui::PackageController < Webui::WebuiController
   rescue CreateProjectNoPermission
     flash[:error] = 'Sorry, you are not authorized to create this Project.'
     redirect_back(fallback_location: root_path)
-  rescue APIError, ActiveRecord::RecordInvalid, ActiveXML::Transport::Error => exception
+  rescue APIError, ActiveRecord::RecordInvalid, Backend::Error => exception
     flash[:error] = "Failed to branch: #{exception.message}"
     redirect_back(fallback_location: root_path)
   end
@@ -643,7 +643,7 @@ class Webui::PackageController < Webui::WebuiController
       flash[:notice] = 'Services successfully triggered'
     rescue Timeout::Error => e
       flash[:error] = "Services couldn't be triggered: " + e.message
-    rescue ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => e
+    rescue Backend::Error => e
       flash[:error] = "Services couldn't be triggered: " + Xmlhash::XMLHash.new(error: e.summary)[:error]
     end
     redirect_to package_show_path(@project, @package)
@@ -684,7 +684,7 @@ class Webui::PackageController < Webui::WebuiController
       end
     rescue APIError => e
       errors << e.message
-    rescue ActiveXML::Transport::Error => e
+    rescue Backend::Error => e
       errors << Xmlhash::XMLHash.new(error: e.summary)[:error]
     rescue StandardError => e
       errors << e.message
@@ -719,7 +719,7 @@ class Webui::PackageController < Webui::WebuiController
     begin
       @package.delete_file(filename)
       flash[:notice] = "File '#{filename}' removed successfully"
-    rescue ActiveXML::Transport::NotFoundError
+    rescue Backend::NotFoundError
       flash[:notice] = "Failed to remove file '#{filename}'"
     end
     redirect_to action: :show, project: @project, package: @package
@@ -738,7 +738,7 @@ class Webui::PackageController < Webui::WebuiController
     if User.current.can_modify?(@package) && @rev.blank?
       begin
         files = package_files(@rev, @expand)
-      rescue ActiveXML::Transport::Error
+      rescue Backend::Error
         files = []
       end
       files.each do |file|
@@ -750,11 +750,11 @@ class Webui::PackageController < Webui::WebuiController
     end
     begin
       @file = @package.source_file(@filename, fetch_from_params(:rev, :expand))
-    rescue ActiveXML::Transport::NotFoundError
+    rescue Backend::NotFoundError
       flash[:error] = "File not found: #{@filename}"
       redirect_to action: :show, package: @package, project: @project
       return
-    rescue ActiveXML::Transport::Error => e
+    rescue Backend::Error => e
       flash[:error] = "Error: #{e}"
       redirect_back(fallback_location: { action: :show, project: @project, package: @package })
       return
@@ -855,7 +855,7 @@ class Webui::PackageController < Webui::WebuiController
       @offset = [chunk_end, @size].min
     rescue Timeout::Error, IOError
       @log_chunk = ''
-    rescue ActiveXML::Transport::Error => e
+    rescue Backend::Error => e
       if %r{Logfile is not that big}.match?(e.summary)
         @log_chunk = ''
       elsif /start out of range/.match?(e.summary)
@@ -921,10 +921,10 @@ class Webui::PackageController < Webui::WebuiController
       show_all = params[:show_all] == 'true'
       @index = params[:index]
       @buildresults = @package.buildresult(@project, show_all)
-      switch_to_webui2
+      switch_to_webui2 if params[:switch].present?
       render partial: 'buildstatus', locals: { buildresults: @buildresults, index: @index, project: @project }
     else
-      switch_to_webui2
+      switch_to_webui2 if params[:switch].present?
       render partial: 'no_repositories', locals: { project: @project }
     end
   end
@@ -950,7 +950,7 @@ class Webui::PackageController < Webui::WebuiController
       @repo_list << [repo_name, valid_xml_id(elide(repo_name, 30))]
     end
 
-    return if switch_to_webui2
+    return if params[:switch].present? && switch_to_webui2
 
     if @repo_list.empty?
       render partial: 'no_repositories', locals: { project: @project }
@@ -966,7 +966,7 @@ class Webui::PackageController < Webui::WebuiController
       @log.encode!(xml: :text)
       switch_to_webui2
       render partial: 'rpmlint_log'
-    rescue ActiveXML::Transport::NotFoundError
+    rescue Backend::NotFoundError
       render plain: 'No rpmlint log'
     end
   end
@@ -1010,7 +1010,7 @@ class Webui::PackageController < Webui::WebuiController
         @package.update_from_xml(meta_xml)
         flash.now[:success] = 'The Meta file has been successfully saved.'
         render layout: false, partial: 'layouts/webui/flash', object: flash
-      rescue ActiveXML::Transport::Error, NotFoundError => e
+      rescue Backend::Error, NotFoundError => e
         flash.now[:error] = "Error while saving the Meta file: #{e}."
         render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
       end
@@ -1042,18 +1042,17 @@ class Webui::PackageController < Webui::WebuiController
     query[:expand]  = expand  if expand
     query[:rev]     = rev     if rev
 
-    # FIXME: This should be something like ActiveXML::Node.find!
-    # so we can require ActiveXML::Node to tell us when things do not exist
-    dir = ActiveXML::Node.new(@package.source_file(nil, query))
-    return [] unless dir
+    dir_xml = @package.source_file(nil, query)
+    return [] if dir_xml.blank?
 
-    @serviceinfo = dir.find_first(:serviceinfo)
+    dir = Xmlhash.parse(dir_xml)
+    @serviceinfo = dir.elements('serviceinfo').first
     files = []
-    dir.each(:entry) do |entry|
+    dir.elements('entry') do |entry|
       file = Hash[*[:name, :size, :mtime, :md5].map { |x| [x, entry.value(x.to_s)] }.flatten]
       file[:viewable] = !Package.is_binary_file?(file[:name]) && file[:size].to_i < 2**20 # max. 1 MB
       file[:editable] = file[:viewable] && !file[:name].match?(/^_service[_:]/)
-      file[:srcmd5] = dir.value(:srcmd5)
+      file[:srcmd5] = dir.value('srcmd5')
       files << file
     end
     files

@@ -164,9 +164,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response :success
     assert_xml_tag(tag: 'target', attributes: { project: 'My:Maintenance', releaseproject: 'BaseDistro2.0:LinkedUpdateProject' })
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    id1 = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    id1 = node['id']
     post "/request/#{id1}?cmd=changestate&newstate=accepted&force=1"
     assert_response :success
     get "/request/#{id1}"
@@ -241,12 +241,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(tag: 'patchinfo', attributes: { incident: incident_id })
     # add required informations about the update
-    pi = ActiveXML::Node.new(@response.body)
-    pi.find_first('summary').text = 'live patch'
-    pi.find_first('description').text = 'live patch is always critical'
-    pi.find_first('rating').text = 'critical'
+    pi = Nokogiri::XML(@response.body).root
+    pi.at_css('summary').content = 'live patch'
+    pi.at_css('description').content = 'live patch is always critical'
+    pi.at_css('rating').content = 'critical'
     Timecop.freeze(1)
-    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.dump_xml
+    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
     assert_response :success
 
     ### the backend is now building the packages, injecting results
@@ -336,9 +336,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                     tag: 'source', attributes: { project: incident_project, package: 'patchinfo' })
     assert_xml_tag(parent: { tag: 'action', attributes: { type: 'maintenance_release' } },
                     tag: 'target', attributes: { project: 'BaseDistro2Channel', package: 'patchinfo.1' })
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    reqid = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    reqid = node['id']
 
     # validate that request is diffable (not broken)
     post "/request/#{reqid}?cmd=diff"
@@ -348,13 +348,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/source/#{incident_project}/kgraft-GA.BaseDistro2.0/_link"
     assert_response :success
     assert_xml_tag tag: 'link', attributes: { project: 'BaseDistro2.0', package: 'kgraft-GA' }
-    node = ActiveXML::Node.new(@response.body)
-    assert_not node.has_attribute?(:rev)
+    node = Xmlhash.parse(@response.body)
+    assert node['rev'].nil?
     get "/source/#{incident_project}/kgraft-incident-0.My_Maintenance_0/_link"
     assert_response :success
     assert_xml_tag tag: 'link', attributes: { project: 'My:Maintenance:0', package: 'kgraft-incident-0' }
-    node = ActiveXML::Node.new(@response.body)
-    assert_not node.has_attribute?(:rev)
+    node = Xmlhash.parse(@response.body)
+    assert node['rev'].nil?
 
     #### release packages
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
@@ -373,12 +373,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # link target is unmodfied, so link must stay unfrozen
     get "/source/#{incident_project}/kgraft-GA.BaseDistro2.0/_link"
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert_equal false, node.has_attribute?(:rev)
+    node = Xmlhash.parse(@response.body)
+    assert node['rev'].nil?
     get "/source/#{incident_project}/kgraft-incident-0.My_Maintenance_0/_link"
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert_equal false, node.has_attribute?(:rev)
+    node = Xmlhash.parse(@response.body)
+    assert node['rev'].nil?
 
     # old one still branchable even though conflicting change has been released?
     post '/source', params: { cmd: 'branch', package: 'pack2', add_repositories: 1 }

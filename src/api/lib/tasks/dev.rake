@@ -138,7 +138,7 @@ namespace :dev do
   end
   namespace :development_testdata do
     task create: :environment do
-      unless Rails.env.to_s == 'development'
+      unless Rails.env.development?
         puts "You are running this rake task in #{Rails.env} environment."
         puts 'Please only run this task with RAILS_ENV=development'
         puts 'otherwise it will destroy your database data.'
@@ -193,6 +193,12 @@ namespace :dev do
         target_project: update_project,
         maintainer: admin
       )
+
+      # Create factory dashboard projects
+      create(:project, name: 'openSUSE:Factory', description: 'requests:')
+      create(:project, name: 'openSUSE:Factory:Rings:0-Bootstrap')
+      create(:project, name: 'openSUSE:Factory:Rings:1-MinimalX')
+      create(:project, name: 'openSUSE:Factory:Staging:A')
     end
   end
 end

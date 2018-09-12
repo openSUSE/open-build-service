@@ -6,7 +6,7 @@ gem 'rails', '~> 5.2.0'
 
 # as our database
 gem 'mysql2'
-# as requirement for activexml
+# for XML handling
 gem 'nokogiri'
 # for delayed tasks
 gem 'delayed_job_active_record', '>= 4.0.0'
@@ -71,7 +71,7 @@ gem 'gssapi', require: false
 # for sending events to rabbitmq
 gem 'bunny'
 # for making changes to existing data
-gem 'data_migrate', '= 4.0.0'
+gem 'data_migrate', '= 5.0.2'
 # for URI encoding
 gem 'addressable'
 # for XML builder

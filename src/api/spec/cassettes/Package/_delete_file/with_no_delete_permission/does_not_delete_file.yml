@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:47 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/_meta?user=other_user
@@ -81,7 +81,7 @@ http_interactions:
           <person userid="other_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:47 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=other_user
@@ -89,8 +89,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>After Many a Summer Dies the Swan</title>
-          <description>Ipsum fugit dolore dignissimos quia.</description>
+          <title>Consider the Lilies</title>
+          <description>Laboriosam aspernatur molestiae sint.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -111,25 +111,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '183'
+      - '170'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>After Many a Summer Dies the Swan</title>
-          <description>Ipsum fugit dolore dignissimos quia.</description>
+          <title>Consider the Lilies</title>
+          <description>Laboriosam aspernatur molestiae sint.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:48 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:47 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/package_with_files/_meta
+    uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=other_user
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>After Many a Summer Dies the Swan</title>
-          <description>Ipsum fugit dolore dignissimos quia.</description>
+          <title>Consider the Lilies</title>
+          <description>Laboriosam aspernatur molestiae sint.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -150,23 +150,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '183'
+      - '170'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>After Many a Summer Dies the Swan</title>
-          <description>Ipsum fugit dolore dignissimos quia.</description>
+          <title>Consider the Lilies</title>
+          <description>Laboriosam aspernatur molestiae sint.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:48 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Eaque in tempore laboriosam est. Quo quidem rerum et maxime corrupti
-        dolor. Dicta odio sit voluptatem et. Cum illo tempore. Beatae et et.
+      string: Praesentium optio provident. Alias dolorem neque. Enim quidem ea.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -186,27 +185,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="10" vrev="10">
-          <srcmd5>0b2acb8deaec80305e417d6eaf267d7c</srcmd5>
+        <revision rev="418" vrev="418">
+          <srcmd5>9363712df4a7da0ff3330b9547555ac2</srcmd5>
           <version>unknown</version>
-          <time>1526982888</time>
+          <time>1536230747</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:48 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Id neque aspernatur reprehenderit. Aliquid occaecati explicabo ipsa.
-        Accusamus at non ex delectus.
+      string: Ullam fugiat suscipit. Cumque similique eum. Sed tempore doloribus.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -226,20 +224,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="11" vrev="11">
-          <srcmd5>5f4e8f999002abe0f1664d9d6d450816</srcmd5>
+        <revision rev="419" vrev="419">
+          <srcmd5>24dec25939a5c7a810609ac7dab1f834</srcmd5>
           <version>unknown</version>
-          <time>1526982888</time>
+          <time>1536230747</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:48 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
@@ -261,15 +259,14 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       Content-Length:
-      - '98'
+      - '67'
       Cache-Control:
       - no-cache
       Connection:
       - close
     body:
       encoding: UTF-8
-      string: Id neque aspernatur reprehenderit. Aliquid occaecati explicabo ipsa.
-        Accusamus at non ex delectus.
+      string: Ullam fugiat suscipit. Cumque similique eum. Sed tempore doloribus.
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:48 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:47 GMT
 recorded_with: VCR 4.0.0

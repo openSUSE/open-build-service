@@ -6,8 +6,8 @@ RSpec.describe LocalBuildResult::ForPackage, vcr: true do
   let(:home_project) { user.home_project }
   let(:package) { create(:package, name: 'test_package', project: home_project) }
   let(:fake_multibuild_results_with_all_excluded) do
-    Buildresult.new(
-      '<resultlist state="b006a28328744bf1186d2b6fb3006ecb">
+    <<-HEREDOC
+      <resultlist state="b006a28328744bf1186d2b6fb3006ecb">
         <result project="home:tom" repository="openSUSE_Tumbleweed" arch="i586" code="finished" state="finished">
           <status package="test_package" code="excluded" />
           <status package="test_package:test_package-source" code="excluded" />
@@ -20,12 +20,12 @@ RSpec.describe LocalBuildResult::ForPackage, vcr: true do
           <status package="test_package" code="excluded" />
           <status package="test_package:test_package-source" code="excluded" />
         </result>
-      </resultlist>'
-    )
+      </resultlist>
+    HEREDOC
   end
   let(:fake_multibuild_results_with_some_excluded) do
-    Buildresult.new(
-      '<resultlist state="b006a28328744bf1186d2b6fb3006ecb">
+    <<-HEREDOC
+      <resultlist state="b006a28328744bf1186d2b6fb3006ecb">
         <result project="home:tom" repository="openSUSE_Tumbleweed" arch="i586" code="finished" state="finished">
           <status package="test_package" code="unresolvable" />
           <status package="test_package:test_package-source" code="excluded" />
@@ -40,8 +40,8 @@ RSpec.describe LocalBuildResult::ForPackage, vcr: true do
           <status package="test_package" code="succeeded" />
           <status package="test_package:test_package-source" code="excluded" />
         </result>
-      </resultlist>'
-    )
+      </resultlist>
+    HEREDOC
   end
 
   describe '#buildresults' do
@@ -55,7 +55,7 @@ RSpec.describe LocalBuildResult::ForPackage, vcr: true do
 
       context 'when all entries are excluded' do
         before do
-          allow(Buildresult).to receive(:find).and_return(fake_multibuild_results_with_all_excluded)
+          allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_multibuild_results_with_all_excluded)
         end
 
         it { expect(test_package).to eq([]) }
@@ -65,7 +65,7 @@ RSpec.describe LocalBuildResult::ForPackage, vcr: true do
 
       context 'when some entries are exluded' do
         before do
-          allow(Buildresult).to receive(:find).and_return(fake_multibuild_results_with_some_excluded)
+          allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_multibuild_results_with_some_excluded)
         end
 
         it { expect(excluded_counter).to eq(3) }
@@ -90,7 +90,7 @@ RSpec.describe LocalBuildResult::ForPackage, vcr: true do
       let(:local_build_result) { LocalBuildResult::ForPackage.new(package: package, project: home_project, show_all: true) }
 
       before do
-        allow(Buildresult).to receive(:find).and_return(fake_multibuild_results_with_some_excluded)
+        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_multibuild_results_with_some_excluded)
       end
 
       it { expect(excluded_counter).to eq(0) }

@@ -224,7 +224,7 @@ class Package < ApplicationRecord
     begin
       answer = Backend::Connection.get(Package.source_path(project, package))
       return true if answer
-    rescue ActiveXML::Transport::Error
+    rescue Backend::Error
       # ignored
     end
     false
@@ -506,11 +506,6 @@ class Package < ApplicationRecord
     Backend::Connection.get(source_path(file, opts)).body
   end
 
-  # Reads the source file and converts it into an ActiveXML::Node
-  def source_file_to_axml(file, opts = {})
-    ActiveXML::Node.new(source_file(file, opts))
-  end
-
   def dir_hash(opts = {})
     Directory.hashed(opts.update(project: project.name, package: name))
   end
@@ -564,7 +559,7 @@ class Package < ApplicationRecord
   def parse_issues_xml(query, force_state = nil)
     begin
       answer = Backend::Connection.post(source_path(nil, query))
-    rescue ActiveXML::Transport::Error => e
+    rescue Backend::Error => e
       Rails.logger.debug "failed to parse issues: #{e.inspect}"
       return {}
     end
@@ -827,7 +822,7 @@ class Package < ApplicationRecord
       path << Backend::Connection.build_query_from_hash(h, [:user, :comment, :requestid])
       begin
         Backend::Connection.delete path
-      rescue ActiveXML::Transport::NotFoundError
+      rescue Backend::NotFoundError
         # ignore this error, backend was out of sync
         logger.tagged('backend_sync') { logger.warn("Package #{project.name}/#{name} was already missing on backend on removal") }
       end
@@ -919,13 +914,10 @@ class Package < ApplicationRecord
     LocalBuildResult::ForPackage.new(package: self, project: prj, show_all: show_all)
   end
 
-  def jobhistory_list(project, repository, arch, options = {})
-    options[:limit] = 100 if options[:limit].blank?
-    options[:package] = name if options[:package].blank?
-
+  def self.jobhistory_list(project_name, repository_name, arch_name, package_name)
     begin
-      results = Xmlhash.parse(Backend::Api::BuildResults::JobHistory.all_for_package(project.name, options[:package], repository, arch, options[:limit]))
-    rescue ActiveXML::Transport::Error
+      results = Xmlhash.parse(Backend::Api::BuildResults::JobHistory.all_for_package(project_name, package_name, repository_name, arch_name))
+    rescue Backend::Error
       return []
     end
 
@@ -952,7 +944,7 @@ class Package < ApplicationRecord
   end
 
   def service_error(revision = nil)
-    revision ||= serviceinfo.try { to_hash['xsrcmd5'] }
+    revision ||= serviceinfo['xsrcmd5']
     return nil unless revision
     PackageServiceErrorFile.new(project_name: project.name, package_name: name).content(rev: revision)
   end
@@ -1216,7 +1208,7 @@ class Package < ApplicationRecord
 
   def patchinfo
     Patchinfo.new(source_file('_patchinfo'))
-  rescue ActiveXML::Transport::NotFoundError
+  rescue Backend::NotFoundError
     nil
   end
 
@@ -1255,10 +1247,11 @@ class Package < ApplicationRecord
 
   def serviceinfo
     begin
-      dir = Directory.find(project: project.name, package: name)
-      dir.find_first(:serviceinfo) if dir
-    rescue ActiveXML::Transport::NotFoundError
+      dir = Directory.hashed(project: project.name, package: name)
+      return dir.fetch('serviceinfo', {}) if dir
+    rescue Backend::NotFoundError
     end
+    {}
   end
 
   def parse_all_history
@@ -1307,20 +1300,18 @@ class Package < ApplicationRecord
     end
 
     # verify link
-    if name == '_link'
-      data = ActiveXML::Node.new(content)
-      if data
-        tproject_name = data.value('project') || pkg.project.name
-        tpackage_name = data.value('package') || pkg.name
-        if data.has_attribute?('missingok')
-          Project.get_by_name(tproject_name) # permission check
-          if Package.exists_by_project_and_name(tproject_name, tpackage_name, follow_project_links: true, allow_remote_packages: true)
-            raise NotMissingError, "Link contains a missingok statement but link target (#{tproject_name}/#{tpackage_name}) exists."
-          end
-        else
-          # permission check
-          Package.get_by_project_and_name(tproject_name, tpackage_name)
+    if name == '_link' && content.present?
+      data = Xmlhash.parse(content)
+      tproject_name = data.value('project') || pkg.project.name
+      tpackage_name = data.value('package') || pkg.name
+      if data['missingok']
+        Project.get_by_name(tproject_name) # permission check
+        if Package.exists_by_project_and_name(tproject_name, tpackage_name, follow_project_links: true, allow_remote_packages: true)
+          raise NotMissingError, "Link contains a missingok statement but link target (#{tproject_name}/#{tpackage_name}) exists."
         end
+      else
+        # permission check
+        Package.get_by_project_and_name(tproject_name, tpackage_name)
       end
     end
 
@@ -1343,11 +1334,10 @@ class Package < ApplicationRecord
       raise PutFileNoPermission, "Insufficient permissions to store file in package #{name}, project #{project.name}"
     end
 
-    put_opt = {}
-    put_opt[:comment] = opt[:comment] if opt[:comment]
-    put_opt[:user] = User.current.login
-    path = source_path(opt[:filename], put_opt)
-    ActiveXML.backend.http_do :put, path, data: content, timeout: 500
+    params = {}
+    params[:comment] = opt[:comment] if opt[:comment]
+    params[:user] = User.current.login
+    Backend::Api::Sources::Package.write_file(project.name, name, opt[:filename], content, params)
 
     # KIWI file
     if /\.kiwi\.txz$/.match?(opt[:filename])
@@ -1416,7 +1406,7 @@ class Package < ApplicationRecord
 
       # do not use project.name because we missuse the package source container for build container operations
       Backend::Connection.post("/build/#{URI.escape(build_project)}?cmd=#{command}&#{permitted_params.to_h.to_query}")
-    rescue ActiveXML::Transport::Error, Timeout::Error, Project::WritePermissionError => e
+    rescue Backend::Error, Timeout::Error, Project::WritePermissionError => e
       errors.add(:base, e.message)
       return false
     end
@@ -1434,7 +1424,7 @@ class Package < ApplicationRecord
   def self.what_depends_on(project, package, repository, architecture)
     path = "/build/#{project}/#{repository}/#{architecture}/_builddepinfo?package=#{package}&view=revpkgnames"
     [Xmlhash.parse(Backend::Connection.get(path).body).try(:[], 'package').try(:[], 'pkgdep')].flatten.compact
-  rescue ActiveXML::Transport::NotFoundError
+  rescue Backend::NotFoundError
     []
   end
 
@@ -1443,7 +1433,7 @@ class Package < ApplicationRecord
 
     begin
       build_reason = Backend::Api::BuildResults::Status.build_reason(project.name, package_name || name, repo, arch)
-    rescue ActiveXML::Transport::NotFoundError
+    rescue Backend::NotFoundError
       return PackageBuildReason.new
     end
 

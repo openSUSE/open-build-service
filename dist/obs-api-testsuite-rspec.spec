@@ -60,7 +60,11 @@ export RAILS_ENV=test
 bin/rake db:create db:setup
 bin/rails assets:precompile
 
-bin/rspec -f d
+#without boostrap
+bin/rspec -f d --exclude-pattern "spec/bootstrap/**/*_spec.rb"
+
+#only bootstrap
+BOOTSTRAP=1 bin/rspec -f d spec/bootstrap/
 
 %install
 

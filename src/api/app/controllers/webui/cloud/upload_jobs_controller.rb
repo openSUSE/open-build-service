@@ -38,7 +38,7 @@ module Webui
           authorize @upload_job, :destroy?
           Backend::Api::Cloud.destroy(@upload_job.job_id)
           flash[:success] = "Successfully aborted upload job with id #{params[:id]}."
-        rescue ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => exception
+        rescue Backend::Error => exception
           flash[:error] = exception.message
         end
 

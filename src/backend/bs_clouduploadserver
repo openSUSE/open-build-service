@@ -51,8 +51,6 @@ my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $jobdir = "$BSConfig::bsdir/cloudupload";
 my $eventdir = "$BSConfig::bsdir/events";
 
-my $pubkeyfile = $BSConfig::cloudupload_pubkey || "/etc/obs/cloudupload/_pubkey";
-
 my $ajaxsocket = "$rundir/bs_clouduploadserver.ajax";
 
 my $maxchild = $BSConfig::cloudupload_maxchild || 5;
@@ -305,7 +303,7 @@ sub cloudupload_log {
 
 sub cloudupload_pubkey {
   my ($cgi) = @_;
-  BSWatcher::reply_file($pubkeyfile, 'Content-Type: text/plain');
+  BSWatcher::reply_file($BSConfig::cloudupload_pubkey, 'Content-Type: text/plain');
 }
 
 sub workerstatus {

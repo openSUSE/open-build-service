@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 29 Jun 2018 11:39:25 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:46 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_service/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_service" project="home:tom">
-          <title>The Moon by Night</title>
-          <description>Ut sed tempora qui minima nisi.</description>
+          <title>Cover Her Face</title>
+          <description>Et labore explicabo accusamus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_service" project="home:tom">
-          <title>The Moon by Night</title>
-          <description>Ut sed tempora qui minima nisi.</description>
+          <title>Cover Her Face</title>
+          <description>Et labore explicabo accusamus.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 29 Jun 2018 11:39:25 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:46 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/package_with_service/_meta
+    uri: http://backend:5352/source/home:tom/package_with_service/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_service" project="home:tom">
-          <title>The Moon by Night</title>
-          <description>Ut sed tempora qui minima nisi.</description>
+          <title>Cover Her Face</title>
+          <description>Et labore explicabo accusamus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_service" project="home:tom">
-          <title>The Moon by Night</title>
-          <description>Ut sed tempora qui minima nisi.</description>
+          <title>Cover Her Face</title>
+          <description>Et labore explicabo accusamus.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 29 Jun 2018 11:39:25 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:46 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_service/_service
@@ -144,18 +144,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="7" vrev="7">
-          <srcmd5>800b028aee02ce4f271eb5a38c08eee3</srcmd5>
+        <revision rev="50" vrev="50">
+          <srcmd5>78452c98bc99aa21016d36fa091afe64</srcmd5>
           <version>unknown</version>
-          <time>1530272365</time>
+          <time>1536230746</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 29 Jun 2018 11:39:25 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:46 GMT
 recorded_with: VCR 4.0.0

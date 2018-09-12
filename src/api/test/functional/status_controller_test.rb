@@ -98,48 +98,4 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
     get '/status/project/home:Iggy'
     assert_response :success
   end
-
-  def test_bsrequest
-    get '/status/bsrequest?id=1'
-    assert_xml_tag(tag: 'status', attributes: { code: 'not_found' })
-    assert_response 404
-  end
-
-  def test_history
-    get '/status/history'
-    assert_response 400
-    assert_select 'status', code: 'missing_parameter' do
-      assert_select 'summary', 'Required Parameter hours missing'
-    end
-
-    Timecop.freeze(2010, 7, 12) do
-      day_before_yesterday = Time.now.to_i - 2.days
-      yesterday = Time.now.to_i - 1.day
-      1.times do |i|
-        StatusHistory.create(time: day_before_yesterday + i, key: 'squeue_low_aarch64', value: i)
-      end
-      2.times do |i|
-        StatusHistory.create(time: yesterday + i, key: 'squeue_low_aarch64', value: i)
-      end
-
-      get '/status/history?hours=24&key=squeue_low_aarch64'
-      assert_response :success
-      assert_select 'history' do
-        assert_select 'value', time: '1278806399.5', value: '0.0'
-      end
-
-      # there is no history in fixtures so the result doesn't matter
-      # invalid parameters
-      get '/status/history?hours=-1&samples=-10'
-      assert_response 400
-      assert_select 'status', code: 'missing_parameter' do
-        assert_select 'summary', 'Required Parameter key missing'
-      end
-
-      get '/status/history?hours=5&samples=10&key=idle_i586'
-      assert_select 'history' do
-        assert_select 'value', 0
-      end
-    end
-  end
 end

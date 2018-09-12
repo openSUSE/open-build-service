@@ -26,7 +26,10 @@
               - if !(repository && repository.architectures.pluck(:name).include?(result.architecture))
                 %i.fas.fa-clock.text-obs-yellow{ title: 'This result is outdated' }
               - else
-                = webui2_repo_status_icon(result.state, result.details)
+                :ruby
+                  icon = webui2_repo_status_icon(result.state)
+                  description = webui2_repo_status_description(result.state, result.details)
+                %i{ class: icon, data: { content: description, placement: 'top', toggle: 'popover' } }
               %span.ml-1
                 = result.architecture
             .col-6.col-sm-5.buildstatus.text-nowrap

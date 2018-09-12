@@ -132,9 +132,9 @@ class Project < ApplicationRecord
       project.store
 
       # restore all package meta data objects in DB
-      backend_packages = Collection.find(:package, match: "@project='#{project_name}'")
-      backend_packages.each('package') do |package|
-        package = project.packages.new(name: package.value(:name))
+      backend_packages = Xmlhash.parse(Backend::Api::Search.packages_for_project(project_name))
+      backend_packages.elements('package') do |package|
+        package = project.packages.new(name: package['name'])
         package_meta = Xmlhash.parse(package.meta.content)
 
         Package.transaction do
@@ -166,11 +166,7 @@ class Project < ApplicationRecord
 
   def self.load_from_remote(project, path)
     Rails.cache.fetch("remote_image_templates_#{project.id}", expires_in: 1.hour) do
-      begin
-        return ActiveXML.backend.load_external_url("#{project.remoteurl}#{path}")
-      rescue OpenSSL::SSL::SSLError
-        Rails.logger.error "Remote instance #{project.remoteurl} has no valid SSL certificate"
-      end
+      Project::RemoteURL.load(project, path)
     end
   end
 
@@ -256,7 +252,7 @@ class Project < ApplicationRecord
   def number_of_build_problems
     begin
       result = Backend::Api::BuildResults::Status.build_problems(name)
-    rescue ActiveXML::Transport::NotFoundError
+    rescue Backend::NotFoundError
       return 0
     end
     ret = {}
@@ -606,7 +602,7 @@ class Project < ApplicationRecord
         options = { user: User.current_login, comment: @commit_opts[:comment] }
         options[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
         Backend::Api::Sources::Project.delete(name, options)
-      rescue ActiveXML::Transport::NotFoundError
+      rescue Backend::NotFoundError
         # ignore this error, backend was out of sync
         logger.warn("Project #{name} was already missing on backend on removal")
       end
@@ -1161,7 +1157,7 @@ class Project < ApplicationRecord
                                                         [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory,
                                                          :makeolder, :makeoriginolder, :noservice])
       Backend::Connection.post path
-    rescue ActiveXML::Transport::Error => e
+    rescue Backend::Error => e
       logger.debug "copy failed: #{e.summary}"
       # we need to check results of backend in any case (also timeout error eg)
     end
@@ -1170,9 +1166,9 @@ class Project < ApplicationRecord
 
   def _update_backend_packages
     # restore all package meta data objects in DB
-    backend_pkgs = Collection.find(:package, match: "@project='#{name}'")
-    backend_pkgs.each('package') do |package|
-      pname = package.value('name')
+    backend_pkgs = Xmlhash.parse(Backend::Api::Search.packages_for_project(name))
+    backend_pkgs.elements('package') do |package|
+      pname = package['name']
       p = packages.where(name: pname).first_or_initialize
       p.update_from_xml(Xmlhash.parse(Backend::Api::Sources::Package.meta(name, pname)))
       p.save! # do not store
@@ -1216,7 +1212,7 @@ class Project < ApplicationRecord
     Rails.cache.fetch("bsrequest_repos_map-#{project}", expires_in: 2.hours) do
       begin
         xml = Xmlhash.parse(Backend::Api::Sources::Project.repositories(project.to_s))
-      rescue ActiveXML::Transport::Error
+      rescue Backend::Error
         return {}
       end
 
@@ -1251,9 +1247,9 @@ class Project < ApplicationRecord
 
   # updates packages automatically generated in the backend after submitting a product file
   def update_product_autopackages
-    backend_pkgs = Collection.find(:id, what: 'package', match: "@project='#{name}' and starts-with(@name,'_product:')")
-    b_pkg_index = backend_pkgs.each(:package).each_with_object({}) do |elem, hash|
-      hash[elem.value(:name)] = elem
+    backend_pkgs = Xmlhash.parse(Backend::Api::Search.product_ids(name))
+    b_pkg_index = backend_pkgs.elements('package').each_with_object({}) do |elem, hash|
+      hash[elem['name']] = elem
       hash
     end
     frontend_pkgs = packages.where("`packages`.name LIKE '_product:%'")
@@ -1268,7 +1264,7 @@ class Project < ApplicationRecord
       if b_pkg_index.key?(pkg) && !f_pkg_index.key?(pkg)
         # new autopackage, import in database
         p = packages.new(name: pkg)
-        p.update_from_xml(Xmlhash.parse(b_pkg_index[pkg].dump_xml))
+        p.update_from_xml(b_pkg_index[pkg])
         p.store
       elsif f_pkg_index.key?(pkg) && !b_pkg_index.key?(pkg)
         # autopackage was removed, remove from database
@@ -1398,24 +1394,24 @@ class Project < ApplicationRecord
     states = {}
     repository_states = {}
 
-    br = Buildresult.find(project: name, view: 'summary')
+    br = Buildresult.find_hashed(project: name, view: 'summary')
     # no longer there?
-    return false unless br
+    return false if br.empty?
 
-    br.each('result') do |result|
-      if repository && result.value(:repository) == repository
+    br.elements('result') do |result|
+      if repository && result['repository'] == repository
         repository_states[repository] ||= {}
-        result.each('summary') do |summary|
-          summary.each('statuscount') do |statuscount|
-            repository_states[repository][statuscount.value('code')] ||= 0
-            repository_states[repository][statuscount.value('code')] += statuscount.value('count').to_i
+        result['summary'] do |summary|
+          summary.elements('statuscount') do |statuscount|
+            repository_states[repository][statuscount['code']] ||= 0
+            repository_states[repository][statuscount['code']] += statuscount['count'].to_i
           end
         end
       else
-        result.each('summary') do |summary|
-          summary.each('statuscount') do |statuscount|
-            states[statuscount.value('code')] ||= 0
-            states[statuscount.value('code')] += statuscount.value('count').to_i
+        result.elements('summary') do |summary|
+          summary.elements('statuscount') do |statuscount|
+            states[statuscount['code']] ||= 0
+            states[statuscount['code']] += statuscount['count'].to_i
           end
         end
       end
@@ -1724,9 +1720,9 @@ class Project < ApplicationRecord
   def collect_patchinfo_data(patchinfo)
     if patchinfo
       {
-        summary:  patchinfo.value('summary'),
-        category: patchinfo.value('category'),
-        stopped:  patchinfo.value('stopped')
+        summary:  patchinfo.document.at_css('summary').try(:content),
+        category: patchinfo.document.at_css('category').try(:content),
+        stopped:  patchinfo.document.at_css('stopped').try(:content)
       }
     else
       {}

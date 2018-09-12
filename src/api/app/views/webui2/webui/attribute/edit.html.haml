@@ -1,0 +1,14 @@
+- @pagetitle = "Edit Attribute #{@attribute.fullname} on #{@container.class} #{@container.name}"
+
+.card
+  = render(partial: 'webui/package/tabs', locals: { project: @project, package: @package })
+
+  .card-body
+    %h3= @pagetitle
+    %p
+      = @attribute.attrib_type.description
+    - if @attribute.values_editable?
+      = render(partial: 'form', locals: { attribute: @attribute, issue_trackers: @issue_trackers, allowed_values: @allowed_values })
+    - else
+      %p
+        This attribute has no values to edit

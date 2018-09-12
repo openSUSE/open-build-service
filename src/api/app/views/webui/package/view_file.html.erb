@@ -14,7 +14,7 @@
     <% if @filename.ends_with?('.changes') %>
   <p>
       <%# Rather hacky attempt to provide 'osc vc'-like functionality, would benefit of proper 'snippet' support for editor: %>
-      <a href="#" class="changes-link" onclick="addChangesEntryTemplate(); return false;" data-email="<%= User.current.email %>">Insert changes entry template</a>
+      <a href="#" class="changes-link" onclick="addChangesEntryTemplate(); return false;" data-packagername="<%= User.current.realname %>" data-packageremail="<%= User.current.email %>">Insert changes entry template</a>
   </p>
     <% end %>
 

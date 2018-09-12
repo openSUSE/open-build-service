@@ -1,0 +1,33 @@
+- value_fields_locals = { attribute: attribute, allowed_values: allowed_values }
+- issue_fields_locals = { issue_trackers: issue_trackers }
+
+= form_for(attribute) do |form|
+  = form.hidden_field(:attrib_type_id)
+
+  - errors = attribute.errors
+  - if errors.present?
+    #error-explanation
+      %h2 "#{pluralize(errors.count, 'error')} prohibited this attribute from being saved:"
+      %ul
+        - errors.full_messages.each do |message|
+          %li= message
+
+  #values
+    = form.fields_for :values do |value|
+      = render('value_fields', { f: value }.merge(value_fields_locals))
+    - if attribute.values_addable?
+      %p
+        = link_to_add_association(form, :values, render_options: { locals: value_fields_locals }, title: 'Add a value') do
+          %i.fas.fa-plus-circle.text-primary
+          Add a value
+  - if issue_trackers
+    #issues
+      = form.fields_for :issues do |issue|
+        = render('issue_fields', { f: issue }.merge(issue_fields_locals))
+    %p
+      = link_to_add_association(form, :issues, render_options: { locals: issue_fields_locals }, title: 'Add an issue') do
+        %i.fas.fa-plus-circle.text-primary
+        Add an issue
+
+  = form.submit('Save', class: 'btn btn-primary')
+  = link_to('Back', index_attribs_path, class: 'btn btn-secondary', role: 'button')

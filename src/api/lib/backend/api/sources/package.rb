@@ -47,7 +47,7 @@ module Backend
         # @return [String]
         def self.service(project_name, package_name)
           http_get(['/source/:project/:package/_service', project_name, package_name])
-        rescue ActiveXML::Transport::NotFoundError
+        rescue Backend::NotFoundError
           nil
         end
 

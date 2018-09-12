@@ -410,7 +410,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       click_link('Attributes')
       click_link('Add a new attribute')
       select('OBS:MaintenanceProject')
-      click_button('Create Attribute')
+      click_button('Add')
 
       expect(page).to have_text('Attribute was successfully created.')
       expect(find('table tr.attribute-values td:first-child')).to have_text('OBS:MaintenanceProject')
@@ -497,11 +497,9 @@ RSpec.feature 'Projects', type: :feature, js: true do
       XML
     end
 
-    let(:build_result) { Buildresult.new(build_results_xml) }
-
     before do
       login admin_user
-      allow(Buildresult).to receive(:find).and_return(build_result)
+      allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(build_results_xml)
       visit project_monitor_path(project.name)
       expect(page).to have_text('Monitor')
     end

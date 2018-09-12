@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:57 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Blue Remembered Earth</title>
-          <description>Dolores odit quia voluptatem.</description>
+          <title>Fear and Trembling</title>
+          <description>Beatae quo aut delectus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '156'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Blue Remembered Earth</title>
-          <description>Dolores odit quia voluptatem.</description>
+          <title>Fear and Trembling</title>
+          <description>Beatae quo aut delectus.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:57 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/package_with_files/_meta
+    uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Blue Remembered Earth</title>
-          <description>Dolores odit quia voluptatem.</description>
+          <title>Fear and Trembling</title>
+          <description>Beatae quo aut delectus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,23 +109,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '156'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Blue Remembered Earth</title>
-          <description>Dolores odit quia voluptatem.</description>
+          <title>Fear and Trembling</title>
+          <description>Beatae quo aut delectus.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:57 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Similique dolor vel est et. Voluptatibus ut ex suscipit. Sint iusto
-        blanditiis et nihil. Est debitis nisi veniam.
+      string: Tempore vel temporibus. Itaque et aut. Modi dolorum omnis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -145,27 +144,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="26" vrev="26">
-          <srcmd5>9d425f9ae231bb82391f2b715b29220e</srcmd5>
+        <revision rev="405" vrev="405">
+          <srcmd5>d2155e64fe9010642d8dea5b2a39f045</srcmd5>
           <version>unknown</version>
-          <time>1526982897</time>
+          <time>1536230738</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:57 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Id neque aspernatur reprehenderit. Aliquid occaecati explicabo ipsa.
-        Accusamus at non ex delectus.
+      string: Consectetur voluptatem et. Non et quis. Quis error molestiae.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,27 +183,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="27" vrev="27">
-          <srcmd5>9d425f9ae231bb82391f2b715b29220e</srcmd5>
+        <revision rev="406" vrev="406">
+          <srcmd5>26025fa8c36e956f90c4ee50314c9825</srcmd5>
           <version>unknown</version>
-          <time>1526982897</time>
+          <time>1536230739</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:57 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_icon
     body:
       encoding: UTF-8
-      string: Cupiditate in dignissimos dolorum vitae. Voluptatem omnis quisquam rem
-        enim quidem. Consequatur sed quo dolorem.
+      string: Iusto ut aperiam. Doloremque inventore optio. Porro quo eum.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -225,20 +222,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="28" vrev="28">
-          <srcmd5>0a72b78a1636abe217d7144d2086fc8d</srcmd5>
+        <revision rev="407" vrev="407">
+          <srcmd5>ce5bc619ba766c05d0cf2236881b3fdd</srcmd5>
           <version>unknown</version>
-          <time>1526982897</time>
+          <time>1536230739</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:57 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_files
@@ -268,13 +265,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_files" rev="28" vrev="28" srcmd5="0a72b78a1636abe217d7144d2086fc8d">
-          <entry name="_config" md5="66a3b18d41ccbd609eeffa450354cfde" size="113" mtime="1526982897" />
-          <entry name="_icon" md5="35de7a35aff06d8f04fa9a9d33fed929" size="112" mtime="1526982897" />
-          <entry name="somefile.txt" md5="464153626e5156defd142f44bc51e056" size="98" mtime="1526982886" />
+        <directory name="package_with_files" rev="407" vrev="407" srcmd5="ce5bc619ba766c05d0cf2236881b3fdd">
+          <entry name="_config" md5="0ea98eba48eb426fa534e1fae2bebbf8" size="58" mtime="1536230738" />
+          <entry name="_icon" md5="63145ba980e361af320c5314bbe06c54" size="60" mtime="1536230739" />
+          <entry name="somefile.txt" md5="5db57f2973f99920861e6d6726945ee1" size="61" mtime="1536230739" />
         </directory>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:57 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_files
@@ -304,11 +301,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_files" rev="28" vrev="28" srcmd5="0a72b78a1636abe217d7144d2086fc8d">
-          <entry name="_config" md5="66a3b18d41ccbd609eeffa450354cfde" size="113" mtime="1526982897" />
-          <entry name="_icon" md5="35de7a35aff06d8f04fa9a9d33fed929" size="112" mtime="1526982897" />
-          <entry name="somefile.txt" md5="464153626e5156defd142f44bc51e056" size="98" mtime="1526982886" />
+        <directory name="package_with_files" rev="407" vrev="407" srcmd5="ce5bc619ba766c05d0cf2236881b3fdd">
+          <entry name="_config" md5="0ea98eba48eb426fa534e1fae2bebbf8" size="58" mtime="1536230738" />
+          <entry name="_icon" md5="63145ba980e361af320c5314bbe06c54" size="60" mtime="1536230739" />
+          <entry name="somefile.txt" md5="5db57f2973f99920861e6d6726945ee1" size="61" mtime="1536230739" />
         </directory>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:57 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
 recorded_with: VCR 4.0.0

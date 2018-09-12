@@ -21,17 +21,17 @@ module MaintenanceHelper
     # create package container, if missing
     tpkg = create_package_container_if_missing(source_package, target_package_name, target_project)
 
-    link = nil
+    links_to_source = false
     if relink
       # detect local links
       begin
         link = source_package.source_file('_link')
-        link = ActiveXML::Node.new(link)
-      rescue ActiveXML::Transport::Error
-        link = nil
+        link = Nokogiri::XML(link).root
+        links_to_source = link['project'].nil? || link['project'] == source_package.project.name
+      rescue Backend::Error
       end
     end
-    if link && (link.value(:project).nil? || link.value(:project) == source_package.project.name)
+    if links_to_source
       release_package_relink(link, action, target_package_name, target_project, tpkg)
     else
       # copy sources
@@ -89,9 +89,9 @@ module MaintenanceHelper
   end
 
   def release_package_relink(link, action, target_package_name, target_project, tpkg)
-    link.delete_attribute('project') # its a local link, project name not needed
-    link.set_attribute('package', link.value(:package).gsub(/\..*/, '') + target_package_name.gsub(/.*\./, '.')) # adapt link target with suffix
-    link_xml = link.dump_xml
+    link.remove_attribute('project') # its a local link, project name not needed
+    link['package'] = link['package'].gsub(/\..*/, '') + target_package_name.gsub(/.*\./, '.') # adapt link target with suffix
+    link_xml = link.to_xml
     # rubocop:disable Metrics/LineLength
     Backend::Connection.put "/source/#{URI.escape(target_project.name)}/#{URI.escape(target_package_name)}/_link?rev=repository&user=#{CGI.escape(User.current.login)}", link_xml
     # rubocop:enable Metrics/LineLength
@@ -398,10 +398,10 @@ module MaintenanceHelper
                                                                    :oproject, :opackage])
       Backend::Connection.post path
       # and fix the link
-      ret = ActiveXML::Node.new(lpkg.source_file('_link'))
-      ret.delete_attribute('project') # its a local link, project name not needed
-      ret.set_attribute('package', pkg.name)
-      Backend::Connection.put lpkg.source_path('_link', user: User.current.login), ret.dump_xml
+      link_xml = Nokogiri::XML(lpkg.source_file('_link')).root
+      link_xml.remove_attribute('project') # its a local link, project name not needed
+      link_xml['package'] = pkg.name
+      Backend::Connection.put lpkg.source_path('_link', user: User.current.login), link_xml.to_xml
       lpkg.sources_changed
     end
   end

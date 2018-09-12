@@ -24,8 +24,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     req = load_backend_file("request/#{filename}")
     post '/request?cmd=create', params: req
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    node.value :id
+    Xmlhash.parse(@response.body)['id']
   end
 
   def test_set_and_get

@@ -76,7 +76,7 @@ class Service
         Backend::Api::Sources::Package.wait_service(project.name, package.name)
         Rails.logger.debug 'Executing mergeservice command'
         Backend::Api::Sources::Package.merge_service(project.name, package.name, User.current.login)
-      rescue ActiveXML::Transport::Error, Timeout::Error => e
+      rescue Backend::Error, Timeout::Error => e
         Rails.logger.debug "Error while executing backend command: #{e.message}"
       end
     else
@@ -105,7 +105,7 @@ class Service
     if document.xpath('//services/service').empty?
       begin
         Backend::Api::Sources::Package.delete_file(project.name, package.name, '_service')
-      rescue ActiveXML::Transport::NotFoundError
+      rescue Backend::NotFoundError
         # to be ignored, if it's gone, it's gone
       end
     else

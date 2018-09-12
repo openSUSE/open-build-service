@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:49 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_one_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_one_file" project="home:tom">
-          <title>Blithe Spirit</title>
-          <description>Voluptatem nisi harum consequatur.</description>
+          <title>No Highway</title>
+          <description>Molestiae est necessitatibus rerum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_one_file" project="home:tom">
-          <title>Blithe Spirit</title>
-          <description>Voluptatem nisi harum consequatur.</description>
+          <title>No Highway</title>
+          <description>Molestiae est necessitatibus rerum.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:49 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/package_with_one_file/_meta
+    uri: http://backend:5352/source/home:tom/package_with_one_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_one_file" project="home:tom">
-          <title>Blithe Spirit</title>
-          <description>Voluptatem nisi harum consequatur.</description>
+          <title>No Highway</title>
+          <description>Molestiae est necessitatibus rerum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_one_file" project="home:tom">
-          <title>Blithe Spirit</title>
-          <description>Voluptatem nisi harum consequatur.</description>
+          <title>No Highway</title>
+          <description>Molestiae est necessitatibus rerum.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:49 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_one_file/_service
@@ -144,20 +144,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
-          <srcmd5>dc04f065b5adfb18b70a2cc9fd75fc19</srcmd5>
+        <revision rev="23" vrev="23">
+          <srcmd5>7594101f47d163de1eaff18f8b90c39f</srcmd5>
           <version>unknown</version>
-          <time>1526982889</time>
+          <time>1536230739</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:49 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_one_file
@@ -183,16 +183,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '287'
+      - '289'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_one_file" rev="2" vrev="2" srcmd5="dc04f065b5adfb18b70a2cc9fd75fc19">
-          <serviceinfo code="succeeded" xsrcmd5="5b6d41d2e0f67f5183bd203866607ad8" />
-          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1526982889" />
+        <directory name="package_with_one_file" rev="23" vrev="23" srcmd5="7594101f47d163de1eaff18f8b90c39f">
+          <serviceinfo code="succeeded" xsrcmd5="432d149c3b1c1c6ad62084620da6ad2f" />
+          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1536154852" />
         </directory>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:49 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_one_file
@@ -218,14 +218,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '287'
+      - '289'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_one_file" rev="2" vrev="2" srcmd5="dc04f065b5adfb18b70a2cc9fd75fc19">
-          <serviceinfo code="succeeded" xsrcmd5="5b6d41d2e0f67f5183bd203866607ad8" />
-          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1526982889" />
+        <directory name="package_with_one_file" rev="23" vrev="23" srcmd5="7594101f47d163de1eaff18f8b90c39f">
+          <serviceinfo code="succeeded" xsrcmd5="432d149c3b1c1c6ad62084620da6ad2f" />
+          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1536154852" />
         </directory>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:49 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
 recorded_with: VCR 4.0.0

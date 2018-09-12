@@ -62,7 +62,12 @@ RSpec.describe CommentsController, type: :controller do
         get :index, format: :xml
       end
 
-      include_examples 'request comment index'
+      it { expect(response).to have_http_status(:success) }
+      it { expect(assigns(:obj)).to eq(object) }
+      it {
+        expect(response.body).
+          to include("<comment who=\"#{comment.user}\" when=\"#{comment.created_at}\" id=\"#{comment.id}\" bsrequest=\"#{comment.commentable.number}\">#{comment.body}</comment>")
+      }
       it { expect(response.body).to include("<comments user=\"#{user.login}\">") }
     end
   end

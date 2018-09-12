@@ -201,16 +201,12 @@ class ApplicationController < ActionController::Base
     render_error status: 400, errorcode: 'invalid_record', message: exception.record.errors.full_messages.join('\n')
   end
 
-  rescue_from ActiveXML::Transport::Error do |exception|
+  rescue_from Backend::Error do |exception|
     render_error status: exception.code, errorcode: 'uncaught_exception', message: exception.summary
   end
 
   rescue_from Timeout::Error do |exception|
     render_error status: 408, errorcode: 'timeout_error', message: exception.message
-  end
-
-  rescue_from ActiveXML::ParseError do
-    render_error status: 400, errorcode: 'invalid_xml', message: 'Invalid XML'
   end
 
   rescue_from APIError do |exception|
@@ -223,16 +219,12 @@ class ApplicationController < ActionController::Base
     render_error message: message, status: exception.status, errorcode: exception.errorcode
   end
 
-  rescue_from ActiveXML::Transport::Error do |exception|
+  rescue_from Backend::Error do |exception|
     text = exception.message
-    http_status = 500
-    begin
-      xml = ActiveXML::Node.new(text)
-      http_status = xml.value('code')
-      xml.set_attribute('origin', 'backend') unless xml.has_attribute?('origin')
-      text = xml.dump_xml
-    rescue ActiveXML::ParseError
-    end
+    xml = Nokogiri::XML(text).root
+    http_status = xml['code'] || 500
+    xml['origin'] ||= 'backend'
+    text = xml.to_xml
     render plain: text, status: http_status
   end
 
@@ -244,7 +236,7 @@ class ApplicationController < ActionController::Base
     render_error status: 403, errorcode: 'modify_package_no_permission', message: exception.message
   end
 
-  rescue_from ActiveXML::Transport::NotFoundError, ActiveRecord::RecordNotFound do |exception|
+  rescue_from Backend::NotFoundError, ActiveRecord::RecordNotFound do |exception|
     render_error message: exception.message, status: 404, errorcode: 'not_found'
   end
 

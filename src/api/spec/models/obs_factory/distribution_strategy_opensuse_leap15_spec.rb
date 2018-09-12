@@ -38,8 +38,8 @@ RSpec.describe ObsFactory::DistributionStrategyOpenSUSELeap15 do
     it { expect(strategy.test_dvd_prefix).to eq('000product:openSUSE-dvd5-dvd') }
   end
 
-  describe '#totest_version_file' do
-    it { expect(strategy.totest_version_file).to eq('images/local/000product:openSUSE-cd-mini-x86_64') }
+  describe '#totest_version_package' do
+    it { expect(strategy.totest_version_package).to eq('000product:openSUSE-cd-mini-x86_64') }
   end
 
   describe '#published_version' do

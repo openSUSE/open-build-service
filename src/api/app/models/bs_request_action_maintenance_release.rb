@@ -59,7 +59,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
       next if cleaned_projects[sprj]
       # cleanup published binaries to save disk space on ftp server and mirrors
-      Backend::Api::BuildResults::Binaries.wipe_published_locked(sprj)
+      Backend::Api::Build::Project.wipe_published_locked(sprj)
       cleaned_projects[sprj] = 1
     end
     opts[:projectCommit] = {}
@@ -162,7 +162,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   def minimum_priority
     spkg = Package.find_by_project_and_name(source_project, source_package)
     return unless spkg && spkg.is_patchinfo?
-    pi = Xmlhash.parse(spkg.patchinfo.dump_xml)
+    pi = Xmlhash.parse(spkg.patchinfo.document.to_xml)
     pi['rating']
   end
 

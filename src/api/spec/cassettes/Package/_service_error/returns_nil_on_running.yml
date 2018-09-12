@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 29 Jun 2018 11:39:25 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_service/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_service" project="home:tom">
-          <title>The Line of Beauty</title>
-          <description>Ipsa perferendis voluptate vel et veniam.</description>
+          <title>To Sail Beyond the Sunset</title>
+          <description>Fugit voluptatem velit harum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '175'
+      - '170'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_service" project="home:tom">
-          <title>The Line of Beauty</title>
-          <description>Ipsa perferendis voluptate vel et veniam.</description>
+          <title>To Sail Beyond the Sunset</title>
+          <description>Fugit voluptatem velit harum.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 29 Jun 2018 11:39:25 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:45 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/package_with_service/_meta
+    uri: http://backend:5352/source/home:tom/package_with_service/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_service" project="home:tom">
-          <title>The Line of Beauty</title>
-          <description>Ipsa perferendis voluptate vel et veniam.</description>
+          <title>To Sail Beyond the Sunset</title>
+          <description>Fugit voluptatem velit harum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '175'
+      - '170'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_service" project="home:tom">
-          <title>The Line of Beauty</title>
-          <description>Ipsa perferendis voluptate vel et veniam.</description>
+          <title>To Sail Beyond the Sunset</title>
+          <description>Fugit voluptatem velit harum.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 29 Jun 2018 11:39:25 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_service/_service
@@ -144,18 +144,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6" vrev="6">
-          <srcmd5>ba5dbfad4f343a5641512ea764f3039c</srcmd5>
+        <revision rev="48" vrev="48">
+          <srcmd5>76b299400060564af2739239c626c8fb</srcmd5>
           <version>unknown</version>
-          <time>1530272365</time>
+          <time>1536230745</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 29 Jun 2018 11:39:25 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:45 GMT
 recorded_with: VCR 4.0.0

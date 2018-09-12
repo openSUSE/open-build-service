@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:50 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/_meta?user=other_user
@@ -81,7 +81,7 @@ http_interactions:
           <person userid="other_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:50 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user2/_meta?user=other_user2
@@ -122,7 +122,7 @@ http_interactions:
           <person userid="other_user2" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:50 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user3/_meta?user=other_user3
@@ -163,7 +163,7 @@ http_interactions:
           <person userid="other_user3" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:50 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -171,8 +171,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Arms and the Man</title>
-          <description>Accusantium perferendis voluptas itaque et atque facilis.</description>
+          <title>Dying of the Light</title>
+          <description>Nam quia ad ex.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -193,25 +193,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '181'
+      - '141'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Arms and the Man</title>
-          <description>Accusantium perferendis voluptas itaque et atque facilis.</description>
+          <title>Dying of the Light</title>
+          <description>Nam quia ad ex.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:50 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:34 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/test_package/_meta
+    uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Arms and the Man</title>
-          <description>Accusantium perferendis voluptas itaque et atque facilis.</description>
+          <title>Dying of the Light</title>
+          <description>Nam quia ad ex.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -232,14 +232,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '181'
+      - '141'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Arms and the Man</title>
-          <description>Accusantium perferendis voluptas itaque et atque facilis.</description>
+          <title>Dying of the Light</title>
+          <description>Nam quia ad ex.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 22 May 2018 09:54:50 GMT
+  recorded_at: Thu, 06 Sep 2018 10:45:34 GMT
 recorded_with: VCR 4.0.0

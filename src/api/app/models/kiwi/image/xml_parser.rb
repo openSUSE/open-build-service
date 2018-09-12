@@ -36,7 +36,7 @@ module Kiwi
 
       def use_project_repositories?
         repositories_from_xml.any? do |repository|
-          repository['source']['path'] == 'obsrepositories:/'
+          repository.dig('source', 'path') == 'obsrepositories:/'
         end
       end
 
