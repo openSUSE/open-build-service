@@ -52,7 +52,6 @@ class Relationship < ApplicationRecord
   scope :maintainers, lambda {
     where(role_id: Role.hashed['maintainer'])
   }
-  scope :with_packages, ->(packages) { where(package_id: packages) }
 
   # we only care for project<->user relationships, but the cache is not *that* expensive
   # to recalculate

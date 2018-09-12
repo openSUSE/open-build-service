@@ -43,8 +43,8 @@ class StatusProjectController < ApplicationController
     @package_hash
   end
 
-  def relationships_for_package(keys)
-    Relationship.with_packages(keys).pluck(:package_id, :user_id, :group_id, :role_id)
+  def relationships_for_package(package_ids)
+    Relationship.where(package: package_ids).pluck(:package_id, :user_id, :group_id, :role_id)
   end
 
   def add_person(user_id, role_id, package_id)

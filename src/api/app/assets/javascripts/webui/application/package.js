@@ -56,7 +56,8 @@ function addChangesEntryTemplate() { // jshint ignore:line
   templ = "-------------------------------------------------------------------\n" +
     DAYS[date.getUTCDay()] + " " + MONTHS[date.getUTCMonth()] + " " + day + " " +
     hours + ":" + minutes + ":" + seconds + " UTC " + date.getUTCFullYear() +
-    " - " + $("a.changes-link").data('email') + "\n\n" + "- \n" + "\n";
+    " - " + $("a.changes-link").data('packagername') +
+    " <" + $("a.changes-link").data('packageremail') + ">" +"\n\n" + "- \n" + "\n";
 
   editors[0].setValue(templ + editors[0].getValue());
   editors[0].focus();
