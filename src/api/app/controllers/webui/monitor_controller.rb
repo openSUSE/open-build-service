@@ -1,4 +1,5 @@
 class Webui::MonitorController < Webui::WebuiController
+  before_action :set_default_architecture
   before_action :require_settings, only: [:old, :index, :filtered_list, :update_building]
   before_action :fetch_workerstatus, only: [:old, :filtered_list, :update_building]
 
@@ -23,8 +24,6 @@ class Webui::MonitorController < Webui::WebuiController
   def old; end
 
   def index
-    @default_architecture = 'x86_64'
-
     if request.post? && !params[:project].nil? && valid_project_name?(params[:project])
       redirect_to project: params[:project]
     else
@@ -77,40 +76,34 @@ class Webui::MonitorController < Webui::WebuiController
     render json: workers
   end
 
-  def gethistory(key, range, cache = 1)
-    cachekey = key + "-#{range}"
-    Rails.cache.delete(cachekey, shared: true) unless cache
-    Rails.cache.fetch(cachekey, expires_in: (range.to_i * 3600) / 150, shared: true) do
-      hash = StatusHistory.history_by_key_and_hours(key, range)
-      hash.sort_by { |a| a[0] }
-    end
-  end
-
   def events
     check_ajax
     data = {}
 
-    arch = params[:arch] || ''
+    arch = Architecture.find_by(name: params.fetch(:arch, @default_architecture))
+
     range = params[:range]
+
     ['waiting', 'blocked', 'squeue_high', 'squeue_med'].each do |prefix|
-      data[prefix] = gethistory(prefix + '_' + arch, range, !discard_cache?).map { |time, value| [time * 1000, value] }
+      data[prefix] = gethistory("#{prefix}_#{arch.name}", range, !discard_cache?).map { |time, value| [time * 1000, value] }
     end
+
     ['idle', 'building', 'away', 'down', 'dead'].each do |prefix|
-      data[prefix] = gethistory(prefix + '_' + map_to_workers(arch), range, !discard_cache?).map { |time, value| [time * 1000, value] }
+      data[prefix] = gethistory("#{prefix}_#{arch.worker}", range, !discard_cache?).map { |time, value| [time * 1000, value] }
     end
-    low = {}
-    gethistory("squeue_low_#{arch}", range).each do |time, value|
-      low[time] = value
-    end
-    comb = []
-    gethistory("squeue_next_#{arch}", range).each do |time, value|
+
+    low = Hash[gethistory("squeue_low_#{arch}", range)]
+
+    comb = gethistory("squeue_next_#{arch}", range).collect do |time, value|
       clow = low[time] || 0
-      comb << [1000 * time, clow + value]
+      [1000 * time, clow + value]
     end
+
     data['squeue_low'] = comb
     max = Webui::MonitorController.addarrays(data['squeue_high'], data['squeue_med']).map { |_, value| value }.max || 0
     data['events_max'] = max * 2
     data['jobs_max'] = maximumvalue(data['waiting']) * 2
+
     render json: data
   end
 
@@ -125,6 +118,19 @@ class Webui::MonitorController < Webui::WebuiController
   end
 
   private
+
+  def gethistory(key, range, cache = 1)
+    cachekey = "#{key}-#{range}"
+    Rails.cache.delete(cachekey, shared: true) unless cache
+    Rails.cache.fetch(cachekey, expires_in: (range.to_i * 3600) / 150, shared: true) do
+      hash = StatusHistory.history_by_key_and_hours(key, range)
+      hash.sort_by { |a| a[0] }
+    end
+  end
+
+  def set_default_architecture
+    @default_architecture = 'x86_64'
+  end
 
   def fetch_workerstatus
     @workerstatus = Xmlhash.parse(WorkerStatus.hidden.to_xml)

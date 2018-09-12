@@ -5,7 +5,7 @@ class Webui::MainController < Webui::WebuiController
 
   def gather_busy
     busy = []
-    archs = Architecture.where(available: 1).pluck(:name).map { |arch| map_to_workers(arch) }.uniq
+    archs = Architecture.where(available: 1).map(&:worker).uniq
     archs.each do |arch|
       starttime = Time.now.to_i - 168.to_i * 3600
       rel = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, 'building_' + arch)
