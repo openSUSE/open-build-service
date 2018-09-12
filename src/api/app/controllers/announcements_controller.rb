@@ -60,7 +60,7 @@ class AnnouncementsController < ApplicationController
 
   # Only allow a trusted parameter "white list" through.
   def announcement_params
-    xml = Nokogiri::XML(request.raw_post)
+    xml = Nokogiri::XML(request.raw_post, &:strict)
     title = xml.xpath('//announcement/title').text
     content = xml.xpath('//announcement/content').text
 

@@ -391,7 +391,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # Change description
     xml = @response.body
     new_desc = 'Changed description 1'
-    doc = Nokogiri::XML(xml).root
+    doc = Nokogiri::XML(xml, &:strict).root
     d = doc.at_xpath('//description')
     d.content = new_desc
 
@@ -407,7 +407,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
     assert_match(/admin rights are required to change projects using remote resources/, @response.body)
     # DoD remote repository
-    doc = Nokogiri::XML(xml).root
+    doc = Nokogiri::XML(xml, &:strict).root
     r = doc.add_child('<repository name="download_on_demand"/>')
     r.first.add_child('<download arch="i586" url="http://somewhere" repotype="rpmmd"/>')
     put url_for(controller: :source_project_meta, action: :update, project: 'kde4'), params: doc.to_xml

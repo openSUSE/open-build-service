@@ -50,7 +50,7 @@ RSpec.describe BsRequest, vcr: true do
              source_project: source_package.project.name,
              source_package: source_package.name)
     end
-    let(:doc) { Nokogiri::XML(review_request.to_axml) }
+    let(:doc) { Nokogiri::XML(review_request.to_axml, &:strict) }
 
     context "'when' attribute provided" do
       let!(:updated_when) { 10.years.ago }

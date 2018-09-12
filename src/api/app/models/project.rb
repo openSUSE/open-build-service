@@ -1006,8 +1006,8 @@ class Project < ApplicationRecord
 
   def branch_remote_repositories(project)
     remote_project = Project.new(name: project)
-    remote_project_meta = Nokogiri::XML(remote_project.meta.content)
-    local_project_meta = Nokogiri::XML(render_xml)
+    remote_project_meta = Nokogiri::XML(remote_project.meta.content, &:strict)
+    local_project_meta = Nokogiri::XML(render_xml, &:strict)
 
     remote_repositories = remote_project.repositories_from_meta
     remote_repositories -= repositories.where(name: remote_repositories).pluck(:name)
@@ -1048,7 +1048,7 @@ class Project < ApplicationRecord
 
   def repositories_from_meta
     result = []
-    Nokogiri::XML(meta.content).xpath('//repository').each do |repo|
+    Nokogiri::XML(meta.content, &:strict).xpath('//repository').each do |repo|
       result.push(repo.attributes.values.first.to_s)
     end
     result

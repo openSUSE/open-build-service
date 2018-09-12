@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Webui::SitemapsController do
-  let(:paths) { Nokogiri::XML(response.body).xpath('//xmlns:loc').map { |url| URI.parse(url.content).path } }
+  let(:paths) { Nokogiri::XML(response.body, &:strict).xpath('//xmlns:loc').map { |url| URI.parse(url.content).path } }
 
   describe 'GET #index' do
     render_views
