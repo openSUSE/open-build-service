@@ -16,3 +16,4 @@ Do-not-ship-database.yml.patch
 localgem.patch
 disable-slp.patch
 CVE-2017-5188.patch
+fix-kiwitree-symlink.patch
