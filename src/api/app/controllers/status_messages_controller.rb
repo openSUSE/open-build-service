@@ -22,7 +22,7 @@ class StatusMessagesController < ApplicationController
       raise PermissionDeniedError, 'message(s) cannot be created, you have not sufficient permissions'
     end
 
-    new_messages = Nokogiri::XML(request.raw_post).root
+    new_messages = Nokogiri::XML(request.raw_post, &:strict).root
     @messages = []
     if new_messages.css('message').present?
       # message(s) are wrapped in outer xml tag 'status_messages'

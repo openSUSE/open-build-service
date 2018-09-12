@@ -44,7 +44,7 @@ class Patchinfo
 
   # patchinfo has two roles
   def initialize(data = '<patchinfo/>')
-    @document = Nokogiri::XML(data)
+    @document = Nokogiri::XML(data, &:strict)
   end
 
   def is_repository_matching?(repo, rt)

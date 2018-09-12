@@ -36,7 +36,7 @@ class MessageController < ApplicationController
   end
 
   def update
-    new_msg = Nokogiri::XML(request.raw_post).root
+    new_msg = Nokogiri::XML(request.raw_post, &:strict).root
     begin
       msg = Message.new
       msg.text = new_msg.content

@@ -299,7 +299,8 @@ module ActionDispatch
     end
 
     def check_xml_tag(data, conds)
-      NodeMatcher.new(conds).find_matching(Nokogiri::XML(data).root)
+      xml = Nokogiri::XML(data, &:strict)
+      NodeMatcher.new(conds).find_matching(xml.root)
     end
 
     def assert_xml_tag(conds)
@@ -355,7 +356,8 @@ class ActiveSupport::TestCase
   set_fixture_class history_elements: HistoryElement::Base
 
   def check_xml_tag(data, conds)
-    NodeMatcher.new(conds).find_matching(Nokogiri::XML(data).root)
+    xml = Nokogiri::XML(data, &:strict)
+    NodeMatcher.new(conds).find_matching(xml.root)
   end
 
   def assert_xml_tag(data, conds)

@@ -221,7 +221,7 @@ class ApplicationController < ActionController::Base
 
   rescue_from Backend::Error do |exception|
     text = exception.message
-    xml = Nokogiri::XML(text).root
+    xml = Nokogiri::XML(text, &:strict).root
     http_status = xml['code'] || 500
     xml['origin'] ||= 'backend'
     text = xml.to_xml
