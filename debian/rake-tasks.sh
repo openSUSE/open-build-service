@@ -26,10 +26,10 @@ case "$1" in
 	chown -R www-data:www-data /usr/share/obs/api/public
 	chown www-data:www-data /etc/obs/api/config/production.sphinx.conf
 	chmod 664 /var/log/obs/*.log
-	chown nobody:www-data /etc/obs/api/config/database.yml
-	chmod 660 /etc/obs/api/config/database.yml
-	chown nobody:www-data /var/log/obs/backend_access.log
-	chown nobody:www-data /var/log/obs/production.log
+	chown obsapi:www-data /etc/obs/api/config/database.yml
+	chmod 440 /etc/obs/api/config/database.yml
+	chown obsapi:www-data /var/log/obs/backend_access.log
+	chown obsapi:www-data /var/log/obs/production.log
 
 	# Generate Gemfile.lock file.
 	cd /usr/share/obs/api

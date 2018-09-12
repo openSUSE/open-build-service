@@ -67,6 +67,9 @@ if [ "$1" = "purge" ]; then
     # Disable the obs site if not already disabled
         a2dissite obs.conf	> /dev/null || true
     fi
+    # Delete obsapi user and group
+    deluser --system --quiet obsapi || true
+    delgroup --system --quiet obsapi || true
     # Restart Apache to really unload obs.conf
     reload_apache restart
 fi
