@@ -1,5 +1,16 @@
 #!/bin/sh -e
 
+# Add obsapi user and group to run the passenger RubyApp
+if ! getent group obsapi > /dev/null; then
+            addgroup --system --quiet obsapi
+fi
+if ! getent passwd obsapi > /dev/null; then
+    adduser --system --quiet \
+        --ingroup obsapi --shell /bin/false \
+        --no-create-home --home /nonexistent obsapi
+    usermod -c "User for build service api/webui" obsapi
+fi
+
 # Place api and repo url on index page
 if [ ! -f /usr/share/obs/overview/index.html ] ; then
   FQHOSTNAME=`hostname -f`
@@ -13,13 +24,19 @@ fi
 if [ ! -e "/usr/share/obs/api/config/secret.key" ]; then
   rm -f /usr/share/obs/api/config/secret.key
 fi
+
 SECRET_KEY="/etc/obs/api/config/secret.key"
 if [ ! -e "$SECRET_KEY" ]; then
-    ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >$SECRET_KEY )
-    ln -s $SECRET_KEY /usr/share/obs/api/config/secret.key
-fi
+  touch $SECRET_KEY
   chmod 0640 $SECRET_KEY
-  chown nobody:www-data $SECRET_KEY
+  chown obsapi:www-data $SECRET_KEY
+    ( dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >$SECRET_KEY )
+    ln -s $SECRET_KEY /usr/share/obs/api/config/secret.key
+else
+  # cope with upgrades here to ensure that obsapi user own the key.
+  chmod 0640 $SECRET_KEY
+  chown obsapi:www-data $SECRET_KEY
+fi
 
 # Generate log files
   touch /var/log/obs/access.log
