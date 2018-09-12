@@ -787,11 +787,7 @@ class Webui::ProjectController < Webui::WebuiController
     @avail_status_values.each do |s|
       id = s.delete(' ')
       if params.key?(id)
-        next unless (begin
-                       Integer(params[id])
-                     rescue ArgumentError
-                       1
-                     end) > 0
+        next if params[id].to_s == '0'
       else
         next unless defaults
       end
