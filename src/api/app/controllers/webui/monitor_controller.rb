@@ -85,11 +85,11 @@ class Webui::MonitorController < Webui::WebuiController
     range = params[:range]
 
     ['waiting', 'blocked', 'squeue_high', 'squeue_med'].each do |prefix|
-      data[prefix] = gethistory("#{prefix}_#{arch.name}", range, !discard_cache?).map { |time, value| [time * 1000, value] }
+      data[prefix] = gethistory("#{prefix}_#{arch.name}", range).map { |time, value| [time * 1000, value] }
     end
 
     ['idle', 'building', 'away', 'down', 'dead'].each do |prefix|
-      data[prefix] = gethistory("#{prefix}_#{arch.worker}", range, !discard_cache?).map { |time, value| [time * 1000, value] }
+      data[prefix] = gethistory("#{prefix}_#{arch.worker}", range).map { |time, value| [time * 1000, value] }
     end
 
     low = Hash[gethistory("squeue_low_#{arch}", range)]
@@ -107,24 +107,10 @@ class Webui::MonitorController < Webui::WebuiController
     render json: data
   end
 
-  protected
-
-  def discard_cache?
-    cc = request.headers['HTTP_CACHE_CONTROL']
-    return false if cc.blank?
-    return true if cc == 'max-age=0'
-    return false unless cc == 'no-cache'
-    !request.xhr?
-  end
-
-  private
-
-  def gethistory(key, range, cache = 1)
+  def gethistory(key, range)
     cachekey = "#{key}-#{range}"
-    Rails.cache.delete(cachekey, shared: true) unless cache
     Rails.cache.fetch(cachekey, expires_in: (range.to_i * 3600) / 150, shared: true) do
-      hash = StatusHistory.history_by_key_and_hours(key, range)
-      hash.sort_by { |a| a[0] }
+      StatusHistory.history_by_key_and_hours(key, range).sort_by { |a| a[0] }
     end
   end
 
