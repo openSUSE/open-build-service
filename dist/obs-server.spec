@@ -479,6 +479,18 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 # last deployment time in the API
 touch /srv/www/obs/api/last_deploy || true
 
+# Upgrading from SysV obsapidelayed.service to systemd obs-api-support.target
+if [ "$1" -gt 1 ]; then
+  if systemctl --quiet is-enabled obsapidelayed.service; then
+    systemctl enable obs-api-support.target
+  fi
+  if systemctl --quiet is-active obsapidelayed.service; then
+    systemctl stop obsapidelayed.service
+    systemctl daemon-reload
+    systemctl start obs-api-support.target
+  fi
+fi
+
 %postun -n obs-api
 %insserv_cleanup
 %service_del_postun %{obs_api_support_scripts}
