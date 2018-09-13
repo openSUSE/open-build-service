@@ -1,12 +1,7 @@
 -# FIXME: refactor this file
 %ul.list-unstyled
   - if failures > 0
-    %li
-      %i.fas.fa-times-circle.text-danger{ title: 'Errors' }
-      = failures
-      = link_to "error#{failures == 1 ? '' : 's'}", project_monitor_path(project: project, pkgname: package.name, succeeded: 0,
-                                                                         blocked: 0, finished: 0, signing: 0, dispatching: 0,
-                                                                         scheduled: 0, building: 0)
+    = render partial: 'show_failures', locals: { failures: failures, package_name: package.name, project: project }
 
   - if devel_package
     %li
