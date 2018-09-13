@@ -7,10 +7,8 @@
     = render partial: 'show_devel_package', locals: { devel_package: devel_package }
 
   - if package.project != project
-    %li
-      %i.fas.fa-info-circle.text-info
-      Sources inherited from project
-      = link_to(elide(package.project.name, 40), package_show_path(project: package.project.name, package: package.name))
+    = render partial: 'show_inherited_from_project', locals: { project_name: package.project.name, package_name: package.name }
+
   - if package.developed_packages.present?
     %li
       %i.fas.fa-info-circle.text-info
