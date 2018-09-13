@@ -4,10 +4,8 @@
     = render partial: 'show_failures', locals: { failures: failures, package_name: package.name, project: project }
 
   - if devel_package
-    %li
-      %i.fas.fa-info-circle.text-info
-      Developed at
-      = link_to(elide(devel_package.project.name, 44), package_show_path(project: devel_package.project.name, package: devel_package.name))
+    = render partial: 'show_devel_package', locals: { devel_package: devel_package }
+
   - if package.project != project
     %li
       %i.fas.fa-info-circle.text-info
