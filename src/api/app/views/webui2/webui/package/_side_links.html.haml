@@ -10,12 +10,8 @@
     = render partial: 'show_inherited_from_project', locals: { project_name: package.project.name, package_name: package.name }
 
   - if package.developed_packages.present?
-    %li
-      %i.fas.fa-info-circle.text-info
-      Devel package for
-      - package.developed_packages.each_with_index do |pkg, index|
-        = ',' if index > 0
-        = link_to(elide(pkg.project.name, 40), package_show_path(project: pkg.project.name, package: pkg.name))
+    = render partial: 'show_developed_packages', locals: { developed_packages: package.developed_packages }
+
   - if package.is_patchinfo?
     %li
       %i.fas.fa-info-circle.text-info
