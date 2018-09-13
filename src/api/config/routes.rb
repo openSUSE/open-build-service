@@ -779,13 +779,29 @@ OBSApi::Application.routes.draw do
     resources :projects, only: [], param: :name, constraints: cons do
       resources :repositories, only: [], param: :name, constraints: cons do
         scope module: :status do
-          resources :repository_publishes, only: [], param: :build_id, constraints: cons do
-            resources :checks, only: [:index, :show, :destroy, :update, :create]
-          end
           resources :required_checks, except: [:show, :update, :new, :edit], param: :name
         end
       end
     end
+  end
+
+  scope module: :status, path: :status_reports do
+    concern :check do
+      resources :reports, param: :uuid, only: [:index, :show, :update, :destroy], controller: 'reports' do
+        resources :checks, only: [:index, :show, :destroy, :update, :create], controller: 'checks'
+      end
+    end
+
+    resources :reports, param: :uuid, only: [], controller: 'reports' do
+      resources :checks, only: [:index, :show, :create, :destroy, :update], controller: 'checks'
+    end
+
+    resources :projects, only: [], param: :name, constraints: cons do
+      scope :published do
+        resources :repositories, only: [], param: :name, constraints: cons, concerns: :check
+      end
+    end
+    resources :bs_requests, only: [], path: :request, param: :number, constraints: cons, concerns: :check
   end
 
   defaults format: 'xml' do

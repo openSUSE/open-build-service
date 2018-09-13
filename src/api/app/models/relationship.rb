@@ -43,6 +43,7 @@ class Relationship < ApplicationRecord
   scope :packages, -> { where.not(package_id: nil) }
   scope :groups, -> { where.not(group_id: nil) }
   scope :users, -> { where.not(user_id: nil) }
+  scope :users_of_group, ->(group) { joins(:groups_users).where('groups_users.title=?', group) }
   scope :with_users_and_roles_query, lambda {
     joins(:role, :user).order('roles.title, users.login')
   }
