@@ -16,10 +16,8 @@
     = render partial: 'show_patchinfo', locals: { package: package, project: project }
 
   - if package.linking_packages.present?
-    %li
-      %i.fas.fa-info-circle.text-info
-      = package.linking_packages.size
-      = link_to('derived packages', linking_packages_path(project: project, package: package), remote: true)
+    = render partial: 'show_derived_packages', locals: { package: package, project: project }
+
   - if linkinfo
     - linked_package = linkinfo[:package]
     %li
