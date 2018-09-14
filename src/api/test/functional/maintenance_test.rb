@@ -1023,7 +1023,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # add reader role for adrian
     get '/source/' + incident_project + '/_meta'
     assert_response :success
-    meta = Nokogiri::XML(@response.body).root
+    meta = Nokogiri::XML(@response.body, &:strict).root
     meta.add_child('<person userid="adrian" role="reader"/>')
     Timecop.freeze(1)
     put '/source/' + incident_project + '/_meta', params: meta.to_xml
@@ -1033,7 +1033,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'patchinfo', attributes: { incident: incident_id })
     # FIXME: add another patchinfo pointing to a third place
     # add required informations about the update
-    pi = Nokogiri::XML(@response.body).root
+    pi = Nokogiri::XML(@response.body, &:strict).root
     pi.at_xpath('.//summary').content = 'if you are bored'
     pi.at_xpath('.//description').content = 'if you are bored and really want fixes'
     pi.at_xpath('.//rating').content = 'important'
@@ -1159,7 +1159,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # block patchinfo build
     get "/source/#{incident_project}/patchinfo/_patchinfo"
     assert_response :success
-    pi = Nokogiri::XML(@response.body).root
+    pi = Nokogiri::XML(@response.body, &:strict).root
     pi.add_child('<stopped>The issue is not fixed for real yet</stopped>')
     put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
     assert_response :success
@@ -2057,7 +2057,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     login_king
     get '/source/BaseDistro:Update/_meta'
     assert_response :success
-    meta = originmeta = Nokogiri::XML(@response.body).root
+    meta = originmeta = Nokogiri::XML(@response.body, &:strict).root
     meta.add_child('<person userid="adrian" role="reviewer"/>')
     put '/source/BaseDistro:Update/_meta', params: meta.to_xml
     assert_response :success

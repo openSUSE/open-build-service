@@ -26,7 +26,7 @@ module MaintenanceHelper
       # detect local links
       begin
         link = source_package.source_file('_link')
-        link = Nokogiri::XML(link).root
+        link = Nokogiri::XML(link, &:strict).root
         links_to_source = link['project'].nil? || link['project'] == source_package.project.name
       rescue Backend::Error
       end
@@ -398,7 +398,7 @@ module MaintenanceHelper
                                                                    :oproject, :opackage])
       Backend::Connection.post path
       # and fix the link
-      link_xml = Nokogiri::XML(lpkg.source_file('_link')).root
+      link_xml = Nokogiri::XML(lpkg.source_file('_link'), &:strict).root
       link_xml.remove_attribute('project') # its a local link, project name not needed
       link_xml['package'] = pkg.name
       Backend::Connection.put lpkg.source_path('_link', user: User.current.login), link_xml.to_xml

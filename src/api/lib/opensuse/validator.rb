@@ -97,7 +97,7 @@ module Suse
           raise ValidationError, "Document is empty, not allowed for #{schema_file}"
         end
         begin
-          doc = Nokogiri::XML(content, nil, nil, Nokogiri::XML::ParseOptions::STRICT)
+          doc = Nokogiri::XML(content, &:strict)
           schema.validate(doc).each do |error|
             logger.error "validation error: #{error}"
             logger.debug "Schema #{schema_file} for: #{content}"
