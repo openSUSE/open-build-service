@@ -25,7 +25,7 @@
             <li>
               <%= sprite_tag 'exclamation', title: '' %>
               <%= @failures %>
-              <%= link_to "error#{@failures == 1 ? '' : 's'}", :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name %>
+              <%= link_to pluralize(@failures.count,'error'), :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name %>
             </li>
         <% end %>
 
