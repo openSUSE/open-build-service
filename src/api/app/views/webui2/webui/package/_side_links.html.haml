@@ -1,66 +1,24 @@
 -# FIXME: refactor this file
 %ul.list-unstyled
   - if failures > 0
-    %li
-      %i.fas.fa-times-circle.text-danger{ title: 'Errors' }
-      = failures
-      = link_to "error#{failures == 1 ? '' : 's'}", project_monitor_path(project: project, pkgname: package.name, succeeded: 0,
-                                                                         blocked: 0, finished: 0, signing: 0, dispatching: 0,
-                                                                         scheduled: 0, building: 0)
+    = render partial: 'show_failures', locals: { failures: failures, package_name: package.name, project: project }
 
   - if devel_package
-    %li
-      %i.fas.fa-info-circle.text-info
-      Developed at
-      = link_to(elide(devel_package.project.name, 44), package_show_path(project: devel_package.project.name, package: devel_package.name))
+    = render partial: 'show_devel_package', locals: { devel_package: devel_package }
+
   - if package.project != project
-    %li
-      %i.fas.fa-info-circle.text-info
-      Sources inherited from project
-      = link_to(elide(package.project.name, 40), package_show_path(project: package.project.name, package: package.name))
+    = render partial: 'show_inherited_from_project', locals: { project_name: package.project.name, package_name: package.name }
+
   - if package.developed_packages.present?
-    %li
-      %i.fas.fa-info-circle.text-info
-      Devel package for
-      - package.developed_packages.each_with_index do |pkg, index|
-        = ',' if index > 0
-        = link_to(elide(pkg.project.name, 40), package_show_path(project: pkg.project.name, package: pkg.name))
+    = render partial: 'show_developed_packages', locals: { developed_packages: package.developed_packages }
+
   - if package.is_patchinfo?
-    %li
-      %i.fas.fa-info-circle.text-info
-      Has a
-      = link_to 'patchinfo', patchinfo_show_path(package: package, project: project)
-      for
-      = link_to 'maintenance updates', 'http://en.opensuse.org/Portal:Maintenance'
-      //TODO: Fix this hard link
+    = render partial: 'show_patchinfo', locals: { package: package, project: project }
+
   - if package.linking_packages.present?
-    %li
-      %i.fas.fa-info-circle.text-info
-      = package.linking_packages.size
-      = link_to('derived packages', linking_packages_path(project: project, package: package), remote: true)
+    = render partial: 'show_derived_packages', locals: { package: package, project: project }
+
   - if linkinfo
-    - linked_package = linkinfo[:package]
-    %li
-      %i.fas.fa-link.text-dark
-      Links to
-      - if linkinfo[:remote_project]
-        remote
-        %i
-          = linkinfo[:remote_project]
-          \/
-          = linked_package
-      - else
-        = project_or_package_link(project: linked_package.project.name, package: linked_package.name, short: true)
-    - if linkinfo[:error]
-      %li
-        %i.fas.fa-times-circle.text-danger
-        Link has errors:
-        %i= linkinfo[:error]
-    - elsif linkinfo[:diff]
-      %li
-        %i.fas.fa-info-circle.text-info
-        Has a
-        = link_to('link diff', package_rdiff_path(oproject: linked_package.project.name, opackage: linked_package.name,
-                                                  project: project, package: package, rev: revision))
+    = render partial: 'show_linkinfo', locals: { package: package, project: project, linkinfo: linkinfo, revision: revision }
 
   = render partial: 'extra_actions', locals: { project: project, package: package }
