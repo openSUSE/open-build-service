@@ -9,17 +9,17 @@
   %label{ for: 'target_package' }
     %strong Branch package name
   = text_field_tag 'target_package', package.try(:name), size: 80, maxlength: 200, class: 'form-control'
-.form-group.form-check
-  = check_box_tag(:current_revision, false, class: 'form-check-input')
-  = label_tag(:current_revision, class: 'form-check-label') do
+.custom-control.custom-checkbox
+  = check_box_tag(:current_revision, false, true, class: 'custom-control-input')
+  = label_tag(:current_revision, class: 'custom-control-label') do
     Stay on this revision
     - if revision
       (##{revision})
   = hidden_field_tag(:revision, revision) if revision
 - if show_project_field && Configuration.cleanup_after_days
-  .form-group.form-check
-    %input.form-check-input#disable-autocleanup{ type: 'checkbox' }
-    %label.form-check-label{ for: 'disable-autocleanup' } Disable Autocleanup
+  .custom-control.custom-checkbox
+    %input.custom-control-input#disable-autocleanup{ type: 'checkbox' }
+    %label.custom-control-label{ for: 'disable-autocleanup' } Disable Autocleanup
   = hidden_field_tag(:autocleanup, true)
   :javascript
     $('#disable-autocleanup').click(function(){
