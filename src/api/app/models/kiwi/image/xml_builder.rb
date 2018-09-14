@@ -32,43 +32,36 @@ module Kiwi
       #     <packagemanager>zypper</packagemanager>
       #   </preferences>
       def update_preferences(document)
-        return document if @image.preference.blank?
+        return document if @image.preferences.blank?
 
-        document = update_preference_version(document)
+        @image.preferences.each.with_index(1) do |preference, index|
+          document = update_preference_version(document, preference, index)
+          document = update_preference_type_containerconfig(document, preference, index)
+        end
 
-        # <preferences> <type> and <containerconfig> blocks exist already
-        if document.xpath('image/preferences/type/containerconfig').any?
-          document = update_preference_type_containerconfig(document)
-        # <preferences> and <type> blocks exist but <containerconfig> does not
+        document
+      end
+
+      def update_preference_version(document, preference, index)
+        return document if preference.version.blank?
+
+        if document.xpath("image/preferences[#{index}]/version").any?
+          document.xpath("image/preferences[#{index}]/version").first.content = preference.version
         else
-          document = add_preference_type_containerconfig(document)
+          document.xpath("image/preferences[#{index}]").first.add_child("<version>#{preference.version}</version>")
         end
 
         document
       end
 
-      def update_preference_version(document)
-        return document if @image.preference.version.blank?
-
-        if document.xpath('image/preferences/version').any?
-          document.xpath('image/preferences/version').first.content = @image.preference.version
-        else
-          document.xpath('image/preferences').first.add_child("<version>#{@image.preference.version}</version>")
+      def update_preference_type_containerconfig(document, preference, index)
+        if document.xpath("image/preferences[#{index}]/type/containerconfig").any?
+          document.xpath("image/preferences[#{index}]/type/containerconfig").first['name'] = preference.type_containerconfig_name
+          document.xpath("image/preferences[#{index}]/type/containerconfig").first['tag'] = preference.type_containerconfig_tag
+        elsif preference.type_containerconfig_tag.present? || preference.type_containerconfig_name.present?
+          document.xpath("image/preferences[#{index}]/type").first.add_child(preference.containerconfig_xml)
         end
 
-        document
-      end
-
-      def update_preference_type_containerconfig(document)
-        document.xpath('image/preferences/type/containerconfig').first['name'] = @image.preference.type_containerconfig_name
-        document.xpath('image/preferences/type/containerconfig').first['tag'] = @image.preference.type_containerconfig_tag
-        document
-      end
-
-      def add_preference_type_containerconfig(document)
-        if @image.preference.type_containerconfig_tag.present? || @image.preference.type_containerconfig_name.present?
-          document.xpath('image/preferences/type').first.add_child(@image.preference.containerconfig_xml)
-        end
         document
       end
 

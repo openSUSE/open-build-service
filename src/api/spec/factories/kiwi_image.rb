@@ -2,7 +2,10 @@ FactoryBot.define do
   factory :kiwi_image, class: Kiwi::Image do
     name { Faker::Name.name }
     md5_last_revision { nil }
-    association :preference, factory: :kiwi_preference
+
+    before(:create) do |image|
+      image.preferences << create(:kiwi_preference, image: image)
+    end
 
     factory :kiwi_image_with_package do
       transient do

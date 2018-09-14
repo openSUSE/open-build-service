@@ -23,10 +23,10 @@ module Kiwi
     #### Associations macros (Belongs to, Has one, Has many)
     has_one :package, foreign_key: 'kiwi_image_id', class_name: '::Package', dependent: :nullify, inverse_of: :kiwi_image
     has_one :description, inverse_of: :image, dependent: :destroy
-    has_one :preference, inverse_of: :image, dependent: :destroy
+    has_many :preferences, inverse_of: :image, dependent: :destroy
     has_many :profiles, inverse_of: :image, dependent: :destroy, index_errors: true
     has_many :repositories, -> { order(order: :asc) }, dependent: :destroy, index_errors: true
-    has_many :package_groups, -> { order(:id) }, dependent: :destroy, index_errors: true
+    has_many :package_groups, -> { order(:id) }, dependent: :destroy, index_errors: true, inverse_of: :image
     has_many :kiwi_packages, -> { where(kiwi_package_groups: { kiwi_type: Kiwi::PackageGroup.kiwi_types[:image] }) },
              through: :package_groups, source: :packages, inverse_of: :kiwi_image
 
@@ -38,9 +38,9 @@ module Kiwi
     validates :name, presence: true
     validate :check_use_project_repositories
     validate :check_package_groups
-    validates :preference, presence: true
+    validates :preferences, presence: true
 
-    accepts_nested_attributes_for :preference
+    accepts_nested_attributes_for :preferences
     accepts_nested_attributes_for :description
     accepts_nested_attributes_for :repositories, allow_destroy: true
     accepts_nested_attributes_for :package_groups, allow_destroy: true
@@ -49,7 +49,7 @@ module Kiwi
 
     nest_errors_for :package_groups_packages, by: ->(kiwi_package) { "Package: #{kiwi_package.name}" }
     nest_errors_for :repositories, by: ->(repository) { "Repository: #{repository.source_path}" }
-    nest_errors_for :preference, by: -> { 'Preferences:' }
+    nest_errors_for :preferences, by: -> { 'Preferences:' }
     nest_errors_for :description, by: -> { 'Details:' }
     nest_errors_for :image, by: -> { 'Image Errors:' }
     nest_errors_for :profiles, by: ->(profile) { "Profile: #{profile.name}" }
@@ -147,9 +147,10 @@ module Kiwi
     end
 
     def check_package_groups
-      return if package_groups.group_by(&:kiwi_type).select { |_key, value| value.count > 1 }.keys.empty?
+      # FIXME: This should be a validation on Kiwi::PackageGroup, it would need a new join table
+      return if package_groups.group_by { |package_group| [package_group.kiwi_type, package_group.profiles] }.select { |_, value| value.count > 1 }.keys.empty?
 
-      errors.add(:base, 'Multiple package groups with same type are not allowed')
+      errors.add(:base, 'Multiple package groups with same type and profiles are not allowed')
     end
   end
 end

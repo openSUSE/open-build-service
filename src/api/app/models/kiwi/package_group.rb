@@ -1,7 +1,7 @@
 module Kiwi
   class PackageGroup < ApplicationRecord
     has_many :packages, dependent: :destroy, index_errors: true
-    belongs_to :image
+    belongs_to :image, inverse_of: :package_groups
 
     # we need to add a prefix, to avoid generating class methods that already
     # exist in Active Record, such as "delete"

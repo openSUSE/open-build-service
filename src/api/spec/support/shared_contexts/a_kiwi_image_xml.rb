@@ -2,12 +2,18 @@ RSpec.shared_context 'a kiwi image xml' do
   let(:kiwi_xml) do
     <<-XML.strip_heredoc
       <?xml version="1.0" encoding="UTF-8"?>
+      <!-- OBS-Profiles: profile1 profile2 inexistent -->
       <image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
         <description type="system">
           <author>Christian Bruckmayer</author>
           <contact>noemail@example.com</contact>
           <specification>Tiny, minimalistic appliances</specification>
         </description>
+        <profiles>
+            <profile name="profile1" description="My first profile" arch="x86_64"/>
+            <profile name="profile2" description="My second profile" arch="i586"/>
+            <profile name="profile3" description="My third profile" arch="x86_64"/>
+        </profiles>
         <preferences>
           <type image="docker" boot="grub">
             <containerconfig

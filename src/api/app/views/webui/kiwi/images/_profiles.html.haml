@@ -1,6 +1,8 @@
 .nested-fields
   %h2
     Profiles
+  %p
+    Select one or more profiles to build. At least one profile needs to be selected to trigger builds.
   - if @image.profiles.empty?
     %p There are no profiles
   - else

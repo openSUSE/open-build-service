@@ -117,11 +117,30 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       end
 
       it 'parses the preference type' do
-        expect(subject.preference).to have_attributes(
+        expect(subject.preferences.first).to have_attributes(
           version: '2.0.0',
           type_image: 'docker',
           type_containerconfig_name: 'my_container',
           type_containerconfig_tag: 'latest'
+        )
+      end
+
+      it 'parses the selected profiles' do
+        expect(subject.profiles.length).to eq(3)
+        expect(subject.profiles[0]).to have_attributes(
+          name: 'profile1',
+          description: 'My first profile',
+          selected: true
+        )
+        expect(subject.profiles[1]).to have_attributes(
+          name: 'profile2',
+          description: 'My second profile',
+          selected: true
+        )
+        expect(subject.profiles[2]).to have_attributes(
+          name: 'profile3',
+          description: 'My third profile',
+          selected: false
         )
       end
     end
@@ -197,7 +216,6 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
         before do
           kiwi_image.repositories << create(:kiwi_repository)
           kiwi_image.package_groups << create(:kiwi_package_group_non_empty, kiwi_type: 'image')
-          kiwi_image.preference = create(:kiwi_preference)
           kiwi_image.save
         end
 
@@ -218,18 +236,8 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       end
 
       context 'with preference type_image = "docker" but without containerconfig attributes' do
-        let(:kiwi_preference) do
-          create(
-            :kiwi_preference,
-            type_image: 'docker',
-            type_containerconfig_name: nil,
-            type_containerconfig_tag: nil
-          )
-        end
-
         before do
-          kiwi_image.preference = kiwi_preference
-          kiwi_image.save
+          kiwi_image.preferences.first.update(type_containerconfig_name: nil, type_containerconfig_tag: nil)
         end
 
         subject { kiwi_image.to_xml }
@@ -313,16 +321,11 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
         kiwi_image.save
       end
 
-      it { expect(subject.children[2].children[1].name).to eq('description') }
-      it { expect(subject.children[2].children[1].children[1].name).to eq('author') }
-      it { expect(subject.children[2].children[1].children[3].name).to eq('contact') }
-      it { expect(subject.children[2].children[1].children[5].name).to eq('specification') }
-      it { expect(subject.children[2].children[5].name).to eq('packages') }
-      it { expect(subject.children[2].children[5].attributes['type'].value).to eq('image') }
-      it { expect(subject.children[2].children[9].name).to eq('repository') }
-      it { expect(subject.children[2].children[9].name).to eq('repository') }
-      it { expect(subject.children[2].children[11].name).to eq('repository') }
-      it { expect(subject.children[2].children[13].name).to eq('repository') }
+      it { expect(subject.xpath('image/description/author').present?).to be true }
+      it { expect(subject.xpath('image/description/contact').present?).to be true }
+      it { expect(subject.xpath('image/description/specification').present?).to be true }
+      it { expect(subject.xpath('image/packages').attribute('type').value).to eq('image') }
+      it { expect(subject.xpath('image/repository').count).to eq(4) }
     end
 
     context 'with a kiwi file without packages and repositories' do
