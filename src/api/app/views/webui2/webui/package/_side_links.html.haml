@@ -19,28 +19,6 @@
     = render partial: 'show_derived_packages', locals: { package: package, project: project }
 
   - if linkinfo
-    - linked_package = linkinfo[:package]
-    %li
-      %i.fas.fa-link.text-dark
-      Links to
-      - if linkinfo[:remote_project]
-        remote
-        %i
-          = linkinfo[:remote_project]
-          \/
-          = linked_package
-      - else
-        = project_or_package_link(project: linked_package.project.name, package: linked_package.name, short: true)
-    - if linkinfo[:error]
-      %li
-        %i.fas.fa-times-circle.text-danger
-        Link has errors:
-        %i= linkinfo[:error]
-    - elsif linkinfo[:diff]
-      %li
-        %i.fas.fa-info-circle.text-info
-        Has a
-        = link_to('link diff', package_rdiff_path(oproject: linked_package.project.name, opackage: linked_package.name,
-                                                  project: project, package: package, rev: revision))
+    = render partial: 'show_linkinfo', locals: { package: package, project: project, linkinfo: linkinfo, revision: revision }
 
   = render partial: 'extra_actions', locals: { project: project, package: package }
