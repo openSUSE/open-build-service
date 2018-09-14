@@ -13,13 +13,8 @@
     = render partial: 'show_developed_packages', locals: { developed_packages: package.developed_packages }
 
   - if package.is_patchinfo?
-    %li
-      %i.fas.fa-info-circle.text-info
-      Has a
-      = link_to 'patchinfo', patchinfo_show_path(package: package, project: project)
-      for
-      = link_to 'maintenance updates', 'http://en.opensuse.org/Portal:Maintenance'
-      //TODO: Fix this hard link
+    = render partial: 'show_patchinfo', locals: { package: package, project: project }
+
   - if package.linking_packages.present?
     %li
       %i.fas.fa-info-circle.text-info
