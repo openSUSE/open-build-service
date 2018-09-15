@@ -1,0 +1,4 @@
+%li
+  %i.fas.fa-info-circle.text-info
+  = package.linking_packages.size
+  = link_to('derived packages', linking_packages_path(project: project, package: package), remote: true)
