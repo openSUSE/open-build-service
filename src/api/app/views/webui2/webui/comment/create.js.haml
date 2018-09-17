@@ -2,4 +2,3 @@
   $('#flash').html("#{escape_javascript(render(layout: false, partial: 'layouts/webui2/flash', object: flash))}");
   $('#comments').html("#{escape_javascript(render(partial: 'webui2/webui/comment/show', locals: { commentable: @commentable }))}");
   reloadCommentBindings();
-

@@ -29,9 +29,12 @@ RSpec.feature 'Bootstrap_MaintenanceWorkflow', type: :feature, js: true, vcr: tr
     visit package_show_path(project: update_project, package: package)
 
     click_link('Branch package')
+    sleep 1 # Needed to avoid a flickering test.
     expect(page).to have_text('Source')
 
-    click_button('Accept')
+    within('#branch-modal .modal-footer') do
+      click_button('Accept')
+    end
     expect(page).to have_text('Successfully branched package')
 
     # change the package sources so we have a difference

@@ -5,5 +5,7 @@
         Reply
   - if policy(comment).destroy?
     %li.list-inline-item
-      = link_to('Delete', comment, method: :delete, id: "delete_link_id_#{comment.id}", class: 'delete_link btn btn-sm btn-outline-danger',
-        remote: true, 'data-confirm': 'Do you really want delete this comment?')
+      = render(partial: 'webui/comment/delete_dialog', locals: { comment: comment })
+      = link_to('#', data: { toggle: 'modal', target: "#delete-comment-modal-#{comment.id}" },
+                class: 'delete_link btn btn-sm btn-outline-danger', title: 'Delete comment') do
+        Delete
