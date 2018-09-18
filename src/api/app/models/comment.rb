@@ -64,6 +64,7 @@ class Comment < ApplicationRecord
   def to_xml(builder)
     attrs = { who: user, when: created_at, id: id }
     attrs[:parent] = parent_id if parent_id
+    body.delete!("\u0000")
 
     builder.comment_(attrs) do
       builder.text(body)
