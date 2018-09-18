@@ -69,6 +69,7 @@ class Comment < ApplicationRecord
       attrs['project'] = commentable.project if commentable.is_a?(Package)
     end
     attrs[:parent] = parent_id if parent_id
+    body.delete!("\u0000")
 
     builder.comment_(attrs) do
       builder.text(body)
