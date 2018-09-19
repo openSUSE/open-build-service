@@ -1,11 +1,45 @@
-open-build-service (2.7.4-3) UNRELEASED; urgency=medium
+open-build-service (2.7.4-3co1) stretch; urgency=medium
 
+  [ Andrew Lee (李健秋) ]
+  * Added forward ported reprepro support.
+
+  [ Sjoerd Simons ]
+  * Add patch to support crypted passwords
+  * Add patches to fix publishing
+  * Add patch to resolve issues with https DoD repositories
+  * Remove stray debug print from backend-Handle-ERROR_WANT_-READ-WRITE-
+    from-ssl-reads.patch
+  * Update patches
+
+  [ Héctor Orón Martínez ]
+  * obs-api: embed sanitize-4.0.0 to fix runtime issue
+
+  [ Andrew Lee (李健秋) ]
+  * debian/gbp.conf: adjust branch and tags.
+  * Ship our patches in a collabora subdir
+
+ -- Andrew Lee (李健秋) <andrew.lee@collabora.co.uk>  Wed, 19 Sep 2018 13:11:02 +0800
+
+open-build-service (2.7.4-3) unstable; urgency=medium
+
+  [ Héctor Orón Martínez ]
   * Embed sanitize 4.0.0 ruby gem to fix breakeage.
     - add obs-api runtime depends on ruby-nokogumbo and ruby-crass.
   * worker: document enable switch
   * worker: use /var/lib/obsworker as OBS_RUN_DIR
 
- -- Héctor Orón Martínez <zumbi@debian.org>  Tue, 06 Mar 2018 14:30:19 +0100
+  [ Andrew Lee (李健秋) ]
+  * debian/gbp.conf: adjust gbp configuration file.
+  * obs-worker: depends on fdisk | util-linux (<< 2.29.2-3~). (Closes:
+    #872093)
+  * CVE-2017-5188.patch: Apply upstream fixes for
+    CVE-2017-5188.(Closes:#900133)
+  * fix-kiwitree-symlink.patch: cherry-pick bad code fix from upstream.
+  * Handle links properly when doing backend build operations.
+  * Make passenger rubyapp runs as obsapi user.
+  * Update correct group permission for rb_sysopen.
+
+ -- Andrew Lee (李健秋) <andrew.lee@collabora.co.uk>  Wed, 19 Sep 2018 13:07:48 +0800
 
 open-build-service (2.7.4-2) unstable; urgency=medium
 
