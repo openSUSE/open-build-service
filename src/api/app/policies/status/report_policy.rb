@@ -1,4 +1,4 @@
-class Status::CheckPolicy < ApplicationPolicy
+class Status::ReportPolicy < ApplicationPolicy
   def initialize(user, record)
     raise Pundit::NotAuthorizedError, 'record does not exist' unless record
     @user = user
@@ -7,9 +7,7 @@ class Status::CheckPolicy < ApplicationPolicy
 
   def create?
     return false if @user.blank?
-    @user.is_admin? ||
-      @record.checkable.relationships.users.pluck(:user_id).include?(@user.id) ||
-      @record.checkable.groups_users.pluck(:user_id).include?(@user.id)
+    @record.projects && @record.projects.all? { |project| @user.can_modify?(project) }
   end
 
   def update?

@@ -14,13 +14,15 @@ class Status::RequiredChecksController < ApplicationController
 
   #### CRUD actions
 
-  # GET /projects/:project_name/repositories/:repository_name/required_checks
+  # GET /status_reports/projects/:project_name/required_checks
+  # GET /status_reports/repositories/:project_name/:repository_name/required_checks
   def index
     authorize @checkable
     @required_checks = @checkable.required_checks
   end
 
-  # POST /projects/:project_name/repositories/:repository_name/required_checks
+  # POST /status_reports/projects/:project_name/required_checks/:name
+  # POST /status_reports/repositories/:project_name/:repository_name/required_checks/:name
   def create
     authorize @checkable
     @required_checks = @checkable.required_checks |= names
@@ -36,7 +38,8 @@ class Status::RequiredChecksController < ApplicationController
     end
   end
 
-  # DELETE /projects/:project_name/repositories/:repository_name/required_checks/:name
+  # DELETE /status_reports/projects/:project_name/required_checks/:name
+  # DELETE /status_reports/repositories/:project_name/:repository_name/required_checks/:name
   def destroy
     authorize @checkable
     @checkable.required_checks -= [params[:name]]
@@ -63,20 +66,10 @@ class Status::RequiredChecksController < ApplicationController
     if params[:repository_name]
       @project = Project.get_by_name(params[:project_name])
       @checkable = @project.repositories.find_by(name: params[:repository_name])
-      return if @checkable
-
-      render_error(
-        status: 404,
-        errorcode: 'not_found',
-        message: "Unable to find repository with name '#{params[:project_name]}/#{params[:repository_name]}'"
-      )
     else
-      render_error(
-        status: 404,
-        errorcode: 'not_found',
-        message: 'No repository name specified.'
-      )
+      @checkable = Project.get_by_name(params[:project_name])
     end
+    raise ActiveRecord::RecordNotFound unless @checkable
   end
 
   # Use callbacks to share common setup or constraints between actions.

@@ -21,6 +21,7 @@ class Project < ApplicationRecord
   after_rollback :discard_cache
   after_initialize :init
 
+  serialize :required_checks, Array
   attr_reader :commit_opts
   attr_writer :commit_opts
   after_initialize do
