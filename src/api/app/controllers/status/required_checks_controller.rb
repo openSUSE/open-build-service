@@ -6,6 +6,7 @@ class Status::RequiredChecksController < ApplicationController
   #### Self config
 
   #### Callbacks macros: before_action, after_action, etc.
+  before_action :set_project, only: [:index, :create, :destroy]
   before_action :set_checkable, only: [:index, :create, :destroy]
   before_action :set_required_check, only: [:destroy]
   skip_before_action :require_login, only: [:index]
@@ -62,14 +63,30 @@ class Status::RequiredChecksController < ApplicationController
 
   private
 
+  def set_project
+    @project = Project.get_by_name(params[:project_name])
+
+    return if @project
+    render_error(
+      status: 404,
+      errorcode: 'not_found',
+      message: "Project '#{params[:project_name]}' not found."
+    )
+  end
+
   def set_checkable
     if params[:repository_name]
-      @project = Project.get_by_name(params[:project_name])
       @checkable = @project.repositories.find_by(name: params[:repository_name])
+      return if @checkable
+
+      render_error(
+        status: 404,
+        errorcode: 'not_found',
+        message: "Repository '#{params[:repository_name]}/#{params[:project_name]}' not found."
+      )
     else
-      @checkable = Project.get_by_name(params[:project_name])
+      @checkable = @project
     end
-    raise ActiveRecord::RecordNotFound unless @checkable
   end
 
   # Use callbacks to share common setup or constraints between actions.
