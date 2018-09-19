@@ -142,7 +142,11 @@ class RequestController < ApplicationController
   def request_create
     xml = nil
     BsRequest.transaction do
-      @req = BsRequest.new_from_xml(request.raw_post.to_s)
+      parsed_xml = Xmlhash.parse(request.raw_post.to_s)
+
+      raise SaveError, 'Failed parsing the request xml' unless parsed_xml
+
+      @req = BsRequest.new_from_hash(parsed_xml)
       @req.set_add_revision       if params[:addrevision].present?
       @req.set_ignore_build_state if params[:ignore_build_state].present?
       @req.save!
