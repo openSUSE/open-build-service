@@ -901,8 +901,8 @@ RSpec.describe Webui::PackageController, vcr: true do
         post :save_meta, params: { project: source_project, package: 'blah', meta: valid_meta }
       end
 
-      it { expect(flash[:error]).to eq("Error while saving the Meta file: Package doesn't exists in that project..") }
-      it { expect(response).to have_http_status(:bad_request) }
+      it { expect(flash[:error]).to eq("Package \"blah\" not found in project \"#{source_project.name}\"") }
+      it { expect(response).to redirect_to(project_show_path(project: source_project, nextstatus: 404)) }
     end
 
     context 'when connection with the backend fails' do
