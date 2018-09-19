@@ -1,0 +1,47 @@
+commit d4bddd6df495cc436185961fb497dacedc046008
+Author: Adrian Schröter <adrian@suse.de>
+Date:   Thu Jun 22 12:12:01 2017 +0200
+
+    [webui] Handle links properly when doing backend build operations
+
+    OBS wasn't properly handling linked projects when triggering rebuilds,
+    wipe binaries and abort build. This resulted in packages of linked
+    projects being aborted, wiped, rebuilt.
+
+    This fixes the falsey code.
+
+    Pair-programmed with @eduardoj and @bgeuken
+
+Origin: upstream, https://github.com/openSUSE/open-build-service/pull/3284/commits
+--- a/src/api/app/models/package.rb
++++ b/src/api/app/models/package.rb
+@@ -1344,22 +1344,23 @@ class Package < ActiveRecord::Base
+     self
+   end
+ 
++  #### WARNING: these operations run in build object, not this package object
+   def rebuild(params)
+-    backend_build_command(:rebuild, params.slice(:package, :arch, :repository))
++    backend_build_command(:rebuild, params[:project], params.slice(:package, :arch, :repository))
+   end
+ 
+   def wipe_binaries(params)
+-    backend_build_command(:wipe, params.slice(:package, :arch, :repository))
++    backend_build_command(:wipe, params[:project], params.slice(:package, :arch, :repository))
+   end
+ 
+   def abort_build(params)
+-    backend_build_command(:abortbuild, params.slice(:package, :arch, :repository))
++    backend_build_command(:abortbuild, params[:project], params.slice(:package, :arch, :repository))
+   end
+ 
+-  def backend_build_command(command, params)
++  def backend_build_command(command, build_project, params)
+     begin
+-      Suse::Backend.post("/build/#{URI.escape(project.name)}?cmd=#{command}&#{params.to_query}", '')
+-    rescue ActiveXML::Transport::Error, Timeout::Error => e
++      Suse::Backend.post("/build/#{URI.escape(build_project)}?cmd=#{command}&#{params.to_query}", '')
++    rescue ActiveXML::Transport::Error, Timeout::Error, Project::WritePermissionError => e
+       errors.add(:base, e.message)
+       return false
+     end

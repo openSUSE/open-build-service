@@ -69,6 +69,9 @@ override_dh_install:
 	# Fix Mark scripts as executable until upstream fixes
 	chmod a+x debian/obs-server/usr/lib/obs/tests/appliance/*t*
 
+	# Remove useless Gemfile.lock
+	rm -f debian/obs-api/usr/share/obs/api/Gemfile.lock
+
 override_dh_systemd_enable:
 	dh_systemd_enable -p obs-server \
 		obsrepserver.service \
