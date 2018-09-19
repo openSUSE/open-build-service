@@ -22,12 +22,14 @@ class Webui::PackageController < Webui::WebuiController
   before_action :require_package, only: [:show, :linking_packages, :dependency, :binary, :binaries,
                                          :requests, :statistics, :commit, :revisions, :submit_request_dialog,
                                          :add_person, :add_group, :rdiff,
-                                         :save, :delete_dialog,
+                                         :save, :save_meta, :delete_dialog,
                                          :remove, :add_file, :save_file, :remove_file, :save_person,
                                          :save_group, :remove_role, :view_file,
                                          :abort_build, :trigger_rebuild, :trigger_services,
                                          :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
                                          :attributes, :edit, :files, :users, :binary_download]
+
+  before_action :validate_xml, only: [:save_meta]
 
   before_action :require_repository, only: [:binary, :binary_download]
   before_action :require_architecture, only: [:binary, :binary_download]
@@ -44,6 +46,8 @@ class Webui::PackageController < Webui::WebuiController
   before_action :check_package_name_for_new, only: [:save_new]
 
   prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binary, :binaries, :requests, :binary_download]
+
+  after_action :verify_authorized, only: [:remove_file, :remove, :save_file, :abort_build, :trigger_rebuild, :wipe_binaries, :save_meta, :save, :abort_build]
 
   def show
     if request.bot?
@@ -116,9 +120,7 @@ class Webui::PackageController < Webui::WebuiController
       next if project_repositories.include?(params[repo_key])
       flash[:error] = "Repository '#{params[repo_key]}' is invalid."
       redirect_back(fallback_location: project_show_path(project: @project.name))
-      # rubocop:disable Lint/NonLocalExitFromIterator
       return
-      # rubocop:enable Lint/NonLocalExitFromIterator
     end
 
     @arch = params[:arch]
@@ -602,10 +604,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def save
-    unless User.current.can_modify?(@package)
-      redirect_to action: :show, project: params[:project], package: params[:package], error: 'No permission to save'
-      return
-    end
+    authorize @package, :update?
     @package.title = params[:title]
     @package.description = params[:description]
     if @package.save
@@ -978,36 +977,23 @@ class Webui::PackageController < Webui::WebuiController
   def save_meta
     errors = []
 
-    begin
-      Suse::Validator.validate('package', params[:meta])
-      meta_xml = Xmlhash.parse(params[:meta])
+    authorize @package, :save_meta_update?
 
-      # That's a valid XML file
-      if Package.exists_by_project_and_name(@project.name, params[:package], follow_project_links: false)
-        @package = Package.get_by_project_and_name(@project.name, params[:package], use_source: false, follow_project_links: false)
-        authorize @package, :update?
+    if FlagHelper.xml_disabled_for?(@meta_xml, 'sourceaccess')
+      errors << 'admin rights are required to raise the protection level of a package'
+    end
 
-        if @package && !@package.disabled_for?('sourceaccess', nil, nil) && FlagHelper.xml_disabled_for?(meta_xml, 'sourceaccess')
-          errors << 'admin rights are required to raise the protection level of a package'
-        end
+    if @meta_xml['project'] && @meta_xml['project'] != @project.name
+      errors << 'project name in xml data does not match resource path component'
+    end
 
-        if meta_xml['project'] && meta_xml['project'] != @project.name
-          errors << 'project name in xml data does not match resource path component'
-        end
-
-        if meta_xml['name'] && meta_xml['name'] != @package.name
-          errors << 'package name in xml data does not match resource path component'
-        end
-      else
-        errors << "Package doesn't exists in that project."
-      end
-    rescue Suse::ValidationError => e
-      errors << e.message
+    if @meta_xml['name'] && @meta_xml['name'] != @package.name
+      errors << 'package name in xml data does not match resource path component'
     end
 
     if errors.empty?
       begin
-        @package.update_from_xml(meta_xml)
+        @package.update_from_xml(@meta_xml)
         flash.now[:success] = 'The Meta file has been successfully saved.'
         render layout: false, partial: 'layouts/webui/flash', object: flash
       rescue Backend::Error, NotFoundError => e
@@ -1036,6 +1022,14 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   private
+
+  def validate_xml
+    Suse::Validator.validate('package', params[:meta])
+    @meta_xml = Xmlhash.parse(params[:meta])
+  rescue Suse::ValidationError => error
+    flash.now[:error] = "Error while saving the Meta file: #{error}."
+    render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
+  end
 
   def package_files(rev = nil, expand = nil)
     query = {}
