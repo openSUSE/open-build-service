@@ -1,0 +1,4 @@
+%li.list-inline-item
+  = link_to(package_submit_request_dialog_path(project: project, package: package, revision: revision), remote: true, class: 'nav-link') do
+    %i.fas.fa-share-square.text-obs-yellow
+    Submit package
