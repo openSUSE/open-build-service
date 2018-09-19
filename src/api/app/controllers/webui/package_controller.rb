@@ -100,6 +100,7 @@ class Webui::PackageController < Webui::WebuiController
     render_dialog
   end
 
+  # rubocop:disable Lint/NonLocalExitFromIterator
   def dependency
     dependant_project = Project.find_by_name(params[:dependant_project]) || Project.find_remote_project(params[:dependant_project]).try(:first)
     unless dependant_project
@@ -135,6 +136,7 @@ class Webui::PackageController < Webui::WebuiController
     redirect_back(fallback_location: { action: :binary, project: params[:project], package: params[:package],
                                        repository: @repository, arch: @arch, filename: @filename })
   end
+  # rubocop:enable Lint/NonLocalExitFromIterator
 
   def statistics
     @arch = params[:arch]
