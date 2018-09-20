@@ -12,19 +12,14 @@ class Status::ReportsController < ApplicationController
   private
 
   def set_status_report
-    if params[:uuid]
-      @status_report = @checkable.status_reports.find_by(uuid: params[:uuid])
-      return if @status_report
-      @error_message = "Status report with uuid '#{params[:uuid]} not found.'"
-    else
-      @status_report = @checkable.status_reports.first
-      return if @status_report
-      @error_message = 'Status report not found.'
-    end
+    @status_report = @checkable.status_reports.first
+    @status_report = @checkable.status_reports.find_by(uuid: params[:uuid]) if params[:uuid]
+    return if @status_report
+
     render_error(
       status: 404,
       errorcode: 'not_found',
-      message: @error_message
+      message: 'Status report not found.'
     )
   end
 end
