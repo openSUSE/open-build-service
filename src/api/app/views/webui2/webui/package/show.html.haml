@@ -81,3 +81,5 @@
   - else
     = render partial: 'webui2/webui/request/add_role_request_dialog', locals: { project: @project, package: @package }
     = render partial: 'webui2/webui/request/delete_request_dialog', locals: { project: @project, package: @package }
+  - if @package.develpackage
+    = render partial: 'webui2/webui/request/change_devel_request_dialog', locals: { project: @project, package: @package }

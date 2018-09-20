@@ -1,29 +1,33 @@
-.modal-dialog.modal-dialog-centered{ role: 'document' }
-  .modal-content
-    = form_tag(change_devel_request_path(project: project, package: package), method: :post) do
-      .modal-header
-        %h5.modal-title Change Devel Project Request
-      .modal-body
-        - if current_devel_project && current_devel_package
-          %p
-            -# FIXME: get rid of this helper
-            Do you want to request to change the devel project for #{package_link(package)} from
-            \#{project_or_package_link(project: current_devel_project)}?
-        - else
-          %p
-            -# FIXME: get rid of this helper
-            Do you want to request to set the devel project for #{package_link(package)}?
-        .form-group
+- current_devel_package = package.develpackage.name
+- current_devel_project = package.develpackage.project.name
+
+.modal.fade#change-devel-request-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'change-devel-request-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      = form_tag(change_devel_request_path(project: project, package: package), method: :post) do
+        .modal-header
+          %h5.modal-title Change Devel Project Request
+        .modal-body
           - if current_devel_project && current_devel_package
-            = label_tag(:devel_project, 'New Devel project (leave free to delete the current one):')
+            %p
+              -# FIXME: get rid of this helper
+              Do you want to request to change the devel project for #{package_link(package)} from
+              \#{project_or_package_link(project: current_devel_project)}?
           - else
-            = label_tag(:devel_project, 'Devel project:')
-          = text_field_tag(:devel_project, '', required: true, class: 'form-control')
-        .form-group
-          = label_tag(:description, 'Description:')
-          = text_area_tag(:description, '', row: 3, class: 'form-control')
-      .modal-footer
-        = render partial: 'webui2/shared/dialog_action_buttons'
+            %p
+              -# FIXME: get rid of this helper
+              Do you want to request to set the devel project for #{package_link(package)}?
+          .form-group
+            - if current_devel_project && current_devel_package
+              = label_tag(:devel_project, 'New Devel project (leave free to delete the current one):')
+            - else
+              = label_tag(:devel_project, 'Devel project:')
+            = text_field_tag(:devel_project, '', required: true, class: 'form-control')
+          .form-group
+            = label_tag(:description, 'Description:')
+            = text_area_tag(:description, '', row: 3, class: 'form-control')
+        .modal-footer
+          = render partial: 'webui2/shared/dialog_action_buttons'
 
 :javascript
   autocompleteDevelProject('#{autocomplete_projects_path}');
