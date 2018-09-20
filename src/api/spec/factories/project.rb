@@ -98,11 +98,11 @@ FactoryBot.define do
       after(:create) do |project|
         create(:lock_flag, status: 'enable', project: project)
       end
+    end
 
-      factory :project_with_repository do
-        after(:create) do |project|
-          create(:repository, project: project, architectures: ['i586'])
-        end
+    factory :project_with_repository do
+      after(:create) do |project|
+        create(:repository, project: project, architectures: ['i586'])
       end
     end
 
