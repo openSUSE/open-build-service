@@ -1,6 +1,3 @@
-- current_devel_package = package.develpackage.name
-- current_devel_project = package.develpackage.project.name
-
 .modal.fade#change-devel-request-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'change-devel-request-modal-label', hidden: true } }
   .modal-dialog.modal-dialog-centered{ role: 'document' }
     .modal-content
@@ -8,20 +5,12 @@
         .modal-header
           %h5.modal-title Change Devel Project Request
         .modal-body
-          - if current_devel_project && current_devel_package
-            %p
-              -# FIXME: get rid of this helper
-              Do you want to request to change the devel project for #{package_link(package)} from
-              \#{project_or_package_link(project: current_devel_project)}?
-          - else
-            %p
-              -# FIXME: get rid of this helper
-              Do you want to request to set the devel project for #{package_link(package)}?
+          %p
+            -# FIXME: get rid of this helper
+            Do you want to request to change the devel project for #{package_link(package)} from
+            \#{project_or_package_link(project: package.develpackage.project.name)}?
           .form-group
-            - if current_devel_project && current_devel_package
-              = label_tag(:devel_project, 'New Devel project (leave free to delete the current one):')
-            - else
-              = label_tag(:devel_project, 'Devel project:')
+            = label_tag(:devel_project, 'New Devel project (leave free to delete the current one):')
             = text_field_tag(:devel_project, '', required: true, class: 'form-control')
           .form-group
             = label_tag(:description, 'Description:')
