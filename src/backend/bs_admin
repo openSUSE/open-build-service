@@ -64,6 +64,7 @@ my $configfile = "$BSConfig::bsdir/configuration.xml";
 my $treesdir = $nosharedtrees ? "$BSConfig::bsdir/trees" : $srcrepdir;
 my $sourcedb = "$BSConfig::bsdir/db/source";
 my $rundir  = "$BSConfig::bsdir/run";
+my $dodsdir = "$BSConfig::bsdir/dods";
 
 
 sub echo_help {
@@ -1158,6 +1159,12 @@ while (@ARGV) {
     } else {
         print "No badhosts found\n";
     }
+  } elsif ($arg eq "--recheck-dod") {
+    die("ERROR: need url or project prefix as argument!\n") if @ARGV < 1;
+    my $rc = shift @ARGV;
+    my $fn = Digest::MD5::md5_hex($rc).".recheck";
+    writestr("$dodsdir/.$fn", "$dodsdir/$fn", "$rc\n");
+    BSUtil::touch("$dodsdir/.changed")
   } else {
     echo_help();
     exit(1)
