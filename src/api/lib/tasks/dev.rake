@@ -195,10 +195,10 @@ namespace :dev do
       )
 
       # Create factory dashboard projects
-      create(:project, name: 'openSUSE:Factory', description: 'requests:')
+      create(:project, name: 'openSUSE:Factory')
       create(:project, name: 'openSUSE:Factory:Rings:0-Bootstrap')
       create(:project, name: 'openSUSE:Factory:Rings:1-MinimalX')
-      create(:project, name: 'openSUSE:Factory:Staging:A')
+      create(:project, name: 'openSUSE:Factory:Staging:A', description: 'requests:')
     end
   end
 end
