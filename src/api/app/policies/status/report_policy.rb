@@ -23,6 +23,6 @@ class Status::ReportPolicy < ApplicationPolicy
   end
 
   def show?
-    index?
+    true
   end
 end
