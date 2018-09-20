@@ -1,6 +1,14 @@
-- unless User.current.is_nobody?
+- if User.current.is_nobody?
+  %h3
+    Login required, please
+    = link_to('login', session_new_url)
+    or
+    = link_to('signup', user_register_user_url)
+    in order to comment
+- else
   = form_for @comment, method: :post, remote: true do |f|
     = hidden_field_tag :commentable_type, commentable.class
     = hidden_field_tag :commentable_id, commentable.id
+    = hidden_field_tag :no_switch, true
     ~ f.text_area :body, size: '80x4', onkeyup: 'sz(this);', onclick: 'sz(this);', placeholder: 'Add a new comment (markdown markup supported)', required: 'required'
     = f.submit 'Add comment'

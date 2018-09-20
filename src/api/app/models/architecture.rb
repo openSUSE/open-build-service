@@ -33,6 +33,15 @@ class Architecture < ApplicationRecord
     end
   end
 
+  def worker
+    case name
+    when 'i586' then 'x86_64'
+    when 'ppc' then 'ppc64'
+    when 's390' then 's390x'
+    else name
+    end
+  end
+
   #### To define class methods as private use private_class_method
   #### private
 

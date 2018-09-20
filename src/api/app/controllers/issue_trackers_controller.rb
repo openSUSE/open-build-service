@@ -41,7 +41,7 @@ class IssueTrackersController < ApplicationController
       @issue_tracker = IssueTracker.new(params)
     rescue
       # User didn't really upload www-form-urlencoded data but raw XML, try to parse that
-      xml = Nokogiri::XML(request.raw_post).root
+      xml = Nokogiri::XML(request.raw_post, &:strict).root
       @issue_tracker = IssueTracker.create(name: xml.xpath('name[1]/text()').to_s,
                                            kind: xml.xpath('kind[1]/text()').to_s,
                                            description: xml.xpath('description[1]/text()').to_s,
@@ -78,7 +78,7 @@ class IssueTrackersController < ApplicationController
         ret = @issue_tracker.update_attributes(request.request_parameters)
       rescue ActiveRecord::UnknownAttributeError, ActiveModel::MassAssignmentSecurity::Error
         # User didn't really upload www-form-urlencoded data but raw XML, try to parse that
-        xml = Nokogiri::XML(request.raw_post).root
+        xml = Nokogiri::XML(request.raw_post, &:strict).root
         attribs = {}
         attribs[:name] = xml.xpath('name[1]/text()').to_s unless xml.xpath('name[1]/text()').empty?
         attribs[:kind] = xml.xpath('kind[1]/text()').to_s unless xml.xpath('kind[1]/text()').empty?

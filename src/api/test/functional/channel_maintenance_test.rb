@@ -144,7 +144,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # add an old style patch name, only used via %N (in BaseDistro3Channel at the end of this test)
     get "/source/#{incident_project}/patchinfo/_patchinfo"
     assert_response :success
-    pi = Nokogiri::XML(@response.body).root
+    pi = Nokogiri::XML(@response.body, &:strict).root
     pi.add_child('<name>patch_name</name>')
     pi.add_child('<message>During reboot a popup with a question will appear</message>')
     put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
@@ -298,7 +298,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/My:Maintenance/_meta'
     assert_response :success
-    meta = Nokogiri::XML(@response.body).root
+    meta = Nokogiri::XML(@response.body, &:strict).root
     meta.at_xpath('maintenance').add_child('<maintains project="Channel"/>')
     put '/source/My:Maintenance/_meta', params: meta.to_xml
     assert_response :success
@@ -519,7 +519,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response 404
     get "/source/#{incident_project}/patchinfo/_patchinfo"
     assert_response :success
-    pi = Nokogiri::XML(@response.body).root
+    pi = Nokogiri::XML(@response.body, &:strict).root
     pi.add_child('<issue id="0815" tracker="bnc"/>')
     put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
     assert_response :success

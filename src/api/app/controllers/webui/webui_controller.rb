@@ -192,15 +192,6 @@ class Webui::WebuiController < ActionController::Base
     @is_displayed_user = (!User.current.is_nobody? && User.current == @displayed_user)
   end
 
-  def map_to_workers(arch)
-    case arch
-    when 'i586' then 'x86_64'
-    when 'ppc' then 'ppc64'
-    when 's390' then 's390x'
-    else arch
-    end
-  end
-
   # Don't show performance of database queries to users
   def peek_enabled?
     User.current && (User.current.is_admin? || User.current.is_staff?)

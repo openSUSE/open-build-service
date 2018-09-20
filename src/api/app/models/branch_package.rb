@@ -134,7 +134,7 @@ class BranchPackage
         # copy project local linked packages
         Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name, p[:link_target_project].name, p[:package].name, User.current.login)
         # and fix the link
-        ret = Nokogiri::XML(tpkg.source_file('_link')).root
+        ret = Nokogiri::XML(tpkg.source_file('_link'), &:strict).root
         ret.remove_attribute('project') # its a local link, project name not needed
         linked_package = p[:link_target_package]
         # user enforce a rename of base package

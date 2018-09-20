@@ -12,7 +12,7 @@ class Service
     return @document if @document
     xml = Backend::Api::Sources::Package.service(project.name, package.name)
     xml ||= '<services/>'
-    @document = Nokogiri::XML(xml)
+    @document = Nokogiri::XML(xml, &:strict)
   end
 
   def self.valid_name?(name)

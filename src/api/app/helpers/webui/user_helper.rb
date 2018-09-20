@@ -67,7 +67,11 @@ module Webui::UserHelper
         printed_name = "#{realname} (#{user.login})"
       end
 
-      user_image_tag(user) + ' ' + link_to(printed_name, user_show_path(user))
+      if opts[:no_icon]
+        link_to(printed_name, user_show_path(user))
+      else
+        user_image_tag(user) + ' ' + link_to(printed_name, user_show_path(user))
+      end
     end
   end
 
