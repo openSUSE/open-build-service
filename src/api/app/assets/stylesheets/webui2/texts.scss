@@ -9,3 +9,11 @@
 .text-gray-550 {
     color: $gray-550;
 }
+
+.text-wrap {
+  white-space: normal;
+}
+
+.text-word-break-all {
+  word-break: break-all;
+}

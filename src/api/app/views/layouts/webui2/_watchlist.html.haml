@@ -9,5 +9,5 @@
 %ul
   - User.current.watched_project_names.each do |project|
     %li
-      = link_to project_show_path(project), class: 'nav-link' do
-        = raw(project.gsub(':', ':<wbr>'))
+      = link_to project_show_path(project), class: 'nav-link text-word-break-all' do
+        = project
