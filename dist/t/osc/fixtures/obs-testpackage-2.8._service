@@ -6,7 +6,7 @@
     <param name="extract">dist/obs-testpackage.spec</param>
   </service>
   <service name="recompress">
-    <param name="compression">xz</param>
+    <param name="compression">gz</param>
     <param name="file">*.tar</param>
   </service>
   <service name="set_version"/>

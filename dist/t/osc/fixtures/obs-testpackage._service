@@ -7,7 +7,7 @@
   </service>
   <service name="tar" mode="buildtime"/>
   <service name="recompress" mode="buildtime">
-    <param name="compression">xz</param>
+    <param name="compression">gz</param>
     <param name="file">*.tar</param>
   </service>
   <service name="set_version" mode="buildtime"/>
