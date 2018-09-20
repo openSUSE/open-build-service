@@ -19,7 +19,7 @@ class Status::ReportsController < ApplicationController
     else
       @status_report = @checkable.status_reports.first
       return if @status_report
-      @error_message = "Status report not found."
+      @error_message = 'Status report not found.'
     end
     render_error(
       status: 404,

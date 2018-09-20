@@ -4,7 +4,7 @@ module Status
       extend ActiveSupport::Concern
 
       included do
-         before_action :set_checkable
+        before_action :set_checkable
       end
 
       private
@@ -13,7 +13,7 @@ module Status
         set_repository || set_bs_request
         return if @checkable
 
-        @error_message = 'Provide at least project_name and repository_name or request number.' unless @error_message
+        @error_message ||= 'Provide at least project_name and repository_name or request number.'
         render_error(
           status: 404,
           errorcode: 'not_found',
