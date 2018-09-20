@@ -951,6 +951,7 @@ CREATE TABLE `projects` (
   `delta` tinyint(1) NOT NULL DEFAULT '1',
   `kind` enum('standard','maintenance','maintenance_incident','maintenance_release') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'standard',
   `url` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `required_checks` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`name`) USING BTREE,
   KEY `updated_at_index` (`updated_at`) USING BTREE,
@@ -1133,11 +1134,12 @@ CREATE TABLE `status_checks` (
   `url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `short_description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `checkable_id` int(11) DEFAULT NULL,
-  `checkable_type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`)
+  `status_reports_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_status_checks_on_status_reports_id` (`status_reports_id`),
+  CONSTRAINT `fk_rails_959cdb3a57` FOREIGN KEY (`status_reports_id`) REFERENCES `status_reports` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `status_histories` (
@@ -1162,14 +1164,15 @@ CREATE TABLE `status_messages` (
   KEY `index_status_messages_on_deleted_at_and_created_at` (`deleted_at`,`created_at`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
-CREATE TABLE `status_repository_publishes` (
+CREATE TABLE `status_reports` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `build_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `repository_id` int(11) DEFAULT NULL,
+  `uuid` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `checkable_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `checkable_id` int(11) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_status_repository_publishes_on_repository_id` (`repository_id`)
+  KEY `index_status_reports_on_checkable_type_and_checkable_id` (`checkable_type`,`checkable_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `tokens` (
@@ -1381,6 +1384,9 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20180731125103'),
 ('20180807114201'),
 ('20180814112739'),
-('20180903135535');
+('20180903135535'),
+('20180906115417'),
+('20180906142702'),
+('20180906142802');
 
 
