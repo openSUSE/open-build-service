@@ -247,6 +247,7 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to controller: :request, action: :show, number: request.number
   end
 
+  # TODO: This action needs to be removed when migrating to Bootstrap, is not needed in the webui2
   def change_devel_request_dialog
     @package = Package.find_by_project_and_name(params[:project], params[:package])
     if @package.develpackage
