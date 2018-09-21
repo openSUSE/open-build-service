@@ -1,5 +1,5 @@
 .modal.fade#add-role-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'add-role-modal-label', hidden: true } }
-  .modal-dialog{ role: 'document' }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
     .modal-content
       = form_tag(add_role_request_path(project: project)) do
         .modal-header

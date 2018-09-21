@@ -32,9 +32,8 @@
                     - if attribute.values_editable?
                       = link_to(edit_attribs_path(project: @project.name, package: @package, attribute: attribute.fullname), title: 'Edit values') do
                         %i.fas.fa-edit.text-info
-                    = link_to(attrib_path(attribute),
-                              data: { confirm: "Delete attribute '#{attribute.fullname}'?" },
-                              method: :delete,
+                    = render(partial: 'delete_dialog', locals: { attribute: attribute })
+                    = link_to('#', data: { toggle: 'modal', target: "#delete-attribute-modal-#{attribute.id}" },
                               title: 'Delete attribute') do
                       %i.fas.fa-times-circle.text-danger
     - else

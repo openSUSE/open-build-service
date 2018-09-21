@@ -1,5 +1,5 @@
 .modal.fade#delete-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-modal-label', hidden: true } }
-  .modal-dialog{ role: 'document' }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
     .modal-content
       .modal-header
         %h5.modal-title#delete-modal-label Do you really want to delete this package?
@@ -24,4 +24,6 @@
               = label_tag(:force, 'Delete anyway?', class: 'form-check-label')
 
           .modal-footer
-            = render partial: 'webui2/shared/dialog_action_buttons'
+            %button.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+              Cancel
+            = submit_tag('Delete', class: 'btn btn-sm btn-danger px-4')
