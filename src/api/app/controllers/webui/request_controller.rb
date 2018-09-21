@@ -1,6 +1,5 @@
 class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
-  include Webui2::RequestController
 
   before_action :require_login, except: [:show, :sourcediff, :diff]
   # requests do not really add much value for our page rank :)
@@ -248,14 +247,13 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to controller: :request, action: :show, number: request.number
   end
 
+  # TODO: This action needs to be removed when migrating to Bootstrap, is not needed in the webui2
   def change_devel_request_dialog
     @package = Package.find_by_project_and_name(params[:project], params[:package])
     if @package.develpackage
       @current_devel_package = @package.develpackage.name
       @current_devel_project = @package.develpackage.project.name
     end
-
-    return if switch_to_webui2
 
     render_dialog
   end

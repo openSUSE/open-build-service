@@ -48,6 +48,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
       visit package_show_path(project: user.home_project, package: package)
       expect(page).to have_text('1 derived package')
       click_link('derived package')
+      sleep 1 # Needed to avoid a flickering test. Sometimes the modal is shown too late and the click doen't work
       expect(page).to have_link('home:package_test_user...ome:package_test_user')
       click_link('home:package_test_user...ome:package_test_user')
       expect(page.current_path).to eq(package_show_path(project: branched_project, package: branched_project.packages.first))

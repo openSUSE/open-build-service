@@ -93,7 +93,7 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
 
     click_link('Request devel project change')
 
-    within('#modal') do
+    within('#change-devel-request-modal') do
       fill_in('devel_project', with: third_project.name)
       fill_in('description', with: 'Hey, why not?')
       click_button('Accept')
