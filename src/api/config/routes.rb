@@ -798,10 +798,10 @@ OBSApi::Application.routes.draw do
     end
     controller :checks do
       scope :published do
-        put ':project_name/:repository_name/reports/:report_uuid/checks' => :update
+        put ':project_name/:repository_name/reports/:report_uuid' => :update
       end
       scope :requests do
-        put ':bs_request_number/reports/checks' => :update
+        put ':bs_request_number/reports' => :update
       end
     end
   end
