@@ -23,9 +23,9 @@
     .w-100.m-2
     .container.d-none.d-sm-block#personal-navigation
       .row
-        .col-8
+        .col
           = render partial: "layouts/webui2/breadcrumbs"
-        .col-4
+        .col-auto.ml-auto
           = render partial: "layouts/webui2/personal_navigation"
     .container#flash
       = render partial: "layouts/webui2/flash", object: flash
