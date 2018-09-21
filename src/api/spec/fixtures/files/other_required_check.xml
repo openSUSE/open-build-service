@@ -1,0 +1,3 @@
+<required_check>
+  <name>ci/example: requests test</name>
+</required_check>

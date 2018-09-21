@@ -22,11 +22,12 @@ class Status::RequiredChecksController < ApplicationController
     @required_checks = @checkable.required_checks
   end
 
-  # POST /status_reports/projects/:project_name/required_checks/:name
-  # POST /status_reports/repositories/:project_name/:repository_name/required_checks/:name
+  # POST /status_reports/projects/:project_name/required_checks
+  # POST /status_reports/repositories/:project_name/:repository_name/required_checks
   def create
     authorize @checkable
-    @required_checks = @checkable.required_checks |= names
+    @checkable.required_checks = @checkable.required_checks | names
+    @required_checks = @checkable.required_checks
 
     if @checkable.save
       render action: :index

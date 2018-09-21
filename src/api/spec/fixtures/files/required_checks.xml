@@ -1,4 +1,4 @@
 <required_check>
-  <name>ci/example: example test</name>
-  <name>ci/example2: example test</name>
+  <name>ci/example: features</name>
+  <name>ci/example: unit</name>
 </required_check>

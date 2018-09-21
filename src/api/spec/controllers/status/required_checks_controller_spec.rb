@@ -45,6 +45,9 @@ RSpec.describe Status::RequiredChecksController, type: :controller do
     let(:required_check_xml) do
       file_fixture('required_check.xml').read
     end
+    let(:other_required_check_xml) do
+      file_fixture('other_required_check.xml').read
+    end
 
     shared_examples 'does create a required check' do
       it 'will create a required check' do
@@ -58,6 +61,15 @@ RSpec.describe Status::RequiredChecksController, type: :controller do
         }.by(example_count)
       end
       it { expect(response).to have_http_status(:success) }
+    end
+
+    shared_examples 'does return a required check' do
+      before do
+        post :create, body: other_required_check_xml, params: { project_name: project.name,
+                                                 repository_name: repository.name }, format: :xml
+      end
+
+      it { expect(assigns(:required_checks)).to include('ci/example: requests test') }
     end
 
     shared_examples 'does not create a required check' do
@@ -96,15 +108,17 @@ RSpec.describe Status::RequiredChecksController, type: :controller do
           let(:example_count) { 1 }
 
           include_context 'does create a required check'
+          include_context 'does return a required check'
         end
 
-        context 'with more one required check' do
+        context 'with more than one required check' do
           let(:required_check_xml) do
             file_fixture('required_checks.xml').read
           end
           let(:example_count) { 2 }
 
           include_context 'does create a required check'
+          include_context 'does return a required check'
         end
       end
 
@@ -115,6 +129,7 @@ RSpec.describe Status::RequiredChecksController, type: :controller do
         let!(:relationship) { create(:relationship_project_group, group: group_with_user, project: project) }
 
         include_context 'does create a required check'
+        include_context 'does return a required check'
       end
 
       context 'without permission' do
