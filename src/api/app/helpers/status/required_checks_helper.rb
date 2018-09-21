@@ -5,7 +5,7 @@ module Status::RequiredChecksHelper
     elsif checkable.is_a?(Package)
       { project: project.name, package: checkable.name }
     else
-      { project: project.name }
+      { project: checkable.name }
     end
   end
 end

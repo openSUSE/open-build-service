@@ -65,6 +65,7 @@ class BsRequest < ApplicationRecord
   }
 
   scope :with_actions_and_reviews, -> { joins(:bs_request_actions).left_outer_joins(:reviews).distinct.order(priority: :asc, id: :desc) }
+  scope :with_submit_requests, -> { joins(:bs_request_actions).where(bs_request_actions: { type: 'submit' }) }
 
   scope :by_user_reviews, ->(user_ids) { where(reviews: { user: user_ids }) }
   scope :by_project_reviews, ->(project_ids) { where(reviews: { project: project_ids }) }
@@ -84,6 +85,8 @@ class BsRequest < ApplicationRecord
   has_many :comments, as: :commentable, dependent: :delete_all
   has_many :request_history_elements, -> { order(:created_at) }, class_name: 'HistoryElement::Request', foreign_key: :op_object_id
   has_many :review_history_elements, through: :reviews, source: :history_elements
+  has_many :status_reports, as: :checkable, class_name: 'Status::Report', dependent: :destroy
+  has_many :target_project_objects, through: :bs_request_actions
 
   validates :state, inclusion: { in: VALID_REQUEST_STATES }
   validates :creator, presence: true
@@ -1226,6 +1229,10 @@ class BsRequest < ApplicationRecord
     end
 
     new_request
+  end
+
+  def required_checks
+    target_project_objects.pluck(:required_checks).flatten.uniq
   end
 
   private

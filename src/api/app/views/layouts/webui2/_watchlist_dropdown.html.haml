@@ -1,6 +1,6 @@
-%button.btn.btn-link.nav-link.dropdown-toggle#watchlist{ "aria-expanded": "false", "aria-haspopup": "true", "data-toggle": "dropdown", "data-offset": 150 }
+%button.btn.btn-link.nav-link.dropdown-toggle#watchlist{ aria: { expanded: false, haspopup: true }, data: { toggle: 'dropdown', offset: 150 } }
   Watchlist
-.dropdown-menu{ "aria-labelledby": "watchlist" }
+.dropdown-menu{ aria: { labelledby: 'watchlist' } }
   .dropdown-header
     List of projects you are watching
   .dropdown-divider
@@ -17,7 +17,8 @@
         %small.text-muted
           Watch this project
     .dropdown-divider
-  - User.current.watched_project_names.each do |project|
-    = link_to project_show_path(project), class: 'dropdown-item' do
-      %span.icons-project
-      = raw(project.gsub(':', ':<wbr>'))
+  - User.current.watched_project_names.each_with_index do |project, index|
+    = link_to project_show_path(project), class: "dropdown-item text-wrap text-word-break-all #{'border-top' unless index.zero?}" do
+      %i.fa.fa-cubes.fa.text-info.pt-2
+      %span.small
+        = project

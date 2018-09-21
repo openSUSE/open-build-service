@@ -4,8 +4,12 @@ FactoryBot.define do
     email { Faker::Internet.email }
 
     factory :group_with_user do
-      after(:create) do |group|
-        group.groups_users.create(user: create(:confirmed_user))
+      transient do
+        user { create(:confirmed_user) }
+      end
+
+      after(:create) do |group, evaluator|
+        group.groups_users.create(user: evaluator.user)
       end
     end
   end
