@@ -1,6 +1,6 @@
 xml.status_report(uuid: @status_report.uuid) do |xml|
   @checks.each do |check|
-    render(partial: 'check', locals: { builder: xml, object: check })
+    render(partial: 'status/checks/check', locals: { builder: xml, object: check })
   end
 
   @missing_checks.each do |name|
