@@ -44,7 +44,7 @@ module Webui::ObsFactory
           return if images_repository.blank?
 
           @build_id = images_repository.build_id
-          status = images_repository.status_reports.find_by(build_id: @build_id)
+          status = images_repository.status_reports.find_by(uuid: @build_id)
           return if status.nil?
           @missing_checks = status.missing_checks
           @checks = status.checks

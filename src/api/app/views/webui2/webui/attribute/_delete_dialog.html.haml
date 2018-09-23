@@ -1,0 +1,13 @@
+.modal.fade{ id: "delete-attribute-modal-#{attribute.id}", tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title
+          Delete attribute?
+      .modal-body
+        %p Please confirm deletion of attribute #{attribute.fullname}
+        = form_tag(attrib_path(attribute), method: :delete) do
+          .modal-footer
+            %button.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+              Cancel
+            = submit_tag('Delete', class: 'btn btn-sm btn-danger px-4')

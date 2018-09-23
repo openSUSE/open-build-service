@@ -12,17 +12,22 @@ class Status::Report < ApplicationRecord
   has_many :checks, class_name: 'Status::Check', dependent: :destroy, foreign_key: 'status_reports_id'
 
   #### Callbacks macros: before_save, after_save, etc.
+  after_initialize :set_request_uuid, if: proc { |record| record.checkable.is_a?(BsRequest) }
 
   #### Scopes (first the default_scope macro if is used)
 
   #### Validations macros
   validates :checkable, presence: true
-  validates :uuid, presence: true, if: proc { |record| record.checkable.is_a?(Repository) }
+  validates :uuid, presence: true
 
   #### Class methods using self. (public and then private)
 
   #### To define class methods as private use private_class_method
   #### private
+
+  def set_request_uuid
+    self.uuid = checkable.number
+  end
 
   def missing_checks
     checkable.required_checks - checks.pluck(:name)

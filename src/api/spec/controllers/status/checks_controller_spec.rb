@@ -12,7 +12,7 @@ RSpec.describe Status::ChecksController, type: :controller do
     login user
   end
 
-  describe 'PUT update' do
+  describe 'POST update' do
     let(:xml) do
       <<~XML
         <check>
@@ -29,7 +29,7 @@ RSpec.describe Status::ChecksController, type: :controller do
         let!(:relationship) { create(:relationship_project_user, user: user, project: project) }
 
         context 'successfully' do
-          subject! { put :update, body: xml, params: params, format: :xml }
+          subject! { post :update, body: xml, params: params, format: :xml }
 
           it 'creates create a new check' do
             expect(status_report.checks.where(name: 'ci/example: example test', short_description: 'The test failed on Example CI',
@@ -50,7 +50,7 @@ RSpec.describe Status::ChecksController, type: :controller do
             XML
           end
 
-          subject! { put :update, body: xml, params: params, format: :xml }
+          subject! { post :update, body: xml, params: params, format: :xml }
 
           it { is_expected.to have_http_status(:unprocessable_entity) }
           it { expect(status_report.checks).to be_empty }
@@ -63,7 +63,7 @@ RSpec.describe Status::ChecksController, type: :controller do
             login(other_user)
           end
 
-          subject! { put :update, body: xml, params: params, format: :xml }
+          subject! { post :update, body: xml, params: params, format: :xml }
 
           it { is_expected.to have_http_status(:forbidden) }
           it { expect(status_report.checks).to be_empty }
@@ -132,7 +132,7 @@ RSpec.describe Status::ChecksController, type: :controller do
         context 'successfully' do
           let!(:relationship) { create(:relationship_project_user, user: user, project: project) }
 
-          subject! { put :update, body: valid_xml, params: params, format: :xml }
+          subject! { post :update, body: valid_xml, params: params, format: :xml }
 
           it { is_expected.to have_http_status(:success) }
           it { expect(check.reload.state).to eq('success') }
@@ -140,7 +140,7 @@ RSpec.describe Status::ChecksController, type: :controller do
 
         context 'without permissions' do
           subject! do
-            put :update, body: valid_xml, params: params, format: :xml
+            post :update, body: valid_xml, params: params, format: :xml
           end
 
           it { is_expected.to have_http_status(:forbidden) }
@@ -151,7 +151,7 @@ RSpec.describe Status::ChecksController, type: :controller do
           let!(:relationship) { create(:relationship_project_user, user: user, project: project) }
           let(:xml_with_empty_field) { '<check><short_description/></check>' }
 
-          subject! { put :update, body: xml_with_empty_field, params: params, format: :xml }
+          subject! { post :update, body: xml_with_empty_field, params: params, format: :xml }
 
           it { is_expected.to have_http_status(:unprocessable_entity) }
           it { expect(check.reload.short_description).to eq(check.short_description) }
@@ -161,7 +161,7 @@ RSpec.describe Status::ChecksController, type: :controller do
           let!(:relationship) { create(:relationship_project_user, user: user, project: project) }
           let(:invalid_xml) { '<check><state>not-allowed</state></check>' }
 
-          subject! { put :update, body: invalid_xml, params: params, format: :xml }
+          subject! { post :update, body: invalid_xml, params: params, format: :xml }
 
           it { is_expected.to have_http_status(:unprocessable_entity) }
           it { expect(check.reload.state).to eq('pending') }

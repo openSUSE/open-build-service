@@ -1,0 +1,13 @@
+.modal.fade{ id: "delete-file-modal-#{file_id}", tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title
+          Delete file?
+      .modal-body
+        %p Please confirm deletion of file '#{filename}'
+        = form_tag({ action: :remove_file, project: project, package: package, filename: filename }, method: :post) do
+          .modal-footer
+            %button.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+              Cancel
+            = submit_tag('Delete', class: 'btn btn-sm btn-danger px-4')
