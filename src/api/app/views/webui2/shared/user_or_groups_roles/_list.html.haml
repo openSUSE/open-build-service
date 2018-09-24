@@ -1,0 +1,30 @@
+- records.each do |record|
+  %tr{ id: "#{type}-#{valid_xml_id(record.to_s)}" }
+    %td
+      = user_with_realname_and_icon(record) if type == 'user'
+      = link_to(record.to_s, controller: 'groups', action: 'show', title: record.to_s) if type == 'group'
+    - roles.each do |role|
+      %td.align-middle
+        %label.form-inline.custom-control.custom-checkbox
+          = check_box_tag("#{type}_#{role}_#{record}", '',
+            (package || project).send("#{type}_has_role?", record, role), disabled: !user_is_maintainer,
+            data: { "#{type}": record.to_s, role: role.title, type: type }, class: 'trigger custom-control-input',
+            id: nil)
+          %span.custom-control-label
+            %i.fas.fa-spinner.fa-spin.invisible
+            - if package && project.send("#{type}_has_role?", record, role)
+              = link_to(project_users_path(project: project)) do
+                %i.fa.fa-cubes.text-info{ title: 'inherited from project' }
+    %td.text-nowrap
+      - if type == 'user' && !User.current.is_nobody?
+        :ruby
+          home_title = @configuration ? @configuration['title'] : 'Open Build Service'
+          mail_subject = "#{home_title} - #{project}"
+          mail_subject += "/#{package}" if package
+        = mail_to(record.email, subject: mail_subject) do
+          %i.fas.fa-envelope{ title: 'Send email to user' }
+      - if user_is_maintainer
+        = link_to('#', { data: { toggle: 'modal', target: "#delete-role-modal-#{type}-#{record.id}" }, class: "remove-#{type}" }) do
+          %i.fas.fa-times-circle.text-danger{ title: "Delete all roles for #{type}"}
+  = render(partial: 'webui2/shared/user_or_groups_roles/delete_dialog', 
+           locals: { project: project.to_param, package: package.to_param, type: type, object: record })
