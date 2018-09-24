@@ -775,15 +775,33 @@ OBSApi::Application.routes.draw do
     delete 'source/:project/:package' => :delete_package, constraints: cons
   end
 
-  defaults format: 'xml' do
+  scope module: :status, path: :status_reports do
     resources :projects, only: [], param: :name, constraints: cons do
-      resources :repositories, only: [], param: :name, constraints: cons do
-        scope module: :status do
-          resources :repository_publishes, only: [], param: :build_id, constraints: cons do
-            resources :checks, only: [:index, :show, :destroy, :update, :create]
-          end
-          resources :required_checks, except: [:show, :update, :new, :edit], param: :name
+      resources :required_checks, only: [:index, :create, :destroy], param: :name
+    end
+
+    scope :repositories do
+      resources :projects, only: [], param: :name, path: '', constraints: cons do
+        resources :repositories, only: [], param: :name, path: '', constraints: cons do
+          resources :required_checks, only: [:index, :create, :destroy], param: :name
         end
+      end
+    end
+
+    controller :reports do
+      scope :published do
+        get ':project_name/:repository_name/reports/:report_uuid' => :show
+      end
+      scope :requests do
+        get ':bs_request_number/reports' => :show
+      end
+    end
+    controller :checks do
+      scope :published do
+        post ':project_name/:repository_name/reports/:report_uuid' => :update
+      end
+      scope :requests do
+        post ':bs_request_number/reports' => :update
       end
     end
   end

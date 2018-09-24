@@ -41,6 +41,9 @@ my $timeout_large = 300;
 my $checkinterval_ok = 60 * 60;
 my $checkinterval_error = 10 * 60;
 
+$checkinterval_ok = $BSConfig::dodup_checkinterval_ok if $BSConfig::dodup_checkinterval_ok;
+$checkinterval_error = $BSConfig::dodup_checkinterval_error if $BSConfig::dodup_checkinterval_error;
+
 BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
 BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
@@ -399,7 +402,15 @@ sub scan_dodsdir {
   print "scanning doddatas directory...\n";
   my %newdoddatas;
   my %ids = map {$_->{'id'} => $_} values(%{$olddoddatas || {}});
+  my %rechecks;
   for my $f (sort(grep {!/^\./s} ls($dodsdir))) {
+    if ($f =~ /.recheck$/) {
+      my $rc = readstr("$dodsdir/$f", 1);
+      chomp $rc;
+      $rechecks{$rc} = 1;
+      unlink("$dodsdir/$f");
+      next;
+    }
     my @s = stat("$dodsdir/$f");
     next unless @s;
     my $id = "$s[9]/$s[7]/$s[1]";
@@ -420,6 +431,21 @@ sub scan_dodsdir {
     }
     $doddata->{'lastcheck'} ||= 0;
     $newdoddatas{$prpa} = $doddata;
+  }
+  if (%rechecks) {
+    for my $doddata (values %newdoddatas) {
+      my $recheck = 0;
+      for my $rc (sort keys %rechecks) {
+        if ($rc =~ /^https?:\/\//) {
+          $recheck = 1 if $doddata->{'url'} && $doddata->{'url'} =~ /^\Q$rc\E/;
+        } else {
+          $recheck = 1 if "$doddata->{'project'}/$doddata->{'repository'}" =~ /^\Q$rc\E/;
+        }
+      }
+      next unless $recheck;
+      print "force recheck of $doddata->{'project'}/$doddata->{'repository'}\n";
+      $doddata->{'lastcheck'} = 0;
+    }
   }
   return %newdoddatas;
 }

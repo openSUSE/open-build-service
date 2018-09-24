@@ -9,7 +9,9 @@ module Webui::ObsFactory::ApplicationHelper
     path
   end
 
-  def icon_for_checks(checks)
+  def icon_for_checks(checks, missing_checks)
+    return 'eye' if missing_checks.present?
+    return 'accept' if checks.blank?
     return 'eye' if checks.any? { |check| check.state == 'pending' }
     return 'accept' if checks.all? { |check| check.state == 'success' }
     'error'

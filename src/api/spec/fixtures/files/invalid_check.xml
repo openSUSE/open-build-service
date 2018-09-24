@@ -1,6 +1,0 @@
-<check>
-  <url>http://checks.example.com/12345</url>
-  <state>not-valid</state>
-  <short_description>The test failed on Example CI</short_description>
-  <name></name>
-</check>
