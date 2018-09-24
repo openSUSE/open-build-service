@@ -124,8 +124,7 @@ class BsRequestPermissionCheck
   def check_newstate_action!(action, opts)
     # relaxed checks for final exit states
     return if opts[:newstate].in?(['declined', 'revoked', 'superseded'])
-
-    if opts[:newstate] == 'accepted'
+    if opts[:newstate] == 'accepted' || opts[:cmd] == 'approve'
       check_accepted_action(action)
     else # only check the target is sane
       check_action_target(action)
@@ -301,6 +300,9 @@ class BsRequestPermissionCheck
       raise PostRequestNoPermission, 'change state from an accepted state is not allowed.'
     end
 
+    # need to check for accept permissions
+    accept_check = (opts[:newstate] == 'accepted') || req.approver.present?
+
     # enforce state to "review" if going to "new", when review tasks are open
     if opts[:newstate] == 'new' && req.reviews
       req.reviews.each do |r|
@@ -308,7 +310,7 @@ class BsRequestPermissionCheck
       end
     end
     # Do not accept to skip the review, except force argument is given
-    if opts[:newstate] == 'accepted'
+    if accept_check
       if req.state == :review
         unless opts[:force]
           raise PostRequestNoPermission, 'Request is in review state. You may use the force parameter to ignore this.'
@@ -346,12 +348,12 @@ class BsRequestPermissionCheck
 
     # permission and validation check for each action inside
     req.bs_request_actions.each do |action|
-      set_permissions_for_action(action, opts[:newstate])
+      set_permissions_for_action(action, accept_check ? 'accepted' : opts[:newstate])
 
       check_newstate_action! action, opts
 
       # abort immediatly if we want to write and can't
-      next unless opts[:newstate] == 'accepted' && !@write_permission_in_this_action
+      next unless accept_check && !@write_permission_in_this_action
       msg = ''
       unless action.bs_request.new_record?
         msg = 'No permission to modify target of request ' \
@@ -361,7 +363,7 @@ class BsRequestPermissionCheck
       raise PostRequestNoPermission, msg
     end
 
-    extra_permissions_check_changestate unless permission_granted
+    extra_permissions_check_changestate unless permission_granted || opts[:cmd] == 'approve'
   end
 
   attr_accessor :opts, :req

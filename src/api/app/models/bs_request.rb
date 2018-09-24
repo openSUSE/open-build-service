@@ -37,7 +37,7 @@ class BsRequest < ApplicationRecord
 
   ACTION_NOTIFY_LIMIT = 50
 
-  scope :to_accept, -> { where(state: 'new').where('accept_at < ?', DateTime.now) }
+  scope :to_accept_by_time, -> { where(state: ['new', 'review']).where('accept_at < ?', DateTime.now) }
   # Scopes for collections
   scope :with_actions, -> { includes(:bs_request_actions).references(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
   scope :with_involved_projects, ->(project_ids) { where(bs_request_actions: { target_project_id: project_ids }) }
@@ -101,7 +101,7 @@ class BsRequest < ApplicationRecord
   after_commit :update_cache
 
   def self.delayed_auto_accept
-    to_accept.each do |request|
+    to_accept_by_time.each do |request|
       BsRequestAutoAcceptJob.perform_later(request.id)
     end
   end
@@ -217,6 +217,8 @@ class BsRequest < ApplicationRecord
       request.updated_when = Time.zone.parse(str) if str
       str = state.delete('superseded_by') || ''
       request.superseded_by = Integer(str) if str.present?
+      str = state.delete('approver')
+      request.approver = str if str.present?
       raise ArgumentError, "too much information #{state.inspect}" if state.present?
 
       request.description = hashed.value('description')
@@ -409,11 +411,13 @@ class BsRequest < ApplicationRecord
       bs_request_actions.each do |action|
         action.render_xml(r)
       end
-      attributes = { name: state, who: commenter, when: updated_when.strftime('%Y-%m-%dT%H:%M:%S') }
-      attributes[:superseded_by] = superseded_by if superseded_by
 
       r.priority(priority) unless priority == 'moderate'
 
+      # state element
+      attributes = { name: state, who: commenter, when: updated_when.strftime('%Y-%m-%dT%H:%M:%S') }
+      attributes[:superseded_by] = superseded_by if superseded_by
+      attributes[:approver] = approver if approver
       r.state(attributes) do |s|
         comment = self.comment
         comment ||= ''
@@ -705,6 +709,31 @@ class BsRequest < ApplicationRecord
     end
   end
 
+  def approval_handling(new_approver, opts)
+    unless state == :review
+      raise InvalidStateError, 'request is not in review state'
+    end
+
+    checker = BsRequestPermissionCheck.new(self, opts)
+    checker.cmd_changestate_permissions(opts)
+    check_bs_request_actions!(skip_source: true)
+
+    self.approver = new_approver
+    save!
+    reset_cache
+  end
+  private :approval_handling
+
+  def approve(opts)
+    raise InvalidStateError, "already approved by #{approver}" if approver
+    approval_handling(User.current, opts)
+  end
+
+  def cancelapproval(opts)
+    raise InvalidStateError, 'request is not approved' unless approver
+    approval_handling(nil, opts)
+  end
+
   def change_review_state(new_review_state, opts = {})
     with_lock do
       new_review_state = new_review_state.to_sym
@@ -801,8 +830,8 @@ class BsRequest < ApplicationRecord
       save!
       history.create(p) if history
 
-      # we want to check right now if pre-approved requests can be processed
-      AcceptRequestsJob.perform_later if go_new_state == :new && accept_at
+      # pre-approved requests can be processed
+      BsRequestAutoAcceptJob.perform_later(id) if go_new_state == :new && approver
     end
   end
 
@@ -976,8 +1005,12 @@ class BsRequest < ApplicationRecord
     # must also work when people do not react anymore
     return unless state == :new || state == :review
 
+    # use approve mechanic in case you want to wait for reviews
+    return if approver && state == :review
+
     with_lock do
-      User.current ||= User.find_by_login(creator)
+      User.current ||= User.find_by_login(creator) if accept_at
+      User.current = User.find_by_login(approver) if approver
 
       begin
         change_state(newstate: 'accepted', comment: 'Auto accept')

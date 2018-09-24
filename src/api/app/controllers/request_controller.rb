@@ -86,7 +86,7 @@ class RequestController < ApplicationController
     # FIXME: this should be moved into the model functions, doing
     #        these actions
     case params[:cmd]
-    when 'create', 'changestate', 'addreview', 'setpriority', 'setincident', 'setacceptat'
+    when 'create', 'changestate', 'addreview', 'setpriority', 'setincident', 'setacceptat', 'approve', 'cancelapproval'
       # create -> noop
       # permissions are checked by the model
       nil
@@ -250,6 +250,16 @@ class RequestController < ApplicationController
 
   def request_command_assignreview
     @req.assignreview(params)
+    render_ok
+  end
+
+  def request_command_approve
+    @req.approve(params)
+    render_ok
+  end
+
+  def request_command_cancelapproval
+    @req.cancelapproval(params)
     render_ok
   end
 

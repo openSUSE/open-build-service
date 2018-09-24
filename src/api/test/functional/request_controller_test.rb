@@ -784,6 +784,53 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'state', attributes: { name: 'superseded', superseded_by: '1' })
   end
 
+  def test_create_request_approve_and_review
+    login_Iggy
+
+    req = load_backend_file('request/works')
+    post '/request?cmd=create', params: req
+    assert_response :success
+    assert_xml_tag(tag: 'request')
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    id = node.value(:id)
+
+    login_tom
+    # try to approve without being empowered
+    post "/request/#{id}?cmd=approve"
+    assert_response 403
+
+    # approve for real
+    login_fred # is the maintainer of target
+    post "/request/#{id}?cmd=approve"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(tag: 'state', attributes: { name: 'review', approver: 'fred' })
+
+    # just process reviews
+    login_king
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group&comment=blahfasel"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(tag: 'state', attributes: { name: 'review', approver: 'fred' })
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian&comment=blahfasel"
+    assert_response :success
+
+    # got accepted
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(tag: 'state', attributes: { name: 'accepted', who: 'fred', approver: 'fred' })
+
+    get '/source/kde4/mypackage/_history'
+    assert_response :success
+    node = Xmlhash.parse(@response.body)
+    first_node = node.elements('revision').first
+    assert_equal 'fred', first_node['user']
+    assert_equal id, first_node['requestid']
+  end
+
   def test_create_request_and_supersede
     login_Iggy
     req = load_backend_file('request/works')
