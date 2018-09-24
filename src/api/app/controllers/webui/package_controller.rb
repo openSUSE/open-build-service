@@ -211,9 +211,9 @@ class Webui::PackageController < Webui::WebuiController
           build_results_set[:binaries] << { filename: binary['filename'], size: binary['size'], links: links }
         end
       end
-
       @buildresults << build_results_set
     end
+    switch_to_webui2
   rescue Backend::Error => e
     flash[:error] = e.message
     redirect_back(fallback_location: { controller: :package, action: :show, project: @project, package: @package })

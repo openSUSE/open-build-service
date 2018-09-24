@@ -1,0 +1,66 @@
+.card
+  = render partial: 'tabs', locals: { package: @package, project: @project }
+  .card-body
+    %h3 State of Repository #{@repository} for #{@project} / #{@package_name}
+    %p
+      - if @configuration['download_url']
+        = render partial: 'shared/download_repository_link', locals: { project: @project, repository: @repository,
+                                                                       download_url: @configuration['download_url'] }
+      - unless @buildresults.empty?
+        = link_to package_wipe_binaries_path(project: @project, package: @package_name, repository: @repository), method: :delete do
+          %i.fas.fa-times-circle.text-danger
+          Delete all built binaries
+
+    - @buildresults.each do |result|
+      %h3
+        = repo_status_icon(result[:repocode])
+        Architecture: #{result[:arch]}
+      - if result[:binaries].empty?
+        %p
+          %i No built binaries
+      - else
+       .table-responsive
+          %table.table.table-hover
+            %tbody
+            - result[:binaries].each do |binary|
+              %tr
+                %td.text-nowrap #{binary[:filename]} (#{number_to_human_size(binary[:size])})
+                %td.text-nowrap
+                  - if binary[:links][:cloud_upload?]
+                    = link_to(new_cloud_upload_path(project: @project, package: @package, repository: @repository, arch: result[:arch],
+                    filename: binary[:filename]), title: 'Cloud Upload') do
+                      %i.fas.fa-cloud-upload-alt
+                      Cloud Upload
+                  - if binary[:links][:download_url]
+                    = link_to(binary[:links][:download_url], title: 'Download') do
+                      %i.fas.fa-arrow-circle-down.text-secondary
+                      Download
+                %td.text-nowrap
+                  - if binary[:links][:details?]
+                    = link_to(package_binary_path(project: @project, package: @package_name, repository: @repository,
+                              arch: result[:arch], filename: binary[:filename]), title: 'Information') do
+                      %i.fas.fa-info-circle
+                      Details
+      %p
+        - if User.current.can_modify?(@package)
+          = link_to 'Trigger', package_trigger_rebuild_path(arch: result[:arch], project: @project,
+                                                            package: @package_name, repository: @repository),
+                                                            method: :post, title: 'Trigger rebuild'
+
+          rebuild
+          - unless result[:binaries].empty?
+            = link_to 'Delete', package_wipe_binaries_path(arch: result[:arch], project: @project, package: @package_name,
+                                                           repository: @repository), method: :delete, title: 'Wipe all binaries'
+            built binaries
+        - if result[:statistics]
+          = link_to 'Show',
+                    package_statistics_path(project: @project, package: @package_name, repository: @repository,
+                                            arch: result[:arch]), title: 'Show statistics'
+          used resources
+        = link_to 'Job history',
+                  index_package_job_history_path(project: @project, package_name: @package_name, repository: @repository,
+                                                 arch: result[:arch]), class: '', title: 'Job history'
+        list
+        = link_to 'Build Reason',
+                  index_package_build_reason_path(project: @project, package_name: @package_name, repository: @repository,
+                                                  arch: result[:arch]), class: '', title: 'Build reason'

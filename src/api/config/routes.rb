@@ -135,7 +135,7 @@ OBSApi::Application.routes.draw do
           post 'package/trigger_rebuild/:project/:package' => :trigger_rebuild, constraints: cons, as: 'package_trigger_rebuild'
           get 'package/abort_build/:project/:package' => :abort_build, constraints: cons, as: 'package_abort_build'
           post 'package/trigger_services/:project/:package' => :trigger_services, constraints: cons, as: 'package_trigger_services'
-          delete 'package/wipe_binaries/:project/:package' => :wipe_binaries, constraints: cons
+          delete 'package/wipe_binaries/:project/:package' => :wipe_binaries, constraints: cons, as: 'package_wipe_binaries'
         end
         get 'package/devel_project/:project/:package' => :devel_project, constraints: cons, as: 'package_devel_project'
         get 'package/buildresult' => :buildresult, constraints: cons, as: 'package_buildresult'
