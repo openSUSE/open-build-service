@@ -117,7 +117,7 @@ OBSApi::Application.routes.draw do
         get 'package/rdiff/:project/:package' => :rdiff, constraints: cons, as: 'package_rdiff'
         post 'package/save_new/:project' => :save_new, constraints: cons
         post 'package/branch' => :branch, constraints: cons
-        post 'package/save/:project/:package' => :save, constraints: cons
+        post 'package/save/:project/:package' => :save, constraints: cons, as: 'package_save'
         post 'package/remove/:project/:package' => :remove, constraints: cons
         get 'package/add_file/:project/:package' => :add_file, constraints: cons, as: 'package_add_file'
         post 'package/save_file/:project/:package' => :save_file, constraints: cons

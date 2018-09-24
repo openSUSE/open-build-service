@@ -9,7 +9,7 @@
       = render partial: 'webui2/webui/package/bottom_actions/submit_package', locals: { package: package, project: project,
                                                                    revision: revision }
     - if User.current.can_modify?(package)
-      = render partial: 'webui2/webui/package/bottom_actions/edit_description', locals: { project: project, package: package, spec_count: spec_count }
+      = render partial: 'webui2/webui/package/bottom_actions/edit_description'
       = render partial: 'webui2/webui/package/bottom_actions/delete_package'
 
       - Feature.with(:kiwi_image_editor) do
