@@ -40,7 +40,14 @@ create_dir "$LOGDIR"
 
 shift
 case "$COMMAND" in
-  */download_url|*/download_src_package|*/update_source|*/download_files|*/generator_pom|*/snapcraft|*/kiwi_import|*/appimage|*/bundle_gems)
+  */download_url|*/download_src_package|*/update_source|*/download_files|*/generator_pom|*/snapcraft|*/kiwi_import|*/appimage)
+    WITH_NET="1"
+    ;;
+  */bundle_gems)
+    GEMINABOX=`obs_admin --query-config geminabox_container`
+    if  [ -n "$GEMINABOX" ];then
+      LINK="--link $GEMINABOX:$GEMINABOX"
+    fi
     WITH_NET="1"
     ;;
   */tar_scm|*/obs_scm)
@@ -159,7 +166,7 @@ fi
 
 find $MOUNTDIR
 # run jailed process
-DOCKER_RUN_CMD="docker run -u 2:2 $DOCKER_OPTS_NET --rm --name $CONTAINER_ID $DOCKER_CUSTOM_OPT $DOCKER_VOLUMES $DEBUG_OPTIONS $DOCKER_IMAGE $INNERSCRIPT"
+DOCKER_RUN_CMD="docker run -u 2:2 $DOCKER_OPTS_NET $LINK --rm --name $CONTAINER_ID $DOCKER_CUSTOM_OPT $DOCKER_VOLUMES $DEBUG_OPTIONS $DOCKER_IMAGE $INNERSCRIPT"
 printlog "DOCKER_RUN_CMD: '$DOCKER_RUN_CMD'"
 CMD_OUT=$(${DOCKER_RUN_CMD} 2>&1)
 RET_ERR=$?
