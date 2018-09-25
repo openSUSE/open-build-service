@@ -1,0 +1,9 @@
+:ruby
+  title = flag.effective_status == 'disable' ? 'Disabled' : 'Enabled'
+  title += ' (default)' if flag.new_record?
+  content = String.new(render(partial: 'shared/flag_popover', locals: { flag: flag, project: project, package: package, remote: !flag.has_children }))
+
+%div{ id: flag.fullname }
+  %a{ href: 'javascript:void(0)', title: title, data: { html: 'true', toggle: 'popover', placement: 'left', trigger: 'focus', content: content } }
+    %i.fas{ class: flag.effective_status == 'disable' ? 'fa-ban text-danger' : 'fa-check text-primary' }
+  %i.fas.fa-spinner.fa-spin.d-none

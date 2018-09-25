@@ -14,6 +14,8 @@ class Webui::RepositoriesController < Webui::WebuiController
     @publish = @main_object.get_flags('publish')
     @useforbuild = @main_object.get_flags('useforbuild')
     @architectures = @main_object.architectures.reorder('name').distinct
+
+    switch_to_webui2 if @package
   end
 
   # GET project/add_repository/:project
@@ -168,7 +170,10 @@ class Webui::RepositoriesController < Webui::WebuiController
         # FIXME: This should happen in Flag or even better in Project
         @main_object.store
         format.html { redirect_to(action: :index, controller: :repositories, project: params[:project], package: params[:package]) }
-        format.js { render 'change_flag' }
+        format.js do
+          switch_to_webui2 if params[:package].present?
+          render 'change_flag'
+        end
       else
         format.json { render json: @flag.errors, status: :unprocessable_entity }
       end
@@ -187,7 +192,10 @@ class Webui::RepositoriesController < Webui::WebuiController
         # FIXME: This should happen in Flag or even better in Project
         @main_object.store
         format.html { redirect_to(action: :index, project: params[:project], package: params[:package]) }
-        format.js { render 'change_flag' }
+        format.js do
+          switch_to_webui2 if params[:package].present?
+          render 'change_flag'
+        end
       else
         format.json { render json: @flag.errors, status: :unprocessable_entity }
       end
@@ -207,7 +215,10 @@ class Webui::RepositoriesController < Webui::WebuiController
       # FIXME: This should happen in Flag or even better in Project
       @main_object.store
       format.html { redirect_to(action: :index, project: params[:project], package: params[:package]) }
-      format.js { render 'change_flag' }
+      format.js do
+        switch_to_webui2 if params[:package].present?
+        render 'change_flag'
+      end
     end
   end
 

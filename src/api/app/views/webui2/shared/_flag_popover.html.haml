@@ -1,0 +1,28 @@
+- if flag.new_record?
+  %div
+    = link_to(create_repository_flag_path(project: project, package: package, flag: flag.flag,
+              status: 'disable', repository: flag.repo, architecture: flag.arch), method: :post, remote: remote,
+              class: 'popover_flag_action', data: { flag_id: flag.fullname }) do
+      %i.fas.fa-ban.text-danger
+      Disable
+  .pt-2
+    = link_to(create_repository_flag_path(project: project, package: package, flag: flag.flag,
+              status: 'enable', repository: flag.repo, architecture: flag.arch), method: :post, remote: remote,
+              class: 'popover_flag_action', data: { flag_id: flag.fullname }) do
+      %i.fas.fa-check.text-primary
+      Enable
+- else
+  %div
+    = link_to(toggle_repository_flag_path(project: project, package: package, flag: flag),
+              method: :put, remote: remote, class: 'popover_flag_action', data: { flag_id: flag.fullname }) do
+      - if flag.status == 'enable'
+        %i.fas.fa-ban.text-danger
+        Disable
+      - else
+        %i.fas.fa-check.text-primary
+        Enable
+  .pt-2
+    = link_to(remove_repository_flag_path(project: project, package: package, flag: flag),
+              method: :delete, remote: remote, class: 'popover_flag_action', data: { flag_id: flag.fullname }) do
+      %i.fas{ class: flag.default_status == 'disable' ? 'fa-ban text-danger' : 'fa-check text-primary' }
+      Take default (#{flag.default_status})
