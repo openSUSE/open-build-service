@@ -1,4 +1,4 @@
 %li.list-inline-item
-  = link_to(package_edit_path(project: project, package: package, spec_count: spec_count), class: 'nav-link') do
+  = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#edit-modal' }) do
     %i.fas.fa-edit.text-info
     Edit description

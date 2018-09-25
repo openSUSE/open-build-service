@@ -614,6 +614,7 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to action: :show, project: params[:project], package: params[:package]
     else
       flash[:error] = "Failed to save package '#{@package.name}': #{@package.errors.full_messages.to_sentence}"
+      return if switch_to_webui2
       redirect_to action: :edit, project: params[:project], package: params[:package]
     end
   end
