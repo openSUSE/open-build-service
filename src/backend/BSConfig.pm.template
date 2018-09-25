@@ -266,9 +266,12 @@ our $servicedispatch = 1;
 # special options to use for starting containers in call-service-in-docker.sh
 # our $docker_custom_opt = '';
 
-# server where mirrored gems could be found - used in services like obs-service-bundle_gems
+## Server where mirrored gems could be found - used in services like obs-service-bundle_gems
 # our $gems_mirror = '';
-
+#
+## Container which should be 'linked' when running "bundle_gems" service
+# our $geminabox_container = '';
+#
 
 # public cloud uploader configuration
 # our $cloudupload_pubkey = "/etc/obs/cloudupload/_pubkey"; # default setting
