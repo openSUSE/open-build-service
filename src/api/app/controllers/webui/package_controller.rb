@@ -182,6 +182,8 @@ class Webui::PackageController < Webui::WebuiController
     logger.debug "accepting #{request.accepts.join(',')} format:#{request.format}"
     # little trick to give users eager to download binaries a single click
     redirect_to(@durl) && return if request.format != Mime[:html] && @durl
+
+    switch_to_webui2
   end
 
   def binaries
