@@ -50,6 +50,8 @@ RSpec.feature 'Packages', type: :feature, js: true do
       click_link('derived package')
       expect(page).to have_link('home:package_test_user...ome:package_test_user')
       click_link('home:package_test_user...ome:package_test_user')
+      # Wait for the dialog to disapear (aka. the ajax request to finish)
+      expect(page).not_to have_text('Derived Packages')
       expect(page.current_path).to eq(package_show_path(project: branched_project, package: branched_project.packages.first))
     end
   end
