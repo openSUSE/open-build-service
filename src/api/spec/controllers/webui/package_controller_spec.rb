@@ -261,7 +261,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     end
 
     it "shows an error if current revision parameter is provided, but there wasn't any revision before" do
-      post :branch, params: { linked_project: source_project, linked_package: source_package, current_revision: '3' }
+      post :branch, params: { linked_project: source_project, linked_package: source_package, current_revision: true, revision: 2 }
       expect(flash[:error]).to eq('Package has no source revision yet')
       expect(response).to redirect_to(root_path)
     end
@@ -279,10 +279,20 @@ RSpec.describe Webui::PackageController, vcr: true do
     end
 
     context 'with currrent revision parameter' do
-      let(:source_package) { create(:package_with_revisions, name: 'package_with_revisions', project: source_project) }
+      let(:source_package) { create(:package_with_revisions, name: 'package_with_revisions', project: source_project, revision_count: 4) }
+      let(:url) { "#{CONFIG['source_url']}/source/#{source_package.project}/#{source_package}?expand=1&rev=2" }
+      let(:current_revision) do
+        '<directory name="package_with_revision" rev="2" vrev="2" srcmd5="efbe5f0a5dd48df5129b4319df43aa45">
+            <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="2" mtime="1536673689" />
+          </directory>'
+      end
+      let(:set_revision) { 'efbe5f0a5dd48df5129b4319df43aa45' }
+
+      let(:branched_package) { Package.find_by_project_and_name("#{source_project.name}:branches:#{source_project.name}", source_package.name) }
 
       before do
-        post :branch, params: { linked_project: source_project, linked_package: source_package, current_revision: '3' }
+        stub_request(:get, url).and_return(body: current_revision)
+        post :branch, params: { linked_project: source_project, linked_package: source_package, current_revision: true, revision: 2 }
       end
 
       it { expect(flash[:notice]).to eq('Successfully branched package') }
@@ -290,6 +300,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         expect(response).to redirect_to(package_show_path(project: "#{source_project.name}:branches:#{source_project.name}",
                                                           package: source_package.name))
       end
+      it { expect(branched_package.linkinfo['rev']).to eq(set_revision) }
     end
   end
 

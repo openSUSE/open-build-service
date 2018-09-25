@@ -12,9 +12,10 @@
 .form-group.form-check
   = check_box_tag(:current_revision, false, class: 'form-check-input')
   = label_tag(:current_revision, class: 'form-check-label') do
-    Stay on current revision
+    Stay on this revision
     - if revision
       (##{revision})
+  = hidden_field_tag(:revision, revision) if revision
 - if show_project_field && Configuration.cleanup_after_days
   .form-group.form-check
     %input.form-check-input#disable-autocleanup{ type: 'checkbox' }

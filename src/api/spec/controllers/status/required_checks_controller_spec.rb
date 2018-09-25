@@ -47,17 +47,16 @@ RSpec.describe Status::RequiredChecksController, type: :controller do
     end
 
     shared_examples 'does create a required check' do
+      subject { post :create, body: required_check_xml, params: { project_name: project.name, repository_name: repository.name }, format: :xml }
+
       it 'will create a required check' do
-        expect do
-          post :create, body: required_check_xml, params: { project_name: project.name,
-                                                   repository_name: repository.name }, format: :xml
-        end.to change {
+        expect { subject }.to change {
           # we need to to reload because required_checks is a serialized attribute
           repository.reload
           repository.required_checks.count
         }.by(example_count)
       end
-      it { expect(response).to have_http_status(:success) }
+      it { is_expected.to have_http_status(:success) }
     end
 
     shared_examples 'does not create a required check' do
@@ -152,18 +151,20 @@ RSpec.describe Status::RequiredChecksController, type: :controller do
     end
 
     shared_examples 'does delete the required check' do
+      subject do
+        delete :destroy, params: { project_name: project.name,
+                                   repository_name: repository.name,
+                                   name: 'first check' }, format: :xml
+      end
+
       it 'will delete the required check' do
-        expect do
-          delete :destroy, params: { project_name: project.name,
-                                                   repository_name: repository.name,
-                                                   name: 'first check' }, format: :xml
-        end.to change {
+        expect { subject }.to change {
           # we need to to reload because required_checks is a serialized attribute
           repository.reload
           repository.required_checks.count
         }.by(-1)
       end
-      it { expect(response).to have_http_status(:success) }
+      it { is_expected.to have_http_status(:success) }
     end
 
     shared_examples 'does not delete the required check' do

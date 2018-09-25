@@ -40,7 +40,7 @@ http_interactions:
           <person userid="package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:03 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:30 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=_nobody_
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>A Darkling Plain</title>
-          <description>Quisquam libero et optio.</description>
+          <title>That Hideous Strength</title>
+          <description>Asperiores sint consectetur delectus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '180'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>A Darkling Plain</title>
-          <description>Quisquam libero et optio.</description>
+          <title>That Hideous Strength</title>
+          <description>Asperiores sint consectetur delectus.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:03 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:30 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=_nobody_
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>A Darkling Plain</title>
-          <description>Quisquam libero et optio.</description>
+          <title>That Hideous Strength</title>
+          <description>Asperiores sint consectetur delectus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,22 +109,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '180'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>A Darkling Plain</title>
-          <description>Quisquam libero et optio.</description>
+          <title>That Hideous Strength</title>
+          <description>Asperiores sint consectetur delectus.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:03 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:30 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_config
     body:
       encoding: UTF-8
-      string: Ad deserunt modi. Molestiae enim fugiat. Eum asperiores voluptas.
+      string: Culpa et quo. Beatae quibusdam minus. Ea vel placeat.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -144,26 +144,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5" vrev="5">
-          <srcmd5>d6997ba6053d9f81c798eba8cd0bcc19</srcmd5>
+        <revision rev="17" vrev="17">
+          <srcmd5>5653c79b73962d2ac04471a5e3eecd70</srcmd5>
           <version>unknown</version>
-          <time>1536058263</time>
+          <time>1536752610</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:03 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:30 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Sit voluptates ex. Temporibus labore et. Amet nulla assumenda.
+      string: Omnis debitis quos. Ullam consectetur ipsam. Numquam qui et.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -183,20 +183,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6" vrev="6">
-          <srcmd5>e45ad4df126e5b27f321623fce6cf033</srcmd5>
+        <revision rev="18" vrev="18">
+          <srcmd5>36d6d23c58f194f12a6106562f1061b9</srcmd5>
           <version>unknown</version>
-          <time>1536058263</time>
+          <time>1536752610</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:03 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:30 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/_meta?user=other_package_test_user
@@ -237,7 +237,7 @@ http_interactions:
           <person userid="other_package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:03 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:30 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=_nobody_
@@ -245,8 +245,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>Carrion Comfort</title>
-          <description>Autem voluptatem et et.</description>
+          <title>Have His Carcase</title>
+          <description>Vitae fugiat provident voluptatem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -267,16 +267,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '173'
+      - '185'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>Carrion Comfort</title>
-          <description>Autem voluptatem et et.</description>
+          <title>Have His Carcase</title>
+          <description>Vitae fugiat provident voluptatem.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:03 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:30 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=_nobody_
@@ -284,8 +284,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>Carrion Comfort</title>
-          <description>Autem voluptatem et et.</description>
+          <title>Have His Carcase</title>
+          <description>Vitae fugiat provident voluptatem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -306,22 +306,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '173'
+      - '185'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>Carrion Comfort</title>
-          <description>Autem voluptatem et et.</description>
+          <title>Have His Carcase</title>
+          <description>Vitae fugiat provident voluptatem.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:03 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:31 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_config
     body:
       encoding: UTF-8
-      string: Hic et animi. Et voluptatem labore. Quisquam facilis qui.
+      string: Aut sint nobis. Aut tenetur iusto. Illo nihil nostrum.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -345,22 +345,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="19" vrev="19">
-          <srcmd5>96a3a0815afa04990e8d5e5a49864ec7</srcmd5>
+        <revision rev="17" vrev="17">
+          <srcmd5>ce725bf28e654fdcefd25913aa057697</srcmd5>
           <version>unknown</version>
-          <time>1536058263</time>
+          <time>1536752611</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:03 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:31 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Expedita dolor est. Amet cupiditate ut. Molestias sed consequuntur.
+      string: Impedit accusamus harum. Maxime blanditiis qui. Illo sit enim.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -384,16 +384,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="20" vrev="20">
-          <srcmd5>b671ab274f4d94aae3f1fab864aa158a</srcmd5>
+        <revision rev="18" vrev="18">
+          <srcmd5>e2109e61778d2acbf80de1211c3bba56</srcmd5>
           <version>unknown</version>
-          <time>1536058263</time>
+          <time>1536752611</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:03 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:31 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package
@@ -423,15 +423,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="branch_test_package" rev="20" vrev="20" srcmd5="b671ab274f4d94aae3f1fab864aa158a">
-          <entry name="_config" md5="4259eb3e75fb62084c59caae5e7189f9" size="57" mtime="1536058263" />
-          <entry name="somefile.txt" md5="0ba57ded349c9b60be53fd1c67627348" size="67" mtime="1536058263" />
+        <directory name="branch_test_package" rev="18" vrev="18" srcmd5="e2109e61778d2acbf80de1211c3bba56">
+          <entry name="_config" md5="2aed3be4644acea58f7dadebf3f1f781" size="54" mtime="1536752611" />
+          <entry name="somefile.txt" md5="07864da4294addac747ca7b5bb3ab61c" size="62" mtime="1536752611" />
         </directory>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:05 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:32 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package?expand=1&rev=20
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package?expand=1&rev=18
     body:
       encoding: US-ASCII
       string: ''
@@ -458,12 +458,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="branch_test_package" rev="20" vrev="20" srcmd5="b671ab274f4d94aae3f1fab864aa158a">
-          <entry name="_config" md5="4259eb3e75fb62084c59caae5e7189f9" size="57" mtime="1536058263" />
-          <entry name="somefile.txt" md5="0ba57ded349c9b60be53fd1c67627348" size="67" mtime="1536058263" />
+        <directory name="branch_test_package" rev="18" vrev="18" srcmd5="e2109e61778d2acbf80de1211c3bba56">
+          <entry name="_config" md5="2aed3be4644acea58f7dadebf3f1f781" size="54" mtime="1536752611" />
+          <entry name="somefile.txt" md5="07864da4294addac747ca7b5bb3ab61c" size="62" mtime="1536752611" />
         </directory>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:05 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:32 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_service
@@ -498,7 +498,7 @@ http_interactions:
           <details>404 _service: no such file</details>
         </status>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:05 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:32 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_history
@@ -524,134 +524,122 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '3693'
+      - '3325'
     body:
       encoding: UTF-8
       string: |
         <revisionlist>
           <revision rev="1" vrev="1">
-            <srcmd5>df24bbf67148333bf797d4626c3ff4ea</srcmd5>
+            <srcmd5>a4a87294fe69bf281692d176ac11c5ce</srcmd5>
             <version>unknown</version>
-            <time>1536057948</time>
+            <time>1536742158</time>
             <user>unknown</user>
           </revision>
           <revision rev="2" vrev="2">
-            <srcmd5>03e5b185e89ba1a7dc37404ad35cad5a</srcmd5>
+            <srcmd5>56f1266200aa13816ecd90400b4c79bc</srcmd5>
             <version>unknown</version>
-            <time>1536057949</time>
+            <time>1536742158</time>
             <user>unknown</user>
           </revision>
           <revision rev="3" vrev="3">
-            <srcmd5>8d53b1273da0428dfb4050557a803e83</srcmd5>
+            <srcmd5>7937d23e57499c190bc6f72e776c0fd1</srcmd5>
             <version>unknown</version>
-            <time>1536057962</time>
+            <time>1536742172</time>
             <user>unknown</user>
           </revision>
           <revision rev="4" vrev="4">
-            <srcmd5>6e557801b6f414b3bfe3013e49eda41e</srcmd5>
+            <srcmd5>b9c11068d94c45e513924bbf644c12ab</srcmd5>
             <version>unknown</version>
-            <time>1536057962</time>
+            <time>1536742172</time>
             <user>unknown</user>
           </revision>
           <revision rev="5" vrev="5">
-            <srcmd5>cab47c2fde8167497ef7b69278f219bf</srcmd5>
+            <srcmd5>4fbd7695b7369791a1a78aef238f6d1f</srcmd5>
             <version>unknown</version>
-            <time>1536057975</time>
+            <time>1536742211</time>
             <user>unknown</user>
           </revision>
           <revision rev="6" vrev="6">
-            <srcmd5>daf7369fef63e9a7a783d8958a7f9f4b</srcmd5>
+            <srcmd5>f43e6c007cc271581bd3e13853917e3f</srcmd5>
             <version>unknown</version>
-            <time>1536057975</time>
+            <time>1536742211</time>
             <user>unknown</user>
           </revision>
           <revision rev="7" vrev="7">
-            <srcmd5>513380c011c7f3210f76d0b0fbf43c14</srcmd5>
+            <srcmd5>8aa665746e9eb15959955e5327d873c8</srcmd5>
             <version>unknown</version>
-            <time>1536058085</time>
+            <time>1536742225</time>
             <user>unknown</user>
           </revision>
           <revision rev="8" vrev="8">
-            <srcmd5>5365d987371c0475d3d2e56586426f15</srcmd5>
+            <srcmd5>b623e26a8dcd3c6a5047761a666d08c4</srcmd5>
             <version>unknown</version>
-            <time>1536058085</time>
+            <time>1536742225</time>
             <user>unknown</user>
           </revision>
           <revision rev="9" vrev="9">
-            <srcmd5>6c83dbef46f21fea22e7a851d827c969</srcmd5>
+            <srcmd5>1dfa8abdaf56c0dcca99e05a00d1fad6</srcmd5>
             <version>unknown</version>
-            <time>1536058097</time>
+            <time>1536748092</time>
             <user>unknown</user>
           </revision>
           <revision rev="10" vrev="10">
-            <srcmd5>f42cb5a0428e1418f7a74936847b3bfb</srcmd5>
+            <srcmd5>80dfdc9ee1b39432be2bfa59204bd7f9</srcmd5>
             <version>unknown</version>
-            <time>1536058097</time>
+            <time>1536748092</time>
             <user>unknown</user>
           </revision>
           <revision rev="11" vrev="11">
-            <srcmd5>10efdbd02bcf9819f430b89f1921a35a</srcmd5>
+            <srcmd5>e8b976cb18a24d19bea19cf5f6220c00</srcmd5>
             <version>unknown</version>
-            <time>1536058109</time>
+            <time>1536748104</time>
             <user>unknown</user>
           </revision>
           <revision rev="12" vrev="12">
-            <srcmd5>3b2fab6eda5c343871d7c65090db7ad4</srcmd5>
+            <srcmd5>1161ee9424c64864462989f6490c69e7</srcmd5>
             <version>unknown</version>
-            <time>1536058109</time>
+            <time>1536748104</time>
             <user>unknown</user>
           </revision>
           <revision rev="13" vrev="13">
-            <srcmd5>62d0a022ceb0b48715d45810a0153ed0</srcmd5>
+            <srcmd5>2861b90ff002eeb57f591d28be1a8e77</srcmd5>
             <version>unknown</version>
-            <time>1536058227</time>
+            <time>1536752310</time>
             <user>unknown</user>
           </revision>
           <revision rev="14" vrev="14">
-            <srcmd5>6acfb52abc27e5cb149dc1404c4dd17c</srcmd5>
+            <srcmd5>4852e89d276c07a8a0b898528ea9b5f7</srcmd5>
             <version>unknown</version>
-            <time>1536058227</time>
+            <time>1536752310</time>
             <user>unknown</user>
           </revision>
           <revision rev="15" vrev="15">
-            <srcmd5>f031e61b53ccae924e4005240d83081b</srcmd5>
+            <srcmd5>03b250f627df05d8d04a10b13e4fc9fd</srcmd5>
             <version>unknown</version>
-            <time>1536058239</time>
+            <time>1536752322</time>
             <user>unknown</user>
           </revision>
           <revision rev="16" vrev="16">
-            <srcmd5>3fef5db8b64bdfd9394d51f66cb75487</srcmd5>
+            <srcmd5>f244a9f08d9a71a5a33cfa493d85d3aa</srcmd5>
             <version>unknown</version>
-            <time>1536058239</time>
+            <time>1536752322</time>
             <user>unknown</user>
           </revision>
           <revision rev="17" vrev="17">
-            <srcmd5>7d46a73f0c5831de26fc1b9cad5bf477</srcmd5>
+            <srcmd5>ce725bf28e654fdcefd25913aa057697</srcmd5>
             <version>unknown</version>
-            <time>1536058252</time>
+            <time>1536752611</time>
             <user>unknown</user>
           </revision>
           <revision rev="18" vrev="18">
-            <srcmd5>16ee36e1e8199aca4a86338a7c955ce3</srcmd5>
+            <srcmd5>e2109e61778d2acbf80de1211c3bba56</srcmd5>
             <version>unknown</version>
-            <time>1536058252</time>
-            <user>unknown</user>
-          </revision>
-          <revision rev="19" vrev="19">
-            <srcmd5>96a3a0815afa04990e8d5e5a49864ec7</srcmd5>
-            <version>unknown</version>
-            <time>1536058263</time>
-            <user>unknown</user>
-          </revision>
-          <revision rev="20" vrev="20">
-            <srcmd5>b671ab274f4d94aae3f1fab864aa158a</srcmd5>
-            <version>unknown</version>
-            <time>1536058263</time>
+            <time>1536752611</time>
             <user>unknown</user>
           </revision>
         </revisionlist>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:05 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:32 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:other_package_test_user/_result?package=branch_test_package&view=status
@@ -659,10 +647,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -686,10 +672,10 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:05 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:33 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package?expand=1
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package?expand=1&rev=18
     body:
       encoding: US-ASCII
       string: ''
@@ -716,23 +702,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="branch_test_package" rev="20" vrev="20" srcmd5="b671ab274f4d94aae3f1fab864aa158a">
-          <entry name="_config" md5="4259eb3e75fb62084c59caae5e7189f9" size="57" mtime="1536058263" />
-          <entry name="somefile.txt" md5="0ba57ded349c9b60be53fd1c67627348" size="67" mtime="1536058263" />
+        <directory name="branch_test_package" rev="18" vrev="18" srcmd5="e2109e61778d2acbf80de1211c3bba56">
+          <entry name="_config" md5="2aed3be4644acea58f7dadebf3f1f781" size="54" mtime="1536752611" />
+          <entry name="somefile.txt" md5="07864da4294addac747ca7b5bb3ab61c" size="62" mtime="1536752611" />
         </directory>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:06 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:33 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package?rev=20
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package?rev=18
     body:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -753,12 +737,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="branch_test_package" rev="20" vrev="20" srcmd5="b671ab274f4d94aae3f1fab864aa158a">
-          <entry name="_config" md5="4259eb3e75fb62084c59caae5e7189f9" size="57" mtime="1536058263" />
-          <entry name="somefile.txt" md5="0ba57ded349c9b60be53fd1c67627348" size="67" mtime="1536058263" />
+        <directory name="branch_test_package" rev="18" vrev="18" srcmd5="e2109e61778d2acbf80de1211c3bba56">
+          <entry name="_config" md5="2aed3be4644acea58f7dadebf3f1f781" size="54" mtime="1536752611" />
+          <entry name="somefile.txt" md5="07864da4294addac747ca7b5bb3ab61c" size="62" mtime="1536752611" />
         </directory>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:06 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:33 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22branch_test_package%22%20and%20linkinfo/@project=%22home:other_package_test_user%22%20and%20@project=%22home:other_package_test_user%22)
@@ -793,7 +777,7 @@ http_interactions:
         <collection>
         </collection>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:06 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user:branches:home:other_package_test_user/_meta?user=package_test_user
@@ -834,7 +818,7 @@ http_interactions:
           <person userid="package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:06 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user:branches:home:other_package_test_user/_project/_attribute?meta=1&user=package_test_user
@@ -843,7 +827,7 @@ http_interactions:
       string: |
         <attributes>
           <attribute name="AutoCleanup" namespace="OBS">
-            <value>2018-09-18T10:51:06+00:00</value>
+            <value>2018-09-26T11:43:34+00:00</value>
           </attribute>
         </attributes>
     headers:
@@ -869,15 +853,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="30">
-          <srcmd5>d82ba5797d04e80882f264c0800fdb11</srcmd5>
-          <time>1536058266</time>
+        <revision rev="22">
+          <srcmd5>20cbe79370ec78043f110be3b78c63a2</srcmd5>
+          <time>1536752614</time>
           <user>package_test_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:06 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user:branches:home:other_package_test_user/branch_test_package/_meta?user=package_test_user
@@ -885,8 +869,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:package_test_user:branches:home:other_package_test_user">
-          <title>Carrion Comfort</title>
-          <description>Autem voluptatem et et.</description>
+          <title>Have His Carcase</title>
+          <description>Vitae fugiat provident voluptatem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -907,19 +891,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '217'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:package_test_user:branches:home:other_package_test_user">
-          <title>Carrion Comfort</title>
-          <description>Autem voluptatem et et.</description>
+          <title>Have His Carcase</title>
+          <description>Vitae fugiat provident voluptatem.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:06 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:34 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:package_test_user:branches:home:other_package_test_user/branch_test_package?cmd=branch&noservice=1&opackage=branch_test_package&oproject=home:other_package_test_user&orev=b671ab274f4d94aae3f1fab864aa158a&user=package_test_user
+    uri: http://backend:5352/source/home:package_test_user:branches:home:other_package_test_user/branch_test_package?cmd=branch&noservice=1&opackage=branch_test_package&oproject=home:other_package_test_user&orev=e2109e61778d2acbf80de1211c3bba56&user=package_test_user
     body:
       encoding: UTF-8
       string: ''
@@ -948,16 +932,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>5729343ed2c09cf63f9ce1a9a7fe888f</srcmd5>
+        <revision rev="9" vrev="9">
+          <srcmd5>5bb1f7e3bfcfd6e3c1876cfe2ff6f007</srcmd5>
           <version>unknown</version>
-          <time>1536058266</time>
+          <time>1536752614</time>
           <user>package_test_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:06 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user:branches:home:other_package_test_user/branch_test_package/_meta?user=package_test_user
@@ -965,8 +949,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:package_test_user:branches:home:other_package_test_user">
-          <title>Carrion Comfort</title>
-          <description>Autem voluptatem et et.</description>
+          <title>Have His Carcase</title>
+          <description>Vitae fugiat provident voluptatem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -987,16 +971,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '217'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:package_test_user:branches:home:other_package_test_user">
-          <title>Carrion Comfort</title>
-          <description>Autem voluptatem et et.</description>
+          <title>Have His Carcase</title>
+          <description>Vitae fugiat provident voluptatem.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:06 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user:branches:home:other_package_test_user/branch_test_package
@@ -1026,14 +1010,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="branch_test_package" rev="3" vrev="3" srcmd5="5729343ed2c09cf63f9ce1a9a7fe888f">
-          <linkinfo project="home:other_package_test_user" package="branch_test_package" rev="b671ab274f4d94aae3f1fab864aa158a" srcmd5="b671ab274f4d94aae3f1fab864aa158a" baserev="b671ab274f4d94aae3f1fab864aa158a" xsrcmd5="12882aac8fc80f94beff6a2dc1c0e1e4" lsrcmd5="5729343ed2c09cf63f9ce1a9a7fe888f" />
-          <entry name="_config" md5="4259eb3e75fb62084c59caae5e7189f9" size="57" mtime="1536058263" />
-          <entry name="_link" md5="f2164ff237818b4153e576888a4bd56f" size="175" mtime="1536058266" />
-          <entry name="somefile.txt" md5="0ba57ded349c9b60be53fd1c67627348" size="67" mtime="1536058263" />
+        <directory name="branch_test_package" rev="9" vrev="9" srcmd5="5bb1f7e3bfcfd6e3c1876cfe2ff6f007">
+          <linkinfo project="home:other_package_test_user" package="branch_test_package" rev="e2109e61778d2acbf80de1211c3bba56" srcmd5="e2109e61778d2acbf80de1211c3bba56" baserev="e2109e61778d2acbf80de1211c3bba56" xsrcmd5="f62a88b7c42145998ac0803b02e47d85" lsrcmd5="5bb1f7e3bfcfd6e3c1876cfe2ff6f007" />
+          <entry name="_config" md5="2aed3be4644acea58f7dadebf3f1f781" size="54" mtime="1536752611" />
+          <entry name="_link" md5="10993492fd4bee564bcee59947fa84ba" size="175" mtime="1536752614" />
+          <entry name="somefile.txt" md5="07864da4294addac747ca7b5bb3ab61c" size="62" mtime="1536752611" />
         </directory>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:06 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user:branches:home:other_package_test_user/branch_test_package?view=info
@@ -1063,12 +1047,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="branch_test_package" rev="3" vrev="3" srcmd5="12882aac8fc80f94beff6a2dc1c0e1e4" lsrcmd5="5729343ed2c09cf63f9ce1a9a7fe888f" verifymd5="b671ab274f4d94aae3f1fab864aa158a">
+        <sourceinfo package="branch_test_package" rev="9" vrev="9" srcmd5="f62a88b7c42145998ac0803b02e47d85" lsrcmd5="5bb1f7e3bfcfd6e3c1876cfe2ff6f007" verifymd5="e2109e61778d2acbf80de1211c3bba56">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="home:other_package_test_user" package="branch_test_package" />
         </sourceinfo>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:06 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user:branches:home:other_package_test_user/branch_test_package
@@ -1098,14 +1082,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="branch_test_package" rev="3" vrev="3" srcmd5="5729343ed2c09cf63f9ce1a9a7fe888f">
-          <linkinfo project="home:other_package_test_user" package="branch_test_package" rev="b671ab274f4d94aae3f1fab864aa158a" srcmd5="b671ab274f4d94aae3f1fab864aa158a" baserev="b671ab274f4d94aae3f1fab864aa158a" xsrcmd5="12882aac8fc80f94beff6a2dc1c0e1e4" lsrcmd5="5729343ed2c09cf63f9ce1a9a7fe888f" />
-          <entry name="_config" md5="4259eb3e75fb62084c59caae5e7189f9" size="57" mtime="1536058263" />
-          <entry name="_link" md5="f2164ff237818b4153e576888a4bd56f" size="175" mtime="1536058266" />
-          <entry name="somefile.txt" md5="0ba57ded349c9b60be53fd1c67627348" size="67" mtime="1536058263" />
+        <directory name="branch_test_package" rev="9" vrev="9" srcmd5="5bb1f7e3bfcfd6e3c1876cfe2ff6f007">
+          <linkinfo project="home:other_package_test_user" package="branch_test_package" rev="e2109e61778d2acbf80de1211c3bba56" srcmd5="e2109e61778d2acbf80de1211c3bba56" baserev="e2109e61778d2acbf80de1211c3bba56" xsrcmd5="f62a88b7c42145998ac0803b02e47d85" lsrcmd5="5bb1f7e3bfcfd6e3c1876cfe2ff6f007" />
+          <entry name="_config" md5="2aed3be4644acea58f7dadebf3f1f781" size="54" mtime="1536752611" />
+          <entry name="_link" md5="10993492fd4bee564bcee59947fa84ba" size="175" mtime="1536752614" />
+          <entry name="somefile.txt" md5="07864da4294addac747ca7b5bb3ab61c" size="62" mtime="1536752611" />
         </directory>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:06 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:34 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:package_test_user:branches:home:other_package_test_user/branch_test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -1137,15 +1121,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="02009bc873dc96778c90e0dd4ad1de54">
+        <sourcediff key="7379e7434a14987c189ba7dc2f0e4144">
           <old project="home:package_test_user:branches:home:other_package_test_user" package="branch_test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:package_test_user:branches:home:other_package_test_user" package="branch_test_package" rev="3" srcmd5="5729343ed2c09cf63f9ce1a9a7fe888f" />
+          <new project="home:package_test_user:branches:home:other_package_test_user" package="branch_test_package" rev="9" srcmd5="5bb1f7e3bfcfd6e3c1876cfe2ff6f007" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:06 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:34 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:package_test_user:branches:home:other_package_test_user/branch_test_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -1177,13 +1161,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="fde6cf648629807b47f05a1f5b3dd993">
-          <old project="home:other_package_test_user" package="branch_test_package" rev="b671ab274f4d94aae3f1fab864aa158a" srcmd5="b671ab274f4d94aae3f1fab864aa158a" />
-          <new project="home:package_test_user:branches:home:other_package_test_user" package="branch_test_package" rev="12882aac8fc80f94beff6a2dc1c0e1e4" srcmd5="12882aac8fc80f94beff6a2dc1c0e1e4" />
+        <sourcediff key="237ec9919f56096364f9fe4da10fcb2e">
+          <old project="home:other_package_test_user" package="branch_test_package" rev="e2109e61778d2acbf80de1211c3bba56" srcmd5="e2109e61778d2acbf80de1211c3bba56" />
+          <new project="home:package_test_user:branches:home:other_package_test_user" package="branch_test_package" rev="f62a88b7c42145998ac0803b02e47d85" srcmd5="f62a88b7c42145998ac0803b02e47d85" />
           <files />
         </sourcediff>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:06 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user:branches:home:other_package_test_user/_meta?user=package_test_user
@@ -1230,7 +1214,7 @@ http_interactions:
           </publish>
         </project>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:07 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package?view=info
@@ -1260,11 +1244,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="branch_test_package" rev="20" vrev="20" srcmd5="b671ab274f4d94aae3f1fab864aa158a" verifymd5="b671ab274f4d94aae3f1fab864aa158a">
+        <sourceinfo package="branch_test_package" rev="18" vrev="18" srcmd5="e2109e61778d2acbf80de1211c3bba56" verifymd5="e2109e61778d2acbf80de1211c3bba56">
           <error>bad build configuration, no build type defined or detected</error>
         </sourceinfo>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:07 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package
@@ -1294,12 +1278,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="branch_test_package" rev="20" vrev="20" srcmd5="b671ab274f4d94aae3f1fab864aa158a">
-          <entry name="_config" md5="4259eb3e75fb62084c59caae5e7189f9" size="57" mtime="1536058263" />
-          <entry name="somefile.txt" md5="0ba57ded349c9b60be53fd1c67627348" size="67" mtime="1536058263" />
+        <directory name="branch_test_package" rev="18" vrev="18" srcmd5="e2109e61778d2acbf80de1211c3bba56">
+          <entry name="_config" md5="2aed3be4644acea58f7dadebf3f1f781" size="54" mtime="1536752611" />
+          <entry name="somefile.txt" md5="07864da4294addac747ca7b5bb3ab61c" size="62" mtime="1536752611" />
         </directory>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:07 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:34 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -1331,15 +1315,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="02f3b3090b9e39830d3de7fdae174176">
+        <sourcediff key="aeeddc2fce2dae3c49e9d052c63b0ec3">
           <old project="home:other_package_test_user" package="branch_test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:other_package_test_user" package="branch_test_package" rev="20" srcmd5="b671ab274f4d94aae3f1fab864aa158a" />
+          <new project="home:other_package_test_user" package="branch_test_package" rev="18" srcmd5="e2109e61778d2acbf80de1211c3bba56" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:07 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user:branches:home:other_package_test_user/branch_test_package
@@ -1369,17 +1353,17 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="branch_test_package" rev="3" vrev="3" srcmd5="5729343ed2c09cf63f9ce1a9a7fe888f">
-          <linkinfo project="home:other_package_test_user" package="branch_test_package" rev="b671ab274f4d94aae3f1fab864aa158a" srcmd5="b671ab274f4d94aae3f1fab864aa158a" baserev="b671ab274f4d94aae3f1fab864aa158a" xsrcmd5="12882aac8fc80f94beff6a2dc1c0e1e4" lsrcmd5="5729343ed2c09cf63f9ce1a9a7fe888f" />
-          <entry name="_config" md5="4259eb3e75fb62084c59caae5e7189f9" size="57" mtime="1536058263" />
-          <entry name="_link" md5="f2164ff237818b4153e576888a4bd56f" size="175" mtime="1536058266" />
-          <entry name="somefile.txt" md5="0ba57ded349c9b60be53fd1c67627348" size="67" mtime="1536058263" />
+        <directory name="branch_test_package" rev="9" vrev="9" srcmd5="5bb1f7e3bfcfd6e3c1876cfe2ff6f007">
+          <linkinfo project="home:other_package_test_user" package="branch_test_package" rev="e2109e61778d2acbf80de1211c3bba56" srcmd5="e2109e61778d2acbf80de1211c3bba56" baserev="e2109e61778d2acbf80de1211c3bba56" xsrcmd5="f62a88b7c42145998ac0803b02e47d85" lsrcmd5="5bb1f7e3bfcfd6e3c1876cfe2ff6f007" />
+          <entry name="_config" md5="2aed3be4644acea58f7dadebf3f1f781" size="54" mtime="1536752611" />
+          <entry name="_link" md5="10993492fd4bee564bcee59947fa84ba" size="175" mtime="1536752614" />
+          <entry name="somefile.txt" md5="07864da4294addac747ca7b5bb3ab61c" size="62" mtime="1536752611" />
         </directory>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:07 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:35 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:package_test_user:branches:home:other_package_test_user/branch_test_package?expand=1&rev=3
+    uri: http://backend:5352/source/home:package_test_user:branches:home:other_package_test_user/branch_test_package?expand=1&rev=9
     body:
       encoding: US-ASCII
       string: ''
@@ -1406,13 +1390,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="branch_test_package" rev="12882aac8fc80f94beff6a2dc1c0e1e4" vrev="3" srcmd5="12882aac8fc80f94beff6a2dc1c0e1e4">
-          <linkinfo project="home:other_package_test_user" package="branch_test_package" rev="b671ab274f4d94aae3f1fab864aa158a" srcmd5="b671ab274f4d94aae3f1fab864aa158a" baserev="b671ab274f4d94aae3f1fab864aa158a" lsrcmd5="5729343ed2c09cf63f9ce1a9a7fe888f" />
-          <entry name="_config" md5="4259eb3e75fb62084c59caae5e7189f9" size="57" mtime="1536058263" />
-          <entry name="somefile.txt" md5="0ba57ded349c9b60be53fd1c67627348" size="67" mtime="1536058263" />
+        <directory name="branch_test_package" rev="f62a88b7c42145998ac0803b02e47d85" vrev="9" srcmd5="f62a88b7c42145998ac0803b02e47d85">
+          <linkinfo project="home:other_package_test_user" package="branch_test_package" rev="e2109e61778d2acbf80de1211c3bba56" srcmd5="e2109e61778d2acbf80de1211c3bba56" baserev="e2109e61778d2acbf80de1211c3bba56" lsrcmd5="5bb1f7e3bfcfd6e3c1876cfe2ff6f007" />
+          <entry name="_config" md5="2aed3be4644acea58f7dadebf3f1f781" size="54" mtime="1536752611" />
+          <entry name="somefile.txt" md5="07864da4294addac747ca7b5bb3ab61c" size="62" mtime="1536752611" />
         </directory>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:07 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user:branches:home:other_package_test_user/branch_test_package/_service
@@ -1447,7 +1431,7 @@ http_interactions:
           <details>404 _service: no such file</details>
         </status>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:07 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user:branches:home:other_package_test_user/branch_test_package
@@ -1477,14 +1461,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="branch_test_package" rev="3" vrev="3" srcmd5="5729343ed2c09cf63f9ce1a9a7fe888f">
-          <linkinfo project="home:other_package_test_user" package="branch_test_package" rev="b671ab274f4d94aae3f1fab864aa158a" srcmd5="b671ab274f4d94aae3f1fab864aa158a" baserev="b671ab274f4d94aae3f1fab864aa158a" xsrcmd5="12882aac8fc80f94beff6a2dc1c0e1e4" lsrcmd5="5729343ed2c09cf63f9ce1a9a7fe888f" />
-          <entry name="_config" md5="4259eb3e75fb62084c59caae5e7189f9" size="57" mtime="1536058263" />
-          <entry name="_link" md5="f2164ff237818b4153e576888a4bd56f" size="175" mtime="1536058266" />
-          <entry name="somefile.txt" md5="0ba57ded349c9b60be53fd1c67627348" size="67" mtime="1536058263" />
+        <directory name="branch_test_package" rev="9" vrev="9" srcmd5="5bb1f7e3bfcfd6e3c1876cfe2ff6f007">
+          <linkinfo project="home:other_package_test_user" package="branch_test_package" rev="e2109e61778d2acbf80de1211c3bba56" srcmd5="e2109e61778d2acbf80de1211c3bba56" baserev="e2109e61778d2acbf80de1211c3bba56" xsrcmd5="f62a88b7c42145998ac0803b02e47d85" lsrcmd5="5bb1f7e3bfcfd6e3c1876cfe2ff6f007" />
+          <entry name="_config" md5="2aed3be4644acea58f7dadebf3f1f781" size="54" mtime="1536752611" />
+          <entry name="_link" md5="10993492fd4bee564bcee59947fa84ba" size="175" mtime="1536752614" />
+          <entry name="somefile.txt" md5="07864da4294addac747ca7b5bb3ab61c" size="62" mtime="1536752611" />
         </directory>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:07 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user:branches:home:other_package_test_user/branch_test_package
@@ -1514,14 +1498,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="branch_test_package" rev="3" vrev="3" srcmd5="5729343ed2c09cf63f9ce1a9a7fe888f">
-          <linkinfo project="home:other_package_test_user" package="branch_test_package" rev="b671ab274f4d94aae3f1fab864aa158a" srcmd5="b671ab274f4d94aae3f1fab864aa158a" baserev="b671ab274f4d94aae3f1fab864aa158a" xsrcmd5="12882aac8fc80f94beff6a2dc1c0e1e4" lsrcmd5="5729343ed2c09cf63f9ce1a9a7fe888f" />
-          <entry name="_config" md5="4259eb3e75fb62084c59caae5e7189f9" size="57" mtime="1536058263" />
-          <entry name="_link" md5="f2164ff237818b4153e576888a4bd56f" size="175" mtime="1536058266" />
-          <entry name="somefile.txt" md5="0ba57ded349c9b60be53fd1c67627348" size="67" mtime="1536058263" />
+        <directory name="branch_test_package" rev="9" vrev="9" srcmd5="5bb1f7e3bfcfd6e3c1876cfe2ff6f007">
+          <linkinfo project="home:other_package_test_user" package="branch_test_package" rev="e2109e61778d2acbf80de1211c3bba56" srcmd5="e2109e61778d2acbf80de1211c3bba56" baserev="e2109e61778d2acbf80de1211c3bba56" xsrcmd5="f62a88b7c42145998ac0803b02e47d85" lsrcmd5="5bb1f7e3bfcfd6e3c1876cfe2ff6f007" />
+          <entry name="_config" md5="2aed3be4644acea58f7dadebf3f1f781" size="54" mtime="1536752611" />
+          <entry name="_link" md5="10993492fd4bee564bcee59947fa84ba" size="175" mtime="1536752614" />
+          <entry name="somefile.txt" md5="07864da4294addac747ca7b5bb3ab61c" size="62" mtime="1536752611" />
         </directory>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:07 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user:branches:home:other_package_test_user/branch_test_package/_history
@@ -1547,32 +1531,68 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '607'
+      - '1759'
     body:
       encoding: UTF-8
       string: |
         <revisionlist>
           <revision rev="1" vrev="1">
-            <srcmd5>4369256fc7026ce9efc535ca4af38c57</srcmd5>
+            <srcmd5>1aca36bfa87765d6cd5ca2721753d45b</srcmd5>
             <version>unknown</version>
-            <time>1536058088</time>
+            <time>1536742163</time>
             <user>package_test_user</user>
           </revision>
           <revision rev="2" vrev="2">
-            <srcmd5>3054c237efb30ad77f7986dd041466d5</srcmd5>
+            <srcmd5>e4396ee5b376d0ac30b7cdb8ccdd4b59</srcmd5>
             <version>unknown</version>
-            <time>1536058100</time>
+            <time>1536742175</time>
             <user>package_test_user</user>
           </revision>
           <revision rev="3" vrev="3">
-            <srcmd5>5729343ed2c09cf63f9ce1a9a7fe888f</srcmd5>
+            <srcmd5>2b32c7e5905e80db6abb01432d2c881d</srcmd5>
             <version>unknown</version>
-            <time>1536058266</time>
+            <time>1536742216</time>
+            <user>package_test_user</user>
+          </revision>
+          <revision rev="4" vrev="4">
+            <srcmd5>d7dc2a21eeb234d4ceec7effa04de994</srcmd5>
+            <version>unknown</version>
+            <time>1536742228</time>
+            <user>package_test_user</user>
+          </revision>
+          <revision rev="5" vrev="5">
+            <srcmd5>460a55998efa7bc8c1e727f7b6c33abe</srcmd5>
+            <version>unknown</version>
+            <time>1536748096</time>
+            <user>package_test_user</user>
+          </revision>
+          <revision rev="6" vrev="6">
+            <srcmd5>9e52ae591ccc2d95f7bac74ab2c7a20d</srcmd5>
+            <version>unknown</version>
+            <time>1536748108</time>
+            <user>package_test_user</user>
+          </revision>
+          <revision rev="7" vrev="7">
+            <srcmd5>a2025e524c9ecf86aacc2ed66f2df49f</srcmd5>
+            <version>unknown</version>
+            <time>1536752314</time>
+            <user>package_test_user</user>
+          </revision>
+          <revision rev="8" vrev="8">
+            <srcmd5>f9f2fdc97ab6a5360c320664a3201e97</srcmd5>
+            <version>unknown</version>
+            <time>1536752326</time>
+            <user>package_test_user</user>
+          </revision>
+          <revision rev="9" vrev="9">
+            <srcmd5>5bb1f7e3bfcfd6e3c1876cfe2ff6f007</srcmd5>
+            <version>unknown</version>
+            <time>1536752614</time>
             <user>package_test_user</user>
           </revision>
         </revisionlist>
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:07 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:35 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user:branches:home:other_package_test_user/_result?package=branch_test_package&view=status
@@ -1580,10 +1600,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -1607,5 +1625,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Tue, 04 Sep 2018 10:51:07 GMT
+  recorded_at: Wed, 12 Sep 2018 11:43:35 GMT
 recorded_with: VCR 4.0.0
