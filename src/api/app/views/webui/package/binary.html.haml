@@ -1,0 +1,46 @@
+- @pagetitle = "Detailed Information About #{@filename}"
+- @metarobots = 'noindex' # files change too often
+- package_bread_crumb(link_to('Binaries', package_binaries_path(project: @project,
+    package: @package, repository: @repository.name, arch: @arch.name)), truncate(@filename, length: 30))
+
+= render partial: 'tabs'
+
+%h3
+  Detailed Information About
+  - if @durl
+    = link_to(@filename, @durl)
+  - else
+    = @filename
+
+%div
+  %p
+    %strong Title:
+    = @fileinfo.value('summary')
+  %p
+    %strong Description:
+    %br
+    - description = @fileinfo.value('description')
+    - if description
+      - description.split(/\n/).each do |line|
+        = line
+        %br
+    - else
+      %i No description set
+  %p
+    %strong Version:
+    = @fileinfo.value('version')
+  %p
+    %strong Release:
+    = @fileinfo.value('release')
+  %p
+    %strong Architecture:
+    = @fileinfo.value('arch')
+  %p
+    %strong Size:
+    = human_readable_fsize(@fileinfo.value(:size).to_i)
+  %p
+    %strong Build Time:
+    - btime = Time.at(@fileinfo.value(:mtime).to_i)
+    = btime.to_s + ' (' + fuzzy_time_string(btime.ctime) + ')'
+
+= render partial: 'deps'
