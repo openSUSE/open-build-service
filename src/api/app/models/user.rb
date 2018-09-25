@@ -373,7 +373,7 @@ class User < ApplicationRecord
       save
     end
     return unless env['HTTP_X_FIRSTNAME'].present? && env['HTTP_X_LASTNAME'].present?
-    realname = env['HTTP_X_FIRSTNAME'] + ' ' + env['HTTP_X_LASTNAME']
+    realname = env['HTTP_X_FIRSTNAME'].force_encoding('UTF-8') + ' ' + env['HTTP_X_LASTNAME'].force_encoding('UTF-8')
     return unless self.realname != realname
 
     self.realname = realname
