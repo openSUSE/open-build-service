@@ -1,5 +1,6 @@
 require 'browser_helper'
 require 'webmock/rspec'
+require 'code_mirror_helper'
 
 RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
   it_behaves_like 'user tab' do

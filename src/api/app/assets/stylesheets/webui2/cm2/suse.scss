@@ -1,0 +1,62 @@
+.CodeMirror {
+  font-family: "Liberation Mono", monospace;
+  font-size: 9pt;
+  height: auto;
+}
+
+.action_display .CodeMirror-scroll {
+  max-height: 800px;
+}
+
+.CodeMirror-scroll {
+  overflow-y: hidden;
+  overflow-x: auto;
+}
+
+.CodeMirror pre {
+  /* We inherit 'overflow: auto;' from the Bento CSS theme.
+  Both v8 and webkit engines thus
+  render garbage scrollbars.
+  Setting to hidden is ok here, the '.CodeMirror pre' elements
+  aren't supposed to be scrollable... */
+  overflow: hidden;
+  line-height: 1.1;
+}
+
+div[id^=top_] .toolbar { border-radius: 4px 4px 0 0; }
+div[id^=bottom_] .toolbar { border-radius: 0 0 4px 4px; }
+
+.toolbar {
+  background: #f0f0f0;
+  padding: 6px 10px;
+
+  & > span:first-child { margin-right: 10px; }
+  span {
+    .left-margin { margin-left: 10px; }
+    .counter { width: 40px; }
+  }
+
+  .buttons { background-color: #dee2e6; }
+  .inputs, select { background: #f8f9fa; }
+  .inputs {
+    /* toolbars default is 130, but we need a little more space */
+    width: 120px;
+  }
+
+  .tools {margin:2px 1px;}
+  .prev {margin-right:-1px;}
+  .next {margin-left:-1px;}
+  .undo {margin-right:-1px;}
+  .redo {margin-left:-1px;}
+
+  .save { background-color: red; }
+  .save.inactive { background-color: transparent; color: #555;  }
+  .save.working { display: none; }
+}
+
+/* RPM spec styles */
+.cm-s-default span.cm-preamble {color: #b26818; font-weight: bold;}
+.cm-s-default span.cm-macro {color: #b218b2;}
+.cm-s-default span.cm-section {color: green; font-weight: bold;}
+.cm-s-default span.cm-script {color: red;}
+.cm-s-default span.cm-issue {color: yellow;}
