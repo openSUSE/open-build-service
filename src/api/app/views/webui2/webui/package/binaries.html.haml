@@ -45,15 +45,6 @@
         - if User.current.can_modify?(@package)
           = render partial: 'webui2/webui/package/binaries/trigger_rebuild_wipe_binaries', locals: { result: result, project: @project,
                                                             package: @package_name, repository: @repository }
-        - if result[:statistics]
-          = link_to 'Show',
-                    package_statistics_path(project: @project, package: @package_name, repository: @repository,
-                                            arch: result[:arch]), title: 'Show statistics'
-          used resources
-        = link_to 'Job history',
-                  index_package_job_history_path(project: @project, package_name: @package_name, repository: @repository,
-                                                 arch: result[:arch]), class: '', title: 'Job history'
-        list
-        = link_to 'Build Reason',
-                  index_package_build_reason_path(project: @project, package_name: @package_name, repository: @repository,
-                                                  arch: result[:arch]), class: '', title: 'Build reason'
+
+        = render partial: 'webui2/webui/package/binaries/show_statistics_job_history_build_reason', locals: { result: result,
+          project: @project, package: @package_name, repository: @repository }
