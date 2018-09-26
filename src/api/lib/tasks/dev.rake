@@ -199,6 +199,9 @@ namespace :dev do
       create(:project, name: 'openSUSE:Factory:Rings:0-Bootstrap')
       create(:project, name: 'openSUSE:Factory:Rings:1-MinimalX')
       create(:project, name: 'openSUSE:Factory:Staging:A', description: 'requests:')
+
+      Configuration.download_url = 'https://download.opensuse.org'
+      Configuration.save
     end
   end
 end
