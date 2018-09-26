@@ -3,3 +3,7 @@ ul.ui-autocomplete {
 
   li { @extend .dropdown-item; }
 }
+
+.ui-helper-hidden-accessible{
+  display:none !important;
+}

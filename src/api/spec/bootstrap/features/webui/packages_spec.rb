@@ -3,7 +3,7 @@ require 'webmock/rspec'
 require 'code_mirror_helper'
 
 RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
-  it_behaves_like 'user tab' do
+  it_behaves_like 'bootstrap user tab' do
     let(:package) do
       create(:package, name: 'group_test_package',
         project_id: user_tab_user.home_project.id)

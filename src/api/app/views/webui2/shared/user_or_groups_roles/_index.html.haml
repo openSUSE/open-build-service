@@ -23,7 +23,8 @@
                            project: project, package: package }
 
   - if user_is_maintainer
-    = link_to(package_add_person_path(package: @package, project: @project), id: 'add-user') do
+    = render(partial: 'webui2/shared/user_or_groups_roles/add_user_dialog', locals: { project: project.to_param, package: package.to_param })
+    = link_to('#', data: { toggle: 'modal', target: '#add-user-role-modal' }, id: 'add-user') do
       %i.fas.fa-plus-circle.text-primary
       Add user
 
@@ -45,7 +46,8 @@
                            user_is_maintainer: user_is_maintainer,
                            project: project, package: package }
   - if user_is_maintainer
-    = link_to(package_add_group_path(package: @package, project: @project)) do
+    = render(partial: 'webui2/shared/user_or_groups_roles/add_group_dialog', locals: { project: project.to_param, package: package.to_param })
+    = link_to('#', data: { toggle: 'modal', target: '#add-group-role-modal' }, id: 'add-user') do
       %i.fas.fa-plus-circle.text-primary
       Add group
 :javascript

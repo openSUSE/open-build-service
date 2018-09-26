@@ -24,7 +24,7 @@
         = mail_to(record.email, subject: mail_subject) do
           %i.fas.fa-envelope{ title: 'Send email to user' }
       - if user_is_maintainer
-        = link_to('#', { data: { toggle: 'modal', target: "#delete-role-modal-#{type}-#{record.id}" }, class: "remove-#{type}" }) do
-          %i.fas.fa-times-circle.text-danger{ title: "Delete all roles for #{type}"}
-  = render(partial: 'webui2/shared/user_or_groups_roles/delete_dialog', 
+        = link_to('#', data: { toggle: 'modal', target: "#delete-role-modal-#{type}-#{record.id}" }, class: "remove-#{type}") do
+          %i.fas.fa-times-circle.text-danger{ title: "Delete all roles for #{type}" }
+  = render(partial: 'webui2/shared/user_or_groups_roles/delete_dialog',
            locals: { project: project.to_param, package: package.to_param, type: type, object: record })
