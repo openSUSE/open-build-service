@@ -21,6 +21,10 @@ class RequestController < ApplicationController
     setup 404, 'This call requires at least one filter, either by user, project or package or states or types or reviewstates'
   end
 
+  class SaveError < APIError
+    setup 'request_save_error'
+  end
+
   def render_request_collection
     # if all params areblank, something is wrong
     raise RequireFilter if [:project, :user, :states, :types, :reviewstates, :ids].all? { |f| params[f].blank? }
@@ -145,6 +149,7 @@ class RequestController < ApplicationController
       parsed_xml = Xmlhash.parse(request.raw_post.to_s)
 
       raise SaveError, 'Failed parsing the request xml' unless parsed_xml
+      raise SaveError, 'Request ID attribute not allowed when creating a request' if parsed_xml['id']
 
       @req = BsRequest.new_from_hash(parsed_xml)
       @req.set_add_revision       if params[:addrevision].present?
