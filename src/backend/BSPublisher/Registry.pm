@@ -500,6 +500,7 @@ sub push_containers {
         'goos' => $config->{'os'},
 	'distmanifest' => $mani_id,
       };
+      $imginfo->{'package'} = $containerinfo->{'_origin'} if $containerinfo->{'_origin'};
       $imginfo->{'disturl'} = $containerinfo->{'disturl'} if $containerinfo->{'disturl'};
       $imginfo->{'buildtime'} = $containerinfo->{'buildtime'} if $containerinfo->{'buildtime'};
       $imginfo->{'version'} = $containerinfo->{'version'} if $containerinfo->{'version'};
