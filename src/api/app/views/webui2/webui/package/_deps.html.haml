@@ -1,0 +1,59 @@
+.row
+  .table-responsive.col-sm-12.col-md-6
+    %h3 Provides
+    %table.table.table-hover
+      %thead.thead-light
+        %tr
+          %th.col-md-3.col-sm-6{ scope: 'col' } Symbol
+          %th.col-md-2.col-sm-4{ scope: 'col' } Required by
+      %tbody
+        - fileinfo.elements('provides_ext') do |package_file|
+          %tr
+            %td
+              %span.nowrap{ title: package_file['dep'] }
+                = truncate(package_file['dep'], length: 30)
+            %td
+              - package_file.elements('requiredby') do |package_binary|
+                = link_to package_binary['name'], action:               :dependency,
+                                                  project:              project,
+                                                  package:              package,
+                                                  repository:           repository.try(:name) || repository,
+                                                  arch:                 architecture.try(:name) || architecture,
+                                                  dependant_project:    package_binary['project'],
+                                                  dependant_repository: package_binary['repository'],
+                                                  dependant_name:       package_binary['name'],
+                                                  filename:             filename
+        - unless fileinfo['provides_ext']
+          %tr
+            %td{ colspan: '2' }
+              %em No provides
+
+  .table-responsive.col-sm-12.col-md-6
+    %h3 Requires
+    %table.table.table-hover
+      %thead.thead-light
+        %tr
+          %th.col-md-3.col-sm-6{ scope: 'col' } Symbol
+          %th.col-md-2.col-sm-4{ scope: 'col' } Provided by
+      %tbody
+        - fileinfo.elements('requires_ext') do |package_file|
+          %tr
+            %td
+              %span.nowrap{ title: package_file['dep'] }
+                = truncate(package_file['dep'], length: 30)
+            %td
+              - package_file.elements('providedby') do |package_binary|
+                = link_to package_binary['name'], action:               :dependency,
+                                                  project:              project,
+                                                  package:              package,
+                                                  repository:           repository.try(:name) || repository,
+                                                  arch:                 architecture.try(:name) || architecture,
+                                                  dependant_project:    package_binary['project'],
+                                                  dependant_repository: package_binary['repository'],
+                                                  dependant_name:       package_binary['name'],
+                                                  filename:             filename
+        - unless fileinfo['requires_ext']
+          %tr
+            %td{ colspan: '2' }
+              %em No requires
+
