@@ -1,0 +1,30 @@
+- @pagetitle = "File #{@filename} of Package #{@package}"
+- content_for(:content_for_head, javascript_include_tag('webui2/cm2/index'))
+
+.card.mb-3
+  = render partial: 'tabs', locals: { project: @project, package: @package }
+  .card-body
+    %h3
+      = @pagetitle
+      - if @rev
+        (Revision #{@rev})
+    - if @rev
+      %p
+        Currently displaying revision
+        %i= @rev
+        ,
+        = link_to('Show latest', project: @project, package: @package, filename: @filename, expand: @expand)
+
+    - if @addeditlink
+      - if @filename.ends_with?('.changes')
+        %p
+          %a.changes-link{ href: '#', onclick: 'addChangesEntryTemplate(); return false;',
+                           data: { packagername: User.current.realname, packageremail: User.current.email } }
+            Insert changes entry template
+
+      -# TODO: Provide a comments field through a callback
+      = render(partial: 'shared/editor', locals: { text: @file, mode: guess_code_class(@filename),
+        save: { url: url_for(controller: :package, action: :save_file, method: :post), method: :post,
+        data: { project: @project.name, package: @package.name, submit: 'file', comment: '', filename: @filename, rev: @rev } } })
+    - else
+      = render(partial: 'shared/editor', locals: { text: @file, mode: guess_code_class(@filename), style: { read_only: true } })
