@@ -43,15 +43,8 @@
                       Details
       %p
         - if User.current.can_modify?(@package)
-          = link_to 'Trigger', package_trigger_rebuild_path(arch: result[:arch], project: @project,
-                                                            package: @package_name, repository: @repository),
-                                                            method: :post, title: 'Trigger rebuild'
-
-          rebuild
-          - unless result[:binaries].empty?
-            = link_to 'Delete', package_wipe_binaries_path(arch: result[:arch], project: @project, package: @package_name,
-                                                           repository: @repository), method: :delete, title: 'Wipe all binaries'
-            built binaries
+          = render partial: 'webui2/webui/package/binaries/trigger_rebuild_wipe_binaries', locals: { result: result, project: @project,
+                                                            package: @package_name, repository: @repository }
         - if result[:statistics]
           = link_to 'Show',
                     package_statistics_path(project: @project, package: @package_name, repository: @repository,

@@ -1,0 +1,12 @@
+%hr
+  = link_to package_trigger_rebuild_path(arch: result[:arch], project: project, package: package, repository: repository),
+  title: 'Trigger rebuild', method: :post do
+    %i.fas.fa-sync-alt
+    Trigger
+  rebuild
+  - unless result[:binaries].empty?
+    = link_to package_wipe_binaries_path(arch: result[:arch], project: project, package: package, repository: repository), method: :delete,
+    title: 'Wipe all binaries' do
+      %i.fas.fa-times-circle.text-danger
+      Delete
+  built binaries
