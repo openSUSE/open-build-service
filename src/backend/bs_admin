@@ -137,6 +137,11 @@ Job Controlling
  --create-patchinfo-from-updateinfo
    creates a patchinfo submission based on an updateinfo information.
 
+ --recheck-dod <URL>
+ --recheck-dod <project>
+ --recheck-dod <project>/<repository>
+   Enforces a recheck of remote repositories.
+
 Maintenance Tasks
 =================
 
