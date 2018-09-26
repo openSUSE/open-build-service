@@ -655,6 +655,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def add_file
     set_file_details
+    switch_to_webui2
   end
 
   def save_file
