@@ -146,4 +146,36 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
       expect(page.source).to have_text('[1] this is my dummy logfile')
     end
   end
+
+  context 'meta configuration' do
+    describe 'as admin' do
+      let!(:admin_user) { create(:admin_user) }
+
+      before do
+        login admin_user
+      end
+
+      scenario 'can edit' do
+        visit package_meta_path(package.project, package)
+        fill_in_editor_field('<!-- Comment for testing -->')
+        click_button('Save')
+        expect(page).to have_text('The Meta file has been successfully saved.')
+        expect(page).to have_css('.CodeMirror-code', text: 'Comment for testing')
+      end
+    end
+
+    describe 'as common user' do
+      let(:other_user) { create(:confirmed_user, login: 'common_user') }
+      before do
+        login other_user
+      end
+
+      scenario 'can not edit' do
+        visit package_meta_path(package.project, package)
+        within('.card-body') do
+          expect(page).not_to have_css('.toolbar')
+        end
+      end
+    end
+  end
 end
