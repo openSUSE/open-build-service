@@ -14,7 +14,7 @@
       %br
       %strong
         Build scheduled at:
-      = Time.at(@details.time.to_i)
+      = @details.time
       - if @details.packagechange
         %p
           %strong
