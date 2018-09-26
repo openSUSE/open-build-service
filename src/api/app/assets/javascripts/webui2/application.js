@@ -30,5 +30,6 @@
 //= require webui2/comment.js
 //= require webui2/request.js
 //= require webui2/buildresult.js
+//= require webui2/job_history.js
 // FIXME remove jquery-ui file when we upgrade jquery-ui gem
 //= require webui2/jquery-ui.min.js
