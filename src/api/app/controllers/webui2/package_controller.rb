@@ -23,6 +23,7 @@ module Webui2::PackageController
   end
 
   def webui2_statistics
+    @repository = params[:repository]
     @package_name = params[:package]
 
     @statistics = @package.statistics(@project.name, @repository, params[:arch]).results
