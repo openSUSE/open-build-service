@@ -16,6 +16,12 @@
     - if User.current.try(:rss_token)
       = auto_discovery_link_tag(:rss, user_rss_notifications_url(token: User.current.rss_token.string, format: :rss), { title: 'Notifications' })
     = auto_discovery_link_tag(:rss, latest_updates_feed_path(format: 'rss'), { title: 'Latest updates' })
+
+    - if Rails.env.test?
+      :javascript
+        $.fx.off = true;
+      = stylesheet_link_tag 'webui2/capybara'
+
   %body.d-flex.flex-column
     = render 'peek/bar'
     #navigation
