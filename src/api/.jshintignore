@@ -1,3 +1,4 @@
 app/assets/javascripts/webui/application/bento
 app/assets/javascripts/webui/application/cm2
+app/assets/javascripts/webui2/cm2
 app/assets/javascripts/webui2/*.min.js

@@ -137,6 +137,9 @@ Job Controlling
  --create-patchinfo-from-updateinfo
    creates a patchinfo submission based on an updateinfo information.
 
+ --recheck-dod <URL PREFIX>
+   Enforces a recheck of remote repositories.
+
 Maintenance Tasks
 =================
 
@@ -1140,9 +1143,9 @@ while (@ARGV) {
     }
   } elsif ( $arg eq "--query-config" ) {
     my $var=shift @ARGV;
-    my $val;
-    eval "\$val = \$BSConfig::$var";
-    print "$val\n";
+    no strict "refs";
+    my $val = ${"BSConfig::$var"};
+    print "$val\n" if defined $val;
   } elsif ( $arg eq "--drop-badhosts" ) {
     BSUtil::touch("$rundir/bs_dispatch.dropbadhosts");
   } elsif ( $arg eq "--list-badhosts" ) {

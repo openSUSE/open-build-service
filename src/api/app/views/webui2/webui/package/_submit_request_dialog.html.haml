@@ -39,9 +39,9 @@
             = label_tag(:supersede_requests, 'Supersede requests:')
             %p#supersede-requests
 
-          .form-group.form-check#sourceupdate-display
-            = check_box_tag(:sourceupdate, 'cleanup', cleanup_source, class: 'form-check-input')
-            = label_tag(:sourceupdate, 'Remove local package if request is accepted', class: 'form-check-label')
+          .custom-control.custom-checkbox#sourceupdate-display
+            = check_box_tag(:sourceupdate, 'cleanup', cleanup_source, class: 'custom-control-input')
+            = label_tag(:sourceupdate, 'Remove local package if request is accepted', class: 'custom-control-label')
 
           %p.d-none#devel-project-warning
             You are about to bypass the devel project, please submit to
