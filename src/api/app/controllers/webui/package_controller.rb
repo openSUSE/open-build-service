@@ -976,6 +976,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def meta
     @meta = @package.render_xml
+    switch_to_webui2
   end
 
   def save_meta
@@ -999,15 +1000,18 @@ class Webui::PackageController < Webui::WebuiController
       begin
         @package.update_from_xml(@meta_xml)
         flash.now[:success] = 'The Meta file has been successfully saved.'
-        render layout: false, partial: 'layouts/webui/flash', object: flash
+        status = 200
       rescue Backend::Error, NotFoundError => e
         flash.now[:error] = "Error while saving the Meta file: #{e}."
-        render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
+        status = 400
       end
     else
       flash.now[:error] = "Error while saving the Meta file: #{errors.compact.join("\n")}."
-      render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
+      status = 400
     end
+    switch_to_webui2
+    namespace = switch_to_webui2? ? 'webui2' : 'webui'
+    render layout: false, status: status, partial: "layouts/#{namespace}/flash", object: flash
   end
 
   def edit; end
@@ -1032,7 +1036,8 @@ class Webui::PackageController < Webui::WebuiController
     @meta_xml = Xmlhash.parse(params[:meta])
   rescue Suse::ValidationError => error
     flash.now[:error] = "Error while saving the Meta file: #{error}."
-    render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
+    namespace = params[:use_webui2] ? 'webui2' : 'webui'
+    render layout: false, status: 400, partial: "layouts/#{namespace}/flash", object: flash
   end
 
   def package_files(rev = nil, expand = nil)

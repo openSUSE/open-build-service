@@ -1,0 +1,14 @@
+- content_for(:content_for_head, javascript_include_tag('webui2/cm2/index-xml'))
+- @pagetitle = "Meta Configuration of Package #{@package}"
+
+.card
+  = render(partial: 'webui/package/tabs', locals: { project: @project, package: @package })
+
+  .card-body
+    %h3= @pagetitle
+    - if User.current.can_modify? @package
+      = render partial: 'shared/editor', locals: { text: @meta, mode: 'xml',
+        save: { url: package_save_meta_path, method: :post,
+        data: { project: @project.name, package: @package.name, submit: 'meta', use_webui2: true } } }
+    - else
+      = render partial: 'shared/editor', locals: { text: @meta, mode: 'xml', style: { read_only: true } }
