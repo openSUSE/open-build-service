@@ -405,13 +405,14 @@ sub push_containers {
       # check if we already processed this container with a different tag
       if ($done{$containerinfo}) {
 	# yes, reuse data
-        my ($multimani, $platformstr) = @{$done{$containerinfo}};
+        my ($multimani, $platformstr, $imginfo) = @{$done{$containerinfo}};
 	if ($multiplatforms{$platformstr}) {
 	  print "ignoring $containerinfo->{'file'}, already have $platformstr\n";
 	  next;
 	}
 	$multiplatforms{$platformstr} = 1;
         push @multimanifests, $multimani;
+        push @imginfos, $imginfo;
 	next;
       }
 
@@ -491,8 +492,6 @@ sub push_containers {
 	'digest' => $mani_id,
 	'platform' => {'architecture' => $config->{'architecture'}, 'os' => $config->{'os'}},
       };
-      # cache result
-      $done{$containerinfo} = [ $multimani, $platformstr ];
       push @multimanifests, $multimani;
 
       my $imginfo = {
@@ -501,6 +500,7 @@ sub push_containers {
         'goos' => $config->{'os'},
 	'distmanifest' => $mani_id,
       };
+      $imginfo->{'package'} = $containerinfo->{'_origin'} if $containerinfo->{'_origin'};
       $imginfo->{'disturl'} = $containerinfo->{'disturl'} if $containerinfo->{'disturl'};
       $imginfo->{'buildtime'} = $containerinfo->{'buildtime'} if $containerinfo->{'buildtime'};
       $imginfo->{'version'} = $containerinfo->{'version'} if $containerinfo->{'version'};
@@ -515,6 +515,8 @@ sub push_containers {
 	};
       }
       push @imginfos, $imginfo;
+      # cache result
+      $done{$containerinfo} = [ $multimani, $platformstr, $imginfo ];
     }
     next unless @multimanifests;
     my $taginfo = {
