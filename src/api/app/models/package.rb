@@ -981,16 +981,16 @@ class Package < ApplicationRecord
     linkinfo && (linkinfo['project'] == project.name)
   end
 
-  def add_containers(opts={})
+  def add_containers(opts = {})
     container_list = {}
 
     # released maintenance updates first
-    origin_container(local: false).update_instance.binary_releases.where("ISNULL(obsolete_time)").each do |binary_release|
+    origin_container(local: false).update_instance.binary_releases.where('ISNULL(obsolete_time)').find_each do |binary_release|
       mc = binary_release.medium_container
       container_list[mc] = 1 if mc
     end
     # GA versions second
-    origin_container(local: false).binary_releases.where("ISNULL(obsolete_time)").each do |binary_release|
+    origin_container(local: false).binary_releases.where('ISNULL(obsolete_time)').find_each do |binary_release|
       mc = binary_release.medium_container
       container_list[mc] = 1 if mc
     end
@@ -1006,10 +1006,10 @@ class Package < ApplicationRecord
       next if project.packages.exists?(name: container_name)
       target_package = Package.new(name: container_name, title: container.title, description: container.description)
       project.packages << target_package
-      target_package.store({comment: comment})
+      target_package.store(comment: comment)
 
       # branch sources
-      target_package.branch_from(container.project.update_instance.name, container.name, {comment: comment})
+      target_package.branch_from(container.project.update_instance.name, container.name, comment: comment)
     end
   end
 
