@@ -14,7 +14,7 @@
       %br
       %strong
         Build scheduled at:
-      = @details.time
+      = @details.time.strftime('%Y-%m-%d %H:%M')
       - if @details.packagechange
         %p
           %strong
