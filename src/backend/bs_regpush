@@ -596,7 +596,7 @@ for my $tarfile (@tarfiles) {
   if ($multiarch) {
     manifest_upload($mani_json, undef);		# upload anonymous image
     my $multimani = {
-      'mediaType' => 'application/vnd.docker.image.manifest.v2+json',
+      'mediaType' => 'application/vnd.docker.distribution.manifest.v2+json',
       'size' => length($mani_json),
       'digest' => 'sha256:'.Digest::SHA::sha256_hex($mani_json),
       'platform' => {'architecture' => $config->{'architecture'}, 'os' => $config->{'os'}},

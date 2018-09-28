@@ -1,0 +1,70 @@
+:ruby
+  save ||= {}
+  style ||= { read_only: false }
+  uid ||= next_codemirror_uid
+  content_for(:head_style, codemirror_style(style))
+
+- unless style[:read_only]
+  %div{ id: "top_#{uid}" }
+    .toolbar
+      %span.float-left
+        %input.tools.buttons.small.save.inactive{ id: "save_#{uid}", type: 'button', value: 'Save' }
+        %input.tools.buttons.undo.bg-transparent{ id: "undo_#{uid}", onclick: "editors[#{uid}].Undo(this);", type: 'button', value: 'undo' }
+        %input.tools.buttons.redo.bg-transparent{ id: "redo_#{uid}", onclick: "editors[#{uid}].Redo(this);", type: 'button', value: 'redo' }
+      %span.float-right
+        = select_tag("fontsize_#{uid}", options_for_select(%w[8pt 9pt 10pt 11pt 12pt 14pt]),
+          onchange: "editors[#{uid}].updateFontsize(this)", class: 'tools select')
+
+        :ruby
+          modes = [
+            ['changes', 'rpm-changes', { id: "rpm-changes_#{uid}" }],
+            ['spec', 'rpm-spec', { id: "rpm-spec-#{uid}" }],
+            ['diff', { id: "diff_#{uid}" }],
+            ['shell', 'text/x-sh', { id: "shell_#{uid}" }],
+            ['projconf', { id: "projconf_#{uid}" }],
+            ['baselibs', 'baselibsconf', { id: "baselibs_#{uid}" }],
+            ['perl', { id: "perl_#{uid}" }],
+            ['css', 'css', { id: "css_#{uid}" }],
+            ['html', 'htmlmixed', { id: "html_#{uid}" }],
+            ['js', 'javascript', { id: "js_#{uid}" }],
+            ['php', 'application/x-httpd-php-open', { id: "php_#{uid}" }],
+            ['xml', { id: "xml_#{uid}" }],
+            ['---', '', { id: "x_#{uid}", selected: true }]
+          ]
+        = select_tag("mode_#{uid}", options_for_select(modes),
+          onchange: "editors[#{uid}].updateMode(this)", class: 'tools select')
+
+:ruby
+  data = {}
+  data['save-url'] = save[:url] if save[:url]
+  data['save-method'] = save[:method] if save[:method]
+  data['data'] = save[:data] if save[:data]
+  text = force_utf8_and_transform_nonprintables(text)
+
+= text_area_tag("editor_#{uid}", text, cols: '0', rows: '0', data: data, class: 'editor')
+
+- unless style[:read_only]
+  %div{ id: "bottom_#{uid}" }
+    .toolbar
+      %span.float-left
+        %span position
+        %span.left-margin line:
+        %span.d-inline-block.counter{ id: "ln_#{uid}" } 0
+        %span char:
+        %span.d-inline-block.counter{ id: "ch_#{uid}" } 0
+        %span.left-margin tab size:
+        = select_tag("tabsize_#{uid}", options_for_select(2..8),
+          onchange: "editors[#{uid}].updateTabsize(this)", class: 'tools select', style: 'min-width: 30px')
+
+      %span.float-left
+        %span matching:
+        %input.tools.buttons.small{ id: "match_#{uid}", onclick: "editors[#{uid}].Match(this);", type: 'button', value: 'off' }/
+      %span.float-right
+        %span line:
+        %input.tools.inputs.counter{ autocomplete: 'off', id: "line_#{uid}", type: 'text' }/
+        %input.tools.buttons.small{ onclick: "editors[#{uid}].gotoLine(this);", type: 'button', value: 'go' }/
+        %span.left-margin line wrapping:
+        %input.tools.buttons.small{ onclick: "editors[#{uid}].Wrap(this)", type: 'button', value: 'off' }/
+
+- content_for :ready_function do
+  use_codemirror(#{uid}, #{style[:read_only]}, '#{mode}');

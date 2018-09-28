@@ -19,9 +19,9 @@
           = hidden_field_tag(:project, project)
           = hidden_field_tag(:package, package)
           - if package.develpackages.any?
-            .form-group.form-check
-              = check_box_tag(:force, 'cleanup', cleanup_source, class: 'form-check-input')
-              = label_tag(:force, 'Delete anyway?', class: 'form-check-label')
+            .custom-control.custom-checkbox
+              = check_box_tag(:force, 'cleanup', cleanup_source, class: 'custom-control-input')
+              = label_tag(:force, 'Delete anyway?', class: 'custom-control-label')
 
           .modal-footer
             %button.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }

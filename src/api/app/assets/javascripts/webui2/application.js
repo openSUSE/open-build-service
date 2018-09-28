@@ -33,3 +33,4 @@
 //= require webui2/buildresult.js
 // FIXME remove jquery-ui file when we upgrade jquery-ui gem
 //= require webui2/jquery-ui.min.js
+//= require webui2/cm2/use-codemirror.js

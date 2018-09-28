@@ -10,7 +10,21 @@
       = "#{@pagetitle} - " if @pagetitle
       = @configuration ? @configuration['title'] : 'Open Build Service'
     = stylesheet_link_tag 'webui2/webui2'
+    - if content_for?(:head_style)
+      %style{ type: 'text/css' }
+        = yield :head_style
+    = yield :content_for_head
+
     = javascript_include_tag 'webui2/application'
+
+    = yield :content_for_head
+    - if content_for?(:head_style)
+      %style{ type: 'text/css' }
+        = yield :head_style
+    = javascript_tag do
+      var _paq = _paq || [];
+      $(function() { #{yield :ready_function} });
+
     = auto_discovery_link_tag(:rss, news_feed_path(format: 'rss'), {:title => 'News'})
     = csrf_meta_tag
     - if User.current.try(:rss_token)
@@ -23,9 +37,9 @@
     .w-100.m-2
     .container.d-none.d-sm-block#personal-navigation
       .row
-        .col-8
+        .col
           = render partial: "layouts/webui2/breadcrumbs"
-        .col-4
+        .col-auto.ml-auto
           = render partial: "layouts/webui2/personal_navigation"
     .container#flash
       = render partial: "layouts/webui2/flash", object: flash

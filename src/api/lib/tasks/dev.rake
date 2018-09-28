@@ -98,13 +98,13 @@ namespace :dev do
 
         desc 'Autogenerate rubocop config in rails'
         task :rails do
-          sh 'rubocop --auto-gen-config --ignore_parent_exclusion || exit 0'
+          sh 'rubocop --auto-gen-config --ignore_parent_exclusion'
         end
 
         desc 'Run the ruby linter in root'
         task :root do
           Dir.chdir('../..') do
-            sh 'rubocop --auto-gen-config || exit 0'
+            sh 'rubocop --auto-gen-config'
           end
         end
       end
@@ -199,6 +199,9 @@ namespace :dev do
       create(:project, name: 'openSUSE:Factory:Rings:0-Bootstrap')
       create(:project, name: 'openSUSE:Factory:Rings:1-MinimalX')
       create(:project, name: 'openSUSE:Factory:Staging:A', description: 'requests:')
+
+      Configuration.download_url = 'https://download.opensuse.org'
+      Configuration.save
     end
   end
 end

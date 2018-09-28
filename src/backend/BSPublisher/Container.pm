@@ -157,6 +157,7 @@ sub upload_all_containers {
   }
 
   my $notary_uploads = {};
+  my $have_some_trust;
   my @registries = registries_for_prp($projid, $repoid);
 
   my %allrefs;
@@ -197,7 +198,8 @@ sub upload_all_containers {
 	  $gun .= "/$repository";
 	  undef $gun unless defined $pubkey;
 	}
-        do_local_uploads($extrep, $projid, $repoid, $repository, $gun, $containers, $pubkey, $signargs, $multicontainer, $uptags);
+	$have_some_trust = 1 if $gun;
+	do_local_uploads($extrep, $projid, $repoid, $repository, $gun, $containers, $pubkey, $signargs, $multicontainer, $uptags);
 	my $pullserver = $registry->{'server'};
 	undef $pullserver if $pullserver && $pullserver eq 'local:';
 	if ($pullserver) {
@@ -246,6 +248,7 @@ sub upload_all_containers {
       delete_obsolete_tags_from_registry($registry, $repository, $containerdigests);
     }
   }
+  $have_some_trust = 1 if %$notary_uploads;
 
   # postprocessing: write readme, create links
   my %allrefs_pp;
@@ -266,7 +269,7 @@ sub upload_all_containers {
       my @r = sort(BSUtil::unify(@{$allrefs_pp{$pp}}));
       my $readme = "This container can be pulled via:\n";
       $readme .= "  docker pull $_\n" for @r;
-      $readme .= "\nSet DOCKER_CONTENT_TRUST=1 to enable image tag verification.\n" if %{$notary_uploads || {}};
+      $readme .= "\nSet DOCKER_CONTENT_TRUST=1 to enable image tag verification.\n" if $have_some_trust;
       writestr("$extrep/$pp.registry.txt", undef, $readme);
     } elsif ($multicontainer && $allrefs_pp_lastp{$pp} ne $pp) {
       # create symlink to last arch
