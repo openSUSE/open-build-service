@@ -6298,6 +6298,8 @@ sub registry_forward {
   my @hdrs;
   my $range = BSServer::header('Range');
   push @hdrs, "Range: $range" if $range;
+  my $accept = BSServer::header('Accept');
+  push @hdrs, "Accept: $accept" if $accept;
   my $param = {
     'uri' => "$repserver/registry/$path",
     'request' => $req->{'action'},

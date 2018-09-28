@@ -487,7 +487,7 @@ sub push_containers {
       $knownmanifests{$mani_id} = 1;
 
       my $multimani = {
-	'mediaType' => 'application/vnd.docker.image.manifest.v2+json',
+	'mediaType' => 'application/vnd.docker.distribution.manifest.v2+json',
 	'size' => length($mani_json),
 	'digest' => $mani_id,
 	'platform' => {'architecture' => $config->{'architecture'}, 'os' => $config->{'os'}},
