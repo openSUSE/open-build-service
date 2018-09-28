@@ -8,6 +8,7 @@ module Webui
 
       def index
         @jobshistory = Package.jobhistory_list(@project.name, @repository.name, @architecture.name, @package_name)
+        switch_to_webui2
       end
 
       private
