@@ -1,0 +1,15 @@
+.modal.fade#edit-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'edit-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      = form_tag package_save_path(project: project.name, package: package.name) do
+        .modal-header
+          %h5.modal-title#edit-modal-label Edit #{package} (Project #{project})
+        .modal-body
+          .form-group
+            = label_tag(:title, 'Title:')
+            = text_field_tag('title', package.title, class: 'form-control')
+          .form-group
+            = label_tag(:description, 'Description:')
+            = text_area_tag(:description, package.description, rows: 8, class: 'form-control')
+        .modal-footer
+          = render partial: 'webui2/shared/dialog_action_buttons'

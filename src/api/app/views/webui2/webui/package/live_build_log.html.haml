@@ -1,0 +1,39 @@
+- @pagetitle = "Build Log for Package #{@package} (Project #{@project})"
+- @metarobots = 'noindex,nofollow'
+
+.card.mb-3
+  - if @package.is_a?(Package)
+    = render partial: 'tabs', locals: { project: @project, package: @package }
+  .card-body
+    %h3= @pagetitle
+    - if @workerid
+      = render partial: 'job_status', locals: { repository: @repo, architecture: @arch,
+                                                worker_id: @workerid, build_time: @buildtime,
+                                                percent: @percent }
+    %p
+      %strong Status:
+      %span#status Updating...
+    - if @what_depends_on.present?
+      %details.pb-3
+        %summary #{@what_depends_on.length} #{'package'.pluralize(@what_depends_on.length)} with a direct dependency to this package.
+        %strong Packages:
+        = @what_depends_on.join(', ')
+    = render partial: 'live_build_log_controls'
+    #log-space-wrapper{ data: { url: package_update_build_log_path(package: @package, project: @project,
+                                                                   status: @status, arch: @arch, repository: @repo) } }
+      .d-block.text-center.shadow-sm#log-info
+        .running.stop_refresh.py-2.bg-info.text-light
+          %i.fas.fa-spinner.fa-pulse
+          Running...
+        .paused.start_refresh.py-2.bg-dark.text-light
+          %i.far.fa-pause-circle
+          Paused
+        .finished.py-2.bg-warning
+          End of log
+      %pre.p-4.bg-light#log-space
+    - unless @workerid
+      = render partial: 'live_build_log_controls'
+
+:javascript
+  liveLog = new LiveLog('#log-space-wrapper', '.start_refresh', '.stop_refresh', '#status', #{@finished}, '#log-info').initialize();
+

@@ -8,6 +8,7 @@ module Webui
 
       def index
         @details = @package.last_build_reason(@repository, @architecture.name, @package_name)
+        switch_to_webui2
         return if @details.explain.present?
 
         redirect_back(fallback_location: package_binaries_path(package: @package, project: @project, repository: @repository.name),

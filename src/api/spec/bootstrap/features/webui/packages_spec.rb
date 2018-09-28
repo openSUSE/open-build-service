@@ -94,7 +94,7 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
 
     click_link('Request devel project change')
 
-    within('#modal') do
+    within('#change-devel-request-modal') do
       fill_in('devel_project', with: third_project.name)
       fill_in('description', with: 'Hey, why not?')
       click_button('Accept')
@@ -145,6 +145,23 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
       # don't bother with the umlaut
       expect(page.source).to have_text('[1] this is my dummy logfile')
     end
+  end
+
+  scenario 'editing a package' do
+    login(user)
+    visit package_show_path(package: package, project: user.home_project)
+    click_link('Edit description')
+    sleep 1 # FIXME: Needed to avoid a flickering test.
+
+    within('#edit-modal') do
+      fill_in('title', with: 'test title')
+      fill_in('description', with: 'test description')
+      click_button('Accept')
+    end
+
+    expect(find('#flash')).to have_text("Package data for '#{package}' was saved successfully")
+    expect(page).to have_text('test title')
+    expect(page).to have_text('test description')
   end
 
   context 'meta configuration' do

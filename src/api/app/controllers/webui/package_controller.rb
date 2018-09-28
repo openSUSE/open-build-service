@@ -182,6 +182,8 @@ class Webui::PackageController < Webui::WebuiController
     logger.debug "accepting #{request.accepts.join(',')} format:#{request.format}"
     # little trick to give users eager to download binaries a single click
     redirect_to(@durl) && return if request.format != Mime[:html] && @durl
+
+    switch_to_webui2
   end
 
   def binaries
@@ -616,6 +618,7 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to action: :show, project: params[:project], package: params[:package]
     else
       flash[:error] = "Failed to save package '#{@package.name}': #{@package.errors.full_messages.to_sentence}"
+      return if switch_to_webui2
       redirect_to action: :edit, project: params[:project], package: params[:package]
     end
   end
@@ -654,6 +657,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def add_file
     set_file_details
+    switch_to_webui2
   end
 
   def save_file
@@ -812,6 +816,8 @@ class Webui::PackageController < Webui::WebuiController
     @finished = Buildresult.final_status?(status)
 
     set_job_status
+
+    switch_to_webui2
   end
 
   def update_build_log
@@ -872,6 +878,8 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     logger.debug 'finished ' + @finished.to_s
+
+    switch_to_webui2
   end
 
   def abort_build
