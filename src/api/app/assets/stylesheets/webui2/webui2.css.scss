@@ -36,3 +36,8 @@
 @import 'comments';
 @import 'cm2';
 @import 'live_build_log';
+
+html {
+    overflow-y: scroll !important;
+}
+
