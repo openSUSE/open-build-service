@@ -163,7 +163,7 @@ namespace :dev do
       # therefore we need to create it manually and also set the proper relationship
       home_admin = create(:project, name: admin.home_project_name)
       create(:relationship, project: home_admin, user: admin, role: Role.hashed['maintainer'])
-      admin_repository = create(:repository, project: home_admin, name: 'openSUSE_Tumbleweed')
+      admin_repository = create(:repository, project: home_admin, name: 'openSUSE_Tumbleweed', architectures: ['x86_64'])
       create(:path_element, link: tw_repository, repository: admin_repository)
       ruby_admin = create(:package_with_file, name: 'ruby', project: home_admin, file_content: 'from admin home')
 
@@ -177,6 +177,11 @@ namespace :dev do
         source_project: branches_iggy,
         source_package: ruby_iggy
       )
+
+      test_package = create(:package, name: 'ctris', project: home_admin)
+      backend_url = "/source/#{CGI.escape(home_admin.name)}/#{CGI.escape(test_package.name)}"
+      Backend::Connection.put("#{backend_url}/ctris.spec", File.read('../../dist/t/spec/fixtures/ctris.spec'))
+      Backend::Connection.put("#{backend_url}/ctris-0.42.tar.bz2", File.read('../../dist/t/spec/fixtures/ctris-0.42.tar.bz2'))
 
       leap = create(:project, name: 'openSUSE:Leap:15.0')
       create(:package_with_file, name: 'apache2', project: leap)
@@ -202,6 +207,9 @@ namespace :dev do
 
       Configuration.download_url = 'https://download.opensuse.org'
       Configuration.save
+
+      # Trigger package builds for home:admin
+      home_admin.store
     end
   end
 end
