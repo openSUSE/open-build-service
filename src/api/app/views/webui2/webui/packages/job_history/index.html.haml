@@ -1,0 +1,52 @@
+- @pagetitle = "Job history of #{@project} / #{@package_name}"
+- @metarobots = 'index,nofollow'
+
+.card
+  = render partial: 'webui/package/tabs', locals: { project: @project, package: @package }
+
+  .card-body
+    %h3= @pagetitle
+    %h6.subtitle
+      Repository / Architecture: #{params[:repository]} / #{params[:arch]}
+
+    %table.responsive.table.table-striped.table-bordered.w-100#jobhistory-table
+      %thead
+        %th Revision
+        %th Time (not formatted)
+        %th Time
+        %th Reason
+        %th Status Code
+        %th Build Time (not formatted)
+        %th Build Time
+        %th Worker
+        %th
+      %tbody
+        - @jobshistory.each do |jobhistory|
+          %tr
+            %td
+              = jobhistory.revision
+            %td
+              = jobhistory.ready_time
+            %td
+              = time_tag(Time.at(jobhistory.ready_time))
+            %td
+              - if jobhistory.reason == 'source change'
+                = link_to(jobhistory.reason, package_rdiff_path(project: @project.name,
+                  package: @package, orev: jobhistory.prev_srcmd5, rev: jobhistory.srcmd5))
+              - else
+                = jobhistory.reason
+            %td{ class: "status_#{jobhistory.code}" }
+              = jobhistory.code
+            %td
+              = jobhistory.total_time
+            %td
+              = humanize_time(jobhistory.total_time)
+            %td
+              = jobhistory.worker_id
+            %td
+              - revision = (@is_link ? { srcmd5: jobhistory.srcmd5 } : { rev: jobhistory.revision })
+              - url = package_show_path(revision.merge(project: @project, package: @package))
+              = link_to(url, title: "Package:#{@package} | revision:#{jobhistory.revision}") do
+                %span.fa-stack.fa-xs.half-font-size
+                  %i.far.fa-file.fa-stack-2x
+                  %i.fas.fa-search.fa-stack-0.5x.pl-2.pt-2

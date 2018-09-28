@@ -1,7 +1,7 @@
 .bg-light
   %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
     %li.nav-item
-      = tab_link('Overview', package_show_path)
+      = tab_link('Overview', package_show_path(package: package))
     - if package.name == 'patchinfo'
       %li.nav-item
         = tab_link('Details', patchinfo_show_path)
@@ -9,15 +9,15 @@
       %li.nav-item
         = tab_link('Repositories', repositories_path)
       %li.nav-item
-        = tab_link('Revisions', package_view_revisions_path)
+        = tab_link('Revisions', package_view_revisions_path(package: package))
       %li.nav-item
-        = tab_link('Requests', package_requests_path)
+        = tab_link('Requests', package_requests_path(package: package))
       %li.nav-item
-        = tab_link('Users', package_users_path)
+        = tab_link('Users', package_users_path(package: package))
       %li.nav-item
         = tab_link('Attributes', index_attribs_path(project, package))
       %li.nav-item
-        = tab_link('Meta', package_meta_path)
+        = tab_link('Meta', package_meta_path(package: package))
     %li.nav-item.dropdown
       %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', 'role': 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
       .dropdown-menu.dropdown-menu-right
