@@ -515,10 +515,11 @@ RSpec.describe Package, vcr: true do
 
   describe '#last_build_reason' do
     let(:path) { "#{CONFIG['source_url']}/build/#{package.project.name}/openSUSE_Leap_42.3/x86_64/#{package.name}/_reason" }
+    let(:time) { 1_496_387_771 }
 
     before do
       stub_request(:get, path).and_return(body:
-        %(<reason>\n  <explain>source change</explain>  <time>1496387771</time>  <oldsource>1de56fdc419ea4282e35bd388285d370</oldsource></reason>))
+        %(<reason>\n  <explain>source change</explain>  <time>#{time}</time>  <oldsource>1de56fdc419ea4282e35bd388285d370</oldsource></reason>))
     end
 
     let(:result) { package.last_build_reason('openSUSE_Leap_42.3', 'x86_64') }
@@ -533,7 +534,7 @@ RSpec.describe Package, vcr: true do
       end
 
       it 'for: time' do
-        expect(result.time).to eq('1496387771')
+        expect(result.time).to eq(Time.at(time))
       end
 
       it 'for: oldsource' do
