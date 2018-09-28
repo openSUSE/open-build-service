@@ -139,6 +139,7 @@ class Webui::PackageController < Webui::WebuiController
   # rubocop:enable Lint/NonLocalExitFromIterator
 
   def statistics
+    return if switch_to_webui2
     @arch = params[:arch]
     @repository = params[:repository]
     @package_name = params[:package]

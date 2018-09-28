@@ -1,0 +1,56 @@
+- @pagetitle = 'Resource Information'
+- @metarobots = 'noindex' # files change too often
+
+.card.mb-3
+  = render partial: 'tabs', locals: { project: @project, package: @package }
+  .card-body
+    - if @statistics
+      .row
+        - disk = @statistics.disk
+        - if disk
+          .col-md-4
+            %h3 Disk Statistics
+            - if disk.size
+              %p
+                %strong Maximal used disk space:
+                = disk.size
+                #{disk.unit}byte
+            - if disk.io_requests
+              %p
+                %strong Number of IO requests:
+                = disk.io_requests
+            - if disk.io_sectors
+              %p
+                %strong Sectors read or written:
+                = disk.io_sectors
+        - memory = @statistics.memory
+        - if memory && memory.size
+          .col-md-4
+            %h3 Memory Statistics
+            %p
+              %strong Maximal used memory:
+              = memory.size
+              #{memory.unit}byte
+        - times = @statistics.times
+        - if times
+          .col-md-4
+            %h3 Times
+            - if times.preinstall
+              %p
+                %strong Package Preinstall:
+                #{times.preinstall} #{times.preinstall_unit}
+            - if times.install
+              %p
+                %strong Package Install:
+                #{times.install} #{times.install_unit}
+            - if times.main
+              %p
+                %strong Main build task:
+                #{times.main} #{times.main_unit}
+            - if times.total
+              %p
+                %strong Total build:
+                #{times.total} #{times.total_unit}
+    - else
+      %strong No statistics exist for this build
+
