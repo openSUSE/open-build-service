@@ -11,7 +11,6 @@ BEGIN {
   unshift @INC, "/usr/lib/obs/server";
 };
 
-use BSRPC;
 use JSON::XS;
 
 # These test need a lot of resources, so they should be
@@ -53,7 +52,7 @@ SKIP: {
   my $repo;
   while (1) {
     $timeout--;
-    my $response = BSRPC::rpc("http://localhost:5000/v2/_catalog");
+    my $response = `curl https://localhost/v2/_catalog 2>/dev/null`;
     my $json = decode_json($response);
     if ( $json->{repositories}->[0]) {
       $repo = $json->{repositories}->[0];

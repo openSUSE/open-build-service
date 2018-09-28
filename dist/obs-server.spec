@@ -731,27 +731,4 @@ usermod -a -G docker obsservicerun
 %config(noreplace) /etc/obs/cloudupload/.aws/credentials
 %config /etc/obs/cloudupload/.ec2utils.conf
 
-%package -n obs-container-registry
-Summary:        The Open Build Service -- container registry
-Group:          Productivity/Networking/Web/Utilities
-Requires:       docker-distribution-registry
-
-%description -n obs-container-registry
-The OBS Container Registry, based on the docker registry, which allows
-
-* anonymous pulls from anywhere
-* anonymous pushes from localhost.
-
-This is done by proxying access to the registry through
-apache and restricting any other http method than GET and HEAD
-to localhost.
-
-
-%files -n obs-container-registry
-%defattr(-,root,root)
-%dir /srv/www/obs/container-registry
-%dir /srv/www/obs/container-registry/log
-%dir /srv/www/obs/container-registry/htdocs
-%config /etc/apache2/vhosts.d/obs-container-registry.conf
-
 %changelog
