@@ -1,0 +1,14 @@
+%details.card.details-with-codemirror{ open: expand_diff?(filename, file['state']), id: "revision_details_#{index}" }
+  %summary.card-header
+    = filename
+    %span.badge{ class: badge_for_diff_state(file['state']) }= file['state'].capitalize
+    .btn-group.float-right{ role: :group }
+      - unless @linkinfo
+        = link_to_unless(Package.is_binary_file?(filename) || filename.include?('/'),
+        'View file',
+        package_view_file_path(project: project, package: package, filename: filename, rev: calculate_revision_on_state(revision, file['state'])),
+        class: 'btn btn-sm btn-outline-secondary', title: 'View the whole file')
+      - if index.positive?
+        %a.btn.btn-sm.btn-outline-secondary.fas.fa-chevron-up{ style: 'height: 16px, width: 16px', href: "#revision_details_#{index - 1}", title: 'Go up to the previous diff' }
+  %div
+    = render partial: 'shared/editor', locals: { text: file.dig('diff', '_content'), mode: 'diff', style: { read_only: true } }

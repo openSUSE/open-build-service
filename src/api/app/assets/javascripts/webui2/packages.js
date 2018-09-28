@@ -7,4 +7,12 @@ $(function ($) {
   $inputs.on('change', function () {
     $inputs.not(this).prop('required', !$(this).val().length);
   });
+
+  $('details.details-with-codemirror').on('click', function () {
+    var editor = $(this).find('.CodeMirror')[0].CodeMirror;
+    window.setTimeout(function() {
+      editor.refresh();
+    },1);
+  });
 });
+

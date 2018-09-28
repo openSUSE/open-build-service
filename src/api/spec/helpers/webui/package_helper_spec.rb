@@ -253,4 +253,25 @@ RSpec.describe Webui::PackageHelper, type: :helper do
     it { expect(uploadable?('image.vhdfixed.xz', 'i386')).to be_falsy }
     it { expect(uploadable?('apache2.rpm', 'x86_64')).to be_falsy }
   end
+
+  describe '#expand_diff?' do
+    it { expect(expand_diff?('ctris.spec', 'added')).to be true }
+    it { expect(expand_diff?('_patchinfo', 'added')).to be true }
+    it { expect(expand_diff?('ctris.changes', 'added')).to be true }
+    it { expect(expand_diff?('ctris.changes', 'deleted')).to be false }
+    it { expect(expand_diff?('/foo/bar/test.txt', 'added')).to be false }
+  end
+
+  describe '#badge_for_diff_state' do
+    it { expect(badge_for_diff_state('added')).to eq('badge-success') }
+    it { expect(badge_for_diff_state('deleted')).to eq('badge-danger') }
+    it { expect(badge_for_diff_state('changed')).to eq('badge-warning') }
+    it { expect(badge_for_diff_state('other')).to eq('badge-primary') }
+  end
+
+  describe '#calculate_revision_on_state' do
+    it { expect(calculate_revision_on_state('1', 'deleted')).to eq(0) }
+    it { expect(calculate_revision_on_state('0', 'deleted')).to eq(0) }
+    it { expect(calculate_revision_on_state('1', 'added')).to eq(1) }
+  end
 end

@@ -1,0 +1,27 @@
+- content_for(:content_for_head, javascript_include_tag('webui2/cm2/index-diff'))
+- @pagetitle = "Changes of Revision #{@rev}"
+
+- if @not_full_diff
+  = render partial: 'webui2/shared/truncated_diff_hint',
+  locals: { path: package_rdiff_path(project: @project, package: @package, linkrev: @linkrev, rev: @rev, full_diff: true) }
+
+.card
+  = render partial: 'tabs', locals: { project: @project, package: @package }
+  .card-body
+    - if @opackage
+      %h3
+        Difference Between Revision #{@rev}
+        and #{project_or_package_link project: @oproject.name, package: @opackage.name, short: true}
+    - else
+      %h3
+        Changes of Revision #{@rev}
+    - if @filenames.present?
+      - @filenames.each_with_index do |filename, index|
+        = render partial: 'revision_diff_detail',
+        locals: { project: @project, package: @package, filename: filename, file: @files[filename], revision: @rev, index: index }
+        %br
+    - else
+      %p No source changes.
+      %br
+    = render partial: 'revision_diff_footer',
+    locals: { project: @project, package: @package, request: @last_req, submit_message: @submit_message, submit_url_opts: @submit_url_opts }
