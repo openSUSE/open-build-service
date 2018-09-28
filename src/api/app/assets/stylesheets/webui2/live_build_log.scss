@@ -1,0 +1,52 @@
+#log-space-wrapper {
+  #log-info {
+    top: 0;
+    cursor: pointer;
+
+    .finished { cursor: default; }
+   }
+
+  pre {
+    white-space: pre-wrap;
+  }
+}
+
+.live-link-action {
+  @extend .px-2;
+  @extend .mr-2;
+  @extend .mb-2;
+  @extend .btn;
+  @extend .btn-sm;
+}
+
+@include media-breakpoint-down(sm) {
+  #log-space-wrapper {
+    pre {
+      font-size: 40%;
+    }
+  }
+}
+
+@include media-breakpoint-up(sm) {
+  #log-space-wrapper {
+    pre {
+      font-size: 50%;
+    }
+  }
+}
+
+@include media-breakpoint-up(md) {
+  #log-space-wrapper {
+    pre {
+      font-size: 60%;
+    }
+  }
+}
+
+@include media-breakpoint-up(lg) {
+  #log-space-wrapper {
+    pre {
+      font-size: 70%;
+    }
+  }
+}

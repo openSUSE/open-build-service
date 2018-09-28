@@ -816,6 +816,8 @@ class Webui::PackageController < Webui::WebuiController
     @finished = Buildresult.final_status?(status)
 
     set_job_status
+
+    switch_to_webui2
   end
 
   def update_build_log
@@ -876,6 +878,8 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     logger.debug 'finished ' + @finished.to_s
+
+    switch_to_webui2
   end
 
   def abort_build
