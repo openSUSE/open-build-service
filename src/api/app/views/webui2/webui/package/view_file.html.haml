@@ -1,5 +1,5 @@
 - @pagetitle = "File #{@filename} of Package #{@package}"
-- content_for(:content_for_head, javascript_include_tag('webui2/cm2/index'))
+- content_for(:content_for_head, javascript_include_tag('webui2/cm2/default'))
 
 .card.mb-3
   = render partial: 'tabs', locals: { project: @project, package: @package }
