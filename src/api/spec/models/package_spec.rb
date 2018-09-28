@@ -770,5 +770,56 @@ RSpec.describe Package, vcr: true do
       end
     end
   end
+
+  describe '#statistics' do
+    let(:fake_statistics_result) do
+      <<-HEREDOC
+        <buildstatistics>
+          <disk>
+            <usage>
+              <size unit="M">491</size>
+              <io_requests>4900</io_requests>
+              <io_sectors>826498</io_sectors>
+            </usage>
+          </disk>
+          <memory>
+            <usage>
+              <size unit="M">106</size>
+            </usage>
+          </memory>
+          <times>
+            <total>
+              <time unit="s">107</time>
+            </total>
+            <preinstall>
+              <time unit="s">18</time>
+            </preinstall>
+            <install>
+              <time unit="s">24</time>
+            </install>
+            <main>
+              <time unit="s">4</time>
+            </main>
+            <download>
+              <time unit="s">4</time>
+            </download>
+          </times>
+          <download>
+            <size unit="k">7548</size>
+            <binaries>4</binaries>
+            <cachehits>103</cachehits>
+          </download>
+        </buildstatistics>
+      HEREDOC
+    end
+
+    before do
+      allow(Backend::Api::BuildResults::Status).to receive(:statistics).and_return(fake_statistics_result)
+    end
+
+    it 'returns an object with class LocalBuildStatistic::ForPackage' do
+      expect(package.statistics(home_project, 'SLE_12_SP2', 'x68_64').class).to eq(LocalBuildStatistic::ForPackage)
+    end
+  end
 end
 # rubocop:enable Metrics/BlockLength

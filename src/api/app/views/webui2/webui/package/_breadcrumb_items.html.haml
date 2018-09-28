@@ -16,6 +16,11 @@
 - if current_page?(package_show_path)
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Overview
-- if @repo && @arch && current_page?(package_live_build_log_path(@project, @package, repository: @repo, arch: @arch))
+- if controller_name == 'package' && action_name == 'live_build_log'
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Build Log
+- if controller_name == 'package' && action_name == 'statistics'
+  %li.breadcrumb-item
+    = link_to 'Repository State', package_binaries_path(@project, @package_name, @repository)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Statistics
