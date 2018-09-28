@@ -41,10 +41,11 @@
                               arch: result[:arch], filename: binary[:filename]), title: 'Information') do
                       %i.fas.fa-info-circle
                       Details
-      %p
-        - if User.current.can_modify?(@package)
-          = render partial: 'webui2/webui/package/binaries/trigger_rebuild_wipe_binaries', locals: { result: result, project: @project,
-                                                            package: @package_name, repository: @repository }
+      %hr
+        %ul.list-inline
+          - if User.current.can_modify?(@package)
+            = render partial: 'webui2/webui/package/binaries/trigger_rebuild_wipe_binaries', locals: { result: result, project: @project,
+                                                              package: @package_name, repository: @repository }
 
-        = render partial: 'webui2/webui/package/binaries/show_statistics_job_history_build_reason', locals: { result: result,
-          project: @project, package: @package_name, repository: @repository }
+          = render partial: 'webui2/webui/package/binaries/show_statistics_job_history_build_reason', locals: { result: result,
+            project: @project, package: @package_name, repository: @repository }
