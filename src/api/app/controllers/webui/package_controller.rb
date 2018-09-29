@@ -703,21 +703,26 @@ class Webui::PackageController < Webui::WebuiController
       # We have to check if it's an AJAX request or not
       if request.xhr?
         flash.now[:success] = message
-        render layout: false, partial: 'layouts/webui/flash', object: flash
       else
         redirect_to({ action: :show, project: @project, package: @package }, success: message)
+        return
       end
-      return
     else
       message = "Error while creating '#{filename}' file: #{errors.compact.join("\n")}."
       # We have to check if it's an AJAX request or not
       if request.xhr?
         flash.now[:error] = message
-        render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
+        status = 400
       else
         redirect_back(fallback_location: root_path, error: message)
+        return
       end
     end
+
+    switch_to_webui2
+    namespace = switch_to_webui2? ? 'webui2' : 'webui'
+    status ||= 200
+    render layout: false, status: status, partial: "layouts/#{namespace}/flash", object: flash
   end
 
   def remove_file
@@ -767,7 +772,10 @@ class Webui::PackageController < Webui::WebuiController
       redirect_back(fallback_location: { action: :show, project: @project, package: @package })
       return
     end
-    render(template: 'webui/package/simple_file_view') && return if @spider_bot
+
+    switch_to_webui2
+    prefix = switch_to_webui2? ? 'webui2/' : ''
+    render(template: "#{prefix}webui/package/simple_file_view") && return if @spider_bot
   end
 
   def fetch_from_params(*arr)

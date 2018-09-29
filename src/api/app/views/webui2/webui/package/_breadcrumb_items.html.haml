@@ -24,3 +24,6 @@
     = link_to 'Repository State', package_binaries_path(@project, @package_name, @repository)
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Statistics
+- if current_page?(package_view_file_path)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    = @filename
