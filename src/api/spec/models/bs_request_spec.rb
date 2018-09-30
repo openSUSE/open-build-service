@@ -355,7 +355,8 @@ RSpec.describe BsRequest, vcr: true do
 
   context 'auto accept' do
     let!(:project) { create(:project) }
-    let!(:admin) { create(:admin_user, login: 'admin') }
+    let!(:user) { create(:confirmed_user, login: 'tux') }
+    let!(:maintainer_role) { create(:relationship, package: target_package, user: user) }
     let!(:request) do
       create(:bs_request_with_submit_action,
              target_project: target_package.project.name,
@@ -363,7 +364,7 @@ RSpec.describe BsRequest, vcr: true do
              source_project: source_package.project.name,
              source_package: source_package.name,
              description:    'Update package to newest version',
-             creator:        admin.login)
+             creator:        user.login)
     end
 
     before do
@@ -393,6 +394,17 @@ RSpec.describe BsRequest, vcr: true do
         end
 
         it { expect(request.reload).not_to have_attributes(state: :accepted, comment: 'Auto accept') }
+      end
+
+      context "when creator doesn't have permissions for the target project" do
+        subject { request.auto_accept }
+
+        before do
+          maintainer_role.delete
+          subject
+        end
+
+        it { expect(request.reload).to have_attributes(comment: 'Permission problem', state: :revoked) }
       end
     end
   end
