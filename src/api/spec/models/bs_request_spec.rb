@@ -355,27 +355,25 @@ RSpec.describe BsRequest, vcr: true do
 
   describe '.delayed_auto_accept' do
     let!(:project) { create(:project) }
-    let!(:admin) { create(:admin_user) }
+    let!(:admin) { create(:admin_user, login: 'admin') }
     let!(:request) do
       create(:bs_request_with_submit_action,
              target_project: target_package.project.name,
              target_package: target_package.name,
              source_project: source_package.project.name,
              source_package: source_package.name,
-             creator: admin.login)
+             description:    'Update package to newest version',
+             creator:        admin.login)
     end
 
     before do
-      allow(BsRequest).to receive(:to_accept).and_return([request])
-      allow(BsRequest).to receive(:find).and_return(request)
-      allow(request).to receive(:auto_accept)
+      request.update(accept_at: 1.hour.ago)
     end
 
     subject! { BsRequest.delayed_auto_accept }
 
-    it 'calls auto_accept on the request' do
-      expect(request).to have_received(:auto_accept)
-    end
+    it { is_expected.to contain_exactly(request) }
+    it { expect(request.reload).to have_attributes(state: :accepted, comment: 'Auto accept') }
   end
 
   describe '#sanitize!' do
