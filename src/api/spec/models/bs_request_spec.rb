@@ -353,7 +353,7 @@ RSpec.describe BsRequest, vcr: true do
     end
   end
 
-  describe '.delayed_auto_accept' do
+  context 'auto accept' do
     let!(:project) { create(:project) }
     let!(:admin) { create(:admin_user, login: 'admin') }
     let!(:request) do
@@ -370,10 +370,31 @@ RSpec.describe BsRequest, vcr: true do
       request.update(accept_at: 1.hour.ago)
     end
 
-    subject! { BsRequest.delayed_auto_accept }
+    describe '.delayed_auto_accept' do
+      subject! { BsRequest.delayed_auto_accept }
 
-    it { is_expected.to contain_exactly(request) }
-    it { expect(request.reload).to have_attributes(state: :accepted, comment: 'Auto accept') }
+      it { is_expected.to contain_exactly(request) }
+      it { expect(request.reload).to have_attributes(state: :accepted, comment: 'Auto accept') }
+    end
+
+    describe '#auto_accept' do
+      context 'when the request is pending' do
+        subject! { request.auto_accept }
+
+        it { expect(request.reload).to have_attributes(state: :accepted, comment: 'Auto accept') }
+      end
+
+      context 'when the request was already processed' do
+        subject { request.auto_accept }
+
+        before do
+          request.update(state: :declined)
+          subject
+        end
+
+        it { expect(request.reload).not_to have_attributes(state: :accepted, comment: 'Auto accept') }
+      end
+    end
   end
 
   describe '#sanitize!' do
