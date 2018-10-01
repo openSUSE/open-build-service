@@ -10,11 +10,6 @@
       = "#{@pagetitle} - " if @pagetitle
       = @configuration ? @configuration['title'] : 'Open Build Service'
     = stylesheet_link_tag 'webui2/webui2'
-    - if content_for?(:head_style)
-      %style{ type: 'text/css' }
-        = yield :head_style
-    = yield :content_for_head
-
     = javascript_include_tag 'webui2/application'
 
     = yield :content_for_head

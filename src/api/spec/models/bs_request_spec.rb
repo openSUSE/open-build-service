@@ -353,28 +353,59 @@ RSpec.describe BsRequest, vcr: true do
     end
   end
 
-  describe '.delayed_auto_accept' do
+  context 'auto accept' do
     let!(:project) { create(:project) }
-    let!(:admin) { create(:admin_user) }
+    let!(:user) { create(:confirmed_user, login: 'tux') }
+    let!(:maintainer_role) { create(:relationship, package: target_package, user: user) }
     let!(:request) do
       create(:bs_request_with_submit_action,
              target_project: target_package.project.name,
              target_package: target_package.name,
              source_project: source_package.project.name,
              source_package: source_package.name,
-             creator: admin.login)
+             description:    'Update package to newest version',
+             creator:        user.login)
     end
 
     before do
-      allow(BsRequest).to receive(:to_accept).and_return([request])
-      allow(BsRequest).to receive(:find).and_return(request)
-      allow(request).to receive(:auto_accept)
+      request.update(accept_at: 1.hour.ago)
     end
 
-    subject! { BsRequest.delayed_auto_accept }
+    describe '.delayed_auto_accept' do
+      subject! { BsRequest.delayed_auto_accept }
 
-    it 'calls auto_accept on the request' do
-      expect(request).to have_received(:auto_accept)
+      it { is_expected.to contain_exactly(request) }
+      it { expect(request.reload).to have_attributes(state: :accepted, comment: 'Auto accept') }
+    end
+
+    describe '#auto_accept' do
+      context 'when the request is pending' do
+        subject! { request.auto_accept }
+
+        it { expect(request.reload).to have_attributes(state: :accepted, comment: 'Auto accept') }
+      end
+
+      context 'when the request was already processed' do
+        subject { request.auto_accept }
+
+        before do
+          request.update(state: :declined)
+          subject
+        end
+
+        it { expect(request.reload).not_to have_attributes(state: :accepted, comment: 'Auto accept') }
+      end
+
+      context "when creator doesn't have permissions for the target project" do
+        subject { request.auto_accept }
+
+        before do
+          maintainer_role.delete
+          subject
+        end
+
+        it { expect(request.reload).to have_attributes(comment: 'Permission problem', state: :revoked) }
+      end
     end
   end
 

@@ -2,12 +2,12 @@
   %p No requests.
 - else
   %ul.list-unstyled
-    - requests.each_with_index do |req, index|
+    - requests.each_with_index do |req, _index|
       %li
         .custom-control.custom-checkbox
           = check_box_tag('supersede_request_numbers[]', req.number, false,
             id: "supersede_request_numbers#{req.number}", class: 'custom-control-input')
-          = label_tag("supersede_request_numbers#{index + 1}", class: 'custom-control-label') do
+          = label_tag("supersede_request_numbers#{req.number}", class: 'custom-control-label') do
             = link_to(req.number, controller: :request, action: :show, number: req.number)
             by
             = user_with_realname_and_icon(req.creator, short: true)

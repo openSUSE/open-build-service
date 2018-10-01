@@ -10,9 +10,6 @@
 - if current_page?(package_requests_path)
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Requests
-- if current_page?(package_users_path)
-  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-    Users
 - if controller_name == 'package' && action_name == 'binary'
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Binary
@@ -27,3 +24,6 @@
     = link_to 'Repository State', package_binaries_path(@project, @package_name, @repository)
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Statistics
+- if current_page?(package_view_file_path)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    = @filename

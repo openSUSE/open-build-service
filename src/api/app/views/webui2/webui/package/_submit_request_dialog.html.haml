@@ -37,7 +37,7 @@
 
           .form-group.d-none#supersede-display
             = label_tag(:supersede_requests, 'Supersede requests:')
-            %p#supersede-requests
+            #supersede-requests
 
           .custom-control.custom-checkbox#sourceupdate-display
             = check_box_tag(:sourceupdate, 'cleanup', cleanup_source, class: 'custom-control-input')
