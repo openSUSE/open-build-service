@@ -9,6 +9,7 @@
           %th Actions
       %tbody
         - files.each_with_index do |file, index|
+          - can_be_removed = removable_file?(file_name: file[:name], package: package) && User.current.can_modify?(package)
           %tr{ id: "file-#{valid_xml_id(file[:name])}" }
             %td
               - link_opts = { action: :view_file, project: project, package: package, filename: file[:name], expand: expand }
@@ -26,12 +27,13 @@
               - if !User.current.is_nobody? || file[:size].to_i < 4.megabytes
                 = link_to(file_url(project.name, package.name, file[:name], file[:srcmd5]), title: 'Download file') do
                   %i.fas.fa-arrow-circle-down.text-secondary
-              - if removable_file?(file_name: file[:name], package: package) && User.current.can_modify?(package)
-                = render(partial: 'delete_file_dialog',
-                         locals: { project: project.to_param, package: package.to_param, filename: file[:name], file_id: index })
+              - if can_be_removed
                 = link_to('#', data: { toggle: 'modal', target: "#delete-file-modal-#{index}" },
                           title: 'Delete file') do
                   %i.fas.fa-times-circle.text-danger
+          - if can_be_removed
+            = render(partial: 'delete_file_dialog',
+                      locals: { project: project.to_param, package: package.to_param, filename: file[:name], file_id: index })
   - else
     %i This package has no files yet
   - if User.current.can_modify?(package)
