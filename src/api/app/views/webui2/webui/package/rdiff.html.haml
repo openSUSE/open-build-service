@@ -41,4 +41,9 @@
           %p No source changes.
           %br
         = render partial: 'revision_diff_footer',
-        locals: { project: @project, package: @package, request: @last_req, submit_message: @submit_message, submit_url_opts: @submit_url_opts }
+        locals: { project: @project,
+          package: @package,
+          request: @last_req,
+          submit_message: @submit_message,
+          submit_url_opts: @submit_url_opts,
+          show_revert_link: !User.current.is_nobody? && @filenames.present? }
