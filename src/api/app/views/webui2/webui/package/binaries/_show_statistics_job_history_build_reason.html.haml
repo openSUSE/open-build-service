@@ -1,22 +1,20 @@
 - if result[:statistics]
   %li.list-inline-item
-    = link_to package_statistics_path(project: project, package: package, repository: repository, arch: result[:arch]), title: 'Show statistics' do
+    = link_to(package_statistics_path(project: project, package: package, repository: repository, arch: result[:arch]),
+      title: 'Show statistics', class: 'nav-link') do
       %span.fa-stack.half-font-size
         %i.far.fa-file.fa-stack-2x
         %i.fas.fa-search.fa-stack-1x
-      Show
-    used resources
+      Show resources
 
 %li.list-inline-item
-  = link_to index_package_job_history_path(project: project, package_name: package, repository: repository, arch: result[:arch]),
-  title: 'Job history' do
+  = link_to(index_package_job_history_path(project: project, package_name: package, repository: repository, arch: result[:arch]),
+  title: 'Job history', class: 'nav-link') do
     %i.fas.fa-list
     Job history
-  list
 
 %li.list-inline-item
-  = link_to index_package_build_reason_path(project: project, package_name: package, repository: repository, arch: result[:arch]),
-  title: 'Build reason' do
+  = link_to(index_package_build_reason_path(project: project, package_name: package, repository: repository, arch: result[:arch]),
+  title: 'Build reason', class: 'nav-link') do
     %i.fas.fa-info-circle
-    Build
-  reason
+    Build reason

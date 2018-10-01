@@ -1,4 +1,5 @@
 - url = "#{download_url}/#{project.to_s.gsub(/:/, ':/')}/#{repository}"
-= link_to(url, title: 'Go to download repository') do
-  %i.fas.fa-download
-  Go to download repository
+%li.list-inline-item
+  = link_to(url, title: 'Go to download repository', class: 'nav-link') do
+    %i.fas.fa-download
+    Go to download repository

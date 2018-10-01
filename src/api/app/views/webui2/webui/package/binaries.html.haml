@@ -2,14 +2,16 @@
   = render partial: 'tabs', locals: { package: @package, project: @project }
   .card-body
     %h3 State of Repository #{@repository} for #{@project} / #{@package_name}
-    %p
+    %ul.list-inline
       - if @configuration['download_url']
         = render partial: 'shared/download_repository_link', locals: { project: @project, repository: @repository,
                                                                        download_url: @configuration['download_url'] }
       - unless @buildresults.empty?
-        = link_to package_wipe_binaries_path(project: @project, package: @package_name, repository: @repository), method: :delete do
-          %i.fas.fa-times-circle.text-danger
-          Delete all built binaries
+        %li.list-inline-item
+          = link_to(package_wipe_binaries_path(project: @project, package: @package_name, repository: @repository),
+            method: :delete, class: 'nav-link') do
+            %i.fas.fa-times-circle.text-danger
+            Delete all built binaries
 
     - @buildresults.each do |result|
       %h3
@@ -20,25 +22,24 @@
           %i No built binaries
       - else
         .table-responsive
-          %table.table.table-hover
+          %table.table.table-hover.table-sm
             %tbody
             - result[:binaries].each do |binary|
               %tr
-                %td.text-nowrap #{binary[:filename]} (#{number_to_human_size(binary[:size])})
-                %td.text-nowrap
+                %td #{binary[:filename]} (#{number_to_human_size(binary[:size])})
+                %td.text-nowrap.text-right
                   - if binary[:links][:cloud_upload?]
                     = link_to(new_cloud_upload_path(project: @project, package: @package, repository: @repository, arch: result[:arch],
-                    filename: binary[:filename]), title: 'Cloud Upload') do
+                    filename: binary[:filename]), title: 'Cloud Upload', class: 'ml-2') do
                       %i.fas.fa-cloud-upload-alt
                       Cloud Upload
                   - if binary[:links][:download_url]
-                    = link_to(binary[:links][:download_url], title: 'Download') do
-                      %i.fas.fa-arrow-circle-down.text-secondary
+                    = link_to(binary[:links][:download_url], title: 'Download', class: 'ml-2') do
+                      %i.fas.fa-download.text-secondary
                       Download
-                %td.text-nowrap
                   - if binary[:links][:details?]
                     = link_to(package_binary_path(project: @project, package: @package_name, repository: @repository,
-                              arch: result[:arch], filename: binary[:filename]), title: 'Information') do
+                              arch: result[:arch], filename: binary[:filename]), title: 'Information', class: 'ml-2') do
                       %i.fas.fa-info-circle
                       Details
       %hr
