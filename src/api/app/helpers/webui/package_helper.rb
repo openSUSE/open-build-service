@@ -110,6 +110,7 @@ module Webui::PackageHelper
 
   def calculate_revision_on_state(revision, state)
     result = revision.to_i
-    state == 'deleted' && result > 0 ? result - 1 : result
+    result -= 1 if state == 'deleted'
+    [result, 0].max
   end
 end
