@@ -30,7 +30,7 @@
           Paused
         .finished.py-2.bg-warning
           End of log
-      %pre.p-4.bg-light#log-space
+      %pre.p-4.bg-light.text-pre-wrap#log-space
     - unless @workerid
       = render partial: 'live_build_log_controls'
 
