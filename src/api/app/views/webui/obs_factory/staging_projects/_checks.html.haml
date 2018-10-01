@@ -3,7 +3,7 @@
   Checks
   = "(#{@build_id})"
 %dd
-  - if @checks.blank? && @missing_checks.blank?
+  - if @checks.empty? && @missing_checks.empty?
     None.
   - else
     %ul

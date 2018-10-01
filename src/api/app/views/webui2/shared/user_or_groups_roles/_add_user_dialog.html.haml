@@ -1,0 +1,40 @@
+.modal.fade#add-user-role-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'edit-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      = form_tag action: :save_person do
+        .modal-header
+          %h5.modal-title#edit-modal-label Add User
+        .modal-body
+          .form-group#add-user-role-modal-input
+            = label_tag(:userid, 'User:')
+            .input-group
+              .input-group-prepend
+                %span.input-group-text#add-user-search-icon
+                  %i.fa.fa-search
+                  %i.fas.fa-spinner.fa-spin.d-none
+              = text_field_tag 'userid', '', required: true, placeholder: 'Type to autocomplete...', class: 'form-control'
+          .form-group
+            = label_tag(:role, 'Role:')
+            = select_tag 'role', options_for_select(Role.local_roles, nil), required: true, class: 'form-control'
+          = hidden_field_tag 'package', package
+          = hidden_field_tag 'project', project
+          = hidden_field_tag 'webui2', true
+        .modal-footer
+          = render partial: 'webui2/shared/dialog_action_buttons'
+
+:javascript
+  $('#userid').autocomplete({
+    appendTo: '#add-user-role-modal-input',
+    source: '#{url_for controller: 'user', action: 'autocomplete'}',
+    search: function(event, ui) {
+      var icon = $('#add-user-search-icon i:first-child');
+      icon.addClass('d-none');
+      icon.next().removeClass('d-none');
+    },
+    response: function(event, ui) {
+      var icon = $('#add-user-search-icon i:first-child');
+      icon.removeClass('d-none');
+      icon.next().addClass('d-none');
+    },
+    minLength: 2
+  });

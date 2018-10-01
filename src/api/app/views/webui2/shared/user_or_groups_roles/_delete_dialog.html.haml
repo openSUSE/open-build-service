@@ -1,0 +1,13 @@
+.modal.fade{ id: "delete-role-modal-#{type}-#{object.id}", tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title
+          Delete all roles of #{type}?
+      .modal-body
+        %p Please confirm deletion of all roles of the #{type} '#{object}'
+        = form_tag(package_remove_role_path(project: project, package: package, "#{type}id": object), method: :post) do
+          .modal-footer
+            %button.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+              Cancel
+            = submit_tag('Delete', class: 'btn btn-sm btn-danger px-4')
