@@ -13,6 +13,9 @@
 - if current_page?(package_users_path)
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Users
+- if controller_name == 'package' && action_name == 'binaries'
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Repository State
 - if controller_name == 'package' && action_name == 'binary'
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Binary
