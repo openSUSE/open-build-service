@@ -28,20 +28,17 @@
               %tr
                 %td #{binary[:filename]} (#{number_to_human_size(binary[:size])})
                 %td.text-nowrap.text-right
-                  - if binary[:links][:cloud_upload?]
-                    = link_to(new_cloud_upload_path(project: @project, package: @package, repository: @repository, arch: result[:arch],
-                    filename: binary[:filename]), title: 'Cloud Upload', class: 'ml-2') do
-                      %i.fas.fa-cloud-upload-alt
-                      Cloud Upload
-                  - if binary[:links][:download_url]
-                    = link_to(binary[:links][:download_url], title: 'Download', class: 'ml-2') do
-                      %i.fas.fa-download.text-secondary
-                      Download
-                  - if binary[:links][:details?]
-                    = link_to(package_binary_path(project: @project, package: @package_name, repository: @repository,
-                              arch: result[:arch], filename: binary[:filename]), title: 'Information', class: 'ml-2') do
-                      %i.fas.fa-info-circle
-                      Details
+                  - render_partial = render partial: 'webui2/webui/package/binaries/binaries_actions', locals: { project: @project,
+                                                                                                package_name: @package_name,
+                                                                                                binary: binary,
+                                                                                                repository: @repository,
+                                                                                                architecture: result[:arch] }
+                  .d-none.d-sm-block
+                    = render_partial
+                  .d-sm-none
+                    -# rubocop:disable Style/UnneededInterpolation
+                    %i.fas.fa-ellipsis-h.text-secondary{ data: { toggle: 'popover', html: 'true', content: "#{render_partial}" } }
+                    -# rubocop:enable Style/UnneededInterpolation
       %hr
         %ul.list-inline
           - if User.current.can_modify?(@package)
