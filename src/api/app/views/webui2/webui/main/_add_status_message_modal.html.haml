@@ -3,17 +3,13 @@
     .modal-content
       .modal-header
         %h5.modal-title Add Status Message
-        %button.close{ 'aria-label' => 'Close', 'data-dismiss' => 'modal', type: 'button' }
-          %span{ 'aria-hidden' => 'true' } ×
       .modal-body
         = form_tag({ controller: 'status_messages', action: 'create' }, method: 'post') do
-          %p
+          .form-group
             = label_tag(:message, 'Message:')
-            %br/
             = text_area_tag(:message, '', size: '40x3', required: true, class: 'form-control')
-            %br/
+          .form-group
             = label_tag(:severity, 'Severity:')
-            %br/
             = select_tag(:severity, options_for_select([['Information', 0], ['Green', 1], ['Yellow', 2], ['Red', 3]]), class: 'form-control')
           .modal-footer
-            = submit_tag('Save changes', class: 'btn btn-success')
+            = render partial: 'webui2/shared/dialog_action_buttons'
