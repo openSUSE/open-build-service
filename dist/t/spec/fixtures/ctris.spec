@@ -28,5 +28,4 @@ rm -rf $RPM_BUILD_ROOT;
 %defattr (-,root,root)
 %doc AUTHORS COPYING README TODO
 %doc %{_mandir}/man6/ctris.6.gz
-/usr/games
 /usr/games/ctris

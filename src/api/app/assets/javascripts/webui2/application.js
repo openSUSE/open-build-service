@@ -28,7 +28,6 @@
 //= require webui2/packages.js
 //= require webui2/live_build_log.js
 //= require webui2/users_groups.js
-//= require webui2/forms.js
 // FIXME refactor these files
 //= require webui2/autocomplete.js
 //= require webui2/comment.js
@@ -38,4 +37,3 @@
 // FIXME remove jquery-ui file when we upgrade jquery-ui gem
 //= require webui2/jquery-ui.min.js
 //= require webui2/cm2/use-codemirror.js
-//= require webui2/package-view_file.js
