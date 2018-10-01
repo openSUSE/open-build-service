@@ -14,5 +14,17 @@ $(function ($) {
       editor.refresh();
     },1);
   });
-});
 
+  $('#expand-diffs').on('click', function () {
+    var details = $('details.card.details-with-codemirror');
+    details.attr('open', 'open');
+    $('.CodeMirror').each(function(){
+      $(this)[0].CodeMirror.refresh();
+    });
+  });
+
+  $('#collapse-diffs').on('click', function () {
+    var details = $('details.card.details-with-codemirror');
+    details.attr('open', null);
+  });
+});
