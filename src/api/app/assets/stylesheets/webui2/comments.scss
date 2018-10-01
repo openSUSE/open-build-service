@@ -3,6 +3,7 @@
     pre {
       @extend .p-2;
       @extend .bg-light;
+      @extend .text-pre-wrap;
     }
   }
 }
