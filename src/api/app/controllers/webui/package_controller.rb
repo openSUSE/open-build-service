@@ -223,6 +223,8 @@ class Webui::PackageController < Webui::WebuiController
     @users = [@project.users, @package.users].flatten.uniq
     @groups = [@project.groups, @package.groups].flatten.uniq
     @roles = Role.local_roles
+
+    switch_to_webui2
   end
 
   def requests

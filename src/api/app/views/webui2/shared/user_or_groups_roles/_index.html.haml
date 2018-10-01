@@ -1,0 +1,61 @@
+:ruby
+  user_is_maintainer = User.current.can_modify?(package || project)
+  data = { 'save-user' => package_save_person_url,
+           'remove' => package_remove_role_url,
+           'save-group' => package_save_group_path,
+           'project' => project.name }
+  data[:package] = package.name if package
+
+#involved-users{ data: data }
+  - if users.present?
+    %h3 User Roles
+    %table.responsive.table.table-striped.table-bordered.w-100#user-table
+      %thead
+        %tr
+          %td Username
+          - roles.each do |role|
+            %td= role.title.capitalize
+          %td
+      %tbody
+        = render partial: 'webui2/shared/user_or_groups_roles/list',
+                 locals: { records: users, roles: roles, type: 'user',
+                           user_is_maintainer: user_is_maintainer,
+                           project: project, package: package }
+
+  - if user_is_maintainer
+    = render(partial: 'webui2/shared/user_or_groups_roles/add_user_dialog', locals: { project: project.to_param, package: package.to_param })
+    = link_to('#', data: { toggle: 'modal', target: '#add-user-role-modal' }, id: 'add-user') do
+      %i.fas.fa-plus-circle.text-primary
+      Add user
+
+  %hr
+
+  - if @groups.present?
+    %h3 Group Roles
+    %table.responsive.table.table-striped.table-bordered.w-100#group-table
+      %thead
+        %tr
+          %td Group name
+          - roles.each do |role|
+            %td= role.title.capitalize
+          - if user_is_maintainer
+            %td
+      %tbody
+        = render partial: 'webui2/shared/user_or_groups_roles/list',
+                 locals: { records: groups, roles: roles, type: 'group',
+                           user_is_maintainer: user_is_maintainer,
+                           project: project, package: package }
+  - if user_is_maintainer
+    = render(partial: 'webui2/shared/user_or_groups_roles/add_group_dialog', locals: { project: project.to_param, package: package.to_param })
+    = link_to('#', data: { toggle: 'modal', target: '#add-group-role-modal' }, id: 'add-user') do
+      %i.fas.fa-plus-circle.text-primary
+      Add group
+:javascript
+  setDataTableForUsersAndGroups();
+- if user_is_maintainer
+  :javascript
+    $(document).ready(function() {
+      $(document).on('click','.trigger', function() {
+        changeUserRole($(this));
+      });
+    });
