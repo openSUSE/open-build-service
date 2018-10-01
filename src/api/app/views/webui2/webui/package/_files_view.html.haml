@@ -1,6 +1,6 @@
 .card-body
   - if files.present?
-    %table.table.table-striped.table-bordered.table-sm.dt-responsive.nowrap.w-100#files-table
+    %table.table.table-striped.table-bordered.table-sm.dt-responsive.w-100#files-table
       %thead
         %tr
           %th Filename
@@ -10,15 +10,15 @@
       %tbody
         - files.each_with_index do |file, index|
           %tr{ id: "file-#{valid_xml_id(file[:name])}" }
-            %td
+            %td.text-word-break-all
               - link_opts = { action: :view_file, project: project, package: package, filename: file[:name], expand: expand }
               - unless is_current_rev
                 - link_opts[:rev] = file[:srcmd5]
               = link_to_if(file[:viewable], nbsp(file[:name]), link_opts)
-            %td
+            %td.text-nowrap
               %span.d-none= file[:size].rjust(10, '0')
               = human_readable_fsize(file[:size])
-            %td
+            %td.text-nowrap
               %span.d-none= file[:mtime]
               = fuzzy_time_string(Time.at(file[:mtime].to_i).to_s)
             / limit download for anonymous user to avoid getting killed by crawlers
