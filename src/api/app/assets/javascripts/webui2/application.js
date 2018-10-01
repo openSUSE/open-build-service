@@ -29,7 +29,6 @@
 //= require webui2/live_build_log.js
 //= require webui2/users_groups.js
 //= require webui2/forms.js
-//= require webui2/users_groups.js
 // FIXME refactor these files
 //= require webui2/autocomplete.js
 //= require webui2/comment.js
