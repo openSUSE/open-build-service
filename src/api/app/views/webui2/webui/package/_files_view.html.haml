@@ -1,6 +1,6 @@
 .card-body
   - if files.present?
-    %table.table.table-striped.table-bordered.table-sm.dt-responsive.w-100#files-table
+    %table.table.table-striped.table-bordered.table-sm.dt-responsive.nowrap.w-100#files-table
       %thead
         %tr
           %th Filename
@@ -9,17 +9,16 @@
           %th Actions
       %tbody
         - files.each_with_index do |file, index|
-          - can_be_removed = removable_file?(file_name: file[:name], package: package) && User.current.can_modify?(package)
           %tr{ id: "file-#{valid_xml_id(file[:name])}" }
-            %td.text-word-break-all
+            %td
               - link_opts = { action: :view_file, project: project, package: package, filename: file[:name], expand: expand }
               - unless is_current_rev
                 - link_opts[:rev] = file[:srcmd5]
               = link_to_if(file[:viewable], nbsp(file[:name]), link_opts)
-            %td.text-nowrap
+            %td
               %span.d-none= file[:size].rjust(10, '0')
               = human_readable_fsize(file[:size])
-            %td.text-nowrap
+            %td
               %span.d-none= file[:mtime]
               = fuzzy_time_string(Time.at(file[:mtime].to_i).to_s)
             / limit download for anonymous user to avoid getting killed by crawlers
@@ -27,13 +26,12 @@
               - if !User.current.is_nobody? || file[:size].to_i < 4.megabytes
                 = link_to(file_url(project.name, package.name, file[:name], file[:srcmd5]), title: 'Download file') do
                   %i.fas.fa-arrow-circle-down.text-secondary
-              - if can_be_removed
+              - if removable_file?(file_name: file[:name], package: package) && User.current.can_modify?(package)
+                = render(partial: 'delete_file_dialog',
+                         locals: { project: project.to_param, package: package.to_param, filename: file[:name], file_id: index })
                 = link_to('#', data: { toggle: 'modal', target: "#delete-file-modal-#{index}" },
                           title: 'Delete file') do
                   %i.fas.fa-times-circle.text-danger
-          - if can_be_removed
-            = render(partial: 'delete_file_dialog',
-                      locals: { project: project.to_param, package: package.to_param, filename: file[:name], file_id: index })
   - else
     %i This package has no files yet
   - if User.current.can_modify?(package)
