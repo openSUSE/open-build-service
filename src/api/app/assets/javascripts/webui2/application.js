@@ -25,11 +25,15 @@
 //= require webui2/tabs.js
 //= require webui2/requests_table.js
 //= require webui2/attributes.js
+//= require webui2/packages.js
+//= require webui2/live_build_log.js
 // FIXME refactor these files
 //= require webui2/autocomplete.js
 //= require webui2/comment.js
 //= require webui2/request.js
 //= require webui2/buildresult.js
+//= require webui2/job_history.js
 // FIXME remove jquery-ui file when we upgrade jquery-ui gem
 //= require webui2/jquery-ui.min.js
 //= require webui2/cm2/use-codemirror.js
+//= require webui2/package-view_file.js

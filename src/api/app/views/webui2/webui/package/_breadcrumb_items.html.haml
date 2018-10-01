@@ -1,12 +1,29 @@
 = render partial: 'webui/project/breadcrumb_items'
 %li.breadcrumb-item
   = link_to @package, package_show_path(@project, @package)
+- if current_page?(package_add_file_path)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Add File
 - if current_page?(package_view_revisions_path)
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Revisions
 - if current_page?(package_requests_path)
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Requests
+- if controller_name == 'package' && action_name == 'binary'
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Binary
 - if current_page?(package_show_path)
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Overview
+- if controller_name == 'package' && action_name == 'live_build_log'
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Build Log
+- if controller_name == 'package' && action_name == 'statistics'
+  %li.breadcrumb-item
+    = link_to 'Repository State', package_binaries_path(@project, @package_name, @repository)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Statistics
+- if current_page?(package_view_file_path)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    = @filename

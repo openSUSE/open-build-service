@@ -1,0 +1,26 @@
+- @pagetitle = "Upload file to #{@project.name}/#{@package.name}"
+
+.card.package-add-file
+  = render partial: 'tabs', locals: { project: @project, package: @package }
+  .card-body
+    %h3
+      = @pagetitle
+    = form_tag({ action: :save_file, project: @project, package: @package }, multipart: true) do
+      .form-group
+        %label{ for: :filename }
+          %strong Filename:
+        = text_field_tag :filename, '', size: 80, maxlength: 200, class: 'form-control',
+        required: true, placeholder: 'Taken from uploaded file if empty...'
+        %small.form-text.text-muted
+          If only a filename is provided, an empty file is created (touched).
+      .form-group
+        %label{ for: :file_url }
+          %strong File URL:
+        = text_field_tag :file_url, '', size: 80, maxlength: 200, class: 'form-control', required: true, type: :url
+        %small.form-text.text-muted
+          URLs to src.rpm files will get extracted. URLs to git repositories will get stored in a tar ball.
+      .form-group
+        %label{ for: :file }
+          %strong or select file:
+        = file_field_tag 'file', class: 'form-control-file', required: true
+      = submit_tag 'Save', class: 'btn btn-sm btn-primary', id: :submit_button

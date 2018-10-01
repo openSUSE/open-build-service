@@ -1,0 +1,35 @@
+- @pagetitle = "Build Reason for #{@project} / #{@package_name}"
+
+.card
+  = render partial: 'webui2/webui/package/tabs', locals: { project: @project, package: @package }
+  .card-body
+    %h3
+      = @pagetitle
+    %h6.subtitle
+      Repository / Architecture: #{@repository.name} / #{@architecture}}
+    %p
+      %strong
+        Build reason:
+      = @details.explain
+      %br
+      %strong
+        Build scheduled at:
+      = @details.time.strftime('%Y-%m-%d %H:%M')
+      - if @details.packagechange
+        %p
+          %strong
+            = pluralize(@details.packagechange.size, 'package')
+          that got changed and scheduled a build for package
+          %strong
+            #{@package.name}.
+        .table-responsive
+          %table.table.table-hover#changed-packages
+            %thead.thead-light
+              %tr
+                %th Package
+                %th Change
+            %tbody
+              - @details.packagechange.each do |packagechange|
+                %tr
+                  %td= packagechange['key']
+                  %td= packagechange['change']

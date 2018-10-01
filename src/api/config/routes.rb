@@ -117,7 +117,7 @@ OBSApi::Application.routes.draw do
         get 'package/rdiff/:project/:package' => :rdiff, constraints: cons, as: 'package_rdiff'
         post 'package/save_new/:project' => :save_new, constraints: cons
         post 'package/branch' => :branch, constraints: cons
-        post 'package/save/:project/:package' => :save, constraints: cons
+        post 'package/save/:project/:package' => :save, constraints: cons, as: 'package_save'
         post 'package/remove/:project/:package' => :remove, constraints: cons
         get 'package/add_file/:project/:package' => :add_file, constraints: cons, as: 'package_add_file'
         post 'package/save_file/:project/:package' => :save_file, constraints: cons
@@ -129,11 +129,11 @@ OBSApi::Application.routes.draw do
         get 'package/live_build_log/:project/:package/:repository/:arch' => :live_build_log, constraints: cons, as: 'package_live_build_log'
         defaults format: 'js' do
           get 'package/linking_packages/:project/:package' => :linking_packages, constraints: cons, as: 'linking_packages'
-          get 'package/update_build_log/:project/:package/:repository/:arch' => :update_build_log, constraints: cons
+          get 'package/update_build_log/:project/:package/:repository/:arch' => :update_build_log, constraints: cons, as: 'package_update_build_log'
           get 'package/submit_request_dialog/:project/:package' => :submit_request_dialog, constraints: cons, as: 'package_submit_request_dialog'
           get 'package/delete_dialog/:project/:package' => :delete_dialog, constraints: cons, as: 'package_delete_dialog'
-          post 'package/trigger_rebuild/:project/:package' => :trigger_rebuild, constraints: cons
-          get 'package/abort_build/:project/:package' => :abort_build, constraints: cons
+          post 'package/trigger_rebuild/:project/:package' => :trigger_rebuild, constraints: cons, as: 'package_trigger_rebuild'
+          get 'package/abort_build/:project/:package' => :abort_build, constraints: cons, as: 'package_abort_build'
           post 'package/trigger_services/:project/:package' => :trigger_services, constraints: cons, as: 'package_trigger_services'
           delete 'package/wipe_binaries/:project/:package' => :wipe_binaries, constraints: cons
         end
@@ -142,7 +142,7 @@ OBSApi::Application.routes.draw do
         get 'package/rpmlint_result' => :rpmlint_result, constraints: cons, as: 'rpmlint_result'
         get 'package/rpmlint_log' => :rpmlint_log, constraints: cons
         get 'package/meta/:project/:package' => :meta, constraints: cons, as: 'package_meta'
-        post 'package/save_meta/:project/:package' => :save_meta, constraints: cons
+        post 'package/save_meta/:project/:package' => :save_meta, constraints: cons, as: 'package_save_meta'
         # compat route
         get 'package/attributes/:project/:package', to: redirect('/attribs/%{project}/%{package}'), constraints: cons
         get 'package/edit/:project/:package' => :edit, constraints: cons, as: :package_edit

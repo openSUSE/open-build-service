@@ -46,6 +46,7 @@ use Digest::SHA ();
 use List::Util;
 use Symbol;
 use Encode;
+use JSON::XS ();
 
 use BSConfiguration;
 use BSRPC ':https';
@@ -4016,6 +4017,14 @@ sub checkconstraints {
   return ({'entry' => \@comp_workers}, $BSXML::dir);
 }
 
+sub registry_select_manifest {
+  my ($mani, $goarch, $goos) = @_;
+  for my $m (@{$mani->{'manifests'} || []}) {
+    return $m->{'digest'} if $m->{'platform'} && $m->{'platform'}->{'architecture'} eq $goarch && $m->{'platform'}->{'os'} eq $goos;
+  }
+  return undef;
+}
+
 sub registry_manifest {
   my ($cgi, $regrepo, $manifest) = @_;
   my $repodir = "$registrydir/$regrepo";
@@ -4032,7 +4041,24 @@ sub registry_manifest {
   die("404 MANIFEST_UNKNOWN\n") unless $mani_json;
   my $mani_id = "sha256:".Digest::SHA::sha256_hex($mani_json);
   my $mani = JSON::XS::decode_json($mani_json);
-  my $ct = $mani->{'mediaType'} || 'application/vnd.docker.distribution.manifest.v2+json';
+  my $manifestct = 'application/vnd.docker.distribution.manifest.v2+json';
+  my $manifestlistct = 'application/vnd.docker.distribution.manifest.list.v2+json';
+  my $ct = $mani->{'mediaType'} || $manifestct;
+  my $accept = BSServer::header('Accept');
+  if ($accept && $accept ne '*/*') {
+    # check if the client accepts the content type
+    my @accept = split(/[\s,]+/, $accept);
+    s/;.*// for @accept;
+    my %accept = map {lc($_) => 1} @accept;
+    if (!$accept{lc($ct)} && !$accept{'*/*'}) {
+      if (!$is_manifest && lc($ct) eq lc($manifestlistct) && $accept{lc($manifestct)}) {
+	my $digest = registry_select_manifest($mani, 'amd64', 'linux');
+	die("404 MANIFEST_UNKNOWN\n") unless $digest;
+	return registry_manifest($cgi, $regrepo, $digest);
+      }
+      die("406 MANIFEST_UNACCEPTED\n");
+    }
+  }
   my @hdrs = ("Content-Type: $ct", "Docker-Content-Digest: $mani_id", "Etag: \"$mani_id\"");
   push @hdrs, 'Cache-Control: max-age=2678400' if $is_manifest;
   BSRegistryServer::reply($mani_json, "Content-Type: $ct", "Docker-Content-Digest: $mani_id", "Etag: \"$mani_id\"");

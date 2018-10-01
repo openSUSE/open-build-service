@@ -94,7 +94,7 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
 
     click_link('Request devel project change')
 
-    within('#modal') do
+    within('#change-devel-request-modal') do
       fill_in('devel_project', with: third_project.name)
       fill_in('description', with: 'Hey, why not?')
       click_button('Accept')
@@ -144,6 +144,55 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
       first(:link, 'Download logfile').click
       # don't bother with the umlaut
       expect(page.source).to have_text('[1] this is my dummy logfile')
+    end
+  end
+
+  scenario 'editing a package' do
+    login(user)
+    visit package_show_path(package: package, project: user.home_project)
+    click_link('Edit description')
+    sleep 1 # FIXME: Needed to avoid a flickering test.
+
+    within('#edit-modal') do
+      fill_in('title', with: 'test title')
+      fill_in('description', with: 'test description')
+      click_button('Accept')
+    end
+
+    expect(find('#flash')).to have_text("Package data for '#{package}' was saved successfully")
+    expect(page).to have_text('test title')
+    expect(page).to have_text('test description')
+  end
+
+  context 'meta configuration' do
+    describe 'as admin' do
+      let!(:admin_user) { create(:admin_user) }
+
+      before do
+        login admin_user
+      end
+
+      scenario 'can edit' do
+        visit package_meta_path(package.project, package)
+        fill_in_editor_field('<!-- Comment for testing -->')
+        click_button('Save')
+        expect(page).to have_text('The Meta file has been successfully saved.')
+        expect(page).to have_css('.CodeMirror-code', text: 'Comment for testing')
+      end
+    end
+
+    describe 'as common user' do
+      let(:other_user) { create(:confirmed_user, login: 'common_user') }
+      before do
+        login other_user
+      end
+
+      scenario 'can not edit' do
+        visit package_meta_path(package.project, package)
+        within('.card-body') do
+          expect(page).not_to have_css('.toolbar')
+        end
+      end
     end
   end
 end

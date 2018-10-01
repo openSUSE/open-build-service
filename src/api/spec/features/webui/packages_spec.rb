@@ -48,10 +48,11 @@ RSpec.feature 'Packages', type: :feature, js: true do
       visit package_show_path(project: user.home_project, package: package)
       expect(page).to have_text('1 derived package')
       click_link('derived package')
+      sleep 1 # Needed to avoid a flickering test. Sometimes the modal is shown too late and the click doen't work
       expect(page).to have_link('home:package_test_user...ome:package_test_user')
       click_link('home:package_test_user...ome:package_test_user')
-      # Wait for the dialog to disapear (aka. the ajax request to finish)
-      expect(page).not_to have_text('Derived Packages')
+      # Wait for the new page being loaded (aka. the ajax request to finish)
+      expect(page).to have_text("Links to #{user.home_project} / #{package}")
       expect(page.current_path).to eq(package_show_path(project: branched_project, package: branched_project.packages.first))
     end
   end
@@ -272,7 +273,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
     click_link('Add file')
 
     fill_in 'Filename', with: 'new_file'
-    click_button('Save changes')
+    click_button('Save')
 
     expect(page).to have_text("The file 'new_file' has been successfully saved.")
     expect(page).to have_link('new_file')
@@ -285,7 +286,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
     click_link('Add file')
 
     fill_in 'Filename', with: 'inv/alid'
-    click_button('Save changes')
+    click_button('Save')
 
     expect(page).to have_text("Error while creating 'inv/alid' file: 'inv/alid' is not a valid filename.")
 

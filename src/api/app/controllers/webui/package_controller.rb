@@ -139,6 +139,7 @@ class Webui::PackageController < Webui::WebuiController
   # rubocop:enable Lint/NonLocalExitFromIterator
 
   def statistics
+    return if switch_to_webui2
     @arch = params[:arch]
     @repository = params[:repository]
     @package_name = params[:package]
@@ -182,6 +183,8 @@ class Webui::PackageController < Webui::WebuiController
     logger.debug "accepting #{request.accepts.join(',')} format:#{request.format}"
     # little trick to give users eager to download binaries a single click
     redirect_to(@durl) && return if request.format != Mime[:html] && @durl
+
+    switch_to_webui2
   end
 
   def binaries
@@ -616,6 +619,7 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to action: :show, project: params[:project], package: params[:package]
     else
       flash[:error] = "Failed to save package '#{@package.name}': #{@package.errors.full_messages.to_sentence}"
+      return if switch_to_webui2
       redirect_to action: :edit, project: params[:project], package: params[:package]
     end
   end
@@ -654,6 +658,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def add_file
     set_file_details
+    switch_to_webui2
   end
 
   def save_file
@@ -698,21 +703,26 @@ class Webui::PackageController < Webui::WebuiController
       # We have to check if it's an AJAX request or not
       if request.xhr?
         flash.now[:success] = message
-        render layout: false, partial: 'layouts/webui/flash', object: flash
       else
         redirect_to({ action: :show, project: @project, package: @package }, success: message)
+        return
       end
-      return
     else
       message = "Error while creating '#{filename}' file: #{errors.compact.join("\n")}."
       # We have to check if it's an AJAX request or not
       if request.xhr?
         flash.now[:error] = message
-        render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
+        status = 400
       else
         redirect_back(fallback_location: root_path, error: message)
+        return
       end
     end
+
+    switch_to_webui2
+    namespace = switch_to_webui2? ? 'webui2' : 'webui'
+    status ||= 200
+    render layout: false, status: status, partial: "layouts/#{namespace}/flash", object: flash
   end
 
   def remove_file
@@ -762,7 +772,10 @@ class Webui::PackageController < Webui::WebuiController
       redirect_back(fallback_location: { action: :show, project: @project, package: @package })
       return
     end
-    render(template: 'webui/package/simple_file_view') && return if @spider_bot
+
+    switch_to_webui2
+    prefix = switch_to_webui2? ? 'webui2/' : ''
+    render(template: "#{prefix}webui/package/simple_file_view") && return if @spider_bot
   end
 
   def fetch_from_params(*arr)
@@ -812,6 +825,8 @@ class Webui::PackageController < Webui::WebuiController
     @finished = Buildresult.final_status?(status)
 
     set_job_status
+
+    switch_to_webui2
   end
 
   def update_build_log
@@ -872,6 +887,8 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     logger.debug 'finished ' + @finished.to_s
+
+    switch_to_webui2
   end
 
   def abort_build
@@ -976,6 +993,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def meta
     @meta = @package.render_xml
+    switch_to_webui2
   end
 
   def save_meta
@@ -999,15 +1017,18 @@ class Webui::PackageController < Webui::WebuiController
       begin
         @package.update_from_xml(@meta_xml)
         flash.now[:success] = 'The Meta file has been successfully saved.'
-        render layout: false, partial: 'layouts/webui/flash', object: flash
+        status = 200
       rescue Backend::Error, NotFoundError => e
         flash.now[:error] = "Error while saving the Meta file: #{e}."
-        render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
+        status = 400
       end
     else
       flash.now[:error] = "Error while saving the Meta file: #{errors.compact.join("\n")}."
-      render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
+      status = 400
     end
+    switch_to_webui2
+    namespace = switch_to_webui2? ? 'webui2' : 'webui'
+    render layout: false, status: status, partial: "layouts/#{namespace}/flash", object: flash
   end
 
   def edit; end
@@ -1032,7 +1053,8 @@ class Webui::PackageController < Webui::WebuiController
     @meta_xml = Xmlhash.parse(params[:meta])
   rescue Suse::ValidationError => error
     flash.now[:error] = "Error while saving the Meta file: #{error}."
-    render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
+    namespace = params[:use_webui2] ? 'webui2' : 'webui'
+    render layout: false, status: 400, partial: "layouts/#{namespace}/flash", object: flash
   end
 
   def package_files(rev = nil, expand = nil)
