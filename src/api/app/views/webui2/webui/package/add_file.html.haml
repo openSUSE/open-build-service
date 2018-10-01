@@ -20,7 +20,7 @@
         %small.form-text.text-muted
           URLs to src.rpm files will get extracted. URLs to git repositories will get stored in a tar ball.
       .form-group
-        %label{ for: :file }
-          %strong or select file:
-        = file_field_tag 'file', class: 'form-control-file', required: true
+        .custom-file
+          = file_field_tag 'file', class: 'custom-file-input', id: 'file', required: true
+          %label.custom-file-label{ for: 'file' } Choose a file
       = submit_tag 'Save', class: 'btn btn-sm btn-primary', id: :submit_button
