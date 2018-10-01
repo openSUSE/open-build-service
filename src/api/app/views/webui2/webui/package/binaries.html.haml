@@ -14,20 +14,21 @@
             Delete all built binaries
 
     - @buildresults.each do |result|
-      %h3
-        = repo_status_icon(result[:repocode])
+      %h5.bg-light.p-2.mb-0
+        %i{ class: webui2_repo_status_icon(result[:repocode]) }
         Architecture: #{result[:arch]}
       - if result[:binaries].empty?
-        %p
+        %p.pl-2
           %i No built binaries
       - else
         .table-responsive
           %table.table.table-hover.table-sm
+            %thead
             %tbody
             - result[:binaries].each do |binary|
               %tr
-                %td #{binary[:filename]} (#{number_to_human_size(binary[:size])})
-                %td.text-nowrap.text-right
+                %td.px-2 #{binary[:filename]} (#{number_to_human_size(binary[:size])})
+                %td.text-nowrap.text-right.px-2
                   - render_partial = render partial: 'webui2/webui/package/binaries/binaries_actions', locals: { project: @project,
                                                                                                 package_name: @package_name,
                                                                                                 binary: binary,
@@ -39,7 +40,6 @@
                     -# rubocop:disable Style/UnneededInterpolation
                     %i.fas.fa-ellipsis-h.text-secondary{ data: { toggle: 'popover', html: 'true', content: "#{render_partial}" } }
                     -# rubocop:enable Style/UnneededInterpolation
-      %hr
         %ul.list-inline
           - if User.current.can_modify?(@package)
             = render partial: 'webui2/webui/package/binaries/trigger_rebuild_wipe_binaries', locals: { result: result, project: @project,
