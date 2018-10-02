@@ -35,7 +35,7 @@
                   package: @package, orev: jobhistory.prev_srcmd5, rev: jobhistory.srcmd5))
               - else
                 = jobhistory.reason
-            %td{ class: "status_#{jobhistory.code}" }
+            %td{ class: html_class_for_state(jobhistory.code) }
               = jobhistory.code
             %td
               = jobhistory.total_time
