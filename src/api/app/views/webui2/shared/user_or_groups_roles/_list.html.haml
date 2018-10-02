@@ -22,7 +22,7 @@
           mail_subject = "#{home_title} - #{project}"
           mail_subject += "/#{package}" if package
         = mail_to(record.email, subject: mail_subject) do
-          %i.fas.fa-envelope{ title: 'Send email to user' }
+          %i.far.fa-envelope{ title: 'Send email to user' }
       - if user_is_maintainer
         = link_to('#', data: { toggle: 'modal', target: "#delete-role-modal-#{type}-#{record.id}" }, class: "remove-#{type}") do
           %i.fas.fa-times-circle.text-danger{ title: "Delete all roles for #{type}" }

@@ -83,10 +83,10 @@ module Webui::WebuiHelper
   WEBUI2_REPO_STATUS_ICONS = {
     'published'            => 'truck',
     'outdated_published'   => 'truck',
-    'publishing'           => 'dolly',
-    'outdated_publishing'  => 'dolly',
+    'publishing'           => 'dolly-flatbed',
+    'outdated_publishing'  => 'dolly-flatbed',
     'unpublished'          => 'truck fa-flip-horizontal',
-    'outdated_unpublished' => 'dolly fa-flip-horizontal',
+    'outdated_unpublished' => 'dolly-flatbed fa-flip-horizontal',
     'building'             => 'cog',
     'outdated_building'    => 'cog',
     'finished'             => 'check',
@@ -95,8 +95,8 @@ module Webui::WebuiHelper
     'outdated_blocked'     => 'lock',
     'broken'               => 'exclamation-triangle',
     'outdated_broken'      => 'exclamation-triangle',
-    'scheduling'           => 'calendar',
-    'outdated_scheduling'  => 'calendar'
+    'scheduling'           => 'calendar-alt',
+    'outdated_scheduling'  => 'calendar-alt'
   }.freeze
 
   REPO_STATUS_DESCRIPTIONS = {
