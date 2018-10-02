@@ -1,5 +1,5 @@
 %li
-  %i.fas.fa-times-circle.text-danger{ title: 'Errors' }
+  %i.fas.fa-exclamation-circle.text-danger{ title: 'Errors' }
   = failures
   = link_to pluralize(errors.count, 'error'), project_monitor_path(project: project, pkgname: package_name, succeeded: 0,
                                                                      blocked: 0, finished: 0, signing: 0, dispatching: 0,

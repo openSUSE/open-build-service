@@ -60,7 +60,7 @@ module Webui::BuildresultHelper
 
     capture_haml do
       if enable_help && status['code']
-        concat(content_tag(:i, nil, class: ['fa', 'fa-question-circle', 'text-info', 'mr-1'],
+        concat(content_tag(:i, nil, class: ['fa', 'fa-question-circle', 'text-secondary', 'mr-1'],
                            data: { content: Buildresult.status_description(status['code']), placement: 'top', toggle: 'popover' }))
       end
       if code.in?(['-', 'unresolvable', 'blocked', 'excluded', 'scheduled'])
