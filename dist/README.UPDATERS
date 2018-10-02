@@ -46,7 +46,7 @@ Note: * Update from OBS 2.5 should also work, but is untested.
   8) Restart following services in this order
 
         systemctl restart apache2
-        systemctl restart obsapidelayed
+        systemctl restart obs-api-support.target
         systemctl restart memcached
 
   9) Enable and start the new services

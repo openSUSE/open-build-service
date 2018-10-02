@@ -15,24 +15,24 @@ function logline {
   echo $@
 }
 ###############################################################################
-function check_service {
+function check_unit {
   srv=$1
   service_critical=$2
 
   [[ $SETUP_ONLY == 1 ]] && return
 
-  echo "Checking service $srv ..."
+  echo "Checking unit $srv ..."
 
   logline "Enabling $srv"
-  execute_silently systemctl enable $srv\.service
+  execute_silently systemctl enable $srv
   if [[ $? -gt 0 ]];then
     logline "WARNING: Enabling $srv daemon failed."
   fi
 
-  STATUS=`systemctl is-active $srv\.service 2>/dev/null`
+  STATUS=`systemctl is-active $srv 2>/dev/null`
   if [[ "$STATUS" == "inactive" ]];then
     echo "$srv daemon not started. Trying to start"
-    execute_silently systemctl start $srv\.service
+    execute_silently systemctl start $srv
     if [[ $? -gt 0 ]];then
       echo -n "Starting $srv daemon failed."
       if [[ $service_critical == 1 ]];then
@@ -697,7 +697,7 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
 
   check_optional_backend_services
 
-  check_service mysql 1
+  check_unit mysql.service 1
 
   get_hostname
 
@@ -748,16 +748,16 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
 
   prepare_passenger
 
-  check_service apache2
+  check_unit apache2.service
 
-  check_service memcached
+  check_unit memcached.service
 
   # make sure that apache gets restarted after cert change
   if [[ $DETECTED_CERT_CHANGE && ! $SETUP_ONLY ]];then
       systemctl reload apache2
   fi
 
-  check_service obsapidelayed
+  check_unit obs-api-support.target
 
   create_issue_file
 
