@@ -1,6 +1,6 @@
 %hr
 .media
-  = user_image_tag(comment.user, size: 35, css_class: 'mr-3')
+  = user_image_tag(comment.user, size: 35, css_class: 'mr-3 d-none d-sm-block')
   .media-body
     %p
       = link_to(comment.user, user_show_path(comment.user))
