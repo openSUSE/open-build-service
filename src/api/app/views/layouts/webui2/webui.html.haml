@@ -30,11 +30,11 @@
     #navigation
       = render partial: 'layouts/webui2/navigation'
     .w-100.m-2
-    .container.d-none.d-sm-block#personal-navigation
+    .container
       .row
         .col
           = render partial: "layouts/webui2/breadcrumbs"
-        .col-auto.ml-auto
+        .col-auto.ml-auto#personal-navigation
           = render partial: "layouts/webui2/personal_navigation"
     .container#flash
       = render partial: "layouts/webui2/flash", object: flash
