@@ -1,6 +1,6 @@
 .comments {
   .media .media-body {
-    pre {
+    pre, code {
       @extend .p-2;
       @extend .bg-light;
       @extend .text-pre-wrap;
