@@ -1,0 +1,19 @@
+.position-relative
+  .btn-group.diff-menu-buttons{ role: :group }
+    - if index.positive?
+      %a.btn.btn-sm.btn-outline-secondary{ href: "#revision_details_#{index - 1}", title: 'Go up to the previous diff' }
+        %i.fas.fa-chevron-up
+    - unless last
+      %a.btn.btn-sm.btn-outline-secondary{ href: "#revision_details_#{index + 1}", title: 'Go down to the next diff' }
+        %i.fas.fa-chevron-down
+    - unless @linkinfo
+      = link_to_unless(Package.is_binary_file?(filename) || filename.include?('/'),
+      'View file',
+      package_view_file_path(project: project, package: package, filename: filename, rev: calculate_revision_on_state(revision, file['state'])),
+      class: 'btn btn-sm btn-outline-secondary', title: 'View the whole file')
+  %details.card.details-with-codemirror{ open: expand_diff?(filename, file['state']), id: "revision_details_#{index}" }
+    %summary.card-header
+      = filename
+      %span.badge{ class: badge_for_diff_state(file['state']) }= file['state'].capitalize
+    %div
+      = render partial: 'shared/editor', locals: { text: file.dig('diff', '_content'), mode: 'diff', style: { read_only: true } }

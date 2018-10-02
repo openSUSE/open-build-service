@@ -1,0 +1,14 @@
+- if binary[:links][:cloud_upload?]
+  = link_to(new_cloud_upload_path(project: project, package: package, repository: repository, arch: architecture,
+    filename: binary[:filename]), title: 'Cloud Upload', class: 'ml-2') do
+    %i.fas.fa-cloud-upload-alt
+    Cloud Upload
+- if binary[:links][:download_url]
+  = link_to(binary[:links][:download_url], title: 'Download', class: 'ml-2') do
+    %i.fas.fa-download.text-secondary
+    Download
+- if binary[:links][:details?]
+  = link_to(package_binary_path(project: project, package: package_name, repository: repository,
+    arch: architecture, filename: binary[:filename]), title: 'Information', class: 'ml-2') do
+    %i.fas.fa-info-circle
+    Details

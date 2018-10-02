@@ -211,9 +211,9 @@ class Webui::PackageController < Webui::WebuiController
           build_results_set[:binaries] << { filename: binary['filename'], size: binary['size'], links: links }
         end
       end
-
       @buildresults << build_results_set
     end
+    switch_to_webui2
   rescue Backend::Error => e
     flash[:error] = e.message
     redirect_back(fallback_location: { controller: :package, action: :show, project: @project, package: @package })
@@ -223,6 +223,8 @@ class Webui::PackageController < Webui::WebuiController
     @users = [@project.users, @package.users].flatten.uniq
     @groups = [@project.groups, @package.groups].flatten.uniq
     @roles = Role.local_roles
+
+    switch_to_webui2
   end
 
   def requests
@@ -487,6 +489,19 @@ class Webui::PackageController < Webui::WebuiController
     @files = filenames['files']
     @not_full_diff = @files.any? { |file| file[1]['diff'].try(:[], 'shown') }
     @filenames = filenames['filenames']
+
+    # TODO: moved from the old view, needs refactoring
+    @submit_url_opts = { action: 'submit_request_dialog', project: @project, package: @package, revision: @rev }
+    if @oproject && @opackage && !@oproject.find_attribute('OBS', 'RejectRequests') && !@opackage.find_attribute('OBS', 'RejectRequests')
+      @submit_message = "Submit to #{@oproject.name}/#{@opackage.name}"
+      @submit_url_opts[:target_project] = @oproject.name
+      @submit_url_opts[:targetpackage] = @opackage.name
+    elsif @rev != @last_rev
+      @submit_message = "Revert #{@project.name}/#{@package.name} to revision #{@rev}"
+      @submit_url_opts[:target_project] = @project.name
+    end
+
+    switch_to_webui2
   end
 
   def save_new

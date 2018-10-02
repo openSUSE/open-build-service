@@ -112,8 +112,8 @@ OBSApi::Application.routes.draw do
         get 'package/statistics/:project/:package/:repository/:arch' => :statistics, as: 'package_statistics', constraints: cons
         get 'package/revisions/:project/:package' => :revisions, constraints: cons, as: 'package_view_revisions'
         post 'package/submit_request/:project/:package' => :submit_request, constraints: cons
-        get 'package/add_person/:project/:package' => :add_person, constraints: cons
-        get 'package/add_group/:project/:package' => :add_group, constraints: cons
+        get 'package/add_person/:project/:package' => :add_person, constraints: cons, as: 'package_add_person'
+        get 'package/add_group/:project/:package' => :add_group, constraints: cons, as: 'package_add_group'
         get 'package/rdiff/:project/:package' => :rdiff, constraints: cons, as: 'package_rdiff'
         post 'package/save_new/:project' => :save_new, constraints: cons
         post 'package/branch' => :branch, constraints: cons
@@ -122,9 +122,9 @@ OBSApi::Application.routes.draw do
         get 'package/add_file/:project/:package' => :add_file, constraints: cons, as: 'package_add_file'
         post 'package/save_file/:project/:package' => :save_file, constraints: cons
         post 'package/remove_file/:project/:package/:filename' => :remove_file, constraints: cons
-        post 'package/save_person/:project/:package' => :save_person, constraints: cons
-        post 'package/save_group/:project/:package' => :save_group, constraints: cons
-        post 'package/remove_role/:project/:package' => :remove_role, constraints: cons
+        post 'package/save_person/:project/:package' => :save_person, constraints: cons, as: 'package_save_person'
+        post 'package/save_group/:project/:package' => :save_group, constraints: cons, as: 'package_save_group'
+        post 'package/remove_role/:project/:package' => :remove_role, constraints: cons, as: 'package_remove_role'
         get 'package/view_file/:project/:package/(:filename)' => :view_file, constraints: cons, as: 'package_view_file'
         get 'package/live_build_log/:project/:package/:repository/:arch' => :live_build_log, constraints: cons, as: 'package_live_build_log'
         defaults format: 'js' do
@@ -135,7 +135,7 @@ OBSApi::Application.routes.draw do
           post 'package/trigger_rebuild/:project/:package' => :trigger_rebuild, constraints: cons, as: 'package_trigger_rebuild'
           get 'package/abort_build/:project/:package' => :abort_build, constraints: cons, as: 'package_abort_build'
           post 'package/trigger_services/:project/:package' => :trigger_services, constraints: cons, as: 'package_trigger_services'
-          delete 'package/wipe_binaries/:project/:package' => :wipe_binaries, constraints: cons
+          delete 'package/wipe_binaries/:project/:package' => :wipe_binaries, constraints: cons, as: 'package_wipe_binaries'
         end
         get 'package/devel_project/:project/:package' => :devel_project, constraints: cons, as: 'package_devel_project'
         get 'package/buildresult' => :buildresult, constraints: cons, as: 'package_buildresult'

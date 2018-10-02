@@ -10,6 +10,6 @@
 
         = form_tag(comment_path(comment), method: :delete, remote: true) do
           .modal-footer
-            %button.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
               Cancel
             = submit_tag('Delete', class: 'btn btn-sm btn-danger px-4')

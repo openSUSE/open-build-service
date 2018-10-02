@@ -1,0 +1,49 @@
+.card
+  = render partial: 'tabs', locals: { package: @package, project: @project }
+  .card-body
+    %h3 State of Repository #{@repository} for #{@project} / #{@package_name}
+    %ul.list-inline
+      - if @configuration['download_url']
+        = render partial: 'shared/download_repository_link', locals: { project: @project, repository: @repository,
+                                                                       download_url: @configuration['download_url'] }
+      - unless @buildresults.empty?
+        %li.list-inline-item
+          = link_to(package_wipe_binaries_path(project: @project, package: @package_name, repository: @repository),
+            method: :delete, class: 'nav-link') do
+            %i.fas.fa-times-circle.text-danger
+            Delete all built binaries
+
+    - @buildresults.each do |result|
+      %h5.bg-light.p-2.mb-0
+        %i{ class: webui2_repo_status_icon(result[:repocode]) }
+        Architecture: #{result[:arch]}
+      - if result[:binaries].empty?
+        %p.pl-2
+          %i No built binaries
+      - else
+        .table-responsive
+          %table.table.table-hover.table-sm
+            %thead
+            %tbody
+            - result[:binaries].each do |binary|
+              %tr
+                %td.px-2 #{binary[:filename]} (#{number_to_human_size(binary[:size])})
+                %td.text-nowrap.text-right.px-2
+                  - render_partial = render partial: 'webui2/webui/package/binaries/binaries_actions', locals: { project: @project,
+                                                                                                package_name: @package_name,
+                                                                                                binary: binary,
+                                                                                                repository: @repository,
+                                                                                                architecture: result[:arch] }
+                  .d-none.d-sm-block
+                    = render_partial
+                  .d-sm-none
+                    -# rubocop:disable Style/UnneededInterpolation
+                    %i.fas.fa-ellipsis-h.text-secondary{ data: { toggle: 'popover', html: 'true', content: "#{render_partial}" } }
+                    -# rubocop:enable Style/UnneededInterpolation
+      %ul.list-inline
+        - if User.current.can_modify?(@package)
+          = render partial: 'webui2/webui/package/binaries/trigger_rebuild_wipe_binaries', locals: { result: result, project: @project,
+                                                            package: @package_name, repository: @repository }
+
+        = render partial: 'webui2/webui/package/binaries/show_statistics_job_history_build_reason', locals: { result: result,
+          project: @project, package: @package_name, repository: @repository }
