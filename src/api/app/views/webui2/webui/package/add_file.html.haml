@@ -22,5 +22,5 @@
       .form-group
         .custom-file
           = file_field_tag 'file', class: 'custom-file-input', id: 'file', required: true
-          %label.custom-file-label{ for: 'file' } Choose a file
+          %label.custom-file-label-with-overflow{ for: 'file' } Choose a file
       = submit_tag 'Save', class: 'btn btn-sm btn-primary', id: :submit_button

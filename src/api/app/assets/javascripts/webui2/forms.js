@@ -8,6 +8,6 @@ $(document).ready(function() {
       // As this is confusing we only show the filename and strip the path
       fileName = fileName.replace(/^.*[\\\/]/, '');
       //replace the "Choose a file" label
-      $(this).next('.custom-file-label').html(fileName);
+      $(this).next('.custom-file-label-with-overflow').html(fileName);
   });
 });
