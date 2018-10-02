@@ -29,7 +29,7 @@
                 %td.col-2
                   - if attribute.values_editable?
                     = link_to(edit_attribs_path(project: @project.name, package: @package, attribute: attribute.fullname), title: 'Edit values') do
-                      %i.fas.fa-edit.text-info
+                      %i.fas.fa-edit.text-secondary
                   = link_to('#', data: { toggle: 'modal', target: "#delete-attribute-modal-#{attribute.id}" },
                             title: 'Delete attribute') do
                     %i.fas.fa-times-circle.text-danger

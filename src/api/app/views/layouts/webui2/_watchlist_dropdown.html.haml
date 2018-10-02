@@ -19,6 +19,6 @@
     .dropdown-divider
   - User.current.watched_project_names.each_with_index do |project, index|
     = link_to project_show_path(project), class: "dropdown-item text-wrap text-word-break-all #{'border-top' unless index.zero?}" do
-      %i.fa.fa-cubes.fa.text-info.pt-2
+      %i.fa.fa-cubes.fa.text-secondary.pt-2
       %span.small
         = project
