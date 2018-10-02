@@ -1,16 +1,18 @@
 .position-relative
   .btn-group.diff-menu-buttons{ role: :group }
     - if index.positive?
-      %a.btn.btn-sm.btn-outline-secondary{ href: "#revision_details_#{index - 1}", title: 'Go up to the previous diff' }
+      %a.btn.btn-sm.btn-outline-secondary.d-none.d-sm-none.d-md-block{ href: "#revision_details_#{index - 1}", title: 'Go up to the previous diff' }
         %i.fas.fa-chevron-up
     - unless last
-      %a.btn.btn-sm.btn-outline-secondary{ href: "#revision_details_#{index + 1}", title: 'Go down to the next diff' }
+      %a.btn.btn-sm.btn-outline-secondary.d-none.d-sm-none.d-md-block{ href: "#revision_details_#{index + 1}", title: 'Go down to the next diff' }
         %i.fas.fa-chevron-down
     - unless @linkinfo || Package.is_binary_file?(filename) || filename.include?('/')
-      = link_to 'View file',
-      package_view_file_path(project: project, package: package, filename: filename, rev: calculate_revision_on_state(revision, file['state'])),
+      - link_options = { project: project, package: package, filename: filename, rev: calculate_revision_on_state(revision, file['state']) }
+      = link_to package_view_file_path(link_options),
       class: 'btn btn-sm btn-outline-secondary',
-      title: 'View the whole file'
+      title: 'View the whole file' do
+        %i.far.fa-file.d-block.d-sm-block.d-md-none
+        %span.d-none.d-sm-none.d-md-block View file
   %details.card.details-with-codemirror{ open: expand_diff?(filename, file['state']), id: "revision_details_#{index}" }
     %summary.card-header
       = calculate_filename(filename, file)
