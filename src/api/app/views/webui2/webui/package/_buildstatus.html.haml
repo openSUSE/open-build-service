@@ -9,7 +9,7 @@
 - buildresults.results.each_pair do |package, results|
   %h5.text-primary.mt-3.mb-3= package
   .mb-2#package-buildstatus
-    .mb-0.small.px-3
+    .small.px-3
       - if results.present?
         - previous_repo = nil
         - results.each do |result|
@@ -36,7 +36,5 @@
               = webui2_arch_repo_table_cell(result.repository, result.architecture, package, 'code' => result.code, 'details' => result.details)
           - previous_repo = result.repository
       - else
-        .row
-          .col
-            All the results have state
-            %strong excluded
+        All the results have state
+        %strong excluded
