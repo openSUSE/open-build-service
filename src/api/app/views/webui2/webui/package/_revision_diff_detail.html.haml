@@ -6,11 +6,11 @@
     - unless last
       %a.btn.btn-sm.btn-outline-secondary{ href: "#revision_details_#{index + 1}", title: 'Go down to the next diff' }
         %i.fas.fa-chevron-down
-    - unless @linkinfo
-      = link_to_unless(Package.is_binary_file?(filename) || filename.include?('/'),
-      'View file',
+    - unless @linkinfo || Package.is_binary_file?(filename) || filename.include?('/')
+      = link_to 'View file',
       package_view_file_path(project: project, package: package, filename: filename, rev: calculate_revision_on_state(revision, file['state'])),
-      class: 'btn btn-sm btn-outline-secondary', title: 'View the whole file')
+      class: 'btn btn-sm btn-outline-secondary',
+      title: 'View the whole file'
   %details.card.details-with-codemirror{ open: expand_diff?(filename, file['state']), id: "revision_details_#{index}" }
     %summary.card-header
       = filename
