@@ -10,7 +10,7 @@
     = render_as_markdown(comment)
     = render partial: 'webui2/webui/comment/links', locals: { comment: comment }
     = render partial: 'webui2/webui/comment/reply', locals: { comment: comment, level: 0, commentable: commentable }
-    - unless level > 3
+    - if level < 3
       - comment.children.each do |children|
         = render partial: 'webui2/webui/comment/content', locals: { comment: children, commentable: commentable, level: level + 1 }
 
