@@ -1,0 +1,13 @@
+.modal.fade{ id: "delete-binaries-modal-#{arch}", tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title
+          Delete binaries?
+      .modal-body
+        %p Please confirm deletion of binaries for #{arch}
+        = form_tag(package_wipe_binaries_path(arch: arch, project: project, package: package, repository: repository), method: :delete) do
+          .modal-footer
+            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+              Cancel
+            = submit_tag('Delete', class: 'btn btn-sm btn-danger px-4')
