@@ -1,11 +1,9 @@
 .position-relative
   .btn-group.diff-menu-buttons{ role: :group }
-    - if index.positive?
-      %a.btn.btn-sm.btn-outline-secondary.d-none.d-sm-none.d-md-block{ href: "#revision_details_#{index - 1}", title: 'Go up to the previous diff' }
-        %i.fas.fa-chevron-up
-    - unless last
-      %a.btn.btn-sm.btn-outline-secondary.d-none.d-sm-none.d-md-block{ href: "#revision_details_#{index + 1}", title: 'Go down to the next diff' }
-        %i.fas.fa-chevron-down
+    %a.btn.btn-sm.btn-outline-secondary.d-none.d-sm-none.d-md-block{ class: ('disabled' unless index.positive?), href: "#revision_details_#{index - 1}", title: 'Go up to the previous diff' }
+      %i.fas.fa-chevron-up
+    %a.btn.btn-sm.btn-outline-secondary.d-none.d-sm-none.d-md-block{ class: ('disabled' if last), href: "#revision_details_#{index + 1}", title: 'Go down to the next diff' }
+      %i.fas.fa-chevron-down
     - if !@linkinfo && (diff_content.present? && !Package.is_binary_file?(filename) && !filename.include?('/'))
       - link_options = { project: project, package: package, filename: filename, rev: calculate_revision_on_state(revision, file['state']) }
       = link_to package_view_file_path(link_options),
