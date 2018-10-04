@@ -2,10 +2,10 @@
   %table.table.table-hover
     %thead.thead-light
       %tr
-        %th.col-6 Repository
-        %th.col-2.text-center All
+        %th.w-auto Repository
+        %th.w-auto.text-center All
         - architectures.each do |architecture|
-          %th.col-2.text-center= architecture.name
+          %th.w-auto.text-center= architecture.name
     %tbody
       %tr
         %td.reponame
