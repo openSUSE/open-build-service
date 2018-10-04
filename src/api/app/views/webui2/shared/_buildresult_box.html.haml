@@ -6,7 +6,7 @@
   ajax_data['package'] = h(package) if defined?(package)
   ajax_data['index'] = h(index) if defined?(index)
 
-.card.mb-3
+.card
   .bg-light#buildresult-urls{ data: { buildresult_url: defined?(package) ? package_buildresult_path : project_buildresult_path } }
     %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap#buildresult-box{ role: 'tablist', data: ajax_data }
       %li.nav-item

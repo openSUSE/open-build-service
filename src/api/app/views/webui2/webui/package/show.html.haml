@@ -33,11 +33,11 @@
                                                     services: @services,
                                                     project: @project,
                                                     package: @package }
-.row
-  .col-xl-4.order-xl-1
+.package-show
+  .package-build-results
     = render partial: 'webui2/shared/buildresult_box', locals: { project: @project.name, package: @package.name }
-  .col-xl-8.order-xl-0
-    .card.mb-3
+  .package-source-files
+    .card
       %h5.card-header
         Source Files
         - if @linkinfo && @revision_parameter.nil?
@@ -65,7 +65,8 @@
                                                   revision: @revision,
                                                   srcmd5: @srcmd5,
                                                   spider_bot: @spider_bot }
-    .card.mb-3
+  .package-comments
+    .card
       %h5.card-header
         Comments for
         = @project.name
