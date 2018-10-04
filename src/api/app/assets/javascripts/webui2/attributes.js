@@ -6,4 +6,12 @@ $(document).ready(function() {
     $("[id^='attribute_type-description-']:visible").addClass('d-none');
     $('#attribute_type-description-' + $(this).val()).removeClass('d-none');
   });
+
+  $('#attributes').dataTable({
+    responsive: true,
+    info: false,
+    searching: false,
+    paging: false,
+    ordering: false
+  });
 });

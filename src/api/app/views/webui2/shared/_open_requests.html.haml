@@ -2,5 +2,5 @@
   - path = package ? package_requests_path(project, package) : project_requests_path(project)
   - path = request_show_path(requests[0]) if requests.size == 1
   %li
-    %i.fas.fa-info-circle.text-info
+    %i.fas.fa-info-circle.text-secondary
     = link_to(pluralize(requests.size, 'open request'), path)

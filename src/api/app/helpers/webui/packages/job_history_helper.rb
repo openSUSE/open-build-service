@@ -8,4 +8,13 @@ module Webui::Packages::JobHistoryHelper
 
     link_to(sprite_tag('req-showdiff', title: title), package_show_path(params))
   end
+
+  def html_class_for_state(state)
+    case state
+    when 'succeeded'
+      'text-primary'
+    when 'failed'
+      'text-danger'
+    end
+  end
 end

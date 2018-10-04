@@ -26,7 +26,7 @@
             %td.text-center
               - if !User.current.is_nobody? || file[:size].to_i < 4.megabytes
                 = link_to(file_url(project.name, package.name, file[:name], file[:srcmd5]), title: 'Download file') do
-                  %i.fas.fa-arrow-circle-down.text-secondary
+                  %i.fas.fa-download.text-secondary
               - if can_be_removed
                 = link_to('#', data: { toggle: 'modal', target: "#delete-file-modal-#{index}" },
                           title: 'Delete file') do

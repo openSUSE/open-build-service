@@ -1,0 +1,17 @@
+[Unit]
+Description = Open Build Service Sphinx Search Daemon
+BindsTo = obs-api-support.target
+Conflicts = searchd.service
+
+[Service]
+Environment = "RAILS_ENV=production"
+User = wwwrun
+Group = www
+WorkingDirectory = /srv/www/obs/api
+ExecStart = /bin/bash -c "if [ `stat -c '%s' /srv/www/obs/api/config/production.sphinx.conf` -eq 0 ]; then /usr/bin/bundle.ruby2.5 exec rails ts:rebuild; else /usr/bin/bundle.ruby2.5 exec rails ts:start; fi"
+ExecStop = /usr/bin/bundle.ruby2.5 exec rails ts:stop
+Type = forking
+PIDFile = /srv/www/obs/api/log/production.sphinx.pid
+
+[Install]
+WantedBy = obs-api-support.target

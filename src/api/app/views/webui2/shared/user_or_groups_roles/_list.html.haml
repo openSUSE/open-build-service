@@ -14,7 +14,7 @@
             %i.fas.fa-spinner.fa-spin.invisible
             - if package && project.send("#{type}_has_role?", record, role)
               = link_to(project_users_path(project: project)) do
-                %i.fa.fa-cubes.text-info{ title: 'inherited from project' }
+                %i.fa.fa-cubes.text-secondary{ title: 'inherited from project' }
     %td.text-nowrap
       - if type == 'user' && !User.current.is_nobody?
         :ruby
@@ -22,7 +22,7 @@
           mail_subject = "#{home_title} - #{project}"
           mail_subject += "/#{package}" if package
         = mail_to(record.email, subject: mail_subject) do
-          %i.fas.fa-envelope{ title: 'Send email to user' }
+          %i.far.fa-envelope{ title: 'Send email to user' }
       - if user_is_maintainer
         = link_to('#', data: { toggle: 'modal', target: "#delete-role-modal-#{type}-#{record.id}" }, class: "remove-#{type}") do
           %i.fas.fa-times-circle.text-danger{ title: "Delete all roles for #{type}" }

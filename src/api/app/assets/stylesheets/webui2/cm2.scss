@@ -7,3 +7,8 @@
   right: 0.55rem;
   z-index: 4;
 }
+
+.custom-file-label-with-overflow {
+    @extend .custom-file-label;
+    overflow: hidden;
+}

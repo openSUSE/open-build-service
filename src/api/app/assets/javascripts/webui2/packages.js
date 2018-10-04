@@ -5,7 +5,13 @@ $(function ($) {
   // when one of them is set.
   var $inputs = $('.package-add-file input');
   $inputs.on('change', function () {
-    $inputs.not(this).prop('required', !$(this).val().length);
+    var otherInputWithValueExists = $inputs.not(this).filter(function() {
+        return !!this.value;
+    }).length > 0;
+
+    if(!otherInputWithValueExists) {
+      $inputs.prop('required', !$(this).val().length);
+    }
   });
 
   $('details.details-with-codemirror').on('click', function () {

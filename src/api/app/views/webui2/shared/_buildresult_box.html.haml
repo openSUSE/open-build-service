@@ -18,20 +18,19 @@
           = link_to("#rpm#{index}", id: "rpm#{index}-tab", class: 'nav-link text-nowrap', data: { toggle: 'tab' },
             role: 'tab', aria: { controls: "rpm#{index}", selected: false }) do
             RPM Lint
-  .card-boby
-    .col-12
-      .tab-content
-        .tab-pane.fade.show.active{ id: "build#{index}", role: 'tabpanel', aria: { labelledby: "build#{index}-tab" } }
-          .btn.btn-sm.btn-outline-primary.my-2.build-refresh{ onclick: "updateBuildResult('#{index}')", title: 'Refresh Build Results' }
+  .card-body
+    .tab-content
+      .tab-pane.fade.show.active{ id: "build#{index}", role: 'tabpanel', aria: { labelledby: "build#{index}-tab" } }
+        .btn.btn-sm.btn-outline-primary.mb-2.build-refresh{ onclick: "updateBuildResult('#{index}')", title: 'Refresh Build Results' }
+          Refresh
+          %i.fas.fa-sm.fa-sync-alt{ id: "build#{index}-reload" }
+        .result
+      - if defined?(package)
+        .tab-pane.fade{ id: "rpm#{index}", role: 'tabpanel', aria: { labelledby: "rpm#{index}-tab" } }
+          .btn.btn-sm.btn-outline-primary.mb-2{ onclick: "updateRpmlintResult('#{index}')", title: 'Refresh Rpmlint Results' }
             Refresh
-            %i.fas.fa-sm.fa-sync-alt{ id: "build#{index}-reload" }
+            %i.fas.fa-sm.fa-sync-alt{ id: "rpm#{index}-reload" }
           .result
-        - if defined?(package)
-          .tab-pane.fade{ id: "rpm#{index}", role: 'tabpanel', aria: { labelledby: "rpm#{index}-tab" } }
-            .btn.btn-sm.btn-outline-primary.my-2{ onclick: "updateRpmlintResult('#{index}')", title: 'Refresh Rpmlint Results' }
-              Refresh
-              %i.fas.fa-sm.fa-sync-alt{ id: "rpm#{index}-reload" }
-            .result
 
 :javascript
   updateBuildResult('#{index}');
