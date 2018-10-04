@@ -1,6 +1,6 @@
 .position-relative
   .btn-group.diff-menu-buttons{ role: :group }
-    %a.btn.btn-sm.btn-outline-secondary.d-none.d-sm-none.d-md-block{ class: ('disabled' unless index.positive?), href: "#revision_details_#{index - 1}", title: 'Go up to the previous diff' }
+    %a.btn.btn-sm.btn-outline-secondary.d-none.d-sm-none.d-md-block{ class: ('disabled' if index.zero?), href: "#revision_details_#{index - 1}", title: 'Go up to the previous diff' }
       %i.fas.fa-chevron-up
     %a.btn.btn-sm.btn-outline-secondary.d-none.d-sm-none.d-md-block{ class: ('disabled' if last), href: "#revision_details_#{index + 1}", title: 'Go down to the next diff' }
       %i.fas.fa-chevron-down
