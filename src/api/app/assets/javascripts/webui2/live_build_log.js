@@ -15,9 +15,6 @@ $.extend(LiveLog.prototype, {
   initialize: function() {
     this.startButton.click($.proxy(this.start, this));
     this.stopButton.click($.proxy(this.stop, this));
-    this.checkScroll();
-    this.checkResize();
-    this.logInfo.css('width', this.wrapper.width());
     this.start();
     this.initial = false;
     return this;
@@ -98,20 +95,4 @@ $.extend(LiveLog.prototype, {
     this.logInfo.children().hide();
     this.logInfo.children('.' + status).show();
   },
-
-  checkScroll: function() {
-    var element = this;
-    $(window).scroll(function() {
-      var cssStyle = $(document).scrollTop() > element.wrapper.offset().top ? 'fixed' : 'initial';
-      element.logInfo.css('position', cssStyle);
-    });
-  },
-
-  checkResize: function() {
-    var element = this;
-    $(window).resize(function() {
-      element.logInfo.css('width', element.wrapper.width());
-    });
-  }
 });
-
