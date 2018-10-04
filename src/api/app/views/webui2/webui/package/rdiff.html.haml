@@ -33,6 +33,7 @@
               package: @package,
               filename: filename,
               file: @files[filename],
+              diff_content: @files[filename].dig('diff', '_content'),
               revision: @rev,
               index: index,
               last: @filenames.last == filename }

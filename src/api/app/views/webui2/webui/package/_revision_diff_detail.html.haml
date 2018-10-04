@@ -13,9 +13,15 @@
       title: 'View the whole file' do
         %i.far.fa-file.d-block.d-sm-block.d-md-none
         %span.d-none.d-sm-none.d-md-block View file
-  %details.card.details-with-codemirror{ open: expand_diff?(filename, file['state']), id: "revision_details_#{index}" }
-    %summary.card-header
-      = calculate_filename(filename, file)
-      %span.badge{ class: badge_for_diff_state(file['state']) }= file['state'].capitalize
-    %div
-      = render partial: 'shared/editor', locals: { text: file.dig('diff', '_content'), mode: 'diff', style: { read_only: true } }
+  - if diff_content.present?
+    %details.card.details-with-codemirror{ open: expand_diff?(filename, file['state']), id: "revision_details_#{index}" }
+      %summary.card-header
+        = calculate_filename(filename, file)
+        %span.badge{ class: badge_for_diff_state(file['state']) }= file['state'].capitalize
+      %div
+        = render partial: 'shared/editor', locals: { text: diff_content, mode: 'diff', style: { read_only: true } }
+  - else
+    .card{ id: "revision_details_#{index}" }
+      .card-header
+        = calculate_filename(filename, file)
+        %span.badge{ class: badge_for_diff_state(file['state']) }= file['state'].capitalize
