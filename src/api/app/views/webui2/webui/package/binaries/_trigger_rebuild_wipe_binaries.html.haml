@@ -5,7 +5,7 @@
     Trigger rebuild
 %li.list-inline-item
   - unless result[:binaries].empty?
-    = link_to(package_wipe_binaries_path(arch: result[:arch], project: project, package: package, repository: repository), method: :delete,
-    title: 'Wipe all binaries', class: 'nav-link') do
+    = link_to('#', data: { toggle: 'modal', target: "#delete-binaries-modal-#{result[:arch]}" }, title: 'Delete binaries') do
       %i.fas.fa-times-circle.text-danger
       Delete binaries
+    = render(partial: 'delete_binaries_dialog', locals: { arch: result[:arch], project: project, package: package, repository: repository })

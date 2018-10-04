@@ -8,10 +8,10 @@
                                                                        download_url: @configuration['download_url'] }
       - unless @buildresults.empty?
         %li.list-inline-item
-          = link_to(package_wipe_binaries_path(project: @project, package: @package_name, repository: @repository),
-            method: :delete, class: 'nav-link') do
+          = link_to('#', data: { toggle: 'modal', target: '#delete-all-binaries-modal' }, title: 'Delete all built binaries') do
             %i.fas.fa-times-circle.text-danger
             Delete all built binaries
+          = render(partial: 'delete_all_binaries_dialog', locals: { project: @project, package: @package_name, repository: @repository })
 
     - @buildresults.each do |result|
       %h5.bg-light.p-2.mb-0
