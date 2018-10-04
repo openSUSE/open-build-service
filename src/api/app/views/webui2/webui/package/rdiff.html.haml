@@ -39,7 +39,7 @@
               last: @filenames.last == filename }
             %br
         - else
-          %p No source changes.
+          %p.lead No source changes.
           %br
         = render partial: 'revision_diff_footer',
         locals: { project: @project,
