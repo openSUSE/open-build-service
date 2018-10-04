@@ -1,9 +1,16 @@
 :ruby
+  is_flag_set_by_user = !flag.new_record?
   title = flag.effective_status == 'disable' ? 'Disabled' : 'Enabled'
-  title += ' (default)' if flag.new_record?
-  content = String.new(render(partial: 'shared/flag_popover', locals: { flag: flag, project: project, package: package, remote: !flag.has_children }))
+  title += is_flag_set_by_user ? ' (set by user)' : ' (calculated)'
+  content = render(partial: 'shared/flag_popover', locals: { flag: flag, project: project, package: package, remote: !flag.has_children })
+  icon_class = flag.effective_status == 'disable' ? 'fa-ban text-danger' : 'fa-check text-primary'
+  icon_class += ' ml-0_6' if is_flag_set_by_user
 
 %div{ id: flag.fullname }
-  %a{ href: 'javascript:void(0)', title: title, data: { html: 'true', toggle: 'popover', placement: 'left', trigger: 'focus', content: content } }
-    %i.fas{ class: flag.effective_status == 'disable' ? 'fa-ban text-danger' : 'fa-check text-primary' }
+  %a{ href: 'javascript:void(0)', title: title,
+      data: { html: 'true', toggle: 'popover', placement: 'left', trigger: 'focus', content: "#{content}" } }
+    %span.text-nowrap
+      %i.fas{ class: icon_class }
+      - if is_flag_set_by_user
+        %i.fas.fa-circle.text-gray-550.text-40p-size
   %i.fas.fa-spinner.fa-spin.d-none
