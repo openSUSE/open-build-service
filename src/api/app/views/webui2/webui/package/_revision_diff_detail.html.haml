@@ -1,20 +1,13 @@
 .position-relative
-  .btn-group.diff-menu-buttons{ role: :group }
-    %a.btn.btn-sm.btn-outline-secondary.d-none.d-sm-none.d-md-block{ class: ('disabled' if index.zero?), href: "#revision_details_#{index - 1}", title: 'Go up to the previous diff' }
-      %i.fas.fa-chevron-up
-    %a.btn.btn-sm.btn-outline-secondary.d-none.d-sm-none.d-md-block{ class: ('disabled' if last), href: "#revision_details_#{index + 1}", title: 'Go down to the next diff' }
-      %i.fas.fa-chevron-down
-    - link_options = { project: project, package: package, filename: filename, rev: calculate_revision_on_state(revision, file['state']) }
-    - if !@linkinfo && (diff_content.present? && !Package.is_binary_file?(filename) && !filename.include?('/'))
-      = link_to package_view_file_path(link_options),
-        class: 'btn btn-sm btn-outline-secondary',
-        title: 'View the whole file' do
-        %span.d-none.d-sm-none.d-md-block View file
-        %i.far.fa-file.d-block.d-sm-block.d-md-none
-    - else
-      %a.btn.btn-sm.btn-outline-secondary.disabled{ href: ''}
-        %span.d-none.d-sm-none.d-md-block View file
-        %i.far.fa-file.d-block.d-sm-block.d-md-none
+  = render partial: 'revision_diff_detail_buttons',
+  locals: { project: project,
+    package: package,
+    filename: filename,
+    revision: revision,
+    index: index,
+    last: last,
+    state: file['state'],
+    has_content: diff_content.present? }
   - if diff_content.present?
     %details.card.details-with-codemirror{ open: expand_diff?(filename, file['state']), id: "revision_details_#{index}" }
       %summary.card-header

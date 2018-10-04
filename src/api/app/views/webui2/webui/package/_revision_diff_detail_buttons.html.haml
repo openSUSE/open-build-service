@@ -1,0 +1,20 @@
+.btn-group.diff-menu-buttons{ role: :group }
+  %a.btn.btn-sm.btn-outline-secondary.d-none.d-sm-none.d-md-block{ class: ('disabled' if index.zero?),
+  href: "#revision_details_#{index - 1}",
+  title: 'Go up to the previous diff' }
+    %i.fas.fa-chevron-up
+  %a.btn.btn-sm.btn-outline-secondary.d-none.d-sm-none.d-md-block{ class: ('disabled' if last),
+  href: "#revision_details_#{index + 1}",
+  title: 'Go down to the next diff' }
+    %i.fas.fa-chevron-down
+  - link_options = { project: project, package: package, filename: filename, rev: calculate_revision_on_state(revision, state) }
+  - if !@linkinfo && (has_content && !Package.is_binary_file?(filename) && !filename.include?('/'))
+    = link_to package_view_file_path(link_options),
+      class: 'btn btn-sm btn-outline-secondary',
+      title: 'View the whole file' do
+      %span.d-none.d-sm-none.d-md-block View file
+      %i.far.fa-file.d-block.d-sm-block.d-md-none
+  - else
+    %a.btn.btn-sm.btn-outline-secondary.disabled{ href: '' }
+      %span.d-none.d-sm-none.d-md-block View file
+      %i.far.fa-file.d-block.d-sm-block.d-md-none
