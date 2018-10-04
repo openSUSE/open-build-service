@@ -17,12 +17,13 @@
         - else
           %h3
             Changes of Revision #{@rev}
-      .col-sm-2
-        .btn-group.float-right
-          %button.btn.btn-sm.btn-outline-secondary#expand-diffs
-            Expand all
-          %button.btn.btn-sm.btn-outline-secondary#collapse-diffs
-            Collapse all
+      - if @filenames.present?
+        .col-sm-2
+          .btn-group.float-right
+            %button.btn.btn-sm.btn-outline-secondary#expand-diffs
+              Expand all
+            %button.btn.btn-sm.btn-outline-secondary#collapse-diffs
+              Collapse all
     %br
     .row
       .col-sm-12
