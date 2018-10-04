@@ -4,22 +4,28 @@
       %i.fas.fa-chevron-up
     %a.btn.btn-sm.btn-outline-secondary.d-none.d-sm-none.d-md-block{ class: ('disabled' if last), href: "#revision_details_#{index + 1}", title: 'Go down to the next diff' }
       %i.fas.fa-chevron-down
+    - link_options = { project: project, package: package, filename: filename, rev: calculate_revision_on_state(revision, file['state']) }
     - if !@linkinfo && (diff_content.present? && !Package.is_binary_file?(filename) && !filename.include?('/'))
-      - link_options = { project: project, package: package, filename: filename, rev: calculate_revision_on_state(revision, file['state']) }
       = link_to package_view_file_path(link_options),
-      class: 'btn btn-sm btn-outline-secondary',
-      title: 'View the whole file' do
-        %i.far.fa-file.d-block.d-sm-block.d-md-none
+        class: 'btn btn-sm btn-outline-secondary',
+        title: 'View the whole file' do
         %span.d-none.d-sm-none.d-md-block View file
+        %i.far.fa-file.d-block.d-sm-block.d-md-none
+    - else
+      %a.btn.btn-sm.btn-outline-secondary.disabled{ href: ''}
+        %span.d-none.d-sm-none.d-md-block View file
+        %i.far.fa-file.d-block.d-sm-block.d-md-none
   - if diff_content.present?
     %details.card.details-with-codemirror{ open: expand_diff?(filename, file['state']), id: "revision_details_#{index}" }
       %summary.card-header
-        = calculate_filename(filename, file)
-        %span.badge{ class: badge_for_diff_state(file['state']) }= file['state'].capitalize
+        .diff-card-header
+          = calculate_filename(filename, file)
+          %span.badge{ class: badge_for_diff_state(file['state']) }= file['state'].capitalize
       %div
         = render partial: 'shared/editor', locals: { text: diff_content, mode: 'diff', style: { read_only: true } }
   - else
     .card{ id: "revision_details_#{index}" }
       .card-header
-        = calculate_filename(filename, file)
-        %span.badge{ class: badge_for_diff_state(file['state']) }= file['state'].capitalize
+        .div.w-75
+          = calculate_filename(filename, file)
+          %span.badge{ class: badge_for_diff_state(file['state']) }= file['state'].capitalize
