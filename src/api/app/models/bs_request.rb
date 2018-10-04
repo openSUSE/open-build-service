@@ -149,7 +149,10 @@ class BsRequest < ApplicationRecord
     hashed = Xmlhash.parse(xml)
 
     raise SaveError, 'Failed parsing the request xml' unless hashed
+    new_from_hash(hashed)
+  end
 
+  def self.new_from_hash(hashed)
     if hashed['id']
       theid = hashed.delete('id') { raise 'not found' }
       theid = Integer(theid)
