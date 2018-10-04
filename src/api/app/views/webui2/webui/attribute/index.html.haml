@@ -6,8 +6,8 @@
   .card-body
     %h3= @pagetitle
     - if @attributes.present?
-      %table.responsive.table.table-hover.w-100#attributes
-        %thead.thead-light
+      %table.responsive.table.table-striped.table-bordered#attributes
+        %thead
           %tr
             %th.col-auto{ scope: 'col' } Attributes
             %th.col{ scope: 'col' } Values
