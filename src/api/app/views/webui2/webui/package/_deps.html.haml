@@ -4,8 +4,8 @@
     %table.table.table-striped.table-bordered.table-sm
       %thead
         %tr
-          %th.col-md-3.col-sm-6{ scope: 'col' } Symbol
-          %th.col-md-2.col-sm-4{ scope: 'col' } Required by
+          %th.w-75 Symbol
+          %th.w-25 Required by
       %tbody
         - fileinfo.elements('provides_ext') do |package_file|
           %tr
@@ -33,8 +33,8 @@
     %table.table.table-striped.table-bordered.table-sm
       %thead
         %tr
-          %th.col-md-3.col-sm-6{ scope: 'col' } Symbol
-          %th.col-md-2.col-sm-4{ scope: 'col' } Provided by
+          %th.w-75 Symbol
+          %th.w-25 Provided by
       %tbody
         - fileinfo.elements('requires_ext') do |package_file|
           %tr
@@ -56,4 +56,3 @@
           %tr
             %td{ colspan: '2' }
               %em No requires
-

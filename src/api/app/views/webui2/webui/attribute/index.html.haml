@@ -9,15 +9,15 @@
       %table.responsive.table.table-striped.table-bordered#attributes
         %thead
           %tr
-            %th.col-auto{ scope: 'col' } Attributes
-            %th.col{ scope: 'col' } Values
+            %th.w-50 Attributes
+            %th.w-25 Values
             - if policy(@package).update?
-              %th.col-auto{ scope: 'col' } Actions
+              %th Actions
         %tbody
           - @attributes.each do |attribute|
             %tr
-              %td.col-6.text-word-break-all= attribute.fullname
-              %td.col-4
+              %td.text-word-break-all= attribute.fullname
+              %td
                 %ul
                   - unless attribute.values.empty?
                     - attribute.values.each do |v|
@@ -26,7 +26,7 @@
                   - unless attribute.issues.empty?
                     %li= attribute.issues.map(&:name).to_sentence
               - if policy(@package).update?
-                %td.col-2
+                %td
                   - if attribute.values_editable?
                     = link_to(edit_attribs_path(project: @project.name, package: @package, attribute: attribute.fullname), title: 'Edit values') do
                       %i.fas.fa-edit.text-secondary
