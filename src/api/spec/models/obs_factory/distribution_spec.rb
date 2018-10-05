@@ -18,6 +18,7 @@ RSpec.describe ObsFactory::Distribution do
     it { expect(strategy_for('SUSE:SLE-15:GA')).to           be_kind_of(ObsFactory::DistributionStrategySLE15) }
     it { expect(strategy_for('SUSE:SLE-15-SP1:GA')).to       be_kind_of(ObsFactory::DistributionStrategySLE15) }
     it { expect(strategy_for('SUSE:SLE-12-SP3:Update:Products:CASP20')).to be_kind_of(ObsFactory::DistributionStrategyCasp) }
+    it { expect(strategy_for('SUSE:SLE-15:Update:Products:CASP40')).to be_kind_of(ObsFactory::DistributionStrategyCasp) }
 
     it { expect { strategy_for('openSUSE:42.3') }.to raise_error(ObsFactory::UnknownDistribution) }
     it { expect { strategy_for('openSUSE:Leap:42.3') }.to raise_error(ObsFactory::UnknownDistribution) }
