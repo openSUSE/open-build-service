@@ -637,7 +637,7 @@ while (@ARGV) {
     $vm = shift @ARGV;
     next;
   }
-  print "OPTION UNKNOWN: $ARGV[0]\n";
+  print "OPTION UNKNOWN: $ARGV[0]\n" unless $justbuild;
   last;
 }
 
@@ -1846,6 +1846,7 @@ sub getpreinstallimage_metas {
 sub getpreinstallimage {
   my ($buildinfo, $dir, $todo, $bvls) = @_;
 
+  return undef unless $Build::Features::preinstallimage;
   # get all bvls to calculate image data
   my @bins = @$todo;
   my %prpas;	# server -> prpas on this server
@@ -2872,7 +2873,7 @@ sub dobuild {
   $binariesdownloadsize = 0;
   my $downloadstarttime = time();
   my @meta;
-  my $preinstallimagedata = $Build::Features::preinstallimage ? {} : undef;
+  my $preinstallimagedata = {};
   print "fetching sources, ";
   mkdir($srcdir) || die("mkdir $srcdir: $!\n");
   if ($deltamode) {
