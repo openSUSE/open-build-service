@@ -2,13 +2,16 @@
   is_flag_set_by_user = !flag.new_record?
   title = flag.effective_status == 'disable' ? 'Disabled' : 'Enabled'
   title += is_flag_set_by_user ? ' (set by user)' : ' (calculated)'
-  content = render(partial: 'shared/flag_popover', locals: { flag: flag, project: project, package: package, remote: !flag.has_children })
+  if user_can_set_flags
+    content = render(partial: 'shared/flag_popover',
+                     locals: { flag: flag, project: project, package: package, remote: !flag.has_children })
+  end
   icon_class = flag.effective_status == 'disable' ? 'fa-ban text-danger' : 'fa-check text-primary'
   icon_class += ' ml-0_6' if is_flag_set_by_user
 
 %div{ id: flag.fullname }
   %a{ href: 'javascript:void(0)', title: title,
-      data: { html: 'true', toggle: 'popover', placement: 'left', trigger: 'focus', content: "#{content}" } }
+      data: { html: 'true', toggle: user_can_set_flags ? 'popover' : '', placement: 'left', trigger: 'focus', content: "#{content}" } }
     %span.text-nowrap
       %i.fas{ class: icon_class }
       - if is_flag_set_by_user

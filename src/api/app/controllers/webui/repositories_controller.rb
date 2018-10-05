@@ -15,6 +15,8 @@ class Webui::RepositoriesController < Webui::WebuiController
     @useforbuild = @main_object.get_flags('useforbuild')
     @architectures = @main_object.architectures.reorder('name').distinct
 
+    @user_can_set_flags = policy(@project).update?
+
     switch_to_webui2 if @package
   end
 
@@ -164,6 +166,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     @flag = @main_object.flags.new(status: params[:status], flag: params[:flag])
     @flag.architecture = Architecture.find_by_name(params[:architecture])
     @flag.repo = params[:repository] if params[:repository].present?
+    @user_can_set_flags = policy(@project).update?
 
     respond_to do |format|
       if @flag.save
@@ -186,6 +189,7 @@ class Webui::RepositoriesController < Webui::WebuiController
 
     @flag = Flag.find(params[:flag])
     @flag.status = @flag.status == 'enable' ? 'disable' : 'enable'
+    @user_can_set_flags = policy(@project).update?
 
     respond_to do |format|
       if @flag.save
@@ -210,6 +214,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     @main_object.flags.destroy(@flag)
     @flag = @flag.dup
     @flag.status = @flag.default_status
+    @user_can_set_flags = policy(@project).update?
 
     respond_to do |format|
       # FIXME: This should happen in Flag or even better in Project
