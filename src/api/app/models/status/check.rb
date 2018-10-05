@@ -9,7 +9,12 @@ class Status::Check < ApplicationRecord
   #### Attributes
   validates :state, :name, presence: true
   # TODO: This should be an ENUM
-  validates :state, inclusion: { in: %w[pending error failure success] }
+  VALID_STATES = %w[pending error failure success].freeze
+  validates :state, inclusion: {
+    in: VALID_STATES,
+    message: "State '%{value}' is not a valid. Valid states are: #{VALID_STATES.join(', ')}"
+  }
+
   validates :name, uniqueness: { scope: :status_report }
 
   #### Associations macros (Belongs to, Has one, Has many)
