@@ -213,6 +213,7 @@ module ObsFactory
           when 'SUSE:SLE-15:GA' then DistributionStrategySLE15.new
           when /^SUSE:SLE-15-SP\d:GA/ then DistributionStrategySLE15.new
           when /^SUSE:SLE-12-SP.*CASP\d*/ then DistributionStrategyCasp.new
+          when /^SUSE:SLE-15.*CASP\d*/ then DistributionStrategyCasp.new
           else raise UnknownDistribution
       end
       s.project = project

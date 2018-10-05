@@ -1,7 +1,7 @@
 module ObsFactory
   class DistributionStrategyCasp < DistributionStrategyFactory
     def casp_version
-      match = project.name.match(/^SUSE:SLE-12-SP.*CASP(\d*)/)
+      match = project.name.match(/^SUSE:SLE-1.*CASP(\d*)/)
       match[1]
     end
 
