@@ -1,13 +1,6 @@
 @import "cm2/toolbars";
 @import "cm2/suse";
 
-.diff-menu-buttons {
-  position: absolute;
-  top: 0.55rem;
-  right: 0.55rem;
-  z-index: 4;
-}
-
 .custom-file-label-with-overflow {
     @extend .custom-file-label;
     overflow: hidden;

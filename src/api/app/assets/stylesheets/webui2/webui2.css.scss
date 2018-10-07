@@ -37,7 +37,9 @@
 @import 'cm2';
 @import 'live_build_log';
 @import 'borders';
+@import 'diff';
 
 html {
     overflow-y: scroll !important;
 }
+@import 'repositories';

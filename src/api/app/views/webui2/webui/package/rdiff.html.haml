@@ -17,12 +17,13 @@
         - else
           %h3
             Changes of Revision #{@rev}
-      .col-sm-2
-        .btn-group.float-right
-          %button.btn.btn-sm.btn-outline-secondary#expand-diffs
-            Expand all
-          %button.btn.btn-sm.btn-outline-secondary#collapse-diffs
-            Collapse all
+      - if @filenames.present?
+        .col-sm-2
+          .btn-group.float-right
+            %button.btn.btn-sm.btn-outline-secondary#expand-diffs
+              Expand all
+            %button.btn.btn-sm.btn-outline-secondary#collapse-diffs
+              Collapse all
     %br
     .row
       .col-sm-12
@@ -33,12 +34,13 @@
               package: @package,
               filename: filename,
               file: @files[filename],
+              diff_content: @files[filename].dig('diff', '_content'),
               revision: @rev,
               index: index,
               last: @filenames.last == filename }
             %br
         - else
-          %p No source changes.
+          %p.lead No source changes.
           %br
         = render partial: 'revision_diff_footer',
         locals: { project: @project,

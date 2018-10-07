@@ -7,7 +7,7 @@
         .modal-body
           .form-group
             = label_tag(:title, 'Title:')
-            = text_field_tag('title', package.title, class: 'form-control')
+            = text_field_tag('title', package.title.presence || package.name, class: 'form-control')
           .form-group
             = label_tag(:description, 'Description:')
             = text_area_tag(:description, package.description, rows: 8, class: 'form-control')
