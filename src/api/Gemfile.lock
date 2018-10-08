@@ -89,7 +89,7 @@ GEM
     clockwork (2.0.3)
       tzinfo
     cocoon (1.2.11)
-    codecov (0.1.11)
+    codecov (0.1.13)
       json
       simplecov
       url
