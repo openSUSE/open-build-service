@@ -952,7 +952,7 @@ CREATE TABLE `projects` (
   `kind` enum('standard','maintenance','maintenance_incident','maintenance_release') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'standard',
   `url` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `required_checks` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `staging_workflow_id` bigint(20) DEFAULT NULL,
+  `staging_workflow_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`name`) USING BTREE,
   KEY `updated_at_index` (`updated_at`) USING BTREE,
@@ -1125,12 +1125,12 @@ CREATE TABLE `sessions` (
 
 CREATE TABLE `staging_workflows` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `project_id` bigint(20) DEFAULT NULL,
+  `project_id` int(11) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_staging_workflows_on_project_id` (`project_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `static_permissions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
