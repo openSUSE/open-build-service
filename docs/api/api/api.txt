@@ -1648,6 +1648,13 @@ GET /published/<project>/<repository>
 XmlResult: directory
 
 
+GET /published/<project>/<repository>?view=status
+
+  Delivers last publish information like time and repository build id
+
+XmlResult: buildstatus
+
+
 GET /published/<project>/<repository>/<arch>
 
   List of published binaries for the given project/repo/arch
