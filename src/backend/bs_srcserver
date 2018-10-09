@@ -6001,6 +6001,12 @@ sub checkconstraints {
   if (BSServer::have_content()) {
     $param->{'data'} = \&BSServer::forward_sender;
     $param->{'chunked'} = 1;
+  } else {
+      my $rev = getrev($cgi->{'project'}, $cgi->{'package'}, $cgi->{'rev'});
+      my $files = BSRevision::lsrev($rev);
+      if ($files->{'_constraints'}) {
+        $param->{'data'} = BSRevision::revreadstr($rev, '_constraints', $files->{'_constraints'});
+      }
   }
 
   my $ret = BSWatcher::rpc($param, $BSXML::dir, "cmd=checkconstraints", @args);
@@ -6422,7 +6428,7 @@ my $dispatches = [
 
   # worker capabilities
   '/worker/$workerid' => \&getworkercap,
-  'POST:/worker cmd=checkconstraints $project $repository $arch $package' => \&checkconstraints,
+  'POST:/worker cmd=checkconstraints $project $repository $arch $package rev?' => \&checkconstraints,
 
   # worker calls
   '/getsources $project $package $srcmd5:md5 workerid?' => \&getsources,
