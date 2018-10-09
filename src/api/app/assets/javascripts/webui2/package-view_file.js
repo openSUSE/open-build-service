@@ -14,8 +14,9 @@ function addChangesEntryTemplate() { // jshint ignore:line
       hours = toTwoChars(date.getUTCHours(), '0'),
       minutes = toTwoChars(date.getUTCMinutes(), '0'),
       seconds = toTwoChars(date.getUTCSeconds(), '0'),
-      packagerName = $("a.changes-link").data('packagername'),
-      packagerEmail = $("a.changes-link").data('packageremail');
+      changesSelector = $("a.changes-link"),
+      packagerName = changesSelector.data('packagername'),
+      packagerEmail = changesSelector.data('packageremail');
 
   var template = "-------------------------------------------------------------------\n" +
                  weekDay + " " + month + " " + day + " " +
