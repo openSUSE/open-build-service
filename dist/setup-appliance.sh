@@ -598,7 +598,8 @@ function setup_registry {
 
   # reconfigure docker registry only to be accessible via apache proxy
   logline "Bind registry to loopback interface only"
-  perl -p -i -e  "s/0.0.0.0:5000/127.0.0.1:5000 # config changed by $0/" /etc/registry/config.yml
+  BN=`basename $0`
+  perl -p -i -e  "s/0.0.0.0:5000/127.0.0.1:5000 # config changed by $BN/" /etc/registry/config.yml
 
   # restart registry to reread confi if already started
   logline "Activating registry startup"
