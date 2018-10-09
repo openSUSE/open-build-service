@@ -1,5 +1,9 @@
 class Webui::StagingWorkflowsController < Webui::WebuiController
-  before_action :set_project
+  layout 'webui2/webui'
+
+  before_action :set_bootstrap_views
+
+  before_action :set_project, only: [:new, :create]
 
   def new; end
 
@@ -12,5 +16,16 @@ class Webui::StagingWorkflowsController < Webui::WebuiController
       flash[:error] = "Staging Workflow for #{@project.name} couldn't be created"
       redirect_to :new
     end
+  end
+
+  def show
+    @staging_workflow = StagingWorkflow.find_by(id: params[:id])
+    @project = @staging_workflow.project
+  end
+
+  private
+
+  def set_bootstrap_views
+    prepend_view_path('app/views/webui2')
   end
 end
