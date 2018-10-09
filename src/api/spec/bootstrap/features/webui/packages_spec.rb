@@ -58,6 +58,8 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
   end
 
   scenario 'deleting a package' do
+    skip('FIXME: This test is flickering hard.')
+
     login user
     visit package_show_path(package: package, project: user.home_project)
     click_link('Delete package')
@@ -88,6 +90,8 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
   end
 
   scenario "changing the package's devel project" do
+    skip('FIXME: This test is flickering hard.')
+
     login user
 
     visit package_show_path(package: package_with_develpackage, project: user.home_project)
