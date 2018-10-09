@@ -1402,7 +1402,7 @@ class Project < ApplicationRecord
     br.elements('result') do |result|
       if repository && result['repository'] == repository
         repository_states[repository] ||= {}
-        result['summary'] do |summary|
+        result.elements('summary') do |summary|
           summary.elements('statuscount') do |statuscount|
             repository_states[repository][statuscount['code']] ||= 0
             repository_states[repository][statuscount['code']] += statuscount['count'].to_i
