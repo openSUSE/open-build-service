@@ -952,12 +952,10 @@ CREATE TABLE `projects` (
   `kind` enum('standard','maintenance','maintenance_incident','maintenance_release') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'standard',
   `url` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `required_checks` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `staging_workflow_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`name`) USING BTREE,
   KEY `updated_at_index` (`updated_at`) USING BTREE,
-  KEY `devel_project_id_index` (`develproject_id`) USING BTREE,
-  KEY `index_projects_on_staging_workflow_id` (`staging_workflow_id`)
+  KEY `devel_project_id_index` (`develproject_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `ratings` (
@@ -1122,15 +1120,6 @@ CREATE TABLE `sessions` (
   KEY `index_sessions_on_session_id` (`session_id`) USING BTREE,
   KEY `index_sessions_on_updated_at` (`updated_at`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
-
-CREATE TABLE `staging_workflows` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `project_id` int(11) DEFAULT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_staging_workflows_on_project_id` (`project_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `static_permissions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1398,7 +1387,6 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20180903135535'),
 ('20180906115417'),
 ('20180906142702'),
-('20180906142802'),
-('20181008150453');
+('20180906142802');
 
 
