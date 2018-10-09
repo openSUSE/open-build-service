@@ -1,4 +1,3 @@
-// FIXME: Refactor this code
 var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -9,17 +8,19 @@ var toTwoChars = function(number, leadingChar) {
 // The jshint ignore:line is needed to ignore the offense: `'addChangesEntryTemplate' is defined but never used.` This is used in the view directly
 function addChangesEntryTemplate() { // jshint ignore:line
   var date = new Date(),
+      weekDay = DAYS[date.getUTCDay()],
+      month = MONTHS[date.getUTCMonth()],
       day = toTwoChars(date.getUTCDate(), ' '),
       hours = toTwoChars(date.getUTCHours(), '0'),
       minutes = toTwoChars(date.getUTCMinutes(), '0'),
       seconds = toTwoChars(date.getUTCSeconds(), '0'),
-      template;
+      packagerName = $("a.changes-link").data('packagername'),
+      packagerEmail = $("a.changes-link").data('packageremail');
 
-  template = "-------------------------------------------------------------------\n" +
-    DAYS[date.getUTCDay()] + " " + MONTHS[date.getUTCMonth()] + " " + day + " " +
-    hours + ":" + minutes + ":" + seconds + " UTC " + date.getUTCFullYear() +
-    " - " + $("a.changes-link").data('packagername') +
-    " <" + $("a.changes-link").data('packageremail') + ">" +"\n\n" + "- \n" + "\n";
+  var template = "-------------------------------------------------------------------\n" +
+                 weekDay + " " + month + " " + day + " " +
+                 hours + ":" + minutes + ":" + seconds + " UTC " + date.getUTCFullYear() +
+                 " - " + packagerName + " <" + packagerEmail + ">\n\n- \n\n";
 
   editors[0].setValue(template + editors[0].getValue());
   editors[0].focus();
