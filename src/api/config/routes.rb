@@ -790,7 +790,7 @@ OBSApi::Application.routes.draw do
 
     controller :reports do
       scope :published do
-        get ':project_name/:repository_name/reports/:report_uuid' => :show
+        get ':project_name/:repository_name/reports/:report_uuid' => :show, constraints: cons
       end
       scope :requests do
         get ':bs_request_number/reports' => :show
@@ -798,7 +798,7 @@ OBSApi::Application.routes.draw do
     end
     controller :checks do
       scope :published do
-        post ':project_name/:repository_name/reports/:report_uuid' => :update
+        post ':project_name/:repository_name/reports/:report_uuid' => :update, constraints: cons
       end
       scope :requests do
         post ':bs_request_number/reports' => :update
