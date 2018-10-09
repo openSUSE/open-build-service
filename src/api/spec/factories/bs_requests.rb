@@ -91,6 +91,22 @@ FactoryBot.define do
       end
     end
 
+    factory :review_bs_request_by_project do
+      after(:create) do |request, evaluator|
+        request.bs_request_actions.delete_all
+        request.bs_request_actions << create(
+          :bs_request_action_submit,
+          target_project: evaluator.target_project,
+          target_package: evaluator.target_package,
+          source_project: evaluator.source_project,
+          source_package: evaluator.source_package
+        )
+        request.reviews << Review.new(by_project: evaluator.reviewer)
+        request.state = evaluator.request_state
+        request.save!
+      end
+    end
+
     factory :delete_bs_request do
       after(:create) do |request, evaluator|
         request.bs_request_actions.delete_all
