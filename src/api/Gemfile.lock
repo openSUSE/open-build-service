@@ -89,7 +89,7 @@ GEM
     clockwork (2.0.3)
       tzinfo
     cocoon (1.2.11)
-    codecov (0.1.11)
+    codecov (0.1.13)
       json
       simplecov
       url
@@ -234,7 +234,7 @@ GEM
     mousetrap-rails (1.4.6)
     mysql2 (0.5.2)
     nio4r (2.3.1)
-    nokogiri (1.8.4)
+    nokogiri (1.8.5)
       mini_portile2 (~> 2.3.0)
     nokogumbo (1.5.0)
       nokogiri
@@ -351,7 +351,7 @@ GEM
       rainbow (>= 2.2.2, < 4.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (~> 1.0, >= 1.0.1)
-    rubocop-rspec (1.29.1)
+    rubocop-rspec (1.30.0)
       rubocop (>= 0.58.0)
     ruby-ldap (0.9.20)
     ruby-progressbar (1.10.0)
