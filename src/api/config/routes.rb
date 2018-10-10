@@ -727,6 +727,10 @@ OBSApi::Application.routes.draw do
     get 'projects/:project/packages/:package/requests' => 'webui/packages/bs_requests#index', constraints: cons, as: 'packages_requests'
   end
 
+  controller :staging_projects do
+    get 'staging_projects/:project/requests-to-review' => :requests_to_review, constraints: cons
+  end
+
   controller :source_attribute do
     get 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :show, constraints: cons
     post 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :update, constraints: cons, as: :change_attribute
