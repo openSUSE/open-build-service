@@ -27,6 +27,16 @@ the reviewer will merge it.
 
 However, please bear in mind the following things:
 
+## Give Context
+
+In order to help reviewers, it is always good have some context about your
+changes. Depending on your changes, this includes:
+
+- Screenshots, GIFs, review app for visual changes. The review app is added by a
+  member of the OBS team by applying the `review-app` label to a pull request.
+- [osc](https://github.com/openSUSE/osc) commands to test your changes.
+- Short description to help understand why the changes are needed.
+
 ## Discuss Large Changes in Advance
 
 If you see a glaring flaw within the Open Build Service, resist the urge to
