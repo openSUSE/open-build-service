@@ -10,26 +10,31 @@
           = tab_link('Maintained Projects', project_maintained_projects_path)
       - unless project.defines_remote_instance? || project.is_maintenance?
         %li.nav-item
-          = tab_link('Repositories', repositories_path)
+          = tab_link('Repositories', repositories_path(project))
       %li.nav-item
-        = tab_link('Requests', project_requests_path)
+        = tab_link('Requests', project_requests_path(project))
       - unless project.defines_remote_instance?
         %li.nav-item
-          = tab_link('Users', project_users_path)
+          = tab_link('Users', project_users_path(project))
+      // This link is intentionally hidden, only users that access to the staging workflow show will see it
+      // TODO: show it if the project have a staging_workflow attached when this feature will be released
+      - if controller_name == 'staging_workflows'
+        %li.nav-item
+          = tab_link('Staging', staging_workflow_path(project.staging))
       - unless project.defines_remote_instance? || project.is_maintenance?
         %li.nav-item
           = tab_link('Subprojects', project_subprojects_path(project))
         %li.nav-item
-          = tab_link('Project Config', project_config_path)
+          = tab_link('Project Config', project_config_path(project))
       %li.nav-item
         = tab_link('Attributes', index_attribs_path(project))
       %li.nav-item
-        = tab_link('Meta', project_meta_path)
+        = tab_link('Meta', project_meta_path(project))
       - unless project.defines_remote_instance? || project.is_maintenance?
         %li.nav-item
           = tab_link('Status', project_status_path(project))
       %li.nav-item
-        = tab_link('Pulse', project_pulse_path)
+        = tab_link('Pulse', project_pulse_path(project))
     %li.nav-item.dropdown
       %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', 'role': 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
       .dropdown-menu.dropdown-menu-right
