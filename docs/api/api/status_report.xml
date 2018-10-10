@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<status_report uuid="18">
+  <check name="unit tests" required="true">
+    <url>https://ci.example.com/jobs/12345</url>
+    <short_description>Unit tests running on Example CI</short_description>
+    <state>success</state>
+  </check>
+  <check name="integration tests" required="false">
+    <url>https://ci.example.com/jobs/6789</url>
+    <short_description>Integration tests running on Example CI</short_description>
+    <state>pending</state>
+  </check>
+</status_report>
