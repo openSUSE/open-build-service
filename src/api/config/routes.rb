@@ -460,6 +460,8 @@ OBSApi::Application.routes.draw do
   get 'published/:project(/:repository(/:arch(/:binary)))' => 'published#index', constraints: cons
   get 'published/' => 'source#index', via: :get
 
+  resources :staging_workflows, except: [:index, :edit, :update, :destroy], controller: 'webui/staging_workflows', constraints: cons
+
   constraints(APIMatcher) do
     get '/' => 'main#index'
 
