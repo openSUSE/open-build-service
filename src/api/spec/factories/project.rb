@@ -171,5 +171,9 @@ FactoryBot.define do
         end
       end
     end
+
+    factory :staging_project do
+      sequence(:name, [*'A'..'Z'].cycle) { |n| n }
+    end
   end
 end
