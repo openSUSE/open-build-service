@@ -13,7 +13,15 @@ if ENV['RSPEC_HOST'].blank?
     browser_options.args << '--headless'
     browser_options.args << '--no-sandbox' # to run in docker
     browser_options.args << '--window-size=1280,1024'
-    Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options)
+    driver = Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options)
+    bridge = driver.browser.send(:bridge)
+
+    path = '/session/:session_id/chromium/send_command'
+    path[':session_id'] = bridge.session_id
+
+    bridge.http.call(:post, path, cmd: 'Page.addScriptToEvaluateOnNewDocument',
+                                params: { source: '$.fx.off = true;' })
+    driver
   end
 
   Capybara.javascript_driver = :selenium_chrome_headless
