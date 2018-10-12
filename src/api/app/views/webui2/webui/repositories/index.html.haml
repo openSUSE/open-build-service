@@ -10,7 +10,7 @@
           = link_to @project, controller: :repositories, action: :index, project: @project
         = render partial: 'shared/repositories',
                  locals: { project: @project, package: @package, build: @build, publish: @publish, debuginfo: @debuginfo,
-                           useforbuild: @useforbuild, architectures: @architectures }
+                           useforbuild: @useforbuild, architectures: @architectures, user_can_set_flags: @user_can_set_flags }
       - else
         %p
           This package is inherited from the project
@@ -39,4 +39,4 @@
 
       = render partial: 'shared/repositories',
                locals: { project: @project, package: @package, build: @build, publish: @publish, debuginfo: @debuginfo,
-                         useforbuild: @useforbuild, architectures: @architectures }
+                         useforbuild: @useforbuild, architectures: @architectures, user_can_set_flags: @user_can_set_flags }
