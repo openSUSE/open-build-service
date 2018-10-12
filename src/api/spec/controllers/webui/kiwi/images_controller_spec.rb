@@ -82,7 +82,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
             {
               'Image Errors:' => [
                 'A repository with source_path "obsrepositories:/" has been set. If you want to use it, please remove the other repositories',
-                "Preference can't be blank"
+                "Preferences can't be blank"
               ],
               title: "Kiwi File 'package_with_invalid_kiwi_file.kiwi' has errors:"
             }
@@ -115,8 +115,8 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
               [
                 'Image Errors:',
                 [
-                  'Multiple package groups with same type are not allowed',
-                  "Preference can't be blank"
+                  'Multiple package groups with same type and profiles are not allowed',
+                  "Preferences can't be blank"
                 ]
               ]
             ]

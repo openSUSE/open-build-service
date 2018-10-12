@@ -714,8 +714,22 @@ CREATE TABLE `kiwi_preferences` (
   `type_containerconfig_name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `type_containerconfig_tag` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `version` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `profile` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_kiwi_preferences_on_image_id` (`image_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE `kiwi_profiles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `selected` tinyint(1) NOT NULL,
+  `image_id` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_once_per_image` (`name`,`image_id`),
+  KEY `index_kiwi_profiles_on_image_id` (`image_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `kiwi_repositories` (
@@ -1387,6 +1401,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20180903135535'),
 ('20180906115417'),
 ('20180906142702'),
-('20180906142802');
+('20180906142802'),
+('20180911123709');
 
 

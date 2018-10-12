@@ -122,14 +122,13 @@ function closeDescriptionDialog() {
   hideOverlay(dialog);
 }
 
-
 function closePreferencesDialog() {
   var fields = $(this).parents('.nested-fields');
   var dialog = fields.find('.dialog');
 
   var elements = fields.find('.fill');
   for(var i=0; i < elements.length; i++) {
-    var object = dialog.find("[id$='" + $(elements[i]).data('tag') + "']");
+    var object = dialog.find("[id$='_" + i + "_" + $(elements[i]).data('tag') + "']");
     if ( object.val() !== "") {
       if ( $(elements[i]).data('tag') === 'type_image' ) {
         $(elements[i]).text(object.find(":selected").text());
@@ -368,6 +367,8 @@ $(document).ready(function(){
     $('#kiwi-repositories-list, #use-project-repositories-text').toggle();
     enableSave();
   });
+
+  $('[id^="kiwi_image_profiles_attributes_"]').click(enableSave);
 
   // Revert image
   $('#kiwi-image-update-form-revert').click(function(){
