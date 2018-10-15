@@ -65,6 +65,8 @@ class User < ApplicationRecord
 
   has_and_belongs_to_many :announcements
 
+  has_and_belongs_to_many :staging_workflows, join_table: 'staging_workflows_managers'
+
   scope :all_without_nobody, -> { where('login != ?', NOBODY_LOGIN) }
   scope :not_deleted, -> { where.not(state: 'deleted') }
   scope :with_login_prefix, ->(prefix) { where('login LIKE ?', "#{prefix}%") }

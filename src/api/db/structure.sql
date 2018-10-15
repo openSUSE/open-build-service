@@ -1134,6 +1134,18 @@ CREATE TABLE `staging_workflows` (
   UNIQUE KEY `index_staging_workflows_on_project_id` (`project_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE `staging_workflows_managers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `staging_workflow_id` int(11) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `manager_once_per_staging_workflow` (`user_id`,`staging_workflow_id`),
+  KEY `index_staging_workflows_managers_on_user_id` (`user_id`),
+  KEY `index_staging_workflows_managers_on_staging_workflow_id` (`staging_workflow_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE `static_permissions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '',
@@ -1402,6 +1414,5 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20180906142702'),
 ('20180906142802'),
 ('20181008150453'),
+('20181015141531'),
 ('20181016103905');
-
-
