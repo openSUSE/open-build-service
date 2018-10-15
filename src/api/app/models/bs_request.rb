@@ -87,6 +87,7 @@ class BsRequest < ApplicationRecord
   has_many :review_history_elements, through: :reviews, source: :history_elements
   has_many :status_reports, as: :checkable, class_name: 'Status::Report', dependent: :destroy
   has_many :target_project_objects, through: :bs_request_actions
+  has_one :staged_request, dependent: :destroy
 
   validates :state, inclusion: { in: VALID_REQUEST_STATES }
   validates :creator, presence: true
