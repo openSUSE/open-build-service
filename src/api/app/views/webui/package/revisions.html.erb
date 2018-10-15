@@ -12,8 +12,8 @@
       </div>
     <% end %>
   </div>
-  <% unless params[:showall] %>
-    <p><%= link_to('Show all', :action  => 'revisions', :project => @project, :package => @package, :showall => 1) %></p>
+  <% unless params[:show_all] %>
+    <p><%= link_to('Show all', action: 'revisions', project: @project, package: @package, show_all: 1) %></p>
   <% end %>
 <% else %>
   <h3><%= @pagetitle %></h3>
