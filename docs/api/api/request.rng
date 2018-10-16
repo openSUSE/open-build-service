@@ -44,6 +44,11 @@
           <text/>
         </element>
       </optional>
+      <optional>
+	<attribute name="approver">
+          <data type="string" />
+	</attribute>
+      </optional>
       <empty/>
     </element>
   </define>

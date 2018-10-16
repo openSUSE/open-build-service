@@ -954,6 +954,8 @@ XmlResult: request
   setpriority: Modifies the priority of a requst
   setincident: Change the target incident for maintenance_incident actions
   setacceptat: Set or modify the accept_at time. Either specified by time parameter or now.
+  approve: pre-approve a request in review state. Will turn into accepted after last review
+  cancelapproval: reset the approval
 
 Parameters: 
   newstate: Define the new state
