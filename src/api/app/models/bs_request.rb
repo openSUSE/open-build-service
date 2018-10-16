@@ -88,6 +88,8 @@ class BsRequest < ApplicationRecord
   has_many :status_reports, as: :checkable, class_name: 'Status::Report', dependent: :destroy
   has_many :target_project_objects, through: :bs_request_actions
 
+  belongs_to :staging_project, class_name: 'Project', foreign_key: 'staging_project_id'
+
   validates :state, inclusion: { in: VALID_REQUEST_STATES }
   validates :creator, presence: true
   validate :check_supersede_state

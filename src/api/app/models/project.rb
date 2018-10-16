@@ -79,6 +79,7 @@ class Project < ApplicationRecord
 
   has_one :staging, class_name: 'StagingWorkflow', inverse_of: :project
   belongs_to :staging_workflow, inverse_of: :staging_projects
+  has_many :staged_requests, class_name: 'BsRequest', foreign_key: 'staging_project_id'
 
   default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids) }
 
