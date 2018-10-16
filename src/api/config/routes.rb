@@ -304,8 +304,6 @@ OBSApi::Application.routes.draw do
     get 'project/staging_projects/:project' => 'webui/obs_factory/staging_projects#index', as: 'staging_projects', constraints: cons
     get 'project/staging_projects/:project/:project_name' => 'webui/obs_factory/staging_projects#show', as: 'staging_project', constraints: cons
 
-    resources :staging_workflows, controller: 'webui/staging_workflows'
-
     controller 'webui/projects/rebuild_times' do
       get 'project/rebuild_time/:project/:repository/:arch' => :show, constraints: cons, as: 'project_rebuild_time'
       get 'project/rebuild_time_png/:project/:key' => :rebuild_time_png, constraints: cons
@@ -461,6 +459,10 @@ OBSApi::Application.routes.draw do
   # :arch can be also a ymp for a pattern :/
   get 'published/:project(/:repository(/:arch(/:binary)))' => 'published#index', constraints: cons
   get 'published/' => 'source#index', via: :get
+
+  resources :staging_workflows, controller: 'webui/staging_workflows', constraints: cons do
+    resources :staging_workflows_managers, except: [:show, :new, :edit, :update], controller: 'webui/staging_workflows_managers', path: 'managers', constraints: cons
+  end
 
   constraints(APIMatcher) do
     get '/' => 'main#index'

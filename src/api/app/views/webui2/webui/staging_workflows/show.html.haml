@@ -6,6 +6,11 @@
       = render(partial: 'webui2/webui/project/tabs', locals: { project: @project })
       .card-body
         %h3= @pagetitle
+        = link_to(staging_workflow_staging_workflows_managers_path(staging_workflow_id: @staging_workflow.id),
+                  title: 'Staging Managers',
+                  class: 'btn btn-sm btn-secondary mt-2 mb-2') do
+          %i.fas.fa-list
+          Staging Managers
         %table.table.table-striped.table-bordered.table-sm.dt-responsive.w-100#files-table
           %thead
           %tr.text-center

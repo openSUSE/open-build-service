@@ -41,3 +41,4 @@
 //= require webui2/jquery-ui.min.js
 //= require webui2/cm2/use-codemirror.js
 //= require webui2/package-view_file.js
+//= require webui2/staging_managers.js

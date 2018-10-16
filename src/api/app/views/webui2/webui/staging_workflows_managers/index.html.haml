@@ -1,0 +1,50 @@
+- @pagetitle = 'Staging Managers'
+- user_is_maintainer = User.current.can_modify?(@project)
+
+.card.mb-3
+  = render(partial: 'webui2/webui/project/tabs', locals: { project: @project })
+  .card-body
+    %h3= @pagetitle
+
+    - if @staging_managers.empty?
+      %p
+        Nobody is managing this staging workflow.
+    - else
+      %table.responsive.table.table-striped.table-bordered.w-100#managers-table
+        %thead
+          %tr
+            %td Username
+            %td
+        %tbody
+          - @staging_managers.each do |staging_manager|
+            %tr{ id: "staging-manager-#{valid_xml_id(staging_manager.to_s)}" }
+              %td
+                = user_with_realname_and_icon(staging_manager)
+              %td.text-nowrap
+                - unless User.current.is_nobody?
+                  :ruby
+                    home_title = @configuration ? @configuration['title'] : 'Open Build Service'
+                    mail_subject = "#{home_title} - #{@project}"
+                  = mail_to(staging_manager.email, subject: mail_subject) do
+                    %i.far.fa-envelope{ title: 'Send email to staging manager' }
+
+                - if user_is_maintainer
+                  = link_to('#', data: { toggle: 'modal', target: "#remove-staging-manager-#{staging_manager.id}" },
+                            class: 'remove-staging-manager') do
+                    %i.fas.fa-times-circle.text-danger{ title: 'Remove staging manager' }
+
+            = render(partial: 'remove_staging_manager_dialog',
+                     locals: { project: @project, staging_workflow: @staging_workflow, staging_manager: staging_manager })
+
+    - if user_is_maintainer
+      = render(partial: 'add_staging_manager_dialog', locals: { project: @project.to_param })
+      = link_to('#', data: { toggle: 'modal', target: '#add-staging-manager-modal' }, id: 'add-staging-manager') do
+        %i.fas.fa-plus-circle.text-primary
+        Add staging manager
+
+  :javascript
+    $('#managers-table').dataTable({
+      responsive: true,
+      info: false,
+      paging: false,
+    });

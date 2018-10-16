@@ -1,0 +1,22 @@
+.modal.fade#add-staging-manager-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'edit-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      = form_tag(action: :create) do
+        .modal-header
+          %h5.modal-title#edit-modal-label Add Staging Manager
+        .modal-body
+          .form-group#add-staging-manager-modal-input{ data: { 'autocomplete-url': url_for(controller: 'user', action: 'autocomplete') } }
+            = label_tag(:staging_manager, 'User:')
+            .input-group
+              .input-group-prepend
+                %span.input-group-text#add-staging-manager-search-icon
+                  %i.fa.fa-search
+                  %i.fas.fa-spinner.fa-spin.d-none
+              = text_field_tag 'staging_manager', '', required: true, placeholder: 'Type to autocomplete...', class: 'form-control'
+          = hidden_field_tag 'project', project
+          = hidden_field_tag 'webui2', true
+        .modal-footer
+          = render partial: 'webui2/shared/dialog_action_buttons'
+
+- content_for :ready_function do
+  autocompleteStagingManager();
