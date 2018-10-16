@@ -801,6 +801,8 @@ POST /source/<project>/<package>
   branch: branch a package into another one
   linktobranch: convert a plain source link into a full branch
   enablechannel: adds repositories and enable this channel package
+  addchannels: add channel packages and repositories for matching packages in project
+  addcontainers: add docker container packages and repositories using the maintained version of this package
   updatepatchinfo: update _patchinfo file, esp. the issues list
   remove_flag: remove a specific flag from meta (flag must be defined, optionally arch and repository)
   set_flag: remove a specific flag from meta (flag must be defined, optionally arch and repository)
@@ -824,6 +826,7 @@ Parameters:
   opackage: origin package, used as base package
   requestid: log the requestid in source history, optional (copy and commitfilelist only)
   expand: expand links, optional
+  extend_package_names: bool, optional, extends package and repository names to allow multiple instances of same package. used by default in incident projects.
   keeplink: keep link on source commit, optional
   repairlink: repair link on source commit, optional
   dontupdatesource: Do not update origin package, optional (copy only)

@@ -8,6 +8,7 @@ class BinaryRelease < ApplicationRecord
   #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :repository
   belongs_to :release_package, class_name: 'Package', foreign_key: 'release_package_id' # optional
+  belongs_to :on_medium, class_name: 'BinaryRelease'
 
   #### Callbacks macros: before_save, after_save, etc.
   before_create :set_release_time
@@ -35,12 +36,15 @@ class BinaryRelease < ApplicationRecord
     # we can not just remove it from relation, delete would affect the object.
     processed_item = {}
 
+    # when we have a medium providing further entries
+    medium_hash = {}
+
     BinaryRelease.transaction do
       json.each do |binary|
         # identifier
         hash = { binary_name:    binary['name'],
-                 binary_version: binary['version'],
-                 binary_release: binary['release'],
+                 binary_version: binary['version'] || 0, # docker containers have no version
+                 binary_release: binary['release'] || 0,
                  binary_epoch:   binary['epoch'],
                  binary_arch:    binary['binaryarch'],
                  medium:         binary['medium'],
@@ -91,9 +95,17 @@ class BinaryRelease < ApplicationRecord
           hash[:binary_maintainer] = patchinfo.hashed['packager'] if patchinfo && patchinfo.hashed['packager']
         end
 
+        # put a reference to the medium aka container
+        if binary['medium'].present?
+          hash[:on_medium] = medium_hash[binary['medium']]
+        end
+
         # new entry, also for modified binaries.
         entry = repository.binary_releases.create(hash)
         processed_item[entry.id] = true
+
+        # store in medium case
+        medium_hash[binary['ismedium']] = entry if binary['ismedium'].present?
       end
 
       # and mark all not processed binaries as removed
@@ -124,6 +136,11 @@ class BinaryRelease < ApplicationRecord
 
   def product_medium
     repository.product_medium.find_by(name: medium)
+  end
+
+  # esp. for docker/appliance/python-venv-rpms and friends
+  def medium_container
+    on_medium.try(:release_package)
   end
 
   # renders all values, which are used as identifier of a binary entry.
@@ -187,7 +204,6 @@ class BinaryRelease < ApplicationRecord
   def indentical_to?(binary_hash)
     binary_disturl == binary_hash['disturl'] &&
       binary_supportstatus == binary_hash['supportstatus'] &&
-      binary_buildtime &&
       binary_buildtime == DateTime.strptime(binary_hash['buildtime'].to_s, '%s')
   end
   #### Alias of methods
@@ -216,6 +232,7 @@ end
 #  binary_updateinfo         :string(255)      indexed
 #  binary_updateinfo_version :string(255)
 #  modify_time               :datetime
+#  on_medium                 :integer
 #
 # Indexes
 #
