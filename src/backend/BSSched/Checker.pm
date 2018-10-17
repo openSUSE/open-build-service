@@ -1014,7 +1014,7 @@ sub printstats {
 }
 
 sub publish {
-  my ($ctx, $schedulerstate, $schedulerdetails, $force) = @_;
+  my ($ctx, $force) = @_;
   my $prp = $ctx->{'prp'};
   my $gctx = $ctx->{'gctx'};
   my $gdst = $ctx->{'gdst'};
@@ -1065,10 +1065,11 @@ sub publish {
     my $oldrepodone = readstr("$gdst/:repodone", 1) || '';
     unlink("$gdst/:repodone") if ($oldrepodone ne $repodonestate || $force);
   }
+  my $publishstate = 'done';
+  my $publisherror;
   if ($locked) {
     print "    publishing is locked\n";
   } elsif (! -e "$gdst/:repodone") {
-    my $publisherror;
     if (($force) || (($repodonestate !~ /^disabled/) || -d "$gdst/:repo")) {
       mkdir_p($gdst);
       $publisherror = BSSched::PublishRepo::prpfinished($ctx, $packs, \%pubenabled);
@@ -1077,13 +1078,12 @@ sub publish {
     }
     writestr("$gdst/:repodone", undef, $repodonestate) unless $publisherror || %$unfinished;
     if ($publisherror) {
-      $schedulerstate = 'broken';
-      $schedulerstate = 'building' if $publisherror eq 'delta generation: building';
-      $schedulerdetails = $publisherror;
-      warn("    $publisherror\n") if $schedulerstate eq 'broken';
+      $publishstate = 'broken';
+      $publishstate = 'building' if $publisherror eq 'delta generation: building';
+      warn("    $publisherror\n") if $publishstate eq 'broken';
     }
   }
-  return ($schedulerstate, $schedulerdetails);
+  return ($publishstate, $publisherror);
 }
 
 sub xrpc {

@@ -1066,7 +1066,8 @@ eval {
 
     # we always publish kiwi...
     if ($isfinished || $ctx->{'prptype'} eq 'kiwi') {
-      ($state, $details) = $ctx->publish($state, $details);
+      my ($pubstate, $pubdetails) = $ctx->publish();
+      ($state, $details) = ($pubstate, $pubdetails) if $pubstate;
     }
 
     my $wasfinished = $gctx->{'prpfinished'}->{$prp};
