@@ -48,7 +48,7 @@ class BsRequest < ApplicationRecord
 
   scope :in_states, ->(states) { where(state: states) }
   scope :with_types, lambda { |types|
-    includes(:bs_request_actions).references(:references).where(bs_request_actions: { type: types }).distinct.order(priority: :asc, id: :desc)
+    includes(:bs_request_actions).where(bs_request_actions: { type: types }).distinct.order(priority: :asc, id: :desc)
   }
   scope :from_source_project, ->(source_project) { where(bs_request_actions: { source_project: source_project }) }
   scope :in_ids, ->(ids) { where(id: ids) }
