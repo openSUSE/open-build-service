@@ -1,5 +1,7 @@
 FactoryBot.define do
   factory :staging_workflow do
+    project
+
     factory :staging_workflow_with_staging_projects do
       transient do
         staging_project_count { 2 }
