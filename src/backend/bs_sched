@@ -1046,8 +1046,7 @@ eval {
 
     ($state, $details) = $ctx->checkpkgs();
 
-    my $unfinished = $ctx->{'unfinished'};
-    my $isfinished = !%$unfinished && !$ctx->{'havedelayed'} ? 1 : 0;
+    my $isfinished = $state eq 'finished' ? 1 : 0;
 
     # notify remote build services of repository changes or block state changes
     # we alse send it if we finish a prp to give linked aggregates a chance to work
@@ -1066,13 +1065,14 @@ eval {
 
     # we always publish kiwi...
     if ($isfinished || $ctx->{'prptype'} eq 'kiwi') {
-      ($state, $details) = $ctx->publish($state, $details);
+      my ($pubstate, $pubdetails) = $ctx->publish();
+      ($state, $details) = ($pubstate, $pubdetails) if $pubstate && $pubstate ne 'done';
     }
 
     my $wasfinished = $gctx->{'prpfinished'}->{$prp};
 
     # clean up and free memory if we are finished
-    if ($isfinished && $state eq 'finished') {
+    if ($isfinished) {
       $gctx->{'prpfinished'}->{$prp} = 1;
       # write out lastcheck cache and delete it
       my $lastcheck = $gctx->{'lastcheck'}->{$prp};
@@ -1133,6 +1133,7 @@ eval {
 
     $ctx->set_repo_state($state, $details);
 
+    my $unfinished = $ctx->{'unfinished'};
     if (%$unfinished) {
       $gctx->{'prpunfinished'}->{$prp} = scalar(keys %$unfinished);
     } else {

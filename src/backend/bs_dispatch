@@ -272,7 +272,8 @@ sub assignjob {
   };
   if ($@) {
     my $err = $@;
-    BSUtil::printlog("rpc error: $@");
+    chomp $err;
+    BSUtil::printlog("rpc error: $err");
     unlink("$jobsdir/$arch/$job:status");
     close F;
     if ($err =~ /cannot build anything/) {

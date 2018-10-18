@@ -23,6 +23,7 @@ use Digest::MD5 ();
 
 use BSUtil;
 use BSSolv;
+use BSNotify;
 
 use BSSched::ProjPacks;
 use BSSched::BuildRepo;
@@ -98,12 +99,45 @@ sub new {
 sub set_repo_state {
   my ($ctx, $state, $details) = @_;
 
-  my $myarch = $ctx->{'gctx'}->{'arch'};
   my $gdst = $ctx->{'gdst'};
+  my $oldstate = readstr("$gdst/:schedulerstate", 1);
+  if ($oldstate) {
+    if (substr($oldstate, 0, 4) eq 'pst0') {
+      $oldstate = BSUtil::fromstorable($oldstate, 1);
+    } else {
+      my $details;
+      ($oldstate, $details) = split(' ', $oldstate, 2);
+      $oldstate = { 'code' => $oldstate };
+      $oldstate->{'details'} = $details if $details;
+    }
+  }
+  my $newstate = { %{$oldstate || {}}, 'code' => $state, 'details' => $details };
+  delete $newstate->{'details'} unless $details;
+
+  if ($state eq 'finished') {
+    # we're done (for now)
+    my $id = '';
+    my @s = stat("$gdst/:full.solv");
+    $id .= " full:$s[9]/$s[7]/$s[1]" if @s;
+    @s = stat("$gdst/:bininfo");
+    $id .= " bininfo:$s[9]/$s[7]/$s[1]" if @s;
+    print "repo build id:$id\n";
+    $id = Digest::MD5::md5_hex($id);
+    if (($oldstate->{'buildid'} || $oldstate->{'oldbuildid'} || '') ne $id) {
+      my $myarch = $ctx->{'gctx'}->{'arch'};
+      #BSNotify::notify('REPO_BUILD_FINISHED', { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => $id} );
+    }
+    $newstate->{'buildid'} = $id;
+    delete $newstate->{'oldbuildid'};
+  } else {
+    # move buildid to oldbuildid as it is not stable yet
+    my $id = delete $newstate->{'buildid'};
+    $newstate->{'oldbuildid'} = $id if $id;
+  }
+
   unlink("$gdst/:schedulerstate.dirty") if $state eq 'scheduling' || $state eq 'broken' || $state eq 'disabled';
-  $state .= " $details" if $details;
-  mkdir_p($gdst);
-  writestr("$gdst/.:schedulerstate", "$gdst/:schedulerstate", $state);
+  mkdir_p($gdst) unless -d $gdst;
+  BSUtil::store("$gdst/.:schedulerstate", "$gdst/:schedulerstate", $newstate) unless BSUtil::identical($oldstate, $newstate);
 }
 
 =head2 wipe - delete this repo
@@ -146,8 +180,7 @@ sub wipe {
     my $reporoot = $gctx->{'reporoot'};
     my $others;
     for (ls("$reporoot/$prp")) {
-      next unless -d $_;
-      $others = 1;
+      $others = 1 if -d "$reporoot/$prp/$_";
     }
     if (!$others) {
       # cannot delete repoinfo because it may contain splitdbg data
@@ -1014,7 +1047,7 @@ sub printstats {
 }
 
 sub publish {
-  my ($ctx, $schedulerstate, $schedulerdetails, $force) = @_;
+  my ($ctx, $force) = @_;
   my $prp = $ctx->{'prp'};
   my $gctx = $ctx->{'gctx'};
   my $gdst = $ctx->{'gdst'};
@@ -1065,10 +1098,11 @@ sub publish {
     my $oldrepodone = readstr("$gdst/:repodone", 1) || '';
     unlink("$gdst/:repodone") if ($oldrepodone ne $repodonestate || $force);
   }
+  my $publishstate = 'done';
+  my $publisherror;
   if ($locked) {
     print "    publishing is locked\n";
   } elsif (! -e "$gdst/:repodone") {
-    my $publisherror;
     if (($force) || (($repodonestate !~ /^disabled/) || -d "$gdst/:repo")) {
       mkdir_p($gdst);
       $publisherror = BSSched::PublishRepo::prpfinished($ctx, $packs, \%pubenabled);
@@ -1077,13 +1111,12 @@ sub publish {
     }
     writestr("$gdst/:repodone", undef, $repodonestate) unless $publisherror || %$unfinished;
     if ($publisherror) {
-      $schedulerstate = 'broken';
-      $schedulerstate = 'building' if $publisherror eq 'delta generation: building';
-      $schedulerdetails = $publisherror;
-      warn("    $publisherror\n") if $schedulerstate eq 'broken';
+      $publishstate = 'broken';
+      $publishstate = 'building' if $publisherror eq 'delta generation: building';
+      warn("    $publisherror\n") if $publishstate eq 'broken';
     }
   }
-  return ($schedulerstate, $schedulerdetails);
+  return ($publishstate, $publisherror);
 }
 
 sub xrpc {
