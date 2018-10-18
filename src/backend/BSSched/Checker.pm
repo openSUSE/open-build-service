@@ -513,7 +513,7 @@ sub expandandsort {
       if ($info->{'file'} =~ /\.(spec|dsc|kiwi|livebuild)$/) {
         $buildtype = $1;
         if ($buildtype eq 'kiwi') {
-          $buildtype = $info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product' ? 'kiwi-product' : 'kiwi-image';
+          $buildtype = $info->{'imagetype'} && ($info->{'imagetype'}->[0] || '') eq 'product' ? 'kiwi-product' : 'kiwi-image';
         }
       } else {
         $buildtype = Build::recipe2buildtype($info->{'file'}) || 'unknown';
