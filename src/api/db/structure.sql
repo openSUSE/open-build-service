@@ -271,11 +271,13 @@ CREATE TABLE `bs_requests` (
   `priority` enum('critical','important','moderate','low') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'moderate',
   `number` int(11) DEFAULT NULL,
   `updated_when` datetime DEFAULT NULL,
+  `staging_project_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_bs_requests_on_number` (`number`),
   KEY `index_bs_requests_on_creator` (`creator`) USING BTREE,
   KEY `index_bs_requests_on_state` (`state`) USING BTREE,
-  KEY `index_bs_requests_on_superseded_by` (`superseded_by`)
+  KEY `index_bs_requests_on_superseded_by` (`superseded_by`),
+  KEY `index_bs_requests_on_staging_project_id` (`staging_project_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `channel_binaries` (
@@ -1399,6 +1401,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20180906115417'),
 ('20180906142702'),
 ('20180906142802'),
-('20181008150453');
+('20181008150453'),
+('20181016103905');
 
 
