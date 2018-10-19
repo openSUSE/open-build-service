@@ -101,18 +101,9 @@ module ObsFactory
 
     delegate :broken_packages, to: :model
 
-    # Wraps the associated openqa_jobs with the corresponding decorator.
-    #
-    # @return [Array] Array of OpenqaJobPresenter objects
-    def openqa_jobs
-      ObsFactory::OpenqaJobPresenter.wrap(model.openqa_jobs)
-    end
-
-    # Wraps the failed openqa_jobs with the corresponding decorator.
-    #
-    # @return [Array] Array of OpenqaJobPresenter objects
-    def failed_openqa_jobs
-      ObsFactory::OpenqaJobPresenter.wrap(model.openqa_jobs.select { |job| job.failing_modules.present? })
+    # TODO
+    def failed_status_checks
+      []
     end
 
     # return a percentage counting the reviewed requests / total requests
@@ -130,7 +121,8 @@ module ObsFactory
     end
 
     def testing_percentage
-      jobs = model.openqa_jobs
+      # TODO: make this use checks
+      jobs = []
       notdone = 0
       jobs.each do |job|
         notdone += 1 unless %w(passed failed).include?(job.result)

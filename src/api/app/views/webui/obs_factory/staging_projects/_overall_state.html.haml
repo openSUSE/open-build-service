@@ -11,8 +11,7 @@
     - elsif project.overall_state == :review
       #{project.review_percentage}%
     - elsif project.overall_state == :testing
-      = link_to "#{openqa_links_helper}/tests?hoursfresh=24&#{@distribution.openqa_filter(project)}" do
-        #{project.testing_percentage}%
+      #{project.testing_percentage}%
   - if project.meta['splitter_info']
     .splitter-info{ title: 'strategy information (name, group)' }
       - splitter_info = project.meta['splitter_info']

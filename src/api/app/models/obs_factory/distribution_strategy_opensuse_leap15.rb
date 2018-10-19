@@ -23,10 +23,6 @@ module ObsFactory
       "distribution/leap/#{opensuse_leap_version}/iso"
     end
 
-    def openqa_iso_prefix
-      "openSUSE-Leap:#{opensuse_leap_version}-Staging"
-    end
-
     def published_arch
       'x86_64'
     end
@@ -50,11 +46,6 @@ module ObsFactory
       end
 
       stream.read[/openSUSE-#{opensuse_leap_version}-#{published_arch}-Build(.*)-Media/, 1]
-    end
-
-    # URL parameter for Leap
-    def openqa_filter(project)
-      "match=#{opensuse_leap_version}:S:#{project.letter}"
     end
 
     private

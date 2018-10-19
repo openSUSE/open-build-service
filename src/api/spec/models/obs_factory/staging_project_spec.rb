@@ -163,62 +163,6 @@ RSpec.describe ObsFactory::StagingProject do
     end
   end
 
-  describe '#openqa_jobs' do
-    let(:build_result) do
-      {
-        'result' => Xmlhash::XMLHash.new(
-          'project' => 'openSUSE:Factory:Staging:A',
-          'repository' => 'images',
-          'arch' => 'x86_64',
-          'code' => 'building',
-          'state' => 'building',
-          'binarylist' =>  Xmlhash::XMLHash.new(
-            'package' => 'Test-DVD-x86_64',
-            'binary' =>  Xmlhash::XMLHash.new(
-              'filename' => 'Test-Build1036.1-Media.iso',
-              'size' => '878993408',
-              'mtime' => '1528339590'
-            )
-          )
-        )
-      }
-    end
-
-    before do
-      allow(Buildresult).to receive(:find_hashed).and_return(Xmlhash::XMLHash.new(build_result))
-    end
-
-    subject { staging_project_a }
-
-    context '@openqa_jobs is nil' do
-      before do
-        allow_any_instance_of(ObsFactory::StagingProject).to receive(:openqa_results_relevant?).and_return(false)
-      end
-
-      context 'openqa results are not relevant' do
-        it { expect(subject.openqa_jobs).to eq([]) }
-      end
-
-      context 'openqa results are relevant' do
-        before do
-          allow_any_instance_of(ObsFactory::StagingProject).to receive(:openqa_results_relevant?).and_return(true)
-          url = 'http://openqa.opensuse.org/api/v1/jobs?iso=openSUSE-Staging:A-Staging-DVD-x86_64-Build1036.1-Media.iso&scope=current'
-          stub_request(:get, url).and_return(body: '{"jobs":[]}')
-        end
-
-        it { expect(subject.openqa_jobs).to eq([]) }
-      end
-    end
-
-    context '@openqa_jobs is not nil' do
-      before do
-        subject.instance_variable_set(:@openqa_jobs, {})
-      end
-
-      it { expect(subject.openqa_jobs).to be_empty }
-    end
-  end
-
   describe '#openqa_results_relevant?' do
     context 'iso is nil' do
       before do
@@ -450,61 +394,6 @@ RSpec.describe ObsFactory::StagingProject do
     it { expect(subject.meta).to eq(meta_result) }
   end
 
-  describe '#iso' do
-    let(:backend_url) { "#{CONFIG['source_url']}/build/#{staging_a}/_result?view=binarylist&package=Test-DVD-x86_64&repository=images" }
-
-    context 'with iso' do
-      let(:backend_response) do
-        %(<resultlist state='d797d177b6a6a9096ca39b01d40ab600'>
-          <result project='openSUSE:Factory:Staging:A' repository='images' arch='x86_64' code='unpublished' state='unpublished'>
-            <binarylist package='Test-DVD-x86_64'>
-              <binary filename='Test-Build1039.1-Media.iso' size='879214592' mtime='1528427209'/>
-              <binary filename='Test-Build1039.1-Media.iso.sha256' size='623' mtime='1528427215'/>
-              <binary filename='Test-Build1039.1-Media.report' size='371629' mtime='1528427188'/>
-              <binary filename='_channel' size='64345' mtime='1528427189'/>
-              <binary filename='_statistics' size='716' mtime='1528427188'/>
-            </binarylist>
-          </result>
-        </resultlist>)
-      end
-
-      before do
-        stub_request(:get, backend_url).and_return(body: backend_response)
-      end
-
-      subject { staging_project_a }
-
-      it { expect(subject.iso).to eq('openSUSE-Staging:A-Staging-DVD-x86_64-Build1039.1-Media.iso') }
-    end
-
-    context 'without iso' do
-      let(:backend_response) do
-        %(<resultlist state='d797d177b6a6a9096ca39b01d40ab600'>
-          <result project='openSUSE:Factory:Staging:A' repository='images' arch='x86_64' code='unpublished' state='unpublished'>
-            <binarylist package='Test-DVD-x86_64' />
-          </result>
-        </resultlist>)
-      end
-
-      before do
-        stub_request(:get, backend_url).and_return(body: backend_response)
-      end
-
-      subject { staging_project_a }
-
-      it { expect(subject.iso).to be_nil }
-    end
-  end
-
-  describe '::attributes' do
-    let(:result) do
-      ['name', 'description', 'obsolete_requests', 'openqa_jobs', 'building_repositories', 'broken_packages',
-       'untracked_requests', 'missing_reviews', 'selected_requests', 'overall_state']
-    end
-
-    it { expect(ObsFactory::StagingProject.attributes).to eq(result) }
-  end
-
   describe '#build_state' do
     include_context 'a summary response'
 
@@ -538,59 +427,6 @@ RSpec.describe ObsFactory::StagingProject do
       end
 
       it { expect(subject.build_state).to eq(:acceptable) }
-    end
-  end
-
-  describe '#openqa_state' do
-    context 'with acceptable results' do
-      context 'when the project is ADI' do
-        let(:staging_adi) { create(:project, name: 'openSUSE:Factory:Staging:adi:15') }
-        subject { staging_project_adi }
-
-        it { expect(subject.openqa_state).to eq(:acceptable) }
-      end
-
-      context 'when all the job results passed' do
-        subject { staging_project_a }
-
-        before do
-          allow_any_instance_of(ObsFactory::StagingProject).to receive(:openqa_jobs).and_return(
-            [ObsFactory::OpenqaJob.new(result: 'softfailed'), ObsFactory::OpenqaJob.new(result: 'passed')]
-          )
-        end
-
-        it { expect(subject.openqa_state).to eq(:acceptable) }
-      end
-    end
-
-    context 'with testing results' do
-      subject { staging_project_a }
-
-      context "when doesn't have openqa jobs" do
-        before do
-          allow_any_instance_of(ObsFactory::StagingProject).to receive(:openqa_jobs).and_return([])
-        end
-
-        it { expect(subject.openqa_state).to eq(:testing) }
-      end
-
-      context 'when openqa jobs has at least one result with none' do
-        before do
-          allow_any_instance_of(ObsFactory::StagingProject).to receive(:openqa_jobs).and_return([ObsFactory::OpenqaJob.new(result: 'none'), ObsFactory::OpenqaJob.new(result: 'passed')])
-        end
-
-        it { expect(subject.openqa_state).to eq(:testing) }
-      end
-    end
-
-    context 'with failing results' do
-      before do
-        allow_any_instance_of(ObsFactory::StagingProject).to receive(:openqa_jobs).and_return([ObsFactory::OpenqaJob.new(result: 'failed'), ObsFactory::OpenqaJob.new(result: 'passed')])
-      end
-
-      subject { staging_project_a }
-
-      it { expect(subject.openqa_state).to eq(:failed) }
     end
   end
 
