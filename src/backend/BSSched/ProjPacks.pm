@@ -796,6 +796,18 @@ sub expandprojlink {
   return @ret;
 }
 
+# check if a prp is related to a project
+sub is_related {
+  my ($projid1, $prp2) = @_;
+  my $projid2 = (split('/', $prp2, 2))[0];
+  return 1 if $projid1 eq $projid2;
+  my $lprojid1 = length($projid1);
+  my $lprojid2 = length($projid2);
+  return 1 if $lprojid1 > $lprojid2 && substr($projid1, 0, $lprojid2 + 1) eq "$projid2:";
+  return 1 if $lprojid2 > $lprojid1 && substr($projid2, 0, $lprojid1 + 1) eq "$projid1:";
+  return 0;
+}
+
 =head2 setup_projects - TODO
 
  find all prps we have to schedule, expand search path for every prp,
@@ -809,7 +821,8 @@ sub expandprojlink {
          %prpsearchpath
          %prpdeps
          %rprpdeps
-         %haveinterrepodep
+         %relatedprpdeps
+         %rrelatedprpdeps
          %channeldata
          %channelids
 =cut
@@ -835,6 +848,7 @@ sub setup_projects {
   # free some mem, we'll recreate those at the end
   $gctx->{'prps'} = [];
   $gctx->{'rprpdeps'} = {};
+  $gctx->{'rrelatedprpdeps'} = {};
 
   my %old_channelids;	# for post-process
   if (!$projids_todo) {
@@ -842,7 +856,7 @@ sub setup_projects {
     $gctx->{'projpacks_linked'} = {};
     $gctx->{'prpsearchpath'} = {};
     $gctx->{'prpdeps'} = {};
-    $gctx->{'haveinterrepodep'} = {};
+    $gctx->{'relatedprpdeps'} = {};
     $gctx->{'expandedprojlink'} = {};
     $gctx->{'linked_projids'} = {};
     $gctx->{'channeldata'} = {};
@@ -870,9 +884,9 @@ sub setup_projects {
       for my $prp (@{$gctx->{'project_prps'}->{$projid} || []}) {
 	delete $gctx->{'prpsearchpath'}->{$prp};
 	delete $gctx->{'prpdeps'}->{$prp};
+	delete $gctx->{'relatedprpdeps'}->{$prp};
       }
       # remove project from various projid indexed hashes
-      delete $gctx->{'haveinterrepodep'}->{$projid};
       delete $gctx->{'expandedprojlink'}->{$projid};
       delete $gctx->{'linked_projids'}->{$projid};
       delete $gctx->{'project_prps'}->{$projid};
@@ -965,6 +979,7 @@ sub setup_projects {
     my %myprps;
     my $prpsearchpath = $gctx->{'prpsearchpath'};
     my $prpdeps = $gctx->{'prpdeps'};
+    my $relatedprpdeps = $gctx->{'relatedprpdeps'};
     for my $repo (@myrepos) {
       my $repoid = $repo->{'name'};
       my $prp = "$projid/$repoid";
@@ -1010,13 +1025,11 @@ sub setup_projects {
 	delete $xsp{$prp};
 	$prpdeps->{$prp} = [ sort keys %xsp ];
       }
+      # get list of related prp
+      my @related_prps = grep { $prp ne $_ && is_related($projid, $_) } @{$prpdeps->{$prp} || []};
+      $relatedprpdeps->{$prp} = \@related_prps if @related_prps;
     }
     $gctx->{'project_prps'}->{$projid} = [ sort keys %myprps ] if %myprps;
-    # check for inter-repository project dependencies
-    my $haveinterrepodep = $gctx->{'haveinterrepodep'};
-    for my $prp (keys %myprps) {
-      $haveinterrepodep->{$projid} = 1 if grep {$myprps{$_} && $_ ne $prp} @{$prpdeps->{$prp}};
-    }
   }
 
   # all projects done, now some post processing
@@ -1040,7 +1053,6 @@ sub setup_projects {
   }
 
   print "have ".scalar(keys %{$gctx->{'channeldata'}})." unique channel configs\n" if %{$gctx->{'channeldata'}};
-  print "have ".scalar(keys %{$gctx->{'haveinterrepodep'}})." inter-repo dependencies\n" if %{$gctx->{'haveinterrepodep'}};
 
   # create list of prps and sort them
   print "sorting projects and repositories...\n";
@@ -1063,6 +1075,16 @@ sub setup_projects {
     delete $rprpdeps{$prp} if @{$rprpdeps{$prp}} == 1 && $rprpdeps{$prp}->[0] eq $prp;
   }
   $gctx->{'rprpdeps'} = \%rprpdeps;
+
+  # create reverse related deps
+  my $relatedprpdeps = $gctx->{'relatedprpdeps'};
+  my %rrelatedprpdeps;
+  for my $prp (keys %$relatedprpdeps) {
+    push @{$rrelatedprpdeps{$_}}, $prp for @{$relatedprpdeps->{$prp}};
+  }
+  $gctx->{'rrelatedprpdeps'} = \%rrelatedprpdeps;
+  print "have ".scalar(keys %{$gctx->{'rrelatedprpdeps'}})." related prp dependencies\n" if %{$gctx->{'rrelatedprpdeps'}};
+
   my $t4 = Time::HiRes::time();
   printf "setup_projects done, %.3fs + %.3fs + %.3fs\n", $t2 - $t1, $t3 - $t2, $t4 - $t3;
 }
@@ -1082,14 +1104,13 @@ sub print_project_stats {
   $pkg += keys(%{$projpacks->{$_}->{'package'} || {}}) for keys %$projpacks;
   printf "  packages: %d\n", $pkg;
   printf "  prps: %d\n", scalar(@{$gctx->{'prps'} || []});
-  for my $what (qw{projpacks_linked prpsearchpath prpdeps rprpdeps expandedprojlink linked_projids channelids project_prps}) {
+  for my $what (qw{projpacks_linked prpsearchpath prpdeps rprpdeps expandedprojlink linked_projids channelids project_prps relatedprpdeps rrelatedprpdeps}) {
     my $w = $gctx->{$what};
     next unless $w;
     my $e = 0;
     $e += @{$w->{$_}} for keys %$w;
     printf "  %s: %d %d\n", $what, scalar(keys %$w), $e;
   }
-  printf "  haveinterrepodep: %d\n", scalar(keys %{$gctx->{'haveinterrepodep'} || {}});
 }
 
 =head2 do_delayedprojpackfetches - do delayed projpack fetches caused by source changes

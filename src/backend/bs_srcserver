@@ -1635,15 +1635,16 @@ sub getprojpack {
               }
             }
 	    # KIWI Products support debugmedium and sourcemedium filters
-	    if ($type eq 'kiwi' && ($d->{'imagetype'}[0] || '') eq 'product') {
+	    my $imagetype = $type eq 'kiwi' && $d->{'imagetype'} ? ($d->{'imagetype'}->[0] || '') : '';
+	    if ($type eq 'kiwi' && $imagetype eq 'product') {
 	      $rinfo->{'nodbgpkgs'} = 1 if defined($d->{'debugmedium'}) && $d->{'debugmedium'} <= 0;
 	      $rinfo->{'nosrcpkgs'} = 1 if defined($d->{'sourcemedium'}) && $d->{'sourcemedium'} <= 0;
 	    }
 	    # KIWI Images don't build with local arch
-	    if ($type eq 'kiwi' && ($d->{'imagetype'}[0] || '') ne 'product') {
+	    if ($type eq 'kiwi' && $imagetype ne 'product') {
 	      $rinfo->{'error'} = 'excluded' if defined($BSConfig::localarch) && $arch eq 'local';
 	    }
-	    if ($type eq 'kiwi' && ($d->{'imagetype'}[0] || '') eq 'product') {
+	    if ($type eq 'kiwi' && $imagetype eq 'product') {
 	      # KIWI Products always build on the first repo arch
 	      $rinfo->{'imagearch'} = [ @{$d->{'exclarch'}} ] if $d->{'exclarch'};
 	    } else {

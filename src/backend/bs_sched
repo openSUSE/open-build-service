@@ -439,12 +439,13 @@ my $gctx = {
   'prps' => [],				# sorted list of all local prps (project repos)
   'project_prps' => {},			# projid => [ prp, prp ...]
   'prpdeps' => {},			# searchpath plus aggregate deps plus kiwi deps
-  'rprpdeps' => {},			# reverse prpdeps
 					# maps prp => [ prp, prp ... ], used for sorting
+  'rprpdeps' => {},			# reverse of prpdeps
   'expandedprojlink' => {},		# maps projid => [ projid, projid ]
   'prpsearchpath' => {},		# which prps to use for building
 					# maps prp => [ prp, prp ... ]
-  'haveinterrepodep' => {},		# projid => bool: some repos prpdeps contain another repo of the same project
+  'relatedprpdeps' => {},		# prpdeps filtered for related projects
+  'rrelatedprpdeps' => {},		# reverse of relatedprpdeps
 
   # triggers
   'prpcheckuseforbuild' => {},		# project/package meta has changed
@@ -1112,14 +1113,13 @@ eval {
       unlink("$gdst/:repodone");
     }
 
-    if (!$wasfinished && $gctx->{'haveinterrepodep'}->{$projid}) {
-      # check for inter-repo deps
-      print "    checking inter-repo deps\n";
-      my $proj = $projpacks->{$projid} || {};
-      for my $arepoid (map {$_->{'name'}} @{$proj->{'repository'} || []}) {
-	next if $arepoid eq $repoid;
-	next unless grep {$_ eq $prp} @{$gctx->{'prpdeps'}->{"$projid/$arepoid"} || []};
-	my $aprp = "$projid/$arepoid";
+    if (!$wasfinished && $gctx->{'rrelatedprpdeps'}->{$prp}) {
+      # check for related prps
+      print "    checking related prps\n";
+      for my $aprp (@{$gctx->{'rrelatedprpdeps'}->{$prp}}) {
+	next if $aprp eq $prp;
+	# be careful with cyclic dependencies
+	next if !$isfinished && grep {$_ eq $prp} @{$gctx->{'rrelatedprpdeps'}->{$aprp} || []};
 	print "      - $aprp\n";
 	# make sure the user sees something
 	if ($gctx->{'prpfinished'}->{$aprp}) {
