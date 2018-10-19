@@ -1,6 +1,8 @@
 module Backend
   # Class that holds basic HTTP methods for connecting to the backend
   class Connection
+    DEFAULT_TIMEOUT_IN_SECONDS = 10
+
     cattr_accessor :host, instance_accessor: false do
       CONFIG['source_host']
     end
@@ -13,7 +15,7 @@ module Backend
       Backend::Test.start
       start_time = Time.now
       Rails.logger.debug "[backend] GET: #{path}"
-      timeout = in_headers.delete('Timeout') || 1000
+      timeout = in_headers.delete('Timeout') || DEFAULT_TIMEOUT_IN_SECONDS
       backend_request = Net::HTTP::Get.new(path, in_headers)
 
       response = Net::HTTP.start(host, port) do |http|
@@ -46,7 +48,7 @@ module Backend
       Backend::Test.start
       start_time = Time.now
       Rails.logger.debug "[backend] DELETE: #{path}"
-      timeout = in_headers.delete('Timeout') || 1000
+      timeout = in_headers.delete('Timeout') || DEFAULT_TIMEOUT_IN_SECONDS
       backend_request = Net::HTTP::Delete.new(path, in_headers)
       response = Net::HTTP.start(host, port) do |http|
         http.read_timeout = timeout
@@ -96,9 +98,9 @@ module Backend
       response = Net::HTTP.start(host, port) do |http|
         if method == 'POST'
           # POST requests can be quite complicate and take some time ..
-          http.read_timeout = timeout || 100_000
+          http.read_timeout = timeout || DEFAULT_TIMEOUT_IN_SECONDS * 10
         else
-          http.read_timeout = timeout || 1000
+          http.read_timeout = timeout || DEFAULT_TIMEOUT_IN_SECONDS
         end
         begin
           http.request(backend_request)
