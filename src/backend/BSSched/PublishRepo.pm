@@ -101,7 +101,7 @@ sub prpfinished {
   my $projpacks = $gctx->{'projpacks'};
   my $prp = $ctx->{'prp'};
   my $rdir = "$gdst/:repo";
-  print "    prp $prp is finished...\n";
+  print "    publishing $prp...\n";
 
   my ($projid, $repoid) = split('/', $prp, 2);
   local *F;
