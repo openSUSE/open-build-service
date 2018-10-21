@@ -103,9 +103,8 @@ module ObsFactory
     delegate :checks, to: :model
     delegate :missing_checks, to: :model
 
-    # TODO
     def failed_status_checks
-      []
+      checks.select { |check| check.failed? }
     end
 
     # return a percentage counting the reviewed requests / total requests

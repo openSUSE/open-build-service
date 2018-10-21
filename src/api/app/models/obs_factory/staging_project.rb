@@ -206,8 +206,8 @@ module ObsFactory
       return :testing if missing_checks.present?
 
       checks.each do |check|
-        return :testing if check.state == 'pending'
-        return :failed if check.state != 'success'
+        return :testing if check.pending?
+        return :failed if check.failed?
       end
 
       return :acceptable
@@ -258,10 +258,12 @@ module ObsFactory
       repositories.each do |repo|
         build_id = repo.build_id
         status = repo.status_reports.find_by(uuid: build_id)
-        next if status.nil?
-
-        @missing_checks += status.missing_checks
-        @checks += status.checks
+        if status
+          @missing_checks += status.missing_checks
+          @checks += status.checks
+        else
+          @missing_checks += repo.required_checks
+        end
       end
     end
 
