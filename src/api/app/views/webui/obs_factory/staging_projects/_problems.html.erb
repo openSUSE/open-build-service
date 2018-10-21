@@ -1,6 +1,8 @@
  <%
-   problems = project.failed_status_checks.map do |j|
-     content_tag(:li, "QA: #{render(template: 'webui/obs_factory/status_checks/_status_check', locals: { status_check: j })}".html_safe, class: "openqa_job")
+   problems = project.failed_status_checks.map do |check|
+     content_tag(:li) do
+       link_to check.name, check.url, class: "check-#{check.state}", title: "#{check.short_description} (#{check.updated_at})"
+     end
    end
 -%>
 

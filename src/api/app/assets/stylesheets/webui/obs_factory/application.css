@@ -21,21 +21,16 @@
     border-bottom: 1px dotted #CCCCCC
 }
 
-/* openQA */
-a.openqa-passed, a.check-success {
+a.check-success {
     color: #6eb927
 }
 
-a.openqa-failed, a.check-error, a.check-failure {
+a.check-error, a.check-failure {
     color: red
 }
 
-a.openqa-none, span.check-pending {
+span.check-pending {
     color: #006699
-}
-
-a.openqa-incomplete {
-    color: red
 }
 
 /* Proper formating for dl, dt and dd */
