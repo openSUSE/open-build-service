@@ -163,54 +163,6 @@ RSpec.describe ObsFactory::StagingProject do
     end
   end
 
-  describe '#openqa_results_relevant?' do
-    context 'iso is nil' do
-      before do
-        allow_any_instance_of(ObsFactory::StagingProject).to receive(:iso).and_return(nil)
-      end
-
-      it { expect(staging_project_a).not_to be_openqa_results_relevant }
-    end
-
-    context 'iso is not nil' do
-      before do
-        allow_any_instance_of(ObsFactory::StagingProject).to receive(:iso).and_return('fake_content')
-      end
-
-      context 'overall_state == :building' do
-        before do
-          allow_any_instance_of(ObsFactory::StagingProject).to receive(:overall_state).and_return(:building)
-        end
-
-        it { expect(staging_project_a).not_to be_openqa_results_relevant }
-      end
-
-      context 'overall_state is not :building' do
-        before do
-          allow_any_instance_of(ObsFactory::StagingProject).to receive(:overall_state).and_return(:acceptable)
-        end
-
-        context 'without parent' do
-          it { expect(staging_project_a).to be_openqa_results_relevant }
-
-          context 'with overall_state is :empty' do
-            before do
-              allow_any_instance_of(ObsFactory::StagingProject).to receive(:overall_state).and_return(:empty)
-            end
-
-            it { expect(staging_project_a).not_to be_openqa_results_relevant }
-          end
-        end
-
-        context 'with parent' do
-          subject { ObsFactory::StagingProject.new(project: staging_a_dvd, distribution: factory_distribution) }
-
-          it { expect(subject).to be_openqa_results_relevant }
-        end
-      end
-    end
-  end
-
   describe '#broken_packages' do
     let(:backend_url) { "#{CONFIG['source_url']}/build/#{staging_a}/_result?code=failed&code=broken&code=unresolvable" }
     let(:backend_response) do
@@ -486,7 +438,7 @@ RSpec.describe ObsFactory::StagingProject do
 
       context 'and openqa state has failing modules' do
         before do
-          allow(staging_project_a).to receive(:openqa_state).and_return(:failed)
+          allow(staging_project_a).to receive(:check_state).and_return(:failed)
         end
 
         it { expect(staging_project_a.overall_state).to eq(:failed) }
@@ -494,7 +446,7 @@ RSpec.describe ObsFactory::StagingProject do
 
       context 'and openqa state still testing' do
         before do
-          allow(staging_project_a).to receive(:openqa_state).and_return(:testing)
+          allow(staging_project_a).to receive(:check_state).and_return(:testing)
         end
 
         it { expect(staging_project_a.overall_state).to eq(:testing) }
@@ -502,8 +454,7 @@ RSpec.describe ObsFactory::StagingProject do
 
       context 'and openqa state is acceptable' do
         before do
-          allow(staging_project_a).to receive(:openqa_state).and_return(:acceptable)
-          allow(staging_project_a).to receive(:subproject).and_return(nil)
+          allow(staging_project_a).to receive(:check_state).and_return(:acceptable)
         end
 
         context "and doesn't have subproject and missing_reviews" do
