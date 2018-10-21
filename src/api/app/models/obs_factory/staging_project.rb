@@ -202,24 +202,15 @@ module ObsFactory
       :acceptable
     end
 
-    def testing?
-      # TODO: status checks
-    end
+    def check_state
+      return :testing if missing_checks.present?
 
-    def all_passed?
-      true # TODO: status checks
-      # openqa_jobs.all? { |job| ['passed', 'softfailed'].include?(job.result) }
-    end
+      checks.each do |check|
+        return :testing if check.state == 'pending'
+        return :failed if check.state != 'success'
+      end
 
-    # check openQA jobs for all projects not building right now - or that are known to be broken
-    def openqa_state
-      # no openqa result for adi staging project
-      return :acceptable if adi_staging?
-      return :testing if testing?
-
-      return :acceptable if all_passed?
-      # something failed on openqa side, needs manual check
-      return :failed
+      return :acceptable
     end
 
     # calculate the overall state of the project
@@ -239,7 +230,7 @@ module ObsFactory
       end
 
       if @state == :acceptable
-        @state = openqa_state
+        @state = check_state
       end
 
       if @state == :acceptable && missing_reviews.present?
