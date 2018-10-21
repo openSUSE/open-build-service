@@ -1,15 +1,16 @@
+- checks = project.checks
+- missing_checks = project.missing_checks
 %dt
-  = sprite_tag(icon_for_checks(@checks, @missing_checks))
+  = sprite_tag(icon_for_checks(checks, missing_checks))
   Checks
-  = "(#{@build_id})"
 %dd
-  - if @checks.blank? && @missing_checks.blank?
+  - if checks.blank? && missing_checks.blank?
     None.
   - else
     %ul
-      - @missing_checks.each do |name|
+      - missing_checks.each do |name|
         %li
           %span.check-pending= "#{name} (Expected - Waiting for status to be reported)"
-      - @checks.each do |check|
+      - checks.each do |check|
         %li
           = link_to "#{check.name} (#{check.state} - #{time_ago_in_words(check.updated_at)} ago)", check.url, class: "check-#{check.state}", title: "#{check.short_description} (#{check.updated_at})"

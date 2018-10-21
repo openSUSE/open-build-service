@@ -35,19 +35,9 @@ module Webui::ObsFactory
     def show
       respond_to do |format|
         format.html do
-          # FIXME: For staging repositories only the images repository is relevant atm
-          # However, we should make this configurable in the future
-          images_repository = @staging_project.repositories.find_by(name: 'images')
           @staging_project = ::ObsFactory::StagingProjectPresenter.new(@staging_project)
           # For the breadcrumbs
           @project = @distribution.project
-          return if images_repository.blank?
-
-          @build_id = images_repository.build_id
-          status = images_repository.status_reports.find_by(uuid: @build_id)
-          return if status.nil?
-          @missing_checks = status.missing_checks
-          @checks = status.checks
         end
         format.json { render json: @staging_project }
       end

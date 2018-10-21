@@ -100,6 +100,8 @@ module ObsFactory
     end
 
     delegate :broken_packages, to: :model
+    delegate :checks, to: :model
+    delegate :missing_checks, to: :model
 
     # TODO
     def failed_status_checks

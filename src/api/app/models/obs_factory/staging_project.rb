@@ -187,7 +187,8 @@ module ObsFactory
       ['name', 'description', 'obsolete_requests',
        'building_repositories', 'broken_packages',
        'untracked_requests', 'missing_reviews',
-       'selected_requests', 'overall_state']
+       'selected_requests', 'overall_state',
+       'checks', 'missing_checks']
     end
 
     # Required by ActiveModel::Serializers
@@ -248,7 +249,30 @@ module ObsFactory
       @state
     end
 
+    def checks
+      fetch_status if @checks.nil?
+      @checks
+    end
+
+    def missing_checks
+      fetch_status if @missing_checks.nil?
+      @missing_checks
+    end
+
     protected
+
+    def fetch_status
+      @checks = []
+      @missing_checks = []
+      repositories.each do |repo|
+        build_id = repo.build_id
+        status = repo.status_reports.find_by(uuid: build_id)
+        next if status.nil?
+
+        @missing_checks += status.missing_checks
+        @checks += status.checks
+      end
+    end
 
     # Used internally to calculate #broken_packages and #building_repositories
     def set_buildinfo
