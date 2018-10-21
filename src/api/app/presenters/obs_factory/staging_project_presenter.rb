@@ -134,6 +134,15 @@ module ObsFactory
       end
     end
 
+    # link to 'testing X%' - next best pending check
+    def testing_url
+      checks.each do |check|
+        next unless check.pending?
+        return check.url if check.url.present?
+      end
+      nil
+    end
+
     # returns a number presenting how high it should be in the list of staging prjs
     # the lower the number, the earlier it is in the list - acceptable A first
     def sort_key
