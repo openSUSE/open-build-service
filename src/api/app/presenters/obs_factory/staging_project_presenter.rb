@@ -122,14 +122,13 @@ module ObsFactory
     end
 
     def testing_percentage
-      # TODO: make this use checks
-      jobs = []
-      notdone = 0
-      jobs.each do |job|
-        notdone += 1 unless %w(passed failed).include?(job.result)
+      notdone = missing_checks.size
+      checks.each do |check|
+        notdone += 1 if check.pending?
       end
-      if jobs.size > 0
-        100 - notdone * 100 / jobs.size
+      allchecks = missing_checks.size + checks.size
+      if allchecks > 0
+        100 - notdone * 100 / allchecks
       else
         0
       end
