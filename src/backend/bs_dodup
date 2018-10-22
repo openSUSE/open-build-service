@@ -21,7 +21,6 @@ use BSRPC ':https';
 use BSHTTP;
 use BSXML;
 use BSUtil;
-use BSStdServer;
 use File::Temp ();
 
 use Build::Repo;
@@ -557,7 +556,7 @@ my ($options,@args) = parse_options(@ARGV);
 
 BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
 # Open logfile if requested
-BSStdServer::openlog($options->{'logfile'}, $BSConfig::bsuser, $BSConfig::bsgroup);
+BSUtil::openlog($options->{'logfile'}, $BSConfig::logdir, $BSConfig::bsuser, $BSConfig::bsgroup);
 BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
 if ($options->{dodfile}) {

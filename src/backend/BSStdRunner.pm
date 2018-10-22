@@ -168,6 +168,14 @@ sub setdue {
 sub run {
   my ($name, $args, $conf) = @_;
 
+  if ($args && @$args) {
+    if ($args->[0] eq '--logfile') {
+      shift @$args;
+      my $logfile = shift @$args;
+      BSUtil::openlog($logfile, $BSConfig::logdir, $BSConfig::bsuser, $BSConfig::bsgroup);
+    }
+  }
+
   exit(0) if @$args && $args->[0] eq '--test';
   
   die("no eventdir configured\n") unless $conf->{'eventdir'};

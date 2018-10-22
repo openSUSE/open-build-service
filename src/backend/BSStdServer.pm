@@ -187,6 +187,14 @@ sub server {
   my ($name, $args, $conf, $aconf) = @_;
 
   if ($args && @$args) {
+    if ($args->[0] eq '--logfile') {
+      shift @$args;
+      my $logfile = shift @$args;
+      BSUtil::openlog($logfile, $BSConfig::logdir, $BSConfig::bsuser, $BSConfig::bsgroup);
+    }
+  }
+
+  if ($args && @$args) {
     if ($args->[0] eq '--test') {
       exit 0;
     }
@@ -290,24 +298,6 @@ sub server {
   }
   $conf->{'run'}->($conf);
   die("server returned\n");
-}
-
-=head2 openlog - open STDOUT/STDERR to log file
-
- checks if $logfile is set and reopens STDOUT/STDERR to logfile
-
- BSUtil::openlog($logfile, $user, $group);
-
-=cut
-
-sub openlog {
-  my ($logfile, $user, $group) = @_;
-  return unless defined $logfile;
-  $logfile = "$BSConfig::logdir/$logfile" unless $logfile =~ /\//;
-  my ($ld) = $logfile =~ m-(.*)/- ;
-  BSUtil::mkdir_p_chown($ld, $user, $group) if $ld && defined($user) || defined($group);
-  open(STDOUT, '>>', $logfile) || die("Could not open $logfile: $!\n");
-  open(STDERR, ">&STDOUT");
 }
 
 1;

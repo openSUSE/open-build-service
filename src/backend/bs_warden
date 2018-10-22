@@ -39,7 +39,6 @@ use BSConfiguration;
 use BSRPC;
 use BSUtil;
 use BSXML;
-use BSStdServer;
 
 use strict;
 
@@ -75,7 +74,7 @@ my $options = parse_options(@ARGV);
 
 BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
 # Open logfile if requested
-BSStdServer::openlog($options->{'logfile'}, $BSConfig::bsuser, $BSConfig::bsgroup);
+BSUtil::openlog($options->{'logfile'}, $BSConfig::logdir, $BSConfig::bsuser, $BSConfig::bsgroup);
 BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
 my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
