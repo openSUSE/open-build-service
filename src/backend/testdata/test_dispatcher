@@ -23,7 +23,7 @@ function td()
 
   [ -n "$TEST_CASE" -a "${testname#$TEST_CASE}" == "$testname" ] && return
 
-  if ./bs_dispatch --test-constraints "$package" "$arch" $worker "$srcconstraint" "$prjconfconstraint"; then
+  if ./bs_dispatch --test-constraints "$package" "$arch" "$worker" "$srcconstraint" "$prjconfconstraint"; then
     if [ $expected != "true" ]; then
       echo "Failed $testname for $package $arch $worker $srcconstraint $prjconfconstraint"
       FAILS="$FAILS $testname"

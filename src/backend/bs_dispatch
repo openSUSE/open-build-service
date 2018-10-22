@@ -42,6 +42,7 @@ use List::Util;
 use Fcntl qw(:DEFAULT :flock);
 use XML::Structured ':bytes';
 use Storable;
+use Getopt::Long ();
 
 use BSConfiguration;
 use BSRPC;
@@ -49,8 +50,38 @@ use BSUtil;
 use BSXML;
 use BSCando;
 use BSDispatcher::Constraints;
+use BSStdServer;
 
 use strict;
+
+sub parse_options {
+  my %opts;
+  if (!Getopt::Long::GetOptionsFromArray(\@_, \%opts,
+    'testmode|test-mode',
+    'testconstraints|test-constraints',
+    'stop|exit',
+    'restart',
+    'logfile=s',
+  )) {
+    print_usage();
+    die("Invalid option(s)\n");
+  }
+  return (\%opts,@_);
+}
+
+sub print_usage {
+  $0 =~ /([^\/]+$)/;
+  print "Usage: $1 [options]
+
+Options:
+  --test-constraints     - test one constraints file
+  --testmode|--test-mode - run only for one event
+  --stop|--exit          - graceful shutdown daemon
+  --restart              - restart daemon
+  --logfile file         - redirect output to logfile
+
+";
+}
 
 my $nosrcchangescale = 3;	# -4.77
 
@@ -72,18 +103,16 @@ if ($BSConfig::secure_sandboxes) {
   $secure_sandboxes{$_} = 1 for qw{xen kvm zvm};
 }
 
-my $testmode;
-while (@ARGV) {
-  if ($ARGV[0] eq '--test-mode' || $ARGV[0] eq '--testmode') {
-    shift @ARGV;
-    $testmode = 1;
-  } elsif ($ARGV[0] eq '--test-constraints') {
-    shift @ARGV;
-    my $package = shift @ARGV;
-    my $architecture = shift @ARGV;
-    my $workerinfo_file = shift @ARGV;
-    my $constraints_file = shift @ARGV;
-    my $constraintsprj_file = shift @ARGV;
+# copy @ARGV to keep it untouched in case of restart
+my ($options,@args) = parse_options(@ARGV);
+
+if ($options->{'testconstraints'}) {
+    my $package = shift @args;
+    my $architecture = shift @args;
+    my $workerinfo_file = shift @args;
+    my $constraints_file = shift @args;
+    my $constraintsprj_file = shift @args;
+
     my $workerinfo = readxml($workerinfo_file, $BSXML::worker);
     my $jobinfo = { 'arch' => $architecture, 'package' => $package };
 
@@ -104,17 +133,16 @@ while (@ARGV) {
     my $o = BSDispatcher::Constraints::oracle($workerinfo, $constraints);
     exit 0 if defined($o) && $o > 0;
     exit 1;
-  } else {
-    last;
-  }
 }
-
-BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
 
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
 
 BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
+
+# Open logfile if requested
+BSStdServer::openlog($options->{'logfile'}, $BSConfig::bsuser, $BSConfig::bsgroup);
 BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
+BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
 
 my $port = 5252;        #'RR'
 $port = $1 if $BSConfig::reposerver =~ /:(\d+)$/;
@@ -761,7 +789,7 @@ sub checkconstraints {
 
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
-BSUtil::restartexit($ARGV[0], 'dispatcher', "$rundir/bs_dispatch");
+BSUtil::restartexit($options, 'dispatcher', "$rundir/bs_dispatch");
 BSUtil::printlog("starting build service dispatcher");
 
 # get lock
@@ -788,7 +816,7 @@ if ($BSConfig::masterdispatcher && $BSConfig::masterdispatcher ne $BSConfig::rep
   BSUtil::printlog("running is dispatch slave mode");
 }
 
-if ($testmode) {
+if ($options->{testmode}) {
   forwardevents();
   print "Test mode, dispatcher is exiting..";
   exit(0);
