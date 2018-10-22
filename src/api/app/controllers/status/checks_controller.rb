@@ -18,6 +18,7 @@ class Status::ChecksController < ApplicationController
     end
 
     if @check.save
+      create_event
       render :show
     else
       render_error(status: 422, errorcode: 'invalid_check', message: "Could not save check: #{@check.errors.full_messages.to_sentence}")
@@ -25,6 +26,21 @@ class Status::ChecksController < ApplicationController
   end
 
   private
+
+  def create_event
+    if @project
+      Event::StatusCheckForPublished.create(check_notify_params)
+    else
+      Event::StatusCheckForRequest.create(check_notify_params)
+    end
+  end
+
+  def check_notify_params
+    params = { who: User.current.login, state: @check.state, name: @check.name }
+    params[:url] = @check.url if @check.url
+    params[:short_description] = @check.short_description if @check.short_description
+    params.merge(@status_report.notify_params)
+  end
 
   def set_status_report
     if params[:report_uuid]
