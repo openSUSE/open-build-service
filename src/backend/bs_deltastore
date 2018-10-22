@@ -190,7 +190,7 @@ while(1) {
     close(RUNLOCK);
     unlink("$rundir/bs_deltastore.restart");
     BSUtil::printlog("restarting...");
-    exec($0);
+    exec($0, $ARGV);
     die("$0: $!\n");
   }
   BSUtil::printlog("waiting for an event...");

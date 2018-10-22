@@ -375,6 +375,9 @@ getent passwd obsservicerun >/dev/null || \
     -c "User for the build service source service" obsservicerun
 
 %service_add_pre obsdeltastore.service
+%service_add_pre obsdispatcher.service
+%service_add_pre obsdodup.service
+%service_add_pre obswarden.service
 
 exit 0
 
@@ -387,9 +390,12 @@ getent passwd obsrun >/dev/null || \
 exit 0
 
 %preun
-%stop_on_removal obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice
+%stop_on_removal obssrcserver obsrepserver obsscheduler obspublisher obssigner obsservicedispatch obsservice
 
 %service_del_preun obsdeltastore.service
+%service_del_preun obsdispatcher.service
+%service_del_preun obsdodup.service
+%service_del_preun obswarden.service
 
 %preun -n obs-worker
 %stop_on_removal obsworker
@@ -402,13 +408,16 @@ exit 0
 
 %post
 %if 0%{?suse_version} >= 1315
-%reload_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice
+%reload_on_update obssrcserver obsrepserver obspublisher obssigner obsservicedispatch obsservice
 %else
-%restart_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice
+%restart_on_update obssrcserver obsrepserver obspublisher obssigner obsservicedispatch obsservice
 %endif
 # systemd kills the init script executing the reload first on reload....
 %restart_on_update obsscheduler
 %service_add_post obsdeltastore.service
+%service_add_post obsdispatcher.service
+%service_add_post obsdodup.service
+%service_add_post obswarden.service
 
 %post -n obs-cloud-uploader
 %if 0%{?suse_version} >= 1315
@@ -430,6 +439,9 @@ fi
 %postun
 %insserv_cleanup
 %service_del_postun obsdeltastore.service
+%service_del_postun obsdispatcher.service
+%service_del_postun obsdodup.service
+%service_del_postun obswarden.service
 # cleanup empty directory just in case
 rmdir /srv/obs 2> /dev/null || :
 
@@ -508,9 +520,10 @@ fi
 /etc/init.d/obsrepserver
 /etc/init.d/obsscheduler
 /etc/init.d/obssrcserver
-/etc/init.d/obswarden
-/etc/init.d/obsdodup
 %{_unitdir}/obsdeltastore.service
+%{_unitdir}/obsdispatcher.service
+%{_unitdir}/obsdodup.service
+%{_unitdir}/obswarden.service
 /etc/init.d/obsservicedispatch
 /etc/init.d/obssigner
 /usr/sbin/obs_admin

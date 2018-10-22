@@ -694,7 +694,7 @@ sub filechecks {
     close(RUNLOCK);
     unlink("$rundir/bs_dispatch.restart");
     BSUtil::printlog("restarting...");
-    exec($0);
+    exec($0, @ARGV);
     die("$0: $!\n");
   }
   if (-e "$rundir/bs_dispatch.dumpstate") {
