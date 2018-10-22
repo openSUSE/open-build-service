@@ -60,6 +60,7 @@ RSpec.describe Status::ChecksController, type: :controller do
                                               state: 'pending', url: 'http://checks.example.com/12345')).to exist
           end
           it { is_expected.to have_http_status(:success) }
+          it { expect(Event::StatusCheck.count).to eq(1) }
         end
 
         context 'with invalid XML' do
@@ -78,6 +79,7 @@ RSpec.describe Status::ChecksController, type: :controller do
 
           it { is_expected.to have_http_status(:unprocessable_entity) }
           it { expect(status_report.checks).to be_empty }
+          it { expect(Event::StatusCheck.count).to eq(0) }
         end
 
         context 'with no permissions' do
@@ -91,6 +93,7 @@ RSpec.describe Status::ChecksController, type: :controller do
 
           it { is_expected.to have_http_status(:forbidden) }
           it { expect(status_report.checks).to be_empty }
+          it { expect(Event::StatusCheck.count).to eq(0) }
         end
       end
 
@@ -100,6 +103,11 @@ RSpec.describe Status::ChecksController, type: :controller do
         end
 
         include_context 'does create the check'
+
+        it 'creates the proper event' do
+          post :update, body: xml, params: params, format: :xml
+          expect(Event::StatusCheckForPublished.first.payload).to include('who' => user.login, 'project' => project.name, 'repository' => repository.name, 'state' => 'pending')
+        end
       end
 
       context 'for a repository architecture' do
@@ -121,6 +129,10 @@ RSpec.describe Status::ChecksController, type: :controller do
         end
 
         include_context 'does create the check'
+        it 'creates the proper event' do
+          post :update, body: xml, params: params, format: :xml
+          expect(Event::StatusCheckForRequest.first.payload).to include('who' => user.login, 'number' => bs_request.number, 'state' => 'pending')
+        end
       end
     end
 

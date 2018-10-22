@@ -46,6 +46,17 @@ class Status::Report < ApplicationRecord
     end
   end
 
+  def notify_params
+    case checkable
+    when BsRequest
+      { number: checkable.number }
+    when Repository
+      { project: checkable.project.name, repository: checkable.name, uuid: uuid }
+    else
+      {}
+    end
+  end
+
   #### Instance methods (public and then protected/private)
 
   #### Alias of methods
