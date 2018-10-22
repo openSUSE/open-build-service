@@ -379,6 +379,15 @@ getent passwd obsservicerun >/dev/null || \
 %service_add_pre obsdodup.service
 %service_add_pre obswarden.service
 
+# make sure logfiles belong to the obsrun user
+if [ -f /etc/sysconfig/obs-server ] ; then
+    . /etc/sysconfig/obs-server
+fi
+for i in deltastore dispatcher dodup warden ; do
+    LOG=${OBS_LOG_DIR:=/srv/obs/log}/$i.log
+    test -f $LOG && chown obsrun:obsrun $LOG
+done
+
 exit 0
 
 # create user and group in advance of obs-server
@@ -515,7 +524,6 @@ fi
 %dir /usr/lib/obs
 %dir /usr/lib/obs/server
 %config(noreplace) /etc/logrotate.d/obs-server
-/etc/init.d/obsdispatcher
 /etc/init.d/obspublisher
 /etc/init.d/obsrepserver
 /etc/init.d/obsscheduler

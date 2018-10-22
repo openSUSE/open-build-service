@@ -10,7 +10,7 @@ plan tests 7
 for i in \
     $DESTDIR/etc/logrotate.d/obs-server\
     $DESTDIR/etc/init.d/obssrcserver\
-    $DESTDIR/etc/init.d/obsdodup\
+    $DESTDIR/etc/init.d/obsrepserver\
     $DESTDIR/usr/sbin/obs_admin\
     $DESTDIR/usr/sbin/obs_serverstatus
 do
