@@ -231,15 +231,11 @@ our $servicedispatch = 1;
 # print all messages with a lower level than $debuglevel in addition to the normal log messages
 #our $debuglevel = 1;
 
-#our $container_registries = {
-#   'localhost' => {
-#     server => 'https://my_public_registry',
-#     pushserver => 'https://localhost:444', # optional private push server
-#     user => 'ignored',
-#     password => 'ignored',
-#     # Please be aware of the trailing slash
-#     repository_base => '/',
-#   },
+our $container_registries = {
+   'local' => {
+     server => $hostname,
+     pushserver => 'local:'
+   },
 #   'staging-registry.example.com' => {
 #     server => '',
 #     user => '',
@@ -252,15 +248,15 @@ our $servicedispatch = 1;
 #     password => '',
 #     repository_base => '',
 #   },
-#};
+};
 
-#our $publish_containers = [
+our $publish_containers = [
 #   # key:   regex to match projid
 #   # value: ArrayRef with identifiers for registries configured in $container_registries
-#   'SUSE:.*' => [ 'registry.example.com', 'hub.docker.com' ],
+#   'SUSE:.*'        => [ 'registry.example.com', 'hub.docker.com' ],
 #   '.*:branches:.*' => [ 'staging-registry.example.com' ],
-#    '.*' => ['localhost'],
-#];
+   '.*'             => ['local'],
+];
 
 
 # special options to use for starting containers in call-service-in-docker.sh
@@ -275,6 +271,5 @@ our $servicedispatch = 1;
 
 # public cloud uploader configuration
 # our $cloudupload_pubkey = "/etc/obs/cloudupload/_pubkey"; # default setting
-
 
 1;

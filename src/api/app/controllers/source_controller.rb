@@ -157,7 +157,7 @@ class SourceController < ApplicationController
                       'mergeservice', 'commit', 'commitfilelist', 'createSpecFileTemplate',
                       'deleteuploadrev', 'linktobranch', 'updatepatchinfo', 'getprojectservices',
                       'unlock', 'release', 'importchannel', 'wipe', 'rebuild', 'collectbuildenv',
-                      'instantiate', 'addchannels', 'enablechannel']
+                      'instantiate', 'addcontainers', 'addchannels', 'enablechannel']
 
     @command = params[:cmd]
     raise IllegalRequest, 'invalid_command' unless valid_commands.include?(@command)
@@ -734,13 +734,21 @@ class SourceController < ApplicationController
   end
 
   # add channel packages and extend repository list
-  # POST /source/<project>?cmd=addchannels
+  # POST /source/<project>/<package>?cmd=addchannels
   def package_command_addchannels
     mode = :add_disabled
     mode = :skip_disabled if params[:mode] == 'skip_disabled'
     mode = :enable_all    if params[:mode] == 'enable_all'
 
     @package.add_channels(mode)
+
+    render_ok
+  end
+
+  # add containers using the origin of this package (docker in first place, but not limited to it)
+  # POST /source/<project>/<package>?cmd=addcontainers
+  def package_command_addcontainers
+    @package.add_containers(extend_package_names: params[:extend_package_names].present?)
 
     render_ok
   end

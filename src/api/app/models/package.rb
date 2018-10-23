@@ -981,6 +981,38 @@ class Package < ApplicationRecord
     linkinfo && (linkinfo['project'] == project.name)
   end
 
+  def add_containers(opts = {})
+    container_list = {}
+
+    # released maintenance updates first
+    origin_container(local: false).update_instance.binary_releases.where('ISNULL(obsolete_time)').find_each do |binary_release|
+      mc = binary_release.medium_container
+      container_list[mc] = 1 if mc
+    end
+    # GA versions second
+    origin_container(local: false).binary_releases.where('ISNULL(obsolete_time)').find_each do |binary_release|
+      mc = binary_release.medium_container
+      container_list[mc] = 1 if mc
+    end
+
+    comment = "add container for #{name}"
+    opts[:extend_package_names] = true if project.is_maintenance_incident?
+
+    container_list.keys.each do |container|
+      container_name = container.name
+      container_update_project = container.project.update_instance
+      container_name.gsub!(/\.[^\.]*$/, '') if container_update_project.is_maintenance_release? && !container.is_link?
+      container_name << '.' << container_update_project.name.tr(':', '_') if opts[:extend_package_names]
+      next if project.packages.exists?(name: container_name)
+      target_package = Package.new(name: container_name, title: container.title, description: container.description)
+      project.packages << target_package
+      target_package.store(comment: comment)
+
+      # branch sources
+      target_package.branch_from(container.project.update_instance.name, container.name, comment: comment)
+    end
+  end
+
   def modify_channel(mode = :add_disabled)
     raise InvalidParameterError unless [:add_disabled, :enable_all].include?(mode)
     channel = channels.first

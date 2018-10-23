@@ -12,7 +12,8 @@
           %strong All
         - flags['all'].each do |flag|
           %td.all_flag.text-center
-            = render partial: 'shared/repositories_flag_table_column', locals: { flag: flag, project: project, package: package }
+            = render partial: 'shared/repositories_flag_table_column',
+                     locals: { flag: flag, project: project, package: package, user_can_set_flags: user_can_set_flags }
       - project.repositories.each do |repository|
         %tr
           %td.reponame.text-word-break-all
@@ -23,4 +24,5 @@
                 = link_to(repository.name, action: :state, project: project, repository: repository.name)
           - flags[repository.name].each_with_index do |flag, index|
             %td.text-center{ class: index == 0 ? 'all_flag' : nil }
-              = render partial: 'shared/repositories_flag_table_column', locals: { flag: flag, project: project, package: package }
+              = render partial: 'shared/repositories_flag_table_column',
+                       locals: { flag: flag, project: project, package: package, user_can_set_flags: user_can_set_flags }

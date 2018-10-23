@@ -38,9 +38,7 @@
                   .d-none.d-sm-block
                     = render_partial
                   .d-sm-none
-                    -# rubocop:disable Style/UnneededInterpolation
                     %i.fas.fa-ellipsis-h.text-secondary{ data: { toggle: 'popover', html: 'true', content: "#{render_partial}" } }
-                    -# rubocop:enable Style/UnneededInterpolation
       %ul.list-inline
         - if User.current.can_modify?(@package)
           = render partial: 'webui2/webui/package/binaries/trigger_rebuild_wipe_binaries', locals: { result: result, project: @project,

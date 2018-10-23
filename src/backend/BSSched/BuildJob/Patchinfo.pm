@@ -474,7 +474,9 @@ sub build {
         # be extra careful with em, recalculate meta
         $m .= "$bin\0$s[9]/$s[7]/$s[1]\0" if @s;
       }
-      if ($bin !~ /\.rpm$/) {
+      if ($bin !~ /\.rpm$/ &&
+          $bin !~ /^_blob\..*/ &&
+          $bin !~ /\.(containerinfo|obsbinlink|tar\.sha256|packages|report|verified)$/) {
         if (%binaryfilter) {
           unlink("$jobdatadir/$bin");
           next;
@@ -483,15 +485,17 @@ sub build {
 	next;
       }
       my $d;
-      eval {
-        $d = Build::query("$jobdatadir/$bin", 'evra' => 1, 'unstrippedsource' => 1);
-        BSVerify::verify_nevraquery($d);
-        my $leadsigmd5 = '';
-        die("$jobdatadir/$bin: no hdrmd5\n") unless Build::queryhdrmd5("$jobdatadir/$bin", \$leadsigmd5);
-        $d->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
-      };
-      if ($@ || !$d) {
-        return ('broken', "$bin: bad rpm");
+      if ($bin =~ /\.rpm$/) {
+        eval {
+          $d = Build::query("$jobdatadir/$bin", 'evra' => 1, 'unstrippedsource' => 1);
+          BSVerify::verify_nevraquery($d);
+          my $leadsigmd5 = '';
+          die("$jobdatadir/$bin: no hdrmd5\n") unless Build::queryhdrmd5("$jobdatadir/$bin", \$leadsigmd5);
+          $d->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
+        };
+        if ($@ || !$d) {
+          return ('broken', "$bin: bad rpm");
+        }
       }
       if (%binaryfilter && !$binaryfilter{$d->{'name'}}) {
         $filtered{$tocopy} ||= {};

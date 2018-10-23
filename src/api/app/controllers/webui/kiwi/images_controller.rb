@@ -34,9 +34,9 @@ module Webui
         @package = @image.package
         @project = @package.project
         @image.build_description if @image.description.nil?
-        @image.build_preference(type_image: 'docker') if @image.preference.nil?
+        @image.build_preference(type_image: 'docker') if @image.preferences.empty?
         @description = @image.description.specification
-        @version = @image.preference.version
+        @version = @image.preferences.first.version
         @author = @image.description.author
         @contact = @image.description.contact
         @repositories_count = @image.repositories.count
@@ -53,9 +53,9 @@ module Webui
 
       def edit
         @image.build_description if @image.description.nil?
-        @image.build_preference(type_image: 'docker') if @image.preference.nil?
+        @image.build_preference(type_image: 'docker') if @image.preferences.empty?
         @description = @image.description.specification
-        @version = @image.preference.version
+        @version = @image.preferences.first.version
         @package_groups = @image.default_package_group
         @author = @image.description.author
         @contact = @image.description.contact
@@ -102,7 +102,7 @@ module Webui
       private
 
       def image_params
-        preference_attributes = [
+        preferences_attributes = [
           :id,
           :type_image,
           :type_containerconfig_name,
@@ -139,6 +139,11 @@ module Webui
           packages_attributes: [:id, :name, :arch, :replaces, :bootdelete, :bootinclude, :_destroy]
         ]
 
+        profiles_attributes = [
+          :id,
+          :selected
+        ]
+
         params.require(:kiwi_image).permit(
           :use_project_repositories,
           :name,
@@ -147,7 +152,8 @@ module Webui
           description_attributes: description_attributes,
           repositories_attributes: repositories_attributes,
           package_groups_attributes: package_groups_attributes,
-          preference_attributes: preference_attributes
+          preferences_attributes: preferences_attributes,
+          profiles_attributes: profiles_attributes
         )
       end
 

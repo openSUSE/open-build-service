@@ -147,6 +147,7 @@ class XpathEngine
         '@version'               => { cpart: 'binary_version' },
         '@release'               => { cpart: 'binary_release' },
         '@arch'                  => { cpart: 'binary_arch' },
+        '@medium'                => { cpart: 'medium' },
         'disturl'                => { cpart: 'binary_disturl' },
         'supportstatus'          => { cpart: 'binary_supportstatus' },
         'updateinfo/@id'         => { cpart: 'binary_updateinfo' },

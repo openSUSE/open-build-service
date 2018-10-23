@@ -455,7 +455,7 @@ sub reply {
   push @hdrs, "Connection: close";
   push @hdrs, "Content-Length: ".length($str) if defined($str);
   my $data = join("\r\n", @hdrs)."\r\n\r\n";
-  $data .= $str if defined($str) && $req->{'action'} ne 'HEAD';
+  $data .= $str if defined($str) && ($req->{'action'} || '') ne 'HEAD';
 
 #  if ($replying && $replying == 2) {
 #    # Already replying. As we're in chunked mode, we can attach

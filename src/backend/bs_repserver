@@ -359,6 +359,13 @@ sub getgbininfo {
 sub getpackagelist_build {
   my ($cgi, $projid, $repoid, $arch) = @_;
   die "must specify view\n" unless $cgi->{'view'};
+  if ($cgi->{'view'} eq 'status') {
+    my $schedulerstate = readschedulerstate($projid, $repoid, $arch);
+    my $status = { 'code' => $schedulerstate->{'code'} };
+    $status->{'details'} = $schedulerstate->{'details'} if $schedulerstate->{'details'};
+    $status->{'buildid'} = $schedulerstate->{'buildid'} if $schedulerstate->{'buildid'};
+    return ($status, $BSXML::buildstatus);
+  }
   $cgi->{'withcode'} = 1 if $cgi->{'view'}  eq 'binaryversionscode' || $cgi->{'view'}  eq 'gbininfocode';
   return getgbininfo($cgi, $projid, $repoid, $arch) if $cgi->{'view'} eq 'gbininfo' || $cgi->{'view'} eq 'gbininfocode';
   die("unknown view '$cgi->{'view'}'\n") unless $cgi->{'view'} eq 'binaryversions' || $cgi->{'view'} eq 'binaryversionscode';
@@ -1672,15 +1679,27 @@ sub dirty {
   }
 }
 
+sub readschedulerstate {
+  my ($projid, $repoid, $arch) = @_;
+  my $schedulerstate = readstr("$reporoot/$projid/$repoid/$arch/:schedulerstate", 1) || 'unknown';
+  if (substr($schedulerstate, 0, 4) eq 'pst0') {
+    $schedulerstate = BSUtil::fromstorable($schedulerstate, 1) || { 'code' => 'unknown' };
+  } else {
+    chomp $schedulerstate;
+    my $details;
+    ($schedulerstate, $details) = split(' ', $schedulerstate, 2);
+    $schedulerstate = { 'code' => $schedulerstate };
+    $schedulerstate->{'details'} = $details if $details;
+  }
+  return $schedulerstate;
+}
+
 sub getschedulerstate {
   my ($projid, $repoid, $arch) = @_;
-  local *F;
 
-  my $schedulerstate = readstr("$reporoot/$projid/$repoid/$arch/:schedulerstate", 1) || 'unknown';
-  chomp $schedulerstate;
-  my $details;
-  ($schedulerstate, $details) = split(' ', $schedulerstate, 2);
-
+  my $schedulerstate = readschedulerstate($projid, $repoid, $arch);
+  my $details = $schedulerstate->{'details'};
+  $schedulerstate = $schedulerstate->{'code'} || 'unknown';
   if ($schedulerstate eq 'finished' && !$details) {
     return 'finished'     if -e "$eventdir/publish/${projid}::$repoid";
     return 'publishing'   if -e "$eventdir/publish/${projid}::${repoid}::inprogress";

@@ -662,7 +662,7 @@ sub event_force_publish {
   my $repoid = $ev->{'repository'};
   my $projid = $ev->{'project'};
   my $ctx = BSSched::Checker->new($gctx, "$projid/$repoid");
-  $ctx->publish(undef, undef, 1);
+  $ctx->publish(1);
 }
 
 1;

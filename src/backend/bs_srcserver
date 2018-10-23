@@ -1635,15 +1635,16 @@ sub getprojpack {
               }
             }
 	    # KIWI Products support debugmedium and sourcemedium filters
-	    if ($type eq 'kiwi' && ($d->{'imagetype'}[0] || '') eq 'product') {
+	    my $imagetype = $type eq 'kiwi' && $d->{'imagetype'} ? ($d->{'imagetype'}->[0] || '') : '';
+	    if ($type eq 'kiwi' && $imagetype eq 'product') {
 	      $rinfo->{'nodbgpkgs'} = 1 if defined($d->{'debugmedium'}) && $d->{'debugmedium'} <= 0;
 	      $rinfo->{'nosrcpkgs'} = 1 if defined($d->{'sourcemedium'}) && $d->{'sourcemedium'} <= 0;
 	    }
 	    # KIWI Images don't build with local arch
-	    if ($type eq 'kiwi' && ($d->{'imagetype'}[0] || '') ne 'product') {
+	    if ($type eq 'kiwi' && $imagetype ne 'product') {
 	      $rinfo->{'error'} = 'excluded' if defined($BSConfig::localarch) && $arch eq 'local';
 	    }
-	    if ($type eq 'kiwi' && ($d->{'imagetype'}[0] || '') eq 'product') {
+	    if ($type eq 'kiwi' && $imagetype eq 'product') {
 	      # KIWI Products always build on the first repo arch
 	      $rinfo->{'imagearch'} = [ @{$d->{'exclarch'}} ] if $d->{'exclarch'};
 	    } else {
@@ -3980,7 +3981,7 @@ sub getjobhistory {
 sub getpackagelist_build {
   my ($cgi, $projid, $repoid, $arch) = @_;
   if ($cgi->{'view'}) {
-    die("unknown view '$cgi->{'view'}'\n") unless $cgi->{'view'} eq 'binaryversions' || $cgi->{'view'} eq 'binaryversionscode';
+    die("unknown view '$cgi->{'view'}'\n") unless $cgi->{'view'} eq 'binaryversions' || $cgi->{'view'} eq 'binaryversionscode' || $cgi->{'view'} eq 'status';
     my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
     my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
     my @args = BSRPC::args($cgi, 'view', 'package');
@@ -6001,6 +6002,12 @@ sub checkconstraints {
   if (BSServer::have_content()) {
     $param->{'data'} = \&BSServer::forward_sender;
     $param->{'chunked'} = 1;
+  } else {
+      my $rev = getrev($cgi->{'project'}, $cgi->{'package'}, $cgi->{'rev'});
+      my $files = BSRevision::lsrev($rev);
+      if ($files->{'_constraints'}) {
+        $param->{'data'} = BSRevision::revreadstr($rev, '_constraints', $files->{'_constraints'});
+      }
   }
 
   my $ret = BSWatcher::rpc($param, $BSXML::dir, "cmd=checkconstraints", @args);
@@ -6422,7 +6429,7 @@ my $dispatches = [
 
   # worker capabilities
   '/worker/$workerid' => \&getworkercap,
-  'POST:/worker cmd=checkconstraints $project $repository $arch $package' => \&checkconstraints,
+  'POST:/worker cmd=checkconstraints $project $repository $arch $package rev?' => \&checkconstraints,
 
   # worker calls
   '/getsources $project $package $srcmd5:md5 workerid?' => \&getsources,

@@ -34,3 +34,11 @@ $(function ($) {
     details.attr('open', null);
   });
 });
+
+$(document).ready(function() {
+  $('.btn-more').click(function() {
+    var moreInfo = $('.more_info');
+    moreInfo.toggleClass('d-none');
+    $(this).text(moreInfo.hasClass('d-none') ? 'more info' : 'less info');
+  });
+});

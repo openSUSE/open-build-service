@@ -191,6 +191,7 @@ CREATE TABLE `binary_releases` (
   `binary_updateinfo` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `binary_updateinfo_version` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `modify_time` datetime DEFAULT NULL,
+  `on_medium_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `ra_name_index` (`repository_id`,`binary_name`),
   KEY `exact_search_index` (`binary_name`,`binary_epoch`,`binary_version`,`binary_release`,`binary_arch`),
@@ -271,6 +272,7 @@ CREATE TABLE `bs_requests` (
   `priority` enum('critical','important','moderate','low') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'moderate',
   `number` int(11) DEFAULT NULL,
   `updated_when` datetime DEFAULT NULL,
+  `approver` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_bs_requests_on_number` (`number`),
   KEY `index_bs_requests_on_creator` (`creator`) USING BTREE,
@@ -714,8 +716,22 @@ CREATE TABLE `kiwi_preferences` (
   `type_containerconfig_name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `type_containerconfig_tag` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `version` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `profile` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_kiwi_preferences_on_image_id` (`image_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE `kiwi_profiles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `selected` tinyint(1) NOT NULL,
+  `image_id` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_once_per_image` (`name`,`image_id`),
+  KEY `index_kiwi_profiles_on_image_id` (`image_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `kiwi_repositories` (
@@ -1377,6 +1393,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20180216082148'),
 ('20180221175514'),
 ('20180307074538'),
+('20180426074538'),
 ('20180516074538'),
 ('20180523123532'),
 ('20180720082742'),
@@ -1387,6 +1404,8 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20180903135535'),
 ('20180906115417'),
 ('20180906142702'),
-('20180906142802');
+('20180906142802'),
+('20180911123709'),
+('20180924135535');
 
 
