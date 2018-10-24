@@ -7,7 +7,7 @@ class Webui::SessionController < Webui::WebuiController
 
   def create
     user = User.find_with_credentials(params[:username], params[:password])
-    roles = roles(user)
+    roles = user.roles_for_metrics
 
     unless user
       RabbitmqBus.send_to_bus('metrics', "login,access_point=webui,failure=unauthenticated value=1,#{roles}")
@@ -33,18 +33,13 @@ class Webui::SessionController < Webui::WebuiController
     Rails.logger.info "Logging out: #{session[:login]}"
 
     reset_session
-    RabbitmqBus.send_to_bus('metrics', "logout,access_point=webui value=1,#{roles(user)}")
+    RabbitmqBus.send_to_bus('metrics', "logout,access_point=webui value=1,#{user.roles_for_metrics}")
     User.current = nil
 
     redirect_on_logout
   end
 
   private
-
-  def roles(user)
-    # We add all the roles because otherwise false won't be equivalent to not true
-    Roles.all.map { |role| "#{role.title}=#{user.roles.exists?(role.id)}" }.join(',')
-  end
 
   def redirect_on_login
     if referer_was_login?

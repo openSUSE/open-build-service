@@ -106,6 +106,11 @@ class User < ApplicationRecord
     RabbitmqBus.send_to_bus('metrics', 'user.create value=1')
   end
 
+  def roles_for_metrics
+    # We add all the roles because otherwise false won't be equivalent to not true
+    Roles.all.map { |role| "#{role.title}=#{roles.exists?(role.id)}" }.join(',')
+  end
+
   def create_home_project
     # avoid errors during seeding
     return if login.in?([NOBODY_LOGIN, 'Admin'])

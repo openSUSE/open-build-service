@@ -292,6 +292,7 @@ module Event
     def to_metric
       tags = metric_tags.map { |k, v| "#{k}=#{v}" }.join(',')
       tags = ",#{tags}" if tags.present?
+      tags += ",#{User.find(payload['sender']).roles_for_metrics}" if payload['sender']
       fields = metric_fields.map { |k, v| "#{k}=#{v}" }.join(',')
       "#{metric_measurement}#{tags} #{fields}"
     end
