@@ -219,9 +219,11 @@ sub boolop {
 	push @k, $k;
       }
     } else {
-      my @values = $db->values($v1->{'path'}, $v1->{'keys'});
-      if ($v1->{'keys'} && @values > @{$v1->{'keys'}}) {
-	for my $k (@{$v1->{'keys'}}) {
+      my $noindex = ($db->{'noindex'} && $db->{'noindex'}->{$v1->{'path'}}) || $db->{'noindexatall'};
+      my @values;
+      @values = $db->values($v1->{'path'}, $v1->{'keys'}) unless $noindex;
+      if ($noindex || ($v1->{'keys'} && @values > @{$v1->{'keys'}})) {
+	for my $k (@{$v1->{'keys'} || [ $db->keys() ]}) {
 	  my $vv = $db->fetch($k);
 	  next unless defined $vv;
 	  if (!$negpol) {
@@ -274,9 +276,11 @@ sub boolop {
       #die("413 search limit reached\n") if $v2->{'limit'} && @k > $v2->{'limit'};
       $negpol = 0;
     } else {
-      my @values = $db->values($v2->{'path'}, $v2->{'keys'});
-      if ($v2->{'keys'} && @values > @{$v2->{'keys'}}) {
-	for my $k (@{$v2->{'keys'}}) {
+      my $noindex = ($db->{'noindex'} && $db->{'noindex'}->{$v2->{'path'}}) || $db->{'noindexatall'};
+      my @values;
+      @values = $db->values($v2->{'path'}, $v2->{'keys'}) unless $noindex;
+      if ($noindex || ($v2->{'keys'} && @values > @{$v2->{'keys'}})) {
+	for my $k (@{$v2->{'keys'} || [ $db->keys() ]}) {
 	  my $vv = $db->fetch($k);
 	  next unless defined $vv;
 	  if (!$negpol) {
