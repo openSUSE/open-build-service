@@ -23,6 +23,12 @@ module Event
     def expanded_payload
       payload_with_diff
     end
+
+    private
+
+    def metric_fields
+      payload.slice('number')
+    end
   end
 end
 
