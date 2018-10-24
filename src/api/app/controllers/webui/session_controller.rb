@@ -7,15 +7,16 @@ class Webui::SessionController < Webui::WebuiController
 
   def create
     user = User.find_with_credentials(params[:username], params[:password])
+    roles = roles(user)
 
     unless user
-      RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=unauthenticated value=1')
+      RabbitmqBus.send_to_bus('metrics', "login,access_point=webui,failure=unauthenticated value=1,#{roles}")
       redirect_to(session_new_path, error: 'Authentication failed')
       return
     end
 
     unless user.is_active?
-      RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=disabled value=1')
+      RabbitmqBus.send_to_bus('metrics', "login,access_point=webui,failure=disabled value=1,#{roles}")
       redirect_to(root_path, error: 'Your account is disabled. Please contact the administrator for details.')
       return
     end
@@ -23,7 +24,7 @@ class Webui::SessionController < Webui::WebuiController
     User.current = user
     session[:login] = user.login
     Rails.logger.debug "Authenticated as user '#{user.login}'"
-    RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui value=1')
+    RabbitmqBus.send_to_bus('metrics', "login,access_point=webui value=1,#{roles}")
 
     redirect_on_login
   end
@@ -32,13 +33,18 @@ class Webui::SessionController < Webui::WebuiController
     Rails.logger.info "Logging out: #{session[:login]}"
 
     reset_session
-    RabbitmqBus.send_to_bus('metrics', 'logout,access_point=webui value=1')
+    RabbitmqBus.send_to_bus('metrics', "logout,access_point=webui value=1,#{roles(user)}")
     User.current = nil
 
     redirect_on_logout
   end
 
   private
+
+  def roles(user)
+    # We add all the roles because otherwise false won't be equivalent to not true
+    Roles.all.map { |role| "#{role.title}=#{user.roles.exists?(role.id)}" }.join(',')
+  end
 
   def redirect_on_login
     if referer_was_login?
