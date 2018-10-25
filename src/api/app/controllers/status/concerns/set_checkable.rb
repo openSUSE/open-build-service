@@ -10,7 +10,7 @@ module Status
       private
 
       def set_checkable
-        set_repository || set_bs_request
+        set_repository_architecture || set_bs_request
         return if @checkable
 
         @error_message ||= 'Provide at least project_name and repository_name or request number.'
@@ -36,6 +36,14 @@ module Status
         return @checkable if @checkable
 
         @error_message = "Repository '#{params[:project_name]}/#{params[:repository_name]}' not found."
+      end
+
+      def set_repository_architecture
+        return unless set_repository && params[:arch]
+        @checkable = @checkable.repository_architectures.joins(:architecture).find_by(architectures: { name: params[:arch] })
+        return @checkable if @checkable
+
+        @error_message = "Repository '#{params[:project_name]}/#{params[:repository_name]}/#{params[:arch]}' not found."
       end
 
       def set_bs_request
