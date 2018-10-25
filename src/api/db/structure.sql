@@ -1048,6 +1048,7 @@ CREATE TABLE `repository_architectures` (
   `architecture_id` int(11) NOT NULL,
   `position` int(11) NOT NULL DEFAULT '0',
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `required_checks` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `arch_repo_index` (`repository_id`,`architecture_id`) USING BTREE,
   KEY `architecture_id` (`architecture_id`) USING BTREE,
@@ -1421,6 +1422,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20180911123709'),
 ('20180924135535'),
 ('20181008150453'),
-('20181016103905');
+('20181016103905'),
+('20181025152009');
 
 

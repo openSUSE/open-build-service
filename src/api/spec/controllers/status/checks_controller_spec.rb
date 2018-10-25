@@ -6,6 +6,7 @@ RSpec.describe Status::ChecksController, type: :controller do
   let(:user) { create(:confirmed_user) }
   let(:project) { create(:project) }
   let(:repository) { create(:repository, project: project) }
+  let(:repository_architecture) { create(:repository_architecture, repository: repository) }
   let(:status_report) { create(:status_report, checkable: repository) }
 
   before do
@@ -172,6 +173,16 @@ RSpec.describe Status::ChecksController, type: :controller do
         let!(:check) { create(:check, name: 'openQA', state: 'pending', status_report: status_report) }
         let(:params) do
           { report_uuid: status_report.uuid, repository_name: repository.name, project_name: project.name }
+        end
+
+        include_context 'does update the check'
+      end
+
+      context 'for a repository architecture' do
+        let(:status_report) { create(:status_report, checkable: repository_architecture) }
+        let!(:check) { create(:check, name: 'openQA', state: 'pending', status_report: status_report) }
+        let(:params) do
+          { report_uuid: status_report.uuid, repository_name: repository.name, project_name: project.name, arch: repository_architecture.architecture.name }
         end
 
         include_context 'does update the check'

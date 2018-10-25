@@ -39,6 +39,8 @@ class Status::Report < ApplicationRecord
       checkable.bs_request_actions.map(&:target_project_object).flatten
     when Repository
       [checkable.project]
+    when RepositoryArchitecture
+      [checkable.repository.project]
     else
       []
     end
