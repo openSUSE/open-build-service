@@ -12,10 +12,10 @@ class RepositoryArchitecture < ApplicationRecord
     def for_uuid(uuid)
       where(status_reports: { uuid: uuid })
     end
+  end
 
-    def latest
-      for_uuid(proxy_association.owner.build_id)
-    end
+  def build_id
+    Backend::Api::Build::Repository.build_id(repository.project.name, repository.name, architecture.name)
   end
 end
 
