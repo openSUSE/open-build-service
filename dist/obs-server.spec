@@ -32,6 +32,37 @@
 
 %define secret_key_file /srv/www/obs/api/config/secret.key
 
+%if ! %{defined _restart_on_update_reload}
+%define _restart_on_update_reload() (\
+	test "$YAST_IS_RUNNING" = instsys && exit 0\
+	test -f /etc/sysconfig/services -a \\\
+	     -z "$DISABLE_RESTART_ON_UPDATE" && . /etc/sysconfig/services\
+	test "$DISABLE_RESTART_ON_UPDATE" = yes -o \\\
+	     "$DISABLE_RESTART_ON_UPDATE" = 1 && exit 0\
+	%{?*:/usr/bin/systemctl try-reload-or-restart %{*}}\
+	) || : %{nil}
+
+%define service_del_postun(fnr) \
+test -n "$FIRST_ARG" || FIRST_ARG="$1"						\
+if [ "$FIRST_ARG" -ge 1 ]; then							\
+	# Package upgrade, not uninstall					\
+	if [ -x /usr/bin/systemctl ]; then					\
+		/usr/bin/systemctl daemon-reload || :				\
+		%{expand:%%_restart_on_update%{-f:_force}%{!-f:%{-n:_never}}%{!-f:%{!-n:%{-r:_reload}}} %{?*}}  \
+	fi									\
+else # package uninstall							\
+	for service in %{?*} ; do						\
+		sysv_service="${service%.*}"					\
+		rm -f "/var/lib/systemd/migrated/$sysv_service" || :		\
+	done									\
+	if [ -x /usr/bin/systemctl ]; then					\
+		/usr/bin/systemctl daemon-reload || :				\
+	fi									\
+fi										\
+%{nil}
+
+%endif
+
 %if ! %{defined _fillupdir}
   %define _fillupdir %{_localstatedir}/adm/fillup-templates
 %endif
@@ -447,10 +478,10 @@ fi
 
 %postun
 %insserv_cleanup
-%service_del_postun obsdeltastore.service
-%service_del_postun obsdispatcher.service
-%service_del_postun obsdodup.service
-%service_del_postun obswarden.service
+%service_del_postun -r obsdeltastore.service
+%service_del_postun -r obsdispatcher.service
+%service_del_postun -r obsdodup.service
+%service_del_postun -r obswarden.service
 # cleanup empty directory just in case
 rmdir /srv/obs 2> /dev/null || :
 
