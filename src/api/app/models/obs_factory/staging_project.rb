@@ -8,7 +8,7 @@ module ObsFactory
     extend ActiveModel::Naming
     include ActiveModel::Serializers::JSON
 
-    attr_accessor :project, :distribution, :parent
+    attr_accessor :project, :distribution
     delegate :repositories, to: :project
 
     NAME_PREFIX = ":Staging:".freeze
@@ -87,17 +87,6 @@ module ObsFactory
     # @return [ActiveRecord::Relation] Obsolete requests
     def obsolete_requests
       selected_requests.obsolete
-    end
-
-    # only check the openqa jobs if the project is under specific conditions
-    def openqa_results_relevant?
-      return false if iso.nil?
-      return false if overall_state == :building
-      if parent
-        return parent.openqa_results_relevant?
-      else # master project
-        return ![:building, :empty].include?(overall_state)
-      end
     end
 
     # Packages included in the staging project that are not building properly.
