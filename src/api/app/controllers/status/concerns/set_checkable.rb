@@ -10,15 +10,11 @@ module Status
       private
 
       def set_checkable
-        set_repository_architecture || set_bs_request
+        set_repository_architecture if params[:project_name]
+        set_bs_request if params[:bs_request_number]
         return if @checkable
 
-        @error_message ||= 'Provide at least project_name and repository_name or request number.'
-        render_error(
-          status: 404,
-          errorcode: 'not_found',
-          message: @error_message
-        )
+        raise ActiveRecord::RecordNotFound, @error_message
       end
 
       def set_project
