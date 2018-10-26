@@ -2,17 +2,31 @@
 
 use strict;
 use warnings;
-use Test::More 'tests' => 16;
+use Test::More;
 
+my $tests    = 14;
 my $max_wait = 300;
 
-my @daemons = qw/obs-api-support.target obsdispatcher.service 	obspublisher.service  	obsrepserver.service
-		 obsscheduler.service  	obssrcserver.service	apache2.service  	mysql.service/;
+my @daemons = qw/obsdispatcher.service  obspublisher.service    obsrepserver.service
+                 obsscheduler.service   obssrcserver.service    apache2.service         mysql.service/;
+
+my $version = `rpm -q --queryformat %{Version} obs-server`;
+
+if ($version !~ /^2\.[89]\./) {
+  unshift @daemons, "obs-api-support.target";
+  $tests = 16;
+}
+
+plan tests => $tests;
 
 foreach my $srv (@daemons) {
 	my @state=`systemctl is-enabled $srv 2>/dev/null`;
-	chomp($state[-1]);
-	is($state[-1],"enabled","Checking if recommended systemd unit $srv is enabled");
+	my $result='';
+	if (@state) {
+	  $result=$state[-1];
+	  chomp($result);
+	}
+	is($result, "enabled", "Checking if recommended systemd unit $srv is enabled") || print "result: $result\n";
 }
 
 my %srv_state=();
