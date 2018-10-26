@@ -25,6 +25,29 @@ RSpec.describe Status::ChecksController, type: :controller do
       XML
     end
 
+    context 'when referencing to non-existant checkable' do
+      it 'gives 404 for request' do
+        expect(post(:update, body: xml, params: { bs_request_number: 1 }, format: :xml)).to have_http_status(:not_found)
+        expect(Xmlhash.parse(response.body)['summary']).to match(/Submit request.*not found/)
+      end
+
+      it 'gives 404 for invalid project' do
+        expect(post(:update, body: xml, params: { project_name: project.name + '_', report_uuid: 'nada', repository_name: repository.name }, format: :xml)).to have_http_status(:not_found)
+        expect(Xmlhash.parse(response.body)['summary']).to match(/Project.*not found/)
+      end
+
+      it 'gives 404 for invalid repository' do
+        expect(post(:update, body: xml, params: { project_name: project.name, report_uuid: 'nada', repository_name: repository.name + '_' }, format: :xml)).to have_http_status(:not_found)
+        expect(Xmlhash.parse(response.body)['summary']).to match(/Repository.*not found/)
+      end
+
+      it 'gives 404 for invalid architecture' do
+        params = { project_name: project.name, report_uuid: 'nada', repository_name: repository.name, arch: '_' }
+        expect(post(:update, body: xml, params: params, format: :xml)).to have_http_status(:not_found)
+        expect(Xmlhash.parse(response.body)['summary']).to match(/Repository.*not found/)
+      end
+    end
+
     context 'when status report exists and check does not exist' do
       shared_examples 'does create the check' do
         let!(:relationship) { create(:relationship_project_user, user: user, project: project) }
@@ -74,6 +97,15 @@ RSpec.describe Status::ChecksController, type: :controller do
       context 'for a repository' do
         let(:params) do
           { report_uuid: status_report.uuid, repository_name: repository.name, project_name: project.name }
+        end
+
+        include_context 'does create the check'
+      end
+
+      context 'for a repository architecture' do
+        let(:status_report) { create(:status_report, checkable: repository_architecture) }
+        let(:params) do
+          { report_uuid: status_report.uuid, repository_name: repository.name, project_name: project.name, arch: repository_architecture.architecture.name }
         end
 
         include_context 'does create the check'
