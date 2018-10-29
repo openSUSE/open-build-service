@@ -125,7 +125,9 @@ sub periodic {
       fcntl($sock2, F_SETFD, 0);
       $arg .= ','.fileno($sock2);
     }
-    exec($0, '--restart', $arg);
+    my @args;
+    push @args, '--logfile', $conf->{'logfile'} if $conf->{'logfile'};
+    exec($0, '--restart', $arg, @args);
     die("$0: $!\n");
   }
   if ($configurationcheck++ > 10) {
@@ -185,11 +187,12 @@ sub isrunning {
 
 sub server {
   my ($name, $args, $conf, $aconf) = @_;
+  my $logfile;
 
   if ($args && @$args) {
     if ($args->[0] eq '--logfile') {
       shift @$args;
-      my $logfile = shift @$args;
+      $logfile = shift @$args;
       BSUtil::openlog($logfile, $BSConfig::logdir, $BSConfig::bsuser, $BSConfig::bsgroup);
     }
   }
@@ -235,6 +238,7 @@ sub server {
     $conf->{'run'} ||= \&BSServer::server;
     $conf->{'slowrequestlog'} ||= "$bsdir/log/$name.slow.log" if $conf->{'slowrequestthr'};
     $conf->{'name'} = $name;
+    $conf->{'logfile'} = $logfile if $logfile;
     BSDispatch::compile($conf);
   }
   if ($aconf) {

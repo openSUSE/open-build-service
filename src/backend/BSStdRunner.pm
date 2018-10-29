@@ -68,7 +68,9 @@ sub fc_restart {
   unlink($fc);
   close($conf->{'runlock'});
   BSUtil::printlog("$conf->{'name'} restarting...");
-  exec($0);
+  my @args;
+  push @args, '--logfile', $conf->{'logfile'} if $conf->{'logfile'};
+  exec($0, @args);
   die("$0: $!\n");
 }
 
@@ -167,11 +169,12 @@ sub setdue {
 
 sub run {
   my ($name, $args, $conf) = @_;
+  my $logfile;
 
   if ($args && @$args) {
     if ($args->[0] eq '--logfile') {
       shift @$args;
-      my $logfile = shift @$args;
+      $logfile = shift @$args;
       BSUtil::openlog($logfile, $BSConfig::logdir, $BSConfig::bsuser, $BSConfig::bsgroup);
     }
   }
@@ -220,6 +223,7 @@ sub run {
   $conf->{'filechecks'} ||= {};
   $conf->{'filechecks'}->{"$rundir/$runname.exit"} ||= \&fc_exit;
   $conf->{'filechecks'}->{"$rundir/$runname.restart"} ||= \&fc_restart;
+  $conf->{'logfile'} = $logfile if $logfile;
 
   compile_dispatches($conf);
 
