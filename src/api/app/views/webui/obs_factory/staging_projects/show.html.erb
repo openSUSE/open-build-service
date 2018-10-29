@@ -46,7 +46,7 @@
         <% end %>
         </dd>
         <%= render partial: 'buildinfo', locals: {project: @staging_project} %>
-        <%= render partial: 'checks', locals: {project: @staging_project} %>
+        <%= render partial: 'checks', locals: {checks: @staging_project.checks, missing_checks: @staging_project.missing_checks } %>
       </dl>
     </div>
   </div>
