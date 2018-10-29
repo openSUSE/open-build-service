@@ -30,6 +30,7 @@ use BSPublisher::Registry;
 use BSUtil;
 use BSTar;
 use BSRepServer::Containerinfo;
+use Build::Rpm;		# for verscmp_part
 
 use strict;
 
@@ -141,6 +142,20 @@ sub calculate_container_state {
   return $container_state;
 }
 
+=head2 cmp_containerinfo - compare the version/release of two containers
+ 
+=cut
+
+sub cmp_containerinfo {
+  my ($containerinfo1, $containerinfo2) = @_;
+  my $r;
+  $r = Build::Rpm::verscmp_part($containerinfo1->{'version'} || '0', $containerinfo2->{'version'} || 0);
+  return $r if $r;
+  $r = Build::Rpm::verscmp_part($containerinfo1->{'release'} || '0', $containerinfo2->{'release'} || 0);
+  return $r if $r;
+  return 0;
+}
+
 =head2 upload_all_containers - upload found containers to the configured registries
  
 =cut
@@ -167,7 +182,8 @@ sub upload_all_containers {
     my $regname = $registry->{'_name'};
     my $registryserver = $registry->{pushserver} || $registry->{server};
 
-    # collect uploads over all containers
+    # collect uploads over all containers, decide which container to take
+    # if there is a tag conflict
     my %uploads;
     my $mapper = $registry->{'mapper'} || \&default_container_mapper;
     for my $p (sort keys %$containers) {
@@ -175,11 +191,13 @@ sub upload_all_containers {
       my $arch = $containerinfo->{'arch'};
       my @tags = $mapper->($registry, $containerinfo, $projid, $repoid, $arch);
       for my $tag (@tags) {
-	if ($tag =~ /^(.*):([^:\/]+)$/) {
-	  $uploads{$1}->{$2}->{$arch} = $p;
-	} else {
-	  $uploads{$tag}->{'latest'}->{$arch} = $p;
+	my ($reponame, $repotag) = ($tag, 'latest');
+	($reponame, $repotag) = ($1, $2) if $tag =~ /^(.*):([^:\/]+)$/;
+	if ($uploads{$reponame}->{$repotag}->{$arch}) {
+	  my $otherinfo = $containers->{$uploads{$reponame}->{$repotag}->{$arch}};
+	  next if cmp_containerinfo($otherinfo, $containerinfo) > 0;
 	}
+	$uploads{$reponame}->{$repotag}->{$arch} = $p;
       }
     }
 
