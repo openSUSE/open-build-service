@@ -1,0 +1,12 @@
+[Unit]
+Description=OBS cloup upload worker
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/sysconfig/obs-server
+ExecStart=/usr/lib/obs/server/bs_clouduploadworker --logfile clouduploadworker.log
+ExecStop=/usr/lib/obs/server/bs_clouduploadworker --stop
+ExecReload=/usr/lib/obs/server/bs_clouduploadworker --restart
+
+[Install]
+WantedBy=multi-user.target

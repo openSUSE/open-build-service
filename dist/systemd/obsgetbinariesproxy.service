@@ -1,0 +1,12 @@
+[Unit]
+Description=OBS binaries proxy cache
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/sysconfig/obs-server
+ExecStart=/usr/lib/obs/server/bs_getbinariesproxy --logfile getbinariesproxy.log
+ExecStop=/usr/lib/obs/server/bs_getbinariesproxy --stop
+ExecReload=/usr/lib/obs/server/bs_getbinariesproxy --restart
+
+[Install]
+WantedBy=multi-user.target
