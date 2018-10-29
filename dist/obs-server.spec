@@ -481,7 +481,7 @@ touch /srv/www/obs/api/last_deploy || true
 
 # Upgrading from SysV obsapidelayed.service to systemd obs-api-support.target
 if [ "$1" -gt 1 ]; then
-  if systemctl --quiet is-enabled obsapidelayed.service; then
+  if systemctl --quiet is-enabled obsapidelayed.service 2> /dev/null; then
     systemctl enable obs-api-support.target
   fi
   if systemctl --quiet is-active obsapidelayed.service; then
