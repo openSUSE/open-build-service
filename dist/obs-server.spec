@@ -405,9 +405,16 @@ getent passwd obsservicerun >/dev/null || \
     /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
     -c "User for the build service source service" obsservicerun
 
+%service_add_pre obssrcserver.service
+%service_add_pre obsrepserver.service
+%service_add_pre obspublisher.service
+%service_add_pre obssigner.service
+%service_add_pre obsservicedispatch.service
+%service_add_pre obsservice.service
 %service_add_pre obsdeltastore.service
 %service_add_pre obsdispatcher.service
 %service_add_pre obsdodup.service
+%service_add_pre obsgetbinariesproxy.service
 %service_add_pre obswarden.service
 
 # make sure logfiles belong to the obsrun user
@@ -429,42 +436,54 @@ getent passwd obsrun >/dev/null || \
     -c "User for build service backend" obsrun
 exit 0
 
-%preun
-%stop_on_removal obssrcserver obsrepserver obsscheduler obspublisher obssigner obsservicedispatch obsservice
+%pre -n obs-cloud-uploader
+%service_add_pre obsclouduploadworker.service
+%service_add_pre obsclouduploadserver.service
 
+%preun
+%stop_on_removal obsscheduler
+
+%service_del_preun obssrcserver.service
+%service_del_preun obsrepserver.service
+%service_del_preun obspublisher.service
+%service_del_preun obssigner.service
+%service_del_preun obsservicedispatch.service
+%service_del_preun obsservice.service
 %service_del_preun obsdeltastore.service
 %service_del_preun obsdispatcher.service
 %service_del_preun obsdodup.service
+%service_del_preun obsgetbinariesproxy.service
 %service_del_preun obswarden.service
 
 %preun -n obs-worker
 %stop_on_removal obsworker
 
 %preun -n obs-cloud-uploader
-%stop_on_removal obsclouduploadworker obsclouduploadserver
+%service_del_preun obsclouduploadworker.service
+%service_del_preun obsclouduploadserver.service
 
 %preun -n obs-api
 %service_del_preun %{obs_api_support_scripts}
 
 %post
-%if 0%{?suse_version} >= 1315
-%reload_on_update obssrcserver obsrepserver obspublisher obssigner obsservicedispatch obsservice
-%else
-%restart_on_update obssrcserver obsrepserver obspublisher obssigner obsservicedispatch obsservice
-%endif
 # systemd kills the init script executing the reload first on reload....
 %restart_on_update obsscheduler
+
+%service_add_post obssrcserver.service
+%service_add_post obsrepserver.service
+%service_add_post obspublisher.service
+%service_add_post obssigner.service
+%service_add_post obsservicedispatch.service
+%service_add_post obsservice.service
 %service_add_post obsdeltastore.service
 %service_add_post obsdispatcher.service
 %service_add_post obsdodup.service
+%service_add_post obsgetbinariesproxy.service
 %service_add_post obswarden.service
 
 %post -n obs-cloud-uploader
-%if 0%{?suse_version} >= 1315
-%reload_on_update obsservice obsclouduploadworker obsclouduploadserver
-%else
-%restart_on_update obsservice obsclouduploadworker obsclouduploadserver
-%endif
+%service_add_post obsclouduploadworker.service
+%service_add_post obsclouduploadserver.service
 
 %posttrans
 [ -d /srv/obs ] || install -d -o obsrun -g obsrun /srv/obs
@@ -478,12 +497,23 @@ fi
 
 %postun
 %insserv_cleanup
+%service_del_postun -r obssrcserver.service
+%service_del_postun -r obsrepserver.service
+%service_del_postun -r obspublisher.service
+%service_del_postun -r obssigner.service
+%service_del_postun -r obsservicedispatch.service
+%service_del_postun -r obsservice.service
 %service_del_postun -r obsdeltastore.service
 %service_del_postun -r obsdispatcher.service
 %service_del_postun -r obsdodup.service
+%service_del_postun -r obsgetbinariesproxy.service
 %service_del_postun -r obswarden.service
 # cleanup empty directory just in case
 rmdir /srv/obs 2> /dev/null || :
+
+%postun -n obs-cloud-uploader
+%service_del_postun -r obsclouduploadworker.service
+%service_del_postun -r obsclouduploadserver.service
 
 %verifyscript -n obs-server
 %verify_permissions
@@ -555,16 +585,17 @@ fi
 %dir /usr/lib/obs
 %dir /usr/lib/obs/server
 %config(noreplace) /etc/logrotate.d/obs-server
-/etc/init.d/obspublisher
-/etc/init.d/obsrepserver
 /etc/init.d/obsscheduler
-/etc/init.d/obssrcserver
+%{_unitdir}/obssrcserver.service
+%{_unitdir}/obsrepserver.service
+%{_unitdir}/obspublisher.service
+%{_unitdir}/obssigner.service
+%{_unitdir}/obsservicedispatch.service
 %{_unitdir}/obsdeltastore.service
 %{_unitdir}/obsdispatcher.service
 %{_unitdir}/obsdodup.service
+%{_unitdir}/obsgetbinariesproxy.service
 %{_unitdir}/obswarden.service
-/etc/init.d/obsservicedispatch
-/etc/init.d/obssigner
 /usr/sbin/obs_admin
 /usr/sbin/obs_serverstatus
 /usr/sbin/rcobsdispatcher
@@ -574,6 +605,7 @@ fi
 /usr/sbin/rcobssrcserver
 /usr/sbin/rcobswarden
 /usr/sbin/rcobsdodup
+/usr/sbin/rcobsgetbinariesproxy
 /usr/sbin/rcobsdeltastore
 /usr/sbin/rcobsservicedispatch
 /usr/sbin/rcobssigner
@@ -619,7 +651,7 @@ fi
 %ghost /usr/lib/obs/server/build
 
 # formerly obs-source_service
-/etc/init.d/obsservice
+%{_unitdir}/obsservice.service
 %config(noreplace) /etc/logrotate.d/obs-source_service
 %config(noreplace) /etc/cron.d/cleanup_scm_cache
 /usr/sbin/rcobsservice
@@ -770,8 +802,8 @@ usermod -a -G docker obsservicerun
 
 %files -n obs-cloud-uploader
 %defattr(-,root,root)
-/etc/init.d/obsclouduploadworker
-/etc/init.d/obsclouduploadserver
+%{_unitdir}/obsclouduploadworker.service
+%{_unitdir}/obsclouduploadserver.service
 /usr/sbin/rcobsclouduploadworker
 /usr/sbin/rcobsclouduploadserver
 /usr/lib/obs/server/bs_clouduploadserver
