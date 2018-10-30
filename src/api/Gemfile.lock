@@ -150,7 +150,7 @@ GEM
     kgio (2.10.0)
     launchy (2.4.3)
       addressable (~> 2.3)
-    loofah (2.2.2)
+    loofah (2.2.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mail (2.6.4)
@@ -177,7 +177,7 @@ GEM
     mousetrap-rails (1.4.6)
     mysql2 (0.4.4)
     nio4r (1.2.1)
-    nokogiri (1.8.1)
+    nokogiri (1.8.5)
       mini_portile2 (~> 2.3.0)
     nokogumbo (1.4.9)
       nokogiri
