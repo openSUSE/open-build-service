@@ -264,7 +264,7 @@ RSpec.feature 'Requests', type: :feature, js: true do
     end
 
     scenario 'when request auto_accept is in the future and not in a final state' do
-      bs_request.accept_at = DateTime.now + 1.day
+      bs_request.accept_at = Time.now + 1.day
       bs_request.save
       visit request_show_path(bs_request)
       expect(page).

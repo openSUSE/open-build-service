@@ -37,7 +37,7 @@ class BsRequest < ApplicationRecord
 
   ACTION_NOTIFY_LIMIT = 50
 
-  scope :to_accept_by_time, -> { where(state: ['new', 'review']).where('accept_at < ?', DateTime.now) }
+  scope :to_accept_by_time, -> { where(state: ['new', 'review']).where('accept_at < ?', Time.now) }
   # Scopes for collections
   scope :with_actions, -> { includes(:bs_request_actions).references(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
   scope :with_involved_projects, ->(project_ids) { where(bs_request_actions: { target_project_id: project_ids }) }
@@ -227,7 +227,7 @@ class BsRequest < ApplicationRecord
       str = hashed.value('accept_at')
       request.accept_at = DateTime.parse(str) if str
       hashed.delete('accept_at')
-      raise SaveError, 'Auto accept time is in the past' if request.accept_at && request.accept_at < DateTime.now
+      raise SaveError, 'Auto accept time is in the past' if request.accept_at && request.accept_at < Time.now
 
       # we do not support to import history anymore on purpose
       # would be all fake, but means also history gets lost when
