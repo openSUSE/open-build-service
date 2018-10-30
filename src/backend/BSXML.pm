@@ -708,6 +708,8 @@ our $revision_acceptinfo = [
 	    'osrcmd5',
 	    'xsrcmd5',
 	    'oxsrcmd5',
+	    'oproject',
+	    'opackage',
       ],
 ];
 
