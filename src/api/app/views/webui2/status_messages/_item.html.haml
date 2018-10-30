@@ -3,7 +3,7 @@
     .col-2.pl-2.text-center
       - case message.severity.to_i
         - when 1
-          %i.fa.fa-check-circle.fa-2x.text-primary.pt-3{ title: 'Success' }
+          %i.fa.fa-check-circle.fa-2x.text-success.pt-3{ title: 'Success' }
         - when 2
           %i.fa.fa-exclamation-triangle.fa-2x.text-warning.pt-3{ title: 'Warning' }
         - when 3
