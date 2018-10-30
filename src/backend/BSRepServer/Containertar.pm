@@ -45,7 +45,8 @@ sub normalize_container {
   unlink("$dir/$container.recompressed");
   local *TAR;
   open(TAR, '<', "$dir/$container") || die("$dir/$container: $!\n");
-  my ($tar, $mtime, $config, $config_id) = BSContar::normalize_container(\*TAR, $recompress);
+  # overwrite manifest tags with tags from containerinfo
+  my ($tar, $mtime, $config, $config_id) = BSContar::normalize_container(\*TAR, $recompress, $containerinfo->{'tags'});
   my ($md5, $sha256, $size) = BSContar::checksum_tar($tar);
  
   # split in blobs/manifest, write blob files
