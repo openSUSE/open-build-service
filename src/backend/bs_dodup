@@ -14,6 +14,7 @@ use Digest::MD5 ();
 use Encode;
 use Fcntl qw(:DEFAULT :flock);
 use XML::Structured ':bytes';
+use Getopt::Long ();
 
 use BSConfiguration;
 use BSRPC ':https';
@@ -44,11 +45,45 @@ my $checkinterval_error = 10 * 60;
 $checkinterval_ok = $BSConfig::dodup_checkinterval_ok if $BSConfig::dodup_checkinterval_ok;
 $checkinterval_error = $BSConfig::dodup_checkinterval_error if $BSConfig::dodup_checkinterval_error;
 
-BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
-BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
-
 my $proxy;
 $proxy = $BSConfig::proxy if defined($BSConfig::proxy);
+
+sub parse_options {
+  my %opts;
+  if (!Getopt::Long::GetOptionsFromArray(\@_, \%opts,
+    'stop|exit',
+    'restart',
+    'logfile=s',
+    'dodfile=s',
+    'unparsed',
+    'pubkey=s',
+    'master=s',
+    'masterfingerprint=s',
+    'archfilter=s',
+  )) {
+    print_usage();
+    die("Invalid option(s)\n");
+  }
+  return (\%opts, @_);
+}
+
+sub print_usage {
+  $0 =~ /([^\/]+$)/;
+  print "Usage: $1 [options]
+
+Options:
+  --stop|--exit          - graceful shutdown daemon
+  --restart              - restart daemon
+  --logfile file         - redirect output to logfile
+  --dodfile              - test using a given dod file
+  --unparsed             - pass dod file unparsed
+  --pubkey               - file containing public key
+  --master               - master url
+  --masterfingerprint    - master gpg fingerprint
+  --archfilter           - filter for architectures
+
+";
+}
 
 sub fetch {
   my ($url, $peerfp, $timeout, $filename, $withmd5) = @_;
@@ -480,7 +515,7 @@ sub check_exitrestart {
     close(RUNLOCK);
     unlink("$rundir/bs_dodup.restart");
     BSUtil::printlog("restarting...");
-    exec($0);
+    exec($0, @ARGV);
     die("$0: $!\n");
   }
 }
@@ -516,69 +551,48 @@ sub daemon {
   }
 }
 
-if (!@ARGV || (@ARGV == 1 && ($ARGV[0] eq '--restart' || $ARGV[0] eq '--exit' || $ARGV[0] eq '--stop'))) {
-  $| = 1;
-  $SIG{'PIPE'} = 'IGNORE';
-  BSUtil::restartexit($ARGV[0], 'dodup', "$rundir/bs_dodup");
-  BSUtil::printlog("starting build service DoD updater");
-  mkdir_p($rundir);
-  open(RUNLOCK, '>>', "$rundir/bs_dodup.lock") || die("$rundir/bs_dodup.lock: $!\n");
-  flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("dodup is already running!\n");
-  utime undef, undef, "$rundir/bs_dodup.lock";
-  daemon();
-}
+# copy @ARGV to keep it untouched in case of restart
+my ($options,@args) = parse_options(@ARGV);
 
-if (@ARGV == 2 && $ARGV[0] eq '--dodfile') {
-  check_dod(readxml($ARGV[1], $BSXML::doddata));
+BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
+# Open logfile if requested
+BSUtil::openlog($options->{'logfile'}, $BSConfig::logdir, $BSConfig::bsuser, $BSConfig::bsgroup);
+BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
+
+if ($options->{dodfile}) {
+  check_dod(readxml($options->{dodfile}, $BSXML::doddata));
   exit(0);
 }
 
-my $opt_pubkeyfile;
-my $opt_master;
-my $opt_masterfp;
-my $opt_unparsed;
-my $opt_archfilter;
+if (@args) {
+  my ($prpa, $repotype, $url) = @args;
+  my ($projid, $repoid, $arch) = split('/', ($prpa || ''), 3);
+  die("Usage: bs_dodup [--stop|--restart]\n       bs_dodup --dodfile <dodfile>\n       bs_dodup [--pubkey <pubkeyfile>] <prpa> <repotype> <url>\n") unless @args == 3 && defined($arch);
 
-while (@ARGV) {
-  if (@ARGV > 1 && $ARGV[0] eq '--unparsed') {
-    shift @ARGV;
-    $opt_unparsed = 1;
-    next;
-  }
-  if (@ARGV > 2 && $ARGV[0] eq '--pubkey') {
-    (undef, $opt_pubkeyfile) = splice(@ARGV, 0, 2);
-    next;
-  }
-  if (@ARGV > 2 && $ARGV[0] eq '--master') {
-    (undef, $opt_master) = splice(@ARGV, 0, 2);
-    next;
-  }
-  if (@ARGV > 2 && $ARGV[0] eq '--masterfingerprint') {
-    (undef, $opt_masterfp) = splice(@ARGV, 0, 2);
-    next;
-  }
-  if (@ARGV > 2 && $ARGV[0] eq '--archfilter') {
-    (undef, $opt_archfilter) = splice(@ARGV, 0, 2);
-    next;
-  }
-  last;
+  my $doddata = {
+    'project' => $projid,
+    'repository' => $repoid,
+    'arch' => $arch,
+    'repotype' => $repotype,
+    'url' => $url,
+  };
+  $doddata->{'archfilter'} = $options->{archfilter} if $options->{archfilter};
+  $doddata->{'master'}->{'url'} = $options->{master} if $options->{master};
+  $doddata->{'master'}->{'sslfingerprint'} = $options->{masterfingerprint} if $options->{masterfingerprint};
+  $doddata->{'pubkey'} = readstr($options->{pubkey}) if defined $options->{pubkey};
+
+  update_dod($doddata, $options->{unparsed});
+  exit(0);
 }
 
-my ($prpa, $repotype, $url) = @ARGV;
-my ($projid, $repoid, $arch) = split('/', ($prpa || ''), 3);
-die("Usage: bs_dodup [--stop|--restart]\n       bs_dodup --dodfile <dodfile>\n       bs_dodup [--pubkey <pubkeyfile>] <prpa> <repotype> <url>\n") unless @ARGV == 3 && defined($arch);
+$| = 1;
+$SIG{'PIPE'} = 'IGNORE';
+BSUtil::restartexit($options, 'dodup', "$rundir/bs_dodup");
+BSUtil::printlog("starting build service DoD updater");
 
-my $doddata = {
-  'project' => $projid,
-  'repository' => $repoid,
-  'arch' => $arch,
-  'repotype' => $repotype,
-  'url' => $url,
-};
-$doddata->{'archfilter'} = $opt_archfilter if $opt_archfilter;
-$doddata->{'master'}->{'url'} = $opt_master if $opt_master;
-$doddata->{'master'}->{'sslfingerprint'} = $opt_masterfp if $opt_masterfp;
-$doddata->{'pubkey'} = readstr($opt_pubkeyfile) if defined $opt_pubkeyfile;
-
-update_dod($doddata, $opt_unparsed);
+mkdir_p($rundir);
+open(RUNLOCK, '>>', "$rundir/bs_dodup.lock") || die("$rundir/bs_dodup.lock: $!\n");
+flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("dodup is already running!\n");
+utime undef, undef, "$rundir/bs_dodup.lock";
+daemon();
 
