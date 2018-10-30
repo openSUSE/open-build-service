@@ -46,7 +46,7 @@ RSpec.describe Comment do
 
       it 'creates xml with correct attributes and content' do
         expect(comment_element.attribute('id').value).to eq(comment_package.id.to_s)
-        expect(comment_element.attribute('when').value.to_datetime).to eq(comment_package.created_at)
+        expect(comment_element.attribute('when').value.to_time).to eq(comment_package.created_at)
         expect(comment_element.attribute('who').value).to eq(comment_package.user.login)
 
         expect(comment_element.text).to match(/^#<Nokogiri::XML::Builder::NodeBuilder:0x\h+>$/)
@@ -60,7 +60,7 @@ RSpec.describe Comment do
 
       it 'creates xml with correct attributes and content' do
         expect(comment_element.attribute('id').value).to eq(comment_package_with_parent.id.to_s)
-        expect(comment_element.attribute('when').value.to_datetime).to eq(comment_package_with_parent.created_at)
+        expect(comment_element.attribute('when').value.to_time).to eq(comment_package_with_parent.created_at)
         expect(comment_element.attribute('who').value).to eq(comment_package_with_parent.user.login)
         expect(comment_element.attribute('parent').value).to eq(comment_package_with_parent.parent_id.to_s)
 
