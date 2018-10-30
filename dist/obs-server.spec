@@ -321,6 +321,12 @@ install -m 644 $RPM_BUILD_DIR/open-build-service-%version/dist/ec2utils.conf.exa
 mkdir -p $RPM_BUILD_ROOT/etc/obs/cloudupload/.aws
 install -m 644 $RPM_BUILD_DIR/open-build-service-%version/dist/aws_credentials.example $RPM_BUILD_ROOT/etc/obs/cloudupload/.aws/credentials
 
+# Link the assets without hash to make them accessible for third party tools like the pattern library
+pushd $RPM_BUILD_ROOT/srv/www/obs/api/public/assets/webui2/
+ln -sf application-*.js application.js
+ln -sf webui2-*.css webui2.css
+popd
+
 %check
 %if 0%{?disable_obs_test_suite}
 echo "WARNING:"
@@ -481,7 +487,7 @@ touch /srv/www/obs/api/last_deploy || true
 
 # Upgrading from SysV obsapidelayed.service to systemd obs-api-support.target
 if [ "$1" -gt 1 ]; then
-  if systemctl --quiet is-enabled obsapidelayed.service; then
+  if systemctl --quiet is-enabled obsapidelayed.service 2> /dev/null; then
     systemctl enable obs-api-support.target
   fi
   if systemctl --quiet is-active obsapidelayed.service; then
