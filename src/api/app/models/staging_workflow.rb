@@ -5,9 +5,11 @@ class StagingWorkflow < ApplicationRecord
       includes(:staged_requests).where(bs_requests: { id: nil })
     end
   end
-
+  has_many :staging_projects, class_name: 'Project', inverse_of: :staging_workflow, dependent: :nullify, autosave: true
   has_many :target_of_bs_requests, through: :project
   has_many :staged_requests, class_name: 'BsRequest', through: :staging_projects
+
+  after_initialize :init_staging_projects
 
   def unassigned_requests
     target_of_bs_requests.in_states(['new', 'review']) - staged_requests - ignored_requests
@@ -15,5 +17,14 @@ class StagingWorkflow < ApplicationRecord
 
   def ignored_requests
     BsRequest.none # TODO: define this method
+  end
+
+  private
+
+  def init_staging_projects
+    return unless new_record?
+    ['A', 'B'].each do |letter|
+      staging_projects << Project.find_or_initialize_by(name: "#{project.name}:Staging:#{letter}")
+    end
   end
 end

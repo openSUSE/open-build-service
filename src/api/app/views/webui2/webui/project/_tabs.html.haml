@@ -20,7 +20,7 @@
       // TODO: show it if the project have a staging_workflow attached when this feature will be released
       - if controller_name == 'staging_workflows'
         %li.nav-item
-          = tab_link('Staging', staging_workflow_path(project.staging))
+          = tab_link('Staging', request.url, controller_name == 'staging_workflows')
       - unless project.defines_remote_instance? || project.is_maintenance?
         %li.nav-item
           = tab_link('Subprojects', project_subprojects_path(project))
