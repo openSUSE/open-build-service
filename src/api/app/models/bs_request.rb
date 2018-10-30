@@ -575,7 +575,7 @@ class BsRequest < ApplicationRecord
             rescue ArgumentError
               raise InvalidDate, "Unable to parse the date in OBS:EmbargoDate of project #{source_project.name}: #{v}"
             end
-            if embargo > DateTime.now
+            if embargo > Time.now
               raise UnderEmbargo, "The project #{source_project.name} is under embargo until #{v}"
             end
           end
