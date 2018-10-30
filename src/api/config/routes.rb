@@ -462,6 +462,7 @@ OBSApi::Application.routes.draw do
 
   resources :staging_workflows, except: :index, controller: 'webui/staging/workflows', constraints: cons do
     resources :staging_projects, only: [:create, :destroy], controller: 'webui/staging/projects', param: :project_name, constraints: cons
+    resources :excluded_requests, controller: 'webui/staging/excluded_requests'
   end
 
   constraints(APIMatcher) do

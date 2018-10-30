@@ -42,10 +42,6 @@ class Staging::Workflow < ApplicationRecord
     target_of_bs_requests.ready_to_stage.where.not(id: excluded_requests | staged_requests)
   end
 
-  def ignored_requests
-    BsRequest.none # TODO: define this method
-  end
-
   def write_to_backend
     return unless CONFIG['global_write_through']
 
