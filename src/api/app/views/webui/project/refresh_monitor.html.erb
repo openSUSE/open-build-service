@@ -6,4 +6,4 @@ if( $("<%= id %>").innerHTML != "<%= st %>" ) {
     
 <% end -%>
 
-<%= update_element_function "refresh_date", :content => "Updated at: #{DateTime.now.to_s.sub(/T/,' ')}" -%>
+<%= update_element_function "refresh_date", :content => "Updated at: #{Time.now}" -%>
