@@ -26,6 +26,8 @@ class Staging::Workflow < ApplicationRecord
   end
 
   has_many :staged_requests, class_name: 'BsRequest', through: :staging_projects
+  has_many :request_exclusions, class_name: 'Staging::RequestExclusion', foreign_key: 'staging_workflow_id', dependent: :destroy
+  has_many :excluded_requests, through: :request_exclusions, source: :bs_request
 
   validates :managers_group, presence: true
 
@@ -33,11 +35,11 @@ class Staging::Workflow < ApplicationRecord
   before_update :update_staging_projects_managers_group
 
   def unassigned_requests
-    target_of_bs_requests.stageable.where.not(id: ignored_requests | staged_requests)
+    target_of_bs_requests.stageable.where.not(id: excluded_requests | staged_requests)
   end
 
   def ready_requests
-    target_of_bs_requests.ready_to_stage.where.not(id: ignored_requests | staged_requests)
+    target_of_bs_requests.ready_to_stage.where.not(id: excluded_requests | staged_requests)
   end
 
   def ignored_requests

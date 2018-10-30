@@ -96,6 +96,7 @@ class BsRequest < ApplicationRecord
   has_many :target_project_objects, through: :bs_request_actions
 
   belongs_to :staging_project, class_name: 'Project', foreign_key: 'staging_project_id'
+  has_one :request_exclusion, class_name: 'Staging::RequestExclusion', foreign_key: 'bs_request_id', dependent: :destroy
 
   validates :state, inclusion: { in: VALID_REQUEST_STATES }
   validates :creator, presence: true
