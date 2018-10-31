@@ -660,17 +660,17 @@ RSpec.describe Package, vcr: true do
     it_behaves_like 'makes a user a maintainer of the subject'
   end
 
-  describe '#target_name' do
+  describe '#release_target_name' do
     it "returns the package name for 'normal' projects" do
-      expect(package.target_name).to eq(package.name)
+      expect(package.release_target_name).to eq(package.name)
     end
 
     context 'when package belongs to a maintenance incident' do
-      let(:maintenance_incident_project) { create(:maintenance_incident_project) }
-      let(:package) { create(:package, project: maintenance_incident_project) }
+      let(:maintenance_incident_project) { create(:maintenance_incident_project, name: 'hello_world_project') }
+      let(:package) { create(:package, name: 'hello_world', project: maintenance_incident_project) }
 
       it 'adds the project basename as suffix' do
-        expect(package.target_name).to eq("#{package.name}.#{package.project.basename}")
+        expect(package.release_target_name).to eq("#{package.name}.#{package.project.basename}")
       end
     end
   end

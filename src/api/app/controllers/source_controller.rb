@@ -997,7 +997,7 @@ class SourceController < ApplicationController
     end
 
     # uniq timestring for all targets
-    time_string = Time.now.utc.strftime('%Y%m%d%H%M%S')
+    time_now = Time.now.utc
 
     # specified target
     if params[:target_project]
@@ -1011,19 +1011,9 @@ class SourceController < ApplicationController
       pkg.project.repositories.each do |repo|
         next if params[:repository] && params[:repository] != repo.name
         repo.release_targets.each do |releasetarget|
-          target_package_name = pkg.release_target_name
-          # emulate a maintenance release request action here in case
-          if pkg.project.is_maintenance_incident?
-            # The maintenance ID is always the sub project name of the maintenance project
-            target_package_name += '.' << pkg.project.name.gsub(/.*:/, '')
-          elsif releasetarget.target_repository.project.is_maintenance_release?
-            # Fallback for releasing into a release project outside of maintenance incident
-            # avoid overwriting existing binaries in this case
-            target_package_name += '.' << time_string
-          end
-
           # find md5sum and release source and binaries
-          release_package(pkg, releasetarget.target_repository, target_package_name, repo, multibuild_container, nil, params[:setrelease], true)
+          release_package(pkg, releasetarget.target_repository, pkg.release_target_name(releasetarget.target_repository, time_now), repo,
+                          multibuild_container, nil, params[:setrelease], true)
         end
       end
     end

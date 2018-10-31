@@ -1387,18 +1387,22 @@ class Package < ApplicationRecord
     backend_build_command(:sendsysrq, params[:project], params.slice(:package, :arch, :repository, :sysrq))
   end
 
-  def target_name
-    # The maintenance ID is always the sub project name of the maintenance project
-    project.is_maintenance_incident? ? "#{name}.#{project.basename}" : name
-  end
+  def release_target_name(target_repo = nil, time = Time.now.utc)
+    if releasename.nil? && project.is_maintenance_incident? && linkinfo && linkinfo['package']
+      # old incidents special case
+      return linkinfo['package']
+    end
 
-  def release_target_name
-    # usually used in maintenance incidents
-    return releasename if releasename
-    # old incidents
-    return linkinfo['package'] if project.is_maintenance_incident? && linkinfo && linkinfo['package']
-    # no incident
-    name
+    basename = releasename || name
+
+    # The maintenance ID is always the sub project name of the maintenance project
+    return "#{basename}.#{project.basename}" if project.is_maintenance_incident?
+
+    # Fallback for releasing into a release project outside of maintenance incident
+    # avoid overwriting existing binaries in this case
+    return "#{basename}.#{time.strftime('%Y%m%d%H%M%S')}" if target_repo && target_repo.project.is_maintenance_release?
+
+    basename
   end
 
   def backend_build_command(command, build_project, params)
