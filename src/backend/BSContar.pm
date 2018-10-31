@@ -204,7 +204,7 @@ sub checksum_tar {
 }
 
 sub normalize_container {
-  my ($tarfd, $recompress) = @_;
+  my ($tarfd, $recompress, $repotags) = @_;
   my @tarstat = stat($tarfd);
   die("stat: $!\n") unless @tarstat;
   my $mtime = $tarstat[9];
@@ -241,7 +241,7 @@ sub normalize_container {
   # create new manifest
   my $newmanifest = { 
     'Config' => $newconfig,
-    'RepoTags' => $manifest->{'RepoTags'},
+    'RepoTags' => $repotags || $manifest->{'RepoTags'},
     'Layers' => \@newlayers,
   };  
   my $newmanifest_ent = create_manifest_entry($newmanifest, $mtime);

@@ -33,6 +33,7 @@ use Data::Dumper;
 use Digest::MD5 ();
 use Fcntl qw(:DEFAULT :flock);
 use XML::Structured ':bytes';
+use Getopt::Long ();
 
 use BSConfiguration;
 use BSRPC;
@@ -41,9 +42,39 @@ use BSXML;
 
 use strict;
 
+sub parse_options {
+  my %opts;
+  if (!Getopt::Long::GetOptionsFromArray(\@_, \%opts,
+    'stop|exit',
+    'restart',
+    'logfile=s',
+  )) {
+    print_usage();
+    die("Invalid option(s)\n");
+  }
+  return \%opts;
+}
+
+sub print_usage {
+  $0 =~ /([^\/]+$)/;
+  print "Usage: $1 [options]
+
+Options:
+  --stop|--exit          - graceful shutdown daemon
+  --restart              - restart daemon
+  --logfile file         - redirect output to logfile
+
+";
+}
+
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
 
-BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
+# copy @ARGV to keep it untouched in case of restart
+my $options = parse_options(@ARGV);
+
+BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
+# Open logfile if requested
+BSUtil::openlog($options->{'logfile'}, $BSConfig::logdir, $BSConfig::bsuser, $BSConfig::bsgroup);
 BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
 my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
@@ -52,7 +83,7 @@ my $jobsdir = "$BSConfig::bsdir/jobs";
 
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
-BSUtil::restartexit($ARGV[0], 'warden', "$rundir/bs_warden");
+BSUtil::restartexit($options, 'warden', "$rundir/bs_warden");
 BSUtil::printlog("starting build service worker warden");
 
 # get lock
@@ -245,7 +276,7 @@ while (1) {
       close(RUNLOCK);
       unlink("$rundir/bs_warden.restart");
       BSUtil::printlog("restarting...");
-      exec($0);
+      exec($0, @ARGV);
       die("$0: $!\n");
     }
     sleep(1);

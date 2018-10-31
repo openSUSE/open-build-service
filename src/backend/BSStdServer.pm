@@ -125,7 +125,9 @@ sub periodic {
       fcntl($sock2, F_SETFD, 0);
       $arg .= ','.fileno($sock2);
     }
-    exec($0, '--restart', $arg);
+    my @args;
+    push @args, '--logfile', $conf->{'logfile'} if $conf->{'logfile'};
+    exec($0, '--restart', $arg, @args);
     die("$0: $!\n");
   }
   if ($configurationcheck++ > 10) {
@@ -185,6 +187,15 @@ sub isrunning {
 
 sub server {
   my ($name, $args, $conf, $aconf) = @_;
+  my $logfile;
+
+  if ($args && @$args) {
+    if ($args->[0] eq '--logfile') {
+      shift @$args;
+      $logfile = shift @$args;
+      BSUtil::openlog($logfile, $BSConfig::logdir, $BSConfig::bsuser, $BSConfig::bsgroup);
+    }
+  }
 
   if ($args && @$args) {
     if ($args->[0] eq '--test') {
@@ -227,6 +238,7 @@ sub server {
     $conf->{'run'} ||= \&BSServer::server;
     $conf->{'slowrequestlog'} ||= "$bsdir/log/$name.slow.log" if $conf->{'slowrequestthr'};
     $conf->{'name'} = $name;
+    $conf->{'logfile'} = $logfile if $logfile;
     BSDispatch::compile($conf);
   }
   if ($aconf) {
@@ -290,24 +302,6 @@ sub server {
   }
   $conf->{'run'}->($conf);
   die("server returned\n");
-}
-
-=head2 openlog - open STDOUT/STDERR to log file
-
- checks if $logfile is set and reopens STDOUT/STDERR to logfile
-
- BSUtil::openlog($logfile, $user, $group);
-
-=cut
-
-sub openlog {
-  my ($logfile, $user, $group) = @_;
-  return unless defined $logfile;
-  $logfile = "$BSConfig::logdir/$logfile" unless $logfile =~ /\//;
-  my ($ld) = $logfile =~ m-(.*)/- ;
-  BSUtil::mkdir_p_chown($ld, $user, $group) if $ld && defined($user) || defined($group);
-  open(STDOUT, '>>', $logfile) || die("Could not open $logfile: $!\n");
-  open(STDERR, ">&STDOUT");
 }
 
 1;

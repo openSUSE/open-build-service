@@ -4,8 +4,9 @@ After=network.target
 
 [Service]
 EnvironmentFile=/etc/sysconfig/obs-server
-ExecStart=/usr/lib/obs/server/bs_warden
-ExecReload=/bin/kill -HUP $MAINPID
+ExecStart=/usr/lib/obs/server/bs_warden --logfile warden.log
+ExecStop=/usr/lib/obs/server/bs_warden --stop
+ExecReload=/usr/lib/obs/server/bs_warden --restart
 
 [Install]
 WantedBy=multi-user.target

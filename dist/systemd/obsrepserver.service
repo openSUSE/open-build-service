@@ -4,8 +4,9 @@ After=network.target
 
 [Service]
 EnvironmentFile=/etc/sysconfig/obs-server
-ExecStart=/usr/lib/obs/server/bs_repserver
-ExecReload=/bin/kill -HUP $MAINPID
+ExecStart=/usr/lib/obs/server/bs_repserver --logfile rep_server.log
+ExecStop=/usr/lib/obs/server/bs_repserver --stop
+ExecReload=/usr/lib/obs/server/bs_repserver --restart
 
 [Install]
 WantedBy=multi-user.target

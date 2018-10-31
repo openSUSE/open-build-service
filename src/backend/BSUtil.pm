@@ -820,6 +820,24 @@ sub setdebuglevel {
   return $oldlevel;
 }
 
+=head2 openlog - open STDOUT/STDERR to log file
+
+ checks if $logfile is set and reopens STDOUT/STDERR to logfile
+
+ BSUtil::openlog($logfile, $user, $group);
+
+=cut
+
+sub openlog {
+  my ($logfile, $logdir, $user, $group) = @_;
+  return unless defined $logfile;
+  $logfile = "$logdir/$logfile" unless $logfile =~ /\//;
+  my ($ld) = $logfile =~ m-(.*)/- ;
+  BSUtil::mkdir_p_chown($ld, $user, $group) if $ld && defined($user) || defined($group);
+  open(STDOUT, '>>', $logfile) || die("Could not open $logfile: $!\n");
+  open(STDERR, ">&STDOUT");
+}
+
 =head2 printlog - print unified log messages
 
   BSUtil::printlog($message [, $level]);
