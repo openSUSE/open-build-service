@@ -16,7 +16,6 @@ class Repository < ApplicationRecord
   has_many :product_medium, dependent: :delete_all
   has_many :repository_architectures, -> { order('position') }, dependent: :destroy, inverse_of: :repository
   has_many :architectures, -> { order('position') }, through: :repository_architectures
-  has_many :status_publishes, class_name: 'Status::RepositoryPublish'
   has_many :status_reports, as: :checkable, class_name: 'Status::Report', dependent: :destroy do
     def for_uuid(uuid)
       where(status_reports: { uuid: uuid })
