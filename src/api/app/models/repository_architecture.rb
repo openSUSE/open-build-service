@@ -8,7 +8,15 @@ class RepositoryArchitecture < ApplicationRecord
   validates :repository, :architecture, :position, presence: true
   validates :repository, uniqueness: { scope: :architecture }
 
-  has_many :status_reports, as: :checkable, class_name: 'Status::Report', dependent: :destroy
+  has_many :status_reports, as: :checkable, class_name: 'Status::Report', dependent: :destroy do
+    def for_uuid(uuid)
+      where(status_reports: { uuid: uuid })
+    end
+
+    def latest
+      for_uuid(proxy_association.owner.build_id)
+    end
+  end
 
   def build_id
     Backend::Api::Build::Repository.build_id(repository.project.name, repository.name, architecture.name)
