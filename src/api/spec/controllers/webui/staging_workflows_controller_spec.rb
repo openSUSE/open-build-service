@@ -117,4 +117,50 @@ RSpec.describe Webui::StagingWorkflowsController do
       it { expect(response).to render_template(:edit) }
     end
   end
+
+  describe 'DELETE #destroy' do
+    context 'a staging workflow and staging projects' do
+      before do
+        project.create_staging
+        params = { id: project.staging, staging_project_ids: project.staging.staging_projects.ids, format: :js }
+        delete :destroy, params: params
+      end
+
+      subject { project.staging }
+
+      it { expect(StagingWorkflow.count).to eq(0) }
+      it { expect(subject.staging_projects.count).to eq(0) }
+      it { expect(flash[:success]).not_to be_nil }
+      it { expect(response.body).to eq("window.location='#{project_show_path(project)}'") }
+      it { expect(project.subprojects.count).to eq(0) }
+    end
+
+    context 'a staging workflow and one staging project' do
+      before do
+        project.create_staging
+        params = { id: project.staging, staging_project_ids: project.staging.staging_projects.ids.first, format: :js }
+        delete :destroy, params: params
+      end
+
+      subject { project.staging }
+
+      it { expect(StagingWorkflow.count).to eq(0) }
+      it { expect(subject.staging_projects.count).to eq(0) }
+      it { expect(project.subprojects.count).to eq(1) }
+      it { expect(flash[:success]).not_to be_nil }
+      it { expect(response.body).to eq("window.location='#{project_show_path(project)}'") }
+    end
+
+    context 'a staging workflow unsuccessful' do
+      before do
+        project.create_staging
+        allow_any_instance_of(StagingWorkflow).to receive(:destroy).and_return(false)
+        params = { id: project.staging, staging_project_ids: project.staging.staging_projects.ids, format: :js }
+        delete :destroy, params: params
+      end
+
+      it { expect(flash[:error]).not_to be_nil }
+      it { expect(response.body).to eq("window.location='#{staging_workflow_path(project.staging)}'") }
+    end
+  end
 end

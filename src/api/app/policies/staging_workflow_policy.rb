@@ -18,6 +18,6 @@ class StagingWorkflowPolicy < ApplicationPolicy
   end
 
   def destroy?
-    update?
+    ProjectPolicy.new(@user, @record.project).destroy?
   end
 end
