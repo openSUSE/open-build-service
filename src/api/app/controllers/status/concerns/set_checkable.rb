@@ -29,6 +29,7 @@ module Status
         return unless @project
 
         @checkable = @project.repositories.find_by(name: params[:repository_name])
+        @event_class = Event::StatusCheckForPublished
         return @checkable if @checkable
 
         @error_message = "Repository '#{params[:project_name]}/#{params[:repository_name]}' not found."
@@ -37,8 +38,9 @@ module Status
       def set_repository_architecture
         return unless set_repository
         return @checkable unless params[:arch]
-        @architecture = params[:arch]
+
         @checkable = @checkable.repository_architectures.joins(:architecture).find_by(architectures: { name: params[:arch] })
+        @event_class = Event::StatusCheckForBuild
         return @checkable if @checkable
 
         @error_message = "Repository '#{params[:project_name]}/#{params[:repository_name]}/#{params[:arch]}' not found."
@@ -46,6 +48,7 @@ module Status
 
       def set_bs_request
         @checkable = BsRequest.with_submit_requests.find_by(number: params[:bs_request_number])
+        @event_class = Event::StatusCheckForRequest
         return @checkable if @checkable
 
         @error_message = "Submit request with number '#{params[:bs_request_number]}' not found."

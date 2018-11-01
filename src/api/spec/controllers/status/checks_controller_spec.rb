@@ -117,6 +117,12 @@ RSpec.describe Status::ChecksController, type: :controller do
         end
 
         include_context 'does create the check'
+
+        it 'creates the proper event' do
+          post :update, body: xml, params: params, format: :xml
+          expect(Event::StatusCheckForBuild.first.payload).to include('who' => user.login, 'project' => project.name, 'repo' => repository.name,
+                                                                      'arch' => repository_architecture.architecture.name, 'state' => 'pending')
+        end
       end
 
       context 'for a request' do
