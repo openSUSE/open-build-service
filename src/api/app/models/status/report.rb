@@ -20,6 +20,10 @@ class Status::Report < ApplicationRecord
   validates :checkable, presence: true
   validates :uuid, presence: true
 
+  validates_each :checkable do |record, attr, value|
+    record.errors.add(attr, "invalid class #{value.class}") unless %w[BsRequest Repository RepositoryArchitecture].include?(value.class.to_s)
+  end
+
   #### Class methods using self. (public and then private)
 
   #### To define class methods as private use private_class_method
@@ -41,11 +45,10 @@ class Status::Report < ApplicationRecord
       [checkable.project]
     when RepositoryArchitecture
       [checkable.repository.project]
-    else
-      []
     end
   end
 
+  # TODO: prefer duck typing - also for above
   def notify_params
     case checkable
     when BsRequest
@@ -54,8 +57,6 @@ class Status::Report < ApplicationRecord
       { project: checkable.project.name, repo: checkable.name, buildid: uuid }
     when RepositoryArchitecture
       { project: checkable.repository.project.name, repo: checkable.repository.name, arch: checkable.architecture.name, buildid: uuid }
-    else
-      {}
     end
   end
 
