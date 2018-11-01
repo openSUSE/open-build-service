@@ -245,14 +245,20 @@ module ObsFactory
       @checks = []
       @missing_checks = []
       repositories.each do |repo|
-        build_id = repo.build_id
-        status = repo.status_reports.find_by(uuid: build_id)
-        if status
-          @missing_checks += status.missing_checks
-          @checks += status.checks
-        else
-          @missing_checks += repo.required_checks
+        add_status(repo)
+        repo.repository_architectures.each do |repo_arch|
+          add_status(repo_arch)
         end
+      end
+    end
+
+    def add_status(checkable)
+      status = checkable.status_reports.latest
+      if status
+        @missing_checks += status.missing_checks
+        @checks += status.checks
+      else
+        @missing_checks += repo.required_checks
       end
     end
 
