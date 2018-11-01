@@ -37,6 +37,7 @@ module Status
       def set_repository_architecture
         return unless set_repository
         return @checkable unless params[:arch]
+        @architecture = params[:arch]
         @checkable = @checkable.repository_architectures.joins(:architecture).find_by(architectures: { name: params[:arch] })
         return @checkable if @checkable
 
