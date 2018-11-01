@@ -225,7 +225,7 @@ class BsRequest < ApplicationRecord
       hashed.delete('description')
 
       str = hashed.value('accept_at')
-      request.accept_at = DateTime.parse(str) if str
+      request.accept_at = Time.parse(str) if str
       hashed.delete('accept_at')
       raise SaveError, 'Auto accept time is in the past' if request.accept_at && request.accept_at < Time.now
 
@@ -567,7 +567,7 @@ class BsRequest < ApplicationRecord
           v = attrib.values.first if attrib
           if defined?(v) && v
             begin
-              embargo = DateTime.parse(v.value)
+              embargo = Time.parse(v.value)
               if /^\d{4}-\d\d?-\d\d?$/.match?(v.value)
                 # no time specified, allow it next day
                 embargo = embargo.tomorrow

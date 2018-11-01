@@ -77,7 +77,7 @@ class BinaryRelease < ApplicationRecord
         # complete hash for new entry
         hash[:binary_releasetime] = time
         hash[:binary_buildtime] = nil
-        hash[:binary_buildtime] = DateTime.strptime(binary['buildtime'].to_s, '%s') if binary['buildtime'].present?
+        hash[:binary_buildtime] = Time.strptime(binary['buildtime'].to_s, '%s') if binary['buildtime'].present?
         hash[:binary_disturl] = binary['disturl']
         hash[:binary_supportstatus] = binary['supportstatus']
         if binary['updateinfoid']
@@ -204,7 +204,7 @@ class BinaryRelease < ApplicationRecord
   def indentical_to?(binary_hash)
     binary_disturl == binary_hash['disturl'] &&
       binary_supportstatus == binary_hash['supportstatus'] &&
-      binary_buildtime == DateTime.strptime(binary_hash['buildtime'].to_s, '%s')
+      binary_buildtime == Time.strptime(binary_hash['buildtime'].to_s, '%s')
   end
   #### Alias of methods
 end
