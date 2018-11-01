@@ -51,7 +51,9 @@ class Status::Report < ApplicationRecord
     when BsRequest
       { number: checkable.number }
     when Repository
-      { project: checkable.project.name, repository: checkable.name, uuid: uuid }
+      { project: checkable.project.name, repo: checkable.name, buildid: uuid }
+    when RepositoryArchitecture
+      { project: checkable.repository.project.name, repo: checkable.repository.name, arch: checkable.architecture.name, buildid: uuid }
     else
       {}
     end

@@ -106,7 +106,7 @@ RSpec.describe Status::ChecksController, type: :controller do
 
         it 'creates the proper event' do
           post :update, body: xml, params: params, format: :xml
-          expect(Event::StatusCheckForPublished.first.payload).to include('who' => user.login, 'project' => project.name, 'repository' => repository.name, 'state' => 'pending')
+          expect(Event::StatusCheckForPublished.first.payload).to include('who' => user.login, 'project' => project.name, 'repo' => repository.name, 'state' => 'pending')
         end
       end
 

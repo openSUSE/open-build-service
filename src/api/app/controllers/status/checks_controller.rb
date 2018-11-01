@@ -29,7 +29,11 @@ class Status::ChecksController < ApplicationController
 
   def create_event
     if @project
-      Event::StatusCheckForPublished.create(check_notify_params)
+      if @architecture
+        Event::StatusCheckForBuild.create(check_notify_params)
+      else
+        Event::StatusCheckForPublished.create(check_notify_params)
+      end
     else
       Event::StatusCheckForRequest.create(check_notify_params)
     end
