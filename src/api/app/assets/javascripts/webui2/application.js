@@ -50,3 +50,4 @@
 //= require webui2/patchinfo.js
 //= require webui2/image_templates.js
 //= require rails-timeago
+//= require webui2/kiwi_editor.js

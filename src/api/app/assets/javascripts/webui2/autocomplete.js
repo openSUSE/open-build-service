@@ -1,4 +1,4 @@
-$(document).ready(function() {
+function setupAutocomplete() {
   $('.obs-autocomplete').each(function() {
     $(this).autocomplete({
       // Note: 'append' is optional and only needed when there is no element with class ui-front
@@ -13,6 +13,11 @@ $(document).ready(function() {
       }
     });
   });
+}
+
+$(document).ready(function() {
+
+  setupAutocomplete();
 
   $('.repository-autocomplete').on('autocompleteselect autocompletechange', function(event, ui) {
     var projectName,

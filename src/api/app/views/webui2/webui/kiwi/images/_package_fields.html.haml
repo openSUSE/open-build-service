@@ -1,0 +1,46 @@
+.nested-fields.kiwi_fields.col-lg-2.col-md-3.col-sm-4
+  %div{ class: "d-flex justify-content-between kiwi_list_item #{'has-error' if f.object.errors.present?}" }
+    %span.btn.btn-link.text-truncate{ title: f.object.name }
+      = link_to '', class: 'package_edit kiwi_element_name', data: { 'target': "#package-#{f.object.name}", 'toggle': 'modal' } do
+        = f.object.name
+        - if f.object.arch.present?
+          %small (#{f.object.arch})
+    %span.btn.btn-link.kiwi_actions
+      = link_to_remove_association f do
+        %i.fas.fa-times.text-danger
+
+%div{ 'tabindex': '-1', role: 'dialog', id: "#{f.object.name.present? ? 'package-' + f.object.name : 'add-package'}",
+class: "modal fade #{'new_element' if f.object.new_record?}" }
+  .modal-dialog{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title #{f.object.name.present? ? 'Edit' : 'Add'} package
+
+      #flash-messages
+        %p.ui-state-error.alert-danger.p-3.mb-0.d-none
+          The name can not be empty!
+
+      .modal-body
+        %p
+          = render partial: 'webui/autocomplete', locals: { html_id: :name, label: 'Name:'.html_safe,
+                                                              source: url_for(controller: '/webui/kiwi/images', action: 'autocomplete_binaries'),
+                                                              value: f.object.name }
+          = f.label :arch, 'Arch:'
+          = f.text_field :arch, data: { default: f.object.arch }, class: 'form-control'
+          = f.label :replaces, 'Replaces:'
+          = f.text_field :replaces, data: { default: f.object.replaces }, class: 'form-control'
+        .custom-control.custom-checkbox
+          = f.check_box :bootinclude, data: { default: f.object.bootinclude }, class: 'custom-control-input'
+          = f.label :bootinclude, class: 'custom-control-label'
+        .custom-control.custom-checkbox
+          = f.check_box :bootdelete, data: { default: f.object.bootdelete }, class: 'custom-control-input'
+          = f.label :bootdelete, class: 'custom-control-label'
+
+      .modal-footer
+        = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog btn btn-sm btn-outline-danger px-4')
+        = link_to('Continue', '#', title: 'Continue', class: 'close-dialog btn btn-sm btn-primary px-4')
+
+- if f.object.name.blank?
+  :javascript
+    $("#add-package").modal('show');
+    setupAutocomplete();
