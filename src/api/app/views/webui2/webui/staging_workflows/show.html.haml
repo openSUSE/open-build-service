@@ -8,20 +8,20 @@
         %h3= @pagetitle
         %table.table.table-striped.table-bordered.table-sm.dt-responsive.w-100#files-table
           %thead
-          %tr.text-center
-            %th Project
-            %th Requests
-            %th Problems
+            %tr.text-center
+              %th Project
+              %th Requests
+              %th Problems
 
           %tbody
-          - @staging_workflow.staging_projects.each do |staging_project|
-            %tr
-              %td
-                = render partial: 'overall_state', locals: { project: staging_project }
-              %td
-                = render partial: 'packages_list', locals: { project: staging_project }
-              %td.broken-packages
-                = render partial: 'problems', locals: { project: staging_project }
+            - @staging_workflow.staging_projects.each do |staging_project|
+              %tr
+                %td
+                  = render partial: 'overall_state', locals: { project: staging_project }
+                %td
+                  = render partial: 'packages_list', locals: { project: staging_project }
+                %td.broken-packages
+                  = render partial: 'problems', locals: { project: staging_project }
   .col-xl-2
     = render partial: 'legend'
     = render partial: 'infos'
