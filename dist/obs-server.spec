@@ -411,6 +411,7 @@ getent passwd obsservicerun >/dev/null || \
     /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
     -c "User for the build service source service" obsservicerun
 
+%service_add_pre obsscheduler.service
 %service_add_pre obssrcserver.service
 %service_add_pre obsrepserver.service
 %service_add_pre obspublisher.service
@@ -444,15 +445,18 @@ getent group obsrun >/dev/null || /usr/sbin/groupadd -r obsrun
 getent passwd obsrun >/dev/null || \
     /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
     -c "User for build service backend" obsrun
+%service_add_pre obsstoragesetup.service
 exit 0
+
+%pre -n obs-worker
+%service_add_pre obsworker.service
 
 %pre -n obs-cloud-uploader
 %service_add_pre obsclouduploadworker.service
 %service_add_pre obsclouduploadserver.service
 
 %preun
-%stop_on_removal obsscheduler
-
+%service_del_preun obsscheduler.service
 %service_del_preun obssrcserver.service
 %service_del_preun obsrepserver.service
 %service_del_preun obspublisher.service
@@ -465,8 +469,11 @@ exit 0
 %service_del_preun obsgetbinariesproxy.service
 %service_del_preun obswarden.service
 
+%preun -n obs-common
+%service_del_preun obsstoragesetup.service
+
 %preun -n obs-worker
-%stop_on_removal obsworker
+%service_del_preun obsworker.service
 
 %preun -n obs-cloud-uploader
 %service_del_preun obsclouduploadworker.service
@@ -476,9 +483,7 @@ exit 0
 %service_del_preun %{obs_api_support_scripts}
 
 %post
-# systemd kills the init script executing the reload first on reload....
-%restart_on_update obsscheduler
-
+%service_add_post obsscheduler.service
 %service_add_post obssrcserver.service
 %service_add_post obsrepserver.service
 %service_add_post obspublisher.service
@@ -490,6 +495,9 @@ exit 0
 %service_add_post obsdodup.service
 %service_add_post obsgetbinariesproxy.service
 %service_add_post obswarden.service
+
+%post -n obs-worker
+%service_add_post obsworker.service
 
 %post -n obs-cloud-uploader
 %service_add_post obsclouduploadworker.service
@@ -506,7 +514,7 @@ if [ ! -e /usr/lib/obs/server/build ]; then
 fi
 
 %postun
-%insserv_cleanup
+%service_del_postun -r obsscheduler.service
 %service_del_postun -r obssrcserver.service
 %service_del_postun -r obsrepserver.service
 %service_del_postun -r obspublisher.service
@@ -521,17 +529,23 @@ fi
 # cleanup empty directory just in case
 rmdir /srv/obs 2> /dev/null || :
 
+%postun -n obs-common
+# NOT used on purpose: restart_on_update obsstoragesetup
+# This is just run once on boot
+%service_del_postun -n obsstoragesetup.service
+
+%postun -n obs-worker
+# NOT used on purpose: restart_on_update obsworker
+# This can cause problems when building chroot
+# and bs_worker is anyway updating itself at runtime based on server code
+%service_del_postun -n obsworker.service
+
 %postun -n obs-cloud-uploader
 %service_del_postun -r obsclouduploadworker.service
 %service_del_postun -r obsclouduploadserver.service
 
 %verifyscript -n obs-server
 %verify_permissions
-
-%post -n obs-worker
-# NOT used on purpose: restart_on_update obsworker
-# This can cause problems when building chroot
-# and bs_worker is anyway updating itself at runtime based on server code
 
 %pre -n obs-api
 getent passwd obsapidelayed >/dev/null || \
@@ -540,6 +554,7 @@ getent passwd obsapidelayed >/dev/null || \
 
 %post -n obs-common
 %{fillup_and_insserv -n obs-server}
+%service_add_post obsstoragesetup.service
 
 %post -n obs-api
 if [ -e /srv/www/obs/frontend/config/database.yml ] && [ ! -e /srv/www/obs/api/config/database.yml ]; then
@@ -595,7 +610,7 @@ fi
 %dir /usr/lib/obs
 %dir /usr/lib/obs/server
 %config(noreplace) /etc/logrotate.d/obs-server
-/etc/init.d/obsscheduler
+%{_unitdir}/obsscheduler.service
 %{_unitdir}/obssrcserver.service
 %{_unitdir}/obsrepserver.service
 %{_unitdir}/obspublisher.service
@@ -608,6 +623,7 @@ fi
 %{_unitdir}/obswarden.service
 /usr/sbin/obs_admin
 /usr/sbin/obs_serverstatus
+/usr/sbin/obsscheduler
 /usr/sbin/rcobsdispatcher
 /usr/sbin/rcobspublisher
 /usr/sbin/rcobsrepserver
@@ -680,7 +696,8 @@ usermod -a -G docker obsservicerun
 
 %files -n obs-worker
 %defattr(-,root,root)
-/etc/init.d/obsworker
+%{_unitdir}/obsworker.service
+/usr/sbin/obsworker
 /usr/sbin/rcobsworker
 
 %files -n obs-api
@@ -797,7 +814,8 @@ usermod -a -G docker obsservicerun
 %defattr(-,root,root)
 %{_fillupdir}/sysconfig.obs-server
 /usr/lib/obs/server/setup-appliance.sh
-/etc/init.d/obsstoragesetup
+%{_unitdir}/obsstoragesetup.service
+/usr/sbin/obsstoragesetup
 /usr/sbin/rcobsstoragesetup
 
 %files -n obs-utils
