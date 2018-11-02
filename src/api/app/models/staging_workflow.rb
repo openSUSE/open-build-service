@@ -1,11 +1,10 @@
 class StagingWorkflow < ApplicationRecord
   belongs_to :project, inverse_of: :staging
-  has_many :staging_projects, class_name: 'Project', inverse_of: :staging_workflow, dependent: :nullify do
+  has_many :staging_projects, class_name: 'Project', inverse_of: :staging_workflow, dependent: :nullify, autosave: true do
     def without_staged_requests
       includes(:staged_requests).where(bs_requests: { id: nil })
     end
   end
-  has_many :staging_projects, class_name: 'Project', inverse_of: :staging_workflow, dependent: :nullify, autosave: true
   has_many :target_of_bs_requests, through: :project
   has_many :staged_requests, class_name: 'BsRequest', through: :staging_projects
 
