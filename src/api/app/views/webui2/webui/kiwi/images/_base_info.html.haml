@@ -2,10 +2,10 @@
   .nested-fields
     %h2#image-name
       = @image.name
-    %p.detailed-info{ style: "#{ 'display: none' if @is_edit_software_action }" }
+    %p.detailed-info{ style: "#{'display: none' if @is_edit_software_action}" }
       %span.fill{ data: { tag: 'specification' } }
         = @description
-    %ul.list-inline{ style: "#{ 'display: none' unless @is_edit_details_action }" }
+    %ul.list-inline{ style: "#{'display: none' unless @is_edit_details_action}" }
       %li.list-inline-item
         %strong Author:
         %span.fill{ data: { tag: 'author' } }= @author
@@ -17,7 +17,7 @@
         = link_to(package_show_path(@package.project, @package)) do
           %i.text-warning.fa.fa-archive
           View package
-      %li.list-inline-item{ style: "#{ 'display: none' unless @is_edit_details_action }" }
+      %li.list-inline-item{ style: "#{'display: none' unless @is_edit_details_action}" }
         = link_to('#', data: {'target': "#description-edit", 'toggle': "modal" }) do
           %i.text-info.fa.fa-cog
           Edit details

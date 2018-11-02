@@ -4,12 +4,12 @@
     .custom-control.custom-checkbox
       = f.check_box :use_project_repositories, class: 'custom-control-input'
       = f.label :use_project_repositories, class: 'custom-control-label'
-    %p.alert.alert-info#use-project-repositories-text{ style: "#{ 'display: none' unless f.object.use_project_repositories? }" }
+    %p.alert.alert-info#use-project-repositories-text{ style: "#{'display: none' unless f.object.use_project_repositories? }"}
       %i.fas.fa-info-circle.text-info
       This option will use the repositories from the current project. Other repositories set in this Kiwi Image will be REMOVED.
-  #kiwi-repositories-list{ style: "#{ 'display-none' if f.object.use_project_repositories? }" }
+  #kiwi-repositories-list{ style: "#{'display-none' if f.object.use_project_repositories?}" }
     %hr
-    %p#no-repositories{ style: "#{ 'display: none' if @image.repositories.present? }" }= 'There are no repositories.'
+    %p#no-repositories{ style: "#{'display: none' if @image.repositories.present? }"}= 'There are no repositories.'
     = f.fields_for :repositories do |repository_fields|
       = render 'repository_fields', f: repository_fields
     = link_to_add_association(f, :repositories, partial: 'repository_fields', data: { 'target': '#add-repository', 'toggle': 'modal' }) do

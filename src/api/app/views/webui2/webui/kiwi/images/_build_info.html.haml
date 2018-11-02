@@ -22,7 +22,7 @@
     function update_build_result() {
       $('#result_spinner').addClass('fa-spin');
       $.ajax({
-        url: '#{ url_for(controller: '/webui/kiwi/images', action: 'build_result') }',
+        url: '#{url_for(controller: '/webui/kiwi/images', action: 'build_result')}',
         data: {#{ajax_data}},
         success: function(data) {
           $('#result-display').html(data);

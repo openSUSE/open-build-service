@@ -1,13 +1,13 @@
 .nested-fields.kiwi_fields
-  %div{ class: "kiwi_list_item #{ 'has-error' if f.object.errors.present?}" }
+  %div{ class: "kiwi_list_item #{'has-error' if f.object.errors.present?}" }
     %span
-      = link_to f.object.name, '', data: { 'target': "##{ f.object.source_path.present? ? 'edit' : 'add' }-#{ f.object.name }", 'toggle': 'modal' }
+      = link_to f.object.name, '', data: { 'target': "##{f.object.source_path.present? ? 'edit' : 'add'}-#{f.object.name }", 'toggle': 'modal'}
     %span.kiwi_actions{ style: 'display: none' }
       = link_to_remove_association(f) do
         %i.fas.fa-times.text-danger
 
 %div{ 'tabindex': '-1', role: 'dialog', id: "#{ f.object.source_path.present? ? 'edit-' + f.object.name : 'add-repository'}",
-class: "modal fade #{'new_element' if f.object.new_record? }" }
+class: "modal fade #{'new_element' if f.object.new_record?}" }
   .modal-dialog{role: 'document'}
     .modal-content
       .modal-header
@@ -33,7 +33,7 @@ class: "modal fade #{'new_element' if f.object.new_record? }" }
         .expert-mode{ style: 'display: none' }
           = f.hidden_field :order, data: { default: f.object.order }, class: 'form-control'
           = f.label :repo_type, 'Type:'
-          = f.select :repo_type, Kiwi::Repository::REPO_TYPES, {}, { data: { default: f.object.repo_type }, class: 'custom-select' }
+          = f.select :repo_type, Kiwi::Repository::REPO_TYPES, {}, data: { default: f.object.repo_type }, class: 'custom-select'
           = f.label :priority, 'Priority:'
           = f.number_field :priority, maxlength: 4, in: 0...99, data: { default: f.object.priority }, class: 'custom-select'
           = f.label :alias, 'Alias:'
