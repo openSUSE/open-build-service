@@ -27,20 +27,20 @@ function enableSave(){
 function editDescriptionDialog(){
   var dialog = $('#kiwi-description').find('.modal');
   dialog.modal('show');
-  $('.overlay').show();
+  $('.overlay').removeClass('d-none');
 }
 
 function editPreferencesDialog(){
   var dialog = $('#kiwi-preferences').find('.modal');
   dialog.modal('show');
-  $('.overlay').show();
+  $('.overlay').removeClass('d-none');
 }
 
 function editPackageDialog(){
   var fields = $(this).parents('.nested-fields');
   var dialog = fields.find('.modal');
   dialog.modal('show');
-  $('.overlay').show();
+  $('.overlay').removeClass('d-none');
 }
 
 function editRepositoryDialog(){
@@ -65,18 +65,18 @@ function editRepositoryDialog(){
     repoField.val(matchedObsSourcePath[2]);
     repoTypeField.val('rpm-md');
 
-    normalMode.show();
-    expertMode.hide();
+    normalMode.removeClass('d-none');
+    expertMode.addClass('d-none');
   }
   else {
-    normalMode.hide();
-    expertMode.show();
+    normalMode.addClass('d-none');
+    expertMode.removeClass('d-none');
   }
   updateModeButton(fields);
 
   $('span[role=status]').text(''); // empty autocomplete status
 
-  $('.overlay').show();
+  $('.overlay').removeClass('d-none');
 }
 
 function addRepositoryErrorMessage(sourcePath, field) {
@@ -87,7 +87,7 @@ function addRepositoryErrorMessage(sourcePath, field) {
     field.text('The source path can not be empty!');
   }
 
-  field.show();
+  field.removeClass('d-none');
 }
 
 function closeDescriptionDialog() {
@@ -99,7 +99,7 @@ function closeDescriptionDialog() {
     $('#image-name').text(name.val());
   }
   else {
-    fields.find(".ui-state-error").show();
+    fields.find(".ui-state-error").removeClass('d-none');
     return false;
   }
 
@@ -117,7 +117,7 @@ function closeDescriptionDialog() {
     enableSave();
   }
 
-  fields.find(".ui-state-error").hide();
+  fields.find(".ui-state-error").addClass('d-none');
 
   hideOverlay(dialog);
 }
@@ -184,7 +184,7 @@ function closeDialog() {
       }
     }
     else {
-      fields.find(".ui-state-error").show();
+      fields.find(".ui-state-error").removeClass('d-none');
       return false;
     }
   }
@@ -195,7 +195,7 @@ function closeDialog() {
     dialog.find('.modal-title').text('Edit '+ dialog.find('.modal-title').text().split(' ')[1]);
   }
 
-  fields.find(".ui-state-error").hide();
+  fields.find(".ui-state-error").addClass('d-none');
   fields.find('.kiwi_list_item').removeClass('has-error');
   dialog.removeClass('new_element');
 
@@ -209,7 +209,7 @@ function closeDialog() {
 function revertDialog() {
   var fields = $(this).parents('.nested-fields');
   var dialog = fields.find('.modal');
-  dialog.find(".ui-state-error").hide();
+  dialog.find(".ui-state-error").addClass('d-none');
 
   if(dialog.hasClass('new_element')) {
     hideOverlay(dialog);
@@ -244,8 +244,8 @@ function addDefault(dialog) {
 function repositoryModeToggle() {
   var fields = $(this).parents('.nested-fields');
 
-  fields.find('.normal-mode').toggle();
-  fields.find('.expert-mode').toggle();
+  fields.find('.normal-mode').toggleClass('d-none');
+  fields.find('.expert-mode').toggleClass('d-none');
 
   updateModeButton(fields);
 }
@@ -258,13 +258,13 @@ function updateModeButton(fields) {
 }
 
 function hoverListItem() {
-  $(this).find('.kiwi_actions').toggle();
+  $(this).find('.kiwi_actions').toggleClass('d-none');
 }
 
 function autocompleteKiwiRepositories(project, repoField) {
   if (project === "")
       return;
-  $('.ui-autocomplete-loading').show();
+  $('.ui-autocomplete-loading').removeClass('d-none');
   repoField.prop('disabled', true);
   $.ajax({
       url: repoField.data('ajaxurl'),
@@ -281,7 +281,7 @@ function autocompleteKiwiRepositories(project, repoField) {
           repoField.append(new Option('No repos found'));
       },
       complete: function () {
-        $('.ui-autocomplete-loading').hide();
+        $('.ui-autocomplete-loading').addClass('d-none');
         repoField.trigger("change");
       }
   });
@@ -364,7 +364,7 @@ $(document).ready(function(){
   // Save image
   $('#kiwi-image-update-form-save').click(saveImage);
   $('#kiwi_image_use_project_repositories').click(function(){
-    $('#kiwi-repositories-list, #use-project-repositories-text').toggle();
+    $('#kiwi-repositories-list, #use-project-repositories-text').toggleClass('d-none');
     enableSave();
   });
 
@@ -413,36 +413,36 @@ $(document).ready(function(){
       lastOrder = parseInt(lastNode.val());
     }
     $(addedFields).find("[id$='order']").val(lastOrder + 1);
-    $('.overlay').show();
+    $('.overlay').removeClass('d-none');
     $(addedFields).find('.repository_edit').click(editRepositoryDialog);
     $(addedFields).find('.close-dialog').click(closeDialog);
     $(addedFields).find('.revert-dialog').click(revertDialog);
     $(addedFields).find('.kiwi-repository-mode-toggle').click(repositoryModeToggle);
     $(addedFields).find('.kiwi_list_item').hover(hoverListItem, hoverListItem);
     kiwiRepositoriesSetupAutocomplete($(addedFields));
-    $('#no-repositories').hide();
+    $('#no-repositories').addClass('d-none');
   });
 
   $('#kiwi-repositories-list').on('cocoon:after-remove', function() {
     if ($(this).find('.nested-fields:visible').size() === 0) {
-      $('#no-repositories').show();
+      $('#no-repositories').removeClass('d-none');
     }
   });
 
   // After inserting new packages add the Callbacks
   $('#kiwi-packages-list').on('cocoon:after-insert', function(e, addedFields) {
-    $('.overlay').show();
+    $('.overlay').removeClass('d-none');
     $(addedFields).find('.package_edit').click(editPackageDialog);
     $(addedFields).find('.close-dialog').click(closeDialog);
     $(addedFields).find('.revert-dialog').click(revertDialog);
     $(addedFields).find('.kiwi_list_item').hover(hoverListItem, hoverListItem);
     kiwiPackagesSetupAutocomplete($(addedFields));
-    $('#no-packages').hide();
+    $('#no-packages').addClass('d-none');
   });
 
   $('#kiwi-packages-list').on('cocoon:after-remove', function() {
     if ($(this).find('.nested-fields:visible').size() === 0) {
-      $('#no-packages').show();
+      $('#no-packages').removeClass('d-none');
     }
   });
 });

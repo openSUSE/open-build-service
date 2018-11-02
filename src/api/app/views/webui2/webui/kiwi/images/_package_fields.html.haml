@@ -5,7 +5,7 @@
         = f.object.name
         - if f.object.arch.present?
           %small (#{f.object.arch})
-    %span.kiwi_actions{style: "display: none"}
+    %span.kiwi_actions.d-none
       = link_to_remove_association f do
         %i.fas.fa-times.text-danger
 
@@ -17,7 +17,7 @@ class: "modal fade #{'new_element' if f.object.new_record?}" }
         %h5.modal-title #{f.object.name.present? ? 'Edit' : 'Add'} package
 
       #flash-messages
-        %p.ui-state-error.alert-danger.p-3.mb-0{style: "display: none"}
+        %p.ui-state-error.alert-danger.p-3.mb-0.d-none
           The name can not be empty!
 
       .modal-body

@@ -1,20 +1,20 @@
 .nested-fields.kiwi_fields
   %div{ class: "kiwi_list_item #{'has-error' if f.object.errors.present?}" }
     %span
-      = link_to f.object.name, '', data: { 'target': "##{f.object.source_path.present? ? 'edit' : 'add'}-#{f.object.name }", 'toggle': 'modal'}
-    %span.kiwi_actions{ style: 'display: none' }
+      = link_to f.object.name, '', data: { 'target': "##{f.object.source_path.present? ? 'edit' : 'add'}-#{f.object.name}", 'toggle': 'modal' }
+    %span.kiwi_actions.d-none
       = link_to_remove_association(f) do
         %i.fas.fa-times.text-danger
 
 %div{ 'tabindex': '-1', role: 'dialog', id: "#{ f.object.source_path.present? ? 'edit-' + f.object.name : 'add-repository'}",
 class: "modal fade #{'new_element' if f.object.new_record?}" }
-  .modal-dialog{role: 'document'}
+  .modal-dialog{ role: 'document' }
     .modal-content
       .modal-header
         %h5.modal-title #{f.object.source_path.present? ? 'Edit' : 'Add'} repository
 
       #flash-messages
-        %p.ui-state-error.alert-danger.p-3.mb-0{ style: 'display: none' }
+        %p.ui-state-error.alert-danger.p-3.mb-0.d-none
 
       .modal-body
         .normal-mode
@@ -26,11 +26,11 @@ class: "modal fade #{'new_element' if f.object.new_record?}" }
           = select_tag 'target_repo', options_for_select([f.object.repository_for_type_obs]), disabled: !f.object.obs_source_path?,
             data: { ajaxurl: url_for(controller: '/webui/project', action: :autocomplete_repositories), default: f.object.repository_for_type_obs },
             class: 'custom-select'
-          %span.ui-autocomplete-loading{ style: 'display: none' }
+          %span.ui-autocomplete-loading.d-none
             %i.fas.fa-spinner.fa-spin
           = label_tag 'Alias:'
           = text_field_tag 'alias_for_repo', f.object.alias, data: { default: f.object.alias }, class: 'form-control'
-        .expert-mode{ style: 'display: none' }
+        .expert-mode.d-none
           = f.hidden_field :order, data: { default: f.object.order }, class: 'form-control'
           = f.label :repo_type, 'Type:'
           = f.select :repo_type, Kiwi::Repository::REPO_TYPES, {}, data: { default: f.object.repo_type }, class: 'custom-select'
