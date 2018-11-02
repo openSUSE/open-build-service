@@ -169,7 +169,7 @@ module ObsFactory
     #
     # @return [Hash] Hash with the metadata (currently the list of requests)
     def meta
-      @meta ||= YAML.safe_load(description) || {}
+      @meta ||= YAML.safe_load(description.to_s) || {}
     end
 
     def self.attributes
@@ -258,7 +258,7 @@ module ObsFactory
         @missing_checks += status.missing_checks
         @checks += status.checks
       else
-        @missing_checks += repo.required_checks
+        @missing_checks += checkable.required_checks
       end
     end
 
