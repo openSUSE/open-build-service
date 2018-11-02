@@ -50,6 +50,7 @@ module Webui
           format.html
           format.json { render json: { isOutdated: @image.outdated? } }
         end
+        switch_to_webui2
       end
 
       def edit
@@ -67,6 +68,7 @@ module Webui
         respond_to do |format|
           format.html
         end
+        switch_to_webui2
       end
 
       def update
@@ -92,9 +94,11 @@ module Webui
       def build_result
         if @image.package.project.repositories.any?
           @build_results = @image.build_results
+          switch_to_webui2 if params[:switch].present?
           render partial: 'build_status'
         else
           @project = @image.package.project
+          switch_to_webui2 if params[:switch].present?
           render partial: '/webui/package/no_repositories'
         end
       end

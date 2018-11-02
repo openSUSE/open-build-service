@@ -1,0 +1,33 @@
+= content_for :ready_function do
+  $("#kiwi_details_trigger").click(function() {
+  $("#kiwi-image-details-section").show();
+  $("#kiwi-preferences").show();
+  $(".detailed-info").show();
+  $("#kiwi-image-profiles-section").hide();
+  $("#kiwi-image-repositories-section").hide();
+  $("#kiwi-image-packages-section").hide();
+  $("#kiwi_software_trigger").removeClass("active");
+  $("#kiwi_details_trigger").addClass("active");
+  });
+
+  $("#kiwi_software_trigger").click(function() {
+  $("#kiwi-image-profiles-section").show();
+  $("#kiwi-image-repositories-section").show();
+  $("#kiwi-image-packages-section").show();
+  $("#kiwi-preferences").hide();
+  $(".detailed-info").hide();
+  $("#kiwi-image-details-section").hide();
+  $("#kiwi_software_trigger").addClass("active");
+  $("#kiwi_details_trigger").removeClass("active");
+  });
+
+- kiwi_image_breadcrumb(@image, @image.name) 
+
+.bg-light
+  %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
+    %li.nav-item
+      = link_to('Overview', {controller: 'kiwi/images', action: 'show'}, class: "nav-link #{'active' if action_name == 'show'}")
+    %li.nav-item
+      = link_to('Details', (action_name == 'edit') ? '#' : { controller: 'kiwi/images', action: 'edit', section: 'details' }, id: "kiwi_details_trigger", class: "nav-link #{'active' if @is_edit_details_action}")
+    %li.nav-item
+      = link_to('Software', (action_name == 'edit') ? '#' : { controller: 'kiwi/images', action: 'edit', section: 'software' }, id: "kiwi_software_trigger", class: "nav-link #{'active' if @is_edit_software_action}")

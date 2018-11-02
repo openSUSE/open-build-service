@@ -1,0 +1,43 @@
+.nested-fields.kiwi_fields
+  %div{ class: "kiwi_list_item #{'has-error' if f.object.errors.present?}" }
+    %span
+      = link_to '', data: {'target': "#package-#{f.object.name}", 'toggle': "modal"} do
+        = f.object.name
+        - if f.object.arch.present?
+          %small (#{f.object.arch})
+    %span.kiwi_actions{style: "display: none"}
+      = link_to_remove_association f do
+        %i.fas.fa-times.text-danger
+
+%div{'tabindex': '-1', role: 'dialog', id: "#{f.object.name.present? ? 'package-' + f.object.name : 'add-package'}", class: "modal fade #{'new_element' if f.object.new_record?}" }
+  .modal-dialog{role: 'document'}
+    .modal-content
+      .modal-header
+        %h5.modal-title #{f.object.name.present? ? 'Edit' : 'Add'} package
+
+      #flash-messages
+        %p.ui-state-error.alert-danger.p-3.mb-0{style: "display: none"}
+          The name can not be empty!
+
+      .modal-body
+        %p
+          = f.label :name, 'Name:'
+          = f.text_field :name, data: { ajaxurl: url_for(controller: '/webui/kiwi/images', action: 'autocomplete_binaries'), default: f.object.name }, class: "form-control"
+          = f.label :arch, 'Arch:'
+          = f.text_field :arch, data: { default: f.object.arch }, class: "form-control"
+          = f.label :replaces, 'Replaces:'
+          = f.text_field :replaces, data: { default: f.object.replaces }, class: "form-control"
+        .custom-control.custom-checkbox
+          = f.check_box :bootinclude, data: { default: f.object.bootinclude }, class: "custom-control-input"
+          = f.label :bootinclude, class: "custom-control-label"
+        .custom-control.custom-checkbox
+          = f.check_box :bootdelete, data: { default: f.object.bootdelete }, class: "custom-control-input"
+          = f.label :bootdelete, class: "custom-control-label"
+
+      .modal-footer
+        = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog btn btn-secondary')
+        = link_to('Continue', '#', title: 'Continue', class: 'close-dialog btn btn-primary')
+
+- if !f.object.name.present?
+  :javascript
+    $("#add-package").modal('show');

@@ -48,3 +48,4 @@
 //= require webui2/collapsible_text
 //= require webui2/interconnect
 //= require rails-timeago
+//= require webui2/kiwi_editor.js

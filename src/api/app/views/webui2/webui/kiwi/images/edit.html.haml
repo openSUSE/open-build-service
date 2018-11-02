@@ -1,0 +1,34 @@
+- @layouttype = 'custom'
+= content_for :ready_function do
+  isOutdatedUrl = '#{url_for(controller: 'kiwi/images', action: :show, id: @image)}'
+
+= form_for @image, html: { id: 'kiwi-image-update-form' } do |f|
+  .row
+    .col-12
+      .card.mb-3
+        = render partial: 'webui/kiwi/tabs'
+        .card-body
+          = render partial: 'base_info', locals: { f: f }
+
+    .col-12
+      = render partial: 'webui/kiwi/images/preferences', locals: { f: f }
+
+    .col-12#kiwi-image-profiles-section{ style: "#{'display: none' unless @is_edit_software_action}" }
+      .card.mb-3
+        = render partial: 'webui/kiwi/images/profiles', locals: { f: f }
+
+    .col-12#kiwi-image-repositories-section{ style: "#{'display: none' unless @is_edit_software_action}" }
+      .card.mb-3
+        = render partial: 'webui/kiwi/images/repositories', locals: { f: f }
+
+    .col-12#kiwi-image-packages-section{ style: "#{'display: none' unless @is_edit_software_action}" }
+      .card.mb-3
+        = render partial: 'webui/kiwi/images/packages', locals: { f: f }
+
+    .col-12.d-flex.justify-content-end
+      .btn.btn-primary.btn-lg.disabled#kiwi-image-update-form-save
+        %i.fas.fa-save
+        Save
+      .btn.btn-danger.btn-lg.ml-3#kiwi-image-update-form-revert{ class: "#{'disabled' if !flash[:error]}" }
+        %i.fas.fa-undo
+        Revert
