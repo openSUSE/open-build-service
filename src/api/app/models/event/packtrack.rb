@@ -6,7 +6,6 @@ module Event
 
     # for package tracking in first place
     create_jobs :update_released_binaries_job
-    after_create_commit :send_to_bus
   end
 end
 

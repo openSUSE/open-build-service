@@ -3,7 +3,6 @@ module Event
     self.message_bus_routing_key = 'repo.publish_state'
     self.description = 'Publish State of Repository has changed'
     payload_keys :project, :repo, :state
-    after_create_commit :send_to_bus
   end
 end
 

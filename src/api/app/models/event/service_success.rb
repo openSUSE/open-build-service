@@ -5,7 +5,6 @@ module Event
     payload_keys :project, :package, :sender, :comment, :rev, :user, :requestid
     receiver_roles :maintainer, :bugowner
     create_jobs :update_backend_infos_job
-    after_create_commit :send_to_bus
 
     def subject
       "Source service succeeded of #{payload['project']}/#{payload['package']}"

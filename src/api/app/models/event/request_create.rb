@@ -3,7 +3,6 @@ module Event
     self.message_bus_routing_key = 'request.create'
     self.description = 'Request created'
     receiver_roles :source_maintainer, :target_maintainer, :source_watcher, :target_watcher
-    after_create_commit :send_to_bus
 
     def custom_headers
       base = super
