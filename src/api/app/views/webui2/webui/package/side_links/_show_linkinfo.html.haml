@@ -17,7 +17,7 @@
     %i= linkinfo[:error]
 - elsif linkinfo[:diff]
   %li
-    %i.fas.fa-info-circle.text-secondary
+    %i.fas.fa-info-circle.text-info
     Has a
     = link_to('link diff', package_rdiff_path(oproject: linked_package.project.name, opackage: linked_package.name,
                                               project: project, package: package, rev: revision))
