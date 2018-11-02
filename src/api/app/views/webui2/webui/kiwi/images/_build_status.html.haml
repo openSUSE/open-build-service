@@ -1,6 +1,6 @@
 - @project = @image.package.project
 - @build_results.each_pair do |package, results|
-  %ul#package_buildstatus.list-group.list-group-flush
+  %ul.list-group.list-group-flush#package-buildstatus
     - results.each do |result|
       %li.list-group-item
         - repository = @project.repositories.find_by_name(result.repository)
@@ -15,7 +15,7 @@
         = webui2_arch_repo_table_cell(result.repository, result.architecture, package, 'code' => result.code, 'details' => result.details)
 
 .card-body
-  = link_to(package_binaries_path(project: @project, package: @image.package, repository: 'images'), { title: 'Download images' }) do
+  = link_to(package_binaries_path(project: @project, package: @image.package, repository: 'images'), title: 'Download images') do
     %i.text-info.fa.fa-download
     Download images
 = javascript_tag do

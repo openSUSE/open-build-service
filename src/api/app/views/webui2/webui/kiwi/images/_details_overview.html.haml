@@ -4,7 +4,7 @@
     %strong Author
   %p
     = @author
-    = "(#{@contact})" unless @contact.blank?
+    = "(#{@contact})" if @contact.present?
   %p
     %strong Software
   %p

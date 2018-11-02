@@ -1,6 +1,6 @@
 .card.mb-2
   .nested-fields
-    %h5#image-name.card-header
+    %h5.card-header#image-name
       Preferences
     .card-body
       - @image.preferences.each do |preference|
@@ -20,7 +20,7 @@
               %strong Container config tag:
               %span.fill{ data: { tag: 'type_containerconfig_tag' } }= preference.type_containerconfig_tag
       %p
-        = link_to('#', data: {'target': "#preferences_edit", 'toggle': "modal"}) do
+        = link_to('#', data: { 'target': '#preferences-edit', 'toggle': 'modal' }) do
           %i.fas.fa-cog.text-secondary
           Edit Preferences
         = render partial: 'preferences_form', locals: { f: f }

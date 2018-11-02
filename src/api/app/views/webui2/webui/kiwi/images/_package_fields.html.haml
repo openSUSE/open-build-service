@@ -9,7 +9,8 @@
       = link_to_remove_association f do
         %i.fas.fa-times.text-danger
 
-%div{'tabindex': '-1', role: 'dialog', id: "#{f.object.name.present? ? 'package-' + f.object.name : 'add-package'}", class: "modal fade #{'new_element' if f.object.new_record?}" }
+%div{'tabindex': '-1', role: 'dialog', id: "#{f.object.name.present? ? 'package-' + f.object.name : 'add-package'}",
+class: "modal fade #{'new_element' if f.object.new_record?}" }
   .modal-dialog{role: 'document'}
     .modal-content
       .modal-header
@@ -22,7 +23,8 @@
       .modal-body
         %p
           = f.label :name, 'Name:'
-          = f.text_field :name, data: { ajaxurl: url_for(controller: '/webui/kiwi/images', action: 'autocomplete_binaries'), default: f.object.name }, class: "form-control"
+          = f.text_field :name, data: { ajaxurl: url_for(controller: '/webui/kiwi/images', action: 'autocomplete_binaries'),
+          default: f.object.name }, class: "form-control"
           = f.label :arch, 'Arch:'
           = f.text_field :arch, data: { default: f.object.arch }, class: "form-control"
           = f.label :replaces, 'Replaces:'
@@ -38,6 +40,6 @@
         = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog btn btn-secondary')
         = link_to('Continue', '#', title: 'Continue', class: 'close-dialog btn btn-primary')
 
-- if !f.object.name.present?
+- if f.object.name.blank?
   :javascript
     $("#add-package").modal('show');

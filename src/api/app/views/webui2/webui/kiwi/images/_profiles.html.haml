@@ -11,5 +11,5 @@
           %li
             = f.fields_for(:profiles, profile) do |profile_fields|
               .custom-control.custom-checkbox
-                = profile_fields.check_box(:selected, class: "custom-control-input")
-                = profile_fields.label(:selected, profile.name, class: "custom-control-label")
+                = profile_fields.check_box(:selected, class: 'custom-control-input')
+                = profile_fields.label(:selected, profile.name, class: 'custom-control-label')
