@@ -1,14 +1,11 @@
 module Event
   class ReviewWanted < Request
+    self.message_bus_routing_key = 'request.review_wanted'
     self.description = 'Review was created'
 
     payload_keys :reviewers, :by_user, :by_group, :by_project, :by_package
     receiver_roles :reviewer
     after_create_commit :send_to_bus
-
-    def self.message_bus_routing_key
-      'request.review_wanted'
-    end
 
     def subject
       "Request #{payload['number']} requires review (#{actions_summary})"

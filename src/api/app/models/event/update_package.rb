@@ -1,12 +1,9 @@
 module Event
   class UpdatePackage < Base
+    self.message_bus_routing_key = 'package.update'
     self.description = 'Package meta data was updated'
     payload_keys :project, :package, :sender
     after_create_commit :send_to_bus
-
-    def self.message_bus_routing_key
-      'package.update'
-    end
   end
 end
 
