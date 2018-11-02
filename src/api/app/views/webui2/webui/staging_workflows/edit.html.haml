@@ -1,0 +1,35 @@
+- @pagetitle = "Edit Staging Workflow for #{@project}"
+
+.row
+  .col-xl-12
+    .card.mb-3
+      = render(partial: 'webui2/webui/project/tabs', locals: { project: @project })
+      .card-body
+        %h3= @pagetitle
+
+        %table.table.table-striped.table-bordered.table-sm.dt-responsive.w-100
+          %thead
+            %tr.text-center
+              %th Staging Project
+              %th Requests
+              %th Actions
+
+          %tbody
+            - @staging_workflow.staging_projects.each do |staging_project|
+              %tr
+                %td
+                  = render partial: 'overall_state', locals: { project: staging_project }
+                %td
+                  = render partial: 'packages_list', locals: { project: staging_project }
+                %td.text-center
+                  = link_to('#', data: { toggle: 'modal', target: "#confirm-modal-#{staging_project.id}" }, title: "Delete #{staging_project}") do
+                    %i.fas.fa-times-circle.text-danger
+
+                  = render partial: 'delete_staging_project_modal', locals: { staging_workflow: @staging_workflow, staging_project: staging_project }
+
+
+        = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#create-staging-projects-modal' }) do
+          %i.fas.fa-plus-circle.text-success
+          Create Staging Project
+
+        = render partial: 'create_staging_project', locals: { staging_workflow: @staging_workflow }
