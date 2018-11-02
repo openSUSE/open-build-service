@@ -1,0 +1,551 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging">
+          <title>Let Us Now Praise Famous Men</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging">
+          <title>Let Us Now Praise Famous Men</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Sat, 03 Nov 2018 08:51:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>This Lime Tree Bower</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '113'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>This Lime Tree Bower</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Sat, 03 Nov 2018 08:51:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>Consider the Lilies</title>
+          <description>Dolores corporis perspiciatis voluptate.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '177'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>Consider the Lilies</title>
+          <description>Dolores corporis perspiciatis voluptate.</description>
+        </package>
+    http_version: 
+  recorded_at: Sat, 03 Nov 2018 08:51:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>Consider the Lilies</title>
+          <description>Dolores corporis perspiciatis voluptate.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '177'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>Consider the Lilies</title>
+          <description>Dolores corporis perspiciatis voluptate.</description>
+        </package>
+    http_version: 
+  recorded_at: Sat, 03 Nov 2018 08:51:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_14/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_14">
+          <title>Dance Dance Dance</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '104'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_14">
+          <title>Dance Dance Dance</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Sat, 03 Nov 2018 08:51:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_14/package_6/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_6" project="project_14">
+          <title>Sleep the Brave</title>
+          <description>Dolor dolores distinctio quis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_6" project="project_14">
+          <title>Sleep the Brave</title>
+          <description>Dolor dolores distinctio quis.</description>
+        </package>
+    http_version: 
+  recorded_at: Sat, 03 Nov 2018 08:51:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_14/package_6/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_6" project="project_14">
+          <title>Sleep the Brave</title>
+          <description>Dolor dolores distinctio quis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_6" project="project_14">
+          <title>Sleep the Brave</title>
+          <description>Dolor dolores distinctio quis.</description>
+        </package>
+    http_version: 
+  recorded_at: Sat, 03 Nov 2018 08:51:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_14/_meta?user=user_14
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_14">
+          <title/>
+          <description/>
+          <person userid="user_14" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '137'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_14">
+          <title></title>
+          <description></description>
+          <person userid="user_14" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Sat, 03 Nov 2018 08:51:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title>What's Become of Waring</title>
+          <description>      requests:
+                - { id: 1 }
+        </description>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '162'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title>What's Become of Waring</title>
+          <description>      requests:
+                - { id: 1 }
+        </description>
+        </project>
+    http_version: 
+  recorded_at: Sat, 03 Nov 2018 08:51:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:B/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title>A Many-Splendoured Thing</title>
+          <description>Factory staging project B</description>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title>A Many-Splendoured Thing</title>
+          <description>Factory staging project B</description>
+        </project>
+    http_version: 
+  recorded_at: Sat, 03 Nov 2018 08:51:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_15/_meta?user=user_15
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_15">
+          <title/>
+          <description/>
+          <person userid="user_15" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '137'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_15">
+          <title></title>
+          <description></description>
+          <person userid="user_15" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Sat, 03 Nov 2018 08:51:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:D/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:D">
+          <title>The Needle's Eye</title>
+          <description>                     requests:
+                               - { id: 2 }
+        </description>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '185'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:D">
+          <title>The Needle's Eye</title>
+          <description>                     requests:
+                               - { id: 2 }
+        </description>
+        </project>
+    http_version: 
+  recorded_at: Sat, 03 Nov 2018 08:51:26 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/openSUSE:Factory:Staging:D/_result?code=unresolvable
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Sat, 03 Nov 2018 08:51:26 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/openSUSE:Factory:Staging:D/images/local?view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'openSUSE Factory Staging D' has no repository 'images'
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '204'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'openSUSE:Factory:Staging:D' has no repository 'images'</summary>
+          <details>404 project 'openSUSE:Factory:Staging:D' has no repository 'images'</details>
+        </status>
+    http_version: 
+  recorded_at: Sat, 03 Nov 2018 08:51:26 GMT
+recorded_with: VCR 4.0.0

@@ -22,7 +22,7 @@ class Repository < ApplicationRecord
     end
 
     def latest
-      for_uuid(proxy_association.owner.build_id)
+      for_uuid(proxy_association.owner.build_id).first
     end
   end
 
