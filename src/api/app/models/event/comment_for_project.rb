@@ -1,16 +1,11 @@
 module Event
   class CommentForProject < Base
     include CommentEvent
-    self.description = 'Project was touched'
+    self.message_bus_routing_key = 'project.comment'
+    self.description = 'New comment for project created'
     payload_keys :project
     receiver_roles :maintainer, :bugowner, :watcher
     after_create_commit :send_to_bus
-
-    def self.message_bus_routing_key
-      'project.comment'
-    end
-
-    self.description = 'New comment for project created'
 
     def subject
       "New comment in project #{payload['project']} by #{User.find(payload['commenter']).login}"

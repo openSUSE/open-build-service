@@ -1,14 +1,11 @@
 module Event
   class Commit < Base
+    self.message_bus_routing_key = 'package.commit'
     self.description = 'New revision of a package was commited'
     payload_keys :project, :package, :sender, :comment, :user, :files, :rev, :requestid
 
     create_jobs :update_backend_infos_job
     after_create_commit :send_to_bus
-
-    def self.message_bus_routing_key
-      'package.commit'
-    end
 
     def subject
       "#{payload['project']}/#{payload['package']} r#{payload['rev']} commited"
