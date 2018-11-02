@@ -2,7 +2,6 @@ module Event
   class RequestDelete < Request
     self.message_bus_routing_key = 'request.delete'
     self.description = 'Request was deleted (admin only)'
-    after_create_commit :send_to_bus
   end
 end
 

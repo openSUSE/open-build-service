@@ -2,7 +2,6 @@ module Event
   class BuildUnchanged < Build
     self.message_bus_routing_key = 'package.build_unchanged'
     self.description = 'Package has succeeded building with unchanged result'
-    after_create_commit :send_to_bus
   end
 end
 

@@ -5,7 +5,6 @@ module Event
     self.description = 'New comment for request created'
     payload_keys :request_number
     receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_watcher, :target_watcher
-    after_create_commit :send_to_bus
 
     def subject
       req = BsRequest.find_by_number(payload['number'])

@@ -5,7 +5,6 @@ module Event
     self.description = 'New comment for project created'
     payload_keys :project
     receiver_roles :maintainer, :bugowner, :watcher
-    after_create_commit :send_to_bus
 
     def subject
       "New comment in project #{payload['project']} by #{User.find(payload['commenter']).login}"

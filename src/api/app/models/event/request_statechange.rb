@@ -4,7 +4,6 @@ module Event
     self.description = 'Request state was changed'
     payload_keys :oldstate
     receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_watcher, :target_watcher
-    after_create_commit :send_to_bus
 
     def subject
       "Request #{payload['number']} changed to #{payload['state']} (#{actions_summary})"

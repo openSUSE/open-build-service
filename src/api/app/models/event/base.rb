@@ -76,6 +76,7 @@ module Event
       def inherited(subclass)
         super
 
+        subclass.after_create_commit(:send_to_bus)
         subclass.add_classname(name) unless name == 'Event::Base'
         subclass.payload_keys(*payload_keys)
         subclass.create_jobs(*create_jobs)
@@ -268,7 +269,7 @@ module Event
     end
 
     def send_to_bus
-      RabbitmqBus.send_to_bus(message_bus_routing_key, self[:payload])
+      RabbitmqBus.send_to_bus(message_bus_routing_key, self[:payload]) if message_bus_routing_key
       RabbitmqBus.send_to_bus('metrics', to_metric) if metric_fields.present?
     end
 
