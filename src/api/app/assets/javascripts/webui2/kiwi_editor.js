@@ -1,7 +1,6 @@
 var canSave = false;
 
 function hideOverlay(dialog) {
-  $('.modal').modal('hide');
   dialog.modal('hide');
 }
 
@@ -24,23 +23,10 @@ function enableSave(){
   $('#kiwi-image-update-form-save, #kiwi-image-update-form-revert').removeClass('disabled');
 }
 
-function editDescriptionDialog(){
-  var dialog = $('#kiwi-description').find('.modal');
-  dialog.modal('show');
-  $('.overlay').removeClass('d-none');
-}
-
-function editPreferencesDialog(){
-  var dialog = $('#kiwi-preferences').find('.modal');
-  dialog.modal('show');
-  $('.overlay').removeClass('d-none');
-}
-
 function editPackageDialog(){
   var fields = $(this).parents('.nested-fields');
   var dialog = fields.find('.modal');
   dialog.modal('show');
-  $('.overlay').removeClass('d-none');
 }
 
 function editRepositoryDialog(){
@@ -75,8 +61,6 @@ function editRepositoryDialog(){
   updateModeButton(fields);
 
   $('span[role=status]').text(''); // empty autocomplete status
-
-  $('.overlay').removeClass('d-none');
 }
 
 function addRepositoryErrorMessage(sourcePath, field) {
@@ -254,7 +238,7 @@ function updateModeButton(fields) {
   var expertMode = fields.find('.expert-mode');
 
   fields.find('.kiwi-repository-mode-toggle').
-    text(expertMode.is(":visible") ? "Basic Mode" : "Expert Mode");
+    text(expertMode.hasClass("d-none") ? "Expert Mode" : "Basic Mode");
 }
 
 function hoverListItem() {
@@ -383,11 +367,9 @@ $(document).ready(function(){
   $('.remove_fields').click(enableSave);
 
   // Edit dialog for Description
-  $('.description_edit').click(editDescriptionDialog);
   $('.close-description-dialog').click(closeDescriptionDialog);
 
   // Edit dialog for Description
-  $('.preferences_edit').click(editPreferencesDialog);
   $('.close-preferences-dialog').click(closePreferencesDialog);
 
   // Edit dialog for Repositories and Packages
@@ -413,7 +395,6 @@ $(document).ready(function(){
       lastOrder = parseInt(lastNode.val());
     }
     $(addedFields).find("[id$='order']").val(lastOrder + 1);
-    $('.overlay').removeClass('d-none');
     $(addedFields).find('.repository_edit').click(editRepositoryDialog);
     $(addedFields).find('.close-dialog').click(closeDialog);
     $(addedFields).find('.revert-dialog').click(revertDialog);
@@ -431,7 +412,6 @@ $(document).ready(function(){
 
   // After inserting new packages add the Callbacks
   $('#kiwi-packages-list').on('cocoon:after-insert', function(e, addedFields) {
-    $('.overlay').removeClass('d-none');
     $(addedFields).find('.package_edit').click(editPackageDialog);
     $(addedFields).find('.close-dialog').click(closeDialog);
     $(addedFields).find('.revert-dialog').click(revertDialog);
