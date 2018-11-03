@@ -172,8 +172,8 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
         let(:one_request) do
           create(:bs_request_with_submit_action,
                  target_project: factory.name,
-                           source_project: source_package.project.name,
-                           source_package: source_package.name)
+                 source_project: source_package.project.name,
+                 source_package: source_package.name)
         end
         let(:meta) do
           <<-DESCRIPTION
@@ -291,6 +291,42 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
               'missing_checks' => [],
               'checks' => [check.serializable_hash],
               'overall_state' => 'acceptable'
+            )
+          end
+        end
+
+        context 'published repo has failed check but wrong buildid' do
+          let!(:check) { create(:check, name: 'openqa', state: 'failure', status_report: published_report) }
+
+          before do
+            published_report.uuid = 'doesnotmatch'
+            published_report.save
+          end
+
+          it 'returns acceptable without required checks' do
+            get :show, params: { project: factory, project_name: 'D' }, format: :json
+            expect(response).to have_http_status(:success)
+
+            json_hash = JSON.parse(response.body)
+            expect(json_hash).to include(
+              'missing_checks' => [],
+              'checks' => [],
+              'overall_state' => 'acceptable'
+            )
+          end
+
+          it 'returns testing with required checks' do
+            images_repository.required_checks = ['openqa']
+            images_repository.save
+
+            get :show, params: { project: factory, project_name: 'D' }, format: :json
+            expect(response).to have_http_status(:success)
+
+            json_hash = JSON.parse(response.body)
+            expect(json_hash).to include(
+              'missing_checks' => ['openqa'],
+              'checks' => [],
+              'overall_state' => 'testing'
             )
           end
         end
