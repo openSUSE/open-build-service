@@ -29,7 +29,7 @@ module ObsFactory
     end
 
     def_delegators :@strategy, :root_project_name, :url_suffix, :openqa_version,
-                   :openqa_iso, :arch, :openqa_group, :staging_manager
+                   :arch, :openqa_group, :staging_manager
 
     # Find a distribution by id
     #
@@ -194,26 +194,15 @@ module ObsFactory
       "#{root_project_name}#{RINGS_PREFIX}"
     end
 
-    # URL parameter for openqa's /test route to be opened in view
-    # for given project
-    #
-    # @return [String] URL part (e.g. match=A)
-    def openqa_filter(project)
-      return strategy.openqa_filter(project)
-    end
-
     private
 
     def distribution_strategy_for_project(project)
       s = case project.name
-          when 'openSUSE:Factory' then DistributionStrategyFactory.new
-          when 'openSUSE:Factory:PowerPC' then DistributionStrategyFactoryPPC.new
-          when /^openSUSE:Leap:15\.*/ then DistributionStrategyOpenSUSELeap15.new
-          when /^SUSE:SLE-12-SP\d:GA/ then DistributionStrategySLE12SP1.new
-          when 'SUSE:SLE-15:GA' then DistributionStrategySLE15.new
-          when /^SUSE:SLE-15-SP\d:GA/ then DistributionStrategySLE15.new
-          when /^SUSE:SLE-12-SP.*CASP\d*/ then DistributionStrategyCasp.new
-          when /^SUSE:SLE-15.*CASP\d*/ then DistributionStrategyCasp.new
+          when 'openSUSE:Factory' then DistributionStrategyFactory.new(staging_manager: 'factory-staging')
+          when 'openSUSE:Factory:PowerPC' then DistributionStrategyFactoryPPC.new(staging_manager: 'factory-staging')
+          when /^openSUSE:Leap:15\.*/ then DistributionStrategyOpenSUSELeap15.new(staging_manager: 'factory-staging')
+          when /^SUSE:.*CASP\d*$/ then DistributionStrategyFactory.new(staging_manager: 'caasp-staging-managers')
+          when /^SUSE:SLE-.*:GA/ then DistributionStrategyFactory.new(staging_manager: 'sle-staging-managers')
           else raise UnknownDistribution
       end
       s.project = project

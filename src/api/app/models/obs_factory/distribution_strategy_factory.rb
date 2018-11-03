@@ -4,6 +4,7 @@ module ObsFactory
     include ActiveModel::Model
 
     attr_accessor :project
+    attr_accessor :staging_manager
 
     # String to pass as version to filter the openQA jobs
     #
@@ -53,45 +54,6 @@ module ObsFactory
       'i586'
     end
 
-    # the prefix openQA gives test ISOs
-    #
-    # @return [String] e.g. 'openSUSE-Staging'
-    def openqa_iso_prefix
-      'openSUSE-Staging'
-    end
-
-    # Name of the ISO file by the given staging project tracked on openqa
-    #
-    # @return [String] file name
-    def openqa_iso(project)
-      iso = project_iso(project)
-      return nil if iso.nil?
-      ending = iso.gsub!(/.*-Build/, '')
-      suffix = /DVD$/.match?(project.name) ? 'Staging2' : 'Staging'
-      "#{openqa_iso_prefix}:#{project.letter}-#{suffix}-DVD-#{arch}-Build#{ending}"
-    end
-
-    # Name of the ISO file produced by the given staging project's Test-DVD
-    #
-    # Not part of the Strategy API, but useful for subclasses
-    #
-    # @return [String] file name
-    def project_iso(project)
-      buildresult = Buildresult.find_hashed(project: project.name, package: "#{test_dvd_prefix}-#{arch}", repository: 'images', view: 'binarylist')
-      # we get multiple architectures, but only one with binaries
-      buildresult.elements('result') do |r|
-        r.get('binarylist').elements('binary') do |b|
-          return b['filename'] if /\.iso$/ =~ b['filename']
-        end
-      end
-      nil
-    end
-    protected :project_iso
-
-    def staging_manager
-      'factory-staging'
-    end
-
     # Version of the distribution used as ToTest
     #
     # @return [String] version string
@@ -116,10 +78,6 @@ module ObsFactory
       end
 
       stream.read[/openSUSE-(.*)-#{published_arch}-.*/, 1]
-    end
-
-    def openqa_filter(project)
-      "match=Staging:#{project.letter}"
     end
   end
 end

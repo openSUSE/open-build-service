@@ -36,5 +36,13 @@ class Status::Check < ApplicationRecord
     status_report.checkable.required_checks.include?(name)
   end
 
+  def pending?
+    state == 'pending'
+  end
+
+  def failed?
+    %w[error failure].include?(state)
+  end
+
   #### Alias of methods
 end
