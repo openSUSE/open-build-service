@@ -6,7 +6,7 @@
       = link_to_remove_association(f) do
         %i.fas.fa-times.text-danger
 
-%div{ 'tabindex': '-1', role: 'dialog', id: "#{ f.object.source_path.present? ? 'edit-' + f.object.name : 'add-repository'}",
+%div{ 'tabindex': '-1', role: 'dialog', id: "#{f.object.source_path.present? ? 'edit-' + f.object.name : 'add-repository'}",
 class: "modal fade #{'new_element' if f.object.new_record?}" }
   .modal-dialog{ role: 'document' }
     .modal-content

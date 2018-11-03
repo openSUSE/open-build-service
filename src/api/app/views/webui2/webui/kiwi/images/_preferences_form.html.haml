@@ -19,9 +19,11 @@
               = preference_fields.text_field :version, data: { default: preference_fields.object.version }, class: 'form-control'
               - if preference_fields.object.containerconfig_fields_editable?
                 = preference_fields.label :type_containerconfig_name, 'Container Config Name'
-                = preference_fields.text_field :type_containerconfig_name, data: { default: preference_fields.object.type_containerconfig_name }, class: 'form-control'
+                = preference_fields.text_field :type_containerconfig_name, data: { default: preference_fields.object.type_containerconfig_name },
+                class: 'form-control'
                 = preference_fields.label :type_containerconfig_tag, 'Container Config Tag'
-                = preference_fields.text_field :type_containerconfig_tag, data: { default: preference_fields.object.type_containerconfig_tag }, class: 'form-control'
+                = preference_fields.text_field :type_containerconfig_tag, data: { default: preference_fields.object.type_containerconfig_tag },
+                class: 'form-control'
 
       .modal-footer
         = link_to('Cancel', '#', title: 'Cancel', class: 'btn btn-secondary')

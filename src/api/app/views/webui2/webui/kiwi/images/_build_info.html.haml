@@ -15,7 +15,7 @@
   ajax_data.push("'switch': 'true'")
   ajax_data.push("'project': '#{h(@project)}'")
   ajax_data.push("'package': '#{h(@package)}'")
-  ajax_data = raw(ajax_data.join ', ')
+  ajax_data = raw(ajax_data.join(', '))
 
 = javascript_tag do
   :plain

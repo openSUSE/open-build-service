@@ -21,15 +21,17 @@
   $("#kiwi_details_trigger").removeClass("active");
   });
 
-- kiwi_image_breadcrumb(@image, @image.name)
+:ruby
+  @project = @image.package.try(:project)
+  @package = @image.package
 
 .bg-light
   %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
     %li.nav-item
-      = link_to('Overview', { controller: 'kiwi/images', action: 'show' }, class: "nav-link #{ 'active' if action_name == 'show' }")
+      = link_to('Overview', { controller: 'kiwi/images', action: 'show' }, class: "nav-link #{'active' if action_name == 'show'}")
     %li.nav-item
-      = link_to('Details', (action_name == 'edit') ? '#' : { controller: 'kiwi/images', action: 'edit', section: 'details' },
-        id: 'kiwi_details_trigger', class: "nav-link #{ 'active' if @is_edit_details_action }")
+      = link_to 'Details', action_name == 'edit' ? '#' : { controller: 'kiwi/images', action: 'edit', section: 'details' },
+        id: 'kiwi_details_trigger', class: "nav-link #{'active' if params[:section] == 'details'}"
     %li.nav-item
-      = link_to('Software', (action_name == 'edit') ? '#' : { controller: 'kiwi/images', action: 'edit', section: 'software' },
-        id: 'kiwi_software_trigger', class: "nav-link #{ 'active' if @is_edit_software_action }")
+      = link_to 'Software', action_name == 'edit' ? '#' : { controller: 'kiwi/images', action: 'edit', section: 'software' },
+        id: 'kiwi_software_trigger', class: "nav-link #{'active' if params[:section] == 'software'}"

@@ -18,7 +18,7 @@
           %i.text-warning.fa.fa-archive
           View package
       %li.list-inline-item{ class: "#{'d-none' unless @is_edit_details_action}" }
-        = link_to('#', data: {'target': "#description-edit", 'toggle': "modal" }) do
+        = link_to('#', data: { 'target': '#description-edit', 'toggle': 'modal' }) do
           %i.text-info.fa.fa-cog
           Edit details
       - if Feature.active?(:cloud_upload) && !User.current.is_nobody?
