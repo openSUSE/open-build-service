@@ -152,7 +152,7 @@ function closePreferencesDialog() {
 
 function closeDialog() {
   var fields = $(this).parents('.nested-fields'),
-      isRepository = fields.parents('#kiwi-repositories-list').size() === 1,
+      isRepository = fields.parents('#kiwi-repositories-list').length === 1,
       name = fields.find('.kiwi_element_name'),
       dialog = fields.find('.modal'),
       arch;
@@ -191,7 +191,7 @@ function closeDialog() {
 
   addDefault(dialog);
 
-  if( /^Add/.test(dialog.find('.box-header').text())) {
+  if( /^Add/.test(dialog.find('.modal-title').text())) {
     dialog.find('.modal-title').text('Edit '+ dialog.find('.modal-title').text().split(' ')[1]);
   }
 

@@ -1,7 +1,7 @@
 .nested-fields.kiwi_fields
   %div{ class: "kiwi_list_item #{'has-error' if f.object.errors.present?}" }
     %span
-      = link_to '', data: { 'target': "#package-#{f.object.name}", 'toggle': 'modal' } do
+      = link_to '', class: 'package_edit kiwi_element_name', data: { 'target': "#package-#{f.object.name}", 'toggle': 'modal' } do
         = f.object.name
         - if f.object.arch.present?
           %small (#{f.object.arch})
