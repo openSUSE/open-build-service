@@ -72,6 +72,8 @@ GEM
       uniform_notifier (~> 1.11)
     bunny (2.12.0)
       amq-protocol (~> 2.3, >= 2.3.0)
+    bunny-mock (1.7.0)
+      bunny (>= 1.7)
     byebug (10.0.2)
     capybara (3.10.1)
       addressable
@@ -457,6 +459,7 @@ DEPENDENCIES
   builder
   bullet
   bunny
+  bunny-mock
   capybara
   capybara_minitest_spec
   chunky_png
