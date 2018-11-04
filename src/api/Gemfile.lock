@@ -402,7 +402,7 @@ GEM
       sprockets (>= 3.0.0)
     sysexits (1.2.0)
     temple (0.8.0)
-    term-ansicolor (1.6.0)
+    term-ansicolor (1.7.0)
       tins (~> 1.0)
     test-unit (3.2.8)
       power_assert
@@ -417,7 +417,7 @@ GEM
     thread_safe (0.3.6)
     tilt (2.0.8)
     timecop (0.9.1)
-    tins (1.17.0)
+    tins (1.18.0)
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
     uglifier (4.1.19)
