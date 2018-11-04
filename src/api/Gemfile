@@ -133,6 +133,8 @@ group :test do
   gem 'coveralls'
   gem 'minitest-ci'
   gem 'rspec_junit_formatter'
+  # to test rabbitmq support
+  gem 'bunny-mock'
 end
 
 group :development, :test do
