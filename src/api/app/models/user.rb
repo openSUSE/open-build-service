@@ -79,8 +79,8 @@ class User < ApplicationRecord
                       message: 'must not contain invalid characters' }
   validates :login,
             length: { in: 2..100, allow_nil: true,
-            too_long: 'must have less than 100 characters',
-            too_short: 'must have more than two characters' }
+                      too_long: 'must have less than 100 characters',
+                      too_short: 'must have more than two characters' }
 
   validates :state, inclusion: { in: STATES }
 

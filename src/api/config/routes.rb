@@ -613,7 +613,7 @@ OBSApi::Application.routes.draw do
 
       get 'statistics/active_request_creators/:project' => :active_request_creators, constraints: cons
       get 'statistics/maintenance_statistics/:project' => 'statistics/maintenance_statistics#index', constraints: cons,
-        as: 'maintenance_statistics'
+          as: 'maintenance_statistics'
       get 'public/statistics/maintenance_statistics/:project' => 'statistics/maintenance_statistics#index', constraints: cons
     end
 

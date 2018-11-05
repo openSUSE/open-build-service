@@ -51,7 +51,7 @@ RSpec.describe SourceProjectPackageMetaController, vcr: true do
         project_with_package
         put :update, params: { project: project_with_package,
                                package: 'foo' },
-                               body: meta, format: :xml
+                     body: meta, format: :xml
       end
 
       it { expect(response).to be_success }
@@ -65,7 +65,7 @@ RSpec.describe SourceProjectPackageMetaController, vcr: true do
         project_with_package
         put :update, params: { project: project_with_package,
                                package: 'foo' },
-                               body: meta, format: :xml
+                     body: meta, format: :xml
       end
 
       it { expect(response).to have_http_status(400) }

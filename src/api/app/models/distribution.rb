@@ -56,8 +56,8 @@ class Distribution < ApplicationRecord
           iconlist << { 'width' => i['width'], 'height' => i['height'], 'url' => i['url'] }
         end
         list << { 'vendor' => d['vendor'], 'version' => d['version'], 'name' => d['name'],
-          'project' => prj.name + ':' + d['project'], 'architectures' => architecturelist, 'icons' => iconlist,
-          'reponame' => d['reponame'], 'repository' => d['repository'], 'link' => d['link'] }
+                  'project' => prj.name + ':' + d['project'], 'architectures' => architecturelist, 'icons' => iconlist,
+                  'reponame' => d['reponame'], 'repository' => d['repository'], 'link' => d['link'] }
       end
     end
     list

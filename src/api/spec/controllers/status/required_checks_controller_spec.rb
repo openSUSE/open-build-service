@@ -171,8 +171,8 @@ RSpec.describe Status::RequiredChecksController, type: :controller do
       it 'will not delete the required check' do
         expect do
           delete :destroy, params: { project_name: project.name,
-                                                   repository_name: repository.name,
-                                                   name: 'first check' }, format: :xml
+                                     repository_name: repository.name,
+                                     name: 'first check' }, format: :xml
         end.not_to(
           change do
             # we need to to reload because required_checks is a serialized attribute
@@ -186,8 +186,8 @@ RSpec.describe Status::RequiredChecksController, type: :controller do
     shared_examples 'returns correct status' do
       before do
         delete :destroy, params: { project_name: project.name,
-                                                 repository_name: repository.name,
-                                                 name: 'first check' }, format: :xml
+                                   repository_name: repository.name,
+                                   name: 'first check' }, format: :xml
       end
 
       it 'has correct HTTP status' do

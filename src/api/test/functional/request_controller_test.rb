@@ -1012,11 +1012,11 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                      'by_user' => 'tom',
                      'comment' => 'reopen2',
                      'history' => [{ 'who' => 'tom', 'when' => '2010-07-12T00:00:04',
-                                    'description' => 'Review got accepted',
-                                    'comment' => 'review2' },
+                                     'description' => 'Review got accepted',
+                                     'comment' => 'review2' },
                                    { 'who' => 'tom', 'when' => '2010-07-12T00:00:05',
-                                    'description' => 'Review got reopened',
-                                    'comment' => 'reopen2' }]
+                                     'description' => 'Review got reopened',
+                                     'comment' => 'reopen2' }]
                    }],
                    'history' => [
                      { 'who'         => 'Iggy',
@@ -3379,12 +3379,12 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                   'comment' => {} },
                    'history' =>
                                 [{ 'who' => 'Iggy', 'when' => '2010-07-12T00:00:00',
-                         'description' => 'Request created' },
+                                   'description' => 'Request created' },
                                  { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:01',
-                                  'description' => 'Request got declined',
-                                  'comment' => "The target project 'home:Iggy:fordecline' has been removed" },
+                                   'description' => 'Request got declined',
+                                   'comment' => "The target project 'home:Iggy:fordecline' has been removed" },
                                  { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:02',
-                                  'description' => 'Request got revoked' }] }, node)
+                                   'description' => 'Request got revoked' }] }, node)
   end
 
   def test_check_target_maintainer

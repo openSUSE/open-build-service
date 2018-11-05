@@ -50,8 +50,8 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
 
         it 'redirect to package_view_file_path' do
           expect(response).to redirect_to(package_view_file_path(project: package_with_kiwi_file.project,
-                                                                    package: package_with_kiwi_file,
-                                                                    filename: "#{package_with_kiwi_file.name}.kiwi"))
+                                                                 package: package_with_kiwi_file,
+                                                                 filename: "#{package_with_kiwi_file.name}.kiwi"))
         end
         it { expect(flash[:error]).not_to be_nil }
       end
@@ -60,7 +60,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
         context 'with obsrepository' do
           let(:package_with_kiwi_file) do
             create(:package_with_kiwi_file, name: 'package_with_a_kiwi_file',
-                   project: project, kiwi_file_content: kiwi_xml_with_obsrepositories)
+                                            project: project, kiwi_file_content: kiwi_xml_with_obsrepositories)
           end
 
           before do
@@ -76,7 +76,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
         context 'with obsrepository and others' do
           let(:package_with_kiwi_file) do
             create(:package_with_kiwi_file, name: 'package_with_invalid_kiwi_file',
-                   project: project, kiwi_file_content: invalid_kiwi_xml_with_obsrepositories)
+                                            project: project, kiwi_file_content: invalid_kiwi_xml_with_obsrepositories)
           end
           let(:errors) do
             {
@@ -106,7 +106,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
         context 'with the same type' do
           let(:package_with_kiwi_file) do
             create(:package_with_kiwi_file, name: 'package_with_invalid_kiwi_file',
-                   project: project, kiwi_file_content: invalid_kiwi_xml_with_multiple_package_groups)
+                                            project: project, kiwi_file_content: invalid_kiwi_xml_with_multiple_package_groups)
           end
 
           let(:errors) do

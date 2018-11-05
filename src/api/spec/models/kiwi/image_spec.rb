@@ -303,7 +303,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
 
       subject do
         create(:kiwi_image_with_package, project: project,
-               with_kiwi_file: true, file_content: 'Invalid content for a kiwi xml file<image></image>')
+                                         with_kiwi_file: true, file_content: 'Invalid content for a kiwi xml file<image></image>')
       end
 
       it { expect(subject.to_xml).to be_nil }
@@ -484,7 +484,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
     it { expect(subject.find_binaries_by_name('', 'project', [], use_project_repositories: true)).to eq(binaries_available_sample) }
     it do
       expect(subject.find_binaries_by_name('ap', 'project', [], use_project_repositories: true)).to eq('apache' => ['i586', 'x86_64'],
-        'apache2' => ['x86_64'], 'appArmor' => ['i586', 'x86_64'])
+                                                                                                       'apache2' => ['x86_64'], 'appArmor' => ['i586', 'x86_64'])
     end
     it { expect(subject.find_binaries_by_name('app', 'project', [], use_project_repositories: true)).to eq('appArmor' => ['i586', 'x86_64']) }
     it { expect(subject.find_binaries_by_name('b', 'project', [], use_project_repositories: true)).to eq('bcrypt' => ['x86_64']) }

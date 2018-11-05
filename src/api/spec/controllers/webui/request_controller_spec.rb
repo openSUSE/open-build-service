@@ -121,7 +121,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         context 'for ASCII files' do
           let(:target_package) do
             create(:package_with_file, name: 'test-package-ascii',
-                   file_content: "a\n" * (file_size_threshold + 1), project: target_project)
+                                       file_content: "a\n" * (file_size_threshold + 1), project: target_project)
           end
 
           it_behaves_like 'a full diff not requested for', 'somefile.txt'
@@ -133,7 +133,7 @@ RSpec.describe Webui::RequestController, vcr: true do
           end
           let(:source_package) do
             create(:package_with_binary, name: 'test-source-package-binary', project: source_project,
-                   file_name: 'spec/support/files/bigfile_archive_2.tar.gz')
+                                         file_name: 'spec/support/files/bigfile_archive_2.tar.gz')
           end
 
           it_behaves_like 'a full diff not requested for', 'bigfile_archive.tar.gz/bigfile.txt'
@@ -162,7 +162,7 @@ RSpec.describe Webui::RequestController, vcr: true do
           let(:expected_diff_size) { file_size_threshold + 1 + diff_header_size }
           let(:target_package) do
             create(:package_with_file, name: 'test-package-ascii',
-                   file_content: "a\n" * (file_size_threshold + 1), project: target_project)
+                                       file_content: "a\n" * (file_size_threshold + 1), project: target_project)
           end
 
           it_behaves_like 'a full diff requested for', 'somefile.txt'
@@ -173,7 +173,7 @@ RSpec.describe Webui::RequestController, vcr: true do
           let(:target_package) { create(:package_with_binary, name: 'test-package-binary', project: target_project) }
           let(:source_package) do
             create(:package_with_binary, name: 'test-source-package-binary',
-                   project: source_project, file_name: 'spec/support/files/bigfile_archive_2.tar.gz')
+                                         project: source_project, file_name: 'spec/support/files/bigfile_archive_2.tar.gz')
           end
 
           it_behaves_like 'a full diff requested for', 'bigfile_archive.tar.gz/bigfile.txt'
@@ -422,7 +422,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         login(submitter)
         post :change_devel_request, params: {
           project: target_project.name, package: target_package.name,
-            devel_project: source_project.name, devel_package: source_package.name, description: 'change it!'
+          devel_project: source_project.name, devel_package: source_package.name, description: 'change it!'
         }
       end
 
@@ -448,7 +448,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         login(submitter)
         post :change_devel_request, params: {
           project: target_project.name, package: target_package.name,
-            devel_project: source_project.name, devel_package: 'non-existant', description: 'change it!'
+          devel_project: source_project.name, devel_package: 'non-existant', description: 'change it!'
         }
       end
 

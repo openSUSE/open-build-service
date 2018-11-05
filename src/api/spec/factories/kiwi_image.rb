@@ -20,7 +20,7 @@ FactoryBot.define do
         if evaluator.with_kiwi_file
           image.package =
             create(:package_with_kiwi_file, name: evaluator.package_name, project: evaluator.project,
-                   kiwi_file_content: evaluator.file_content, kiwi_file_name: evaluator.kiwi_file_name)
+                                            kiwi_file_content: evaluator.file_content, kiwi_file_name: evaluator.kiwi_file_name)
           image.md5_last_revision = image.package.kiwi_file_md5
         else
           image.package = create(:package, name: evaluator.package_name, project: evaluator.project)

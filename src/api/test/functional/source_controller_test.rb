@@ -3261,7 +3261,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'entry', attributes: { name: 'file_in_linked_package' })
     assert_xml_tag(tag: 'entry', attributes: { name: '_link' })
     assert_xml_tag(tag: 'linkinfo', attributes: { project: 'UseRemoteInstance', package: 'pack2',
-                                                        srcmd5: 'd3e3fafcc29140ff418220a649df8070', xsrcmd5: '3481fc5f1445a65a2d463b8adf26d3a9', lsrcmd5: 'e6a8595663acb2095c62824bf457142c' })
+                                                  srcmd5: 'd3e3fafcc29140ff418220a649df8070', xsrcmd5: '3481fc5f1445a65a2d463b8adf26d3a9', lsrcmd5: 'e6a8595663acb2095c62824bf457142c' })
     get '/source/kde4/temporary2?expand=1'
     assert_response :success
     assert_xml_tag(tag: 'entry', attributes: { name: 'package.spec' })

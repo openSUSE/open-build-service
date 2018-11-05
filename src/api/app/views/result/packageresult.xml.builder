@@ -1,5 +1,5 @@
 xml.packageresult('project' => @project, 'repository' => @repository,
-                   'package' => @package) do
+                  'package' => @package) do
   xml.date(Time.now)
   xml.status('code' => @status) do
     xml.packagecount(@succeeded, 'state' => 'succeeded')

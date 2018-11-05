@@ -19,7 +19,7 @@ class BinaryReleaseTest < ActiveSupport::TestCase
     xml = br.render_xml
     assert_xml_tag xml, tag: 'binary',
                         attributes: { project: 'BaseDistro3', repository: 'BaseDistro3_repo',
-                                         name: 'package', version: '1.0', release: '1', arch: 'i586' }
+                                      name: 'package', version: '1.0', release: '1', arch: 'i586' }
     assert_xml_tag xml, tag: 'maintainer', content: 'Iggy'
     assert_xml_tag xml, tag: 'operation', content: 'added'
     assert_xml_tag xml, tag: 'supportstatus', content: 'l3'
@@ -55,17 +55,17 @@ class BinaryReleaseTest < ActiveSupport::TestCase
 
   def test_update_from_json_hash
     json = [{ 'arch' => 'i586', 'binaryarch' => 'i586', 'repository' => 'BaseDistro3_repo',
-             'release' => '1', 'name' => 'delete_me', 'project' => 'BaseDistro3', 'version' => '1.0',
-             'package' => 'pack2', 'buildtime' => '1409642056' },
+              'release' => '1', 'name' => 'delete_me', 'project' => 'BaseDistro3', 'version' => '1.0',
+              'package' => 'pack2', 'buildtime' => '1409642056' },
             { 'arch' => 'i586', 'binaryarch' => 'i586', 'name' => 'package', 'repository' => 'BaseDistro3_repo',
-             'release' => '1', 'project' => 'BaseDistro3', 'version' => '1.0',
-             'package' => 'pack2', 'buildtime' => '1409642056' },
+              'release' => '1', 'project' => 'BaseDistro3', 'version' => '1.0',
+              'package' => 'pack2', 'buildtime' => '1409642056' },
             { 'arch' => 'i586', 'binaryarch' => 'src', 'name' => 'package', 'repository' => 'BaseDistro3_repo',
-             'release' => '1', 'project' => 'BaseDistro3', 'version' => '1.0',
-             'package' => 'pack2', 'buildtime' => '1409642056' },
+              'release' => '1', 'project' => 'BaseDistro3', 'version' => '1.0',
+              'package' => 'pack2', 'buildtime' => '1409642056' },
             { 'binaryarch' => 'x86_64', 'arch' => 'i586', 'package' => 'pack2', 'project' => 'BaseDistro3',
-             'version' => '1.0', 'release' => '1', 'repository' => 'BaseDistro3_repo',
-             'name' => 'package_newweaktags', 'buildtime' => '1409642056' }]
+              'version' => '1.0', 'release' => '1', 'repository' => 'BaseDistro3_repo',
+              'name' => 'package_newweaktags', 'buildtime' => '1409642056' }]
 
     r = Repository.find_by_project_and_name('BaseDistro3', 'BaseDistro3_repo')
 
@@ -77,29 +77,29 @@ class BinaryReleaseTest < ActiveSupport::TestCase
 
     # modify just one timestampe
     json = [{ 'arch' => 'i586', 'binaryarch' => 'i586', 'repository' => 'BaseDistro3_repo',
-             'release' => '1', 'name' => 'delete_me', 'project' => 'BaseDistro3', 'version' => '1.0',
-             'package' => 'pack2', 'buildtime' => '1409642056' },
+              'release' => '1', 'name' => 'delete_me', 'project' => 'BaseDistro3', 'version' => '1.0',
+              'package' => 'pack2', 'buildtime' => '1409642056' },
             { 'arch' => 'i586', 'binaryarch' => 'i586', 'name' => 'package', 'repository' => 'BaseDistro3_repo',
-             'release' => '1', 'project' => 'BaseDistro3', 'version' => '1.0',
-             'package' => 'pack2', 'buildtime' => '1409642056' },
+              'release' => '1', 'project' => 'BaseDistro3', 'version' => '1.0',
+              'package' => 'pack2', 'buildtime' => '1409642056' },
             { 'arch' => 'i586', 'binaryarch' => 'src', 'name' => 'package', 'repository' => 'BaseDistro3_repo',
-             'release' => '1', 'project' => 'BaseDistro3', 'version' => '1.0',
-             'package' => 'pack2', 'buildtime' => '1409642056' },
+              'release' => '1', 'project' => 'BaseDistro3', 'version' => '1.0',
+              'package' => 'pack2', 'buildtime' => '1409642056' },
             { 'binaryarch' => 'x86_64', 'arch' => 'i586', 'package' => 'pack2', 'project' => 'BaseDistro3',
-             'version' => '1.0', 'release' => '1', 'repository' => 'BaseDistro3_repo',
-             'name' => 'package_newweaktags', 'buildtime' => '1409642057' }]
+              'version' => '1.0', 'release' => '1', 'repository' => 'BaseDistro3_repo',
+              'name' => 'package_newweaktags', 'buildtime' => '1409642057' }]
     BinaryRelease.update_binary_releases_via_json(r, json)
     assert_equal count, BinaryRelease.all.length - 1 # one entry added
   end
 
   def test_container_handling
     json = [{ 'arch' => 'i586', 'binaryarch' => 'i586', 'repository' => 'BaseDistro3_repo',
-             'release' => '0', 'name' => 'my_container', 'project' => 'BaseDistro3', 'version' => '0',
-             'package' => 'pack2', 'buildtime' => '1409642056',
-             'ismedium' => 'my_container.docker.tar.xz' },
+              'release' => '0', 'name' => 'my_container', 'project' => 'BaseDistro3', 'version' => '0',
+              'package' => 'pack2', 'buildtime' => '1409642056',
+              'ismedium' => 'my_container.docker.tar.xz' },
             { 'arch' => 'i586', 'binaryarch' => 'i586', 'name' => 'package', 'repository' => 'BaseDistro3_repo',
-             'release' => '1', 'project' => 'BaseDistro3', 'version' => '1.0',
-             'package' => 'pack3', 'buildtime' => '1409642056', 'medium' => 'my_container.docker.tar.xz' }]
+              'release' => '1', 'project' => 'BaseDistro3', 'version' => '1.0',
+              'package' => 'pack3', 'buildtime' => '1409642056', 'medium' => 'my_container.docker.tar.xz' }]
     r = Repository.find_by_project_and_name('BaseDistro3', 'BaseDistro3_repo')
 
     BinaryRelease.update_binary_releases_via_json(r, json)

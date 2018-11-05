@@ -32,7 +32,7 @@ RSpec.describe SourceProjectConfigController, vcr: true do
       before do
         login user
         put :update, params: { project: remote_project.name,
-             comment: 'Updated by test', format: :xml }
+                               comment: 'Updated by test', format: :xml }
       end
 
       it { expect(response).to be_forbidden }

@@ -5,7 +5,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
   it_behaves_like 'user tab' do
     let(:package) do
       create(:package, name: 'group_test_package',
-        project_id: user_tab_user.home_project.id)
+                       project_id: user_tab_user.home_project.id)
     end
     let!(:maintainer_user_role) { create(:relationship, package: package, user: user_tab_user) }
     let(:project_path) { package_show_path(project: user_tab_user.home_project, package: package) }
@@ -132,9 +132,9 @@ RSpec.feature 'Packages', type: :feature, js: true do
     let!(:bs_request) do
       create(:bs_request_with_submit_action,
              source_project: source_project,
-                 source_package: source_package,
-                 target_project: target_project,
-                 target_package: package)
+             source_package: source_package,
+             target_project: target_project,
+             target_package: package)
     end
 
     scenario 'see a request' do
