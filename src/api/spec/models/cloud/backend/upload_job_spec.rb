@@ -64,8 +64,8 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
       it { expect(subject.architecture).to eq('x86_64') }
       it { expect(subject.filename).to eq('rpm-4.14.0-504.2.x86_64.rpm') }
       it { expect(subject.size).to eq('1690860') }
-      it { expect(subject.created_at).to be_a(Time) }
-      it { expect(subject.created_at.to_time.to_s).to eq(now.to_time.to_s) }
+      # we don't measure the performance here, but that the timestamp is nowish
+      it { expect((subject.created_at - now).abs).to be < 2 }
     end
 
     context 'with an invalid backend response' do
