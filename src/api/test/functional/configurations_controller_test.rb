@@ -41,7 +41,7 @@ class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'schedulers' },
                    tag: 'arch', content: 's390x'
     assert_no_xml_tag parent: { tag: 'schedulers' },
-                   tag: 'arch', content: 'i586'
+                      tag: 'arch', content: 'i586'
 
     # overwriting options.yml is not allowed
     ::Configuration::OPTIONS_YML[:registration] = 'allow'
@@ -65,6 +65,6 @@ class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'schedulers' },
                    tag: 'arch', content: 'i586'
     assert_no_xml_tag parent: { tag: 'schedulers' },
-                   tag: 'arch', content: 's390x'
+                      tag: 'arch', content: 's390x'
   end
 end

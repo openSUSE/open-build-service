@@ -105,9 +105,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'new', attributes: { project: 'home:tom:branches:OBS_Maintained:pack2', package: 'pack2.BaseDistro3', rev: '33fed2157de2517bc62894b3fdfd485c', srcmd5: '33fed2157de2517bc62894b3fdfd485c' })
     # the diffed files
     assert_xml_tag(tag: 'old', attributes: { name: 'file', md5: '722d122e81cbbe543bd5520bb8678c0e', size: '4' },
-                    parent: { tag: 'file', attributes: { state: 'changed' } })
+                   parent: { tag: 'file', attributes: { state: 'changed' } })
     assert_xml_tag(tag: 'new', attributes: { name: 'file', md5: '6c7c49c0d7106a1198fb8f1b3523c971', size: '16' },
-                    parent: { tag: 'file', attributes: { state: 'changed' } })
+                   parent: { tag: 'file', attributes: { state: 'changed' } })
     # the expected file transfer
     assert_xml_tag(tag: 'source', attributes: { project: 'home:tom:branches:OBS_Maintained:pack2', package: 'pack2.BaseDistro3', rev: '33fed2157de2517bc62894b3fdfd485c' })
     assert_xml_tag(tag: 'target', attributes: { project: 'My:Maintenance', releaseproject: 'BaseDistro3' })
@@ -539,15 +539,15 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get "/search/published/binary/id?match=project='" + incident_project + "'"
     assert_response :success
     assert_xml_tag tag: 'binary', attributes: { name: 'package', project: incident_project, package: 'patchinfo',
-                                                      repository: 'BaseDistro3', version: '1.0', release: '1', arch: 'i586',
-                                                      filename: 'package-1.0-1.i586.rpm',
-                                                      filepath: 'My:/Maintenance:/0/BaseDistro3/i586/package-1.0-1.i586.rpm',
-                                                      baseproject: 'BaseDistro3', type: 'rpm' }
+                                                repository: 'BaseDistro3', version: '1.0', release: '1', arch: 'i586',
+                                                filename: 'package-1.0-1.i586.rpm',
+                                                filepath: 'My:/Maintenance:/0/BaseDistro3/i586/package-1.0-1.i586.rpm',
+                                                baseproject: 'BaseDistro3', type: 'rpm' }
     assert_xml_tag tag: 'binary', attributes: { name: 'package', project: incident_project, package: 'patchinfo',
-                                                      repository: 'BaseDistro3Channel', version: '1.0', release: '1', arch: 'i586',
-                                                      filename: 'package-1.0-1.i586.rpm',
-                                                      filepath: 'My:/Maintenance:/0/BaseDistro3Channel/rpm/i586/package-1.0-1.i586.rpm',
-                                                      baseproject: 'BaseDistro3Channel', type: 'rpm' }
+                                                repository: 'BaseDistro3Channel', version: '1.0', release: '1', arch: 'i586',
+                                                filename: 'package-1.0-1.i586.rpm',
+                                                filepath: 'My:/Maintenance:/0/BaseDistro3Channel/rpm/i586/package-1.0-1.i586.rpm',
+                                                baseproject: 'BaseDistro3Channel', type: 'rpm' }
 
     # create release request
     post '/request?cmd=create', params: '<request>
@@ -627,13 +627,13 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                    parent: { tag: 'action', attributes: { type: 'submit' } }
     # channel package is not released
     assert_no_xml_tag tag: 'source', attributes: { project: 'My:Maintenance:0', package: 'BaseDistro3.Channel' },
-                   parent: { tag: 'action', attributes: { type: 'maintenance_release' } }
+                      parent: { tag: 'action', attributes: { type: 'maintenance_release' } }
     # but it has a source change, so submit action
     assert_xml_tag tag: 'source', attributes: { project: 'My:Maintenance:0', package: 'BaseDistro3.Channel' },
                    parent: { tag: 'action', attributes: { type: 'submit' } }
     # no release patchinfo into channel
     assert_no_xml_tag tag: 'target', attributes: { project: 'Channel', package: 'patchinfo.0' },
-                   parent: { tag: 'action', attributes: { type: 'maintenance_release' } }
+                      parent: { tag: 'action', attributes: { type: 'maintenance_release' } }
     # release of patchinfos
     assert_xml_tag tag: 'target', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'patchinfo.0' },
                    parent: { tag: 'action', attributes: { type: 'maintenance_release' } }
@@ -758,7 +758,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'binary', attributes: { name: 'package_newweaktags', version: '1.0', release: '1', arch: 'x86_64' } },
                    tag: 'publish', attributes: { package: 'pack2' }
     assert_no_xml_tag parent: { tag: 'binary', attributes: { name: 'package_newweaktags', version: '1.0', release: '1', arch: 'i586' } },
-                   tag: 'obsolete'
+                      tag: 'obsolete'
     assert_xml_tag parent: { tag: 'binary', attributes:                      { name: 'package', version: '1.0', release: '1', arch: 'i586' } },
                    tag: 'build', attributes: { time: '2014-07-03 12:26:54 UTC' }
     assert_xml_tag parent: { tag: 'binary', attributes:                      { name: 'package', version: '1.0', release: '1', arch: 'i586' } },

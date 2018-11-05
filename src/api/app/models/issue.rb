@@ -120,7 +120,7 @@ class Issue < ApplicationRecord
       render_body node
     end
     builder.to_xml(indent: 2, encoding: 'UTF-8',
-                               save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                   save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                           Nokogiri::XML::Node::SaveOptions::FORMAT)
   end
 

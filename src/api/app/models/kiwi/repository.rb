@@ -23,7 +23,7 @@ module Kiwi
     validates :source_path, presence: { message: 'can\'t be nil' }
     validate :source_path_format
     validates :priority, numericality: { only_integer: true, allow_nil: true, greater_than_or_equal_to: 0,
-                                        less_than: 100, message: 'must be between 0 and 99' }
+                                         less_than: 100, message: 'must be between 0 and 99' }
     validates :order, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
     # TODO: repo_type value depends on packagemanager element
     # https://doc.opensuse.org/projects/kiwi/doc/#sec.description.repository

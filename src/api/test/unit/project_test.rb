@@ -1233,16 +1233,16 @@ class ProjectTest < ActiveSupport::TestCase
       child = projects('Apache')
 
       parent2.linking_to.create(project: parent2,
-                                 linked_db_project_id: projects('home_Iggy').id,
-                                 position: 1)
+                                linked_db_project_id: projects('home_Iggy').id,
+                                position: 1)
 
       child.linking_to.create(project: child,
-                                 linked_db_project_id: parent1.id,
-                                 position: 1)
+                              linked_db_project_id: parent1.id,
+                              position: 1)
 
       child.linking_to.create(project: child,
-                                  linked_db_project_id: parent2.id,
-                                  position: 2)
+                              linked_db_project_id: parent2.id,
+                              position: 2)
 
       result = projects('home_Iggy').packages + child.packages + parent1.packages + parent2.packages
       result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
@@ -1273,12 +1273,12 @@ class ProjectTest < ActiveSupport::TestCase
       child = projects('Apache')
 
       child.linking_to.create(project: child,
-                                  linked_db_project_id: parent1.id,
-                                  position: 1)
+                              linked_db_project_id: parent1.id,
+                              position: 1)
 
       child.linking_to.create(project: child,
-                                  linked_db_project_id: parent2.id,
-                                  position: 2)
+                              linked_db_project_id: parent2.id,
+                              position: 2)
 
       pack2 = parent2.packages.where(name: 'pack2').first
       child.packages << pack2.dup
@@ -1298,12 +1298,12 @@ class ProjectTest < ActiveSupport::TestCase
       child = projects('Apache')
 
       child.linking_to.create(project: child,
-                                  linked_db_project_id: base_distro_update.id,
-                                  position: 1)
+                              linked_db_project_id: base_distro_update.id,
+                              position: 1)
 
       child.linking_to.create(project: child,
-                                  linked_db_project_id: base_distro.id,
-                                  position: 2)
+                              linked_db_project_id: base_distro.id,
+                              position: 2)
 
       pack2 = base_distro.packages.where(name: 'pack2').first
       base_distro_update.packages << pack2.dup

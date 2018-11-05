@@ -130,9 +130,9 @@ class Webui::RequestController < Webui::WebuiController
   def sourcediff
     check_ajax
     render partial: 'shared/editor', locals: { text: params[:text],
-                                                    mode: 'diff', style: { read_only: true },
-                                                    height: 'auto', width: '750px',
-                                                    no_border: true, uid: params[:uid] }
+                                               mode: 'diff', style: { read_only: true },
+                                               height: 'auto', width: '750px',
+                                               no_border: true, uid: params[:uid] }
   end
 
   def changerequest

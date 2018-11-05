@@ -12,11 +12,11 @@ RSpec.describe BsRequestAction, vcr: true do
     let(:project) { user.home_project }
     let(:target_package) do
       create(:package_with_file, name: 'package_encoding_1',
-             file_content: file_content, project: project)
+                                 file_content: file_content, project: project)
     end
     let(:source_package) do
       create(:package_with_file, name: 'package_encoding_2',
-             file_content: 'test', project: project)
+                                 file_content: 'test', project: project)
     end
     let(:bs_request) { build(:bs_request, creator: user.login) }
     let(:action_attributes) do

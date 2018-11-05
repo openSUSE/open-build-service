@@ -319,35 +319,35 @@ RSpec.describe Project, vcr: true do
 
       let!(:review) do
         create(:review_bs_request, creator: admin_user.login, target_project: project.name, source_project: other_project.name,
-               target_package: package.name, source_package: other_package.name, reviewer: confirmed_user)
+                                   target_package: package.name, source_package: other_package.name, reviewer: confirmed_user)
       end
 
       let!(:target) { create(:bs_request, creator: confirmed_user.login, source_project: project.name) }
       let!(:other_target) do
         create(:bs_request_with_submit_action, creator: admin_user.login, target_project: project.name, source_project: other_project.name,
-                                                                          target_package: package.name, source_package: other_package.name)
+                                               target_package: package.name, source_package: other_package.name)
       end
       let!(:declined_target) do
         create(:declined_bs_request, creator: confirmed_user.login, target_project: other_project.name, source_project: project.name,
-                                                                          target_package: package.name, source_package: other_package.name)
+                                     target_package: package.name, source_package: other_package.name)
       end
 
       let!(:incident) do
         create(:bs_request_with_maintenance_incident_action, creator: admin_user.login, target_project: project.name,
-               source_project: subproject.name, target_package: other_package, source_package: package.name)
+                                                             source_project: subproject.name, target_package: other_package, source_package: package.name)
       end
       let(:accepted_incident) do
         create(:bs_request_with_maintenance_incident_action, creator: admin_user.login, target_project: project.name,
-               source_project: subproject.name, target_package: other_package, source_package: package.name)
+                                                             source_project: subproject.name, target_package: other_package, source_package: package.name)
       end
 
       let!(:release) do
         create(:bs_request_with_maintenance_release_action, creator: admin_user.login, target_project: other_project.name,
-               source_project: subproject.name, target_package: other_package, source_package: package.name)
+                                                            source_project: subproject.name, target_package: other_package, source_package: package.name)
       end
       let!(:other_release) do
         create(:bs_request_with_maintenance_release_action, creator: admin_user.login, target_project: subproject.name,
-               source_project: other_project.name, target_package: package.name, source_package: other_package.name)
+                                                            source_project: other_project.name, target_package: package.name, source_package: other_package.name)
       end
 
       before do
@@ -595,12 +595,12 @@ RSpec.describe Project, vcr: true do
     let!(:maintenance_incident_project) { create(:maintenance_incident_project) }
     it {
       expect(maintenance_incident_project.expand_flags).to eq('lock' => [['disable', {}]],
-      'build' => [['disable', { explicit: '1' }]],
-      'publish' => [['disable', { explicit: '1' }]],
-      'debuginfo' => [['disable', {}]],
-      'useforbuild' => [['enable', {}]],
-      'binarydownload' => [['enable', {}]],
-      'sourceaccess' => [['enable', {}]], 'access' => [['enable', {}]])
+                                                              'build' => [['disable', { explicit: '1' }]],
+                                                              'publish' => [['disable', { explicit: '1' }]],
+                                                              'debuginfo' => [['disable', {}]],
+                                                              'useforbuild' => [['enable', {}]],
+                                                              'binarydownload' => [['enable', {}]],
+                                                              'sourceaccess' => [['enable', {}]], 'access' => [['enable', {}]])
     }
   end
 end
