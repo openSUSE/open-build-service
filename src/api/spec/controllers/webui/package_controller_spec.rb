@@ -1092,7 +1092,7 @@ RSpec.describe Webui::PackageController, vcr: true do
                </result>
               </resultlist>))
           do_request project: source_project_with_plus, package: package_of_project_with_plus,
-            repository: repo_leap_45_1.name, arch: 'i586', format: 'js'
+                     repository: repo_leap_45_1.name, arch: 'i586', format: 'js'
         end
 
         it { expect(response).to have_http_status(:ok) }
@@ -1650,8 +1650,8 @@ RSpec.describe Webui::PackageController, vcr: true do
     let(:my_user) { user }
     let(:post_params) do
       { project: source_project, name: package_name,
-                              title: 'package foo',
-                              description: 'awesome package foo' }
+        title: 'package foo',
+        description: 'awesome package foo' }
     end
 
     context 'Package#save failed' do
@@ -1680,9 +1680,9 @@ RSpec.describe Webui::PackageController, vcr: true do
       context 'valid package with source_protection enabled' do
         let(:post_params) do
           { project: source_project, name: package_name,
-                                  title: 'package foo',
-                                  description: 'awesome package foo', source_protection: 'foo',
-                                  disable_publishing: 'bar' }
+            title: 'package foo',
+            description: 'awesome package foo', source_protection: 'foo',
+            disable_publishing: 'bar' }
         end
 
         it { expect(Package.find_by(name: package_name).flags).to include(Flag.find_by_flag('sourceaccess')) }

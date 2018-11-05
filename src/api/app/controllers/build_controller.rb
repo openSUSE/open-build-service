@@ -18,7 +18,7 @@ class BuildController < ApplicationController
       pass_to_backend
     else
       render_error status: 403, errorcode: 'execute_cmd_no_permission',
-        message: 'Upload of binaries is only permitted for administrators'
+                   message: 'Upload of binaries is only permitted for administrators'
     end
   end
 
@@ -44,13 +44,13 @@ class BuildController < ApplicationController
 
       unless ['wipe', 'restartbuild', 'killbuild', 'abortbuild', 'rebuild', 'unpublish', 'sendsysrq'].include?(params[:cmd])
         render_error status: 400, errorcode: 'illegal_request',
-          message: "unsupported POST command #{params[:cmd]} to #{request.url}"
+                     message: "unsupported POST command #{params[:cmd]} to #{request.url}"
         return
       end
 
       unless prj.class == Project
         render_error status: 403, errorcode: 'readonly_error',
-          message: "The project #{params[:project]} is a remote project and therefore readonly."
+                     message: "The project #{params[:project]} is a remote project and therefore readonly."
         return
       end
 
@@ -61,14 +61,14 @@ class BuildController < ApplicationController
             allowed = permissions.project_change?(prj)
             unless allowed
               render_error status: 403, errorcode: 'execute_cmd_no_permission',
-                message: "No permission to execute command on package #{pack_name} in project #{prj.name}"
+                           message: "No permission to execute command on package #{pack_name} in project #{prj.name}"
               return
             end
           else
             allowed = permissions.package_change?(pkg)
             unless allowed
               render_error status: 403, errorcode: 'execute_cmd_no_permission',
-                message: "No permission to execute command on package #{pack_name}"
+                           message: "No permission to execute command on package #{pack_name}"
               return
             end
           end
@@ -77,7 +77,7 @@ class BuildController < ApplicationController
 
       unless allowed
         render_error status: 403, errorcode: 'execute_cmd_no_permission',
-          message: "No permission to execute command on project #{params[:project]}"
+                     message: "No permission to execute command on project #{params[:project]}"
         return
       end
 
@@ -88,12 +88,12 @@ class BuildController < ApplicationController
         pass_to_backend
       else
         render_error status: 403, errorcode: 'execute_cmd_no_permission',
-          message: "No permission to execute command on project #{params[:project]}"
+                     message: "No permission to execute command on project #{params[:project]}"
       end
       return
     else
       render_error status: 400, errorcode: 'illegal_request',
-        message: "Illegal request: #{request.method.to_s.upcase} #{request.path}"
+                   message: "Illegal request: #{request.method.to_s.upcase} #{request.path}"
       return
     end
   end

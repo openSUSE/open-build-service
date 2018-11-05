@@ -401,7 +401,7 @@ class Webui::ProjectController < Webui::WebuiController
     monitor_set_filter(defaults)
 
     find_opt = { project: @project, view: 'status', code: @status_filter,
-      arch: @arch_filter, repository: @repo_filter }
+                 arch: @arch_filter, repository: @repo_filter }
     find_opt[:lastbuild] = 1 if @lastbuild_switch.present?
 
     @buildresult = Buildresult.find_hashed(find_opt)
@@ -769,9 +769,9 @@ class Webui::ProjectController < Webui::WebuiController
     return unless @is_incident_project
 
     @open_release_requests = BsRequest.find_for(project: @project.name,
-                                  states: ['new', 'review'],
-                                  types: ['maintenance_release'],
-                                  roles: ['source']).pluck(:number)
+                                                states: ['new', 'review'],
+                                                types: ['maintenance_release'],
+                                                roles: ['source']).pluck(:number)
   end
 
   def valid_target_name?(name)

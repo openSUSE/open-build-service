@@ -52,9 +52,9 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(tag: 'service', attributes: { name: 'download_files' })
     assert_xml_tag(parent: { tag: 'service', attributes: { name: 'download_url' } },
-                    tag: 'param', attributes: { name: 'host' }, content: 'blahfasel')
+                   tag: 'param', attributes: { name: 'host' }, content: 'blahfasel')
     assert_xml_tag(parent: { tag: 'service', attributes: { name: 'set_version' } },
-                    tag: 'param', attributes: { name: 'version' }, content: '0815')
+                   tag: 'param', attributes: { name: 'version' }, content: '0815')
 
     # cleanup
     login_king

@@ -18,7 +18,7 @@ class ProductTests < ActionDispatch::IntegrationTest
       tag:        'product',
       attributes: { name: 'simple', originproject: 'home:tom:temporary', originpackage: '_product' }
     },
-      tag: 'cpe', content: 'cpe:/o:obs_fuzzies:simple:13.1'
+                   tag: 'cpe', content: 'cpe:/o:obs_fuzzies:simple:13.1'
     get "#{prefix}/source/home:tom:temporary?view=verboseproductlist&expand=1"
     assert_response :success
     assert_xml_tag parent: { tag:        'product',

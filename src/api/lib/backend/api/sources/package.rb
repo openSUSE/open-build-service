@@ -134,7 +134,7 @@ module Backend
         # @return [String]
         def self.rebuild(project_name, package_name, options = {})
           http_post(['/build/:project', project_name], defaults: { cmd: :rebuild, package: package_name },
-                    params: options, accepted: [:repository, :arch])
+                                                       params: options, accepted: [:repository, :arch])
         end
 
         # Returns the content of the source file

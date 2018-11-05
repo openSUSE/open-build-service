@@ -90,7 +90,7 @@ class BsRequestActionSubmit < BsRequestAction
       # source package got used as devel package, link it to the target
       # re-create it via branch , but keep current content...
       options = { comment: "initialized devel package after accepting #{bs_request.number}",
-        requestid: bs_request.number, keepcontent: 1, noservice: 1 }
+                  requestid: bs_request.number, keepcontent: 1, noservice: 1 }
       Backend::Api::Sources::Package.branch(self.target_project, self.target_package, source_project, source_package, User.current.login, options)
     elsif sourceupdate == 'cleanup'
       source_cleanup
