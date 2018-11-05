@@ -1,0 +1,27 @@
+<workerstatus clients="2">
+  <idle workerid="7de14aea3d12:1" hostarch="x86_64" />
+  <idle workerid="7de14aea3d12:2" hostarch="x86_64" />
+  <waiting arch="i586" jobs="0" />
+  <waiting arch="x86_64" jobs="0" />
+  <blocked arch="i586" jobs="0" />
+  <blocked arch="x86_64" jobs="0" />
+  <buildavg arch="i586" buildavg="1200" />
+  <buildavg arch="x86_64" buildavg="1200" />
+  <partition>
+    <daemon type="srcserver" state="running" starttime="1535957126" />
+    <daemon type="servicedispatch" state="running" starttime="1535957132" />
+    <daemon type="service" state="running" starttime="1535957132" />
+    <daemon type="clouduploadserver" state="running" starttime="1535957132" />
+    <daemon type="clouduploadworker" state="running" starttime="1535957132" />
+    <daemon type="scheduler" arch="i586" state="running" starttime="1535957132">
+      <queue high="0" med="0" low="2" next="0" />
+    </daemon>
+    <daemon type="scheduler" arch="x86_64" state="running" starttime="1535957132">
+      <queue high="0" med="0" low="2" next="0" />
+    </daemon>
+    <daemon type="repserver" state="running" starttime="1535957130" />
+    <daemon type="dispatcher" state="running" starttime="1535957132" />
+    <daemon type="publisher" state="running" starttime="1535957132" />
+    <daemon type="signer" state="running" starttime="1535957132" />
+  </partition>
+</workerstatus>
