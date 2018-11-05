@@ -1,6 +1,6 @@
 [Unit]
 Description=OBS source service dispatcher
-After=obsstoragesetup.service
+After=obsstoragesetup.service obsservice.service
 
 [Service]
 EnvironmentFile=/etc/sysconfig/obs-server
