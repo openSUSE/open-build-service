@@ -57,7 +57,7 @@ sub ownrepo {
     # make sure the directory exists
     if (! -d "$registrydir/$repo") {
       my $lck;
-      open($lck, '>>', "$registrydir/:repos");
+      BSUtil::lockopen($lck, '>>', "$registrydir/:repos");
       mkdir_p("$registrydir/$repo");
       close($lck);
     }
@@ -78,7 +78,7 @@ sub ownrepo {
 
   mkdir_p($registrydir) unless -d $registrydir;
   my $lck;
-  open($lck, '>>', "$registrydir/:repos");
+  BSUtil::lockopen($lck, '>>', "$registrydir/:repos");
   if (! -s "$registrydir/:repos") {
     $registries = {};
   } else {
@@ -106,7 +106,7 @@ sub disownrepo {
   BSRPC::rpc($param, undef, "project=$projid", "repository=$repoid", "regrepo=$repo");
 
   my $lck;
-  open($lck, '>>', "$registrydir/:repos");
+  BSUtil::lockopen($lck, '>>', "$registrydir/:repos");
   my $registries = BSUtil::retrieve("$registrydir/:repos");
   die("repository '$repo' is owned by $registries->{$repo}\n") if $registries->{$repo} && $registries->{$repo} ne $prp;
   my $dir = $repo;
