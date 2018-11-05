@@ -233,7 +233,7 @@ class RequestController < ApplicationController
   end
 
   def request_command_setacceptat
-    time = DateTime.parse(params[:time]) if params[:time].present?
+    time = Time.parse(params[:time]) if params[:time].present?
     @req.set_accept_at!(time)
     render_ok
   end

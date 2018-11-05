@@ -52,7 +52,7 @@ module Cloud
       end
 
       def created
-        Time.at(xml_object.created.to_i).to_datetime
+        Time.at(xml_object.created.to_i)
       end
       alias_method :created_at, :created
 
