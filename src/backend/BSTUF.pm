@@ -58,10 +58,10 @@ sub sign {
 
 sub mktbscert {
   my ($cn, $not_before, $not_after, $subjectkeyinfo) = @_;
-  my $serial = pack("CC", 0, 128 + int(rand(128)));
+  my $serial = pack("C", 128 + int(rand(128)));
   $serial .= pack("C", int(rand(256))) for (1, 2, 3, 4, 5, 6, 7);
-  my $certversion = BSASN1::asn1_pack($BSASN1::CONT | $BSASN1::CONS | 0, BSASN1::asn1_integer(2));
-  my $certserial = BSASN1::asn1_pack($BSASN1::INTEGER, $serial);
+  my $certversion = BSASN1::asn1_tagged(0, BSASN1::asn1_integer(2));
+  my $certserial = BSASN1::asn1_integer_mpi($serial);
   my $sigalgo = BSASN1::asn1_sequence($BSASN1::oid_sha256withrsaencryption, BSASN1::asn1_null());
   my $cnattr = BSASN1::asn1_sequence($BSASN1::oid_common_name, BSASN1::asn1_pack($BSASN1::UTF8STRING, $cn));
   my $issuer = BSASN1::asn1_sequence(BSASN1::asn1_set($cnattr));
@@ -70,7 +70,7 @@ sub mktbscert {
   my $basic_constraints = BSASN1::asn1_sequence($BSASN1::oid_basic_constraints, $critical, BSASN1::asn1_octet_string(BSASN1::asn1_sequence()));
   my $key_usage = BSASN1::asn1_sequence($BSASN1::oid_key_usage, $critical, BSASN1::asn1_octet_string(BSASN1::asn1_pack($BSASN1::BIT_STRING, pack("CC", 5, 160))));
   my $ext_key_usage = BSASN1::asn1_sequence($BSASN1::oid_ext_key_usage, BSASN1::asn1_octet_string(BSASN1::asn1_sequence($BSASN1::oid_code_signing)));
-  my $extensions = BSASN1::asn1_pack($BSASN1::CONT | $BSASN1::CONS | 3, BSASN1::asn1_sequence($basic_constraints, $key_usage, $ext_key_usage));
+  my $extensions = BSASN1::asn1_tagged(3, BSASN1::asn1_sequence($basic_constraints, $key_usage, $ext_key_usage));
   my $tbscert = BSASN1::asn1_sequence($certversion, $certserial, $sigalgo, $issuer, $validity, $issuer, $subjectkeyinfo, $extensions);
   return $tbscert;
 }
@@ -79,7 +79,7 @@ sub mkcert {
   my ($tbscert, $signargs) = @_;
   my $sigalgo = BSASN1::asn1_sequence($BSASN1::oid_sha256withrsaencryption, BSASN1::asn1_null());
   my $signature = sign($tbscert, $signargs);
-  my $cert = BSASN1::asn1_sequence($tbscert, $sigalgo, BSASN1::asn1_pack($BSASN1::BIT_STRING,  pack("C", 0), $signature));
+  my $cert = BSASN1::asn1_sequence($tbscert, $sigalgo, BSASN1::asn1_pack($BSASN1::BIT_STRING, pack("C", 0), $signature));
   return BSASN1::der2pem($cert, 'CERTIFICATE');
 }
 
@@ -87,31 +87,31 @@ sub mkcert {
 sub gettbscert {
   my ($cert) = @_;
   $cert = BSASN1::pem2der($cert, 'CERTIFICATE');
-  (undef, $cert, undef) = BSASN1::asn1_unpack($cert, $BSASN1::CONS | $BSASN1::SEQUENCE);
-  (undef, $cert, undef) = BSASN1::asn1_unpack($cert, $BSASN1::CONS | $BSASN1::SEQUENCE);
-  return BSASN1::asn1_pack($BSASN1::CONS | $BSASN1::SEQUENCE, $cert);
+  (undef, undef, $cert) = BSASN1::asn1_unpack($cert, $BSASN1::CONS | $BSASN1::SEQUENCE);
+  (undef, undef, undef, $cert) = BSASN1::asn1_unpack($cert, $BSASN1::CONS | $BSASN1::SEQUENCE);
+  return $cert;
 }
 
 # remove the serial number from a tbs certificate. We need to do this because the
 # serial is random and we want to compare two certs.
 sub removecertserial {
   my ($tbscert) = @_;
-  (undef, $tbscert, undef) = BSASN1::asn1_unpack($tbscert, $BSASN1::CONS | $BSASN1::SEQUENCE);
+  (undef, undef, $tbscert) = BSASN1::asn1_unpack($tbscert, $BSASN1::CONS | $BSASN1::SEQUENCE);
   my $tail = $tbscert;
-  (undef, undef, $tail) = BSASN1::asn1_unpack($tail);	# the version
+  ($tail, undef, undef) = BSASN1::asn1_unpack($tail);	# the version
   my $l = length($tail);
-  (undef, undef, $tail) = BSASN1::asn1_unpack($tail, $BSASN1::INTEGER);	# the serial
+  ($tail, undef, undef) = BSASN1::asn1_unpack($tail, $BSASN1::INTEGER);	# the serial
   substr($tbscert, length($tbscert) - $l, $l - length($tail), '');
-  return BSASN1::asn1_pack($BSASN1::CONS | $BSASN1::SEQUENCE, $tbscert);
+  return BSASN1::asn1_sequence($tbscert); 	# pack back into a sequence
 }
 
 # get pubkey
 sub getsubjectkeyinfo {
   my ($tbscert) = @_;
-  (undef, $tbscert, undef) = BSASN1::asn1_unpack($tbscert, $BSASN1::CONS | $BSASN1::SEQUENCE);
-  (undef, undef, $tbscert) = BSASN1::asn1_unpack($tbscert) for 1..6;
-  (undef, $tbscert, undef) = BSASN1::asn1_unpack($tbscert, $BSASN1::CONS | $BSASN1::SEQUENCE);
-  return BSASN1::asn1_pack($BSASN1::CONS | $BSASN1::SEQUENCE, $tbscert);
+  (undef, undef, $tbscert) = BSASN1::asn1_unpack($tbscert, $BSASN1::CONS | $BSASN1::SEQUENCE);
+  ($tbscert, undef, undef) = BSASN1::asn1_unpack($tbscert) for 1..6;
+  (undef, undef, undef, $tbscert) = BSASN1::asn1_unpack($tbscert, $BSASN1::CONS | $BSASN1::SEQUENCE);
+  return $tbscert;
 }
 
 sub signdata {

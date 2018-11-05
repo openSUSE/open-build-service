@@ -80,7 +80,6 @@ sub gentime {
 
 sub asn1_pack {
   my ($tag, @data) = @_;
-  my $ret = pack("C", $tag);
   my $data = join('', @data);
   my $l = length($data);
   return pack("CC", $tag, $l) . $data if $l < 128;
@@ -89,16 +88,16 @@ sub asn1_pack {
 }
 
 sub asn1_unpack {
-  my ($in, $allowed, $optional) = @_;
+  my ($in, $allowed, $optional, $exact) = @_;
+  $allowed = [ $allowed ] if defined($allowed) && !ref($allowed);
   if (length($in) < 2) {
-    return (undef, undef, $in) if $optional;
-    die("unexpected end of string\n");
+    return ($in, undef, '', '') if $optional || grep {!defined($_)} @{$allowed || []};
+    die("unexpected end of asn1 data\n");
   }
   my ($tag, $l) = unpack("CC", $in);
   if ($allowed) {
-    $allowed = [ $allowed ] unless ref($allowed);
-    if (!grep {$tag == $_}  @$allowed) {
-      return (undef, undef, $in) if $optional;
+    if (!grep {defined($_) && $tag == $_}  @$allowed) {
+      return ($in, undef, '', '') if $optional || grep {!defined($_)} @{$allowed || []};
       die("unexpected tag $tag, expected @$allowed\n");
     }
   }
@@ -109,10 +108,10 @@ sub asn1_unpack {
     die("unsupported asn1 length $l\n") if $l < 1 || $l > 4;
     $l = unpack("\@${l}N", pack('xxxx').substr($in, 2, 4));
   }
-  die("unexpected end of string\n") if length($in) < $off + $l;
-  return ($tag, substr($in, $off, $l), substr($in, $off + $l));
+  die("unexpected end of asn1 data\n") if length($in) < $off + $l;
+  die("tailing data at end of asn1 element\n") if $exact && length($in) != $off + $l;
+  return (substr($in, $off + $l), $tag, substr($in, $off, $l), substr($in, 0, $off + $l));
 }
-
 
 sub der2pem {
   my ($in, $what) = @_;
@@ -129,7 +128,7 @@ sub pem2der {
   return MIME::Base64::decode_base64($in);
 }
 
-# little helpers
+# little pack helpers
 sub asn1_null {
   return asn1_pack($NULL);
 }
@@ -173,6 +172,32 @@ sub asn1_gentime {
 
 sub asn1_octet_string {
   return asn1_pack($OCTET_STRING, $_[0]);
+}
+
+sub asn1_tagged {
+  return asn1_pack($CONT | $CONS | $_[0], $_[1]);
+}
+
+# little unpack helpers
+sub asn1_unpack_integer_mpi {
+  my ($in, $intag) = @_;
+  $intag = $INTEGER unless defined $intag;
+  (undef, undef, $in) = asn1_unpack($in, $intag ? $intag : undef, undef, 1);
+  $in = substr($in, 1) while $in ne '' && unpack('C', $in) == 0;
+  return $in;
+}
+
+sub asn1_unpack_sequence {
+  my ($in, $intag) = @_;
+  $intag = $CONS | $SEQUENCE unless defined $intag;
+  (undef, undef, $in) = asn1_unpack($in, $intag ? $intag : undef, undef, 1);
+  my @ret;
+  my $tagbody;
+  while ($in ne '') {
+    ($in, undef, undef, $tagbody) = asn1_unpack($in);
+    push @ret, $tagbody;
+  }
+  return @ret;
 }
 
 1;
