@@ -1,4 +1,18 @@
 .card.mb-3
   %h5.card-header Infos
   .card-body
-    Placeholder for the content
+    %dl
+      %dt Empty projects:
+      %dd= render 'empty_projects_list', projects: empty_projects
+
+      %dt Backlog:
+      -# TODO: add link to see the full list of the backlog of requests
+      %dd= render 'requests_list', requests: unassigned_requests, more_requests: more_unassigned_requests
+
+      %dt Ready:
+      -# TODO: add link to see the full list of ready requests
+      %dd= render 'requests_list', requests: ready_requests, more_requests: more_ready_requests
+
+      %dt Ignored:
+      -# TODO: add link when IgnoredRequest model is done
+      %dd= render 'requests_list', requests: ignored_requests, more_requests: more_ignored_requests

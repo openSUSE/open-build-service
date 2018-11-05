@@ -5,13 +5,27 @@ class StagingWorkflow < ApplicationRecord
       includes(:staged_requests).where(bs_requests: { id: nil })
     end
   end
-  has_many :target_of_bs_requests, through: :project
+
+  has_many :target_of_bs_requests, through: :project do
+    def stageable
+      in_states(['new', 'review'])
+    end
+
+    def ready_to_stage
+      in_states('new')
+    end
+  end
+
   has_many :staged_requests, class_name: 'BsRequest', through: :staging_projects
 
   after_create :create_staging_projects
 
   def unassigned_requests
-    target_of_bs_requests.in_states(['new', 'review']) - staged_requests - ignored_requests
+    target_of_bs_requests.stageable - staged_requests - ignored_requests
+  end
+
+  def ready_requests
+    target_of_bs_requests.ready_to_stage - staged_requests - ignored_requests
   end
 
   def ignored_requests
