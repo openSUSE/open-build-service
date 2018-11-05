@@ -8,14 +8,14 @@ module Event
     after_create :create_project_log_entry_job, if: -> { (PROJECT_CLASSES | PACKAGE_CLASSES).include?(self.class.name) }
 
     EXPLANATION_FOR_NOTIFICATIONS =  {
-      'Event::BuildFail'          => 'Receive notifications of build failures for packages for which you are...',
-      'Event::ServiceFail'        => 'Receive notifications of source service failures for packages for which you are...',
-      'Event::ReviewWanted'       => 'Receive notifications of reviews created that have you as a wanted...',
-      'Event::RequestCreate'      => 'Receive notifications of requests created for projects/packages for which you are...',
+      'Event::BuildFail' => 'Receive notifications of build failures for packages for which you are...',
+      'Event::ServiceFail' => 'Receive notifications of source service failures for packages for which you are...',
+      'Event::ReviewWanted' => 'Receive notifications of reviews created that have you as a wanted...',
+      'Event::RequestCreate' => 'Receive notifications of requests created for projects/packages for which you are...',
       'Event::RequestStatechange' => 'Receive notifications of requests state changes for projects for which you are...',
-      'Event::CommentForProject'  => 'Receive notifications of comments created on projects for which you are...',
-      'Event::CommentForPackage'  => 'Receive notifications of comments created on a package for which you are...',
-      'Event::CommentForRequest'  => 'Receive notifications of comments created on a request for which you are...'
+      'Event::CommentForProject' => 'Receive notifications of comments created on projects for which you are...',
+      'Event::CommentForPackage' => 'Receive notifications of comments created on a package for which you are...',
+      'Event::CommentForRequest' => 'Receive notifications of comments created on a request for which you are...'
     }.freeze
 
     class << self

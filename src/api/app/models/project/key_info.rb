@@ -21,12 +21,12 @@ class Project
       return if parsed_response['pubkey'].blank?
 
       key_info_params = {
-        origin:      parsed_response['project'],
-        pubkey:      parsed_response['pubkey']['_content'],
-        algorithm:   parsed_response['pubkey']['algo'],
-        keyid:       parsed_response['pubkey']['keyid'],
-        keysize:     parsed_response['pubkey']['keysize'],
-        expires:     parsed_response['pubkey']['expires'],
+        origin: parsed_response['project'],
+        pubkey: parsed_response['pubkey']['_content'],
+        algorithm: parsed_response['pubkey']['algo'],
+        keyid: parsed_response['pubkey']['keyid'],
+        keysize: parsed_response['pubkey']['keysize'],
+        expires: parsed_response['pubkey']['expires'],
         fingerprint: parsed_response['pubkey']['fingerprint']
       }
 

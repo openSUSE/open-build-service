@@ -141,11 +141,11 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
 
     # backend copy of submitted sources, but keep link
     cp_params = {
-      requestid:      bs_request.number,
-      keeplink:       1,
-      expand:         1,
+      requestid: bs_request.number,
+      keeplink: 1,
+      expand: 1,
       withacceptinfo: 1,
-      comment:        "Maintenance incident copy from project #{source_project}"
+      comment: "Maintenance incident copy from project #{source_project}"
     }
     cp_params[:orev] = source_rev if source_rev
     response = Backend::Api::Sources::Package.copy(incident_project.name, new_pkg.name, source_project, source_package, User.current.login, cp_params)

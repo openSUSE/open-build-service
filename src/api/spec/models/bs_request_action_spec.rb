@@ -21,8 +21,8 @@ RSpec.describe BsRequestAction, vcr: true do
     let(:bs_request) { build(:bs_request, creator: user.login) }
     let(:action_attributes) do
       {
-        bs_request:     bs_request,
-        type:           'submit',
+        bs_request: bs_request,
+        type: 'submit',
         target_project: project.name,
         target_package: target_package.name,
         source_project: project.name,
@@ -43,8 +43,8 @@ RSpec.describe BsRequestAction, vcr: true do
     let(:bs_request) { create(:bs_request) }
     let(:action_attributes) do
       {
-        bs_request:     bs_request,
-        type:           'submit',
+        bs_request: bs_request,
+        type: 'submit',
         target_project: 'target_prj',
         target_package: 'target_pkg'
       }

@@ -1458,10 +1458,10 @@ class Project < ApplicationRecord
           patchinfo = collect_patchinfo_data(xml)
         end
         release_targets_ng[rt.target_repository.project.name] = {
-          reponame:                  repo.name,
-          packages:                  [],
-          patchinfo:                 patchinfo,
-          package_issues:            {},
+          reponame: repo.name,
+          packages: [],
+          patchinfo: patchinfo,
+          package_issues: {},
           package_issues_by_tracker: {}
         }
       end
@@ -1729,9 +1729,9 @@ class Project < ApplicationRecord
   def collect_patchinfo_data(patchinfo)
     if patchinfo
       {
-        summary:  patchinfo.document.at_css('summary').try(:content),
+        summary: patchinfo.document.at_css('summary').try(:content),
         category: patchinfo.document.at_css('category').try(:content),
-        stopped:  patchinfo.document.at_css('stopped').try(:content)
+        stopped: patchinfo.document.at_css('stopped').try(:content)
       }
     else
       {}

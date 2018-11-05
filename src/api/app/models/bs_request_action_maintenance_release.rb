@@ -51,8 +51,8 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     opts[:projectCommit].each do |tprj, sprj|
       commit_params = {
         requestid: bs_request.number,
-        rev:       'latest',
-        comment:   "Releasing from project #{sprj}"
+        rev: 'latest',
+        comment: "Releasing from project #{sprj}"
       }
       commit_params[:comment] += " the update #{opts[:updateinfoIDs].join(', ')}" if opts[:updateinfoIDs]
       Backend::Api::Sources::Project.commit(tprj, User.current.login, commit_params)

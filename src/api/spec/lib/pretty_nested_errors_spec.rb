@@ -32,7 +32,7 @@ RSpec.describe PrettyNestedErrors do
       wheels_attributes: [
         { name: nil },
         {
-          name:              'Rear wheel',
+          name: 'Rear wheel',
           spokes_attributes: [
             { tension: nil, number: 1 },
             { tension: 1.34, number: 2 },

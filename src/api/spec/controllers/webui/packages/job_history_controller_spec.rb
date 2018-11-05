@@ -40,17 +40,17 @@ RSpec.describe Webui::Packages::JobHistoryController, type: :controller, vcr: tr
 
     context 'with job history' do
       let(:local_job_history) do
-        { revision:      '1',
-          srcmd5:        '2ac8bd685591b40e412ee99b182f94c2',
+        { revision: '1',
+          srcmd5: '2ac8bd685591b40e412ee99b182f94c2',
           build_counter: '1',
-          worker_id:     'vagrant-openSUSE-Leap:1',
-          host_arch:     'x86_64',
-          reason:        'new build',
-          ready_time:    1_492_687_344,
-          start_time:    1_492_687_470,
-          end_time:      1_492_687_507,
-          total_time:    37,
-          code:          'succeed' }
+          worker_id: 'vagrant-openSUSE-Leap:1',
+          host_arch: 'x86_64',
+          reason: 'new build',
+          ready_time: 1_492_687_344,
+          start_time: 1_492_687_470,
+          end_time: 1_492_687_507,
+          total_time: 37,
+          code: 'succeed' }
       end
 
       before do

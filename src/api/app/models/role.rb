@@ -13,11 +13,11 @@ class Role < ApplicationRecord
   end
 
   validates :title,
-            format: { with:    %r{\A\w*\z},
+            format: { with: %r{\A\w*\z},
                       message: 'must not contain invalid characters' }
   validates :title,
-            length: { in:        2..100,
-                      too_long:  'must have less than 100 characters',
+            length: { in: 2..100,
+                      too_long: 'must have less than 100 characters',
                       too_short: 'must have more than two characters',
                       allow_nil: false }
 

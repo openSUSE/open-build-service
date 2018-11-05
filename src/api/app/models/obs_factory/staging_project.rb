@@ -269,12 +269,12 @@ module ObsFactory
         result.elements('status') do |status|
           code = status.get('code')
           if ['broken', 'failed'].include?(code) || (code == 'unresolvable' && !building)
-            @broken_packages << { 'package'    => status['package'],
-                                  'project'    => name,
-                                  'state'      => code,
-                                  'details'    => status['details'],
+            @broken_packages << { 'package' => status['package'],
+                                  'project' => name,
+                                  'state' => code,
+                                  'details' => status['details'],
                                   'repository' => result['repository'],
-                                  'arch'       => result['arch'] }
+                                  'arch' => result['arch'] }
           end
         end
         if building

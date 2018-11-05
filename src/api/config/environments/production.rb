@@ -77,10 +77,10 @@ OBSApi::Application.configure do
     exceptions = ['controller', 'action', 'format', 'id']
     {
       params: event.payload[:params].except(*exceptions),
-      host:   event.payload[:headers].env['REMOTE_ADDR'],
-      time:   event.time,
+      host: event.payload[:headers].env['REMOTE_ADDR'],
+      time: event.time,
       backend: event.payload[:backend_runtime],
-      user:   User.current.try(:login)
+      user: User.current.try(:login)
     }
   end
 

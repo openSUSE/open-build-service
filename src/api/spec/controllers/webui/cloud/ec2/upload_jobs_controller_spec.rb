@@ -76,14 +76,14 @@ RSpec.describe Webui::Cloud::Ec2::UploadJobsController, type: :controller, vcr: 
   describe 'POST #create' do
     let(:params) do
       {
-        project:    'Cloud',
-        package:    'aws',
+        project: 'Cloud',
+        package: 'aws',
         repository: 'standard',
-        arch:       'x86_64',
-        filename:   'appliance.raw.xz',
-        region:     'us-east-1',
-        ami_name:   'my-image',
-        target:     'ec2'
+        arch: 'x86_64',
+        filename: 'appliance.raw.xz',
+        region: 'us-east-1',
+        ami_name: 'my-image',
+        target: 'ec2'
       }
     end
     let(:error_response) do
@@ -133,7 +133,7 @@ RSpec.describe Webui::Cloud::Ec2::UploadJobsController, type: :controller, vcr: 
       end
       let(:additional_data) do
         {
-          region:   'us-east-1',
+          region: 'us-east-1',
           ami_name: 'my-image'
         }
       end

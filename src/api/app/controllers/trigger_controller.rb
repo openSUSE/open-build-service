@@ -30,8 +30,8 @@ class TriggerController < ApplicationController
     if pkg
       # check if user has still access
       unless token.user.is_active? && token.user.can_modify?(pkg)
-        render_error message:   "no permission for package #{pkg.name} in project #{pkg.project.name}",
-                     status:    403,
+        render_error message: "no permission for package #{pkg.name} in project #{pkg.project.name}",
+                     status: 403,
                      errorcode: 'no_permission'
         return
       end
