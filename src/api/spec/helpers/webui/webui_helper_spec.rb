@@ -96,10 +96,10 @@ RSpec.describe Webui::WebuiHelper do
       @configuration = { 'bugzilla_url' => 'https://bugzilla.example.org' }
       @expected_attributes = {
         classification: 7340,
-        product:        'openSUSE.org',
-        component:      '3rd%20party%20software',
-        assigned_to:    '',
-        short_desc:     ''
+        product: 'openSUSE.org',
+        component: '3rd%20party%20software',
+        assigned_to: '',
+        short_desc: ''
       }
     end
 

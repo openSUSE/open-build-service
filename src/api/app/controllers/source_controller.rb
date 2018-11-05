@@ -597,7 +597,7 @@ class SourceController < ApplicationController
 
     begin
       project = Project.get_by_name(params[:oproject])
-      commit = { login:   User.current.login,
+      commit = { login: User.current.login,
                  lowprio: 1,
                  comment: "Project move from #{params[:oproject]} to #{params[:project]}" }
       commit[:comment] = params[:comment] if params[:comment].present?

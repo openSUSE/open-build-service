@@ -501,10 +501,10 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
           'Order is not a number',
           'Replaceable has to be a boolean'
         ],
-        'Package: '                       => [
+        'Package: ' => [
           "Name can't be blank"
         ],
-        'Image Errors:'                   => [
+        'Image Errors:' => [
           "Name can't be blank"
         ]
       }

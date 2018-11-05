@@ -825,10 +825,10 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     # search: find definition in package below without this binary
     get '/search/owner?binary=package&project=TEMPORARY:Update&filter=bugowner'
     assert_response :success
-    assert_xml_tag parent: { tag:        'owner',
+    assert_xml_tag parent: { tag: 'owner',
                              attributes: { rootproject: 'TEMPORARY:Update',
-                                           project:     'TEMPORARY:GA',
-                                           package:     'package' } },
+                                           project: 'TEMPORARY:GA',
+                                           package: 'package' } },
                    tag: 'person', attributes: { name: 'fred', role: 'bugowner' }
 
     # cleanup

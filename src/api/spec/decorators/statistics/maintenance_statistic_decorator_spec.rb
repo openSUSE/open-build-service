@@ -13,10 +13,10 @@ RSpec.describe Statistics::MaintenanceStatisticDecorator do
     end
     let(:expected_xml_hash1) do
       {
-        type:    maintenance_statistic1.type,
-        name:    maintenance_statistic1.name,
+        type: maintenance_statistic1.type,
+        name: maintenance_statistic1.name,
         tracker: maintenance_statistic1.tracker,
-        when:    maintenance_statistic1.when
+        when: maintenance_statistic1.when
       }
     end
     let(:maintenance_statistic2) do
@@ -31,8 +31,8 @@ RSpec.describe Statistics::MaintenanceStatisticDecorator do
     let(:expected_xml_hash2) do
       {
         type: maintenance_statistic2.type,
-        who:  maintenance_statistic2.who,
-        id:   maintenance_statistic2.id,
+        who: maintenance_statistic2.who,
+        id: maintenance_statistic2.id,
         when: maintenance_statistic2.when
       }
     end

@@ -18,19 +18,19 @@ class Patchinfo
 
   # FIXME: Layout and colors belong to CSS
   RATING_COLORS = {
-    'low'       => 'green',
-    'moderate'  => 'olive',
+    'low' => 'green',
+    'moderate' => 'olive',
     'important' => 'red',
-    'critical'  => 'maroon'
+    'critical' => 'maroon'
   }.freeze
 
   RATINGS = RATING_COLORS.keys.freeze
 
   CATEGORY_COLORS = {
     'recommended' => 'green',
-    'security'    => 'maroon',
-    'optional'    => 'olive',
-    'feature'     => ''
+    'security' => 'maroon',
+    'optional' => 'olive',
+    'feature' => ''
   }.freeze
 
   # '' is a valid category

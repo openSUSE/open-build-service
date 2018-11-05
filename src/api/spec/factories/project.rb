@@ -75,9 +75,9 @@ FactoryBot.define do
           end
 
           new_package = create(:package, {
-            project:     project,
-            name:        package_name,
-            title:       package_title,
+            project: project,
+            name: package_name,
+            title: package_title,
             description: package_description
           }.compact)
           project.packages << new_package

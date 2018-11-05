@@ -137,11 +137,11 @@ RSpec.describe Webui::UserController do
         login admin_user
         post :save, params: {
           user: {
-            login:                user.login,
-            realname:             'another real name',
-            email:                'new_valid@email.es',
-            state:                'locked',
-            role_ids:             new_global_roles.pluck(:id),
+            login: user.login,
+            realname: 'another real name',
+            email: 'new_valid@email.es',
+            state: 'locked',
+            role_ids: new_global_roles.pluck(:id),
             ignore_auth_services: 'true'
           }
         }

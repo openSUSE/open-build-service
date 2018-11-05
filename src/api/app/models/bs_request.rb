@@ -842,13 +842,13 @@ class BsRequest < ApplicationRecord
 
   def create_new_review(opts)
     newreview = reviews.create(
-      reason:     opts[:comment],
-      by_user:    opts[:by_user],
-      by_group:   opts[:by_group],
+      reason: opts[:comment],
+      by_user: opts[:by_user],
+      by_group: opts[:by_group],
       by_project: opts[:by_project],
       by_package: opts[:by_package],
-      creator:    User.current.try(:login),
-      reviewer:   User.current.try(:login)
+      creator: User.current.try(:login),
+      reviewer: User.current.try(:login)
     )
     return newreview if newreview.valid?
     raise InvalidReview, 'Review invalid: ' + newreview.errors.full_messages.join("\n")
@@ -869,8 +869,8 @@ class BsRequest < ApplicationRecord
       save!
 
       history_params = {
-        request:               self,
-        user_id:               User.current.id,
+        request: self,
+        user_id: User.current.id,
         description_extension: newreview.id.to_s
       }
       history_params[:comment] = opts[:comment] if opts[:comment]
@@ -1254,10 +1254,10 @@ class BsRequest < ApplicationRecord
 
         opts = { source_project: action.target_project,
                  source_package: action.target_package,
-                 source_rev:     rev,
+                 source_rev: rev,
                  target_project: project,
                  target_package: package,
-                 type:           action.type }
+                 type: action.type }
         new_request.bs_request_actions.build(opts)
 
         new_request.save!
@@ -1308,11 +1308,11 @@ class BsRequest < ApplicationRecord
     return unless persisted? && priority_changed?
 
     HistoryElement::RequestPriorityChange.create(
-      request:               self,
+      request: self,
       # We need to have a user here
-      user:                  User.find_nobody!,
+      user: User.find_nobody!,
       description_extension: "#{priority_was} => #{priority}",
-      comment:               'Automatic priority bump: Priority of related action increased.'
+      comment: 'Automatic priority bump: Priority of related action increased.'
     )
   end
 

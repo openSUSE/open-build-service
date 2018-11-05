@@ -6,11 +6,11 @@ module Webui
       before_action :set_user
 
       REQUEST_METHODS = {
-        'all_requests_table'      => :requests,
-        'requests_out_table'      => :outgoing_requests,
+        'all_requests_table' => :requests,
+        'requests_out_table' => :outgoing_requests,
         'requests_declined_table' => :declined_requests,
-        'requests_in_table'       => :incoming_requests,
-        'reviews_in_table'        => :involved_reviews
+        'requests_in_table' => :incoming_requests,
+        'reviews_in_table' => :involved_reviews
       }.freeze
 
       private

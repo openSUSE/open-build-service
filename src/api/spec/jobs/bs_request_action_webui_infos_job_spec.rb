@@ -87,13 +87,13 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
 
       let(:params) do
         {
-          cmd:       :diff,
+          cmd: :diff,
           filelimit: 10_000,
-          tarlimit:  10_000,
-          rev:       0,
-          orev:      0,
-          oproject:  source_project.name,
-          opackage:  source_package.name
+          tarlimit: 10_000,
+          rev: 0,
+          orev: 0,
+          oproject: source_project.name,
+          opackage: source_package.name
         }
       end
 

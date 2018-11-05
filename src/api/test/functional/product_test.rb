@@ -15,14 +15,14 @@ class ProductTests < ActionDispatch::IntegrationTest
     get "#{prefix}/source/home:tom:temporary?view=verboseproductlist"
     assert_response :success
     assert_xml_tag parent: {
-      tag:        'product',
+      tag: 'product',
       attributes: { name: 'simple', originproject: 'home:tom:temporary', originpackage: '_product' }
     },
                    tag: 'cpe', content: 'cpe:/o:obs_fuzzies:simple:13.1'
     get "#{prefix}/source/home:tom:temporary?view=verboseproductlist&expand=1"
     assert_response :success
-    assert_xml_tag parent: { tag:        'product',
-                             attributes: { name:          'simple',
+    assert_xml_tag parent: { tag: 'product',
+                             attributes: { name: 'simple',
                                            originproject: 'home:tom:temporary',
                                            originpackage: '_product' } },
                    tag: 'cpe', content: 'cpe:/o:obs_fuzzies:simple:13.1'
@@ -34,8 +34,8 @@ class ProductTests < ActionDispatch::IntegrationTest
     get "#{prefix}/source/home:tom:temporary:link?view=productlist&expand=1"
     assert_response :success
     assert_xml_tag tag: 'product',
-                   attributes: { name:          'simple',
-                                 cpe:           'cpe:/o:obs_fuzzies:simple:13.1',
+                   attributes: { name: 'simple',
+                                 cpe: 'cpe:/o:obs_fuzzies:simple:13.1',
                                  originproject: 'home:tom:temporary',
                                  originpackage: '_product' }
 

@@ -6,8 +6,8 @@ module Webui
 
       REQUEST_METHODS = {
         'all_requests_table' => :requests,
-        'requests_in_table'  => :incoming_requests,
-        'reviews_in_table'   => :involved_reviews
+        'requests_in_table' => :incoming_requests,
+        'reviews_in_table' => :involved_reviews
       }.freeze
 
       private

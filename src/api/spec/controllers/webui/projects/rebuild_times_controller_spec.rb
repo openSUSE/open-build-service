@@ -46,9 +46,9 @@ RSpec.describe Webui::Projects::RebuildTimesController do
         stub_request(:get, jobs_url).to_return(status: 200, body: jobs_xml)
 
         get :show, params: {
-          project:    user.home_project.name,
+          project: user.home_project.name,
           repository: repo_for_user_home.name,
-          arch:       'x86_64'
+          arch: 'x86_64'
         }
       end
 

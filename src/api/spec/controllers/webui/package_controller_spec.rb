@@ -118,8 +118,8 @@ RSpec.describe Webui::PackageController, vcr: true do
                  source_package: package.name,
                  target_project: target_project.name,
                  target_package: package.name,
-                 type:           'submit',
-                 source_rev:     2
+                 type: 'submit',
+                 source_rev: 2
         )).to exist
       end
     end
@@ -476,9 +476,9 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       context "adding a file that doesn't exist yet" do
         before do
-          do_request(project:   source_project,
-                     package:   source_package,
-                     filename:  'newly_created_file',
+          do_request(project: source_project,
+                     package: source_package,
+                     filename: 'newly_created_file',
                      file_type: 'local',
                      file: 'some_content')
         end
@@ -1155,10 +1155,10 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       context 'with a multibuild package' do
         let(:params) do
-          { project:    source_project,
-            package:    "#{source_package}:multibuild-package",
+          { project: source_project,
+            package: "#{source_package}:multibuild-package",
             repository: repo_leap_42_2.name,
-            arch:       architecture.name }
+            arch: architecture.name }
         end
         let(:starttime) { 1.hour.ago.to_i }
 
@@ -1223,10 +1223,10 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       context 'for multibuild package' do
         let(:params) do
-          { project:    source_project,
-            package:    "#{source_package}:multibuild-package",
+          { project: source_project,
+            package: "#{source_package}:multibuild-package",
             repository: repo_leap_42_2.name,
-            arch:       architecture.name }
+            arch: architecture.name }
         end
 
         before do
