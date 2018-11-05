@@ -1692,6 +1692,10 @@ class Project < ApplicationRecord
     packages.find_by(name: 'dashboard')
   end
 
+  def staging_identifier
+    name[/.*:Staging:(.*)/, 1]
+  end
+
   private
 
   def discard_cache

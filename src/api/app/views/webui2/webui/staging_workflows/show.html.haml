@@ -24,4 +24,4 @@
                   = render partial: 'problems', locals: { project: staging_project }
   .col-xl-2
     = render partial: 'legend'
-    = render partial: 'infos'
+    = render partial: 'infos', locals: { staging_workflow: @staging_workflow, project: @project }

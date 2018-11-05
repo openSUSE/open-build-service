@@ -1,0 +1,18 @@
+.card.mb-3
+  %h5.card-header Infos
+  .card-body
+    %dl
+      %dt Empty projects:
+      %dd= projects_without_requests
+
+      -# TODO: Backlog was a link to group_show_path(title: @distribution.staging_manager), how does it work now?
+      %dt Backlog:
+      %dd= list_of_requests(staging_workflow.unassigned_requests)
+
+      %dt= link_to('Ready:', project_requests_path(project, state: 'new'))
+      %dd= list_of_requests(staging_workflow.ready_requests)
+
+      %dt Ignored:
+      -# TODO: add link when IgnoredRequest model is done
+         %dt= link_to 'Ignored:', staging_workflow_ignored_requests_path(@staging_workflow)
+      %dd= list_of_requests(staging_workflow.ignored_requests)
