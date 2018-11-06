@@ -90,14 +90,14 @@ module ObsFactory
     #
     # @return [Array] array of StagingProject objects
     def staging_projects
-      @staging_projects ||= StagingProject.for(self)
+      @staging_projects ||= ObsFactory::StagingProject.for(self)
     end
 
     # Staging projects associated to the distribution, including non-letter
     #
     # @return [Array] array of StagingProject objects
     def staging_projects_all
-      @staging_projects ||= StagingProject.for(self, false)
+      @staging_projects ||= ObsFactory::StagingProject.for(self, false)
     end
 
     # Version of the distribution used as source
