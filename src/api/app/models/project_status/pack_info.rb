@@ -31,13 +31,13 @@ module ProjectStatus
 
     def header
       options = {
-        project:    project,
-        name:       name,
-        version:    version,
-        srcmd5:     srcmd5,
+        project: project,
+        name: name,
+        version: version,
+        srcmd5: srcmd5,
         changesmd5: changesmd5,
-        maxmtime:   maxmtime,
-        release:    release
+        maxmtime: maxmtime,
+        release: release
       }
       unless verifymd5.blank? || verifymd5 == srcmd5
         options[:verifymd5] = verifymd5

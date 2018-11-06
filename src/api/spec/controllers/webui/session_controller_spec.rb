@@ -59,8 +59,8 @@ RSpec.describe Webui::SessionController do
   context 'in kerberos mode' do
     before do
       stub_const('CONFIG', CONFIG.merge('kerberos_service_principal' => 'HTTP/obs.test.com@test_realm.com',
-                                        'kerberos_realm'             => 'test_realm.com',
-                                        'kerberos_mode'              => true))
+                                        'kerberos_realm' => 'test_realm.com',
+                                        'kerberos_mode' => true))
     end
 
     context 'for a request that requires authentication' do

@@ -8,15 +8,15 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
   describe '.create' do
     let(:params) do
       {
-        project:    'Cloud',
-        package:    'aws',
+        project: 'Cloud',
+        package: 'aws',
         repository: 'standard',
-        arch:       'x86_64',
-        filename:   'appliance.raw.gz',
-        region:     'us-east-1',
-        user:       user,
-        target:     'ec2',
-        ami_name:   'myami'
+        arch: 'x86_64',
+        filename: 'appliance.raw.gz',
+        region: 'us-east-1',
+        user: user,
+        target: 'ec2',
+        ami_name: 'myami'
       }
     end
     let(:xml_response) do

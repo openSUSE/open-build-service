@@ -24,11 +24,11 @@ RSpec.describe UnregisteredUser do
   context '#register' do
     let(:user_attributes) do
       {
-        realname:              'Tux Penguin',
-        login:                 'tux',
-        password:              'tux123',
+        realname: 'Tux Penguin',
+        login: 'tux',
+        password: 'tux123',
         password_confirmation: 'tux123',
-        email:                 'tux@northpole.org'
+        email: 'tux@northpole.org'
       }
     end
 

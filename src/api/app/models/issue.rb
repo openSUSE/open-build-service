@@ -70,10 +70,10 @@ class Issue < ApplicationRecord
   def webui_infos
     issue = {
       created_at: created_at,
-      name:       name,
-      tracker:    issue_tracker.name,
-      label:      label,
-      url:        url
+      name: name,
+      tracker: issue_tracker.name,
+      label: label,
+      url: url
     }
 
     issue[:updated_at] = updated_at if updated_at

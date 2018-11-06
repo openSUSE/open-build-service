@@ -687,11 +687,11 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get '/build/BaseDistro3Channel/_result'
     assert_response :success
     assert_xml_tag tag: 'result', attributes: {
-      project:    'BaseDistro3Channel',
+      project: 'BaseDistro3Channel',
       repository: 'channel_repo',
-      arch:       'i586',
-      code:       'published',
-      state:      'published'
+      arch: 'i586',
+      code: 'published',
+      state: 'published'
     }
     get '/published/BaseDistro3Channel/channel_repo/repodata'
     assert_response :success

@@ -133,8 +133,8 @@ RSpec.describe UserLdapStrategy do
       include_context 'setup ldap mock', for_ssl: true
 
       before do
-        stub_const('CONFIG', CONFIG.merge('ldap_search_user'      => 'tux',
-                                          'ldap_search_auth'      => 'tux_password',
+        stub_const('CONFIG', CONFIG.merge('ldap_search_user' => 'tux',
+                                          'ldap_search_auth' => 'tux_password',
                                           'ldap_group_title_attr' => 'ldap_group'))
 
         allow(ldap_mock).to receive(:bind).with('tux', 'tux_password')
@@ -183,9 +183,9 @@ RSpec.describe UserLdapStrategy do
 
   describe '#find_with_ldap' do
     before do
-      stub_const('CONFIG', CONFIG.merge('ldap_search_user'  => 'tux',
-                                        'ldap_search_auth'  => 'tux_password',
-                                        'ldap_ssl'          => :off,
+      stub_const('CONFIG', CONFIG.merge('ldap_search_user' => 'tux',
+                                        'ldap_search_auth' => 'tux_password',
+                                        'ldap_ssl' => :off,
                                         'ldap_authenticate' => :ldap))
     end
 

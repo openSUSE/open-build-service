@@ -170,12 +170,12 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
     context 'with invalid repositories data' do
       let(:invalid_repositories_update_params) do
         {
-          id:         kiwi_image_with_package_with_kiwi_file.id,
+          id: kiwi_image_with_package_with_kiwi_file.id,
           kiwi_image: {
             repositories_attributes: {
               '0' => {
-                id:          kiwi_repository.id,
-                repo_type:   'apt2-deb',
+                id: kiwi_repository.id,
+                repo_type: 'apt2-deb',
                 source_path: 'htt://example.com'
               }
             }
@@ -203,18 +203,18 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
       context 'without use_project_repositories' do
         let(:update_params) do
           {
-            id:         kiwi_image_with_package_with_kiwi_file.id,
+            id: kiwi_image_with_package_with_kiwi_file.id,
             kiwi_image: { repositories_attributes: { '0' => {
-              id:             kiwi_repository.id,
-              repo_type:      'apt-deb',
-              priority:       '',
-              alias:          '',
-              source_path:    'http://',
-              username:       '',
-              password:       '',
+              id: kiwi_repository.id,
+              repo_type: 'apt-deb',
+              priority: '',
+              alias: '',
+              source_path: 'http://',
+              username: '',
+              password: '',
               prefer_license: 0,
-              imageinclude:   0,
-              replaceable:    0
+              imageinclude: 0,
+              replaceable: 0
             } }, use_project_repositories: '0' }
           }
         end
@@ -230,18 +230,18 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
       context 'with use_project_repositories' do
         let(:update_params) do
           {
-            id:         kiwi_image_with_package_with_kiwi_file.id,
+            id: kiwi_image_with_package_with_kiwi_file.id,
             kiwi_image: { repositories_attributes: { '0' => {
-              id:             kiwi_repository.id,
-              repo_type:      'apt-deb',
-              priority:       '',
-              alias:          '',
-              source_path:    'http://',
-              username:       '',
-              password:       '',
+              id: kiwi_repository.id,
+              repo_type: 'apt-deb',
+              priority: '',
+              alias: '',
+              source_path: 'http://',
+              username: '',
+              password: '',
               prefer_license: 0,
-              imageinclude:   0,
-              replaceable:    0
+              imageinclude: 0,
+              replaceable: 0
             } }, use_project_repositories: '1' }
           }
         end
@@ -260,14 +260,14 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
     context 'with invalid package: empty name' do
       let(:invalid_packages_update_params) do
         {
-          id:         kiwi_image_with_package_with_kiwi_file.id,
+          id: kiwi_image_with_package_with_kiwi_file.id,
           kiwi_image: {
             package_groups_attributes: {
               '0' => {
-                id:                  kiwi_package.package_group.id,
+                id: kiwi_package.package_group.id,
                 packages_attributes: {
                   '0' => {
-                    id:   kiwi_package.id,
+                    id: kiwi_package.id,
                     name: '',
                     arch: 'x86'
                   }
@@ -295,14 +295,14 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
     context 'with valid packages data' do
       let(:update_params) do
         {
-          id:         kiwi_image_with_package_with_kiwi_file.id,
+          id: kiwi_image_with_package_with_kiwi_file.id,
           kiwi_image: {
             package_groups_attributes: {
               '0' => {
-                id:                  kiwi_package.package_group.id,
+                id: kiwi_package.package_group.id,
                 packages_attributes: {
                   '0' => {
-                    id:   kiwi_package.id,
+                    id: kiwi_package.id,
                     name: kiwi_package.name,
                     arch: 'x86-876'
                   }

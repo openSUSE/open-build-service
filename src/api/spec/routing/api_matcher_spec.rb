@@ -63,20 +63,20 @@ RSpec.describe 'APIMatcher' do
   it 'routes requests to global_command_* correctly' do
     expect(post('/source?cmd=orderkiwirepos')).to route_to(
       controller: 'source',
-      action:     'global_command_orderkiwirepos',
-      cmd:        'orderkiwirepos'
+      action: 'global_command_orderkiwirepos',
+      cmd: 'orderkiwirepos'
     )
 
     expect(post('/source?cmd=branch')).to route_to(
       controller: 'source',
-      action:     'global_command_branch',
-      cmd:        'branch'
+      action: 'global_command_branch',
+      cmd: 'branch'
     )
 
     expect(post('/source?cmd=createmaintenanceincident')).to route_to(
       controller: 'source',
-      action:     'global_command_createmaintenanceincident',
-      cmd:        'createmaintenanceincident'
+      action: 'global_command_createmaintenanceincident',
+      cmd: 'createmaintenanceincident'
     )
   end
 end

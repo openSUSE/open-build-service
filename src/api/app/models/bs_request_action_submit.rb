@@ -66,9 +66,9 @@ class BsRequestActionSubmit < BsRequestAction
     end
 
     cp_params = {
-      noservice:      1,
-      requestid:      bs_request.number,
-      comment:        bs_request.description,
+      noservice: 1,
+      requestid: bs_request.number,
+      comment: bs_request.description,
       withacceptinfo: 1
     }
     cp_params[:orev] = source_rev if source_rev

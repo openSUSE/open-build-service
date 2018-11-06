@@ -90,7 +90,7 @@ class ChannelBinary < ApplicationRecord
 
   def create_channel_node_element(channel_node, channel_target)
     attributes = {
-      project:    channel_target.repository.project.name,
+      project: channel_target.repository.project.name,
       repository: channel_target.repository.name
     }
     channel_node.target(attributes) do |target|
