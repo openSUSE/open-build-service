@@ -21,7 +21,7 @@ module ObsFactory
     def self.for(distribution, only_letter = true)
       wildcard = only_letter ? "_" : "%"
       ::Project.where(["name like ?", "#{distribution.root_project_name}#{NAME_PREFIX}#{wildcard}"]).
-        map { |project| StagingProject.new(project: project, distribution: distribution) }
+        map { |project| ObsFactory::StagingProject.new(project: project, distribution: distribution) }
     end
 
     # Find a staging project by distribution and id
@@ -30,7 +30,7 @@ module ObsFactory
     def self.find(distribution, id)
       project = ::Project.find_by_name("#{distribution.root_project_name}#{NAME_PREFIX}#{id}")
       if project
-        StagingProject.new(project: project, distribution: distribution)
+        ObsFactory::StagingProject.new(project: project, distribution: distribution)
       end
     end
 
