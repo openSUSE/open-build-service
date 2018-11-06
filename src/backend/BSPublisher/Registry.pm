@@ -261,8 +261,8 @@ sub update_tuf {
     'keytype' => 'rsa',
     'keyval' => { 'private' => undef, 'public' => $tuf->{'timestamp_pubkey'} },
   };
-  my $root_key_id = Digest::SHA::sha256_hex(BSTUF::canonical_json($root_key));
-  my $timestamp_key_id = Digest::SHA::sha256_hex(BSTUF::canonical_json($timestamp_key));
+  my $root_key_id = BSTUF::key2keyid($root_key);
+  my $timestamp_key_id = BSTUF::key2keyid($timestamp_key);
 
   #
   # setup root 

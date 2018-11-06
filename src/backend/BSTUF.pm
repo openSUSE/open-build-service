@@ -51,6 +51,10 @@ sub canonical_json {
   return JSON::XS->new->utf8->canonical->encode($d);
 }
 
+sub key2keyid {
+  return Digest::SHA::sha256_hex(canonical_json($_[0]));
+}
+
 sub sign {
   my ($data, $signargs) = @_;
   return BSUtil::xsystem($data, $BSConfig::sign, @$signargs, '-O', '-h', 'sha256');
