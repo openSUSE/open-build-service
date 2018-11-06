@@ -83,7 +83,7 @@ fi										\
 }
 %endif
 
-%global obs_api_support_scripts obs-api-support.target obs-clockwork.service obs-clockwork.service obs-delayedjob-queue-consistency_check.service obs-delayedjob-queue-default.service obs-delayedjob-queue-issuetracking.service obs-delayedjob-queue-mailers.service obs-delayedjob-queue-project_log_rotate.service obs-delayedjob-queue-releasetracking.service obs-sphinx.service
+%global obs_api_support_scripts obs-api-support.target obs-clockwork.service obs-delayedjob-queue-consistency_check.service obs-delayedjob-queue-default.service obs-delayedjob-queue-issuetracking.service obs-delayedjob-queue-mailers.service obs-delayedjob-queue-project_log_rotate.service obs-delayedjob-queue-releasetracking.service obs-sphinx.service
 
 Name:           obs-server
 Summary:        The Open Build Service -- Server Component
