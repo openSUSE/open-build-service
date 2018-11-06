@@ -72,10 +72,10 @@ RSpec.feature 'Login', type: :feature, js: true do
     let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John', 'Smith'] }) }
 
     before do
-      stub_const('CONFIG', CONFIG.merge('ldap_mode'         => :on,
-                                        'ldap_search_user'  => 'tux',
-                                        'ldap_search_auth'  => 'tux_password',
-                                        'ldap_ssl'          => :off,
+      stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on,
+                                        'ldap_search_user' => 'tux',
+                                        'ldap_search_auth' => 'tux_password',
+                                        'ldap_ssl' => :off,
                                         'ldap_authenticate' => :ldap))
 
       allow(ldap_mock).to receive(:search).and_yield(ldap_user)

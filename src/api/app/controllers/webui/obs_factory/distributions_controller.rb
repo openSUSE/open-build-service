@@ -6,8 +6,8 @@ module Webui::ObsFactory
 
     def show
       @staging_projects = ::ObsFactory::StagingProjectPresenter.sort(@distribution.staging_projects)
-      @versions = { source: @distribution.source_version,
-                    totest: @distribution.totest_version,
+      @versions = { source:    @distribution.source_version,
+                    totest:    @distribution.totest_version,
                     published: @distribution.published_version }
       @ring_prjs = ::ObsFactory::ObsProjectPresenter.wrap(@distribution.ring_projects)
       @standard = ::ObsFactory::ObsProjectPresenter.new(@distribution.standard_project)

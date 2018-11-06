@@ -485,10 +485,10 @@ RSpec.describe Webui::ProjectController, vcr: true do
       {
         'result' => Xmlhash::XMLHash.new(
           'repository' => 'openSUSE',
-          'arch'       => 'x86_64',
-          'code'       => 'published',
-          'state'      => 'published',
-          'summary'    => summary
+          'arch' => 'x86_64',
+          'code' => 'published',
+          'state' => 'published',
+          'summary' => summary
         )
       }
     end
@@ -1327,17 +1327,17 @@ RSpec.describe Webui::ProjectController, vcr: true do
           let(:statushash) do
             { 'openSUSE_Tumbleweed' => {
               'i586'   => {
-                'c++'   => { 'package' => 'c++',   'code' => 'succeeded' },
+                'c++'   => { 'package' => 'c++', 'code' => 'succeeded' },
                 'redis' => { 'package' => 'redis', 'code' => 'failed' }
               },
               'x86_64' => {
-                'c++'   => { 'package' => 'c++',   'code' => 'unresolvable', 'details' => 'nothing provides foo' },
+                'c++'   => { 'package' => 'c++', 'code' => 'unresolvable', 'details' => 'nothing provides foo' },
                 'redis' => { 'package' => 'redis', 'code' => 'building', 'details' => 'building on obs-node-3' }
               }
             },
               'openSUSE_42.2'       => {
                 's390x' => {
-                  'c++'   => { 'package' => 'c++',   'code' => 'succeeded' },
+                  'c++'   => { 'package' => 'c++', 'code' => 'succeeded' },
                   'redis' => { 'package' => 'redis', 'code' => 'succeeded' }
                 }
               } }
@@ -1354,11 +1354,11 @@ RSpec.describe Webui::ProjectController, vcr: true do
           it { expect(assigns(:repohash)).to eq('openSUSE_Tumbleweed' => ['i586', 'x86_64'], 'openSUSE_42.2' => ['s390x']) }
           it {
             expect(assigns(:repostatushash)).to eq('openSUSE_Tumbleweed' => { 'i586' => 'published', 'x86_64' => 'building' },
-                                                   'openSUSE_42.2'       => { 's390x' => 'outdated_published' })
+                                                   'openSUSE_42.2' => { 's390x' => 'outdated_published' })
           }
           it {
             expect(assigns(:repostatusdetailshash)).to eq('openSUSE_Tumbleweed' => { 'x86_64' => 'This repo is broken' },
-                                                          'openSUSE_42.2'       => {})
+                                                          'openSUSE_42.2' => {})
           }
           it { expect(response).to have_http_status(:ok) }
         end

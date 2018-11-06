@@ -1,17 +1,17 @@
 module Webui::BuildresultHelper
   STATUS_COLOR_HASH = {
-    'succeeded' => 'primary',
-    'building' => 'secondary',
-    'scheduled' => 'info',
-    'signing' => 'dark',
-    'finished' => 'dark',
-    'unresolvable' => 'danger',
-    'broken' => 'danger',
-    'failed' => 'danger',
-    'disabled' => 'black-50',
-    'blocked' => 'black-50',
+    'succeeded'         => 'primary',
+    'building'          => 'secondary',
+    'scheduled'         => 'info',
+    'signing'           => 'dark',
+    'finished'          => 'dark',
+    'unresolvable'      => 'danger',
+    'broken'            => 'danger',
+    'failed'            => 'danger',
+    'disabled'          => 'black-50',
+    'blocked'           => 'black-50',
     'scheduled_warning' => 'warning',
-    'unknown' => 'warning'
+    'unknown'           => 'warning'
   }.freeze
 
   def arch_repo_table_cell(repo, arch, package_name, status = nil, enable_help = true)

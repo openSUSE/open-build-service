@@ -99,7 +99,7 @@ class Package < ApplicationRecord
   validates :title, length: { maximum: 250 }
   validates :description, length: { maximum: 65_535 }
   validates :project_id, uniqueness: {
-    scope: :name,
+    scope:   :name,
     message: lambda do |object, _data|
       "##{object.project_id} already has a package with the name `#{object.name}`"
     end

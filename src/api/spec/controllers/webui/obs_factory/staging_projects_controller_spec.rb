@@ -160,10 +160,10 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
         it 'responds with a json representation of the staging project' do
           response = JSON.parse(subject.body)
           expect(response).to include(
-            'name'              => 'openSUSE:Factory:Staging:A',
-            'description'       => description,
+            'name' => 'openSUSE:Factory:Staging:A',
+            'description' => description,
             'obsolete_requests' => [JSON.parse(declined_bs_request.to_json)],
-            'overall_state'     => 'unacceptable'
+            'overall_state' => 'unacceptable'
           )
         end
       end

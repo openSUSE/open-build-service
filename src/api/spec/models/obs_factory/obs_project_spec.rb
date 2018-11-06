@@ -43,20 +43,20 @@ RSpec.describe ObsFactory::ObsProject do
         expect(subject.build_summary['result']).to eq(
           [
             {
-              'project' => 'openSUSE:Factory',
+              'project'    => 'openSUSE:Factory',
               'repository' => 'openSUSE',
-              'arch' => 'i586',
-              'code' => 'published',
-              'state' => 'published',
-              'summary' => { 'statuscount' => { 'code' => 'succeeded', 'count' => '5' } }
+              'arch'       => 'i586',
+              'code'       => 'published',
+              'state'      => 'published',
+              'summary'    => { 'statuscount' => { 'code' => 'succeeded', 'count' => '5' } }
             },
             {
-              'project' => 'openSUSE:Factory',
+              'project'    => 'openSUSE:Factory',
               'repository' => 'SLES',
-              'arch' => 'i586',
-              'code' => 'published',
-              'state' => 'published',
-              'summary' => { 'statuscount' => { 'code' => 'succeeded', 'count' => '5' } }
+              'arch'       => 'i586',
+              'code'       => 'published',
+              'state'      => 'published',
+              'summary'    => { 'statuscount' => { 'code' => 'succeeded', 'count' => '5' } }
             }
           ]
         )

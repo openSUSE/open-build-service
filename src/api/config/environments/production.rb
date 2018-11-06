@@ -76,11 +76,11 @@ OBSApi::Application.configure do
   config.lograge.custom_options = lambda do |event|
     exceptions = ['controller', 'action', 'format', 'id']
     {
-      params: event.payload[:params].except(*exceptions),
-      host:   event.payload[:headers].env['REMOTE_ADDR'],
-      time:   event.time,
+      params:  event.payload[:params].except(*exceptions),
+      host:    event.payload[:headers].env['REMOTE_ADDR'],
+      time:    event.time,
       backend: event.payload[:backend_runtime],
-      user:   User.current.try(:login)
+      user:    User.current.try(:login)
     }
   end
 

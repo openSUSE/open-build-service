@@ -421,11 +421,11 @@ RSpec.describe Project, vcr: true do
     let(:admin_user) { create(:admin_user, login: 'Admin') }
     let(:deleted_project) do
       create(:project_with_packages,
-             name:                'project_used_for_restoration',
-             title:               'restoration_project_title',
-             package_title:       'restoration_title',
+             name: 'project_used_for_restoration',
+             title: 'restoration_project_title',
+             package_title: 'restoration_title',
              package_description: 'restoration_desc',
-             package_name:        'restoration_package')
+             package_name: 'restoration_package')
     end
 
     # make sure it's gone even if some previous test failed

@@ -67,8 +67,8 @@ module Kiwi
         @xml_document.xpath('image/packages').each do |package_group_xml|
           # FIXME: profiles should be Kiwi::Profile, not a string. It makes this easier to validate
           package_group = Kiwi::PackageGroup.new(
-            kiwi_type:    package_group_xml.attribute('type').value,
-            profiles:     package_group_xml.attribute('profiles')&.value,
+            kiwi_type: package_group_xml.attribute('type').value,
+            profiles: package_group_xml.attribute('profiles')&.value,
             pattern_type: package_group_xml.attribute('patternType')&.value
           )
 
@@ -100,9 +100,9 @@ module Kiwi
 
         Kiwi::Description.new(
           description_type: description_element.attribute('type')&.value.to_s,
-          author:           description_element.xpath('author')&.text,
-          contact:          description_element.xpath('contact')&.text,
-          specification:    description_element.xpath('specification')&.text
+          author: description_element.xpath('author')&.text,
+          contact: description_element.xpath('contact')&.text,
+          specification: description_element.xpath('specification')&.text
         )
       end
 
@@ -112,12 +112,12 @@ module Kiwi
 
         preference_elements.map do |preference_element|
           Kiwi::Preference.new(
-            type_image:                preference_type_image(preference_element),
-            version:                   preference_element.xpath('version')&.text,
+            type_image: preference_type_image(preference_element),
+            version: preference_element.xpath('version')&.text,
             type_containerconfig_name: preference_type_containerconfig(preference_element, 'name'),
-            type_containerconfig_tag:  preference_type_containerconfig(preference_element, 'tag'),
+            type_containerconfig_tag: preference_type_containerconfig(preference_element, 'tag'),
             # The profile is a string since creating association between new preferences/profiles is not possible
-            profile:                   preference_element.attribute('profiles')&.value
+            profile: preference_element.attribute('profiles')&.value
           )
         end
       end

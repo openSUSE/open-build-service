@@ -224,3 +224,9 @@ Style/MethodCallWithArgsParentheses:
     - write
     - yield
     - ymp
+
+Layout/AlignHash:
+  EnforcedLastArgumentHashStyle: ignore_implicit
+  EnforcedHashRocketStyle: table
+  EnforcedColonStyle: table
+

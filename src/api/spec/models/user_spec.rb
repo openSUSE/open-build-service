@@ -470,7 +470,7 @@ RSpec.describe User do
       end
 
       before do
-        stub_const('CONFIG', CONFIG.merge('ldap_mode'        => :on,
+        stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on,
                                           'ldap_search_user' => 'tux',
                                           'ldap_search_auth' => 'tux_password'))
       end

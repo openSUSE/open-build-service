@@ -318,7 +318,7 @@ RSpec.describe ObsFactory::StagingProject do
     include_context 'a staging project with description'
 
     let(:meta_result) do
-      { 'requests' =>
+      { 'requests'         =>
                               [
                                 {
                                   'author'  => 'iznogood',

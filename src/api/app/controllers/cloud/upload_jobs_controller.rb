@@ -30,7 +30,7 @@ module Cloud
     rescue ::Backend::Error => exception
       render_error status: 500,
                    errorcode: 'cloud_upload_job_error',
-                   message:  exception.message
+                   message: exception.message
     end
 
     private

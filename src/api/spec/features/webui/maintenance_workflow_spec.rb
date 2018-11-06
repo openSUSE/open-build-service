@@ -53,11 +53,11 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
 
     # Check that sending maintenance updates adds the source revision
     new_bs_request_action = BsRequestAction.where(
-      type:                  'maintenance_incident',
-      target_project:        maintenance_project.name,
+      type: 'maintenance_incident',
+      target_project: maintenance_project.name,
       target_releaseproject: update_project.name,
-      source_project:        "#{user.home_project}:branches:#{update_project.name}",
-      source_package:        package.name
+      source_project: "#{user.home_project}:branches:#{update_project.name}",
+      source_package: package.name
     )
     expect(new_bs_request_action.pluck(:source_rev).first).not_to be(nil)
 

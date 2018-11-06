@@ -402,9 +402,9 @@ RSpec.describe Webui::RequestController, vcr: true do
       before do
         login(submitter_with_group)
         post :set_bugowner_request, params: {
-          project: source_project_fluffy.name,
-          user: submitter_with_group.login,
-          group: submitter_with_group.groups.first.title,
+          project:     source_project_fluffy.name,
+          user:        submitter_with_group.login,
+          group:       submitter_with_group.groups.first.title,
           description: 'blah blah blash'
         }
       end

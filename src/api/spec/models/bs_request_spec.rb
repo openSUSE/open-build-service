@@ -21,7 +21,7 @@ RSpec.describe BsRequest, vcr: true do
   let(:delete_request) do
     create(:delete_bs_request,
            reviewer: user.login,
-           creator:  user.login,
+           creator: user.login,
            target_project: target_project.name,
            target_package: target_package.name)
   end
@@ -363,8 +363,8 @@ RSpec.describe BsRequest, vcr: true do
              target_package: target_package.name,
              source_project: source_package.project.name,
              source_package: source_package.name,
-             description:    'Update package to newest version',
-             creator:        user.login)
+             description: 'Update package to newest version',
+             creator: user.login)
     end
 
     before do
@@ -444,7 +444,7 @@ RSpec.describe BsRequest, vcr: true do
 
       it 'creates a history element for the priority raise' do
         history_element = HistoryElement::RequestPriorityChange.where(
-          comment:               'Automatic priority bump: Priority of related action increased.',
+          comment: 'Automatic priority bump: Priority of related action increased.',
           description_extension: 'moderate => critical'
         )
         expect(history_element).to exist
@@ -473,7 +473,7 @@ RSpec.describe BsRequest, vcr: true do
       it 'creates a submit request action with the correct target' do
         expect(subject.bs_request_actions.count).to eq(1)
         expect(subject.bs_request_actions.where(
-                 type:           'submit',
+                 type: 'submit',
                  target_project: user.home_project.name,
                  target_package: target_package.name,
                  source_project: target_package.project.name,

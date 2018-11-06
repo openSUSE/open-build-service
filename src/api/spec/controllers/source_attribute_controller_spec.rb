@@ -49,9 +49,9 @@ RSpec.describe SourceAttributeController, vcr: true do
       before do
         login user
         update_project_attrib
-        put :update, params: { project: project,
+        put :update, params: { project:   project,
                                attribute: update_project_attrib.fullname,
-                               format: :xml },
+                               format:    :xml },
                      body: xml_attrib
       end
 
@@ -72,9 +72,9 @@ RSpec.describe SourceAttributeController, vcr: true do
       before do
         login user
         update_project_attrib
-        put :update, params: { project: project,
+        put :update, params: { project:   project,
                                attribute: update_project_attrib.fullname,
-                               format: :xml },
+                               format:    :xml },
                      body: wrong_xml_attrib
       end
 
@@ -91,9 +91,9 @@ RSpec.describe SourceAttributeController, vcr: true do
       before do
         login user
         main_attribute
-        delete :delete, params: { project: project,
+        delete :delete, params: { project:   project,
                                   attribute: main_attribute.fullname,
-                                  format: :xml }
+                                  format:    :xml }
       end
 
       it { expect(response).to be_success }
@@ -105,9 +105,9 @@ RSpec.describe SourceAttributeController, vcr: true do
       before do
         login wrong_user
         main_attribute
-        delete :delete, params: { project: project,
+        delete :delete, params: { project:   project,
                                   attribute: main_attribute.fullname,
-                                  format: :xml }
+                                  format:    :xml }
       end
 
       it { expect(response).not_to be_success }

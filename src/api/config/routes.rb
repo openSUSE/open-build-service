@@ -25,20 +25,20 @@ OBSApi::Application.routes.draw do
   mount Peek::Railtie => '/peek'
 
   cons = {
-    arch:         %r{[^\/]*},
-    binary:       %r{[^\/]*},
-    filename:     %r{[^\/]*},
-    id:           %r{\d*},
-    login:        %r{[^\/]*},
-    package:      %r{[^\/]*},
-    package_name: %r{[^\/]*},
-    project:      %r{[^\/]*},
-    project_name: %r{[^\/]*},
-    repository:   %r{[^\/]*},
-    repository_name:   %r{[^\/]*},
-    service:      %r{\w[^\/]*},
-    title:        %r{[^\/]*},
-    user:         %r{[^\/]*},
+    arch:                        %r{[^\/]*},
+    binary:                      %r{[^\/]*},
+    filename:                    %r{[^\/]*},
+    id:                          %r{\d*},
+    login:                       %r{[^\/]*},
+    package:                     %r{[^\/]*},
+    package_name:                %r{[^\/]*},
+    project:                     %r{[^\/]*},
+    project_name:                %r{[^\/]*},
+    repository:                  %r{[^\/]*},
+    repository_name:             %r{[^\/]*},
+    service:                     %r{\w[^\/]*},
+    title:                       %r{[^\/]*},
+    user:                        %r{[^\/]*},
     repository_publish_build_id: %r{[^\/]*}
   }
 

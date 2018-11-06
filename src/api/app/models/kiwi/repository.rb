@@ -32,7 +32,7 @@ module Kiwi
     validates :imageinclude, :prefer_license, inclusion: { in: [true, false], message: 'has to be a boolean' }, allow_nil: true
     validates_associated :image, on: :update
     validates :order, uniqueness: {
-      scope: :image_id,
+      scope:   :image_id,
       message: lambda do |object, data|
         "##{data[:value]} has already been taken for the Image ##{object.image_id}"
       end

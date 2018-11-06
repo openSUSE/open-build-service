@@ -22,7 +22,7 @@ module Kiwi
     validates :image, presence: true
     validates :selected, inclusion: { in: [true, false] }
     validates :name, uniqueness: {
-      scope: :image,
+      scope:   :image,
       message: lambda do |object, data|
         "#{data[:value]} has already been taken for the Image ##{object.image_id}"
       end

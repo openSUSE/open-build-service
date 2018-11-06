@@ -118,8 +118,8 @@ RSpec.describe Webui::PackageController, vcr: true do
                  source_package: package.name,
                  target_project: target_project.name,
                  target_package: package.name,
-                 type:           'submit',
-                 source_rev:     2
+                 type: 'submit',
+                 source_rev: 2
         )).to exist
       end
     end
@@ -476,9 +476,9 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       context "adding a file that doesn't exist yet" do
         before do
-          do_request(project:   source_project,
-                     package:   source_package,
-                     filename:  'newly_created_file',
+          do_request(project: source_project,
+                     package: source_package,
+                     filename: 'newly_created_file',
                      file_type: 'local',
                      file: 'some_content')
         end
@@ -1544,9 +1544,9 @@ RSpec.describe Webui::PackageController, vcr: true do
     context 'when passing params referring to valid project/architecture/repository and an invalid repository' do
       let(:params) do
         {
-          dependant_project: source_project.name,
-          arch: 'i586',
-          repository: repo_for_source_project.name,
+          dependant_project:    source_project.name,
+          arch:                 'i586',
+          repository:           repo_for_source_project.name,
           dependant_repository: 'something'
         }
       end
@@ -1562,11 +1562,11 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       let(:params) do
         {
-          dependant_project: source_project.name,
-          arch: 'i586',
-          repository: repo_for_source_project.name,
+          dependant_project:    source_project.name,
+          arch:                 'i586',
+          repository:           repo_for_source_project.name,
           dependant_repository: another_repo_for_source_project.name,
-          filename: 'test.rpm'
+          filename:             'test.rpm'
         }
       end
 

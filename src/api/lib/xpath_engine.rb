@@ -45,19 +45,19 @@ class XpathEngine
         'attribute_issue/owner/@email' => { cpart: 'users.email', joins:        ['LEFT JOIN users ON users.id = attribissues.owner_id'] },
         'attribute_issue/owner/@login' => { cpart: 'users.login', joins:        ['LEFT JOIN users ON users.id = attribissues.owner_id'] },
         'person/@userid'               => { cpart: 'users.login', joins:        ['LEFT JOIN users ON users.id = user_relation.user_id'] },
-        'person/@role'                 => { cpart: 'ppr.title', joins:          ['LEFT JOIN roles AS ppr ON user_relation.role_id = ppr.id'] },
-        'group/@groupid'               => { cpart: 'groups.title', joins:       ['LEFT JOIN groups ON groups.id = group_relation.group_id'] },
-        'group/@role'                  => { cpart: 'gpr.title', joins:          ['LEFT JOIN roles AS gpr ON group_relation.role_id = gpr.id'] },
+        'person/@role'                 => { cpart: 'ppr.title', joins: ['LEFT JOIN roles AS ppr ON user_relation.role_id = ppr.id'] },
+        'group/@groupid'               => { cpart: 'groups.title', joins: ['LEFT JOIN groups ON groups.id = group_relation.group_id'] },
+        'group/@role'                  => { cpart: 'gpr.title', joins: ['LEFT JOIN roles AS gpr ON group_relation.role_id = gpr.id'] },
         'attribute/@name'              => { cpart: 'attrib_namespaces.name = ? AND attrib_types.name', split: ':',
-                                            joins: ['LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
-                                                    'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id',
-                                                    'LEFT JOIN attribs AS attribsprj ON attribsprj.project_id = packages.project_id', # include also, when set in project
-                                                    'LEFT JOIN attrib_types AS attrib_typesprj ON attribsprj.attrib_type_id = attrib_typesprj.id',
-                                                    'LEFT JOIN attrib_namespaces AS attrib_namespacesprj ON attrib_typesprj.attrib_namespace_id = attrib_namespacesprj.id'] },
+                               joins: ['LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
+                                       'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id',
+                                       'LEFT JOIN attribs AS attribsprj ON attribsprj.project_id = packages.project_id', # include also, when set in project
+                                       'LEFT JOIN attrib_types AS attrib_typesprj ON attribsprj.attrib_type_id = attrib_typesprj.id',
+                                       'LEFT JOIN attrib_namespaces AS attrib_namespacesprj ON attrib_typesprj.attrib_namespace_id = attrib_namespacesprj.id'] },
         'project/attribute/@name'      => { cpart: 'attrib_namespaces_proj.name = ? AND attrib_types_proj.name', split: ':',
-                                            joins: ['LEFT JOIN attribs AS attribs_proj ON attribs_proj.project_id = packages.project_id',
-                                                    'LEFT JOIN attrib_types AS attrib_types_proj ON attribs_proj.attrib_type_id = attrib_types_proj.id',
-                                                    'LEFT JOIN attrib_namespaces AS attrib_namespaces_proj ON attrib_types_proj.attrib_namespace_id = attrib_namespaces_proj.id'] }
+                                       joins: ['LEFT JOIN attribs AS attribs_proj ON attribs_proj.project_id = packages.project_id',
+                                               'LEFT JOIN attrib_types AS attrib_types_proj ON attribs_proj.attrib_type_id = attrib_types_proj.id',
+                                               'LEFT JOIN attrib_namespaces AS attrib_namespaces_proj ON attrib_types_proj.attrib_namespace_id = attrib_namespaces_proj.id'] }
       },
       'projects'          => {
         '@name'                             => { cpart: 'projects.name' },
@@ -70,10 +70,10 @@ class XpathEngine
           'LEFT JOIN maintained_projects AS maintained_prj ON projects.id = maintained_prj.maintenance_project_id',
           'LEFT JOIN projects AS maintains_prj ON maintained_prj.project_id = maintains_prj.id'
         ] },
-        'person/@userid'                    => { cpart: 'users.login', joins:  ['LEFT JOIN users ON users.id = user_relation.user_id'] },
-        'person/@role'                      => { cpart: 'ppr.title', joins:    ['LEFT JOIN roles AS ppr ON user_relation.role_id = ppr.id'] },
+        'person/@userid'                    => { cpart: 'users.login', joins: ['LEFT JOIN users ON users.id = user_relation.user_id'] },
+        'person/@role'                      => { cpart: 'ppr.title', joins: ['LEFT JOIN roles AS ppr ON user_relation.role_id = ppr.id'] },
         'group/@groupid'                    => { cpart: 'groups.title', joins: ['LEFT JOIN groups ON groups.id = group_relation.group_id'] },
-        'group/@role'                       => { cpart: 'gpr.title', joins:    ['LEFT JOIN roles AS gpr ON group_relation.role_id = gpr.id'] },
+        'group/@role'                       => { cpart: 'gpr.title', joins: ['LEFT JOIN roles AS gpr ON group_relation.role_id = gpr.id'] },
         'repository/@name'                  => { cpart: 'repositories.name',
                                                  joins: ['join repositories on repositories.db_project_id=projects.id'] },
         'repository/path/@project'          => { cpart: 'childs.name',
@@ -86,9 +86,9 @@ class XpathEngine
                                                          'join release_targets rt on rt.repository_id=r.id'] },
         'package/@name'                     => { cpart: 'packs.name', joins: ['LEFT JOIN packages AS packs ON packs.project_id = projects.id'] },
         'attribute/@name'                   => { cpart: 'attrib_namespaces.name = ? AND attrib_types.name', split: ':',
-                                                 joins: ['LEFT JOIN attribs ON attribs.project_id = projects.id',
-                                                         'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
-                                                         'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id'] }
+                               joins: ['LEFT JOIN attribs ON attribs.project_id = projects.id',
+                                       'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
+                                       'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id'] }
       },
       'repositories'      => {
         '@project'                   => { cpart: 'pr.name', joins: 'LEFT JOIN projects AS pr ON repositories.db_project_id=pr.id' },
@@ -158,7 +158,7 @@ class XpathEngine
         'repository/@project'    => { cpart: 'release_projects.name' },
         'repository/@name'       => { cpart: 'release_repositories.name' },
         'publish/@time'          => { cpart: 'binary_releasetime' },
-        'publish/@package'       => { cpart: 'ppkg.name', joins:  ['LEFT join packages ppkg on ppkg.id=release_package_id'] },
+        'publish/@package'       => { cpart: 'ppkg.name', joins: ['LEFT join packages ppkg on ppkg.id=release_package_id'] },
         'updatefor/@project'     => { cpart: 'puprj.name', joins: ['LEFT join packages pupkg on pupkg.id=product_update.package_id ',
                                                                    'LEFT join projects puprj on puprj.id=pupkg.project_id '] },
         'updatefor/@arch'        => { cpart: 'pupa.name',

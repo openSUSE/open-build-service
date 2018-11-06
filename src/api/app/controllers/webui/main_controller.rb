@@ -36,10 +36,10 @@ class Webui::MainController < Webui::WebuiController
 
     @system_stats = Rails.cache.fetch('system_stats_hash', expires_in: 30.minutes) do
       {
-        projects: Project.count,
-        packages: Package.count,
+        projects:     Project.count,
+        packages:     Package.count,
         repositories: Repository.count,
-        users: User.count
+        users:        User.count
       }
     end
 
