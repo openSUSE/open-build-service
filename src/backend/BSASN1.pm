@@ -26,8 +26,6 @@ use MIME::Base64 ();
 
 use strict;
 
-
-# x509 constants
 our $UNIV 	= 0x00;
 our $APPL	= 0x40;
 our $CONT	= 0x80;
@@ -41,30 +39,14 @@ our $BIT_STRING	= 0x03;
 our $OCTET_STRING = 0x04;
 our $NULL	= 0x05;
 our $OBJ_ID	= 0x06;
+our $REAL	= 0x09;
+our $ENUMERATED	= 0x0a;
 our $UTF8STRING	= 0x0c;
 our $SEQUENCE	= 0x10;
 our $SET	= 0x11;
+our $PRINTABLESTRING = 0x13;
 our $UTCTIME	= 0x17;
 our $GENTIME	= 0x18;
-
-our $oid_common_name   = asn1_obj_id(2, 5, 4, 3);
-our $oid_country_name  = asn1_obj_id(2, 5, 4, 6);
-our $oid_org_name      = asn1_obj_id(2, 5, 4, 10);
-our $oid_org_unit_name = asn1_obj_id(2, 5, 4, 11);
-our $oid_email_address = asn1_obj_id(1, 2, 840, 113549, 1, 9, 1);
-our $oid_sha1   = asn1_obj_id(1, 3, 14, 3, 2, 26);
-our $oid_sha256 = asn1_obj_id(2, 16, 840, 1, 101, 3, 4, 2, 1);
-our $oid_sha512 = asn1_obj_id(2, 16, 840, 1, 101, 3, 4, 2, 3);
-our $oid_id_dsa                  = asn1_obj_id(1, 2, 840, 10040, 4, 1);
-our $oid_id_ec_public_key        = asn1_obj_id(1, 2, 840, 10045, 2, 1);
-our $oid_prime256v1              = asn1_obj_id(1, 2, 840, 10045, 3, 1, 7);
-our $oid_rsaencryption           = asn1_obj_id(1, 2, 840, 113549, 1, 1, 1);
-our $oid_sha1withrsaencryption   = asn1_obj_id(1, 2, 840, 113549, 1, 1, 5);
-our $oid_sha256withrsaencryption = asn1_obj_id(1, 2, 840, 113549, 1, 1, 11);
-our $oid_key_usage         = asn1_obj_id(2, 5, 29, 15);
-our $oid_basic_constraints = asn1_obj_id(2, 5, 29, 19);
-our $oid_ext_key_usage     = asn1_obj_id(2, 5, 29, 37);
-our $oid_code_signing  = asn1_obj_id(1, 3, 6, 1, 5, 5, 7, 3, 3);
 
 sub utctime {
   my ($t) = @_;
@@ -175,10 +157,20 @@ sub asn1_octet_string {
 }
 
 sub asn1_tagged {
-  return asn1_pack($CONT | $CONS | $_[0], $_[1]);
+  return asn1_pack(($_[0] < 0x40 ? $CONT : 0) | $CONS | $_[0], $_[1]);
 }
 
-# little unpack helpers
+sub asn1_tagged_implicit {
+  my ($rest, $tag, $body) = asn1_unpack($_[1]);
+  return asn1_pack(($_[0] < 0x40 ? $CONT : 0) | ($tag & $CONS) | $_[0], $body).$rest;
+}
+
+# little unpack helpers (intag = 0 : any tag allowed)
+
+sub asn1_gettag {
+  return (asn1_unpack(@_))[1];
+}
+
 sub asn1_unpack_integer_mpi {
   my ($in, $intag) = @_;
   $intag = $INTEGER unless defined $intag;
@@ -188,11 +180,20 @@ sub asn1_unpack_integer_mpi {
 }
 
 sub asn1_unpack_sequence {
-  my ($in, $intag) = @_;
+  my ($in, $intag, $allowed) = @_;
   $intag = $CONS | $SEQUENCE unless defined $intag;
   (undef, undef, $in) = asn1_unpack($in, $intag ? $intag : undef, undef, 1);
   my @ret;
   my $tagbody;
+  if ($allowed) {
+    for my $all (@$allowed) {
+      return @ret, $in if $all && !ref($all) && $all == -1;
+      ($in, undef, undef, $tagbody) = asn1_unpack($in, $all ? $all : undef);
+      push @ret, $tagbody;
+    }
+    die("tailing data at end of asn1 sequence\n") if $in ne '';
+    return @ret;
+  }
   while ($in ne '') {
     ($in, undef, undef, $tagbody) = asn1_unpack($in);
     push @ret, $tagbody;
