@@ -7,7 +7,6 @@ MYSQL_BASEDIR=$TEMP_DIR/mysql/
 MYSQL_DATADIR=$MYSQL_BASEDIR/data
 MYSQL_SOCKET_DIR=`mktemp -d`
 MYSQL_SOCKET=$MYSQL_SOCKET_DIR/mysql.socket
-RETRY=1
 
 MYSQLD_USER=`whoami`
 if [[ $EUID == 0 ]];then
