@@ -3,8 +3,8 @@ require 'rails_helper'
 RSpec.describe Staging::StagedRequestsController, type: :controller do
   render_views
   describe 'GET #index' do
-    let(:user) { create(:confirmed_user) }
-    let(:project) { create(:project_with_package) }
+    let(:user) { create(:confirmed_user, login: 'tom') }
+    let(:project) { create(:project_with_package, name: 'MyProject') }
     let(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: project) }
     let(:staging_project) { staging_workflow.staging_projects.first }
     let(:source_project) { create(:project, name: 'source_project') }
