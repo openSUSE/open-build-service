@@ -1,0 +1,11 @@
+[Unit]
+Description=OBS API Setup
+Before=apache2.service
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/obs/server/setup-appliance.sh --non-interactive --setup-only
+
+[Install]
+WantedBy=multi-user.target
