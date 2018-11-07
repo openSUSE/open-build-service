@@ -17,7 +17,6 @@ module Webui
 
       def create
         authorize @staging_workflow
-
         staging_request_exclusion = params[:staging_request_exclusion]
 
         request = @staging_workflow.target_of_bs_requests.find_by(number: staging_request_exclusion[:number])
