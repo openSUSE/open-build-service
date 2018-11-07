@@ -187,11 +187,6 @@ In both services we use docker containers for running our tests. The docker cont
 
 More information about the setup can be found in our wiki [here](https://github.com/openSUSE/open-build-service/wiki/Development-Environment-Overview) and [here](https://github.com/openSUSE/open-build-service/wiki/Development-Environment-Tips-&-Tricks).
 
-#### Flaky tests
-Sometimes a feature test is flaky and it fails the first run. This is especially a problem in the package build in OBS as the test suite run is significant longer as it is not parallelized. As a workaround we use [rspec-retry](https://github.com/NoRedInk/rspec-retry) which runs a test again if it fails.
-
-However, it should be desired to fix the test that it always succeeds. Therefore you need to flag the test with ``retry: 3``, otherwise rspec-retry will not run the test again. In the package build, we always retry feature tests.
-
 ### Migrating tests
 When migrating tests from the old minitest based suite to rspec, please add the
 file path of the new one to every test covered.
