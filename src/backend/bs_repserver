@@ -4160,10 +4160,11 @@ sub extend_timestamp {
   mkdir_p($uploaddir);
   unlink("$uploaddir/timestampkey.$$");
   writestr("$uploaddir/timestampkey.$$", undef, $tuf->{'timestamp_privkey'});
-  my @signargs;
-  push @signargs, '--project', ':tmpkey' if $BSConfig::sign_project;
-  push @signargs, '-P', "$uploaddir/timestampkey.$$";
-  $timestamp = BSTUF::signdata($timestamp, \@signargs, $keyid);
+  my @signcmd;
+  push @signcmd, $BSConfig::sign;
+  push @signcmd, '--project', ':tmpkey' if $BSConfig::sign_project;
+  push @signcmd, '-P', "$uploaddir/timestampkey.$$";
+  $timestamp = BSTUF::signdata($timestamp, \@signcmd, $keyid);
   unlink("$uploaddir/timestampkey.$$");
   my $fd;
   BSUtil::lockopen($fd, '<', "$repodir/:tuf");
