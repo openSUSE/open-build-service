@@ -48,7 +48,7 @@ my $targets_expire = 3 * 366 * 24 * 3600;	# 3 years
 my $notary_timeout = 300;
 my $registry_timeout = 300;
 
-my @signargs;
+my @signcmd = ( $BSConfig::sign );
 
 sub multipartentry {
   my ($name, $d) = @_;
@@ -77,7 +77,7 @@ while (@ARGV) {
     next;
   }
   if ($ARGV[0] eq '-P' || $ARGV[0] eq '--project' || $ARGV[0] eq '-u' || $ARGV[0] eq '--signtype') {
-    push @signargs, splice(@ARGV, 0, 2);
+    push @signcmd, splice(@ARGV, 0, 2);
     next;
   }
   if ($ARGV[0] eq '-h') {
@@ -278,7 +278,7 @@ $oldroot = JSON::XS::decode_json($oldroot_json) if $oldroot_json;
 my $cmpres = BSTUF::cmprootcert($oldroot, $tbscert);
 my $cert;
 $cert = BSTUF::getrootcert($oldroot) if $cmpres == 2;
-$cert ||= BSTUF::mkcert($tbscert, \@signargs);
+$cert ||= BSTUF::mkcert($tbscert, \@signcmd);
 $oldroot_json = '' if $cmpres == 0;	# start from scratch
 $oldroot = {} if $cmpres == 0;	# start from scratch
 
@@ -347,7 +347,7 @@ if (BSTUF::canonical_json($root) eq BSTUF::canonical_json($oldroot->{'signed'} |
     @key_ids = BSUtil::unify(@key_ids);
     @key_ids = splice(@key_ids, 0, 2);		# enough for now
   }
-  $tuf->{'root'} = BSTUF::updatedata($root, $cmpres ? $oldroot : {}, \@signargs, @key_ids);
+  $tuf->{'root'} = BSTUF::updatedata($root, $cmpres ? $oldroot : {}, \@signcmd, @key_ids);
 }
 
 #
@@ -373,7 +373,7 @@ my $targets = {
   'expires' => BSTUF::rfc3339time($now + $targets_expire),
   'targets' => $manifests,
 };
-$tuf->{'targets'} = BSTUF::updatedata($targets, $cmpres ? $oldtargets : {}, \@signargs, $root_key_id);
+$tuf->{'targets'} = BSTUF::updatedata($targets, $cmpres ? $oldtargets : {}, \@signcmd, $root_key_id);
 
 #
 # setup snapshot
@@ -386,7 +386,7 @@ my $snapshot = {
 };
 BSTUF::addmetaentry($snapshot, 'root', $tuf->{'root'});
 BSTUF::addmetaentry($snapshot, 'targets', $tuf->{'targets'});
-$tuf->{'snapshot'} = BSTUF::updatedata($snapshot, $cmpres ? $oldsnapshot : {}, \@signargs, $root_key_id);
+$tuf->{'snapshot'} = BSTUF::updatedata($snapshot, $cmpres ? $oldsnapshot : {}, \@signcmd, $root_key_id);
 
 #
 # delete old data if necessary

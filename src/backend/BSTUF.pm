@@ -26,7 +26,6 @@ use JSON::XS ();
 use MIME::Base64 ();
 use Digest::SHA;
 
-use BSConfiguration;
 use BSUtil;
 use BSASN1;
 use BSX509;
@@ -56,8 +55,8 @@ sub key2keyid {
 }
 
 sub sign {
-  my ($data, $signargs) = @_;
-  return BSUtil::xsystem($data, $BSConfig::sign, @$signargs, '-O', '-h', 'sha256');
+  my ($data, $signcmd) = @_;
+  return BSUtil::xsystem($data, @$signcmd, '-O', '-h', 'sha256');
 }
 
 sub mktbscert {
@@ -79,8 +78,8 @@ sub mktbscert {
 }
 
 sub mkcert {
-  my ($tbscert, $signargs) = @_;
-  my $signature = sign($tbscert, $signargs);
+  my ($tbscert, $signcmd) = @_;
+  my $signature = sign($tbscert, $signcmd);
   my $sigalgo = BSASN1::pack_sequence($BSX509::oid_sha256withrsaencryption, BSASN1::pack_null());
   my $cert = BSASN1::pack_sequence($tbscert, $sigalgo, BSASN1::pack_bytes($signature));
   return BSASN1::der2pem($cert, 'CERTIFICATE');
@@ -109,8 +108,8 @@ sub getsubjectkeyinfo {
 }
 
 sub signdata {
-  my ($d, $signargs, @keyids) = @_;
-  my $sig = MIME::Base64::encode_base64(sign(canonical_json($d), $signargs), '');
+  my ($d, $signcmd, @keyids) = @_;
+  my $sig = MIME::Base64::encode_base64(sign(canonical_json($d), $signcmd), '');
   my @sigs = map { { 'keyid' => $_, 'method' => 'rsapkcs1v15', 'sig' => $sig } } @keyids;
   # hack: signed must be first
   $d = { 'AAA_signed' => $d, 'signatures' => \@sigs };
@@ -120,10 +119,10 @@ sub signdata {
 }
 
 sub updatedata {
-  my ($d, $oldd, $signargs, @keyids) = @_;
+  my ($d, $oldd, $signcmd, @keyids) = @_;
   $d->{'version'} = 1;
   $d->{'version'} = ($oldd->{'signed'}->{'version'} || 0) + 1 if $oldd && $oldd->{'signed'};
-  return signdata($d, $signargs, @keyids);
+  return signdata($d, $signcmd, @keyids);
 }
 
 sub getrootcert {
