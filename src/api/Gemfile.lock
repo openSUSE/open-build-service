@@ -200,7 +200,7 @@ GEM
     public_suffix (2.0.5)
     pundit (1.1.0)
       activesupport (>= 3.0.0)
-    rack (2.0.5)
+    rack (2.0.6)
     rack-test (0.6.3)
       rack (>= 1.0)
     rails (5.0.1)
