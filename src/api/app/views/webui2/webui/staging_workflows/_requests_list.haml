@@ -1,0 +1,8 @@
+- if requests.empty?
+  Empty
+- else
+  %ul.pl-2.list-unstyled
+    - requests.each do |request|
+      %li= link_to(elide(request.first_target_package, 19), request_show_path(request.number))
+    - unless more_requests.zero?
+      %li ... #{more_requests} more

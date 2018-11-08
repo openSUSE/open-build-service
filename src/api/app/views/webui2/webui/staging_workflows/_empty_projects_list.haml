@@ -1,0 +1,7 @@
+- if projects.empty?
+  None
+- else
+  %ol.dashed-list.pl-2
+    - projects.sort.each do |project|
+      %li.dashed-list-item
+        = link_to(project.staging_identifier, project_show_path(project.name))

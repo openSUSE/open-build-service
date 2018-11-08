@@ -11,7 +11,7 @@ FactoryBot.define do
       target_package { nil }
       target_repository { nil }
       reviewer { nil }
-      request_state { 'review' }
+      request_state { nil }
     end
 
     before(:create) do |request, evaluator|
@@ -41,6 +41,10 @@ FactoryBot.define do
           source_project: evaluator.source_project,
           source_package: evaluator.source_package
         )
+        if evaluator.request_state
+          request.state = evaluator.request_state
+          request.save!
+        end
       end
     end
 
@@ -86,7 +90,7 @@ FactoryBot.define do
           source_package: evaluator.source_package
         )
         request.reviews << Review.new(by_group: evaluator.reviewer)
-        request.state = evaluator.request_state
+        request.state = evaluator.request_state || 'review'
         request.save!
       end
     end

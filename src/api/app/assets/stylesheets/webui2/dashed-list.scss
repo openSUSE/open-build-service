@@ -1,0 +1,14 @@
+.dashed-list {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+  }
+
+  .dashed-list-item + .dashed-list-item::before {
+    display: inline-block;
+    content: "-";
+  }
+
+  .dashed-list-item + .dashed-list-item {
+    padding-left: 0.25rem;
+  }

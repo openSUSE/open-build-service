@@ -38,6 +38,13 @@ class Webui::StagingWorkflowsController < Webui::WebuiController
     authorize @staging_workflow
 
     @project = @staging_workflow.project
+    @unassigned_requests = @staging_workflow.unassigned_requests.first(5)
+    @more_unassigned_requests = @staging_workflow.unassigned_requests.count - @unassigned_requests.size
+    @ready_requests = @staging_workflow.ready_requests.first(5)
+    @more_ready_requests = @staging_workflow.ready_requests.count - @ready_requests.size
+    @ignored_requests = @staging_workflow.ignored_requests.first(5)
+    @more_ignored_requests = @staging_workflow.ignored_requests.count - @ignored_requests.size
+    @empty_projects = @staging_workflow.staging_projects.without_staged_requests
   end
 
   private
