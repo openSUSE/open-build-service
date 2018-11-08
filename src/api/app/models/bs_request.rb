@@ -714,8 +714,12 @@ class BsRequest < ApplicationRecord
       raise InvalidStateError, 'request is not in review state'
     end
 
-    checker = BsRequestPermissionCheck.new(self, opts)
-    checker.cmd_changestate_permissions(opts)
+    # check if User.current is allowed to potentially accept the request
+    # (note: setting the :force key to true will skip some checks but
+    # none of them is supposed to be crucial wrt. permission checking)
+    my_opts = opts.merge(newstate: 'accepted', force: true)
+    checker = BsRequestPermissionCheck.new(self, my_opts)
+    checker.cmd_changestate_permissions(my_opts)
     check_bs_request_actions!(skip_source: true)
 
     self.approver = new_approver
