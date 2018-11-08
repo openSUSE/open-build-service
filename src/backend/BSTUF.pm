@@ -36,8 +36,8 @@ use strict;
 sub keydata2asn1 {
   my ($keydata) = @_;
   die("need an rsa pubkey\n") unless ($keydata->{'algo'} || '') eq 'rsa';
-  my $pubkey = BSASN1::asn1_sequence(BSASN1::asn1_integer_mpi($keydata->{'mpis'}->[0]->{'data'}), BSASN1::asn1_integer_mpi($keydata->{'mpis'}->[1]->{'data'}));
-  return BSASN1::asn1_sequence(BSASN1::asn1_sequence($BSX509::oid_rsaencryption, BSASN1::asn1_null()), BSASN1::asn1_bytes($pubkey));
+  my $pubkey = BSASN1::pack_sequence(BSASN1::pack_integer_mpi($keydata->{'mpis'}->[0]->{'data'}), BSASN1::pack_integer_mpi($keydata->{'mpis'}->[1]->{'data'}));
+  return BSASN1::pack_sequence(BSASN1::pack_sequence($BSX509::oid_rsaencryption, BSASN1::pack_null()), BSASN1::pack_bytes($pubkey));
 }
 
 sub rfc3339time {
@@ -62,27 +62,27 @@ sub sign {
 
 sub mktbscert {
   my ($cn, $not_before, $not_after, $subjectkeyinfo) = @_;
-  my $certversion = BSASN1::asn1_tagged(0, BSASN1::asn1_integer(2));
+  my $certversion = BSASN1::pack_tagged(0, BSASN1::pack_integer(2));
   my $certserial = BSX509::pack_random_serial();
-  my $sigalgo = BSASN1::asn1_sequence($BSX509::oid_sha256withrsaencryption, BSASN1::asn1_null());
+  my $sigalgo = BSASN1::pack_sequence($BSX509::oid_sha256withrsaencryption, BSASN1::pack_null());
   my $issuer = BSX509::pack_distinguished_name([ $BSX509::oid_common_name, $cn ]);
-  my $validity = BSASN1::asn1_sequence(BSASN1::asn1_utctime($not_before), BSASN1::asn1_utctime($not_after));
-  my $basic_constraints = BSASN1::asn1_sequence();
-  my $key_usage = BSASN1::asn1_bits_list($BSX509::key_usage_digital_signature, $BSX509::key_usage_key_encipherment);
-  my $ext_key_usage = BSASN1::asn1_sequence($BSX509::oid_code_signing);
+  my $validity = BSASN1::pack_sequence(BSASN1::pack_utctime($not_before), BSASN1::pack_utctime($not_after));
+  my $basic_constraints = BSASN1::pack_sequence();
+  my $key_usage = BSASN1::pack_bits_list($BSX509::key_usage_digital_signature, $BSX509::key_usage_key_encipherment);
+  my $ext_key_usage = BSASN1::pack_sequence($BSX509::oid_code_signing);
   my $extensions = BSX509::pack_cert_extensions(
 		    $BSX509::oid_basic_constraints, [ $basic_constraints, 1 ],
 		    $BSX509::oid_key_usage, [ $key_usage, 1 ],
 		    $BSX509::oid_ext_key_usage, [ $ext_key_usage ]);
-  my $tbscert = BSASN1::asn1_sequence($certversion, $certserial, $sigalgo, $issuer, $validity, $issuer, $subjectkeyinfo, $extensions);
+  my $tbscert = BSASN1::pack_sequence($certversion, $certserial, $sigalgo, $issuer, $validity, $issuer, $subjectkeyinfo, $extensions);
   return $tbscert;
 }
 
 sub mkcert {
   my ($tbscert, $signargs) = @_;
   my $signature = sign($tbscert, $signargs);
-  my $sigalgo = BSASN1::asn1_sequence($BSX509::oid_sha256withrsaencryption, BSASN1::asn1_null());
-  my $cert = BSASN1::asn1_sequence($tbscert, $sigalgo, BSASN1::asn1_bytes($signature));
+  my $sigalgo = BSASN1::pack_sequence($BSX509::oid_sha256withrsaencryption, BSASN1::pack_null());
+  my $cert = BSASN1::pack_sequence($tbscert, $sigalgo, BSASN1::pack_bytes($signature));
   return BSASN1::der2pem($cert, 'CERTIFICATE');
 }
 
@@ -90,22 +90,22 @@ sub mkcert {
 sub gettbscert {
   my ($cert) = @_;
   $cert = BSASN1::pem2der($cert, 'CERTIFICATE');
-  return (BSASN1::asn1_unpack_sequence($cert, undef, [ $BSASN1::CONS | $BSASN1::SEQUENCE, -1]))[0];
+  return (BSASN1::unpack_sequence($cert, undef, [ $BSASN1::CONS | $BSASN1::SEQUENCE, -1]))[0];
 }
 
 # remove the serial number from a tbs certificate. We need to do this because the
 # serial is random and we want to compare two certs.
 sub removecertserial {
   my ($tbscert) = @_;
-  my @parts = BSASN1::asn1_unpack_sequence($tbscert, undef, [ @$BSX509::tbscertificate_tags[0 .. 1], -1 ]);
+  my @parts = BSASN1::unpack_sequence($tbscert, undef, [ @$BSX509::tbscertificate_tags[0 .. 1], -1 ]);
   splice(@parts, 1, 1);		# remove serial entry
-  return BSASN1::asn1_sequence(@parts);
+  return BSASN1::pack_sequence(@parts);
 }
 
 # get pubkey
 sub getsubjectkeyinfo {
   my ($tbscert) = @_;
-  return (BSASN1::asn1_unpack_sequence($tbscert, undef, [ @$BSX509::tbscertificate_tags[0 .. 7], -1 ]))[6];
+  return (BSASN1::unpack_sequence($tbscert, undef, [ @$BSX509::tbscertificate_tags[0 .. 7], -1 ]))[6];
 }
 
 sub signdata {
