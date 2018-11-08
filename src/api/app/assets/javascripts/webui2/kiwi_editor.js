@@ -32,8 +32,6 @@ function editPackageDialog(){
 function editRepositoryDialog(){
   var fields = $(this).parents('.nested-fields');
   var dialog = fields.find('.modal');
-  var normalMode = fields.find('.normal-mode');
-  var expertMode = fields.find('.expert-mode');
   var sourcePath = fields.find("[id$='source_path']");
 
   dialog.modal('show');
@@ -50,15 +48,7 @@ function editRepositoryDialog(){
     repoField.append(new Option(matchedObsSourcePath[2]));
     repoField.val(matchedObsSourcePath[2]);
     repoTypeField.val('rpm-md');
-
-    normalMode.removeClass('d-none');
-    expertMode.addClass('d-none');
   }
-  else {
-    normalMode.addClass('d-none');
-    expertMode.removeClass('d-none');
-  }
-  updateModeButton(fields);
 
   $('span[role=status]').text(''); // empty autocomplete status
 }
@@ -225,22 +215,6 @@ function addDefault(dialog) {
   });
 }
 
-function repositoryModeToggle() {
-  var fields = $(this).parents('.nested-fields');
-
-  fields.find('.normal-mode').toggleClass('d-none');
-  fields.find('.expert-mode').toggleClass('d-none');
-
-  updateModeButton(fields);
-}
-
-function updateModeButton(fields) {
-  var expertMode = fields.find('.expert-mode');
-
-  fields.find('.kiwi-repository-mode-toggle').
-    text(expertMode.hasClass("d-none") ? "Expert Mode" : "Basic Mode");
-}
-
 function hoverListItem() {
   $(this).find('.kiwi_actions').toggleClass('d-none');
 }
@@ -377,7 +351,6 @@ $(document).ready(function(){
   $('.package_edit').click(editPackageDialog);
   $('#kiwi-repositories-list .close-dialog, #kiwi-packages-list .close-dialog').click(closeDialog);
   $('.revert-dialog').click(revertDialog);
-  $('.kiwi-repository-mode-toggle').click(repositoryModeToggle);
   $('#kiwi-repositories-list .kiwi_list_item, #kiwi-packages-list .kiwi_list_item').hover(hoverListItem, hoverListItem);
   $('[name=target_project]').each(function() {
     kiwiRepositoriesSetupAutocomplete($(this).parents('.nested-fields'));
@@ -398,7 +371,6 @@ $(document).ready(function(){
     $(addedFields).find('.repository_edit').click(editRepositoryDialog);
     $(addedFields).find('.close-dialog').click(closeDialog);
     $(addedFields).find('.revert-dialog').click(revertDialog);
-    $(addedFields).find('.kiwi-repository-mode-toggle').click(repositoryModeToggle);
     $(addedFields).find('.kiwi_list_item').hover(hoverListItem, hoverListItem);
     kiwiRepositoriesSetupAutocomplete($(addedFields));
     $('#no-repositories').addClass('d-none');

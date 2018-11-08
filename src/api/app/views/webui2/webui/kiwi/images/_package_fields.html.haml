@@ -1,6 +1,6 @@
 .nested-fields.kiwi_fields
-  %div{ class: "kiwi_list_item #{'has-error' if f.object.errors.present?}" }
-    %span
+  %div{ class: "d-flex justify-content-between kiwi_list_item #{'has-error' if f.object.errors.present?}" }
+    %span.text-truncate{ title: f.object.name }
       = link_to '', class: 'package_edit kiwi_element_name', data: { 'target': "#package-#{f.object.name}", 'toggle': 'modal' } do
         = f.object.name
         - if f.object.arch.present?
