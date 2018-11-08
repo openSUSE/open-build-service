@@ -872,6 +872,22 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # request creation succeeds because we are "Iggy"
     post '/request?cmd=create', params: format(req_template, approver: 'Iggy')
     assert_response :success
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    id = node.value(:id)
+
+    # accept review
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
+    assert_response :success
+
+    # the request was not accepted because the approver "Iggy" has no
+    # sufficient permissions to create a new package in the "home:fred"
+    # project => the request is automatically revoked
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(tag: 'state',
+                   attributes: { name: 'revoked', who: 'Iggy',
+                                 approver: 'Iggy' })
   end
 
   def test_create_request_and_supersede

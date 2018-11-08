@@ -301,7 +301,7 @@ class BsRequestPermissionCheck
     end
 
     # need to check for accept permissions
-    accept_check = (opts[:newstate] == 'accepted') || req.approver.present?
+    accept_check = opts[:newstate] == 'accepted'
 
     # enforce state to "review" if going to "new", when review tasks are open
     if opts[:newstate] == 'new' && req.reviews
