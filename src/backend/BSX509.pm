@@ -26,24 +26,24 @@ use BSASN1;
 
 use strict;
 
-our $oid_common_name		= BSASN1::asn1_obj_id(2, 5, 4, 3);
-our $oid_country_name		= BSASN1::asn1_obj_id(2, 5, 4, 6);
-our $oid_org_name		= BSASN1::asn1_obj_id(2, 5, 4, 10);
-our $oid_org_unit_name		= BSASN1::asn1_obj_id(2, 5, 4, 11);
-our $oid_email_address		= BSASN1::asn1_obj_id(1, 2, 840, 113549, 1, 9, 1);
-our $oid_sha1			= BSASN1::asn1_obj_id(1, 3, 14, 3, 2, 26);
-our $oid_sha256			= BSASN1::asn1_obj_id(2, 16, 840, 1, 101, 3, 4, 2, 1);
-our $oid_sha512			= BSASN1::asn1_obj_id(2, 16, 840, 1, 101, 3, 4, 2, 3);
-our $oid_id_dsa			= BSASN1::asn1_obj_id(1, 2, 840, 10040, 4, 1);
-our $oid_id_ec_public_key	= BSASN1::asn1_obj_id(1, 2, 840, 10045, 2, 1);
-our $oid_prime256v1		= BSASN1::asn1_obj_id(1, 2, 840, 10045, 3, 1, 7);
-our $oid_rsaencryption		= BSASN1::asn1_obj_id(1, 2, 840, 113549, 1, 1, 1);
-our $oid_sha1withrsaencryption	= BSASN1::asn1_obj_id(1, 2, 840, 113549, 1, 1, 5);
-our $oid_sha256withrsaencryption	= BSASN1::asn1_obj_id(1, 2, 840, 113549, 1, 1, 11);
-our $oid_key_usage		= BSASN1::asn1_obj_id(2, 5, 29, 15);
-our $oid_basic_constraints	= BSASN1::asn1_obj_id(2, 5, 29, 19);
-our $oid_ext_key_usage		= BSASN1::asn1_obj_id(2, 5, 29, 37);
-our $oid_code_signing		= BSASN1::asn1_obj_id(1, 3, 6, 1, 5, 5, 7, 3, 3);
+our $oid_common_name		= BSASN1::pack_obj_id(2, 5, 4, 3);
+our $oid_country_name		= BSASN1::pack_obj_id(2, 5, 4, 6);
+our $oid_org_name		= BSASN1::pack_obj_id(2, 5, 4, 10);
+our $oid_org_unit_name		= BSASN1::pack_obj_id(2, 5, 4, 11);
+our $oid_email_address		= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 9, 1);
+our $oid_sha1			= BSASN1::pack_obj_id(1, 3, 14, 3, 2, 26);
+our $oid_sha256			= BSASN1::pack_obj_id(2, 16, 840, 1, 101, 3, 4, 2, 1);
+our $oid_sha512			= BSASN1::pack_obj_id(2, 16, 840, 1, 101, 3, 4, 2, 3);
+our $oid_id_dsa			= BSASN1::pack_obj_id(1, 2, 840, 10040, 4, 1);
+our $oid_id_ec_public_key	= BSASN1::pack_obj_id(1, 2, 840, 10045, 2, 1);
+our $oid_prime256v1		= BSASN1::pack_obj_id(1, 2, 840, 10045, 3, 1, 7);
+our $oid_rsaencryption		= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 1, 1);
+our $oid_sha1withrsaencryption	= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 1, 5);
+our $oid_sha256withrsaencryption	= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 1, 11);
+our $oid_key_usage		= BSASN1::pack_obj_id(2, 5, 29, 15);
+our $oid_basic_constraints	= BSASN1::pack_obj_id(2, 5, 29, 19);
+our $oid_ext_key_usage		= BSASN1::pack_obj_id(2, 5, 29, 37);
+our $oid_code_signing		= BSASN1::pack_obj_id(1, 3, 6, 1, 5, 5, 7, 3, 3);
 
 our $key_usage_digital_signature	= 0;
 our $key_usage_non_repodiation		= 1;
@@ -70,7 +70,7 @@ our $tbscertificate_tags = [
 
 sub keydata_getmpi {
   my ($bits) = @_;
-  my $p = BSASN1::asn1_unpack_integer_mpi($bits);
+  my $p = BSASN1::unpack_integer_mpi($bits);
   my $nb = length($p) * 8;
   if ($nb) {
     my $first = unpack('C', $p);
@@ -81,8 +81,8 @@ sub keydata_getmpi {
 
 sub pubkey2keydata {
   my ($pkder) = @_;
-  my ($algoident, $bits) = BSASN1::asn1_unpack_sequence($pkder);
-  my ($algooid, $algoparams) = BSASN1::asn1_unpack_sequence($algoident);
+  my ($algoident, $bits) = BSASN1::unpack_sequence($pkder);
+  my ($algooid, $algoparams) = BSASN1::unpack_sequence($algoident);
   my $algo;
   if ($algooid eq $oid_rsaencryption) {
     $algo = 'rsa';
@@ -93,16 +93,16 @@ sub pubkey2keydata {
   } else {
     die("unknown pubkey algorithm\n");
   }
-  $bits = BSASN1::asn1_unpack_bytes($bits);
+  $bits = BSASN1::unpack_bytes($bits);
   my @mpis;
   my $res = { 'algo' => $algo };
   my $nbits;
   if ($algo eq 'dsa') {
-    push @mpis, keydata_getmpi($_) for BSASN1::asn1_unpack_sequence($algoparams);
+    push @mpis, keydata_getmpi($_) for BSASN1::unpack_sequence($algoparams);
     push @mpis, keydata_getmpi($bits);
     $nbits = $mpis[-1]->{'bits'};
   } elsif ($algo eq 'rsa') {
-    push @mpis, keydata_getmpi($_) for BSASN1::asn1_unpack_sequence($bits);
+    push @mpis, keydata_getmpi($_) for BSASN1::unpack_sequence($bits);
     $nbits = $mpis[0]->{'bits'};
   } elsif ($algo eq 'ecdsa') {
     my $curve;
@@ -127,7 +127,7 @@ sub pubkey2keydata {
 sub pack_random_serial {
   my $serial = pack("C", 128 + int(rand(128)));
   $serial .= pack("C", int(rand(256))) for (1, 2, 3, 4, 5, 6, 7);
-  return BSASN1::asn1_integer_mpi($serial);
+  return BSASN1::pack_integer_mpi($serial);
 }
 
 sub pack_distinguished_name {
@@ -138,27 +138,27 @@ sub pack_distinguished_name {
     my @attr = @$attrset;
     while (@attr) {
       if ($attr[0] eq $oid_country_name && $attr[1] =~ /^[a-zA-Z\'()+\-?:\/= ]*$/s) {
-        push @a, BSASN1::asn1_sequence($attr[0], BSASN1::asn1_string($attr[1], $BSASN1::PRINTABLESTRING));
+        push @a, BSASN1::pack_sequence($attr[0], BSASN1::pack_string($attr[1], $BSASN1::PRINTABLESTRING));
       } elsif ($attr[0] eq $oid_email_address && $attr[1] =~ /^[\000-\177]*$/s) {
-        push @a, BSASN1::asn1_sequence($attr[0], BSASN1::asn1_string($attr[1], $BSASN1::IA5STRING));
+        push @a, BSASN1::pack_sequence($attr[0], BSASN1::pack_string($attr[1], $BSASN1::IA5STRING));
       } else {
-        push @a, BSASN1::asn1_sequence($attr[0], BSASN1::asn1_string($attr[1]));
+        push @a, BSASN1::pack_sequence($attr[0], BSASN1::pack_string($attr[1]));
       }
       splice(@attr, 0, 2);
     }
-    push @res, BSASN1::asn1_set(@a);
+    push @res, BSASN1::pack_set(@a);
   }
-  return BSASN1::asn1_sequence(@res);
+  return BSASN1::pack_sequence(@res);
 }
 
 sub unpack_distinguished_name {
-  my (@sets) = BSASN1::asn1_unpack_sequence($_[0], $_[1]);
+  my (@sets) = BSASN1::unpack_sequence($_[0], $_[1]);
   my @res;
   for my $set (@sets) {
     my @a;
-    for my $attrseq (BSASN1::asn1_unpack_set($set)) {
-      my ($oid, $attr) = BSASN1::asn1_unpack_sequence($attrseq, undef, [ $BSASN1::OBJ_ID, 0 ]);
-      push @a, $oid, BSASN1::asn1_unpack_string($attr);
+    for my $attrseq (BSASN1::unpack_set($set)) {
+      my ($oid, $attr) = BSASN1::unpack_sequence($attrseq, undef, [ $BSASN1::OBJ_ID, 0 ]);
+      push @a, $oid, BSASN1::unpack_string($attr);
     }
     push @res, \@a;
   }
@@ -169,17 +169,17 @@ sub pack_cert_extensions {
   my (@ext) = @_;
   my @res;
   while (@ext) {
-    push @res, BSASN1::asn1_sequence($ext[0], $ext[1]->[1] ? BSASN1::asn1_boolean(1) : (), BSASN1::asn1_octet_string($ext[1]->[0]));
+    push @res, BSASN1::pack_sequence($ext[0], $ext[1]->[1] ? BSASN1::pack_boolean(1) : (), BSASN1::pack_octet_string($ext[1]->[0]));
     splice(@ext, 0, 2);
   }
-  return BSASN1::asn1_tagged(3, BSASN1::asn1_sequence(@res));	# tag as explicit [3]
+  return BSASN1::pack_tagged(3, BSASN1::pack_sequence(@res));	# tag as explicit [3]
 }
 
 sub unpack_cert_extensions {
   my @res;
-  for my $extseq (BSASN1::asn1_unpack_sequence(BSASN1::asn1_unpack_tagged($_[0], defined($_[1]) ? $_[1] : $BSASN1::CONT | $BSASN1::CONS | 3))) {
-    my ($oid, $critical, $d) = BSASN1::asn1_unpack_sequence($extseq, undef, [ $BSASN1::OBJ_ID, [ $BSASN1::BOOLEAN, undef ], $BSASN1::OCTET_STRING ]);
-    push @res, $oid, [ BSASN1::asn1_unpack_octet_string($d), $critical ? BSASN1::asn1_unpack_boolean($critical) : 0 ];
+  for my $extseq (BSASN1::unpack_sequence(BSASN1::unpack_tagged($_[0], defined($_[1]) ? $_[1] : $BSASN1::CONT | $BSASN1::CONS | 3))) {
+    my ($oid, $critical, $d) = BSASN1::unpack_sequence($extseq, undef, [ $BSASN1::OBJ_ID, [ $BSASN1::BOOLEAN, undef ], $BSASN1::OCTET_STRING ]);
+    push @res, $oid, [ BSASN1::unpack_octet_string($d), $critical ? BSASN1::unpack_boolean($critical) : 0 ];
   }
   return @res;
 }
