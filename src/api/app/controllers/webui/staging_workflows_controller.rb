@@ -4,6 +4,7 @@ class Webui::StagingWorkflowsController < Webui::WebuiController
   before_action :require_login, except: [:show]
   before_action :set_bootstrap_views
   before_action :set_project, only: [:new, :create]
+  before_action :set_staging_workflow, except: [:new, :create]
   after_action :verify_authorized, except: [:show, :new]
 
   def new
@@ -30,12 +31,11 @@ class Webui::StagingWorkflowsController < Webui::WebuiController
   end
 
   def show
-    @staging_workflow = StagingWorkflow.find_by(id: params[:id])
-    unless @staging_workflow
-      redirect_back(fallback_location: root_path)
-      flash[:error] = "StagingWorkflow with id = #{params[:id]} doesn't exist"
-      return
-    end
+    @project = @staging_workflow.project
+  end
+
+  def edit
+    authorize @staging_workflow
 
     @project = @staging_workflow.project
   end
@@ -44,5 +44,14 @@ class Webui::StagingWorkflowsController < Webui::WebuiController
 
   def set_bootstrap_views
     prepend_view_path('app/views/webui2')
+  end
+
+  def set_staging_workflow
+    @staging_workflow = StagingWorkflow.find_by(id: params[:id])
+    return if @staging_workflow
+
+    redirect_back(fallback_location: root_path)
+    flash[:error] = "StagingWorkflow with id = #{params[:id]} doesn't exist"
+    return
   end
 end

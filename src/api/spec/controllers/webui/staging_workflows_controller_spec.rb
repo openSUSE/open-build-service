@@ -94,4 +94,27 @@ RSpec.describe Webui::StagingWorkflowsController do
       it { expect(response).to render_template(:show) }
     end
   end
+
+  describe 'GET #edit' do
+    context 'non existent staging_workflow for project' do
+      before do
+        get :edit, params: { id: 5 }
+      end
+
+      it { expect(assigns[:staging_workflow]).to be_nil }
+      it { expect(response).to redirect_to(root_path) }
+      it { expect(flash[:error]).not_to be_nil }
+    end
+
+    context 'with an existent staging_workflow for project' do
+      before do
+        project.create_staging
+        get :edit, params: { id: project.staging }
+      end
+
+      it { expect(assigns[:staging_workflow]).to eq(project.staging) }
+      it { expect(assigns[:project]).to eq(project) }
+      it { expect(response).to render_template(:edit) }
+    end
+  end
 end

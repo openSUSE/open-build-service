@@ -6,7 +6,15 @@
       = render(partial: 'webui2/webui/project/tabs', locals: { project: @project })
       .card-body
         %h3= @pagetitle
-        %table.table.table-striped.table-bordered.table-sm.dt-responsive.w-100#files-table
+
+        %ul.list-inline
+          %li.list-inline-item
+            = link_to(edit_staging_workflow_path(@staging_workflow), class: 'nav-link') do
+              %i.fas.fa-edit.text-info
+              Edit Staging Workflow
+        %hr
+
+        %table.table.table-striped.table-bordered.table-sm.dt-responsive.w-100#staging-projects-datatable
           %thead
             %tr.text-center
               %th Project
@@ -25,3 +33,6 @@
   .col-xl-2
     = render partial: 'legend'
     = render partial: 'infos'
+
+- content_for :ready_function do
+  $('#staging-projects-datatable').DataTable({ responsive: true });

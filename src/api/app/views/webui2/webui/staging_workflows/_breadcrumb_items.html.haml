@@ -1,3 +1,10 @@
 = render partial: 'webui/project/breadcrumb_items'
-%li.breadcrumb-item.active{ 'aria-current' => 'page' }
-  Staging Projects
+- if current_page?(staging_workflow_path(@staging_workflow))
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Staging Projects
+- else
+  %li.breadcrumb-item
+    = link_to 'Staging Projects', staging_workflow_path(@staging_workflow)
+  - if controller_name == 'staging_workflows' && action_name == 'edit'
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      Edit
