@@ -22,12 +22,11 @@
 
 package BSASN1;
 
+use Encode;
 use MIME::Base64 ();
 
 use strict;
 
-
-# x509 constants
 our $UNIV 	= 0x00;
 our $APPL	= 0x40;
 our $CONT	= 0x80;
@@ -41,30 +40,18 @@ our $BIT_STRING	= 0x03;
 our $OCTET_STRING = 0x04;
 our $NULL	= 0x05;
 our $OBJ_ID	= 0x06;
+our $REAL	= 0x09;
+our $ENUMERATED	= 0x0a;
 our $UTF8STRING	= 0x0c;
 our $SEQUENCE	= 0x10;
 our $SET	= 0x11;
+our $NUMERICSTRING = 0x12;
+our $PRINTABLESTRING = 0x13;
+our $IA5STRING = 0x16;
 our $UTCTIME	= 0x17;
 our $GENTIME	= 0x18;
-
-our $oid_common_name   = asn1_obj_id(2, 5, 4, 3);
-our $oid_country_name  = asn1_obj_id(2, 5, 4, 6);
-our $oid_org_name      = asn1_obj_id(2, 5, 4, 10);
-our $oid_org_unit_name = asn1_obj_id(2, 5, 4, 11);
-our $oid_email_address = asn1_obj_id(1, 2, 840, 113549, 1, 9, 1);
-our $oid_sha1   = asn1_obj_id(1, 3, 14, 3, 2, 26);
-our $oid_sha256 = asn1_obj_id(2, 16, 840, 1, 101, 3, 4, 2, 1);
-our $oid_sha512 = asn1_obj_id(2, 16, 840, 1, 101, 3, 4, 2, 3);
-our $oid_id_dsa                  = asn1_obj_id(1, 2, 840, 10040, 4, 1);
-our $oid_id_ec_public_key        = asn1_obj_id(1, 2, 840, 10045, 2, 1);
-our $oid_prime256v1              = asn1_obj_id(1, 2, 840, 10045, 3, 1, 7);
-our $oid_rsaencryption           = asn1_obj_id(1, 2, 840, 113549, 1, 1, 1);
-our $oid_sha1withrsaencryption   = asn1_obj_id(1, 2, 840, 113549, 1, 1, 5);
-our $oid_sha256withrsaencryption = asn1_obj_id(1, 2, 840, 113549, 1, 1, 11);
-our $oid_key_usage         = asn1_obj_id(2, 5, 29, 15);
-our $oid_basic_constraints = asn1_obj_id(2, 5, 29, 19);
-our $oid_ext_key_usage     = asn1_obj_id(2, 5, 29, 37);
-our $oid_code_signing  = asn1_obj_id(1, 3, 6, 1, 5, 5, 7, 3, 3);
+our $UNIVERSALSTRING = 0x1c;
+our $BMPSTRING	= 0x1e;
 
 sub utctime {
   my ($t) = @_;
@@ -77,42 +64,6 @@ sub gentime {
   my @gt = gmtime($t || time());
   return sprintf "%04d%02d%02d%02d%02d%02dZ", $gt[5] + 1900, $gt[4] + 1, @gt[3,2,1,0];
 }
-
-sub asn1_pack {
-  my ($tag, @data) = @_;
-  my $ret = pack("C", $tag);
-  my $data = join('', @data);
-  my $l = length($data);
-  return pack("CC", $tag, $l) . $data if $l < 128;
-  my $ll = $l >> 8 ? $l >> 16 ? $l >> 24 ? 4 : 3 : 2 : 1;
-  return pack("CCa*", $tag, $ll | 0x80,  substr(pack("N", $l), -$ll)) . $data;
-}
-
-sub asn1_unpack {
-  my ($in, $allowed, $optional) = @_;
-  if (length($in) < 2) {
-    return (undef, undef, $in) if $optional;
-    die("unexpected end of string\n");
-  }
-  my ($tag, $l) = unpack("CC", $in);
-  if ($allowed) {
-    $allowed = [ $allowed ] unless ref($allowed);
-    if (!grep {$tag == $_}  @$allowed) {
-      return (undef, undef, $in) if $optional;
-      die("unexpected tag $tag, expected @$allowed\n");
-    }
-  }
-  my $off = 2;
-  if ($l >= 128) {
-    $l -= 128;
-    $off += $l;
-    die("unsupported asn1 length $l\n") if $l < 1 || $l > 4;
-    $l = unpack("\@${l}N", pack('xxxx').substr($in, 2, 4));
-  }
-  die("unexpected end of string\n") if length($in) < $off + $l;
-  return ($tag, substr($in, $off, $l), substr($in, $off + $l));
-}
-
 
 sub der2pem {
   my ($in, $what) = @_;
@@ -129,50 +80,221 @@ sub pem2der {
   return MIME::Base64::decode_base64($in);
 }
 
-# little helpers
-sub asn1_null {
-  return asn1_pack($NULL);
+# raw packing/unpacking helpers
+sub pack_raw {
+  my ($tag, @data) = @_;
+  my $data = join('', @data);
+  my $l = length($data);
+  return pack("CC", $tag, $l) . $data if $l < 128;
+  my $ll = $l >> 8 ? $l >> 16 ? $l >> 24 ? 4 : 3 : 2 : 1;
+  return pack("CCa*", $tag, $ll | 0x80,  substr(pack("N", $l), -$ll)) . $data;
 }
 
-sub asn1_boolean {
-  return asn1_pack($BOOLEAN, pack('C', $_[0] ? 255 : 0));
+sub unpack_raw {
+  my ($in, $allowed, $optional, $exact) = @_;
+  $allowed = [ $allowed ] if $allowed && !ref($allowed);
+  if (length($in) < 2) {
+    return ($in, undef, '', '') if $optional || grep {!defined($_)} @{$allowed || []};
+    die("unexpected end of asn1 data\n");
+  }
+  my ($tag, $l) = unpack("CC", $in);
+  if ($allowed) {
+    if (!grep {defined($_) && $tag == $_}  @$allowed) {
+      return ($in, undef, '', '') if $optional || grep {!defined($_)} @{$allowed || []};
+      die("unexpected tag $tag, expected @$allowed\n");
+    }
+  }
+  my $off = 2;
+  if ($l >= 128) {
+    $l -= 128;
+    $off += $l;
+    die("unsupported asn1 length $l\n") if $l < 1 || $l > 4;
+    $l = unpack("\@${l}N", pack('xxxx').substr($in, 2, 4));
+  }
+  die("unexpected end of asn1 data\n") if length($in) < $off + $l;
+  die("tailing data at end of asn1 element\n") if $exact && length($in) != $off + $l;
+  return (substr($in, $off + $l), $tag, substr($in, $off, $l), substr($in, 0, $off + $l));
 }
 
-sub asn1_integer {
-  return asn1_pack($INTEGER, pack('c', $_[0])) if $_[0] >= -128 && $_[0] <= 127;
-  return asn1_pack($INTEGER, substr(pack('N', $_[0]), 3 - (length(sprintf('%b', $_[0] >= 0 ? $_[0] : ~$_[0])) >> 3)));
+# little pack helpers
+sub pack_null {
+  return pack_raw($NULL);
 }
 
-sub asn1_integer_mpi {
+sub pack_boolean {
+  return pack_raw($BOOLEAN, pack('C', $_[0] ? 255 : 0));
+}
+
+sub pack_integer {
+  return pack_raw($INTEGER, pack('c', $_[0])) if $_[0] >= -128 && $_[0] <= 127;
+  return pack_raw($INTEGER, substr(pack('N', $_[0]), 3 - (length(sprintf('%b', $_[0] >= 0 ? $_[0] : ~$_[0])) >> 3)));
+}
+
+sub pack_integer_mpi {
   my $mpi = $_[0];
   $mpi = pack('C', 0) if length($mpi) == 0;
   $mpi = substr($mpi, 1) while length($mpi) > 1 && unpack('C', $mpi) == 0;
-  return asn1_pack($INTEGER, unpack('C', $mpi) >= 128 ? pack('C', 0).$mpi : $mpi);
+  return pack_raw($INTEGER, unpack('C', $mpi) >= 128 ? pack('C', 0).$mpi : $mpi);
 }
 
-sub asn1_obj_id {
+sub pack_enumerated {
+  return pack_raw($ENUMERATED, pack('c', $_[0])) if $_[0] >= -128 && $_[0] <= 127;
+  return pack_raw($ENUMERATED, substr(pack('N', $_[0]), 3 - (length(sprintf('%b', $_[0] >= 0 ? $_[0] : ~$_[0])) >> 3)));
+}
+
+sub pack_obj_id {
   my ($o1, $o2, @o) = @_;
-  return asn1_pack($OBJ_ID, pack('w*', $o1 * 40 + $o2, @o));
+  return pack_raw($OBJ_ID, pack('w*', $o1 * 40 + $o2, @o));
 }
 
-sub asn1_sequence {
-  return asn1_pack($CONS | $SEQUENCE, @_);
+sub pack_sequence {
+  return pack_raw($CONS | $SEQUENCE, @_);
 }
 
-sub asn1_set {
-  return asn1_pack($CONS | $SET, @_);
+sub pack_set {
+  return pack_raw($CONS | $SET, @_);
 }
 
-sub asn1_utctime {
-  return asn1_pack($UTCTIME, utctime(@_));
+sub pack_utctime {
+  return pack_raw($UTCTIME, utctime(@_));
 }
 
-sub asn1_gentime {
-  return asn1_pack($GENTIME, gentime(@_));
+sub pack_gentime {
+  return pack_raw($GENTIME, gentime(@_));
 }
 
-sub asn1_octet_string {
-  return asn1_pack($OCTET_STRING, $_[0]);
+sub pack_octet_string {
+  return pack_raw($OCTET_STRING, $_[0]);
+}
+
+sub pack_string {
+  my ($s, $tag) = @_;
+  Encode::_utf8_off($s);	# hope for the best
+  return pack_raw($tag || $UTF8STRING, $s);
+}
+
+sub pack_bytes {
+  return pack_raw($BIT_STRING, pack('C', 0).$_[0]);
+}
+
+sub pack_tagged {
+  return pack_raw(($_[0] < 0x40 ? $CONT : 0) | $CONS | $_[0], $_[1]);
+}
+
+sub pack_tagged_implicit {
+  my ($rest, $tag, $body) = unpack_raw($_[1]);
+  return pack_raw(($_[0] < 0x40 ? $CONT : 0) | ($tag & $CONS) | $_[0], $body).$rest;
+}
+
+sub pack_bits_list {
+  my $v = '';
+  vec($v, $_ ^ 7, 1) = 1 for @_;
+  my $maxbit = $v eq '' ? 7 : (sort {$b <=> $a} @_)[0];
+  return pack_raw($BIT_STRING, pack('C', 7 - ($maxbit % 8)).$v);
+}
+
+
+# little unpack helpers (tag = 0 : any tag allowed)
+
+sub gettag {
+  return (unpack_raw(@_))[1];
+}
+
+sub unpack_body {
+  my ($in, $tag, $default) = @_;
+  return (unpack_raw($in, defined($tag) ? $tag : $default, undef, 1))[2];
+}
+
+sub unpack_integer {
+  my $in = unpack_body($_[0], $_[1], $INTEGER);
+  return 0 if $in eq '';
+  return unpack('c', $in) if length($in) == 1;
+  my $n = pack('C', unpack('C', $in) >= 128 ? 255 : 0) x 4;
+  $n = unpack('N', substr("$n$in", -4));
+  return unpack('C', $in) >= 128 ? $n - 4294967296 : $n;
+}
+
+sub unpack_integer_mpi {
+  my $in = unpack_body($_[0], $_[1], $INTEGER);
+  $in = substr($in, 1) while $in ne '' && unpack('C', $in) == 0;
+  return $in;
+}
+
+sub unpack_sequence {
+  my ($in, $tag, $allowed) = @_;
+  $in = unpack_body($in, $tag, $CONS | $SEQUENCE);
+  my @ret;
+  my $tagbody;
+  if ($allowed && ref($allowed)) {
+    for my $all (@$allowed) {
+      return @ret, $in if $all && !ref($all) && $all == -1;	# -1: get rest
+      ($in, undef, undef, $tagbody) = unpack_raw($in, $all);
+      push @ret, $tagbody;
+    }
+    die("tailing data at end of asn1 sequence\n") if $in ne '';
+    return @ret;
+  }
+  while ($in ne '') {
+    ($in, undef, undef, $tagbody) = unpack_raw($in, $allowed);
+    push @ret, $tagbody;
+  }
+  return @ret;
+}
+
+sub unpack_set {
+  my ($in, $tag, $allowed) = @_;
+  $in = unpack_body($in, $tag, $CONS | $SET);
+  my @ret;
+  my $tagbody;
+  while ($in ne '') {
+    ($in, undef, undef, $tagbody) = unpack_raw($in, $allowed);
+    push @ret, $tagbody;
+  }
+  return @ret;
+}
+
+sub unpack_bytes {
+  my $in = unpack_body($_[0], $_[1], $BIT_STRING);
+  die("unpack_bytes: bit number not multiple of 8\n") unless unpack('C', $in) == 0;
+  return substr($in, 1);
+}
+
+sub unpack_octet_string {
+  return unpack_body($_[0], $_[1], $OCTET_STRING);
+}
+
+sub unpack_string {
+  my ($in, $tag) = @_;
+  $tag = [ $UTF8STRING, $NUMERICSTRING, $PRINTABLESTRING, $IA5STRING, $BMPSTRING, $UNIVERSALSTRING ] unless defined $tag;
+  (undef, $tag, $in) = unpack_raw($in, $tag, undef, 1);
+  if ($tag == $BMPSTRING) {
+    $in = Encode::decode('UCS-2BE', $in);
+    Encode::_utf8_off($in);
+  } elsif ($tag == $UNIVERSALSTRING) {
+    $in = Encode::decode('UCS-4BE', $in);
+    Encode::_utf8_off($in);
+  }
+  return $in;
+}
+
+sub unpack_bits_list {
+  my $in = unpack_body($_[0], $_[1], $BIT_STRING);
+  my $empty = unpack('C', $in);
+  die("unpack_bits: empty bits not in range 0..7\n") if $empty > 7;
+  $in = unpack('B*', substr($in, 1));
+  substr($in, -$empty, $empty, '') if $empty;	# just in case
+  my @res;
+  substr($in, -1, 1, '') ne '0' && unshift(@res, length($in)) while $in ne '';
+  return @res;
+}
+
+sub unpack_boolean {
+  my $in = unpack_body($_[0], $_[1], $BOOLEAN);
+  return unpack('C', $in) ? 1 : 0;
+}
+
+sub unpack_tagged {
+  return unpack_body($_[0], $_[1], 0);
 }
 
 1;
