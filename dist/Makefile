@@ -1,11 +1,11 @@
 include ../Makefile.include
 
-INIT_SCRIPTS          := obsscheduler obsworker obsapisetup obsstoragesetup
+INIT_SCRIPTS          := obsscheduler obsworker obsstoragesetup
 LOGROTATE_CONFIGS     := obs-api obs-server obs-source_service
 OBS_BIN_SCRIPTS       := obs_productconvert
 OBS_SBIN_SCRIPTS      := obs_admin obs_serverstatus
 SYSTEMD_TARGET_FILES  := obs-api-support
-SYSTEMD_SERVICE_FILES := obs-clockwork obs-delayedjob-queue-project_log_rotate obs-delayedjob-queue-consistency_check obs-delayedjob-queue-default obs-delayedjob-queue-releasetracking obs-delayedjob-queue-issuetracking obs-delayedjob-queue-mailers obs-sphinx obsdeltastore obsdispatcher obsdodup obswarden obssrcserver obsrepserver obspublisher obssigner obsservice obsservicedispatch obsgetbinariesproxy obsclouduploadserver obsclouduploadworker
+SYSTEMD_SERVICE_FILES := obs-clockwork obs-delayedjob-queue-project_log_rotate obs-delayedjob-queue-consistency_check obs-delayedjob-queue-default obs-delayedjob-queue-releasetracking obs-delayedjob-queue-issuetracking obs-delayedjob-queue-mailers obs-sphinx obsdeltastore obsdispatcher obsdodup obswarden obssrcserver obsrepserver obspublisher obssigner obsservice obsservicedispatch obsgetbinariesproxy obsclouduploadserver obsclouduploadworker obsapisetup
 SYSTEMD_SERVICE_FILES_WITHOUT_LINK := obs-delayedjob-queue-quick@
 
 FILLUPDIR             := /var/adm/fillup-templates
@@ -17,7 +17,6 @@ install: install_obsapisetup install_apache install_initscripts install_project_
 #install_overview
 
 install_obsapisetup: system_dirs
-	$(INSTALL) -m 755 obsapisetup $(DESTDIR)/etc/init.d/obsapisetup
 	$(INSTALL) -m 755 setup-appliance.sh $(DESTDIR)$(OBS_BACKEND_PREFIX)/setup-appliance.sh
 
 install_apache:

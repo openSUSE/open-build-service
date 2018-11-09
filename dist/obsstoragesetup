@@ -461,7 +461,8 @@ case "$1" in
 			[ -d $backenddir/run ] || mkdir -p $backenddir/run
 			[ -d $backenddir/log ] || mkdir -p $backenddir/log
 			# fix ownership
-			chown $bsuser:$bsgroup $backenddir
+			chown $bsuser:$bsgroup $backenddir{,/log,/run}
+			chmod g+w $backenddir{/log,/run}
 		fi
 
 		# offer hook to make random special things in your setup
