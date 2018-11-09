@@ -320,7 +320,7 @@ module MaintenanceHelper
 
   def instantiate_container(project, opackage, opts = {})
     opkg = opackage.origin_container
-    pkg_name = opkg.name
+    pkg_name = opkg_name = opkg.name
     if opkg.is_a?(Package) && opkg.project.is_maintenance_release?
       # strip incident suffix
       pkg_name = opkg.name.gsub(/\.[^\.]*$/, '')
@@ -332,9 +332,11 @@ module MaintenanceHelper
     end
     opkg.find_project_local_linking_packages.each do |p|
       lpkg_name = p.name
-      if p.is_a?(Package) && p.project.is_maintenance_release?
+      if opkg_name != pkg_name && p.is_a?(Package) && p.project.is_maintenance_release?
         # strip incident suffix
         lpkg_name = p.name.gsub(/\.[^\.]*$/, '')
+        # skip the base links
+        next if lpkg_name == p.name
       end
       if Package.exists_by_project_and_name(project.name, lpkg_name, follow_project_links: false)
         raise PackageAlreadyExists, "package #{p.name} already exists"
@@ -377,7 +379,7 @@ module MaintenanceHelper
     # and create the needed local links
     opkg.find_project_local_linking_packages.each do |p|
       lpkg_name = p.name
-      if p.is_a?(Package) && p.project.is_maintenance_release?
+      if opkg_name != pkg_name && p.is_a?(Package) && p.project.is_maintenance_release?
         # strip incident suffix
         lpkg_name = p.name.gsub(/\.[^\.]*$/, '')
         # skip the base links
