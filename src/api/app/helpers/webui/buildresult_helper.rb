@@ -64,11 +64,11 @@ module Webui::BuildresultHelper
                                     data: { content: Buildresult.status_description(status['code']), placement: 'top', toggle: 'popover' }))
       end
       if code.in?(['-', 'unresolvable', 'blocked', 'excluded', 'scheduled'])
-        concat(link_to(code, 'javascript:void(0);', id: status_id, class: theclass, data: { content: link_title, placement: 'top', toggle: 'popover' }))
+        concat(link_to(code, 'javascript:void(0);', id: status_id, class: theclass, data: { content: link_title, placement: 'right', toggle: 'popover' }))
       else
         concat(link_to(code.gsub(/\s/, '&nbsp;'),
                        package_live_build_log_path(project: @project.to_s, package: package_name, repository: repo, arch: arch),
-                       data: { content: link_title, placement: 'top', toggle: 'popover' }, rel: 'nofollow', class: theclass))
+                       data: { content: link_title, placement: 'right', toggle: 'popover' }, rel: 'nofollow', class: theclass))
       end
     end
   end
