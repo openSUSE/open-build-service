@@ -31,6 +31,7 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
 
   def show
     @project = @staging_workflow.project
+    @staging_projects = @staging_workflow.staging_projects.includes(:staged_requests).reject { |project| project.overall_state == :empty }
     @unassigned_requests = @staging_workflow.unassigned_requests.first(5)
     @more_unassigned_requests = @staging_workflow.unassigned_requests.count - @unassigned_requests.size
     @ready_requests = @staging_workflow.ready_requests.first(5)
