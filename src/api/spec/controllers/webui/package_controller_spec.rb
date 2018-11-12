@@ -1444,7 +1444,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     it { expect(assigns(:project)).to eq(source_project) }
     it { expect(assigns(:tpkg)).to eq(source_package.name) }
     it { expect(assigns(:tprj)).to eq(source_project.name) }
-    it { expect(assigns(:description)).to eq("- Testing the submit diff\n- Temporary hack") }
+    it { expect(assigns(:description)).to eq("- Testing the submit diff\n- Temporary hack\n") }
   end
 
   describe 'GET #binary' do

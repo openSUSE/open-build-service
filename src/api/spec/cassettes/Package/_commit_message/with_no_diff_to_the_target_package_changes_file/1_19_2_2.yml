@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:32 GMT
+  recorded_at: Tue, 13 Nov 2018 05:50:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:foo:Apache/_meta?user=tom
@@ -48,7 +48,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="home:foo:Apache">
-          <title>For a Breath I Tarry</title>
+          <title>The Soldier's Art</title>
           <description/>
         </project>
     headers:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '112'
+      - '109'
     body:
       encoding: UTF-8
       string: |
         <project name="home:foo:Apache">
-          <title>For a Breath I Tarry</title>
+          <title>The Soldier's Art</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:33 GMT
+  recorded_at: Tue, 13 Nov 2018 05:50:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/_meta?user=tom
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_changes_file" project="home:foo:Apache">
-          <title>Antic Hay</title>
-          <description>Est quia qui excepturi.</description>
+          <title>Jacob Have I Loved</title>
+          <description>Et occaecati vel qui.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_changes_file" project="home:foo:Apache">
-          <title>Antic Hay</title>
-          <description>Est quia qui excepturi.</description>
+          <title>Jacob Have I Loved</title>
+          <description>Et occaecati vel qui.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:33 GMT
+  recorded_at: Tue, 13 Nov 2018 05:50:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/_meta?user=tom
@@ -126,8 +126,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_changes_file" project="home:foo:Apache">
-          <title>Antic Hay</title>
-          <description>Est quia qui excepturi.</description>
+          <title>Jacob Have I Loved</title>
+          <description>Et occaecati vel qui.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -148,31 +148,32 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_changes_file" project="home:foo:Apache">
-          <title>Antic Hay</title>
-          <description>Est quia qui excepturi.</description>
+          <title>Jacob Have I Loved</title>
+          <description>Et occaecati vel qui.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:33 GMT
+  recorded_at: Tue, 13 Nov 2018 05:50:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/package_with_changes_file.changes
     body:
       encoding: UTF-8
-      string: |2-
+      string: |+
+        -------------------------------------------------------------------
+        Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org
 
-                -------------------------------------------------------------------
-                Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org
+        - Testing the submit diff
 
-                - Testing the submit diff
+        -------------------------------------------------------------------
+        Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
 
-                -------------------------------------------------------------------
-                Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
-                - Temporary hack
+        - Temporary hack
+
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -192,20 +193,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="197" vrev="197">
-          <srcmd5>933bab7b52bdcf6f13b559ed54c67caf</srcmd5>
+        <revision rev="36" vrev="36">
+          <srcmd5>3e1112aa978292ae8affb2d70ab564e5</srcmd5>
           <version>unknown</version>
-          <time>1536230733</time>
+          <time>1542088248</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:33 GMT
+  recorded_at: Tue, 13 Nov 2018 05:50:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file
@@ -231,16 +232,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '344'
+      - '342'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_changes_file" rev="197" vrev="197" srcmd5="933bab7b52bdcf6f13b559ed54c67caf">
-          <entry name="lorem.changes" md5="143070716e28ed45a29514befe95043d" size="19" mtime="1536154840" />
-          <entry name="package_with_changes_file.changes" md5="537b17f421c041e9b54ce8ec7c8ee222" size="326" mtime="1536154836" />
+        <directory name="package_with_changes_file" rev="36" vrev="36" srcmd5="3e1112aa978292ae8affb2d70ab564e5">
+          <entry name="lorem.changes" md5="143070716e28ed45a29514befe95043d" size="19" mtime="1542055489" />
+          <entry name="package_with_changes_file.changes" md5="87b40d4b8cb98f7693786492ecda1339" size="280" mtime="1542051882" />
         </directory>
     http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:33 GMT
+  recorded_at: Tue, 13 Nov 2018 05:50:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/lorem.changes
@@ -271,7 +272,7 @@ http_interactions:
       encoding: UTF-8
       string: Lorem ipsum dolorem
     http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:33 GMT
+  recorded_at: Tue, 13 Nov 2018 05:50:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/package_with_changes_file.changes
@@ -293,23 +294,24 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       Content-Length:
-      - '326'
+      - '280'
       Cache-Control:
       - no-cache
       Connection:
       - close
     body:
       encoding: UTF-8
-      string: |2-
+      string: |+
+        -------------------------------------------------------------------
+        Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org
 
-                -------------------------------------------------------------------
-                Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org
+        - Testing the submit diff
 
-                - Testing the submit diff
+        -------------------------------------------------------------------
+        Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
 
-                -------------------------------------------------------------------
-                Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
-                - Temporary hack
+        - Temporary hack
+
     http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:33 GMT
+  recorded_at: Tue, 13 Nov 2018 05:50:48 GMT
 recorded_with: VCR 4.0.0
