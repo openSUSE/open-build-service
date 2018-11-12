@@ -616,13 +616,7 @@ RSpec.describe Package, vcr: true do
   end
 
   describe '#commit_message' do
-    let(:changes_file) do
-      '
-        -------------------------------------------------------------------
-        Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
-        - Temporary hack'
-    end
-
+    let(:changes_file) { file_fixture('factory_target_package.changes').read }
     let(:project) { create(:project, name: 'home:foo:Apache') }
     let(:package) { create(:package_with_changes_file, project: project, name: 'package_with_changes_file') }
 

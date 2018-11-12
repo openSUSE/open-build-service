@@ -89,17 +89,7 @@ FactoryBot.define do
 
     factory :package_with_changes_file do
       transient do
-        changes_file_content do
-          '
-        -------------------------------------------------------------------
-        Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org
-
-        - Testing the submit diff
-
-        -------------------------------------------------------------------
-        Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
-        - Temporary hack'
-        end
+        changes_file_content { Pathname.new(File.join('spec', 'fixtures', 'files', 'factory_package.changes')).read }
         changes_file_name { "#{name}.changes" }
       end
 
