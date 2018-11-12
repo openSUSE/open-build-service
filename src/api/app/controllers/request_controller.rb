@@ -144,20 +144,13 @@ class RequestController < ApplicationController
 
   # POST /request?cmd=create
   def request_create
-    xml = nil
     BsRequest.transaction do
-      parsed_xml = Xmlhash.parse(request.raw_post.to_s)
-
-      raise SaveError, 'Failed parsing the request xml' unless parsed_xml
-      raise SaveError, 'Request ID attribute not allowed when creating a request' if parsed_xml['id']
-
-      @req = BsRequest.new_from_hash(parsed_xml)
+      @req = BsRequest.new_from_xml(request.raw_post.to_s)
+      authorize @req, :create?
       @req.set_add_revision       if params[:addrevision].present?
       @req.set_ignore_build_state if params[:ignore_build_state].present?
       @req.save!
-
-      xml = @req.render_xml
-      Suse::Validator.validate(:request, xml)
+      Suse::Validator.validate(:request, @req.render_xml)
     end
 
     # cache the diff (in the backend)
@@ -165,7 +158,7 @@ class RequestController < ApplicationController
       BsRequestActionWebuiInfosJob.perform_later(a)
     end
 
-    render xml: xml
+    render xml: @req.render_xml
   end
 
   def request_command_diff
