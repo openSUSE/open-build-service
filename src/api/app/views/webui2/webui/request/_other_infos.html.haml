@@ -1,0 +1,50 @@
+= possibly_empty_ul class: 'horizontal-list' do
+  - if can_add_reviews
+    %li= link_to(sprited_text('user_add', 'Add a review'),
+                { controller: 'request', action: 'add_reviewer_dialog', number: number }, remote: true)
+= possibly_empty_ul class: 'clean_list' do
+  %li
+    = sprite_tag('user_green')
+    Created by
+    = user_with_realname_and_icon(req['creator'], no_icon: true, short: true)
+    = fuzzy_time(req['created_at'])
+  %li
+    = sprite_tag('information')
+    In state
+    = link_to(state, { anchor: 'request-history' }, style: "color: #{request_state_color(state)};")
+  - unless package_maintainers.empty?
+    %li
+      = sprite_tag('eye')
+      = pluralize(package_maintainers.size, 'package maintainer')
+      (#{link_to('show who', '#', class: 'show-dialog', data: { target: '#maintainers-dialog' })})
+  - if superseding
+    %li
+      = sprite_tag('information', title: '')
+      Supersedes
+      - superseding.each do |supersed|
+        = link_to supersed['number'], number: supersed['number']
+  - if superseded_by
+    %li
+      = sprite_tag('exclamation', title: '')
+      Superseded
+      by #{link_to superseded_by, number: superseded_by}
+  - if accept_at
+    %li
+      = sprite_tag('exclamation', title: '')
+      - if BsRequest::FINAL_REQUEST_STATES.include?(state)
+        Auto-accept was set to
+        %span.fuzzy-time{ title: l(accept_at) }
+          = l accept_at, format: :only_date
+          \.
+      - elsif accept_at.past?
+        This request will be automatically accepted when it enters the 'new' state.
+      - else
+        This request will be automatically accepted in #{time_ago_in_words(accept_at)}.
+  - other_open_reviews.each do |review|
+    %li
+      = sprite_tag('exclamation')
+      Open review for #{render partial: 'reviewer', locals: { review: review }}
+  - my_open_reviews.each do |review|
+    %li
+      = sprite_tag('exclamation')
+      Open review for #{render partial: 'reviewer', locals: { review: review }}

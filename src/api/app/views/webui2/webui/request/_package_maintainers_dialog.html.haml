@@ -1,0 +1,13 @@
+.modal.fade{ id: 'maintainers_dialog', tabindex: -1, role: 'dialog', aria: { labelledby: 'maintainers-dialog-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title
+          = pluralize(package_maintainers.size, 'Package Maintainer')
+      .modal-body
+        %ul
+        - package_maintainers.each do |maintainer|
+          %li= user_with_realname_and_icon(maintainer, short: true)
+      .modal-footer
+        %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+          Cancel

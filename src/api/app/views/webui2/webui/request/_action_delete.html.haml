@@ -1,0 +1,9 @@
+%b
+  Delete
+  - if action.target_repository
+    repository
+    = link_to(action.target_repository,
+      controller: :repositories, action: :index,
+      project: action.target_project, repository: action.target_repository)
+    in
+  = project_or_package_link project: action.target_project, package: action.target_package

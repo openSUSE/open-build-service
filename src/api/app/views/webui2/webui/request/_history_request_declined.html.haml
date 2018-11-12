@@ -1,0 +1,9 @@
+%hr
+.media
+  = request_user_image_tag(history_element.user)
+  .media-body
+    %p
+      = link_to(history_element.user, user_show_path(history_element.user))
+      declined the request
+      = time_ago_in_words(history_element.created_at)
+      ago

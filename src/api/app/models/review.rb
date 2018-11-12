@@ -185,6 +185,7 @@ class Review < ApplicationRecord
     end
   end
 
+  # TODO: bento_only
   def webui_infos
     ret = _get_attributes
     # XML has this perl format, don't use that here
@@ -251,7 +252,23 @@ class Review < ApplicationRecord
     true
   end
 
+  def matches_user?(user)
+    return false unless user
+    return user.login == by_user if by_user
+    return user.is_in_group?(by_group) if by_group
+    matches_maintainers?(user)
+  end
+
   private
+
+  def matches_maintainers?(user)
+    return false unless by_project
+    if by_package
+      user.has_local_permission?('change_package', Package.find_by_project_and_name(by_project, by_package))
+    else
+      user.has_local_permission?('change_project', Project.find_by_name(by_project))
+    end
+  end
 
   # The authoritative storage are the by_ attributes as even when a record (project, package ...) got deleted
   # the review should still be usable, however, the entity association is nullified

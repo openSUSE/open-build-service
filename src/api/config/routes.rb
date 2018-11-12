@@ -340,10 +340,11 @@ OBSApi::Application.routes.draw do
       get 'request/add_reviewer_dialog' => :add_reviewer_dialog
       post 'request/add_reviewer' => :add_reviewer
       post 'request/modify_review' => :modify_review
+      post 'request/webui2_modify_review/:review_number' => :webui2_modify_review
       get 'request/show/:number' => :show, as: 'request_show', constraints: cons
       post 'request/sourcediff' => :sourcediff
-      post 'request/changerequest' => :changerequest
-      get 'request/diff/:number' => :diff
+      post 'request/changerequest/:number' => :changerequest, as: 'request_change'
+      get 'request/diff/:number' => :diff, as: 'request_diff', constraints: cons
       get 'request/list_small' => :list_small, as: 'request_list_small'
       get 'request/delete_request_dialog' => :delete_request_dialog, as: 'request_delete_dialog'
       post 'request/delete_request/:project' => :delete_request, constraints: cons, as: 'delete_request'

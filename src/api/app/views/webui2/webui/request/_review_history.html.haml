@@ -1,0 +1,16 @@
+- review.history_elements.each do |review_history|
+  .media
+    = request_user_image_tag(review_history.user)
+    .media-body
+      %p
+        = link_to(review_history.user, user_show_path(review_history.user))
+        = review_history_verb(review_history)
+        the review
+        %u{ title: l(review_history.created_at.utc) }
+          #{time_ago_in_words(review_history.created_at)} ago
+      - if review_history.comment.present?
+        = render_as_markdown(review_history.comment)
+      - else
+        %p
+          %i
+            no comment

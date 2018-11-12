@@ -275,7 +275,7 @@
         </div>
         <div class="review_descision_display" style="<%= 'display: none;' if @can_add_reviews && @my_open_reviews.length > 0 %>" id="review_descision_display_-1">
           <% if @can_handle_request %>
-              <%= form_tag({ :action => 'changerequest' }, { id: 'request_handle_form' }) do %>
+              <%= form_tag({ :action => 'changerequest', number: @number }, { id: 'request_handle_form' }) do %>
                   <% if @show_project_maintainer_hint %>
                       <div class="ui-state-highlight ui-corner-all ui-widget-shadow padding-10pt">
                         <span class="ui-icon ui-icon-info">

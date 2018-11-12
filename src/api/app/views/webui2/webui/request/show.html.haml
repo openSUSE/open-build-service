@@ -1,27 +1,67 @@
+:ruby
+  @pagetitle = "Request #{@bs_request.number}"
+
 .card.mb-3
-  .card-header.d-flex.justify-content-between
-    %h5
-      Overview
+  = render partial: 'tabs', locals: { request: @bs_request }
   .card-body
-    -# description content
-.card.mb-3
-  .card-header.d-flex.justify-content-between
-    %h5
-      Diff
-  .card-body
-    -# Diff content and build results
-.row
-  .col-md-8
-    .card
-      .card-header.d-flex.justify-content-between
+    %h3
+      Request #{@bs_request.number} (#{@bs_request.state})
+    = description_wrapper(toggle_sliced_text(@bs_request.description, 300))
+    - @bs_request.bs_request_actions.each do |action|
+      %p
+      - action_type = action.type
+      - action_type = :add_role if action_type == :set_bugowner
+      = render partial: "webui2/webui/request/action_#{action_type}", locals: { action: action, creator: @bs_request.creator }
+      - @superseding.each do |supersed|
         %h5
-          Comments for request #{@number} (#{@comments.size})
-      .card-body#comments
-        = render partial: 'webui2/webui/comment/show', locals: { commentable: @bs_request }
-  .col-md-4
-    .card
-      .card-header.d-flex.justify-content-between
-        %h5
-          Request History
-      .card-body
-        -# History content
+          Superseds
+          = link_to "request #{supersed.number}", number: supersed.number
+          - if supersed.comments.any?
+            %a{ data: { toggle: 'collapse', target: "#comments_#{supersed.number}" } }
+              (#{supersed.comments.size} comments)
+              %i.fas.fa-angle-down
+            .superseded_comments.collapse{ id: "comments_#{supersed.number}" }
+              - supersed.comments.without_parent.each do |comment|
+                = render partial: 'webui2/webui/comment/content', locals: { comment: comment, commentable: supersed, level: 1 }
+
+    - @events.each do |event|
+      - if event.is_a?(Comment)
+        = render partial: 'webui2/webui/comment/content', locals: { comment: event, commentable: @bs_request, level: 1 }
+      - elsif event.is_a?(HistoryElement::Base)
+        - history_type = event.class.to_s.gsub('HistoryElement::', '').underscore
+        = render partial: "webui2/webui/request/history_#{history_type}", locals: { history_element: event, request: @bs_request }
+      - elsif event.is_a?(Review)
+        %hr
+        = render partial: 'webui2/webui/request/review', locals: { review: event, request: @bs_request }
+
+    %hr
+    - if User.current.is_nobody?
+      .alert.alert-warning{ role: 'alert' }
+        Login required, please
+        = link_to('login', session_new_url)
+        or
+        = link_to('signup', user_register_user_url)
+        in order to comment
+    - else
+      = form_tag({ action: :changerequest, number: @bs_request.number }, method: :post) do
+        ~ text_area_tag :comment, nil, row: '4', onkeyup: 'sz(this);', onclick: 'sz(this);',
+                        placeholder: 'Add a new comment (markdown markup supported)',
+                        class: 'w-100 mb-3 form-control'
+        - if request_can_be_declined
+          = submit_tag 'Decline', name: 'do_decline', class: 'btn btn-danger'
+        - if request_can_be_revoked
+          = submit_tag 'Revoke', name: 'do_revoke', class: 'btn btn-danger'
+        - if request_can_be_accepted
+          - if @bs_request.state == :review
+            = submit_tag 'Force Accept', name: 'do_accept', class: 'btn btn-warning',
+                          data: { confirm: 'Do you really want to approve this request, despite of open review requests?' }
+          - else
+            = submit_tag 'Accept', name: 'do_accept', class: 'btn btn-warning'
+        - if request_can_be_reopened
+          = submit_tag 'Reopen', name: 'do_reopen', class: 'btn btn-warning'
+        = submit_tag 'Add comment', name: 'do_comment', class: 'btn btn-primary'
+
+-# render partial: 'webui2/webui/request/_other_infos', locals: { accept_at: @accept_at, superseding: @superseding,
+   can_add_reviews: @can_add_reviews, superseded_by: @superseded_by, state: @state, number: @number,
+   other_open_reviews: @other_open_reviews, my_open_reviews: @my_open_reviews, package_maintainers: @package_maintainers, req: @req }
+= render partial: 'webui2/webui/request/package_maintainers_dialog', locals: { package_maintainers: [] }

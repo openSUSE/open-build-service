@@ -1,0 +1,6 @@
+.bg-light
+  %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
+    %li.nav-item
+      = tab_link('Overview', request_show_path(number: request))
+    %li.nav-item
+      = tab_link('Diff', request_diff_path(number: request))

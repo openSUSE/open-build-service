@@ -42,12 +42,48 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to controller: :request, action: 'show', number: params[:number]
   end
 
+  def webui2_modify_review
+    review = Review.find_by_id(params[:review_number])
+
+    unless review
+      flash[:error] = 'Unable to load request'
+      redirect_back(fallback_location: user_show_path(User.current))
+      return
+    end
+
+    request = review.bs_request
+    state = case params[:commit]
+            when 'Decline'
+              :declined
+            when 'Accept'
+              :accepted
+            end
+
+    if state.nil?
+      flash[:error] = 'Unknown state to set'
+    else
+      begin
+        opts = { by_user: review.by_user, by_group: review.by_group,
+                 comment: params[:review_comment],
+                 by_project: review.by_project, by_package: review.by_package }
+        request.permission_check_change_review!(opts)
+        request.change_review_state(state, opts)
+      rescue BsRequestPermissionCheck::ReviewChangeStateNoPermission => e
+        flash[:error] = "Not permitted to change review state: #{e.message}"
+      rescue APIError => e
+        flash[:error] = "Unable changing review state: #{e.message}"
+      end
+    end
+
+    redirect_to request_show_path(number: request), success: 'Successfully submitted review'
+  end
+
   def modify_review
     opts = {}
     state = nil
     request = nil
     params.each do |key, value|
-      state = key if  key.in?(['accepted', 'declined', 'new'])
+      state = key if key.in?(['accepted', 'declined', 'new'])
       request = BsRequest.find_by_number(value) if key.starts_with?('review_request_number_')
 
       # Our views are valid XHTML. So, several forms 'POST'-ing to the same action have different
@@ -79,7 +115,46 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to request_show_path(number: request), success: 'Successfully submitted review'
   end
 
+  def sort_show_events
+    events = @bs_request.comments.without_parent.includes([:user, { children: :user }]).to_a
+    events |= @bs_request.request_history_elements.to_a
+    events |= @bs_request.reviews.to_a
+    events.sort_by!(&:created_at)
+    # sort out doubled events
+    @events = []
+    reviews_seen = []
+    events.each do |event|
+      if event.is_a?(Review)
+        next if reviews_seen.include?(event.id)
+        reviews_seen << event.id
+      end
+      if event.is_a?(HistoryElement::RequestReviewAdded)
+        next if reviews_seen.include?(event.description_extension.to_i)
+        reviews_seen << event.description_extension.to_i
+      end
+      @events << event
+    end
+  end
+
+  def webui2_show
+    # TODO
+    @superseding = []
+    # required in comment/_reply
+    @comment = Comment.new
+    sort_show_events
+
+    @permissions = {}
+    %w[new accepted declined].each do |newstate|
+      @bs_request.permission_check_change_state!(newstate: newstate)
+      @permissions['change_state_' + newstate] = 1
+    rescue APIError
+      # no permissions
+    end
+    Rails.logger.debug @permissions.inspect
+  end
+
   def show
+    return if switch_to_webui2
     diff_limit = params[:full_diff] ? 0 : nil
     @req = @bs_request.webui_infos(filelimit: diff_limit, tarlimit: diff_limit, diff_to_superseded: @diff_to_superseded)
     @id = @req['id']
@@ -138,7 +213,62 @@ class Webui::RequestController < Webui::WebuiController
                                                no_border: true, uid: params[:uid] }
   end
 
+  def webui2_changerequest_decline
+    change_state('declined', params[:comment])
+  end
+
+  def webui2_changerequest_reopen
+    return unless change_state('new', params[:comment])
+    # 'Request new' is a little meaningless
+    flash[:notice] = 'Request reopened!'
+  end
+
+  def webui2_changerequest_revoke
+    change_state('revoked', params[:comment])
+  end
+
+  def webui2_changerequest_comment
+    @bs_request.comments.create(body: params[:comment], user: User.current)
+  end
+
+  # TODO: take action
+  def webui2_add_submitter_as_maintainer
+    # the request action type might be permitted in future, but that doesn't mean we
+    # are allowed to modify the object
+    return unless target.can_be_modified_by?(User.current)
+    tprj, tpkg = params[:add_submitter_as_maintainer_0].split('_#_') # split into project and package
+    if tpkg
+      target = Package.find_by_project_and_name(tprj, tpkg)
+    else
+      target = Project.find_by_name(tprj)
+    end
+    target.add_maintainer(@bs_request.creator)
+  end
+
+  def webui2_changerequest_accept
+    return unless change_state('accepted', params[:comment])
+    webui2_add_submitter_as_maintainer if params[:add_submitter_as_maintainer]
+
+    # Check if we have to forward this request to other projects / packages
+    params.keys.grep(/^forward_.*/).each do |fwd|
+      forward_request_to(fwd)
+    end
+  end
+
+  def webui2_changerequest
+    %w[decline revoke reopen accept comment].each do |action|
+      if params['do_' + action]
+        send('webui2_changerequest_' + action)
+        return redirect_to(request_show_path(@bs_request.number))
+      end
+    end
+
+    flash[:error] = 'Unknown action on changerequest'
+    redirect_to(request_show_path(@bs_request.number))
+  end
+
   def changerequest
+    return if switch_to_webui2
     changestate = nil
     ['accepted', 'declined', 'revoked', 'new'].each do |s|
       if params.key?(s)
@@ -147,7 +277,7 @@ class Webui::RequestController < Webui::WebuiController
       end
     end
 
-    if change_state(changestate, params)
+    if change_state(changestate, params[:reason])
       # TODO: Make this work for each submit action individually
       if params[:add_submitter_as_maintainer_0]
         if changestate != 'accepted'
@@ -170,12 +300,11 @@ class Webui::RequestController < Webui::WebuiController
       accept_request if changestate == 'accepted'
     end
 
-    redirect_to(request_show_path(params[:number]))
+    redirect_to(request_show_path(@bs_request.number))
   end
 
   def diff
-    # just for compatibility. OBS 1.X used this route for show
-    redirect_to action: :show, number: params[:number]
+    render text: 'TODO'
   end
 
   def list_small
@@ -322,7 +451,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def require_request
     required_parameters :number
-    @bs_request = BsRequest.find_by_number(params[:number])
+    @bs_request = BsRequest.where(number: params[:number]).includes([request_history_elements: :user, reviews: :history_elements]).first
     return if @bs_request
     flash[:error] = "Can't find request #{params[:number]}"
     redirect_back(fallback_location: user_show_path(User.current)) && return
@@ -333,29 +462,22 @@ class Webui::RequestController < Webui::WebuiController
     actions.flat_map { |action| Package.find_by_project_and_name(action[:tprj], action[:tpkg]).try(:maintainers) }.compact.uniq
   end
 
-  def change_state(newstate, params)
-    request = BsRequest.find_by_number(params[:number])
-    if request.nil?
-      flash[:error] = 'Unable to load request'
-    else
-      # FIXME: make force optional, it hides warnings!
-      opts = {
-        newstate: newstate,
-        force: true,
-        user: User.current.login,
-        comment: params[:reason]
-      }
-      begin
-        request.change_state(opts)
-        flash[:notice] = "Request #{newstate}!"
-        return true
-      rescue APIError => e
-        flash[:error] = "Failed to change state: #{e.message}!"
-        return false
-      end
+  def change_state(newstate, reason)
+    # FIXME: make force optional, it hides warnings!
+    opts = {
+      newstate: newstate,
+      force: true,
+      user: User.current.login,
+      comment: reason
+    }
+    begin
+      @bs_request.change_state(opts)
+      flash[:notice] = "Request #{newstate}!"
+      true
+    rescue APIError => e
+      flash[:error] = "Failed to change state: #{e.message}!"
+      false
     end
-
-    false
   end
 
   def accept_request

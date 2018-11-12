@@ -1,0 +1,8 @@
+%hr
+.media
+  = request_user_image_tag(history_element.user)
+  .media-body
+    %p
+      All reviews were done (state: new)
+      = time_ago_in_words(history_element.created_at)
+      ago
