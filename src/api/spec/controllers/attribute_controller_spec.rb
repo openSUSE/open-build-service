@@ -31,12 +31,13 @@ RSpec.describe AttributeController, type: :controller do
       login admin
 
       attribute.save!
-      expect(AttribType.find_by_name(attribute.fullname).value_count).to be_nil
+      expect(attribute.value_count).to be_nil
 
       # update (yeah, API sucks)
       post :update, body: xml_count_2, format: :xml, params: { namespace: namespace, name: name }
       expect(response.status).to eq(200)
-      expect(AttribType.find_by_name(attribute.fullname).value_count).to be(2)
+      attribute.reload
+      expect(attribute.value_count).to eq(2)
     end
   end
 end
