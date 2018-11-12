@@ -78,8 +78,6 @@ class Project < ApplicationRecord
   has_many :target_of_bs_requests, through: :target_of_bs_request_actions, source: :bs_request
 
   has_one :staging, class_name: 'Staging::Workflow', inverse_of: :project
-  belongs_to :staging_workflow, inverse_of: :staging_projects, class_name: 'Staging::Workflow'
-  has_many :staged_requests, class_name: 'BsRequest', foreign_key: 'staging_project_id', dependent: :nullify
 
   default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids) }
 
@@ -1690,10 +1688,6 @@ class Project < ApplicationRecord
 
   def dashboard
     packages.find_by(name: 'dashboard')
-  end
-
-  def staging_identifier
-    name[/.*:Staging:(.*)/, 1]
   end
 
   private

@@ -171,13 +171,5 @@ FactoryBot.define do
         end
       end
     end
-
-    factory :staging_project do
-      transient do
-        sequence(:workflow_project_name) { |n| "workflow_project_#{n}" }
-      end
-
-      sequence(:name, [*'A'..'Z'].cycle) { |letter| "#{workflow_project_name}:Staging:#{letter}" }
-    end
   end
 end

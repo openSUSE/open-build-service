@@ -4,7 +4,7 @@ class Staging::ProjectsController < ApplicationController
   private
 
   def set_project
-    @project = Project.find_by(name: params[:project])
+    @project = Staging::StagingProject.find_by(name: params[:project])
     raise ActiveRecord::RecordNotFound unless @project
   end
 end
