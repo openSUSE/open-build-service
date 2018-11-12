@@ -253,13 +253,9 @@ module ObsFactory
     end
 
     def add_status(checkable)
-      status = checkable.status_reports.latest
-      if status
-        @missing_checks += status.missing_checks
-        @checks += status.checks
-      else
-        @missing_checks += checkable.required_checks
-      end
+      status = checkable.current_status_report
+      @missing_checks += status.missing_checks
+      @checks += status.checks
     end
 
     # Used internally to calculate #broken_packages and #building_repositories
