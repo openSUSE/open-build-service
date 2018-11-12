@@ -12,15 +12,17 @@
             %tr.text-center
               %th Staging Project
               %th Requests
+              %th Problems
               %th Actions
-
           %tbody
             - @staging_workflow.staging_projects.each do |staging_project|
               %tr
-                %td.text-center
+                %td.project
                   = render partial: 'overall_state', locals: { staging_project: staging_project }
-                %td
+                %td.requests
                   = render partial: 'packages_list', locals: { staging_project: staging_project }
+                %td
+                  = render partial: 'problems', locals: { staging_project: staging_project }
                 %td.text-center
                   = link_to('#', data: { toggle: 'modal', target: "#confirm-modal-#{staging_project.id}" }, title: "Delete #{staging_project}") do
                     %i.fas.fa-times-circle.text-danger

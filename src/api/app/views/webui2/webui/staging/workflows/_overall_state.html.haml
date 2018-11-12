@@ -1,6 +1,9 @@
-- # TODO: Make this a link
-= staging_project.staging_identifier
-%br
-= staging_project.overall_state
-%br
-= progress(staging_project)
+%span.badge{ class: "state-#{staging_project.overall_state}" }
+  %span.badge.badge-light
+    -# TODO: Link to the staging project show page
+    = link_to(staging_project.staging_identifier, project_show_path(staging_project.staging_identifier))
+  %span
+    %br
+    = staging_project.overall_state
+    %br
+    = progress(staging_project)

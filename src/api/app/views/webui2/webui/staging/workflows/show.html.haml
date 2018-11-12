@@ -12,14 +12,16 @@
         %table.table.table-striped.table-bordered.table-sm.dt-responsive.w-100#staging-projects-datatable
           %thead
             %tr.text-center
-              %th Project
+              %th Staging Project
               %th Requests
               %th Problems
           %tbody
             - @staging_projects.each do |staging_project|
               %tr
-                %td.text-center
+                %td.project
                   = render partial: 'overall_state', locals: { staging_project: staging_project }
+                %td.requests
+                  = render partial: 'packages_list', locals: { staging_project: staging_project }
                 %td
                   = render partial: 'problems', locals: { staging_project: staging_project }
 
