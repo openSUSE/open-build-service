@@ -1,4 +1,4 @@
-class StagingProjectController < ApplicationController
+class Staging::ProjectsController < ApplicationController
   before_action :set_project
 
   private

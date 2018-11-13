@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe StagingProject::StagedRequestsController, type: :controller do
+RSpec.describe Staging::StagedRequestsController, type: :controller do
   render_views
   describe 'GET #index' do
     let(:user) { create(:confirmed_user) }
