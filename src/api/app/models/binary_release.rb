@@ -202,9 +202,11 @@ class BinaryRelease < ApplicationRecord
   end
 
   def indentical_to?(binary_hash)
+    time = Time.strptime(binary_hash['buildtime'].to_s, '%s') if binary_hash['buildtime'].present?
+
     binary_disturl == binary_hash['disturl'] &&
       binary_supportstatus == binary_hash['supportstatus'] &&
-      binary_buildtime == Time.strptime(binary_hash['buildtime'].to_s, '%s')
+      binary_buildtime == time
   end
   #### Alias of methods
 end
