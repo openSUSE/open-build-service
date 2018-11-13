@@ -51,6 +51,7 @@ This package bundles all the gems required by the Open Build Service
 to make it easier to deploy the obs-server package.
 
 %define rake_version 12.3.1
+%define rack_version 2.0.6
 
 %package -n obs-api-deps
 Summary:        Holding dependencies required to run the OBS frontend
@@ -63,6 +64,7 @@ Requires:       sphinx >= 2.1.8
 Requires:       perl(GD)
 Requires:       rubygem(ruby:2.5.0:bundler)
 Requires:       rubygem(ruby:2.5.0:rake:%{rake_version})
+Requires:       rubygem(ruby:2.5.0:rack:%{rack_version})
 
 %description -n obs-api-deps
 To simplify splitting the test suite packages off the main package,
@@ -102,8 +104,9 @@ bundle config build.nokogiri --use-system-libraries
 %install
 bundle --local --path %{buildroot}%_libdir/obs-api/
 
-# test that the rake_version macro is still matching our Gemfile
+# test that the rake and rack macros is still matching our Gemfile
 test -f %{buildroot}%_libdir/obs-api/ruby/2.5.0/gems/rake-%{rake_version}/rake.gemspec
+test -f %{buildroot}%_libdir/obs-api/ruby/2.5.0/gems/rack-%{rack_version}/rack.gemspec
 
 # run gem clean up script
 /usr/lib/rpm/gem_build_cleanup.sh %{buildroot}%_libdir/obs-api/ruby/*/
