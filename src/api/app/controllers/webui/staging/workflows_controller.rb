@@ -66,6 +66,19 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     end
   end
 
+  def update
+    authorize @staging_workflow
+
+    @staging_workflow.managers = Group.find_by(title: params[:managers_id])
+
+    if @staging_workflow.save
+      flash[:success] = 'Managers group for Staging Workflow was successfully assigned'
+    else
+      flash[:error] = "Sorry the group couldn't be assigned to this Staging Workflow"
+    end
+    redirect_to edit_staging_workflow_path(@staging_workflow)
+  end
+
   private
 
   def set_bootstrap_views

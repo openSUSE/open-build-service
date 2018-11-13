@@ -13,6 +13,10 @@ class Staging::WorkflowPolicy < ApplicationPolicy
     ProjectPolicy.new(@user, @record.project).update?
   end
 
+  def assign_managers_group?
+    update?
+  end
+
   def edit?
     update?
   end
