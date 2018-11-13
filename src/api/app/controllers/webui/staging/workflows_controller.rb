@@ -20,6 +20,8 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     staging_workflow = @project.build_staging
     authorize staging_workflow
 
+    staging_workflow.managers_group = Group.find_by(title: params[:managers_title])
+
     if staging_workflow.save
       flash[:success] = "Staging Workflow for #{@project.name} was successfully created"
       redirect_to staging_workflow_path(staging_workflow)
