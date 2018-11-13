@@ -14,8 +14,8 @@ RSpec.describe Webui::StagingWorkflowsController do
         get :new, params: { project: project.name }
       end
 
-      it { expect(StagingWorkflow.count).to eq(0) }
-      it { expect(assigns[:staging_workflow].class).to be(StagingWorkflow) }
+      it { expect(Staging::Workflow.count).to eq(0) }
+      it { expect(assigns[:staging_workflow].class).to be(Staging::Workflow) }
       it { expect(response).to render_template(:new) }
     end
 
@@ -25,7 +25,7 @@ RSpec.describe Webui::StagingWorkflowsController do
         get :new, params: { project: project.name }
       end
 
-      it { expect(StagingWorkflow.count).to eq(1) }
+      it { expect(Staging::Workflow.count).to eq(1) }
       it { expect(response).to redirect_to(staging_workflow_path(project.staging)) }
     end
   end
@@ -38,7 +38,7 @@ RSpec.describe Webui::StagingWorkflowsController do
 
       subject { project.staging }
 
-      it { expect(StagingWorkflow.count).to eq(1) }
+      it { expect(Staging::Workflow.count).to eq(1) }
       it { expect(subject.staging_projects.map(&:name)).to match_array(['home:tom:Staging:A', 'home:tom:Staging:B']) }
       it { expect(response).to redirect_to(staging_workflow_path(project.staging)) }
       it { expect(flash[:success]).not_to be_nil }
@@ -54,7 +54,7 @@ RSpec.describe Webui::StagingWorkflowsController do
 
       subject { project.staging }
 
-      it { expect(StagingWorkflow.count).to eq(1) }
+      it { expect(Staging::Workflow.count).to eq(1) }
       it { expect(subject.staging_projects.map(&:name)).to match_array(['home:tom:Staging:A', 'home:tom:Staging:B']) }
       it { expect(response).to redirect_to(staging_workflow_path(project.staging)) }
       it { expect(flash[:success]).not_to be_nil }
@@ -62,11 +62,11 @@ RSpec.describe Webui::StagingWorkflowsController do
 
     context 'when it fails to save' do
       before do
-        allow_any_instance_of(StagingWorkflow).to receive(:save).and_return(false)
+        allow_any_instance_of(Staging::Workflow).to receive(:save).and_return(false)
         post :create, params: { project: project.name }
       end
 
-      it { expect(StagingWorkflow.count).to eq(0) }
+      it { expect(Staging::Workflow.count).to eq(0) }
       it { expect(response).to render_template(:new) }
       it { expect(flash[:error]).not_to be_nil }
     end

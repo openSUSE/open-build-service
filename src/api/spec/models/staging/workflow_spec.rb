@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe StagingWorkflow, type: :model do
+RSpec.describe Staging::Workflow, type: :model do
   let(:project) { create(:project_with_package) }
   let(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: project) }
   let(:staging_project) { staging_workflow.staging_projects.first }

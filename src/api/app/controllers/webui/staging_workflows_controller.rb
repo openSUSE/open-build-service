@@ -71,7 +71,7 @@ class Webui::StagingWorkflowsController < Webui::WebuiController
   end
 
   def set_staging_workflow
-    @staging_workflow = StagingWorkflow.find_by(id: params[:id])
+    @staging_workflow = Staging::Workflow.find_by(id: params[:id])
     return if @staging_workflow
 
     redirect_back(fallback_location: root_path)

@@ -1,12 +1,16 @@
-class StagingWorkflow < ApplicationRecord
+class Staging::Workflow < ApplicationRecord
+  def self.table_name_prefix
+    'staging_'
+  end
+
   belongs_to :project, inverse_of: :staging
-  has_many :staging_projects, class_name: 'Project', inverse_of: :staging_workflow, dependent: :nullify do
+  has_many :staging_projects, class_name: 'Project', inverse_of: :staging_workflow, dependent: :nullify, foreign_key: 'staging_workflow_id' do
     def without_staged_requests
       includes(:staged_requests).where(bs_requests: { id: nil })
     end
   end
 
-  has_many :target_of_bs_requests, through: :project do
+  has_many :target_of_bs_requests, through: :project, foreign_key: 'staging_workflow_id' do
     def stageable
       in_states(['new', 'review'])
     end
