@@ -59,7 +59,21 @@ module Staging
       @overall_state ||= state
     end
 
+    def problems
+      @problems ||= cache_problems
+    end
+
     private
+
+    def cache_problems
+      problems = {}
+      broken_packages.each do |package|
+        problems[package[:package]] ||= {}
+        problems[package[:package]][package[:state]] ||= []
+        problems[package[:package]][package[:state]] << { repository: package[:repository], arch: package[:arch] }
+      end
+      problems.sort
+    end
 
     def state
       return :empty unless staged_requests.exists?
