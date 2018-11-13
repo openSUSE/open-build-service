@@ -39,6 +39,7 @@
         <%= tab 'meta', "Meta", :controller => '/webui/project', :action => :meta %>
         <%= tab 'status', 'Status', :controller => '/webui/project', :action => :status unless @project.defines_remote_instance? || @is_maintenance_project %>
         <%= tab 'pulse', 'Pulse', :controller => '/webui/project', :action => :pulse %>
+        <%= tab 'staging', 'Staging', controller: '/webui/staging/workflows', action: :new unless @project.defines_remote_instance? || @is_maintenance_project %>
       <% end -%>
     </ul>
   </div>
