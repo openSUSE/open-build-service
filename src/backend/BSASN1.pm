@@ -94,13 +94,13 @@ sub unpack_raw {
   my ($in, $allowed, $optional, $exact) = @_;
   $allowed = [ $allowed ] if $allowed && !ref($allowed);
   if (length($in) < 2) {
-    return ($in, undef, '', '') if $optional || grep {!defined($_)} @{$allowed || []};
+    return ($in, undef, undef, '') if $optional || grep {!defined($_)} @{$allowed || []};
     die("unexpected end of asn1 data\n");
   }
   my ($tag, $l) = unpack("CC", $in);
   if ($allowed) {
     if (!grep {defined($_) && $tag == $_}  @$allowed) {
-      return ($in, undef, '', '') if $optional || grep {!defined($_)} @{$allowed || []};
+      return ($in, undef, undef, '') if $optional || grep {!defined($_)} @{$allowed || []};
       die("unexpected tag $tag, expected @$allowed\n");
     }
   }
@@ -148,7 +148,7 @@ sub pack_obj_id {
 }
 
 sub pack_sequence {
-  return pack_raw($CONS | $SEQUENCE, @_);
+  return pack_raw($CONS | $SEQUENCE, map {defined($_) ? $_ : ''} @_);
 }
 
 sub pack_set {
@@ -241,6 +241,37 @@ sub unpack_sequence {
   return @ret;
 }
 
+sub unpack_obj_id {
+  my @o = unpack('w*', unpack_body($_[0], $_[1], $OBJ_ID));
+  splice(@o, 0, 1, int($o[0] / 40), $o[0] % 40) if @o;
+  return @o;
+}
+
+sub gm2t {
+  my (@t) = @_;
+  my $m = ($t[1] + 9) % 12;
+  my $y = $t[0] - int($m / 10);
+  my $d = 365 * $y + int ($y / 4) - int($y / 100) + int($y / 400) + int(($m * 306 + 5) / 10) + $t[2] - 719469;
+  my $t = $d * 86400 + $t[3] * 3600 + $t[4] * 60 + $t[5];
+  $t -= ($t[7] eq '-' ? -1 : 1) * ($t[8] * 3600 + $t[9] * 60) if $t[6] ne 'Z';
+  return $t;
+}
+
+sub unpack_utctime {
+  my $in = unpack_body($_[0], $_[1], $UTCTIME);
+  my @t = $in =~ /^(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(Z|([-+])(\d\d)(\d\d))$/;
+  die("bad utctime format\n") unless @t;
+  $t[0] += $t[0] >= 50 ? 1900 : 2000;
+  return gm2t(@t);
+}
+
+sub unpack_gentime {
+  my $in = unpack_body($_[0], $_[1], $GENTIME);
+  my @t = $in =~ /^(\d\d\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(Z|([-+])(\d\d)(\d\d))$/;
+  die("bad gentime format\n") unless @t;
+  return gm2t(@t);
+}
+
 sub unpack_set {
   my ($in, $tag, $allowed) = @_;
   $in = unpack_body($in, $tag, $CONS | $SET);
@@ -289,12 +320,15 @@ sub unpack_bits_list {
 }
 
 sub unpack_boolean {
-  my $in = unpack_body($_[0], $_[1], $BOOLEAN);
-  return unpack('C', $in) ? 1 : 0;
+  return unpack('C', unpack_body($_[0], $_[1], $BOOLEAN)) ? 1 : 0;
 }
 
 sub unpack_tagged {
   return unpack_body($_[0], $_[1], 0);
+}
+
+sub unpack_tagged_implicit {
+  return pack_raw($_[2], unpack_body($_[0], $_[1], 0));
 }
 
 1;
