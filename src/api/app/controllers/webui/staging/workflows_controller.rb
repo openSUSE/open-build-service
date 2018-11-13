@@ -41,6 +41,7 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     @ignored_requests = @staging_workflow.ignored_requests.first(5)
     @more_ignored_requests = @staging_workflow.ignored_requests.count - @ignored_requests.size
     @empty_projects = @staging_workflow.staging_projects.without_staged_requests
+    @managers = @staging_workflow.managers_group
   end
 
   def edit

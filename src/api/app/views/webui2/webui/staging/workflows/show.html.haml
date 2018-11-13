@@ -28,4 +28,7 @@
                                          unassigned_requests: @unassigned_requests, more_unassigned_requests: @more_unassigned_requests,
                                          ready_requests: @ready_requests, more_ready_requests: @more_ready_requests,
                                          ignored_requests: @ignored_requests, more_ignored_requests: @more_ignored_requests,
-                                         project: @project }
+                                         project: @project, managers: @managers }
+
+- content_for :ready_function do
+  $('#staging-projects-datatable').DataTable({ responsive: true });
