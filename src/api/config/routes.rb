@@ -460,8 +460,8 @@ OBSApi::Application.routes.draw do
   get 'published/:project(/:repository(/:arch(/:binary)))' => 'published#index', constraints: cons
   get 'published/' => 'source#index', via: :get
 
-  resources :staging_workflows, except: [:index, :update], controller: 'webui/staging_workflows', constraints: cons do
-    resources :staging_projects, only: [:create, :destroy], controller: 'webui/staging_workflows/staging_projects', param: :project_name, constraints: cons
+  resources :staging_workflows, except: [:index, :update], controller: 'webui/staging/workflows', constraints: cons do
+    resources :staging_projects, only: [:create, :destroy], controller: 'webui/staging/projects', param: :project_name, constraints: cons
   end
 
   constraints(APIMatcher) do
@@ -730,7 +730,7 @@ OBSApi::Application.routes.draw do
   end
 
   # StagingWorkflow API
-  get 'staging_project/:project/staged_requests' => 'staging_project/staged_requests#index', constraints: cons, as: 'staged_requests'
+  get 'staging_project/:project/staged_requests' => 'staging/staged_requests#index', constraints: cons, as: 'staged_requests'
 
   controller :source_attribute do
     get 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :show, constraints: cons
