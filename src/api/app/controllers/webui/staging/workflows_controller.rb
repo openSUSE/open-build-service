@@ -1,4 +1,4 @@
-class Webui::StagingWorkflowsController < Webui::WebuiController
+class Webui::Staging::WorkflowsController < Webui::WebuiController
   layout 'webui2/webui'
 
   before_action :require_login, except: [:show]
@@ -47,7 +47,7 @@ class Webui::StagingWorkflowsController < Webui::WebuiController
   end
 
   def destroy
-    @staging_workflow = StagingWorkflow.find_by(id: params[:id])
+    @staging_workflow = ::Staging::Workflow.find_by(id: params[:id])
     authorize @staging_workflow
     @project = @staging_workflow.project
 
@@ -71,7 +71,7 @@ class Webui::StagingWorkflowsController < Webui::WebuiController
   end
 
   def set_staging_workflow
-    @staging_workflow = Staging::Workflow.find_by(id: params[:id])
+    @staging_workflow = ::Staging::Workflow.find_by(id: params[:id])
     return if @staging_workflow
 
     redirect_back(fallback_location: root_path)

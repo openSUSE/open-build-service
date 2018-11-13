@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Webui::StagingWorkflowsController do
+RSpec.describe Webui::Staging::WorkflowsController do
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:project) { user.home_project }
 
@@ -128,7 +128,7 @@ RSpec.describe Webui::StagingWorkflowsController do
 
       subject { project.staging }
 
-      it { expect(StagingWorkflow.count).to eq(0) }
+      it { expect(Staging::Workflow.count).to eq(0) }
       it { expect(subject.staging_projects.count).to eq(0) }
       it { expect(flash[:success]).not_to be_nil }
       it { expect(response.body).to eq("window.location='#{project_show_path(project)}'") }
@@ -144,7 +144,7 @@ RSpec.describe Webui::StagingWorkflowsController do
 
       subject { project.staging }
 
-      it { expect(StagingWorkflow.count).to eq(0) }
+      it { expect(Staging::Workflow.count).to eq(0) }
       it { expect(subject.staging_projects.count).to eq(0) }
       it { expect(project.subprojects.count).to eq(1) }
       it { expect(flash[:success]).not_to be_nil }
@@ -154,7 +154,7 @@ RSpec.describe Webui::StagingWorkflowsController do
     context 'a staging workflow unsuccessful' do
       before do
         project.create_staging
-        allow_any_instance_of(StagingWorkflow).to receive(:destroy).and_return(false)
+        allow_any_instance_of(Staging::Workflow).to receive(:destroy).and_return(false)
         params = { id: project.staging, staging_project_ids: project.staging.staging_projects.ids, format: :js }
         delete :destroy, params: params
       end

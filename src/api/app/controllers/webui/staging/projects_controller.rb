@@ -1,6 +1,6 @@
 module Webui
-  module StagingWorkflows
-    class StagingProjectsController < WebuiController
+  module Staging
+    class ProjectsController < WebuiController
       layout 'webui2/webui'
 
       before_action :require_login
@@ -45,7 +45,7 @@ module Webui
       private
 
       def set_staging_workflow
-        @staging_workflow = Staging::Workflow.find(params[:staging_workflow_id])
+        @staging_workflow = ::Staging::Workflow.find(params[:staging_workflow_id])
         return if @staging_workflow
 
         redirect_back(fallback_location: root_path)

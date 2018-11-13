@@ -1,4 +1,4 @@
-class StagingWorkflowPolicy < ApplicationPolicy
+class Staging::WorkflowPolicy < ApplicationPolicy
   def initialize(user, record)
     raise Pundit::NotAuthorizedError, 'staging workflow does not exist' unless record
     @user = user
