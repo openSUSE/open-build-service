@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :staging_workflow do
+  factory :staging_workflow, class: 'Staging::Workflow' do
     factory :staging_workflow_with_staging_projects do
       initialize_with { new(attributes) }
 

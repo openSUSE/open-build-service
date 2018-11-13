@@ -13,7 +13,7 @@
               %i.fas.fa-edit.text-info
               Edit Staging Workflow
           - if policy(@staging_workflow).destroy?
-            = render(partial: 'webui2/webui/staging_workflows/delete', locals: { project: @project })
+            = render(partial: 'webui2/webui/staging/workflows/delete', locals: { project: @project })
         %hr
 
         %table.table.table-striped.table-bordered.table-sm.dt-responsive.w-100#staging-projects-datatable
