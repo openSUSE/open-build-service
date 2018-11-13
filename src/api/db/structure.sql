@@ -1147,8 +1147,10 @@ CREATE TABLE `staging_workflows` (
   `project_id` int(11) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
+  `managers_group_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_staging_workflows_on_project_id` (`project_id`)
+  UNIQUE KEY `index_staging_workflows_on_project_id` (`project_id`),
+  KEY `index_staging_workflows_on_managers_group_id` (`managers_group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `static_permissions` (
@@ -1423,6 +1425,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20180924135535'),
 ('20181008150453'),
 ('20181016103905'),
-('20181025152009');
+('20181025152009'),
+('20181113095753');
 
 

@@ -6,6 +6,8 @@ class Staging::Workflow < ApplicationRecord
   include CanRenderModel
 
   belongs_to :project, inverse_of: :staging
+  belongs_to :managers, class_name: 'Group'
+
   has_many :staging_projects, class_name: 'Staging::StagingProject', inverse_of: :staging_workflow, dependent: :nullify,
                               foreign_key: 'staging_workflow_id' do
     def without_staged_requests
@@ -24,6 +26,8 @@ class Staging::Workflow < ApplicationRecord
   end
 
   has_many :staged_requests, class_name: 'BsRequest', through: :staging_projects
+
+  validates :managers, presence: true
 
   after_create :create_staging_projects
 
