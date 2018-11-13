@@ -216,6 +216,7 @@ sub update_tuf {
   push @signcmd, $BSConfig::sign;
   push @signcmd, '--project', $projid if $BSConfig::sign_project;
   push @signcmd, @{$signargs || []};
+  my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
 
   my $repodir = "$registrydir/$repo";
   my $now = time();
@@ -236,7 +237,7 @@ sub update_tuf {
   my $cmpres = BSTUF::cmprootcert($oldroot, $tbscert);
   my $cert;
   $cert = BSTUF::getrootcert($oldroot) if $cmpres == 2;		# reuse cert of old root
-  $cert ||= BSTUF::mkcert($tbscert, \@signcmd);
+  $cert ||= BSTUF::mkcert($tbscert, $signfunc);
 
   if ($cmpres == 0) {
     # pubkey changed, better start from scratch
@@ -301,7 +302,7 @@ sub update_tuf {
       @key_ids = BSUtil::unify(@key_ids);
       @key_ids = splice(@key_ids, 0, 2);	# enough for now
     }
-    $tuf->{'root'} = BSTUF::updatedata($root, $oldroot, \@signcmd, @key_ids);
+    $tuf->{'root'} = BSTUF::updatedata($root, $oldroot, $signfunc, @key_ids);
   }
 
   my $manifests = {};
@@ -330,7 +331,7 @@ sub update_tuf {
     'expires' => BSTUF::rfc3339time($now + $targets_expire),
     'targets' => $manifests,
   };
-  $tuf->{'targets'} = BSTUF::updatedata($targets, $oldtargets, \@signcmd, $root_key_id);
+  $tuf->{'targets'} = BSTUF::updatedata($targets, $oldtargets, $signfunc, $root_key_id);
 
   my $snapshot = {
     '_type' => 'Snapshot',
@@ -339,7 +340,7 @@ sub update_tuf {
   BSTUF::addmetaentry($snapshot, 'root', $tuf->{'root'});
   BSTUF::addmetaentry($snapshot, 'targets', $tuf->{'targets'});
   my $oldsnapshot = $oldtuf->{'snapshot'} ? JSON::XS::decode_json($oldtuf->{'snapshot'}) : {};
-  $tuf->{'snapshot'} = BSTUF::updatedata($snapshot, $oldsnapshot, \@signcmd, $root_key_id);
+  $tuf->{'snapshot'} = BSTUF::updatedata($snapshot, $oldsnapshot, $signfunc, $root_key_id);
 
   mkdir_p($uploaddir);
   unlink("$uploaddir/timestampkey.$$");
@@ -348,6 +349,7 @@ sub update_tuf {
   push @signcmd_timestamp, $BSConfig::sign;
   push @signcmd_timestamp, '--project', ':tmpkey' if $BSConfig::sign_project;
   push @signcmd_timestamp, '-P', "$uploaddir/timestampkey.$$";
+  my $signfunc_timestamp =  sub { BSUtil::xsystem($_[0], @signcmd_timestamp, '-O', '-h', 'sha256') };
 
   my $timestamp = {
     '_type' => 'Timestamp',
@@ -355,7 +357,7 @@ sub update_tuf {
   };
   BSTUF::addmetaentry($timestamp, 'snapshot', $tuf->{'snapshot'});
   my $oldtimestamp = $oldtuf->{'timestamp'} ? JSON::XS::decode_json($oldtuf->{'timestamp'}) : {};
-  $tuf->{'timestamp'} = BSTUF::updatedata($timestamp, $oldtimestamp, \@signcmd_timestamp, $timestamp_key_id);
+  $tuf->{'timestamp'} = BSTUF::updatedata($timestamp, $oldtimestamp, $signfunc_timestamp, $timestamp_key_id);
   unlink("$uploaddir/timestampkey.$$");
 
   # add expire information
