@@ -194,11 +194,11 @@ CREATE TABLE `binary_releases` (
   `on_medium_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `ra_name_index` (`repository_id`,`binary_name`),
-  KEY `exact_search_index` (`binary_name`,`binary_epoch`,`binary_version`,`binary_release`,`binary_arch`),
   KEY `release_package_id` (`release_package_id`),
   KEY `index_binary_releases_on_binary_updateinfo` (`binary_updateinfo`),
   KEY `index_binary_releases_on_medium` (`medium`),
   KEY `index_binary_releases_on_binary_name_and_binary_arch` (`binary_name`,`binary_arch`),
+  KEY `exact_search_index` (`binary_name`,`binary_epoch`,`binary_version`,`binary_release`,`binary_arch`,`medium`,`on_medium_id`,`obsolete_time`,`modify_time`),
   CONSTRAINT `binary_releases_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
   CONSTRAINT `binary_releases_ibfk_2` FOREIGN KEY (`release_package_id`) REFERENCES `packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
@@ -1433,6 +1433,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20181025152009'),
 ('20181030114152'),
 ('20181113095753'),
+('20181114152009'),
 ('20181201065026'),
 ('20190111130416'),
 ('20190115131711');
