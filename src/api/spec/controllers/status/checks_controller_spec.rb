@@ -33,7 +33,7 @@ RSpec.describe Status::ChecksController, type: :controller do
 
       it 'gives 404 for invalid project' do
         expect(post(:update, body: xml, params: { project_name: project.name + '_', report_uuid: 'nada', repository_name: repository.name }, format: :xml)).to have_http_status(:not_found)
-        expect(Xmlhash.parse(response.body)['summary']).to match(/Project.*not found/)
+        expect(Xmlhash.parse(response.body)['summary']).to match(/Couldn't find Project/)
       end
 
       it 'gives 404 for invalid repository' do
