@@ -1,0 +1,16 @@
+.legend {
+  ul {
+    @extend .ml-2;
+
+    li {
+      span {
+        display: inline-flex;
+        width: 1rem;
+        height: 1rem;
+        @extend .border;
+        @extend .border-dark;
+      }
+    }
+  }
+}
+
