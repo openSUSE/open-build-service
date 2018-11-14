@@ -6,6 +6,7 @@ class Status::ChecksController < ApplicationController
   after_action :verify_authorized
 
   # PUT /status_reports/published/:project_name/:repository_name/reports/:uuid
+  # PUT /status_reports/build/:project_name/:repository_name/:arch/reports/:uuid
   # PUT /status_reports/requests/:number
   def update
     authorize @status_report
@@ -18,6 +19,7 @@ class Status::ChecksController < ApplicationController
     end
 
     if @check.save
+      @event_class.create(check_notify_params)
       render :show
     else
       render_error(status: 422, errorcode: 'invalid_check', message: "Could not save check: #{@check.errors.full_messages.to_sentence}")
@@ -25,6 +27,13 @@ class Status::ChecksController < ApplicationController
   end
 
   private
+
+  def check_notify_params
+    params = { who: User.current.login, state: @check.state, name: @check.name }
+    params[:url] = @check.url if @check.url
+    params[:short_description] = @check.short_description if @check.short_description
+    params.merge(@status_report.notify_params)
+  end
 
   def set_status_report
     if params[:report_uuid]

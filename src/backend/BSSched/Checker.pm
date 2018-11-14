@@ -125,7 +125,7 @@ sub set_repo_state {
     $id = Digest::MD5::md5_hex($id);
     if (($oldstate->{'buildid'} || $oldstate->{'oldbuildid'} || '') ne $id) {
       my $myarch = $ctx->{'gctx'}->{'arch'};
-      #BSNotify::notify('REPO_BUILD_FINISHED', { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => $id} );
+      BSNotify::notify('REPO_BUILD_FINISHED', { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => $id} );
     }
     $newstate->{'buildid'} = $id;
     delete $newstate->{'oldbuildid'};

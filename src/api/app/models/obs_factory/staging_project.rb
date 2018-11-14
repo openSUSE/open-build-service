@@ -169,7 +169,7 @@ module ObsFactory
     #
     # @return [Hash] Hash with the metadata (currently the list of requests)
     def meta
-      @meta ||= YAML.safe_load(description) || {}
+      @meta ||= YAML.safe_load(description.to_s) || {}
     end
 
     def self.attributes
@@ -245,15 +245,17 @@ module ObsFactory
       @checks = []
       @missing_checks = []
       repositories.each do |repo|
-        build_id = repo.build_id
-        status = repo.status_reports.find_by(uuid: build_id)
-        if status
-          @missing_checks += status.missing_checks
-          @checks += status.checks
-        else
-          @missing_checks += repo.required_checks
+        add_status(repo)
+        repo.repository_architectures.each do |repo_arch|
+          add_status(repo_arch)
         end
       end
+    end
+
+    def add_status(checkable)
+      status = checkable.current_status_report
+      @missing_checks += status.missing_checks
+      @checks += status.checks
     end
 
     # Used internally to calculate #broken_packages and #building_repositories

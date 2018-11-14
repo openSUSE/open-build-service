@@ -20,6 +20,7 @@ module Event
 
     class << self
       attr_accessor :description
+      attr_accessor :message_bus_routing_key
       @payload_keys = nil
       @create_jobs = nil
       @classnames = nil
@@ -75,14 +76,11 @@ module Event
       def inherited(subclass)
         super
 
+        subclass.after_create_commit(:send_to_bus)
         subclass.add_classname(name) unless name == 'Event::Base'
         subclass.payload_keys(*payload_keys)
         subclass.create_jobs(*create_jobs)
         subclass.receiver_roles(*receiver_roles)
-      end
-
-      def message_bus_routing_key
-        raise NotImplementedError
       end
     end
 
@@ -271,11 +269,15 @@ module Event
     end
 
     def send_to_bus
-      RabbitmqBus.send_to_bus(self.class.message_bus_routing_key, self[:payload])
+      RabbitmqBus.send_to_bus(message_bus_routing_key, self[:payload]) if message_bus_routing_key
       RabbitmqBus.send_to_bus('metrics', to_metric) if metric_fields.present?
     end
 
     private
+
+    def message_bus_routing_key
+      self.class.message_bus_routing_key
+    end
 
     def metric_tags
       {}
@@ -286,7 +288,7 @@ module Event
     end
 
     def metric_measurement
-      self.class.message_bus_routing_key
+      message_bus_routing_key
     end
 
     def to_metric

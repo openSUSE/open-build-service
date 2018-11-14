@@ -2,13 +2,9 @@ module Event
   class BuildFail < Build
     include BuildLogSupport
 
+    self.message_bus_routing_key = 'package.build_fail'
     self.description = 'Package has failed to build'
     receiver_roles :maintainer, :bugowner, :reader, :watcher
-    after_create_commit :send_to_bus
-
-    def self.message_bus_routing_key
-      'package.build_fail'
-    end
 
     def subject
       "Build failure of #{payload['project']}/#{payload['package']} in #{payload['repository']}/#{payload['arch']}"
