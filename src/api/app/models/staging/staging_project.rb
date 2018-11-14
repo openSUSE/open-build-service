@@ -18,7 +18,7 @@ module Staging
     # The requests to review are requests which are not related to the staging project (unless they are also staged).
     # They simply need a review from the maintainers of the staging project.
     def requests_to_review
-      @requests_to_review ||= BsRequest.with_open_reviews_for(by_project: name)
+      @requests_to_review ||= BsRequest.with_open_reviews_for(by_project: name).includes(:reviews)
     end
 
     def building_repositories
