@@ -60,7 +60,7 @@ sub mktbscert {
   my $certserial = BSX509::pack_random_serial();
   my $sigalgo = BSASN1::pack_sequence($BSX509::oid_sha256withrsaencryption, BSASN1::pack_null());
   my $issuer = BSX509::pack_distinguished_name([ $BSX509::oid_common_name, $cn ]);
-  my $validity = BSASN1::pack_sequence(BSASN1::pack_utctime($not_before), BSASN1::pack_utctime($not_after));
+  my $validity = BSX509::pack_validity($not_before, $not_after);
   my $basic_constraints = BSASN1::pack_sequence();
   my $key_usage = BSASN1::pack_bits_list($BSX509::key_usage_digital_signature, $BSX509::key_usage_key_encipherment);
   my $ext_key_usage = BSASN1::pack_sequence($BSX509::oid_code_signing);
