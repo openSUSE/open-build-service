@@ -3,7 +3,11 @@ require 'webmock/rspec'
 
 RSpec.describe Staging::StagingProject, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tom') }
-  let(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: user.home_project) }
+
+  let(:managers_group) { create(:group) }
+  let(:other_managers_group) { create(:group) }
+
+  let(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: user.home_project, managers_group: managers_group) }
   let(:staging_project) { staging_workflow.staging_projects.first }
 
   let!(:repository) { create(:repository, architectures: ['x86_64'], project: staging_project, name: 'staging_repository') }
@@ -119,5 +123,34 @@ RSpec.describe Staging::StagingProject, vcr: true do
 
       it { expect(staging_project.overall_state).to eq(:failed) }
     end
+  end
+
+  describe '#assign_managers_group' do
+    context 'when the group wasn\'t assigned before' do
+      before do
+        staging_project.assign_managers_group(other_managers_group)
+        staging_project.store
+      end
+
+      it { expect(staging_project.reload.groups).to include(other_managers_group) }
+    end
+
+    context 'when the group was already assigned' do
+      let(:assign_group) do
+        staging_project.assign_managers_group(managers_group)
+        staging_project.store
+      end
+
+      it { expect { assign_group }.not_to change(Relationship, :count) }
+    end
+  end
+
+  describe '#unassign_managers_group' do
+    before do
+      staging_project.unassign_managers_group(managers_group)
+      staging_project.store
+    end
+
+    it { expect(staging_project.reload.groups).to be_empty }
   end
 end

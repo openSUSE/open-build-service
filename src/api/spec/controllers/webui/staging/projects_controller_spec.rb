@@ -2,8 +2,9 @@ require 'rails_helper'
 
 RSpec.describe Webui::Staging::ProjectsController do
   let(:user) { create(:confirmed_user, login: 'tom') }
+  let(:managers_group) { create(:group) }
   let(:project) { user.home_project }
-  let(:staging_workflow) { project.create_staging }
+  let(:staging_workflow) { project.create_staging(managers: managers_group) }
 
   before do
     login(user)
@@ -24,6 +25,9 @@ RSpec.describe Webui::Staging::ProjectsController do
       end
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
       it { expect(flash[:success]).not_to be_nil }
+      it 'assigns the managers group' do
+        expect(Staging::StagingProject.find_by_name('home:tom:Staging:C').groups.last).to eq(subject.managers_group)
+      end
     end
 
     context 'an existent staging project' do

@@ -2,7 +2,10 @@ require 'rails_helper'
 
 RSpec.describe Webui::Staging::WorkflowsController do
   let(:user) { create(:confirmed_user, login: 'tom') }
+  let(:managers_group) { create(:group) }
+  let(:other_managers_group) { create(:group) }
   let(:project) { user.home_project }
+  let(:staging_workflow) { project.create_staging(managers: managers_group) }
 
   before do
     login(user)
@@ -21,7 +24,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
 
     context 'with an existent staging_workflow for project' do
       before do
-        project.create_staging
+        project.create_staging(managers_id: managers_group.id)
         get :new, params: { project: project.name }
       end
 
@@ -33,7 +36,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
   describe 'POST #create' do
     context 'a staging_workflow and staging_projects' do
       before do
-        post :create, params: { project: project.name }
+        post :create, params: { project: project.name, managers_title: managers_group.title }
       end
 
       subject { project.staging }
@@ -41,6 +44,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
       it { expect(Staging::Workflow.count).to eq(1) }
       it { expect(subject.staging_projects.map(&:name)).to match_array(['home:tom:Staging:A', 'home:tom:Staging:B']) }
       it { expect(response).to redirect_to(staging_workflow_path(project.staging)) }
+      it { expect(subject.managers_group).to eq(managers_group) }
       it { expect(flash[:success]).not_to be_nil }
     end
 
@@ -49,7 +53,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
       let!(:staging_b) { create(:project, name: "#{project}:Staging:B") }
 
       before do
-        post :create, params: { project: project.name }
+        post :create, params: { project: project.name, managers_title: managers_group.title }
       end
 
       subject { project.staging }
@@ -57,6 +61,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
       it { expect(Staging::Workflow.count).to eq(1) }
       it { expect(subject.staging_projects.map(&:name)).to match_array(['home:tom:Staging:A', 'home:tom:Staging:B']) }
       it { expect(response).to redirect_to(staging_workflow_path(project.staging)) }
+      it { expect(subject.managers_group).to eq(managers_group) }
       it { expect(flash[:success]).not_to be_nil }
     end
 
@@ -85,7 +90,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
 
     context 'with an existent staging_workflow for project' do
       before do
-        project.create_staging
+        project.create_staging(managers_id: managers_group.id)
         get :show, params: { id: project.staging }
       end
 
@@ -108,7 +113,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
 
     context 'with an existent staging_workflow for project' do
       before do
-        project.create_staging
+        project.create_staging(managers_id: managers_group.id)
         get :edit, params: { id: project.staging }
       end
 
@@ -121,7 +126,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
   describe 'DELETE #destroy' do
     context 'a staging workflow and staging projects' do
       before do
-        project.create_staging
+        project.create_staging(managers_id: managers_group.id)
         params = { id: project.staging, staging_project_ids: project.staging.staging_projects.ids, format: :js }
         delete :destroy, params: params
       end
@@ -137,7 +142,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
 
     context 'a staging workflow and one staging project' do
       before do
-        project.create_staging
+        project.create_staging(managers_id: managers_group.id)
         params = { id: project.staging, staging_project_ids: project.staging.staging_projects.ids.first, format: :js }
         delete :destroy, params: params
       end
@@ -153,7 +158,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
 
     context 'a staging workflow unsuccessful' do
       before do
-        project.create_staging
+        project.create_staging(managers_id: managers_group.id)
         allow_any_instance_of(Staging::Workflow).to receive(:destroy).and_return(false)
         params = { id: project.staging, staging_project_ids: project.staging.staging_projects.ids, format: :js }
         delete :destroy, params: params
@@ -161,6 +166,44 @@ RSpec.describe Webui::Staging::WorkflowsController do
 
       it { expect(flash[:error]).not_to be_nil }
       it { expect(response.body).to eq("window.location='#{staging_workflow_path(project.staging)}'") }
+    end
+  end
+
+  describe 'PUT #update' do
+    context 'without any problem' do
+      before do
+        put :update, params: { id: staging_workflow, managers_title: other_managers_group.title }
+      end
+
+      subject { staging_workflow.reload }
+
+      it { expect(subject.managers_group).to eq(other_managers_group) }
+      it 'assigns the new group and unassigns the old one' do
+        subject.staging_projects.each do |staging_project|
+          expect(staging_project.groups).to contain_exactly(other_managers_group)
+        end
+      end
+      it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
+      it { expect(flash[:success]).not_to be_nil }
+    end
+
+    context 'with a failing save for staging workflow' do
+      before do
+        staging_workflow
+        allow_any_instance_of(Staging::Workflow).to receive(:save).and_return(false)
+        put :update, params: { id: staging_workflow, managers_title: other_managers_group.title }
+      end
+
+      subject { staging_workflow.reload }
+
+      it { expect(subject.managers_group).to eq(managers_group) }
+      it 'don\'t assigns the new group and unassigns the old one' do
+        subject.staging_projects.each do |staging_project|
+          expect(staging_project.groups).to contain_exactly(managers_group)
+        end
+      end
+      it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
+      it { expect(flash[:error]).not_to be_nil }
     end
   end
 end
