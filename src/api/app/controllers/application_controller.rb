@@ -192,7 +192,7 @@ class ApplicationController < ActionController::Base
 
     text = response.body
     send_data(text, type: response.fetch('content-type'),
-      disposition: 'inline')
+                    disposition: 'inline')
     text
   end
   public :pass_to_backend

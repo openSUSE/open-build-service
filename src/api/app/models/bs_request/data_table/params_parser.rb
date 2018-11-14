@@ -9,11 +9,11 @@ class BsRequest
 
       def parsed_params
         {
-          draw:   draw,
+          draw: draw,
           search: search,
           offset: offset,
-          limit:  limit,
-          sort:   sort
+          limit: limit,
+          sort: sort
         }
       end
 

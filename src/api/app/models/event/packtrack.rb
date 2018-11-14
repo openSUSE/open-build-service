@@ -1,15 +1,11 @@
 module Event
   class Packtrack < Base
+    self.message_bus_routing_key = 'repo.packtrack'
     self.description = 'Binary was published'
     payload_keys :project, :repo, :payload
 
     # for package tracking in first place
     create_jobs :update_released_binaries_job
-    after_create_commit :send_to_bus
-
-    def self.message_bus_routing_key
-      'repo.packtrack'
-    end
   end
 end
 

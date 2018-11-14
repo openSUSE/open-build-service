@@ -175,7 +175,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
     assert_xml_tag tag: 'most_active', child: { tag: 'package' }
     assert_xml_tag tag: 'package', attributes: {
-      name:    'kdelibs',
+      name: 'kdelibs',
       project: 'kde4'
     }
     assert_no_xml_tag tag: 'package', attributes: { project: 'HiddenProject' }
@@ -185,7 +185,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'most_active', child: { tag: 'project' }
     assert_xml_tag tag: 'project', attributes: {
-      name:     'kde4',
+      name: 'kde4',
       packages: 2
     }
     assert_no_xml_tag tag: 'project', attributes: { name: 'HiddenProject' }

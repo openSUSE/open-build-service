@@ -12,17 +12,17 @@ RSpec.describe BsRequestAction, vcr: true do
     let(:project) { user.home_project }
     let(:target_package) do
       create(:package_with_file, name: 'package_encoding_1',
-             file_content: file_content, project: project)
+                                 file_content: file_content, project: project)
     end
     let(:source_package) do
       create(:package_with_file, name: 'package_encoding_2',
-             file_content: 'test', project: project)
+                                 file_content: 'test', project: project)
     end
     let(:bs_request) { build(:bs_request, creator: user.login) }
     let(:action_attributes) do
       {
-        bs_request:     bs_request,
-        type:           'submit',
+        bs_request: bs_request,
+        type: 'submit',
         target_project: project.name,
         target_package: target_package.name,
         source_project: project.name,
@@ -43,8 +43,8 @@ RSpec.describe BsRequestAction, vcr: true do
     let(:bs_request) { create(:bs_request) }
     let(:action_attributes) do
       {
-        bs_request:     bs_request,
-        type:           'submit',
+        bs_request: bs_request,
+        type: 'submit',
         target_project: 'target_prj',
         target_package: 'target_pkg'
       }

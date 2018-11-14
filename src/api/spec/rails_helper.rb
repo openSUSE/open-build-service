@@ -80,3 +80,6 @@ require 'support/cache'
 
 # silence migration tests
 require 'support/migration'
+
+# support rabbitmq
+require 'support/rabbitmq'

@@ -42,14 +42,14 @@ class BinaryRelease < ApplicationRecord
     BinaryRelease.transaction do
       json.each do |binary|
         # identifier
-        hash = { binary_name:    binary['name'],
+        hash = { binary_name: binary['name'],
                  binary_version: binary['version'] || 0, # docker containers have no version
                  binary_release: binary['release'] || 0,
-                 binary_epoch:   binary['epoch'],
-                 binary_arch:    binary['binaryarch'],
-                 medium:         binary['medium'],
-                 obsolete_time:  nil,
-                 modify_time:    nil }
+                 binary_epoch: binary['epoch'],
+                 binary_arch: binary['binaryarch'],
+                 medium: binary['medium'],
+                 obsolete_time: nil,
+                 modify_time: nil }
         # check for existing entry
         matching_binaries = oldlist.where(hash)
         if matching_binaries.count > 1
@@ -202,9 +202,11 @@ class BinaryRelease < ApplicationRecord
   end
 
   def indentical_to?(binary_hash)
+    time = Time.strptime(binary_hash['buildtime'].to_s, '%s') if binary_hash['buildtime'].present?
+
     binary_disturl == binary_hash['disturl'] &&
       binary_supportstatus == binary_hash['supportstatus'] &&
-      binary_buildtime == Time.strptime(binary_hash['buildtime'].to_s, '%s')
+      binary_buildtime == time
   end
   #### Alias of methods
 end

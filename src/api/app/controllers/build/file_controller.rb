@@ -20,7 +20,7 @@ module Build
         unless User.current.is_admin?
           # this route can be used publish binaries without history changes in sources
           render_error status: 403, errorcode: 'upload_binary_no_permission',
-            message: 'No permission to upload binaries.'
+                       message: 'No permission to upload binaries.'
           return
         end
 
@@ -32,7 +32,7 @@ module Build
     def destroy
       unless permissions.project_change?(params[:project])
         render_error status: 403, errorcode: 'delete_binary_no_permission',
-          message: "No permission to delete binaries from project #{params[:project]}"
+                     message: "No permission to delete binaries from project #{params[:project]}"
         return
       end
 
@@ -40,7 +40,7 @@ module Build
         pass_to_backend
       else
         render_error status: 400, errorcode: 'invalid_operation',
-          message: 'Delete operation of build results is not allowed'
+                     message: 'Delete operation of build results is not allowed'
       end
 
       return
@@ -75,7 +75,7 @@ module Build
       return if user_has_permission
 
       render_error status: 403, errorcode: 'download_binary_no_permission',
-        message: "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
+                   message: "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
       return
     end
 

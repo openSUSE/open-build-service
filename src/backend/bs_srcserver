@@ -1404,8 +1404,9 @@ sub getprojpack {
 	}
 	# get rid of old multibuild packages, this assumes the main package comes first
 	@packages = grep {!/^\Q$packid\E:/} @packages if $packages_multibuild{$packid};
-	# get current multibuild state
-	my $mb = BSSrcServer::Multibuild::updatemultibuild($projid, $packid, $files, 1);
+	# get current multibuild state, ignoredisable means this is not the scheduler but
+	# a buildinfo query
+	my $mb = BSSrcServer::Multibuild::updatemultibuild($projid, $packid, $files, $cgi->{'ignoredisable'} ? 0 : 1);
 	unshift @packages, map {"$packid:$_"} @{$mb->{'flavor'} || $mb->{'package'} || []} if $mb;
 
 	if ($packid eq '_pattern') {
@@ -4216,6 +4217,25 @@ sub uploadbuild {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   die("illegal package '$packid'\n") if $packid =~ /^_/ && !($packid =~ /^_product:/);
   checkprojrepoarch($projid, $repoid, $arch);
+  if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./ && $packid =~ /^(.*):([^:]*)$/s) {
+    my ($mbpackid, $flavor) = ($1, $2);
+    # check if the flavor is known
+    my $mb = BSSrcServer::Multibuild::getmultibuild($projid, $mbpackid) || {};
+    if (!grep {$_ eq $flavor} @{$mb->{'flavor'} || $mb->{'package'} || []}) {
+      # nope, try to expand, add flavor if it works and it is known
+      eval {
+        my $rev = getrev($projid, $packid, 'latest');
+        my $files = lsrev_expanded($rev);
+        my $newmb = BSSrcServer::Multibuild::getmultibuild_fromfiles($projid, $mbpackid, $files);
+        if (grep {$_ eq $flavor} @{$newmb->{'flavor'} || $newmb->{'package'} || []}) {
+	  BSSrcServer::Multibuild::updatemultibuild($projid, $packid, $files, 1);
+	}
+      };
+      warn($@) if $@;
+      $mb = BSSrcServer::Multibuild::getmultibuild($projid, $mbpackid) || {};
+      die("404 unknown multibuild flavor '$flavor'\n") unless grep {$_ eq $flavor} @{$mb->{'flavor'} || $mb->{'package'} || []};
+    }
+  }
   my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my $param = {
     'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid",

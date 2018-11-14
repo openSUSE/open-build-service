@@ -101,7 +101,7 @@ class PersonController < ApplicationController
       unless user.login == User.current.login || User.current.is_admin?
         logger.debug 'User has no permission to change userinfo'
         render_error(status: 403, errorcode: 'change_userinfo_no_permission',
-          message: "no permission to change userinfo for user #{user.login}") && return
+                     message: "no permission to change userinfo for user #{user.login}") && return
       end
     elsif User.current.is_admin?
       user = User.create(login: login, password: 'notset', email: 'TEMP')
@@ -128,7 +128,7 @@ class PersonController < ApplicationController
         user.owner = User.find_by_login!(xml['owner']['userid'])
         if user.owner.owner
           render_error(status: 400, errorcode: 'subaccount_chaining',
-            message: "A subaccount can not be assigned to subaccount #{user.owner.login}") && return
+                       message: "A subaccount can not be assigned to subaccount #{user.owner.login}") && return
         end
       end
     end
@@ -249,14 +249,14 @@ class PersonController < ApplicationController
 
     if login.blank? || password.blank?
       render_error status: 404, errorcode: 'failed to change password',
-            message: 'Failed to change password: missing parameter'
+                   message: 'Failed to change password: missing parameter'
       return
     end
 
     # change password to LDAP if LDAP is enabled
     unless ::Configuration.passwords_changable?(User.current)
       render_error status: 404, errorcode: 'change_passwd_failure',
-                                message: 'LDAP passwords can not be changed in OBS. Please refer to your LDAP server to change it.'
+                   message: 'LDAP passwords can not be changed in OBS. Please refer to your LDAP server to change it.'
       return
     end
 

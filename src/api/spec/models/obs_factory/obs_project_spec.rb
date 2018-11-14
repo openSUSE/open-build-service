@@ -48,7 +48,7 @@ RSpec.describe ObsFactory::ObsProject do
               'arch' => 'i586',
               'code' => 'published',
               'state' => 'published',
-             'summary' => { 'statuscount' => { 'code' => 'succeeded', 'count' => '5' } }
+              'summary' => { 'statuscount' => { 'code' => 'succeeded', 'count' => '5' } }
             },
             {
               'project' => 'openSUSE:Factory',
@@ -56,7 +56,7 @@ RSpec.describe ObsFactory::ObsProject do
               'arch' => 'i586',
               'code' => 'published',
               'state' => 'published',
-             'summary' => { 'statuscount' => { 'code' => 'succeeded', 'count' => '5' } }
+              'summary' => { 'statuscount' => { 'code' => 'succeeded', 'count' => '5' } }
             }
           ]
         )

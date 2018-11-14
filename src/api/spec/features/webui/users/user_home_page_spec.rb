@@ -3,9 +3,9 @@ require 'browser_helper'
 RSpec.feature "User's home project creation", type: :feature, js: true do
   let!(:user) do
     create(:confirmed_user,
-           login:    'Jim',
+           login: 'Jim',
            realname: 'Jim Knopf',
-           email:    'jim.knopf@puppenkiste.com')
+           email: 'jim.knopf@puppenkiste.com')
   end
 
   before do

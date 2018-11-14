@@ -1,12 +1,8 @@
 module Event
   class CreatePackage < Base
+    self.message_bus_routing_key = 'package.create'
     self.description = 'Package was created'
     payload_keys :project, :package, :sender
-    after_create_commit :send_to_bus
-
-    def self.message_bus_routing_key
-      'package.create'
-    end
 
     def subject
       "New Package #{payload['project']}/#{payload['package']}"

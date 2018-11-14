@@ -57,7 +57,7 @@ sub ownrepo {
     # make sure the directory exists
     if (! -d "$registrydir/$repo") {
       my $lck;
-      open($lck, '>>', "$registrydir/:repos");
+      BSUtil::lockopen($lck, '>>', "$registrydir/:repos");
       mkdir_p("$registrydir/$repo");
       close($lck);
     }
@@ -78,7 +78,7 @@ sub ownrepo {
 
   mkdir_p($registrydir) unless -d $registrydir;
   my $lck;
-  open($lck, '>>', "$registrydir/:repos");
+  BSUtil::lockopen($lck, '>>', "$registrydir/:repos");
   if (! -s "$registrydir/:repos") {
     $registries = {};
   } else {
@@ -106,7 +106,7 @@ sub disownrepo {
   BSRPC::rpc($param, undef, "project=$projid", "repository=$repoid", "regrepo=$repo");
 
   my $lck;
-  open($lck, '>>', "$registrydir/:repos");
+  BSUtil::lockopen($lck, '>>', "$registrydir/:repos");
   my $registries = BSUtil::retrieve("$registrydir/:repos");
   die("repository '$repo' is owned by $registries->{$repo}\n") if $registries->{$repo} && $registries->{$repo} ne $prp;
   my $dir = $repo;
@@ -189,12 +189,13 @@ sub gen_timestampkey {
   my @keyargs = ('rsa@2048', '800');	# expire time does not matter...
   mkdir_p($uploaddir);
   unlink("$uploaddir/timestampkey.$$");
-  my @signargs;
-  push @signargs, '--project', ':tmpkey' if $BSConfig::sign_project;
-  push @signargs, '-P', "$uploaddir/timestampkey.$$";
+  my @signcmd;
+  push @signcmd, $BSConfig::sign;
+  push @signcmd, '--project', ':tmpkey' if $BSConfig::sign_project;
+  push @signcmd, '-P', "$uploaddir/timestampkey.$$";
   my $pubkey = '';
   my $fd;
-  open($fd, '-|', $BSConfig::sign, @signargs, '-g', @keyargs, "timestamp signing key", 'timestampsign@build.opensuse.org') || die("$BSConfig::sign: $!\n");
+  open($fd, '-|', @signcmd, '-g', @keyargs, "timestamp signing key", 'timestampsign@build.opensuse.org') || die("$BSConfig::sign: $!\n");
   1 while sysread($fd, $pubkey, 4096, length($pubkey));
   close($fd) || die("$BSConfig::sign: $?\n");
   my $privkey = readstr("$uploaddir/timestampkey.$$");
@@ -211,9 +212,10 @@ sub update_tuf {
   my ($prp, $repo, $gun, $containerdigests, $pubkey, $signargs) = @_;
 
   my ($projid, $repoid) = split('/', $prp, 2);
-  my @signargs;
-  push @signargs, '--project', $projid if $BSConfig::sign_project;
-  push @signargs, @{$signargs || []};
+  my @signcmd;
+  push @signcmd, $BSConfig::sign;
+  push @signcmd, '--project', $projid if $BSConfig::sign_project;
+  push @signcmd, @{$signargs || []};
 
   my $repodir = "$registrydir/$repo";
   my $now = time();
@@ -234,7 +236,7 @@ sub update_tuf {
   my $cmpres = BSTUF::cmprootcert($oldroot, $tbscert);
   my $cert;
   $cert = BSTUF::getrootcert($oldroot) if $cmpres == 2;		# reuse cert of old root
-  $cert ||= BSTUF::mkcert($tbscert, \@signargs);
+  $cert ||= BSTUF::mkcert($tbscert, \@signcmd);
 
   if ($cmpres == 0) {
     # pubkey changed, better start from scratch
@@ -261,8 +263,8 @@ sub update_tuf {
     'keytype' => 'rsa',
     'keyval' => { 'private' => undef, 'public' => $tuf->{'timestamp_pubkey'} },
   };
-  my $root_key_id = Digest::SHA::sha256_hex(BSTUF::canonical_json($root_key));
-  my $timestamp_key_id = Digest::SHA::sha256_hex(BSTUF::canonical_json($timestamp_key));
+  my $root_key_id = BSTUF::key2keyid($root_key);
+  my $timestamp_key_id = BSTUF::key2keyid($timestamp_key);
 
   #
   # setup root 
@@ -299,7 +301,7 @@ sub update_tuf {
       @key_ids = BSUtil::unify(@key_ids);
       @key_ids = splice(@key_ids, 0, 2);	# enough for now
     }
-    $tuf->{'root'} = BSTUF::updatedata($root, $oldroot, \@signargs, @key_ids);
+    $tuf->{'root'} = BSTUF::updatedata($root, $oldroot, \@signcmd, @key_ids);
   }
 
   my $manifests = {};
@@ -328,7 +330,7 @@ sub update_tuf {
     'expires' => BSTUF::rfc3339time($now + $targets_expire),
     'targets' => $manifests,
   };
-  $tuf->{'targets'} = BSTUF::updatedata($targets, $oldtargets, \@signargs, $root_key_id);
+  $tuf->{'targets'} = BSTUF::updatedata($targets, $oldtargets, \@signcmd, $root_key_id);
 
   my $snapshot = {
     '_type' => 'Snapshot',
@@ -337,14 +339,15 @@ sub update_tuf {
   BSTUF::addmetaentry($snapshot, 'root', $tuf->{'root'});
   BSTUF::addmetaentry($snapshot, 'targets', $tuf->{'targets'});
   my $oldsnapshot = $oldtuf->{'snapshot'} ? JSON::XS::decode_json($oldtuf->{'snapshot'}) : {};
-  $tuf->{'snapshot'} = BSTUF::updatedata($snapshot, $oldsnapshot, \@signargs, $root_key_id);
+  $tuf->{'snapshot'} = BSTUF::updatedata($snapshot, $oldsnapshot, \@signcmd, $root_key_id);
 
   mkdir_p($uploaddir);
   unlink("$uploaddir/timestampkey.$$");
   writestr("$uploaddir/timestampkey.$$", undef, $tuf->{'timestamp_privkey'});
-  my @signargs_timestamp;
-  push @signargs_timestamp, '--project', ':tmpkey' if $BSConfig::sign_project;
-  push @signargs_timestamp, '-P', "$uploaddir/timestampkey.$$";
+  my @signcmd_timestamp;
+  push @signcmd_timestamp, $BSConfig::sign;
+  push @signcmd_timestamp, '--project', ':tmpkey' if $BSConfig::sign_project;
+  push @signcmd_timestamp, '-P', "$uploaddir/timestampkey.$$";
 
   my $timestamp = {
     '_type' => 'Timestamp',
@@ -352,7 +355,7 @@ sub update_tuf {
   };
   BSTUF::addmetaentry($timestamp, 'snapshot', $tuf->{'snapshot'});
   my $oldtimestamp = $oldtuf->{'timestamp'} ? JSON::XS::decode_json($oldtuf->{'timestamp'}) : {};
-  $tuf->{'timestamp'} = BSTUF::updatedata($timestamp, $oldtimestamp, \@signargs_timestamp, $timestamp_key_id);
+  $tuf->{'timestamp'} = BSTUF::updatedata($timestamp, $oldtimestamp, \@signcmd_timestamp, $timestamp_key_id);
   unlink("$uploaddir/timestampkey.$$");
 
   # add expire information

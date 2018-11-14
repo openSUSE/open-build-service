@@ -62,52 +62,52 @@ module Webui::WebuiHelper
   end
 
   REPO_STATUS_ICONS = {
-    'published'            => 'lorry',
-    'publishing'           => 'cog_go',
-    'outdated_published'   => 'lorry_error',
-    'outdated_publishing'  => 'cog_error',
-    'unpublished'          => 'lorry_flatbed',
+    'published' => 'lorry',
+    'publishing' => 'cog_go',
+    'outdated_published' => 'lorry_error',
+    'outdated_publishing' => 'cog_error',
+    'unpublished' => 'lorry_flatbed',
     'outdated_unpublished' => 'lorry_error',
-    'building'             => 'cog',
-    'outdated_building'    => 'cog_error',
-    'finished'             => 'time',
-    'outdated_finished'    => 'time_error',
-    'blocked'              => 'time',
-    'outdated_blocked'     => 'time_error',
-    'broken'               => 'exclamation',
-    'outdated_broken'      => 'exclamation',
-    'scheduling'           => 'cog',
-    'outdated_scheduling'  => 'cog_error'
+    'building' => 'cog',
+    'outdated_building' => 'cog_error',
+    'finished' => 'time',
+    'outdated_finished' => 'time_error',
+    'blocked' => 'time',
+    'outdated_blocked' => 'time_error',
+    'broken' => 'exclamation',
+    'outdated_broken' => 'exclamation',
+    'scheduling' => 'cog',
+    'outdated_scheduling' => 'cog_error'
   }.freeze
 
   WEBUI2_REPO_STATUS_ICONS = {
-    'published'            => 'truck',
-    'outdated_published'   => 'truck',
-    'publishing'           => 'truck-loading',
-    'outdated_publishing'  => 'truck-loading',
-    'unpublished'          => 'dolly-flatbed',
+    'published' => 'truck',
+    'outdated_published' => 'truck',
+    'publishing' => 'truck-loading',
+    'outdated_publishing' => 'truck-loading',
+    'unpublished' => 'dolly-flatbed',
     'outdated_unpublished' => 'dolly-flatbed',
-    'building'             => 'cog',
-    'outdated_building'    => 'cog',
-    'finished'             => 'check',
-    'outdated_finished'    => 'check',
-    'blocked'              => 'lock',
-    'outdated_blocked'     => 'lock',
-    'broken'               => 'exclamation-triangle',
-    'outdated_broken'      => 'exclamation-triangle',
-    'scheduling'           => 'calendar-alt',
-    'outdated_scheduling'  => 'calendar-alt'
+    'building' => 'cog',
+    'outdated_building' => 'cog',
+    'finished' => 'check',
+    'outdated_finished' => 'check',
+    'blocked' => 'lock',
+    'outdated_blocked' => 'lock',
+    'broken' => 'exclamation-triangle',
+    'outdated_broken' => 'exclamation-triangle',
+    'scheduling' => 'calendar-alt',
+    'outdated_scheduling' => 'calendar-alt'
   }.freeze
 
   REPO_STATUS_DESCRIPTIONS = {
-    'published'   => 'Repository has been published',
-    'publishing'  => 'Repository is being created right now',
+    'published' => 'Repository has been published',
+    'publishing' => 'Repository is being created right now',
     'unpublished' => 'Build finished, but repository publishing is disabled',
-    'building'    => 'Build jobs exists',
-    'finished'    => 'Build jobs have been processed, new repository is not yet created',
-    'blocked'     => 'No build possible atm, waiting for jobs in other repositories',
-    'broken'      => 'The repository setup is broken, build or publish not possible',
-    'scheduling'  => 'The repository state is being calculated right now'
+    'building' => 'Build jobs exists',
+    'finished' => 'Build jobs have been processed, new repository is not yet created',
+    'blocked' => 'No build possible atm, waiting for jobs in other repositories',
+    'broken' => 'The repository setup is broken, build or publish not possible',
+    'scheduling' => 'The repository state is being calculated right now'
   }.freeze
 
   def check_first(first)

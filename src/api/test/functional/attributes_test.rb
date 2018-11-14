@@ -260,7 +260,7 @@ ription</description>
     get '/source/home:adrian/_attribute/TEST:Dummy'
     assert_response :success
     assert_no_xml_tag parent: { tag: 'attribute', attributes: { name: 'Dummy', namespace: 'TEST' } },
-                   tag: 'issue', attributes: { name: '123', tracker: 'bnc' }
+                      tag: 'issue', attributes: { name: '123', tracker: 'bnc' }
     assert_xml_tag parent: { tag: 'attribute', attributes: { name: 'Dummy', namespace: 'TEST' } },
                    tag: 'issue', attributes: { name: '456', tracker: 'bnc' }
 

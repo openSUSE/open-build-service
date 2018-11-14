@@ -152,7 +152,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
         target_repo = create(:repository, project: another_project)
         post :create, params: {
           project: user.home_project, repository: 'valid_name',
-            target_project: another_project, target_repo: target_repo.name, architectures: ['i586']
+          target_project: another_project, target_repo: target_repo.name, architectures: ['i586']
         }
       end
 
@@ -186,9 +186,9 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
 
       before do
         post :create_dod_repository, xhr: true,
-          params: {
-            project: user.home_project, name: existing_repository.name, arch: Architecture.first.name, url: 'http://whatever.com', repotype: 'rpmmd'
-          }
+                                     params: {
+                                       project: user.home_project, name: existing_repository.name, arch: Architecture.first.name, url: 'http://whatever.com', repotype: 'rpmmd'
+                                     }
       end
 
       it { expect(assigns(:error)).to start_with('Repository with name') }
@@ -198,9 +198,9 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
     context 'with no valid repository type' do
       before do
         post :create_dod_repository, xhr: true,
-          params: {
-            project: user.home_project, name: 'NewRepo', arch: Architecture.first.name, url: 'http://whatever.com', repotype: 'invalid_repo_type'
-          }
+                                     params: {
+                                       project: user.home_project, name: 'NewRepo', arch: Architecture.first.name, url: 'http://whatever.com', repotype: 'invalid_repo_type'
+                                     }
       end
 
       it { expect(assigns(:error)).to start_with("Couldn't add repository:") }
@@ -210,9 +210,9 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
     context 'with no valid repository Architecture' do
       before do
         post :create_dod_repository, xhr: true,
-          params: {
-            project: user.home_project, name: 'NewRepo', arch: 'non_existent_arch', url: 'http://whatever.com', repotype: 'rpmmd'
-          }
+                                     params: {
+                                       project: user.home_project, name: 'NewRepo', arch: 'non_existent_arch', url: 'http://whatever.com', repotype: 'rpmmd'
+                                     }
       end
 
       it { expect(assigns(:error)).to start_with("Couldn't add repository:") }
@@ -222,9 +222,9 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
     context 'with valid repository data' do
       before do
         post :create_dod_repository, xhr: true,
-          params: {
-            project: user.home_project, name: 'NewRepo', arch: Architecture.first.name, url: 'http://whatever.com', repotype: 'rpmmd'
-          }
+                                     params: {
+                                       project: user.home_project, name: 'NewRepo', arch: Architecture.first.name, url: 'http://whatever.com', repotype: 'rpmmd'
+                                     }
       end
 
       it { expect(assigns(:error)).to be_nil }

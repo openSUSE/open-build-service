@@ -210,18 +210,18 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'repository', attributes: { name: 'My_Maintenance_0' } },
                    tag: 'releasetarget',
                    attributes: {
-                     project:    'BaseDistro2.0:LinkedUpdateProject',
+                     project: 'BaseDistro2.0:LinkedUpdateProject',
                      repository: 'BaseDistro2LinkedUpdateProject_repo',
-                     trigger:    'maintenance'
+                     trigger: 'maintenance'
                    }
     assert_xml_tag parent: { tag: 'repository', attributes: { name: 'My_Maintenance_0' } },
                    tag: 'path', attributes: { project: 'My:Maintenance:0', repository: 'BaseDistro2.0_LinkedUpdateProject' }
     assert_xml_tag parent: { tag: 'repository', attributes: { name: 'BaseDistro2.0' } },
                    tag: 'releasetarget',
                    attributes: {
-                     project:    'BaseDistro2.0:LinkedUpdateProject',
+                     project: 'BaseDistro2.0:LinkedUpdateProject',
                      repository: 'BaseDistro2LinkedUpdateProject_repo',
-                     trigger:    'maintenance'
+                     trigger: 'maintenance'
                    }
     assert_xml_tag parent: { tag: 'repository', attributes: { name: 'BaseDistro2.0' } },
                    tag: 'path', attributes: { project: 'BaseDistro2.0', repository: 'BaseDistro2_repo' }
@@ -257,18 +257,18 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/build/#{incident_project}/_result"
     assert_response :success
     assert_xml_tag parent: { tag: 'result', attributes: { repository: kernel_incident_project.tr(':', '_'), arch: 'i586', code: 'building' } },
-               tag: 'status', attributes: { package: "kgraft-incident-0.#{kernel_incident_project.tr(':', '_')}", code: 'scheduled' }
+                   tag: 'status', attributes: { package: "kgraft-incident-0.#{kernel_incident_project.tr(':', '_')}", code: 'scheduled' }
     assert_xml_tag parent: { tag: 'result', attributes: { repository: kernel_incident_project.tr(':', '_'), arch: 'i586', code: 'building' } },
-               tag: 'status', attributes: { package: 'kgraft-GA.BaseDistro2.0', code: 'disabled' }
+                   tag: 'status', attributes: { package: 'kgraft-GA.BaseDistro2.0', code: 'disabled' }
     assert_xml_tag parent: { tag: 'result', attributes: { repository: kernel_incident_project.tr(':', '_'), arch: 'i586', code: 'building' } },
-               tag: 'status', attributes: { package: 'BaseDistro2.Channel', code: 'disabled' }
+                   tag: 'status', attributes: { package: 'BaseDistro2.Channel', code: 'disabled' }
     assert_xml_tag parent: { tag: 'result', attributes: { repository: kernel_incident_project.tr(':', '_'), arch: 'i586', code: 'building' } },
-               tag: 'status', attributes: { package: 'patchinfo', code: 'blocked' }
+                   tag: 'status', attributes: { package: 'patchinfo', code: 'blocked' }
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2Channel', arch: 'i586' } }
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2.0', arch: 'i586', code: 'building' } },
-               tag: 'status', attributes: { package: 'kgraft-GA.BaseDistro2.0', code: 'scheduled' }
+                   tag: 'status', attributes: { package: 'kgraft-GA.BaseDistro2.0', code: 'scheduled' }
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2.0', arch: 'i586', code: 'building' } },
-               tag: 'status', attributes: { package: 'patchinfo', code: 'blocked' }
+                   tag: 'status', attributes: { package: 'patchinfo', code: 'blocked' }
 
     # upload build result as a worker would do
     # Those binaries will get picked up based on previously made channel configurations
@@ -296,9 +296,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/build/#{incident_project}/_result"
     assert_response :success
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2Channel', arch: 'i586', state: 'published' } },
-               tag: 'status', attributes: { package: 'BaseDistro2.Channel', code: 'succeeded' }
+                   tag: 'status', attributes: { package: 'BaseDistro2.Channel', code: 'succeeded' }
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2Channel', arch: 'i586', state: 'published' } },
-               tag: 'status', attributes: { package: 'patchinfo', code: 'succeeded' }
+                   tag: 'status', attributes: { package: 'patchinfo', code: 'succeeded' }
     get "/build/#{incident_project}/BaseDistro2Channel/i586/patchinfo/"
     assert_response :success
 
@@ -322,20 +322,20 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # GM project may be locked, must not appear
     assert_no_xml_tag(tag: 'target', attributes: { project: 'BaseDistro2.0' })
     assert_xml_tag(parent: { tag: 'action', attributes: { type: 'maintenance_release' } },
-                    tag: 'target', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'kgraft-incident-0.1' })
+                   tag: 'target', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'kgraft-incident-0.1' })
     # code stream gets the sources of the packages
     assert_xml_tag(parent: { tag: 'action', attributes: { type: 'maintenance_release' } },
-                    tag: 'source', attributes: { project: incident_project, package: 'kgraft-GA.BaseDistro2.0' })
+                   tag: 'source', attributes: { project: incident_project, package: 'kgraft-GA.BaseDistro2.0' })
     assert_xml_tag(parent: { tag: 'action', attributes: { type: 'maintenance_release' } },
-                    tag: 'target', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'kgraft-GA.1' })
+                   tag: 'target', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'kgraft-GA.1' })
     # update channel file
     assert_xml_tag(parent: { tag: 'action', attributes: { type: 'submit' } },
-                    tag: 'target', attributes: { project: 'Channel', package: 'BaseDistro2' })
+                   tag: 'target', attributes: { project: 'Channel', package: 'BaseDistro2' })
     # release to channels
     assert_xml_tag(parent: { tag: 'action', attributes: { type: 'maintenance_release' } },
-                    tag: 'source', attributes: { project: incident_project, package: 'patchinfo' })
+                   tag: 'source', attributes: { project: incident_project, package: 'patchinfo' })
     assert_xml_tag(parent: { tag: 'action', attributes: { type: 'maintenance_release' } },
-                    tag: 'target', attributes: { project: 'BaseDistro2Channel', package: 'patchinfo.1' })
+                   tag: 'target', attributes: { project: 'BaseDistro2Channel', package: 'patchinfo.1' })
     node = Xmlhash.parse(@response.body)
     assert node['id']
     reqid = node['id']

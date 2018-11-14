@@ -80,8 +80,8 @@ class SourceProjectMetaController < SourceController
   def remove_repositories!(project, request_data, params)
     remove_repositories = project.get_removed_repositories(request_data)
     opts = { no_write_to_backend: true,
-             force:               params[:force].present?,
-             recursive_remove:    params[:remove_linking_repositories].present? }
+             force: params[:force].present?,
+             recursive_remove: params[:remove_linking_repositories].present? }
     check_and_remove_repositories!(remove_repositories, opts)
   end
 

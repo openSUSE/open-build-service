@@ -6,7 +6,7 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
   it_behaves_like 'bootstrap user tab' do
     let(:package) do
       create(:package, name: 'group_test_package',
-        project_id: user_tab_user.home_project.id)
+                       project_id: user_tab_user.home_project.id)
     end
     let!(:maintainer_user_role) { create(:relationship, package: package, user: user_tab_user) }
     let(:project_path) { package_show_path(project: user_tab_user.home_project, package: package) }

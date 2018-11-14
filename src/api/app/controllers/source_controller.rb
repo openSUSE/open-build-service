@@ -551,7 +551,7 @@ class SourceController < ApplicationController
 
     if @project.is_a?(String) # remote project
       render_error status: 404, errorcode: 'remote_project',
-        message: 'The release from remote projects is currently not supported'
+                   message: 'The release from remote projects is currently not supported'
       return
     end
 
@@ -597,7 +597,7 @@ class SourceController < ApplicationController
 
     begin
       project = Project.get_by_name(params[:oproject])
-      commit = { login:   User.current.login,
+      commit = { login: User.current.login,
                  lowprio: 1,
                  comment: "Project move from #{params[:oproject]} to #{params[:project]}" }
       commit[:comment] = params[:comment] if params[:comment].present?
@@ -608,7 +608,7 @@ class SourceController < ApplicationController
       project.packages.each { |package| package.store(commit) }
     rescue
       render_error status: 400, errorcode: 'move_failed',
-        message: 'Move operation failed'
+                   message: 'Move operation failed'
       return
     end
 
@@ -855,7 +855,7 @@ class SourceController < ApplicationController
       # TODO: No need to read the whole file for knowing if it exists already
       Backend::Api::Sources::Package.file(params[:project], params[:package], "#{params[:package]}.spec")
       render_error status: 400, errorcode: 'spec_file_exists',
-        message: 'SPEC file already exists.'
+                   message: 'SPEC file already exists.'
       return
     rescue Backend::NotFoundError
       specfile_content = File.read("#{Rails.root}/files/specfiletemplate")
@@ -876,7 +876,7 @@ class SourceController < ApplicationController
       answer = Backend::Connection.get(request.path_info)
       unless answer
         render_error status: 400, errorcode: 'unknown_package',
-          message: "Unknown package '#{package_name}'"
+                     message: "Unknown package '#{package_name}'"
         return
       end
     end
@@ -885,7 +885,7 @@ class SourceController < ApplicationController
     if repo_name
       if @package && @package.repositories.find_by_name(repo_name).nil?
         render_error status: 400, errorcode: 'unknown_repository',
-          message: "Unknown repository '#{repo_name}'"
+                     message: "Unknown repository '#{repo_name}'"
         return
       end
       options[:repository] = repo_name

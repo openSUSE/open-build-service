@@ -24,14 +24,14 @@ class FullTextSearch
   end
 
   def search(options = {})
-    args = { ranker:        RANKER,
-             star:          STAR,
-             max_matches:   MAX_MATCHES,
-             order:         'adjusted_weight DESC',
+    args = { ranker: RANKER,
+             star: STAR,
+             max_matches: MAX_MATCHES,
+             order: 'adjusted_weight DESC',
              field_weights: FIELD_WEIGHTS,
-             page:          options[:page],
-             per_page:      options[:per_page] || PER_PAGE,
-             without:       { project_id: Relationship.forbidden_project_ids } }
+             page: options[:page],
+             per_page: options[:per_page] || PER_PAGE,
+             without: { project_id: Relationship.forbidden_project_ids } }
 
     args[:select] = '*, (weight() + '\
                     "#{LINKED_COUNT_WEIGHT} * linked_count + "\

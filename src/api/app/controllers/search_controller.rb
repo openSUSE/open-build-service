@@ -102,7 +102,7 @@ class SearchController < ApplicationController
 
     if owners.nil?
       render_error status: 400, errorcode: 'no_binary',
-                    message: "The search needs at least a 'binary' or 'user' parameter"
+                   message: "The search needs at least a 'binary' or 'user' parameter"
       return
     end
 

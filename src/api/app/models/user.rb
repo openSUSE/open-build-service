@@ -75,12 +75,12 @@ class User < ApplicationRecord
             uniqueness: { message: 'is the name of an already existing user' }
 
   validates :login,
-            format: { with:    %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
+            format: { with: %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
                       message: 'must not contain invalid characters' }
   validates :login,
             length: { in: 2..100, allow_nil: true,
-            too_long: 'must have less than 100 characters',
-            too_short: 'must have more than two characters' }
+                      too_long: 'must have less than 100 characters',
+                      too_short: 'must have more than two characters' }
 
   validates :state, inclusion: { in: STATES }
 
@@ -90,8 +90,8 @@ class User < ApplicationRecord
   # However, this is not *so* bad since users have to answer on their email
   # to confirm their registration.
   validates :email,
-            format: { with:        %r{\A([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+\z},
-                      message:     'must be a valid email address',
+            format: { with: %r{\A([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+\z},
+                      message: 'must be a valid email address',
                       allow_blank: true }
 
   # we disabled has_secure_password's validations. therefore we need to do manual validations
@@ -867,7 +867,7 @@ class User < ApplicationRecord
   # Hashes the given parameter by the selected hashing method. It uses the
   # "password_salt" property's value to make the hashing more secure.
   def hash_string(value)
-    crypt2index = { 'md5crypt'    => 1,
+    crypt2index = { 'md5crypt' => 1,
                     'sha256crypt' => 5 }
     if deprecated_password_hash_type == 'md5'
       Digest::MD5.hexdigest(value + deprecated_password_salt)

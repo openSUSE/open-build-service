@@ -1,42 +1,48 @@
-#!/bin/bash
+#!/usr/bin/perl
 
-export BOOTSTRAP_TEST_MODE=1
-export NON_INTERACTIVE=1
-export BASH_TAP_ROOT=$(dirname $0)
+use strict;
+use warnings;
+use Test::More;
 
-. $(dirname $0)/bash-tap-bootstrap
+our @services = ('obsapisetup.service');
 
-plan tests 2
+plan tests => 2 * scalar(@services);
 
-for i in $(dirname $0)/../setup-appliance.sh /usr/lib/obs/server/setup-appliance.sh;do
-	[[ -f $i && -z $SETUP_APPLIANCE ]] && SETUP_APPLIANCE=$i
-done
+my $TIMEOUT = 300;
 
-if [[ -z $SETUP_APPLIANCE ]];then
-	BAIL_OUT "Could not find setup appliance"
-fi
+for my $srv (@services) {
+  my $enabled = `systemctl is-enabled $srv 2>/dev/null`;
+  chomp($enabled);
+  is($enabled, 'enabled', "Checking $srv enabled");
 
-. $SETUP_APPLIANCE
+  my $success = 'timeout';
+  my $tmp     = $TIMEOUT;
 
-MAX_WAIT=300
+  my ($legacy, $trash) = split /\./, $srv, 2;
+  my $is_legacy = ( -f "/etc/init.d/$legacy") ? 1 : 0;
 
-tmpcount=$MAX_WAIT
+  while ($tmp > 0) {
+    $tmp--;
+    my $result;
+    if ($is_legacy) {
+      $result = `systemctl is-active $srv`;
+      chomp $result;
+      if ($result eq 'active') {
+        $success=$result;
+        last
+      }
+    } else {
+      $result = `systemctl status $srv|grep "(code=exited, status=0/SUCCESS)"`;
+      if ($result) {
+        $success = 'active';
+        last
+      }
+    }
+    print ".";
+    sleep 1;
+  }
 
-# Service enabled and started
-for srv in \
-obsapisetup
-do
-  STATE=` systemctl is-enabled $srv\.service 2>/dev/null`
-  is "$STATE" "enabled" "Checking $srv enabled"
-  ACTIVE=`systemctl is-active $srv\.service`
-  while [[ $ACTIVE != 'active' ]];do
-    tmpcount=$(( $tmpcount - 1 ))
-    ACTIVE=`systemctl is-active $srv\.service`
-    if [[ $tmpcount -le 0 ]];then
-      ACTIVE='timeout'
-      break
-    fi
-    sleep 1
-  done
-  is "$ACTIVE" "active" "Checking $srv status"
-done
+  is($success, 'active', "Checking if $srv startup succeed");
+}
+
+exit 0;

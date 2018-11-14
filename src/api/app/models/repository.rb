@@ -1,5 +1,6 @@
 class Repository < ApplicationRecord
-  serialize :required_checks, Array
+  include Status::Checkable
+
   belongs_to :project, foreign_key: :db_project_id, inverse_of: :repositories
 
   before_destroy :cleanup_before_destroy
@@ -16,28 +17,19 @@ class Repository < ApplicationRecord
   has_many :product_medium, dependent: :delete_all
   has_many :repository_architectures, -> { order('position') }, dependent: :destroy, inverse_of: :repository
   has_many :architectures, -> { order('position') }, through: :repository_architectures
-  has_many :status_reports, as: :checkable, class_name: 'Status::Report', dependent: :destroy do
-    def for_uuid(uuid)
-      where(status_reports: { uuid: uuid })
-    end
-
-    def latest
-      for_uuid(proxy_association.owner.build_id)
-    end
-  end
 
   scope :not_remote, -> { where(remote_project_name: '') }
   scope :remote, -> { where.not(remote_project_name: '') }
 
   validates :name, length: { in: 1..200 }
   # Keep in sync with src/backend/BSVerify.pm
-  validates :name, format: { with:    /\A[^_:\/\000-\037][^:\/\000-\037]*\Z/,
+  validates :name, format: { with: /\A[^_:\/\000-\037][^:\/\000-\037]*\Z/,
                              message: "must not start with '_' or contain any of these characters ':/'" }
 
   # Name has to be unique among local repositories and remote_repositories of the associated db_project.
   # Note that remote repositories have to be unique among their remote project (remote_project_name)
   # and the associated db_project.
-  validates :name, uniqueness: { scope:   [:db_project_id, :remote_project_name],
+  validates :name, uniqueness: { scope: [:db_project_id, :remote_project_name],
                                  message: '%{value} is already used by a repository of this project' }
 
   validates :db_project_id, presence: true

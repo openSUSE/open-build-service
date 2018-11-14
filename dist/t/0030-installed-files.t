@@ -6,11 +6,9 @@ export BASH_TAP_ROOT=$(dirname $0)
 #
 . $(dirname $0)/bash-tap-bootstrap
 #
-plan tests 7
+plan tests 5
 for i in \
     $DESTDIR/etc/logrotate.d/obs-server\
-    $DESTDIR/usr/lib/systemd/system/obssrcserver.service\
-    $DESTDIR/usr/lib/systemd/system/obsrepserver.service\
     $DESTDIR/usr/sbin/obs_admin\
     $DESTDIR/usr/sbin/obs_serverstatus
 do

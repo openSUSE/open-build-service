@@ -3,7 +3,7 @@ module Cloud
     class Configuration < ApplicationRecord
       # maximum length has to be 245 (2048 bit RSA keys cannot encrypt more than 245 characters)
       validates :application_id, presence: { message: 'ID can\'t be blank' },
-        length: { maximum: 245, too_long: 'ID is too long (maximum is 245 characters)' }, on: :update
+                                 length: { maximum: 245, too_long: 'ID is too long (maximum is 245 characters)' }, on: :update
       validates :application_key, presence: true, length: { maximum: 245 }, on: :update
 
       before_save :encrypt_credentials

@@ -1100,11 +1100,11 @@ class Package < ApplicationRecord
   end
 
   def branch_from(origin_project, origin_package, opts)
-    myparam = { cmd:       'branch',
+    myparam = { cmd: 'branch',
                 noservice: '1',
-                oproject:  origin_project,
-                opackage:  origin_package,
-                user:      User.current.login }
+                oproject: origin_project,
+                opackage: origin_package,
+                user: User.current.login }
     # merge additional key/values, avoid overwrite. _ is needed for rubocop
     myparam.merge!(opts) { |_key, v1, _v2| v1 }
     path = source_path

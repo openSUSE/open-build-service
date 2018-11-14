@@ -1,4 +1,6 @@
 class RepositoryArchitecture < ApplicationRecord
+  include Status::Checkable
+
   belongs_to :repository,   inverse_of: :repository_architectures
   belongs_to :architecture, inverse_of: :repository_architectures
 
@@ -6,6 +8,10 @@ class RepositoryArchitecture < ApplicationRecord
 
   validates :repository, :architecture, :position, presence: true
   validates :repository, uniqueness: { scope: :architecture }
+
+  def build_id
+    Backend::Api::Build::Repository.build_id(repository.project.name, repository.name, architecture.name)
+  end
 end
 
 # == Schema Information

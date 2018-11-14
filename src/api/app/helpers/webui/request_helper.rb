@@ -1,9 +1,9 @@
 module Webui::RequestHelper
   STATE_COLORS = {
-    'new'        => 'green',
-    'accepted'   => 'green',
-    'revoked'    => 'orange',
-    'declined'   => 'red',
+    'new' => 'green',
+    'accepted' => 'green',
+    'revoked' => 'orange',
+    'declined' => 'red',
     'superseded' => 'red'
   }.freeze
 

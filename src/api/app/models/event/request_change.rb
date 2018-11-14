@@ -1,11 +1,7 @@
 module Event
   class RequestChange < Request
+    self.message_bus_routing_key = 'request.change'
     self.description = 'Request XML was updated (admin only)'
-    after_create_commit :send_to_bus
-
-    def self.message_bus_routing_key
-      'request.change'
-    end
   end
 end
 

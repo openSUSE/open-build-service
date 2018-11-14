@@ -8,9 +8,9 @@ module ProjectStatus
       ret = []
       data.elements('jobhist') do |p|
         line = {
-          'name'      => p['package'],
-          'code'      => p['code'],
-          'versrel'   => p['versrel'],
+          'name' => p['package'],
+          'code' => p['code'],
+          'versrel' => p['versrel'],
           'verifymd5' => p['verifymd5']
         }
 

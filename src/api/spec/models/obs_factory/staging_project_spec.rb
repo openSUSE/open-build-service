@@ -196,7 +196,7 @@ RSpec.describe ObsFactory::StagingProject do
       it {
         expect(subject.broken_packages).to eq(
           [{ 'package' => 'firebird', 'project' => 'openSUSE:Factory:Staging:A', 'state' => 'failed',
-              'details' => nil, 'repository' => 'standard', 'arch' => 'x86_64' }]
+             'details' => nil, 'repository' => 'standard', 'arch' => 'x86_64' }]
         )
       }
     end
@@ -205,24 +205,24 @@ RSpec.describe ObsFactory::StagingProject do
       let(:status) { 'unpublished' }
       let(:broken_packages_result) do
         [
-          { 'package'    => 'kernel-obs-build',
-            'project'    => 'openSUSE:Factory:Staging:A',
-            'state'      => 'unresolvable',
-            'details'    => 'nothing provides kernel-pae-srchash = e33cb3e6860eb4d9ca8fa1a80d059a2f1caca8db',
+          { 'package' => 'kernel-obs-build',
+            'project' => 'openSUSE:Factory:Staging:A',
+            'state' => 'unresolvable',
+            'details' => 'nothing provides kernel-pae-srchash = e33cb3e6860eb4d9ca8fa1a80d059a2f1caca8db',
             'repository' => 'standard',
-            'arch'       => 'i586' },
-          { 'package'    => 'firebird',
-            'project'    => 'openSUSE:Factory:Staging:A',
-            'state'      => 'failed',
-            'details'    => nil,
+            'arch' => 'i586' },
+          { 'package' => 'firebird',
+            'project' => 'openSUSE:Factory:Staging:A',
+            'state' => 'failed',
+            'details' => nil,
             'repository' => 'standard',
-            'arch'       => 'x86_64' },
-          { 'package'    => 'kmail',
-            'project'    => 'openSUSE:Factory:Staging:A',
-            'state'      => 'unresolvable',
-            'details'    => 'nothing provides libavcodec.so.57()(64bit) needed by libqt5-qtwebengine',
+            'arch' => 'x86_64' },
+          { 'package' => 'kmail',
+            'project' => 'openSUSE:Factory:Staging:A',
+            'state' => 'unresolvable',
+            'details' => 'nothing provides libavcodec.so.57()(64bit) needed by libqt5-qtwebengine',
             'repository' => 'standard',
-            'arch'       => 'x86_64' }
+            'arch' => 'x86_64' }
         ]
       end
 
@@ -321,23 +321,23 @@ RSpec.describe ObsFactory::StagingProject do
       { 'requests' =>
                               [
                                 {
-                                  'author'  => 'iznogood',
-                                  'id'      => 614_459,
+                                  'author' => 'iznogood',
+                                  'id' => 614_459,
                                   'package' => 'latexila',
-                                  'type'    => 'delete'
+                                  'type' => 'delete'
                                 },
                                 {
-                                  'author'  => 'dirkmueller',
-                                  'id'      => 614_471,
+                                  'author' => 'dirkmueller',
+                                  'id' => 614_471,
                                   'package' => 'iprutils',
-                                  'type'    => 'submit'
+                                  'type' => 'submit'
                                 }
                               ],
         'requests_comment' => 13_492,
-        'splitter_info'    => {
+        'splitter_info' => {
           'activated' => '2018-06-06 05:33:43.433155',
-          'group'     => 'all',
-          'strategy'  => { 'name' => 'none' }
+          'group' => 'all',
+          'strategy' => { 'name' => 'none' }
         } }
     end
 

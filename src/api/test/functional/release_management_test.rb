@@ -177,26 +177,26 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     # our source project is not building
     get '/build/home:Iggy/_result'
     assert_xml_tag parent: {
-      tag:        'result',
-      attributes: { project:    'home:Iggy',
+      tag: 'result',
+      attributes: { project: 'home:Iggy',
                     repository: '10.2',
-                    arch:       'i586',
-                    code:       'published',
-                    state:      'published' }
+                    arch: 'i586',
+                    code: 'published',
+                    state: 'published' }
     },
-      tag: 'status',
-      attributes: { package: 'TestPack',
-                    code:    'succeeded' }
+                   tag: 'status',
+                   attributes: { package: 'TestPack',
+                                 code: 'succeeded' }
     assert_xml_tag parent: {
-      tag:        'result',
-      attributes: { project:    'home:Iggy',
+      tag: 'result',
+      attributes: { project: 'home:Iggy',
                     repository: '10.2',
-                    arch:       'x86_64',
-                    code:       'published',
-                    state:      'published' }
+                    arch: 'x86_64',
+                    code: 'published',
+                    state: 'published' }
     },
-      tag: 'status', attributes: { package: 'TestPack',
-                                   code:    'succeeded' }
+                   tag: 'status', attributes: { package: 'TestPack',
+                                                code: 'succeeded' }
 
     # copy project with binaries
     post '/source/IggyHomeCopy?cmd=copy&oproject=home:Iggy&noservice=1&withbinaries=1&nodelay=1'
@@ -212,40 +212,40 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     assert_xml_tag parent: { tag: 'project', attributes: { name: 'IggyHomeCopy' } },
-      tag: 'repository', attributes: { name: '10.2' }
+                   tag: 'repository', attributes: { name: '10.2' }
 
     assert_xml_tag parent: { tag: 'repository', attributes: { name: '10.2' } },
-      tag: 'path', attributes: { project: 'BaseDistro', repository: 'BaseDistro_repo' }
+                   tag: 'path', attributes: { project: 'BaseDistro', repository: 'BaseDistro_repo' }
 
     assert_xml_tag parent: { tag: 'repository', attributes: { name: '10.2' } },
-      tag: 'arch', content: 'i586'
+                   tag: 'arch', content: 'i586'
 
     assert_xml_tag parent: { tag: 'repository', attributes: { name: '10.2' } },
-      tag: 'arch', content: 'x86_64'
+                   tag: 'arch', content: 'x86_64'
 
     # check build results are copied correctly
     get '/build/IggyHomeCopy/_result'
     assert_xml_tag parent: {
-      tag:        'result',
-      attributes: { project:    'IggyHomeCopy',
+      tag: 'result',
+      attributes: { project: 'IggyHomeCopy',
                     repository: '10.2',
-                    arch:       'i586',
-                    code:       'published',
-                    state:      'published' }
+                    arch: 'i586',
+                    code: 'published',
+                    state: 'published' }
     },
-      tag: 'status',
-      attributes: { package: 'TestPack', code: 'succeeded' }
+                   tag: 'status',
+                   attributes: { package: 'TestPack', code: 'succeeded' }
 
     assert_xml_tag parent: {
-      tag:        'result',
-      attributes: { project:    'IggyHomeCopy',
+      tag: 'result',
+      attributes: { project: 'IggyHomeCopy',
                     repository: '10.2',
-                    arch:       'x86_64',
-                    code:       'published',
-                    state:      'published' }
+                    arch: 'x86_64',
+                    code: 'published',
+                    state: 'published' }
     },
-      tag: 'status',
-      attributes: { package: 'TestPack', code: 'succeeded' }
+                   tag: 'status',
+                   attributes: { package: 'TestPack', code: 'succeeded' }
 
     # check that the same binaries are copied
     get '/build/home:Iggy/10.2/i586/TestPack'
