@@ -32,6 +32,38 @@ RSpec.describe Staging::StagingProject, vcr: true do
     status_report.update(uuid: '1234')
   end
 
+  describe '#missing_reviews' do
+    let(:other_user) { create(:confirmed_user) }
+    let(:other_package) { create(:package) }
+    let(:group) { create(:group) }
+    let!(:review_1) { create(:review, by_user:    other_user,            bs_request: submit_request) }
+    let!(:review_2) { create(:review, by_group:   group,                 bs_request: submit_request) }
+    let!(:review_3) { create(:review, by_project: other_package.project, bs_request: submit_request) }
+    let!(:review_4) { create(:review, by_package: other_package,         by_project: other_package.project, bs_request: submit_request) }
+
+    subject { staging_project.missing_reviews }
+
+    it 'contains all open reviews of staged requests' do
+      # rubocop:disable Style/BracesAroundHashParameters
+      expect(subject).to contain_exactly(
+        { id: review_1.id, request: submit_request.number, state: 'new', package: target_package.name, by: other_user.login },
+        { id: review_2.id, request: submit_request.number, state: 'new', package: target_package.name, by: group.title },
+        { id: review_3.id, request: submit_request.number, state: 'new', package: target_package.name, by: other_package.project.name },
+        { id: review_4.id, request: submit_request.number, state: 'new', package: target_package.name, by: other_package.project.name },
+        { id: review_4.id, request: submit_request.number, state: 'new', package: target_package.name, by: other_package.name }
+      )
+      # rubocop:enable Style/BracesAroundHashParameters
+    end
+
+    context 'when there is an accepted review' do
+      before do
+        review_2.update(state: 'accepted')
+      end
+
+      it { expect(subject.map { |review| review[:id] }).not_to include(review_2.id) }
+    end
+  end
+
   describe '#staging_identifier' do
     before do
       staging_project.update(name: 'openSUSE_41:Staging:myStagingProject')
