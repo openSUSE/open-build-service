@@ -2,7 +2,7 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
   layout 'webui2/webui'
 
   before_action :require_login, except: [:show]
-  before_action :set_bootstrap_views
+  before_action :set_webui2_views
   before_action :set_project, only: [:new, :create]
   before_action :set_staging_workflow, except: [:new, :create]
   after_action :verify_authorized, except: [:show, :new]
@@ -83,10 +83,6 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
   end
 
   private
-
-  def set_bootstrap_views
-    prepend_view_path('app/views/webui2')
-  end
 
   def set_staging_workflow
     @staging_workflow = ::Staging::Workflow.find_by(id: params[:id])

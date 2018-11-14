@@ -5,7 +5,8 @@ module Webui
 
       before_action :require_login
       before_action :set_staging_workflow
-      after_action :verify_authorized
+      after_action :verify_authorized, except: :show
+      before_action :set_webui2_views
 
       def create
         authorize @staging_workflow
@@ -20,6 +21,11 @@ module Webui
         end
 
         redirect_to edit_staging_workflow_path(@staging_workflow)
+      end
+
+      def show
+        @staging_project = @staging_workflow.staging_projects.find_by(name: params[:project_name])
+        @project = @staging_workflow.project
       end
 
       def destroy

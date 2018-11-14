@@ -100,6 +100,18 @@ module Staging
       relationships.find_by(group: managers, role: role).try(:destroy!)
     end
 
+    def current_status_reports
+      repositories.map(&:current_status_report) + repository_architectures.map(&:current_status_report)
+    end
+
+    def all_checks
+      current_status_reports.map(&:checks).flatten
+    end
+
+    def all_missing_checks
+      current_status_reports.map(&:missing_checks).flatten
+    end
+
     private
 
     def cache_problems

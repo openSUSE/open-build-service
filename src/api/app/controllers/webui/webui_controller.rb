@@ -303,7 +303,9 @@ class Webui::WebuiController < ActionController::Base
   def switch_to_webui2
     if switch_to_webui2?
       @switch_to_webui2 = true
-      prepend_view_path('app/views/webui2')
+
+      set_webui2_views
+
       prefixed_action_name = "webui2_#{action_name}"
       send(prefixed_action_name) if action_methods.include?(prefixed_action_name)
       return true
@@ -314,5 +316,10 @@ class Webui::WebuiController < ActionController::Base
   def set_pending_announcement
     return if Announcement.last.in?(User.current.announcements)
     @pending_announcement = Announcement.last
+  end
+
+  # NOTE: remove when bootstrap migration is done (related to switch_to_webui2)
+  def set_webui2_views
+    prepend_view_path('app/views/webui2')
   end
 end
