@@ -603,10 +603,4 @@ RSpec.describe Project, vcr: true do
       'sourceaccess' => [['enable', {}]], 'access' => [['enable', {}]])
     }
   end
-
-  describe '#staging_identifier' do
-    let(:staging_project) { create(:project, name: 'openSUSE_41:Staging:myStagingProject') }
-
-    it { expect(staging_project.staging_identifier).to eq('myStagingProject') }
-  end
 end

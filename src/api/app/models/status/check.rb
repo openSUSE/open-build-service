@@ -23,6 +23,8 @@ class Status::Check < ApplicationRecord
   #### Callbacks macros: before_save, after_save, etc.
 
   #### Scopes (first the default_scope macro if is used)
+  scope :pending, -> { where(state: 'pending') }
+  scope :failed, -> { where(state: ['error', 'failure']) }
 
   #### Validations macros
 
