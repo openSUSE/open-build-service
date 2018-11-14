@@ -10,8 +10,7 @@
       %dt Empty projects:
       %dd= render 'empty_projects_list', projects: empty_projects
 
-      %dt Backlog:
-      -# TODO: add link to see the full list of the backlog of requests
+      %dt= link_to('Backlog:', group_show_path(staging_workflow.managers_group))
       %dd= render 'requests_list', requests: unassigned_requests, more_requests: more_unassigned_requests
 
       %dt Ready:
