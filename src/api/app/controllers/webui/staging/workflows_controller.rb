@@ -45,6 +45,7 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     authorize @staging_workflow
 
     @project = @staging_workflow.project
+    @staging_projects = @staging_workflow.staging_projects.includes(:staged_requests)
   end
 
   def destroy
