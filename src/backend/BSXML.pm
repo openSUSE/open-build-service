@@ -1840,6 +1840,7 @@ our $multibuild = [
 our $pubkeyinfo = [
     'pubkey' =>
 	'keyid',
+	'userid',
 	'algo',
 	'keysize',
 	'expires',

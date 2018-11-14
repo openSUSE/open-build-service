@@ -125,17 +125,20 @@ sub pubkeyinfo {
   my $keysize;
   my $fingerprint;
   my $expire;
+  my $userid;
   eval {
     my $pku = BSPGP::unarmor($pk);
     eval { $algo = BSPGP::pk2algo($pku) };
     eval { $keysize = BSPGP::pk2keysize($pku) };
     eval { $fingerprint = BSPGP::pk2fingerprint($pku) };
     eval { $expire = BSPGP::pk2expire($pku) };
+    eval { $userid = BSPGP::pk2userid($pku) };
   };
   warn($@) if $@;
   my $pubkey = {};
   $pubkey->{'algo'} = $algo if $algo;
   $pubkey->{'keysize'} = $keysize if $keysize;
+  $pubkey->{'userid'} = $userid if defined $userid;
   if ($fingerprint) {
     $pubkey->{'keyid'} = substr($fingerprint, -8, 8);
     $fingerprint =~ s/(....)/$1 /g;
