@@ -12,6 +12,7 @@ module Webui
 
         staging_project_name = "#{@staging_workflow.project}:Staging:#{params[:staging_project_name]}"
         staging_project = @staging_workflow.staging_projects.build(name: staging_project_name)
+        staging_project.assign_managers_group(@staging_workflow.managers_group)
 
         if staging_project.valid? && staging_project.store
           flash[:success] = "Staging project with name = \"#{staging_project}\" was successfully created"

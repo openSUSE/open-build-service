@@ -6,7 +6,7 @@ class Staging::Workflow < ApplicationRecord
   include CanRenderModel
 
   belongs_to :project, inverse_of: :staging
-  belongs_to :managers, class_name: 'Group'
+  belongs_to :managers_group, class_name: 'Group'
 
   has_many :staging_projects, class_name: 'Staging::StagingProject', inverse_of: :staging_workflow, dependent: :nullify,
                               foreign_key: 'staging_workflow_id' do
@@ -27,7 +27,7 @@ class Staging::Workflow < ApplicationRecord
 
   has_many :staged_requests, class_name: 'BsRequest', through: :staging_projects
 
-  validates :managers, presence: true
+  validates :managers_group, presence: true
 
   after_create :create_staging_projects
 
@@ -57,6 +57,7 @@ class Staging::Workflow < ApplicationRecord
       staging_project = parent.becomes(Staging::StagingProject)
       next if staging_project.staging_workflow # if it belongs to another staging workflow skip it
       staging_project.staging_workflow = self
+      staging_project.assign_managers_group(managers_group)
       staging_project.store
     end
   end

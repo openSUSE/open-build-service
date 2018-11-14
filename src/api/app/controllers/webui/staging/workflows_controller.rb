@@ -72,13 +72,25 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
   def update
     authorize @staging_workflow
 
-    @staging_workflow.managers = Group.find_by(title: params[:managers_id])
+    begin
+      Staging::Workflow.transaction do
+        old_managers_group = @staging_workflow.managers_group
+        new_managers_group = Group.find_by(title: params[:managers_title])
 
-    if @staging_workflow.save
-      flash[:success] = 'Managers group for Staging Workflow was successfully assigned'
-    else
-      flash[:error] = "Sorry the group couldn't be assigned to this Staging Workflow"
+        @staging_workflow.staging_projects.each do |staging_project|
+          staging_project.unassign_managers_group(old_managers_group)
+          staging_project.assign_managers_group(new_managers_group)
+          staging_project.store
+        end
+
+        @staging_workflow.managers_group = new_managers_group
+        @staging_workflow.save!
+      end
+      flash[:success] = 'Managers group if staging was successfully assigned'
+    rescue
+      flash[:error] = "Sorry, something unexpected happended and the group couldn't be assigned to this staging"
     end
+
     redirect_to edit_staging_workflow_path(@staging_workflow)
   end
 
