@@ -36,7 +36,7 @@ class Staging::Workflow < ApplicationRecord
   before_update :update_staging_projects_managers_group
 
   def unassigned_requests
-    target_of_bs_requests.stageable.where.not(id: excluded_requests | staged_requests)
+    target_of_bs_requests.stageable.where.not(id: excluded_requests)
   end
 
   def ready_requests
