@@ -110,12 +110,12 @@ module Staging
           code = status.get('code')
 
           if code.in?(['broken', 'failed']) || (code == 'unresolvable' && !building)
-            @broken_packages << { package:    status['package'],
-                                  project:    name,
-                                  state:      code,
-                                  details:    status['details'],
+            @broken_packages << { package: status['package'],
+                                  project: name,
+                                  state: code,
+                                  details: status['details'],
                                   repository: result['repository'],
-                                  arch:       result['arch'] }
+                                  arch: result['arch'] }
           end
         end
 

@@ -5,7 +5,7 @@ class Staging::Workflow < ApplicationRecord
 
   belongs_to :project, inverse_of: :staging
   has_many :staging_projects, class_name: 'Staging::StagingProject', inverse_of: :staging_workflow, dependent: :nullify,
-    foreign_key: 'staging_workflow_id' do
+                              foreign_key: 'staging_workflow_id' do
     def without_staged_requests
       left_outer_joins(:staged_requests).where(bs_requests: { id: nil })
     end
