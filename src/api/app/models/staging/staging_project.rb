@@ -35,9 +35,12 @@ module Staging
       @missing_reviews = []
       attribs = [:by_group, :by_user, :by_project, :by_package]
 
-      (requests_to_review + staged_requests).uniq.each do |request|
-        request.reviews.each do |review|
-          next if review.state == :accepted || review.by_project == name
+      staged_requests.includes(:reviews).find_each do |request|
+        request.reviews.where.not(state: :accepted).find_each do |review|
+          # We skip reviews for the staging project since these reviews are used
+          # by the openSUSE release tools _after_ the overall_state switched to
+          # 'accepted'.
+          next if review.by_project == name
           # FIXME: this loop (and the inner if) would not be needed
           # if every review only has one valid by_xxx.
           # I'm keeping it to mimic the python implementation.
