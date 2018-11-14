@@ -1,0 +1,798 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 09:43:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:tom" managers="group_3">
+          <staging_project name="home:tom:Staging:A"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3">
+          <srcmd5>f0940018fa04fe1d6d2efbf34b7820f9</srcmd5>
+          <time>1542879832</time>
+          <user>_nobody_</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 09:43:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:A/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:A">
+          <title/>
+          <description/>
+          <group groupid="group_3" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '143'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:A">
+          <title></title>
+          <description></description>
+          <group groupid="group_3" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 09:43:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:tom" managers="group_3">
+          <staging_project name="home:tom:Staging:A"/>
+          <staging_project name="home:tom:Staging:B"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4">
+          <srcmd5>bec7e8d607d10bdf9618708b08c89d4c</srcmd5>
+          <time>1542879833</time>
+          <user>_nobody_</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 09:43:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:B/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:B">
+          <title/>
+          <description/>
+          <group groupid="group_3" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '143'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:B">
+          <title></title>
+          <description></description>
+          <group groupid="group_3" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 09:43:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:A/package_3/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_3" project="home:tom:Staging:A">
+          <title>In Dubious Battle</title>
+          <description>Qui et consequuntur vitae.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_3" project="home:tom:Staging:A">
+          <title>In Dubious Battle</title>
+          <description>Qui et consequuntur vitae.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 09:43:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:A/package_3/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_3" project="home:tom:Staging:A">
+          <title>In Dubious Battle</title>
+          <description>Qui et consequuntur vitae.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_3" project="home:tom:Staging:A">
+          <title>In Dubious Battle</title>
+          <description>Qui et consequuntur vitae.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 09:43:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:A/package_3/_config
+    body:
+      encoding: UTF-8
+      string: Illum facilis incidunt. Illum eligendi quibusdam. Recusandae fugit nobis.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="15" vrev="15">
+          <srcmd5>1f3f60a3c1340c0af8a42730dfebb088</srcmd5>
+          <version>unknown</version>
+          <time>1542879833</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 09:43:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:A/package_3/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Veritatis voluptates similique. Porro ea vel. Dicta voluptatem molestiae.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="16" vrev="16">
+          <srcmd5>c8322ac73cd6227e918fcbccaa7d31cc</srcmd5>
+          <version>unknown</version>
+          <time>1542879833</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 09:43:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>The Parliament of Man</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '112'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>The Parliament of Man</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 09:43:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>To Sail Beyond the Sunset</title>
+          <description>Eius assumenda est deserunt.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '169'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>To Sail Beyond the Sunset</title>
+          <description>Eius assumenda est deserunt.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 09:43:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>To Sail Beyond the Sunset</title>
+          <description>Eius assumenda est deserunt.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '169'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>To Sail Beyond the Sunset</title>
+          <description>Eius assumenda est deserunt.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 09:43:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>What's Become of Waring</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '114'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>What's Become of Waring</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 09:43:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>Stranger in a Strange Land</title>
+          <description>Blanditiis ipsam rerum atque.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '171'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>Stranger in a Strange Land</title>
+          <description>Blanditiis ipsam rerum atque.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 09:43:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>Stranger in a Strange Land</title>
+          <description>Blanditiis ipsam rerum atque.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '171'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>Stranger in a Strange Land</title>
+          <description>Blanditiis ipsam rerum atque.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 09:43:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_3/_meta?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_3">
+          <title/>
+          <description/>
+          <person userid="user_3" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_3">
+          <title></title>
+          <description></description>
+          <person userid="user_3" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 09:43:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_4/_meta?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_4">
+          <title/>
+          <description/>
+          <person userid="user_4" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_4">
+          <title></title>
+          <description></description>
+          <person userid="user_4" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 09:43:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_2/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2">
+          <title>The Widening Gyre</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2">
+          <title>The Widening Gyre</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 09:43:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_2/package_4/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="project_2">
+          <title>The Sun Also Rises</title>
+          <description>Dolorem non qui earum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '146'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="project_2">
+          <title>The Sun Also Rises</title>
+          <description>Dolorem non qui earum.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 09:43:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_2/package_4/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="project_2">
+          <title>The Sun Also Rises</title>
+          <description>Dolorem non qui earum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '146'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="project_2">
+          <title>The Sun Also Rises</title>
+          <description>Dolorem non qui earum.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 09:43:53 GMT
+recorded_with: VCR 4.0.0

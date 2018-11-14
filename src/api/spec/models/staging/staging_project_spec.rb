@@ -11,9 +11,14 @@ RSpec.describe Staging::StagingProject, vcr: true do
   let(:staging_project) { staging_workflow.staging_projects.first }
 
   let!(:repository) { create(:repository, architectures: ['x86_64'], project: staging_project, name: 'staging_repository') }
+  let!(:repository_arch) { repository.repository_architectures.first }
+  let!(:architecture) { repository_arch.architecture }
   let!(:package) { create(:package_with_file, project: staging_project) }
 
-  let!(:status_report) { create(:status_report, checkable: repository) }
+  let!(:published_report) { create(:status_report, checkable: repository) }
+  let!(:build_report) { create(:status_report, checkable: repository_arch) }
+  let!(:repository_uuid) { published_report.uuid }
+  let!(:build_uuid) { build_report.uuid }
 
   let(:target_project) { create(:project, name: 'target_project') }
   let(:source_project) { create(:project, name: 'source_project') }
@@ -32,8 +37,8 @@ RSpec.describe Staging::StagingProject, vcr: true do
   let!(:submit_request) { create(:bs_request_with_submit_action, request_attributes.merge(staging_project: staging_project)) }
 
   before do
-    allow(Backend::Api::Published).to receive(:build_id).with(staging_project.name, repository.name).and_return('1234')
-    status_report.update(uuid: '1234')
+    allow(Backend::Api::Published).to receive(:build_id).with(staging_project.name, repository.name).and_return(repository_uuid)
+    allow(Backend::Api::Build::Repository).to receive(:build_id).with(staging_project.name, repository.name, architecture.name).and_return(build_uuid)
   end
 
   describe '#missing_reviews' do
@@ -96,7 +101,7 @@ RSpec.describe Staging::StagingProject, vcr: true do
       it { expect(staging_project.overall_state).to eq(:unacceptable) }
     end
 
-    context 'when there are missing checks' do
+    context 'when there are missing checks on published repo' do
       before do
         repository.update(required_checks: ['check_1'])
       end
@@ -104,16 +109,50 @@ RSpec.describe Staging::StagingProject, vcr: true do
       it { expect(staging_project.overall_state).to eq(:testing) }
     end
 
-    context 'when there are pending checks' do
-      let!(:check) { create(:check, name: 'check_1', status_report: status_report, state: 'pending') }
+    context 'when there are missing checks on build repo' do
+      before do
+        repository_arch.update(required_checks: ['check_1'])
+      end
 
       it { expect(staging_project.overall_state).to eq(:testing) }
     end
 
-    context 'when there are failed checks' do
-      let!(:check) { create(:check, name: 'check_1', status_report: status_report, state: 'failure') }
+    context 'when there are pending checks' do
+      let!(:check) { create(:check, name: 'check_1', status_report: published_report, state: 'pending') }
+
+      it { expect(staging_project.overall_state).to eq(:testing) }
+    end
+
+    context 'when there are failed checks on published repo' do
+      let!(:check) { create(:check, name: 'check_1', status_report: published_report, state: 'failure') }
 
       it { expect(staging_project.overall_state).to eq(:failed) }
+    end
+
+    context 'when there are failed checks on build repo' do
+      let!(:check) { create(:check, name: 'check_1', status_report: build_report, state: 'failure') }
+
+      it { expect(staging_project.overall_state).to eq(:failed) }
+      it { expect(staging_project.current_checks).to contain_exactly(check) }
+    end
+
+    context 'when there are succeeded checks' do
+      let!(:check) { create(:check, name: 'check_1', status_report: published_report, state: 'success') }
+
+      it { expect(staging_project.overall_state).to eq(:acceptable) }
+    end
+
+    context 'when we only have outdated checks' do
+      let!(:check) { create(:check, name: 'check_1', status_report: published_report, state: 'failure') }
+
+      before do
+        repository.update(required_checks: ['check_1'])
+        published_report.update(uuid: 'doesnotmatch')
+      end
+
+      it { expect(staging_project.overall_state).to eq(:testing) }
+      it { expect(staging_project.current_missing_checks).to contain_exactly('check_1') }
+      it { expect(staging_project.current_checks).to be_empty }
     end
   end
 
