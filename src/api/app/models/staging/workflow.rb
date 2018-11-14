@@ -41,7 +41,8 @@ class Staging::Workflow < ApplicationRecord
 
   def create_staging_projects
     ['A', 'B'].each do |letter|
-      staging_project = Staging::StagingProject.find_or_initialize_by(name: "#{project.name}:Staging:#{letter}")
+      parent = Project.find_or_initialize_by(name: "#{project.name}:Staging:#{letter}")
+      staging_project = parent.becomes(Staging::StagingProject)
       next if staging_project.staging_workflow # if it belongs to another staging workflow skip it
       staging_project.staging_workflow = self
       staging_project.store
