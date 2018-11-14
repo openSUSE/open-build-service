@@ -523,6 +523,14 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response 404
     assert_match(/no source service defined/, @response.body)
 
+    # with right token in gitlab style
+    post '/trigger/runservice',
+         headers: { 'X-Gitlab-Event' => 'Push Hook',
+                    'X-Gitlab-Token' => token }
+    # success, but no source service configured :)
+    assert_response 404
+    assert_match(/no source service defined/, @response.body)
+
     # with global token
     post '/trigger/runservice?project=home:tom&package=service', headers: { 'Authorization' => "Token #{alltoken}" }
     # success, but no source service configured :)
