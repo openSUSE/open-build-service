@@ -35,7 +35,7 @@
             %a{ data: { toggle: 'modal', target: '#delete-staging-workflow' }, href: '#' }
               %i.fas.fa-times-circle.text-danger
               Delete
-            = render(partial: 'webui2/webui/staging_workflows/delete', locals: { project: @project })
+            = render(partial: 'webui2/webui/staging/workflows/delete', locals: { project: @project })
   .col-xl-2
     = render partial: 'legend'
     = render partial: 'infos', locals: { staging_workflow: @staging_workflow, empty_projects: @empty_projects,
