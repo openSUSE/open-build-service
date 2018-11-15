@@ -18,3 +18,11 @@ ul .table-list-group-item {
   padding: 0.5rem 0.75rem;
   background-color: transparent;
 }
+
+.collapse-link[aria-expanded="false"] .less{
+  display: none;
+}
+
+.collapse-link[aria-expanded="true"] .more{
+  display: none;
+}

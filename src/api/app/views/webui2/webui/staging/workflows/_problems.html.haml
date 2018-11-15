@@ -1,22 +1,22 @@
+:ruby
+  max_problems = 5
+  project_class = project.name.tr(':', '_')
+  item_project_class = 'hidden-item-' + project_class
+
 - if project.problems.empty?
   .text-center
     %i.fas.fa-check-circle.fa-2x.text-success
 - else
   %ul.list-group.list-group-flush
-    - project.problems.each do |name, states|
-      %li.list-group-item.table-list-group-item
-        = link_to("#{name}:", package_show_path(package: name, project: project))
-        - states.each do |state, values|
-          = state
-          = surround '(', ')' do
-            - values.each do |value|
-              - coma = ', ' unless values.last == value
-              = succeed coma do
-                - if state == 'unresolvable'
-                  = value[:arch]
-                - else
-                  = link_to(value[:arch], package_live_build_log_path(package: name,
-                                                                      repository: value[:repository],
-                                                                      project: project,
-                                                                      arch: value[:arch]))
+    = render partial: 'problems_item', locals: { project: project, index: 1..(max_problems - 1) }
 
+    %span.collapse{ 'id': item_project_class }
+      = render partial: 'problems_item', locals: { project: project, index: max_problems..-1 }
+
+    - length = project.problems.length
+    - if project.problems.length > max_problems
+      - number = length - max_problems
+      %li.list-group-item.table-list-group-item
+        %a.collapse-link{ 'data-toggle': 'collapse', href: "##{item_project_class}", 'aria-expanded': 'false' }
+          %span.more See #{number} more
+          %span.less See #{number} less
