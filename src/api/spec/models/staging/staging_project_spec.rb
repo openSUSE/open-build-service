@@ -49,7 +49,6 @@ RSpec.describe Staging::StagingProject, vcr: true do
         { id: review_1.id, request: submit_request.number, state: 'new', package: target_package.name, by: other_user.login },
         { id: review_2.id, request: submit_request.number, state: 'new', package: target_package.name, by: group.title },
         { id: review_3.id, request: submit_request.number, state: 'new', package: target_package.name, by: other_package.project.name },
-        { id: review_4.id, request: submit_request.number, state: 'new', package: target_package.name, by: other_package.project.name },
         { id: review_4.id, request: submit_request.number, state: 'new', package: target_package.name, by: other_package.name }
       )
       # rubocop:enable Style/BracesAroundHashParameters

@@ -33,7 +33,7 @@ module Staging
       return @missing_reviews if @missing_reviews
 
       @missing_reviews = []
-      attribs = [:by_group, :by_user, :by_project, :by_package]
+      attribs = [:by_group, :by_user, :by_package, :by_project]
 
       staged_requests.includes(:reviews).find_each do |request|
         request.reviews.where.not(state: :accepted).find_each do |review|
@@ -48,9 +48,11 @@ module Staging
           # who = review.by_group || review.by_user || review.by_project || review.by_package
           attribs.each do |att|
             who = review.send(att)
-            if who
-              @missing_reviews << { id: review.id, request: request.number, state: review.state.to_s, package: request.first_target_package, by: who }
-            end
+            next unless who
+
+            @missing_reviews << { id: review.id, request: request.number, state: review.state.to_s, package: request.first_target_package, by: who }
+            # No need to duplicate reviews
+            break
           end
         end
       end
