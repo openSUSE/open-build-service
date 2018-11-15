@@ -10,7 +10,8 @@ class RepositoryArchitecture < ApplicationRecord
   validates :repository, uniqueness: { scope: :architecture }
 
   def build_id
-    Backend::Api::Build::Repository.build_id(repository.project.name, repository.name, architecture.name)
+    #Backend::Api::Build::Repository.build_id(repository.project.name, repository.name, architecture.name)
+    ''
   end
 end
 
