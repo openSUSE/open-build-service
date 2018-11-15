@@ -35,7 +35,7 @@ RSpec.describe Review do
       [:by_group, :by_project, :by_package].each do |reviewable|
         review = Review.create(:by_user => user.login, reviewable => 'not-existent-reviewable')
         expect(review.errors.messages[:base]).
-          to eq(['it is not allowed to have more than one reviewer entity: by_user, by_group, by_project, by_package'])
+          to eq(['it is not allowed to have more than one reviewer entity: by_user, by_group, by_project'])
       end
     end
 
@@ -43,7 +43,7 @@ RSpec.describe Review do
       [:by_project, :by_package].each do |reviewable|
         review = Review.create(:by_group => group.title, reviewable => 'not-existent-reviewable')
         expect(review.errors.messages[:base]).
-          to eq(['it is not allowed to have more than one reviewer entity: by_user, by_group, by_project, by_package'])
+          to eq(['it is not allowed to have more than one reviewer entity: by_user, by_group, by_project'])
       end
     end
   end
@@ -89,6 +89,18 @@ RSpec.describe Review do
         expect(review.project).to eq(project)
         expect(review.by_project).to eq(project.name)
       end
+
+      it 'sets package and project associations when by_package and by_project object exists. remove package. Review should be invalid' do
+        User.session = user
+        review = create(:review, by_project: project.name, by_package: package.name)
+        expect(review.package).to eq(package)
+        expect(review.by_package).to eq(package.name)
+        expect(review.project).to eq(project)
+        expect(review.by_project).to eq(project.name)
+        package.destroy
+        expect(review).to be_valid
+        expect(review.errors.messages[:package]).not_to include('can\'t be blank')
+      end
     end
 
     context 'with invalid attributes' do
@@ -128,7 +140,8 @@ RSpec.describe Review do
       it 'does not set package association when by_project parameter is missing' do
         review = Review.new(by_package: package.name)
         expect(review.package).to eq(nil)
-        expect(review.valid?).to eq(false)
+        expect(review).not_to be_valid
+        expect(review.errors.messages[:package]).to include('can\'t be blank')
       end
     end
   end
