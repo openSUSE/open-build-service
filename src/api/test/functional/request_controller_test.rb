@@ -787,7 +787,16 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   def test_create_request_approve_and_review
     login_Iggy
 
-    req = load_backend_file('request/works')
+    req = <<~XML_REQUEST
+      <request>
+        <action type="submit">
+          <source project="home:Iggy" package="TestPack" rev="1"/>
+          <target project="home:fred" package="foopkg"/>
+        </action>
+        <review by_group="test_group"/>
+        <review by_user="adrian"/>
+      </request>
+    XML_REQUEST
     post '/request?cmd=create', params: req
     assert_response :success
     assert_xml_tag(tag: 'request')
@@ -823,12 +832,16 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(tag: 'state', attributes: { name: 'accepted', who: 'fred', approver: 'fred' })
 
-    get '/source/kde4/mypackage/_history'
+    get '/source/home:fred/foopkg/_history'
     assert_response :success
     node = Xmlhash.parse(@response.body)
     first_node = node.elements('revision').first
     assert_equal 'fred', first_node['user']
     assert_equal id, first_node['requestid']
+
+    # cleanup
+    delete '/source/home:fred/foopkg'
+    assert_response :success
   end
 
   def test_create_request_with_approver
@@ -859,6 +872,22 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # request creation succeeds because we are "Iggy"
     post '/request?cmd=create', params: format(req_template, approver: 'Iggy')
     assert_response :success
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    id = node.value(:id)
+
+    # accept review
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
+    assert_response :success
+
+    # the request was not accepted because the approver "Iggy" has no
+    # sufficient permissions to create a new package in the "home:fred"
+    # project => the request is automatically revoked
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(tag: 'state',
+                   attributes: { name: 'revoked', who: 'Iggy',
+                                 approver: 'Iggy' })
   end
 
   def test_create_request_and_supersede
