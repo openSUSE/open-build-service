@@ -21,7 +21,14 @@ class Review < ApplicationRecord
   validates :reviewer, length: { maximum: 250 }
   validates :reason, length: { maximum: 65_534 }
 
-  validate :check_initial, on: [:create]
+  validates :user, presence: true, if: :by_user?, on: :create
+  validates :group, presence: true, if: :by_group?, on: :create
+  validates :project, presence: true, if: :by_project?, on: :create
+  validates :package, presence: true, if: :by_package?, on: :create
+  validates :by_project, presence: true, if: :by_package?
+
+  validate :review_assignment
+
   # Validate the review is not assigned to a review which is already assigned to this review
   validate :validate_non_symmetric_assignment
   validate :validate_not_self_assigned
@@ -56,6 +63,13 @@ class Review < ApplicationRecord
 
   before_validation :set_reviewable_association
   after_commit :update_cache
+
+  def review_assignment
+    errors.add(:unknown, 'no reviewer defined') unless by_user || by_group || by_project
+
+    return unless validate_reviewer_fields
+    errors.add(:base, 'it is not allowed to have more than one reviewer entity: by_user, by_group, by_project, by_package')
+  end
 
   def validate_non_symmetric_assignment
     return unless review_assigned_from && review_assigned_from == review_assigned_to
@@ -109,38 +123,6 @@ class Review < ApplicationRecord
 
   def assigned_reviewer
     self[:reviewer] || by_user || by_group || by_project || by_package
-  end
-
-  def check_initial
-    # Validates the existence of references.
-    # NOTE: they can disappear later and the review should be still
-    #       usable to some degree (can be showed at least)
-    #       But it must not be possible to create one with broken references
-    unless by_user || by_group || by_project
-      errors.add(:unknown, 'no reviewer defined')
-    end
-
-    if validate_reviewer_fields
-      errors.add(:base, 'it is not allowed to have more than one reviewer entity: by_user, by_group, by_project, by_package')
-    end
-
-    errors.add(:by_user, "#{by_user} not found") if by_user && !user
-
-    errors.add(:by_group, "#{by_group} not found") if by_group && !group
-
-    if by_project && !project
-      # must be a local project or we can't ask
-      errors.add(:by_project, "#{by_project} not found")
-    end
-
-    if by_package && !by_project
-      errors.add(:unknown, 'by_package defined, but missing by_project')
-    end
-    return unless by_package && !package
-
-    # must be a local package. maybe we should rewrite in case the
-    # package comes via local project link...
-    errors.add(:by_package, "#{by_project}/#{by_package} not found")
   end
 
   def self.new_from_xml_hash(hash)
