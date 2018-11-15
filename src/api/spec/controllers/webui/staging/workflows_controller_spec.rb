@@ -5,7 +5,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
   let(:managers_group) { create(:group) }
   let(:other_managers_group) { create(:group) }
   let(:project) { user.home_project }
-  let(:staging_workflow) { project.create_staging(managers: managers_group) }
+  let(:staging_workflow) { create(:staging_workflow, project: project, managers_group: managers_group) }
 
   before do
     login(user)
@@ -24,7 +24,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
 
     context 'with an existent staging_workflow for project' do
       before do
-        project.create_staging(managers_id: managers_group.id)
+        staging_workflow
         get :new, params: { project: project.name }
       end
 
@@ -90,7 +90,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
 
     context 'with an existent staging_workflow for project' do
       before do
-        project.create_staging(managers_id: managers_group.id)
+        staging_workflow
         get :show, params: { id: project.staging }
       end
 
@@ -113,7 +113,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
 
     context 'with an existent staging_workflow for project' do
       before do
-        project.create_staging(managers_id: managers_group.id)
+        staging_workflow
         get :edit, params: { id: project.staging }
       end
 
@@ -124,9 +124,10 @@ RSpec.describe Webui::Staging::WorkflowsController do
   end
 
   describe 'DELETE #destroy' do
+    let!(:staging_workflow) { create(:staging_workflow, project: project) }
+
     context 'a staging workflow and staging projects' do
       before do
-        project.create_staging(managers_id: managers_group.id)
         params = { id: project.staging, staging_project_ids: project.staging.staging_projects.ids, format: :js }
         delete :destroy, params: params
       end
@@ -142,7 +143,6 @@ RSpec.describe Webui::Staging::WorkflowsController do
 
     context 'a staging workflow and one staging project' do
       before do
-        project.create_staging(managers_id: managers_group.id)
         params = { id: project.staging, staging_project_ids: project.staging.staging_projects.ids.first, format: :js }
         delete :destroy, params: params
       end
@@ -158,7 +158,6 @@ RSpec.describe Webui::Staging::WorkflowsController do
 
     context 'a staging workflow unsuccessful' do
       before do
-        project.create_staging(managers_id: managers_group.id)
         allow_any_instance_of(Staging::Workflow).to receive(:destroy).and_return(false)
         params = { id: project.staging, staging_project_ids: project.staging.staging_projects.ids, format: :js }
         delete :destroy, params: params
