@@ -1,4 +1,4 @@
-- @pagetitle = "Staging Projects for #{@project}"
+- @pagetitle = "Staging for #{@project}"
 
 .row
   .col-xl-10
@@ -7,10 +7,11 @@
       .card-body
         %h3= @pagetitle
         %ul.list-inline.mb-0
-          %li.list-inline-item
-            = link_to(edit_staging_workflow_path(@staging_workflow), class: 'nav-link') do
-              %i.fas.fa-edit.text-info
-              Edit
+          - if policy(@staging_workflow).update?
+            %li.list-inline-item
+              = link_to(edit_staging_workflow_path(@staging_workflow), class: 'nav-link') do
+                %i.fas.fa-edit.text-info
+                Configure
           - if policy(@staging_workflow).destroy?
             %li.list-inline-item
               = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#delete-staging-workflow' }) do

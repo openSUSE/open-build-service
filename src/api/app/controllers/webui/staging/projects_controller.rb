@@ -50,7 +50,7 @@ module Webui
         return if @staging_workflow
 
         redirect_back(fallback_location: root_path)
-        flash[:error] = "StagingWorkflow with id = #{params[:staging_workflow_id]} doesn't exist"
+        flash[:error] = "Staging with id = #{params[:staging_workflow_id]} doesn't exist"
         return
       end
     end
