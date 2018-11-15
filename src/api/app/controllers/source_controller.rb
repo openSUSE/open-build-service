@@ -335,6 +335,9 @@ class SourceController < ApplicationController
       if @file == '_attribute' && @package_name == '_project'
         raise WrongRouteForAttribute, "Attributes need to be changed through #{change_attribute_path(project: params[:project])}"
       end
+      if @file == '_staging_workflow' && @package_name == '_project'
+        raise WrongRouteForStagingWorkflow
+      end
     else
       # we need a local package here in any case for modifications
       @pack = Package.get_by_project_and_name(@project_name, @package_name)

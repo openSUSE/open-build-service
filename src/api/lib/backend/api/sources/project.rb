@@ -97,6 +97,18 @@ module Backend
         def self.repositories(project_name)
           http_get('/getprojpack', defaults: { project: project_name, nopackages: 1, withrepos: 1, expandedrepos: 1 })
         end
+
+        # Returns the staging workflow of a project
+        # @return [String]
+        def self.staging_workflow(project_name)
+          http_get(['/source/:project/_project/_staging_workflow', project_name])
+        end
+
+        # Writes the staging workflow of a project
+        # @return [String]
+        def self.write_staging_workflow(project_name, user_login, content)
+          http_put(['/source/:project/_project/_staging_workflow', project_name], data: content, params: { user: user_login })
+        end
       end
     end
   end

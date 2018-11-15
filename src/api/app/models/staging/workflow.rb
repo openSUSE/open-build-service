@@ -3,6 +3,8 @@ class Staging::Workflow < ApplicationRecord
     'staging_'
   end
 
+  include CanRenderModel
+
   belongs_to :project, inverse_of: :staging
   has_many :staging_projects, class_name: 'Staging::StagingProject', inverse_of: :staging_workflow, dependent: :nullify,
                               foreign_key: 'staging_workflow_id' do
@@ -35,6 +37,12 @@ class Staging::Workflow < ApplicationRecord
 
   def ignored_requests
     BsRequest.none # TODO: define this method
+  end
+
+  def write_to_backend
+    return unless CONFIG['global_write_through']
+
+    Backend::Api::Sources::Project.write_staging_workflow(project.name, User.current_login, render_xml)
   end
 
   private
