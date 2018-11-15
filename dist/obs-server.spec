@@ -39,7 +39,7 @@
 	     -z "$DISABLE_RESTART_ON_UPDATE" && . /etc/sysconfig/services\
 	test "$DISABLE_RESTART_ON_UPDATE" = yes -o \\\
 	     "$DISABLE_RESTART_ON_UPDATE" = 1 && exit 0\
-	%{?*:/usr/bin/systemctl try-reload-or-restart %{*}}\
+	%{?*:/usr/bin/systemctl force-reload %{*}}\
 	) || : %{nil}
 
 %define service_del_postun(fnr) \
