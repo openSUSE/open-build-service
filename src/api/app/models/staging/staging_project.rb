@@ -35,11 +35,14 @@ module Staging
       return @missing_reviews if @missing_reviews
 
       @missing_reviews = []
-      attribs = [:by_group, :by_user, :by_project, :by_package]
+      attribs = [:by_group, :by_user, :by_package, :by_project]
 
-      (requests_to_review + staged_requests).uniq.each do |request|
-        request.reviews.each do |review|
-          next if review.state == :accepted || review.by_project == name
+      staged_requests.includes(:reviews).find_each do |request|
+        request.reviews.where.not(state: :accepted).find_each do |review|
+          # We skip reviews for the staging project since these reviews are used
+          # by the openSUSE release tools _after_ the overall_state switched to
+          # 'accepted'.
+          next if review.by_project == name
           # FIXME: this loop (and the inner if) would not be needed
           # if every review only has one valid by_xxx.
           # I'm keeping it to mimic the python implementation.
@@ -47,9 +50,11 @@ module Staging
           # who = review.by_group || review.by_user || review.by_project || review.by_package
           attribs.each do |att|
             who = review.send(att)
-            if who
-              @missing_reviews << { id: review.id, request: request.number, state: review.state.to_s, package: request.first_target_package, by: who }
-            end
+            next unless who
+
+            @missing_reviews << { id: review.id, request: request.number, state: review.state.to_s, package: request.first_target_package, by: who }
+            # No need to duplicate reviews
+            break
           end
         end
       end
