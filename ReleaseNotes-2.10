@@ -101,6 +101,8 @@ Intentional changes:
    documented and was removed now. '/_attribute' will return all attributes, while
    '/_attribute/:attribute' keeps returning only the given attribute (as documented)
 
+ * source service runs get executed on expanded sources
+   (merged with linked packages)
 
 Other changes
 =============

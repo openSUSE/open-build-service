@@ -451,7 +451,8 @@ sub handleservice {
     # not our own package (project link, remote...)
     # don't run service. try getrev/lsrev instead.
     my $rrev = $getrev->($rev->{'project'}, $rev->{'package'}, $servicemark);
-    $sfiles = BSRevision::lsrev($rrev);
+    # we run on expanded sources since OBS 2.10
+    $sfiles = BSRevision::lsrev_expanded($rrev);
     if ($sfiles->{'_serviceerror'}) {
       my $serror = BSSrcrep::getserviceerror($rev->{'project'}, $rev->{'package'}, $servicemark) || 'unknown service error';
       die($serror eq 'service in progress' ? "$serror\n" : "service error: $serror\n");
