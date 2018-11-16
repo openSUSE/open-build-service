@@ -39,6 +39,8 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
   describe 'POST #create' do
     context 'invalid user' do
       before do
+        staging_workflow
+
         login other_user
         post :create, params: { staging_project_name: staging_project.name, format: :xml },
                       body: "<requests><number>#{bs_request.number}</number></requests>"

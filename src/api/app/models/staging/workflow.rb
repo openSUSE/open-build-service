@@ -30,6 +30,7 @@ class Staging::Workflow < ApplicationRecord
   validates :managers_group, presence: true
 
   after_create :create_staging_projects
+  before_update :update_staging_projects_managers_group
 
   def unassigned_requests
     target_of_bs_requests.stageable.where.not(id: ignored_requests | staged_requests)
@@ -59,5 +60,22 @@ class Staging::Workflow < ApplicationRecord
       staging_project.staging_workflow = self
       staging_project.store
     end
+  end
+
+  def update_staging_projects_managers_group
+    return unless changes[:managers_group_id]
+
+    old_managers_group = Group.find(changes[:managers_group_id].first)
+    new_managers_group = managers_group
+
+    staging_projects.each do |staging_project|
+      staging_project.unassign_managers_group(old_managers_group)
+      staging_project.assign_managers_group(new_managers_group)
+      staging_project.store
+    end
+
+    # FIXME: This assignation is need because after store a staging_project
+    # the object is reloaded and we lost the changes.
+    self.managers_group = new_managers_group
   end
 end
