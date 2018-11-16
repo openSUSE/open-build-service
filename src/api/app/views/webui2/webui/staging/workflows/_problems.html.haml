@@ -17,6 +17,6 @@
 
       - number = length - max_problems
       %li.list-group-item.table-list-group-item
-        %a.collapse-link{ 'data-toggle': 'collapse', href: "##{item_project_class}", 'aria-expanded': 'false' }
-          %span.more See #{number} more
-          %span.less See #{number} less
+        %a{ 'data-toggle': 'collapse', href: "##{item_project_class}", 'aria-expanded': 'false' }
+          %span.expander See #{number} more
+          %span.collapser See #{number} less

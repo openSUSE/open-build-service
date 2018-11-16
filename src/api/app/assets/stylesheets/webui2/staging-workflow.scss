@@ -19,14 +19,6 @@ ul .table-list-group-item {
   background-color: transparent;
 }
 
-.collapse-link[aria-expanded="false"] .less{
-  display: none;
-}
-
-.collapse-link[aria-expanded="true"] .more{
-  display: none;
-}
-
 #staging-projects-datatable {
   td {
     span.badge {
