@@ -57,7 +57,6 @@ class Staging::Workflow < ApplicationRecord
       staging_project = parent.becomes(Staging::StagingProject)
       next if staging_project.staging_workflow # if it belongs to another staging workflow skip it
       staging_project.staging_workflow = self
-      staging_project.assign_managers_group(managers_group)
       staging_project.store
     end
   end
