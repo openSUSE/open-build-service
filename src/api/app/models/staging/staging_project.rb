@@ -4,6 +4,8 @@ module Staging
     has_many :status_reports, through: :repositories, inverse_of: :checkable
     belongs_to :staging_workflow, class_name: 'Staging::Workflow'
 
+    default_scope { where.not(staging_workflow: nil) }
+
     def staging_identifier
       name[/.*:Staging:(.*)/, 1]
     end
