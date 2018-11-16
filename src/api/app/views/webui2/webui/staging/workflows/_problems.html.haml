@@ -8,13 +8,13 @@
     %i.fas.fa-check-circle.fa-2x.text-success
 - else
   %ul.list-group.list-group-flush
-    = render partial: 'problems_item', locals: { project: project, index: 1..(max_problems - 1) }
-
-    %span.collapse{ 'id': item_project_class }
-      = render partial: 'problems_item', locals: { project: project, index: max_problems..-1 }
+    = render partial: 'problems_item', locals: { project: project, index: 0...max_problems }
 
     - length = project.problems.length
-    - if project.problems.length > max_problems
+    - if length > max_problems
+      %span.collapse{ 'id': item_project_class }
+        = render partial: 'problems_item', locals: { project: project, index: max_problems..-1 }
+
       - number = length - max_problems
       %li.list-group-item.table-list-group-item
         %a.collapse-link{ 'data-toggle': 'collapse', href: "##{item_project_class}", 'aria-expanded': 'false' }
