@@ -1749,10 +1749,10 @@ class Project < ApplicationRecord
   end
 
   def update_staging_workflow_on_backend
-    return unless staging_workflow_id
+    return unless staging
 
-    staging_workflow.reload
-    staging_workflow.write_to_backend
+    staging.reload
+    staging.write_to_backend
   end
 end
 # rubocop:enable Metrics/ClassLength
