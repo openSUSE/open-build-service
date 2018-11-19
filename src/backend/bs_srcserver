@@ -5192,7 +5192,11 @@ sub getkeyinfo {
     $cert = projid2sslcert($skprojid, $sk, $projid, $cgi->{'donotcreatecert'});
   }
   if ($cgi->{'withsslcert'} && !$skprojid && $BSConfig::sign_project && $BSConfig::sign) {
-    $cert = BSSrcServer::Signkey::getdefaultcert($projid);
+    if ($cgi->{'donotcreatecert'}) {
+      eval { $cert = BSSrcServer::Signkey::getdefaultcert($projid) };
+    } else {
+      $cert = BSSrcServer::Signkey::getdefaultcert($projid);
+    }
   }
   if (!$pk && $BSConfig::sign_project && $BSConfig::sign) {
     $pk = BSSrcServer::Signkey::getdefaultpubkey($projid);
