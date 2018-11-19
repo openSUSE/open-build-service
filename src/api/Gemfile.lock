@@ -176,6 +176,10 @@ GEM
       ruby_parser (~> 3.5)
     i18n (1.1.1)
       concurrent-ruby (~> 1.0)
+    influxdb (0.5.3)
+    influxdb-rails (0.4.3)
+      influxdb (~> 0.5.0)
+      railties (> 3)
     innertube (1.1.0)
     jaro_winkler (1.5.1)
     joiner (0.4.2)
@@ -484,6 +488,7 @@ DEPENDENCIES
   haml
   haml-rails
   haml_lint
+  influxdb-rails
   jquery-datatables
   jquery-rails
   jquery-ui-rails (~> 4.2.1)

@@ -76,6 +76,8 @@ gem 'data_migrate', '= 5.2.0'
 gem 'addressable'
 # for XML builder
 gem 'builder'
+# to write the rails metrics directly into InfluxDB.
+gem 'influxdb-rails'
 
 group :development, :production do
   # to have the delayed job daemon
