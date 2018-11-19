@@ -28,9 +28,6 @@ class Project < ApplicationRecord
     @commit_opts = {}
   end
 
-  after_save :update_staging_workflow_on_backend
-  after_destroy :update_staging_workflow_on_backend
-
   has_many :relationships, dependent: :destroy, inverse_of: :project
   has_many :packages, inverse_of: :project do
     def autocomplete(search)
@@ -1746,13 +1743,6 @@ class Project < ApplicationRecord
       linked_repository.project.name == project_name &&
         linked_repository.name == repository
     end
-  end
-
-  def update_staging_workflow_on_backend
-    return unless staging_workflow_id
-
-    staging_workflow.reload
-    staging_workflow.write_to_backend
   end
 end
 # rubocop:enable Metrics/ClassLength

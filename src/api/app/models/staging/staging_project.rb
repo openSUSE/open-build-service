@@ -6,6 +6,9 @@ module Staging
 
     default_scope { where.not(staging_workflow: nil) }
 
+    after_save :update_staging_workflow_on_backend
+    after_destroy :update_staging_workflow_on_backend
+
     def staging_identifier
       name[/.*:Staging:(.*)/, 1]
     end
@@ -159,6 +162,13 @@ module Staging
       end
 
       @broken_packages.reject! { |package| package['state'] == 'unresolvable' } if @building_repositories.present?
+    end
+
+    def update_staging_workflow_on_backend
+      return unless staging_workflow_id
+
+      staging_workflow.reload
+      staging_workflow.write_to_backend
     end
   end
 end
