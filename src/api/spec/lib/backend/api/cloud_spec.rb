@@ -10,7 +10,7 @@ RSpec.describe Backend::Api::Cloud do
       expect(Backend::Api::Cloud).to receive(:http_post).with(
         '/cloudupload',
         params: {
-          user:   user.login,
+          user: user.login,
           target: 'ec2'
         },
         data: ec2_configuration.upload_parameters.merge(vpc_subnet_id: 'my_subnet').to_json

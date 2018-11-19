@@ -130,9 +130,9 @@ class Webui::RequestController < Webui::WebuiController
   def sourcediff
     check_ajax
     render partial: 'shared/editor', locals: { text: params[:text],
-                                                    mode: 'diff', style: { read_only: true },
-                                                    height: 'auto', width: '750px',
-                                                    no_border: true, uid: params[:uid] }
+                                               mode: 'diff', style: { read_only: true },
+                                               height: 'auto', width: '750px',
+                                               no_border: true, uid: params[:uid] }
   end
 
   def changerequest
@@ -338,9 +338,9 @@ class Webui::RequestController < Webui::WebuiController
       # FIXME: make force optional, it hides warnings!
       opts = {
         newstate: newstate,
-        force:    true,
-        user:     User.current.login,
-        comment:  params[:reason]
+        force: true,
+        user: User.current.login,
+        comment: params[:reason]
       }
       begin
         request.change_state(opts)
@@ -384,15 +384,15 @@ class Webui::RequestController < Webui::WebuiController
 
   def request_action_attributes(type)
     {
-      target_project:    params[:project],
-      target_package:    params[:package],
-      source_project:    params[:devel_project],
-      source_package:    params[:devel_package] || params[:package],
+      target_project: params[:project],
+      target_package: params[:package],
+      source_project: params[:devel_project],
+      source_package: params[:devel_package] || params[:package],
       target_repository: params[:repository],
-      person_name:       params[:user],
-      group_name:        params[:group],
-      role:              params[:role],
-      type:              type.to_s
+      person_name: params[:user],
+      group_name: params[:group],
+      role: params[:role],
+      type: type.to_s
     }
   end
 end

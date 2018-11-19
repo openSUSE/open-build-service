@@ -12,7 +12,7 @@ module Webui::ProjectHelper
         if User.current.can_modify?(@project.api_obj)
           status_comment_html += ' '.html_safe + link_to(image_tag('comment_delete.png', size: '16x16', alt: 'Clear'),
                                                          { action: :clear_failed_comment, project: @project,
-                                                          package: package, update: valid_xml_id("comment_#{package}") },
+                                                           package: package, update: valid_xml_id("comment_#{package}") },
                                                          remote: true)
           comments_to_clear << package
         end
@@ -20,8 +20,8 @@ module Webui::ProjectHelper
         status_comment_html += ' '.html_safe
         status_comment_html += link_to(image_tag('comment_edit.png', alt: 'Edit'),
                                        { action: 'edit_comment_form', comment: comment,
-                                        package: package, project: @project,
-                                        update: valid_xml_id("comment_edit_#{package}") },
+                                         package: package, project: @project,
+                                         update: valid_xml_id("comment_edit_#{package}") },
                                        remote: true)
       end
     elsif firstfail
@@ -29,7 +29,7 @@ module Webui::ProjectHelper
         status_comment_html += " <span class='unknown_failure'>Unknown build failure ".html_safe +
                                link_to(image_tag('comment_edit.png', size: '16x16', alt: 'Edit'),
                                        { action: 'edit_comment_form', comment: '', package: package,
-                                        project: @project, update: valid_xml_id("comment_edit_#{package}") },
+                                         project: @project, update: valid_xml_id("comment_edit_#{package}") },
                                        remote: true)
         status_comment_html += '</span>'.html_safe
       else
@@ -104,8 +104,8 @@ module Webui::ProjectHelper
   end
 
   STATE_ICONS = {
-    'new'      => 'flag_green',
-    'review'   => 'flag_yellow',
+    'new' => 'flag_green',
+    'review' => 'flag_yellow',
     'declined' => 'flag_red'
   }.freeze
 

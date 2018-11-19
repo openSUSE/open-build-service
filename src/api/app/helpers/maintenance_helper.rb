@@ -98,10 +98,10 @@ module MaintenanceHelper
     md5 = Digest::MD5.hexdigest(link_xml)
     # commit with noservice parameter
     upload_params = {
-      user:      User.current.login,
-      cmd:       'commitfilelist',
+      user: User.current.login,
+      cmd: 'commitfilelist',
       noservice: '1',
-      comment:   "Set local link to #{target_package_name} via maintenance_release request"
+      comment: "Set local link to #{target_package_name} via maintenance_release request"
     }
     upload_params[:requestid] = action.bs_request.number if action
     upload_path = "/source/#{URI.escape(target_project.name)}/#{URI.escape(target_package_name)}"
@@ -123,8 +123,8 @@ module MaintenanceHelper
       lpkg.store
     end
     upload_params = {
-      user:    User.current.login,
-      rev:     'repository',
+      user: User.current.login,
+      rev: 'repository',
       comment: "Set link to #{target_package_name} via maintenance_release request"
     }
     upload_path = "/source/#{URI.escape(target_project.name)}/#{URI.escape(base_package_name)}/_link"
@@ -146,14 +146,14 @@ module MaintenanceHelper
     # backend copy of current sources as full copy
     # that means the xsrcmd5 is different, but we keep the incident project anyway.
     cp_params = {
-      cmd:            'copy',
-      user:           User.current.login,
-      oproject:       source_package.project.name,
-      opackage:       source_package.name,
-      comment:        "Release from #{source_package.project.name} / #{source_package.name}",
-      expand:         '1',
-      withvrev:       '1',
-      noservice:      '1',
+      cmd: 'copy',
+      user: User.current.login,
+      oproject: source_package.project.name,
+      opackage: source_package.name,
+      comment: "Release from #{source_package.project.name} / #{source_package.name}",
+      expand: '1',
+      withvrev: '1',
+      noservice: '1',
       withacceptinfo: '1'
     }
     cp_params[:requestid] = action.bs_request.number if action
@@ -216,12 +216,12 @@ module MaintenanceHelper
   def copy_single_binary(arch, target_repository, source_project_name, source_package_name, source_repo,
                          target_package_name, update_info_id, setrelease)
     cp_params = {
-      cmd:         'copy',
-      oproject:    source_project_name,
-      opackage:    source_package_name,
+      cmd: 'copy',
+      oproject: source_project_name,
+      opackage: source_package_name,
       orepository: source_repo.name,
-      user:        User.current.login,
-      resign:      '1'
+      user: User.current.login,
+      resign: '1'
     }
     cp_params[:setupdateinfoid] = update_info_id if update_info_id
     cp_params[:setrelease] = setrelease if setrelease
@@ -320,7 +320,7 @@ module MaintenanceHelper
 
   def instantiate_container(project, opackage, opts = {})
     opkg = opackage.origin_container
-    pkg_name = opkg.name
+    pkg_name = opkg_name = opkg.name
     if opkg.is_a?(Package) && opkg.project.is_maintenance_release?
       # strip incident suffix
       pkg_name = opkg.name.gsub(/\.[^\.]*$/, '')
@@ -330,15 +330,20 @@ module MaintenanceHelper
     if Package.exists_by_project_and_name(project.name, pkg_name, follow_project_links: false)
       raise PackageAlreadyExists, "package #{opkg.name} already exists"
     end
+
+    local_linked_packages = {}
     opkg.find_project_local_linking_packages.each do |p|
       lpkg_name = p.name
-      if p.is_a?(Package) && p.project.is_maintenance_release?
+      if opkg_name != pkg_name && p.is_a?(Package) && p.project.is_maintenance_release?
         # strip incident suffix
         lpkg_name = p.name.gsub(/\.[^\.]*$/, '')
+        # skip the base links
+        next if lpkg_name == p.name
       end
       if Package.exists_by_project_and_name(project.name, lpkg_name, follow_project_links: false)
         raise PackageAlreadyExists, "package #{p.name} already exists"
       end
+      local_linked_packages[lpkg_name] = p
     end
 
     pkg = project.packages.create(name: pkg_name, title: opkg.title, description: opkg.description)
@@ -375,19 +380,10 @@ module MaintenanceHelper
     pkg.sources_changed
 
     # and create the needed local links
-    opkg.find_project_local_linking_packages.each do |p|
-      lpkg_name = p.name
-      if p.is_a?(Package) && p.project.is_maintenance_release?
-        # strip incident suffix
-        lpkg_name = p.name.gsub(/\.[^\.]*$/, '')
-        # skip the base links
-        next if lpkg_name == p.name
-      end
+    local_linked_packages.each do |lpkg_name, p|
       # create container
-      unless project.packages.where(name: lpkg_name).exists?
-        lpkg = project.packages.create(name: lpkg_name, title: p.title, description: p.description)
-        lpkg.store
-      end
+      lpkg = project.packages.create(name: lpkg_name, title: p.title, description: p.description)
+      lpkg.store
 
       # copy project local linked packages
       path = lpkg.source_path

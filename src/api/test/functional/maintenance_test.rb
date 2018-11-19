@@ -650,12 +650,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'build' }, tag: 'disable'
 
     assert_xml_tag parent: { tag: 'repository', attributes: { name: 'BaseDistro2.0_LinkedUpdateProject' } },
-               tag: 'path', attributes: { repository: 'BaseDistro2LinkedUpdateProject_repo', project: 'BaseDistro2.0:LinkedUpdateProject' }
+                   tag: 'path', attributes: { repository: 'BaseDistro2LinkedUpdateProject_repo', project: 'BaseDistro2.0:LinkedUpdateProject' }
     assert_xml_tag parent: { tag: 'repository', attributes: { name: 'BaseDistro2.0_LinkedUpdateProject' } },
-               tag: 'arch', content: 'i586'
+                   tag: 'arch', content: 'i586'
 
     assert_xml_tag parent: { tag: 'repository', attributes: { name: 'BaseDistro_Update' } },
-               tag: 'path', attributes: { repository: 'BaseDistroUpdateProject_repo', project: 'BaseDistro:Update' }
+                   tag: 'path', attributes: { repository: 'BaseDistroUpdateProject_repo', project: 'BaseDistro:Update' }
 
     assert_xml_tag(tag: 'releasetarget', attributes: { project: 'BaseDistro:Update', repository: 'BaseDistroUpdateProject_repo', trigger: nil })
 
@@ -1119,24 +1119,24 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     # BaseDistro2.0_BaseDistro2LinkedUpdateProject_repo
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject', arch: 'i586', state: 'building' } },
-               tag: 'status', attributes: { package: 'pack2.BaseDistro2.0_LinkedUpdateProject', code: 'scheduled' }
+                   tag: 'status', attributes: { package: 'pack2.BaseDistro2.0_LinkedUpdateProject', code: 'scheduled' }
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject', arch: 'i586' } },
-               tag: 'status', attributes: { package: 'pack2.BaseDistro3', code: 'disabled' }
+                   tag: 'status', attributes: { package: 'pack2.BaseDistro3', code: 'disabled' }
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject', arch: 'i586' } },
-               tag: 'status', attributes: { package: 'pack2.linked.BaseDistro2.0_LinkedUpdateProject', code: 'scheduled' }
+                   tag: 'status', attributes: { package: 'pack2.linked.BaseDistro2.0_LinkedUpdateProject', code: 'scheduled' }
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject', arch: 'i586' } },
-               tag: 'status', attributes: { package: 'packNew.BaseDistro2.0_LinkedUpdateProject', code: 'scheduled' }
+                   tag: 'status', attributes: { package: 'packNew.BaseDistro2.0_LinkedUpdateProject', code: 'scheduled' }
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject', arch: 'i586' } },
-               tag: 'status', attributes: { package: 'patchinfo', code: 'blocked' }
+                   tag: 'status', attributes: { package: 'patchinfo', code: 'blocked' }
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject', arch: 'x86_64', state: 'building' } },
-               tag: 'status', attributes: { package: 'patchinfo', code: 'excluded' }
+                   tag: 'status', attributes: { package: 'patchinfo', code: 'excluded' }
     # BaseDistro3_BaseDistro3_repo
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro3', arch: 'i586', state: 'building' } },
-               tag: 'status', attributes: { package: 'pack2.BaseDistro2.0_LinkedUpdateProject', code: 'disabled' }
+                   tag: 'status', attributes: { package: 'pack2.BaseDistro2.0_LinkedUpdateProject', code: 'disabled' }
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro3', arch: 'i586' } },
-               tag: 'status', attributes: { package: 'packNew.BaseDistro2.0_LinkedUpdateProject', code: 'disabled' }
+                   tag: 'status', attributes: { package: 'packNew.BaseDistro2.0_LinkedUpdateProject', code: 'disabled' }
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro3', arch: 'i586' } },
-               tag: 'status', attributes: { package: 'pack2.BaseDistro3', code: 'scheduled' }
+                   tag: 'status', attributes: { package: 'pack2.BaseDistro3', code: 'scheduled' }
 
     # try to create release request too early
     post '/request?cmd=create', params: '<request>
@@ -1174,7 +1174,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/build/#{incident_project}/_result"
     assert_response :success
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject', arch: 'i586', state: 'unpublished' } },
-               tag: 'status', attributes: { package: 'patchinfo', code: 'broken' }
+                   tag: 'status', attributes: { package: 'patchinfo', code: 'broken' }
     # try to create release request nevertheless
     post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_release">
@@ -1197,7 +1197,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/build/#{incident_project}/_result"
     assert_response :success
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject', arch: 'i586', state: 'unpublished' } },
-               tag: 'status', attributes: { package: 'patchinfo', code: 'failed' }
+                   tag: 'status', attributes: { package: 'patchinfo', code: 'failed' }
     # fix it again
     pi.css('binary').remove
     put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
@@ -1209,7 +1209,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/build/#{incident_project}/_result"
     assert_response :success
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject', arch: 'i586', state: 'unpublished' } },
-               tag: 'status', attributes: { package: 'patchinfo', code: 'succeeded' }
+                   tag: 'status', attributes: { package: 'patchinfo', code: 'succeeded' }
     get "/build/#{incident_project}/BaseDistro2.0_LinkedUpdateProject/i586/patchinfo/_history"
     assert_response :success
 
@@ -1277,11 +1277,11 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post '/source', params: { cmd: 'branch', dryrun: 1, package: 'pack2' }
     assert_response :success
     assert_xml_tag(parent: { tag: 'package', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'pack2' } },
-                    tag: 'devel',
-                    attributes: { project: incident_project, package: 'pack2.BaseDistro2.0_LinkedUpdateProject' })
+                   tag: 'devel',
+                   attributes: { project: incident_project, package: 'pack2.BaseDistro2.0_LinkedUpdateProject' })
     assert_xml_tag(parent: { tag: 'package', attributes: { project: 'BaseDistro3', package: 'pack2' } },
-                    tag: 'devel',
-                    attributes: { project: incident_project, package: 'pack2.BaseDistro3' })
+                   tag: 'devel',
+                   attributes: { project: incident_project, package: 'pack2.BaseDistro3' })
 
     # create release request for real
     post '/request?cmd=create&addrevision=1', params: '<request>
@@ -1432,19 +1432,19 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response 400
     assert_xml_tag(tag: 'status', attributes: { code: 'invalid_date' })
-    post "/source/#{incident_project}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{DateTime.now + 1.day}</value></attribute></attributes>"
+    post "/source/#{incident_project}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{Time.now + 1.day}</value></attribute></attributes>"
     assert_response :success
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response 400
     assert_xml_tag(tag: 'status', attributes: { code: 'under_embargo' })
     # use the special form, no time specified
-    post "/source/#{incident_project}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{DateTime.now.year}-#{DateTime.now.month}-#{DateTime.now.day}</value></attribute></attributes>"
+    post "/source/#{incident_project}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{Time.now.year}-#{Time.now.month}-#{Time.now.day}</value></attribute></attributes>"
     assert_response :success
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response 400
     assert_xml_tag(tag: 'status', attributes: { code: 'under_embargo' })
     # set it to yesterday, so it works below
-    post "/source/#{incident_project}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{DateTime.now.yesterday.year}-#{DateTime.now.yesterday.month}-#{DateTime.now.yesterday.day}</value></attribute></attributes>"
+    post "/source/#{incident_project}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{Time.now.yesterday.year}-#{Time.now.yesterday.month}-#{Time.now.yesterday.day}</value></attribute></attributes>"
     assert_response :success
 
     #### release packages

@@ -10,7 +10,7 @@ class UserLdapStrategyTest < ActiveSupport::TestCase
     assert a == false
 
     test_entry = {
-      'userPassword'     => [],
+      'userPassword' => [],
       'CLR_userPassword' => ['test'],
       'MD5_userPassword' => ['{MD5}' + Base64.encode64(Digest::MD5.digest('test'))]
     }

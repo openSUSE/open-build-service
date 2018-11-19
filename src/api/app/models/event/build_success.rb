@@ -1,11 +1,7 @@
 module Event
   class BuildSuccess < Build
+    self.message_bus_routing_key = 'package.build_success'
     self.description = 'Package has succeeded building'
-    after_create_commit :send_to_bus
-
-    def self.message_bus_routing_key
-      'package.build_success'
-    end
   end
 end
 

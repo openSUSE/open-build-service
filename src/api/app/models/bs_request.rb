@@ -37,7 +37,7 @@ class BsRequest < ApplicationRecord
 
   ACTION_NOTIFY_LIMIT = 50
 
-  scope :to_accept_by_time, -> { where(state: ['new', 'review']).where('accept_at < ?', DateTime.now) }
+  scope :to_accept_by_time, -> { where(state: ['new', 'review']).where('accept_at < ?', Time.now) }
   # Scopes for collections
   scope :with_actions, -> { includes(:bs_request_actions).references(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
   scope :with_involved_projects, ->(project_ids) { where(bs_request_actions: { target_project_id: project_ids }) }
@@ -225,9 +225,9 @@ class BsRequest < ApplicationRecord
       hashed.delete('description')
 
       str = hashed.value('accept_at')
-      request.accept_at = DateTime.parse(str) if str
+      request.accept_at = Time.parse(str) if str
       hashed.delete('accept_at')
-      raise SaveError, 'Auto accept time is in the past' if request.accept_at && request.accept_at < DateTime.now
+      raise SaveError, 'Auto accept time is in the past' if request.accept_at && request.accept_at < Time.now
 
       # we do not support to import history anymore on purpose
       # would be all fake, but means also history gets lost when
@@ -567,7 +567,7 @@ class BsRequest < ApplicationRecord
           v = attrib.values.first if attrib
           if defined?(v) && v
             begin
-              embargo = DateTime.parse(v.value)
+              embargo = Time.parse(v.value)
               if /^\d{4}-\d\d?-\d\d?$/.match?(v.value)
                 # no time specified, allow it next day
                 embargo = embargo.tomorrow
@@ -575,7 +575,7 @@ class BsRequest < ApplicationRecord
             rescue ArgumentError
               raise InvalidDate, "Unable to parse the date in OBS:EmbargoDate of project #{source_project.name}: #{v}"
             end
-            if embargo > DateTime.now
+            if embargo > Time.now
               raise UnderEmbargo, "The project #{source_project.name} is under embargo until #{v}"
             end
           end
@@ -714,8 +714,12 @@ class BsRequest < ApplicationRecord
       raise InvalidStateError, 'request is not in review state'
     end
 
-    checker = BsRequestPermissionCheck.new(self, opts)
-    checker.cmd_changestate_permissions(opts)
+    # check if User.current is allowed to potentially accept the request
+    # (note: setting the :force key to true will skip some checks but
+    # none of them is supposed to be crucial wrt. permission checking)
+    my_opts = opts.merge(newstate: 'accepted', force: true)
+    checker = BsRequestPermissionCheck.new(self, my_opts)
+    checker.cmd_changestate_permissions(my_opts)
     check_bs_request_actions!(skip_source: true)
 
     self.approver = new_approver
@@ -842,13 +846,13 @@ class BsRequest < ApplicationRecord
 
   def create_new_review(opts)
     newreview = reviews.create(
-      reason:     opts[:comment],
-      by_user:    opts[:by_user],
-      by_group:   opts[:by_group],
+      reason: opts[:comment],
+      by_user: opts[:by_user],
+      by_group: opts[:by_group],
       by_project: opts[:by_project],
       by_package: opts[:by_package],
-      creator:    User.current.try(:login),
-      reviewer:   User.current.try(:login)
+      creator: User.current.try(:login),
+      reviewer: User.current.try(:login)
     )
     return newreview if newreview.valid?
     raise InvalidReview, 'Review invalid: ' + newreview.errors.full_messages.join("\n")
@@ -869,8 +873,8 @@ class BsRequest < ApplicationRecord
       save!
 
       history_params = {
-        request:               self,
-        user_id:               User.current.id,
+        request: self,
+        user_id: User.current.id,
         description_extension: newreview.id.to_s
       }
       history_params[:comment] = opts[:comment] if opts[:comment]
@@ -1254,10 +1258,10 @@ class BsRequest < ApplicationRecord
 
         opts = { source_project: action.target_project,
                  source_package: action.target_package,
-                 source_rev:     rev,
+                 source_rev: rev,
                  target_project: project,
                  target_package: package,
-                 type:           action.type }
+                 type: action.type }
         new_request.bs_request_actions.build(opts)
 
         new_request.save!
@@ -1308,11 +1312,11 @@ class BsRequest < ApplicationRecord
     return unless persisted? && priority_changed?
 
     HistoryElement::RequestPriorityChange.create(
-      request:               self,
+      request: self,
       # We need to have a user here
-      user:                  User.find_nobody!,
+      user: User.find_nobody!,
       description_extension: "#{priority_was} => #{priority}",
-      comment:               'Automatic priority bump: Priority of related action increased.'
+      comment: 'Automatic priority bump: Priority of related action increased.'
     )
   end
 

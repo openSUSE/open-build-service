@@ -242,7 +242,7 @@ class BranchPackage
   def add_autocleanup_attribute(tprj)
     at = AttribType.find_by_namespace_and_name!('OBS', 'AutoCleanup')
     a = Attrib.new(project: tprj, attrib_type: at)
-    a.values << AttribValue.new(value: (DateTime.now + @auto_cleanup.days), position: 1)
+    a.values << AttribValue.new(value: (Time.now + @auto_cleanup.days), position: 1)
     a.save
   end
 

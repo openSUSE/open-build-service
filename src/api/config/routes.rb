@@ -25,20 +25,20 @@ OBSApi::Application.routes.draw do
   mount Peek::Railtie => '/peek'
 
   cons = {
-    arch:         %r{[^\/]*},
-    binary:       %r{[^\/]*},
-    filename:     %r{[^\/]*},
-    id:           %r{\d*},
-    login:        %r{[^\/]*},
-    package:      %r{[^\/]*},
+    arch: %r{[^\/]*},
+    binary: %r{[^\/]*},
+    filename: %r{[^\/]*},
+    id: %r{\d*},
+    login: %r{[^\/]*},
+    package: %r{[^\/]*},
     package_name: %r{[^\/]*},
-    project:      %r{[^\/]*},
+    project: %r{[^\/]*},
     project_name: %r{[^\/]*},
-    repository:   %r{[^\/]*},
-    repository_name:   %r{[^\/]*},
-    service:      %r{\w[^\/]*},
-    title:        %r{[^\/]*},
-    user:         %r{[^\/]*},
+    repository: %r{[^\/]*},
+    repository_name: %r{[^\/]*},
+    service: %r{\w[^\/]*},
+    title: %r{[^\/]*},
+    user: %r{[^\/]*},
     repository_publish_build_id: %r{[^\/]*}
   }
 
@@ -609,7 +609,7 @@ OBSApi::Application.routes.draw do
 
       get 'statistics/active_request_creators/:project' => :active_request_creators, constraints: cons
       get 'statistics/maintenance_statistics/:project' => 'statistics/maintenance_statistics#index', constraints: cons,
-        as: 'maintenance_statistics'
+          as: 'maintenance_statistics'
       get 'public/statistics/maintenance_statistics/:project' => 'statistics/maintenance_statistics#index', constraints: cons
     end
 
@@ -792,6 +792,9 @@ OBSApi::Application.routes.draw do
       scope :published do
         get ':project_name/:repository_name/reports/:report_uuid' => :show, constraints: cons
       end
+      scope :built do
+        get ':project_name/:repository_name/:arch/reports/:report_uuid' => :show, constraints: cons
+      end
       scope :requests do
         get ':bs_request_number/reports' => :show
       end
@@ -799,6 +802,9 @@ OBSApi::Application.routes.draw do
     controller :checks do
       scope :published do
         post ':project_name/:repository_name/reports/:report_uuid' => :update, constraints: cons
+      end
+      scope :built do
+        post ':project_name/:repository_name/:arch/reports/:report_uuid' => :update, constraints: cons
       end
       scope :requests do
         post ':bs_request_number/reports' => :update

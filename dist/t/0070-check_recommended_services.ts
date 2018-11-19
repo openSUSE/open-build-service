@@ -2,18 +2,26 @@
 
 use strict;
 use warnings;
-use FindBin;
-use lib "$FindBin::Bin/lib";
-use OBS::Test::Utils;
 use Test::More;
+use FindBin;
+
+BEGIN {
+  unshift @::INC,
+    "$FindBin::Bin/lib",
+    "$FindBin::Bin/../../src/backend/build",
+    "/usr/lib/build"
+  ;
+}
+
+use OBS::Test::Utils;
+use Build::Rpm;
 
 my $test_count = 6;
 my $max_wait = 300;
 
 my @daemons = qw/obsdodup obssigner obsdeltastore/;
 my $pkg_ver = OBS::Test::Utils::get_package_version('obs-server', 2);
-
-if ( $pkg_ver > 2.8) {
+if ( Build::Rpm::verscmp($pkg_ver, "2.8.99") > 0) {
   $test_count = 8;
   push (@daemons, 'obsservicedispatch');
 }

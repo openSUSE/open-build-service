@@ -9,6 +9,30 @@ linters:
     matchers:
       not_breadcrumb_items: \A_(?!breadcrumb_items).*\.haml\z
 
+  RuboCop:
+    enabled: true
+    # These cops are incredibly noisy when it comes to HAML templates, so we
+    # ignore them.
+    ignored_cops:
+      - Lint/BlockAlignment
+      - Lint/EndAlignment
+      - Lint/Void
+      - Layout/AlignParameters
+      - Layout/ElseAlignment
+      - Layout/EndOfLine
+      - Layout/IndentationWidth
+      - Layout/TrailingBlankLines
+      - Layout/TrailingWhitespace
+      - Layout/AlignHash
+      - Metrics/BlockLength
+      - Metrics/BlockNesting
+      - Metrics/LineLength
+      - Naming/FileName
+      - Style/FrozenStringLiteralComment
+      - Style/IfUnlessModifier
+      - Style/Next
+      - Style/WhileUntilModifier
+
 exclude:
 - 'vendor/bundle/**/*'
 # Everything below is the old interface. We only lint the new Bootstrap interface

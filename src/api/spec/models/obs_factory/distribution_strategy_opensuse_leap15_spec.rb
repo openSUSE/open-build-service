@@ -26,10 +26,6 @@ RSpec.describe ObsFactory::DistributionStrategyOpenSUSELeap15 do
     it { expect(strategy.url_suffix).to eq('distribution/leap/15.1/iso') }
   end
 
-  describe '#openqa_iso_prefix' do
-    it { expect(strategy.openqa_iso_prefix).to eq('openSUSE-Leap:15.1-Staging') }
-  end
-
   describe '#published_arch' do
     it { expect(strategy.published_arch).to eq('x86_64') }
   end
@@ -50,12 +46,5 @@ RSpec.describe ObsFactory::DistributionStrategyOpenSUSELeap15 do
     end
 
     it { expect(strategy.published_version).to eq('317.2') }
-  end
-
-  describe '#openqa_filter' do
-    let(:project_staging_a) { create(:project, name: 'openSUSE:Leap:15.1:Staging:A') }
-    let(:staging_project) { ObsFactory::StagingProject.new(project: project_staging_a, distribution: distribution) }
-
-    it { expect(strategy.openqa_filter(staging_project)).to eq('match=15.1:S:A') }
   end
 end

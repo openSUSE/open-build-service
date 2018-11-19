@@ -78,17 +78,17 @@ RSpec.describe Webui::Cloud::Azure::UploadJobsController, type: :controller, vcr
   describe 'POST #create' do
     let(:params) do
       {
-        project:         'Cloud',
-        package:         'azure',
-        repository:      'standard',
-        arch:            'x86_64',
-        filename:        'appliance.raw.xz',
-        target:          'azure',
-        image_name:      'image001',
-        subscription:    'myemailataws',
-        container:       'container001',
+        project: 'Cloud',
+        package: 'azure',
+        repository: 'standard',
+        arch: 'x86_64',
+        filename: 'appliance.raw.xz',
+        target: 'azure',
+        image_name: 'image001',
+        subscription: 'myemailataws',
+        container: 'container001',
         storage_account: 'mystorage',
-        resource_group:  'mygroup'
+        resource_group: 'mygroup'
       }
     end
 
@@ -135,11 +135,11 @@ RSpec.describe Webui::Cloud::Azure::UploadJobsController, type: :controller, vcr
       end
       let(:additional_data) do
         {
-          image_name:      'image001',
-          subscription:    'myemailataws',
-          container:       'container001',
+          image_name: 'image001',
+          subscription: 'myemailataws',
+          container: 'container001',
           storage_account: 'mystorage',
-          resource_group:  'mygroup'
+          resource_group: 'mygroup'
         }
       end
       let(:post_body) do

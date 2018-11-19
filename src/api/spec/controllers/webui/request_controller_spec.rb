@@ -121,7 +121,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         context 'for ASCII files' do
           let(:target_package) do
             create(:package_with_file, name: 'test-package-ascii',
-                   file_content: "a\n" * (file_size_threshold + 1), project: target_project)
+                                       file_content: "a\n" * (file_size_threshold + 1), project: target_project)
           end
 
           it_behaves_like 'a full diff not requested for', 'somefile.txt'
@@ -133,7 +133,7 @@ RSpec.describe Webui::RequestController, vcr: true do
           end
           let(:source_package) do
             create(:package_with_binary, name: 'test-source-package-binary', project: source_project,
-                   file_name: 'spec/support/files/bigfile_archive_2.tar.gz')
+                                         file_name: 'spec/support/files/bigfile_archive_2.tar.gz')
           end
 
           it_behaves_like 'a full diff not requested for', 'bigfile_archive.tar.gz/bigfile.txt'
@@ -162,7 +162,7 @@ RSpec.describe Webui::RequestController, vcr: true do
           let(:expected_diff_size) { file_size_threshold + 1 + diff_header_size }
           let(:target_package) do
             create(:package_with_file, name: 'test-package-ascii',
-                   file_content: "a\n" * (file_size_threshold + 1), project: target_project)
+                                       file_content: "a\n" * (file_size_threshold + 1), project: target_project)
           end
 
           it_behaves_like 'a full diff requested for', 'somefile.txt'
@@ -173,7 +173,7 @@ RSpec.describe Webui::RequestController, vcr: true do
           let(:target_package) { create(:package_with_binary, name: 'test-package-binary', project: target_project) }
           let(:source_package) do
             create(:package_with_binary, name: 'test-source-package-binary',
-                   project: source_project, file_name: 'spec/support/files/bigfile_archive_2.tar.gz')
+                                         project: source_project, file_name: 'spec/support/files/bigfile_archive_2.tar.gz')
           end
 
           it_behaves_like 'a full diff requested for', 'bigfile_archive.tar.gz/bigfile.txt'
@@ -243,9 +243,9 @@ RSpec.describe Webui::RequestController, vcr: true do
     RSpec.shared_examples 'a valid review' do |new_state|
       let(:params_hash) do
         {
-          review_comment_0:        'yeah',
+          review_comment_0: 'yeah',
           review_request_number_0: request_with_review.number,
-          review_by_user_0:        reviewer
+          review_by_user_0: reviewer
         }
       end
 
@@ -275,29 +275,29 @@ RSpec.describe Webui::RequestController, vcr: true do
 
     context 'with invalid parameters' do
       it 'without request' do
-        post :modify_review, params: { review_comment_0:        'yeah',
+        post :modify_review, params: { review_comment_0: 'yeah',
                                        review_request_number_0: 1899,
-                                       review_by_user_0:        reviewer,
-                                       accepted:                'Approve' }
+                                       review_by_user_0: reviewer,
+                                       accepted: 'Approve' }
         expect(flash[:error]).to eq('Unable to load request')
         expect(request_with_review.reload.reviews.last.state).to eq(:new)
         expect(request_with_review.reload.state).to eq(:review)
       end
 
       it 'without state' do
-        post :modify_review, params: { review_comment_0:        'yeah',
+        post :modify_review, params: { review_comment_0: 'yeah',
                                        review_request_number_0: request_with_review.number,
-                                       review_by_user_0:        reviewer }
+                                       review_by_user_0: reviewer }
         expect(flash[:error]).to eq('Unknown state to set')
         expect(request_with_review.reload.reviews.last.state).to eq(:new)
         expect(request_with_review.reload.state).to eq(:review)
       end
 
       it 'without permissions' do
-        post :modify_review, params: { review_comment_0:        'yeah',
+        post :modify_review, params: { review_comment_0: 'yeah',
                                        review_request_number_0: request_with_review.number,
-                                       review_by_user_0:        submitter,
-                                       accepted:                'Approve' }
+                                       review_by_user_0: submitter,
+                                       accepted: 'Approve' }
         expect(flash[:error]).to eq("Not permitted to change review state: review state change is not permitted for #{reviewer.login}")
         expect(request_with_review.reload.reviews.last.state).to eq(:new)
         expect(request_with_review.reload.state).to eq(:review)
@@ -305,10 +305,10 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       it 'with invalid transition' do
         request_with_review.update_attributes(state: 'declined')
-        post :modify_review, params: { review_comment_0:        'yeah',
+        post :modify_review, params: { review_comment_0: 'yeah',
                                        review_request_number_0: request_with_review.number,
-                                       review_by_user_0:        reviewer,
-                                       accepted:                'Approve' }
+                                       review_by_user_0: reviewer,
+                                       accepted: 'Approve' }
         expect(flash[:error]).to eq('Not permitted to change review state: The request is neither in state review nor new')
         expect(request_with_review.reload.state).to eq(:declined)
       end
@@ -422,7 +422,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         login(submitter)
         post :change_devel_request, params: {
           project: target_project.name, package: target_package.name,
-            devel_project: source_project.name, devel_package: source_package.name, description: 'change it!'
+          devel_project: source_project.name, devel_package: source_package.name, description: 'change it!'
         }
       end
 
@@ -448,7 +448,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         login(submitter)
         post :change_devel_request, params: {
           project: target_project.name, package: target_package.name,
-            devel_project: source_project.name, devel_package: 'non-existant', description: 'change it!'
+          devel_project: source_project.name, devel_package: 'non-existant', description: 'change it!'
         }
       end
 

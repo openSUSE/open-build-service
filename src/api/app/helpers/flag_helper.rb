@@ -4,14 +4,14 @@ module FlagHelper
   end
 
   TYPES = {
-    'lock'           => :disable,
-    'build'          => :enable,
-    'publish'        => :enable,
-    'debuginfo'      => :disable,
-    'useforbuild'    => :enable,
+    'lock' => :disable,
+    'build' => :enable,
+    'publish' => :enable,
+    'debuginfo' => :disable,
+    'useforbuild' => :enable,
     'binarydownload' => :enable,
-    'sourceaccess'   => :enable,
-    'access'         => :enable
+    'sourceaccess' => :enable,
+    'access' => :enable
   }.freeze
 
   def self.default_for(flag_type)

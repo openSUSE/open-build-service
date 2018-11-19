@@ -63,9 +63,9 @@ RSpec.describe Authenticator do
 
       before do
         stub_const('CONFIG', CONFIG.merge('kerberos_service_principal' => 'HTTP/obs.test.com@test_realm.com',
-                                          'kerberos_realm'             => 'test_realm.com',
-                                          'kerberos_mode'              => true,
-                                          'kerberos_keytab'            => '/etc/krb5.keytab'))
+                                          'kerberos_realm' => 'test_realm.com',
+                                          'kerberos_mode' => true,
+                                          'kerberos_keytab' => '/etc/krb5.keytab'))
       end
 
       context 'with an invalid ticket' do

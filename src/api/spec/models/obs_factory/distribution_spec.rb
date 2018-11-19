@@ -14,14 +14,34 @@ RSpec.describe ObsFactory::Distribution do
     it { expect(distribution.strategy).to                    be_kind_of(ObsFactory::DistributionStrategyFactory) }
     it { expect(strategy_for('openSUSE:Factory:PowerPC')).to be_kind_of(ObsFactory::DistributionStrategyFactoryPPC) }
     it { expect(strategy_for('openSUSE:Leap:15.1')).to be_kind_of(ObsFactory::DistributionStrategyOpenSUSELeap15) }
-    it { expect(strategy_for('SUSE:SLE-12-SP1:GA')).to       be_kind_of(ObsFactory::DistributionStrategySLE12SP1) }
-    it { expect(strategy_for('SUSE:SLE-15:GA')).to           be_kind_of(ObsFactory::DistributionStrategySLE15) }
-    it { expect(strategy_for('SUSE:SLE-15-SP1:GA')).to       be_kind_of(ObsFactory::DistributionStrategySLE15) }
-    it { expect(strategy_for('SUSE:SLE-12-SP3:Update:Products:CASP20')).to be_kind_of(ObsFactory::DistributionStrategyCasp) }
-    it { expect(strategy_for('SUSE:SLE-15:Update:Products:CASP40')).to be_kind_of(ObsFactory::DistributionStrategyCasp) }
+    it { expect(strategy_for('SUSE:SLE-12-SP1:GA')).to       be_kind_of(ObsFactory::DistributionStrategyFactory) }
+    it { expect(strategy_for('SUSE:SLE-15:GA')).to           be_kind_of(ObsFactory::DistributionStrategyFactory) }
+    it { expect(strategy_for('SUSE:SLE-15-SP1:GA')).to       be_kind_of(ObsFactory::DistributionStrategyFactory) }
+    it { expect(strategy_for('SUSE:SLE-12-SP3:Update:Products:CASP30')).to be_kind_of(ObsFactory::DistributionStrategyFactory) }
+    it { expect(strategy_for('SUSE:SLE-15:Update:Products:CASP40')).to be_kind_of(ObsFactory::DistributionStrategyFactory) }
 
     it { expect { strategy_for('openSUSE:42.3') }.to raise_error(ObsFactory::UnknownDistribution) }
     it { expect { strategy_for('openSUSE:Leap:42.3') }.to raise_error(ObsFactory::UnknownDistribution) }
+
+    def manager_for(name)
+      strategy_for(name).staging_manager
+    end
+
+    it 'picks right staging manager for casp30' do
+      expect(manager_for('SUSE:SLE-12-SP3:Update:Products:CASP30')).to eq('caasp-staging-managers')
+    end
+
+    it 'picks right staging manager for casp40' do
+      expect(manager_for('SUSE:SLE-15:Update:Products:CASP40')).to eq('caasp-staging-managers')
+    end
+
+    it 'picks right staging manager for SLE12' do
+      expect(manager_for('SUSE:SLE-12-SP1:GA')).to eq('sle-staging-managers')
+    end
+
+    it 'picks right staging manager for SLE15' do
+      expect(manager_for('SUSE:SLE-15-SP1:GA')).to eq('sle-staging-managers')
+    end
   end
 
   describe 'self.attributes' do
@@ -227,13 +247,6 @@ RSpec.describe ObsFactory::Distribution do
 
   describe '#rings_project_name' do
     it { expect(distribution.rings_project_name).to eq('openSUSE:Factory:Rings') }
-  end
-
-  describe '#openqa_filter' do
-    let(:staging_project_a) { create(:project, name: 'openSUSE:Factory:Staging:A') }
-    let(:staging_project) { ObsFactory::StagingProject.new(project: staging_project_a, distribution: distribution) }
-
-    it { expect(distribution.openqa_filter(staging_project)).to eq('match=Staging:A') }
   end
 
   describe '#openqa_jobs_for' do

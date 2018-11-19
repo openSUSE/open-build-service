@@ -65,6 +65,35 @@ sub putcache {
   }
 }
 
+sub find_mbname {
+  my ($files) = @_;
+  my $mbname = '_multibuild';
+  # support service generated multibuild files, see findfile
+  if ($files->{'_service'}) {
+    for (sort keys %$files) {
+      next unless /^_service:.*:(.*?)$/s;
+      $mbname = $_ if $1 eq '_multibuild';
+    }
+  }
+  return $mbname;
+}
+
+sub getmultibuild_fromfiles {
+  my ($projid, $packid, $files) = @_;
+  my $mbname = find_mbname($files);
+  my $mb;
+  if ($files->{$mbname}) {
+    $mb = BSSrcrep::filereadxml($projid, $packid, $mbname, $files->{$mbname}, $BSXML::multibuild, 1);
+    eval { BSVerify::verify_multibuild($mb) };
+    if ($@) {
+      warn("$projid/$packid/$mbname: $@");
+      return undef;
+    }
+    $mb->{'_md5'} = $files->{$mbname} if $mb;
+  }
+  return $mb;
+}
+
 sub updatemultibuild {
   my ($projid, $packid, $files, $isprojpack) = @_;
   return undef if $packid eq '_product';	# no multibuilds for those
@@ -81,14 +110,9 @@ sub updatemultibuild {
     return $mc->{$packid} if globalenabled($proj->{'lock'}, 0) && !$pack->{'lock'};
     return $mc->{$packid} unless globalenabled($pack->{'build'}, globalenabled($proj->{'build'}, 1));
   }
-  my $mbname = '_multibuild';
-  # see findfile
-  if ($files->{'_service'}) {
-    for (sort keys %$files) {
-      next unless /^_service:.*:(.*?)$/s;
-      $mbname = $_ if $1 eq '_multibuild';
-    }
-  }
+
+  # check if something changed
+  my $mbname = find_mbname($files);
   if (!$files->{$mbname}) {
     return undef if !$mc->{$packid};
   } else {
@@ -102,18 +126,7 @@ sub updatemultibuild {
   $mc = getcache($projid, 1);
 
   # now update
-  my $mb;
-  if ($files->{$mbname}) {
-    $mb = BSSrcrep::filereadxml($projid, $packid, $mbname, $files->{$mbname}, $BSXML::multibuild, 1);
-    eval {
-      BSVerify::verify_multibuild($mb);
-    };
-    if ($@) {
-      warn("$projid/$packid/$mbname: $@");
-      $mb = undef;
-    }
-    $mb->{'_md5'} = $files->{$mbname} if $mb;
-  }
+  my $mb = getmultibuild_fromfiles($projid, $packid, $files);
   delete $mc->{$packid};
   $mc->{$packid} = $mb if $mb;
   putcache($projid, $mc);

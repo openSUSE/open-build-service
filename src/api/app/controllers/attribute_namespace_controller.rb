@@ -32,7 +32,7 @@ class AttributeNamespaceController < ApplicationController
       render template: 'attribute_namespace/show'
     else
       render_error message: "Unknown attribute namespace '#{@namespace}'",
-        status: 404, errorcode: 'unknown_attribute_namespace'
+                   status: 404, errorcode: 'unknown_attribute_namespace'
     end
   end
 
@@ -47,7 +47,7 @@ class AttributeNamespaceController < ApplicationController
 
     unless xml_element['name'] == @namespace
       render_error status: 400, errorcode: 'illegal_request',
-        message: "Illegal request: PUT/POST #{request.path}: path does not match content"
+                   message: "Illegal request: PUT/POST #{request.path}: path does not match content"
       return
     end
 

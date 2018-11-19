@@ -6,25 +6,6 @@ RSpec.describe ObsFactory::DistributionStrategyFactory do
   let(:distribution) { ObsFactory::Distribution.new(project) }
   let(:strategy) { distribution.strategy }
   let(:staging_project) { ObsFactory::StagingProject.new(project: staging_project_a, distribution: distribution) }
-  let(:build_result) do
-    {
-      'result' => Xmlhash::XMLHash.new(
-        'project' => 'openSUSE:Factory:Staging:A',
-        'repository' => 'images',
-        'arch' => 'x86_64',
-        'code' => 'building',
-        'state' => 'building',
-        'binarylist' =>  Xmlhash::XMLHash.new(
-          'package' => 'Test-DVD-x86_64',
-          'binary' =>  Xmlhash::XMLHash.new(
-            'filename' => 'Test-Build1036.1-Media.iso',
-            'size' => '878993408',
-            'mtime' => '1528339590'
-          )
-        )
-      )
-    }
-  end
 
   describe 'openqa_version' do
     it { expect(strategy.openqa_version).to eq('Tumbleweed') }
@@ -66,83 +47,8 @@ RSpec.describe ObsFactory::DistributionStrategyFactory do
     it { expect(strategy.published_arch).to eq('i586') }
   end
 
-  describe 'openqa_iso_prefix' do
-    it { expect(strategy.openqa_iso_prefix).to eq('openSUSE-Staging') }
-  end
-
   describe 'staging_manager' do
     it { expect(strategy.staging_manager).to eq('factory-staging') }
-  end
-
-  describe 'openqa_iso' do
-    let(:staging_project_a) { create(:project, name: 'openSUSE:Factory:Staging:A') }
-
-    before do
-      allow(Buildresult).to receive(:find_hashed).and_return(Xmlhash::XMLHash.new(build_result))
-    end
-
-    it { expect(strategy.openqa_iso(staging_project)).to eq('openSUSE-Staging:A-Staging-DVD-x86_64-Build1036.1-Media.iso') }
-  end
-
-  describe 'project_iso' do
-    shared_examples 'project_iso returns' do |returned_value|
-      before do
-        allow(Buildresult).to receive(:find_hashed).and_return(Xmlhash::XMLHash.new(build_result))
-      end
-
-      it { expect(strategy.send(:project_iso, project)).to eq(returned_value) }
-    end
-
-    include_examples 'project_iso returns', 'Test-Build1036.1-Media.iso'
-
-    context 'without results' do
-      let(:build_result) { Xmlhash::XMLHash.new({}) }
-
-      include_examples 'project_iso returns', nil
-    end
-
-    context 'without binary list' do
-      let(:build_result) do
-        {
-          'result' => Xmlhash::XMLHash.new(
-            'project' => 'openSUSE:Factory:Staging:A',
-            'repository' => 'images',
-            'arch' => 'x86_64',
-            'code' => 'building',
-            'state' => 'building',
-            'binarylist' =>  Xmlhash::XMLHash.new(
-              'package' => 'Test-DVD-x86_64'
-            )
-          )
-        }
-      end
-
-      include_examples 'project_iso returns', nil
-    end
-
-    context 'without iso file' do
-      let(:build_result) do
-        {
-          'result' => Xmlhash::XMLHash.new(
-            'project' => 'openSUSE:Factory:Staging:A',
-            'repository' => 'images',
-            'arch' => 'x86_64',
-            'code' => 'building',
-            'state' => 'building',
-            'binarylist' =>  Xmlhash::XMLHash.new(
-              'package' => 'Test-DVD-x86_64',
-              'binary' =>  Xmlhash::XMLHash.new(
-                'filename' => 'non-iso-file.txt',
-                'size' => '878993408',
-                'mtime' => '1528339590'
-              )
-            )
-          )
-        }
-      end
-
-      include_examples 'project_iso returns', nil
-    end
   end
 
   describe '#published_version' do
@@ -152,12 +58,6 @@ RSpec.describe ObsFactory::DistributionStrategyFactory do
     end
 
     it { expect(strategy.published_version).to eq('20180604') }
-  end
-
-  describe 'openqa_filter' do
-    let(:staging_project_a) { create(:project, name: 'openSUSE:Factory:Staging:A') }
-
-    it { expect(strategy.openqa_filter(staging_project)).to eq('match=Staging:A') }
   end
 
   describe '#totest_version' do

@@ -4,7 +4,7 @@ class Token < ApplicationRecord
 
   has_secure_token :string
 
-  validates :user_id, presence: true
+  validates :user, presence: true
 end
 
 # == Schema Information

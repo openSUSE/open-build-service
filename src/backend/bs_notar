@@ -36,29 +36,31 @@ use Data::Dumper;
 use BSConfiguration;	# for BSConfig::sign
 use BSRPC ':https';
 use BSUtil;
-use BSASN1;
 use BSPGP;
 use BSBearer;
 use BSTUF;
 
 use strict;
 
-my $targets_expire_delta = 3 * 366 * 24 * 3600;	# 3 years
+my $root_extra_expire = 183 * 24 * 3600;        # 6 months
+my $targets_expire = 3 * 366 * 24 * 3600;	# 3 years
+
 my $notary_timeout = 300;
 my $registry_timeout = 300;
 
-my @signargs;
+my @signcmd = ( $BSConfig::sign );
 
-sub signedmultipartentry {
-  my ($name, $d, @keyids) = @_;
-  $d = BSTUF::signdata($d, \@signargs, grep {defined($_)} @keyids);
+sub multipartentry {
+  my ($name, $d) = @_;
   return { 'headers' => [ "Content-Disposition: form-data; name=\"files\"; filename=\"$name\"", 'Content-Type: application/octet-stream' ], 'data' => $d };
 }
+
 
 # parse arguments
 my $pubkeyfile;
 my $dest_creds;
 my $justadd;
+my $forcedelete;
 my $digestfile;
 my $list_mode;
 my $delete_mode;
@@ -75,7 +77,7 @@ while (@ARGV) {
     next;
   }
   if ($ARGV[0] eq '-P' || $ARGV[0] eq '--project' || $ARGV[0] eq '-u' || $ARGV[0] eq '--signtype') {
-    push @signargs, splice(@ARGV, 0, 2);
+    push @signcmd, splice(@ARGV, 0, 2);
     next;
   }
   if ($ARGV[0] eq '-h') {
@@ -136,6 +138,7 @@ if ($list_mode) {
   my $what = $ARGV[2] || 'root';
   my $req = $what;
   $req = 'root' if $what eq 'cert';
+  $req = 'targets' if $what eq 'digests';
   $req .= '.json' unless $req =~ /\.key$/ || $req =~ /\.json$/;
   my $param = {
     'uri' => "$notaryserver/v2/$gun/_trust/tuf/$req",
@@ -149,6 +152,16 @@ if ($list_mode) {
       my $k = $data->{'keys'}->{$keyid};
       die("bad keytype\n") unless $k->{'keytype'} eq 'rsa-x509';
       print MIME::Base64::decode_base64($k->{'keyval'}->{'public'});
+    }
+    exit(0);
+  }
+  if ($what eq 'digests') {
+    my $data = BSRPC::rpc($param, \&JSON::XS::decode_json);
+    for my $tag (sort keys %{$data->{'signed'}->{'targets'} || {}}) {
+      my $d = $data->{'signed'}->{'targets'}->{$tag};
+      for my $h (sort keys %{$d->{'hashes'} || {}}) {
+        print "$h:".unpack('H*', MIME::Base64::decode_base64($d->{'hashes'}->{$h}))." $d->{'length'} $tag\n";
+      }
     }
     exit(0);
   }
@@ -218,6 +231,32 @@ if ($digestfile) {
   }
 }
 
+sub getolddata {
+  my ($name, $raw) = @_;
+  my $olddata;
+  eval {
+    my $param = {
+      'uri' => "$notaryserver/v2/$gun/_trust/tuf/$name.json",
+      'timeout' => $notary_timeout,
+      'authenticator' => $notary_authenticator,
+    };
+    $olddata = BSRPC::rpc($param, $raw ? undef : \&JSON::XS::decode_json);
+  };
+  die($@) if $@ && $@ !~ /^404 /;
+  return $olddata || ($raw ? '' : {});
+}
+
+sub getoldkey {
+  my ($name) = @_;
+  my $param = {
+    'uri' => "$notaryserver/v2/$gun/_trust/tuf/$name.key",
+    'timeout' => $notary_timeout,
+    'authenticator' => $notary_authenticator,
+  };
+  return BSRPC::rpc($param, \&JSON::XS::decode_json);
+}
+
+my $signfunc = sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
 #
 # generate key material
 #
@@ -228,156 +267,103 @@ my $pubkey_times = BSPGP::pk2times($gpgpubkey) || {};
 # generate pub key and cert from pgp key data
 my $pub_bin = BSTUF::keydata2asn1($pubkey_data);
 
-my $cert;
-my $root_key;
-my $targets_key;
-my $timestamp_key;
-my $snapshot_key;
-
-my $root_version = 1;
-my $targets_version = 1;
-
-my $dodelete;		# new key, hopeless, need to delete old data
-my $dorootupdate;	# same key with different cert
-
 # create new to-be-signed cert
-my $tbscert = BSTUF::mktbscert($gun, $pubkey_times->{'selfsig_create'}, $pubkey_times->{'key_expire'}, $pub_bin);
+my $root_expire = $pubkey_times->{'key_expire'} + $root_extra_expire;
+my $tbscert = BSTUF::mktbscert($gun, $pubkey_times->{'selfsig_create'}, $root_expire, $pub_bin);
 
-#
-# reuse data from old root entry if we can
-#
-if (!$dodelete) {
-  eval {
-    my $param = {
-      'uri' => "$notaryserver/v2/$gun/_trust/tuf/root.json",
-      'timeout' => $notary_timeout,
-      'authenticator' => $notary_authenticator,
-    };
-    my $oldroot = BSRPC::rpc($param, \&JSON::XS::decode_json);
-    $root_version = 1 + $oldroot->{'signed'}->{'version'};
-    my $oldroot_root_id = $oldroot->{'signed'}->{'roles'}->{'root'}->{'keyids'}->[0];
-    my $oldroot_targets_id = $oldroot->{'signed'}->{'roles'}->{'targets'}->{'keyids'}->[0];
-    my $oldroot_timestamp_id = $oldroot->{'signed'}->{'roles'}->{'timestamp'}->{'keyids'}->[0];
-    my $oldroot_snapshot_id = $oldroot->{'signed'}->{'roles'}->{'snapshot'}->{'keyids'}->[0];
-    my $oldroot_root_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_root_id};
-    die("oldroot is not of type rsa-x509\n") if $oldroot_root_key->{'keytype'} ne 'rsa-x509';
-    my $oldroot_root_cert = MIME::Base64::decode_base64($oldroot_root_key->{'keyval'}->{'public'});
-    my $oldroot_root_tbscert = BSTUF::gettbscert($oldroot_root_cert);
-    if (BSTUF::removecertserial($oldroot_root_tbscert) eq BSTUF::removecertserial($tbscert)) {
-      # same cert (possibly with different serial). reuse old cert.
-      $cert = $oldroot_root_cert;
-      $root_key = $oldroot_root_key;
-      $targets_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_targets_id};
-      $timestamp_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_timestamp_id};
-      $snapshot_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_snapshot_id};
-    } elsif (BSTUF::getsubjectkeyinfo($oldroot_root_tbscert) eq BSTUF::getsubjectkeyinfo($tbscert)) {
-      # different cert but same pubkey, e.g. different expiration time
-      $dorootupdate = $oldroot_root_id;
-      $timestamp_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_timestamp_id};
-      $snapshot_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_snapshot_id};
-    }
-  };
-  die($@) if $@ && $@ =~ /^5/;
-  warn($@) if $@ && $@ !~ /^404 /;
-}
+my $oldroot_json = '';
+$oldroot_json = getolddata('root', 1) unless $forcedelete;
+my $oldroot = {};
+$oldroot = JSON::XS::decode_json($oldroot_json) if $oldroot_json;
 
-$dodelete = 1 unless $cert || $dorootupdate;
-if ($dodelete) {
+my $cmpres = BSTUF::cmprootcert($oldroot, $tbscert);
+my $cert;
+$cert = BSTUF::getrootcert($oldroot) if $cmpres == 2;
+$cert ||= BSTUF::mkcert($tbscert, $signfunc);
+$oldroot_json = '' if $cmpres == 0;	# start from scratch
+$oldroot = {} if $cmpres == 0;	# start from scratch
+
+if ($cmpres == 0) {
   print "overwriting old key and cert...\n";
-} elsif ($dorootupdate) {
+} elsif ($cmpres == 1) {
   print "updating old key and cert...\n";
 } else {
   print "reusing old key and cert...\n";
 }
 
+my $now = time();
+my $tuf = {};
 
 #
 # setup needed keys
 #
-if (!$cert) {
-  $cert = BSTUF::mkcert($tbscert, \@signargs);
-}
-if (!$root_key) {
-  $root_key = {
-    'keytype' => 'rsa-x509',
-    'keyval' => { 'private' => undef, 'public' => MIME::Base64::encode_base64($cert, '')},
-  };
-}
-if (!$targets_key) {
-  $targets_key = {
-    'keytype' => 'rsa',
-    'keyval' => { 'private' => undef, 'public' => MIME::Base64::encode_base64($pub_bin, '') },
-  };
-}
-if (!$timestamp_key) {
-  my $param = {
-    'uri' => "$notaryserver/v2/$gun/_trust/tuf/timestamp.key",
-    'timeout' => $notary_timeout,
-    'authenticator' => $notary_authenticator,
-  };
-  $timestamp_key = BSRPC::rpc($param, \&JSON::XS::decode_json);
-}
-if (!$snapshot_key) {
-  my $param = {
-    'uri' => "$notaryserver/v2/$gun/_trust/tuf/snapshot.key",
-    'timeout' => $notary_timeout,
-    'authenticator' => $notary_authenticator,
-  };
-  $snapshot_key = BSRPC::rpc($param, \&JSON::XS::decode_json);
+my $root_key = {
+  'keytype' => 'rsa-x509',
+  'keyval' => { 'private' => undef, 'public' => MIME::Base64::encode_base64($cert, '')},
+};
+my $timestamp_key;
+if ($cmpres) {
+  my $oldroot_timestamp_id = $oldroot->{'signed'}->{'roles'}->{'timestamp'}->{'keyids'}->[0];
+  $timestamp_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_timestamp_id};
+} else {
+  $timestamp_key = getoldkey('timestamp');
 }
 
-my $root_key_id = Digest::SHA::sha256_hex(BSTUF::canonical_json($root_key));
-my $targets_key_id = Digest::SHA::sha256_hex(BSTUF::canonical_json($targets_key));
-my $timestamp_key_id = Digest::SHA::sha256_hex(BSTUF::canonical_json($timestamp_key));
-my $snapshot_key_id = Digest::SHA::sha256_hex(BSTUF::canonical_json($snapshot_key));
+my $root_key_id = BSTUF::key2keyid($root_key);
+my $timestamp_key_id = BSTUF::key2keyid($timestamp_key);
 
 #
-# setup root 
+# setup root
 #
 my $keys = {};
 $keys->{$root_key_id} = $root_key;
-$keys->{$targets_key_id} = $targets_key;
 $keys->{$timestamp_key_id} = $timestamp_key;
-$keys->{$snapshot_key_id} = $snapshot_key;
 
 my $roles = {};
 $roles->{'root'}      = { 'keyids' => [ $root_key_id ],      'threshold' => 1 };
-$roles->{'snapshot'}  = { 'keyids' => [ $snapshot_key_id ],  'threshold' => 1 };
-$roles->{'targets'}   = { 'keyids' => [ $targets_key_id ],   'threshold' => 1 };
+$roles->{'snapshot'}  = { 'keyids' => [ $root_key_id ],      'threshold' => 1 };
+$roles->{'targets'}   = { 'keyids' => [ $root_key_id ],      'threshold' => 1 };
 $roles->{'timestamp'} = { 'keyids' => [ $timestamp_key_id ], 'threshold' => 1 };
-
 
 my $root = {
   '_type' => 'Root',
   'consistent_snapshot' => $JSON::XS::false,
-  'expires' => BSTUF::rfc3339time($pubkey_times->{'key_expire'}),
+  'expires' => BSTUF::rfc3339time($root_expire),
   'keys' => $keys,
   'roles' => $roles,
-  'version' => $root_version,
 };
+$root->{'version'} = 1;
+$root->{'version'} = $oldroot->{'signed'}->{'version'} || 1 if $cmpres;
+
+if (BSTUF::canonical_json($root) eq BSTUF::canonical_json($oldroot->{'signed'} || {})) {
+  $tuf->{'root'} = $oldroot_json;	# reuse old root
+} else {
+  # root has changed
+  my @key_ids = ( $root_key_id );
+  if ($cmpres == 1) {
+    # also add other ids that hopefully have the same public key...
+    for (@{$oldroot->{'signatures'} || []}) {
+      push @key_ids, $_->{'keyid'} if $_->{'keyid'};
+    }
+    @key_ids = BSUtil::unify(@key_ids);
+    @key_ids = splice(@key_ids, 0, 2);		# enough for now
+  }
+  $tuf->{'root'} = BSTUF::updatedata($root, $cmpres ? $oldroot : {}, $signfunc, @key_ids);
+}
 
 #
 # setup targets
 #
-my $oldtargets;
-eval {
-  my $param = {
-    'uri' => "$notaryserver/v2/$gun/_trust/tuf/targets.json",
-    'timeout' => $notary_timeout,
-    'authenticator' => $notary_authenticator,
-  };
-  $oldtargets = BSRPC::rpc($param, \&JSON::XS::decode_json);
-  $targets_version = 1 + $oldtargets->{'signed'}->{'version'};
-};
-die($@) if $justadd && $@ && $@ =~ /^5/;
-if ($justadd && $oldtargets) {
+my $oldtargets = {};
+$oldtargets = getolddata('targets') if $cmpres || $justadd;
+if ($justadd) {
   for my $tag (sort keys %{$oldtargets->{'signed'}->{'targets'} || {}}) {
     next if $manifests->{$tag};
     print "taking old tag $tag\n";
     $manifests->{$tag} = $oldtargets->{'signed'}->{'targets'}->{$tag};
   }
 }
-if (!$dodelete && !$dorootupdate && BSUtil::identical($manifests, $oldtargets->{'signed'}->{'targets'})) {
+if ($tuf->{'root'} eq $oldroot_json && BSUtil::identical($manifests, $oldtargets->{'signed'}->{'targets'})) {
   print "no change...\n";
   exit 0;
 }
@@ -385,15 +371,28 @@ if (!$dodelete && !$dorootupdate && BSUtil::identical($manifests, $oldtargets->{
 my $targets = {
   '_type' => 'Targets',
   'delegations' => { 'keys' => {}, 'roles' => []},
-  'expires' => BSTUF::rfc3339time(time() + $targets_expire_delta),
+  'expires' => BSTUF::rfc3339time($now + $targets_expire),
   'targets' => $manifests,
-  'version' => $targets_version,
 };
+$tuf->{'targets'} = BSTUF::updatedata($targets, $cmpres ? $oldtargets : {}, $signfunc, $root_key_id);
+
+#
+# setup snapshot
+#
+my $oldsnapshot = {};
+$oldsnapshot = getolddata('snapshot') if $cmpres;
+my $snapshot = {
+  '_type' => 'Snapshot',
+  'expires' => BSTUF::rfc3339time($now + $targets_expire),
+};
+BSTUF::addmetaentry($snapshot, 'root', $tuf->{'root'});
+BSTUF::addmetaentry($snapshot, 'targets', $tuf->{'targets'});
+$tuf->{'snapshot'} = BSTUF::updatedata($snapshot, $cmpres ? $oldsnapshot : {}, $signfunc, $root_key_id);
 
 #
 # delete old data if necessary
 #
-if ($dodelete) {
+if (!$cmpres) {
   my $param = {
     'uri' => "$notaryserver/v2/$gun/_trust/tuf/",
     'request' => 'DELETE',
@@ -404,11 +403,12 @@ if ($dodelete) {
 }
 
 #
-# sign and send data
+# send data
 #
 my @parts;
-push @parts, signedmultipartentry('root', $root, $root_key_id, $dorootupdate) if $dodelete || $dorootupdate;
-push @parts, signedmultipartentry('targets', $targets, $targets_key_id);
+push @parts, multipartentry('root', $tuf->{'root'}) if $tuf->{'root'} ne $oldroot_json;
+push @parts, multipartentry('targets', $tuf->{'targets'});
+push @parts, multipartentry('snapshot', $tuf->{'snapshot'});
 
 my $boundary = Digest::SHA::sha256_hex(join('', map {$_->{'data'}} @parts));
 my $param = {

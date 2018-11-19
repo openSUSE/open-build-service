@@ -52,9 +52,9 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(tag: 'service', attributes: { name: 'download_files' })
     assert_xml_tag(parent: { tag: 'service', attributes: { name: 'download_url' } },
-                    tag: 'param', attributes: { name: 'host' }, content: 'blahfasel')
+                   tag: 'param', attributes: { name: 'host' }, content: 'blahfasel')
     assert_xml_tag(parent: { tag: 'service', attributes: { name: 'set_version' } },
-                    tag: 'param', attributes: { name: 'version' }, content: '0815')
+                   tag: 'param', attributes: { name: 'version' }, content: '0815')
 
     # cleanup
     login_king
@@ -519,6 +519,14 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
 
     # with right token
     post '/trigger/runservice', headers: { 'Authorization' => "Token #{token}" }
+    # success, but no source service configured :)
+    assert_response 404
+    assert_match(/no source service defined/, @response.body)
+
+    # with right token in gitlab style
+    post '/trigger/runservice',
+         headers: { 'X-Gitlab-Event' => 'Push Hook',
+                    'X-Gitlab-Token' => token }
     # success, but no source service configured :)
     assert_response 404
     assert_match(/no source service defined/, @response.body)

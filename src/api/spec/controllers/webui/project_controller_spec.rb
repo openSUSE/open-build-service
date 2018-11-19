@@ -485,10 +485,10 @@ RSpec.describe Webui::ProjectController, vcr: true do
       {
         'result' => Xmlhash::XMLHash.new(
           'repository' => 'openSUSE',
-          'arch'       => 'x86_64',
-          'code'       => 'published',
-          'state'      => 'published',
-          'summary'    => summary
+          'arch' => 'x86_64',
+          'code' => 'published',
+          'state' => 'published',
+          'summary' => summary
         )
       }
     end
@@ -780,7 +780,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       context 'with an invalid devel project' do
         before do
           post :save_meta, params: { project: user.home_project,
-                                     meta:    '<project name="home:tom"><title/><description/><devel project="non-existant"/></project>' }, xhr: true
+                                     meta: '<project name="home:tom"><title/><description/><devel project="non-existant"/></project>' }, xhr: true
         end
 
         it { expect(flash.now[:error]).to eq("Project with name 'non-existant' not found") }
@@ -1326,18 +1326,18 @@ RSpec.describe Webui::ProjectController, vcr: true do
           end
           let(:statushash) do
             { 'openSUSE_Tumbleweed' => {
-              'i586'   => {
-                'c++'   => { 'package' => 'c++',   'code' => 'succeeded' },
+              'i586' => {
+                'c++' => { 'package' => 'c++', 'code' => 'succeeded' },
                 'redis' => { 'package' => 'redis', 'code' => 'failed' }
               },
               'x86_64' => {
-                'c++'   => { 'package' => 'c++',   'code' => 'unresolvable', 'details' => 'nothing provides foo' },
+                'c++' => { 'package' => 'c++', 'code' => 'unresolvable', 'details' => 'nothing provides foo' },
                 'redis' => { 'package' => 'redis', 'code' => 'building', 'details' => 'building on obs-node-3' }
               }
             },
-              'openSUSE_42.2'       => {
+              'openSUSE_42.2' => {
                 's390x' => {
-                  'c++'   => { 'package' => 'c++',   'code' => 'succeeded' },
+                  'c++' => { 'package' => 'c++', 'code' => 'succeeded' },
                   'redis' => { 'package' => 'redis', 'code' => 'succeeded' }
                 }
               } }
@@ -1354,11 +1354,11 @@ RSpec.describe Webui::ProjectController, vcr: true do
           it { expect(assigns(:repohash)).to eq('openSUSE_Tumbleweed' => ['i586', 'x86_64'], 'openSUSE_42.2' => ['s390x']) }
           it {
             expect(assigns(:repostatushash)).to eq('openSUSE_Tumbleweed' => { 'i586' => 'published', 'x86_64' => 'building' },
-                                                   'openSUSE_42.2'       => { 's390x' => 'outdated_published' })
+                                                   'openSUSE_42.2' => { 's390x' => 'outdated_published' })
           }
           it {
             expect(assigns(:repostatusdetailshash)).to eq('openSUSE_Tumbleweed' => { 'x86_64' => 'This repo is broken' },
-                                                          'openSUSE_42.2'       => {})
+                                                          'openSUSE_42.2' => {})
           }
           it { expect(response).to have_http_status(:ok) }
         end
@@ -1455,12 +1455,12 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
         let(:statushash) do
           { 'home_coolo_standard' => {
-            'i586'   => {
-              'apache'     => { 'package' => 'apache', 'code' => 'succeeded' },
+            'i586' => {
+              'apache' => { 'package' => 'apache', 'code' => 'succeeded' },
               'obs-server' => { 'package' => 'obs-server', 'code' => 'succeeded' }
             },
             'x86_64' => {
-              'apache'     => { 'package' => 'apache', 'code' => 'succeeded' },
+              'apache' => { 'package' => 'apache', 'code' => 'succeeded' },
               'obs-server' => { 'package' => 'obs-server', 'code' => 'succeeded' }
             }
           } }
@@ -1496,7 +1496,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
         let(:statushash) do
           { 'home_coolo_standard' => {
-            'i586'   => {
+            'i586' => {
               'obs-server' => { 'package' => 'obs-server', 'code' => 'succeeded' }
             },
             'x86_64' => {

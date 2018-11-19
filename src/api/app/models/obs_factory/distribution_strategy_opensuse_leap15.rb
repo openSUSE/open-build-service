@@ -1,7 +1,7 @@
 module ObsFactory
   # this class tracks the differences between Factory and the upcoming release
   class DistributionStrategyOpenSUSELeap15 < DistributionStrategyFactory
-    SIGNATURE = /openSUSE:(?<full_name>.+:(?<version>(?<major_version>\d+)\.(?<minor_version>\d+)))/
+    SIGNATURE = /openSUSE:(?<full_name>.+:(?<version>(?<major_version>\d+)\.(?<minor_version>\d+)))/.freeze
 
     def opensuse_leap_version
       distribution[:version]
@@ -21,10 +21,6 @@ module ObsFactory
 
     def url_suffix
       "distribution/leap/#{opensuse_leap_version}/iso"
-    end
-
-    def openqa_iso_prefix
-      "openSUSE-Leap:#{opensuse_leap_version}-Staging"
     end
 
     def published_arch
@@ -50,11 +46,6 @@ module ObsFactory
       end
 
       stream.read[/openSUSE-#{opensuse_leap_version}-#{published_arch}-Build(.*)-Media/, 1]
-    end
-
-    # URL parameter for Leap
-    def openqa_filter(project)
-      "match=#{opensuse_leap_version}:S:#{project.letter}"
     end
 
     private

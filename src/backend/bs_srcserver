@@ -77,6 +77,7 @@ use BSSrcServer::Product;
 use BSSrcServer::Multibuild;
 use BSSrcServer::Blame;
 use BSSrcServer::Registry;
+use BSSrcServer::Signkey;
 
 # configure modules
 $BSSrcServer::Projlink::getrev       = \&getrev;
@@ -1404,8 +1405,9 @@ sub getprojpack {
 	}
 	# get rid of old multibuild packages, this assumes the main package comes first
 	@packages = grep {!/^\Q$packid\E:/} @packages if $packages_multibuild{$packid};
-	# get current multibuild state
-	my $mb = BSSrcServer::Multibuild::updatemultibuild($projid, $packid, $files, 1);
+	# get current multibuild state, ignoredisable means this is not the scheduler but
+	# a buildinfo query
+	my $mb = BSSrcServer::Multibuild::updatemultibuild($projid, $packid, $files, $cgi->{'ignoredisable'} ? 0 : 1);
 	unshift @packages, map {"$packid:$_"} @{$mb->{'flavor'} || $mb->{'package'} || []} if $mb;
 
 	if ($packid eq '_pattern') {
@@ -1753,31 +1755,13 @@ sub getproject {
 
 #########################################################################
 
-sub pubkey2sslcert {
-  my ($projid, $pubkeyfile, $signkeyfile) = @_;
-  die("don't know how to generate a ssl cert\n") unless $BSConfig::sign;
-  $pubkeyfile ||= "$projectsdir/$projid.pkg/_pubkey";
-  $signkeyfile ||= "$projectsdir/$projid.pkg/_signkey";
-  my @signargs;
-  push @signargs, '--project', $projid if $BSConfig::sign_project;
-  my $cert = '';
-  eval {
-    $cert = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-P', $signkeyfile, '-C', $pubkeyfile);
-  };
-  if ($@) {
-    die("Need an RSA key for openssl signing, please create a new key for $projid\n") if $@ =~ /not an RSA private key/i;
-    die($@);
-  }
-  return $cert;
-}
-
 sub updatesslcert {
   my ($projid, $pubkeyfile, $signkeyfile) = @_;
   my $rev = BSRevision::getrev_meta($projid, undef);
   return undef unless $rev;
   my $files = BSRevision::lsrev($rev);
   return undef unless $files->{'_sslcert'};
-  my $cert = pubkey2sslcert($projid, $pubkeyfile, $signkeyfile);
+  my $cert = BSSrcServer::Signkey::pubkey2sslcert($projid, $pubkeyfile, $signkeyfile);
   mkdir_p($uploaddir);
   writestr("$uploaddir/sslcert.$$", undef, $cert);
   return "$uploaddir/sslcert.$$";
@@ -1788,22 +1772,12 @@ sub createkey {
   $cgi->{'comment'} ||= 'create sign key';
   die("don't know how to create a key\n") unless $BSConfig::sign;
   die("404 project $projid does not exist\n") unless -s "$projectsdir/$projid.xml";
-  mkdir_p($uploaddir);
-  unlink("$uploaddir/signkey.$$");
-  my @keyargs = ('rsa@2048', '800');
-  my @signargs;
-  push @signargs, '--project', $projid if $BSConfig::sign_project;
-  push @signargs, '-P', "$uploaddir/signkey.$$";
-  #push @signargs, '-h', 'sha256';
-  my $obsname = $BSConfig::obsname || 'build.opensuse.org';
-  my $pubkey = '';
-  local *F;
-  open(F, '-|', $BSConfig::sign, @signargs, '-g', @keyargs, "$projid OBS Project", "$projid\@$obsname") || die("$BSConfig::sign: $!\n");
-  1 while sysread(F, $pubkey, 4096, length($pubkey));
-  close(F) || die("$BSConfig::sign: $?\n");
-  die("sign did not create signkey\n") unless -s "$uploaddir/signkey.$$";
+  my ($pubkey, $signkey) = BSSrcServer::Signkey::createkey($projid);
   mkdir_p("$projectsdir/$projid.pkg");
+  mkdir_p($uploaddir);
   writestr("$uploaddir/pubkey.$$", undef, $pubkey);
+  writestr("$uploaddir/signkey.$$", undef, $signkey);
+  chmod(0600, "$uploaddir/signkey.$$");
   my $certfile = updatesslcert($projid, "$uploaddir/pubkey.$$", "$uploaddir/signkey.$$");
   BSRevision::addrev_meta_replace($cgi, $projid, undef,
 	[ "$uploaddir/pubkey.$$",  "$projectsdir/$projid.pkg/_pubkey",  '_pubkey' ],
@@ -1818,18 +1792,10 @@ sub extendkey {
   die("don't know how to extend a key\n") unless $BSConfig::sign;
   die("project does not have a key\n") unless -s "$projectsdir/$projid.pkg/_pubkey";
   die("project does not have a signkey\n") unless -s "$projectsdir/$projid.pkg/_signkey";
-  my @keyargs = ('800');
-  my @signargs;
-  push @signargs, '--project', $projid if $BSConfig::sign_project;
-  push @signargs, '-P', "$projectsdir/$projid.pkg/_signkey";
-  my $pubkey = '';
-  local *F;
-  open(F, '-|', $BSConfig::sign, @signargs, '-x', @keyargs, "$projectsdir/$projid.pkg/_pubkey") || die("$BSConfig::sign: $!\n");
-  1 while sysread(F, $pubkey, 4096, length($pubkey));
-  close(F) || die("$BSConfig::sign: $?\n");
+  my $pubkey = BSSrcServer::Signkey::extendkey($projid, "$projectsdir/$projid.pkg/_pubkey", "$projectsdir/$projid.pkg/_signkey");
   mkdir_p($uploaddir);
   writestr("$uploaddir/pubkey.$$", undef, $pubkey);
-  my $certfile = updatesslcert($projid, "$uploaddir/pubkey.$$");
+  my $certfile = updatesslcert($projid, "$uploaddir/pubkey.$$", "$projectsdir/$projid.pkg/_signkey");
   BSRevision::addrev_meta_replace($cgi, $projid, undef,
 	[ "$uploaddir/pubkey.$$",  "$projectsdir/$projid.pkg/_pubkey",  '_pubkey' ],
 	[ $certfile, undef, '_sslcert' ]);
@@ -4216,6 +4182,25 @@ sub uploadbuild {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   die("illegal package '$packid'\n") if $packid =~ /^_/ && !($packid =~ /^_product:/);
   checkprojrepoarch($projid, $repoid, $arch);
+  if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./ && $packid =~ /^(.*):([^:]*)$/s) {
+    my ($mbpackid, $flavor) = ($1, $2);
+    # check if the flavor is known
+    my $mb = BSSrcServer::Multibuild::getmultibuild($projid, $mbpackid) || {};
+    if (!grep {$_ eq $flavor} @{$mb->{'flavor'} || $mb->{'package'} || []}) {
+      # nope, try to expand, add flavor if it works and it is known
+      eval {
+        my $rev = getrev($projid, $packid, 'latest');
+        my $files = lsrev_expanded($rev);
+        my $newmb = BSSrcServer::Multibuild::getmultibuild_fromfiles($projid, $mbpackid, $files);
+        if (grep {$_ eq $flavor} @{$newmb->{'flavor'} || $newmb->{'package'} || []}) {
+	  BSSrcServer::Multibuild::updatemultibuild($projid, $packid, $files, 1);
+	}
+      };
+      warn($@) if $@;
+      $mb = BSSrcServer::Multibuild::getmultibuild($projid, $mbpackid) || {};
+      die("404 unknown multibuild flavor '$flavor'\n") unless grep {$_ eq $flavor} @{$mb->{'flavor'} || $mb->{'package'} || []};
+    }
+  }
   my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my $param = {
     'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid",
@@ -5115,60 +5100,63 @@ sub published_path {
 ####################################################################
 
 sub autoextend_check {
-  my ($projid, $pk) = @_;
+  my ($skprojid, $pk) = @_;
   return $pk unless $pk;
   my $ex = 0;
   eval { $ex = BSPGP::pk2expire(BSPGP::unarmor($pk)) };
   if ($ex && $ex < time() + 14 * 24 * 3600) {
-    extendkey({'comment' => 'auto-extend public key expiry date'}, $projid);
-    $pk = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
+    extendkey({'comment' => 'auto-extend public key expiry date'}, $skprojid);
+    $pk = readstr("$projectsdir/$skprojid.pkg/_pubkey", 1);
   }
   return $pk;
+}
+
+sub findsignkey {
+  my ($projid) = @_;
+  while ($projid ne '') {
+    my $sk = readstr("$projectsdir/$projid.pkg/_signkey", 1);
+    return ($projid, $sk) if $sk;
+    $projid =~ s/[^:]*$//;
+    $projid =~ s/:$//;
+  }
+  return undef, undef;
 }
 
 sub getsignkey {
   my ($cgi, $projid) = @_;
 
-  while ($projid ne '') {
-    my $sk = readstr("$projectsdir/$projid.pkg/_signkey", 1);
-    if ($sk) {
-      if ($cgi->{'withpubkey'} || $cgi->{'withalgo'}) {
-        my $pk = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
-	$pk = autoextend_check($projid, $pk) if $cgi->{'withpubkey'} && $cgi->{'autoextend'};
-	if ($cgi->{'withalgo'} && $sk !~ /^\S+:/) {
-	  my $algo = '?';
-	  if ($pk) {
-	    eval { $algo = BSPGP::pk2algo(BSPGP::unarmor($pk)) };
-	  }
-	  $sk = "$algo:$sk";
-	}
-	if ($cgi->{'withpubkey'}) {
-          $sk .= "\n" unless $sk =~ /\n$/s;
-          $sk .= $pk if defined $pk;
-	}
-      }
-      return ($sk, 'Content-Type: text/plain') if $sk;
+  my ($skprojid, $sk) = findsignkey($projid);
+  return ('', 'Content-Type: text/plain') unless $sk;
+  if ($cgi->{'withpubkey'} || $cgi->{'withalgo'}) {
+    my $pk = readstr("$projectsdir/$skprojid.pkg/_pubkey", 1);
+    $pk = autoextend_check($skprojid, $pk) if $cgi->{'withpubkey'} && $cgi->{'autoextend'};
+    if ($cgi->{'withalgo'} && $sk !~ /^\S+:/) {
+      my $algo = '?';
+      eval { $algo = BSPGP::pk2algo(BSPGP::unarmor($pk)) if $pk };
+      $sk = "$algo:$sk";
     }
-    $projid =~ s/[^:]*$//;
-    $projid =~ s/:$//;
+    if ($cgi->{'withpubkey'}) {
+      $sk .= "\n" unless $sk =~ /\n$/s;
+      $sk .= $pk if defined $pk;
+    }
   }
-  return ('', 'Content-Type: text/plain');
+  return ($sk, 'Content-Type: text/plain');
 }
 
 sub projid2sslcert {
-  my ($projid, $origprojid, $sk, $nocreate) = @_;
-  my $rev = BSRevision::getrev_meta($projid, undef);
+  my ($skprojid, $sk, $projid, $nocreate) = @_;
+  my $rev = BSRevision::getrev_meta($skprojid, undef);
   my $files = BSRevision::lsrev($rev);
   if (!$files->{'_sslcert'}) {
     return undef if $nocreate;
-    # length(signkey) <= 2 means special handling, don't commit it
     if (!$sk || length($sk) <= 2) {
-      return pubkey2sslcert($origprojid || $projid, "$projectsdir/$projid.pkg/_pubkey");
+      # length(signkey) <= 2 means special handling: do not commit it
+      return BSSrcServer::Signkey::pubkey2sslcert($projid || $skprojid, "$projectsdir/$skprojid.pkg/_pubkey", "$projectsdir/$skprojid.pkg/_signkey");
     }
-    my $cert = pubkey2sslcert($projid);
+    my $cert = BSSrcServer::Signkey::pubkey2sslcert($skprojid, "$projectsdir/$skprojid.pkg/_pubkey", "$projectsdir/$skprojid.pkg/_signkey");
     mkdir_p($uploaddir);
     writestr("$uploaddir/sslcert.$$", undef, $cert);
-    BSRevision::addrev_meta_replace({'comment' => 'automatic cert creation'}, $projid, undef, [ "$uploaddir/sslcert.$$", undef, '_sslcert']);
+    BSRevision::addrev_meta_replace({'comment' => 'automatic cert creation'}, $skprojid, undef, [ "$uploaddir/sslcert.$$", undef, '_sslcert']);
     return $cert;
   }
   return BSRevision::revreadstr($rev, '_sslcert', $files->{'_sslcert'});
@@ -5176,98 +5164,51 @@ sub projid2sslcert {
 
 sub getsslcert {
   my ($cgi, $projid) = @_;
-
-  my $origprojid = $projid;
-  while ($projid ne '') {
-    my $sk = readstr("$projectsdir/$projid.pkg/_signkey", 1);
-    if (!$sk) {
-      $projid =~ s/[^:]*$//;
-      $projid =~ s/:$//;
-      next;
-    }
-    my $pk = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
-    $pk = autoextend_check($projid, $pk) if $cgi->{'autoextend'};
-    my $cert = projid2sslcert($projid, $origprojid, $sk);
+  my ($skprojid, $sk) = findsignkey($projid);
+  if ($sk) {
+    my $pk = readstr("$projectsdir/$skprojid.pkg/_pubkey", 1);
+    $pk = autoextend_check($skprojid, $pk) if $cgi->{'autoextend'};
+    my $cert = projid2sslcert($skprojid, $sk, $projid);
     return ($cert, 'Content-Type: text/plain');
   }
   if ($BSConfig::sign_project && $BSConfig::sign) {
-    # request default cert
-    my $cert = '';
-    local *F;
-    open(F, '-|', $BSConfig::sign, '--project', $origprojid, '-C') || die("$BSConfig::sign: $!\n");
-    1 while sysread(F, $cert, 4096, length($cert));
-    close(F) || die("$BSConfig::sign: $?\n");
-    return ($cert, 'Content-Type: text/plain');
+    my $cert = BSSrcServer::Signkey::getdefaultcert($projid);
+    return ($cert, 'Content-Type: text/plain') if $cert;
   }
   return ('', 'Content-Type: text/plain');
-}
-
-sub pubkeyinfo {
-  my ($pk) = @_;
-
-  my $algo;
-  my $keysize;
-  my $fingerprint;
-  my $expire;
-  eval {
-    my $pku = BSPGP::unarmor($pk);
-    eval { $algo = BSPGP::pk2algo($pku) };
-    eval { $keysize = BSPGP::pk2keysize($pku) };
-    eval { $fingerprint = BSPGP::pk2fingerprint($pku) };
-    eval { $expire = BSPGP::pk2expire($pku) };
-  };
-  my $pubkey = { '_content' => $pk };
-  $pubkey->{'algo'} = $algo if $algo;
-  $pubkey->{'keysize'} = $keysize if $keysize;
-  if ($fingerprint) {
-    $pubkey->{'keyid'} = substr($fingerprint, -8, 8);
-    $fingerprint =~ s/(....)/$1 /g;
-    $fingerprint =~ s/ $//;
-    $pubkey->{'fingerprint'} = $fingerprint;
-  }
-  $pubkey->{'expires'} = $expire if $expire;
-  return $pubkey;
 }
 
 sub getkeyinfo {
   my ($cgi, $projid) = @_;
 
-  my $origprojid = $projid;
-  my ($sk, $pk, $cert);
-  while ($projid ne '') {
-    $sk = readstr("$projectsdir/$projid.pkg/_signkey", 1);
-    last if $sk;
-    $projid =~ s/[^:]*$//;
-    $projid =~ s/:$//;
-  }
-  if ($projid) {
-    $pk = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
+  my ($skprojid, $sk) = findsignkey($projid);
+  my ($pk, $cert);
+  if ($sk) {
+    $pk = readstr("$projectsdir/$skprojid.pkg/_pubkey", 1);
     undef $pk if $pk && length($pk) <= 2;
-    $pk = autoextend_check($projid, $pk) if $cgi->{'autoextend'};
+    $pk = autoextend_check($skprojid, $pk) if $cgi->{'autoextend'};
   }
-  if ($cgi->{'withsslcert'} && $projid && $pk) {
-    $cert = projid2sslcert($projid, $origprojid, $sk, $cgi->{'donotcreatecert'});
+  if ($cgi->{'withsslcert'} && $skprojid && $pk) {
+    $cert = projid2sslcert($skprojid, $sk, $projid, $cgi->{'donotcreatecert'});
   }
-  if ($cgi->{'withsslcert'} && !$projid && $BSConfig::sign_project && $BSConfig::sign) {
-    local *S;
-    open(S, '-|', $BSConfig::sign, '--project', $origprojid, '-C') || die("$BSConfig::sign: $!\n");
-    $cert = '';
-    1 while sysread(S, $cert, 4096, length($cert));
-    $cert = undef unless close(S);
+  if ($cgi->{'withsslcert'} && !$skprojid && $BSConfig::sign_project && $BSConfig::sign) {
+    $cert = BSSrcServer::Signkey::getdefaultcert($projid);
   }
   if (!$pk && $BSConfig::sign_project && $BSConfig::sign) {
-    local *S;
-    open(S, '-|', $BSConfig::sign, '--project', $origprojid, '-p') || die("$BSConfig::sign: $!\n");
-    $pk = '';
-    1 while sysread(S, $pk, 4096, length($pk));
-    $pk = undef unless close(S);
+    $pk = BSSrcServer::Signkey::getdefaultpubkey($projid);
   } elsif (!$pk && $BSConfig::keyfile) {
     $pk = readstr($BSConfig::keyfile, 1);
   }
   my $keyinfo = {};
-  $keyinfo->{'project'} = $projid if $projid;
-  $keyinfo->{'pubkey'} = pubkeyinfo($pk) if $pk;
-  $keyinfo->{'sslcert'} = $cert if $cert;
+  $keyinfo->{'project'} = $skprojid if $skprojid;
+  if ($pk) {
+    $keyinfo->{'pubkey'} = BSSrcServer::Signkey::pubkeyinfo($pk);
+    $keyinfo->{'pubkey'}->{'_content'} = $pk;
+  }
+  if ($cert) {
+    $keyinfo->{'sslcert'} = BSSrcServer::Signkey::certinfo($cert);
+    $keyinfo->{'sslcert'}->{'_content'} = $cert;
+  }
   return ($keyinfo, $BSXML::keyinfo);
 }
 
@@ -6234,8 +6175,14 @@ sub cloudupload_pubkey {
   die("unsupported view '$cgi->{'view'}'\n") if $cgi->{'view'} ne 'info';
   my $pk = BSWatcher::rpc("$BSConfig::clouduploadserver/cloudupload/_pubkey");
   die("no pubkey configured\n") unless $pk;
-  my $pubkey = pubkeyinfo($pk);
-  return ($pubkey, $BSXML::pubkeyinfo);
+  my $pubkeyinfo;
+  if ($pk =~ /^-----BEGIN PUBLIC KEY/s) {
+    $pubkeyinfo = BSSrcServer::Signkey::subjectpublickeyinfo($pk);
+  } else {
+    $pubkeyinfo = BSSrcServer::Signkey::pubkeyinfo($pk);
+    $pubkeyinfo->{'_content'} = $pk;
+  }
+  return ($pubkeyinfo, $BSXML::pubkeyinfo);
 }
 
 sub cloudupload_kill {

@@ -20,7 +20,7 @@ if ENV['RSPEC_HOST'].blank?
     path[':session_id'] = bridge.session_id
 
     bridge.http.call(:post, path, cmd: 'Page.addScriptToEvaluateOnNewDocument',
-                                params: { source: '$.fx.off = true;' })
+                                  params: { source: '$.fx.off = true;' })
     driver
   end
 
@@ -30,7 +30,7 @@ else
     'goog:chromeOptions' => {
       'args' => ['--no-sandbox']
     },
-     browserName: 'chrome'
+    browserName: 'chrome'
   )
 
   Capybara.register_driver :chrome do |app|

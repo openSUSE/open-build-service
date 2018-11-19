@@ -100,19 +100,11 @@ module ObsFactory
     end
 
     delegate :broken_packages, to: :model
+    delegate :checks, to: :model
+    delegate :missing_checks, to: :model
 
-    # Wraps the associated openqa_jobs with the corresponding decorator.
-    #
-    # @return [Array] Array of OpenqaJobPresenter objects
-    def openqa_jobs
-      ObsFactory::OpenqaJobPresenter.wrap(model.openqa_jobs)
-    end
-
-    # Wraps the failed openqa_jobs with the corresponding decorator.
-    #
-    # @return [Array] Array of OpenqaJobPresenter objects
-    def failed_openqa_jobs
-      ObsFactory::OpenqaJobPresenter.wrap(model.openqa_jobs.select { |job| job.failing_modules.present? })
+    def failed_status_checks
+      checks.select { |check| check.failed? }
     end
 
     # return a percentage counting the reviewed requests / total requests
@@ -130,16 +122,25 @@ module ObsFactory
     end
 
     def testing_percentage
-      jobs = model.openqa_jobs
-      notdone = 0
-      jobs.each do |job|
-        notdone += 1 unless %w(passed failed).include?(job.result)
+      notdone = missing_checks.size
+      checks.each do |check|
+        notdone += 1 if check.pending?
       end
-      if jobs.size > 0
-        100 - notdone * 100 / jobs.size
+      allchecks = missing_checks.size + checks.size
+      if allchecks > 0
+        100 - notdone * 100 / allchecks
       else
         0
       end
+    end
+
+    # link to 'testing X%' - next best pending check
+    def testing_url
+      checks.each do |check|
+        next unless check.pending?
+        return check.url if check.url.present?
+      end
+      nil
     end
 
     # returns a number presenting how high it should be in the list of staging prjs

@@ -6,7 +6,7 @@
     content = render(partial: 'shared/flag_popover',
                      locals: { flag: flag, project: project, package: package, remote: !flag.has_children })
   end
-  icon_class = flag.effective_status == 'disable' ? 'fa-ban text-danger' : 'fa-check text-primary'
+  icon_class = flag.effective_status == 'disable' ? 'fa-ban text-danger' : 'fa-check text-success'
   icon_class += ' ml-0_6' if is_flag_set_by_user
 
 %div{ id: flag.fullname }

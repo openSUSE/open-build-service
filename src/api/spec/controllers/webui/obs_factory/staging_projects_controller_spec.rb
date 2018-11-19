@@ -160,11 +160,241 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
         it 'responds with a json representation of the staging project' do
           response = JSON.parse(subject.body)
           expect(response).to include(
-            'name'              => 'openSUSE:Factory:Staging:A',
-            'description'       => description,
+            'name' => 'openSUSE:Factory:Staging:A',
+            'description' => description,
             'obsolete_requests' => [JSON.parse(declined_bs_request.to_json)],
-            'overall_state'     => 'unacceptable'
+            'overall_state' => 'unacceptable'
           )
+        end
+      end
+
+      context 'with checks' do
+        let(:one_request) do
+          create(:bs_request_with_submit_action,
+                 target_project: factory.name,
+                 source_project: source_package.project.name,
+                 source_package: source_package.name)
+        end
+        let(:meta) do
+          <<-DESCRIPTION
+                     requests:
+                       - { id: #{one_request.number} }
+          DESCRIPTION
+        end
+        let(:factory_staging_d) { create(:project, name: 'openSUSE:Factory:Staging:D', description: meta) }
+        let!(:images_repository) { create(:repository, project: factory_staging_d, name: 'images', architectures: ['local']) }
+        let(:images_local_arch) { images_repository.repository_architectures.first }
+        let(:published_report) { create(:status_report, checkable: images_repository) }
+        let(:build_report) { create(:status_report, checkable: images_local_arch) }
+
+        before do
+          path = "#{CONFIG['source_url']}/published/openSUSE:Factory:Staging:D/images?view=status"
+          d_status = "<status code='succeeded'><starttime>1541096739</starttime><endtime>1541096742</endtime><buildid>#{published_report.uuid}</buildid></status>"
+          stub_request(:get, path).and_return(body: d_status)
+
+          path = "#{CONFIG['source_url']}/build/openSUSE:Factory:Staging:D/images/local?view=status"
+          d_status = "<status code='succeeded'><starttime>1541096739</starttime><endtime>1541096742</endtime><buildid>#{build_report.uuid}</buildid></status>"
+          stub_request(:get, path).and_return(body: d_status)
+        end
+
+        context 'has no checks at all' do
+          it 'returns acceptable' do
+            get :show, params: { project: factory, project_name: 'D' }, format: :json
+            expect(response).to have_http_status(:success)
+
+            json_hash = JSON.parse(response.body)
+            expect(json_hash).to include(
+              'missing_checks' => [],
+              'checks' => [],
+              'overall_state' => 'acceptable'
+            )
+          end
+        end
+
+        context 'required check on published repo' do
+          before do
+            images_repository.required_checks = ['openqa']
+            images_repository.save
+          end
+
+          it 'returns missing check' do
+            get :show, params: { project: factory, project_name: 'D' }, format: :json
+            expect(response).to have_http_status(:success)
+
+            expect(JSON.parse(response.body)).to include(
+              'missing_checks' => ['openqa'],
+              'checks' => [],
+              'overall_state' => 'testing'
+            )
+          end
+        end
+
+        context 'required check on build repo' do
+          before do
+            images_local_arch.required_checks = ['openqa']
+            images_local_arch.save
+          end
+
+          it 'returns missing check' do
+            get :show, params: { project: factory, project_name: 'D' }, format: :json
+            expect(response).to have_http_status(:success)
+
+            expect(JSON.parse(response.body)).to include(
+              'missing_checks' => ['openqa'],
+              'checks' => [],
+              'overall_state' => 'testing'
+            )
+          end
+        end
+
+        context 'published repo has pending check' do
+          let!(:check) { create(:check, name: 'openqa', state: 'pending', status_report: published_report) }
+
+          it 'returns testing' do
+            get :show, params: { project: factory, project_name: 'D' }, format: :json
+            expect(response).to have_http_status(:success)
+
+            json_hash = JSON.parse(response.body)
+            expect(json_hash).to include(
+              'missing_checks' => [],
+              'checks' => [check.serializable_hash],
+              'overall_state' => 'testing'
+            )
+          end
+        end
+
+        context 'published repo has failed check' do
+          let!(:check) { create(:check, name: 'openqa', state: 'failure', status_report: published_report) }
+
+          it 'returns failed' do
+            get :show, params: { project: factory, project_name: 'D' }, format: :json
+            expect(response).to have_http_status(:success)
+
+            json_hash = JSON.parse(response.body)
+            expect(json_hash).to include(
+              'missing_checks' => [],
+              'checks' => [check.serializable_hash],
+              'overall_state' => 'failed'
+            )
+          end
+        end
+
+        context 'published repo has succeeded check' do
+          let!(:check) { create(:check, name: 'openqa', state: 'success', status_report: published_report) }
+
+          it 'returns acceptable' do
+            get :show, params: { project: factory, project_name: 'D' }, format: :json
+            expect(response).to have_http_status(:success)
+
+            json_hash = JSON.parse(response.body)
+            expect(json_hash).to include(
+              'missing_checks' => [],
+              'checks' => [check.serializable_hash],
+              'overall_state' => 'acceptable'
+            )
+          end
+        end
+
+        context 'published repo has failed check but wrong buildid' do
+          let!(:check) { create(:check, name: 'openqa', state: 'failure', status_report: published_report) }
+
+          before do
+            published_report.uuid = 'doesnotmatch'
+            published_report.save
+          end
+
+          it 'returns acceptable without required checks' do
+            get :show, params: { project: factory, project_name: 'D' }, format: :json
+            expect(response).to have_http_status(:success)
+
+            json_hash = JSON.parse(response.body)
+            expect(json_hash).to include(
+              'missing_checks' => [],
+              'checks' => [],
+              'overall_state' => 'acceptable'
+            )
+          end
+
+          it 'returns testing with required checks' do
+            images_repository.required_checks = ['openqa']
+            images_repository.save
+
+            get :show, params: { project: factory, project_name: 'D' }, format: :json
+            expect(response).to have_http_status(:success)
+
+            json_hash = JSON.parse(response.body)
+            expect(json_hash).to include(
+              'missing_checks' => ['openqa'],
+              'checks' => [],
+              'overall_state' => 'testing'
+            )
+          end
+        end
+
+        context 'required check on build repo' do
+          before do
+            images_local_arch.required_checks = ['openqa']
+            images_local_arch.save
+          end
+
+          it 'returns missing check' do
+            get :show, params: { project: factory, project_name: 'D' }, format: :json
+            expect(response).to have_http_status(:success)
+
+            expect(JSON.parse(response.body)).to include(
+              'missing_checks' => ['openqa'],
+              'checks' => [],
+              'overall_state' => 'testing'
+            )
+          end
+        end
+
+        context 'build repo has pending check' do
+          let!(:check) { create(:check, name: 'openqa', state: 'pending', status_report: build_report) }
+
+          it 'returns testing' do
+            get :show, params: { project: factory, project_name: 'D' }, format: :json
+            expect(response).to have_http_status(:success)
+
+            json_hash = JSON.parse(response.body)
+            expect(json_hash).to include(
+              'missing_checks' => [],
+              'checks' => [check.serializable_hash],
+              'overall_state' => 'testing'
+            )
+          end
+        end
+
+        context 'build repo has failed check' do
+          let!(:check) { create(:check, name: 'openqa', state: 'failure', status_report: build_report) }
+
+          it 'returns failed' do
+            get :show, params: { project: factory, project_name: 'D' }, format: :json
+            expect(response).to have_http_status(:success)
+
+            json_hash = JSON.parse(response.body)
+            expect(json_hash).to include(
+              'missing_checks' => [],
+              'checks' => [check.serializable_hash],
+              'overall_state' => 'failed'
+            )
+          end
+        end
+
+        context 'build repo has succeeded check' do
+          let!(:check) { create(:check, name: 'openqa', state: 'success', status_report: build_report) }
+
+          it 'returns acceptable' do
+            get :show, params: { project: factory, project_name: 'D' }, format: :json
+            expect(response).to have_http_status(:success)
+
+            json_hash = JSON.parse(response.body)
+            expect(json_hash).to include(
+              'missing_checks' => [],
+              'checks' => [check.serializable_hash],
+              'overall_state' => 'acceptable'
+            )
+          end
         end
       end
     end

@@ -52,8 +52,8 @@ Role.where(title: 'Staff').first_or_create(global: true)
 
 puts 'Seeding users table...'
 admin = User.where(login: 'Admin').first_or_create(login: 'Admin', email: 'root@localhost',
-                                                    realname: 'OBS Instance Superuser', state: 'confirmed',
-                                                    password: 'opensuse')
+                                                   realname: 'OBS Instance Superuser', state: 'confirmed',
+                                                   password: 'opensuse')
 admin.update!(in_beta: true) if Rails.env.development?
 
 User.where(login: '_nobody_').first_or_create(login: '_nobody_', email: 'nobody@localhost',
@@ -317,7 +317,7 @@ IssueTracker.where(name: 'osc').first_or_create(description: 'OBS CLI Issues',
                                                 url: 'https://api.github.com/repos/openSUSE/osc/issues',
                                                 label: 'osc#@@@', show_url: 'https://github.com/openSUSE/osc/issues/@@@')
 IssueTracker.where(name: 'lf').first_or_create(description: 'Linux Foundation Bugzilla',
-                                                kind: 'bugzilla',
-                                                regex: 'lf#(\d+)',
-                                                url: 'https://developerbugs.linuxfoundation.org',
-                                                label: 'lf#@@@', show_url: 'https://developerbugs.linuxfoundation.org/show_bug.cgi?id=@@@')
+                                               kind: 'bugzilla',
+                                               regex: 'lf#(\d+)',
+                                               url: 'https://developerbugs.linuxfoundation.org',
+                                               label: 'lf#@@@', show_url: 'https://developerbugs.linuxfoundation.org/show_bug.cgi?id=@@@')

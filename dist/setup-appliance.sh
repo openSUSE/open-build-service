@@ -139,7 +139,14 @@ function get_hostname {
   if [[ $1 && $BOOTSTRAP_TEST_MODE == 1 ]];then
     FQHOSTNAME=$1
   else
-     FQHOSTNAME=`hostname -f 2>/dev/null`
+    TIMEOUT=600
+    while [ -z "$FQHOSTNAME" ];do
+      FQHOSTNAME=`hostname -f 2>/dev/null`
+      TIMEOUT=$(($TIMEOUT-1))
+      [ "$TIMEOUT" -le 0 ] && break
+      echo "Waiting for FQHOSTNAME ($TIMEOUT)"
+      sleep 1
+    done
   fi
 
   if type -p ec2-public-hostname; then
@@ -608,9 +615,17 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
       --non-interactive) NON_INTERACTIVE=1;;
       --setup-only) SETUP_ONLY=1;;
       --enable-optional-services) ENABLE_OPTIONAL_SERVICES=1;;
+      --force) OBS_API_AUTOSETUP="yes";;
     esac
     shift
   done
+
+  if [ "$OBS_API_AUTOSETUP" != "yes" ]; then
+    echo "OBS API Autosetup is not enabled in sysconfig, skipping!"
+    exit 0
+  fi
+
+  [[ $HOME == '' ]] && export HOME=/root
 
   # prepare configuration for obssigner before any other backend service
   # is started, because obssigner configuration might affect other services

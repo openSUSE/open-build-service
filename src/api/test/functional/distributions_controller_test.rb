@@ -12,29 +12,29 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
     get distribution_path(id: distributions(:two).to_param)
     assert_response :success
     # the default XML renderer just s***s
-    assert_equal({ 'id'            => { 'type' => 'integer', '_content' => '2' },
-                   'link'          => 'http://www.openbuildservice.org/',
-                   'name'          => 'OBS Base 2.0',
-                   'project'       => 'BaseDistro2.0',
-                   'reponame'      => 'Base_repo',
-                   'repository'    => 'BaseDistro2_repo',
-                   'vendor'        => 'OBS',
-                   'version'       => 'Base',
+    assert_equal({ 'id' => { 'type' => 'integer', '_content' => '2' },
+                   'link' => 'http://www.openbuildservice.org/',
+                   'name' => 'OBS Base 2.0',
+                   'project' => 'BaseDistro2.0',
+                   'reponame' => 'Base_repo',
+                   'repository' => 'BaseDistro2_repo',
+                   'vendor' => 'OBS',
+                   'version' => 'Base',
                    'architectures' =>
-                                      { 'type'         => 'array',
+                                      { 'type' => 'array',
                                         'architecture' => ['i586', 'x86_64'] },
-                   'icons'         =>
+                   'icons' =>
                                       { 'type' => 'array',
                                         'icon' =>
-                                                  [{ 'id'     => { 'type' => 'integer', '_content' => '72' },
-                                                     'url'    =>
+                                                  [{ 'id' => { 'type' => 'integer', '_content' => '72' },
+                                                     'url' =>
                                                                  'https://static.opensuse.org/distributions/logos/opensuse-Factory-8.png',
-                                                     'width'  => { 'type' => 'integer', '_content' => '8' },
+                                                     'width' => { 'type' => 'integer', '_content' => '8' },
                                                      'height' => { 'type' => 'integer', '_content' => '8' } },
-                                                   { 'id'     => { 'type' => 'integer', '_content' => '73' },
-                                                     'url'    =>
+                                                   { 'id' => { 'type' => 'integer', '_content' => '73' },
+                                                     'url' =>
                                                                  'https://static.opensuse.org/distributions/logos/opensuse-Factory-16.png',
-                                                     'width'  => { 'type' => 'integer', '_content' => '16' },
+                                                     'width' => { 'type' => 'integer', '_content' => '16' },
                                                      'height' => { 'type' => 'integer', '_content' => '16' } }] } }, Xmlhash.parse(@response.body))
   end
 
@@ -108,15 +108,15 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'repository', content: 'standard'
     assert_xml_tag tag: 'link', content: 'http://www.opensuse.org/'
     assert_xml_tag tag: 'icon', attributes: { url: 'https://static.opensuse.org/distributions/logos/opensuse-12.2-8.png',
-                                                    width: '8', height: '8' }
+                                              width: '8', height: '8' }
     # local repos
     assert_no_xml_tag parent: { tag: 'distribution', attributes: { vendor: 'openSUSE', version: '1.0' } },
-                   tag: 'architecture'
+                      tag: 'architecture'
     assert_xml_tag parent: { tag: 'distribution', attributes: { vendor: 'OBS', version: 'Base' } },
                    tag: 'architecture', content: 'x86_64'
     # remote repos
     assert_no_xml_tag parent: { tag: 'distribution', attributes: { vendor: 'openSUSE', version: 'Factory' } },
-                   tag: 'architecture'
+                      tag: 'architecture'
     assert_xml_tag parent: { tag: 'distribution', attributes: { vendor: 'openSUSE', version: '12.2' } },
                    tag: 'architecture', content: 'aarch64'
   end

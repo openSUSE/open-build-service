@@ -9,7 +9,7 @@ RSpec.describe UpdateBackendInfosJob, vcr: true do
   let(:user) { create(:admin_user, login: 'myself') }
   let(:event) do
     Event::UndeletePackage.create('project' => project.name, 'package' => package.name,
-                               'sender' => user.login, 'comment' => 'fake_payload_comment')
+                                  'sender' => user.login, 'comment' => 'fake_payload_comment')
   end
 
   context 'for an event with a package' do

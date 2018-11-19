@@ -341,8 +341,8 @@ class Webui::PackageController < Webui::WebuiController
         begin
           r = BsRequest.find_by_number!(request_number)
           opts = {
-            newstate:      'superseded',
-            reason:        "Superseded by request #{req.number}",
+            newstate: 'superseded',
+            reason: "Superseded by request #{req.number}",
             superseded_by: req.number
           }
           r.change_state(opts)
@@ -431,10 +431,10 @@ class Webui::PackageController < Webui::WebuiController
         return # ignore all !declined
       end
       return {
-        id:       last_req.number,
+        id: last_req.number,
         decliner: last_req.commenter,
-        when:     last_req.updated_at,
-        comment:  last_req.comment
+        when: last_req.updated_at,
+        comment: last_req.comment
       }
     end
     return
@@ -1136,8 +1136,8 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     begin
-      @package = Package.get_by_project_and_name(@project, params[:package], use_source:           false,
-                                                                             follow_multibuild:    true,
+      @package = Package.get_by_project_and_name(@project, params[:package], use_source: false,
+                                                                             follow_multibuild: true,
                                                                              follow_project_links: true)
     rescue Package::UnknownObjectError
       redirect_to project_show_path(@project.to_param),

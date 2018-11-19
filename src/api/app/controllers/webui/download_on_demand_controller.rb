@@ -8,7 +8,7 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
     begin
       ActiveRecord::Base.transaction do
         @download_on_demand.repository.repository_architectures.where(
-          repository:   @download_on_demand.repository,
+          repository: @download_on_demand.repository,
           architecture: Architecture.find_by_name(permitted_params[:arch])
         ).first_or_create!
         @download_on_demand.save!
@@ -29,7 +29,7 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
     begin
       ActiveRecord::Base.transaction do
         @download_on_demand.repository.repository_architectures.where(
-          repository:   @download_on_demand.repository,
+          repository: @download_on_demand.repository,
           architecture: Architecture.find_by_name(permitted_params[:arch])
         ).first_or_create!
         @download_on_demand.update_attributes!(permitted_params)

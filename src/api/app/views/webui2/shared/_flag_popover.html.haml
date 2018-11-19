@@ -9,7 +9,7 @@
     = link_to(create_repository_flag_path(project: project, package: package, flag: flag.flag,
               status: 'enable', repository: flag.repo, architecture: flag.arch), method: :post, remote: remote,
               class: 'popover_flag_action', data: { flag_id: flag.fullname }) do
-      %i.fas.fa-check.text-primary
+      %i.fas.fa-check.text-success
       Enable
 - else
   %div
@@ -19,10 +19,10 @@
         %i.fas.fa-ban.text-danger
         Disable
       - else
-        %i.fas.fa-check.text-primary
+        %i.fas.fa-check.text-success
         Enable
   .pt-2
     = link_to(remove_repository_flag_path(project: project, package: package, flag: flag),
               method: :delete, remote: remote, class: 'popover_flag_action', data: { flag_id: flag.fullname }) do
-      %i.fas{ class: flag.default_status == 'disable' ? 'fa-ban text-danger' : 'fa-check text-primary' }
+      %i.fas{ class: flag.default_status == 'disable' ? 'fa-ban text-danger' : 'fa-check text-success' }
       Take default (#{flag.default_status})

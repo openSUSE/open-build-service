@@ -27,7 +27,7 @@ RSpec.describe Status::ReportsController, type: :controller do
       it { expect(assigns(:missing_checks)).to contain_exactly('openQA') }
     end
 
-    context 'for repository' do
+    context 'for published repository' do
       let(:project) { create(:project_with_repository) }
       let(:repository) { project.repositories.first }
       let(:status_report) { create(:status_report, checkable: repository) }
@@ -38,6 +38,27 @@ RSpec.describe Status::ReportsController, type: :controller do
       end
 
       subject! { get :show, params: { project_name: project.name, repository_name: repository.name, report_uuid: status_report.uuid }, format: :xml }
+
+      it { is_expected.to have_http_status(:success) }
+      it { expect(assigns(:checks)).to contain_exactly(check) }
+      it { expect(assigns(:missing_checks)).to contain_exactly('openQA') }
+    end
+
+    context 'for built repository' do
+      let(:project) { create(:project_with_repository) }
+      let(:repository) { project.repositories.first }
+      let(:repository_architecture) { create(:repository_architecture, repository: repository) }
+      let(:status_report) { create(:status_report, checkable: repository_architecture) }
+      let!(:check) { create(:check, status_report: status_report, name: 'ExampleCI') }
+
+      before do
+        repository_architecture.update_attributes!(required_checks: ['openQA'])
+      end
+
+      subject! do
+        get :show, params: { project_name: project.name, repository_name: repository.name,
+                             arch: repository_architecture.architecture.name, report_uuid: status_report.uuid }, format: :xml
+      end
 
       it { is_expected.to have_http_status(:success) }
       it { expect(assigns(:checks)).to contain_exactly(check) }

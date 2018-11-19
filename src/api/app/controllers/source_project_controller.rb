@@ -63,8 +63,8 @@ class SourceProjectController < SourceController
     end
     project.check_weak_dependencies!
     opts = { no_write_to_backend: true,
-             force:               params[:force].present?,
-             recursive_remove:    params[:remove_linking_repositories].present? }
+             force: params[:force].present?,
+             recursive_remove: params[:remove_linking_repositories].present? }
     check_and_remove_repositories!(project.repositories, opts)
 
     logger.info "destroying project object #{project.name}"

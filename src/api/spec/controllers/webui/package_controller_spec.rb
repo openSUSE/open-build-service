@@ -118,8 +118,8 @@ RSpec.describe Webui::PackageController, vcr: true do
                  source_package: package.name,
                  target_project: target_project.name,
                  target_package: package.name,
-                 type:           'submit',
-                 source_rev:     2
+                 type: 'submit',
+                 source_rev: 2
         )).to exist
       end
     end
@@ -476,9 +476,9 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       context "adding a file that doesn't exist yet" do
         before do
-          do_request(project:   source_project,
-                     package:   source_package,
-                     filename:  'newly_created_file',
+          do_request(project: source_project,
+                     package: source_package,
+                     filename: 'newly_created_file',
                      file_type: 'local',
                      file: 'some_content')
         end
@@ -1092,7 +1092,7 @@ RSpec.describe Webui::PackageController, vcr: true do
                </result>
               </resultlist>))
           do_request project: source_project_with_plus, package: package_of_project_with_plus,
-            repository: repo_leap_45_1.name, arch: 'i586', format: 'js'
+                     repository: repo_leap_45_1.name, arch: 'i586', format: 'js'
         end
 
         it { expect(response).to have_http_status(:ok) }
@@ -1155,10 +1155,10 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       context 'with a multibuild package' do
         let(:params) do
-          { project:    source_project,
-            package:    "#{source_package}:multibuild-package",
+          { project: source_project,
+            package: "#{source_package}:multibuild-package",
             repository: repo_leap_42_2.name,
-            arch:       architecture.name }
+            arch: architecture.name }
         end
         let(:starttime) { 1.hour.ago.to_i }
 
@@ -1223,10 +1223,10 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       context 'for multibuild package' do
         let(:params) do
-          { project:    source_project,
-            package:    "#{source_package}:multibuild-package",
+          { project: source_project,
+            package: "#{source_package}:multibuild-package",
             repository: repo_leap_42_2.name,
-            arch:       architecture.name }
+            arch: architecture.name }
         end
 
         before do
@@ -1444,7 +1444,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     it { expect(assigns(:project)).to eq(source_project) }
     it { expect(assigns(:tpkg)).to eq(source_package.name) }
     it { expect(assigns(:tprj)).to eq(source_project.name) }
-    it { expect(assigns(:description)).to eq("- Testing the submit diff\n- Temporary hack") }
+    it { expect(assigns(:description)).to eq("- Testing the submit diff\n- Temporary hack\n") }
   end
 
   describe 'GET #binary' do
@@ -1650,8 +1650,8 @@ RSpec.describe Webui::PackageController, vcr: true do
     let(:my_user) { user }
     let(:post_params) do
       { project: source_project, name: package_name,
-                              title: 'package foo',
-                              description: 'awesome package foo' }
+        title: 'package foo',
+        description: 'awesome package foo' }
     end
 
     context 'Package#save failed' do
@@ -1680,9 +1680,9 @@ RSpec.describe Webui::PackageController, vcr: true do
       context 'valid package with source_protection enabled' do
         let(:post_params) do
           { project: source_project, name: package_name,
-                                  title: 'package foo',
-                                  description: 'awesome package foo', source_protection: 'foo',
-                                  disable_publishing: 'bar' }
+            title: 'package foo',
+            description: 'awesome package foo', source_protection: 'foo',
+            disable_publishing: 'bar' }
         end
 
         it { expect(Package.find_by(name: package_name).flags).to include(Flag.find_by_flag('sourceaccess')) }

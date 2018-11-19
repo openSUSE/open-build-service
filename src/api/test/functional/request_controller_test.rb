@@ -275,18 +275,18 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'state', attributes: { name: 'accepted', who: 'Iggy' })
     assert_xml_tag(tag: 'history', attributes: { who: 'Iggy' })
     assert_equal({
-                   'id'          => id,
-                   'creator'     => 'Iggy',
-                   'action'      => {
-                     'type'       => 'submit',
-                     'source'     => { 'project' => 'home:Iggy:branches:home:Iggy', 'package' => 'NEW_PACKAGE' },
-                     'target'     => { 'project' => 'home:Iggy', 'package' => 'NEW_PACKAGE' },
-                     'options'    => { 'sourceupdate' => 'cleanup' },
+                   'id' => id,
+                   'creator' => 'Iggy',
+                   'action' => {
+                     'type' => 'submit',
+                     'source' => { 'project' => 'home:Iggy:branches:home:Iggy', 'package' => 'NEW_PACKAGE' },
+                     'target' => { 'project' => 'home:Iggy', 'package' => 'NEW_PACKAGE' },
+                     'options' => { 'sourceupdate' => 'cleanup' },
                      'acceptinfo' => { 'rev' => '1', 'srcmd5' => '1ded65e42c0f04bd08075dfd1fd08105', 'osrcmd5' => 'd41d8cd98f00b204e9800998ecf8427e' }
                    },
-                   'priority'    => 'low',
-                   'state'       => { 'name' => 'accepted', 'who' => 'Iggy', 'when' => '2010-07-12T00:00:04', 'comment' => 'approved' },
-                   'history'     => [
+                   'priority' => 'low',
+                   'state' => { 'name' => 'accepted', 'who' => 'Iggy', 'when' => '2010-07-12T00:00:04', 'comment' => 'approved' },
+                   'history' => [
                      { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:00', 'description' => 'Request created', 'comment' => 'DESCRIPTION IS HERE' },
                      { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:01', 'description' => 'Request got a new priority: critical => low', 'comment' => 'dontcare' },
                      { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:02', 'description' => 'Request got declined', 'comment' => 'notgood' },
@@ -787,7 +787,16 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   def test_create_request_approve_and_review
     login_Iggy
 
-    req = load_backend_file('request/works')
+    req = <<~XML_REQUEST
+      <request>
+        <action type="submit">
+          <source project="home:Iggy" package="TestPack" rev="1"/>
+          <target project="home:fred" package="foopkg"/>
+        </action>
+        <review by_group="test_group"/>
+        <review by_user="adrian"/>
+      </request>
+    XML_REQUEST
     post '/request?cmd=create', params: req
     assert_response :success
     assert_xml_tag(tag: 'request')
@@ -823,12 +832,62 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(tag: 'state', attributes: { name: 'accepted', who: 'fred', approver: 'fred' })
 
-    get '/source/kde4/mypackage/_history'
+    get '/source/home:fred/foopkg/_history'
     assert_response :success
     node = Xmlhash.parse(@response.body)
     first_node = node.elements('revision').first
     assert_equal 'fred', first_node['user']
     assert_equal id, first_node['requestid']
+
+    # cleanup
+    delete '/source/home:fred/foopkg'
+    assert_response :success
+  end
+
+  def test_create_request_with_approver
+    req_template = <<~XML_REQUEST
+      <request>
+        <action type="submit">
+          <source project="home:Iggy" package="TestPack" rev="1"/>
+          <target project="home:fred" package="foopkg"/>
+        </action>
+        <review by_group="test_group"/>
+        <state approver="%<approver>s"/>
+      </request>
+    XML_REQUEST
+
+    login_Iggy
+    # request creation fails because we are not admin
+    post '/request?cmd=create', params: format(req_template, approver: 'fred')
+    assert_response 403
+    assert_xml_tag(tag: 'status', attributes: { code: 'create_bs_request_not_authorized' })
+    assert_xml_tag(tag: 'summary', content: 'You are not authorized to create this Bs request.')
+
+    # request creation succeeds because we are "Iggy"
+    post '/request?cmd=create', params: format(req_template, approver: 'Iggy')
+    assert_response :success
+
+    # as admin it should work
+    login_king
+    # request creation succeeds because we are "Iggy"
+    post '/request?cmd=create', params: format(req_template, approver: 'Iggy')
+    assert_response :success
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    id = node.value(:id)
+
+    # accept review
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
+    assert_response :success
+
+    # the request was not accepted because the approver "Iggy" has no
+    # sufficient permissions to create a new package in the "home:fred"
+    # project => the request is automatically revoked
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(tag: 'state',
+                   attributes: { name: 'revoked', who: 'Iggy',
+                                 approver: 'Iggy' })
   end
 
   def test_create_request_and_supersede
@@ -980,64 +1039,64 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(parent: { tag: 'review', attributes: { state: 'accepted', by_user: 'tom' } }, tag: 'comment', content: 'review1')
     assert_xml_tag(parent: { tag: 'review', attributes: { state: 'new', by_user: 'tom' } }, tag: 'comment', content: 'reopen2')
     node = Xmlhash.parse(@response.body)
-    assert_equal({ 'id'      => id.to_s,
+    assert_equal({ 'id' => id.to_s,
                    'creator' => 'Iggy',
-                   'action'  => {
-                     'type'   => 'add_role',
+                   'action' => {
+                     'type' => 'add_role',
                      'target' => { 'project' => 'home:Iggy', 'package' => 'TestPack' },
                      'person' => { 'name' => 'Iggy', 'role' => 'reviewer' }
                    },
-                   'state'   => {
-                     'name'    => 'review',
-                     'who'     => 'tom',
-                     'when'    => '2010-07-12T00:00:05',
+                   'state' => {
+                     'name' => 'review',
+                     'who' => 'tom',
+                     'when' => '2010-07-12T00:00:05',
                      'comment' => 'reopen2'
                    },
-                   'review'  => [{
-                     'state'   => 'accepted',
-                     'when'    => '2010-07-12T00:00:01',
-                     'who'     => 'tom',
+                   'review' => [{
+                     'state' => 'accepted',
+                     'when' => '2010-07-12T00:00:01',
+                     'who' => 'tom',
                      'by_user' => 'tom',
                      'comment' => 'review1',
                      'history' => {
-                       'who'         => 'tom',
-                       'when'        => '2010-07-12T00:00:02',
+                       'who' => 'tom',
+                       'when' => '2010-07-12T00:00:02',
                        'description' => 'Review got accepted',
-                       'comment'     => 'review1'
+                       'comment' => 'review1'
                      }
                    }, {
-                     'state'   => 'new',
-                     'when'    => '2010-07-12T00:00:03',
-                     'who'     => 'tom',
+                     'state' => 'new',
+                     'when' => '2010-07-12T00:00:03',
+                     'who' => 'tom',
                      'by_user' => 'tom',
                      'comment' => 'reopen2',
                      'history' => [{ 'who' => 'tom', 'when' => '2010-07-12T00:00:04',
-                                    'description' => 'Review got accepted',
-                                    'comment' => 'review2' },
+                                     'description' => 'Review got accepted',
+                                     'comment' => 'review2' },
                                    { 'who' => 'tom', 'when' => '2010-07-12T00:00:05',
-                                    'description' => 'Review got reopened',
-                                    'comment' => 'reopen2' }]
+                                     'description' => 'Review got reopened',
+                                     'comment' => 'reopen2' }]
                    }],
                    'history' => [
-                     { 'who'         => 'Iggy',
-                       'when'        => '2010-07-12T00:00:00',
+                     { 'who' => 'Iggy',
+                       'when' => '2010-07-12T00:00:00',
                        'description' => 'Request created' },
                      { 'description' => 'Request got a new review request',
-                       'who'         => 'Iggy',
-                       'when'        => '2010-07-12T00:00:01',
-                       'comment'     => 'couldyou' },
+                       'who' => 'Iggy',
+                       'when' => '2010-07-12T00:00:01',
+                       'comment' => 'couldyou' },
                      { 'description' => 'Request got reviewed',
-                       'who'         => 'tom',
-                       'when'        => '2010-07-12T00:00:02',
-                       'comment'     => 'review1' },
+                       'who' => 'tom',
+                       'when' => '2010-07-12T00:00:02',
+                       'comment' => 'review1' },
                      { 'description' => 'Request got a new review request',
-                       'who'         => 'Iggy',
-                       'when'        => '2010-07-12T00:00:03',
-                       'comment'     => 'overlooked' },
+                       'who' => 'Iggy',
+                       'when' => '2010-07-12T00:00:03',
+                       'comment' => 'overlooked' },
                      { 'description' => 'Request got reviewed',
-                       'who'         => 'tom',
-                       'when'        => '2010-07-12T00:00:04',
-                       'comment'     => 'review2' }
+                       'who' => 'tom',
+                       'when' => '2010-07-12T00:00:04',
+                       'comment' => 'review2' }
                    ] }, node)
   end
 
@@ -3343,19 +3402,19 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     get "/request/#{id}?withhistory=1"
     node = Xmlhash.parse(@response.body)
-    assert_equal({ 'id'      => id,
+    assert_equal({ 'id' => id,
                    'creator' => 'Iggy',
-                   'action'  =>
-                                { 'type'   => 'add_role',
+                   'action' =>
+                                { 'type' => 'add_role',
                                   'target' => { 'project' => 'home:Iggy:fordecline' },
                                   'person' => { 'name' => 'Iggy', 'role' => 'reviewer' } },
-                   'state'   =>
-                                { 'name'    => 'declined',
-                                  'who'     => 'Iggy',
-                                  'when'    => '2010-07-12T00:00:01',
+                   'state' =>
+                                { 'name' => 'declined',
+                                  'who' => 'Iggy',
+                                  'when' => '2010-07-12T00:00:01',
                                   'comment' => "The target project 'home:Iggy:fordecline' has been removed" },
-                   'history' => [{ 'who'         => 'Iggy',
-                                   'when'        => '2010-07-12T00:00:00',
+                   'history' => [{ 'who' => 'Iggy',
+                                   'when' => '2010-07-12T00:00:00',
                                    'description' => 'Request created' },
                                  { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:01',
                                    'description' => 'Request got declined',
@@ -3367,24 +3426,24 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     get "/request/#{id}?withhistory=1"
     node = Xmlhash.parse(@response.body)
-    assert_equal({ 'id'      => id,
+    assert_equal({ 'id' => id,
                    'creator' => 'Iggy',
-                   'action'  =>
-                                { 'type'   => 'add_role',
+                   'action' =>
+                                { 'type' => 'add_role',
                                   'target' => { 'project' => 'home:Iggy:fordecline' },
                                   'person' => { 'name' => 'Iggy', 'role' => 'reviewer' } },
-                   'state'   => { 'name'    => 'revoked',
-                                  'who'     => 'Iggy',
-                                  'when'    => '2010-07-12T00:00:02',
-                                  'comment' => {} },
+                   'state' => { 'name' => 'revoked',
+                                'who' => 'Iggy',
+                                'when' => '2010-07-12T00:00:02',
+                                'comment' => {} },
                    'history' =>
                                 [{ 'who' => 'Iggy', 'when' => '2010-07-12T00:00:00',
-                         'description' => 'Request created' },
+                                   'description' => 'Request created' },
                                  { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:01',
-                                  'description' => 'Request got declined',
-                                  'comment' => "The target project 'home:Iggy:fordecline' has been removed" },
+                                   'description' => 'Request got declined',
+                                   'comment' => "The target project 'home:Iggy:fordecline' has been removed" },
                                  { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:02',
-                                  'description' => 'Request got revoked' }] }, node)
+                                   'description' => 'Request got revoked' }] }, node)
   end
 
   def test_check_target_maintainer

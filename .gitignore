@@ -40,6 +40,7 @@
 /src/api/spec/examples.txt
 /src/api/last_deploy
 /src/api/test/reports
+/src/api/.byebug_history
 /src/backend/blib
 /src/backend/BSConfig.pm
 /src/backend/BSSolv.bs

@@ -15,11 +15,11 @@ class Group < ApplicationRecord
   has_many :rss_feed_items, -> { order(created_at: :desc) }, class_name: 'Notification::RssFeedItem', as: :subscriber, dependent: :destroy
 
   validates :title,
-            format: { with:    %r{\A[\w\.\-]*\z},
+            format: { with: %r{\A[\w\.\-]*\z},
                       message: 'must not contain invalid characters' }
   validates :title,
-            length: { in:        2..100,
-                      too_long:  'must have less than 100 characters',
+            length: { in: 2..100,
+                      too_long: 'must have less than 100 characters',
                       too_short: 'must have more than two characters',
                       allow_nil: false }
   # We want to validate a group's title pretty thoroughly.

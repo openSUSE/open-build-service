@@ -70,10 +70,10 @@ class Issue < ApplicationRecord
   def webui_infos
     issue = {
       created_at: created_at,
-      name:       name,
-      tracker:    issue_tracker.name,
-      label:      label,
-      url:        url
+      name: name,
+      tracker: issue_tracker.name,
+      label: label,
+      url: url
     }
 
     issue[:updated_at] = updated_at if updated_at
@@ -120,7 +120,7 @@ class Issue < ApplicationRecord
       render_body node
     end
     builder.to_xml(indent: 2, encoding: 'UTF-8',
-                               save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                   save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                           Nokogiri::XML::Node::SaveOptions::FORMAT)
   end
 

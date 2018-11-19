@@ -72,9 +72,9 @@ class Project
         if link.nil?
           if Project.find_remote_project(l['project'])
             project.linking_to.create(project: project,
-                                       linked_remote_project_name: l['project'],
-                                       vrevmode: l['vrevmode'],
-                                       position: position)
+                                      linked_remote_project_name: l['project'],
+                                      vrevmode: l['vrevmode'],
+                                      position: position)
           else
             raise SaveError, "unable to link against project '#{l['project']}'"
           end
@@ -306,11 +306,11 @@ class Project
       dod_repositories = xml_hash.elements('download').map do |dod|
         dod_attributes = {
           repository: current_repo,
-          arch:       dod['arch'],
-          url:        dod['url'],
-          repotype:   dod['repotype'],
+          arch: dod['arch'],
+          url: dod['url'],
+          repotype: dod['repotype'],
           archfilter: dod['archfilter'],
-          pubkey:     dod['pubkey']
+          pubkey: dod['pubkey']
         }
         if dod['master']
           dod_attributes[:masterurl]            = dod['master']['url']

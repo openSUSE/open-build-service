@@ -26,7 +26,7 @@ RSpec.feature 'Notifications', type: :feature, js: true do
       expect(EventSubscription.exists?(user_id: user_id, eventtype: 'Event::CommentForPackage',
                                        receiver_role: 'commenter', channel: 'instant_email')).to be(true)
       expect(EventSubscription.exists?(user_id: user_id, eventtype: 'Event::CommentForProject',
-                                      receiver_role: 'maintainer', channel: 'instant_email')).to be(true)
+                                       receiver_role: 'maintainer', channel: 'instant_email')).to be(true)
       expect(EventSubscription.exists?(user_id: user_id, eventtype: 'Event::CommentForRequest',
                                        receiver_role: 'reviewer', channel: 'instant_email')).to be(true)
       expect(EventSubscription.exists?(user_id: user_id, eventtype: 'Event::BuildFail',

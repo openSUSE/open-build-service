@@ -39,7 +39,7 @@
 	     -z "$DISABLE_RESTART_ON_UPDATE" && . /etc/sysconfig/services\
 	test "$DISABLE_RESTART_ON_UPDATE" = yes -o \\\
 	     "$DISABLE_RESTART_ON_UPDATE" = 1 && exit 0\
-	%{?*:/usr/bin/systemctl try-reload-or-restart %{*}}\
+	%{?*:/usr/bin/systemctl force-reload %{*}}\
 	) || : %{nil}
 
 %define service_del_postun(fnr) \
@@ -427,9 +427,13 @@ getent passwd obsservicerun >/dev/null || \
 if [ -f /etc/sysconfig/obs-server ] ; then
     . /etc/sysconfig/obs-server
 fi
-for i in deltastore dispatcher dodup warden ; do
+for i in deltastore dispatcher dodup obsgetbinariesproxy publisher rep_server servicedispatch signer src_server warden ; do
     LOG=${OBS_LOG_DIR:=/srv/obs/log}/$i.log
     test -f $LOG && chown obsrun:obsrun $LOG
+done
+for i in src_service ; do
+    LOG=${OBS_LOG_DIR:=/srv/obs/log}/$i.log
+    test -f $LOG && chown obsservicerun:obsrun $LOG
 done
 
 exit 0
@@ -710,8 +714,7 @@ usermod -a -G docker obsservicerun
 /srv/www/obs/api/config/application.rb
 /srv/www/obs/api/config/clock.rb
 %config(noreplace) /etc/logrotate.d/obs-api
-/etc/init.d/obsapisetup
-/usr/sbin/rcobsapisetup
+%{_unitdir}/obsapisetup.service
 %{_unitdir}/obs-api-support.target
 %{_unitdir}/obs-clockwork.service
 %{_unitdir}/obs-delayedjob-queue-consistency_check.service
@@ -731,6 +734,7 @@ usermod -a -G docker obsservicerun
 %{_sbindir}/rcobs-delayedjob-queue-project_log_rotate
 %{_sbindir}/rcobs-delayedjob-queue-releasetracking
 %{_sbindir}/rcobs-sphinx
+%{_sbindir}/rcobsapisetup
 /srv/www/obs/api/app
 %attr(-,%{apache_user},%{apache_group})  /srv/www/obs/api/db/structure.sql
 %attr(-,%{apache_user},%{apache_group})  /srv/www/obs/api/db/data_schema.rb

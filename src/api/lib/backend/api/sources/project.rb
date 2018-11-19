@@ -90,7 +90,7 @@ module Backend
         # Undeletes the project
         def self.undelete(project_name, options = {})
           http_post(['/source/:project', project_name], defaults: { cmd: :undelete },
-                    params: options, accepted: [:user, :comment])
+                                                        params: options, accepted: [:user, :comment])
         end
 
         # Returns the list of repositories
