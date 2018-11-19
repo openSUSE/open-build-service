@@ -2,6 +2,11 @@
   %h5.card-header Infos
   .card-body
     %dl
+      %dt Managers:
+      %dd
+        %ul.pl-2.list-unstyled
+          %li= link_to managers.title, group_show_path(managers)
+
       %dt Empty projects:
       %dd= render 'empty_projects_list', projects: empty_projects
 

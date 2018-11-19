@@ -3,9 +3,9 @@
     .modal-content
       .modal-header
         %h5.modal-title
-          Do you want to delete the staging workflow for #{project.name}?
+          Do you want to delete the staging for #{project.name}?
       .modal-body
-        %p Please confirm deletion of the staging workflow for #{project.name}
+        %p Please confirm deletion of the staging for #{project.name}
         = form_tag staging_workflow_path, method: :delete, remote: true, id: 'staging-workflow-delete' do
           - if @staging_workflow.staging_projects.any?
             %p Check the staging projects you want to be deleted:

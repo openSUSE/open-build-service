@@ -20,11 +20,13 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     staging_workflow = @project.build_staging
     authorize staging_workflow
 
+    staging_workflow.managers_group = Group.find_by(title: params[:managers_title])
+
     if staging_workflow.save
-      flash[:success] = "Staging Workflow for #{@project.name} was successfully created"
+      flash[:success] = "Staging for #{@project} was successfully created"
       redirect_to staging_workflow_path(staging_workflow)
     else
-      flash[:error] = "Staging Workflow for #{@project.name} couldn't be created"
+      flash[:error] = "Staging for #{@project} couldn't be created"
       render :new
     end
   end
@@ -39,6 +41,7 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     @ignored_requests = @staging_workflow.ignored_requests.first(5)
     @more_ignored_requests = @staging_workflow.ignored_requests.count - @ignored_requests.size
     @empty_projects = @staging_workflow.staging_projects.without_staged_requests
+    @managers = @staging_workflow.managers_group
   end
 
   def edit
@@ -58,12 +61,25 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     @staging_workflow.staging_projects.where(id: params[:staging_project_ids]).destroy_all
 
     if @staging_workflow.destroy
-      flash[:success] = "Staging Workflow for #{@project.name} was successfully deleted."
+      flash[:success] = "Staging for #{@project} was successfully deleted."
       render js: "window.location='#{project_show_path(@project)}'"
     else
-      flash[:error] = "Staging Workflow for #{@project.name} couldn't be deleted: #{@staging_workflow.errors.full_messages.to_sentence}."
+      flash[:error] = "Staging for #{@project} couldn't be deleted: #{@staging_workflow.errors.full_messages.to_sentence}."
       render js: "window.location='#{staging_workflow_path(@staging_workflow)}'"
     end
+  end
+
+  def update
+    authorize @staging_workflow
+
+    @staging_workflow.managers_group = Group.find_by(title: params[:managers_title])
+    if @staging_workflow.save
+      flash[:success] = 'Managers group was successfully assigned'
+    else
+      flash[:error] = "Managers group couldn't be assigned: #{@staging_workflow.errors.full_messages.to_sentence}."
+    end
+
+    redirect_to edit_staging_workflow_path(@staging_workflow)
   end
 
   private
@@ -77,7 +93,7 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     return if @staging_workflow
 
     redirect_back(fallback_location: root_path)
-    flash[:error] = "StagingWorkflow with id = #{params[:id]} doesn't exist"
+    flash[:error] = "Staging with id = #{params[:id]} doesn't exist"
     return
   end
 end

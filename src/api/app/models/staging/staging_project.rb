@@ -8,6 +8,7 @@ module Staging
 
     after_save :update_staging_workflow_on_backend
     after_destroy :update_staging_workflow_on_backend
+    before_create :add_managers_group
 
     def staging_identifier
       name[/.*:Staging:(.*)/, 1]
@@ -86,6 +87,17 @@ module Staging
 
     def problems
       @problems ||= cache_problems
+    end
+
+    def assign_managers_group(managers)
+      role = Role.find_by_title!('maintainer')
+      return if relationships.find_by(group: managers, role: role)
+      Relationship.add_group(self, managers, role, nil, true)
+    end
+
+    def unassign_managers_group(managers)
+      role = Role.find_by_title!('maintainer')
+      relationships.find_by(group: managers, role: role).try(:destroy!)
     end
 
     private
@@ -184,6 +196,10 @@ module Staging
 
       staging_workflow.reload
       staging_workflow.write_to_backend
+    end
+
+    def add_managers_group
+      assign_managers_group(staging_workflow.managers_group)
     end
   end
 end
