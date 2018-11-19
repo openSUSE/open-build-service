@@ -10,6 +10,7 @@ class Status::Check < ApplicationRecord
   validates :state, :name, presence: true
   # TODO: This should be an ENUM
   VALID_STATES = %w[pending error failure success].freeze
+  FAILED_STATES = %w[error failure].freeze
   validates :state, inclusion: {
     in: VALID_STATES,
     message: "State '%{value}' is not a valid. Valid states are: #{VALID_STATES.join(', ')}"
@@ -47,7 +48,7 @@ class Status::Check < ApplicationRecord
   end
 
   def failed?
-    %w[error failure].include?(state)
+    FAILED_STATES.include?(state)
   end
 
   #### Alias of methods
