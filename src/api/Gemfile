@@ -176,7 +176,7 @@ group :assets do
   # for minifying JavaScript
   gem 'uglifier', '>= 1.2.2'
   # to use sass in the asset pipeline
-  gem 'sass-rails', '~> 5.0.1'
+  gem 'sassc-rails'
   # assets for jQuery DataTables
   gem 'jquery-datatables'
   # assets for the text editor
