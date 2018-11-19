@@ -731,11 +731,12 @@ OBSApi::Application.routes.draw do
   end
 
   # StagingWorkflow API
-  resources :staging_project, only: [], param: :name do
-    get 'staged_requests' => 'staging/staged_requests#index', constraints: cons
-    resource :staged_requests, controller: 'staging/staged_requests', only: [:create, :destroy], constraints: cons
+  scope module: 'staging' do
+    resources :staging_projects, only: [:show], param: :name do
+      get 'staged_requests' => 'staged_requests#index', constraints: cons
+      resource :staged_requests, controller: 'staged_requests', only: [:create, :destroy], constraints: cons
+    end
   end
-
   controller :source_attribute do
     get 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :show, constraints: cons
     post 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :update, constraints: cons, as: :change_attribute
