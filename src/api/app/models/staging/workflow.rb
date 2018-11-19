@@ -28,11 +28,11 @@ class Staging::Workflow < ApplicationRecord
   after_create :create_staging_projects
 
   def unassigned_requests
-    target_of_bs_requests.stageable - staged_requests - ignored_requests
+    target_of_bs_requests.stageable.where.not(id: ignored_requests | staged_requests)
   end
 
   def ready_requests
-    target_of_bs_requests.ready_to_stage - staged_requests - ignored_requests
+    target_of_bs_requests.ready_to_stage.where.not(id: ignored_requests | staged_requests)
   end
 
   def ignored_requests
