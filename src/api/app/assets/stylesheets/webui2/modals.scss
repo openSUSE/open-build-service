@@ -1,5 +1,7 @@
 .modal h5 {
     color: $body-color;
+    overflow-x: hidden;
+    overflow-wrap: break-word;
 }
 
 .modal-body p {
