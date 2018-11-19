@@ -41,8 +41,9 @@
 @import 'diff';
 @import 'package-show';
 @import 'staging-workflow';
+@import 'repositories';
+@import 'collapse-component';
 
 html {
     overflow-y: scroll !important;
 }
-@import 'repositories';

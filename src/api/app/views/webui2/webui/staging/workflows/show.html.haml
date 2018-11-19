@@ -9,22 +9,8 @@
 
         %hr
 
-        %table.table.table-striped.table-bordered.table-sm.dt-responsive.w-100#staging-projects-datatable
-          %thead
-            %tr.text-center
-              %th Project
-              %th Requests
-              %th Problems
-
-          %tbody
-            - @staging_workflow.staging_projects.each do |staging_project|
-              %tr
-                %td
-                  = render partial: 'overall_state', locals: { project: staging_project }
-                %td
-                  = render partial: 'packages_list', locals: { project: staging_project }
-                %td.broken-packages
-                  = render partial: 'problems', locals: { project: staging_project }
+        = render(partial: 'staging_projects_table',
+                 locals: { staging_workflow: @staging_workflow, staging_projects: @staging_projects, display_actions_column: false })
 
         %ul.list-inline
           %li.list-inline-item
@@ -43,6 +29,3 @@
                                          ready_requests: @ready_requests, more_ready_requests: @more_ready_requests,
                                          ignored_requests: @ignored_requests, more_ignored_requests: @more_ignored_requests,
                                          project: @project }
-
-- content_for :ready_function do
-  $('#staging-projects-datatable').DataTable({ responsive: true });
