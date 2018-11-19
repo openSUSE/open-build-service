@@ -77,8 +77,6 @@ class Project < ApplicationRecord
   has_many :target_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'target_project_id'
   has_many :target_of_bs_requests, through: :target_of_bs_request_actions, source: :bs_request
 
-  has_one :staging, class_name: 'Staging::Workflow', inverse_of: :project
-
   default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids) }
 
   scope :maintenance, -> { where("kind = 'maintenance'") }
