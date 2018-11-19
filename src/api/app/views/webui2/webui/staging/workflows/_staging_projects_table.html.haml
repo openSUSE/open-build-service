@@ -12,7 +12,7 @@
         %td.project
           = render partial: 'overall_state', locals: { staging_project: staging_project }
         %td.requests
-          = render partial: 'packages_list', locals: { staging_project: staging_project }
+          = render partial: 'webui/staging/shared/packages_list', locals: { staging_project: staging_project }
         %td
           = render partial: 'problems', locals: { staging_project: staging_project }
         - if display_actions_column

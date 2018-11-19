@@ -7,6 +7,8 @@
       .card-body
         %h3= @pagetitle
         %h4.mt-4 Packages
+        .requests#staging-project-package-list
+          = render partial: 'webui/staging/shared/packages_list', locals: { staging_project: @staging_project }
     .card.mb-3
       %h5.card-header Status
       .card-body
