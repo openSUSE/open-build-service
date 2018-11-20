@@ -13,8 +13,7 @@
       %dt= link_to('Backlog:', group_show_path(staging_workflow.managers_group))
       %dd= render 'requests_list', requests: unassigned_requests, more_requests: more_unassigned_requests
 
-      %dt Ready:
-      -# TODO: add link to see the full list of ready requests
+      %dt= link_to('Ready:', project_requests_path(staging_workflow.project, state: :new))
       %dd= render 'requests_list', requests: ready_requests, more_requests: more_ready_requests
 
       %dt Excluded:
