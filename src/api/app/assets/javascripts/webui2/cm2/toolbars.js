@@ -7,56 +7,13 @@
 	    mod(CodeMirror);
 })(function(CodeMirror) {
     var cm_instance;
-    CodeMirror.defaults.addToolBars 	= 0;
     CodeMirror.defaults.supportedTypes 	= [];
     CodeMirror.defaults.fileType 		= null;
     CodeMirror.defaults.allowedFontSizes 	= [];
-    CodeMirror.defaults.fontSize 		= '9pt';
+    CodeMirror.defaults.fontSize 		= '1em';
     CodeMirror.defineInitHook(function(cm) {
 	this.cm = cm;
-	var bartype = this.cm.getOption("addToolBars");
         this.cm.on('cursorActivity', function(cm) { update_toolbar_position(cm)});
-	if(bartype > 0) this.cm.buildToolBars(bartype);
-    });
-
-    function buildToolBars(cm, bartype) {
-	if(bartype == 0) return;
-	this.cm = cm;
-	if(typeof(cm_instance) == 'undefined') {
-	    cm_instance = new Array();
-	    var cm_counter = 0;
-	}
-	else {
-	    cm_counter++;
-	}
-	cm_instance[cm_counter] = this.cm;
-	this.cm.id = cm_counter;
-	var onUpdateValue = this.cm.getOption('onUpdate');
-	this.cm.setOption('onUpdate', '');
-	var slot1 = bartype == 1 ? '' : searchSpan(this.cm.id) ;
-	var slot2 = bartype == 1 ? sizeSpan(this.cm.id) : positionSpan(this.cm.id) ;
-	var wrapper = this.cm.getWrapperElement();
-	var container = wrapper.parentNode;
-	this.cm.topBar = document.createElement("DIV");
-	this.cm.topBar.setAttribute("id", "top_"+this.cm.id);
-	container.insertBefore(this.cm.topBar, wrapper);
-	this.cm.topBar.innerHTML = buildtop(slot1, this.cm.id);
-	this.cm.bottomBar = document.createElement("DIV");
-	this.cm.bottomBar.setAttribute("id", "bottom_"+this.cm.id);
-	container.insertBefore(this.cm.bottomBar, wrapper.nextSibling);
-	this.cm.bottomBar.innerHTML = buildbottom(slot2, this.cm.id);
-	this.cm.width = this.cm.getWrapperElement().offsetWidth;
-	this.cm.bottomBar.style.width = '' + String(this.cm.width) + 'px';
-	this.cm.topBar.style.width =    '' + String(this.cm.width) + 'px';
-	//this.cm.setOption('onUpdate', onUpdateValue);
-	//this.cm.prependOption('onUpdate', setWidth);
-	this.cm.prependOption('onChange', updateHistory);
-	//this.cm.prependOption('onCursorActivity', getPosition);
-	this.cm.setSelections();
-    }
-
-    CodeMirror.defineExtension("buildToolBars", function(bartype) {
-	return new buildToolBars(this, bartype);
     });
 
     function prependOption(cm, name, value) {
@@ -82,8 +39,10 @@
 
     function updateHistory(cm) {
 	this.cm = cm;
-	document.getElementById('undo_'+this.cm.id).style.backgroundColor = this.cm.historySize().undo>0 ? '' : 'transparent' ;
-	document.getElementById('redo_'+this.cm.id).style.backgroundColor = this.cm.historySize().redo>0 ? '' : 'transparent' ;
+	this.undo = $('#undo_'+this.cm.id);
+	this.redo = $('#redo_'+this.cm.id);
+	this.cm.historySize().undo>0 ? this.undo.removeClass("disabled") : this.undo.addClass("disabled");
+	this.cm.historySize().redo>0 ? this.redo.removeClass("disabled") : this.redo.addClass("disabled");
     }
 
     CodeMirror.defineExtension("updateHistory", function() {
@@ -324,11 +283,17 @@
 
     function Match(cm, elt) {
 	this.cm = cm;
-	if(elt.value == 'on') {
+	if(elt.innerHTML == 'on') {
 	    var position = this.cm.getCursor(false);
 	    this.cm.setCursor(position);
+	    elt.classList.remove("btn-success");
+	    elt.classList.add("btn-danger");
 	}
-	elt.value  = elt.value == 'on' ? 'off'   : 'on' ;
+	else {
+	    elt.classList.remove("btn-danger");
+	    elt.classList.add("btn-success");
+	}
+	elt.innerHTML  = elt.innerHTML == 'on' ? 'off'   : 'on' ;
     }
 
     CodeMirror.defineExtension("Match", function(elt) {
@@ -443,8 +408,16 @@
 
     function Wrap(cm, elt) {
 	this.cm = cm;
-	elt.value = elt.value == 'on' ? 'off' : 'on' ;
-	this.value = elt.value == 'on' ;
+	if(elt.innerHTML == 'on') {
+	    elt.classList.remove("btn-success");
+	    elt.classList.add("btn-danger");
+	}
+	else {
+	    elt.classList.remove("btn-danger");
+	    elt.classList.add("btn-success");
+	}
+	elt.innerHTML = elt.innerHTML == 'on' ? 'off' : 'on' ;
+	this.value = elt.innerHTML == 'on' ;
 	this.cm.setOption('lineWrapping', this.value);
     }
 
@@ -484,113 +457,5 @@
 	var lineHeight= Math.round((info.height - 10)/this.cm.lineCount());
 	var lineNumber = Math.round((info.y-3)/lineHeight);
 	return {line:lineNumber, ch:0};
-    }
-
-    function buildtop(slot, id) {
-	var topbar = ''+
-	    '<div class="toolbar">'+
-	    slot+
-	    '<span style="float:left;">'+
-	    '<span class="text">matching:</span>'+
-	    '<input type="button" id="match_'+id+'" class="tools buttons small" value="off" onclick="cm_instance['+id+'].Match(this);"/>'+
-	    '</span>'+
-	    '<span style="float:right;">'+
-	    '<input type="button" id="undo_'+id+'" value="undo" class="tools buttons undo" style="background:transparent;" onclick="cm_instance['+id+'].Undo(this);"/>'+
-	    '<input type="button" id="redo_'+id+'" value="redo" class="tools buttons redo" style="background:transparent;" onclick="cm_instance['+id+'].Redo(this);"/>'+
-	    '<select class="tools select" id="fontsize_'+id+'" onchange="cm_instance['+id+'].updateFontsize(this)">'+
-	    '<option value="8pt" >	8pt </option>'+
-	    '<option value="9pt" >	9pt </option>'+
-	    '<option value="10pt" >	10pt</option>'+
-	    '<option value="11pt" >	11pt</option>'+
-	    '<option value="12pt" >	12pt</option>'+
-	    '<option value="14pt" >	14pt</option>'+
-	    '</select>'+
-	    '<select class="tools select" id="mode_'+id+'" onchange="cm_instance['+id+'].updateMode(this)">'+
-	    '<option id="css_'+id+'"  value="css" >				css </option>'+
-	    '<option id="html_'+id+'" value="htmlmixed">			html</option>'+
-	    '<option id="js_'+id+'"   value="javascript">			js  </option>'+
-	    '<option id="php_'+id+'"  value="application/x-httpd-php-open">	php </option>'+
-	    '<option id="mysql_'+id+'"value="mysql" >			mysql </option>'+
-	    '<option id="xml_'+id+'"  value="xml" >				xml </option>'+
-	    '<option id="x_'+id+'"    value="" >				--- </option>'+
-	    '</select>'+
-	    '</span>'+
-	    '</div>';
-	return topbar;
-    }
-
-    function buildbottom(slot, id) {
-	var bottombar = ''+
-	    '<div class="toolbar">'+
-	    slot +
-	    '<span style="float:right;">'+
-	    '<span class="text">line:</span>'+
-	    '<input type="text" id="line_'+id+'" class="tools inputs" autocomplete="off" style="width:30px;"onkeydown="if(event.keyCode==13){cm_instance['+id+'].gotoLine(this);}" />'+
-	    '<input type="button" class="tools buttons small" value="go" onclick="cm_instance['+id+'].gotoLine(this);" />'+
-	    '&nbsp;&nbsp;'+
-	    '<span class="text">line wrapping:</span>'+
-	    '<input type="button" class="tools buttons small" value="off" onclick="cm_instance['+id+'].Wrap(this)" />'+
-	    '</span>'+
-	    '</div>';
-	return bottombar;
-    }
-
-    function searchSpan(id) {
-	var searchHTML = ''+
-	    '<span style="float:left;">'+
-	    '<span class="text">search:</span>'+
-	    '<input type="button" class="tools buttons small" value="off" onclick="cm_instance['+id+'].Search(this)" />'+
-	    '<input disabled type="text"  class="tools inputs" style="background:transparent" id="search_'+id+'" autocomplete="off" placeholder="type or select" onkeydown="this.removeAttribute(\'style\');" />'+
-
-	'<span class="prenex" id="prenex_'+id+'" style="display:none;">'+
-	    '<input type="button" class="tools buttons prev" value="&#9668" id="prev_'+id+'" onclick="cm_instance['+id+'].Prev(this)" />'+
-	    '<input type="button" class="tools buttons next" value="&#9658;" id="next_'+id+'" onclick="cm_instance['+id+'].Next(this)" />'+
-	    '</span>'+
-
-	'<input type="button" class="tools buttons small" style="width:36px;" value="find" id="find_'+id+'" onclick="cm_instance['+id+'].Find(this)" />'+
-	    '&nbsp;&nbsp;'+
-	    '<span class="text">replace:</span>'+
-	    '<input disabled type="text" class="tools inputs" style="background:transparent" id="replace_'+id+'"  autocomplete="off" />'+
-	    '<input type="button" class="tools buttons medium" value="replace" onclick="cm_instance['+id+'].Replace(this);" />'+
-	    '<input type="button" class="tools buttons medium" value="replace all" onclick="cm_instance['+id+'].ReplaceAll(this);" />'+
-	    '&nbsp;&nbsp;&nbsp;'+
-	    '</span>';
-	return searchHTML;
-    }
-
-    function sizeSpan(id) {
-	var sizeHTML = ''+
-	    '<span style="float:left;">'+
-	    '<input type="button" class="tools buttons large" value="increase size" onclick="cm_instance['+id+'].increase(this);" />'+
-	    '<input type="button" class="tools buttons large" value="decrease size" onclick="cm_instance['+id+'].decrease(this);" />'+
-	    '</span>';
-	return sizeHTML;
-    }
-
-    function positionSpan(id) {
-	var positionHTML = ''+
-	    '<span style="float:left;">'+
-	    '<span class="text">position</span>'+
-	    '&nbsp;&nbsp;'+
-	    '<span class="text">line:</span>'+
-	    '<span id="ln_'+id+'" class="text" style="display:inline-block;width:30px;">0</span>'+
-	    '<span class="text">char:</span>'+
-	    '<span id="ch_'+id+'" class="text" style="display:inline-block;width:30px;">0</span>'+
-	    '<span class="text">auto-indent:</span>'+
-	    '<input type="button" class="tools buttons small" value="off" onclick="cm_instance['+id+'].SmartIndent(this)" />'+
-	    '<input type="button" class="tools buttons" style="width:75px;" value="auto-format" onclick="cm_instance['+id+'].autoFormat(this)" />'+
-	    '&nbsp;&nbsp;'+
-	    '<span class="text">tab size:</span>'+
-	    '<select class="tools select" style="min-width:30px;" id="tabsize_'+id+'" onchange="cm_instance['+id+'].updateTabsize(this)">'+
-	    '<option value="2"> 2 </option>'+
-	    '<option value="3"> 3 </option>'+
-	    '<option value="4"> 4 </option>'+
-	    '<option value="5"> 5 </option>'+
-	    '<option value="6"> 6 </option>'+
-	    '<option value="7"> 7 </option>'+
-	    '<option value="8"> 8 </option>'+
-	    '</select>'+
-	    '</span>';
-	return positionHTML;
     }
 });

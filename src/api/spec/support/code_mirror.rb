@@ -6,6 +6,7 @@ module CodeMirrorHelpers
       current_scope.click
       # Find the hidden textarea:
       field = current_scope.find('textarea', visible: false)
+      field.send_keys(:end)
       # Mimic user typing the text:
       field.send_keys(text)
     end
