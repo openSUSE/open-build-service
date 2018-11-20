@@ -188,7 +188,7 @@ default: &default
   # influxdb_username: rails
   # influxdb_password: 123456
   # influxdb_hosts:
-  #  - https://domain.tld
+  #  - domain.tld
   # influxdb_port: 8086
   # influxdb_ssl: true
   # influxdb_retry: 10
