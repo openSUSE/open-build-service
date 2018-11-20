@@ -16,7 +16,7 @@ mkdir -p "$odir"
 mopt=
 case `makedeltarpm -m 512 /dev/null /dev/null /dev/null 2>&1` in
   *invalid\ option*) ;;
-  *) mopt="-m 512" ;;
+  *) mopt="-m 1536" ;;
 esac
 
 for i in *.old ; do
