@@ -18,6 +18,6 @@
       -# TODO: add link to see the full list of ready requests
       %dd= render 'requests_list', requests: ready_requests, more_requests: more_ready_requests
 
-      %dt Ignored:
-      -# TODO: add link when IgnoredRequest model is done
-      %dd= render 'requests_list', requests: ignored_requests, more_requests: more_ignored_requests
+      %dt Excluded:
+      -# TODO: add link when ExcludedRequest model is done
+      %dd= render 'requests_list', requests: excluded_requests, more_requests: more_excluded_requests

@@ -1,0 +1,33 @@
+.row
+  .col-xl-12
+    .card.mb-3
+      .card-body
+        %h3 Excluded Requests
+        %table.responsive.table.table-striped.table-bordered#excluded-requests-datatable
+          %thead
+            %tr.text-center
+              %th Request
+              %th Description
+              %th Actions
+          %tbody
+            - @request_exclusions.each do |request_exclusion|
+              %tr
+                %td= request_exclusion.bs_request.number
+                %td= request_exclusion.description
+                %td
+                  = link_to('#', data: { toggle: 'modal', target: "#delete-excluded-request-modal-#{request_exclusion.bs_request_id}" },
+                            title: 'Stop excluding request') do
+                    %i.fas.fa-times-circle.text-danger
+                  = render(partial: 'delete_dialog',
+                          locals: { staging_workflow: @staging_workflow, request_exclusion: request_exclusion })
+        = link_to('#', data: { toggle: 'modal', target: '#exclude-request-modal' }) do
+          %i.fas.fa-plus-circle.text-primary
+          Exclude request
+
+= render partial: 'create_dialog', locals: { requests: @requests }
+
+= content_for :ready_function do
+  :plain
+    $('#excluded-requests-datatable').DataTable({
+      responsive: true
+    });
