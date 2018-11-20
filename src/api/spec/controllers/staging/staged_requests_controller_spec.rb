@@ -7,18 +7,22 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
   let(:user) { create(:confirmed_user, login: 'permitted_user') }
   let(:project) { user.home_project }
   let(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: project) }
+  let(:group) { staging_workflow.managers_group }
   let(:staging_project) { staging_workflow.staging_projects.first }
   let(:source_project) { create(:project, name: 'source_project') }
   let(:target_package) { create(:package, name: 'target_package', project: project) }
   let(:source_package) { create(:package, name: 'source_package', project: source_project) }
+  let(:review) { create(:review, by_group: group.title) }
   let(:bs_request) do
     create(:bs_request_with_submit_action,
+           state: :review,
            creator: other_user,
            target_project: project.name,
            target_package: target_package.name,
            source_project: source_project.name,
            source_package: source_package.name,
-           description: 'BsRequest 1')
+           description: 'BsRequest 1',
+           reviews: [review])
   end
 
   describe 'GET #index' do
