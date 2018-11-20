@@ -5,7 +5,7 @@
 
 - if staging_project.problems.empty?
   .text-center
-    %i.fas.fa-check-circle.fa-2x.text-success
+    %i.fas.fa-check-circle.text-success
 - else
   %ul.list-group.list-group-flush
     = render partial: 'problems_item', locals: { staging_project: staging_project, index: 0...max_problems }
