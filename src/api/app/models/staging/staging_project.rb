@@ -104,16 +104,12 @@ module Staging
       relationships.find_by(group: managers, role: role).try(:destroy!)
     end
 
-    def current_status_reports
-      repositories.map(&:current_status_report) + repository_architectures.map(&:current_status_report)
+    def current_checks
+      relevant_checks + relevant_checks_for_architectures
     end
 
-    def all_checks
-      current_status_reports.map(&:checks).flatten
-    end
-
-    def all_missing_checks
-      current_status_reports.map(&:missing_checks).flatten
+    def current_missing_checks
+      (relevant_status_reports + relevant_status_reports_for_architectures).map(&:missing_checks).flatten
     end
 
     private
@@ -159,6 +155,10 @@ module Staging
 
     def relevant_status_reports
       @relevant_status_reports ||= status_reports.where(uuid: repositories.map(&:build_id))
+    end
+
+    def relevant_status_reports_for_architectures
+      @relevant_status_reports_for_architectures ||= status_reports_for_architectures.where(uuid: repository_architectures.map(&:build_id))
     end
 
     def missing_checks?

@@ -31,7 +31,7 @@
                        locals: { staging_project: @staging_project, items: @staging_project.broken_packages, type: 'broken_packages' }
             %tr
               = render partial: 'checks',
-                      locals: { checks: @staging_project.all_checks,
-                                missing_checks: @staging_project.all_missing_checks }
+                      locals: { checks: @staging_project.current_checks,
+                                missing_checks: @staging_project.current_missing_checks }
   .col-xl-2
     = render partial: 'webui/staging/shared/legend'
