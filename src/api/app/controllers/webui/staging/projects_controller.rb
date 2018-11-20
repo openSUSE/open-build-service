@@ -10,9 +10,8 @@ module Webui
 
       def create
         authorize @staging_workflow
-
-        staging_project_name = "#{@staging_workflow.project}:Staging:#{params[:staging_project_name]}"
-        staging_project = @staging_workflow.staging_projects.build(name: staging_project_name)
+        staging_project = @staging_workflow.staging_projects.build(name: params[:staging_project_name])
+        authorize(staging_project, :create?)
 
         if staging_project.valid? && staging_project.store
           flash[:success] = "Staging project with name = \"#{staging_project}\" was successfully created"
