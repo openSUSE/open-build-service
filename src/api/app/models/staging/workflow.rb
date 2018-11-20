@@ -40,7 +40,7 @@ class Staging::Workflow < ApplicationRecord
   end
 
   def ready_requests
-    target_of_bs_requests.ready_to_stage.where.not(id: excluded_requests | staged_requests)
+    target_of_bs_requests.ready_to_stage.where.not(id: excluded_requests)
   end
 
   def write_to_backend
