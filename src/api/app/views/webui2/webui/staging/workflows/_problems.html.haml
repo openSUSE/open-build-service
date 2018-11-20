@@ -1,21 +1,30 @@
 :ruby
-  max_problems = 5
+  max_shown = 5
   project_class = staging_project.name.tr(':', '_')
   item_project_class = 'hidden-item-' + project_class
+  checks_problems = staging_project.failed_status_checks
+  build_problems = staging_project.problems
+  total_problems = checks_problems.length + build_problems.length
 
-- if staging_project.problems.empty?
+- if total_problems == 0
   .text-center
     %i.fas.fa-check-circle.text-success
 - else
+  :ruby
+    rendered_checks_problems = [max_shown, checks_problems.length].min
+    rendered_build_problems = max_shown - rendered_checks_problems
   %ul.list-group.list-group-flush
-    = render partial: 'problems_item', locals: { staging_project: staging_project, index: 0...max_problems }
-
-    - length = staging_project.problems.length
-    - if length > max_problems
+    - checks_problems[0..(rendered_checks_problems - 1)].each do |check|
+      = render partial: 'status_problems', locals: { check: check }
+    - build_problems[0..(rendered_build_problems - 1)].each do |name, states|
+      = render partial: 'build_problems', locals: { name: name, states: states, staging_project: staging_project }
+    - if total_problems > max_shown
+      - number = total_problems - max_shown
       %span.collapse{ 'id': item_project_class }
-        = render partial: 'problems_item', locals: { staging_project: staging_project, index: max_problems..-1 }
-
-      - number = length - max_problems
+        - checks_problems[rendered_checks_problems..-1].each do |check|
+          = render partial: 'status_problems', locals: { check: check }
+        - build_problems[rendered_build_problems..-1].each do |name, states|
+          = render partial: 'build_problems', locals: { name: name, states: states, staging_project: staging_project }
       %li.list-group-item.table-list-group-item
         %a{ 'data-toggle': 'collapse', href: "##{item_project_class}", 'aria-expanded': 'false' }
           %span.expander See #{number} more
