@@ -890,36 +890,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                  approver: 'Iggy' })
   end
 
-  def test_create_request_with_approver
-    req_template = <<~XML_REQUEST
-      <request>
-        <action type="submit">
-          <source project="home:Iggy" package="TestPack" rev="1"/>
-          <target project="home:fred" package="foopkg"/>
-        </action>
-        <review by_group="test_group"/>
-        <state approver="%<approver>s"/>
-      </request>
-    XML_REQUEST
-
-    login_Iggy
-    # request creation fails because we are not admin
-    post '/request?cmd=create', params: format(req_template, approver: 'fred')
-    assert_response 403
-    assert_xml_tag(tag: 'status', attributes: { code: 'create_bs_request_not_authorized' })
-    assert_xml_tag(tag: 'summary', content: 'You are not authorized to create this Bs request.')
-
-    # request creation succeeds because we are "Iggy"
-    post '/request?cmd=create', params: format(req_template, approver: 'Iggy')
-    assert_response :success
-
-    # as admin it should work
-    login_king
-    # request creation succeeds because we are "Iggy"
-    post '/request?cmd=create', params: format(req_template, approver: 'Iggy')
-    assert_response :success
-  end
-
   def test_create_request_and_supersede
     login_Iggy
     req = load_backend_file('request/works')
