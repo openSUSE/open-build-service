@@ -47,7 +47,10 @@ module Kiwi
 
         if document.xpath("image/preferences[#{index}]/version").any?
           document.xpath("image/preferences[#{index}]/version").first.content = preference.version
-        else
+          return document
+        end
+
+        if document.xpath("image/preferences[#{index}]").any?
           document.xpath("image/preferences[#{index}]").first.add_child("<version>#{preference.version}</version>")
         end
 
