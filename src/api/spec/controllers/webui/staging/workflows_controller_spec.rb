@@ -65,15 +65,26 @@ RSpec.describe Webui::Staging::WorkflowsController do
       it { expect(flash[:success]).not_to be_nil }
     end
 
-    context 'when it fails to save' do
+    context 'when it cannot find the managers group' do
+      let(:params) { { project_name: project.name, managers_title: 'ItDoesNotExist' } }
+
+      before do
+        post :create, params: params
+      end
+
+      it { expect(response).to redirect_to(new_staging_workflow_path(project_name: project))  }
+      it { expect(flash[:error]).to eq("Managers Group #{params[:managers_title]} couldn't be found") }
+    end
+
+    context 'when it fails to save the staging workflow' do
       before do
         allow_any_instance_of(Staging::Workflow).to receive(:save).and_return(false)
-        post :create, params: { project: project.name }
+        post :create, params: { project: project.name, managers_title: managers_group.title }
       end
 
       it { expect(Staging::Workflow.count).to eq(0) }
-      it { expect(response).to render_template(:new) }
-      it { expect(flash[:error]).not_to be_nil }
+      it { expect(response).to redirect_to(new_staging_workflow_path(project_name: project)) }
+      it { expect(flash[:error]).to eq("Staging for #{project} couldn't be created") }
     end
   end
 

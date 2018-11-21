@@ -22,12 +22,18 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
 
     staging_workflow.managers_group = Group.find_by(title: params[:managers_title])
 
+    unless staging_workflow.managers_group
+      flash[:error] = "Managers Group #{params[:managers_title]} couldn't be found"
+      redirect_to new_staging_workflow_path(project_name: @project)
+      return
+    end
+
     if staging_workflow.save
       flash[:success] = "Staging for #{@project} was successfully created"
       redirect_to staging_workflow_path(staging_workflow)
     else
       flash[:error] = "Staging for #{@project} couldn't be created"
-      render :new
+      redirect_to new_staging_workflow_path(project_name: @project)
     end
   end
 
