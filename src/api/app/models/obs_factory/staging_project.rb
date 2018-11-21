@@ -192,14 +192,13 @@ module ObsFactory
     end
 
     def check_state
-      return :testing if missing_checks.present?
-
-      checks.each do |check|
-        return :testing if check.pending?
-        return :failed if check.failed?
+      if missing_checks.present? || checks.any?(&:pending?)
+        :testing
+      elsif checks.any?(&:failed?)
+        :failed
+      else
+        :acceptable
       end
-
-      return :acceptable
     end
 
     # calculate the overall state of the project

@@ -25,20 +25,20 @@ use Build::Rpm;
 my $obs_version = OBS::Test::Utils::get_package_version('obs-server', 2);
 my $vcmp = Build::Rpm::verscmp($obs_version, "2.9");
 
-BAIL_OUT("Container registry not support in OBS prior 2.9") if ($vcmp < 0);
-
-my $registry_url = ($vcmp)
-  ? 'https://localhost/v2'
-  : 'https://localhost:444/v2' # url for separate registry in obs 2.9.x
-;
-
-print "Using registry_url '$registry_url'\n";
-
 # These test need a lot of resources, so they should be
 # skipable
 
 SKIP: {
+
   skip "tests disabled by default. To enable set ENABLE_DOCKER_REGISTRY_TESTS=1", $tests unless $ENV{ENABLE_DOCKER_REGISTRY_TESTS};
+
+  BAIL_OUT("Container registry not supported in OBS prior 2.9") if ($vcmp < 0);
+
+  my $registry_url = ($vcmp)
+    ? 'https://localhost/v2'
+    : 'https://localhost:444/v2' # url for separate registry in obs 2.9.x
+  ;
+
   `osc rdelete -m "testing deleted it" -rf BaseContainer 2>&1`;
   `rm -rf /tmp/BaseContainer`;
   `osc branch openSUSE.org:openSUSE:Templates:Images:42.3:Base  openSUSE-Leap-Container-Base BaseContainer`;

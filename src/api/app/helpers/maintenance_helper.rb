@@ -320,7 +320,7 @@ module MaintenanceHelper
 
   def instantiate_container(project, opackage, opts = {})
     opkg = opackage.origin_container
-    pkg_name = opkg.name
+    pkg_name = opkg_name = opkg.name
     if opkg.is_a?(Package) && opkg.project.is_maintenance_release?
       # strip incident suffix
       pkg_name = opkg.name.gsub(/\.[^\.]*$/, '')
@@ -330,15 +330,20 @@ module MaintenanceHelper
     if Package.exists_by_project_and_name(project.name, pkg_name, follow_project_links: false)
       raise PackageAlreadyExists, "package #{opkg.name} already exists"
     end
+
+    local_linked_packages = {}
     opkg.find_project_local_linking_packages.each do |p|
       lpkg_name = p.name
-      if p.is_a?(Package) && p.project.is_maintenance_release?
+      if opkg_name != pkg_name && p.is_a?(Package) && p.project.is_maintenance_release?
         # strip incident suffix
         lpkg_name = p.name.gsub(/\.[^\.]*$/, '')
+        # skip the base links
+        next if lpkg_name == p.name
       end
       if Package.exists_by_project_and_name(project.name, lpkg_name, follow_project_links: false)
         raise PackageAlreadyExists, "package #{p.name} already exists"
       end
+      local_linked_packages[lpkg_name] = p
     end
 
     pkg = project.packages.create(name: pkg_name, title: opkg.title, description: opkg.description)
@@ -375,19 +380,10 @@ module MaintenanceHelper
     pkg.sources_changed
 
     # and create the needed local links
-    opkg.find_project_local_linking_packages.each do |p|
-      lpkg_name = p.name
-      if p.is_a?(Package) && p.project.is_maintenance_release?
-        # strip incident suffix
-        lpkg_name = p.name.gsub(/\.[^\.]*$/, '')
-        # skip the base links
-        next if lpkg_name == p.name
-      end
+    local_linked_packages.each do |lpkg_name, p|
       # create container
-      unless project.packages.where(name: lpkg_name).exists?
-        lpkg = project.packages.create(name: lpkg_name, title: p.title, description: p.description)
-        lpkg.store
-      end
+      lpkg = project.packages.create(name: lpkg_name, title: p.title, description: p.description)
+      lpkg.store
 
       # copy project local linked packages
       path = lpkg.source_path

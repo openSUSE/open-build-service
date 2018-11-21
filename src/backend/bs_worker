@@ -761,6 +761,10 @@ if (open(FILE, "<", "/proc/cpuinfo")) {
       $cpu_implementer = $1;
     } elsif (/^CPU variant\s*:\s(.*)$/) {
       $cpu_variant = $1;
+    } elsif (/^cpu\s*:\sPOWER9/) {
+      # PowerPC kernel provides no flags, but we need to be able
+      # to distinguish between power7 and 8 at least
+      $hw->{'cpu'}->{'flag'} = [ "power7", "power8", "power9" ];
     } elsif (/^cpu\s*:\sPOWER8/) {
       # PowerPC kernel provides no flags, but we need to be able
       # to distinguish between power7 and 8 at least

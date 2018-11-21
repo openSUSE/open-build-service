@@ -39,7 +39,7 @@
 	     -z "$DISABLE_RESTART_ON_UPDATE" && . /etc/sysconfig/services\
 	test "$DISABLE_RESTART_ON_UPDATE" = yes -o \\\
 	     "$DISABLE_RESTART_ON_UPDATE" = 1 && exit 0\
-	%{?*:/usr/bin/systemctl try-reload-or-restart %{*}}\
+	%{?*:/usr/bin/systemctl force-reload %{*}}\
 	) || : %{nil}
 
 %define service_del_postun(fnr) \
@@ -427,9 +427,13 @@ getent passwd obsservicerun >/dev/null || \
 if [ -f /etc/sysconfig/obs-server ] ; then
     . /etc/sysconfig/obs-server
 fi
-for i in deltastore dispatcher dodup warden ; do
+for i in deltastore dispatcher dodup obsgetbinariesproxy publisher rep_server servicedispatch signer src_server warden ; do
     LOG=${OBS_LOG_DIR:=/srv/obs/log}/$i.log
     test -f $LOG && chown obsrun:obsrun $LOG
+done
+for i in src_service ; do
+    LOG=${OBS_LOG_DIR:=/srv/obs/log}/$i.log
+    test -f $LOG && chown obsservicerun:obsrun $LOG
 done
 
 exit 0
