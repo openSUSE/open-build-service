@@ -1150,6 +1150,7 @@ CREATE TABLE `staging_request_exclusions` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `index_staging_request_exclusions_unique` (`staging_workflow_id`,`bs_request_id`),
   KEY `index_staging_request_exclusions_on_staging_workflow_id` (`staging_workflow_id`),
   KEY `index_staging_request_exclusions_on_bs_request_id` (`bs_request_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
@@ -1439,6 +1440,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20181016103905'),
 ('20181025152009'),
 ('20181030114152'),
-('20181113095753');
+('20181113095753'),
+('20181121144645');
 
 
