@@ -1,1 +1,0 @@
-../BSCando.pm

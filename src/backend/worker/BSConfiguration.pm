@@ -1,1 +1,0 @@
-../BSConfiguration.pm
