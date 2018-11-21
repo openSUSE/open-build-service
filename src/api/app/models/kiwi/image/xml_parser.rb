@@ -9,7 +9,7 @@ module Kiwi
       def parse
         return blank_image if @xml_document.xpath('image').blank?
 
-        new_image = Kiwi::Image.new(name: @xml_document.xpath('image').attribute('name').value, md5_last_revision: @md5)
+        new_image = Kiwi::Image.new(name: @xml_document.xpath('image').attribute('name')&.value, md5_last_revision: @md5)
 
         new_image.use_project_repositories = use_project_repositories?
         new_image.repositories = repositories
