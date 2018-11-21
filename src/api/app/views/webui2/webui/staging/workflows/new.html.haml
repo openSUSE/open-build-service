@@ -4,21 +4,21 @@
   = render(partial: 'webui2/webui/project/tabs', locals: { project: @project })
   .card-body
     %h3= @pagetitle
-    .mb-3
+    %p
       Adding the staging capability to this project will enable you to group
       requests into staging projects and being able to see how they build together.
     .mb-3.w-50.m-auto
       = form_for @staging_workflow, method: :post do |f|
         = hidden_field_tag :project_name, @project
         .form-group#assign-managers-group-modal-input
-          = label_tag(:managers_title, 'Managers:')
+          = label_tag(:managers_title, 'Managers Group:')
           .input-group
             .input-group-prepend
               %span.input-group-text#assign-managers-group-search-icon
                 %i.fa.fa-search
                 %i.fas.fa-spinner.fa-spin.d-none
-            = text_field_tag 'managers_title', '', required: true, placeholder: 'Type to autocomplete...', class: 'form-control',
-                              data: { autocomplete_groups_url: url_for(controller: '/webui/groups', action: 'autocomplete') }
+            = text_field_tag 'managers_title', '', required: true, placeholder: 'Type the name of an existent group to autocomplete...',
+                              class: 'form-control', data: { autocomplete_groups_url: url_for(controller: '/webui/groups', action: 'autocomplete') }
         .text-center
           = f.submit 'Create Staging Projects', class: 'btn btn-primary'
 
