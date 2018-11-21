@@ -21,7 +21,7 @@ class Staging::StagedRequestsController < ApplicationController
       render_error(
         status: 400,
         errorcode: 'invalid_request',
-        message: "Could not assign requests #{unassigned_requests.to_sentence} to #{@staging_project}."
+        message: "Could not assign requests '#{unassigned_requests.to_sentence}' to #{@staging_project}."
       )
     end
   end
