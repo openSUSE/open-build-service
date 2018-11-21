@@ -4160,7 +4160,7 @@ sub extend_timestamp {
   push @signcmd, '--project', ':tmpkey' if $BSConfig::sign_project;
   push @signcmd, '-P', "$uploaddir/timestampkey.$$";
   my $signfunc = sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
-  $timestamp = BSTUF::update_expires($timestamp, $signfunc, BSTUF::rfc3339time($expires));
+  $timestamp = BSTUF::update_expires($timestamp, $signfunc, $expires);
   unlink("$uploaddir/timestampkey.$$");
   my $fd;
   BSUtil::lockopen($fd, '<', "$repodir/:tuf");
@@ -4168,6 +4168,7 @@ sub extend_timestamp {
   if ($tuf && $tuf->{'timestamp'} && $tuf->{'timestamp'} eq $data) {
     # ok to update
     $tuf->{'timestamp'} = $timestamp;
+    $tuf->{'timestamp_expires'} = $expires;
     BSUtil::store("$repodir/.tuf.$$", "$repodir/:tuf", $tuf);
   }
   close($fd);
