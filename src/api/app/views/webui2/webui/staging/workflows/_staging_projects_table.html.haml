@@ -10,7 +10,7 @@
     - staging_projects.each do |staging_project|
       %tr
         %td.project
-          = render partial: 'overall_state', locals: { staging_project: staging_project }
+          = render partial: 'overall_state', locals: { staging_workflow: staging_workflow, staging_project: staging_project }
         %td.requests
           = render partial: 'webui/staging/shared/packages_list', locals: { staging_project: staging_project }
         %td
