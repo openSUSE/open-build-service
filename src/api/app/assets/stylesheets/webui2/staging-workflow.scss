@@ -29,6 +29,10 @@ ul .table-list-group-item {
     &.project {
       > span.badge {
         @extend .w-100;
+
+        > span.badge {
+          @extend .m-1;
+        }
       }
 
       span.badge {
