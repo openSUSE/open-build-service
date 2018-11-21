@@ -3,8 +3,7 @@ require 'rails_helper'
 RSpec.describe Webui::Staging::ExcludedRequestsController, type: :controller do
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:project) { user.home_project }
-  let(:managers_group) { create(:group) }
-  let(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: project, managers_group: managers_group) }
+  let(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: project) }
 
   let(:source_package) { create(:package) }
   let(:target_package) { create(:package, name: 'target_package', project: project) }
