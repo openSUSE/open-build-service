@@ -76,6 +76,8 @@ gem 'data_migrate', '= 5.2.0'
 gem 'addressable'
 # for XML builder
 gem 'builder'
+# to write the rails metrics directly into InfluxDB.
+gem 'influxdb-rails'
 
 group :development, :production do
   # to have the delayed job daemon
@@ -176,7 +178,7 @@ group :assets do
   # for minifying JavaScript
   gem 'uglifier', '>= 1.2.2'
   # to use sass in the asset pipeline
-  gem 'sass-rails', '~> 5.0.1'
+  gem 'sassc-rails'
   # assets for jQuery DataTables
   gem 'jquery-datatables'
   # assets for the text editor

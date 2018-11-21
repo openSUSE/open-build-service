@@ -4,8 +4,8 @@ ul li.value {
   }
 
   & pre {
-    background-color: #f6f6f6;
-    border: 1px dotted #690;
+    background-color: $body-bg;
+    border: 1px dotted $primary;
     padding: 2px 3px;
   }
 }

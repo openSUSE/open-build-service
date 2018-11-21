@@ -1,13 +1,13 @@
 ul.nav.nav-tabs li.nav-item {
   & a {
-    color: $obs_blue;
+    color: $link-color;
 
     &:hover {
-      color: $obs_green;
+      color: $link-hover-color;
     }
 
     &.dropdown-item.active {
-      color: #fff;
+      color: $white;
     }
   }
 }
