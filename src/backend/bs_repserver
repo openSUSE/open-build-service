@@ -1998,7 +1998,7 @@ sub notify_jobresult {
 
   # create notification info
   my %ninfo;
-  for (qw{project package repository arch rev srcmd5 verifymd5 readytime reason versrel bcnt release}) {
+  for (qw{project package repository arch rev srcmd5 verifymd5 readytime reason versrel bcnt release disturl}) {
     $ninfo{$_} = $info->{$_} if defined $info->{$_};
   }
   $ninfo{'starttime'} = $jobstatus->{'starttime'};
