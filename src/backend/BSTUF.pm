@@ -54,18 +54,13 @@ sub key2keyid {
   return Digest::SHA::sha256_hex(canonical_json($_[0]));
 }
 
-sub sign {
-  my ($data, $signcmd) = @_;
-  return BSUtil::xsystem($data, @$signcmd, '-O', '-h', 'sha256');
-}
-
 sub mktbscert {
   my ($cn, $not_before, $not_after, $subjectkeyinfo) = @_;
   my $certversion = BSASN1::pack_tagged(0, BSASN1::pack_integer(2));
   my $certserial = BSX509::pack_random_serial();
   my $sigalgo = BSASN1::pack_sequence($BSX509::oid_sha256withrsaencryption, BSASN1::pack_null());
   my $issuer = BSX509::pack_distinguished_name([ $BSX509::oid_common_name, $cn ]);
-  my $validity = BSASN1::pack_sequence(BSASN1::pack_utctime($not_before), BSASN1::pack_utctime($not_after));
+  my $validity = BSX509::pack_validity($not_before, $not_after);
   my $basic_constraints = BSASN1::pack_sequence();
   my $key_usage = BSASN1::pack_bits_list($BSX509::key_usage_digital_signature, $BSX509::key_usage_key_encipherment);
   my $ext_key_usage = BSASN1::pack_sequence($BSX509::oid_code_signing);
@@ -78,8 +73,8 @@ sub mktbscert {
 }
 
 sub mkcert {
-  my ($tbscert, $signcmd) = @_;
-  my $signature = sign($tbscert, $signcmd);
+  my ($tbscert, $signfunc) = @_;
+  my $signature = $signfunc->($tbscert);
   my $sigalgo = BSASN1::pack_sequence($BSX509::oid_sha256withrsaencryption, BSASN1::pack_null());
   my $cert = BSASN1::pack_sequence($tbscert, $sigalgo, BSASN1::pack_bytes($signature));
   return BSASN1::der2pem($cert, 'CERTIFICATE');
@@ -108,10 +103,10 @@ sub getsubjectkeyinfo {
 }
 
 sub signdata {
-  my ($d, $signcmd, @keyids) = @_;
-  my $sig = MIME::Base64::encode_base64(sign(canonical_json($d), $signcmd), '');
+  my ($d, $signfunc, @keyids) = @_;
+  my $sig = MIME::Base64::encode_base64($signfunc->(canonical_json($d)), '');
   my @sigs = map { { 'keyid' => $_, 'method' => 'rsapkcs1v15', 'sig' => $sig } } @keyids;
-  # hack: signed must be first
+  # hack: signed must come first
   $d = { 'AAA_signed' => $d, 'signatures' => \@sigs };
   $d = canonical_json($d);
   $d =~ s/AAA_signed/signed/;
@@ -119,10 +114,10 @@ sub signdata {
 }
 
 sub updatedata {
-  my ($d, $oldd, $signcmd, @keyids) = @_;
+  my ($d, $oldd, $signfunc, @keyids) = @_;
   $d->{'version'} = 1;
   $d->{'version'} = ($oldd->{'signed'}->{'version'} || 0) + 1 if $oldd && $oldd->{'signed'};
-  return signdata($d, $signcmd, @keyids);
+  return signdata($d, $signfunc, @keyids);
 }
 
 sub getrootcert {
@@ -157,6 +152,16 @@ sub addmetaentry {
     'length' => length($content),
   };
   $d->{'meta'}->{$name} = $entry;
+}
+
+sub update_expires {
+  my ($d, $signfunc, $expires) = @_;
+  my $keyid = $d->{'signatures'}->[0]->{'keyid'};
+  die("update_expires: bad data\n") unless $d->{'signed'} && $keyid;
+  $d = { %{$d->{'signed'}} };
+  $d->{'expires'} = BSTUF::rfc3339time($expires);
+  $d->{'version'} = ($d->{'version'} || 0) + 1;
+  return signdata($d, $signfunc, $keyid);
 }
 
 1;

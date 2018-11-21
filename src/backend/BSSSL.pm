@@ -43,7 +43,8 @@ sub initctx {
     Net::SSLeay::CTX_use_RSAPrivateKey_file($sslctx, $keyfile, &Net::SSLeay::FILETYPE_PEM) || die("RSAPrivateKey $keyfile failed\n");
   }
   if ($certfile) {
-    Net::SSLeay::CTX_use_certificate_file($sslctx, $certfile, &Net::SSLeay::FILETYPE_PEM) || die("certificate $keyfile failed\n");
+    # CTX_use_certificate_chain_file expects PEM format anyway, client cert first, chain certs after that
+    Net::SSLeay::CTX_use_certificate_chain_file($sslctx, $certfile) || die("certificate $certfile failed\n");
   }
   if (defined &Net::SSLeay::CTX_set_tmp_ecdh) {
     my $curve = Net::SSLeay::OBJ_txt2nid('prime256v1');

@@ -1,10 +1,10 @@
 #personal-navigation {
     & .nav-item a {
         font-size: 0.9rem;
-        color: $obs_green;
+        color: $primary;
 
         &:hover {
-            color: $obs_blue;
+            color: $secondary;
         }
     }
 
@@ -13,6 +13,6 @@
     }
 
     .nav-pills .show > .nav-link {
-        color: #fff !important;
+        color: $white !important;
     }
 }

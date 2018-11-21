@@ -108,6 +108,18 @@ sub pk2times {
   return $d;
 }
 
+sub pk2userid {
+  my ($pk) = @_;
+  my ($tag, $pack);
+  ($tag, $pack, $pk) = pkdecodepacket($pk);
+  die("not a public key\n") unless $tag == 6;
+  while ($pk ne '') {
+    ($tag, $pack, $pk) = pkdecodepacket($pk);
+    return $pack if $tag == 13;
+  }
+  return undef;
+}
+
 sub pk2expire {
   my ($pk) = @_;
   my $d = pk2times($pk) || {};

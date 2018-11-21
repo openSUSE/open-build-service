@@ -1,62 +1,61 @@
-.CodeMirror {
-  font-family: "Liberation Mono", monospace;
-  font-size: 9pt;
+.cm-s-bootstrap.CodeMirror {
+  font-family: $font-family-monospace, monospace;
   height: auto;
+  background: $card-bg;
+  color: $body-color;
+  line-height: 1.2;
 }
 
-.action_display .CodeMirror-scroll {
-  max-height: 800px;
+.cm-s-bootstrap .cm-header {color: $blue;}
+.cm-s-bootstrap .cm-quote {color: $green;}
+
+.cm-s-bootstrap .cm-keyword {color: $pink;}
+.cm-s-bootstrap .cm-atom {color: $indigo;}
+.cm-s-bootstrap .cm-number {color: $teal;}
+.cm-s-bootstrap .cm-def {color: $blue;}
+.cm-s-bootstrap .cm-variable,
+.cm-s-bootstrap .cm-punctuation,
+.cm-s-bootstrap .cm-property,
+.cm-s-bootstrap .cm-operator {color: $body-color;}
+.cm-s-bootstrap .cm-variable-2 {color: $blue;}
+.cm-s-bootstrap .cm-variable-3, .cm-s-bootstrap .cm-type {color: $teal;}
+.cm-s-bootstrap .cm-comment {color: $orange;}
+.cm-s-bootstrap .cm-string {color: $danger;}
+.cm-s-bootstrap .cm-string-2 {color: $orange;}
+.cm-s-bootstrap .cm-meta {color: $text-muted;}
+.cm-s-bootstrap .cm-qualifier {color: $text-muted;}
+.cm-s-bootstrap .cm-builtin {color: $purple;}
+.cm-s-bootstrap .cm-bracket {color: $warning;}
+.cm-s-bootstrap .cm-tag {color: $success;}
+.cm-s-bootstrap .cm-attribute {color: $blue;}
+.cm-s-bootstrap .cm-hr {color: $secondary;}
+.cm-s-bootstrap .cm-link {color: $link-color;}
+
+.cm-s-bootstrap .cm-error {color: $danger;}
+
+.cm-s-bootstrap .cm-negative {
+  color: $danger;
+  background: rgba($danger, 0.1);
 }
 
-.CodeMirror-scroll {
-  overflow-y: hidden;
-  overflow-x: auto;
+.cm-s-bootstrap .cm-positive {
+  color: $success;
+  background: rgba($success, 0.1);
 }
 
-.CodeMirror pre {
-  /* We inherit 'overflow: auto;' from the Bento CSS theme.
-  Both v8 and webkit engines thus
-  render garbage scrollbars.
-  Setting to hidden is ok here, the '.CodeMirror pre' elements
-  aren't supposed to be scrollable... */
-  overflow: hidden;
-  line-height: 1.1;
+.cm-s-bootstrap .CodeMirror-gutters {
+  // Prevent gutters from being opatique by adding background to foreground colors to create non-opatique version of cap color
+  background: opacify( mix( $card-bg, opacify( $card-cap-bg, 1 ), ( 1 - alpha( $card-cap-bg ) ) * 100% ), 1 );
+  border-right: $card-border-width solid $card-border-color;
+}
+.cm-s-bootstrap .CodeMirror-guttermarker { color: $text-muted; }
+.cm-s-bootstrap .CodeMirror-guttermarker-subtle { color: $text-muted; }
+.cm-s-bootstrap .CodeMirror-linenumber { color: $text-muted; }
+.cm-s-bootstrap div.CodeMirror-selected {
+  background: $primary;
+  opacity: 0.2;
 }
 
-div[id^=top_] .toolbar { border-radius: 4px 4px 0 0; }
-div[id^=bottom_] .toolbar { border-radius: 0 0 4px 4px; }
-
-.toolbar {
-  background: #f0f0f0;
-  padding: 6px 10px;
-
-  & > span:first-child { margin-right: 10px; }
-  span {
-    .left-margin { margin-left: 10px; }
-    .counter { width: 40px; }
-  }
-
-  .buttons { background-color: #dee2e6; }
-  .inputs, select { background: #f8f9fa; }
-  .inputs {
-    /* toolbars default is 130, but we need a little more space */
-    width: 120px;
-  }
-
-  .tools {margin:2px 1px;}
-  .prev {margin-right:-1px;}
-  .next {margin-left:-1px;}
-  .undo {margin-right:-1px;}
-  .redo {margin-left:-1px;}
-
-  .save { background-color: red; }
-  .save.inactive { background-color: transparent; color: #555;  }
-  .save.working { display: none; }
-}
-
-/* RPM spec styles */
-.cm-s-default span.cm-preamble {color: #b26818; font-weight: bold;}
-.cm-s-default span.cm-macro {color: #b218b2;}
-.cm-s-default span.cm-section {color: green; font-weight: bold;}
-.cm-s-default span.cm-script {color: red;}
-.cm-s-default span.cm-issue {color: yellow;}
+// Don't display cursor if not editable view
+.cm-s-bootstrap .CodeMirror-cursor { border-left: 0px; }
+.editable .cm-s-bootstrap .CodeMirror-cursor { border-left: 1px solid $body-color; }

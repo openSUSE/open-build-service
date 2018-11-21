@@ -4152,11 +4152,6 @@ sub extend_timestamp {
 
   my $data = $tuf->{'timestamp'};
   my $timestamp = JSON::XS::decode_json($data);
-  my $keyid = $timestamp->{'signatures'}->[0]->{'keyid'};
-  $timestamp = $timestamp->{'signed'};
-  die unless $timestamp && $keyid;
-  $timestamp->{'expires'} = BSTUF::rfc3339time($expires);
-  $timestamp->{'version'} = $timestamp->{'version'} + 1;
   mkdir_p($uploaddir);
   unlink("$uploaddir/timestampkey.$$");
   writestr("$uploaddir/timestampkey.$$", undef, $tuf->{'timestamp_privkey'});
@@ -4164,7 +4159,8 @@ sub extend_timestamp {
   push @signcmd, $BSConfig::sign;
   push @signcmd, '--project', ':tmpkey' if $BSConfig::sign_project;
   push @signcmd, '-P', "$uploaddir/timestampkey.$$";
-  $timestamp = BSTUF::signdata($timestamp, \@signcmd, $keyid);
+  my $signfunc = sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
+  $timestamp = BSTUF::update_expires($timestamp, $signfunc, $expires);
   unlink("$uploaddir/timestampkey.$$");
   my $fd;
   BSUtil::lockopen($fd, '<', "$repodir/:tuf");
@@ -4172,6 +4168,7 @@ sub extend_timestamp {
   if ($tuf && $tuf->{'timestamp'} && $tuf->{'timestamp'} eq $data) {
     # ok to update
     $tuf->{'timestamp'} = $timestamp;
+    $tuf->{'timestamp_expires'} = $expires;
     BSUtil::store("$repodir/.tuf.$$", "$repodir/:tuf", $tuf);
   }
   close($fd);
@@ -4221,6 +4218,7 @@ sub registry_tuf {
     my $key = $root->{'keys'}->{$keyid};
     die("404 METADATA_NOT_FOUND\n") unless $key;
     BSRegistryServer::reply($key);
+    return undef;
   }
   die("404 METADATA_NOT_FOUND\n");
 }

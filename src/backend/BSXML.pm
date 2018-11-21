@@ -1840,6 +1840,7 @@ our $multibuild = [
 our $pubkeyinfo = [
     'pubkey' =>
 	'keyid',
+	'userid',
 	'algo',
 	'keysize',
 	'expires',
@@ -1847,11 +1848,23 @@ our $pubkeyinfo = [
 	'_content',
 ];
 
+our $certinfo = [
+    'sslcert' =>
+	'serial',
+	'issuer',
+	'subject',
+	'algo',
+	'keysize',
+	'begins',
+	'expires',
+	'_content',
+];
+
 our $keyinfo = [
     'keyinfo' =>
 	'project',
         $pubkeyinfo,
-	'sslcert',
+	$certinfo,
 ];
 
 our $binannotation = [

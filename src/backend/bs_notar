@@ -256,6 +256,7 @@ sub getoldkey {
   return BSRPC::rpc($param, \&JSON::XS::decode_json);
 }
 
+my $signfunc = sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
 #
 # generate key material
 #
@@ -278,7 +279,7 @@ $oldroot = JSON::XS::decode_json($oldroot_json) if $oldroot_json;
 my $cmpres = BSTUF::cmprootcert($oldroot, $tbscert);
 my $cert;
 $cert = BSTUF::getrootcert($oldroot) if $cmpres == 2;
-$cert ||= BSTUF::mkcert($tbscert, \@signcmd);
+$cert ||= BSTUF::mkcert($tbscert, $signfunc);
 $oldroot_json = '' if $cmpres == 0;	# start from scratch
 $oldroot = {} if $cmpres == 0;	# start from scratch
 
@@ -347,7 +348,7 @@ if (BSTUF::canonical_json($root) eq BSTUF::canonical_json($oldroot->{'signed'} |
     @key_ids = BSUtil::unify(@key_ids);
     @key_ids = splice(@key_ids, 0, 2);		# enough for now
   }
-  $tuf->{'root'} = BSTUF::updatedata($root, $cmpres ? $oldroot : {}, \@signcmd, @key_ids);
+  $tuf->{'root'} = BSTUF::updatedata($root, $cmpres ? $oldroot : {}, $signfunc, @key_ids);
 }
 
 #
@@ -373,7 +374,7 @@ my $targets = {
   'expires' => BSTUF::rfc3339time($now + $targets_expire),
   'targets' => $manifests,
 };
-$tuf->{'targets'} = BSTUF::updatedata($targets, $cmpres ? $oldtargets : {}, \@signcmd, $root_key_id);
+$tuf->{'targets'} = BSTUF::updatedata($targets, $cmpres ? $oldtargets : {}, $signfunc, $root_key_id);
 
 #
 # setup snapshot
@@ -386,7 +387,7 @@ my $snapshot = {
 };
 BSTUF::addmetaentry($snapshot, 'root', $tuf->{'root'});
 BSTUF::addmetaentry($snapshot, 'targets', $tuf->{'targets'});
-$tuf->{'snapshot'} = BSTUF::updatedata($snapshot, $cmpres ? $oldsnapshot : {}, \@signcmd, $root_key_id);
+$tuf->{'snapshot'} = BSTUF::updatedata($snapshot, $cmpres ? $oldsnapshot : {}, $signfunc, $root_key_id);
 
 #
 # delete old data if necessary

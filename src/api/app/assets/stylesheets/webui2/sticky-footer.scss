@@ -7,14 +7,22 @@ body {
 }
 
 #footer {
-  background-color: $gray-200;
+  background-color: $gray-300;
 
   & a {
     font-size: .9rem;
-    color: $obs_green;
+    color: $link-hover-color;
 
     &:hover {
-        color: $obs_blue;
+        color: $link-color;
     }
   }
+}
+
+// Sticky bottom
+.sticky-bottom {
+    position: -webkit-sticky;
+    position: sticky;
+    bottom: 0;
+    z-index: 1020;
 }

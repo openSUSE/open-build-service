@@ -21,7 +21,7 @@
   .card-body
     .tab-content
       .tab-pane.fade.show.active{ id: "build#{index}", role: 'tabpanel', aria: { labelledby: "build#{index}-tab" } }
-        .btn.btn-sm.btn-outline-primary.mb-2.build-refresh{ onclick: "updateBuildResult('#{index}')", title: 'Refresh Build Results' }
+        .btn.btn-sm.btn-outline-primary.mb-2.build-refresh{ onclick: "updateBuildResult('#{index}')", accesskey: 'r', title: 'Refresh Build Results' }
           Refresh
           %i.fas.fa-sm.fa-sync-alt{ id: "build#{index}-reload" }
         .result

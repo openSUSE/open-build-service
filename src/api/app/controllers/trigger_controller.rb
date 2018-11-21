@@ -12,6 +12,11 @@ class TriggerController < ApplicationController
 
   def runservice
     auth = request.env['HTTP_AUTHORIZATION']
+
+    if request.env['HTTP_X_GITLAB_EVENT'] == 'Push Hook'
+      auth = 'Token ' + request.env['HTTP_X_GITLAB_TOKEN']
+    end
+
     unless auth && auth[0..4] == 'Token' && auth[6..-1] =~ /^[A-Za-z0-9+\/]+$/
       render_error errorcode: 'permission_denied',
                    message: "No valid token found 'Authorization' header",
