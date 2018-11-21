@@ -2,7 +2,7 @@
   %ul
     %li.selected
       %a.result-select-link#result-select-link{ href: '#' } Build Results
-      = sprite_tag('reload', title: 'Reload', onclick: 'update_build_result()', class: "result_reload", id: "result_reload")
+      = sprite_tag('reload', title: 'Reload', accesskey: 'r', onclick: 'update_build_result()', class: "result_reload", id: "result_reload")
       = image_tag('ajax-loader.gif', id: "result_spinner")
 
 .result-display#result-display
