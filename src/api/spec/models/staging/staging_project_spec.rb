@@ -67,14 +67,6 @@ RSpec.describe Staging::StagingProject, vcr: true do
     end
   end
 
-  describe '#staging_identifier' do
-    before do
-      staging_project.update(name: 'openSUSE_41:Staging:myStagingProject')
-    end
-
-    it { expect(staging_project.staging_identifier).to eq('myStagingProject') }
-  end
-
   describe '#untracked_requests' do
     let!(:request_with_review) do
       create(:review_bs_request_by_project, request_attributes.merge(reviewer: user, review_by_project: staging_project))
