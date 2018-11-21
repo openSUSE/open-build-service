@@ -12,7 +12,6 @@ module Webui
 
       def index
         @request_exclusions = @staging_workflow.request_exclusions
-        @requests = @staging_workflow.unassigned_requests
       end
 
       def create
