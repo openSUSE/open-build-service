@@ -14,10 +14,6 @@ module Staging
     after_destroy :update_staging_workflow_on_backend
     before_create :add_managers_group
 
-    def staging_identifier
-      name[/.*:Staging:(.*)/, 1]
-    end
-
     def classified_requests
       requests = (requests_to_review | staged_requests.includes(:reviews)).map do |request|
         {
