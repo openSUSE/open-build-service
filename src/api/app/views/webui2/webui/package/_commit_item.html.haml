@@ -24,7 +24,7 @@
   - if commit['rev'] != '1'
     %li.nav-item
       = link_to(package_rdiff_path(@project, @package, rev: commit['rev'], linkrev: 'base'), class: 'nav-link') do
-        %i.fas.fa-copy.text-gray-550
+        %i.fas.fa-copy.text-gray-500
         Files Changed
   %li.nav-item
     = link_to(package_show_path(@project, @package, rev: commit['rev']), class: 'nav-link') do

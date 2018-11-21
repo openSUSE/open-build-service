@@ -179,7 +179,7 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
       scenario 'can edit' do
         visit package_meta_path(package.project, package)
         fill_in_editor_field('<!-- Comment for testing -->')
-        click_button('Save')
+        find('.save').click
         expect(page).to have_text('The Meta file has been successfully saved.')
         expect(page).to have_css('.CodeMirror-code', text: 'Comment for testing')
       end
