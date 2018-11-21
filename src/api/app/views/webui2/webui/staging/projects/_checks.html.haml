@@ -1,0 +1,16 @@
+%td.p-2.w-25.font-weight-bold
+  %i.mr-2.fas{ class: icon_for_checks(checks, missing_checks) }
+  Checks
+%td.p-2
+  - if checks.blank? && missing_checks.blank?
+    None
+  - else
+    %ul
+      - missing_checks.each do |name|
+        %li
+          %span.check-pending
+            #{name} (Expected - Waiting for status to be reported)
+      - checks.each do |check|
+        %li
+          = link_to "#{check.name} (#{check.state} - #{time_ago_in_words(check.updated_at)} ago)", check.url,
+                    class: "check-#{check.state}", title: "#{check.short_description} (#{check.updated_at})"

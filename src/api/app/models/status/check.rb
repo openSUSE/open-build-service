@@ -42,6 +42,10 @@ class Status::Check < ApplicationRecord
     state == 'pending'
   end
 
+  def success?
+    state == 'success'
+  end
+
   def failed?
     %w[error failure].include?(state)
   end

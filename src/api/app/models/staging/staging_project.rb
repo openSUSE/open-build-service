@@ -2,6 +2,10 @@ module Staging
   class StagingProject < Project
     has_many :staged_requests, class_name: 'BsRequest', foreign_key: :staging_project_id, dependent: :nullify
     has_many :status_reports, through: :repositories, inverse_of: :checkable
+    has_many :checks, through: :status_reports
+    has_many :status_reports_for_architectures, source: :status_reports, through: :repository_architectures, inverse_of: :checkable
+    has_many :checks_for_architectures, through: :status_reports_for_architectures, source: :checks
+
     belongs_to :staging_workflow, class_name: 'Staging::Workflow'
 
     default_scope { where.not(staging_workflow: nil) }
@@ -100,6 +104,14 @@ module Staging
       relationships.find_by(group: managers, role: role).try(:destroy!)
     end
 
+    def current_checks
+      relevant_checks + relevant_checks_for_architectures
+    end
+
+    def current_missing_checks
+      (relevant_status_reports + relevant_status_reports_for_architectures).map(&:missing_checks).flatten
+    end
+
     private
 
     def cache_problems
@@ -133,8 +145,20 @@ module Staging
       :acceptable
     end
 
+    def relevant_checks
+      @relevant_checks ||= checks.where(status_reports: { uuid: repositories.map(&:build_id) })
+    end
+
+    def relevant_checks_for_architectures
+      @relevant_checks_for_architectures ||= checks_for_architectures.where(status_reports: { uuid: repository_architectures.map(&:build_id) })
+    end
+
     def relevant_status_reports
       @relevant_status_reports ||= status_reports.where(uuid: repositories.map(&:build_id))
+    end
+
+    def relevant_status_reports_for_architectures
+      @relevant_status_reports_for_architectures ||= status_reports_for_architectures.where(uuid: repository_architectures.map(&:build_id))
     end
 
     def missing_checks?

@@ -19,95 +19,94 @@ ul .table-list-group-item {
   background-color: transparent;
 }
 
-#staging-projects-datatable {
-  td {
-    span.badge {
-      font-size: inherit;
-      font-weight: inherit;
+#staging-projects-datatable td,
+#staging-project-package-list {
+  span.badge {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  &.project {
+    > span.badge {
+      @extend .w-100;
+
+      > span.badge {
+        @extend .m-1;
+      }
     }
 
-    &.project {
-      > span.badge {
-        @extend .w-100;
+    span.badge {
+      &.state-unacceptable {
+        @extend .badge-dark;
+      }
 
-        > span.badge {
-          @extend .m-1;
+      &.state-acceptable {
+        @extend .badge-success;
+      }
+
+      &.state-testing {
+        @extend .badge-info;
+      }
+
+      &.state-building {
+        @extend .badge-warning;
+
+        span {
+          @extend .text-dark;
         }
+      }
+
+      &.state-failed {
+        @extend .badge-danger;
+      }
+
+      &.state-review {
+        @extend .badge-secondary;
+      }
+
+      &.state-empty {
+        @extend .badge-light;
+        @extend .border;
+
+        span {
+          @extend .text-dark;
+        }
+      }
+    }
+  }
+
+  &.requests {
+    @extend .w-50;
+
+    a.request {
+      @extend .text-white;
+      padding: 0 0.125rem 0.25rem;
+
+      &:hover {
+        text-decoration: none;
       }
 
       span.badge {
-        &.state-unacceptable {
-          @extend .badge-dark;
-        }
-
-        &.state-acceptable {
+        &.state-ready {
           @extend .badge-success;
         }
 
-        &.state-testing {
+        &.state-review {
+          @extend .badge-warning;
+        }
+
+        &.state-obsolete {
           @extend .badge-info;
         }
 
-        &.state-building {
-          @extend .badge-warning;
-
-          span {
-            @extend .text-dark;
-          }
-        }
-
-        &.state-failed {
-          @extend .badge-danger;
-        }
-
-        &.state-review {
-          @extend .badge-secondary;
-        }
-
-        &.state-empty {
-          @extend .badge-light;
-          @extend .border;
-
-          span {
-            @extend .text-dark;
-          }
+        &.state-untracked {
+          @extend .badge-dark;
         }
       }
     }
 
-    &.requests {
-      @extend .w-50;
-
-      a.request {
-        @extend .text-white;
-        padding: 0 0.125rem 0.25rem;
-
-        &:hover {
-          text-decoration: none;
-        }
-
-        span.badge {
-          &.state-ready {
-            @extend .badge-success;
-          }
-
-          &.state-review {
-            @extend .badge-warning;
-          }
-
-          &.state-obsolete {
-            @extend .badge-info;
-          }
-
-          &.state-untracked {
-            @extend .badge-dark;
-          }
-        }
-      }
-
-      a, div.collapse, div.collapsing {
-        float: left;
-      }
+    a, div.collapse, div.collapsing {
+      float: left;
     }
   }
 }
