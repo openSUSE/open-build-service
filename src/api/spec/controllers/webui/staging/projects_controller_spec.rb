@@ -12,7 +12,7 @@ RSpec.describe Webui::Staging::ProjectsController do
   describe 'POST #create' do
     context 'a staging_project' do
       before do
-        post :create, params: { staging_workflow_id: staging_workflow.id, staging_project_name: 'C' }
+        post :create, params: { staging_workflow_id: staging_workflow.id, staging_project_name: 'home:tom:My:Projects' }
       end
 
       subject { staging_workflow }
@@ -20,18 +20,18 @@ RSpec.describe Webui::Staging::ProjectsController do
       it { expect(Project.count).to eq(4) }
       it 'create a new staging project' do
         subject.reload
-        expect(subject.staging_projects.map(&:name)).to match_array(['home:tom:Staging:A', 'home:tom:Staging:B', 'home:tom:Staging:C'])
+        expect(subject.staging_projects.map(&:name)).to match_array(['home:tom:Staging:A', 'home:tom:Staging:B', 'home:tom:My:Projects'])
       end
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
       it { expect(flash[:success]).not_to be_nil }
       it 'assigns the managers group' do
-        expect(Staging::StagingProject.find_by_name('home:tom:Staging:C').groups.last).to eq(subject.managers_group)
+        expect(Staging::StagingProject.find_by_name('home:tom:My:Projects').groups).to contain_exactly(subject.managers_group)
       end
     end
 
     context 'an existent staging project' do
       before do
-        post :create, params: { staging_workflow_id: staging_workflow.id, staging_project_name: 'A' }
+        post :create, params: { staging_workflow_id: staging_workflow.id, staging_project_name: 'home:tom:Staging:A' }
       end
 
       subject { staging_workflow }
@@ -42,11 +42,20 @@ RSpec.describe Webui::Staging::ProjectsController do
       it { expect(flash[:error]).not_to be_nil }
     end
 
+    context 'when the user does not have permissions to create that project' do
+      before do
+        post :create, params: { staging_workflow_id: staging_workflow.id, staging_project_name: 'Apache' }
+      end
+
+      it { expect(Project.where(name: 'Apache')).not_to exist }
+      it { expect(flash[:error]).to eq('Sorry, you are not authorized to create this Staging::StagingProject.') }
+    end
+
     context 'when it fails to save' do
       before do
         staging_workflow
         allow_any_instance_of(Project).to receive(:valid?).and_return(false)
-        post :create, params: { staging_workflow_id: staging_workflow.id, staging_project_name: 'C' }
+        post :create, params: { staging_workflow_id: staging_workflow.id, staging_project_name: 'home:tom:My:Projects' }
       end
 
       subject { staging_workflow }
