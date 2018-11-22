@@ -1,10 +1,8 @@
 module Staging
   class StagingProject < Project
     has_many :staged_requests, class_name: 'BsRequest', foreign_key: :staging_project_id, dependent: :nullify
-    has_many :status_reports, through: :repositories, inverse_of: :checkable
-    has_many :checks, through: :status_reports
+    has_many :status_reports_for_repositories, source: :status_reports, through: :repositories, inverse_of: :checkable
     has_many :status_reports_for_architectures, source: :status_reports, through: :repository_architectures, inverse_of: :checkable
-    has_many :checks_for_architectures, through: :status_reports_for_architectures, source: :checks
 
     belongs_to :staging_workflow, class_name: 'Staging::Workflow'
 
@@ -100,17 +98,12 @@ module Staging
       relationships.find_by(group: managers, role: role).try(:destroy!)
     end
 
-    def current_checks
-      relevant_checks + relevant_checks_for_architectures
+    def checks
+      @checks ||= Status::Check.where(status_reports_id: relevant_status_reports_for_repositories | relevant_status_reports_for_architectures)
     end
 
-    def current_missing_checks
-      (relevant_status_reports + relevant_status_reports_for_architectures).map(&:missing_checks).flatten
-    end
-
-    def failed_status_checks
-      @failed_status_checks ||= relevant_checks.where(state: Status::Check::FAILED_STATES) +
-                                relevant_checks_for_architectures.where(state: Status::Check::FAILED_STATES)
+    def missing_checks
+      @missing_checks ||= (relevant_status_reports_for_repositories + relevant_status_reports_for_architectures).map(&:missing_checks).flatten
     end
 
     private
@@ -146,30 +139,30 @@ module Staging
       :acceptable
     end
 
-    def relevant_checks
-      @relevant_checks ||= checks.where(status_reports: { uuid: repositories.map(&:build_id) })
+    def relevant_status_reports(checkables, status_reports)
+      result = {}
+      status_reports.where(uuid: checkables.map(&:build_id)).find_each do |report|
+        result[report.checkable] = report
+      end
+
+      checkables.each do |checkable|
+        result[checkable] ||= Status::Report.new(checkable: checkable)
+      end
+
+      result.values
     end
 
-    def relevant_checks_for_architectures
-      @relevant_checks_for_architectures ||= checks_for_architectures.where(status_reports: { uuid: repository_architectures.map(&:build_id) })
-    end
-
-    def relevant_status_reports
-      @relevant_status_reports ||= status_reports.where(uuid: repositories.map(&:build_id))
+    def relevant_status_reports_for_repositories
+      @relevant_status_reports_for_repositories ||= relevant_status_reports(repositories, status_reports_for_repositories)
     end
 
     def relevant_status_reports_for_architectures
-      @relevant_status_reports_for_architectures ||= status_reports_for_architectures.where(uuid: repository_architectures.map(&:build_id))
-    end
-
-    def missing_checks?
-      relevant_status_reports.any? { |report| report.missing_checks.present? }
+      @relevant_status_reports_for_architectures ||= relevant_status_reports(repository_architectures, status_reports_for_architectures)
     end
 
     def check_state
-      status_checks = Status::Check.where(status_reports_id: relevant_status_reports)
-      return :testing if missing_checks? || status_checks.pending.exists?
-      return :failed if status_checks.failed.exists?
+      return :testing if missing_checks.present? || checks.pending.exists?
+      return :failed if checks.failed.exists?
       return :acceptable
     end
 
