@@ -37,11 +37,11 @@ class Staging::ExcludedRequestsController < ApplicationController
   private
 
   def set_staging_workflow
-    project = Project.get_by_name(params[:project_name])
+    project = Project.get_by_name(params[:staging_main_project_name])
     @staging_workflow = project.staging
     return if @staging_workflow
 
-    raise InvalidParameterError, "Project #{params[:project_name]} doesn't have an asociated Staging Workflow"
+    raise InvalidParameterError, "Project #{params[:staging_main_project_name]} doesn't have an asociated Staging Workflow"
   end
 
   def set_request_exclusion

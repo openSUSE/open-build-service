@@ -25,7 +25,10 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
 
   describe 'POST #create' do
     context 'succeeds' do
-      subject { post :create, params: { number: bs_request.number, project_name: project, description: "I don't want to see you any more" }, format: :xml }
+      subject do
+        post :create, params: { number: bs_request.number, staging_main_project_name: staging_workflow.project.name,
+                                description: "I don't want to see you any more" }, format: :xml
+      end
 
       context 'response' do
         before { subject }
@@ -37,7 +40,7 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
     end
 
     context 'fails: project does not exist' do
-      subject { post :create, params: { number: bs_request.number, project_name: 'i_do_not_exist', description: "I don't want to see you any more" }, format: :xml }
+      subject { post :create, params: { number: bs_request.number, staging_main_project_name: 'i_do_not_exist', description: "I don't want to see you any more" }, format: :xml }
 
       context 'response' do
         before { subject }
@@ -50,7 +53,7 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
 
     context 'fails: project without staging_workflow' do
       let(:project_without_staging) { create(:project, name: 'no_staging') }
-      subject { post :create, params: { number: bs_request.number, project_name: project_without_staging, description: "I don't want to see you any more" }, format: :xml }
+      subject { post :create, params: { number: bs_request.number, staging_main_project_name: project_without_staging, description: "I don't want to see you any more" }, format: :xml }
 
       context 'response' do
         before { subject }
@@ -63,7 +66,7 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
 
     context 'fails: invalid request exclusion' do
       let(:project_without_staging) { create(:project, name: 'without_staging_wokflow') }
-      subject { post :create, params: { number: bs_request.number, project_name: project_without_staging }, format: :xml }
+      subject { post :create, params: { number: bs_request.number, staging_main_project_name: project_without_staging }, format: :xml }
 
       context 'response' do
         before { subject }
@@ -79,7 +82,7 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
     let(:request_exclusion) { create(:request_exclusion, bs_request: bs_request, staging_workflow: staging_workflow) }
 
     context 'succeeds' do
-      subject { delete :destroy, params: { number: bs_request.number }, format: :xml }
+      subject { delete :destroy, params: { staging_main_project_name: staging_workflow.project.name, number: bs_request.number }, format: :xml }
 
       before { request_exclusion }
 
@@ -93,7 +96,7 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
     end
 
     context 'fails: request does not exist' do
-      subject { delete :destroy, params: { number: 43543 }, format: :xml }
+      subject { delete :destroy, params: {  staging_main_project_name: staging_workflow.project.name, number: 43543 }, format: :xml }
 
       context 'response' do
         before { subject }
@@ -105,7 +108,7 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
     end
 
     context 'fails: request not excluded' do
-      subject { delete :destroy, params: { number: bs_request.number }, format: :xml }
+      subject { delete :destroy, params: { staging_main_project_name: staging_workflow.project.name, number: bs_request.number }, format: :xml }
 
       context 'response' do
         before { subject }
@@ -122,7 +125,7 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
         allow_any_instance_of(Staging::RequestExclusion).to receive(:destroy).and_return(false)
       end
 
-      subject { delete :destroy, params: { number: bs_request.number }, format: :xml }
+      subject { delete :destroy, params: { staging_main_project_name: staging_workflow.project.name, number: bs_request.number }, format: :xml }
 
       context 'response' do
         before { subject }
