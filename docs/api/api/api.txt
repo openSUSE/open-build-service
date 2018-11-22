@@ -1932,13 +1932,15 @@ XmlResult: required_checks
 
 
 == Staging
+  WARNING: This API is currently in beta and unstable
 
 === Excluded Requests
 
 <project>: The name of the main project of a Staging, e.g. openSUSE_Tumbleweed
 <request>: The number of the request, e.g. 12345
+<description>: A string of text (url encoded)
 
-POST /staging_excluded_requests/<request>/<project>
+POST /staging_excluded_requests/<request>/<project>?description=<description>
   Exclude this request from this Staging
 
 DELETE /staging_excluded_requests/<request>
