@@ -106,11 +106,6 @@ module Staging
       @missing_checks ||= (relevant_status_reports_for_repositories + relevant_status_reports_for_architectures).map(&:missing_checks).flatten
     end
 
-    def failed_status_checks
-      @failed_status_checks ||= relevant_checks.where(state: Status::Check::FAILED_STATES) +
-                                relevant_checks_for_architectures.where(state: Status::Check::FAILED_STATES)
-    end
-
     private
 
     def cache_problems

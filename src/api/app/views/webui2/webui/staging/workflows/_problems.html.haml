@@ -2,7 +2,7 @@
   max_shown = 5
   project_class = staging_project.name.tr(':', '_')
   item_project_class = 'hidden-item-' + project_class
-  checks_problems = staging_project.failed_status_checks
+  checks_problems = staging_project.checks.failed
   build_problems = staging_project.problems
   total_problems = checks_problems.length + build_problems.length
 
