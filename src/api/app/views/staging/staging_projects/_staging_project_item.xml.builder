@@ -13,4 +13,5 @@ builder.staging_project(name: staging_project.name) do
 
   builder.overall_state(result: staging_project.overall_state)
   render(partial: 'checks', locals: { checks: staging_project.checks, builder: builder })
+  render(partial: 'missing_checks', locals: { missing_checks: staging_project.missing_checks, builder: builder })
 end
