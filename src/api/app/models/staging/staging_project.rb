@@ -1,9 +1,6 @@
 module Staging
   class StagingProject < Project
     has_many :staged_requests, class_name: 'BsRequest', foreign_key: :staging_project_id, dependent: :nullify
-    has_many :status_reports_for_repositories, source: :status_reports, through: :repositories, inverse_of: :checkable
-    has_many :status_reports_for_architectures, source: :status_reports, through: :repository_architectures, inverse_of: :checkable
-
     belongs_to :staging_workflow, class_name: 'Staging::Workflow'
 
     default_scope { where.not(staging_workflow: nil) }
@@ -99,11 +96,11 @@ module Staging
     end
 
     def checks
-      @checks ||= Status::Check.where(status_reports_id: relevant_status_reports_for_repositories | relevant_status_reports_for_architectures)
+      @checks ||= Status::Check.where(status_reports_id: status_reports_for_repositories | status_reports_for_architectures)
     end
 
     def missing_checks
-      @missing_checks ||= (relevant_status_reports_for_repositories + relevant_status_reports_for_architectures).map(&:missing_checks).flatten
+      @missing_checks ||= (status_reports_for_repositories + status_reports_for_architectures).map(&:missing_checks).flatten
     end
 
     private
@@ -139,7 +136,8 @@ module Staging
       :acceptable
     end
 
-    def relevant_status_reports(checkables, status_reports)
+    def status_reports(checkables)
+      status_reports = Status::Report.where(checkable: checkables)
       result = {}
       status_reports.where(uuid: checkables.map(&:build_id)).find_each do |report|
         result[report.checkable] = report
@@ -152,12 +150,12 @@ module Staging
       result.values
     end
 
-    def relevant_status_reports_for_repositories
-      @relevant_status_reports_for_repositories ||= relevant_status_reports(repositories, status_reports_for_repositories)
+    def status_reports_for_repositories
+      @status_reports_for_repositories ||= status_reports(repositories)
     end
 
-    def relevant_status_reports_for_architectures
-      @relevant_status_reports_for_architectures ||= relevant_status_reports(repository_architectures, status_reports_for_architectures)
+    def status_reports_for_architectures
+      @status_reports_for_architectures ||= status_reports(repository_architectures)
     end
 
     def check_state
