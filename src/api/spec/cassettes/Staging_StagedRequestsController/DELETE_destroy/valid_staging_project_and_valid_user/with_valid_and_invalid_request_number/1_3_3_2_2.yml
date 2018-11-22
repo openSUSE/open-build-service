@@ -40,7 +40,7 @@ http_interactions:
           <person userid="permitted_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:45 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=_nobody_
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>Taming a Sea Horse</title>
-          <description>Perferendis sit quas corporis.</description>
+          <title>Blood's a Rover</title>
+          <description>Voluptate ut aliquid est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>Taming a Sea Horse</title>
-          <description>Perferendis sit quas corporis.</description>
+          <title>Blood's a Rover</title>
+          <description>Voluptate ut aliquid est.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:45 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=_nobody_
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>Taming a Sea Horse</title>
-          <description>Perferendis sit quas corporis.</description>
+          <title>Blood's a Rover</title>
+          <description>Voluptate ut aliquid est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,23 +109,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>Taming a Sea Horse</title>
-          <description>Perferendis sit quas corporis.</description>
+          <title>Blood's a Rover</title>
+          <description>Voluptate ut aliquid est.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:45 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-11">
           <staging_project name="home:permitted_user:Staging:A"/>
         </workflow>
     headers:
@@ -151,15 +151,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="43">
-          <srcmd5>d4b55796c3817767416b8d882c066536</srcmd5>
-          <time>1542362145</time>
+        <revision rev="23">
+          <srcmd5>e68ad286c7e861625a806e882dcf8124</srcmd5>
+          <time>1542913550</time>
           <user>_nobody_</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:45 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=_nobody_
@@ -169,6 +169,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:A">
           <title/>
           <description/>
+          <group groupid="staging-workflow-managers-11" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -189,23 +190,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '106'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <project name="home:permitted_user:Staging:A">
           <title></title>
           <description></description>
+          <group groupid="staging-workflow-managers-11" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:45 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-11">
           <staging_project name="home:permitted_user:Staging:A"/>
           <staging_project name="home:permitted_user:Staging:B"/>
         </workflow>
@@ -232,15 +234,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="44">
-          <srcmd5>82cd4111c5d4fb99add428e64e8dac84</srcmd5>
-          <time>1542362145</time>
+        <revision rev="24">
+          <srcmd5>54dac6417bf4e5b8b624200c29df7510</srcmd5>
+          <time>1542913550</time>
           <user>_nobody_</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:45 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:B/_meta?user=_nobody_
@@ -250,6 +252,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:B">
           <title/>
           <description/>
+          <group groupid="staging-workflow-managers-11" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -270,16 +273,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '106'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <project name="home:permitted_user:Staging:B">
           <title></title>
           <description></description>
+          <group groupid="staging-workflow-managers-11" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:45 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_meta?user=_nobody_
@@ -287,8 +291,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Rosemary Sutcliff</title>
-          <description>Quod nulla rerum suscipit.</description>
+          <title>The Golden Bowl</title>
+          <description>Impedit sed similique inventore.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -309,16 +313,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '178'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Rosemary Sutcliff</title>
-          <description>Quod nulla rerum suscipit.</description>
+          <title>The Golden Bowl</title>
+          <description>Impedit sed similique inventore.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:45 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_meta?user=_nobody_
@@ -326,8 +330,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Rosemary Sutcliff</title>
-          <description>Quod nulla rerum suscipit.</description>
+          <title>The Golden Bowl</title>
+          <description>Impedit sed similique inventore.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -348,16 +352,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '178'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Rosemary Sutcliff</title>
-          <description>Quod nulla rerum suscipit.</description>
+          <title>The Golden Bowl</title>
+          <description>Impedit sed similique inventore.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:45 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:unpermitted_user/_meta?user=unpermitted_user
@@ -398,7 +402,7 @@ http_interactions:
           <person userid="unpermitted_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:45 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:51 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=_nobody_
@@ -406,7 +410,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>A Summer Bird-Cage</title>
+          <title>The Monkey's Raincoat</title>
           <description/>
         </project>
     headers:
@@ -428,16 +432,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '112'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>A Summer Bird-Cage</title>
+          <title>The Monkey's Raincoat</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:46 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:51 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=_nobody_
@@ -445,8 +449,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Precious Bane</title>
-          <description>Consequatur debitis inventore repudiandae.</description>
+          <title>When the Green Woods Laugh</title>
+          <description>Pariatur rerum eos odit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -467,16 +471,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Precious Bane</title>
-          <description>Consequatur debitis inventore repudiandae.</description>
+          <title>When the Green Woods Laugh</title>
+          <description>Pariatur rerum eos odit.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:46 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:51 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=_nobody_
@@ -484,8 +488,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Precious Bane</title>
-          <description>Consequatur debitis inventore repudiandae.</description>
+          <title>When the Green Woods Laugh</title>
+          <description>Pariatur rerum eos odit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -506,16 +510,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Precious Bane</title>
-          <description>Consequatur debitis inventore repudiandae.</description>
+          <title>When the Green Woods Laugh</title>
+          <description>Pariatur rerum eos odit.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:46 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:51 GMT
 - request:
     method: delete
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package?comment&user=permitted_user
@@ -548,5 +552,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:46 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:51 GMT
 recorded_with: VCR 4.0.0

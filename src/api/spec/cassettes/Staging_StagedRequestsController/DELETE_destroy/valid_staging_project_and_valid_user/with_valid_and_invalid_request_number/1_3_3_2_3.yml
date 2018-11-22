@@ -40,7 +40,7 @@ http_interactions:
           <person userid="permitted_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:47 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:51 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=_nobody_
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>Françoise Sagan</title>
-          <description>Laudantium suscipit animi maiores.</description>
+          <title>Terrible Swift Sword</title>
+          <description>Dignissimos tempore perferendis velit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,13 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '179'
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PHBhY2thZ2UgbmFtZT0idGFyZ2V0X3BhY2thZ2UiIHByb2plY3Q9ImhvbWU6cGVybWl0dGVkX3VzZXIiPgogIDx0aXRsZT5GcmFuw6dvaXNlIFNhZ2FuPC90aXRsZT4KICA8ZGVzY3JpcHRpb24+TGF1ZGFudGl1bSBzdXNjaXBpdCBhbmltaSBtYWlvcmVzLjwvZGVzY3JpcHRpb24+CjwvcGFja2FnZT4K
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:permitted_user">
+          <title>Terrible Swift Sword</title>
+          <description>Dignissimos tempore perferendis velit.</description>
+        </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:47 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=_nobody_
@@ -84,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>Françoise Sagan</title>
-          <description>Laudantium suscipit animi maiores.</description>
+          <title>Terrible Swift Sword</title>
+          <description>Dignissimos tempore perferendis velit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -106,20 +109,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '179'
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PHBhY2thZ2UgbmFtZT0idGFyZ2V0X3BhY2thZ2UiIHByb2plY3Q9ImhvbWU6cGVybWl0dGVkX3VzZXIiPgogIDx0aXRsZT5GcmFuw6dvaXNlIFNhZ2FuPC90aXRsZT4KICA8ZGVzY3JpcHRpb24+TGF1ZGFudGl1bSBzdXNjaXBpdCBhbmltaSBtYWlvcmVzLjwvZGVzY3JpcHRpb24+CjwvcGFja2FnZT4K
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:permitted_user">
+          <title>Terrible Swift Sword</title>
+          <description>Dignissimos tempore perferendis velit.</description>
+        </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:47 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-12">
           <staging_project name="home:permitted_user:Staging:A"/>
         </workflow>
     headers:
@@ -145,15 +151,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="47">
-          <srcmd5>d4b55796c3817767416b8d882c066536</srcmd5>
-          <time>1542362147</time>
+        <revision rev="25">
+          <srcmd5>6a02d7b70a247a8b83f9da56bbaca709</srcmd5>
+          <time>1542913552</time>
           <user>_nobody_</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:48 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=_nobody_
@@ -163,6 +169,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:A">
           <title/>
           <description/>
+          <group groupid="staging-workflow-managers-12" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -183,23 +190,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '106'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <project name="home:permitted_user:Staging:A">
           <title></title>
           <description></description>
+          <group groupid="staging-workflow-managers-12" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:48 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-12">
           <staging_project name="home:permitted_user:Staging:A"/>
           <staging_project name="home:permitted_user:Staging:B"/>
         </workflow>
@@ -226,15 +234,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="48">
-          <srcmd5>82cd4111c5d4fb99add428e64e8dac84</srcmd5>
-          <time>1542362148</time>
+        <revision rev="26">
+          <srcmd5>535cb0eeae32c2e97dbce9baa1760990</srcmd5>
+          <time>1542913552</time>
           <user>_nobody_</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:48 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:B/_meta?user=_nobody_
@@ -244,6 +252,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:B">
           <title/>
           <description/>
+          <group groupid="staging-workflow-managers-12" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -264,16 +273,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '106'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <project name="home:permitted_user:Staging:B">
           <title></title>
           <description></description>
+          <group groupid="staging-workflow-managers-12" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:48 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_meta?user=_nobody_
@@ -281,8 +291,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Vile Bodies</title>
-          <description>Dolorem ratione non molestiae.</description>
+          <title>All the King's Men</title>
+          <description>In assumenda voluptas aut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -303,16 +313,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Vile Bodies</title>
-          <description>Dolorem ratione non molestiae.</description>
+          <title>All the King's Men</title>
+          <description>In assumenda voluptas aut.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:48 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_meta?user=_nobody_
@@ -320,8 +330,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Vile Bodies</title>
-          <description>Dolorem ratione non molestiae.</description>
+          <title>All the King's Men</title>
+          <description>In assumenda voluptas aut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -342,16 +352,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Vile Bodies</title>
-          <description>Dolorem ratione non molestiae.</description>
+          <title>All the King's Men</title>
+          <description>In assumenda voluptas aut.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:48 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:unpermitted_user/_meta?user=unpermitted_user
@@ -392,7 +402,7 @@ http_interactions:
           <person userid="unpermitted_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:48 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=_nobody_
@@ -400,7 +410,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>That Good Night</title>
+          <title>Jacob Have I Loved</title>
           <description/>
         </project>
     headers:
@@ -422,16 +432,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '106'
+      - '109'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>That Good Night</title>
+          <title>Jacob Have I Loved</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:48 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=_nobody_
@@ -439,8 +449,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>The Millstone</title>
-          <description>Aut dolor soluta officia.</description>
+          <title>Things Fall Apart</title>
+          <description>Cum ut et ex.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -461,16 +471,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '146'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>The Millstone</title>
-          <description>Aut dolor soluta officia.</description>
+          <title>Things Fall Apart</title>
+          <description>Cum ut et ex.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:48 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=_nobody_
@@ -478,8 +488,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>The Millstone</title>
-          <description>Aut dolor soluta officia.</description>
+          <title>Things Fall Apart</title>
+          <description>Cum ut et ex.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -500,16 +510,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '146'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>The Millstone</title>
-          <description>Aut dolor soluta officia.</description>
+          <title>Things Fall Apart</title>
+          <description>Cum ut et ex.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:48 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:52 GMT
 - request:
     method: delete
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package?comment&user=permitted_user
@@ -542,5 +552,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:48 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:53 GMT
 recorded_with: VCR 4.0.0

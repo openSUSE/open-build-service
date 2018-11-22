@@ -40,14 +40,14 @@ http_interactions:
           <person userid="permitted_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:36 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-10">
           <staging_project name="home:permitted_user:Staging:A"/>
         </workflow>
     headers:
@@ -73,15 +73,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="31">
-          <srcmd5>d4b55796c3817767416b8d882c066536</srcmd5>
-          <time>1542362137</time>
+        <revision rev="21">
+          <srcmd5>9ed4e26f2293c75e0a491b0646ee9751</srcmd5>
+          <time>1542913548</time>
           <user>permitted_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:37 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=permitted_user
@@ -91,6 +91,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:A">
           <title/>
           <description/>
+          <group groupid="staging-workflow-managers-10" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -111,23 +112,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '106'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <project name="home:permitted_user:Staging:A">
           <title></title>
           <description></description>
+          <group groupid="staging-workflow-managers-10" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:37 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-10">
           <staging_project name="home:permitted_user:Staging:A"/>
           <staging_project name="home:permitted_user:Staging:B"/>
         </workflow>
@@ -154,15 +156,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="32">
-          <srcmd5>82cd4111c5d4fb99add428e64e8dac84</srcmd5>
-          <time>1542362137</time>
+        <revision rev="22">
+          <srcmd5>ccd7d10ca1928252a9b7e3396c02727b</srcmd5>
+          <time>1542913548</time>
           <user>permitted_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:37 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:B/_meta?user=permitted_user
@@ -172,6 +174,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:B">
           <title/>
           <description/>
+          <group groupid="staging-workflow-managers-10" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -192,16 +195,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '106'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <project name="home:permitted_user:Staging:B">
           <title></title>
           <description></description>
+          <group groupid="staging-workflow-managers-10" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:37 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:unpermitted_user/_meta?user=unpermitted_user
@@ -242,7 +246,7 @@ http_interactions:
           <person userid="unpermitted_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:37 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=permitted_user
@@ -250,8 +254,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>Antic Hay</title>
-          <description>Molestiae odit autem voluptatem.</description>
+          <title>Françoise Sagan</title>
+          <description>Omnis et sit debitis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -272,16 +276,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '158'
     body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="home:permitted_user">
-          <title>Antic Hay</title>
-          <description>Molestiae odit autem voluptatem.</description>
-        </package>
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0idGFyZ2V0X3BhY2thZ2UiIHByb2plY3Q9ImhvbWU6cGVybWl0dGVkX3VzZXIiPgogIDx0aXRsZT5GcmFuw6dvaXNlIFNhZ2FuPC90aXRsZT4KICA8ZGVzY3JpcHRpb24+T21uaXMgZXQgc2l0IGRlYml0aXMuPC9kZXNjcmlwdGlvbj4KPC9wYWNrYWdlPgo=
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:37 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=permitted_user
@@ -289,8 +290,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>Antic Hay</title>
-          <description>Molestiae odit autem voluptatem.</description>
+          <title>Françoise Sagan</title>
+          <description>Omnis et sit debitis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -311,16 +312,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '158'
     body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="home:permitted_user">
-          <title>Antic Hay</title>
-          <description>Molestiae odit autem voluptatem.</description>
-        </package>
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0idGFyZ2V0X3BhY2thZ2UiIHByb2plY3Q9ImhvbWU6cGVybWl0dGVkX3VzZXIiPgogIDx0aXRsZT5GcmFuw6dvaXNlIFNhZ2FuPC90aXRsZT4KICA8ZGVzY3JpcHRpb24+T21uaXMgZXQgc2l0IGRlYml0aXMuPC9kZXNjcmlwdGlvbj4KPC9wYWNrYWdlPgo=
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:37 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=permitted_user
@@ -328,7 +326,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Jacob Have I Loved</title>
+          <title>Recalled to Life</title>
           <description/>
         </project>
     headers:
@@ -350,16 +348,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '107'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Jacob Have I Loved</title>
+          <title>Recalled to Life</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:37 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=permitted_user
@@ -367,8 +365,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Postern of Fate</title>
-          <description>Rerum sed autem non.</description>
+          <title>When the Green Woods Laugh</title>
+          <description>Asperiores rerum vitae animi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -389,16 +387,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '171'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Postern of Fate</title>
-          <description>Rerum sed autem non.</description>
+          <title>When the Green Woods Laugh</title>
+          <description>Asperiores rerum vitae animi.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:37 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=permitted_user
@@ -406,8 +404,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Postern of Fate</title>
-          <description>Rerum sed autem non.</description>
+          <title>When the Green Woods Laugh</title>
+          <description>Asperiores rerum vitae animi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -428,16 +426,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '171'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Postern of Fate</title>
-          <description>Rerum sed autem non.</description>
+          <title>When the Green Woods Laugh</title>
+          <description>Asperiores rerum vitae animi.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:37 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:49 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22source_package%22%20and%20linkinfo/@project=%22source_project%22%20and%20@project=%22source_project%22)
@@ -472,7 +470,7 @@ http_interactions:
         <collection>
         </collection>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:38 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_meta?user=permitted_user
@@ -480,8 +478,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Postern of Fate</title>
-          <description>Rerum sed autem non.</description>
+          <title>When the Green Woods Laugh</title>
+          <description>Asperiores rerum vitae animi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -502,16 +500,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '186'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Postern of Fate</title>
-          <description>Rerum sed autem non.</description>
+          <title>When the Green Woods Laugh</title>
+          <description>Asperiores rerum vitae animi.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:38 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:49 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package?cmd=branch&noservice=1&opackage=source_package&oproject=source_project&user=permitted_user
@@ -543,16 +541,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5" vrev="5">
+        <revision rev="7" vrev="7">
           <srcmd5>8e451641a827df5f4f409d1d543fdb7b</srcmd5>
           <version>unknown</version>
-          <time>1542362138</time>
+          <time>1542913549</time>
           <user>permitted_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:38 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_meta?user=permitted_user
@@ -560,8 +558,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Postern of Fate</title>
-          <description>Rerum sed autem non.</description>
+          <title>When the Green Woods Laugh</title>
+          <description>Asperiores rerum vitae animi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -582,16 +580,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '186'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Postern of Fate</title>
-          <description>Rerum sed autem non.</description>
+          <title>When the Green Woods Laugh</title>
+          <description>Asperiores rerum vitae animi.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:38 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package
@@ -621,12 +619,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="5" vrev="5" srcmd5="8e451641a827df5f4f409d1d543fdb7b">
+        <directory name="target_package" rev="7" vrev="7" srcmd5="8e451641a827df5f4f409d1d543fdb7b">
           <linkinfo project="source_project" package="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b" />
-          <entry name="_link" md5="703fd7abfeaa0a7804702191c078ab66" size="147" mtime="1542358535" />
+          <entry name="_link" md5="703fd7abfeaa0a7804702191c078ab66" size="147" mtime="1542911968" />
         </directory>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:38 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package?view=info
@@ -656,12 +654,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="target_package" rev="5" vrev="5" srcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+        <sourceinfo package="target_package" rev="7" vrev="7" srcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="source_project" package="source_package" />
         </sourceinfo>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:38 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package
@@ -691,12 +689,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="5" vrev="5" srcmd5="8e451641a827df5f4f409d1d543fdb7b">
+        <directory name="target_package" rev="7" vrev="7" srcmd5="8e451641a827df5f4f409d1d543fdb7b">
           <linkinfo project="source_project" package="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b" />
-          <entry name="_link" md5="703fd7abfeaa0a7804702191c078ab66" size="147" mtime="1542358535" />
+          <entry name="_link" md5="703fd7abfeaa0a7804702191c078ab66" size="147" mtime="1542911968" />
         </directory>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:38 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:49 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -720,7 +718,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '331'
+      - '351'
       Cache-Control:
       - no-cache
       Connection:
@@ -728,15 +726,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="21d176cc90c53a2e99cb48eb43f64216">
-          <old project="project_1:Staging:A" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="project_1:Staging:A" package="target_package" rev="1" srcmd5="8e451641a827df5f4f409d1d543fdb7b" />
+        <sourcediff key="aba5ef736509950cb19a66e0f0a04218">
+          <old project="home:permitted_user:Staging:A" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:permitted_user:Staging:A" package="target_package" rev="1" srcmd5="8e451641a827df5f4f409d1d543fdb7b" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:38 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:49 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -768,11 +766,52 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="59530c39a16b3bcc05291fbcfedcfe8d">
+        <sourcediff key="e2073421baae7dd592e53ad5a4aab1be">
           <old project="source_project" package="source_package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
           <new project="home:permitted_user:Staging:A" package="target_package" rev="7eae9f6b12a2579550692e1b40dfc7d6" srcmd5="7eae9f6b12a2579550692e1b40dfc7d6" />
           <files />
         </sourcediff>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:38 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:50 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=permitted_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:permitted_user:Staging:A">
+          <title/>
+          <description/>
+          <group groupid="staging-workflow-managers-10" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '175'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:permitted_user:Staging:A">
+          <title></title>
+          <description></description>
+          <group groupid="staging-workflow-managers-10" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 19:05:50 GMT
 recorded_with: VCR 4.0.0

@@ -1,6 +1,6 @@
 class Staging::StageRequests
   include ActiveModel::Model
-  attr_accessor :request_numbers, :staging_project_name, :staging_workflow
+  attr_accessor :request_numbers, :staging_project, :staging_workflow
 
   def perform
     add_request_not_found_errors
@@ -49,18 +49,20 @@ class Staging::StageRequests
 
   def branch_package(bs_request_action)
     request = bs_request_action.bs_request
+
     BranchPackage.new(
-      target_project: staging_project_name,
+      target_project: staging_project.name,
       target_package: bs_request_action.target_package,
       project: bs_request_action.source_project,
       package: bs_request_action.source_package,
       extend_package_names: false
     ).branch
     result << request
+    staging_project.staged_requests << request
   rescue BranchPackage::DoubleBranchPackageError
     # we leave the package there and do not report as success
     # because packages might differ
-    errors << "Request '#{request.number}' already branched into '#{staging_project_name}'"
+    errors << "Request '#{request.number}' already branched into '#{staging_project.name}'"
   rescue APIError, Backend::Error => e
     errors << "Request '#{request.number}' branching failed: '#{e.message}'"
     Airbrake.notify(e, bs_request: request.number)

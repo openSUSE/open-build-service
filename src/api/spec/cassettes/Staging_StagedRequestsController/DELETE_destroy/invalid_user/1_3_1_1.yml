@@ -40,7 +40,7 @@ http_interactions:
           <person userid="permitted_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:52 GMT
+  recorded_at: Thu, 22 Nov 2018 19:06:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=_nobody_
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>Blithe Spirit</title>
-          <description>Aut dolores quidem debitis.</description>
+          <title>Mr Standfast</title>
+          <description>Sit id totam voluptas.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>Blithe Spirit</title>
-          <description>Aut dolores quidem debitis.</description>
+          <title>Mr Standfast</title>
+          <description>Sit id totam voluptas.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:52 GMT
+  recorded_at: Thu, 22 Nov 2018 19:06:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=_nobody_
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>Blithe Spirit</title>
-          <description>Aut dolores quidem debitis.</description>
+          <title>Mr Standfast</title>
+          <description>Sit id totam voluptas.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,23 +109,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>Blithe Spirit</title>
-          <description>Aut dolores quidem debitis.</description>
+          <title>Mr Standfast</title>
+          <description>Sit id totam voluptas.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:52 GMT
+  recorded_at: Thu, 22 Nov 2018 19:06:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-18">
           <staging_project name="home:permitted_user:Staging:A"/>
         </workflow>
     headers:
@@ -151,15 +151,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="55">
-          <srcmd5>d4b55796c3817767416b8d882c066536</srcmd5>
-          <time>1542362152</time>
+        <revision rev="37">
+          <srcmd5>ec4a9d81591c54b678f1dc5f60f6ee41</srcmd5>
+          <time>1542913561</time>
           <user>_nobody_</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:52 GMT
+  recorded_at: Thu, 22 Nov 2018 19:06:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=_nobody_
@@ -169,6 +169,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:A">
           <title/>
           <description/>
+          <group groupid="staging-workflow-managers-18" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -189,23 +190,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '106'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <project name="home:permitted_user:Staging:A">
           <title></title>
           <description></description>
+          <group groupid="staging-workflow-managers-18" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:52 GMT
+  recorded_at: Thu, 22 Nov 2018 19:06:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-18">
           <staging_project name="home:permitted_user:Staging:A"/>
           <staging_project name="home:permitted_user:Staging:B"/>
         </workflow>
@@ -232,15 +234,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="56">
-          <srcmd5>82cd4111c5d4fb99add428e64e8dac84</srcmd5>
-          <time>1542362152</time>
+        <revision rev="38">
+          <srcmd5>effd2e93855be6e3e127babc05813ca7</srcmd5>
+          <time>1542913561</time>
           <user>_nobody_</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:52 GMT
+  recorded_at: Thu, 22 Nov 2018 19:06:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:B/_meta?user=_nobody_
@@ -250,6 +252,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:B">
           <title/>
           <description/>
+          <group groupid="staging-workflow-managers-18" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -270,16 +273,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '106'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <project name="home:permitted_user:Staging:B">
           <title></title>
           <description></description>
+          <group groupid="staging-workflow-managers-18" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:52 GMT
+  recorded_at: Thu, 22 Nov 2018 19:06:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_meta?user=_nobody_
@@ -287,8 +291,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Blithe Spirit</title>
-          <description>Officia harum laudantium amet.</description>
+          <title>The Widening Gyre</title>
+          <description>Iure delectus facilis consequatur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -309,16 +313,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '182'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Blithe Spirit</title>
-          <description>Officia harum laudantium amet.</description>
+          <title>The Widening Gyre</title>
+          <description>Iure delectus facilis consequatur.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:52 GMT
+  recorded_at: Thu, 22 Nov 2018 19:06:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_meta?user=_nobody_
@@ -326,8 +330,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Blithe Spirit</title>
-          <description>Officia harum laudantium amet.</description>
+          <title>The Widening Gyre</title>
+          <description>Iure delectus facilis consequatur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -348,16 +352,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '182'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Blithe Spirit</title>
-          <description>Officia harum laudantium amet.</description>
+          <title>The Widening Gyre</title>
+          <description>Iure delectus facilis consequatur.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:52 GMT
+  recorded_at: Thu, 22 Nov 2018 19:06:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:unpermitted_user/_meta?user=unpermitted_user
@@ -398,7 +402,7 @@ http_interactions:
           <person userid="unpermitted_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:52 GMT
+  recorded_at: Thu, 22 Nov 2018 19:06:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=_nobody_
@@ -406,7 +410,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>A Summer Bird-Cage</title>
+          <title>The Violent Bear It Away</title>
           <description/>
         </project>
     headers:
@@ -428,16 +432,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '115'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>A Summer Bird-Cage</title>
+          <title>The Violent Bear It Away</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:52 GMT
+  recorded_at: Thu, 22 Nov 2018 19:06:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=_nobody_
@@ -445,8 +449,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Shall not Perish</title>
-          <description>Saepe repellat animi explicabo.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Fuga alias distinctio est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -467,16 +471,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '191'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Shall not Perish</title>
-          <description>Saepe repellat animi explicabo.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Fuga alias distinctio est.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:52 GMT
+  recorded_at: Thu, 22 Nov 2018 19:06:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=_nobody_
@@ -484,8 +488,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Shall not Perish</title>
-          <description>Saepe repellat animi explicabo.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Fuga alias distinctio est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -506,14 +510,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '191'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Shall not Perish</title>
-          <description>Saepe repellat animi explicabo.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Fuga alias distinctio est.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:53 GMT
+  recorded_at: Thu, 22 Nov 2018 19:06:02 GMT
 recorded_with: VCR 4.0.0

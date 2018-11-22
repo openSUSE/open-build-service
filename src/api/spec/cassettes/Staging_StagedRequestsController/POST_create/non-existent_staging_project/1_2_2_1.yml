@@ -40,7 +40,7 @@ http_interactions:
           <person userid="permitted_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:43 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:44 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:unpermitted_user/_meta?user=unpermitted_user
@@ -81,7 +81,7 @@ http_interactions:
           <person userid="unpermitted_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:43 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:44 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=permitted_user
@@ -89,8 +89,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>Blood's a Rover</title>
-          <description>Non nostrum possimus alias.</description>
+          <title>This Side of Paradise</title>
+          <description>Molestiae illum rem autem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -111,16 +111,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>Blood's a Rover</title>
-          <description>Non nostrum possimus alias.</description>
+          <title>This Side of Paradise</title>
+          <description>Molestiae illum rem autem.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:43 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:44 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=permitted_user
@@ -128,8 +128,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>Blood's a Rover</title>
-          <description>Non nostrum possimus alias.</description>
+          <title>This Side of Paradise</title>
+          <description>Molestiae illum rem autem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -150,16 +150,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>Blood's a Rover</title>
-          <description>Non nostrum possimus alias.</description>
+          <title>This Side of Paradise</title>
+          <description>Molestiae illum rem autem.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:43 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:44 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=permitted_user
@@ -167,7 +167,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>A Time to Kill</title>
+          <title>What's Become of Waring</title>
           <description/>
         </project>
     headers:
@@ -189,16 +189,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '105'
+      - '114'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>A Time to Kill</title>
+          <title>What's Become of Waring</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:43 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:44 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=permitted_user
@@ -206,8 +206,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>The Doors of Perception</title>
-          <description>Itaque culpa adipisci praesentium.</description>
+          <title>In Death Ground</title>
+          <description>Consequuntur distinctio error autem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -228,16 +228,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '173'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>The Doors of Perception</title>
-          <description>Itaque culpa adipisci praesentium.</description>
+          <title>In Death Ground</title>
+          <description>Consequuntur distinctio error autem.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:43 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:44 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=permitted_user
@@ -245,8 +245,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>The Doors of Perception</title>
-          <description>Itaque culpa adipisci praesentium.</description>
+          <title>In Death Ground</title>
+          <description>Consequuntur distinctio error autem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -267,14 +267,179 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '173'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>The Doors of Perception</title>
-          <description>Itaque culpa adipisci praesentium.</description>
+          <title>In Death Ground</title>
+          <description>Consequuntur distinctio error autem.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:43 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:44 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-7">
+          <staging_project name="home:permitted_user:Staging:A"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '177'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="15">
+          <srcmd5>da894dba008d6b3432837d092abf7b56</srcmd5>
+          <time>1542913544</time>
+          <user>permitted_user</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 19:05:44 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=permitted_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:permitted_user:Staging:A">
+          <title/>
+          <description/>
+          <group groupid="staging-workflow-managers-7" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '174'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:permitted_user:Staging:A">
+          <title></title>
+          <description></description>
+          <group groupid="staging-workflow-managers-7" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 19:05:44 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-7">
+          <staging_project name="home:permitted_user:Staging:A"/>
+          <staging_project name="home:permitted_user:Staging:B"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '177'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="16">
+          <srcmd5>680f05bd83d2b06d52ba1221c2b9f407</srcmd5>
+          <time>1542913544</time>
+          <user>permitted_user</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 19:05:44 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user:Staging:B/_meta?user=permitted_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:permitted_user:Staging:B">
+          <title/>
+          <description/>
+          <group groupid="staging-workflow-managers-7" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '174'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:permitted_user:Staging:B">
+          <title></title>
+          <description></description>
+          <group groupid="staging-workflow-managers-7" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 22 Nov 2018 19:05:44 GMT
 recorded_with: VCR 4.0.0

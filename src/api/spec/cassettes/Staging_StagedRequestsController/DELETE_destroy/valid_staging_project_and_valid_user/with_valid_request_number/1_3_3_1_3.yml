@@ -40,7 +40,7 @@ http_interactions:
           <person userid="permitted_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:51 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:55 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=_nobody_
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>An Evil Cradling</title>
-          <description>Quod ex ad voluptatem.</description>
+          <title>The Golden Apples of the Sun</title>
+          <description>Dolorem molestias suscipit magnam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '183'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>An Evil Cradling</title>
-          <description>Quod ex ad voluptatem.</description>
+          <title>The Golden Apples of the Sun</title>
+          <description>Dolorem molestias suscipit magnam.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:51 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:55 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=_nobody_
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>An Evil Cradling</title>
-          <description>Quod ex ad voluptatem.</description>
+          <title>The Golden Apples of the Sun</title>
+          <description>Dolorem molestias suscipit magnam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,23 +109,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '183'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>An Evil Cradling</title>
-          <description>Quod ex ad voluptatem.</description>
+          <title>The Golden Apples of the Sun</title>
+          <description>Dolorem molestias suscipit magnam.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:51 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:55 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-14">
           <staging_project name="home:permitted_user:Staging:A"/>
         </workflow>
     headers:
@@ -151,15 +151,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="53">
-          <srcmd5>d4b55796c3817767416b8d882c066536</srcmd5>
-          <time>1542362151</time>
+        <revision rev="29">
+          <srcmd5>fed137e60398486966f59e9856940ee3</srcmd5>
+          <time>1542913555</time>
           <user>_nobody_</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:51 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:55 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=_nobody_
@@ -169,6 +169,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:A">
           <title/>
           <description/>
+          <group groupid="staging-workflow-managers-14" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -189,23 +190,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '106'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <project name="home:permitted_user:Staging:A">
           <title></title>
           <description></description>
+          <group groupid="staging-workflow-managers-14" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:51 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:55 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-14">
           <staging_project name="home:permitted_user:Staging:A"/>
           <staging_project name="home:permitted_user:Staging:B"/>
         </workflow>
@@ -232,15 +234,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="54">
-          <srcmd5>82cd4111c5d4fb99add428e64e8dac84</srcmd5>
-          <time>1542362151</time>
+        <revision rev="30">
+          <srcmd5>5db1a710b1ee526eb1f80b1648245e85</srcmd5>
+          <time>1542913555</time>
           <user>_nobody_</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:51 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:55 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:B/_meta?user=_nobody_
@@ -250,6 +252,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:B">
           <title/>
           <description/>
+          <group groupid="staging-workflow-managers-14" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -270,16 +273,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '106'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <project name="home:permitted_user:Staging:B">
           <title></title>
           <description></description>
+          <group groupid="staging-workflow-managers-14" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:51 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:55 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_meta?user=_nobody_
@@ -287,8 +291,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>The Glory and the Dream</title>
-          <description>Voluptas iste soluta quae.</description>
+          <title>Stranger in a Strange Land</title>
+          <description>Sint et quae qui.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -309,16 +313,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '180'
+      - '174'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>The Glory and the Dream</title>
-          <description>Voluptas iste soluta quae.</description>
+          <title>Stranger in a Strange Land</title>
+          <description>Sint et quae qui.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:51 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:55 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_meta?user=_nobody_
@@ -326,8 +330,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>The Glory and the Dream</title>
-          <description>Voluptas iste soluta quae.</description>
+          <title>Stranger in a Strange Land</title>
+          <description>Sint et quae qui.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -348,16 +352,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '180'
+      - '174'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>The Glory and the Dream</title>
-          <description>Voluptas iste soluta quae.</description>
+          <title>Stranger in a Strange Land</title>
+          <description>Sint et quae qui.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:51 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:55 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:unpermitted_user/_meta?user=unpermitted_user
@@ -398,7 +402,7 @@ http_interactions:
           <person userid="unpermitted_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:51 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:55 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=_nobody_
@@ -406,7 +410,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Shall not Perish</title>
+          <title>A Glass of Blessings</title>
           <description/>
         </project>
     headers:
@@ -428,16 +432,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '107'
+      - '111'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Shall not Perish</title>
+          <title>A Glass of Blessings</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:51 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:55 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=_nobody_
@@ -445,8 +449,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>That Hideous Strength</title>
-          <description>Numquam ducimus id quos.</description>
+          <title>Let Us Now Praise Famous Men</title>
+          <description>Perferendis esse qui molestiae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -467,16 +471,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>That Hideous Strength</title>
-          <description>Numquam ducimus id quos.</description>
+          <title>Let Us Now Praise Famous Men</title>
+          <description>Perferendis esse qui molestiae.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:51 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:56 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=_nobody_
@@ -484,8 +488,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>That Hideous Strength</title>
-          <description>Numquam ducimus id quos.</description>
+          <title>Let Us Now Praise Famous Men</title>
+          <description>Perferendis esse qui molestiae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -506,16 +510,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>That Hideous Strength</title>
-          <description>Numquam ducimus id quos.</description>
+          <title>Let Us Now Praise Famous Men</title>
+          <description>Perferendis esse qui molestiae.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:51 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:56 GMT
 - request:
     method: delete
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package?comment&user=permitted_user
@@ -548,5 +552,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Fri, 16 Nov 2018 09:55:52 GMT
+  recorded_at: Thu, 22 Nov 2018 19:05:56 GMT
 recorded_with: VCR 4.0.0
