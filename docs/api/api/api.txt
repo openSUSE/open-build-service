@@ -1930,6 +1930,21 @@ DELETE /status_reports/repositories/<project>/<repository>/required_checks/<chec
   Delete a required check
 XmlResult: required_checks
 
+
+== Staging
+
+=== Excluded Requests
+
+<project>: The name of the main project of a Staging, e.g. openSUSE_Tumbleweed
+<request>: The number of the request, e.g. 12345
+
+POST /staging_excluded_requests/<request>/<project>
+  Exclude this request from this Staging
+
+DELETE /staging_excluded_requests/<request>
+  Stop excluding this request
+
+
 == Internal only routes
 
 /public shall not be used in any tools, it is for OBS remote support only and may
