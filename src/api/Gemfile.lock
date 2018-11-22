@@ -88,7 +88,7 @@ GEM
       minitest (>= 4)
     childprocess (0.9.0)
       ffi (~> 1.0, >= 1.0.11)
-    chunky_png (1.3.10)
+    chunky_png (1.3.11)
     clockwork (2.0.3)
       tzinfo
     cocoon (1.2.12)
