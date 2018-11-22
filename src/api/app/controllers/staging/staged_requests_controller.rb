@@ -13,7 +13,7 @@ class Staging::StagedRequestsController < ApplicationController
     result = ::Staging::StageRequests.new(
       request_numbers: request_numbers,
       staging_workflow: @staging_workflow,
-      staging_project_name: @staging_project.name
+      staging_project: @staging_project
     ).perform
 
     if result.valid?
