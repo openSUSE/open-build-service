@@ -6,7 +6,7 @@ class Staging::WorkflowPolicy < ApplicationPolicy
   end
 
   def create?
-    ProjectPolicy.new(@user, @record.project).create?
+    ProjectPolicy.new(@user, @record.project).update?
   end
 
   def update?
