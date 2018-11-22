@@ -29,7 +29,7 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
     before do
       bs_request.staging_project = staging_project
       bs_request.save
-      get :index, params: { staging_project_name: staging_project.name, format: :xml }
+      get :index, params: { staging_main_project_name: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml }
     end
 
     it { expect(response).to have_http_status(:success) }
@@ -46,7 +46,7 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
         staging_workflow
 
         login other_user
-        post :create, params: { staging_project_name: staging_project.name, format: :xml },
+        post :create, params: { staging_main_project_name: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
                       body: "<requests><number>#{bs_request.number}</number></requests>"
       end
 
@@ -56,7 +56,7 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
     context 'non-existent staging project' do
       before do
         login user
-        post :create, params: { staging_project_name: 'does-not-exist', format: :xml },
+        post :create, params: { staging_main_project_name: staging_workflow.project.name, staging_project_name: 'does-not-exist', format: :xml },
                       body: "<requests><number>#{bs_request.number}</number></requests>"
       end
 
@@ -66,7 +66,7 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
     context 'with valid and invalid request number' do
       before do
         login user
-        post :create, params: { staging_project_name: staging_project.name, format: :xml },
+        post :create, params: { staging_main_project_name: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
                       body: "<requests><number>-1</number><number>#{bs_request.number}</number></requests>"
       end
 
@@ -77,7 +77,7 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
     context 'with valid staging_project' do
       before do
         login user
-        post :create, params: { staging_project_name: staging_project.name, format: :xml },
+        post :create, params: { staging_main_project_name: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
                       body: "<requests><number>#{bs_request.number}</number></requests>"
       end
 
@@ -97,7 +97,7 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
     context 'invalid user' do
       before do
         login other_user
-        delete :destroy, params: { staging_project_name: staging_project.name, format: :xml },
+        delete :destroy, params: { staging_main_project_name: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
                          body: "<requests><number>#{bs_request.number}</number></requests>"
       end
 
@@ -107,7 +107,7 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
     context 'with invalid staging project' do
       before do
         login user
-        delete :destroy, params: { staging_project_name: 'does-not-exist', format: :xml },
+        delete :destroy, params: { staging_main_project_name: staging_workflow.project.name, staging_project_name: 'does-not-exist', format: :xml },
                          body: "<requests><number>#{bs_request.number}</number></requests>"
       end
 
@@ -118,7 +118,7 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
       context 'with valid request number' do
         before do
           login user
-          delete :destroy, params: { staging_project_name: staging_project.name, format: :xml },
+          delete :destroy, params: { staging_main_project_name: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
                            body: "<requests><number>#{bs_request.number}</number></requests>"
         end
 
@@ -130,7 +130,7 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
       context 'with valid and invalid request number' do
         before do
           login user
-          delete :destroy, params: { staging_project_name: staging_project.name, format: :xml },
+          delete :destroy, params: { staging_main_project_name: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
                            body: "<requests><number>-1</number><number>#{bs_request.number}</number></requests>"
         end
 

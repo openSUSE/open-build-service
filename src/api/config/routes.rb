@@ -731,15 +731,17 @@ OBSApi::Application.routes.draw do
   end
 
   # StagingWorkflow API
-  scope module: 'staging' do
-    resources :staging_projects, only: [:show], param: :name do
-      get 'staged_requests' => 'staged_requests#index', constraints: cons
-      resource :staged_requests, controller: 'staged_requests', only: [:create, :destroy], constraints: cons
+  resources :staging, only: [], param: 'main_project_name' do
+    resources :staging_projects, only: [:index, :show], controller: 'staging/staging_projects', param: :name do
+      get 'staged_requests' => 'staging/staged_requests#index', constraints: cons
+      resource :staged_requests, controller: 'staging/staged_requests', only: [:create, :destroy], constraints: cons
     end
 
-    controller 'excluded_requests' do
-      post 'staging_excluded_requests/:number/:project_name' => :create, constraints: cons
-      delete 'staging_excluded_requests/:number' => :destroy, constraints: cons
+    # resources :excluded_requests, only: [:create, :destroy], controller: 'staging/excluded_requests', param: :number, constrains: cons
+
+    controller 'staging/excluded_requests' do
+      post 'excluded_requests/:number' => :create, constraints: cons
+      delete 'excluded_requests/:number' => :destroy, constraints: cons
     end
   end
 

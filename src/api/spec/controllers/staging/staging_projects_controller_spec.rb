@@ -1,20 +1,39 @@
 require 'rails_helper'
 
-RSpec.describe Staging::StagingProjectsController, type: :controller do
+RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true do
   render_views
 
   let(:user) { create(:confirmed_user, login: 'permitted_user') }
   let(:project) { user.home_project }
   let(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: project) }
   let(:staging_project) { staging_workflow.staging_projects.first }
+  let(:project_without_staging) { create(:project, name: 'foo_project') }
   let(:source_project) { create(:project, name: 'source_project') }
   let(:target_package) { create(:package, name: 'target_package', project: project) }
   let(:source_package) { create(:package, name: 'source_package', project: source_project) }
 
+  describe 'GET #index' do
+    context 'existing staging_workflow' do
+      before do
+        get :index, params: { staging_main_project_name: staging_workflow.project.name, format: :xml }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+    end
+
+    context 'not existing staging_workflow' do
+      before do
+        get :index, params: { staging_main_project_name: project_without_staging.name, format: :xml }
+      end
+
+      it { expect(response).to have_http_status(:bad_request) }
+    end
+  end
+
   describe 'GET #show' do
     context 'not existing project' do
       before do
-        get :show, params: { name: 'does-not-exist', format: :xml }
+        get :show, params: { staging_main_project_name: staging_workflow.project.name, name: 'does-not-exist', format: :xml }
       end
 
       it { expect(response).to have_http_status(:not_found) }
@@ -65,7 +84,7 @@ RSpec.describe Staging::StagingProjectsController, type: :controller do
 
       before do
         stub_request(:get, broken_packages_path).and_return(body: broken_packages_backend)
-        get :show, params: { name: staging_project.name, format: :xml }
+        get :show, params: { staging_main_project_name: staging_workflow.project.name, name: staging_project.name, format: :xml }
       end
 
       it { expect(response).to have_http_status(:success) }
