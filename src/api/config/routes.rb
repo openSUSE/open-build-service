@@ -737,6 +737,12 @@ OBSApi::Application.routes.draw do
       resource :staged_requests, controller: 'staged_requests', only: [:create, :destroy], constraints: cons
     end
   end
+
+  controller 'staging/excluded_requests' do
+    post 'staging_excluded_requests/:number/:project_name' => :create, constraints: cons
+    delete 'staging_excluded_requests/:number' => :destroy, constraints: cons
+  end
+
   controller :source_attribute do
     get 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :show, constraints: cons
     post 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :update, constraints: cons, as: :change_attribute
