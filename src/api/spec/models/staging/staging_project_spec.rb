@@ -133,7 +133,7 @@ RSpec.describe Staging::StagingProject, vcr: true do
       let!(:check) { create(:check, name: 'check_1', status_report: build_report, state: 'failure') }
 
       it { expect(staging_project.overall_state).to eq(:failed) }
-      it { expect(staging_project.current_checks).to contain_exactly(check) }
+      it { expect(staging_project.checks).to contain_exactly(check) }
     end
 
     context 'when there are succeeded checks' do
@@ -151,8 +151,8 @@ RSpec.describe Staging::StagingProject, vcr: true do
       end
 
       it { expect(staging_project.overall_state).to eq(:testing) }
-      it { expect(staging_project.current_missing_checks).to contain_exactly('check_1') }
-      it { expect(staging_project.current_checks).to be_empty }
+      it { expect(staging_project.missing_checks).to contain_exactly('check_1') }
+      it { expect(staging_project.checks).to be_empty }
     end
   end
 

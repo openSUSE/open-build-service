@@ -98,12 +98,12 @@ module Staging
       relationships.find_by(group: managers, role: role).try(:destroy!)
     end
 
-    def current_checks
-      @current_checks ||= Status::Check.where(status_reports_id: relevant_status_reports_for_repositories | relevant_status_reports_for_architectures)
+    def checks
+      @checks ||= Status::Check.where(status_reports_id: relevant_status_reports_for_repositories | relevant_status_reports_for_architectures)
     end
 
-    def current_missing_checks
-      @current_missing_checks ||= (relevant_status_reports_for_repositories + relevant_status_reports_for_architectures).map(&:missing_checks).flatten
+    def missing_checks
+      @missing_checks ||= (relevant_status_reports_for_repositories + relevant_status_reports_for_architectures).map(&:missing_checks).flatten
     end
 
     def failed_status_checks
@@ -166,8 +166,8 @@ module Staging
     end
 
     def check_state
-      return :testing if current_missing_checks.present? || current_checks.pending.exists?
-      return :failed if current_checks.failed.exists?
+      return :testing if missing_checks.present? || checks.pending.exists?
+      return :failed if checks.failed.exists?
       return :acceptable
     end
 
