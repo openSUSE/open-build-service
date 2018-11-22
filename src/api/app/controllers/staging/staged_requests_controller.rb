@@ -62,7 +62,7 @@ class Staging::StagedRequestsController < ApplicationController
   end
 
   def set_staging_project
-    @staging_project = Staging::StagingProject.find_by!(name: params[:staging_project_name])
+    @staging_project = Staging::StagingProject.get_by_name(params[:staging_project_name])
   end
 
   def set_staging_workflow
