@@ -96,11 +96,11 @@ module Staging
     end
 
     def checks
-      @checks ||= Status::Check.where(status_reports_id: status_reports_for_repositories | status_reports_for_architectures)
+      @checks ||= Status::Check.where(status_reports_id: publish_reports | built_reports)
     end
 
     def missing_checks
-      @missing_checks ||= (status_reports_for_repositories + status_reports_for_architectures).map(&:missing_checks).flatten
+      @missing_checks ||= (publish_reports + built_reports).map(&:missing_checks).flatten
     end
 
     private
@@ -150,12 +150,12 @@ module Staging
       result.values
     end
 
-    def status_reports_for_repositories
-      @status_reports_for_repositories ||= status_reports(repositories)
+    def publish_reports
+      @publish_reports ||= status_reports(repositories)
     end
 
-    def status_reports_for_architectures
-      @status_reports_for_architectures ||= status_reports(repository_architectures)
+    def built_reports
+      @built_reports ||= status_reports(repository_architectures)
     end
 
     def check_state
