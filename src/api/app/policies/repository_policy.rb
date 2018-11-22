@@ -1,6 +1,6 @@
 class RepositoryPolicy < ApplicationPolicy
   def initialize(user, record)
-    raise Pundit::NotAuthorizedError, 'record does not exist' unless record
+    require_record(record)
     @user = user
     @record = record
   end

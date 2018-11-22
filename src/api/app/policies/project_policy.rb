@@ -1,17 +1,17 @@
 class ProjectPolicy < ApplicationPolicy
   def initialize(user, record)
-    raise Pundit::NotAuthorizedError, 'record does not exist' unless record
+    require_record(record)
     @user = user
     @record = record
   end
 
   def create?
-    return false unless @user
+    require_user(user)
     @user.can_create_project?(@record.name)
   end
 
   def update?
-    return false unless @user
+    require_user(user)
     return false unless local_project_and_allowed_to_create_package_in?
     # The ordering is important because of the lock status check
     return true if @user.is_admin?
@@ -33,7 +33,7 @@ class ProjectPolicy < ApplicationPolicy
   end
 
   def unlock?
-    return false unless @user
+    require_user(user)
     @user.can_modify?(@record, true)
   end
 

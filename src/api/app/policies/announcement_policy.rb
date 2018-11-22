@@ -1,4 +1,9 @@
 class AnnouncementPolicy < ApplicationPolicy
+  def initialize(user, record)
+    require_user(user)
+    super
+  end
+
   def index?
     @user.is_admin?
   end

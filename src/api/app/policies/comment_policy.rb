@@ -1,13 +1,5 @@
 class CommentPolicy < ApplicationPolicy
-  def initialize(user, record)
-    raise Pundit::NotAuthorizedError, 'record does not exist' unless record
-    @user = user
-    @record = record
-  end
-
   def destroy?
-    return false if @user.blank?
-
     # Admins can always delete all comments
     return true if @user.is_admin?
 

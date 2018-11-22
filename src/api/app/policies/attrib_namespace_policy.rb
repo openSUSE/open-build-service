@@ -1,4 +1,9 @@
 class AttribNamespacePolicy < ApplicationPolicy
+  def initialize(user, record)
+    require_user(user)
+    super
+  end
+
   def create?
     @user.is_admin? || access_to_namespace?
   end
