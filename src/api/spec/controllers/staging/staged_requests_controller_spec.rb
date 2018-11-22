@@ -83,6 +83,8 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
 
       it { expect(response).to have_http_status(:success) }
       it { expect(staging_project.packages.pluck(:name)).to match_array([target_package.name]) }
+      it { expect(staging_project.staged_requests).to include(bs_request) }
+      it { assert_select 'status[code=ok]' }
     end
   end
 
