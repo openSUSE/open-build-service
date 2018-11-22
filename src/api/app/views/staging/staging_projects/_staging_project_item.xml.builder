@@ -10,4 +10,6 @@ builder.staging_project(name: staging_project.name) do
   render(partial: 'building_repositories', locals: { building_repositories: staging_project.building_repositories, count: staging_project.building_repositories.count, builder: builder })
 
   render(partial: 'broken_packages', locals: { broken_packages: staging_project.broken_packages, count: staging_project.broken_packages.count, builder: builder })
+
+  builder.overall_state(result: staging_project.overall_state)
 end
