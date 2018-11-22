@@ -1,9 +1,9 @@
 class Staging::StageRequests
   include ActiveModel::Model
-  attr_accessor :requests, :staging_project_name
+  attr_accessor :request_numbers, :staging_project_name, :staging_workflow
 
   def perform
-    self.result = []
+    add_request_not_found_errors
     requests.each do |request|
       bs_request_action = request.bs_request_actions.first
       if bs_request_action.is_submit?
@@ -11,13 +11,41 @@ class Staging::StageRequests
       elsif bs_request_action.is_delete?
         # TODO: implement delete requests
       end
-      result
     end
+    self
+  end
+
+  def errors
+    @errors ||= []
+  end
+
+  def valid?
+    errors.empty?
   end
 
   private
 
-  attr_accessor :result
+  def result
+    @result ||= []
+  end
+
+  def add_request_not_found_errors
+    not_found_requests.each do |request_number|
+      errors << "Request '#{request_number}' does not exist or target_project is not '#{request_target_project}'"
+    end
+  end
+
+  def request_target_project
+    staging_workflow.project
+  end
+
+  def not_found_requests
+    request_numbers - requests.pluck(:number).map(&:to_s)
+  end
+
+  def requests
+    staging_workflow.unassigned_requests.where(number: request_numbers)
+  end
 
   def branch_package(bs_request_action)
     request = bs_request_action.bs_request
@@ -32,7 +60,9 @@ class Staging::StageRequests
   rescue BranchPackage::DoubleBranchPackageError
     # we leave the package there and do not report as success
     # because packages might differ
+    errors << "Request '#{request.number}' already branched into '#{staging_project_name}'"
   rescue APIError, Backend::Error => e
+    errors << "Request '#{request.number}' branching failed: '#{e.message}'"
     Airbrake.notify(e, bs_request: request.number)
   end
 end

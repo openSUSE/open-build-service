@@ -9,19 +9,20 @@ class Staging::StagedRequestsController < ApplicationController
 
   def create
     authorize @staging_project, :update?
-    requests = @staging_workflow.unassigned_requests.where(number: request_numbers)
 
-    result = ::Staging::StageRequests.new(requests: requests, staging_project_name: @staging_project.name).perform
-    @staging_project.staged_requests << result
-    unassigned_requests = request_numbers - result.pluck(:number).map(&:to_s)
+    result = ::Staging::StageRequests.new(
+      request_numbers: request_numbers,
+      staging_workflow: @staging_workflow,
+      staging_project_name: @staging_project.name
+    ).perform
 
-    if unassigned_requests.empty?
+    if result.valid?
       render_ok
     else
       render_error(
         status: 400,
         errorcode: 'invalid_request',
-        message: "Could not assign requests '#{unassigned_requests.to_sentence}' to #{@staging_project}."
+        message: "Assigning requests to #{@staging_project} failed: #{result.errors.to_sentence}."
       )
     end
   end
