@@ -15,7 +15,6 @@ module Webui
       end
 
       def create
-        authorize @staging_workflow
         staging_request_exclusion = params[:staging_request_exclusion]
 
         request = @staging_workflow.target_of_bs_requests.find_by(number: staging_request_exclusion[:number])
@@ -25,6 +24,7 @@ module Webui
         end
 
         request_exclusion = @staging_workflow.request_exclusions.build(bs_request: request, description: staging_request_exclusion[:description])
+        authorize request_exclusion
 
         if request_exclusion.save
           flash[:success] = 'The request was successfully excluded'
@@ -35,7 +35,7 @@ module Webui
       end
 
       def destroy
-        authorize @staging_workflow
+        authorize @request_exclusion
 
         if @request_exclusion.destroy
           flash[:success] = 'The request is not excluded anymore'
