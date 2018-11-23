@@ -363,7 +363,11 @@ sub getpackagelist_build {
     my $schedulerstate = readschedulerstate($projid, $repoid, $arch);
     my $status = { 'code' => $schedulerstate->{'code'} };
     $status->{'details'} = $schedulerstate->{'details'} if $schedulerstate->{'details'};
-    $status->{'buildid'} = $schedulerstate->{'buildid'} if $schedulerstate->{'buildid'};
+    if ($schedulerstate->{'buildid'}) {
+      $status->{'buildid'} = $schedulerstate->{'buildid'};
+    } elsif ($schedulerstate->{'oldbuildid'}) {
+      $status->{'buildid'} = "$schedulerstate->{'oldbuildid'}-inprogress";
+    }
     return ($status, $BSXML::buildstatus);
   }
   $cgi->{'withcode'} = 1 if $cgi->{'view'}  eq 'binaryversionscode' || $cgi->{'view'}  eq 'gbininfocode';
