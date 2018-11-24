@@ -111,9 +111,17 @@ sub set_repo_state {
       $oldstate->{'details'} = $details if $details;
     }
   }
-  my $newstate = { %{$oldstate || {}}, 'code' => $state, 'details' => $details };
+  $oldstate ||= {};
+  my $newstate = { %$oldstate, 'code' => $state, 'details' => $details };
   delete $newstate->{'details'} unless $details;
 
+  my $oldcode = $oldstate->{'code'} || '';
+  if (($oldcode eq '' || $oldcode eq 'finished') && $state ne 'finished') {
+    # this repo is no longer finished, send event
+    my $myarch = $ctx->{'gctx'}->{'arch'};
+    my $id = ($oldstate->{'oldbuildid'} || '0') . '-inprogress';
+    # BSNotify::notify('REPO_BUILD_STARTED', { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => $id} );
+  }
   if ($state eq 'finished') {
     # we're done (for now)
     my $id = '';
@@ -121,9 +129,9 @@ sub set_repo_state {
     $id .= " full:$s[9]/$s[7]/$s[1]" if @s;
     @s = stat("$gdst/:bininfo");
     $id .= " bininfo:$s[9]/$s[7]/$s[1]" if @s;
-    print "repo build id:$id\n";
     $id = Digest::MD5::md5_hex($id);
-    if (($oldstate->{'buildid'} || $oldstate->{'oldbuildid'} || '') ne $id) {
+    # we send the event if the buildid changed or the old state was not finished
+    if (($oldstate->{'buildid'} || $oldstate->{'oldbuildid'} || '') ne $id || $oldcode ne $state) {
       my $myarch = $ctx->{'gctx'}->{'arch'};
       BSNotify::notify('REPO_BUILD_FINISHED', { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => $id} );
     }
@@ -133,8 +141,9 @@ sub set_repo_state {
     # move buildid to oldbuildid as it is not stable yet
     my $id = delete $newstate->{'buildid'};
     $newstate->{'oldbuildid'} = $id if $id;
+    # make sure that we have an oldbuildid
+    $newstate->{'oldbuildid'} = '0' unless defined $newstate->{'oldbuildid'};
   }
-
   unlink("$gdst/:schedulerstate.dirty") if $state eq 'scheduling' || $state eq 'broken' || $state eq 'disabled';
   mkdir_p($gdst) unless -d $gdst;
   BSUtil::store("$gdst/.:schedulerstate", "$gdst/:schedulerstate", $newstate) unless BSUtil::identical($oldstate, $newstate);
