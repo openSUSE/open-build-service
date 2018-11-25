@@ -95,14 +95,6 @@ module Staging
       relationships.find_by(group: managers, role: role).try(:destroy!)
     end
 
-    def checks
-      @checks ||= Status::Check.where(status_reports_id: publish_reports | built_reports)
-    end
-
-    def missing_checks
-      @missing_checks ||= (publish_reports + built_reports).map(&:missing_checks).flatten
-    end
-
     private
 
     def cache_problems
@@ -148,14 +140,6 @@ module Staging
       end
 
       result.values
-    end
-
-    def publish_reports
-      @publish_reports ||= status_reports(repositories)
-    end
-
-    def built_reports
-      @built_reports ||= status_reports(repository_architectures)
     end
 
     def check_state
