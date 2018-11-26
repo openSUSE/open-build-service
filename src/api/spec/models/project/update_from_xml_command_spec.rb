@@ -196,6 +196,15 @@ RSpec.describe Project::UpdateFromXmlCommand do
           Project::SaveError, "double use of architecture: 'i586'"
         )
       end
+
+      it 'preserves IDs' do
+        create(:repository_architecture, repository: repository_1, architecture: Architecture.find_by_name('i586'))
+        ids = repository_1.repository_architectures.pluck(:id)
+        xml = "<project name='#{project.name}'><repository name='repo_1'><arch>i586</arch></repository></project>"
+        xml_hash = Xmlhash.parse(xml)
+        Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
+        expect(repository_1.repository_architectures.pluck(:id)).to eq(ids)
+      end
     end
 
     describe 'download repositories' do

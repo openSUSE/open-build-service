@@ -283,21 +283,35 @@ class Project
     end
 
     def update_repository_architectures(current_repo, xml_hash)
-      # destroy architecture references
-      Rails.logger.debug "delete all repository architectures of repository '#{project.id}'"
-      RepositoryArchitecture.where('repository_id = ?', current_repo.id).delete_all
+      old_archs = {}
+      current_repo.repository_architectures.each do |repoarch|
+        old_archs[repoarch.architecture_id] = repoarch
+      end
+      taken_archs = {}
 
       position = 1
-      xml_hash.elements('arch') do |arch|
-        unless Architecture.archcache.key?(arch)
-          raise SaveError, "unknown architecture: '#{arch}'"
+      xml_hash.elements('arch') do |archname|
+        if taken_archs.key?(archname)
+          raise SaveError, "double use of architecture: '#{archname}'"
         end
-        if current_repo.repository_architectures.where(architecture: Architecture.archcache[arch]).exists?
-          raise SaveError, "double use of architecture: '#{arch}'"
+        taken_archs[archname] = 1
+
+        unless Architecture.archcache.key?(archname)
+          raise SaveError, "unknown architecture: '#{archname}'"
         end
-        current_repo.repository_architectures.create(architecture: Architecture.archcache[arch], position: position)
+        arch = Architecture.archcache[archname]
+
+        if old_archs.key?(arch.id)
+          old_archs[arch.id].update(position: position)
+          # delete the rest later
+          old_archs.delete(arch.id)
+        else
+          current_repo.repository_architectures.create(architecture: arch, position: position)
+        end
         position += 1
       end
+      # remove left overs
+      old_archs.values.each(&:delete)
     end
 
     def update_download_repositories(current_repo, xml_hash)
