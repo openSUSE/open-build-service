@@ -19,16 +19,16 @@
       .col-md-4
         = render partial: 'side_links'
       = render partial: 'bottom_actions'
-.project-show
-  .project-build-results
+.overview
+  .build-results
     = render partial: 'webui2/shared/buildresult_box', locals: { project: @project.name }
-  .project-packages
+  .list
     .card
       %h5.card-header
         Packages
         = "(#{@packages.length})"
       = render partial: 'project_packages'
-  .project-comments
+  .comments
     .card
       %h5.card-header
         Comments for

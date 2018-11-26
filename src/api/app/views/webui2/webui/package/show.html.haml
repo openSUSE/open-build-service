@@ -33,10 +33,10 @@
                                                     services: @services,
                                                     project: @project,
                                                     package: @package }
-.package-show
-  .package-build-results
+.overview
+  .build-results
     = render partial: 'webui2/shared/buildresult_box', locals: { project: @project.name, package: @package.name }
-  .package-source-files
+  .list
     .card
       %h5.card-header
         Source Files
@@ -65,7 +65,7 @@
                                                   revision: @revision,
                                                   srcmd5: @srcmd5,
                                                   spider_bot: @spider_bot }
-  .package-comments
+  .comments
     .card
       %h5.card-header
         Comments for

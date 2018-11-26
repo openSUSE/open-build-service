@@ -38,9 +38,8 @@
 @import 'live_build_log';
 @import 'borders';
 @import 'diff';
-@import 'package-show';
 @import 'repositories';
-@import 'project-show';
+@import 'project-package-show-grid';
 
 html {
     overflow-y: scroll !important;
