@@ -6,7 +6,7 @@
           Delete all roles of #{type}?
       .modal-body
         %p Please confirm deletion of all roles of the #{type} '#{object}'
-        = form_tag(package_remove_role_path(project: project, package: package, "#{type}id": object), method: :post) do
+        = form_tag(user_or_groups_roles_delete_path(project, type, object, package), method: :post) do
           .modal-footer
             %button.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
               Cancel

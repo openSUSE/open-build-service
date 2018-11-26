@@ -271,9 +271,9 @@ OBSApi::Application.routes.draw do
       post 'project/release_repository/:project/:repository' => :release_repository, constraints: cons
       get 'project/release_repository_dialog/:project/:repository' => :release_repository_dialog, constraints: cons
       post 'project/move_path/:project' => :move_path
-      post 'project/save_person/:project' => :save_person, constraints: cons
-      post 'project/save_group/:project' => :save_group, constraints: cons
-      post 'project/remove_role/:project' => :remove_role, constraints: cons
+      post 'project/save_person/:project' => :save_person, constraints: cons, as: 'project_save_person'
+      post 'project/save_group/:project' => :save_group, constraints: cons, as: 'project_save_group'
+      post 'project/remove_role/:project' => :remove_role, constraints: cons, as: 'project_remove_role'
       post 'project/remove_person/:project' => :remove_person, constraints: cons
       post 'project/remove_group/:project' => :remove_group, constraints: cons
       get 'project/monitor/(:project)' => :monitor, constraints: cons, as: 'project_monitor'
