@@ -1930,7 +1930,6 @@ DELETE /status_reports/repositories/<project>/<repository>/required_checks/<chec
   Delete a required check
 XmlResult: required_checks
 
-
 == Staging
   WARNING: This API is currently in beta and unstable
 
@@ -1946,6 +1945,23 @@ POST /staging/<project>/excluded_requests/<request>?description=<description>
 DELETE /staging/<project>/excluded_requests/<request>
   Stop excluding this request
 
+=== Staged Requests
+
+<staging_workflow_project>: The name of the staging workflow project, e.g. home:user1
+<staging_project>: The name of the staging project, e.g. home:user1:Staging:A
+
+GET /staging/<staging_workflow_project>/staging_projects/<staging_project>/staged_requests
+  Get all staged requests of a staging project.
+XmlResult: staged_requests
+
+POST /staging/<staging_workflow_project>/staging_projects/<staging_project>/staged_requests
+  Add one or multiple bs_requests to the staged requests of a staging project.
+XmlBody: remove_staged_requests
+XmlResult: status_ok
+
+DELETE /staging/<staging_workflow_project>/staging_projects/<staging_project>/staged_requests
+  Remove one or multiple bs_requests to the staged requests of a staging project.
+XmlResult: status_ok
 
 == Internal only routes
 
