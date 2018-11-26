@@ -205,6 +205,12 @@ class Webui::ProjectController < Webui::WebuiController
     @comments = @project.comments
     @comment = Comment.new
     render :show, status: params[:nextstatus] if params[:nextstatus]
+
+    # TODO: Remove the `return unless` and the flash once this should be available to all beta users
+    return unless User.current && User.current.in_beta? && (User.current.is_admin? || User.current.is_staff?)
+
+    flash[:notice] = 'We are currently migrating the project pages to Bootstrap. Only admins and staff see this version while this is work-in-progress.'
+    switch_to_webui2
   end
 
   def packages_simple; end

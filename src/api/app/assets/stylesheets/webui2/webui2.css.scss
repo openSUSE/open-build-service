@@ -39,8 +39,9 @@
 @import 'borders';
 @import 'diff';
 @import 'package-show';
+@import 'repositories';
+@import 'project-show';
 
 html {
     overflow-y: scroll !important;
 }
-@import 'repositories';
