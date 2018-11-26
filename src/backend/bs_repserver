@@ -67,7 +67,6 @@ use BSDBIndex;
 use BSNotify;
 use BSUrlmapper;
 use BSRegistryServer;
-use BSTUF;
 
 use BSSolv;
 
@@ -76,6 +75,7 @@ use BSRepServer::BuildInfo;
 use BSRepServer::Containerinfo;
 use BSRepServer::Containertar;
 use BSRepServer::Remote;
+use BSRepServer::Registry;
 use BSDispatcher::Constraints;
 use BSCando;
 use Build;
@@ -363,7 +363,11 @@ sub getpackagelist_build {
     my $schedulerstate = readschedulerstate($projid, $repoid, $arch);
     my $status = { 'code' => $schedulerstate->{'code'} };
     $status->{'details'} = $schedulerstate->{'details'} if $schedulerstate->{'details'};
-    $status->{'buildid'} = $schedulerstate->{'buildid'} if $schedulerstate->{'buildid'};
+    if ($schedulerstate->{'buildid'}) {
+      $status->{'buildid'} = $schedulerstate->{'buildid'};
+    } elsif ($schedulerstate->{'oldbuildid'}) {
+      $status->{'buildid'} = "$schedulerstate->{'oldbuildid'}-inprogress";
+    }
     return ($status, $BSXML::buildstatus);
   }
   $cgi->{'withcode'} = 1 if $cgi->{'view'}  eq 'binaryversionscode' || $cgi->{'view'}  eq 'gbininfocode';
@@ -4036,14 +4040,6 @@ sub checkconstraints {
   return ({'entry' => \@comp_workers}, $BSXML::dir);
 }
 
-sub registry_select_manifest {
-  my ($mani, $goarch, $goos) = @_;
-  for my $m (@{$mani->{'manifests'} || []}) {
-    return $m->{'digest'} if $m->{'platform'} && $m->{'platform'}->{'architecture'} eq $goarch && $m->{'platform'}->{'os'} eq $goos;
-  }
-  return undef;
-}
-
 sub registry_manifest {
   my ($cgi, $regrepo, $manifest) = @_;
   my $repodir = "$registrydir/$regrepo";
@@ -4071,7 +4067,7 @@ sub registry_manifest {
     my %accept = map {lc($_) => 1} @accept;
     if (!$accept{lc($ct)} && !$accept{'*/*'}) {
       if (!$is_manifest && lc($ct) eq lc($manifestlistct) && $accept{lc($manifestct)}) {
-	my $digest = registry_select_manifest($mani, 'amd64', 'linux');
+	my $digest = BSRepServer::Registry::select_manifest($mani, 'amd64', 'linux');
 	die("404 MANIFEST_UNKNOWN\n") unless $digest;
 	return registry_manifest($cgi, $regrepo, $digest);
       }
@@ -4147,34 +4143,6 @@ sub registry_catalog {
   return undef;
 }
 
-sub extend_timestamp {
-  my ($repodir, $tuf, $expires) = @_;
-
-  my $data = $tuf->{'timestamp'};
-  my $timestamp = JSON::XS::decode_json($data);
-  mkdir_p($uploaddir);
-  unlink("$uploaddir/timestampkey.$$");
-  writestr("$uploaddir/timestampkey.$$", undef, $tuf->{'timestamp_privkey'});
-  my @signcmd;
-  push @signcmd, $BSConfig::sign;
-  push @signcmd, '--project', ':tmpkey' if $BSConfig::sign_project;
-  push @signcmd, '-P', "$uploaddir/timestampkey.$$";
-  my $signfunc = sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
-  $timestamp = BSTUF::update_expires($timestamp, $signfunc, $expires);
-  unlink("$uploaddir/timestampkey.$$");
-  my $fd;
-  BSUtil::lockopen($fd, '<', "$repodir/:tuf");
-  $tuf = BSUtil::retrieve("$repodir/:tuf", 1);
-  if ($tuf && $tuf->{'timestamp'} && $tuf->{'timestamp'} eq $data) {
-    # ok to update
-    $tuf->{'timestamp'} = $timestamp;
-    $tuf->{'timestamp_expires'} = $expires;
-    BSUtil::store("$repodir/.tuf.$$", "$repodir/:tuf", $tuf);
-  }
-  close($fd);
-  return $tuf;
-}
-
 sub registry_tuf {
   my ($cgi, $gunprefix, $regrepo, $filename) = @_;
   my $repodir = "$registrydir/$regrepo";
@@ -4199,7 +4167,7 @@ sub registry_tuf {
     if (!$sha256sum && $role eq 'timestamp' && $BSConfig::sign && $tuf->{'timestamp_expires'} && $tuf->{'timestamp_privkey'}) {
       my $now = time();
       if ($tuf->{'timestamp_expires'} < $now + 3600) {
-        $tuf = extend_timestamp($repodir, $tuf, $now + 14 * 24 * 3600);
+        $tuf = BSRepServer::Registry::extend_timestamp($repodir, $tuf, $now + 14 * 24 * 3600);
         die("404 METADATA_NOT_FOUND\n") unless $tuf && $tuf->{'timestamp'};
 	$data = $tuf->{'timestamp'};
       }
