@@ -44,6 +44,9 @@ module ObsFactory
     # @return [String] description of the Project object
     delegate :description, to: :project
 
+    delegate :checks, to: :project
+    delegate :missing_checks, to: :project
+
     # Checks if the project is adi staging project
     #
     # @return [Boolean] true if the project is adi staging project
@@ -192,9 +195,9 @@ module ObsFactory
     end
 
     def check_state
-      if missing_checks.present? || checks.any?(&:pending?)
+      if missing_checks.present? || checks.pending.exists?
         :testing
-      elsif checks.any?(&:failed?)
+      elsif checks.failed.exists?
         :failed
       else
         :acceptable
@@ -228,34 +231,7 @@ module ObsFactory
       @state
     end
 
-    def checks
-      fetch_status if @checks.nil?
-      @checks
-    end
-
-    def missing_checks
-      fetch_status if @missing_checks.nil?
-      @missing_checks
-    end
-
     protected
-
-    def fetch_status
-      @checks = []
-      @missing_checks = []
-      repositories.each do |repo|
-        add_status(repo)
-        repo.repository_architectures.each do |repo_arch|
-          add_status(repo_arch)
-        end
-      end
-    end
-
-    def add_status(checkable)
-      status = checkable.current_status_report
-      @missing_checks += status.missing_checks
-      @checks += status.checks
-    end
 
     # Used internally to calculate #broken_packages and #building_repositories
     def set_buildinfo

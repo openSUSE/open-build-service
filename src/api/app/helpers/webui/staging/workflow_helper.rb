@@ -23,15 +23,8 @@ module Webui::Staging::WorkflowHelper
   end
 
   def testing_progress(staging_project)
-    notdone = allchecks = 0
-
-    # Note: The status_reports are defined via a has many through relation. Since within the
-    #       status report context the bs request relation is polymorphic, we have to call
-    #       includes with the polymorphic name ('checkable').
-    staging_project.status_reports.includes(:checkable).each do |report|
-      notdone += report.checks.where(state: 'pending').size
-      allchecks += report.checks.size + report.missing_checks.size
-    end
+    notdone = staging_project.checks.pending.size
+    allchecks = staging_project.checks.size + staging_project.missing_checks.size
 
     return 100 if allchecks == 0
     100 - notdone * 100 / allchecks
