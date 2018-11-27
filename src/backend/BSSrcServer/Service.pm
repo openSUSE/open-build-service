@@ -216,6 +216,7 @@ sub runservice {
       };
       if ($@) {
         warn($@);
+	undef $oldfiles;
 	undef $oldfilesrev;
         next if $@ =~ /service in progress/;
       }
@@ -263,37 +264,28 @@ sub runservice {
     return;
   }
 
-  my $linkfiles;
-  my $linksrcmd5;
+  my $sendfiles = $files;	# files we send to the service daemon
+
+  # expand links
+  my $sendsrcmd5;
   if ($files->{'_link'}) {
-    # make sure it's a branch
-    my $l = BSRevision::revreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
-    if (!$l || !$l->{'patches'} || @{$l->{'patches'}->{''} || []} != 1 || (keys %{$l->{'patches'}->{''}->[0]})[0] ne 'branch') {
-      #addrev_service($cgi, $rev, $files, "services only work on branches\n");
-      #return;
-      # uh oh, not a branch!
-      $linkfiles = { %$files };
-      delete $files->{'/SERVICE'};
-      eval {
-	my $lrev = {%$rev, 'linkrev' => 'base'};
-	$files = BSSrcServer::Link::handlelinks($lrev, $files);
-	die("bad link: $files\n") unless ref $files;
-	$linksrcmd5 = $lrev->{'srcmd5'};
-      };
-      if ($@) {
-	if (($@ =~ /service in progress/) && $linkfiles->{'/SERVICE'}) {
-	  # delay, hope for an event. remove lock for now to re-trigger the service run.
-	  BSSrcrep::addmeta_serviceerror($rev->{'project'}, $rev->{'package'}, $linkfiles->{'/SERVICE'}, undef);
-	  return;
-	}
-        $files = $linkfiles;
-        addrev_service($cgi, $rev, $files, $@);
-        return;
-      }
-      $files->{'/SERVICE'} = $linkfiles->{'/SERVICE'} if $linkfiles->{'/SERVICE'}
+    $sendfiles = { %$files };
+    delete $sendfiles->{'/SERVICE'};
+    eval {
+      my $lrev = {%$rev, 'ignoreserviceerrors' => 1};
+      $sendfiles = BSSrcServer::Link::handlelinks($lrev, $sendfiles);
+      die("bad link: $sendfiles\n") unless ref $sendfiles;
+      $sendsrcmd5 = $lrev->{'srcmd5'};
+    };
+    if ($@) {
+      addrev_service($cgi, $rev, $files, $@);
+      return;
     }
+    # drop all sevice files
+    delete $sendfiles->{$_} for grep {/^_service:/} keys %$sendfiles;
   }
 
+  # handoff to dispatcher if configured
   if ($files->{'/SERVICE'} && $BSConfig::servicedispatch) {
     my $projectservicesmd5;
     if ($projectservices) {
@@ -309,7 +301,7 @@ sub runservice {
       'srcmd5' => $rev->{'srcmd5'},
       'rev' => $rev->{'rev'},
     };
-    $ev->{'linksrcmd5'} = $linksrcmd5 if $linksrcmd5;
+    $ev->{'linksrcmd5'} = $sendsrcmd5 if $sendsrcmd5;
     $ev->{'projectservicesmd5'} = $projectservicesmd5 if $projectservicesmd5;
     $ev->{'oldsrcmd5'} = $oldfilesrev->{'srcmd5'} if %$oldfiles && $oldfilesrev;
     mkdir_p("$eventdir/servicedispatch");
@@ -327,9 +319,9 @@ sub runservice {
     BSUtil::touch($lockfile);
   }
 
-  my @send = map {BSRevision::revcpiofile($rev, $_, $files->{$_})} grep {$_ ne '/SERVICE'} sort(keys %$files);
+  my @send = map {BSRevision::revcpiofile($rev, $_, $sendfiles->{$_})} grep {$_ ne '/SERVICE'} sort(keys %$sendfiles);
   push @send, {'name' => '_serviceproject', 'data' => BSUtil::toxml($projectservices, $BSXML::services)} if $projectservices;
-  push @send, map {BSRevision::revcpiofile($rev, $_, $oldfiles->{$_})} grep {!$files->{$_}} sort(keys %$oldfiles);
+  push @send, map {BSRevision::revcpiofile($rev, $_, $oldfiles->{$_})} grep {!$sendfiles->{$_}} sort(keys %$oldfiles);
 
   # run the source update in own process (do not wait for it)
   my $pid = xfork();
@@ -377,12 +369,9 @@ sub runservice {
       for my $pfile (ls($odir)) {
         if ($pfile eq '.errors') {
           my $e = readstr("$odir/.errors");
-          $e ||= 'empty .errors file';
-          die($e);
+          die($e || "empty .errors file\n");
         }
-	unless ($pfile =~ /^_service[_:]/) {
-	  die("service returned a non-_service file: $pfile\n");
-	}
+	die("service returned a non-_service file: $pfile\n") unless $pfile =~ /^_service[_:]/;
 	BSVerify::verify_filename($pfile);
 	$files->{$pfile} = BSSrcrep::addfile($projid, $packid, "$odir/$pfile", $pfile);
       }
@@ -394,13 +383,6 @@ sub runservice {
   }
   BSUtil::cleandir($odir);
   rmdir($odir);
-  if ($linkfiles) {
-    # argh, a link! put service run result in old filelist
-    if (!$error) {
-      $linkfiles->{$_} = $files->{$_} for grep {/^_service[_:]/} keys %$files;
-    }
-    $files = $linkfiles;
-  }
   addrev_service($cgi, $rev, $files, $error);
   exit(0);
 }
