@@ -118,7 +118,7 @@ BuildRequires:  perl(Test::Simple) > 1
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 BuildArch:      noarch
 Requires(pre):  obs-common
-Requires:       build >= 20170315
+Requires:       build >= 20181031
 Requires:       perl-BSSolv >= 0.28
 Requires:       perl(Date::Parse)
 # Required by source server
