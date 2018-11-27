@@ -1,28 +1,28 @@
-.package-source-files {
-  grid-area: source-files;
+.list {
+  grid-area: list;
 }
 
-.package-build-results {
+.build-results {
   grid-area: build-results;
 }
 
-.package-comments {
+.comments {
   grid-area: comments;
 }
 
-.package-show {
+.overview {
   display: grid;
   grid-template-columns: 100%;
   grid-gap: 16px;
   grid-template-areas:
-    "source-files"
+    "list"
     "build-results"
     "comments";
   @include media-breakpoint-up(lg) {
     grid-template-columns: 1fr 350px;
     grid-template-rows: auto 1fr;
     grid-template-areas:
-      "source-files build-results"
-      "comments     build-results";
+      "list     build-results"
+      "comments build-results";
   }
 }

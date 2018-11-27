@@ -98,13 +98,13 @@ namespace :dev do
 
         desc 'Autogenerate rubocop config in rails'
         task :rails do
-          sh 'rubocop --auto-gen-config --ignore_parent_exclusion'
+          sh 'rubocop --auto-gen-config --ignore_parent_exclusion --auto-gen-only-exclude'
         end
 
         desc 'Run the ruby linter in root'
         task :root do
           Dir.chdir('../..') do
-            sh 'rubocop --auto-gen-config'
+            sh 'rubocop --auto-gen-config --auto-gen-only-exclude'
           end
         end
       end
