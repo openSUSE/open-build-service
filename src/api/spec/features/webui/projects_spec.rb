@@ -117,9 +117,9 @@ RSpec.feature 'Projects', type: :feature, js: true do
       click_link('Subprojects')
 
       expect(page).to have_text('This project has no subprojects')
-      click_link('create_subproject_link')
+      click_link('Add New Subproject')
       fill_in 'project_name', with: 'coolstuff'
-      click_button 'Create Project'
+      click_button('Accept')
       expect(page).to have_content("Project '#{user.home_project_name}:coolstuff' was created successfully")
 
       expect(page.current_path).to match(project_show_path(project: "#{user.home_project_name}:coolstuff"))
@@ -130,10 +130,11 @@ RSpec.feature 'Projects', type: :feature, js: true do
       login user
       visit project_subprojects_path(project: user.home_project)
 
-      click_link('create_subproject_link')
+      click_link('Add New Subproject')
       fill_in 'project_name', with: 'coolstuff'
-      check('disable_publishing')
-      click_button('Create Project')
+      # Check the checkbox by clicking on its label (side-effect from using custom Bootstrap checkbox)
+      check('disable_publishing', allow_label_click: true)
+      click_button('Accept')
       click_link('Repositories')
 
       expect(page).to have_selector('.current_flag_state.icons-publish_disable_blue')
