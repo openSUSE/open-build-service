@@ -177,7 +177,7 @@ RSpec.describe Project::UpdateFromXmlCommand do
           EOF
         )
         expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }.to raise_error(
-          Project::SaveError, "unknown architecture: 'foo'"
+          ActiveRecord::RecordNotFound, "unknown architecture: 'foo'"
         )
       end
 

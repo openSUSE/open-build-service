@@ -33,6 +33,13 @@ class Architecture < ApplicationRecord
     end
   end
 
+  def self.from_cache!(archname)
+    unless archcache.key?(archname)
+      raise ActiveRecord::RecordNotFound, "unknown architecture: '#{archname}'"
+    end
+    archcache[archname]
+  end
+
   def worker
     case name
     when 'i586' then 'x86_64'

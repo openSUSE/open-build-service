@@ -282,24 +282,29 @@ class Project
       current_repo.save! if current_repo.changed?
     end
 
+    def check_for_duplicated_archs!(xml_archs)
+      taken_archs = {}
+
+      xml_archs.each do |archname|
+        if taken_archs.key?(archname)
+          raise SaveError, "double use of architecture: '#{archname}'"
+        end
+        taken_archs[archname] = 1
+      end
+    end
+
     def update_repository_architectures(current_repo, xml_hash)
       old_archs = {}
       current_repo.repository_architectures.each do |repoarch|
         old_archs[repoarch.architecture_id] = repoarch
       end
-      taken_archs = {}
+
+      xml_archs = xml_hash.elements('arch')
+      check_for_duplicated_archs!(xml_archs)
 
       position = 1
-      xml_hash.elements('arch') do |archname|
-        if taken_archs.key?(archname)
-          raise SaveError, "double use of architecture: '#{archname}'"
-        end
-        taken_archs[archname] = 1
-
-        unless Architecture.archcache.key?(archname)
-          raise SaveError, "unknown architecture: '#{archname}'"
-        end
-        arch = Architecture.archcache[archname]
+      xml_archs.each do |archname|
+        arch = Architecture.from_cache!(archname)
 
         if old_archs.key?(arch.id)
           old_archs[arch.id].update(position: position)
