@@ -1,7 +1,7 @@
-- @pagetitle = "Attributes of #{@package} (Project #{@project})"
+- @pagetitle = "Attributes of #{@package ? "#{@package} (Project #{@project})" : "Project #{@project}"}"
 
 .card
-  = render(partial: 'webui/package/tabs', locals: { project: @project, package: @package })
+  = render(partial: "webui/#{@container.model_name.singular}/tabs", locals: { project: @project, package: @package })
 
   .card-body
     %h3= @pagetitle
@@ -11,7 +11,7 @@
           %tr
             %th.w-50 Attributes
             %th.w-25 Values
-            - if policy(@package).update?
+            - if policy(@container).update?
               %th Actions
         %tbody
           - @attributes.each do |attribute|
@@ -25,7 +25,7 @@
                         %pre.d-inline= v.value
                   - unless attribute.issues.empty?
                     %li= attribute.issues.map(&:name).to_sentence
-              - if policy(@package).update?
+              - if policy(@container).update?
                 %td
                   - if attribute.values_editable?
                     = link_to(edit_attribs_path(project: @project.name, package: @package, attribute: attribute.fullname), title: 'Edit values') do
@@ -33,13 +33,13 @@
                   = link_to('#', data: { toggle: 'modal', target: "#delete-attribute-modal-#{attribute.id}" },
                             title: 'Delete attribute') do
                     %i.fas.fa-times-circle.text-danger
-            - if policy(@package).update?
+            - if policy(@container).update?
               = render(partial: 'delete_dialog', locals: { attribute: attribute })
     - else
       %p
         %em No attributes set
 
-    - if policy(@package).update?
+    - if policy(@container).update?
       %p
         = link_to(new_attribs_path(project: @project.name, package: @package), title: 'Add a new attribute') do
           %i.fas.fa-plus-circle.text-primary
