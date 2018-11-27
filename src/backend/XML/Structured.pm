@@ -245,6 +245,11 @@ sub _chooseparser {
   my $saxok;
   if (!$@) {
     $saxok = 1;
+    eval { require XML::LibXML::SAX; };
+    if (!$@) {
+      $XML::SAX::ParserPackage = 'XML::LibXML::SAX';
+      return \&_saxparser;
+    }
     my $parsers = XML::SAX->parsers();
     return \&_saxparser if $parsers && @$parsers && (@$parsers > 1 || $parsers->[0]->{'Name'} ne 'XML::SAX::PurePerl');
   }
