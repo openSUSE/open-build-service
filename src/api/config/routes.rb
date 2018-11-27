@@ -283,7 +283,7 @@ OBSApi::Application.routes.draw do
       get 'project/meta/:project' => :meta, constraints: cons, as: 'project_meta'
       post 'project/save_meta/:project' => :save_meta, constraints: cons
       get 'project/prjconf/:project' => :prjconf, constraints: cons, as: :project_config
-      post 'project/save_prjconf/:project' => :save_prjconf, constraints: cons
+      post 'project/save_prjconf/:project' => :save_prjconf, constraints: cons, as: :save_project_config
       get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons
       get 'project/edit/:project' => :edit, constraints: cons
       get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons

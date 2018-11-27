@@ -546,6 +546,7 @@ class Webui::ProjectController < Webui::WebuiController
     sliced_params.permit!
 
     @content = @project.config.content(sliced_params.to_h)
+    switch_to_webui2
     return if @content
     flash[:error] = @project.config.errors.full_messages.to_sentence
     redirect_to controller: 'project', nextstatus: 404
@@ -562,11 +563,13 @@ class Webui::ProjectController < Webui::WebuiController
 
     if content
       flash.now[:success] = 'Config successfully saved!'
-      render layout: false, partial: 'layouts/webui/flash', object: flash
+      status = 200
     else
       flash.now[:error] = @project.config.errors.full_messages.to_sentence
-      render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
+      status = 400
     end
+    switch_to_webui2
+    render layout: false, status: status, partial: 'layouts/webui2/flash', object: flash
   end
 
   def clear_failed_comment
