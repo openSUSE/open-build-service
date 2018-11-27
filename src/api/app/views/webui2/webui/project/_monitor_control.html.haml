@@ -1,0 +1,58 @@
+.row
+  .col-md-12
+    - if activate_client_search
+      %span.dropdown#project-monitor-status-dropdown
+        %button.btn.btn-outline-secondary.dropdown-toggle{ data: { toggle: :dropdown }, type: :button }
+          %span.caret
+          Status
+        .dropdown-menu
+          %button.btn.btn-link.monitor-no-filter-link No filter
+          - status.each do |status|
+            .custom-control.custom-checkbox.dropdown-item.ml-2
+              %input.custom-control-input{ type: :checkbox, id: "#{status}-checkbox".parameterize, checked: false, value: status }
+              %label.custom-control-label{ for: "#{status}-checkbox".parameterize }
+                = status
+      %span.dropdown#project-monitor-architectures-dropdown
+        %button.btn.btn-outline-secondary.dropdown-toggle{ data: { toggle: :dropdown }, type: :button }
+          %span.caret
+          Architecture
+        .dropdown-menu
+          %button.btn.btn-link.monitor-no-filter-link No filter
+          - architectures.each do |architecture|
+            .custom-control.custom-checkbox.dropdown-item.ml-2
+              %input.custom-control-input{ type: :checkbox, id: "#{architecture}-checkbox".parameterize, checked: false, value: architecture }
+              %label.custom-control-label{ for: "#{architecture}-checkbox".parameterize }
+                = architecture
+      %span.dropdown#project-monitor-repositories-dropdown
+        %button.btn.btn-outline-secondary.dropdown-toggle{ data: { toggle: :dropdown }, type: :button }
+          %span.caret
+          Repository
+        .dropdown-menu
+          %button.btn.btn-link.monitor-no-filter-link No filter
+          - repositories.each do |repository|
+            .custom-control.custom-checkbox.dropdown-item.ml-2
+              %input.custom-control-input{ type: :checkbox, id: "#{repository}-checkbox".parameterize, checked: false, value: repository }
+              %label.custom-control-label{ for: "#{repository}-checkbox".parameterize }
+                = repository
+      %button.btn.btn-outline-secondary{ data: { toggle: 'modal', target: '#build-monitor-legend' }, title: 'Build status legend' }
+        Legend
+    - unless activate_client_search
+      .float-right
+        %a.btn.btn-outline-primary{ href: project_monitor_path(project) }
+          Remove filter
+
+.modal.fade#build-monitor-legend{ tabindex: -1, role: 'dialog', aria: { labelledby: 'confirm-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered.modal-lg{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title
+          Build status legend
+      .modal-body
+        - @legend.each do |status, description|
+          %p
+            %strong
+              #{status}:
+            = description
+        .modal-footer
+          %button.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+            Cancel
