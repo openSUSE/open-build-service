@@ -1,28 +1,28 @@
-.project-packages {
-  grid-area: packages;
+.list {
+  grid-area: list;
 }
 
-.project-build-results {
+.build-results {
   grid-area: build-results;
 }
 
-.project-comments {
+.comments {
   grid-area: comments;
 }
 
-.project-show {
+.overview {
   display: grid;
   grid-template-columns: 100%;
   grid-gap: 16px;
   grid-template-areas:
-    "packages"
+    "list"
     "build-results"
     "comments";
   @include media-breakpoint-up(lg) {
     grid-template-columns: 1fr 350px;
     grid-template-rows: auto 1fr;
     grid-template-areas:
-      "packages build-results"
+      "list     build-results"
       "comments build-results";
   }
 }
