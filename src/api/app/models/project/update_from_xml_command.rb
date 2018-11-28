@@ -282,41 +282,24 @@ class Project
       current_repo.save! if current_repo.changed?
     end
 
-    def check_for_duplicated_archs!(xml_archs)
-      taken_archs = {}
+    def check_for_duplicated_archs!(architectures)
+      duplicated_architectures = architectures.uniq.select { |architecture| architectures.count(architecture) > 1 }
+      return if duplicated_architectures.empty?
 
-      xml_archs.each do |archname|
-        if taken_archs.key?(archname)
-          raise SaveError, "double use of architecture: '#{archname}'"
-        end
-        taken_archs[archname] = 1
-      end
+      raise SaveError, "double use of architecture: '#{duplicated_architectures.first}'"
     end
 
     def update_repository_architectures(current_repo, xml_hash)
-      old_archs = {}
-      current_repo.repository_architectures.each do |repoarch|
-        old_archs[repoarch.architecture_id] = repoarch
-      end
-
       xml_archs = xml_hash.elements('arch')
       check_for_duplicated_archs!(xml_archs)
 
-      position = 1
-      xml_archs.each do |archname|
-        arch = Architecture.from_cache!(archname)
-
-        if old_archs.key?(arch.id)
-          old_archs[arch.id].update(position: position)
-          # delete the rest later
-          old_archs.delete(arch.id)
-        else
-          current_repo.repository_architectures.create(architecture: arch, position: position)
-        end
-        position += 1
+      architectures = []
+      xml_archs.each.with_index(1) do |archname, position|
+        architecture = Architecture.from_cache!(archname)
+        current_repo.repository_architectures.find_or_create_by(architecture: architecture).insert_at(position)
+        architectures << architecture
       end
-      # remove left overs
-      old_archs.values.each(&:delete)
+      current_repo.repository_architectures.where.not(architecture: architectures).delete_all
     end
 
     def update_download_repositories(current_repo, xml_hash)
