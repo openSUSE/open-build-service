@@ -82,6 +82,8 @@ class Webui::ProjectController < Webui::WebuiController
     @users = @project.users
     @groups = @project.groups
     @roles = Role.local_roles
+
+    switch_to_webui2
   end
 
   def subprojects

@@ -1,10 +1,16 @@
 :ruby
   user_is_maintainer = User.current.can_modify?(package || project)
-  data = { 'save-user' => package_save_person_url,
-           'remove' => package_remove_role_url,
-           'save-group' => package_save_group_path,
-           'project' => project.name }
-  data[:package] = package.name if package
+  data = { 'project' => project.name }
+  if package
+    data['save-user'] = package_save_person_url
+    data['remove'] = package_remove_role_url
+    data['save-group'] = package_save_group_path
+    data['package'] = package.name
+  else
+    data['save-user'] = project_save_person_url
+    data['remove'] = project_remove_role_url
+    data['save-group'] = project_save_group_path
+  end
 
 #involved-users{ data: data }
   - if users.present?
