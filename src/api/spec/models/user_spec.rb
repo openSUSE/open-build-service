@@ -64,6 +64,22 @@ RSpec.describe User do
     it { expect(user.can_modify_user?(user)).to be(true) }
   end
 
+  describe '#name' do
+    context 'user with empty name' do
+      before { user.update(realname: '') }
+
+      it { expect(user.name).to eq(user.login) }
+    end
+
+    context 'user with present name' do
+      let(:realname) { 'Beautiful Name' }
+
+      before { user.update(realname: realname) }
+
+      it { expect(user.name).to eq(realname) }
+    end
+  end
+
   describe 'user creation' do
     it "sets the 'last_logged_in_at' attribute" do
       user = User.new
