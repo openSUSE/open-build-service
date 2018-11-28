@@ -17,3 +17,31 @@
     }
   }
 }
+
+.build-state-succeeded {
+  color: $primary;
+}
+
+.build-state-building {
+  color: $secondary;
+}
+
+.build-state-scheduled {
+  color: $info;
+}
+
+.build-state-signing, .build-state-finished {
+  color: $dark;
+}
+
+.build-state-unresolvable, .build-state-broken {
+  color: $danger;
+}
+
+.build-state-disabled, .build-state-block {
+  @extend .text-black-50;
+}
+
+.build-state-scheduled-warning, .build-state-unknown {
+  color: $warning;
+}
