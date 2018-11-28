@@ -831,6 +831,10 @@ class User < ApplicationRecord
     address.format
   end
 
+  def name
+    realname.presence || login
+  end
+
   def combined_rss_feed_items
     Notification::RssFeedItem.where(subscriber: self).or(
       Notification::RssFeedItem.where(subscriber: groups)
