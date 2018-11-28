@@ -6,7 +6,7 @@ unset OPENQA_CONFIG
 function trigger_run {
   OBS_VERSION="$1"
   FULL_URL="http://download.opensuse.org/repositories/OBS:/$2/"
-  filename=`curl -s $FULL_URL | grep "obs-server.*.x86_64-.*qcow2" | head -n1 | sed -e 's,.*href=",,; s,".*,,; s,\.mirrorlist,,'`
+  filename=`curl -s $FULL_URL | grep "obs-server.*.x86_64-.*\.qcow2\"" | head -n1 | sed -e 's,.*href=",,; s,".*,,; s,\.mirrorlist,,'`
   last_obs_filename="/tmp/.last.obs_$OBS_VERSION"
   ofilename=`cat $last_obs_filename || touch $last_obs_filename`
   if test "x$ofilename" != "x$filename"; then

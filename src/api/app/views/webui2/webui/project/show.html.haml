@@ -1,0 +1,38 @@
+:ruby
+  @pagetitle = "Show #{@project}"
+  @layouttype = 'custom'
+
+.card.mb-3
+  = render partial: 'tabs', locals: { project: @project }
+  .card-body
+    .row
+      .col-md-8
+        %h3#project-title
+          = @project.title.presence || @project
+          - if @project.url.present?
+            %small= link_to(@project.url, @project.url)
+        #description-text
+          - if @project.description.blank?
+            %i No description set
+          - else
+            = simple_format(@project.description)
+      .col-md-4
+        = render partial: 'side_links'
+      = render partial: 'bottom_actions'
+.overview
+  .build-results
+    = render partial: 'webui2/shared/buildresult_box', locals: { project: @project.name }
+  .list
+    .card
+      %h5.card-header
+        Packages
+        = "(#{@packages.length})"
+      = render partial: 'project_packages'
+  .comments
+    .card
+      %h5.card-header
+        Comments for
+        = @project
+        (#{ @comments.length})
+      .card-body#comments
+        = render partial: 'webui2/webui/comment/show', locals: { commentable: @project }

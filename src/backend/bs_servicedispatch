@@ -92,7 +92,7 @@ sub getrev {
 }
 
 sub runservice {
-  my ($projid, $packid, $servicemark, $srcmd5, $revid, $linksrcmd5, $projectservicesmd5, $oldsrcmd5) = @_;
+  my ($projid, $packid, $servicemark, $srcmd5, $revid, $sendsrcmd5, $projectservicesmd5, $oldsrcmd5) = @_;
 
   print "dispatching service $projid/$packid $servicemark $srcmd5\n";
   # get revision and file list
@@ -113,12 +113,13 @@ sub runservice {
   my $serviceerror = BSSrcrep::getserviceerror($projid, $packid, $servicemark);
   return if $serviceerror ne 'service in progress';
  
-  # handle link case
-  my $linkfiles;
-  if ($linksrcmd5) {
-    $linkfiles = $files;
-    my $lrev = getrev($projid, $packid, $linksrcmd5);
-    $files = BSRevision::lsrev($lrev);
+  # get files to send to service daemon
+  my $sendfiles = $files;
+  if ($sendsrcmd5) {
+    my $lrev = getrev($projid, $packid, $sendsrcmd5);
+    $sendfiles = BSRevision::lsrev($lrev);
+    # drop all service files
+    delete $sendfiles->{$_} for grep {/^_service:/} keys %$sendfiles;
   }
 
   # get old files
@@ -126,12 +127,13 @@ sub runservice {
   if ($oldsrcmd5) {
     my $oldrev = getrev($projid, $packid, $oldsrcmd5);
     $oldfiles = BSRevision::lsrev($oldrev);
+    delete $oldfiles->{$_} for grep {!/^_service:/} keys %$oldfiles;
   }
   $oldfiles ||= {};
 
-  my @send = map {BSRevision::revcpiofile($rev, $_, $files->{$_})} sort(keys %$files);
+  my @send = map {BSRevision::revcpiofile($rev, $_, $sendfiles->{$_})} sort(keys %$sendfiles);
   push @send, BSRevision::revcpiofile({'project' => $projid, 'package' => '_project'}, '_serviceproject', $projectservicesmd5) if $projectservicesmd5;
-  push @send, map {BSRevision::revcpiofile($rev, $_, $oldfiles->{$_})} grep {!$files->{$_}} sort(keys %$oldfiles);
+  push @send, map {BSRevision::revcpiofile($rev, $_, $oldfiles->{$_})} grep {!$sendfiles->{$_}} sort(keys %$oldfiles);
 
   my $odir = "$uploaddir/runservice$$";
   BSUtil::cleandir($odir) if -d $odir;
@@ -164,12 +166,9 @@ sub runservice {
       for my $pfile (ls($odir)) {
         if ($pfile eq '.errors') {
           my $e = readstr("$odir/.errors");
-          $e ||= 'empty .errors file';
-          die($e);
+          die($e || "empty .errors file\n");
         }
-        unless ($pfile =~ /^_service[_:]/) {
-          die("service returned a non-_service file: $pfile\n");
-        }
+        die("service returned a non-_service file: $pfile\n") unless $pfile =~ /^_service[_:]/;
         BSVerify::verify_filename($pfile);
         $files->{$pfile} = BSSrcrep::addfile($projid, $packid, "$odir/$pfile", $pfile);
       }
@@ -183,13 +182,6 @@ sub runservice {
   }
   BSUtil::cleandir($odir);
   rmdir($odir);
-  if ($linkfiles) {
-    # argh, a link! put service run result in old filelist
-    if (!$error) {
-      $linkfiles->{$_} = $files->{$_} for grep {/^_service[_:]/} keys %$files;
-    }
-    $files = $linkfiles;
-  }
   addrev_service($rev, $servicemark, $files, $error);
 }
 

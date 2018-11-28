@@ -271,9 +271,9 @@ OBSApi::Application.routes.draw do
       post 'project/release_repository/:project/:repository' => :release_repository, constraints: cons
       get 'project/release_repository_dialog/:project/:repository' => :release_repository_dialog, constraints: cons
       post 'project/move_path/:project' => :move_path
-      post 'project/save_person/:project' => :save_person, constraints: cons
-      post 'project/save_group/:project' => :save_group, constraints: cons
-      post 'project/remove_role/:project' => :remove_role, constraints: cons
+      post 'project/save_person/:project' => :save_person, constraints: cons, as: 'project_save_person'
+      post 'project/save_group/:project' => :save_group, constraints: cons, as: 'project_save_group'
+      post 'project/remove_role/:project' => :remove_role, constraints: cons, as: 'project_remove_role'
       post 'project/remove_person/:project' => :remove_person, constraints: cons
       post 'project/remove_group/:project' => :remove_group, constraints: cons
       get 'project/monitor/(:project)' => :monitor, constraints: cons, as: 'project_monitor'
@@ -283,7 +283,7 @@ OBSApi::Application.routes.draw do
       get 'project/meta/:project' => :meta, constraints: cons, as: 'project_meta'
       post 'project/save_meta/:project' => :save_meta, constraints: cons
       get 'project/prjconf/:project' => :prjconf, constraints: cons, as: :project_config
-      post 'project/save_prjconf/:project' => :save_prjconf, constraints: cons
+      post 'project/save_prjconf/:project' => :save_prjconf, constraints: cons, as: :save_project_config
       get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons
       get 'project/edit/:project' => :edit, constraints: cons
       get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons

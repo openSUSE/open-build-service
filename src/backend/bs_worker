@@ -2763,10 +2763,21 @@ sub createreport {
         'version' => $s[2],
         'release' => $s[3],
         'binaryarch' => $s[4],
-        'disturl' => $s[5],
       };
+      $bin->{'disturl'} = $s[5] if $s[5] ne '(none)' && $s[5] ne 'None';
       $bin->{'package'} = $1 if $s[5] =~ /.*\/[^-]*-(.*)$/; # container case
-      $bin->{'epoch'} = $s[1] if $s[1] ne '' && $s[1] ne '(none)';
+      $bin->{'epoch'} = $s[1] if $s[1] ne '' && $s[1] ne '(none)' && $s[1] ne 'None';
+      if ($s[1] eq 'None' && $s[3] eq 'None') {
+	# debian case, split version as kiwi does not do it
+	my $evr = $s[2];
+	$bin->{'epoch'} = $1 if $evr =~ s/^(\d+)://;
+	$bin->{'version'} = $evr;
+	$bin->{'release'} = '0';
+	if ($evr =~ /^(.+)-([^-]+)$/) {
+	  $bin->{'version'} = $1;
+	  $bin->{'release'} = $2;
+	}
+      }
       my $prpap = $kiwiorigins->{$s[0]};
       if ($prpap) {
         my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);

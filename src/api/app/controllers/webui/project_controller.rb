@@ -82,6 +82,8 @@ class Webui::ProjectController < Webui::WebuiController
     @users = @project.users
     @groups = @project.groups
     @roles = Role.local_roles
+
+    switch_to_webui2
   end
 
   def subprojects
@@ -205,6 +207,12 @@ class Webui::ProjectController < Webui::WebuiController
     @comments = @project.comments
     @comment = Comment.new
     render :show, status: params[:nextstatus] if params[:nextstatus]
+
+    # TODO: Remove the `return unless` and the flash once this should be available to all beta users on all environments
+    return unless User.current && User.current.in_beta? && (Rails.env.development? || Rails.env.test?)
+    flash[:notice] = "We are currently migrating the project pages to Bootstrap. It's active only on the development and test environments while this is work-in-progress."
+
+    switch_to_webui2
   end
 
   def packages_simple; end
@@ -252,6 +260,7 @@ class Webui::ProjectController < Webui::WebuiController
     @requests = @project.open_requests
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]
+    switch_to_webui2
   end
 
   def create
@@ -539,6 +548,7 @@ class Webui::ProjectController < Webui::WebuiController
     sliced_params.permit!
 
     @content = @project.config.content(sliced_params.to_h)
+    switch_to_webui2
     return if @content
     flash[:error] = @project.config.errors.full_messages.to_sentence
     redirect_to controller: 'project', nextstatus: 404
@@ -555,11 +565,13 @@ class Webui::ProjectController < Webui::WebuiController
 
     if content
       flash.now[:success] = 'Config successfully saved!'
-      render layout: false, partial: 'layouts/webui/flash', object: flash
+      status = 200
     else
       flash.now[:error] = @project.config.errors.full_messages.to_sentence
-      render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
+      status = 400
     end
+    switch_to_webui2
+    render layout: false, status: status, partial: 'layouts/webui2/flash', object: flash
   end
 
   def clear_failed_comment

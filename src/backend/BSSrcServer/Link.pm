@@ -215,6 +215,12 @@ sub applylink {
   }
   my $flnk = BSRevision::lsrev($llnk);
   my $fsrc = BSRevision::lsrev($lsrc);
+  my $lnkhasservice;
+  $lnkhasservice = 1 if grep {/^_service/} keys %$flnk;		# do we have service files?
+  if ($lnkhasservice) {
+    # drop all service files if the link also has service files
+    delete $fsrc->{$_} for grep {/^_service[:_]/} keys %$fsrc;
+  }
   my $l = $llnk->{'link'};
   my $patches = $l->{'patches'} || {};
   my @patches = ();
@@ -311,10 +317,9 @@ sub applylink {
       return "baserev $baserev does not exist" unless $fbas;
       return "baserev is link" if $fbas->{'_link'};
 
-      # ignore linked generated service files if our link contains service files
-      if (grep {/^_service/} keys %$flnk) {
+      # also delete service file from the base
+      if ($lnkhasservice) {
 	delete $fbas->{$_} for grep {/^_service[:_]/} keys %$fbas;
-	delete $fsrc->{$_} for grep {/^_service[:_]/} keys %$fsrc;
       }
       # do 3-way merge
       my %destnames = (%$fsrc, %$flnk);
@@ -535,6 +540,7 @@ sub handlelinks {
   my $projid = $rev->{'project'};
   my $packid = $rev->{'package'};
   my $linkrev = $rev->{'linkrev'};
+  my $ignoreserviceerrors = $rev->{'ignoreserviceerrors'};
   push @linkinfo, {'project' => $projid, 'package' => $packid, 'srcmd5' => $rev->{'srcmd5'}, 'rev' => $rev->{'rev'}};
   delete $rev->{'srcmd5'};
   delete $rev->{'linkrev'};
@@ -594,10 +600,17 @@ sub handlelinks {
     return "linked package '$packid' is strange" unless $lrev->{'srcmd5'} =~ /^[0-9a-f]{32}$/;
     $lrev->{'vrev'} = $l->{'vrev'} if defined $l->{'vrev'};
     undef $files;
+    my $lrev_copy;
+    $lrev_copy = { %$lrev } if $ignoreserviceerrors;
     eval {
       # links point to expanded services
       $files = $lsrev_linktarget->($lrev);
     };
+    if ($@ && $ignoreserviceerrors) {
+      # try expanding without service
+      %$lrev = %$lrev_copy;	# restore lrev
+      eval { $files = BSRevision::lsrev($lrev) };
+    }
     if ($@) {
       my $error = $@;
       chomp $error;
