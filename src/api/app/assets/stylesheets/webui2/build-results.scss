@@ -19,15 +19,15 @@
 }
 
 .build-state-succeeded {
-  color: $primary;
+  color: $green;
 }
 
 .build-state-building {
-  color: $secondary;
+  color: $blue;
 }
 
 .build-state-scheduled {
-  color: $info;
+  color: $cyan;
 }
 
 .build-state-signing, .build-state-finished {
@@ -35,13 +35,13 @@
 }
 
 .build-state-unresolvable, .build-state-broken {
-  color: $danger;
+  color: $red;
 }
 
-.build-state-disabled, .build-state-block {
+.build-state-disabled, .build-state-blocked {
   @extend .text-black-50;
 }
 
 .build-state-scheduled-warning, .build-state-unknown {
-  color: $warning;
+  color: $yellow;
 }
