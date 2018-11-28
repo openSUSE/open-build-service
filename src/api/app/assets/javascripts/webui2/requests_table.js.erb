@@ -29,6 +29,7 @@ $(document).ready(function() {
           d.dataTableId = dataTableId;
           d.type = typeDropdown.val();
           d.state = stateDropdown.val();
+          d.switch_to_webui2 = true;
         }
       }
     });
@@ -49,14 +50,11 @@ $(document).on('change', 'select[data-table]', function() {
 // The reload button on the user request page
 $(document).on('click', '.result_reload[data-table]', function() {
   var tableSelector = '#' + $(this).data('table'),
-      loadingSpinner = $(this).siblings('.result_spinner'),
-      reloadButton = $(this);
+      loadingSpinner = $(this).children('i');
 
-  $(this).hide();
-  loadingSpinner.removeClass('invisible');
+  loadingSpinner.addClass('fa-spin');
 
   $(tableSelector).DataTable().ajax.reload(function(){
-    reloadButton.show();
-    loadingSpinner.addClass('invisible');
+    loadingSpinner.removeClass('fa-spin');
   });
 });
