@@ -305,8 +305,8 @@ OBSApi::Application.routes.draw do
     get 'project/staging_projects/:project/:project_name' => 'webui/obs_factory/staging_projects#show', as: 'staging_project', constraints: cons
 
     controller 'webui/projects/rebuild_times' do
-      get 'project/rebuild_time/:project/:repository/:arch' => :show, constraints: cons, as: 'project_rebuild_time'
-      get 'project/rebuild_time_png/:project/:key' => :rebuild_time_png, constraints: cons
+      get 'project/rebuild_time/:project/:repository/:arch' => :show, constraints: cons, as: :project_rebuild_time
+      get 'project/rebuild_time_png/:project/:key' => :rebuild_time_png, constraints: cons, as: :project_rebuild_time_png
     end
 
     resources :projects, only: [], param: :name do

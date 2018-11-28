@@ -38,6 +38,8 @@ module Webui
         # we append 4 empty paths, so there are always at least 4 in the array
         # to simplify the view code
         4.times { @longestpaths << [] }
+
+        switch_to_webui2
       end
 
       def rebuild_time_png
