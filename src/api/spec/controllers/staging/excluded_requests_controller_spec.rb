@@ -96,7 +96,7 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
     end
 
     context 'fails: request does not exist' do
-      subject { delete :destroy, params: {  staging_main_project_name: staging_workflow.project.name, number: 43543 }, format: :xml }
+      subject { delete :destroy, params: {  staging_main_project_name: staging_workflow.project.name, number: 43_543 }, format: :xml }
 
       context 'response' do
         before { subject }
