@@ -1423,6 +1423,18 @@ sub deleterepo {
   rmdir("$reporoot/$prp");
 }
 
+sub mapsleimage {
+  my ($rdir, $rbin, $p) = @_;
+  if ($p =~ /-Build\d+/) {
+    $rbin =~ s/\.sha256$//;
+    $rbin =~ s/\.iso//;
+    my $milestone = readstr("$rdir/$rbin.milestone") || 'GM';
+    $p =~ s/-Build\d+(\.\d+)?/-$milestone/;
+  }
+  $p =~ s/-Media/-DVD/;
+  return $p;
+}
+
 sub publish {
   my ($projid, $repoid, $dbgsplit, $dbgpacktrack) = @_;
   my $prp = "$projid/$repoid";
@@ -1675,6 +1687,7 @@ sub publish {
 	if ($bin =~ /\.iso(?:\.sha256)?$/) {
 	  $p = "iso/$bin";
 	  $kiwimedium = "$arch/$1" if $bin =~ /(.+)\.iso$/;
+	  $p = mapsleimage("$reporoot/$prp/$arch/:repo", $rbin, $p) if $repotype{'sleimage'};
 	} elsif ($bin =~ /ONIE\.bin(?:\.sha256)?$/) {
 	  $p = "onie/$bin";
 	  $kiwimedium = "$arch/$1" if $bin =~ /(.+)ONIE\.bin$/;
@@ -1716,6 +1729,8 @@ sub publish {
 	      $containerinfo->{'publishfile'} = "$extrep/$p";
 	      undef $containerinfo if $3;
 	    }
+	  } else {
+	    $p = mapsleimage("$reporoot/$prp/$arch/:repo", $rbin, $p) if $repotype{'sleimage'};
 	  }
 	} elsif ($bin =~ /(.*)\.tar(?:\.(?:gz|bz2|xz))?(\.sha256)?$/) {
           # Dockerfile case
@@ -1749,6 +1764,7 @@ sub publish {
 	  $p = "$bin";
         } elsif ($bin =~ /\.packages$/) {
 	  $p = "$bin";
+	  $p = mapsleimage("$reporoot/$prp/$arch/:repo", $rbin, $p) if $repotype{'sleimage'};
         } elsif ($bin =~ /^(.*)\.report$/) {
 	  # collect reports
 	  $kiwireport{"$arch/$1"} = readxml("$r/$rbin", $BSXML::report, 1) if $do_packtrack;
