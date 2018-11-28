@@ -282,22 +282,24 @@ class Project
       current_repo.save! if current_repo.changed?
     end
 
-    def update_repository_architectures(current_repo, xml_hash)
-      # destroy architecture references
-      Rails.logger.debug "delete all repository architectures of repository '#{project.id}'"
-      RepositoryArchitecture.where('repository_id = ?', current_repo.id).delete_all
+    def check_for_duplicated_archs!(architectures)
+      duplicated_architectures = architectures.uniq.select { |architecture| architectures.count(architecture) > 1 }
+      return if duplicated_architectures.empty?
 
-      position = 1
-      xml_hash.elements('arch') do |arch|
-        unless Architecture.archcache.key?(arch)
-          raise SaveError, "unknown architecture: '#{arch}'"
-        end
-        if current_repo.repository_architectures.where(architecture: Architecture.archcache[arch]).exists?
-          raise SaveError, "double use of architecture: '#{arch}'"
-        end
-        current_repo.repository_architectures.create(architecture: Architecture.archcache[arch], position: position)
-        position += 1
+      raise SaveError, "double use of architecture: '#{duplicated_architectures.first}'"
+    end
+
+    def update_repository_architectures(current_repo, xml_hash)
+      xml_archs = xml_hash.elements('arch')
+      check_for_duplicated_archs!(xml_archs)
+
+      architectures = []
+      xml_archs.each.with_index(1) do |archname, position|
+        architecture = Architecture.from_cache!(archname)
+        current_repo.repository_architectures.find_or_create_by(architecture: architecture).insert_at(position)
+        architectures << architecture
       end
+      current_repo.repository_architectures.where.not(architecture: architectures).delete_all
     end
 
     def update_download_repositories(current_repo, xml_hash)

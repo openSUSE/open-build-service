@@ -177,7 +177,7 @@ RSpec.describe Project::UpdateFromXmlCommand do
           EOF
         )
         expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }.to raise_error(
-          Project::SaveError, "unknown architecture: 'foo'"
+          ActiveRecord::RecordNotFound, "unknown architecture: 'foo'"
         )
       end
 
@@ -195,6 +195,29 @@ RSpec.describe Project::UpdateFromXmlCommand do
         expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }.to raise_error(
           Project::SaveError, "double use of architecture: 'i586'"
         )
+      end
+
+      it 'preserves IDs' do
+        create(:repository_architecture, repository: repository_1, architecture: Architecture.find_by_name('i586'))
+        arch2 = create(:repository_architecture, repository: repository_1, architecture: Architecture.find_by_name('x86_64'))
+
+        ids = repository_1.repository_architectures.pluck(:id)
+        xml = "<project name='#{project.name}'><repository name='repo_1'><arch>i586</arch><arch>x86_64</arch></repository></project>"
+        xml_hash = Xmlhash.parse(xml)
+        Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
+        expect(repository_1.repository_architectures.pluck(:id)).to eq(ids)
+
+        # turn them around
+        xml = "<project name='#{project.name}'><repository name='repo_1'><arch>x86_64</arch><arch>i586</arch></repository></project>"
+        xml_hash = Xmlhash.parse(xml)
+        Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
+        expect(repository_1.repository_architectures.pluck(:id)).to eq(ids.reverse)
+
+        # remove one but preserve the other's ID
+        xml = "<project name='#{project.name}'><repository name='repo_1'><arch>x86_64</arch></repository></project>"
+        xml_hash = Xmlhash.parse(xml)
+        Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
+        expect(repository_1.repository_architectures.pluck(:id)).to contain_exactly(arch2.id)
       end
     end
 
