@@ -119,7 +119,7 @@ sub set_repo_state {
   if (($oldcode eq '' || $oldcode eq 'finished') && $state ne 'finished') {
     # this repo is no longer finished, send event
     my $myarch = $ctx->{'gctx'}->{'arch'};
-    my $id = ($oldstate->{'oldbuildid'} || '0') . '-inprogress';
+    my $id = ($oldstate->{'buildid'} || $oldstate->{'oldbuildid'} || '0') . '-inprogress';
     BSNotify::notify('REPO_BUILD_STARTED', { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => $id} );
   }
   if ($state eq 'finished') {
