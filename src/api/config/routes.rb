@@ -174,6 +174,7 @@ OBSApi::Application.routes.draw do
       get 'patchinfo/new_tracker' => :new_tracker
       get 'patchinfo/delete_dialog' => :delete_dialog
     end
+
     controller 'webui/repositories' do
       get 'repositories/:project(/:package)' => :index, constraints: cons, as: 'repositories', defaults: { format: 'html' }
       get 'project/repositories/:project' => :index, constraints: cons, as: 'project_repositories'
@@ -182,7 +183,7 @@ OBSApi::Application.routes.draw do
       post 'project/save_repository' => :create
       post 'project/update_target/:project' => :update, constraints: cons
       get 'project/repository_state/:project/:repository' => :state, constraints: cons, as: 'project_repository_state'
-      post 'project/remove_target' => :destroy
+      post 'project/remove_target' => :destroy, as: 'destroy_repository'
       post 'project/create_dod_repository' => :create_dod_repository
       post 'project/create_image_repository' => :create_image_repository
 
@@ -271,7 +272,7 @@ OBSApi::Application.routes.draw do
       get 'project/requests/:project' => :requests, constraints: cons, as: 'project_requests'
       post 'project/save_path_element' => :save_path_element
       get 'project/remove_target_request_dialog' => :remove_target_request_dialog
-      post 'project/remove_target_request' => :remove_target_request
+      post 'project/remove_target_request' => :remove_target_request, as: 'project_remove_target_request'
       post 'project/remove_path_from_target' => :remove_path_from_target
       post 'project/release_repository/:project/:repository' => :release_repository, constraints: cons
       get 'project/release_repository_dialog/:project/:repository' => :release_repository_dialog, constraints: cons

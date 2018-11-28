@@ -60,3 +60,64 @@ function autocompleteSpinner(spinnerId, searching) {
     icon.next().addClass('d-none');
   }
 }
+
+function suggestRepositoryName(id, projectName, repositoryName){
+  $(id + ' #repo_name').val(projectName.replace(/:/g, '_') + '_' + repositoryName);
+}
+
+function autocompleteRepositories(id, projectName) {
+  var repositoriesId = (id + ' #target_repo');
+
+  $(repositoriesId).html('');
+  $(id + ' #repo_name').val('');
+  $(repositoriesId).prop('disabled', true);
+
+  if (projectName === '') return;
+
+  $.ajax({
+    url: $(repositoriesId).data('ajaxurl'),
+    data: { project: projectName },
+    success: function (data) {
+      if(data.length === 0) {
+        $(repositoriesId).append(new Option('No repositories found'));
+      } else {
+      $.each(data, function (idx, val) {
+        $(repositoriesId).append(new Option(val));
+      });
+
+      suggestRepositoryName(id, projectName, data[0]);
+
+      $(repositoriesId).prop('disabled', false);
+      }
+    }
+  });
+}
+
+function repositoriesSetupAutocomplete(id) { // jshint ignore:line
+  var inputId = (id + ' #target_project');
+  var icon = $(id + ' .project-search-icon i:first-child');
+
+  $(inputId).autocomplete({
+    appendTo: (id + ' .modal-body'),
+    source: $(inputId).data('ajaxurl'),
+    minLength: 2,
+    select: function(event, ui) {
+      autocompleteRepositories(id, ui.item.value);
+    },
+    change: function() {
+      autocompleteRepositories(id, $(inputId).val());
+    },
+    search: function() {
+      icon.addClass('d-none');
+      icon.next().removeClass('d-none');
+    },
+    response: function() {
+      icon.removeClass('d-none');
+      icon.next().addClass('d-none');
+    }
+  });
+
+  $(id + ' #target_repo').change(function () {
+    suggestRepositoryName(id, $(inputId).val(), $(this).val());
+  });
+}

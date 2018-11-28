@@ -1,0 +1,17 @@
+.modal.fade{ id: "request-delete-repository-#{repository.id}", tabindex: -1, role: 'dialog',
+             aria: { labelledby: 'request-delete-repository-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title
+          Do you really want to request the deletion of repository #{repository}
+      .modal-body
+        %p Please confirm deletion of '#{repository}' repository
+        = form_tag(project_remove_target_request_path(project: project, target: repository), method: :post) do
+          = hidden_field_tag :project, project
+          = hidden_field_tag :repository, repository
+          .form-group
+            = label_tag :description
+            = text_area_tag :description, '', row: 3, class: 'form-control'
+          .modal-footer
+            = render partial: 'webui2/shared/dialog_action_buttons'
