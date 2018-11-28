@@ -1,19 +1,4 @@
 module Webui::BuildresultHelper
-  STATUS_COLOR_HASH = {
-    'succeeded' => 'primary',
-    'building' => 'secondary',
-    'scheduled' => 'info',
-    'signing' => 'dark',
-    'finished' => 'dark',
-    'unresolvable' => 'danger',
-    'broken' => 'danger',
-    'failed' => 'danger',
-    'disabled' => 'black-50',
-    'blocked' => 'black-50',
-    'scheduled_warning' => 'warning',
-    'unknown' => 'warning'
-  }.freeze
-
   def arch_repo_table_cell(repo, arch, package_name, status = nil, enable_help = true)
     status ||= @statushash[repo][arch][package_name] || { 'package' => package_name }
     status_id = valid_xml_id("id-#{package_name}_#{repo}_#{arch}")
@@ -53,7 +38,7 @@ module Webui::BuildresultHelper
 
     if status['code']
       code = status['code']
-      theclass = "text-#{STATUS_COLOR_HASH[code.gsub(/[- ]/, '_')]}"
+      theclass = "build-state-#{code}"
       # special case for scheduled jobs with constraints limiting the workers a lot
       theclass = 'text-warning' if code == 'scheduled' && link_title.present?
     end
