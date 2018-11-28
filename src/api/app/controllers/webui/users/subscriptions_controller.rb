@@ -2,6 +2,7 @@ class Webui::Users::SubscriptionsController < Webui::WebuiController
   before_action :require_login
 
   def index
+    switch_to_webui2 if User.current.try(:in_beta?) && Rails.env.development?
     @user = User.current
     @groups_users = User.current.groups_users
 
