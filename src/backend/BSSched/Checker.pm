@@ -115,11 +115,10 @@ sub set_repo_state {
   my $newstate = { %$oldstate, 'code' => $state, 'details' => $details };
   delete $newstate->{'details'} unless $details;
 
-  my $oldcode = $oldstate->{'code'} || '';
-  if (($oldcode eq '' || $oldcode eq 'finished') && $state ne 'finished') {
+  if ($state eq 'building' && !defined($oldstate->{'oldbuildid'})) {
     # this repo is no longer finished, send event
     my $myarch = $ctx->{'gctx'}->{'arch'};
-    my $id = ($oldstate->{'buildid'} || $oldstate->{'oldbuildid'} || '0') . '-inprogress';
+    my $id = ($oldstate->{'buildid'} || '0') . '-inprogress';
     BSNotify::notify('REPO_BUILD_STARTED', { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => $id} );
   }
   if ($state eq 'finished') {
@@ -130,15 +129,15 @@ sub set_repo_state {
     @s = stat("$gdst/:bininfo");
     $id .= " bininfo:$s[9]/$s[7]/$s[1]" if @s;
     $id = Digest::MD5::md5_hex($id);
-    # we send the event if the buildid changed or the old state was not finished
-    if (($oldstate->{'buildid'} || $oldstate->{'oldbuildid'} || '') ne $id || $oldcode ne $state) {
+    # we send the event if the buildid changed or we were in progress
+    if (defined($oldstate->{'oldbuildid'}) || ($oldstate->{'buildid'} || '') ne $id) {
       my $myarch = $ctx->{'gctx'}->{'arch'};
       BSNotify::notify('REPO_BUILD_FINISHED', { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => $id} );
     }
     $newstate->{'buildid'} = $id;
     delete $newstate->{'oldbuildid'};
-  } else {
-    # move buildid to oldbuildid as it is not stable yet
+  } elsif ($state eq 'building') {
+    # in progress: move buildid to oldbuildid as it is not stable yet
     my $id = delete $newstate->{'buildid'};
     $newstate->{'oldbuildid'} = $id if $id;
     # make sure that we have an oldbuildid

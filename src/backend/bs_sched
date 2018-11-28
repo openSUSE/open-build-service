@@ -999,7 +999,6 @@ eval {
       next;
     }
     print "  - $prp\n";
-    $ctx->set_repo_state('scheduling');
 
     if ($gctx->{'prpcheckuseforbuild'}->{$prp}) {
       my $packs = $projpacks->{$projid}->{'package'} || {};
@@ -1019,12 +1018,13 @@ eval {
     # Step 2b: set up pool and repositories
     ($state, $details) = $ctx->preparepool();
     if ($state ne 'scheduling') {
-      $ctx->set_repo_state($state, $details);
+      $ctx->set_repo_state($state, $details) unless $ctx->{'havedelayed'};
       print "    $details\n";
       print "    (delayed)\n" if $ctx->{'havedelayed'};
       sendrepochangeevent($gctx, $prp);
       next;
     }
+    $ctx->set_repo_state('scheduling');
 
     # setup our special expander
     my $xp = BSSolv::expander->new($ctx->{'pool'}, $ctx->{'conf'});
