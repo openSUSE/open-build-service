@@ -1,18 +1,17 @@
 include ../Makefile.include
 
-INIT_SCRIPTS          := obsscheduler obsworker obsstoragesetup
 LOGROTATE_CONFIGS     := obs-api obs-server obs-source_service
 OBS_BIN_SCRIPTS       := obs_productconvert
-OBS_SBIN_SCRIPTS      := obs_admin obs_serverstatus
+OBS_SBIN_SCRIPTS      := obs_admin obs_serverstatus obsscheduler obsworker obsstoragesetup
 SYSTEMD_TARGET_FILES  := obs-api-support
-SYSTEMD_SERVICE_FILES := obs-clockwork obs-delayedjob-queue-project_log_rotate obs-delayedjob-queue-consistency_check obs-delayedjob-queue-default obs-delayedjob-queue-releasetracking obs-delayedjob-queue-issuetracking obs-delayedjob-queue-mailers obs-sphinx obsdeltastore obsdispatcher obsdodup obswarden obssrcserver obsrepserver obspublisher obssigner obsservice obsservicedispatch obsgetbinariesproxy obsclouduploadserver obsclouduploadworker obsapisetup
+SYSTEMD_SERVICE_FILES := obs-clockwork obs-delayedjob-queue-project_log_rotate obs-delayedjob-queue-consistency_check obs-delayedjob-queue-default obs-delayedjob-queue-releasetracking obs-delayedjob-queue-issuetracking obs-delayedjob-queue-mailers obs-sphinx obsdeltastore obsdispatcher obsdodup obswarden obssrcserver obsrepserver obspublisher obssigner obsservice obsservicedispatch obsgetbinariesproxy obsclouduploadserver obsclouduploadworker obsscheduler obsworker obsstoragesetup obsapisetup
 SYSTEMD_SERVICE_FILES_WITHOUT_LINK := obs-delayedjob-queue-quick@
 
 FILLUPDIR             := /var/adm/fillup-templates
 
 UNITDIR=/usr/lib/systemd/system/
 
-install: install_obsapisetup install_apache install_initscripts install_project_update install_logrotate install_fillups install_slp install_obs_bin install_overview install_tests_appliance install_crontabs install_systemd_services
+install: install_obsapisetup install_apache install_project_update install_logrotate install_fillups install_slp install_obs_bin install_overview install_tests_appliance install_crontabs install_systemd_services
 
 #install_overview
 
@@ -22,10 +21,6 @@ install_obsapisetup: system_dirs
 install_apache:
 	$(INSTALL) -d -m 755  $(DESTDIR)$(APACHE_CONIFGDIR_VHOST)
 	$(INSTALL) -m 644 $(APACHE_VHOST_CONF) $(DESTDIR)$(APACHE_CONIFGDIR_VHOST)/obs.conf
-
-install_initscripts: system_dirs
-	$(foreach script,$(INIT_SCRIPTS),$(shell $(INSTALL) -m 755 $(script) $(DESTDIR)/etc/init.d/$(script)) )
-	$(foreach script,$(INIT_SCRIPTS),$(shell ln -sf /etc/init.d/$(script) $(DESTDIR)/usr/sbin/rc$(script)) )
 
 install_systemd_services: system_dirs
 	$(foreach target,$(SYSTEMD_TARGET_FILES),$(shell $(INSTALL) -m 644 ./systemd/$(target).target $(DESTDIR)$(UNITDIR)$(target).target) )
@@ -56,7 +51,6 @@ install_crontabs:
 
 system_dirs:
 	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_BACKEND_PREFIX)
-	$(INSTALL) -d -m 755 $(DESTDIR)/etc/init.d/
 	$(INSTALL) -d -m 755 $(DESTDIR)/etc/logrotate.d/
 	$(INSTALL) -d -m 755 $(DESTDIR)/etc/slp.reg.d/
 	$(INSTALL) -d -m 755 $(DESTDIR)/etc/cron.d/

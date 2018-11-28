@@ -206,10 +206,10 @@ class Webui::ProjectController < Webui::WebuiController
     @comment = Comment.new
     render :show, status: params[:nextstatus] if params[:nextstatus]
 
-    # TODO: Remove the `return unless` and the flash once this should be available to all beta users
-    return unless User.current && User.current.in_beta? && (User.current.is_admin? || User.current.is_staff?)
+    # TODO: Remove the `return unless` and the flash once this should be available to all beta users on all environments
+    return unless User.current && User.current.in_beta? && (Rails.env.development? || Rails.env.test?)
+    flash[:notice] = "We are currently migrating the project pages to Bootstrap. It's active only on the development and test environments while this is work-in-progress."
 
-    flash[:notice] = 'We are currently migrating the project pages to Bootstrap. Only admins and staff see this version while this is work-in-progress.'
     switch_to_webui2
   end
 
@@ -546,6 +546,7 @@ class Webui::ProjectController < Webui::WebuiController
     sliced_params.permit!
 
     @content = @project.config.content(sliced_params.to_h)
+    switch_to_webui2
     return if @content
     flash[:error] = @project.config.errors.full_messages.to_sentence
     redirect_to controller: 'project', nextstatus: 404
@@ -562,11 +563,13 @@ class Webui::ProjectController < Webui::WebuiController
 
     if content
       flash.now[:success] = 'Config successfully saved!'
-      render layout: false, partial: 'layouts/webui/flash', object: flash
+      status = 200
     else
       flash.now[:error] = @project.config.errors.full_messages.to_sentence
-      render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
+      status = 400
     end
+    switch_to_webui2
+    render layout: false, status: status, partial: 'layouts/webui2/flash', object: flash
   end
 
   def clear_failed_comment
