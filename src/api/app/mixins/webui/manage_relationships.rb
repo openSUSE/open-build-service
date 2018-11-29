@@ -14,11 +14,7 @@ module Webui::ManageRelationships
     rescue NotFoundError,
            Relationship::SaveError => e
       flash[:error] = e.to_s
-      if params[:webui2]
-        redirect_to users_path
-      else
-        redirect_to add_path(:add_person)
-      end
+      redirect_to add_path(:add_person)
       return
     end
     respond_to do |format|
@@ -37,11 +33,7 @@ module Webui::ManageRelationships
     rescue NotFoundError,
            Relationship::SaveError => e
       flash[:error] = e.to_s
-      if params[:webui2]
-        redirect_to users_path
-      else
-        redirect_to add_path(:add_group)
-      end
+      redirect_to add_path(:add_group)
       return
     end
     respond_to do |format|

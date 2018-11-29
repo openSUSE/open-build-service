@@ -1,0 +1,4 @@
+= render partial: 'webui/main/breadcrumb_items'
+- if current_page?(user_notifications_path)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Notifications

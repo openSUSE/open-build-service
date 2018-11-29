@@ -82,6 +82,8 @@ class Webui::ProjectController < Webui::WebuiController
     @users = @project.users
     @groups = @project.groups
     @roles = Role.local_roles
+
+    switch_to_webui2
   end
 
   def subprojects
@@ -229,6 +231,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def buildresult
+    switch_to_webui2 if params[:switch].present?
     check_ajax
     render partial: 'buildstatus', locals: { project: @project, buildresults: @project.buildresults }
   end
@@ -569,7 +572,8 @@ class Webui::ProjectController < Webui::WebuiController
       status = 400
     end
     switch_to_webui2
-    render layout: false, status: status, partial: 'layouts/webui2/flash', object: flash
+    namespace = switch_to_webui2? ? 'webui2' : 'webui'
+    render layout: false, status: status, partial: "layouts/#{namespace}/flash", object: flash
   end
 
   def clear_failed_comment

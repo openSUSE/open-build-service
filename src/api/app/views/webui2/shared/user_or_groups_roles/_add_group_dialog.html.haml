@@ -18,7 +18,6 @@
             = select_tag 'role', options_for_select(Role.local_roles, nil), required: true, class: 'form-control'
           = hidden_field_tag 'package', package
           = hidden_field_tag 'project', project
-          = hidden_field_tag 'webui2', true
         .modal-footer
           = render partial: 'webui2/shared/dialog_action_buttons'
 
