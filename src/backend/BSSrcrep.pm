@@ -250,17 +250,18 @@ sub lsfiles {
   close F;
   chomp @files;
   my $files = {map {substr($_, 34) => substr($_, 0, 32)} @files};
-  # hack: do not list _signkey in project meta
   if ($linkinfo) {
     $linkinfo->{'lsrcmd5'} = $files->{'/LOCAL'} if $files->{'/LOCAL'};
     $linkinfo->{'srcmd5'} = $files->{'/LINK'} if $files->{'/LINK'};
     $linkinfo->{'xservicemd5'} = $files->{'/SERVICE'} if $files->{'/SERVICE'};
     $linkinfo->{'lservicemd5'} = $files->{'/LSERVICE'} if $files->{'/LSERVICE'};
+    $linkinfo->{'lxservicemd5'} = $files->{'/LXSERVICE'} if $files->{'/LXSERVICE'};
   }
   delete $files->{'/LINK'};
   delete $files->{'/LOCAL'};
   delete $files->{'/SERVICE'};
   delete $files->{'/LSERVICE'};
+  delete $files->{'/LXSERVICE'};
   return $files;
 }
 
@@ -388,12 +389,13 @@ sub havelinkerror {
 # like addmeta, but adds service information after a source
 # service finished successfully. stores under the "wrong" md5sum.
 sub addmeta_service {
-  my ($projid, $packid, $files, $srcmd5, $lservicemd5) = @_;
+  my ($projid, $packid, $files, $srcmd5, $lservicemd5, $lxservicemd5) = @_;
   my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
   return if -e "$treedir/$srcmd5-MD5SUMS";      # huh? why did we run twice?
   my $meta = '';
-  $meta .= "$files->{$_}  $_\n" for grep {$_ ne '/SERVICE' && $_ ne '/LSERVICE'} sort keys %$files;
+  $meta .= "$files->{$_}  $_\n" for grep {$_ ne '/SERVICE' && $_ ne '/LSERVICE' && $_ ne '/LXSERVICE'} sort keys %$files;
   $meta .= "$lservicemd5  /LSERVICE\n";
+  $meta .= "$lxservicemd5  /LXSERVICE\n" if $lxservicemd5;
   mkdir_p($uploaddir);
   mkdir_p($treedir);
   writestr("$uploaddir/$$", "$treedir/$srcmd5-MD5SUMS", $meta);
@@ -420,8 +422,9 @@ sub can_reuse_oldservicemark {
   my $nsrcmd5 = Digest::MD5::md5_hex($meta);
   # calculate new meta
   $meta = '';
-  $meta .= "$files->{$_}  $_\n" for grep {$_ ne '/SERVICE' && $_ ne '/LSERVICE'} sort keys %$files;
+  $meta .= "$files->{$_}  $_\n" for grep {$_ ne '/SERVICE' && $_ ne '/LSERVICE' && $_ ne '/LXSERVICE'} sort keys %$files;
   $meta .= "$nsrcmd5  /LSERVICE\n";
+  $oldmeta =~ s/\n[0-9a-f]{32}  \/LXSERVICE\n/\n/s;		# delete old lxservice line for comparison
   return 1 if $oldmeta eq $meta;
   return 0;
 }

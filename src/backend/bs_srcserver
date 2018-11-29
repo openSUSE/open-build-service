@@ -3176,8 +3176,10 @@ sub copyproject {
       }
       BSSrcrep::copyfiles($projid, $packid, $oprojid, $packid, $files);
       $files->{'/SERVICE'} = $servicemark if $servicemark;
+      my $srcmd5 = BSSrcrep::addmeta($projid, $packid, $files);
+      delete $files->{'/SERVICE'};
       my $newrev = { %$lastorev };
-      $newrev->{'srcmd5'} = BSSrcrep::addmeta($projid, $packid, $files);
+      $newrev->{'srcmd5'} = $srcmd5;
       $newrev->{'user'} = $user;
       $newrev->{'comment'} = $comment;
       $newrev->{'requestid'} = $cgi->{'requestid'};

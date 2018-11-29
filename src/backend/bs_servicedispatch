@@ -92,7 +92,7 @@ sub getrev {
 }
 
 sub runservice {
-  my ($projid, $packid, $servicemark, $srcmd5, $revid, $sendsrcmd5, $projectservicesmd5, $oldsrcmd5) = @_;
+  my ($projid, $packid, $servicemark, $srcmd5, $revid, $lxservicemd5, $projectservicesmd5, $oldsrcmd5) = @_;
 
   print "dispatching service $projid/$packid $servicemark $srcmd5\n";
   # get revision and file list
@@ -115,8 +115,8 @@ sub runservice {
  
   # get files to send to service daemon
   my $sendfiles = $files;
-  if ($sendsrcmd5) {
-    my $lrev = getrev($projid, $packid, $sendsrcmd5);
+  if ($lxservicemd5) {
+    my $lrev = getrev($projid, $packid, $lxservicemd5);
     $sendfiles = BSRevision::lsrev($lrev);
     # drop all service files
     delete $sendfiles->{$_} for grep {/^_service:/} keys %$sendfiles;
