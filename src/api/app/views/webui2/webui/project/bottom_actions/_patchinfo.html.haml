@@ -1,0 +1,12 @@
+- if has_patchinfo
+  %li.list-inline-item
+    = link_to(patchinfo_show_path(project, 'patchinfo'), class: 'nav-link') do
+      %span.fa-stack.half-font-size.text-info
+        %i.far.fa-file.fa-stack-2x
+        %i.fas.fa-search.fa-stack-1x
+      Show Patchinfo
+- else
+  %li.list-inline-item
+    = link_to(patchinfo_new_patchinfo_path(project: project), method: :post, class: 'nav-link') do
+      %i.fas.fa-plus-circle.text-primary
+      Create Patchinfo
