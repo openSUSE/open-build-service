@@ -294,7 +294,7 @@ class Project
       check_for_duplicated_archs!(xml_archs)
 
       architectures = []
-      xml_archs.each.with_index(1) do |archname, position|
+      xml_archs.each_with_index do |archname, position|
         architecture = Architecture.from_cache!(archname)
         current_repo.repository_architectures.find_or_create_by(architecture: architecture).insert_at(position)
         architectures << architecture
