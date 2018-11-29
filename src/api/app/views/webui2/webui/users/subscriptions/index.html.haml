@@ -1,0 +1,41 @@
+:ruby
+  @layouttype = 'custom'
+  @pagetitle = 'Notifications'
+
+.card
+  .card-header
+    %h5 Notifications
+  .card-body
+    = form_tag(user_notifications_path, method: :put, id: 'notification_form') do
+      - unless @groups_users.empty?
+        .card-block
+          %h3 Groups
+          %p You will receive emails from the checked groups
+          - @groups_users.each do |group_user|
+            .custom-control.custom-checkbox.custom-control-inline
+              = check_box_tag group_user.group, '1', group_user.email, class: 'custom-control-input', id: "checkbox-#{group_user.group}"
+              = label_tag group_user.group.title, nil, class: 'custom-control-label', for: "checkbox-#{group_user.group}"
+        %br
+      .card-block
+        %h3 Events
+        %p Choose from which events you want to get an email
+        %ul.list-group.list-group-flush
+        #subscriptions-form
+          = render partial: 'webui/subscriptions/subscriptions_form'
+        .card-body
+          = submit_tag 'Update', class: 'btn btn-primary'
+          = link_to('Reset to default', user_notifications_path(default_form: true), remote: true)
+
+.card
+  .card-body
+    %h3 RSS Feed
+    = form_tag(user_rss_token_path, id: 'generate_rss_token_form', method: :post) do
+      %p
+      - if @user.rss_token
+        To access your RSS feeds, use the following url:
+        = link_to(user_rss_notifications_url(token: @user.rss_token.string, format: 'rss'),
+        user_rss_notifications_url(token: @user.rss_token.string, format: 'rss'), target: '_blank')
+      - else
+        No feed url exists for your notifications.
+      .card-body
+        = submit_tag "#{@user.rss_token ? 'Regenerate Url' : 'Generate Url'}", class: 'btn btn-primary'
