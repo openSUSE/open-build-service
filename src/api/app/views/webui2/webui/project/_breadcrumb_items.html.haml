@@ -19,3 +19,6 @@
   - elsif current_page?(project_config_path(@project))
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Configuration
+  - elsif current_page?(project_meta_path(@project))
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      Meta
