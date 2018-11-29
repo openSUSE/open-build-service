@@ -120,8 +120,6 @@ module Staging
     end
 
     def build_state
-      set_buildinfo
-
       return :building if building_repositories.present?
       return :failed if broken_packages.present?
 
