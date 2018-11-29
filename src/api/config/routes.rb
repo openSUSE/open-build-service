@@ -252,7 +252,7 @@ OBSApi::Application.routes.draw do
       post 'project/new_release_request/(:project)' => :new_release_request, constraints: cons
       get 'project/show/(:project)' => :show, constraints: cons, as: 'project_show'
       get 'project/packages_simple/:project' => :packages_simple, constraints: cons
-      get 'project/linking_projects/:project' => :linking_projects, constraints: cons
+      get 'project/linking_projects/:project' => :linking_projects, constraints: cons, as: :linking_projects
       get 'project/add_person/:project' => :add_person, constraints: cons
       get 'project/add_group/:project' => :add_group, constraints: cons
       get 'project/buildresult' => :buildresult, constraints: cons, as: 'project_buildresult'
