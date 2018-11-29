@@ -15,7 +15,7 @@
         .dropdown-menu.dropdown-menu-right
 
   .card-body
-    .tab-content
+    .tab-content.obs-dataTable
       .tab-pane.fade.show.active#involved-packages{ role: 'tabpanel', aria: { labelledby: 'involved-packages-tab' } }
         - if involved_packages.blank?
           %p.md-3
@@ -71,5 +71,8 @@
                     = link_to(project_name, project_show_path(project: project_name))
 
 = content_for :ready_function do
-  $('#involved-packages-table,#involved-projects-table,#owned-table').DataTable();
+  :plain
+    $('#involved-packages-table, #involved-projects-table, #owned-table').DataTable({
+      language: { search: '', searchPlaceholder: "Search..." }
+    });
 
