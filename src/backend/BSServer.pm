@@ -474,10 +474,12 @@ sub reply {
   # work around linux tcp implementation problem, the read side
   # must be empty otherwise a tcp-reset is done when we close
   # the socket, leading to data loss
-  fcntl($clnt, F_SETFL, O_NONBLOCK);
-  my $dummy = '';
-  1 while sysread($clnt, $dummy, 1024, 0);
-  fcntl($clnt, F_SETFL, 0);
+  if (!$req->{'no_drain_clnt'}) {
+    fcntl($clnt, F_SETFL, O_NONBLOCK);
+    my $dummy = '';
+    1 while sysread($clnt, $dummy, 1024, 0);
+    fcntl($clnt, F_SETFL, 0);
+  }
 
   my $l;
   while (length($data)) {
