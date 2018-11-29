@@ -571,7 +571,8 @@ class Webui::ProjectController < Webui::WebuiController
       status = 400
     end
     switch_to_webui2
-    render layout: false, status: status, partial: 'layouts/webui2/flash', object: flash
+    namespace = switch_to_webui2? ? 'webui2' : 'webui'
+    render layout: false, status: status, partial: "layouts/#{namespace}/flash", object: flash
   end
 
   def clear_failed_comment
