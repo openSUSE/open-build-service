@@ -43,12 +43,14 @@ sub notify_repservers {
 }
 
 sub addrev_service {
-  my ($rev, $servicemark, $files, $error) = @_;
+  my ($rev, $servicemark, $files, $error, $lxservicemd5) = @_;
 
   if ($error) {
     chomp $error;
     $error ||= 'unknown service error';
   }
+  my $projid = $rev->{'project'};
+  my $packid = $rev->{'package'};
   if ($files->{'_service_error'} && !$error) {
     $error = BSRevision::revreadstr($rev, '_service_error', $files->{'_service_error'});
     chomp $error;
@@ -56,12 +58,12 @@ sub addrev_service {
   }
   if (!$error) {
     eval {
-      BSSrcrep::addmeta_service($rev->{'project'}, $rev->{'package'}, $files, $servicemark, $rev->{'srcmd5'});
+      BSSrcrep::addmeta_service($projid, $packid, $files, $servicemark, $rev->{'srcmd5'}, $lxservicemd5);
     };
     $error = $@ if $@;
   }
   if ($error) {
-    BSSrcrep::addmeta_serviceerror($rev->{'project'}, $rev->{'package'}, $servicemark, $error);
+    BSSrcrep::addmeta_serviceerror($projid, $packid, $servicemark, $error);
     $error =~ s/[\r\n]+$//s;
     $error =~ s/.*[\r\n]//s;
     $error = str2utf8xml($error) || 'unknown service error';
@@ -75,12 +77,12 @@ sub addrev_service {
   $comment = '' unless defined $comment;
   $comment = str2utf8xml($comment);
   my $p = {
-    'project' => $rev->{'project'}, 'package' => $rev->{'package'}, 'rev' => $rev->{'rev'},
+    'project' => $projid, 'package' => $packid, 'rev' => $rev->{'rev'},
     'user' => $user, 'comment' => $comment, 'requestid' => $requestid,
   };
   $p->{'error'} = $error if $error;
   BSNotify::notify($error ? 'SRCSRV_SERVICE_FAIL' : 'SRCSRV_SERVICE_SUCCESS', $p);
-  notify_repservers('package', $rev->{'project'}, $rev->{'package'});
+  notify_repservers('package', $projid, $packid);
 }
 
 
@@ -182,7 +184,7 @@ sub runservice {
   }
   BSUtil::cleandir($odir);
   rmdir($odir);
-  addrev_service($rev, $servicemark, $files, $error);
+  addrev_service($rev, $servicemark, $files, $error, $lxservicemd5);
 }
 
 sub getevent {
