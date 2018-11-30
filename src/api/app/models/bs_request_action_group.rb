@@ -171,11 +171,8 @@ class BsRequestActionGroup < BsRequestAction
   end
 
   def find_review_state_of_group
-    bs_requests.each do |req|
-      req.reviews.each do |rev|
-        return :review if rev.state != :accepted
-      end
-    end
+    return :review if bs_requests.joins(:reviews).where.not('reviews.state': :accepted).exists?
+
     :new
   end
 
