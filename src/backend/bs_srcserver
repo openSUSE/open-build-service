@@ -4206,7 +4206,8 @@ sub uploadbuild {
         my $files = lsrev_expanded($rev);
         my $newmb = BSSrcServer::Multibuild::getmultibuild_fromfiles($projid, $mbpackid, $files);
         if (grep {$_ eq $flavor} @{$newmb->{'flavor'} || $newmb->{'package'} || []}) {
-	  BSSrcServer::Multibuild::updatemultibuild($projid, $packid, $files, 1);
+	  BSSrcServer::Multibuild::updatemultibuild($projid, $mbpackid, $files, 1);
+	  notify_repservers('package', $projid, $mbpackid);
 	}
       };
       warn($@) if $@;
