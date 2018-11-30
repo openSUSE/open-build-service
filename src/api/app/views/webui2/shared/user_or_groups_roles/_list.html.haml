@@ -1,6 +1,6 @@
 - records.each do |record|
   %tr{ id: "#{type}-#{valid_xml_id(record.to_s)}" }
-    %td
+    %td.align-middle
       = user_with_realname_and_icon(record) if type == 'user'
       = link_to(record.to_s, controller: 'groups', action: 'show', title: record.to_s) if type == 'group'
     - roles.each do |role|
