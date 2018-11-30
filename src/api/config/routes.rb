@@ -281,7 +281,7 @@ OBSApi::Application.routes.draw do
       # TODO: this should be POST (and the link AJAX)
       get 'project/toggle_watch/:project' => :toggle_watch, constraints: cons, as: 'project_toggle_watch'
       get 'project/meta/:project' => :meta, constraints: cons, as: 'project_meta'
-      post 'project/save_meta/:project' => :save_meta, constraints: cons
+      post 'project/save_meta/:project' => :save_meta, constraints: cons, as: :project_save_meta
       get 'project/prjconf/:project' => :prjconf, constraints: cons, as: :project_config
       post 'project/save_prjconf/:project' => :save_prjconf, constraints: cons, as: :save_project_config
       get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons
@@ -305,8 +305,8 @@ OBSApi::Application.routes.draw do
     get 'project/staging_projects/:project/:project_name' => 'webui/obs_factory/staging_projects#show', as: 'staging_project', constraints: cons
 
     controller 'webui/projects/rebuild_times' do
-      get 'project/rebuild_time/:project/:repository/:arch' => :show, constraints: cons, as: 'project_rebuild_time'
-      get 'project/rebuild_time_png/:project/:key' => :rebuild_time_png, constraints: cons
+      get 'project/rebuild_time/:project/:repository/:arch' => :show, constraints: cons, as: :project_rebuild_time
+      get 'project/rebuild_time_png/:project/:key' => :rebuild_time_png, constraints: cons, as: :project_rebuild_time_png
     end
 
     resources :projects, only: [], param: :name do

@@ -269,6 +269,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       end
 
       scenario 'adding DoD repositories via meta editor' do
+        skip_if_bootstrap
         fixture_file = File.read(Rails.root + 'test/fixtures/backend/download_on_demand/project_with_dod.xml').
                        gsub('user5', admin_user.login)
 
