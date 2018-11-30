@@ -2,10 +2,10 @@
   .card-body
     = webui2_user_image_tag(user, 'home-avatar')
 
-    %h4.home-usertitle
-      .home-username
+    %h4.home-usertitle.mt-4.mb-3
+      #home-realname
         = user.realname
-      .home-login
+      .mt-2#home-login
         = user.login
 
     - unless user.is_nobody?
