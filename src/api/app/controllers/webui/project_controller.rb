@@ -505,6 +505,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   def meta
     @meta = @project.render_xml
+    switch_to_webui2
   end
 
   def save_meta
@@ -535,13 +536,16 @@ class Webui::ProjectController < Webui::WebuiController
       errors << exception.message
     end
 
-    if errors.empty?
-      flash.now[:success] = 'Config successfully saved!'
-      render layout: false, partial: 'layouts/webui/flash', object: flash
-    else
-      flash.now[:error] = errors.compact.join("\n")
-      render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
-    end
+    status = if errors.empty?
+               flash.now[:success] = 'Config successfully saved!'
+               200
+             else
+               flash.now[:error] = errors.compact.join("\n")
+               400
+             end
+    switch_to_webui2
+    namespace = switch_to_webui2? ? 'webui2' : 'webui'
+    render layout: false, status: status, partial: "layouts/#{namespace}/flash", object: flash
   end
 
   def prjconf
