@@ -5,6 +5,7 @@ require 'nokogiri'
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
 
+# rubocop:disable Metrics/BlockLength
 RSpec.describe BsRequest, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tux') }
   let(:target_project) { create(:project, name: 'target_project') }
@@ -134,6 +135,57 @@ RSpec.describe BsRequest, vcr: true do
       expect { request.addreview(by_user: 'NOEXIST') }.to raise_error do |exception|
         expect(exception).to be_a(BsRequest::InvalidReview)
         expect(exception.message.to_s).to eq('Review invalid: By user NOEXIST not found')
+      end
+    end
+  end
+
+  describe '#change_review_state' do
+    let(:user) { create(:confirmed_user) }
+    let!(:request) { create(:bs_request, creator: user.login) }
+    let(:reviewer) { create(:confirmed_user) }
+    let(:someone) { create(:confirmed_user) }
+
+    context 'with by_user review' do
+      before do
+        User.current = user
+        request.addreview(by_user: reviewer, comment: 'does it look ok?')
+      end
+
+      it 'raises exception on missing by_ paramter' do
+        expect do
+          request.change_review_state(:accepted)
+        end.to raise_error(BsRequest::InvalidReview)
+      end
+
+      it 'raises exception on wrong user' do
+        expect do
+          request.change_review_state(:accepted, by_user: someone.login)
+        end.to raise_error(Review::NotFoundError)
+        expect(request.state).to be(:review)
+      end
+
+      context 'with the proper reviewer' do
+        subject { request.change_review_state(:accepted, by_user: reviewer.login) }
+
+        it 'moves to new' do
+          expect { subject }.not_to raise_error
+          expect(request.state).to be(:new)
+        end
+
+        it 'sends 3 events', rabbitmq: '#' do
+          empty_message_queue
+          subject
+
+          body = expect_message('opensuse.obs.request.review_changed')
+          expect(body).to include('author' => user.login)
+
+          body = expect_message('opensuse.obs.request.reviews_done')
+          expect(body).to include('author' => user.login, 'state' => 'new', 'comment' => 'All reviewers accepted request', 'number' => request.number)
+
+          expect_message('opensuse.obs.metrics', "request.reviews_done,state=new number=#{request.number}")
+
+          expect_no_message
+        end
       end
     end
   end
@@ -664,3 +716,4 @@ RSpec.describe BsRequest, vcr: true do
     end
   end
 end
+# rubocop:enable Metrics/BlockLength
