@@ -414,8 +414,9 @@ OBSApi::Application.routes.draw do
       get 'group/new' => :new
       post 'group/create' => :create
       get 'group/edit/:title' => :edit, constraints: { title: /[^\/]*/ }, as: :group_edit_title
-      post 'group/update/:title' => :update, constraints: { title: /[^\/]*/ }
+      post 'group/update/:title' => :update, constraints: { title: /[^\/]*/ }, as: :group_update
       get 'group/autocomplete' => :autocomplete
+      delete 'group/:title/delete/:user' => :delete, constraints: { title: /[^\/]*/ }, as: :group_user_delete
     end
 
     resources :comments, constraints: cons, only: [:create, :destroy], controller: 'webui/comments'

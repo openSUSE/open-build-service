@@ -1,7 +1,7 @@
 - @pagetitle = "Group #{@group}"
 
 .card
-  %div
+  .bg-light
     %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
       %li.nav-item
         %a.active.nav-link.text-nowrap#reviews-in-tab{ aria: { controls: 'reviews-in', selected: 'true' },
@@ -20,38 +20,50 @@
         %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', 'role': 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
         .dropdown-menu.dropdown-menu-right
 
-  .card-body.tab-content
-    .tab-pane.show.active#reviews-in{ aria: { controls: 'reviews-in' }, role: 'tabpanel' }
-      %h3 Incoming Reviews
-      = render(partial: 'webui2/shared/requests_table', locals: { id: 'reviews_in_table', source_url: group_requests_path(@group) })
+  .card-body
+    .tab-content
+      .tab-pane.show.active#reviews-in{ aria: { controls: 'reviews-in' }, role: 'tabpanel' }
+        %h3 Incoming Reviews
+        = render(partial: 'webui2/shared/requests_table', locals: { id: 'reviews_in_table', source_url: group_requests_path(@group) })
 
-    .tab-pane#requests-in{ aria: { controls: 'requests-in' }, role: 'tabpanel' }
-      %h3 Incoming Requests
-      = render(partial: 'webui2/shared/requests_table', locals: { id: 'requests_in_table', source_url: group_requests_path(@group) })
+      .tab-pane#requests-in{ aria: { controls: 'requests-in' }, role: 'tabpanel' }
+        %h3 Incoming Requests
+        = render(partial: 'webui2/shared/requests_table', locals: { id: 'requests_in_table', source_url: group_requests_path(@group) })
 
-    .tab-pane#all-requests{ aria: { controls: 'all-requests' }, role: 'tabpanel' }
-      %h3 All Requests
-      = render(partial: 'webui2/shared/requests_table', locals: { id: 'all_requests_table', source_url: group_requests_path(@group) })
+      .tab-pane#all-requests{ aria: { controls: 'all-requests' }, role: 'tabpanel' }
+        %h3 All Requests
+        = render(partial: 'webui2/shared/requests_table', locals: { id: 'all_requests_table', source_url: group_requests_path(@group) })
 
-    .tab-pane#group-members{ aria: { controls: 'group-members' }, role: 'tabpanel' }
-      %h3 Group Members
-      .obs-dataTable
-        %table.table.table-striped.table-bordered.w-100#group-members-table
-          %thead
-            %tr
-              %th Login Name
-          %tbody
-            - if @group.users.any?
-              - @group.users.each do |user|
-                %tr
-                  %td= link_to(user, user_show_path(user))
-            - else
+      .tab-pane#group-members{ aria: { controls: 'group-members' }, role: 'tabpanel' }
+        %h3 Group Members
+        .obs-dataTable
+          %table.table.table-striped.table-bordered.w-100#group-members-table
+            %thead
               %tr
-                %td This group does not contain users.
-        - if User.current.is_admin? || @group.group_maintainers.where(user: User.current).exists?
-          = link_to group_edit_title_path(title: @group) do
-            %i.fas.fa-edit
-            Edit group members
+                %th Login Name
+                %th
+            %tbody
+              - if @group.users.any?
+                - @group.users.each do |user|
+                  %tr
+                    %td= link_to(user, user_show_path(user))
+                    %td.text-nowrap
+                      = link_to('#', data: { toggle: 'modal', target: "#delete-group-user-#{user.id}-modal" }) do
+                        %i.fas.fa-times-circle.text-danger{ title: "Remove user '#{user}' from '#{@group}' group." }
+                      = render(partial: 'remove_user_modal', locals: { group: @group, user: user })
+              - else
+                %tr
+                  %td{ colspan: 2 } This group does not contain users.
+          - if policy(@group).update?
+            = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#add-user-modal' }, id: 'add-user') do
+              %i.fas.fa-plus-circle.text-primary
+              Add User
+            = render(partial: 'add_user_modal', locals: { group: @group })
 
 = content_for :ready_function do
-  initializeDataTable('#group-members-table');
+  :plain
+    var hash = document.location.hash;
+    if (hash) {
+      $('.nav-tabs a[href="' + hash.replace('tab-', '') + '"]').tab('show');
+    }
+    initializeDataTable('#group-members-table');
