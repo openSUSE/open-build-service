@@ -1,8 +1,17 @@
-.card-body h1, .card-body h2, .card-body h3, .card-body h4, .card-body h5, .card-body h6 {
-    color: $primary;
-}
+.card {
+  .card-header {
+    &.d-flex.justify-content-between {
+      h5 { @extend .mb-0 }
+    }
+  }
+  .card-body {
+    h1, h2, h3, h4, h5, h6 {
+      color: $primary;
+    }
+  }
 
-.card .nav-tabs .nav-link.active {
+  .nav-tabs .nav-link.active {
     background-color: $card-bg;
     border-bottom-color: $card-bg;
+  }
 }
