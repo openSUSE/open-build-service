@@ -231,6 +231,11 @@ OBSApi::Application.routes.draw do
       end
     end
 
+    controller 'webui/projects/meta' do
+      get 'project/meta/:project' => :show, constraints: cons, as: 'project_meta'
+      post 'project/save_meta/:project' => :update, constraints: cons, as: :project_save_meta
+    end
+
     controller 'webui/project' do
       get 'project/' => :index, as: 'projects'
       get 'project/list_public' => :index
@@ -280,8 +285,6 @@ OBSApi::Application.routes.draw do
       get 'project/package_buildresult/:project' => :package_buildresult, constraints: cons
       # TODO: this should be POST (and the link AJAX)
       get 'project/toggle_watch/:project' => :toggle_watch, constraints: cons, as: 'project_toggle_watch'
-      get 'project/meta/:project' => :meta, constraints: cons, as: 'project_meta'
-      post 'project/save_meta/:project' => :save_meta, constraints: cons, as: :project_save_meta
       get 'project/prjconf/:project' => :prjconf, constraints: cons, as: :project_config
       post 'project/save_prjconf/:project' => :save_prjconf, constraints: cons, as: :save_project_config
       get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons
