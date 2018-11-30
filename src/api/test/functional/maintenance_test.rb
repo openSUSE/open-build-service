@@ -1396,7 +1396,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get "/request/#{reqid}"
     assert_response :success
-    assert_xml_tag(parent: { tag: 'state' }, tag: 'comment', content: 'blahfasel')
+    assert_xml_tag(parent: { tag: 'review' }, tag: 'comment', content: 'blahfasel')
+    assert_xml_tag(parent: { tag: 'state' }, tag: 'comment', content: 'All reviewers accepted request')
 
     SendEventEmailsJob.new.perform
     ActionMailer::Base.deliveries.clear
