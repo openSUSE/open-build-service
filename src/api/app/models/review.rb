@@ -70,6 +70,14 @@ class Review < ApplicationRecord
     self[:state].to_sym
   end
 
+  def declined?
+    state == :declined
+  end
+
+  def accepted?
+    state == :accepted
+  end
+
   def accepted_at
     if review_assigned_to && review_assigned_to.state == :accepted
       review_assigned_to.accepted_history_element.created_at
