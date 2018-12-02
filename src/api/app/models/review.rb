@@ -229,6 +229,26 @@ class Review < ApplicationRecord
       by_package && by_package == opts[:by_package]
   end
 
+  def change_state(new_state, comment)
+    return false if state == new_state && reviewer == User.current.login && reason == comment
+
+    self.reason = comment
+    self.state = new_state
+    self.reviewer = User.current.login
+    save!
+    Event::ReviewChanged.create(bs_request.notify_parameters)
+
+    arguments = { review: self, comment: comment, user: User.current }
+    if new_state == :accepted
+      HistoryElement::ReviewAccepted.create(arguments)
+    elsif new_state == :declsined
+      HistoryElement::ReviewDeclined.create(arguments)
+    elsif new_state == :new
+      HistoryElement::ReviewReopened.create(arguments)
+    end
+    true
+  end
+
   private
 
   # The authoritative storage are the by_ attributes as even when a record (project, package ...) got deleted

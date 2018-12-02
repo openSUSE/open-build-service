@@ -714,6 +714,21 @@ class BsRequest < ApplicationRecord
     end
   end
 
+  def find_review_for_opts(opts)
+    reviews.reverse_each do |review|
+      return review if review.reviewable_by?(opts)
+    end
+    nil
+  end
+
+  def supersede_request(history_arguments, superseded_opt)
+    self.state = :superseded
+    self.superseded_by = superseded_opt
+    history_arguments[:description_extension] = superseded_by.to_s
+    save!
+    HistoryElement::RequestSuperseded.create(history_arguments)
+  end
+
   def change_review_state(new_review_state, opts = {})
     with_lock do
       new_review_state = new_review_state.to_sym
@@ -725,73 +740,35 @@ class BsRequest < ApplicationRecord
       unless new_review_state.in?([:new, :accepted, :declined, :superseded])
         raise InvalidStateError, "review state must be new, accepted, declined or superseded, was #{new_review_state}"
       end
-      found = false
 
       old_request_state = state
+      review = find_review_for_opts(opts)
+      raise Review::NotFoundError unless review
 
-      reviews_seen = {}
-      reviews.reverse_each do |review|
-        matching = true
-        matching = false if review.by_user && review.by_user != opts[:by_user]
-        matching = false if review.by_group && review.by_group != opts[:by_group]
-        matching = false if review.by_project && review.by_project != opts[:by_project]
-        matching = false if review.by_package && review.by_package != opts[:by_package]
+      return unless review.change_state(new_review_state, opts[:comment] || '')
 
-        rkey = "#{review.by_user}@#{review.by_group}@#{review.by_project}@#{review.by_package}"
-
-        # This is needed for MeeGo BOSS, which adds multiple reviews by_user
-        # FIXME3.0: think about review ordering and make reviews addressable
-        next unless matching && !(reviews_seen.key?(rkey) && review.state == :accepted)
-        reviews_seen[rkey] = 1
-        found = true
-        comment = opts[:comment] || ''
-        next unless review.state != new_review_state || review.reviewer != User.current.login || review.reason != comment
-        review.reason = comment
-        review.state = new_review_state
-        review.reviewer = User.current.login
-        review.save!
-        Event::ReviewChanged.create(notify_parameters)
-
-        history = nil
-        history = HistoryElement::ReviewAccepted if new_review_state == :accepted
-        history = HistoryElement::ReviewDeclined if new_review_state == :declined
-        history = HistoryElement::ReviewReopened if new_review_state == :new
-        history.create(review: review, comment: opts[:comment], user_id: User.current.id) if history
-      end
-      raise Review::NotFoundError unless found
-      history = nil
-      p = { request: self, comment: opts[:comment], user_id: User.current.id }
-      if new_review_state == :superseded
-        self.state = :superseded
-        self.superseded_by = opts[:superseded_by]
-        history = HistoryElement::RequestSuperseded
-        p[:description_extension] = superseded_by.to_s
-        save!
-        history.create(p)
-        return
-      end
+      history_parameters = { request: self, comment: opts[:comment], user_id: User.current.id }
+      return supersede_request(history_parameters, opts[:superseded_by]) if new_review_state == :superseded
 
       new_request_state = calculate_state_from_reviews
       return if new_request_state == old_request_state
-      self.comment = opts[:comment]
+
+      self.comment = review.reason
       self.state = new_request_state
       self.commenter = User.current.login
       if new_request_state == :new
-        history = HistoryElement::RequestAllReviewsApproved
         self.comment = 'All reviewers accepted request'
         save!
         Event::RequestReviewsDone.create(notify_parameters)
+        HistoryElement::RequestAllReviewsApproved.create(history_parameters)
         # pre-approved requests can be processed
         BsRequestAutoAcceptJob.perform_later(id) if approver
       elsif new_request_state == :review
         save!
       elsif new_request_state == :declined
-        history = HistoryElement::RequestDeclined
+        HistoryElement::RequestDeclined.create(history_parameters)
         save!
-      else
-        raise "Unhandled state #{go_new_state} for history"
       end
-      history.create(p) if history
     end
   end
 
