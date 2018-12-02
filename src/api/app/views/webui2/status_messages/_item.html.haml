@@ -1,15 +1,7 @@
 .list-group-item.list-group-item-integrated.border-left-0.border-right-0.small
   .row
     .col-1
-      - case message.severity.to_i
-        - when 1
-          %i.fa.fa-check-circle.fa-lg.text-success{ title: 'Success' }
-        - when 2
-          %i.fa.fa-exclamation-triangle.fa-lg.text-warning{ title: 'Warning' }
-        - when 3
-          %i.fa.fa-exclamation-circle.fa-lg.text-danger{ title: 'Alert' }
-        - else
-          %i.fa.fa-info-circle.fa-lg.text-info{ title: 'Info' }
+      %i.fa.fa-lg{ icon_for_status(message) }
     .col
       %small
         = user_with_realname_and_icon(message.user, short: true)

@@ -14,13 +14,13 @@
               %i.fa.fa-archive.fa-lg.text-warning{ title: 'Package' }
             - else
               %i.fa.fa-cubes.fa-lg.text-secondary{ title: 'Project' }
-          .col
-            %span.d-inline-block.text-truncate
+          .col.text-truncate
+            %span
               - if update[1] == :package
                 = link_to(package_show_path(project: update[3], package: update[2])) do
                   = update[2]
               - else
                 = link_to(project_show_path(update[1])) do
                   = update[1]
-            %p.small.mb-0
+            %p.small.mt-1.mb-0
               = fuzzy_time(update[0])
