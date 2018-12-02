@@ -1,16 +1,16 @@
 .list-group-item.list-group-item-integrated.border-left-0.border-right-0.small
   .row
-    .col-2.pl-2.text-center
+    .col-1
       - case message.severity.to_i
         - when 1
-          %i.fa.fa-check-circle.fa-2x.text-success.pt-3{ title: 'Success' }
+          %i.fa.fa-check-circle.fa-lg.text-success{ title: 'Success' }
         - when 2
-          %i.fa.fa-exclamation-triangle.fa-2x.text-warning.pt-3{ title: 'Warning' }
+          %i.fa.fa-exclamation-triangle.fa-lg.text-warning{ title: 'Warning' }
         - when 3
-          %i.fa.fa-exclamation-circle.fa-2x.text-danger.pt-3{ title: 'Alert' }
+          %i.fa.fa-exclamation-circle.fa-lg.text-danger{ title: 'Alert' }
         - else
-          %i.fa.fa-info-circle.fa-2x.text-info.pt-3{ title: 'Info' }
-    .col-10.pl-0
+          %i.fa.fa-info-circle.fa-lg.text-info{ title: 'Info' }
+    .col
       %small
         = user_with_realname_and_icon(message.user, short: true)
         wrote #{time_ago_in_words(message.created_at)} ago
