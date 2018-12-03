@@ -1,5 +1,5 @@
 %ul.list-unstyled
-  - if is_maintenance_project
+  - if project.is_maintenance?
     = render partial: 'webui2/webui/project/side_links/maintenance_project', locals: { open_maintenance_incidents: open_maintenance_incidents,
                                                                                        project: project,
                                                                                        maintained_projects: maintained_projects }
@@ -11,7 +11,7 @@
     - if has_patchinfo
       = render partial: 'webui2/webui/project/side_links/patchinfo_present', locals: { project: project }
 
-    - if is_incident_project
+    - if project.is_maintenance_incident?
       = render partial: 'webui2/webui/project/side_links/incident_project', locals: { has_patchinfo: has_patchinfo,
                                                                                       project: project,
                                                                                       open_release_requests: open_release_requests }
