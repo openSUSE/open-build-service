@@ -808,7 +808,7 @@ sub create_jobdata {
 =cut
 
 sub add_expanddebug {
-  my ($ctx, $type, $xp) = @_;
+  my ($ctx, $type, $xp, $pool) = @_;
   my $expanddebug = $ctx->{'expanddebug'};
   return unless ref($expanddebug);
   $xp ||= $ctx->{'expander'};
@@ -820,6 +820,7 @@ sub add_expanddebug {
   return unless $dbg;
   $$expanddebug .= "\n" if $$expanddebug;
   $$expanddebug .= "=== $type\n";
+  $$expanddebug .= "path: ".join(' ', map {$_->name()} $pool->repos())."\n" if $pool;
   $$expanddebug .= $dbg;
   $dbg = $xp->debugstr();
   $ctx->{"xp_cut_hack$xp"} = length($dbg) if $dbg;	# sigh
@@ -932,7 +933,7 @@ sub create {
     @bdeps = (1, @$edeps);      # reuse edeps packages, no need to expand again
   } else {
     @bdeps = Build::get_build($bconf, $subpacks, @bdeps);
-    add_expanddebug($ctx, 'build expansion') if $expanddebug;
+    add_expanddebug($ctx, 'build expansion', undef, $ctx->{'pool'}) if $expanddebug;
   }
   if (!shift(@bdeps)) {
     if ($ctx->{'verbose'}) {
