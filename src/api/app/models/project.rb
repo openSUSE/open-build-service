@@ -1588,7 +1588,7 @@ class Project < ApplicationRecord
 
   def get_removed_repositories(request_data)
     new_repositories = request_data.elements('repository').map(&:values).flatten
-    old_repositories = repositories.all.map(&:name)
+    old_repositories = repositories.pluck(:name)
 
     removed = old_repositories - new_repositories
 

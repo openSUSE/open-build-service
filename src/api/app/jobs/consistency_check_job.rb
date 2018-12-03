@@ -110,7 +110,7 @@ class ConsistencyCheckJob < ApplicationJob
   def project_existence_consistency_check(fix = nil)
     errors = ''
     # compare projects
-    project_list_api = Project.all.pluck(:name).sort!
+    project_list_api = Project.order(:name).pluck(:name)
     begin
       project_list_backend = dir_to_array(Xmlhash.parse(Backend::Api::Sources::Project.list))
     rescue Backend::NotFoundError

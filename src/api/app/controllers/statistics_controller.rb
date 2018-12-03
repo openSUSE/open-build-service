@@ -180,13 +180,13 @@ class StatisticsController < ApplicationController
 
     # get devel projects
     ids = Package.joins('left outer join packages d on d.develpackage_id = packages.id').
-          where('d.project_id = ?', @project.id).pluck('packages.project_id').sort!.uniq
+          where('d.project_id = ?', @project.id).distinct.order('packages.project_id').pluck('packages.project_id')
     ids << @project.id
-    projects = Project.where('id in (?)', ids).select(:name).map(&:name)
+    projects = Project.where('id in (?)', ids).pluck(:name)
 
     # get all requests to it
-    reqs = BsRequestAction.where(target_project: projects).select(:bs_request_id).map(&:bs_request_id).uniq.sort
-    reqs = BsRequest.where('id in (?)', reqs).select([:id, :created_at, :creator])
+    actions = BsRequestAction.where(target_project: projects).select(:bs_request_id)
+    reqs = BsRequest.where(id: actions).select([:id, :created_at, :creator])
     if params[:raw] == '1'
       render json: reqs
       return

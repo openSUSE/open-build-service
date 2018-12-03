@@ -779,7 +779,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     @is_maintenance_project = @project.is_maintenance?
     if @is_maintenance_project
-      @open_maintenance_incidents = @project.maintenance_incidents.pluck('projects.name').sort!.uniq
+      @open_maintenance_incidents = @project.maintenance_incidents.distinct.order('projects.name').pluck('projects.name')
 
       @maintained_projects = @project.maintained_project_names
     end
