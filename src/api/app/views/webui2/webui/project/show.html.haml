@@ -17,13 +17,11 @@
           - else
             = simple_format(@project.description)
       .col-md-4
-        = render partial: 'side_links', locals: { is_maintenance_project: @is_maintenance_project,
-                                                  open_maintenance_incidents: @open_maintenance_incidents,
+        = render partial: 'side_links', locals: { open_maintenance_incidents: @open_maintenance_incidents,
                                                   project: @project,
                                                   maintained_projects: @maintained_projects,
                                                   nr_of_problem_packages: @nr_of_problem_packages,
                                                   has_patchinfo: @has_patchinfo,
-                                                  is_incident_project: @is_incident_project,
                                                   open_release_requests: @open_release_requests,
                                                   release_targets: @releasetargets,
                                                   requests: @requests,
