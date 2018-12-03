@@ -37,7 +37,7 @@ class SourceController < ApplicationController
   end
 
   def projectlist
-    @project_names = Project.pluck(:name).sort
+    @project_names = Project.pluck(:name).sort!
     render formats: [:xml]
   end
 

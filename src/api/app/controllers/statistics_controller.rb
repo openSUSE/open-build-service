@@ -180,7 +180,7 @@ class StatisticsController < ApplicationController
 
     # get devel projects
     ids = Package.joins('left outer join packages d on d.develpackage_id = packages.id').
-          where('d.project_id = ?', @project.id).pluck('packages.project_id').sort.uniq
+          where('d.project_id = ?', @project.id).pluck('packages.project_id').sort!.uniq
     ids << @project.id
     projects = Project.where('id in (?)', ids).select(:name).map(&:name)
 

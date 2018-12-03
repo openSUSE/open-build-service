@@ -4,7 +4,7 @@ class StatusHistory < ApplicationRecord
 
     where("time >= ? AND \`key\` = ?", starttime, key).
       pluck(:time, :value).
-      collect { |time, value| [time.to_i, value.to_f] }
+      collect! { |time, value| [time.to_i, value.to_f] }
   end
 end
 

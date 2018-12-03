@@ -49,7 +49,7 @@ class Webui::MonitorController < Webui::WebuiController
       end
       @workers_sorted = {}
       @workers_sorted = workers.sort_by { |a| a[0] } if workers
-      @available_arch_list = Architecture.available.pluck(:name).sort
+      @available_arch_list = Architecture.available.pluck(:name).sort!
     end
   end
 

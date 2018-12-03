@@ -1610,7 +1610,7 @@ class Project < ApplicationRecord
     end
 
     unless linking_repositories.empty?
-      str = linking_repositories.map { |l| l.project.name + '/' + l.name }.join("\n")
+      str = linking_repositories.map! { |l| l.project.name + '/' + l.name }.join("\n")
       return { error: "Unable to delete repository; following repositories depend on this project:\n#{str}" }
     end
 
