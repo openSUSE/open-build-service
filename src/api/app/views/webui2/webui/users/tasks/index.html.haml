@@ -26,7 +26,7 @@
         %li.nav-item
           %a.nav-link.text-nowrap#requests-out-tab{ href: '#requests-out', title: "Requests that #{User.current} has sent",
             'data-toggle': 'tab', 'aria-controls': 'requests-out-tab', 'aria-selected': 'false', role: 'tab' }
-            Outgoing Requests
+            Outgoing Requests (#{User.current.outgoing_requests.count})
         %li.nav-item
           %a.nav-link.text-nowrap#requests-declined-tab{ href: '#requests-declined', title: "Requests from #{User.current} that are declined",
             'data-toggle': 'tab', 'aria-controls': 'requests-declined-tab', 'aria-selected': 'false', role: 'tab' }
@@ -34,7 +34,7 @@
         %li.nav-item
           %a.nav-link.text-nowrap#all-requests-tab{ href: '#all-requests', title: "All Requests from #{User.current}",
             'data-toggle': 'tab', 'aria-controls': 'all-requests-tab', 'aria-selected': 'false', role: 'tab' }
-            All Requests
+            All Requests (#{User.current.requests.count})
         %li.nav-item.dropdown
           %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', 'role': 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
           .dropdown-menu.dropdown-menu-right
@@ -56,7 +56,7 @@
         %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
           %li.nav-item
             %a.nav-link.text-nowrap.active{ href: '#patchinfos-in', title: "Requests that #{User.current} has to merge" }
-              Maintenance Requests
+              Maintenance Requests (#{involved_patchinfos.size})
       .card-body
         .tab-content#patchinfos-in
           = render(partial: 'webui2/shared/patchinfos_table', locals: { involved_patchinfos: involved_patchinfos })
