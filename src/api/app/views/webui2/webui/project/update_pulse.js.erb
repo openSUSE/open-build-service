@@ -1,0 +1,3 @@
+$('#range-header').html("<%= escape_javascript render partial: "range_#{@range}" %>");
+$('#range-text').html("<%= @range.titleize %>");
+$('#pulse').html("<%= escape_javascript render partial: 'pulse_list' %>");

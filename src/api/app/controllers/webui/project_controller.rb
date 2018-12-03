@@ -20,7 +20,7 @@ class Webui::ProjectController < Webui::WebuiController
                                      :status, :maintained_projects,
                                      :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
                                      :maintenance_incidents, :unlock_dialog, :unlock, :save_person, :save_group, :remove_role,
-                                     :move_path, :save_prjconf, :clear_failed_comment, :pulse]
+                                     :move_path, :save_prjconf, :clear_failed_comment, :pulse, :update_pulse]
 
   # TODO: check if get_by_name or set_by_name is used for save_prjconf
   before_action :set_project_by_name, only: [:save_prjconf]
@@ -96,7 +96,35 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def pulse
+    switch_to_webui2
     @pulse = @project.project_log_entries.page(params[:page])
+  end
+
+  def update_pulse
+    @range = params[:range] == 'month' ? 'month' : 'week'
+    case @range
+    when 'month'
+      range = 1.month.ago..Date.tomorrow
+    else
+      range = 1.week.ago..Date.tomorrow
+    end
+
+    pulse = @project.project_log_entries.where(datetime: range).order(datetime: :asc)
+    @builds = pulse.where(event_type: [:build_fail, :build_success])
+    @new_packages = pulse.where(event_type: :create_package)
+    @deleted_packages = pulse.where(event_type: :delete_package)
+    @branches = pulse.where(event_type: :branch_command)
+    @commits = pulse.where(event_type: :commit)
+    @updates = pulse.where(event_type: :version_change)
+    @comments = pulse.where(event_type: [:comment_for_package, :comment_for_project])
+    @project_changes = pulse.where(event_type: [:update_project, :update_project_config])
+
+    @requests = @project.target_of_bs_requests.where(updated_at: range).order(updated_at: :desc)
+    # group by state, sort by value...
+    @requests_by_state = @requests.group(:state).count.sort_by(&:last).reverse.to_h
+    # transpose to percentages
+    @requests_by_percentage = @requests_by_state.each_with_object({}) { |(k, v), hash| hash[k] = (v * 100.0 / @requests_by_state.values.sum).round.to_s } if @requests_by_state.any?
+    switch_to_webui2
   end
 
   def new

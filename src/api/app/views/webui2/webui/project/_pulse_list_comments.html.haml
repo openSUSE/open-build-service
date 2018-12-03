@@ -1,0 +1,10 @@
+- if @comments.any?
+  - people = @comments.group(:user_name).count
+  %b
+    = pluralize(people.count, 'person')
+  added
+  %b
+    = pluralize(@comments.count, 'comment')
+  in here.
+- else
+  And no one commented in here.

@@ -300,6 +300,7 @@ OBSApi::Application.routes.draw do
       get 'project/maintenance_incidents/:project' => :maintenance_incidents, constraints: cons, as: :project_maintenance_incidents
       get 'project/list_incidents/:project' => :list_incidents, constraints: cons
       get 'project/pulse/:project' => :pulse, constraints: cons, as: :project_pulse
+      get 'project/update_pulse/:project' => :update_pulse, constraints: cons, as: :update_project_pulse
       get 'project/unlock_dialog' => :unlock_dialog
       post 'project/unlock' => :unlock
     end

@@ -1,0 +1,91 @@
+.row
+  .col
+    %p
+      During this period
+      = render partial: 'pulse_list_commits'
+    %p
+      = render partial: 'pulse_list_builds'
+      = render partial: 'pulse_list_new'
+      = render partial: 'pulse_list_changes'
+    %p
+      = render partial: 'pulse_list_branches'
+      = render partial: 'pulse_list_comments'
+
+  .col
+    .card
+      .card-header
+        Requests
+      .card-body
+        - if @requests.any?
+          .row
+            .col
+              .progress
+                -# haml-lint:disable InlineStyles
+                - @requests_by_percentage.each do |state, percentage|
+                  %div{ title: "#{@requests_by_state[state]} #{state} requests",
+                        class: "progress-bar progress-state-#{state}",
+                        'aria-valuemax': '100', 'aria-valuemin': '0', 'aria-valuenow': percentage,
+                        role: 'progressbar', style: "width: #{percentage}%" }
+                -# haml-lint:enable InlineStyles
+              %p
+                = link_to('#pulse-requests') do
+                  = @requests_by_state.values.sum
+                  active requests
+          .row
+            - @requests_by_state.each_key do |state|
+              .col.border.text-center
+                %p.fa-3x
+                  %i{ class: "fa #{request_bootstrap_icon(state)} request-state-#{state}" }
+                %p
+                  = pluralize(@requests_by_state[state], 'request')
+                  %br
+                  in #{state}
+        - else
+          = link_to(project_requests_path(@project)) do
+            There have been no requests send to this project.
+.row
+  .col
+    %h3
+      Package Changes
+    %hr
+    %ul.list-unstyled
+      - (@commits + @new_packages + @deleted_packages + @updates).sort_by(&:datetime).reverse_each do |log_entry|
+        %li
+          = render partial: 'pulse_list_entry', locals: { log_entry: log_entry }
+    %h3
+      Project Changes
+    %hr
+    %ul.list-unstyled
+      - @project_changes.each do |log_entry|
+        %li
+          = render partial: 'pulse_list_entry', locals: { log_entry: log_entry }
+    %h3
+      Collaboration
+    %hr
+    %ul.list-unstyled
+      - @branches.each do |log_entry|
+        %li
+          = render partial: 'pulse_list_entry', locals: { log_entry: log_entry }
+      - @comments.each do |log_entry|
+        %li
+          = render partial: 'pulse_list_entry', locals: { log_entry: log_entry }
+    %h3#pulse-requests
+      Requests
+    %hr
+    .row
+      - @requests.each do |request|
+        %dt.col-1
+          %span{ class: "badge progress-state-#{request.state} text-light" }
+            = request.state.to_s
+        %dd.col-11
+          = link_to(request_show_path(request.number)) do
+            = request.number
+          (#{truncate(request.description)})
+          - if request.request_history_elements.any?
+            = request.request_history_elements.last.description.gsub('Request', '')
+          - else
+            was created
+          by
+          = link_to(user_show_path(request.creator)) do
+            = request.creator
+          = fuzzy_time(request.updated_at)

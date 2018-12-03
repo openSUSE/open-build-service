@@ -1,0 +1,7 @@
+- if @branches.any?
+  Packages from this project have been
+  %b
+    branched
+    = pluralize(@branches.count, 'time')
+- else
+  No one branched packages from this project.
