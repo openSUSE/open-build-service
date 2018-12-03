@@ -2446,11 +2446,14 @@ sub getfilelist {
     # new style
     $serviceinfo = {};
     $serviceinfo->{'lsrcmd5'} = $li->{'lservicemd5'} if $li->{'lservicemd5'};
+    # $serviceinfo->{'lxsrcmd5'} = $li->{'lxservicemd5'} if $li->{'lxservicemd5'};
     if ($li->{'xservicemd5'}) {
       if ($cgi->{'expand'}) {
 	$serviceinfo->{'lsrcmd5'} = $rev->{'srcmd5'};
-	$files = BSSrcServer::Service::handleservice($rev, $files, $li->{'xservicemd5'});
+	my $sli = {};
+	$files = BSSrcServer::Service::handleservice($rev, $files, $li->{'xservicemd5'}, $sli);
 	$serviceinfo->{'code'} = 'succeeded';	# otherwise it already died...
+	# $serviceinfo->{'lxsrcmd5'} = $sli->{'lxservicemd5'} if $sli->{'lxservicemd5'};
       } else {
         eval { BSSrcServer::Service::handleservice({ %$rev }, $files, $li->{'xservicemd5'}) };
 	my $error = $@;
@@ -2469,6 +2472,7 @@ sub getfilelist {
     }
     delete $li->{'xservicemd5'};
     delete $li->{'lservicemd5'};
+    delete $li->{'lxservicemd5'};
   } elsif ($files->{'_service'} && $packid ne '_project' && !$cgi->{'meta'} && !defined($cgi->{'rev'})) {
     # check error/in progress
     $serviceinfo = {};
