@@ -28,7 +28,12 @@
                                                   package: @package,
                                                   linking_projects: @linking_projects,
                                                   project_maintenance_project: @project_maintenance_project }
-      = render partial: 'bottom_actions'
+      = render partial: 'bottom_actions', locals: { bugowners_mail: @bugowner_mail,
+                                                    project: @project,
+                                                    packages: @packages,
+                                                    has_patchinfo: @has_patchinfo,
+                                                    open_release_requests: @open_release_requests,
+                                                    release_targets: @releasetargets }
 .overview
   .build-results
     = render partial: 'webui2/shared/buildresult_box', locals: { project: @project.name }
@@ -46,3 +51,19 @@
         (#{ @comments.length})
       .card-body#comments
         = render partial: 'webui2/webui/comment/show', locals: { commentable: @project }
+
+- unless User.current.is_nobody?
+  - if @project.is_locked? && User.current.can_modify?(@project, true)
+    = render partial: 'unlock_project_dialog', locals: { project: @project }
+  - elsif User.current.can_modify?(@project)
+    = render partial: 'edit_project_dialog', locals: { project: @project }
+    = render partial: 'delete_project_dialog', locals: { project: @project }
+
+    - if !@project.defines_remote_instance? && @project.is_maintenance_incident? && @packages.present? && @has_patchinfo
+      && @open_release_requests.blank?
+      = render partial: 'project_release_request_dialog', locals: { project: @project }
+    - elsif !@project.is_maintenance?
+      = render partial: 'project_submit_update_dialog', locals: { project: @project, release_targets: @releasetargets }
+  - elsif !@project.is_locked?
+    = render partial: 'webui2/webui/request/add_role_request_dialog', locals: { project: @project }
+    = render partial: 'webui2/webui/request/delete_request_dialog', locals: { project: @project }
