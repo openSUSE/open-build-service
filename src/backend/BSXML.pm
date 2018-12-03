@@ -380,6 +380,7 @@ our $serviceinfo = [
 	'code',         # can be "running", "failed", "succeeded"
 	'xsrcmd5',
 	'lsrcmd5',
+	'lxsrcmd5',
         [],
 	'error',        # contains error message (with new lines) in case of error
 ];
@@ -471,6 +472,7 @@ our $sourceinfo = [
 	'srcmd5',
 	'lsrcmd5',
 	'verifymd5',
+	'metamd5',
 	[],
 	'filename',
 	'error',

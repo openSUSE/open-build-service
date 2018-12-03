@@ -101,6 +101,7 @@ sub check {
   my $cprp;	# container prp
   my $cbdep;	# container bdep for job
   my $cmeta;	# container meta entry
+  my $expanddebug = $ctx->{'expanddebug'};
 
   my @containerdeps = grep {/^container:/} @deps;
   if (@containerdeps) {
@@ -114,6 +115,7 @@ sub check {
     # expand to container package name
     my $xp = BSSolv::expander->new($cpool, $ctx->{'conf'});
     my ($cok, @cdeps) = $xp->expand($cdep);
+    BSSched::BuildJob::add_expanddebug($ctx, 'container expansion', $xp, $cpool) if $expanddebug;
     return ('unresolvable', join(', ', @cdeps)) unless $cok;
     return ('unresolvable', 'weird result of container expansion') if @cdeps != 1;
 
@@ -243,14 +245,13 @@ sub check {
   delete $bconf->{'ignore'};
   delete $bconf->{'ignoreh'};
 
-  my $expanddebug = $ctx->{'expanddebug'};
   local $Build::expand_dbg = 1 if $expanddebug;
   my $xp = BSSolv::expander->new($pool, $bconf);
   no warnings 'redefine';
   local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
   use warnings 'redefine';
   my ($eok, @edeps) = Build::get_build($bconf, [], @deps, '--ignoreignore--');
-  BSSched::BuildJob::add_expanddebug($ctx, 'docker image expansion', $xp) if $expanddebug;
+  BSSched::BuildJob::add_expanddebug($ctx, 'docker image expansion', $xp, $pool) if $expanddebug;
   if (!$eok) {
     if ($ctx->{'verbose'}) {
       print "      - $packid ($buildtype)\n";
