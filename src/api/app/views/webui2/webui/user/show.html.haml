@@ -2,22 +2,18 @@
   @pagetitle = "Home of #{@displayed_user}"
 
 .row
-  .col-12.col-md-3
-    .card
-      .card-body
-        = render partial: 'webui2/webui/user/info', locals: { user: @displayed_user,
-                                                              is_user: @is_displayed_user,
-                                                              groups: @groups,
-                                                              role_titles: @role_titles,
-                                                              configuration: @configuration,
-                                                              account_edit_link: @account_edit_link }
-  .col-12.col-md
-    .card
-      .card-body
-        = render partial: 'webui2/webui/user/involvement', locals: { user: @displayed_user,
-                                                                     owned_packages: @owned,
-                                                                     involved_projects: @iprojects,
-                                                                     involved_packages: @ipackages }
+  .col-12.col-md-4.col-lg-3
+    = render partial: 'webui2/webui/user/info', locals: { user: @displayed_user,
+                                                          is_user: @is_displayed_user,
+                                                          groups: @groups,
+                                                          role_titles: @role_titles,
+                                                          configuration: @configuration,
+                                                          account_edit_link: @account_edit_link }
+  .col-12.col-md-8.col-lg-9
+    = render partial: 'webui2/webui/user/involvement', locals: { user: @displayed_user,
+                                                                 owned: @owned,
+                                                                 involved_projects: @iprojects,
+                                                                 involved_packages: @ipackages }
 
 = render partial: 'password_dialog', locals: { user: @displayed_user }
 = render partial: 'edit_dialog', locals: { user: @displayed_user }
