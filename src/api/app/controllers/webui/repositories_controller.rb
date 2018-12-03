@@ -111,7 +111,9 @@ class Webui::RepositoriesController < Webui::WebuiController
   end
 
   # GET project/repository_state/:project/:repository
-  def state; end
+  def state
+    switch_to_webui2
+  end
 
   # POST /project/create_dod_repository
   def create_dod_repository

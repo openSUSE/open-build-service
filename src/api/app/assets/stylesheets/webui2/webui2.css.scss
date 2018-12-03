@@ -41,7 +41,19 @@
 @import 'repositories';
 @import 'project-package-show-grid';
 @import 'user';
+@import 'watchlist';
 
 html {
     overflow-y: scroll !important;
 }
+
+.dataTable {
+  table-layout: fixed
+}
+
+// TODO: Delete when bug is fixed: https://github.com/mkhairi/jquery-datatables/issues/14
+.obs-dataTable div.dataTables_filter input {
+  width: 100% !important;
+  margin-left: 0 !important;
+}
+
