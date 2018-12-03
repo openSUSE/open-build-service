@@ -23,8 +23,7 @@
         %div
           - build_results.sort_by(&:architecture).each do |build_result|
             .row.py-1
-              .col.col-sm-2.col-md
-              .col-4.col-sm-3.text-nowrap{ title: "#{repository} summary" }
+              .col-4.col-sm-3.offset-2.offset-sm-4.text-nowrap{ title: "#{repository} summary" }
                 :ruby
                   icon = webui2_repo_status_icon(build_result.state)
                   description = webui2_repo_status_description(build_result.state, build_result.details)
