@@ -472,6 +472,7 @@ our $sourceinfo = [
 	'srcmd5',
 	'lsrcmd5',
 	'verifymd5',
+	'metamd5',
 	[],
 	'filename',
 	'error',

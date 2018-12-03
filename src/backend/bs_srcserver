@@ -5557,6 +5557,10 @@ sub sourceinfo {
   my $linked = [];
   my $rev;
   my $files;
+  if ($cgi->{'withmetamd5'} && $packid !~ /(?<!^_product)(?<!^_patchinfo):./) {
+    my $meta = readstr("$projectsdir/$projid.pkg/$packid.xml", 1) || '';
+    $r->{'metamd5'} = Digest::MD5::md5_hex($meta);
+  }
   eval {
     $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'build', $linked);
     $r->{'srcmd5'} = $rev->{'srcmd5'} if $rev->{'srcmd5'} ne 'empty';
@@ -5566,17 +5570,19 @@ sub sourceinfo {
       die("no source uploaded\n") unless $cgi->{'nofilename'};
       $rev = {'srcmd5' => $BSSrcrep::emptysrcmd5, 'project' => $projid, 'package' => $packid };
     }
-    my $linkinfo = {};
-    $files = BSRevision::lsrev($rev, $linkinfo);
-    if ($linkinfo->{'xservicemd5'}) {
-      $files = BSSrcServer::Service::handleservice($rev, $files, $linkinfo->{'xservicemd5'});
-      $r->{'srcmd5'} = $rev->{'srcmd5'};
+    if (!$cgi->{'unexpanded'} && $packid ne '_project') {
+      my $linkinfo = {};
+      $files = BSRevision::lsrev($rev, $linkinfo);
+      if ($linkinfo->{'xservicemd5'}) {
+	$files = BSSrcServer::Service::handleservice($rev, $files, $linkinfo->{'xservicemd5'});
+	$r->{'srcmd5'} = $rev->{'srcmd5'};
+      }
+      my $meta = '';
+      $meta .= "$files->{$_}  $_\n" for sort keys %$files;
+      $r->{'verifymd5'} = Digest::MD5::md5_hex($meta);
+      die("source update running\n") if $files->{'_service'} && -e "$eventdir/service/${projid}::$packid";
+      die("source update failed\n") if $files->{'_service_error'};
     }
-    my $meta = '';
-    $meta .= "$files->{$_}  $_\n" for sort keys %$files;
-    $r->{'verifymd5'} = Digest::MD5::md5_hex($meta);
-    die("source update running\n") if $files->{'_service'} && -e "$eventdir/service/${projid}::$packid";
-    die("source update failed\n") if $files->{'_service_error'};
   };
   $r->{'originproject'} = $rev->{'originproject'} if $rev && $rev->{'originproject'};
   $r->{'originpackage'} = $rev->{'package'} if $rev && $rev->{'originpackage'};
@@ -5586,6 +5592,7 @@ sub sourceinfo {
     $r->{'error'} =~ s/\n$//s;
     return $r;
   }
+  return $r if $cgi->{'unexpanded'} || $packid eq '_project';
   if ($files->{'_link'}) {
     $rev->{'linkrev'} = $cgi->{'linkrev'} if $cgi->{'linkrev'};
     eval {
@@ -5690,7 +5697,8 @@ sub getprojectsourceinfo {
   my $proj = checkprojrepoarch($projid, $cgi->{'repository'}, $cgi->{'arch'}, 1);
   my @packages = @{$cgi->{'package'} || []};
   BSSrcServer::Projlink::enable_frozenlinks_cache();
-  @packages = findpackages($projid, $proj) unless @packages;
+  BSRevision::readproj_local_use_cache(1);
+  @packages = findpackages($projid, $proj, undef, undef, $cgi->{'noexpand'}) unless @packages;
   my $bconf;
   if (!$cgi->{'nofilename'}) {
     if (!$cgi->{'repository'}) {
@@ -5720,6 +5728,7 @@ sub getprojectsourceinfo {
   for my $packid (@packages) {
     push @res, sourceinfo($cgi, $projid, $packid, $bconf);
   }
+  BSRevision::readproj_local_use_cache(0);
   BSSrcServer::Projlink::disable_frozenlinks_cache();
   return ({'sourceinfo' => \@res}, $BSXML::sourceinfolist);
 }
@@ -6333,7 +6342,7 @@ my $dispatches = [
   'POST:/source/$project cmd=freezelink user:? comment:? requestid:num?' => \&freezeprojectlink,
   'POST:/source/$project cmd=notifypackagechange' => \&notifypackagechange,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
-  '/source/$project view=info parse:bool? nofilename:bool? repository? arch? package* withchangesmd5:bool?' => \&getprojectsourceinfo,
+  '/source/$project view=info parse:bool? nofilename:bool? repository? arch? package* withchangesmd5:bool? unexpanded:bool? withmetamd5:bool?' => \&getprojectsourceinfo,
   '/source/$project deleted:bool? expand:bool? noorigins:bool?' => \&getpackagelist,
 
   'DELETE:/source/$project user:? comment:? requestid:num?' => \&delproject,
@@ -6371,7 +6380,7 @@ my $dispatches = [
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,	# obsolete
 
   '/source/$project/$package view=getmultibuild' => \&getmultibuildpackages,
-  '/source/$project/$package view=info rev? linkrev? parse:bool? nofilename:bool? repository? arch? withchangesmd5:bool?' => \&getpackagesourceinfo,
+  '/source/$project/$package view=info rev? linkrev? parse:bool? nofilename:bool? repository? arch? withchangesmd5:bool? unexpanded:bool? withmetamd5:bool?' => \&getpackagesourceinfo,
   '/source/$project/$package rev? linkrev? emptylink:bool? deleted:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool? meta:bool? product:?' => \&getfilelist,
   '/source/$project/$package/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
   '/source/$project/$package/_meta rev? expand:bool? meta:bool? deleted:bool? view:?' => \&getpackage,
