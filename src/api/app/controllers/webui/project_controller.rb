@@ -4,6 +4,7 @@ class Webui::ProjectController < Webui::WebuiController
   include Webui::ProjectHelper
   include Webui::LoadBuildresults
   include Webui::ManageRelationships
+  include Webui2::ProjectController
 
   before_action :lockout_spiders, only: [:requests, :rebuild_time, :buildresults, :maintenance_incidents]
 

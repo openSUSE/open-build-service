@@ -21,10 +21,13 @@
       .pt-4
         %ul.list-inline
           %li.list-inline-item
-            = link_to(project_new_package_path(project: project)) do
+            = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#new-package-modal' }) do
               %i.fas.fa-plus-circle.text-primary
-              Create package
+              Create Package
           %li.list-inline-item
-            = link_to(project_new_package_branch_path(project: project)) do
+            = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#new-package-branch-modal' }) do
               %i.fas.fa-code-branch.text-primary
-              Branch existing package
+              Branch Existing Package
+
+      = render partial: 'new_package_modal', locals: { project: project }
+      = render partial: 'new_package_branch_modal', locals: { project: project, remote_projects: remote_projects }
