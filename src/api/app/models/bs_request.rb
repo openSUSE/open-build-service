@@ -706,7 +706,7 @@ class BsRequest < ApplicationRecord
   end
 
   def calculate_state_from_reviews
-    return :declined if reviews.any?(&:declined?)
+    return :declined if reviews.declined.exists?
     if reviews.all?(&:accepted?)
       :new
     else
@@ -715,10 +715,7 @@ class BsRequest < ApplicationRecord
   end
 
   def find_review_for_opts(opts)
-    reviews.reverse_each do |review|
-      return review if review.reviewable_by?(opts)
-    end
-    nil
+    reviews.reverse.find { |review| review.reviewable_by?(opts) }
   end
 
   def supersede_request(history_arguments, superseded_opt)

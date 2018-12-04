@@ -152,15 +152,11 @@ RSpec.describe BsRequest, vcr: true do
       end
 
       it 'raises exception on missing by_ paramter' do
-        expect do
-          request.change_review_state(:accepted)
-        end.to raise_error(BsRequest::InvalidReview)
+        expect { request.change_review_state(:accepted) }.to raise_error(BsRequest::InvalidReview)
       end
 
       it 'raises exception on wrong user' do
-        expect do
-          request.change_review_state(:accepted, by_user: someone.login)
-        end.to raise_error(Review::NotFoundError)
+        expect { request.change_review_state(:accepted, by_user: someone.login) }.to raise_error(Review::NotFoundError)
         expect(request.state).to be(:review)
       end
 

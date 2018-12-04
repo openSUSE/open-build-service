@@ -45,6 +45,8 @@ class Review < ApplicationRecord
   scope :bs_request_ids_of_involved_groups, ->(group_ids) { where(group_id: group_ids, state: :new).select(:bs_request_id) }
   scope :bs_request_ids_of_involved_users, ->(user_ids) { where(user_id: user_ids).select(:bs_request_id) }
 
+  scope :declined, -> { where(state: :declined) }
+
   before_validation(on: :create) do
     self.state = :new if self[:state].nil?
   end
