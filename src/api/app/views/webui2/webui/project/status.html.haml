@@ -125,18 +125,18 @@
                 end
 
               %tr
-                %td.nowrap.text-truncate
+                %td.nowrap
                   - if icon == "error"
                     %i.fa.fa-exclamation-circle.text-danger{ title: 'Error' }
                   - elsif icon == "ok"
                     %i.fa.fa-check-circle.text-success{ title: 'Ok' }
                   - else
                     %i.fa.fa-info-circle.text-info{ title: 'Info' }
-                  = link_to(package['name'], package_show_path(project: @project.name, package: package['name']))
+                  = link_to(truncate(package['name']), package_show_path(project: @project.name, package: package['name']))
                 - if show_devel_project
                   %td
                     - if package['develproject']
-                      = link_to(package['develproject'], package_show_path(project: package['develproject'], package: package['name']))
+                      = link_to(truncate(package['develproject']), package_show_path(project: package['develproject'], package: package['name']))
                 %td
                   %span.d-none= sortkey
                   - outs.each do |out|
@@ -147,7 +147,7 @@
                     = show_status_comment(package['failedcomment'], package['name'], package['firstfail'], comments_to_clear)
 
         - content_for :ready_function do
-          $('#status-table').dataTable({ 'iDisplayLength': 50, responsive: true });
+          $('#status-table').dataTable({ 'iDisplayLength': 50, responsive: true, 'columnDefs': [ { 'width': '20%', 'targets': 0 } ] });
 
 - if User.current.can_modify?(@project) && !comments_to_clear.empty?
   = link_to("Clear all comments of not failing packages (#{comments_to_clear.join(',')})",
