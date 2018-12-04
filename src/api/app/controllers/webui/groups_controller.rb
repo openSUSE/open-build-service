@@ -8,7 +8,9 @@ class Webui::GroupsController < Webui::WebuiController
     @groups = Group.all.includes(:groups_users, :users)
   end
 
-  def show; end
+  def show
+    switch_to_webui2
+  end
 
   def new
     authorize Group, :create?
