@@ -39,16 +39,26 @@
     = render partial: 'webui2/shared/buildresult_box', locals: { project: @project.name }
   .list
     .card
-      %h5.card-header
-        Packages
-        = "(#{@packages.length})"
-      = render partial: 'project_packages'
+      .bg-light
+        %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap#packages-tabs{ role: 'tablist' }
+          %li.nav-item
+            %a.nav-link.active#packages-tab{ href: '#packages', role: 'tab', data: { toggle: 'tab' },
+            aria: { controls: 'packages', selected: 'true' } }
+              Packages (#{@packages.length})
+          - if @ipackages.present?
+            %li.nav-item
+              %a.nav-link#inherited-packages-tab{ href: '#inherited-packages', role: 'tab', data: { toggle: 'tab' },
+              aria: { controls: 'inherited-packages', selected: 'false' } }
+                Inherited Packages (#{@ipackages.length})
+      .tab-content#packages-tabs-content
+        .tab-pane.fade.show.active#packages{ role: 'tabpanel', aria: { labelledby: 'packages-tab' } }
+          = render partial: 'project_packages', locals: { project: @project, packages: @packages }
+        .tab-pane.fade#inherited-packages{ role: 'tabpanel', aria: { labelledby: 'inherited-packages-tab' } }
+          = render partial: 'project_inherited_packages', locals: { inherited_packages: @ipackages }
   .comments
     .card
       %h5.card-header
-        Comments for
-        = @project
-        (#{ @comments.length})
+        Comments for #{@project} (#{@comments.length})
       .card-body#comments
         = render partial: 'webui2/webui/comment/show', locals: { commentable: @project }
 
@@ -67,3 +77,6 @@
   - elsif !@project.is_locked?
     = render partial: 'webui2/webui/request/add_role_request_dialog', locals: { project: @project }
     = render partial: 'webui2/webui/request/delete_request_dialog', locals: { project: @project }
+
+= content_for :ready_function do
+  initializeDataTable('#packages-table, #inherited-packages-table');

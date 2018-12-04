@@ -245,7 +245,7 @@ OBSApi::Application.routes.draw do
       get 'project/attributes/:project', to: redirect('/attribs/%{project}'), constraints: cons
       post 'project/new_incident' => :new_incident
       get 'project/new_package/:project' => :new_package, constraints: cons, as: 'project_new_package'
-      get 'project/new_package_branch/:project' => :new_package_branch, constraints: cons
+      get 'project/new_package_branch/:project' => :new_package_branch, constraints: cons, as: 'project_new_package_branch'
       get 'project/incident_request_dialog' => :incident_request_dialog
       post 'project/new_incident_request' => :new_incident_request
       get 'project/release_request_dialog' => :release_request_dialog
