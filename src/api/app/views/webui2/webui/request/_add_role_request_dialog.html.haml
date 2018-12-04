@@ -6,8 +6,14 @@
           %h5.modal-title#add-role-modal-label Add Role Request
         .modal-body
           %p
-            -# FIXME: get rid of this helper
-            Do you want to request a role addition to #{project_or_package_link(project: project.name, package: package.name)}?
+            -# FIXME: get rid of the helper project_or_package_link
+            :ruby
+              link = if defined?(package)
+                       project_or_package_link(project: project.name, package: package.name)
+                     else
+                       project_or_package_link(project: project.name)
+                     end
+            Do you want to request a role addition to #{link}?
           = hidden_field_tag(:package, package) if defined?(package)
           .form-group
             = label_tag(:role, 'Add role:')

@@ -18,6 +18,7 @@
 @import 'font-awesome';
 @import 'spacers';
 @import 'bootstrap';
+@import 'breakpoints';
 @import 'sticky-footer';
 @import 'datatables';
 @import 'card-component';
@@ -46,14 +47,3 @@
 html {
     overflow-y: scroll !important;
 }
-
-.dataTable {
-  table-layout: fixed
-}
-
-// TODO: Delete when bug is fixed: https://github.com/mkhairi/jquery-datatables/issues/14
-.obs-dataTable div.dataTables_filter input {
-  width: 100% !important;
-  margin-left: 0 !important;
-}
-

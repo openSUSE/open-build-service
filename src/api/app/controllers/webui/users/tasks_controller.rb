@@ -3,7 +3,9 @@ module Webui
     class TasksController < WebuiController
       before_action :require_login
 
-      def index; end
+      def index
+        switch_to_webui2
+      end
     end
   end
 end

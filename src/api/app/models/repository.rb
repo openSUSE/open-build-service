@@ -130,7 +130,7 @@ class Repository < ApplicationRecord
   def cycles(arch)
     # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
     deps = Backend::Api::BuildResults::Binaries.builddepinfo(project.name, name, arch, '-')
-    cycles = Xmlhash.parse(deps).elements('cycle').map { |cycle| cycle.elements('package') }
+    cycles = Xmlhash.parse(deps).elements('cycle').map! { |cycle| cycle.elements('package') }
 
     merged_cycles = []
     cycles.each do |cycle|
@@ -139,7 +139,8 @@ class Repository < ApplicationRecord
         deleted = merged_cycles.delete(intersecting_cycle)
         cycle.concat(deleted)
       end
-      merged_cycles.push(cycle.sort.uniq)
+      cycle.sort!
+      merged_cycles.push(cycle.uniq)
     end
 
     merged_cycles

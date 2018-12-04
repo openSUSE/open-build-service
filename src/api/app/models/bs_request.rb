@@ -81,7 +81,6 @@ class BsRequest < ApplicationRecord
   before_save :assign_number
   has_many :bs_request_actions, -> { includes([:bs_request_action_accept_info]) }, dependent: :destroy
   has_many :reviews, dependent: :delete_all
-  has_and_belongs_to_many :bs_request_action_groups, join_table: :group_request_requests
   has_many :comments, as: :commentable, dependent: :delete_all
   has_many :request_history_elements, -> { order(:created_at) }, class_name: 'HistoryElement::Request', foreign_key: :op_object_id
   has_many :review_history_elements, through: :reviews, source: :history_elements
@@ -498,26 +497,6 @@ class BsRequest < ApplicationRecord
     end
   end
 
-  def remove_from_group(group)
-    bs_request_action_groups.delete(group)
-    # this request could be the last one in review
-    group.check_for_group_in_new
-
-    # and now check the reviews
-    return unless bs_request_action_groups.empty? && state == :review
-
-    reviews.each do |r|
-      # if the review is open, there is nothing we have to care about
-      return if r.state == :new
-    end
-    self.comment = "removed from group #{group.bs_request.number}"
-    self.state = :new
-    save
-
-    p = { request: self, comment: "Reopened by removing from group #{group.bs_request.number}", user_id: User.current.id }
-    HistoryElement::RequestReopened.create(p)
-  end
-
   def permission_check_change_review!(params)
     checker = BsRequestPermissionCheck.new(self, params)
     checker.cmd_changereviewstate_permissions(params)
@@ -537,12 +516,6 @@ class BsRequest < ApplicationRecord
     # allow request creator to add further reviewers
     checker = BsRequestPermissionCheck.new(self, {})
     checker.cmd_addreview_permissions(creator == User.current.login || is_reviewer?(User.current))
-  end
-
-  def permission_check_change_groups!
-    # adding and removing of requests is only allowed for groups
-    return unless bs_request_actions.first.action_type != :group
-    raise GroupRequestSpecial, 'Command is only valid for group requests'
   end
 
   def permission_check_change_state!(opts)
@@ -632,12 +605,6 @@ class BsRequest < ApplicationRecord
       bs_request_actions.each do |a|
         # "inform" the actions
         a.request_changes_state(state)
-      end
-      bs_request_action_groups.each do |g|
-        g.remove_request(number)
-        if opts[:superseded_by] && state == :superseded
-          g.addrequest('newid' => opts[:superseded_by])
-        end
       end
       self.state = state
       self.commenter = User.current.login
@@ -809,20 +776,9 @@ class BsRequest < ApplicationRecord
       elsif go_new_state # either no open reviews anymore or going back to review
         if go_new_state == :new
           history = HistoryElement::RequestAllReviewsApproved
-          # if it would go to new, we need to check if all groups agree
-          bs_request_action_groups.each do |g|
-            if g.find_review_state_of_group == :review
-              go_new_state = nil
-              history = nil
-            end
-          end
-          # if all groups agreed, we can set all now to new
-          bs_request_action_groups.each(&:set_group_to_new) if go_new_state
-        elsif go_new_state == :review
-          bs_request_action_groups.each(&:set_group_to_review)
         elsif go_new_state == :declined
           history = HistoryElement::RequestDeclined
-        else
+        elsif go_new_state != :review
           raise "Unhandled state #{go_new_state} for history"
         end
         self.state = go_new_state if go_new_state
