@@ -44,8 +44,8 @@ RSpec.feature "User's home project creation", type: :feature, js: true do
     find('input[type="submit"]').click
 
     expect(page).to have_text("User data for user 'Jim' successfully updated.")
-    expect(page).to have_css('#home-realname', text: 'John Doe')
     expect(page).to have_css("a[href='mailto:john.doe@opensuse.org']", text: 'john.doe@opensuse.org')
+    expect(page).to have_css('#home-realname', text: 'John Doe')
   end
 
   scenario 'public beta program' do
