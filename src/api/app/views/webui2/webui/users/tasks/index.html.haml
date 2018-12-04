@@ -1,0 +1,62 @@
+:ruby
+  @pagetitle = "Tasks for #{User.current}"
+  @crumb_list = [@pagetitle]
+
+.container
+  .card#reviews
+    .bg-light
+      %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
+        %li.nav-item
+          - cache "#{User.current.cache_key}-reviews-in" do
+            %a.nav-link.text-nowrap.active{ href: '#reviews-in', title: "Requests that #{User.current} has to review" }
+              Incoming Reviews (#{User.current.involved_reviews.count})
+
+    .card-body
+      .tab-content#reviews-in
+        = render(partial: 'webui2/shared/requests_table', locals: { id: 'reviews_in_table', source_url: user_requests_path(User.current) })
+
+  .card.mt-3#requests
+    .bg-light
+      %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
+        %li.nav-item
+          - cache "#{User.current.cache_key}-requests-in" do
+            %a.nav-link.text-nowrap.active#requests-in-tab{ href: '#requests-in', title: "Requests that #{User.current} has to merge",
+              'data-toggle': 'tab', 'aria-controls': 'requests-in-tab', 'aria-selected': 'true', role: 'tab' }
+              Incoming Requests (#{User.current.incoming_requests.count})
+        %li.nav-item
+          %a.nav-link.text-nowrap#requests-out-tab{ href: '#requests-out', title: "Requests that #{User.current} has sent",
+            'data-toggle': 'tab', 'aria-controls': 'requests-out-tab', 'aria-selected': 'false', role: 'tab' }
+            Outgoing Requests (#{User.current.outgoing_requests.count})
+        %li.nav-item
+          %a.nav-link.text-nowrap#requests-declined-tab{ href: '#requests-declined', title: "Requests from #{User.current} that are declined",
+            'data-toggle': 'tab', 'aria-controls': 'requests-declined-tab', 'aria-selected': 'false', role: 'tab' }
+            Declined Requests (#{User.current.declined_requests.count})
+        %li.nav-item
+          %a.nav-link.text-nowrap#all-requests-tab{ href: '#all-requests', title: "All Requests from #{User.current}",
+            'data-toggle': 'tab', 'aria-controls': 'all-requests-tab', 'aria-selected': 'false', role: 'tab' }
+            All Requests (#{User.current.requests.count})
+        %li.nav-item.dropdown
+          %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', 'role': 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
+          .dropdown-menu.dropdown-menu-right
+    .card-body
+      .tab-content
+        .tab-pane.fade.show.active#requests-in{ role: 'tabpanel', 'aria-labelledby': 'requests-in-tab' }
+          = render(partial: 'webui2/shared/requests_table', locals: { id: 'requests_in_table', source_url: user_requests_path(User.current) })
+        .tab-pane.fade#requests-out{ role: 'tabpanel', 'aria-labelledby': 'requests-out-tab' }
+          = render(partial: 'webui2/shared/requests_table', locals: { id: 'requests_out_table', source_url: user_requests_path(User.current) })
+        .tab-pane.fade#requests-declined{ role: 'tabpanel', 'aria-labelledby': 'requests-declined-tab' }
+          = render(partial: 'webui2/shared/requests_table', locals: { id: 'requests_declined_table', source_url: user_requests_path(User.current) })
+        .tab-pane.fade#all-requests{ role: 'tabpanel', 'aria-labelledby': 'all-requests-tab' }
+          = render(partial: 'webui2/shared/requests_table', locals: { id: 'all_requests_table', source_url: user_requests_path(User.current) })
+
+  - involved_patchinfos = User.current.involved_patchinfos
+  - if involved_patchinfos.present?
+    .card.mt-3#patchinfos
+      .bg-light
+        %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
+          %li.nav-item
+            %a.nav-link.text-nowrap.active{ href: '#patchinfos-in', title: "Requests that #{User.current} has to merge" }
+              Maintenance Requests (#{involved_patchinfos.size})
+      .card-body
+        .tab-content#patchinfos-in
+          = render(partial: 'webui2/shared/patchinfos_table', locals: { involved_patchinfos: involved_patchinfos })

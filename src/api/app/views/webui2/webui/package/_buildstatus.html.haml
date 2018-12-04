@@ -21,8 +21,7 @@
                   package_binaries_path(project: project, package: package, repository: result.repository),
                   data: { content: "Binaries for #{result.repository}", placement: 'top', toggle: 'popover' })
           .row.py-1
-            .col.col-sm-2.col-md
-            .col-4.col-sm-3.text-nowrap
+            .col-4.col-sm-3.offset-2.offset-sm-4.text-nowrap
               - if !(repository && repository.architectures.pluck(:name).include?(result.architecture))
                 %i.fas.fa-clock.text-warning{ title: 'This result is outdated' }
               - else

@@ -8,7 +8,9 @@ class Webui::GroupsController < Webui::WebuiController
     @groups = Group.all.includes(:groups_users, :users)
   end
 
-  def show; end
+  def show
+    switch_to_webui2
+  end
 
   def new
     authorize Group, :create?
@@ -17,7 +19,7 @@ class Webui::GroupsController < Webui::WebuiController
   def edit
     authorize @group, :update?
     @roles = Role.global_roles
-    @members = @group.users.pluck(:login).map { |login| { 'name' => login } }
+    @members = @group.users.pluck(:login).map! { |login| { 'name' => login } }
   end
 
   def create

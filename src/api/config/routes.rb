@@ -249,7 +249,7 @@ OBSApi::Application.routes.draw do
       get 'project/incident_request_dialog' => :incident_request_dialog
       post 'project/new_incident_request' => :new_incident_request
       get 'project/release_request_dialog' => :release_request_dialog
-      post 'project/new_release_request/(:project)' => :new_release_request, constraints: cons
+      post 'project/new_release_request/(:project)' => :new_release_request, constraints: cons, as: :project_new_release_request
       get 'project/show/(:project)' => :show, constraints: cons, as: 'project_show'
       get 'project/packages_simple/:project' => :packages_simple, constraints: cons
       get 'project/linking_projects/:project' => :linking_projects, constraints: cons, as: :linking_projects

@@ -16,7 +16,7 @@ class StatisticsCalculations
       order('updated_at DESC').
       limit(limit).
       pluck(:name, 'projects.name as project', :updated_at).
-      map { |name, project, at| [at, :package, name, project] }
+      map! { |name, project, at| [at, :package, name, project] }
   end
   private_class_method :packages
 
@@ -27,7 +27,7 @@ class StatisticsCalculations
     projects.order('updated_at DESC').
       limit(limit).
       pluck(:name, :updated_at).
-      map { |name, at| [at, name, :project] }
+      map! { |name, at| [at, name, :project] }
   end
   private_class_method :projects
 end

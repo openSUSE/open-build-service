@@ -723,7 +723,7 @@ class User < ApplicationRecord
   def involved_patchinfos
     array = []
 
-    ids = PackageIssue.open_issues_of_owner(id).with_patchinfo.distinct.pluck(:package_id)
+    ids = PackageIssue.open_issues_of_owner(id).with_patchinfo.distinct.select(:package_id)
 
     Package.where(id: ids).find_each do |p|
       hash = { package: { project: p.project.name, name: p.name } }
@@ -752,7 +752,7 @@ class User < ApplicationRecord
   def user_relevant_packages_for_status
     role_id = Role.hashed['maintainer'].id
     # First fetch the project ids
-    projects_ids = involved_projects.pluck(:id)
+    projects_ids = involved_projects.select(:id)
     packages = Package.joins("LEFT OUTER JOIN relationships ON (relationships.package_id = packages.id AND relationships.role_id = #{role_id})")
     # No maintainers
     packages = packages.where([
@@ -786,7 +786,7 @@ class User < ApplicationRecord
 
   def watched_project_names
     Rails.cache.fetch(['watched_project_names', self]) do
-      Project.where(id: watched_projects.pluck(:project_id)).pluck(:name).sort
+      Project.where(id: watched_projects.select(:project_id)).order(:name).pluck(:name)
     end
   end
 

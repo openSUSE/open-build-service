@@ -95,7 +95,6 @@ Layout/SpaceAroundOperators:
     - 'spec/controllers/webui/search_controller_spec.rb'
     - 'spec/features/webui/packages_spec.rb'
     - 'test/functional/attributes_test.rb'
-    - 'test/functional/group_request_test.rb'
     - 'test/functional/search_controller_test.rb'
 
 # Offense count: 23
