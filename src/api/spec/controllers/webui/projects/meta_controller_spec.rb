@@ -20,7 +20,7 @@ RSpec.describe Webui::Projects::MetaController, vcr: true do
     context 'with a nonexistent project' do
       let(:post_save_meta) { post :update, params: { project: 'nonexistent_project' }, xhr: true }
 
-      it { expect { post_save_meta }.to raise_error(Pundit::NotDefinedError) }
+      it { expect { post_save_meta }.to raise_error(ActiveRecord::RecordNotFound) }
     end
 
     context 'with a valid project' do
