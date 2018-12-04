@@ -969,8 +969,12 @@ class BsRequest < ApplicationRecord
     return if approver && state == :review
 
     with_lock do
-      User.current ||= User.find_by_login(creator) if accept_at
-      User.current = User.find_by_login(approver) if approver
+      if accept_at
+        User.current = User.find_by_login(creator)
+      elsif approver
+        User.current = User.find_by_login(approver)
+      end
+      raise 'Request lacks definition of owner for auto accept' unless User.current
 
       begin
         change_state(newstate: 'accepted', comment: 'Auto accept')
