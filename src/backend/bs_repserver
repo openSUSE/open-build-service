@@ -1207,6 +1207,17 @@ sub getlogfile {
   return undef;
 }
 
+sub add_provided_by {
+  my ($n, $pool, $dep, $keep) = @_;
+
+  for my $p ($pool->whatprovides($dep)) {
+    my $rd = $pool->pkg2data($p);
+    delete $rd->{$_} for grep {!$keep->{$_}} keys %$rd;
+    ($rd->{'project'}, $rd->{'repository'}) = split('/', $pool->pkg2reponame($p), 2);
+    push @{$n->{'providedby'}}, $rd;
+  }
+}
+
 sub getbinary_info {
   my ($cgi, $projid, $repoid, $arch, $bin, $path) = @_;
   if ($path =~ /\.tar$/ && ! -f $path) {
@@ -1220,7 +1231,7 @@ sub getbinary_info {
   }
   my @s = stat($path);
   die("404 $bin: $!\n") unless @s;
-  my $res = Build::query($path, 'evra' => 1, 'description' => 1) || {};
+  my $res = Build::query($path, 'evra' => 1, 'description' => 1, 'weakdeps' => 1) || {};
   if (!%$res && $path =~ /\/updateinfo\.xml$/) {
     my $updateinfos = readxml($path, $BSXML::updateinfo, 1);
     if ($updateinfos && @{$updateinfos->{'update'} || []} == 1) {
@@ -1295,7 +1306,7 @@ sub getbinary_info {
     }
     $pool->createwhatprovides();
     my %keep = map {$_ => 1} qw{name epoch version release arch};
-    for my $prov (@{$res->{'provides'}}) {
+    for my $prov (@{$res->{'provides'} || []}) {
       my $n = {'dep' => $prov};
       push @{$res->{'provides_ext'}}, $n;
       for my $p ($pool->whatrequires($prov)) {
@@ -1305,15 +1316,20 @@ sub getbinary_info {
 	push @{$n->{'requiredby'}}, $rd;
       }
     }
-    for my $req (@{$res->{'requires'}}) {
+    for my $req (@{$res->{'requires'} || []}) {
       my $n = {'dep' => $req};
+      add_provided_by($n, $pool, $req, \%keep);
       push @{$res->{'requires_ext'}}, $n;
-      for my $p ($pool->whatprovides($req)) {
-	my $rd = $pool->pkg2data($p);
-	delete $rd->{$_} for grep {!$keep{$_}} keys %$rd;
-	($rd->{'project'}, $rd->{'repository'}) = split('/', $pool->pkg2reponame($p), 2);
-	push @{$n->{'providedby'}}, $rd;
-      }
+    }
+    for my $req (@{$res->{'recommends'} || []}) {
+      my $n = {'dep' => $req};
+      add_provided_by($n, $pool, $req, \%keep);
+      push @{$res->{'recommends_ext'}}, $n;
+    }
+    for my $req (@{$res->{'supplements'} || []}) {
+      my $n = {'dep' => $req};
+      add_provided_by($n, $pool, $req, \%keep);
+      push @{$res->{'supplements_ext'}}, $n;
     }
   }
   data2utf8xml($res);
@@ -3629,7 +3645,7 @@ sub fileinfo {
   my $q = {};
   die("filename: $!\n") unless -f $filepath;
   if ($filename =~ /\.(?:$binsufsre)$/) {
-    $q = Build::query($filepath, 'evra' => 1, 'description' => 1, 'alldeps' => 1);
+    $q = Build::query($filepath, 'evra' => 1, 'description' => 1, 'weakdeps' => 1, 'alldeps' => 1);
     data2utf8xml($q);
   } elsif ($filename =~ /\.ymp$/) {
     my $ymp = readxml($filepath, $BSXML::ymp, 1);
