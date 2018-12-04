@@ -1306,29 +1306,29 @@ sub getbinary_info {
     }
     $pool->createwhatprovides();
     my %keep = map {$_ => 1} qw{name epoch version release arch};
-    for my $prov (@{$res->{'provides'} || []}) {
-      my $n = {'dep' => $prov};
-      push @{$res->{'provides_ext'}}, $n;
-      for my $p ($pool->whatrequires($prov)) {
+    for my $dep (@{$res->{'provides'} || []}) {
+      my $n = {'dep' => $dep};
+      for my $p ($pool->whatrequires($dep)) {
 	my $rd = $pool->pkg2data($p);
 	delete $rd->{$_} for grep {!$keep{$_}} keys %$rd;
 	($rd->{'project'}, $rd->{'repository'}) = split('/', $pool->pkg2reponame($p), 2);
 	push @{$n->{'requiredby'}}, $rd;
       }
+      push @{$res->{'provides_ext'}}, $n;
     }
-    for my $req (@{$res->{'requires'} || []}) {
-      my $n = {'dep' => $req};
-      add_provided_by($n, $pool, $req, \%keep);
+    for my $dep (@{$res->{'requires'} || []}) {
+      my $n = {'dep' => $dep};
+      add_provided_by($n, $pool, $dep, \%keep);
       push @{$res->{'requires_ext'}}, $n;
     }
-    for my $req (@{$res->{'recommends'} || []}) {
-      my $n = {'dep' => $req};
-      add_provided_by($n, $pool, $req, \%keep);
+    for my $dep (@{$res->{'recommends'} || []}) {
+      my $n = {'dep' => $dep};
+      add_provided_by($n, $pool, $dep, \%keep);
       push @{$res->{'recommends_ext'}}, $n;
     }
-    for my $req (@{$res->{'supplements'} || []}) {
-      my $n = {'dep' => $req};
-      add_provided_by($n, $pool, $req, \%keep);
+    for my $dep (@{$res->{'supplements'} || []}) {
+      my $n = {'dep' => $dep};
+      add_provided_by($n, $pool, $dep, \%keep);
       push @{$res->{'supplements_ext'}}, $n;
     }
   }
