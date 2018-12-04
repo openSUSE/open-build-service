@@ -15,7 +15,8 @@
 
     .card-body
       .tab-content#reviews-in
-        = render(partial: 'webui2/shared/requests_table', locals: { id: 'reviews_in_table', source_url: user_requests_path(User.current) })
+        = render(partial: 'webui2/shared/requests_table', locals: { id: 'reviews_in_table', source_url: user_requests_path(User.current),
+                 page_length: 10 })
 
   .card.mt-3#requests
     .bg-light
@@ -51,13 +52,17 @@
     .card-body
       .tab-content
         .tab-pane.fade.show.active#requests-in{ role: 'tabpanel', 'aria-labelledby': 'requests-in-tab' }
-          = render(partial: 'webui2/shared/requests_table', locals: { id: 'requests_in_table', source_url: user_requests_path(User.current) })
+          = render(partial: 'webui2/shared/requests_table', locals: { id: 'requests_in_table', source_url: user_requests_path(User.current),
+                   page_length: 10 })
         .tab-pane.fade#requests-out{ role: 'tabpanel', 'aria-labelledby': 'requests-out-tab' }
-          = render(partial: 'webui2/shared/requests_table', locals: { id: 'requests_out_table', source_url: user_requests_path(User.current) })
+          = render(partial: 'webui2/shared/requests_table', locals: { id: 'requests_out_table', source_url: user_requests_path(User.current),
+                   page_length: 10 })
         .tab-pane.fade#requests-declined{ role: 'tabpanel', 'aria-labelledby': 'requests-declined-tab' }
-          = render(partial: 'webui2/shared/requests_table', locals: { id: 'requests_declined_table', source_url: user_requests_path(User.current) })
+          = render(partial: 'webui2/shared/requests_table', locals: { id: 'requests_declined_table', source_url: user_requests_path(User.current),
+                   page_length: 10 })
         .tab-pane.fade#all-requests{ role: 'tabpanel', 'aria-labelledby': 'all-requests-tab' }
-          = render(partial: 'webui2/shared/requests_table', locals: { id: 'all_requests_table', source_url: user_requests_path(User.current) })
+          = render(partial: 'webui2/shared/requests_table', locals: { id: 'all_requests_table', source_url: user_requests_path(User.current),
+                   page_length: 10 })
 
   - involved_patchinfos = User.current.involved_patchinfos
   - if involved_patchinfos.present?
