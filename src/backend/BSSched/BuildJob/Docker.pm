@@ -153,7 +153,9 @@ sub check {
 	next unless $url;
 	# see Build::Kiwi
 	my $urlprp;
-	if ($url =~ /^obs:\/{1,3}([^\/]+)\/([^\/]+)\/?$/) {
+	if ($url eq 'obsrepositories:/') {
+	  $urlprp = '_obsrepositories/';
+	} elsif ($url =~ /^obs:\/{1,3}([^\/]+)\/([^\/]+)\/?$/) {
 	  $urlprp = "$1/$2";
 	  $urlprp = maptoremote($rproj, $1, $2) if $rproj;
 	} else {
@@ -181,7 +183,7 @@ sub check {
   
   
   my %aprpprios;
-  my @aprps = BSSched::BuildJob::expandkiwipath($info, undef, %aprpprios);
+  my @aprps = BSSched::BuildJob::expandkiwipath($info, $ctx->{'prpsearchpath'}, %aprpprios);
 
   # get config from docker path
   my @configpath = @aprps;
