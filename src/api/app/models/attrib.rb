@@ -93,7 +93,7 @@ class Attrib < ApplicationRecord
   def update_with_associations(values = [], issues = [])
     #--- update issues ---#
     changed = false
-    if issues.map(&:name).sort != self.issues.map(&:name).sort
+    if issues.map(&:name).sort! != self.issues.map(&:name).sort!
       logger.debug "Attrib.update_with_associations: Issues for #{fullname} changed, updating."
       self.issues.delete_all
       issues.each do |issue|

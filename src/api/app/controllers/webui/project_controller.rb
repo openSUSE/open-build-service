@@ -433,7 +433,7 @@ class Webui::ProjectController < Webui::WebuiController
       @localpackages[package.name] = 1
     end
 
-    @packagenames = @packagenames.flatten.uniq.sort
+    @packagenames = @packagenames.flatten.uniq.sort!
 
     ## Filter for PackageNames ####
     @packagenames.select! { |name| filter_matches?(name, @name_filter) } if @name_filter.present?
@@ -745,7 +745,7 @@ class Webui::ProjectController < Webui::WebuiController
     @linking_projects = @project.linked_by_projects.pluck(:name)
 
     reqs = @project.open_requests
-    @requests = (reqs[:reviews] + reqs[:targets] + reqs[:incidents] + reqs[:maintenance_release]).sort.uniq
+    @requests = (reqs[:reviews] + reqs[:targets] + reqs[:incidents] + reqs[:maintenance_release]).sort!.uniq
 
     @nr_of_problem_packages = @project.number_of_build_problems
   end
@@ -779,7 +779,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     @is_maintenance_project = @project.is_maintenance?
     if @is_maintenance_project
-      @open_maintenance_incidents = @project.maintenance_incidents.pluck('projects.name').sort.uniq
+      @open_maintenance_incidents = @project.maintenance_incidents.distinct.order('projects.name').pluck('projects.name')
 
       @maintained_projects = @project.maintained_project_names
     end
@@ -818,8 +818,8 @@ class Webui::ProjectController < Webui::WebuiController
       @avail_repo_values << r.name
       @avail_arch_values << r.architectures.pluck(:name)
     end
-    @avail_arch_values = @avail_arch_values.flatten.uniq.sort
-    @avail_repo_values = @avail_repo_values.flatten.uniq.sort
+    @avail_arch_values = @avail_arch_values.flatten.uniq.sort!
+    @avail_repo_values = @avail_repo_values.flatten.uniq.sort!
 
     @arch_filter = []
     @avail_arch_values.each do |s|

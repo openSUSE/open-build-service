@@ -44,7 +44,7 @@ module Cloud
       def self.all(user, options = {})
         xml = ::Backend::Api::Cloud.upload_jobs(user.upload_jobs.pluck(:job_id))
         return xml if options[:format] == :xml
-        [Xmlhash.parse(xml)['clouduploadjob']].flatten.compact.map do |xml_hash|
+        [Xmlhash.parse(xml)['clouduploadjob']].flatten.compact.map! do |xml_hash|
           new(xml_object: OpenStruct.new(xml_hash))
         end
       rescue Backend::Error, Timeout::Error

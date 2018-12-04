@@ -9,7 +9,7 @@ class Webui::MainController < Webui::WebuiController
     archs.each do |arch|
       starttime = Time.now.to_i - 168.to_i * 3600
       rel = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, 'building_' + arch)
-      values = rel.pluck(:time, :value).collect { |time, value| [time.to_i, value.to_f] }
+      values = rel.pluck(:time, :value).collect! { |time, value| [time.to_i, value.to_f] }
       values = StatusHelper.resample(values, 400)
       if busy.empty?
         busy = values

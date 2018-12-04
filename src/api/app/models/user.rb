@@ -786,7 +786,7 @@ class User < ApplicationRecord
 
   def watched_project_names
     Rails.cache.fetch(['watched_project_names', self]) do
-      Project.where(id: watched_projects.pluck(:project_id)).pluck(:name).sort
+      Project.where(id: watched_projects.select(:project_id)).order(:name).pluck(:name)
     end
   end
 
