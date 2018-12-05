@@ -183,7 +183,7 @@ sub check {
   
   
   my %aprpprios;
-  my @aprps = BSSched::BuildJob::expandkiwipath($info, $ctx->{'prpsearchpath'}, %aprpprios);
+  my @aprps = BSSched::BuildJob::expandkiwipath($ctx, $info, \%aprpprios);
 
   # get config from docker path
   my @configpath = @aprps;

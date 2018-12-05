@@ -888,7 +888,7 @@ sub create {
   if ($kiwimode) {
     # switch searchpath to kiwi info path
     $syspath = $searchpath if @$searchpath;
-    $searchpath = path2buildinfopath($gctx, [ expandkiwipath($info, $ctx->{'prpsearchpath'}) ]);
+    $searchpath = path2buildinfopath($gctx, [ expandkiwipath($ctx, $info) ]);
   }
 
   my $expanddebug = $ctx->{'expanddebug'};
@@ -1232,28 +1232,28 @@ sub diffsortedmd5 {
   return @ret;
 }
 
-=head2 expandkiwipath - TODO: add summary
+=head2 expandkiwipath - turn the path from the info into a kiwi searchpath
 
  TODO: add description
 
 =cut
 
 sub expandkiwipath {
-  my ($info, $prpsearchpath, $prios) = @_;
+  my ($ctx, $info, $prios) = @_;
   my @path;
   for (@{$info->{'path'} || []}) {
     if ($_->{'project'} eq '_obsrepositories') {
-      push @path, @{$prpsearchpath || []}; 
-    } else {
-      my $prp = "$_->{'project'}/$_->{'repository'}";
-      push @path, $prp;
-      if ($prios) {
-        my $prio = $_->{'priority'} || 0;
-        $prios->{$prp} = $prio if !defined($prios->{$prp}) || $prio > $prios->{$prp};
-      }
+      push @path, @{$ctx->{'prpsearchpath'} || []}; 
+      next;
+    }
+    my $prp = "$_->{'project'}/$_->{'repository'}";
+    push @path, $prp;
+    if ($prios) {
+      my $prio = $_->{'priority'} || 0;
+      $prios->{$prp} = $prio if !defined($prios->{$prp}) || $prio > $prios->{$prp};
     }
   }
-  return @path;
+  return BSUtil::unify(@path);
 }
 
 =head2 getcontainerannotation - get the annotation from a container package
