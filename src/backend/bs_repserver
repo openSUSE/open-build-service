@@ -3017,48 +3017,55 @@ sub getbuildinfo {
   return ($binfo, $BSXML::buildinfo);
 }
 
+sub getbuildinfo_post_cpio {
+  my ($cgi, $projid, $repoid, $arch, $packid, $fp) = @_;
+
+  my $fn = $cgi->{'_fn'};
+  local *F;
+  open(F, '<', $fn) || die("$fn: $!\n");
+  unlink($fn);
+  my $dir = "$uploaddir/$$.dir";
+  mkdir_p($dir);
+  my $uploaded = BSHTTP::cpio_receiver(BSHTTP::fd2req(\*F), {'directory' => $dir});
+  close(F);
+  # should we check if the cpio archive contains <= 2 files?
+  my $depfile = (grep { $_->{'name'} eq 'deps' } @$uploaded)[0];
+  $depfile = "$dir/$depfile->{'name'}" if $depfile;
+  my $servicefile = (grep { $_->{'name'} eq '_service' } @$uploaded)[0];
+  $servicefile = "$dir/$servicefile->{'name'}" if $servicefile;
+  my $bifile = (grep { $_->{'name'} eq 'buildenv' } @$uploaded)[0];
+  $bifile = "$dir/$bifile->{'name'}" if $bifile;
+  $fn = (grep { $_->{'name'} ne 'deps' && $_->{'name'} ne 'buildenv' && $_->{'name'} ne '_service'} @$uploaded)[0];
+  die("no build recipe file found\n") unless $fn;
+  my @r;
+  eval {
+    @r = getbuildinfo_post({ %$cgi, '_fn' => "$dir/$fn->{'name'}", '_depfile' => $depfile, '_buildenvfile' => $bifile, '_servicefile' => $servicefile, '_buildtype' => Build::recipe2buildtype($fn->{'name'})}, $projid, $repoid, $arch, $packid);
+  };
+  # cleanup
+  unlink("$dir/$_") for ls($dir);
+  rmdir($dir) if -d $dir;
+  die("$@\n") if $@;
+  return @r;
+}
+
 sub getbuildinfo_post {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
   my $fn = $cgi->{'_fn'};
-  my $depfile = $cgi->{'_depfile'};
   if (!$fn) {
+    # get POST body
     mkdir_p($uploaddir);
     $fn = "$uploaddir/$$";
     die("upload failed\n") unless BSServer::read_file($fn);
-  }
 
-  local *F;
-  open(F, '<', $fn) || die("$fn: $!\n");
-  my $magic;
-  sysread(F, $magic, 6);
-  if ($magic eq "070701" && !$cgi->{'_fn'}) {
-    # have cpio archive, extract recipe and depfile, recurse
-    unlink($fn);
-    sysseek(F, 0, 0);
-    my $dir = "$uploaddir/$$.dir";
-    mkdir_p($dir);
-    my $uploaded = BSHTTP::cpio_receiver(BSHTTP::fd2req(\*F), {'directory' => $dir});
+    # check if the upload is a cpio archive by looking at the first 6 bytes
+    local *F;
+    open(F, '<', $fn) || die("$fn: $!\n");
+    my $magic;
+    sysread(F, $magic, 6);
     close(F);
-    # should we check if the cpio archive contains <= 2 files?
-    $depfile = (grep { $_->{'name'} eq 'deps' } @$uploaded)[0];
-    $depfile = "$dir/$depfile->{'name'}" if $depfile;
-    my $servicefile = (grep { $_->{'name'} eq '_service' } @$uploaded)[0];
-    $servicefile = "$dir/$servicefile->{'name'}" if $servicefile;
-    my $bifile = (grep { $_->{'name'} eq 'buildenv' } @$uploaded)[0];
-    $bifile = "$dir/$bifile->{'name'}" if $bifile;
-    $fn = (grep { $_->{'name'} ne "deps" && $_->{'name'} ne 'buildenv' && $_->{'name'} ne '_service'} @$uploaded)[0];
-    die("no build recipe file found\n") unless $fn;
-    my @r;
-    eval {
-      @r = getbuildinfo_post({ %$cgi, '_fn' => "$dir/$fn->{'name'}", '_depfile' => $depfile, '_buildenvfile' => $bifile, '_servicefile' => $servicefile, '_buildtype' => Build::recipe2buildtype($fn->{'name'})}, $projid, $repoid, $arch, $packid);
-    };
-    unlink("$dir/$_") for ls($dir);
-    rmdir($dir) if -d $dir;
-    die("$@\n") if $@;
-    return @r;
+    return getbuildinfo_post_cpio({ %$cgi, '_fn' => $fn }, $projid, $repoid, $arch, $packid) if $magic eq '070701';
   }
-  close(F);
 
   my $bconf = BSRepServer::getconfig($projid, $repoid, $arch);
   $bconf->{'type'} = $cgi->{'_buildtype'} if $cgi->{'_buildtype'};
@@ -3106,7 +3113,7 @@ sub getbuildinfo_post {
        push @{$info->{'dep'}}, $pkgname;
      }
   }
-  $pdata->{'ldepfile'} = $depfile if defined $depfile;
+  $pdata->{'ldepfile'} = $cgi->{'_depfile'} if $cgi->{'_depfile'};
 
   my $binfo = BSRepServer::BuildInfo::buildinfo($projid, $repoid, $arch, $packid,
 	  pdata	   => $pdata,
