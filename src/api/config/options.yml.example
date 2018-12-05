@@ -192,6 +192,7 @@ default: &default
   # influxdb_port: 8086
   # influxdb_ssl: true
   # influxdb_retry: 10
+  # influxdb_time_precision: ms
 
   # Enable (true) / Disable (false) Ruby on Rails profiling top-bar in the web ui
   peek_enabled: false
