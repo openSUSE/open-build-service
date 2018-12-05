@@ -506,6 +506,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'filtering build results by package name' do
+      skip_if_bootstrap # this is now handled by datatables, we don't need to test it
       fill_in 'pkgname', with: package1.name
       click_button 'Filter:'
 
@@ -515,6 +516,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'filtering build results by architecture' do
+      skip_if_bootstrap
       find('#archlink').click
       uncheck 'arch_x86_64'
       click_button 'Filter:'
@@ -525,6 +527,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'filtering build results by repository' do
+      skip_if_bootstrap
       find('#repolink').click
       uncheck 'repo_openSUSE_Leap_42_2'
       uncheck 'repo_openSUSE_Leap_42_3'
@@ -537,6 +540,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'filtering build results by last build' do
+      skip_if_bootstrap # we don't support this anymore
       check 'lastbuild'
       click_button 'Filter:'
 
