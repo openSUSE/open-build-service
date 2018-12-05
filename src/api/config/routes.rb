@@ -115,7 +115,7 @@ OBSApi::Application.routes.draw do
         get 'package/add_person/:project/:package' => :add_person, constraints: cons, as: 'package_add_person'
         get 'package/add_group/:project/:package' => :add_group, constraints: cons, as: 'package_add_group'
         get 'package/rdiff/:project/:package' => :rdiff, constraints: cons, as: 'package_rdiff'
-        post 'package/save_new/:project' => :save_new, constraints: cons
+        post 'package/save_new/:project' => :save_new, constraints: cons, as: 'save_new_package'
         post 'package/branch' => :branch, constraints: cons
         post 'package/save/:project/:package' => :save, constraints: cons, as: 'package_save'
         post 'package/remove/:project/:package' => :remove, constraints: cons
@@ -243,7 +243,7 @@ OBSApi::Application.routes.draw do
       get 'project/list' => :index
       get 'project/autocomplete_projects' => :autocomplete_projects, as: 'autocomplete_projects'
       get 'project/autocomplete_incidents' => :autocomplete_incidents
-      get 'project/autocomplete_packages' => :autocomplete_packages
+      get 'project/autocomplete_packages' => :autocomplete_packages, as: 'autocomplete_packages'
       get 'project/autocomplete_repositories' => :autocomplete_repositories
       get 'project/users/:project' => :users, constraints: cons, as: 'project_users'
       get 'project/subprojects/:project' => :subprojects, constraints: cons, as: 'project_subprojects'

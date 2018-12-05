@@ -52,7 +52,7 @@
                 Inherited Packages (#{@ipackages.length})
       .tab-content#packages-tabs-content
         .tab-pane.fade.show.active#packages{ role: 'tabpanel', aria: { labelledby: 'packages-tab' } }
-          = render partial: 'project_packages', locals: { project: @project, packages: @packages }
+          = render partial: 'project_packages', locals: { project: @project, packages: @packages, remote_projects: @remote_projects }
         .tab-pane.fade#inherited-packages{ role: 'tabpanel', aria: { labelledby: 'inherited-packages-tab' } }
           = render partial: 'project_inherited_packages', locals: { inherited_packages: @ipackages }
   .comments

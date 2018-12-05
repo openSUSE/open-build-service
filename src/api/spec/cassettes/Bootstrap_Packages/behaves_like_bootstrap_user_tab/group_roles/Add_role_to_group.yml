@@ -1,6 +1,363 @@
 ---
 http_interactions:
 - request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/_meta?user=package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:package_test_user">
+          <title/>
+          <description/>
+          <person userid="package_test_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:package_test_user">
+          <title></title>
+          <description></description>
+          <person userid="package_test_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 05 Dec 2018 10:32:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_tab_user/_meta?user=user_tab_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_tab_user">
+          <title/>
+          <description/>
+          <person userid="user_tab_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '149'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_tab_user">
+          <title></title>
+          <description></description>
+          <person userid="user_tab_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 05 Dec 2018 10:32:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="group_test_package" project="home:user_tab_user">
+          <title>A Time of Gifts</title>
+          <description>Amet ut doloribus et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="group_test_package" project="home:user_tab_user">
+          <title>A Time of Gifts</title>
+          <description>Amet ut doloribus et.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 05 Dec 2018 10:32:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="group_test_package" project="home:user_tab_user">
+          <title>A Time of Gifts</title>
+          <description>Amet ut doloribus et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="group_test_package" project="home:user_tab_user">
+          <title>A Time of Gifts</title>
+          <description>Amet ut doloribus et.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 05 Dec 2018 10:32:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_user/_meta?user=other_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_user">
+          <title/>
+          <description/>
+          <person userid="other_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '143'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_user">
+          <title></title>
+          <description></description>
+          <person userid="other_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 05 Dec 2018 10:32:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_user">
+          <title>For Whom the Bell Tolls</title>
+          <description>Omnis numquam ut et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '165'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_user">
+          <title>For Whom the Bell Tolls</title>
+          <description>Omnis numquam ut et.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 05 Dec 2018 10:32:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_user">
+          <title>For Whom the Bell Tolls</title>
+          <description>Omnis numquam ut et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '165'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_user">
+          <title>For Whom the Bell Tolls</title>
+          <description>Omnis numquam ut et.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 05 Dec 2018 10:32:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_config
+    body:
+      encoding: UTF-8
+      string: Deserunt voluptates velit. Dolore sed molestias. Minus ducimus dolorem.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="9" vrev="9">
+          <srcmd5>433675594b1ee4d7bf6a4b5e22c41c29</srcmd5>
+          <version>unknown</version>
+          <time>1544005959</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 05 Dec 2018 10:32:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_user/branch_test_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Enim enim facilis. Itaque dignissimos sit. Maiores voluptatem quo.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="10" vrev="10">
+          <srcmd5>aac6edee4f5745fcf2d1323a8e7d9fc3</srcmd5>
+          <version>unknown</version>
+          <time>1544005959</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 05 Dec 2018 10:32:39 GMT
+- request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
     body:
@@ -15,8 +372,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home user_tab_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -25,16 +382,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '93'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:user_tab_user' does not exist</summary>
-          <details>404 project 'home:user_tab_user' does not exist</details>
-        </status>
+        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
     http_version: 
-  recorded_at: Fri, 28 Sep 2018 10:54:42 GMT
+  recorded_at: Wed, 05 Dec 2018 10:32:41 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package?expand=1
@@ -50,8 +405,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home user_tab_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -60,86 +415,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '93'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:user_tab_user' does not exist</summary>
-          <details>404 project 'home:user_tab_user' does not exist</details>
-        </status>
+        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
     http_version: 
-  recorded_at: Fri, 28 Sep 2018 10:54:42 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home user_tab_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '164'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:user_tab_user' does not exist</summary>
-          <details>404 project 'home:user_tab_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Fri, 28 Sep 2018 10:54:42 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package?expand=0
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home user_tab_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '164'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:user_tab_user' does not exist</summary>
-          <details>404 project 'home:user_tab_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Fri, 28 Sep 2018 10:54:42 GMT
+  recorded_at: Wed, 05 Dec 2018 10:32:41 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package/_service
@@ -156,7 +439,7 @@ http_interactions:
   response:
     status:
       code: 404
-      message: project 'home user_tab_user' does not exist
+      message: _service  no such file
     headers:
       Content-Type:
       - text/xml
@@ -165,16 +448,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '122'
     body:
       encoding: UTF-8
       string: |
         <status code="404">
-          <summary>project 'home:user_tab_user' does not exist</summary>
-          <details>404 project 'home:user_tab_user' does not exist</details>
+          <summary>_service: no such file</summary>
+          <details>404 _service: no such file</details>
         </status>
     http_version: 
-  recorded_at: Fri, 28 Sep 2018 10:54:42 GMT
+  recorded_at: Wed, 05 Dec 2018 10:32:41 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -190,8 +473,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home user_tab_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -200,16 +483,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '93'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:user_tab_user' does not exist</summary>
-          <details>404 project 'home:user_tab_user' does not exist</details>
-        </status>
+        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
     http_version: 
-  recorded_at: Fri, 28 Sep 2018 10:54:42 GMT
+  recorded_at: Wed, 05 Dec 2018 10:32:41 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -225,8 +506,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home user_tab_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -235,16 +516,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '93'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:user_tab_user' does not exist</summary>
-          <details>404 project 'home:user_tab_user' does not exist</details>
-        </status>
+        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
     http_version: 
-  recorded_at: Fri, 28 Sep 2018 10:54:42 GMT
+  recorded_at: Wed, 05 Dec 2018 10:32:41 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:user_tab_user/_result?package=group_test_package&view=status
@@ -260,8 +539,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home user_tab_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -270,16 +549,61 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Wed, 05 Dec 2018 10:32:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_tab_user
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:user_tab_user' does not exist</summary>
-          <details>404 project 'home:user_tab_user' does not exist</details>
-        </status>
+        <package name="group_test_package" project="home:user_tab_user">
+          <title>A Time of Gifts</title>
+          <description>Amet ut doloribus et.</description>
+          <person userid="user_tab_user" role="maintainer"/>
+          <group groupid="existing_group" role="bugowner"/>
+          <group groupid="existing_group" role="maintainer"/>
+          <group groupid="existing_group" role="reviewer"/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '375'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="group_test_package" project="home:user_tab_user">
+          <title>A Time of Gifts</title>
+          <description>Amet ut doloribus et.</description>
+          <person userid="user_tab_user" role="maintainer" />
+          <group groupid="existing_group" role="bugowner" />
+          <group groupid="existing_group" role="maintainer" />
+          <group groupid="existing_group" role="reviewer" />
+        </package>
     http_version: 
-  recorded_at: Fri, 28 Sep 2018 10:54:42 GMT
+  recorded_at: Wed, 05 Dec 2018 10:32:42 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -295,8 +619,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home user_tab_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -305,16 +629,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '93'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:user_tab_user' does not exist</summary>
-          <details>404 project 'home:user_tab_user' does not exist</details>
-        </status>
+        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
     http_version: 
-  recorded_at: Fri, 28 Sep 2018 10:54:44 GMT
+  recorded_at: Wed, 05 Dec 2018 10:32:43 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package?expand=1
@@ -330,8 +652,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home user_tab_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -340,86 +662,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '93'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:user_tab_user' does not exist</summary>
-          <details>404 project 'home:user_tab_user' does not exist</details>
-        </status>
+        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
     http_version: 
-  recorded_at: Fri, 28 Sep 2018 10:54:44 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home user_tab_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '164'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:user_tab_user' does not exist</summary>
-          <details>404 project 'home:user_tab_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Fri, 28 Sep 2018 10:54:44 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package?expand=0
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home user_tab_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '164'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:user_tab_user' does not exist</summary>
-          <details>404 project 'home:user_tab_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Fri, 28 Sep 2018 10:54:44 GMT
+  recorded_at: Wed, 05 Dec 2018 10:32:43 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package/_service
@@ -436,7 +686,7 @@ http_interactions:
   response:
     status:
       code: 404
-      message: project 'home user_tab_user' does not exist
+      message: _service  no such file
     headers:
       Content-Type:
       - text/xml
@@ -445,16 +695,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '122'
     body:
       encoding: UTF-8
       string: |
         <status code="404">
-          <summary>project 'home:user_tab_user' does not exist</summary>
-          <details>404 project 'home:user_tab_user' does not exist</details>
+          <summary>_service: no such file</summary>
+          <details>404 _service: no such file</details>
         </status>
     http_version: 
-  recorded_at: Fri, 28 Sep 2018 10:54:44 GMT
+  recorded_at: Wed, 05 Dec 2018 10:32:43 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -470,8 +720,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home user_tab_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -480,16 +730,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '93'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:user_tab_user' does not exist</summary>
-          <details>404 project 'home:user_tab_user' does not exist</details>
-        </status>
+        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
     http_version: 
-  recorded_at: Fri, 28 Sep 2018 10:54:44 GMT
+  recorded_at: Wed, 05 Dec 2018 10:32:43 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -505,8 +753,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home user_tab_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -515,16 +763,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '93'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:user_tab_user' does not exist</summary>
-          <details>404 project 'home:user_tab_user' does not exist</details>
-        </status>
+        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
     http_version: 
-  recorded_at: Fri, 28 Sep 2018 10:54:44 GMT
+  recorded_at: Wed, 05 Dec 2018 10:32:43 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:user_tab_user/_result?package=group_test_package&view=status
@@ -540,8 +786,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home user_tab_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -550,14 +796,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '56'
     body:
       encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:user_tab_user' does not exist</summary>
-          <details>404 project 'home:user_tab_user' does not exist</details>
-        </status>
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
     http_version: 
-  recorded_at: Fri, 28 Sep 2018 10:54:44 GMT
+  recorded_at: Wed, 05 Dec 2018 10:32:43 GMT
 recorded_with: VCR 4.0.0
