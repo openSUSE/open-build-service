@@ -1,2 +1,2 @@
 $('td[data-package-name="<%= @package.name %>"]').
-  html('<%= escape_javascript(render(partial: 'edit_comment')) %>');
+  html('<%= escape_javascript(render(partial: 'edit_comment', locals: { package_name: @package.name, editable: true, comment: @comment, project: @project })) %>');

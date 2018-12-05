@@ -1,8 +1,8 @@
 %div
 
-  - if @error
+  - if error
     %i.fa.fa-exclamation-triangle.text-warning
-    = @error
+    = error
 
-  = render partial: 'status_comment', locals: { package_name: @package.name, editable: true, comment: @comment, project: @project }
+  = render partial: 'webui2/webui/project/status_comment', locals: { package_name: package_name, editable: true, comment: comment, project: project }
 

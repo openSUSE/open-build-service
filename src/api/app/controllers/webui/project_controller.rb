@@ -553,10 +553,17 @@ class Webui::ProjectController < Webui::WebuiController
       package.attribs.where(attrib_type: AttribType.find_by_namespace_and_name('OBS', 'ProjectStatusPackageFailComment')).destroy_all
     end
 
+    flash.now[:notice] = 'Cleared comments for packages'
+
     respond_to do |format|
       format.html { redirect_to({ action: :status, project: @project }, notice: 'Cleared comments for packages.') }
-      format.js { render js: '<em>Cleared comments for packages</em>' }
+      if switch_to_webui2?
+        format.js { render 'webui2/webui/project/clear_failed_comment' }
+      else
+        format.js { render js: '<em>Cleared comments for packages</em>' }
+      end
     end
+    switch_to_webui2
   end
 
   def edit
@@ -580,8 +587,10 @@ class Webui::ProjectController < Webui::WebuiController
 
     attr = @package.attribs.where(attrib_type: at).first_or_initialize
     v = attr.values.first_or_initialize
-    v.update!(value: params[:text], position: 1)
+    v.value = params[:text]
+    v.position = 1
     attr.save!
+    v.save!
     @comment = params[:text]
     switch_to_webui2
   end

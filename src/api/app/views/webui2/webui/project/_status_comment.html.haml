@@ -4,7 +4,6 @@
     - if editable
       = link_to(edit_comment_form_path(project: project, package: package_name, comment: comment), remote: true) do
         %i.fas.fa-edit.text-secondary
-    - else
       = link_to(clear_failed_comment_path(project: project, package: package_name), remote: true) do
         %i.fas.fa-times-circle.text-danger
 
