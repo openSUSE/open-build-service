@@ -117,7 +117,7 @@ sub check {
   my %deps = map {$_ => 1} @deps;
   delete $deps{''};
 
-  my @aprps = BSSched::BuildJob::expandkiwipath($info, $ctx->{'prpsearchpath'});
+  my @aprps = BSSched::BuildJob::expandkiwipath($ctx, $info);
   my @bprps = @{$ctx->{'prpsearchpath'}};
   my $bconf = $ctx->{'conf'};
 

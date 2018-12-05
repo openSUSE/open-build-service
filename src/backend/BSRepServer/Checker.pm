@@ -123,9 +123,13 @@ sub preparepool {
   }
   $ctx->{'dep2pkg'} = \%dep2pkg;
   $ctx->{'dep2src'} = \%dep2src;
-  my @subpacks = grep {defined($dep2src{$_}) && $dep2src{$_} eq $pname} keys %dep2src;
-  @subpacks = () if $bconf->{'type'} eq 'kiwi' || $bconf->{'type'} eq 'docker';
-  $ctx->{'subpacks'} = { $pname => \@subpacks };
+  if (!defined($pname)) {
+    $ctx->{'subpacks'} = {};
+  } else {
+    my @subpacks = grep {defined($dep2src{$_}) && $dep2src{$_} eq $pname} keys %dep2src;
+    @subpacks = () if $bconf->{'type'} eq 'kiwi' || $bconf->{'type'} eq 'docker';
+    $ctx->{'subpacks'} = { $pname => \@subpacks };
+  }
 }
 
 # see checkpks in BSSched::Checker

@@ -1207,6 +1207,17 @@ sub getlogfile {
   return undef;
 }
 
+sub add_provided_by {
+  my ($n, $pool, $dep, $keep) = @_;
+
+  for my $p ($pool->whatprovides($dep)) {
+    my $rd = $pool->pkg2data($p);
+    delete $rd->{$_} for grep {!$keep->{$_}} keys %$rd;
+    ($rd->{'project'}, $rd->{'repository'}) = split('/', $pool->pkg2reponame($p), 2);
+    push @{$n->{'providedby'}}, $rd;
+  }
+}
+
 sub getbinary_info {
   my ($cgi, $projid, $repoid, $arch, $bin, $path) = @_;
   if ($path =~ /\.tar$/ && ! -f $path) {
@@ -1220,7 +1231,7 @@ sub getbinary_info {
   }
   my @s = stat($path);
   die("404 $bin: $!\n") unless @s;
-  my $res = Build::query($path, 'evra' => 1, 'description' => 1) || {};
+  my $res = Build::query($path, 'evra' => 1, 'description' => 1, 'weakdeps' => 1) || {};
   if (!%$res && $path =~ /\/updateinfo\.xml$/) {
     my $updateinfos = readxml($path, $BSXML::updateinfo, 1);
     if ($updateinfos && @{$updateinfos->{'update'} || []} == 1) {
@@ -1295,25 +1306,30 @@ sub getbinary_info {
     }
     $pool->createwhatprovides();
     my %keep = map {$_ => 1} qw{name epoch version release arch};
-    for my $prov (@{$res->{'provides'}}) {
-      my $n = {'dep' => $prov};
-      push @{$res->{'provides_ext'}}, $n;
-      for my $p ($pool->whatrequires($prov)) {
+    for my $dep (@{$res->{'provides'} || []}) {
+      my $n = {'dep' => $dep};
+      for my $p ($pool->whatrequires($dep)) {
 	my $rd = $pool->pkg2data($p);
 	delete $rd->{$_} for grep {!$keep{$_}} keys %$rd;
 	($rd->{'project'}, $rd->{'repository'}) = split('/', $pool->pkg2reponame($p), 2);
 	push @{$n->{'requiredby'}}, $rd;
       }
+      push @{$res->{'provides_ext'}}, $n;
     }
-    for my $req (@{$res->{'requires'}}) {
-      my $n = {'dep' => $req};
+    for my $dep (@{$res->{'requires'} || []}) {
+      my $n = {'dep' => $dep};
+      add_provided_by($n, $pool, $dep, \%keep);
       push @{$res->{'requires_ext'}}, $n;
-      for my $p ($pool->whatprovides($req)) {
-	my $rd = $pool->pkg2data($p);
-	delete $rd->{$_} for grep {!$keep{$_}} keys %$rd;
-	($rd->{'project'}, $rd->{'repository'}) = split('/', $pool->pkg2reponame($p), 2);
-	push @{$n->{'providedby'}}, $rd;
-      }
+    }
+    for my $dep (@{$res->{'recommends'} || []}) {
+      my $n = {'dep' => $dep};
+      add_provided_by($n, $pool, $dep, \%keep);
+      push @{$res->{'recommends_ext'}}, $n;
+    }
+    for my $dep (@{$res->{'supplements'} || []}) {
+      my $n = {'dep' => $dep};
+      add_provided_by($n, $pool, $dep, \%keep);
+      push @{$res->{'supplements_ext'}}, $n;
     }
   }
   data2utf8xml($res);
@@ -3001,48 +3017,55 @@ sub getbuildinfo {
   return ($binfo, $BSXML::buildinfo);
 }
 
+sub getbuildinfo_post_cpio {
+  my ($cgi, $projid, $repoid, $arch, $packid, $fp) = @_;
+
+  my $fn = $cgi->{'_fn'};
+  local *F;
+  open(F, '<', $fn) || die("$fn: $!\n");
+  unlink($fn);
+  my $dir = "$uploaddir/$$.dir";
+  mkdir_p($dir);
+  my $uploaded = BSHTTP::cpio_receiver(BSHTTP::fd2req(\*F), {'directory' => $dir});
+  close(F);
+  # should we check if the cpio archive contains <= 2 files?
+  my $depfile = (grep { $_->{'name'} eq 'deps' } @$uploaded)[0];
+  $depfile = "$dir/$depfile->{'name'}" if $depfile;
+  my $servicefile = (grep { $_->{'name'} eq '_service' } @$uploaded)[0];
+  $servicefile = "$dir/$servicefile->{'name'}" if $servicefile;
+  my $bifile = (grep { $_->{'name'} eq 'buildenv' } @$uploaded)[0];
+  $bifile = "$dir/$bifile->{'name'}" if $bifile;
+  $fn = (grep { $_->{'name'} ne 'deps' && $_->{'name'} ne 'buildenv' && $_->{'name'} ne '_service'} @$uploaded)[0];
+  die("no build recipe file found\n") unless $fn;
+  my @r;
+  eval {
+    @r = getbuildinfo_post({ %$cgi, '_fn' => "$dir/$fn->{'name'}", '_depfile' => $depfile, '_buildenvfile' => $bifile, '_servicefile' => $servicefile, '_buildtype' => Build::recipe2buildtype($fn->{'name'})}, $projid, $repoid, $arch, $packid);
+  };
+  # cleanup
+  unlink("$dir/$_") for ls($dir);
+  rmdir($dir) if -d $dir;
+  die("$@\n") if $@;
+  return @r;
+}
+
 sub getbuildinfo_post {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
   my $fn = $cgi->{'_fn'};
-  my $depfile = $cgi->{'_depfile'};
   if (!$fn) {
+    # get POST body
     mkdir_p($uploaddir);
     $fn = "$uploaddir/$$";
     die("upload failed\n") unless BSServer::read_file($fn);
-  }
 
-  local *F;
-  open(F, '<', $fn) || die("$fn: $!\n");
-  my $magic;
-  sysread(F, $magic, 6);
-  if ($magic eq "070701" && !$cgi->{'_fn'}) {
-    # have cpio archive, extract recipe and depfile, recurse
-    unlink($fn);
-    sysseek(F, 0, 0);
-    my $dir = "$uploaddir/$$.dir";
-    mkdir_p($dir);
-    my $uploaded = BSHTTP::cpio_receiver(BSHTTP::fd2req(\*F), {'directory' => $dir});
+    # check if the upload is a cpio archive by looking at the first 6 bytes
+    local *F;
+    open(F, '<', $fn) || die("$fn: $!\n");
+    my $magic;
+    sysread(F, $magic, 6);
     close(F);
-    # should we check if the cpio archive contains <= 2 files?
-    $depfile = (grep { $_->{'name'} eq 'deps' } @$uploaded)[0];
-    $depfile = "$dir/$depfile->{'name'}" if $depfile;
-    my $servicefile = (grep { $_->{'name'} eq '_service' } @$uploaded)[0];
-    $servicefile = "$dir/$servicefile->{'name'}" if $servicefile;
-    my $bifile = (grep { $_->{'name'} eq 'buildenv' } @$uploaded)[0];
-    $bifile = "$dir/$bifile->{'name'}" if $bifile;
-    $fn = (grep { $_->{'name'} ne "deps" && $_->{'name'} ne 'buildenv' && $_->{'name'} ne '_service'} @$uploaded)[0];
-    die("no build recipe file found\n") unless $fn;
-    my @r;
-    eval {
-      @r = getbuildinfo_post({ %$cgi, '_fn' => "$dir/$fn->{'name'}", '_depfile' => $depfile, '_buildenvfile' => $bifile, '_servicefile' => $servicefile, '_buildtype' => Build::recipe2buildtype($fn->{'name'})}, $projid, $repoid, $arch, $packid);
-    };
-    unlink("$dir/$_") for ls($dir);
-    rmdir($dir) if -d $dir;
-    die("$@\n") if $@;
-    return @r;
+    return getbuildinfo_post_cpio({ %$cgi, '_fn' => $fn }, $projid, $repoid, $arch, $packid) if $magic eq '070701';
   }
-  close(F);
 
   my $bconf = BSRepServer::getconfig($projid, $repoid, $arch);
   $bconf->{'type'} = $cgi->{'_buildtype'} if $cgi->{'_buildtype'};
@@ -3090,7 +3113,7 @@ sub getbuildinfo_post {
        push @{$info->{'dep'}}, $pkgname;
      }
   }
-  $pdata->{'ldepfile'} = $depfile if defined $depfile;
+  $pdata->{'ldepfile'} = $cgi->{'_depfile'} if $cgi->{'_depfile'};
 
   my $binfo = BSRepServer::BuildInfo::buildinfo($projid, $repoid, $arch, $packid,
 	  pdata	   => $pdata,
@@ -3629,7 +3652,7 @@ sub fileinfo {
   my $q = {};
   die("filename: $!\n") unless -f $filepath;
   if ($filename =~ /\.(?:$binsufsre)$/) {
-    $q = Build::query($filepath, 'evra' => 1, 'description' => 1, 'alldeps' => 1);
+    $q = Build::query($filepath, 'evra' => 1, 'description' => 1, 'weakdeps' => 1, 'alldeps' => 1);
     data2utf8xml($q);
   } elsif ($filename =~ /\.ymp$/) {
     my $ymp = readxml($filepath, $BSXML::ymp, 1);
