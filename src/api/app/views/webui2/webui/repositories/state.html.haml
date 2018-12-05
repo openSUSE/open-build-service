@@ -18,7 +18,7 @@
             Cycles for #{arch.name} (##{cycle.length})
         %ul
           %li
-            = cycle.map { |package| link_to(package, package_show_path(project: @project, package: package)) }.join(', ').safe_join
+            = safe_join(cycle.map { |package| link_to(package, package_show_path(project: @project, package: package)) }, ', ')
       - if cycles.empty?
         %p
           %i

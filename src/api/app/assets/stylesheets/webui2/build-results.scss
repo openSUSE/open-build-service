@@ -34,7 +34,7 @@
   color: $dark;
 }
 
-.build-state-unresolvable, .build-state-broken {
+.build-state-unresolvable, .build-state-broken, .build-state-failed {
   color: $red;
 }
 

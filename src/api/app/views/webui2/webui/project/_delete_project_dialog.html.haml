@@ -6,7 +6,7 @@
       .modal-body
         %p Please confirm deletion of #{link_to(project, project_show_path(project))}
 
-        = form_tag(project_destroy_path(project), method: :delete) do
+        = form_tag(project_destroy_path, method: :delete) do
           = hidden_field_tag(:project, project)
 
           .modal-footer

@@ -1,5 +1,6 @@
 @import 'datatables/dataTables.bootstrap4';
 @import 'datatables/extensions/Responsive/responsive.bootstrap4';
+@import 'datatables/extensions/FixedColumns/fixedColumns.bootstrap4';
 
 table.table-fixed {
   table-layout: fixed
