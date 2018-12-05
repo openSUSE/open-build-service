@@ -4,10 +4,7 @@ linters:
 
   # Apply lint in all partials, but exclude 'breadcrumb_items' partials
   InstanceVariables:
-    enabled: true
-    file_types: not_breadcrumb_items
-    matchers:
-      not_breadcrumb_items: \A_(?!breadcrumb_items).*\.haml\z
+    enabled: false
 
   RuboCop:
     enabled: true
