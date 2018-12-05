@@ -1,15 +1,21 @@
+- number_paths = 3
 .card-body
   - if repository.path_elements.present?
     Repository paths:
     %ul.list-unstyled.ml-3
-      - repository.path_elements.each do |path|
-        %li
-          %small.font-weight-bold
-            - if path.link.project == 'deleted'
-              %i.fas.fa-exclamation-circle.text-warning
-              Target repository has been removed
-            - else
-              #{path.link.project}/#{path.link.name}
+      - repository.path_elements.each_with_index do |path, index|
+        - if index < number_paths
+          = render partial: 'repository_path_item', locals: { project: project, repository: repository, path: path }
+        - else
+          - content_for :repository_path_item do
+            = render partial: 'repository_path_item', locals: { project: project, repository: repository, path: path }
+      - if repository.path_elements.size > number_paths
+        %details.repository-path
+          %summary.small
+            %span.more More
+            %span.less Less
+          = yield :repository_path_item
+
 .card-footer.text-center
   .row
     - if User.current.can_modify?(project) && !repository.is_dod_repository?
