@@ -25,7 +25,7 @@ module InfluxDB
         attr_reader :series_name, :logger
 
         def enabled?
-          series_name.present?
+          CONFIG['influxdb_hosts'].present?
         end
 
         def values(runtime)
@@ -35,10 +35,10 @@ module InfluxDB
         def tags(data)
           {
             http_method: data[:http_method],
-            http_status: data[:http_status],
+            http_status_code: data[:http_status_code],
             host: data[:host],
-            controller: data[:controller],
-            backend: data[:backend]
+            controller_location: data[:controller_location],
+            backend_location: data[:backend_location]
           }.reject { |_, value| value.blank? }
         end
       end
