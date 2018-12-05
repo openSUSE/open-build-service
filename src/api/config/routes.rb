@@ -273,7 +273,7 @@ OBSApi::Application.routes.draw do
       post 'project/save_path_element' => :save_path_element
       get 'project/remove_target_request_dialog' => :remove_target_request_dialog
       post 'project/remove_target_request' => :remove_target_request, as: 'project_remove_target_request'
-      post 'project/remove_path_from_target' => :remove_path_from_target
+      post 'project/remove_path_from_target' => :remove_path_from_target, as: 'remove_repository_path'
       post 'project/release_repository/:project/:repository' => :release_repository, constraints: cons
       get 'project/release_repository_dialog/:project/:repository' => :release_repository_dialog, constraints: cons
       post 'project/move_path/:project' => :move_path, as: 'move_repository_path'
