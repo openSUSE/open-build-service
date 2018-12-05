@@ -1,0 +1,16 @@
+- if comment
+  = h(comment)
+  - if User.current.can_modify?(project.api_obj)
+    - if editable
+      = link_to(edit_comment_form_path(project: project, package: package_name, comment: comment), remote: true) do
+        %i.fas.fa-edit.text-secondary
+    - else
+      = link_to(clear_failed_comment_path(project: project, package: package_name), remote: true) do
+        %i.fas.fa-times-circle.text-danger
+
+- elsif editable
+  %span.unknown_failure
+    Unknown build failure
+    - if User.current.can_modify?(project.api_obj)
+      = link_to(edit_comment_form_path(project: project, package: package_name, comment: ''), remote: true) do
+        %i.fas.fa-edit.text-secondary

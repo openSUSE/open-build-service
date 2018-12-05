@@ -580,10 +580,10 @@ class Webui::ProjectController < Webui::WebuiController
 
     attr = @package.attribs.where(attrib_type: at).first_or_initialize
     v = attr.values.first_or_initialize
-    v.value = params[:text]
-    v.position = 1
+    v.update!(value: params[:text], position: 1)
     attr.save!
     @comment = params[:text]
+    switch_to_webui2
   end
 
   def status

@@ -1,0 +1,2 @@
+$('td[data-package-name="<%= @package.name %>"]').
+  html('<%= escape_javascript(render(partial: 'edit_comment')) %>');

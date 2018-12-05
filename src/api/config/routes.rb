@@ -288,9 +288,9 @@ OBSApi::Application.routes.draw do
       get 'project/toggle_watch/:project' => :toggle_watch, constraints: cons, as: 'project_toggle_watch'
       get 'project/prjconf/:project' => :prjconf, constraints: cons, as: :project_config
       post 'project/save_prjconf/:project' => :save_prjconf, constraints: cons, as: :save_project_config
-      get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons
+      get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons, as: :clear_failed_comment
       get 'project/edit/:project' => :edit, constraints: cons
-      get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons
+      get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons, as: :edit_comment_form
       post 'project/edit_comment/:project' => :edit_comment, constraints: cons
       get 'project/status/(:project)' => :status, constraints: cons, as: 'project_status'
       get 'project/maintained_projects/:project' => :maintained_projects, constraints: cons, as: :project_maintained_projects

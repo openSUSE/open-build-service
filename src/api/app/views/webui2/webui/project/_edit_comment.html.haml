@@ -1,0 +1,8 @@
+%div
+
+  - if @error
+    %i.fa.fa-exclamation-triangle.text-warning
+    = @error
+
+  = render partial: 'status_comment', locals: { package_name: @package.name, editable: true, comment: @comment, project: @project }
+
