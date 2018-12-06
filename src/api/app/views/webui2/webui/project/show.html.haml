@@ -44,12 +44,16 @@
           %li.nav-item
             %a.nav-link.active#packages-tab{ href: '#packages', role: 'tab', data: { toggle: 'tab' },
             aria: { controls: 'packages', selected: 'true' } }
-              Packages (#{@packages.length})
+              Packages
+              %span.badge.badge-primary
+                = @packages.length
           - if @ipackages.present?
             %li.nav-item
               %a.nav-link#inherited-packages-tab{ href: '#inherited-packages', role: 'tab', data: { toggle: 'tab' },
               aria: { controls: 'inherited-packages', selected: 'false' } }
-                Inherited Packages (#{@ipackages.length})
+                Inherited Packages
+                %span.badge.badge-primary
+                  = @ipackages.length
       .tab-content#packages-tabs-content
         .tab-pane.fade.show.active#packages{ role: 'tabpanel', aria: { labelledby: 'packages-tab' } }
           = render partial: 'project_packages', locals: { project: @project, packages: @packages, remote_projects: @remote_projects }
