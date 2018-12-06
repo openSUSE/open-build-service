@@ -93,6 +93,7 @@ class Webui::ProjectController < Webui::WebuiController
     parent = @project.parent
     @parent_name = parent.name unless parent.nil?
     @siblings = @project.siblingprojects
+    switch_to_webui2
   end
 
   def pulse
