@@ -3,6 +3,6 @@
     .modal-content
       .modal-header
         %h5.modal-title#add-new-subproject-modal-label
-          Create subproject
+          Create Subproject
       .modal-body
         = render partial: 'form', locals: { project: Project.new, namespace: project.name, configuration: configuration }

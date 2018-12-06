@@ -10,7 +10,7 @@ RSpec.feature 'Bootstrap_Projects', type: :feature, js: true, vcr: true do
     before do
       login user
       visit project_show_path(project: user.home_project)
-      click_link('Create package')
+      click_link('Create Package')
     end
 
     scenario 'with valid data' do

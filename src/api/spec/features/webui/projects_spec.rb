@@ -23,8 +23,8 @@ RSpec.feature 'Projects', type: :feature, js: true do
     login user
     visit project_show_path(project: project)
 
-    click_link('Edit description')
-    expect(page).to have_text('Edit Project Information of')
+    click_link('Edit Project')
+    expect(page).to have_text('Edit Project')
 
     fill_in 'project_title', with: 'My Title hopefully got changed'
     fill_in 'project_description', with: 'New description. Not kidding.. Brand new!'
@@ -41,7 +41,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     before do
       login user
       visit project_show_path(project: user.home_project)
-      click_link('Create package')
+      click_link('Create Package')
       expect(page).to have_text("Create New Package for #{user.home_project_name}")
     end
 
@@ -51,7 +51,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       fill_in 'name', with: 'coolstuff'
       fill_in 'title', with: 'cool stuff everyone needs'
       fill_in 'description', with: very_long_description
-      click_button 'Save changes'
+      click_button('Accept')
 
       expect(page).to have_text("Package 'coolstuff' was created successfully")
       expect(page.current_path).to eq(package_show_path(project: user.home_project_name, package: 'coolstuff'))
@@ -61,7 +61,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
     scenario 'with invalid data (validation fails)' do
       fill_in 'name', with: 'cool stuff'
-      click_button 'Save changes'
+      click_button('Accept')
 
       expect(page).to have_text("Invalid package name: 'cool stuff'")
       expect(page.current_path).to eq("/project/new_package/#{user.home_project_name}")
@@ -71,7 +71,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       create(:package, name: 'coolstuff', project: user.home_project)
 
       fill_in 'name', with: 'coolstuff'
-      click_button 'Save changes'
+      click_button('Accept')
 
       expect(page).to have_text("Package 'coolstuff' already exists in project '#{user.home_project_name}'")
       expect(page.current_path).to eq("/project/new_package/#{user.home_project_name}")
@@ -91,7 +91,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       visit "/project/new_package/#{global_project}"
 
       fill_in 'name', with: 'coolstuff'
-      click_button 'Save changes'
+      click_button('Accept')
 
       expect(page).to have_text("You can't create packages in #{global_project}")
       expect(page.current_path).to eq("/project/new_package/#{global_project}")
@@ -100,10 +100,10 @@ RSpec.feature 'Projects', type: :feature, js: true do
     scenario 'as admin' do
       login admin_user
       visit project_show_path(project: global_project)
-      click_link('Create package')
+      click_link('Create Package')
 
       fill_in 'name', with: 'coolstuff'
-      click_button 'Save changes'
+      click_button('Accept')
 
       expect(page).to have_text("Package 'coolstuff' was created successfully")
       expect(page.current_path).to eq(package_show_path(project: global_project.to_s, package: 'coolstuff'))
@@ -153,9 +153,9 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'unlock' do
-      click_link('Unlock project')
+      click_link('Unlock Project')
       fill_in 'comment', with: 'Freedom at last!'
-      click_button('Ok')
+      click_button('Accept')
       expect(page).to have_content('Successfully unlocked project')
 
       visit project_show_path(project: locked_project.name)
@@ -165,9 +165,9 @@ RSpec.feature 'Projects', type: :feature, js: true do
     scenario 'fail to unlock' do
       allow_any_instance_of(Project).to receive(:can_be_unlocked?).and_return(false)
 
-      click_link('Unlock project')
+      click_link('Unlock Project')
       fill_in 'comment', with: 'Freedom at last!'
-      click_button('Ok')
+      click_button('Accept')
       expect(page).to have_content("Project can't be unlocked")
 
       visit project_show_path(project: locked_project.name)
@@ -301,36 +301,36 @@ RSpec.feature 'Projects', type: :feature, js: true do
     before do
       login user
       visit project_show_path(project)
-      click_link('Branch existing package')
+      click_link('Branch Existing Package')
     end
 
     scenario 'an existing package' do
-      fill_in('Original project name', with: other_user.home_project_name)
-      fill_in('Original package name', with: package_of_another_project.name)
+      fill_in('linked_project', with: other_user.home_project_name)
+      fill_in('linked_package', with: package_of_another_project.name)
       # This needs global write through
-      click_button('Create Branch')
+      click_button('Accept')
 
       expect(page).to have_text('Successfully branched package')
       expect(page.current_path).to eq('/package/show/home:Jane/branch_test_package')
     end
 
     scenario 'an existing package, but chose a different target package name' do
-      fill_in('Original project name', with: other_user.home_project_name)
-      fill_in('Original package name', with: package_of_another_project.name)
+      fill_in('linked_project', with: other_user.home_project_name)
+      fill_in('linked_package', with: package_of_another_project.name)
       fill_in('Branch package name', with: 'some_different_name')
       # This needs global write through
-      click_button('Create Branch')
+      click_button('Accept')
 
       expect(page).to have_text('Successfully branched package')
       expect(page.current_path).to eq("/package/show/#{user.home_project_name}/some_different_name")
     end
 
     scenario 'an existing package to an invalid target package or project' do
-      fill_in('Original project name', with: other_user.home_project_name)
-      fill_in('Original package name', with: package_of_another_project.name)
+      fill_in('linked_project', with: other_user.home_project_name)
+      fill_in('linked_package', with: package_of_another_project.name)
       fill_in('Branch package name', with: 'something/illegal')
       # This needs global write through
-      click_button('Create Branch')
+      click_button('Accept')
 
       expect(page).to have_text('Failed to branch: Validation failed: Name is illegal')
       expect(page.current_path).to eq('/project/new_package_branch/home:Jane')
@@ -339,20 +339,20 @@ RSpec.feature 'Projects', type: :feature, js: true do
     scenario 'an existing package were the target package already exists' do
       create(:package_with_file, name: package_of_another_project.name, project: user.home_project)
 
-      fill_in('Original project name', with: other_user.home_project_name)
-      fill_in('Original package name', with: package_of_another_project.name)
+      fill_in('linked_project', with: other_user.home_project_name)
+      fill_in('linked_package', with: package_of_another_project.name)
       # This needs global write through
-      click_button('Create Branch')
+      click_button('Accept')
 
       expect(page).to have_text('You have already branched this package')
       expect(page.current_path).to eq('/package/show/home:Jane/branch_test_package')
     end
 
     scenario 'a non-existing package' do
-      fill_in('Original project name', with: 'non-existing_package')
-      fill_in('Original package name', with: package_of_another_project.name)
+      fill_in('linked_project', with: 'non-existing_package')
+      fill_in('linked_package', with: package_of_another_project.name)
       # This needs global write through
-      click_button('Create Branch')
+      click_button('Accept')
 
       expect(page).to have_text('Failed to branch: Package does not exist.')
       expect(page.current_path).to eq('/project/new_package_branch/home:Jane')
@@ -361,11 +361,11 @@ RSpec.feature 'Projects', type: :feature, js: true do
     scenario 'a package with disabled access flag' do
       create(:access_flag, status: 'disable', project: other_user.home_project)
 
-      fill_in('Original project name', with: other_user.home_project_name)
-      fill_in('Original package name', with: package_of_another_project.name)
+      fill_in('linked_project', with: other_user.home_project_name)
+      fill_in('linked_package', with: package_of_another_project.name)
       fill_in('Branch package name', with: 'some_different_name')
       # This needs global write through
-      click_button('Create Branch')
+      click_button('Accept')
 
       expect(page).to have_text('Failed to branch: Package does not exist.')
       expect(page.current_path).to eq('/project/new_package_branch/home:Jane')
@@ -374,24 +374,24 @@ RSpec.feature 'Projects', type: :feature, js: true do
     scenario 'a package with disabled sourceaccess flag' do
       create(:sourceaccess_flag, status: 'disable', project: other_user.home_project)
 
-      fill_in('Original project name', with: other_user.home_project_name)
-      fill_in('Original package name', with: package_of_another_project.name)
+      fill_in('linked_project', with: other_user.home_project_name)
+      fill_in('linked_package', with: package_of_another_project.name)
       fill_in('Branch package name', with: 'some_different_name')
       # This needs global write through
-      click_button('Create Branch')
+      click_button('Accept')
 
       expect(page).to have_text('Sorry, you are not authorized to branch this Package.')
       expect(page.current_path).to eq('/project/new_package_branch/home:Jane')
     end
 
     scenario 'a package and select current revision' do
-      fill_in('Original project name', with: other_user.home_project_name)
-      fill_in('Original package name', with: package_of_another_project.name)
+      fill_in('linked_project', with: other_user.home_project_name)
+      fill_in('linked_package', with: package_of_another_project.name)
 
       find("input[id='current_revision']").set(true)
 
       # This needs global write through
-      click_button('Create Branch')
+      click_button('Accept')
 
       expect(page).to have_text('Successfully branched package')
       expect(page.current_path).to eq('/package/show/home:Jane/branch_test_package')
@@ -429,7 +429,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       click_link('Maintained Projects')
       click_link('Add project to maintenance')
       fill_in('Project to maintain:', with: project.name)
-      click_button('Ok')
+      click_button('Accept')
 
       expect(page).to have_text("Added #{project.name} to maintenance")
       expect(find('table#maintained_projects_table td:first-child')).to have_text(project.name)
