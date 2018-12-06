@@ -11,6 +11,8 @@ RSpec.feature 'Watchlists', type: :feature, js: true do
   end
 
   scenario 'add projects to watchlist' do
+    skip_if_bootstrap
+
     login user
     visit project_show_path(user.home_project)
 
@@ -37,6 +39,8 @@ RSpec.feature 'Watchlists', type: :feature, js: true do
   end
 
   scenario 'remove projects from watchlist' do
+    skip_if_bootstrap
+
     login user_with_watched_project
     visit project_show_path(project: 'brian_s_watched_project')
 
