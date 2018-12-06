@@ -13,7 +13,7 @@ class Webui::AttributeController < Webui::WebuiController
   def index
     @attributes = @container.attribs.includes(:issues, :values, attrib_type: [:attrib_namespace]).sort_by(&:fullname)
 
-    switch_to_webui2 if @container.is_a?(Package)
+    switch_to_webui2
   end
 
   def new
@@ -25,7 +25,7 @@ class Webui::AttributeController < Webui::WebuiController
 
     authorize @attribute, :create?
 
-    switch_to_webui2 if @container.is_a?(Package)
+    switch_to_webui2
   end
 
   def edit
@@ -40,7 +40,7 @@ class Webui::AttributeController < Webui::WebuiController
       (value_count - values_length).times { @attribute.values.build(attrib: @attribute) }
     end
 
-    switch_to_webui2 if @container.is_a?(Package)
+    switch_to_webui2
   end
 
   def create

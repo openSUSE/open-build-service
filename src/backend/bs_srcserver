@@ -5570,7 +5570,7 @@ sub sourceinfo {
       die("no source uploaded\n") unless $cgi->{'nofilename'};
       $rev = {'srcmd5' => $BSSrcrep::emptysrcmd5, 'project' => $projid, 'package' => $packid };
     }
-    if (!$cgi->{'unexpanded'} && $packid ne '_project') {
+    if (!$cgi->{'noexpand'} && $packid ne '_project') {
       my $linkinfo = {};
       $files = BSRevision::lsrev($rev, $linkinfo);
       if ($linkinfo->{'xservicemd5'}) {
@@ -5592,7 +5592,7 @@ sub sourceinfo {
     $r->{'error'} =~ s/\n$//s;
     return $r;
   }
-  return $r if $cgi->{'unexpanded'} || $packid eq '_project';
+  return $r if $cgi->{'noexpand'} || $packid eq '_project';
   if ($files->{'_link'}) {
     $rev->{'linkrev'} = $cgi->{'linkrev'} if $cgi->{'linkrev'};
     eval {
@@ -6342,7 +6342,7 @@ my $dispatches = [
   'POST:/source/$project cmd=freezelink user:? comment:? requestid:num?' => \&freezeprojectlink,
   'POST:/source/$project cmd=notifypackagechange' => \&notifypackagechange,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
-  '/source/$project view=info parse:bool? nofilename:bool? repository? arch? package* withchangesmd5:bool? unexpanded:bool? withmetamd5:bool?' => \&getprojectsourceinfo,
+  '/source/$project view=info parse:bool? nofilename:bool? repository? arch? package* withchangesmd5:bool? noexpand:bool? withmetamd5:bool?' => \&getprojectsourceinfo,
   '/source/$project deleted:bool? expand:bool? noorigins:bool?' => \&getpackagelist,
 
   'DELETE:/source/$project user:? comment:? requestid:num?' => \&delproject,
@@ -6380,7 +6380,7 @@ my $dispatches = [
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,	# obsolete
 
   '/source/$project/$package view=getmultibuild' => \&getmultibuildpackages,
-  '/source/$project/$package view=info rev? linkrev? parse:bool? nofilename:bool? repository? arch? withchangesmd5:bool? unexpanded:bool? withmetamd5:bool?' => \&getpackagesourceinfo,
+  '/source/$project/$package view=info rev? linkrev? parse:bool? nofilename:bool? repository? arch? withchangesmd5:bool? noexpand:bool? withmetamd5:bool?' => \&getpackagesourceinfo,
   '/source/$project/$package rev? linkrev? emptylink:bool? deleted:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool? meta:bool? product:?' => \&getfilelist,
   '/source/$project/$package/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
   '/source/$project/$package/_meta rev? expand:bool? meta:bool? deleted:bool? view:?' => \&getpackage,

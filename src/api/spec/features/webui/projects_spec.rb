@@ -414,7 +414,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       click_button('Add')
 
       expect(page).to have_text('Attribute was successfully created.')
-      expect(find('table tr.attribute-values td:first-child')).to have_text('OBS:MaintenanceProject')
+      expect(find('table tr td:first-child')).to have_text('OBS:MaintenanceProject')
     end
   end
 

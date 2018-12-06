@@ -4,6 +4,7 @@ class Webui::ProjectController < Webui::WebuiController
   include Webui::ProjectHelper
   include Webui::LoadBuildresults
   include Webui::ManageRelationships
+  include Webui2::ProjectController
 
   before_action :lockout_spiders, only: [:requests, :rebuild_time, :buildresults, :maintenance_incidents]
 
@@ -14,7 +15,7 @@ class Webui::ProjectController < Webui::WebuiController
                                      :new_package, :new_package_branch, :incident_request_dialog, :release_request_dialog,
                                      :show, :linking_projects, :add_person, :add_group, :buildresult, :delete_dialog,
                                      :destroy, :remove_path_from_target, :rebuild_time, :packages_simple,
-                                     :requests, :save, :monitor, :toggle_watch, :meta,
+                                     :requests, :save, :monitor, :toggle_watch,
                                      :prjconf, :edit, :edit_comment,
                                      :status, :maintained_projects,
                                      :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
@@ -22,7 +23,7 @@ class Webui::ProjectController < Webui::WebuiController
                                      :move_path, :save_prjconf, :clear_failed_comment, :pulse]
 
   # TODO: check if get_by_name or set_by_name is used for save_prjconf
-  before_action :set_project_by_name, only: [:save_meta, :save_prjconf]
+  before_action :set_project_by_name, only: [:save_prjconf]
 
   before_action :set_project_by_id, only: [:update]
 
@@ -39,7 +40,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   before_action :set_maintained_project, only: [:remove_maintained_project]
 
-  after_action :verify_authorized, only: [:save_new, :new_incident, :save_meta]
+  after_action :verify_authorized, only: [:save_new, :new_incident]
 
   def index
     @show_all = (params[:show_all].to_s == 'true')
@@ -510,51 +511,6 @@ class Webui::ProjectController < Webui::WebuiController
     else
       redirect_to action: :show, project: @project
     end
-  end
-
-  def meta
-    @meta = @project.render_xml
-    switch_to_webui2
-  end
-
-  def save_meta
-    authorize @project, :update?
-
-    errors = []
-    begin
-      Suse::Validator.validate('project', params[:meta])
-      request_data = Xmlhash.parse(params[:meta])
-
-      remove_repositories = @project.get_removed_repositories(request_data)
-      errors << Project.check_repositories(remove_repositories)[:error]
-      errors << Project.validate_remote_permissions(request_data)[:error]
-      errors << Project.validate_link_xml_attribute(request_data, @project.name)[:error]
-      errors << Project.validate_maintenance_xml_attribute(request_data)[:error]
-      errors << Project.validate_repository_xml_attribute(request_data, @project.name)[:error]
-
-      errors = errors.compact
-
-      if errors.empty?
-        Project.transaction do
-          errors << @project.update_from_xml(request_data)[:error]
-          errors = errors.compact
-          @project.store if errors.empty?
-        end
-      end
-    rescue Suse::ValidationError => exception
-      errors << exception.message
-    end
-
-    status = if errors.empty?
-               flash.now[:success] = 'Config successfully saved!'
-               200
-             else
-               flash.now[:error] = errors.compact.join("\n")
-               400
-             end
-    switch_to_webui2
-    namespace = switch_to_webui2? ? 'webui2' : 'webui'
-    render layout: false, status: status, partial: "layouts/#{namespace}/flash", object: flash
   end
 
   def prjconf

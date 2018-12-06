@@ -2,6 +2,7 @@
 Capybara.default_max_wait_time = 6
 Capybara.save_path = Rails.root.join('tmp', 'capybara')
 Capybara.server = :puma, { Silent: true }
+Capybara.disable_animation = true
 
 # we use RSPEC_HOST as trigger to use remote selenium
 if ENV['RSPEC_HOST'].blank?
@@ -13,15 +14,7 @@ if ENV['RSPEC_HOST'].blank?
     browser_options.args << '--headless'
     browser_options.args << '--no-sandbox' # to run in docker
     browser_options.args << '--window-size=1280,1024'
-    driver = Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options)
-    bridge = driver.browser.send(:bridge)
-
-    path = '/session/:session_id/chromium/send_command'
-    path[':session_id'] = bridge.session_id
-
-    bridge.http.call(:post, path, cmd: 'Page.addScriptToEvaluateOnNewDocument',
-                                  params: { source: '$.fx.off = true;' })
-    driver
+    Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options)
   end
 
   Capybara.javascript_driver = :selenium_chrome_headless
