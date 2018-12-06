@@ -2,7 +2,8 @@
   Refresh
   %i.fas.fa-sm.fa-sync-alt
 
-%table.responsive.requests-datatable.table.table-striped.table-bordered.w-100{ data: { source: source_url }, id: id }
+%table.responsive.requests-datatable.table.table-striped.table-bordered.w-100{ data: { source: source_url,
+  'page-length': local_assigns[:page_length] }, id: id }
   %thead
     %tr
       %th Created

@@ -88,7 +88,7 @@ sub check {
   my $neverblock = $ctx->{'isreposerver'} || ($repo->{'block'} || '' eq 'never');
 
   my %aprpprios;
-  my @aprps = BSSched::BuildJob::expandkiwipath($info, $ctx->{'prpsearchpath'}, \%aprpprios);
+  my @aprps = BSSched::BuildJob::expandkiwipath($ctx, $info, \%aprpprios);
   # get config from kiwi path
   my @configpath = @aprps;
   # always put ourselfs in front

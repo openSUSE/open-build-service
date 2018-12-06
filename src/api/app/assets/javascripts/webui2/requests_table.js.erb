@@ -5,6 +5,7 @@ $(document).ready(function() {
     var typeDropdown = $('select[name=request_type_select][data-table=' + dataTableId + ']');
     var stateDropdown = $('select[name=request_state_select][data-table=' + dataTableId + ']');
     var url = $(this).data('source');
+    var pageLength = $(this).data('page-length') || 25;
 
     $(this).dataTable({
       order: [[0,'desc']],
@@ -15,7 +16,7 @@ $(document).ready(function() {
         { orderable: false, targets: [6] }
       ],
       paging: true,
-      pageLength: 25,
+      pageLength: pageLength,
       pagingType: "full_numbers",
       processing: true,
       language: {

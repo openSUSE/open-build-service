@@ -1,0 +1,21 @@
+%li
+  %small.font-weight-bold
+    - if path.link.project == 'deleted'
+      %i.fas.fa-exclamation-circle.text-warning
+      Target repository has been removed
+    - else
+      #{path.link.project}/#{path.link.name}
+      - if repository.path_elements.size > 1
+        - unless path == repository.path_elements.first
+          = link_to(move_repository_path_path(project: project, repository: repository, path: path, direction: 'up'), method: :post,
+                    title: 'Move Up the Repository Path') do
+            %i.fas.fa-arrow-alt-circle-up.fa-lg.text-info
+        - unless path == repository.path_elements.last
+          = link_to(move_repository_path_path(project: project, repository: repository, path: path, direction: 'down'), method: :post,
+                    title: 'Move Down the Repository Path') do
+            %i.fas.fa-arrow-alt-circle-down.fa-lg.text-info
+      = link_to('#', title: "Delete '#{path.link.project}/#{path.link.name}' repository path",
+                 data: { toggle: 'modal', target: "#delete-path-#{path.id}" }) do
+        %i.fas.fa-times-circle.fa-lg.text-danger
+
+= render partial: 'delete_repository_path_modal', locals: { repository: repository, project: project, path: path }

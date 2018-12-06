@@ -66,7 +66,8 @@
               - owned.each do |package_name, project_name|
                 %tr
                   %td
-                    = link_to(package_name, package_show_path(package: package_name, project: project_name))
+                    - if package_name
+                      = link_to(package_name, package_show_path(package: package_name, project: project_name))
                   %td
                     = link_to(project_name, project_show_path(project: project_name))
 

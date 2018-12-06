@@ -1,0 +1,10 @@
+.col-12.col-md-6.col-lg-4
+  .card.mb-3.repository-card
+    .card-header
+      = link_to(repository, project_repository_state_path(project: project, repository: repository.name), class: 'font-weight-bold')
+      .small
+        - if repository.architectures.size.zero?
+          No architecture selected
+        - else
+          #{repository.architectures.pluck(:name).join(', ')}
+    = render partial: 'repository_card_content', locals: { project: project, repository: repository, download_url: download_url }
