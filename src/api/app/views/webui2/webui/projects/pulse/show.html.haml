@@ -1,0 +1,43 @@
+- @pagetitle = "Pulse for #{@project}"
+
+.card
+  = render(partial: 'tabs', locals: { project: @project })
+
+  .card-body
+    .row
+      .col-8.mb-3
+        %h3#range-header
+          = pulse_period('month')
+      .col
+        .dropdown.float-right
+          %button.btn.btn-secondary.dropdown-toggle#period-dropdown{ 'aria-expanded': 'false',
+                                                                     'aria-haspopup': 'true',
+                                                                     'data-toggle': 'dropdown',
+                                                                     type: 'button' }
+            Period: One
+            %span#range-text
+              Week
+          .dropdown-menu{ 'aria-labelledby': 'dropdownMenuButton' }
+            %h6.dropdown-header
+              Period to display:
+            = link_to(update_pulse_path(@project), remote: true, type: :json, class: 'dropdown-item') do
+              One Week
+            = link_to(update_pulse_path(@project, range: 'month'), remote: true, type: :json, class: 'dropdown-item') do
+              One Month
+    .row
+      .col#pulse
+        .row
+          .col.text-center
+            %i.fas.fa-spinner.fa-spin.fa-3x
+
+
+:javascript
+  $.ajax({
+    url: "#{update_pulse_path(@project)}",
+    type: "get",
+  });
+  $(".dropdown-item").click(function() {
+    $("#pulse").html('<div class="fa-3x"><i class="fas fa-spinner fa-spin"></i></div>')
+    // FIXME: No idea why this is needed, maybe remote links are not covered by bootstrap?
+    $('#period-dropdown').dropdown('toggle')
+  });
