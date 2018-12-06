@@ -27,19 +27,19 @@
         - if User.current.can_modify?(@project)
           %li.list-inline-item
             = link_to(repositories_distributions_path(project: @project), class: 'nav-link') do
-              %i.fas.fa-plus-circle.text-success
+              %i.fas.fa-plus-circle.text-primary
               Add from a Distribution
 
           %li.list-inline-item
             = link_to('#', data: { toggle: 'modal', target: '#add-repository-from-project' }, class: 'nav-link') do
-              %i.fas.fa-plus-circle.text-success
+              %i.fas.fa-plus-circle.text-primary
               Add from a Project
             = render partial: 'add_repository_from_project_modal', locals: { project: @project }
 
         - if User.current.is_admin?
           %li.list-inline-item
             = link_to('#', data: { toggle: 'modal', target: '#add-dod-repository-modal' }, class: 'nav-link') do
-              %i.fas.fa-plus-circle.text-success
+              %i.fas.fa-plus-circle.text-primary
               Add DoD Repository
             = render partial: 'add_dod_repository_modal', locals: { project: @project }
 
