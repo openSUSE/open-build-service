@@ -18,6 +18,15 @@ class Webui::RepositoriesController < Webui::WebuiController
     @user_can_set_flags = policy(@project).update?
 
     switch_to_webui2 if @package
+
+    # TODO: Remove the `return unless` and the flash once this should be available to all beta users on production
+    return unless User.current.try(:in_beta?) && Rails.env.development?
+
+    flash[:notice] = 'We are currently migrating the project pages to Bootstrap. This page is only seen on the development environment.'
+
+    @repositories = @project.repositories.includes(:path_elements, :download_repositories)
+
+    switch_to_webui2
   end
 
   # GET project/add_repository/:project
