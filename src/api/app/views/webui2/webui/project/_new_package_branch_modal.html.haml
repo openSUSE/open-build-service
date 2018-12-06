@@ -44,7 +44,7 @@
           = render partial: 'shared/package_branch_form', locals: { show_project_field: false, target_project: project,
                                                                     package: nil, revision: nil }
           .modal-footer
-            = submit_tag 'Create Branch', class: 'btn btn-primary'
+            = render partial: 'webui2/shared/dialog_action_buttons'
 
 :javascript
   autocomleteBranchPackageName('#{autocomplete_packages_path}');
