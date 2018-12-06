@@ -71,7 +71,9 @@
         %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
           %li.nav-item
             %a.nav-link.text-nowrap.active{ href: '#patchinfos-in', title: "Requests that #{User.current} has to merge" }
-              Maintenance Requests (#{involved_patchinfos.size})
+              Maintenance Requests
+              %span.badge.badge-primary
+                = involved_patchinfos.size
       .card-body
         .tab-content#patchinfos-in
           = render(partial: 'webui2/shared/patchinfos_table', locals: { involved_patchinfos: involved_patchinfos })
