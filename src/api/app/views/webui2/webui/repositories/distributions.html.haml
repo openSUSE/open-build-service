@@ -1,0 +1,54 @@
+- @pagetitle = "Add Repository to #{@project}"
+- @metarobots = 'noindex'
+
+.card.mb-3
+  = render partial: 'webui/project/tabs', locals: { project: @project }
+  .card-body
+    %h3.mb-3 Add Repositories to #{@project}
+    - @distributions.each do |vendor, list|
+      %h6.pt-3
+        - if resolve_asset_path("icons/distributions-#{vendor.downcase}")
+          = image_tag("icons/distributions-#{vendor.downcase}")
+        #{vendor} distributions
+      .form-group.pl-3
+        - list.each do |distribution|
+          - selected = @project.has_distribution(distribution['project'], distribution['repository'])
+          .custom-control.custom-checkbox.custom-control-inline
+            = check_box_tag 'distributions[]', distribution['reponame'], selected,
+                                               id: "repo_#{replace_jquery_meta_characters(distribution['reponame'])}",
+                                               class: 'repocheckbox custom-control-input'
+            = label_tag :distribution_name, for: "repo_#{replace_jquery_meta_characters(distribution['reponame'])}", class: 'custom-control-label' do
+              = distribution['name']
+        - list.each do |distribution|
+          = form_tag({ action: :create, project: @project }, remote: true, class: 'd-none',
+                                                             id: "repo_#{replace_jquery_meta_characters(distribution['reponame'])}_create") do
+            = hidden_field_tag 'repository', distribution['reponame']
+            = hidden_field_tag 'target_project', distribution['project']
+            = hidden_field_tag 'target_repo', distribution['repository']
+            - distribution['architectures'].each do |arch|
+              = hidden_field_tag 'architectures[]', arch
+
+          = form_tag({ action: :destroy }, remote: true, class: 'd-none',
+                                           id: "repo_#{replace_jquery_meta_characters(distribution['reponame'])}_destroy") do
+            = hidden_field_tag 'project', @project.name
+            = hidden_field_tag 'target', distribution['reponame']
+    %h6
+      = image_tag('distributions/kiwi.png', width: 40)
+      Kiwi image builds
+    .form-group.pl-3
+      - selected = @project.repositories.where(name: 'images').any?
+      .custom-control.custom-checkbox.custom-control-inline
+        = check_box_tag 'images', 'true', selected, id: 'repo_images', class: 'repocheckbox custom-control-input'
+        %label.custom-control-label{ for: 'repo_images' }
+          KIWI image build
+          %i (to be used for appliance and product builds with kiwi)
+        = form_tag({ action: :create_image_repository, project: @project }, remote: true, class: 'd-none', id: 'repo_images_create') do
+          = hidden_field_tag :repository, 'images'
+
+        = form_tag({ action: :destroy }, remote: true, class: 'd-none', id: 'repo_images_destroy') do
+          = hidden_field_tag :project, @project.name
+          = hidden_field_tag :target, 'images'
+
+= content_for :ready_function do
+  setRepoCheckbox();
+
