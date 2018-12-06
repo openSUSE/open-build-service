@@ -38,7 +38,7 @@
         <%= tab 'attribute', 'Attributes', :controller => '/webui/attribute', :project => @project, :action => 'index' %>
         <%= tab 'meta', "Meta", :controller => '/webui/projects/meta', :action => :show %>
         <%= tab 'status', 'Status', :controller => '/webui/project', :action => :status unless @project.defines_remote_instance? || @is_maintenance_project %>
-        <%= tab 'pulse', 'Pulse', :controller => '/webui/project', :action => :pulse %>
+        <%= tab 'pulse', 'Pulse', :controller => '/webui/projects/pulse', :action => :show %>
       <% end -%>
     </ul>
   </div>

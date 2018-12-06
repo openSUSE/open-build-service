@@ -1,0 +1,18 @@
+.row
+  - @requests.take(30).each do |request|
+    %dt.col-1
+      %span{ class: "badge progress-state-#{request.state} text-light" }
+        = request.state.to_s
+    %dd.col-11
+      = link_to(request_show_path(request.number)) do
+        = request.number
+      (#{truncate(request.description)})
+      - if request.request_history_elements.any?
+        = request.request_history_elements.last.description.gsub('Request', '')
+      - else
+        was created
+      by
+      = link_to(user_show_path(request.creator)) do
+        = request.creator
+      = fuzzy_time(request.updated_at)
+

@@ -45,47 +45,46 @@
             There have been no requests send to this project.
 .row
   .col
-    %h3
+    %h5#pulse-packages
       Package Changes
     %hr
     %ul.list-unstyled
       - (@commits + @new_packages + @deleted_packages + @updates).sort_by(&:datetime).reverse_each do |log_entry|
         %li
           = render partial: 'pulse_list_entry', locals: { log_entry: log_entry }
-    %h3
+
+    %h5#pulse-project
       Project Changes
     %hr
     %ul.list-unstyled
       - @project_changes.each do |log_entry|
         %li
           = render partial: 'pulse_list_entry', locals: { log_entry: log_entry }
-    %h3
+
+    %h5#pulse-builds
+      Builds
+    %hr
+    %ul.list-unstyled
+      - @builds.each do |log_entry|
+        %li
+          = render partial: 'pulse_list_entry', locals: { log_entry: log_entry }
+
+    %h5#pulse-collaboration
       Collaboration
     %hr
     %ul.list-unstyled
-      - @branches.each do |log_entry|
+      - (@branches + @comments).sort_by(&:datetime).reverse_each.each do |log_entry|
         %li
           = render partial: 'pulse_list_entry', locals: { log_entry: log_entry }
-      - @comments.each do |log_entry|
-        %li
-          = render partial: 'pulse_list_entry', locals: { log_entry: log_entry }
-    %h3#pulse-requests
+
+    %h5#pulse-requests
       Requests
+      - if @requests.count > 30
+        %small.text-muted
+          ( last 30,
+          = link_to(project_requests_path(@project)) do
+            view all
+          )
     %hr
-    .row
-      - @requests.each do |request|
-        %dt.col-1
-          %span{ class: "badge progress-state-#{request.state} text-light" }
-            = request.state.to_s
-        %dd.col-11
-          = link_to(request_show_path(request.number)) do
-            = request.number
-          (#{truncate(request.description)})
-          - if request.request_history_elements.any?
-            = request.request_history_elements.last.description.gsub('Request', '')
-          - else
-            was created
-          by
-          = link_to(user_show_path(request.creator)) do
-            = request.creator
-          = fuzzy_time(request.updated_at)
+    = render partial: 'pulse_list_requests', locals: { requests: @requests }
+
