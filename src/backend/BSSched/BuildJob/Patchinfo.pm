@@ -73,10 +73,10 @@ sub get_bins {
       my $binlnk = BSUtil::retrieve("$d/$bin", 1);
       next unless $binlnk;
       push @d, $bin;
-      # grab everything related to this
-      my $p = $binlnk->{'path'};
-      $p =~ s/.*\///;
-      $p =~ s/\.[^\.]*//;	# strip kiwi build type
+      # grab everything related to the binlnk file
+      my $p = $bin;
+      $p =~ s/\.obsbinlnk$//;
+      $p =~ s/\.[^\.]*$//;	# strip kiwi build type
       push @d, grep {$_ ne $bin && /^\Q$p\E/} @dd;
       # also grab all blobs
       push @d, grep {/^_blob\./} @dd;
@@ -493,12 +493,12 @@ sub build {
           unlink("$jobdatadir/$bin");
           next;
 	}
-	$d = BSUtil::retrieve("$d/$bin", 1);
+	$d = BSUtil::retrieve("$jobdatadir/$bin", 1);
 	return ('broken', "$bin: bad obsbinlnk") unless $d;
 	# fixup path and write back
-	$d->{'path'} =~ s/[^\/]+$//;
-	$d->{'path'} .= $packid;
-	BSUtil::store("$jobdatadir/.$bin". "$jobdatadir/$bin", $d);
+	$d->{'path'} =~ s/.*\///;
+	$d->{'path'} = "../$packid/$d->{'path'}";
+	BSUtil::store("$jobdatadir/.$bin", "$jobdatadir/$bin", $d);
       } else {
         if (%binaryfilter) {
           unlink("$jobdatadir/$bin");
