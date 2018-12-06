@@ -7,4 +7,8 @@
           No architecture selected
         - else
           #{repository.architectures.pluck(:name).join(', ')}
-    = render partial: 'repository_card_content', locals: { project: project, repository: repository, download_url: download_url }
+    - if repository.is_dod_repository?
+      = render partial: 'dod_repository_card_content', locals: { project: project, repository: repository }
+    - else
+      = render partial: 'repository_card_content', locals: { project: project, repository: repository, download_url: download_url }
+

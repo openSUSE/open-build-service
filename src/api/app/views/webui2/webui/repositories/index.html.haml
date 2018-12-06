@@ -41,11 +41,11 @@
             = link_to('#', data: { toggle: 'modal', target: '#add-dod-repository-modal' }, class: 'nav-link') do
               %i.fas.fa-plus-circle.text-success
               Add DoD Repository
-            =# render partial: 'add_dod_repository_modal', locals: { project: @project }
+            = render partial: 'add_dod_repository_modal', locals: { project: @project }
 
   .card.mb-3
     .card-header.d-flex.justify-content-between
-      %h5 My Repositories
+      %h5 Repositories for #{@project}
 
     .card-body
       .row.pt-2
