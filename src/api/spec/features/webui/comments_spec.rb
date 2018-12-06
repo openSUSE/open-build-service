@@ -13,6 +13,7 @@ RSpec.feature 'Comments', type: :feature, js: true do
   end
 
   scenario 'can be answered' do
+    skip_if_bootstrap
     login user
     comment = create(:comment_project, commentable: Project.first, user: user)
     visit project_show_path(user.home_project)
