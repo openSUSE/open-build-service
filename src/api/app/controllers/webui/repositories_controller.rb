@@ -141,6 +141,15 @@ class Webui::RepositoriesController < Webui::WebuiController
     rescue ::Timeout::Error, ActiveRecord::RecordInvalid => e
       @error = "Couldn't add repository: #{e.message}"
     end
+
+    return unless User.current.try(:in_beta?) && Rails.env.development?
+
+    if @error
+      flash[:error] = @error
+    else
+      flash[:success] = "Repository '#{params[:name]}' was successfully created."
+    end
+    redirect_to action: 'index', project: @project
   end
 
   # POST project/create_image_repository

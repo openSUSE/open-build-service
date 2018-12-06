@@ -184,7 +184,7 @@ OBSApi::Application.routes.draw do
       post 'project/update_target/:project' => :update, constraints: cons
       get 'project/repository_state/:project/:repository' => :state, constraints: cons, as: 'project_repository_state'
       post 'project/remove_target' => :destroy, as: 'destroy_repository'
-      post 'project/create_dod_repository' => :create_dod_repository
+      post 'project/create_dod_repository' => :create_dod_repository, as: 'create_dod_repository'
       post 'project/create_image_repository' => :create_image_repository
 
       # Flags
