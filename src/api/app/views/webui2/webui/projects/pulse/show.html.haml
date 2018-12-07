@@ -20,9 +20,9 @@
           .dropdown-menu{ 'aria-labelledby': 'dropdownMenuButton' }
             %h6.dropdown-header
               Period to display:
-            = link_to(update_pulse_project_pulse_path(@project), remote: true, type: :json, class: 'dropdown-item') do
+            = link_to(project_pulse_path(@project), remote: true, type: :json, class: 'dropdown-item') do
               One Week
-            = link_to(update_pulse_project_pulse_path(@project, range: 'month'), remote: true, type: :json, class: 'dropdown-item') do
+            = link_to(project_pulse_path(@project, range: 'month'), remote: true, type: :json, class: 'dropdown-item') do
               One Month
     .row
       .col#pulse
@@ -33,8 +33,9 @@
 
 :javascript
   $.ajax({
-    url: "#{update_pulse_project_pulse_path(@project)}",
+    url: "#{project_pulse_path(@project)}",
     type: "get",
+    dataType: 'script'
   });
   $(".dropdown-item").click(function() {
     $("#pulse").html('<div class="fa-3x"><i class="fas fa-spinner fa-spin"></i></div>')

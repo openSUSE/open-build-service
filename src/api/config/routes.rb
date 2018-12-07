@@ -311,7 +311,6 @@ OBSApi::Application.routes.draw do
     end
     controller 'webui/projects/pulse' do
       get 'project/pulse/:project', to: redirect('/projects/%{project}/pulse')
-      get 'project/pulse/:project/update_pulse', to: redirect('/projects/%{project}/pulse')
     end
     controller 'webui/projects/rebuild_times' do
       get 'project/rebuild_time/:project/:repository/:arch', to: redirect('/projects/rebuild_time/%{project}/%{repository}/%{arch}')
@@ -326,9 +325,7 @@ OBSApi::Application.routes.draw do
         end
       end
       resource :ssl_certificate, controller: 'webui/projects/ssl_certificate', only: [:show], constraints: cons
-      resource :pulse, controller: 'webui/projects/pulse', only: [:show], constraints: cons do
-        get 'update_pulse'
-      end
+      resource :pulse, controller: 'webui/projects/pulse', only: [:show], constraints: cons
       resource :meta, controller: 'webui/projects/meta', only: [:show, :update], constraints: cons
       resource :rebuild_time, controller: 'webui/projects/rebuild_times', only: [:show], constraints: cons do
         get 'rebuild_time_png'
