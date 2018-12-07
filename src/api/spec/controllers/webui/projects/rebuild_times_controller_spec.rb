@@ -46,7 +46,7 @@ RSpec.describe Webui::Projects::RebuildTimesController do
         stub_request(:get, jobs_url).to_return(status: 200, body: jobs_xml)
 
         get :show, params: {
-          project: user.home_project.name,
+          project_name: user.home_project.name,
           repository: repo_for_user_home.name,
           arch: 'x86_64'
         }
@@ -57,7 +57,7 @@ RSpec.describe Webui::Projects::RebuildTimesController do
 
     context 'with an invalid scheduler' do
       before do
-        get :show, params: { project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64', scheduler: 'invalid_scheduler' }
+        get :show, params: { project_name: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64', scheduler: 'invalid_scheduler' }
       end
 
       it { expect(flash[:error]).to eq('Invalid scheduler type, check mkdiststats docu - aehm, source') }
@@ -68,7 +68,7 @@ RSpec.describe Webui::Projects::RebuildTimesController do
       before do
         allow(Backend::Api::BuildResults::Binaries).to receive(:builddepinfo)
         allow(Backend::Api::BuildResults::JobHistory).to receive(:not_failed)
-        get :show, params: { project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
+        get :show, params: { project_name: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
       end
 
       it { expect(flash[:error]).to start_with('Could not collect infos about repository') }
@@ -86,7 +86,7 @@ RSpec.describe Webui::Projects::RebuildTimesController do
           path = Xmlhash::XMLHash.new('package' => 'package_name')
           longestpaths_xml = Xmlhash::XMLHash.new('longestpath' => Xmlhash::XMLHash.new('path' => path))
           allow(controller).to receive(:call_diststats).and_return(longestpaths_xml)
-          get :show, params: { project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
+          get :show, params: { project_name: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
         end
 
         it { expect(assigns(:longestpaths)).to match_array([[], [], [], [], ['package_name']]) }
@@ -95,7 +95,7 @@ RSpec.describe Webui::Projects::RebuildTimesController do
       context 'with diststats not generated' do
         before do
           allow(controller).to receive(:call_diststats)
-          get :show, params: { project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
+          get :show, params: { project_name: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
         end
 
         it { expect(assigns(:longestpaths)).to match_array([[], [], [], []]) }
@@ -110,7 +110,7 @@ RSpec.describe Webui::Projects::RebuildTimesController do
 
     context 'with an invalid key' do
       before do
-        get :rebuild_time_png, params: { project: user.home_project, key: 'invalid_key' }
+        get :rebuild_time_png, params: { project_name: user.home_project, key: 'invalid_key' }
       end
 
       it { expect(response.body).to be_empty }
@@ -121,7 +121,7 @@ RSpec.describe Webui::Projects::RebuildTimesController do
     context 'with a valid key' do
       before do
         Rails.cache.write('rebuild-valid_key.png', 'PNG Content')
-        get :rebuild_time_png, params: { project: user.home_project, key: 'valid_key' }
+        get :rebuild_time_png, params: { project_name: user.home_project, key: 'valid_key' }
       end
 
       it { expect(response.body).to eq('PNG Content') }
