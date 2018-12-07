@@ -28,6 +28,3 @@
             = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#new-package-branch-modal' }) do
               %i.fas.fa-code-branch.text-primary
               Branch Existing Package
-
-      = render partial: 'new_package_modal', locals: { project: project }
-      = render partial: 'new_package_branch_modal', locals: { project: project, remote_projects: remote_projects }

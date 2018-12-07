@@ -56,7 +56,7 @@
                   = @ipackages.length
       .tab-content#packages-tabs-content
         .tab-pane.fade.show.active#packages{ role: 'tabpanel', aria: { labelledby: 'packages-tab' } }
-          = render partial: 'project_packages', locals: { project: @project, packages: @packages, remote_projects: @remote_projects }
+          = render partial: 'project_packages', locals: { project: @project, packages: @packages }
         .tab-pane.fade#inherited-packages{ role: 'tabpanel', aria: { labelledby: 'inherited-packages-tab' } }
           = render partial: 'project_inherited_packages', locals: { inherited_packages: @ipackages }
   .comments
@@ -72,6 +72,10 @@
   - elsif User.current.can_modify?(@project)
     = render partial: 'edit_project_dialog', locals: { project: @project }
     = render partial: 'delete_project_dialog', locals: { project: @project }
+
+    - if show_package_actions?
+      = render partial: 'new_package_modal', locals: { project: @project }
+      = render partial: 'new_package_branch_modal', locals: { project: @project, remote_projects: @remote_projects }
 
     - if !@project.defines_remote_instance? && @project.is_maintenance_incident? && @packages.present? && @has_patchinfo
       && @open_release_requests.blank?
