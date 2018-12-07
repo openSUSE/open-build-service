@@ -42,6 +42,8 @@ class Webui::RepositoriesController < Webui::WebuiController
       @distributions[dis['vendor']] << dis
     end
 
+    switch_to_webui2
+
     return unless @distributions.empty?
     redirect_to(action: 'new', project: @project) && return unless User.current.is_admin?
     redirect_to({ controller: 'configuration', action: 'interconnect' },
@@ -76,6 +78,8 @@ class Webui::RepositoriesController < Webui::WebuiController
         format.js
       end
     end
+
+    switch_to_webui2
   end
 
   # POST project/update_target/:project
@@ -117,6 +121,8 @@ class Webui::RepositoriesController < Webui::WebuiController
         format.js
       end
     end
+
+    switch_to_webui2
   end
 
   # GET project/repository_state/:project/:repository
