@@ -1,5 +1,5 @@
 = render partial: 'webui/main/breadcrumb_items'
-- if current_page?(projects_path)
+- if controller_name == 'project' && action_name == 'index'
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Projects
 - else

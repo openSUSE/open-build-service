@@ -1,6 +1,6 @@
 = render partial: "webui/#{@container.model_name.singular}/breadcrumb_items"
 
-- if current_page?(index_attribs_path)
+- if action_name == 'index'
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Attributes
 - else

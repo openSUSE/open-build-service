@@ -1,5 +1,5 @@
 - home_title = @configuration ? @configuration['title'] : 'Open Build Service'
-- if current_page?(root_path)
+- if controller_name == 'main'
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     %i.fas.fa-home.mr-1
     = home_title

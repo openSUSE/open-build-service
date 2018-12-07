@@ -3,15 +3,15 @@
 - else
   = render partial: 'webui/project/breadcrumb_items'
 
-- if current_page?(repositories_path)
+- if action_name == 'index'
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Repositories
 - else
   %li.breadcrumb-item
     = link_to 'Repositories', repositories_path
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-    - if defined?(@repository) && current_page?(project_repository_state_path)
+    - if action_name == 'state'
       Repository State
-    - elsif current_page?(repositories_distributions_path)
+    - elsif action_name == 'distributions'
       Add from a Distribution
 
