@@ -39,7 +39,7 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     scenario 'Add non existent user' do
-      click_link('Add user')
+      click_link('Add User')
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-user-role-modal') do
@@ -51,7 +51,7 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     scenario 'Add an existing user' do
-      click_link('Add user')
+      click_link('Add User')
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-user-role-modal') do
@@ -67,7 +67,7 @@ RSpec.shared_examples 'bootstrap user tab' do
       end
 
       # Adding a user twice...
-      click_link('Add user')
+      click_link('Add User')
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-user-role-modal') do
@@ -146,7 +146,7 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     scenario 'Add non existent group' do
-      click_link('Add group')
+      click_link('Add Group')
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-group-role-modal') do
@@ -158,7 +158,7 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     scenario 'Add an existing group' do
-      click_link('Add group')
+      click_link('Add Group')
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-group-role-modal') do
@@ -173,7 +173,7 @@ RSpec.shared_examples 'bootstrap user tab' do
       end
 
       # Adding a group twice...
-      click_link('Add group')
+      click_link('Add Group')
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-group-role-modal') do

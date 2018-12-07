@@ -30,9 +30,9 @@
 
   - if user_is_maintainer
     = render(partial: 'webui2/shared/user_or_groups_roles/add_user_dialog', locals: { project: project.to_param, package: package.to_param })
-    = link_to('#', data: { toggle: 'modal', target: '#add-user-role-modal' }, id: 'add-user') do
+    = link_to('#', data: { toggle: 'modal', target: '#add-user-role-modal' }, id: 'add-user', class: 'nav-link') do
       %i.fas.fa-plus-circle.text-primary
-      Add user
+      Add User
 
   %hr
 
@@ -53,9 +53,9 @@
                            project: project, package: package }
   - if user_is_maintainer
     = render(partial: 'webui2/shared/user_or_groups_roles/add_group_dialog', locals: { project: project.to_param, package: package.to_param })
-    = link_to('#', data: { toggle: 'modal', target: '#add-group-role-modal' }, id: 'add-user') do
+    = link_to('#', data: { toggle: 'modal', target: '#add-group-role-modal' }, id: 'add-group', class: 'nav-link') do
       %i.fas.fa-plus-circle.text-primary
-      Add group
+      Add Group
 :javascript
   setDataTableForUsersAndGroups();
 - if user_is_maintainer
