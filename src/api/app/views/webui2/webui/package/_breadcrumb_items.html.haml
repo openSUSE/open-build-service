@@ -1,35 +1,14 @@
 = render partial: 'webui/project/breadcrumb_items'
 %li.breadcrumb-item
   = link_to @package, package_show_path(@project, @package)
-- if current_page?(package_add_file_path)
+- if action_name == 'view_file'
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-    Add File
-- if current_page?(package_view_revisions_path)
-  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-    Revisions
-- if current_page?(package_requests_path)
-  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-    Requests
-- if current_page?(package_users_path)
-  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-    Users
-- if controller_name == 'package' && action_name == 'binaries'
-  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-    Repository State
-- if controller_name == 'package' && action_name == 'binary'
-  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-    Binary
-- if current_page?(package_show_path)
-  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-    Overview
-- if controller_name == 'package' && action_name == 'live_build_log'
-  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-    Build Log
-- if controller_name == 'package' && action_name == 'statistics'
+    = @filename
+- elsif controller_name == 'package' && action_name == 'statistics'
   %li.breadcrumb-item
     = link_to 'Repository State', package_binaries_path(@project, @package_name, @repository)
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Statistics
-- if current_page?(package_view_file_path)
+- else
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-    = @filename
+    = active_breadcrumb_label

@@ -159,6 +159,14 @@ module Webui::WebuiHelper
     content_tag('li', link_to(h(text), opts), link_opts)
   end
 
+  def active_breadcrumb_label
+    if controller_name == 'project'
+      project_breadcrumb_label
+    elsif controller_name == 'package'
+      package_breadcrumb_label
+    end
+  end
+
   # Shortens a text if it longer than 'length'.
   def elide(text, length = 20, mode = :middle)
     shortened_text = text.to_s # make sure it's a String
@@ -405,6 +413,32 @@ module Webui::WebuiHelper
     html_class << ' active' if request.path.include?(path)
 
     link_to(label, path, class: html_class)
+  end
+
+  private
+
+  def project_breadcrumb_label
+    case action_name
+    when 'prjconf'
+      'Project Config'
+    when 'show'
+      'Overview'
+    else
+      action_name.humanize
+    end
+  end
+
+  def package_breadcrumb_label
+    case action_name
+    when 'show'
+      'Overview'
+    when 'binaries'
+      'Repository State'
+    when 'live_build_log'
+      'Build Log'
+    else
+      action_name.humanize
+    end
   end
 end
 # rubocop:enable Metrics/ModuleLength

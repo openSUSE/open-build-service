@@ -7,21 +7,7 @@
     = link_to 'Projects', projects_path
   %li.breadcrumb-item
     = link_to @project, project_show_path(@project)
-  - if current_page?(project_show_path(@project))
+  // This partial is re-used by breadcrumb partials of other controllers
+  - if controller_name == 'project'
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-      Overview
-  - elsif current_page?(project_monitor_path(@project))
-    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-      Monitor
-  - elsif current_page?(project_requests_path(@project))
-    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-      Requests
-  - elsif current_page?(project_users_path(@project))
-    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-      Users
-  - elsif current_page?(project_config_path(@project))
-    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-      Configuration
-  - elsif current_page?(project_status_path(@project))
-    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-      Status
+      = active_breadcrumb_label
