@@ -1,5 +1,11 @@
 = render partial: 'webui/main/breadcrumb_items'
 %li.breadcrumb-item
   = link_to 'Groups', groups_path
-%li.breadcrumb-item.active{ 'aria-current' => 'page' }
-  = @group
+- if current_page?(group_show_path)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    = @group
+- else
+  %li.breadcrumb-item
+    = link_to @group, group_show_path(@group)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Edit

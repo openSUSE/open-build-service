@@ -5,7 +5,7 @@
 - if current_page?(repositories_path)
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Repositories
-- elsif current_page?(project_repository_state_path)
+- elsif defined?(@repository) && current_page?(project_repository_state_path)
   %li.breadcrumb-item
     = link_to 'Repositories', repositories_path
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }

@@ -81,6 +81,7 @@ function setupProjectMonitor() { // jshint ignore:line
     scrollY: "50vh",
     fixedColumns: true,
     pageLength: 50,
+    lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
     search: {
       regex: true,
       smart: false,

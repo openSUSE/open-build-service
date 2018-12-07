@@ -18,7 +18,11 @@
       Member of the #{'group'.pluralize(groups.size)}
       %ul
         - groups.each do |group|
-          %li= link_to("#{group.title} (#{group.tasks})", group_show_path(group))
+          %li
+            = link_to(group_show_path(group)) do
+              #{group.title}
+              %span.badge.badge-primary
+                #{group.tasks} #{'task'.pluralize(group.tasks)}
 
     - if role_titles.any?
       Has the #{'role'.pluralize(role_titles.size)}

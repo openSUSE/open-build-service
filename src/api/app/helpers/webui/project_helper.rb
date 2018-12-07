@@ -3,6 +3,16 @@ module Webui::ProjectHelper
 
   protected
 
+  def pulse_period(range)
+    start = if range == 'month'
+              Time.zone.today.prev_month.strftime('%B, %e')
+            else
+              Time.zone.today.prev_week.strftime('%B, %e')
+            end
+
+    "#{Time.zone.today.strftime('%B, %e')} – #{start}"
+  end
+
   def show_status_comment(comment, package, firstfail, comments_to_clear)
     status_comment_html = ''.html_safe
     if comment

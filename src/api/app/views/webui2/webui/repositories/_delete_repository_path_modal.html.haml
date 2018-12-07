@@ -1,0 +1,13 @@
+.modal.fade{ id: "delete-path-#{path.id}", tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-repository-path-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title
+          Delete repository path?
+      .modal-body
+        %p Please confirm deletion of '#{path.link.project}/#{path.link.name}' repository path from #{repository}
+        = form_tag(remove_repository_path_path(project: project, repository: repository, path: path), method: :post) do
+          .modal-footer
+            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+              Cancel
+            = submit_tag('Delete', class: 'btn btn-sm btn-danger px-4')

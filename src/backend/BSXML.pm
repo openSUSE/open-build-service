@@ -414,6 +414,17 @@ our $dir = [
      ]]
 ];
 
+our $providedby = [
+    'providedby' =>
+	'name',
+	'epoch',
+	'version',
+	'release',
+	'arch',
+	'project',
+	'repository',
+];
+
 our $fileinfo = [
     'fileinfo' =>
 	'filename',
@@ -452,15 +463,15 @@ our $fileinfo = [
      ]],
      [[ 'requires_ext' =>
 	    'dep',
-	 [[ 'providedby' =>
-		'name',
-		'epoch',
-		'version',
-		'release',
-		'arch',
-		'project',
-		'repository',
-	 ]],
+	  [ $providedby ],
+     ]],
+     [[ 'recommends_ext' =>
+	    'dep',
+	  [ $providedby ],
+     ]],
+     [[ 'supplements_ext' =>
+	    'dep',
+	  [ $providedby ],
      ]],
 ];
 

@@ -22,7 +22,7 @@
       <%= tab 'users', 'Users', :controller => '/webui/project', :action => :users unless @project.defines_remote_instance? %>
       <%= tab 'subprojects', 'Subprojects', :controller => '/webui/project', :action => :subprojects unless @project.defines_remote_instance? || @is_maintenance_project %>
     <% end -%>
-  
+
     <% if is_advanced_tab? %>
       <%= content_for :ready_function do %>
         $("#advanced_tabs").show();
@@ -36,9 +36,9 @@
       <%= tab 'projectconfig', 'Project Config', :controller => '/webui/project', :action => :prjconf unless @project.defines_remote_instance? || @is_maintenance_project %>
       <% unless @spider_bot -%>
         <%= tab 'attribute', 'Attributes', :controller => '/webui/attribute', :project => @project, :action => 'index' %>
-        <%= tab 'meta', "Meta", :controller => '/webui/project', :action => :meta %>
+        <%= tab 'meta', "Meta", :controller => '/webui/projects/meta', :action => :show %>
         <%= tab 'status', 'Status', :controller => '/webui/project', :action => :status unless @project.defines_remote_instance? || @is_maintenance_project %>
-        <%= tab 'pulse', 'Pulse', :controller => '/webui/project', :action => :pulse %>
+        <%= tab 'pulse', 'Pulse', :controller => '/webui/projects/pulse', :action => :show %>
       <% end -%>
     </ul>
   </div>
