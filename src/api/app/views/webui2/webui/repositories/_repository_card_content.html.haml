@@ -18,7 +18,7 @@
 
 .card-footer.text-center
   .row
-    - if User.current.can_modify?(project) && !repository.is_dod_repository?
+    - if User.current.can_modify?(project)
       .col
         = link_to('#', title: 'Edit Repository',
                        data: { toggle: 'modal', target: "#edit-repository-#{repository.id}" }) do
