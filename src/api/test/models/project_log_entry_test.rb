@@ -46,10 +46,4 @@ class ProjectLogEntryTest < ActiveSupport::TestCase
     assert_nil entry.bs_request
     assert_equal({ 'repository' => '10.2', 'arch' => 'i586', 'rev' => '5' }, entry.additional_info)
   end
-
-  test '#clean_older_than' do
-    count = ProjectLogEntry.count
-    ProjectLogEntry.clean_older_than(Date.parse('2013-08-09'))
-    assert_equal count - 1, ProjectLogEntry.count
-  end
 end

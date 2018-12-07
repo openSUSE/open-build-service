@@ -57,6 +57,10 @@ module Clockwork
     CleanupEvents.perform_later
   end
 
+  every(1.day, 'clean old project log entries', at: '02:30') do
+    CleanupProjectLogEntries.perform_later
+  end
+
   every(1.day, 'create cleanup requests', at: '06:00') do
     User.current = User.get_default_admin
     ProjectCreateAutoCleanupRequests.perform_later
