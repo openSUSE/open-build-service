@@ -20,7 +20,7 @@ class Webui::ProjectController < Webui::WebuiController
                                      :status, :maintained_projects,
                                      :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
                                      :maintenance_incidents, :unlock_dialog, :unlock, :save_person, :save_group, :remove_role,
-                                     :move_path, :save_prjconf, :clear_failed_comment, :pulse]
+                                     :move_path, :save_prjconf, :clear_failed_comment, :pulse, :update_pulse]
 
   # TODO: check if get_by_name or set_by_name is used for save_prjconf
   before_action :set_project_by_name, only: [:save_prjconf]
@@ -93,10 +93,7 @@ class Webui::ProjectController < Webui::WebuiController
     parent = @project.parent
     @parent_name = parent.name unless parent.nil?
     @siblings = @project.siblingprojects
-  end
-
-  def pulse
-    @pulse = @project.project_log_entries.page(params[:page])
+    switch_to_webui2
   end
 
   def new
@@ -553,10 +550,17 @@ class Webui::ProjectController < Webui::WebuiController
       package.attribs.where(attrib_type: AttribType.find_by_namespace_and_name('OBS', 'ProjectStatusPackageFailComment')).destroy_all
     end
 
+    flash.now[:notice] = 'Cleared comments for packages'
+
     respond_to do |format|
       format.html { redirect_to({ action: :status, project: @project }, notice: 'Cleared comments for packages.') }
-      format.js { render js: '<em>Cleared comments for packages</em>' }
+      if switch_to_webui2?
+        format.js { render 'webui2/webui/project/clear_failed_comment' }
+      else
+        format.js { render js: '<em>Cleared comments for packages</em>' }
+      end
     end
+    switch_to_webui2
   end
 
   def edit
@@ -565,6 +569,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   def edit_comment_form
     check_ajax
+    switch_to_webui2
   end
 
   def edit_comment
@@ -582,7 +587,9 @@ class Webui::ProjectController < Webui::WebuiController
     v.value = params[:text]
     v.position = 1
     attr.save!
+    v.save!
     @comment = params[:text]
+    switch_to_webui2
   end
 
   def status
@@ -617,6 +624,8 @@ class Webui::ProjectController < Webui::WebuiController
       end
       format.html
     end
+
+    switch_to_webui2
   end
 
   def maintained_projects

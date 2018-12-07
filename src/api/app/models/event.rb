@@ -6,7 +6,8 @@ module Event
                      'Event::UpdateProjectConfig',
                      'Event::UpdateProject'].freeze
   PACKAGE_CLASSES = ['Event::BranchCommand',
-                     'Event::Build',
+                     'Event::BuildSuccess',
+                     'Event::BuildFail',
                      'Event::CommentForPackage',
                      'Event::Commit',
                      'Event::CreatePackage',

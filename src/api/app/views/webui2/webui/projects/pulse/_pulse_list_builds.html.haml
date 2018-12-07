@@ -1,0 +1,21 @@
+- if builds.any?
+  - builds = builds.group(:event_type).count
+  There
+  -# 'has' does not have an inflection and the String
+    version of pluralize does not know about the plural
+    option like, that's why this is an if...
+    'has'.pluralize(builds.values.sum, plural: 'have')
+  = builds.values.sum > 1 ? 'have' : 'has'
+  been
+  = link_to('#pulse-builds') do
+    = builds.values.sum
+    builds
+  of which
+  %b.text-danger
+    = builds['build_fail']
+    failed
+  and
+  %b.text-success
+    = builds['build_success']
+    succeeded
+  \.

@@ -7,11 +7,24 @@ module Webui::RequestHelper
     'superseded' => 'red'
   }.freeze
 
+  STATE_BOOTSTRAP_ICONS = {
+    'new' => 'fa-code-branch',
+    'review' => 'fa-search',
+    'accepted' => 'fa-check',
+    'declined' => 'fa-hand-paper',
+    'revoked' => 'fa-eraser',
+    'superseded' => 'fa-plus'
+  }.freeze
+
   AVAILABLE_TYPES = ['all', 'submit', 'delete', 'add_role', 'change_devel', 'maintenance_incident', 'maintenance_release'].freeze
   AVAILABLE_STATES = ['new or review', 'new', 'review', 'accepted', 'declined', 'revoked', 'superseded'].freeze
 
   def request_state_color(state)
     STATE_COLORS[state.to_s] || ''
+  end
+
+  def request_bootstrap_icon(state)
+    STATE_BOOTSTRAP_ICONS[state.to_s] || ''
   end
 
   def new_or_update_request(row)

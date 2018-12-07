@@ -184,7 +184,7 @@ OBSApi::Application.routes.draw do
       post 'project/update_target/:project' => :update, constraints: cons
       get 'project/repository_state/:project/:repository' => :state, constraints: cons, as: 'project_repository_state'
       post 'project/remove_target' => :destroy, as: 'destroy_repository'
-      post 'project/create_dod_repository' => :create_dod_repository
+      post 'project/create_dod_repository' => :create_dod_repository, as: 'create_dod_repository'
       post 'project/create_image_repository' => :create_image_repository
 
       # Flags
@@ -288,9 +288,9 @@ OBSApi::Application.routes.draw do
       get 'project/toggle_watch/:project' => :toggle_watch, constraints: cons, as: 'project_toggle_watch'
       get 'project/prjconf/:project' => :prjconf, constraints: cons, as: :project_config
       post 'project/save_prjconf/:project' => :save_prjconf, constraints: cons, as: :save_project_config
-      get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons
+      get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons, as: :clear_failed_comment
       get 'project/edit/:project' => :edit, constraints: cons
-      get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons
+      get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons, as: :edit_comment_form
       post 'project/edit_comment/:project' => :edit_comment, constraints: cons
       get 'project/status/(:project)' => :status, constraints: cons, as: 'project_status'
       get 'project/maintained_projects/:project' => :maintained_projects, constraints: cons, as: :project_maintained_projects
@@ -299,7 +299,6 @@ OBSApi::Application.routes.draw do
       post 'project/remove_maintained_project/:project' => :remove_maintained_project, constraints: cons
       get 'project/maintenance_incidents/:project' => :maintenance_incidents, constraints: cons, as: :project_maintenance_incidents
       get 'project/list_incidents/:project' => :list_incidents, constraints: cons
-      get 'project/pulse/:project' => :pulse, constraints: cons, as: :project_pulse
       get 'project/unlock_dialog' => :unlock_dialog
       post 'project/unlock' => :unlock
     end
@@ -311,6 +310,11 @@ OBSApi::Application.routes.draw do
     controller 'webui/projects/rebuild_times' do
       get 'project/rebuild_time/:project/:repository/:arch' => :show, constraints: cons, as: :project_rebuild_time
       get 'project/rebuild_time_png/:project/:key' => :rebuild_time_png, constraints: cons, as: :project_rebuild_time_png
+    end
+
+    controller 'webui/projects/pulse' do
+      get 'project/pulse/:project' => :show, constraints: cons, as: 'project_pulse'
+      get 'project/pulse/:project/update_pulse' => :update_pulse, constraints: cons, as: 'update_pulse'
     end
 
     resources :projects, only: [], param: :name do
@@ -415,8 +419,9 @@ OBSApi::Application.routes.draw do
       get 'group/new' => :new
       post 'group/create' => :create
       get 'group/edit/:title' => :edit, constraints: { title: /[^\/]*/ }, as: :group_edit_title
-      post 'group/update/:title' => :update, constraints: { title: /[^\/]*/ }
+      post 'group/update/:title' => :update, constraints: { title: /[^\/]*/ }, as: :group_update
       get 'group/autocomplete' => :autocomplete
+      delete 'group/:title/delete/:user' => :delete, constraints: { title: /[^\/]*/ }, as: :group_user_delete
     end
 
     resources :comments, constraints: cons, only: [:create, :destroy], controller: 'webui/comments'
