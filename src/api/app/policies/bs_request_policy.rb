@@ -1,10 +1,4 @@
 class BsRequestPolicy < ApplicationPolicy
-  def initialize(user, record)
-    raise Pundit::NotAuthorizedError, 'record does not exist' unless record
-    @user = user
-    @record = record
-  end
-
   def create?
     # new request should not have an id (BsRequest#number)
     return false if @record.number

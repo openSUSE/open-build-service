@@ -1,8 +1,6 @@
 class ProjectPolicy < ApplicationPolicy
   def initialize(user, record)
-    raise Pundit::NotAuthorizedError, 'record does not exist' unless record
-    @user = user
-    @record = record
+    super(user, record, user_optional: true)
   end
 
   def create?
