@@ -2,6 +2,6 @@ class CleanupProjectLogEntries < ApplicationJob
   queue_as :project_log_rotate
 
   def perform
-    ProjectLogEntries.cleanup
+    ProjectLogEntry.cleanup
   end
 end
