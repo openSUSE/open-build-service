@@ -26,6 +26,12 @@ namespace :dev do
     copy_example_file('../../dist/ec2utils.conf')
   end
 
+  desc 'Prepare minitest'
+  task prepare_minitest: [:prepare, :environment, 'db:fixtures:load'] do
+    puts 'Enforcing project keys...'
+    ::Configuration.update(enforce_project_keys: true)
+  end
+
   desc 'Bootstrap the application'
   task :bootstrap, [:old_test_suite] => [:prepare, :environment] do |_t, args|
     args.with_defaults(old_test_suite: false)

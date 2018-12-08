@@ -42,9 +42,9 @@ aliases:
     name: Create database
     command: cd src/api; bundle exec rake db:create db:setup RAILS_ENV=test
 
-  - &bootstrap_old_test_suite
-    name: Setup application
-    command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test FORCE_EXAMPLE_FILES=1
+  - &prepare_minitest
+    name: Load Minitest Fixtures
+    command: cd src/api; bundle exec rake dev:prepare_minitest RAILS_ENV=test
 
   - &store_minitest_artefacts
     store_artifacts:
@@ -151,7 +151,8 @@ jobs:
       - run: *install_dependencies
       - run: *init_git_submodule
       - run: *wait_for_database
-      - run: *bootstrap_old_test_suite
+      - run: *create_test_db
+      - run: *prepare_minitest
       - run: mkdir /home/frontend/minitest
       - run:
           name: Run minitest
@@ -189,7 +190,8 @@ jobs:
       - run: *install_dependencies
       - run: *init_git_submodule
       - run: *wait_for_database
-      - run: *bootstrap_old_test_suite
+      - run: *create_test_db
+      - run: *prepare_minitest
       - run:
           name: Run spider
           command: cd src/api; bundle exec rake test:spider
