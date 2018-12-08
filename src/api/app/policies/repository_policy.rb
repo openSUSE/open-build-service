@@ -8,7 +8,7 @@ class RepositoryPolicy < ApplicationPolicy
   end
 
   def update?
-    ProjectPolicy.new(@user, @record.project).update?
+    ProjectPolicy.new(user, record.project).update?
   end
 
   def destroy?
