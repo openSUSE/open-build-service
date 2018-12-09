@@ -103,6 +103,7 @@ module Backend
     def expand_params(params, expand)
       expanded_params = []
       expand.each do |key|
+        next if params[key].is_a?(String)
         expanded_params += params.delete(key).map { |value| value.to_query(key) } if params.key?(key)
       end
       expanded_params += [params.to_query] unless params.empty?
