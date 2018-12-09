@@ -38,29 +38,13 @@ aliases:
     name: Init submodule
     command: git submodule update --init --recursive --remote
 
+  - &create_test_db
+    name: Create database
+    command: cd src/api; bundle exec rake db:create db:setup RAILS_ENV=test
+
   - &bootstrap_old_test_suite
     name: Setup application
     command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test FORCE_EXAMPLE_FILES=1
-
-  - &bootstrap_rspec
-    name: Setup application
-    command: cd src/api; bundle exec rake dev:bootstrap RAILS_ENV=test FORCE_EXAMPLE_FILES=1
-
-  # keep the prefix for the following aligned
-  - &save_repo_cache_key
-    key: v3-repo-{{ .Branch }}-{{ .Revision }}
-
-  - &initial_repo_restore
-    restore_cache:
-      keys:
-        - v3-repo-{{ .Branch }}-{{ .Revision }}
-        - v3-repo-{{ .Branch }}
-        - v3-repo
-
-  - &restore_repo
-    restore_cache:
-      keys:
-        - v3-repo-{{ .Branch }}-{{ .Revision }}
 
   - &store_minitest_artefacts
     store_artifacts:
@@ -78,7 +62,6 @@ jobs:
     docker:
       - <<: *frontend_base
     steps:
-      - *initial_repo_restore
       - checkout
       - run: *install_dependencies
       - run: *install_circle_cli
@@ -99,8 +82,8 @@ jobs:
       - run:
           name: Setup application
           command: cd src/api; bundle exec rake dev:prepare assets:precompile RAILS_ENV=test FORCE_EXAMPLE_FILES=1
-      - save_cache:
-          <<: *save_repo_cache_key
+      - persist_to_workspace:
+          root: .
           paths:
             - .
 
@@ -110,10 +93,11 @@ jobs:
       - <<: *frontend_base
       - <<: *mariadb
     steps:
-      - checkout
+      - attach_workspace:
+         at: .
       - run: *install_dependencies
       - run: *wait_for_database
-      - run: *bootstrap_rspec
+      - run: *create_test_db
       - run: mkdir /home/frontend/rspec
       - run:
           name: Run rspec
@@ -162,7 +146,8 @@ jobs:
       - <<: *frontend_backend
       - <<: *mariadb
     steps:
-      - checkout
+      - attach_workspace:
+         at: .
       - run: *install_dependencies
       - run: *init_git_submodule
       - run: *wait_for_database
@@ -199,7 +184,8 @@ jobs:
       - <<: *frontend_backend
       - <<: *mariadb
     steps:
-      - checkout
+      - attach_workspace:
+         at: .
       - run: *install_dependencies
       - run: *init_git_submodule
       - run: *wait_for_database
@@ -214,7 +200,8 @@ jobs:
       - image: *backend
     working_directory: /home/frontend/project
     steps:
-      - checkout
+      - attach_workspace:
+         at: .
       - run: *init_git_submodule
       - run:
           name: backend
@@ -225,10 +212,9 @@ jobs:
       - <<: *frontend_base
 
     steps:
-      - checkout
-      - run: *install_dependencies
       - attach_workspace:
          at: .
+      - run: *install_dependencies
       - run:
           name: Merge and check coverage
           command: |
