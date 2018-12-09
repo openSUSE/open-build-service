@@ -7,31 +7,11 @@
     .row
       .col-md-12
         - if @parentprojects.present?
-          %h3 Parent projects of #{@project}
-          %table.responsive.table.table-striped.table-bordered.subproject-table
-            %thead
-              %tr
-                %th Parent Project
-                %th Title
-            %tbody
-              - @parentprojects.each do |project|
-                %tr
-                  %td.project_name= link_to(word_break(project.name), project_show_path(project))
-                  %td.project_title= word_break(project.title)
+          = render partial: 'subprojects_table', locals: { table_title: 'Parent Project', project: @project, projects: @parentprojects }
     .row{ class: ('mt-3' if @parentprojects.present?) }
       .col-md-12
-        %h3.d-md-inline-block Subprojects of #{@project}
         - if @subprojects.present?
-          %table.responsive.table.table-striped.table-bordered.subproject-table
-            %thead
-              %tr
-                %th Subproject
-                %th Title
-            %tbody
-              - @subprojects.each do |project|
-                %tr
-                  %td.project_name= link_to(word_break(remove_parent_name(project.name, @project.name), 50), project_show_path(project))
-                  %td.project_title= word_break(project.title)
+          = render partial: 'subprojects_table', locals: { table_title: 'Subproject', project: @project, projects: @subprojects }
         - else
           %p
             %i This project has no subprojects
@@ -39,21 +19,10 @@
           = link_to('#', data: { toggle: 'modal', target: '#add-new-subproject-modal' }, title: 'Add New Subproject', class: 'nav-link') do
             %i.fas.fa-plus-circle.text-primary
             Add New Subproject
-
     .row.mt-3
       .col-md-12
         - if @siblings.present?
-          %h3 Sibling projects of #{@project}
-          %table.responsive.table.table-striped.table-bordered.subproject-table
-            %thead
-              %tr
-                %th Sibling Project
-                %th Title
-            %tbody
-              - @siblings.each do |project|
-                %tr
-                  %td.project_name= link_to(word_break(remove_parent_name(project.name, @parent_name), 50), project_show_path(project))
-                  %td.project_title= word_break(project.title)
+          = render partial: 'subprojects_table', locals: { table_title: 'Sibling Project', project: @project, projects: @siblings }
 
 = render partial: 'add_new_subproject_modal', locals: { project: @project, configuration: @configuration }
 

@@ -1,0 +1,11 @@
+%h3 #{table_title.pluralize} of #{project}
+%table.responsive.table.table-striped.table-bordered.subproject-table
+  %thead
+    %tr
+      %th= table_title
+      %th Title
+  %tbody
+    - projects.each do |project|
+      %tr
+        %td.project_name= link_to(word_break(project.name), project_show_path(project))
+        %td.project_title= word_break(project.title)
