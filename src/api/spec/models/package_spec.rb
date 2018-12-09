@@ -446,11 +446,11 @@ RSpec.describe Package, vcr: true do
     end
   end
 
-  describe '.jobhistory_list' do
+  describe '.jobhistory' do
     let(:backend_url) { "#{CONFIG['source_url']}/build/#{home_project}/openSUSE_Tumbleweed/x86_64/_jobhistory?limit=100&package=#{package}" }
+    let(:backend_response) { file_fixture('jobhistory.xml') }
 
-    # the package name is needed because it could be a multibuild
-    subject { Package.jobhistory_list(home_project, 'openSUSE_Tumbleweed', 'x86_64', package.name) }
+    subject { package.jobhistory(repository_name: 'openSUSE_Tumbleweed', arch_name: 'x86_64') }
 
     context 'when response is successful' do
       let(:local_job_history) do
@@ -468,15 +468,7 @@ RSpec.describe Package, vcr: true do
       end
 
       before do
-        stub_request(:get, backend_url).and_return(body:
-        %(<jobhistlist>
-          <jobhist package='#{package.name}' rev='1' srcmd5='2ac8bd685591b40e412ee99b182f94c2' versrel='7-3' bcnt='1' readytime='1492687344'
-          starttime='1492687470' endtime='1492687507' code='succeed' uri='http://127.0.0.1:41355' workerid='vagrant-openSUSE-Leap:1'
-          hostarch='x86_64' reason='new build' verifymd5='2ac8bd685591b40e412ee99b182f94c2'/>
-          <jobhist package='#{package.name}' rev='2' srcmd5='597d297d19621de7db926d36d27d4331' versrel='7-3' bcnt='1' readytime='1492687344'
-          starttime='1492687470' endtime='1492687507' code='succeed' uri='http://127.0.0.1:41355' workerid='vagrant-openSUSE-Leap:1'
-          hostarch='x86_64' reason='source change' verifymd5='597d297d19621de7db926d36d27d4331'/>
-        </jobhistlist>))
+        stub_request(:get, backend_url).and_return(body: backend_response)
       end
 
       it { expect(subject.last).to have_attributes(local_job_history) }
