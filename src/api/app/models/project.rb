@@ -225,6 +225,10 @@ class Project < ApplicationRecord
     Buildresult.summary(name)
   end
 
+  def jobhistory(filter: { limit: 100, start_epoch: nil, end_epoch: nil, code: [], package: nil })
+    Backend::Api::BuildResults::JobHistory.for_project(project_name: name, filter: filter)
+  end
+
   def subprojects
     Project.where('name like ?', "#{name}:%")
   end
