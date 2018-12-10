@@ -11,8 +11,8 @@
         - if User.current.can_modify?(project)
           = link_to('#', title: 'Edit DoD Source', data: { toggle: 'modal', target: "#edit-dod-source-modal-#{dod_element.id}" }) do
             %i.fas.fa-edit.text-secondary
-          = link_to('#', title: 'Delete Downdload on Demand source',
-                         data: { toggle: 'modal', target: "#delete-dod-source-#{dod_element.id}" }) do
+          = link_to('#', title: 'Delete Download on Demand Source',
+                         data: { toggle: 'modal', target: "#delete-dod-source-modal-#{dod_element.id}" }) do
             %i.fas.fa-times-circle.text-danger
           = render partial: 'edit_dod_source_modal', locals: { repository: repository, project: project, download_on_demand: dod_element }
           = render partial: 'delete_dod_source_modal', locals: { repository: repository, project: project, download_on_demand: dod_element }
