@@ -9,7 +9,7 @@
           %button.btn.btn-link.monitor-no-filter-link No filter
           - status.each do |status|
             .custom-control.custom-checkbox.dropdown-item.ml-2
-              %input.custom-control-input{ type: :checkbox, id: "#{status}-checkbox".parameterize, checked: false, value: status }
+              %input.custom-control-input{ type: :checkbox, id: "#{status}-checkbox".parameterize, checked: status_filter.include?(status), value: status }
               %label.custom-control-label{ for: "#{status}-checkbox".parameterize }
                 = status
       %span.dropdown#project-monitor-architectures-dropdown
@@ -20,7 +20,7 @@
           %button.btn.btn-link.monitor-no-filter-link No filter
           - architectures.each do |architecture|
             .custom-control.custom-checkbox.dropdown-item.ml-2
-              %input.custom-control-input{ type: :checkbox, id: "#{architecture}-checkbox".parameterize, checked: false, value: architecture }
+              %input.custom-control-input{ type: :checkbox, id: "#{architecture}-checkbox".parameterize, checked: architecture_filter.include?(architecture), value: architecture }
               %label.custom-control-label{ for: "#{architecture}-checkbox".parameterize }
                 = architecture
       %span.dropdown#project-monitor-repositories-dropdown
@@ -31,7 +31,7 @@
           %button.btn.btn-link.monitor-no-filter-link No filter
           - repositories.each do |repository|
             .custom-control.custom-checkbox.dropdown-item.ml-2
-              %input.custom-control-input{ type: :checkbox, id: "#{repository}-checkbox".parameterize, checked: false, value: repository }
+              %input.custom-control-input{ type: :checkbox, id: "#{repository}-checkbox".parameterize, checked: repository_filter.include?(repository), value: repository }
               %label.custom-control-label{ for: "#{repository}-checkbox".parameterize }
                 = repository
       %button.btn.btn-outline-secondary{ data: { toggle: 'modal', target: '#build-monitor-legend' }, title: 'Build status legend' }
