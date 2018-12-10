@@ -4,7 +4,7 @@ module FeaturesAuthentication
     expect(page).to have_text 'Please Log In'
     fill_in 'user-login', with: user.login
     fill_in 'user-password', with: password
-    click_button 'Log In »'
+    click_button 'Log In'
     expect(page).to have_link 'link-to-user-home'
     User.current = user
   end
