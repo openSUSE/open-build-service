@@ -127,6 +127,8 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario "create subproject with checked 'disable publishing' checkbox" do
+      skip_if_bootstrap
+
       login user
       visit project_subprojects_path(project: user.home_project)
 
@@ -176,6 +178,10 @@ RSpec.feature 'Projects', type: :feature, js: true do
   end
 
   describe 'repositories tab' do
+    before do
+      skip_if_bootstrap
+    end
+
     include_examples 'tests for sections with flag tables'
 
     describe 'DoD repositories' do
@@ -270,7 +276,6 @@ RSpec.feature 'Projects', type: :feature, js: true do
       end
 
       scenario 'adding DoD repositories via meta editor' do
-        skip_if_bootstrap
         fixture_file = File.read(Rails.root + 'test/fixtures/backend/download_on_demand/project_with_dod.xml').
                        gsub('user5', admin_user.login)
 
