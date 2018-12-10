@@ -11,7 +11,7 @@
                 %span.input-group-text#add-user-search-icon
                   %i.fa.fa-search
                   %i.fas.fa-spinner.fa-spin.d-none
-                = text_field_tag 'group[userid]', '', required: true, placeholder: 'Type to autocomplete...', class: 'form-control'
+              = text_field_tag 'group[userid]', '', required: true, placeholder: 'Type to autocomplete...', class: 'form-control'
         .modal-footer
           = render partial: 'webui2/shared/dialog_action_buttons'
 

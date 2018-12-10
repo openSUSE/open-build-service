@@ -6,3 +6,16 @@ function setSpinnersForFlags() { // jshint ignore:line
     icon.next().removeClass('d-none');
   });
 }
+
+function setRepoCheckbox() { // jshint ignore:line
+  $('.repocheckbox').click(function() {
+    var id = $(this).attr('id');
+    var $form;
+    if($(this).is(':checked')) {
+      $form = $('#' + id + '_create');
+    } else {
+      $form = $('#' + id + '_destroy');
+    }
+    $form.submit();
+  });
+}

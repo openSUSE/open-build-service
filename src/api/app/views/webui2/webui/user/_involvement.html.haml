@@ -2,14 +2,23 @@
   .bg-light
     %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
       %li.nav-item
-        = link_to('Involved Packages', '#involved-packages', id: 'involved-packages-tab', class: 'nav-link active text-nowrap',
-                  data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'involved-packages', selected: true })
+        = link_to('#involved-packages', id: 'involved-packages-tab', class: 'nav-link active text-nowrap',
+                  data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'involved-packages', selected: true }) do
+          Involved Packages
+          %span.badge.badge-primary
+            = involved_packages.size
       %li.nav-item
-        = link_to('Involved Projects', '#involved-projects', id: 'involved-projects-tab', class: 'nav-link text-nowrap',
-                  data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'involved-projects', selected: false })
+        = link_to('#involved-projects', id: 'involved-projects-tab', class: 'nav-link text-nowrap',
+                  data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'involved-projects', selected: false }) do
+          Involved Projects
+          %span.badge.badge-primary
+            = involved_projects.size
       %li.nav-item
-        = link_to('Owned Project/Packages', '#owned', id: 'owned-tab', class: 'nav-link text-nowrap',
-                  data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'owned', selected: false })
+        = link_to('#owned', id: 'owned-tab', class: 'nav-link text-nowrap',
+                  data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'owned', selected: false }) do
+          Owned Project/Packages
+          %span.badge.badge-primary
+            = owned.size
       %li.nav-item.dropdown
         %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', 'role': 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
         .dropdown-menu.dropdown-menu-right
@@ -21,7 +30,7 @@
           %p.md-3
             #{user.name} is not involved in any packages
         - else
-          %table.table.table-fixed.table-striped.table-bordered#involved-packages-table
+          %table.table.table-sm.table-fixed.table-striped.table-bordered#involved-packages-table
             %thead
               %tr
                 %th Package
@@ -39,7 +48,7 @@
           %p.mt-3
             #{user.name} is not involved in any project
         - else
-          %table.table.table-fixed.table-striped.table-bordered#involved-projects-table
+          %table.table.table-sm.table-fixed.table-striped.table-bordered#involved-projects-table
             %thead
               %tr
                 %th Name
@@ -57,7 +66,7 @@
           %p.mt-3
             #{user.name} doesn't own any project or package
         - else
-          %table.table.table-fixed.table-striped.table-bordered#owned-table
+          %table.table.table-sm.table-fixed.table-striped.table-bordered#owned-table
             %thead
               %tr
                 %th Package

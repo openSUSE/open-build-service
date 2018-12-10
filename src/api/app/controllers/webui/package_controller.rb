@@ -314,7 +314,7 @@ class Webui::PackageController < Webui::WebuiController
       flash[:error] = "Unable to diff sources: #{e.message}"
     rescue BsRequestAction::MissingAction => e
       flash[:error] = 'Unable to submit, sources are unchanged'
-    rescue Project::UnknownObjectError,
+    rescue ::Project::UnknownObjectError,
            BsRequestAction::UnknownProject,
            BsRequestAction::UnknownTargetPackage => e
       redirect_back(fallback_location: root_path, error: "Unable to submit (missing target): #{e.message}")
@@ -465,7 +465,7 @@ class Webui::PackageController < Webui::WebuiController
     @last_rev = @package.dir_hash['rev']
     @linkinfo = @package.linkinfo
     if params[:oproject]
-      @oproject = Project.find_by_name(params[:oproject])
+      @oproject = ::Project.find_by_name(params[:oproject])
       @opackage = @oproject.find_package(params[:opackage]) if @oproject && params[:opackage]
     end
 
@@ -1128,8 +1128,8 @@ class Webui::PackageController < Webui::WebuiController
   #
   # If the check succeeds it sets @project and @package variables.
   def check_build_log_access
-    if Project.exists_by_name(params[:project])
-      @project = Project.get_by_name(params[:project])
+    if ::Project.exists_by_name(params[:project])
+      @project = ::Project.get_by_name(params[:project])
     else
       redirect_to root_path, error: "Couldn't find project '#{params[:project]}'. Are you sure it still exists?"
       return false

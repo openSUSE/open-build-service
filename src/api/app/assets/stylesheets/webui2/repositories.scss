@@ -11,3 +11,8 @@ details[open].repository-path {
   .more{ display: none; }
 }
 
+// Ensure repository footer has same height when being empty
+.repository-card .card-footer .row {
+  min-height: 24px;
+}
+
