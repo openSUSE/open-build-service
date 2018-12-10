@@ -4,9 +4,6 @@
       .modal-header
         %h5.modal-title#new-package-modal-label
           Create New Package for #{project.name}
-        %button.close{ type: 'button', data: { dismiss: 'modal' }, aria: { label: 'close' } }
-          %span{ aria: { hidden: true } }
-            &times
       .modal-body
         = form_tag(save_new_package_path(project)) do
           .form-group
