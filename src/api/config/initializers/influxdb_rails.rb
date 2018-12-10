@@ -6,4 +6,6 @@ InfluxDB::Rails.configure do |config|
   config.influxdb_port     = CONFIG['influxdb_port']
   config.retry             = CONFIG['influxdb_retry']
   config.use_ssl           = CONFIG['influxdb_ssl']
+
+  config.time_precision = CONFIG['influxdb_time_precision']
 end

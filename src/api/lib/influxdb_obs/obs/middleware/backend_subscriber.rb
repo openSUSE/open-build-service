@@ -16,7 +16,7 @@ module InfluxDB
             InfluxDB::Rails.client.write_point(series_name,
                                                tags: tags(data),
                                                values: values(data[:runtime]),
-                                               timestamp: InfluxDB::Rails.convert_timestamp(finished.utc))
+                                               timestamp: InfluxDB.convert_timestamp(finished.utc))
           rescue StandardError => e
             logger.info "[InfluxDB Backend Subscriber]: #{e.message}"
           end
