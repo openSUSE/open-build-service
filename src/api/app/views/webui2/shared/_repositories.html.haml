@@ -24,7 +24,7 @@
       %span.flagerror
     = render partial: 'shared/repositories_flag_table',
              locals: { flags: useforbuild, project: project, package: package, architectures: architectures, user_can_set_flags: user_can_set_flags }
-:javascript
-  $(document).ready(function() {
+
+= content_for :ready_function do
+  :plain
     setSpinnersForFlags();
-  });
