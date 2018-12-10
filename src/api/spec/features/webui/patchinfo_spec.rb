@@ -10,8 +10,8 @@ RSpec.feature 'Patchinfo', type: :feature, js: true do
     scenario 'form incomplete' do
       login user
       visit project_show_path(user.home_project)
-      expect(page).to have_link('Create patchinfo')
-      click_link('Create patchinfo')
+      expect(page).to have_link('Create Patchinfo')
+      click_link('Create Patchinfo')
       expect(page).to have_current_path(patchinfo_new_patchinfo_path(project: project))
       expect(page).to have_text("Patchinfo-Editor for #{project.name}")
       fill_in 'summary', with: 'A' * 9
@@ -24,8 +24,8 @@ RSpec.feature 'Patchinfo', type: :feature, js: true do
     scenario 'form complete' do
       login user
       visit project_show_path(user.home_project)
-      expect(page).to have_link('Create patchinfo')
-      click_link('Create patchinfo')
+      expect(page).to have_link('Create Patchinfo')
+      click_link('Create Patchinfo')
       expect(page).to have_current_path(patchinfo_new_patchinfo_path(project: project))
       expect(page).to have_text("Patchinfo-Editor for #{project.name}")
       fill_in 'summary', with: 'A' * 15
@@ -49,7 +49,7 @@ RSpec.feature 'Patchinfo', type: :feature, js: true do
       expect(page).to have_link('Delete patchinfo')
       click_link('Delete patchinfo')
       expect(page).to have_text('Do you really want')
-      click_button('Ok')
+      click_button('Accept')
       expect(page).to have_text('Patchinfo was successfully removed.')
     end
   end
