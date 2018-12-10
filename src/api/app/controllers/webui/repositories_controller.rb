@@ -143,7 +143,7 @@ class Webui::RepositoriesController < Webui::WebuiController
       @error = "Couldn't add repository: #{e.message}"
     end
 
-    return unless User.current.try(:in_beta?)
+    return unless switch_to_webui2?
 
     if @error
       flash[:error] = @error
