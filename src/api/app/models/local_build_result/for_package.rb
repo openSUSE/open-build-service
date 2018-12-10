@@ -19,7 +19,7 @@ class LocalBuildResult
       backend_build_result.each do |result|
         result.elements('status').each do |status|
           results[status['package']] ||= []
-          if excluded?(status['code'])
+          if excluded_or_disabled?(status['code'])
             self.excluded_counter += 1
             next
           end
@@ -33,8 +33,9 @@ class LocalBuildResult
                            code: status['code'], state: result['state'], details: status['details'])
     end
 
-    def excluded?(status)
-      !show_all && status == 'excluded'
+    def excluded_or_disabled?(status)
+      return false if show_all
+      ['excluded', 'disabled'].include?(status)
     end
 
     def backend_build_result

@@ -4,7 +4,7 @@
                     onchange: "updateBuildResult('#{index}')")
     - label_message = buildresults.excluded_counter.zero? ? 'Hide' : "Show #{buildresults.excluded_counter}"
     = label_tag "show_all_#{index}" do
-      %u.custom-label #{label_message} excluded results
+      %u.custom-label #{label_message} excluded/disabled results
 
 - buildresults.results.each_pair do |package, results|
   %h5.text-primary.mt-3.mb-3= package
@@ -36,4 +36,4 @@
           - previous_repo = result.repository
       - else
         All the results have state
-        %strong excluded
+        %strong excluded/disabled
