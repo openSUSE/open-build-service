@@ -12,14 +12,12 @@ module InfluxDB
         def call(_name, _started, finished, _unique_id, data)
           return unless enabled?
 
-          execute_in_background do
-            InfluxDB::Rails.client.write_point(series_name,
-                                               tags: tags(data),
-                                               values: values(data[:runtime]),
-                                               timestamp: InfluxDB.convert_timestamp(finished.utc))
-          rescue StandardError => e
-            logger.info "[InfluxDB Backend Subscriber]: #{e.message}"
-          end
+          InfluxDB::Rails.client.write_point(series_name,
+                                             tags: tags(data),
+                                             values: values(data[:runtime]),
+                                             timestamp: InfluxDB.convert_timestamp(finished.utc))
+        rescue StandardError => e
+          logger.info "[InfluxDB Backend Subscriber]: #{e.message}"
         end
 
         private
@@ -28,12 +26,6 @@ module InfluxDB
 
         def enabled?
           series_name.present?
-        end
-
-        def execute_in_background
-          Thread.new do
-            yield
-          end
         end
 
         def values(runtime)
