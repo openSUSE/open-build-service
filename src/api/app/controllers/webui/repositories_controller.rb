@@ -19,11 +19,6 @@ class Webui::RepositoriesController < Webui::WebuiController
 
     switch_to_webui2 if @package
 
-    # TODO: Remove the `return unless` and the flash once this should be available to all beta users on production
-    return unless User.current.try(:in_beta?) && Rails.env.development?
-
-    flash[:notice] = 'We are currently migrating the project pages to Bootstrap. This page is only seen on the development environment.'
-
     @repositories = @project.repositories.includes(:path_elements, :download_repositories)
 
     switch_to_webui2
@@ -148,7 +143,7 @@ class Webui::RepositoriesController < Webui::WebuiController
       @error = "Couldn't add repository: #{e.message}"
     end
 
-    return unless User.current.try(:in_beta?) && Rails.env.development?
+    return unless switch_to_webui2?
 
     if @error
       flash[:error] = @error
