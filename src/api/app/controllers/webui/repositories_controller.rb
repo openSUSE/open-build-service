@@ -195,7 +195,7 @@ class Webui::RepositoriesController < Webui::WebuiController
         @main_object.store
         format.html { redirect_to(action: :index, controller: :repositories, project: params[:project], package: params[:package]) }
         format.js do
-          switch_to_webui2 if params[:package].present?
+          switch_to_webui2
           render 'change_flag'
         end
       else
@@ -218,7 +218,7 @@ class Webui::RepositoriesController < Webui::WebuiController
         @main_object.store
         format.html { redirect_to(action: :index, project: params[:project], package: params[:package]) }
         format.js do
-          switch_to_webui2 if params[:package].present?
+          switch_to_webui2
           render 'change_flag'
         end
       else
@@ -242,7 +242,7 @@ class Webui::RepositoriesController < Webui::WebuiController
       @main_object.store
       format.html { redirect_to(action: :index, project: params[:project], package: params[:package]) }
       format.js do
-        switch_to_webui2 if params[:package].present?
+        switch_to_webui2
         render 'change_flag'
       end
     end
