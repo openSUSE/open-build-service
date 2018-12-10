@@ -2,6 +2,12 @@ require 'browser_helper'
 
 RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
   let(:admin_user) { create(:admin_user) }
+  let!(:user) { create(:confirmed_user, login: 'Jane') }
+  let(:project) { user.home_project }
+
+  describe 'Repositories Flags' do
+    include_examples 'bootstrap tests for sections with flag tables'
+  end
 
   describe 'DoD Repositories' do
     let(:project_with_dod_repo) { create(:project) }

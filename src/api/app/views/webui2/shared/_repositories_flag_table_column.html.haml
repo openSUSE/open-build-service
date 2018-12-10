@@ -11,7 +11,7 @@
 
 %div{ id: flag.fullname }
   = link_to('javascript:void(0)', title: title,
-                                  data: { html: 'true', toggle: user_can_set_flags ? 'popover' : '', placement: 'left', content: "#{content}" } ) do
+                                  data: { html: 'true', toggle: user_can_set_flags ? 'popover' : '', placement: 'left', content: "#{content}" }) do
     %span.text-nowrap.current_flag_state
       %i.fas{ class: icon_class }
       - if is_flag_set_by_user
