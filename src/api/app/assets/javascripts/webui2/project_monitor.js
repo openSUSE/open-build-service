@@ -1,3 +1,6 @@
+function setupPopover() {
+  $('[data-toggle="popover"]').popover({ trigger: 'hover click' });
+}
 function setupProjectMonitor() { // jshint ignore:line
   initializeDataTable('#project-monitor-table', { // jshint ignore:line
     scrollX: true,
@@ -10,7 +13,11 @@ function setupProjectMonitor() { // jshint ignore:line
     }
   });
 
-  $('[data-toggle="popover"]').popover({ trigger: 'hover click' });
+  $('#project-monitor-table').on('draw.dt', function () {
+    setupPopover();
+  });
+
+  setupPopover();
 
   $('.monitor-no-filter-link').on('click', function () {
     $(this).siblings().children('input:checked').prop('checked', false);
