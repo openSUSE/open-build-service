@@ -2,10 +2,12 @@ require 'browser_helper'
 
 RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
   let(:admin_user) { create(:admin_user) }
-  let!(:user) { create(:confirmed_user, login: 'Jane') }
-  let(:project) { user.home_project }
+  let!(:repository) { create(:repository) }
 
   describe 'Repositories Flags' do
+    let!(:user) { create(:confirmed_user, login: 'Jane') }
+    let(:project) { user.home_project }
+
     include_examples 'bootstrap tests for sections with flag tables'
   end
 
@@ -14,7 +16,7 @@ RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
       login admin_user
     end
 
-    scenario 'add repository from distribution' do
+    scenario 'add/delete repository from distribution' do
       # Create interconnect
       visit(repositories_distributions_path(project: admin_user.home_project))
       click_button('Save changes')
@@ -35,6 +37,36 @@ RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
         expect(page).to have_link('Delete Repository')
         # Repository path
         expect(page).to have_text('openSUSE.org/snapshot')
+      end
+
+      visit(repositories_distributions_path(project: admin_user.home_project))
+      find("label[for='repo_openSUSE_Tumbleweed']").click
+      expect(page).to have_text("Successfully removed repository 'openSUSE_Tumbleweed'")
+
+      visit(project_repositories_path(project: admin_user.home_project))
+
+      expect(page).not_to have_link('openSUSE_Tumbleweed')
+    end
+
+    scenario 'add repository from project' do
+      visit(project_repositories_path(project: admin_user.home_project))
+
+      click_link('Add from a Project')
+      fill_in('target_project', with: repository.project)
+      # We need to remove focus from project so that the autocomplete happens
+      find('#repo_name').click
+      click_button('Accept')
+
+      expect(page).to have_css('.repository-card')
+
+      within '.repository-card' do
+        expect(page).to have_link("#{repository.project}_#{repository}")
+        expect(page).to have_link('Edit Repository')
+        expect(page).to have_link('Add Repository Path')
+        expect(page).to have_link('Download Repository')
+        expect(page).to have_link('Delete Repository')
+        # Repository path
+        expect(page).to have_text("#{repository.project}/#{repository}")
       end
     end
   end
