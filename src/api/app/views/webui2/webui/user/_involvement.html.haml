@@ -30,7 +30,7 @@
           %p.md-3
             #{user.name} is not involved in any packages
         - else
-          %table.table.table-fixed.table-striped.table-bordered#involved-packages-table
+          %table.table.table-sm.table-fixed.table-striped.table-bordered#involved-packages-table
             %thead
               %tr
                 %th Package
@@ -48,7 +48,7 @@
           %p.mt-3
             #{user.name} is not involved in any project
         - else
-          %table.table.table-fixed.table-striped.table-bordered#involved-projects-table
+          %table.table.table-sm.table-fixed.table-striped.table-bordered#involved-projects-table
             %thead
               %tr
                 %th Name
@@ -66,7 +66,7 @@
           %p.mt-3
             #{user.name} doesn't own any project or package
         - else
-          %table.table.table-fixed.table-striped.table-bordered#owned-table
+          %table.table.table-sm.table-fixed.table-striped.table-bordered#owned-table
             %thead
               %tr
                 %th Package
