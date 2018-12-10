@@ -394,12 +394,6 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def monitor
-    if params.keys.length < 4
-      @activate_client_search = true
-    else
-      flash[:notice] = "Limited search results, click #{view_context.link_to('here', project_monitor_path(@project))} to remove the filter."
-    end
-
     @legend = Buildresult::STATUS_DESCRIPTION
 
     @name_filter = params[:pkgname]
