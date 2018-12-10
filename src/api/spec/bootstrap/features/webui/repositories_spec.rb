@@ -83,7 +83,7 @@ RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
       login admin_user
     end
 
-    scenario 'adding DoD repositories' do
+    scenario 'add DoD repositories' do
       visit(project_repositories_path(project: admin_user.home_project_name))
       click_link('Add DoD Repository')
       fill_in('Repository name', with: 'My DoD repository')
@@ -99,18 +99,20 @@ RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
       expect(page).to have_css('.repository-card')
 
       within '.repository-card' do
-        expect(page).to have_text('My DoD repository')
-        expect(page).to have_link(title: 'Delete Repository')
-        expect(page).to have_text('Download on demand sources')
-        expect(page).to have_link(title: 'Add Download on Demand Source')
-        expect(page).to have_link(title: 'Edit Download on Demand Source')
-        expect(page).to have_link(title: 'Delete Download on Demand Source')
+        expect(page).to have_link('My DoD repository')
+        expect(page).to have_link('Add Download on Demand Source')
+        expect(page).to have_link('Delete Repository')
+        # DoD source
+        expect(page).to have_text('i586')
         expect(page).to have_link('http://somerandomurl.es')
         expect(page).to have_text('rpmmd')
+        expect(page).to have_text('Download on demand sources')
+        expect(page).to have_link('Edit Download on Demand Source')
+        expect(page).to have_link('Delete Download on Demand Source')
       end
     end
 
-    scenario 'removing DoD repositories' do
+    scenario 'delete DoD repositories' do
       visit(project_repositories_path(project: project_with_dod_repo))
       within '.repository-card' do
         click_link(title: 'Delete Repository')
@@ -127,7 +129,7 @@ RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
       expect(project_with_dod_repo.repositories).to be_empty
     end
 
-    scenario 'editing download repositories' do
+    scenario 'edit download repositories' do
       visit(project_repositories_path(project: project_with_dod_repo))
       within '.repository-card' do
         find("[data-target='#edit-dod-source-modal-#{download_repository_source}']").click
@@ -155,7 +157,7 @@ RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
       expect(download_repository_source.pubkey).to eq('some_key')
     end
 
-    scenario 'removing download repository sources' do
+    scenario 'delete download repository sources' do
       visit(project_repositories_path(project: project_with_dod_repo))
       within '.repository-card' do
         find("[data-target='#delete-dod-source-modal-#{download_repository_source}']").click
@@ -185,7 +187,7 @@ RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
       expect(repository.download_repositories.count).to eq(1)
     end
 
-    scenario 'adding DoD repositories via meta editor' do
+    scenario 'add DoD repositories via meta editor' do
       fixture_file = File.read(Rails.root + 'test/fixtures/backend/download_on_demand/project_with_dod.xml').
                      gsub('user5', admin_user.login)
 
@@ -197,13 +199,15 @@ RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
       visit(project_repositories_path(project: admin_user.home_project_name))
       within '.repository-card' do
         expect(page).to have_link('standard')
-        expect(page).to have_link(title: 'Delete Repository')
-        expect(page).to have_text('Download on demand sources')
-        expect(page).to have_link(title: 'Add Download on Demand Source')
-        expect(page).to have_link(title: 'Edit Download on Demand Source')
-        expect(page).to have_link(title: 'Delete Download on Demand Source')
+        expect(page).to have_link('Add Download on Demand Source')
+        expect(page).to have_link('Delete Repository')
+        # DoD source
+        expect(page).to have_text('x86_64')
         expect(page).to have_link('http://mola.org2')
         expect(page).to have_text('rpmmd')
+        expect(page).to have_text('Download on demand sources')
+        expect(page).to have_link('Edit Download on Demand Source')
+        expect(page).to have_link('Delete Download on Demand Source')
       end
     end
   end
