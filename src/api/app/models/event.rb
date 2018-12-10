@@ -1,8 +1,5 @@
 module Event
   PROJECT_CLASSES = ['Event::CommentForProject',
-                     'Event::CreateProject',
-                     'Event::DeleteProject',
-                     'Event::UndeleteProject',
                      'Event::UpdateProjectConfig',
                      'Event::UpdateProject'].freeze
   PACKAGE_CLASSES = ['Event::BranchCommand',
@@ -16,6 +13,5 @@ module Event
                      'Event::ServiceSuccess',
                      'Event::UndeletePackage',
                      'Event::UpdatePackage',
-                     'Event::Upload',
                      'Event::VersionChange'].freeze
 end
