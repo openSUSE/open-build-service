@@ -9,6 +9,36 @@ RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
     include_examples 'bootstrap tests for sections with flag tables'
   end
 
+  describe 'Repositories' do
+    before do
+      login admin_user
+    end
+
+    scenario 'add repository from distribution' do
+      # Create interconnect
+      visit(repositories_distributions_path(project: admin_user.home_project))
+      click_button('Save changes')
+
+      visit(repositories_distributions_path(project: admin_user.home_project))
+      find("label[for='repo_openSUSE_Tumbleweed']").click
+      expect(page).to have_text("Successfully added repository 'openSUSE_Tumbleweed'")
+
+      visit(project_repositories_path(project: admin_user.home_project))
+
+      expect(page).to have_css('.repository-card')
+
+      within '.repository-card' do
+        expect(page).to have_link('openSUSE_Tumbleweed')
+        expect(page).to have_link('Edit Repository')
+        expect(page).to have_link('Add Repository Path')
+        expect(page).to have_link('Download Repository')
+        expect(page).to have_link('Delete Repository')
+        # Repository path
+        expect(page).to have_text('openSUSE.org/snapshot')
+      end
+    end
+  end
+
   describe 'DoD Repositories' do
     let(:project_with_dod_repo) { create(:project) }
     let(:repository) { create(:repository, project: project_with_dod_repo) }
