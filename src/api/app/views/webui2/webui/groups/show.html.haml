@@ -7,15 +7,23 @@
         %a.active.nav-link.text-nowrap#reviews-in-tab{ aria: { controls: 'reviews-in', selected: 'true' },
         data: { toggle: 'tab' }, href: '#reviews-in', role: 'tab' }
           Incoming Reviews
+          %span.badge.badge-primary
+            = @group.involved_reviews.size
       %li.nav-item
         %a.nav-link.text-nowrap#requests-in-tab{ aria: { controls: 'requests-in' }, data: { toggle: 'tab' }, href: '#requests-in', role: 'tab' }
           Incoming Requests
+          %span.badge.badge-primary
+            = @group.incoming_requests.size
       %li.nav-item
         %a.nav-link.text-nowrap#all-requests-tab{ aria: { controls: 'all-requests' }, data: { toggle: 'tab' }, href: '#all-requests', role: 'tab' }
           All Requests
+          %span.badge.badge-primary
+            = @group.requests.size
       %li.nav-item
         %a.nav-link.text-nowrap#group-members-tab{ aria: { controls: 'group-members' }, data: { toggle: 'tab' }, href: '#group-members', role: 'tab' }
           Group Members
+          %span.badge.badge-primary
+            = @group.users.size
       %li.nav-item.dropdown
         %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', 'role': 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
         .dropdown-menu.dropdown-menu-right
@@ -36,29 +44,7 @@
 
       .tab-pane#group-members{ aria: { controls: 'group-members' }, role: 'tabpanel' }
         %h3 Group Members
-        .obs-dataTable
-          %table.table.table-striped.table-bordered.w-100#group-members-table
-            %thead
-              %tr
-                %th Login Name
-                %th
-            %tbody
-              - if @group.users.any?
-                - @group.users.each do |user|
-                  %tr
-                    %td= link_to(user, user_show_path(user))
-                    %td.text-nowrap
-                      = link_to('#', data: { toggle: 'modal', target: "#delete-group-user-#{user.id}-modal" }) do
-                        %i.fas.fa-times-circle.text-danger{ title: "Remove user '#{user}' from '#{@group}' group." }
-                      = render(partial: 'remove_user_modal', locals: { group: @group, user: user })
-              - else
-                %tr
-                  %td{ colspan: 2 } This group does not contain users.
-          - if policy(@group).update?
-            = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#add-user-modal' }, id: 'add-user') do
-              %i.fas.fa-plus-circle.text-primary
-              Add User
-            = render(partial: 'add_user_modal', locals: { group: @group })
+        = render(partial: 'webui2/shared/group_members_table', locals: { group: @group })
 
 = content_for :ready_function do
   :plain

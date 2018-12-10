@@ -10,4 +10,8 @@ ul.nav.nav-tabs li.nav-item {
       color: $white;
     }
   }
+
+  .dropdown-menu {
+    z-index: 1021;
+  }
 }

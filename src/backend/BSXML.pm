@@ -941,6 +941,8 @@ our $jobhistlay = [
 
 our $jobhist = [
     'jobhist' =>
+	'repository',
+	'arch',
 	@$jobhistlay,
 ];
 

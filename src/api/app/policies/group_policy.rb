@@ -5,11 +5,11 @@ class GroupPolicy < ApplicationPolicy
 
   def create?
     # Only admins can create new groups atm
-    @user.is_admin?
+    user.is_admin?
   end
 
   def update?
-    @user.is_admin? || @record.group_maintainers.where(user: @user).exists?
+    user.is_admin? || record.group_maintainers.where(user: user).exists?
   end
 
   def destroy?
