@@ -12,7 +12,7 @@ RSpec.feature 'Comments', type: :feature, js: true do
 
     scenario 'can be answered' do
       visit project_show_path(user.home_project)
-      click_on('Reply')
+      find("#reply_link_id_#{comment.id}").click
       fill_in "reply_body_#{comment.id}", with: 'Reply Body'
       click_button("add_reply_#{comment.id}")
 

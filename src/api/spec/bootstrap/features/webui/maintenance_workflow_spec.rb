@@ -32,7 +32,7 @@ RSpec.feature 'Bootstrap_MaintenanceWorkflow', type: :feature, js: true, vcr: tr
     sleep 1 # Needed to avoid a flickering test.
     expect(page).to have_text('Source')
 
-    click_button('Ok')
+    click_button('Accept')
     expect(page).to have_text('Successfully branched package')
 
     # change the package sources so we have a difference
