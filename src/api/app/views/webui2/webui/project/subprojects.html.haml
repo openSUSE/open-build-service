@@ -7,11 +7,11 @@
     .row
       .col-md-12
         - if @parentprojects.present?
-          = render partial: 'subprojects_table', locals: { table_title: 'Parent Project', project: @project, projects: @parentprojects }
+          = render partial: 'projects_table', locals: { table_title: 'Parent Project', project: @project, projects: @parentprojects }
     .row{ class: ('mt-3' if @parentprojects.present?) }
       .col-md-12
         - if @subprojects.present?
-          = render partial: 'subprojects_table', locals: { table_title: 'Subproject', project: @project, projects: @subprojects }
+          = render partial: 'projects_table', locals: { table_title: 'Subproject', project: @project, projects: @subprojects }
         - else
           %p
             %i This project has no subprojects
@@ -22,9 +22,9 @@
     .row.mt-3
       .col-md-12
         - if @siblings.present?
-          = render partial: 'subprojects_table', locals: { table_title: 'Sibling Project', project: @project, projects: @siblings }
+          = render partial: 'projects_table', locals: { table_title: 'Sibling Project', project: @project, projects: @siblings }
 
 = render partial: 'add_new_subproject_modal', locals: { project: @project, configuration: @configuration }
 
 :javascript
-  initializeDataTable('.subproject-table');
+  initializeDataTable('.projects-table');
