@@ -3956,8 +3956,27 @@ sub getjobhistory {
 
   checkprojrepoarch($projid, $repoid, $arch);
   my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
-  my @args = BSRPC::args($cgi, 'limit', 'package', 'code');
+  my @args = BSRPC::args($cgi, 'limit', 'package', 'code', 'endtime_start', 'endtime_end');
   my $res = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/_jobhistory", $BSXML::jobhistlist, @args);
+  return ($res, $BSXML::jobhistlist);
+}
+
+sub getjobhistory_project {
+  my ($cgi, $projid) = @_;
+  my $proj = checkprojrepoarch($projid, undef, undef, 1);
+  my %repoidfilter = map {$_ => 1} @{$cgi->{'repository'} || []};
+  my %archfilter = map {$_ => 1} @{$cgi->{'arch'} || []};
+  my @prpas;
+  for my $repo (@{$proj->{'repository'} || []}) {
+    next if %repoidfilter && !$repoidfilter{$repo->{'name'}};
+    my @archs = @{$repo->{'arch'} || []};
+    @archs = grep {$archfilter{$_}} @archs if %archfilter;
+    push @prpas, map {"$projid/$repo->{'name'}/$_"} @archs;
+  }
+  return ({}, $BSXML::jobhistlist) unless @prpas;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
+  my @args = BSRPC::args($cgi, 'limit', 'package', 'code', 'endtime_start', 'endtime_end');
+  my $res = BSWatcher::rpc("$reposerver/_jobhistory", $BSXML::jobhistlist, (map {"prpa=$_"} @prpas), @args);
   return ($res, $BSXML::jobhistlist);
 }
 
@@ -6460,11 +6479,12 @@ my $dispatches = [
   'POST:/build/$project cmd: repository* arch* package* code:* wipe:* comment:? sysrq:?' => \&docommand,
   '/build/$project' => \&getrepositorylist,
   '/build/$project/_result oldstate:md5? view:resultview* lastbuild:bool? repository* arch* package* code:* multibuild:bool? locallink:bool?' => \&getresult,
+  '/build/$project/_jobhistory package* code:* limit:num? endtime_start:num? endtime_end:num?' => \&getjobhistory_project,
   '/build/$project/$repository' => \&getarchlist,
   '/build/$project/$repository/_buildconfig path:prp*' => \&getbuildconfig,
   '/build/$project/$repository/$arch package* view:?' => \&getpackagelist_build,
   '!- /build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,
-  '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
+  '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num? endtime_start:num? endtime_end:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:? multibuild:bool?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,

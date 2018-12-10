@@ -2999,8 +2999,29 @@ sub getjobhistory {
     my %code = map {$_ => 1} @{$cgi->{'code'}};
     $filter = sub {$code{$_[0]->{'code'}}};
   }
+  if ($cgi->{'endtime_start'} || $cgi->{'endtime_end'} || 1) {
+    my $filter2 = $filter;
+    my $endtime_start = $cgi->{'endtime_start'} || 0;
+    my $endtime_end = $cgi->{'endtime_end'};
+    $filter = sub {$_[0]->{'endtime'} < $endtime_start ? -2 : defined($endtime_end) && $_[0]->{'endtime'} > $endtime_end ? 0 : $filter2 ? $filter2->($_[0]) : 1};
+  }
   my @hist = BSFileDB::fdb_getall_reverse("$reporoot/$projid/$repoid/$arch/:jobhistory", $BSXML::jobhistlay, $cgi->{'limit'} || 100, $filter);
   @hist = reverse @hist;
+  my $ret = {jobhist => \@hist};
+  return ($ret, $BSXML::jobhistlist);
+}
+
+sub getjobhistory_project {
+  my ($cgi, $prpas) = @_;
+  my @hist;
+  for my $prpa (@$prpas) {
+    my ($projid, $repoid, $arch) = split('/', $prpa, 3);
+    my ($r) = getjobhistory($cgi, $projid, $repoid, $arch);
+    ($_->{'repository'}, $_->{'arch'}) = ($repoid, $arch) for @{$r->{'jobhist'} || []};
+    push @hist, @{$r->{'jobhist'} || []};
+  }
+  @hist = sort {$a->{'endtime'} <=> $b->{'endtime'}} @hist;
+  splice(@hist, 0, -$cgi->{'limit'}) if $cgi->{'limit'} && @hist > $cgi->{'limit'};
   my $ret = {jobhist => \@hist};
   return ($ret, $BSXML::jobhistlist);
 }
@@ -4237,7 +4258,7 @@ my $dispatches = [
   'POST:/build/$project/$repository/$arch/_repository match:' => \&postrepo,
   '/build/$project/$repository/$arch package* view:?' => \&getpackagelist_build,
   '/build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,
-  '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
+  '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num? endtime_start:num? endtime_end:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_relsync' => \&postrelsync,
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:?' => \&copybuild,
@@ -4315,6 +4336,7 @@ my $dispatches = [
   '/configuration' => \&getconfiguration,
 
   '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? withstats:bool? summary:bool? withversrel:bool?' => \&getresult,
+  '/_jobhistory $prpa+ package* code:* limit:num? endtime_start:num? endtime_end:num?' => \&getjobhistory_project,
   'POST:/_command $cmd: $prpa+ package* code:* sysrq:?' => \&docommand,
 
   '/serverstatus' => \&BSStdServer::serverstatus,
