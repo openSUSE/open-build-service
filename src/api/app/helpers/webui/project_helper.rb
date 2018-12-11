@@ -4,13 +4,15 @@ module Webui::ProjectHelper
   protected
 
   def pulse_period(range)
-    start = if range == 'month'
-              Time.zone.today.prev_month.strftime('%B, %e')
-            else
-              Time.zone.today.prev_week.strftime('%B, %e')
-            end
+    end_time = Time.zone.today
 
-    "#{Time.zone.today.strftime('%B, %e')} – #{start}"
+    start_time = if range == 'month'
+                   end_time.prev_month
+                 else
+                   end_time.prev_week
+                 end
+
+    "#{start_time.strftime("%B, #{start_time.day.ordinalize} %Y")} – #{end_time.strftime("%B, #{end_time.day.ordinalize} %Y")}"
   end
 
   def show_status_comment(comment, package, firstfail, comments_to_clear)
