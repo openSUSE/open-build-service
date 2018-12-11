@@ -12,6 +12,8 @@ end
 
 require 'benchmark'
 require 'api_exception'
+require_dependency 'remember_location'
+require_dependency 'instrumentation'
 require_dependency 'connection'
 require_dependency 'connection_helper'
 require_dependency 'error'
