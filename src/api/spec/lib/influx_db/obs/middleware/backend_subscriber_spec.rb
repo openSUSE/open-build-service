@@ -31,12 +31,13 @@ RSpec.describe InfluxDB::OBS::Middleware::BackendSubscriber do
           controller_location: 'UsersController#index',
           backend_location: 'Cloud#upload'
         },
-        timestamp: 1_517_567_370
+        timestamp: 1_517_567_370_000
       }
     end
 
     before do
       stub_const('CONFIG', CONFIG.merge('influxdb_hosts' => ['localhost']))
+      allow_any_instance_of(InfluxDB::Rails::Configuration).to receive(:time_precision).and_return('ms')
     end
 
     it 'writes to InfluxDB' do
