@@ -28,35 +28,40 @@ RSpec.feature 'Bootstrap_Projects', type: :feature, js: true, vcr: true do
     end
   end
 
-  describe 'DoD Repositories' do
-    let(:project_with_dod_repo) { create(:project) }
-    let(:repository) { create(:repository, project: project_with_dod_repo) }
-    let!(:download_repository) { create(:download_repository, repository: repository) }
+  scenario 'changing project title and description' do
+    login user
+    visit project_show_path(project: project)
+
+    click_on('Edit Project')
+    expect(page).to have_text("Edit Project #{project}")
+
+    fill_in 'project_title', with: 'My Title hopefully got changed'
+    fill_in 'project_description', with: 'New description. Not kidding.. Brand new!'
+    click_button 'Accept'
+
+    visit project_show_path(project: project)
+    expect(find(:id, 'project-title')).to have_text('My Title hopefully got changed')
+    expect(find(:id, 'description-text')).to have_text('New description. Not kidding.. Brand new!')
+  end
+
+  describe 'branching' do
+    let(:other_user) { create(:confirmed_user, login: 'other_user') }
+    let!(:package_of_another_project) { create(:package_with_file, name: 'branch_test_package', project: other_user.home_project) }
 
     before do
-      login admin_user
+      login user
+      visit project_show_path(project)
+      click_link('Branch Existing Package')
     end
 
-    scenario 'adding DoD repositories via meta editor' do
-      fixture_file = File.read(Rails.root + 'test/fixtures/backend/download_on_demand/project_with_dod.xml').
-                     gsub('user5', admin_user.login)
+    scenario 'a non-existing package' do
+      fill_in('linked_project', with: 'non-existing_package')
+      fill_in('linked_package', with: package_of_another_project.name)
 
-      visit(project_meta_path(project: admin_user.home_project_name))
-      page.evaluate_script("editors[0].setValue(\"#{fixture_file.gsub("\n", '\n')}\");")
-      click_button('Save')
-      expect(page).to have_css('#flash', text: 'Config successfully saved!')
+      click_button('Accept')
 
-      visit(project_repositories_path(project: admin_user.home_project_name))
-      within '.repository-container' do
-        expect(page).to have_link('standard')
-        expect(page).to have_link('Delete repository')
-        expect(page).to have_text('Download on demand sources')
-        expect(page).to have_link('Add')
-        expect(page).to have_link('Edit')
-        expect(page).to have_link('Delete')
-        expect(page).to have_link('http://mola.org2')
-        expect(page).to have_text('rpmmd')
-      end
+      expect(page).to have_text('Failed to branch: Package does not exist.')
+      expect(page).to have_current_path(project_show_path('home:Jane'))
     end
   end
 end
