@@ -7,7 +7,8 @@
   .card-body#project-monitor
     = render partial: 'monitor_control',
       locals: { project: @project, activate_client_search: @activate_client_search,
-      status: @avail_status_values, repositories: @avail_repo_values, architectures: @avail_arch_values }
+      status: @avail_status_values, repositories: @avail_repo_values, architectures: @avail_arch_values,
+      repository_filter: @repo_filter, architecture_filter: @arch_filter, status_filter: @status_filter }
     .row.mt-4
       .col-md-12.obs-dataTable
         %table.table.table-sm.table-striped.table-bordered.text-nowrap.w-100#project-monitor-table

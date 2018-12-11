@@ -13,13 +13,15 @@ RSpec.feature 'Projects', type: :feature, js: true do
   scenario 'project show' do
     login user
     visit project_show_path(project: project)
-    expect(page).to have_text('Packages (0)')
+    expect(page).to have_text(/Packages .*0/)
     expect(page).to have_text('This project does not contain any packages')
     expect(page).to have_text(project.description)
     expect(page).to have_css('h3', text: project.title)
   end
 
   scenario 'changing project title and description' do
+    skip_if_bootstrap
+
     login user
     visit project_show_path(project: project)
 
@@ -28,10 +30,10 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
     fill_in 'project_title', with: 'My Title hopefully got changed'
     fill_in 'project_description', with: 'New description. Not kidding.. Brand new!'
-    click_button 'Update Project'
+    click_button('Accept')
 
     visit project_show_path(project: project)
-    expect(find(:id, 'project_title')).to have_text('My Title hopefully got changed')
+    expect(find(:id, 'project-title')).to have_text('My Title hopefully got changed')
     expect(find(:id, 'description-text')).to have_text('New description. Not kidding.. Brand new!')
   end
 
@@ -123,10 +125,12 @@ RSpec.feature 'Projects', type: :feature, js: true do
       expect(page).to have_content("Project '#{user.home_project_name}:coolstuff' was created successfully")
 
       expect(page.current_path).to match(project_show_path(project: "#{user.home_project_name}:coolstuff"))
-      expect(find('#project_title').text).to eq("#{user.home_project_name}:coolstuff")
+      expect(find('#project-title').text).to eq("#{user.home_project_name}:coolstuff")
     end
 
     scenario "create subproject with checked 'disable publishing' checkbox" do
+      skip_if_bootstrap
+
       login user
       visit project_subprojects_path(project: user.home_project)
 
@@ -176,6 +180,10 @@ RSpec.feature 'Projects', type: :feature, js: true do
   end
 
   describe 'repositories tab' do
+    before do
+      skip_if_bootstrap
+    end
+
     include_examples 'tests for sections with flag tables'
 
     describe 'DoD repositories' do
@@ -270,7 +278,6 @@ RSpec.feature 'Projects', type: :feature, js: true do
       end
 
       scenario 'adding DoD repositories via meta editor' do
-        skip_if_bootstrap
         fixture_file = File.read(Rails.root + 'test/fixtures/backend/download_on_demand/project_with_dod.xml').
                        gsub('user5', admin_user.login)
 
@@ -326,6 +333,8 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'an existing package to an invalid target package or project' do
+      skip_if_bootstrap
+
       fill_in('linked_project', with: other_user.home_project_name)
       fill_in('linked_package', with: package_of_another_project.name)
       fill_in('Branch package name', with: 'something/illegal')
@@ -349,6 +358,8 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'a non-existing package' do
+      skip_if_bootstrap
+
       fill_in('linked_project', with: 'non-existing_package')
       fill_in('linked_package', with: package_of_another_project.name)
       # This needs global write through
@@ -359,6 +370,8 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'a package with disabled access flag' do
+      skip_if_bootstrap
+
       create(:access_flag, status: 'disable', project: other_user.home_project)
 
       fill_in('linked_project', with: other_user.home_project_name)
@@ -372,6 +385,8 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'a package with disabled sourceaccess flag' do
+      skip_if_bootstrap
+
       create(:sourceaccess_flag, status: 'disable', project: other_user.home_project)
 
       fill_in('linked_project', with: other_user.home_project_name)
@@ -385,6 +400,8 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'a package and select current revision' do
+      skip_if_bootstrap
+
       fill_in('linked_project', with: other_user.home_project_name)
       fill_in('linked_package', with: package_of_another_project.name)
 
@@ -405,10 +422,12 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
   describe 'maintenance projects' do
     scenario 'creating a maintenance project' do
+      skip_if_bootstrap
+
       login(admin_user)
       visit project_show_path(project)
 
-      click_link('Advanced')
+      click_link('Advanced') unless is_bootstrap?
       click_link('Attributes')
       click_link('Add a new attribute')
       select('OBS:MaintenanceProject')

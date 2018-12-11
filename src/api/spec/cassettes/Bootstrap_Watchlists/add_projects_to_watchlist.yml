@@ -1,0 +1,347 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:kody/_meta?user=kody
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:kody">
+          <title/>
+          <description/>
+          <person userid="kody" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '131'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:kody">
+          <title></title>
+          <description></description>
+          <person userid="kody" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 10 Dec 2018 16:44:21 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:kody/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Mon, 10 Dec 2018 16:44:26 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:kody/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Mon, 10 Dec 2018 16:44:26 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:kody/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Mon, 10 Dec 2018 16:44:27 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:kody/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Mon, 10 Dec 2018 16:44:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/watchlist_test_project/_meta?user=kody
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="watchlist_test_project">
+          <title>Cabbages and Kings</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '117'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="watchlist_test_project">
+          <title>Cabbages and Kings</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 10 Dec 2018 16:44:27 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/watchlist_test_project/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Mon, 10 Dec 2018 16:44:27 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/watchlist_test_project/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Mon, 10 Dec 2018 16:44:28 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/watchlist_test_project/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Mon, 10 Dec 2018 16:44:28 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/watchlist_test_project/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Mon, 10 Dec 2018 16:44:28 GMT
+recorded_with: VCR 4.0.0

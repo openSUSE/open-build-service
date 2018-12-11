@@ -206,10 +206,6 @@ class Webui::ProjectController < Webui::WebuiController
     @comment = Comment.new
     render :show, status: params[:nextstatus] if params[:nextstatus]
 
-    # TODO: Remove the `return unless` and the flash once this should be available to all beta users on all environments
-    return unless User.current && User.current.in_beta? && (Rails.env.development? || Rails.env.test?)
-    flash[:notice] = "We are currently migrating the project pages to Bootstrap. It's active only on the development and test environments while this is work-in-progress."
-
     switch_to_webui2
   end
 
@@ -394,12 +390,6 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def monitor
-    if params.keys.length < 4
-      @activate_client_search = true
-    else
-      flash[:notice] = "Limited search results, click #{view_context.link_to('here', project_monitor_path(@project))} to remove the filter."
-    end
-
     @legend = Buildresult::STATUS_DESCRIPTION
 
     @name_filter = params[:pkgname]

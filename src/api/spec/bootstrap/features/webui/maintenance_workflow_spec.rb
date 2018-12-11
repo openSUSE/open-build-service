@@ -32,7 +32,10 @@ RSpec.feature 'Bootstrap_MaintenanceWorkflow', type: :feature, js: true, vcr: tr
     sleep 1 # Needed to avoid a flickering test.
     expect(page).to have_text('Source')
 
-    click_button('Accept')
+    within('#branch-modal .modal-footer') do
+      click_button('Accept')
+    end
+
     expect(page).to have_text('Successfully branched package')
 
     # change the package sources so we have a difference
@@ -44,11 +47,14 @@ RSpec.feature 'Bootstrap_MaintenanceWorkflow', type: :feature, js: true, vcr: tr
 
     click_link('Submit as Update')
     # we need this find to wait for the dialog to appear
-    expect(find(:css, '.dialog h2')).to have_text('Submit as Update')
+    expect(find('#project-submit-update-modal-label')).to have_text('Submit as Update')
     fill_in('description', with: 'I want the update')
 
-    click_button('Accept')
-    expect(page).to have_css('#flash-messages', text: 'Created maintenance incident request')
+    within('#project-submit-update-modal .modal-footer') do
+      click_button('Accept')
+    end
+
+    expect(page).to have_css('#flash', text: 'Created maintenance incident request')
 
     # Check that sending maintenance updates adds the source revision
     new_bs_request_action = BsRequestAction.where(
@@ -101,10 +107,13 @@ RSpec.feature 'Bootstrap_MaintenanceWorkflow', type: :feature, js: true, vcr: tr
     visit project_show_path(project: 'home:tom:branches:ProjectWithRepo:Update')
 
     click_link('Submit as Update')
-
-    expect(find(:css, '.dialog h2')).to have_text('Submit as Update')
+    # we need this find to wait for the dialog to appear
+    expect(find('#project-submit-update-modal-label')).to have_text('Submit as Update')
     fill_in('description', with: 'I have a additional fix')
-    click_button('Accept')
+
+    within('#project-submit-update-modal .modal-footer') do
+      click_button('Accept')
+    end
 
     logout
 
@@ -138,11 +147,16 @@ RSpec.feature 'Bootstrap_MaintenanceWorkflow', type: :feature, js: true, vcr: tr
     visit project_show_path('MaintenanceProject:0')
     click_link('Request to Release')
 
+    # we need this find to wait for the dialog to appear
+    expect(find('#project-release-request-modal-label')).to have_text('Create Maintenance Release Request')
     fill_in('description', with: 'RELEASE!')
-    click_button('Accept')
+
+    within('#project-release-request-modal .modal-footer') do
+      click_button('Accept')
+    end
 
     # As we can't release without build results this should fail
-    expect(page).to have_css('#flash-messages',
+    expect(page).to have_css('#flash',
                              text: "The repository 'MaintenanceProject:0' / 'ProjectWithRepo_Update' / i586 did not finish the build yet")
   end
 end

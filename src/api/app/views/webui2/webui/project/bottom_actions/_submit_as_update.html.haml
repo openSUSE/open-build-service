@@ -1,4 +1,4 @@
-- if project.is_maintenance_incident? && release_targets.present?
+- if !project.is_maintenance_incident? && release_targets.present?
   %li.list-inline-item
     = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#project-submit-update-modal' }) do
       %i.fas.fa-share-square.text-warning

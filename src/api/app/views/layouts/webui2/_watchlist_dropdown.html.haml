@@ -5,7 +5,7 @@
     List of projects you are watching
   .dropdown-divider
   - if params[:project]
-    %a.dropdown-item{ href: project_toggle_watch_path(params[:project]) }
+    %a.dropdown-item#toggle-watch{ href: project_toggle_watch_path(params[:project]) }
       - if User.current.watches? params[:project]
         %p.mb-0
           Remove this project from Watchlist
@@ -18,7 +18,7 @@
           Watch this project
     .dropdown-divider
   - User.current.watched_project_names.each_with_index do |project, index|
-    = link_to project_show_path(project), class: "dropdown-item text-wrap text-word-break-all #{'border-top' unless index.zero?}" do
+    = link_to project_show_path(project), class: "dropdown-item project-link text-wrap text-word-break-all #{'border-top' unless index.zero?}" do
       %i.fa.fa-cubes.fa.text-secondary.pt-2
       %span.small
         = project
