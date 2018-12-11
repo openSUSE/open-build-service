@@ -24,7 +24,7 @@
           %li
             = link_to(group_show_path(group)) do
               #{group.title}
-              %span.badge.badge-primary
+              %span.badge.badge-primary.align-top
                 #{group.tasks} #{'task'.pluralize(group.tasks)}
 
     - if is_user
