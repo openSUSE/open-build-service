@@ -51,9 +51,7 @@ sub import {
 my $tcpproto = getprotobyname('tcp');
 
 sub urlencode {
-  my $url = $_[0];
-  $url =~ s/([\000-\040<>;\"#\?&\+=%[\177-\377])/sprintf("%%%02X",ord($1))/sge;
-  return $url;
+  return BSHTTP::urlencode($_[0]);
 }
 
 sub createuri {
@@ -63,22 +61,13 @@ sub createuri {
     # encode uri, but do not encode the host part
     if ($uri =~ /^(https?:\/\/[^\/]*\/)(.*)$/s) {
       $uri = $1; 
-      $uri .= urlencode($2);
+      $uri .= BSHTTP::urlencode($2);
     } else {
-      $uri = urlencode($uri);
+      $uri = BSHTTP::urlencode($uri);
     }
   }
-  if (@args) {
-    for (@args) {
-      $_ = urlencode($_);
-      s/%3D/=/;	# convert first now escaped '=' back
-    }   
-    if ($uri =~ /\?/) {
-      $uri .= '&'.join('&', @args); 
-    } else {
-      $uri .= '?'.join('&', @args); 
-    }   
-  }
+  $uri .= (($uri =~ /\?/) ? '&' : '?') . BSHTTP::queryencode(@args) if @args;
+  $uri .= "#".BSHTTP::urlencode($param->{'fragment'}) if defined $param->{'fragment'};
   return $uri;
 }
 
@@ -251,11 +240,7 @@ sub rpc {
       push @xhdrs, 'Content-Type: application/x-www-form-urlencoded';
     }
     if ($formurlencode) {
-      for (@args) {
-        $_ = urlencode($_);
-        s/%3D/=/;	# convert now escaped = back
-      }
-      $data = join('&', @args);
+      $data = BSHTTP::queryencode(@args);
       @args = ();
     }
   }
