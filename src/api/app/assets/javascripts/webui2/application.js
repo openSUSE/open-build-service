@@ -43,3 +43,4 @@
 //= require webui2/package-view_file.js
 //= require webui2/staging_workflow.js
 //= require webui2/project_monitor.js
+//= require rails-timeago
