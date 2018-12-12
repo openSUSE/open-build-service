@@ -77,6 +77,8 @@ class Project < ApplicationRecord
   has_many :target_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'target_project_id'
   has_many :target_of_bs_requests, through: :target_of_bs_request_actions, source: :bs_request
 
+  has_one :staging, class_name: 'Staging::Workflow', inverse_of: :project
+
   default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids) }
 
   scope :maintenance, -> { where("kind = 'maintenance'") }
@@ -1688,6 +1690,14 @@ class Project < ApplicationRecord
     packages.find_by(name: 'dashboard')
   end
 
+  def checks
+    Status::Check.where(status_report: combined_status_reports)
+  end
+
+  def missing_checks
+    @missing_checks ||= calculate_missing_checks
+  end
+
   private
 
   def discard_cache
@@ -1741,6 +1751,28 @@ class Project < ApplicationRecord
       linked_repository.project.name == project_name &&
         linked_repository.name == repository
     end
+  end
+
+  def status_reports(checkables)
+    status_reports = Status::Report.where(checkable: checkables)
+    result = {}
+    status_reports.where(uuid: checkables.map(&:build_id)).find_each do |report|
+      result[report.checkable] = report
+    end
+
+    checkables.each do |checkable|
+      result[checkable] ||= Status::Report.new(checkable: checkable)
+    end
+
+    result.values
+  end
+
+  def combined_status_reports
+    @combined_status_reports ||= status_reports(repositories) | status_reports(repository_architectures)
+  end
+
+  def calculate_missing_checks
+    combined_status_reports.map(&:missing_checks).flatten
   end
 end
 # rubocop:enable Metrics/ClassLength

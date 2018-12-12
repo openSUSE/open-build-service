@@ -10,6 +10,7 @@ class Status::Check < ApplicationRecord
   validates :state, :name, presence: true
   # TODO: This should be an ENUM
   VALID_STATES = %w[pending error failure success].freeze
+  FAILED_STATES = %w[error failure].freeze
   validates :state, inclusion: {
     in: VALID_STATES,
     message: "State '%{value}' is not a valid. Valid states are: #{VALID_STATES.join(', ')}"
@@ -23,6 +24,8 @@ class Status::Check < ApplicationRecord
   #### Callbacks macros: before_save, after_save, etc.
 
   #### Scopes (first the default_scope macro if is used)
+  scope :pending, -> { where(state: 'pending') }
+  scope :failed, -> { where(state: ['error', 'failure']) }
 
   #### Validations macros
 
@@ -40,8 +43,12 @@ class Status::Check < ApplicationRecord
     state == 'pending'
   end
 
+  def success?
+    state == 'success'
+  end
+
   def failed?
-    %w[error failure].include?(state)
+    FAILED_STATES.include?(state)
   end
 
   #### Alias of methods

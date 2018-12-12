@@ -1,0 +1,13 @@
+[data-toggle="collapse"] {
+  &[aria-expanded="false"] {
+    .collapser {
+      display: none;
+    }
+  }
+
+  &[aria-expanded="true"] {
+    .expander {
+      display: none;
+    }
+  }
+}

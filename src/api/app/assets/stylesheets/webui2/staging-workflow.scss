@@ -1,0 +1,112 @@
+.legend {
+  ul {
+    @extend .ml-2;
+
+    li {
+      span {
+        display: inline-flex;
+        width: 1rem;
+        height: 1rem;
+        @extend .border;
+        @extend .border-dark;
+      }
+    }
+  }
+}
+
+ul .table-list-group-item {
+  padding: 0.5rem 0.75rem;
+  background-color: transparent;
+}
+
+#staging-projects-datatable td,
+#staging-project-package-list {
+  span.badge {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  &.project {
+    > span.badge {
+      @extend .w-100;
+
+      > span.badge {
+        @extend .m-1;
+      }
+    }
+
+    span.badge {
+      &.state-unacceptable {
+        @extend .badge-dark;
+      }
+
+      &.state-acceptable {
+        @extend .badge-success;
+      }
+
+      &.state-testing {
+        @extend .badge-info;
+      }
+
+      &.state-building {
+        @extend .badge-warning;
+
+        span {
+          @extend .text-dark;
+        }
+      }
+
+      &.state-failed {
+        @extend .badge-danger;
+      }
+
+      &.state-review {
+        @extend .badge-secondary;
+      }
+
+      &.state-empty {
+        @extend .badge-light;
+        @extend .border;
+
+        span {
+          @extend .text-dark;
+        }
+      }
+    }
+  }
+
+  &.requests {
+    @extend .w-50;
+
+    a.request {
+      @extend .text-white;
+      padding: 0 0.125rem 0.25rem;
+
+      &:hover {
+        text-decoration: none;
+      }
+
+      span.badge {
+        &.state-ready {
+          @extend .badge-success;
+        }
+
+        &.state-review {
+          @extend .badge-warning;
+        }
+
+        &.state-obsolete {
+          @extend .badge-info;
+        }
+
+        &.state-untracked {
+          @extend .badge-dark;
+        }
+      }
+    }
+
+    a, div.collapse, div.collapsing {
+      float: left;
+    }
+  }
+}

@@ -1,0 +1,8 @@
+%span.badge{ class: "state-#{staging_project.overall_state}" }
+  %span.badge.badge-light
+    = link_to(staging_project.name, staging_workflow_staging_project_path(staging_workflow, staging_project.name))
+  %span
+    %br
+    = staging_project.overall_state
+    %br
+    = progress(staging_project)

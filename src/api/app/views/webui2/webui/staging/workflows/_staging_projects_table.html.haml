@@ -1,0 +1,26 @@
+%table.table.table-striped.table-bordered.table-sm.dt-responsive.w-100#staging-projects-datatable
+  %thead
+    %tr.text-center
+      %th Staging Project
+      %th Requests
+      %th Problems
+      - if display_actions_column
+        %th Actions
+  %tbody
+    - staging_projects.each do |staging_project|
+      %tr
+        %td.project
+          = render partial: 'overall_state', locals: { staging_workflow: staging_workflow, staging_project: staging_project }
+        %td.requests
+          = render partial: 'webui/staging/shared/packages_list', locals: { staging_project: staging_project }
+        %td
+          = render partial: 'problems', locals: { staging_project: staging_project }
+        - if display_actions_column
+          %td.text-center
+            = link_to('#', data: { toggle: 'modal', target: "#confirm-modal-#{staging_project.id}" }, title: "Delete #{staging_project}") do
+              %i.fas.fa-times-circle.text-danger
+
+            = render partial: 'delete_staging_project_modal', locals: { staging_workflow: staging_workflow, staging_project: staging_project }
+
+- content_for :ready_function do
+  $('#staging-projects-datatable').DataTable({responsive: true, paging: false, ordering: false, searching: false, info: false});

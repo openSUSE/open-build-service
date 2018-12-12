@@ -5,6 +5,7 @@ require_dependency 'api_exception'
 # Groups have an arbitrary number of roles and users assigned to them.
 #
 class Group < ApplicationRecord
+  has_one :staging_workflow, class_name: 'Staging::Workflow', foreign_key: :managers_group_id, dependent: :nullify
   has_many :groups_users, inverse_of: :group, dependent: :destroy
   has_many :users, -> { distinct }, through: :groups_users
   has_many :group_maintainers, inverse_of: :group, dependent: :destroy

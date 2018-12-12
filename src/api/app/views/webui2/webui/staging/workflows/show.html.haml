@@ -1,0 +1,31 @@
+- @pagetitle = "Staging for #{@project}"
+
+.row
+  .col-xl-10
+    .card.mb-3
+      = render(partial: 'webui2/webui/project/tabs', locals: { project: @project })
+      .card-body
+        %h3= @pagetitle
+        %ul.list-inline.mb-0
+          - if policy(@staging_workflow).update?
+            %li.list-inline-item
+              = link_to(edit_staging_workflow_path(@staging_workflow), class: 'nav-link') do
+                %i.fas.fa-edit.text-info
+                Configure
+          - if policy(@staging_workflow).destroy?
+            %li.list-inline-item
+              = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#delete-staging-workflow' }) do
+                %i.fas.fa-times-circle.text-danger
+                Delete
+              = render(partial: 'delete', locals: { project: @project })
+
+        = render(partial: 'staging_projects_table',
+                 locals: { staging_workflow: @staging_workflow, staging_projects: @staging_projects, display_actions_column: false })
+
+  .col-xl-2
+    = render partial: 'webui/staging/shared/legend'
+    = render partial: 'infos', locals: { staging_workflow: @staging_workflow, empty_projects: @empty_projects,
+                                         unassigned_requests: @unassigned_requests, more_unassigned_requests: @more_unassigned_requests,
+                                         ready_requests: @ready_requests, more_ready_requests: @more_ready_requests,
+                                         excluded_requests: @excluded_requests, more_excluded_requests: @more_excluded_requests,
+                                         project: @project, managers: @managers }

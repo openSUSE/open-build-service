@@ -472,6 +472,11 @@ OBSApi::Application.routes.draw do
   get 'published/:project(/:repository(/:arch(/:binary)))' => 'published#index', constraints: cons
   get 'published/' => 'source#index', via: :get
 
+  resources :staging_workflows, except: :index, controller: 'webui/staging/workflows', constraints: cons do
+    resources :staging_projects, only: [:create, :destroy, :show], controller: 'webui/staging/projects', param: :project_name, constraints: cons
+    resources :excluded_requests, controller: 'webui/staging/excluded_requests'
+  end
+
   constraints(APIMatcher) do
     get '/' => 'main#index'
 
@@ -735,6 +740,21 @@ OBSApi::Application.routes.draw do
     ### /projects
     get 'projects/:project/requests' => 'webui/projects/bs_requests#index', constraints: cons, as: 'projects_requests'
     get 'projects/:project/packages/:package/requests' => 'webui/packages/bs_requests#index', constraints: cons, as: 'packages_requests'
+  end
+
+  # StagingWorkflow API
+  resources :staging, only: [], param: 'main_project_name' do
+    resources :staging_projects, only: [:index, :show], controller: 'staging/staging_projects', param: :name do
+      get 'staged_requests' => 'staging/staged_requests#index', constraints: cons
+      resource :staged_requests, controller: 'staging/staged_requests', only: [:create, :destroy], constraints: cons
+    end
+
+    # resources :excluded_requests, only: [:create, :destroy], controller: 'staging/excluded_requests', param: :number, constrains: cons
+
+    controller 'staging/excluded_requests' do
+      post 'excluded_requests/:number' => :create, constraints: cons
+      delete 'excluded_requests/:number' => :destroy, constraints: cons
+    end
   end
 
   controller :source_attribute do
