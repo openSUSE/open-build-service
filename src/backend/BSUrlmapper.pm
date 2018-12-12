@@ -23,7 +23,7 @@
 package BSUrlmapper;
 
 use BSConfiguration;
-use BSRPC;
+use BSHTTP;
 
 my $extrepodir = "$BSConfig::bsdir/repos";
 
@@ -101,13 +101,13 @@ sub get_downloadurl {
   # default to repodownload url
   return undef unless $BSConfig::repodownload;
   if ($extrep->[0] =~ /^\Q$BSConfig::bsdir\E\/repos\/(.*)$/) {
-    my $url = "$BSConfig::repodownload/".BSRPC::urlencode($1).'/';
+    my $url = "$BSConfig::repodownload/".BSHTTP::urlencode($1).'/';
     $url =~ s!//$!/!;
     return $url;
   }
   my $prp_ext = $prp;
   $prp_ext =~ s/:/:\//g;
-  return "$BSConfig::repodownload/".BSRPC::urlencode($prp_ext)."/";
+  return "$BSConfig::repodownload/".BSHTTP::urlencode($prp_ext)."/";
 }
 
 sub get_path_downloadurl {
@@ -124,12 +124,12 @@ sub get_path_downloadurl {
   $url = $extrep->[2] if !defined($url);
   if ((!defined($path) || !defined($url)) && $extrep->[0] =~ /^\Q$BSConfig::bsdir\E\/repos\/(.*)$/) {
     $path = $1 if !defined $path;
-    $url = "$BSConfig::repodownload/".BSRPC::urlencode($1) if $BSConfig::repodownload && !defined($url);
+    $url = "$BSConfig::repodownload/".BSHTTP::urlencode($1) if $BSConfig::repodownload && !defined($url);
   }
   if (!defined($url) && $BSConfig::repodownload)  {
     my $prp_ext = $prp;
     $prp_ext =~ s/:/:\//g;
-    $url = "$BSConfig::repodownload/".BSRPC::urlencode($prp_ext);
+    $url = "$BSConfig::repodownload/".BSHTTP::urlencode($prp_ext);
   }
   $url =~ s/\/?$/\// if defined $url;
   return ($path, $url);

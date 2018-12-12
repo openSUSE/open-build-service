@@ -245,6 +245,7 @@ sub dod_rpmmd {
 
 # same parser as in build package:
 #   distribution:   <baseurl>/<dist>/[components]
+#     or:           <baseurl>?dist=<dist>[&component=comp1&component=comp2...]
 #   flat repo:      <baseurl>/.[/subdir]
 #     components:   comp1,comp2... (main if empty)
 sub dod_deb {
@@ -253,7 +254,26 @@ sub dod_deb {
   my $sslfingerprint = getsslfingerprint($doddata);
   my @components;
   my $baseurl = $url;
-  if ($url =~ /^(.*\/)\.(\/.*)?$/) {
+  if ($url =~ /\?/) {
+    my ($base, $query) = split(/\?/, $url, 2);
+    if ("&$query" =~ /\&dist=/) {
+      my $dist;
+      for my $querypart (split('&', $query)) {
+	my ($k, $v) = split('=', $querypart, 2);
+	$k = BSHTTP::urldecode($k, 1);
+	$v = BSHTTP::urldecode($v, 1);
+	$dist = $v if $k eq 'dist';
+	push @components, split(/[,+]/, $v) if $k eq 'component';
+      }
+      $baseurl = $base;
+      $baseurl .= '/' unless $baseurl =~ /\/$/;
+      $url = "${baseurl}dists/${dist}/";
+      push @components, 'main' unless @components;
+    }
+  }
+  if (@components) {
+    ;	# all done above
+  } elsif ($url =~ /^(.*\/)\.(\/.*)?$/) {
     # flat repo
     $baseurl = $1;
     @components = ('.');

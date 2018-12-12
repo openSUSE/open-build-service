@@ -53,6 +53,32 @@ This library contains functions to handle http requests in obs
 
 =cut
 
+sub urlencode {
+  my ($str, $iscgi) = @_;
+  if ($iscgi) {
+    $str =~ s/([\000-\037<>;\"#\?&\+=%[\177-\377])/sprintf("%%%02X",ord($1))/sge;
+    $str =~ s/ /+/sg;
+  } else {
+    $str =~ s/([\000-\040<>;\"#\?&\+=%[\177-\377])/sprintf("%%%02X",ord($1))/sge;
+  }
+  return $str;
+}
+
+sub urldecode {
+  my ($str, $iscgi) = @_;
+  $str =~ tr/+/ / if $iscgi;
+  $str =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/sge;
+  return $str;
+}
+
+sub queryencode {
+  my (@args, $iscgi) = @_;
+  for (@args) {
+    $_ = urlencode($_, $iscgi);
+    s/%3D/=/;	# convert now escaped = back
+  }
+  return join('&', @args);
+}
 
 sub gethead {
   my ($h, $t) = @_;

@@ -597,17 +597,18 @@ sub readrequest {
     $qu = '';
   }
   my $query_string = '';
-  if ($path =~ /^(.*?)\?(.*)$/) {
-    $path = $1;
-    $query_string = $2;
-  }
+  my $fragment;
+  ($path, $fragment) = ($1, $2) if $path =~ /^(.*?)\#(.*)$/;
+  ($path, $query_string) = ($1, $2) if $path =~ /^(.*?)\?(.*)$/;
   $path =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;	# unescape path
+  $fragment =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge if defined $fragment;	# unescape fragment
   die("501 invalid path\n") unless $path =~ /^\//s; # forbid relative paths
   my %headers;
   BSHTTP::gethead(\%headers, $rawheaders);
   $req->{'action'} = $act;
   $req->{'path'} = $path;
   $req->{'query'} = $query_string;
+  $req->{'fragment'} = $fragment if defined $fragment;
   $req->{'headers'} = \%headers;
   $req->{'rawheaders'} = $rawheaders;
   if ($act eq 'POST' || $act eq 'PUT' || $act eq 'PATCH') {

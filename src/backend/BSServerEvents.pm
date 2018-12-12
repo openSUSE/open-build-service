@@ -327,13 +327,14 @@ sub getrequest {
       die("501 Bad method, must be GET\n") if $act ne 'GET';
     }
     my $query_string = '';
-    if ($path =~ /^(.*?)\?(.*)$/) {
-      $path = $1;
-      $query_string = $2;
-    }
+    my $fragment;
+    ($path, $fragment) = ($1, $2) if $path =~ /^(.*?)\#(.*)$/;
+    ($path, $query_string) = ($1, $2) if $path =~ /^(.*?)\?(.*)$/;
     $path =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
+    $fragment =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge if defined $fragment;
     die("501 invalid path\n") unless $path =~ /^\//;
     %$req = ( %$req, 'action' => $act, 'path' => $path, 'query' => $query_string, 'headers' => $headers, 'state' => 'processing' );
+    $req->{'fragment'} = $fragment if defined $fragment;
     # FIXME: should not use global
     local $BSServer::request = $req;
     my @r = $conf->{'dispatch'}->($conf, $req);
