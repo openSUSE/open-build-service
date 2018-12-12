@@ -33,7 +33,7 @@ module InfluxDB
         end
 
         def values(runtime)
-          { value: ((runtime || 0) * 1000).ceil }
+          { runtime: ((runtime || 0) * 1000).ceil }
         end
 
         def tags(data)
