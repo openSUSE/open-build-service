@@ -1,0 +1,15 @@
+.modal.fade#delete-project-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-project-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title#delete-project-modal-label Do you really want to delete this project?
+      .modal-body
+        %p Please confirm deletion of #{link_to(project, project_show_path(project))}
+
+        = form_tag(project_destroy_path, method: :delete) do
+          = hidden_field_tag(:project, project)
+
+          .modal-footer
+            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+              Cancel
+            = submit_tag('Delete', class: 'btn btn-sm btn-danger px-4')

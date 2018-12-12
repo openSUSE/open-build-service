@@ -58,42 +58,47 @@ for my $got (@$changes) {
 };
 
 ################################################################################
-$fixture = {
+$fixture = [
+  {},
+  {
   path => [
     { path => 'abc' , project => 'openSUSE:Factory' , repository => 'standard' },
   ],
-};
+  },
+];
 
-@$got = BSSched::BuildJob::expandkiwipath($fixture);
+@$got = BSSched::BuildJob::expandkiwipath(@$fixture);
 $expected = [ 'openSUSE:Factory/standard' ];
 is_deeply($got,$expected,'Checking testcase 1 TODO: better description');
 ################################################################################
 $fixture = [
     {
-      path => [
-        { path => 'abc' , project => '_obsrepositories' },
-      ],
+      prpsearchpath => ['prpsearchpath1','prpsearchpath2']
     },
-  ['prpsearchpath1','prpsearchpath2']
-];
-$expected = [ 'prpsearchpath1', 'prpsearchpath2' ];
-@$got = BSSched::BuildJob::expandkiwipath(@$fixture);
-is_deeply($got,$expected,'Checking with _obsrepositories and prpsearchpath');
-
-################################################################################
-$fixture = [
     {
       path => [
         { path => 'abc' , project => '_obsrepositories' },
       ],
     },
 ];
-$expected = [ ];
 @$got = BSSched::BuildJob::expandkiwipath(@$fixture);
+$expected = [ 'prpsearchpath1', 'prpsearchpath2' ];
+is_deeply($got,$expected,'Checking with _obsrepositories and prpsearchpath');
+
+################################################################################
+$fixture = [
+    {},
+    {
+      path => [
+        { path => 'abc' , project => '_obsrepositories' },
+      ],
+    },
+];
+@$got = BSSched::BuildJob::expandkiwipath({}, @$fixture);
+$expected = [];
 is_deeply($got,$expected,'Checking with _obsrepositories w/o prpsearchpath');
 ################################################################################
-@$got = BSSched::BuildJob::expandkiwipath();
-$expected = [ 'openSUSE:Factory/standard' ];
+@$got = BSSched::BuildJob::expandkiwipath({});
 is_deeply($got,[],'Checking empty $info->{path} element');
 
 ### Testing BSSched::BuildJob::jobname

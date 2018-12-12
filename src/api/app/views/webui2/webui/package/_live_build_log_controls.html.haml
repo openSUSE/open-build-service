@@ -20,7 +20,7 @@
       Download logfile
   - if @can_modify
     = link_to(package_trigger_rebuild_path(project: @project, package: @package, arch: @arch, repository: @repo),
-              class: 'link_trigger_rebuild live-link-action btn-primary d-none',
+              class: 'link_trigger_rebuild live-link-action btn-warning d-none',
               method: :post) do
       %i.fas.fa-redo
       Trigger Rebuild

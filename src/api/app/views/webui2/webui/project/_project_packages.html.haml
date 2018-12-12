@@ -1,0 +1,30 @@
+.card-body
+  - if packages.present?
+    .obs-dataTable
+      %table.table.table-sm.table-fixed.table-striped.table-bordered#packages-table
+        %thead
+          %tr
+            %th.w-75 Name
+            %th.w-25 Changed
+        %tbody
+          - packages.each do |package|
+            %tr
+              %td
+                = link_to(package.first, package_show_path(package: package.first, project: project))
+              %td
+                = time_ago_in_words(Time.at(package.second.to_i))
+  - else
+    %p This project does not contain any packages
+
+  - if User.current.can_modify?(project)
+    - if show_package_actions?
+      .pt-4
+        %ul.list-inline
+          %li.list-inline-item
+            = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#new-package-modal' }) do
+              %i.fas.fa-plus-circle.text-primary
+              Create Package
+          %li.list-inline-item
+            = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#new-package-branch-modal' }) do
+              %i.fas.fa-code-branch.text-primary
+              Branch Existing Package

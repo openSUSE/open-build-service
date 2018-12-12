@@ -87,6 +87,7 @@ sub authorize {
 sub dispatch {
   my ($conf, $req) = @_;
 
+  return BSDispatch::dispatch($conf, $req) if $req->{'req_mode'};
   my $peer = $isajax ? 'AJAX' : $req->{'peer'};
   my $msg = sprintf("%-22s %s%s",
     "$req->{'action'} ($peer)", $req->{'path'},
@@ -95,7 +96,7 @@ sub dispatch {
   BSServer::setstatus(2, $msg) if $conf->{'serverstatus'};
   BSUtil::printlog($msg);
   BSServerEvents::cloneconnect("OK\n", "Content-Type: text/plain") if $isajax;
-  BSDispatch::dispatch($conf, $req);
+  return BSDispatch::dispatch($conf, $req);
 }
 
 my $configurationcheck = 0;
@@ -188,13 +189,12 @@ sub isrunning {
 sub server {
   my ($name, $args, $conf, $aconf) = @_;
   my $logfile;
+  my $request;
 
-  if ($args && @$args) {
-    if ($args->[0] eq '--logfile') {
-      shift @$args;
-      $logfile = shift @$args;
-      BSUtil::openlog($logfile, $BSConfig::logdir, $BSConfig::bsuser, $BSConfig::bsgroup);
-    }
+  if (@{$args || []} && $args->[0] eq '--logfile') {
+    shift @$args;
+    $logfile = shift @$args;
+    BSUtil::openlog($logfile, $BSConfig::logdir, $BSConfig::bsuser, $BSConfig::bsgroup);
   }
 
   if ($args && @$args) {
@@ -220,6 +220,11 @@ sub server {
       BSUtil::waituntilgone("$rundir/$name.restart");
       exit 0;
     }
+    if ($args->[0] eq '--req') {
+      shift @$args;
+      $request = shift @$args;
+      die("need a server config for --req\n") unless $conf;
+    }
   }
 
   my $bsdir = $BSConfig::bsdir || "/srv/obs";
@@ -240,6 +245,21 @@ sub server {
     $conf->{'name'} = $name;
     $conf->{'logfile'} = $logfile if $logfile;
     BSDispatch::compile($conf);
+  }
+  if ($request) {
+    BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
+    my $fd;
+    open($fd, '>&STDOUT') || die;
+    open('STDOUT', '>&STDERR') || die;
+    my $req = { 'peer' => 'unknown', 'conf' => $conf, 'starttime' => time(), 'action' => 'GET', 'query' => '', '__socket' => $fd, 'req_mode' => 1, 'no_drain_clnt' => 1 };
+    $BSServer::request = $req;
+    $req->{'action'} = $1 if $request =~ s/^([A-Z]+)://;
+    $req->{'path'} = $request;
+    ($req->{'path'}, $req->{'query'}) = ($1, $2) if $request =~ /^(.*?)\?(.*)$/;
+    $req->{'path'} =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
+    my @r = $conf->{'dispatch'}->($conf, $req);
+    $conf->{'stdreply'}->(@r) unless $req->{'replying'};
+    exit(0);
   }
   if ($aconf) {
     require BSHandoff;

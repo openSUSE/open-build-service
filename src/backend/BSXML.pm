@@ -380,6 +380,7 @@ our $serviceinfo = [
 	'code',         # can be "running", "failed", "succeeded"
 	'xsrcmd5',
 	'lsrcmd5',
+	'lxsrcmd5',
         [],
 	'error',        # contains error message (with new lines) in case of error
 ];
@@ -411,6 +412,17 @@ our $dir = [
 	    'originproject',	# for package listing
 	    'originpackage',	# for package listing
      ]]
+];
+
+our $providedby = [
+    'providedby' =>
+	'name',
+	'epoch',
+	'version',
+	'release',
+	'arch',
+	'project',
+	'repository',
 ];
 
 our $fileinfo = [
@@ -451,15 +463,15 @@ our $fileinfo = [
      ]],
      [[ 'requires_ext' =>
 	    'dep',
-	 [[ 'providedby' =>
-		'name',
-		'epoch',
-		'version',
-		'release',
-		'arch',
-		'project',
-		'repository',
-	 ]],
+	  [ $providedby ],
+     ]],
+     [[ 'recommends_ext' =>
+	    'dep',
+	  [ $providedby ],
+     ]],
+     [[ 'supplements_ext' =>
+	    'dep',
+	  [ $providedby ],
      ]],
 ];
 
@@ -471,6 +483,7 @@ our $sourceinfo = [
 	'srcmd5',
 	'lsrcmd5',
 	'verifymd5',
+	'metamd5',
 	[],
 	'filename',
 	'error',
@@ -928,6 +941,8 @@ our $jobhistlay = [
 
 our $jobhist = [
     'jobhist' =>
+	'repository',
+	'arch',
 	@$jobhistlay,
 ];
 

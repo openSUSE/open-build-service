@@ -126,20 +126,6 @@ module Staging
       :acceptable
     end
 
-    def status_reports(checkables)
-      status_reports = Status::Report.where(checkable: checkables)
-      result = {}
-      status_reports.where(uuid: checkables.map(&:build_id)).find_each do |report|
-        result[report.checkable] = report
-      end
-
-      checkables.each do |checkable|
-        result[checkable] ||= Status::Report.new(checkable: checkable)
-      end
-
-      result.values
-    end
-
     def check_state
       return :testing if missing_checks.present? || checks.pending.exists?
       return :failed if checks.failed.exists?

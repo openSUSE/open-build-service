@@ -1,0 +1,50 @@
+%ul.list-unstyled
+  - if project.is_maintenance?
+    = render partial: 'webui2/webui/project/side_links/maintenance_project', locals: { open_maintenance_incidents: open_maintenance_incidents,
+                                                                                       project: project,
+                                                                                       maintained_projects: maintained_projects }
+  - else
+    - if nr_of_problem_packages && nr_of_problem_packages.positive?
+      = render partial: 'webui2/webui/project/side_links/project_monitor', locals: { project: project,
+                                                                                     nr_of_problem_packages: nr_of_problem_packages }
+
+    - if has_patchinfo
+      = render partial: 'webui2/webui/project/side_links/patchinfo_present', locals: { project: project }
+
+    - if project.is_maintenance_incident?
+      = render partial: 'webui2/webui/project/side_links/incident_project', locals: { has_patchinfo: has_patchinfo,
+                                                                                      project: project,
+                                                                                      open_release_requests: open_release_requests }
+
+    - if release_targets.present?
+      = render partial: 'webui2/webui/project/side_links/release_targets', locals: { project: project,
+                                                                                     release_targets: release_targets }
+
+  - if requests.present?
+    = render partial: 'webui2/webui/project/side_links/requests', locals: { requests: requests,
+                                                                            project: project,
+                                                                            package: package }
+
+  - if project.defines_remote_instance?
+    %li
+      %i.fas.fa-link
+      Links against the remote OBS instance at:
+      = link_to_if(project.remoteurl, project.remoteurl, project.remoteurl)
+
+  - if linking_projects.present?
+    %li
+      %i.fa.fa-info-circle.text-info
+      = link_to(linking_projects_path(project), remote: true) do
+        = pluralize(linking_projects.size, 'linking project')
+
+  - if project_maintenance_project
+    %li
+      %i.fa.fa-check-circle.text-success
+      Maintained by
+      = link_to(project_show_path(project_maintenance_project)) do
+        = project_maintenance_project
+
+  - if project.is_locked?
+    %li
+      %i.fa.fa-lock
+      is locked

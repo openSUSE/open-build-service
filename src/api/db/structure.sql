@@ -550,15 +550,6 @@ CREATE TABLE `group_maintainers` (
   CONSTRAINT `group_maintainers_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
-CREATE TABLE `group_request_requests` (
-  `bs_request_action_group_id` int(11) DEFAULT NULL,
-  `bs_request_id` int(11) DEFAULT NULL,
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`id`),
-  KEY `index_group_request_requests_on_bs_request_id` (`bs_request_id`) USING BTREE,
-  KEY `index_group_request_requests_on_bs_request_action_group_id` (`bs_request_action_group_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
-
 CREATE TABLE `groups` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created_at` datetime DEFAULT NULL,
@@ -1439,6 +1430,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20181016103905'),
 ('20181025152009'),
 ('20181030114152'),
-('20181113095753');
+('20181113095753'),
+('20181201065026');
 
 

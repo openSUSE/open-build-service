@@ -1,6 +1,8 @@
 class Webui::GroupsController < Webui::WebuiController
+  include Webui2::GroupsController
+
   before_action :require_login, except: [:show, :autocomplete]
-  before_action :set_group, only: [:show, :update, :edit]
+  before_action :set_group, only: [:show, :update, :edit, :delete]
   after_action :verify_authorized, except: [:show, :autocomplete]
 
   def index
@@ -8,7 +10,9 @@ class Webui::GroupsController < Webui::WebuiController
     @groups = Group.all.includes(:groups_users, :users)
   end
 
-  def show; end
+  def show
+    switch_to_webui2
+  end
 
   def new
     authorize Group, :create?
@@ -17,7 +21,7 @@ class Webui::GroupsController < Webui::WebuiController
   def edit
     authorize @group, :update?
     @roles = Role.global_roles
-    @members = @group.users.pluck(:login).map { |login| { 'name' => login } }
+    @members = @group.users.pluck(:login).map! { |login| { 'name' => login } }
   end
 
   def create
@@ -33,6 +37,7 @@ class Webui::GroupsController < Webui::WebuiController
   end
 
   def update
+    return if switch_to_webui2
     authorize @group, :update?
 
     if @group.replace_members(group_params[:members])
@@ -46,6 +51,10 @@ class Webui::GroupsController < Webui::WebuiController
   def autocomplete
     groups = Group.where('title LIKE ?', "#{params[:term]}%").pluck(:title) if params[:term]
     render json: groups || []
+  end
+
+  def delete
+    return if switch_to_webui2
   end
 
   private

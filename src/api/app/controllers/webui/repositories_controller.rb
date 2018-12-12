@@ -18,6 +18,10 @@ class Webui::RepositoriesController < Webui::WebuiController
     @user_can_set_flags = policy(@project).update?
 
     switch_to_webui2 if @package
+
+    @repositories = @project.repositories.includes(:path_elements, :download_repositories)
+
+    switch_to_webui2
   end
 
   # GET project/add_repository/:project
@@ -32,6 +36,8 @@ class Webui::RepositoriesController < Webui::WebuiController
       @distributions[dis['vendor']] ||= []
       @distributions[dis['vendor']] << dis
     end
+
+    switch_to_webui2
 
     return unless @distributions.empty?
     redirect_to(action: 'new', project: @project) && return unless User.current.is_admin?
@@ -67,6 +73,8 @@ class Webui::RepositoriesController < Webui::WebuiController
         format.js
       end
     end
+
+    switch_to_webui2
   end
 
   # POST project/update_target/:project
@@ -108,10 +116,14 @@ class Webui::RepositoriesController < Webui::WebuiController
         format.js
       end
     end
+
+    switch_to_webui2
   end
 
   # GET project/repository_state/:project/:repository
-  def state; end
+  def state
+    switch_to_webui2
+  end
 
   # POST /project/create_dod_repository
   def create_dod_repository
@@ -130,6 +142,15 @@ class Webui::RepositoriesController < Webui::WebuiController
     rescue ::Timeout::Error, ActiveRecord::RecordInvalid => e
       @error = "Couldn't add repository: #{e.message}"
     end
+
+    return unless switch_to_webui2?
+
+    if @error
+      flash[:error] = @error
+    else
+      flash[:success] = "Repository '#{params[:name]}' was successfully created."
+    end
+    redirect_to action: 'index', project: @project
   end
 
   # POST project/create_image_repository
@@ -174,7 +195,7 @@ class Webui::RepositoriesController < Webui::WebuiController
         @main_object.store
         format.html { redirect_to(action: :index, controller: :repositories, project: params[:project], package: params[:package]) }
         format.js do
-          switch_to_webui2 if params[:package].present?
+          switch_to_webui2
           render 'change_flag'
         end
       else
@@ -197,7 +218,7 @@ class Webui::RepositoriesController < Webui::WebuiController
         @main_object.store
         format.html { redirect_to(action: :index, project: params[:project], package: params[:package]) }
         format.js do
-          switch_to_webui2 if params[:package].present?
+          switch_to_webui2
           render 'change_flag'
         end
       else
@@ -221,7 +242,7 @@ class Webui::RepositoriesController < Webui::WebuiController
       @main_object.store
       format.html { redirect_to(action: :index, project: params[:project], package: params[:package]) }
       format.js do
-        switch_to_webui2 if params[:package].present?
+        switch_to_webui2
         render 'change_flag'
       end
     end

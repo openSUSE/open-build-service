@@ -58,13 +58,13 @@
         if p['requests_from'].empty?
           p['problems'].sort.each do |c|
             if c == 'different_changes'
-              age = distance_of_time_in_words_to_now(Time.at(p['develmtime'].to_i))
+              age = distance_of_time_in_words_to_now(p['develmtime'].to_i)
               outs << link_to("Different changes in devel project (since #{age})", :controller => :package, :project => p['develproject'], :package => p['develpackage'],
                 :action => :rdiff, :oproject => @project.name, :opackage => p['name'])
               sortkey = "5-changes-#{p['develmtime']}-" + p['name']
               icon = "changes"
             elsif c == 'different_sources'
-              age = distance_of_time_in_words_to_now(Time.at(p['develmtime'].to_i))
+              age = distance_of_time_in_words_to_now(p['develmtime'].to_i)
               outs << link_to("Different sources in devel project (since #{age})", :controller => :package, :project => p['develproject'], :package => p['develpackage'],
                 :action => :rdiff, :oproject => @project.name, :opackage => p['name'])
               sortkey = "6-changes-#{p['develmtime']}-" + p['name']
@@ -114,7 +114,7 @@
         if p['firstfail']
           outs.unshift(link_to("Fails", :controller => :package,
               :action => :live_build_log, :arch => h(p['failedarch']), :repository => h(p['failedrepo']), :project => h(@project.name), :package => h(p['name'])).html_safe +
-              " for #{Integer(Time.now.to_i - p['firstfail']) / 3600 / 24} days: " +
+              " since #{distance_of_time_in_words_to_now(p['firstfail'].to_i)}: " +
               content_tag(:span, show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ), id: valid_xml_id('comment_' + p['name'])))
           icon = "error"
           sortkey = '1-fails-%010d-%s' % [ Time.now.to_i - p['firstfail'], p['name'] ]

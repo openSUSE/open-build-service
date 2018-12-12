@@ -1428,7 +1428,9 @@ sub mapsleimage {
   if ($p =~ /-Build\d+/) {
     $rbin =~ s/\.sha256$//;
     $rbin =~ s/\.iso//;
-    my $milestone = readstr("$rdir/$rbin.milestone") || 'GM';
+    my $milestone = readstr("$rdir/$rbin.milestone", 1);
+    chomp $milestone;
+    $milestone ||= 'GM';
     $p =~ s/-Build\d+(\.\d+)?/-$milestone/;
   }
   $p =~ s/-Media/-DVD/;

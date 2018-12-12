@@ -1,0 +1,46 @@
+.modal.fade#add-repository-from-project{ tabindex: -1, role: 'dialog', aria: { labelledby: 'add_repo_from_project', hidden: 'true' } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      = form_tag(action: :create, project: project) do
+        .modal-header
+          %h5.modal-title Add Repository to #{project}
+        .modal-body
+          .form-group
+            = label_tag :project do
+              %strong Project:
+            .input-group
+              .input-group-prepend
+                %span.input-group-text.project-search-icon
+                  %i.fa.fa-search
+                  %i.fas.fa-spinner.fa-spin.d-none
+              = text_field_tag 'target_project', '', id: 'target_project',
+                                                     class: 'form-control',
+                                                     required: true,
+                                                     placeholder: 'Type to autocomplete...',
+                                                     data: { 'ajaxurl': url_for(controller: 'project', action: 'autocomplete_projects') }
+          .form-group
+            = label_tag :repositories do
+              %strong Repositories:
+            = select_tag 'target_repo', options_for_select(['']), id: 'target_repo',
+                                                                  required: true,
+                                                                  disabled: true,
+                                                                  class: 'custom-select',
+                                                                  data: { 'ajaxurl': url_for(controller: :project,
+                                                                                              action: :autocomplete_repositories) }
+          .form-group
+            = label_tag :name do
+              %strong Name:
+            = text_field_tag :repository, '', size: 60, disabled: false, required: true, class: 'form-control', id: 'repo_name'
+          .form-group
+            = label_tag :architectures, class: 'w-100' do
+              %strong Architectures:
+            - Architecture.available.each do |architecture|
+              .custom-control.custom-checkbox.custom-control-inline
+                = check_box_tag 'architectures[]', architecture.name, true, id: "architecture_#{architecture.name}", class: 'custom-control-input'
+                = label_tag :architecture, architecture.name, class: 'custom-control-label', for: "architecture_#{architecture.name}"
+
+        .modal-footer
+          = render partial: 'webui2/shared/dialog_action_buttons'
+
+= content_for :ready_function do
+  repositoriesSetupAutocomplete('#add-repository-from-project');

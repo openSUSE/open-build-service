@@ -4,6 +4,7 @@ class Webui::ProjectController < Webui::WebuiController
   include Webui::ProjectHelper
   include Webui::LoadBuildresults
   include Webui::ManageRelationships
+  include Webui2::ProjectController
 
   before_action :lockout_spiders, only: [:requests, :rebuild_time, :buildresults, :maintenance_incidents]
 
@@ -14,15 +15,12 @@ class Webui::ProjectController < Webui::WebuiController
                                      :new_package, :new_package_branch, :incident_request_dialog, :release_request_dialog,
                                      :show, :linking_projects, :add_person, :add_group, :buildresult, :delete_dialog,
                                      :destroy, :remove_path_from_target, :rebuild_time, :packages_simple,
-                                     :requests, :save, :monitor, :toggle_watch, :meta,
-                                     :prjconf, :edit, :edit_comment,
+                                     :requests, :save, :monitor, :toggle_watch,
+                                     :edit, :edit_comment,
                                      :status, :maintained_projects,
                                      :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
                                      :maintenance_incidents, :unlock_dialog, :unlock, :save_person, :save_group, :remove_role,
-                                     :move_path, :save_prjconf, :clear_failed_comment, :pulse]
-
-  # TODO: check if get_by_name or set_by_name is used for save_prjconf
-  before_action :set_project_by_name, only: [:save_meta, :save_prjconf]
+                                     :move_path, :clear_failed_comment, :pulse, :update_pulse]
 
   before_action :set_project_by_id, only: [:update]
 
@@ -39,7 +37,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   before_action :set_maintained_project, only: [:remove_maintained_project]
 
-  after_action :verify_authorized, only: [:save_new, :new_incident, :save_meta]
+  after_action :verify_authorized, only: [:save_new, :new_incident]
 
   def index
     @show_all = (params[:show_all].to_s == 'true')
@@ -92,10 +90,7 @@ class Webui::ProjectController < Webui::WebuiController
     parent = @project.parent
     @parent_name = parent.name unless parent.nil?
     @siblings = @project.siblingprojects
-  end
-
-  def pulse
-    @pulse = @project.project_log_entries.page(params[:page])
+    switch_to_webui2
   end
 
   def new
@@ -208,10 +203,6 @@ class Webui::ProjectController < Webui::WebuiController
     @comment = Comment.new
     render :show, status: params[:nextstatus] if params[:nextstatus]
 
-    # TODO: Remove the `return unless` and the flash once this should be available to all beta users on all environments
-    return unless User.current && User.current.in_beta? && (Rails.env.development? || Rails.env.test?)
-    flash[:notice] = "We are currently migrating the project pages to Bootstrap. It's active only on the development and test environments while this is work-in-progress."
-
     switch_to_webui2
   end
 
@@ -231,6 +222,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def buildresult
+    switch_to_webui2 if params[:switch].present?
     check_ajax
     render partial: 'buildstatus', locals: { project: @project, buildresults: @project.buildresults }
   end
@@ -395,6 +387,8 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def monitor
+    @legend = Buildresult::STATUS_DESCRIPTION
+
     @name_filter = params[:pkgname]
     @lastbuild_switch = params[:lastbuild]
     if params[:defaults]
@@ -432,7 +426,7 @@ class Webui::ProjectController < Webui::WebuiController
       @localpackages[package.name] = 1
     end
 
-    @packagenames = @packagenames.flatten.uniq.sort
+    @packagenames = @packagenames.flatten.uniq.sort!
 
     ## Filter for PackageNames ####
     @packagenames.select! { |name| filter_matches?(name, @name_filter) } if @name_filter.present?
@@ -453,6 +447,7 @@ class Webui::ProjectController < Webui::WebuiController
         @repohash[repo].delete(arch) unless has_packages
       end
     end
+    switch_to_webui2
   end
 
   # should be in the package controller, but all the helper functions to render the result of a build are in the project
@@ -502,79 +497,6 @@ class Webui::ProjectController < Webui::WebuiController
     end
   end
 
-  def meta
-    @meta = @project.render_xml
-  end
-
-  def save_meta
-    authorize @project, :update?
-
-    errors = []
-    begin
-      Suse::Validator.validate('project', params[:meta])
-      request_data = Xmlhash.parse(params[:meta])
-
-      remove_repositories = @project.get_removed_repositories(request_data)
-      errors << Project.check_repositories(remove_repositories)[:error]
-      errors << Project.validate_remote_permissions(request_data)[:error]
-      errors << Project.validate_link_xml_attribute(request_data, @project.name)[:error]
-      errors << Project.validate_maintenance_xml_attribute(request_data)[:error]
-      errors << Project.validate_repository_xml_attribute(request_data, @project.name)[:error]
-
-      errors = errors.compact
-
-      if errors.empty?
-        Project.transaction do
-          errors << @project.update_from_xml(request_data)[:error]
-          errors = errors.compact
-          @project.store if errors.empty?
-        end
-      end
-    rescue Suse::ValidationError => exception
-      errors << exception.message
-    end
-
-    if errors.empty?
-      flash.now[:success] = 'Config successfully saved!'
-      render layout: false, partial: 'layouts/webui/flash', object: flash
-    else
-      flash.now[:error] = errors.compact.join("\n")
-      render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
-    end
-  end
-
-  def prjconf
-    sliced_params = params.slice(:rev)
-    sliced_params.permit!
-
-    @content = @project.config.content(sliced_params.to_h)
-    switch_to_webui2
-    return if @content
-    flash[:error] = @project.config.errors.full_messages.to_sentence
-    redirect_to controller: 'project', nextstatus: 404
-  end
-
-  def save_prjconf
-    authorize @project, :update?
-
-    params[:user] = User.current.login
-    sliced_params = params.slice(:user, :comment)
-    sliced_params.permit!
-
-    content = @project.config.save(sliced_params.to_h, params[:config])
-
-    if content
-      flash.now[:success] = 'Config successfully saved!'
-      status = 200
-    else
-      flash.now[:error] = @project.config.errors.full_messages.to_sentence
-      status = 400
-    end
-    switch_to_webui2
-    namespace = switch_to_webui2? ? 'webui2' : 'webui'
-    render layout: false, status: status, partial: "layouts/#{namespace}/flash", object: flash
-  end
-
   def clear_failed_comment
     authorize @project, :update?
 
@@ -583,10 +505,17 @@ class Webui::ProjectController < Webui::WebuiController
       package.attribs.where(attrib_type: AttribType.find_by_namespace_and_name('OBS', 'ProjectStatusPackageFailComment')).destroy_all
     end
 
+    flash.now[:notice] = 'Cleared comments for packages'
+
     respond_to do |format|
       format.html { redirect_to({ action: :status, project: @project }, notice: 'Cleared comments for packages.') }
-      format.js { render js: '<em>Cleared comments for packages</em>' }
+      if switch_to_webui2?
+        format.js { render 'webui2/webui/project/clear_failed_comment' }
+      else
+        format.js { render js: '<em>Cleared comments for packages</em>' }
+      end
     end
+    switch_to_webui2
   end
 
   def edit
@@ -595,6 +524,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   def edit_comment_form
     check_ajax
+    switch_to_webui2
   end
 
   def edit_comment
@@ -612,7 +542,9 @@ class Webui::ProjectController < Webui::WebuiController
     v.value = params[:text]
     v.position = 1
     attr.save!
+    v.save!
     @comment = params[:text]
+    switch_to_webui2
   end
 
   def status
@@ -647,6 +579,8 @@ class Webui::ProjectController < Webui::WebuiController
       end
       format.html
     end
+
+    switch_to_webui2
   end
 
   def maintained_projects
@@ -740,7 +674,7 @@ class Webui::ProjectController < Webui::WebuiController
     @linking_projects = @project.linked_by_projects.pluck(:name)
 
     reqs = @project.open_requests
-    @requests = (reqs[:reviews] + reqs[:targets] + reqs[:incidents] + reqs[:maintenance_release]).sort.uniq
+    @requests = (reqs[:reviews] + reqs[:targets] + reqs[:incidents] + reqs[:maintenance_release]).sort!.uniq
 
     @nr_of_problem_packages = @project.number_of_build_problems
   end
@@ -774,7 +708,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     @is_maintenance_project = @project.is_maintenance?
     if @is_maintenance_project
-      @open_maintenance_incidents = @project.maintenance_incidents.pluck('projects.name').sort.uniq
+      @open_maintenance_incidents = @project.maintenance_incidents.distinct.order('projects.name').pluck('projects.name')
 
       @maintained_projects = @project.maintained_project_names
     end
@@ -813,8 +747,8 @@ class Webui::ProjectController < Webui::WebuiController
       @avail_repo_values << r.name
       @avail_arch_values << r.architectures.pluck(:name)
     end
-    @avail_arch_values = @avail_arch_values.flatten.uniq.sort
-    @avail_repo_values = @avail_repo_values.flatten.uniq.sort
+    @avail_arch_values = @avail_arch_values.flatten.uniq.sort!
+    @avail_repo_values = @avail_repo_values.flatten.uniq.sort!
 
     @arch_filter = []
     @avail_arch_values.each do |s|

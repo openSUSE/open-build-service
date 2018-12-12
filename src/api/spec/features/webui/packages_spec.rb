@@ -120,7 +120,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
     visit package_show_path(package: package, project: user.home_project)
     click_link('delete-package')
     expect(find('#del_dialog')).to have_text('Do you really want to delete this package?')
-    click_button('Ok')
+    click_button('Accept')
     expect(find('#flash-messages')).to have_text('Package was successfully removed.')
   end
 
@@ -155,7 +155,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
     click_link('Request deletion')
     expect(page).to have_text('Do you really want to request the deletion of package ')
     fill_in 'description', with: 'Hey, why not?'
-    click_button('Ok')
+    click_button('Accept')
     expect(page).to have_text('Created delete request')
     find('a', text: /delete request \d+/).click
     expect(page.current_path).to match('/request/show/\\d+')
@@ -169,7 +169,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
     click_link('Request devel project change')
     fill_in 'description', with: 'Hey, why not?'
     fill_in 'devel_project', with: third_project.name
-    click_button 'Ok'
+    click_button('Accept')
 
     expect(find('#flash-messages', visible: false)).not_to be_visible
     request = BsRequest.where(description: 'Hey, why not?', creator: user.login, state: 'review')

@@ -33,7 +33,7 @@ class BsRequest
       end
 
       def roles
-        [@parameters[:roles]].flatten.compact.map(&:to_s)
+        [@parameters[:roles]].flatten.compact.map!(&:to_s)
       end
 
       def states

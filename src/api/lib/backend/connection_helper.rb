@@ -1,3 +1,5 @@
+require 'remember_location'
+
 module Backend
   # Module that holds the wrapping methods for http requests, are mainly used for simplify the calculation of urls.
   #
@@ -40,6 +42,8 @@ module Backend
   #
 
   module ConnectionHelper
+    include Backend::RememberLocation
+
     private
 
     # Performs a http get request to the configured OBS Backend server.

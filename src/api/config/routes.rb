@@ -115,7 +115,7 @@ OBSApi::Application.routes.draw do
         get 'package/add_person/:project/:package' => :add_person, constraints: cons, as: 'package_add_person'
         get 'package/add_group/:project/:package' => :add_group, constraints: cons, as: 'package_add_group'
         get 'package/rdiff/:project/:package' => :rdiff, constraints: cons, as: 'package_rdiff'
-        post 'package/save_new/:project' => :save_new, constraints: cons
+        post 'package/save_new/:project' => :save_new, constraints: cons, as: 'save_new_package'
         post 'package/branch' => :branch, constraints: cons
         post 'package/save/:project/:package' => :save, constraints: cons, as: 'package_save'
         post 'package/remove/:project/:package' => :remove, constraints: cons
@@ -174,6 +174,7 @@ OBSApi::Application.routes.draw do
       get 'patchinfo/new_tracker' => :new_tracker
       get 'patchinfo/delete_dialog' => :delete_dialog
     end
+
     controller 'webui/repositories' do
       get 'repositories/:project(/:package)' => :index, constraints: cons, as: 'repositories', defaults: { format: 'html' }
       get 'project/repositories/:project' => :index, constraints: cons, as: 'project_repositories'
@@ -182,8 +183,8 @@ OBSApi::Application.routes.draw do
       post 'project/save_repository' => :create
       post 'project/update_target/:project' => :update, constraints: cons
       get 'project/repository_state/:project/:repository' => :state, constraints: cons, as: 'project_repository_state'
-      post 'project/remove_target' => :destroy
-      post 'project/create_dod_repository' => :create_dod_repository
+      post 'project/remove_target' => :destroy, as: 'destroy_repository'
+      post 'project/create_dod_repository' => :create_dod_repository, as: 'create_dod_repository'
       post 'project/create_image_repository' => :create_image_repository
 
       # Flags
@@ -231,6 +232,16 @@ OBSApi::Application.routes.draw do
       end
     end
 
+    controller 'webui/projects/meta' do
+      get 'project/meta/:project' => :show, constraints: cons, as: 'project_meta'
+      post 'project/save_meta/:project' => :update, constraints: cons, as: :project_save_meta
+    end
+
+    controller 'webui/projects/project_configuration' do
+      get 'project/prjconf/:project' => :show, constraints: cons, as: :project_config
+      post 'project/save_prjconf/:project' => :update, constraints: cons, as: :save_project_config
+    end
+
     controller 'webui/project' do
       get 'project/' => :index, as: 'projects'
       get 'project/list_public' => :index
@@ -238,21 +249,21 @@ OBSApi::Application.routes.draw do
       get 'project/list' => :index
       get 'project/autocomplete_projects' => :autocomplete_projects, as: 'autocomplete_projects'
       get 'project/autocomplete_incidents' => :autocomplete_incidents
-      get 'project/autocomplete_packages' => :autocomplete_packages
+      get 'project/autocomplete_packages' => :autocomplete_packages, as: 'autocomplete_packages'
       get 'project/autocomplete_repositories' => :autocomplete_repositories
       get 'project/users/:project' => :users, constraints: cons, as: 'project_users'
       get 'project/subprojects/:project' => :subprojects, constraints: cons, as: 'project_subprojects'
       get 'project/attributes/:project', to: redirect('/attribs/%{project}'), constraints: cons
       post 'project/new_incident' => :new_incident
       get 'project/new_package/:project' => :new_package, constraints: cons, as: 'project_new_package'
-      get 'project/new_package_branch/:project' => :new_package_branch, constraints: cons
+      get 'project/new_package_branch/:project' => :new_package_branch, constraints: cons, as: 'project_new_package_branch'
       get 'project/incident_request_dialog' => :incident_request_dialog
       post 'project/new_incident_request' => :new_incident_request
       get 'project/release_request_dialog' => :release_request_dialog
-      post 'project/new_release_request/(:project)' => :new_release_request, constraints: cons
+      post 'project/new_release_request/(:project)' => :new_release_request, constraints: cons, as: :project_new_release_request
       get 'project/show/(:project)' => :show, constraints: cons, as: 'project_show'
       get 'project/packages_simple/:project' => :packages_simple, constraints: cons
-      get 'project/linking_projects/:project' => :linking_projects, constraints: cons
+      get 'project/linking_projects/:project' => :linking_projects, constraints: cons, as: :linking_projects
       get 'project/add_person/:project' => :add_person, constraints: cons
       get 'project/add_group/:project' => :add_group, constraints: cons
       get 'project/buildresult' => :buildresult, constraints: cons, as: 'project_buildresult'
@@ -266,11 +277,11 @@ OBSApi::Application.routes.draw do
       get 'project/requests/:project' => :requests, constraints: cons, as: 'project_requests'
       post 'project/save_path_element' => :save_path_element
       get 'project/remove_target_request_dialog' => :remove_target_request_dialog
-      post 'project/remove_target_request' => :remove_target_request
-      post 'project/remove_path_from_target' => :remove_path_from_target
+      post 'project/remove_target_request' => :remove_target_request, as: 'project_remove_target_request'
+      post 'project/remove_path_from_target' => :remove_path_from_target, as: 'remove_repository_path'
       post 'project/release_repository/:project/:repository' => :release_repository, constraints: cons
       get 'project/release_repository_dialog/:project/:repository' => :release_repository_dialog, constraints: cons
-      post 'project/move_path/:project' => :move_path
+      post 'project/move_path/:project' => :move_path, as: 'move_repository_path'
       post 'project/save_person/:project' => :save_person, constraints: cons, as: 'project_save_person'
       post 'project/save_group/:project' => :save_group, constraints: cons, as: 'project_save_group'
       post 'project/remove_role/:project' => :remove_role, constraints: cons, as: 'project_remove_role'
@@ -280,13 +291,9 @@ OBSApi::Application.routes.draw do
       get 'project/package_buildresult/:project' => :package_buildresult, constraints: cons
       # TODO: this should be POST (and the link AJAX)
       get 'project/toggle_watch/:project' => :toggle_watch, constraints: cons, as: 'project_toggle_watch'
-      get 'project/meta/:project' => :meta, constraints: cons, as: 'project_meta'
-      post 'project/save_meta/:project' => :save_meta, constraints: cons
-      get 'project/prjconf/:project' => :prjconf, constraints: cons, as: :project_config
-      post 'project/save_prjconf/:project' => :save_prjconf, constraints: cons, as: :save_project_config
-      get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons
+      get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons, as: :clear_failed_comment
       get 'project/edit/:project' => :edit, constraints: cons
-      get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons
+      get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons, as: :edit_comment_form
       post 'project/edit_comment/:project' => :edit_comment, constraints: cons
       get 'project/status/(:project)' => :status, constraints: cons, as: 'project_status'
       get 'project/maintained_projects/:project' => :maintained_projects, constraints: cons, as: :project_maintained_projects
@@ -295,7 +302,6 @@ OBSApi::Application.routes.draw do
       post 'project/remove_maintained_project/:project' => :remove_maintained_project, constraints: cons
       get 'project/maintenance_incidents/:project' => :maintenance_incidents, constraints: cons, as: :project_maintenance_incidents
       get 'project/list_incidents/:project' => :list_incidents, constraints: cons
-      get 'project/pulse/:project' => :pulse, constraints: cons, as: :project_pulse
       get 'project/unlock_dialog' => :unlock_dialog
       post 'project/unlock' => :unlock
     end
@@ -305,8 +311,13 @@ OBSApi::Application.routes.draw do
     get 'project/staging_projects/:project/:project_name' => 'webui/obs_factory/staging_projects#show', as: 'staging_project', constraints: cons
 
     controller 'webui/projects/rebuild_times' do
-      get 'project/rebuild_time/:project/:repository/:arch' => :show, constraints: cons, as: 'project_rebuild_time'
-      get 'project/rebuild_time_png/:project/:key' => :rebuild_time_png, constraints: cons
+      get 'project/rebuild_time/:project/:repository/:arch' => :show, constraints: cons, as: :project_rebuild_time
+      get 'project/rebuild_time_png/:project/:key' => :rebuild_time_png, constraints: cons, as: :project_rebuild_time_png
+    end
+
+    controller 'webui/projects/pulse' do
+      get 'project/pulse/:project' => :show, constraints: cons, as: 'project_pulse'
+      get 'project/pulse/:project/update_pulse' => :update_pulse, constraints: cons, as: 'update_pulse'
     end
 
     resources :projects, only: [], param: :name do
@@ -411,8 +422,9 @@ OBSApi::Application.routes.draw do
       get 'group/new' => :new
       post 'group/create' => :create
       get 'group/edit/:title' => :edit, constraints: { title: /[^\/]*/ }, as: :group_edit_title
-      post 'group/update/:title' => :update, constraints: { title: /[^\/]*/ }
+      post 'group/update/:title' => :update, constraints: { title: /[^\/]*/ }, as: :group_update
       get 'group/autocomplete' => :autocomplete
+      delete 'group/:title/delete/:user' => :delete, constraints: { title: /[^\/]*/ }, as: :group_user_delete
     end
 
     resources :comments, constraints: cons, only: [:create, :destroy], controller: 'webui/comments'

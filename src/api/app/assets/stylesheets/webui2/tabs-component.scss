@@ -6,8 +6,18 @@ ul.nav.nav-tabs li.nav-item {
       color: $link-hover-color;
     }
 
-    &.dropdown-item.active {
+    &.dropdown-item.active,
+    &.dropdown-item:active {
       color: $white;
+
+      span.badge {
+        color: $link-hover-color;
+        background-color: $white;
+      }
     }
+  }
+
+  .dropdown-menu {
+    z-index: 1021;
   }
 }

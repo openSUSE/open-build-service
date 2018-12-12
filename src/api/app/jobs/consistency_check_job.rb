@@ -110,7 +110,7 @@ class ConsistencyCheckJob < ApplicationJob
   def project_existence_consistency_check(fix = nil)
     errors = ''
     # compare projects
-    project_list_api = Project.all.pluck(:name).sort
+    project_list_api = Project.order(:name).pluck(:name)
     begin
       project_list_backend = dir_to_array(Xmlhash.parse(Backend::Api::Sources::Project.list))
     rescue Backend::NotFoundError
@@ -234,24 +234,24 @@ class ConsistencyCheckJob < ApplicationJob
     xmlhash.elements('entry') do |e|
       array << e['name']
     end
-    array.sort
+    array.sort!
   end
 
   def hash_diff(a, b)
     # ignore the order inside of the hash
-    (a.keys.sort | b.keys.sort).each_with_object({}) do |diff, k|
+    (a.keys | b.keys).sort!.each_with_object({}) do |diff, k|
       a_ = a[k]
       b_ = b[k]
       # we need to ignore the ordering in some cases
       # old xml generator wrote them in a different order
       # but in other cases the order of elements matters
       if k == 'person' && a_.is_a?(Array)
-        a_ = a_.map { |i| "#{i['userid']}/#{i['role']}" }.sort
-        b_ = b_.map { |i| "#{i['userid']}/#{i['role']}" }.sort
+        a_ = a_.map { |i| "#{i['userid']}/#{i['role']}" }.sort!
+        b_ = b_.map { |i| "#{i['userid']}/#{i['role']}" }.sort!
       end
       if k == 'group' && a_.is_a?(Array)
-        a_ = a_.map { |i| "#{i['groupid']}/#{i['role']}" }.sort
-        b_ = b_.map { |i| "#{i['groupid']}/#{i['role']}" }.sort
+        a_ = a_.map { |i| "#{i['groupid']}/#{i['role']}" }.sort!
+        b_ = b_.map { |i| "#{i['groupid']}/#{i['role']}" }.sort!
       end
       if a_ != b_
         if a[k].class == Hash && b[k].class == Hash

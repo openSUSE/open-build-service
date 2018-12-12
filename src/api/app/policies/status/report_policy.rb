@@ -1,13 +1,11 @@
 class Status::ReportPolicy < ApplicationPolicy
   def initialize(user, record)
-    raise Pundit::NotAuthorizedError, 'record does not exist' unless record
-    @user = user
-    @record = record
+    super(user, record, user_optional: true)
   end
 
   def create?
-    return false if @user.blank?
-    @record.projects && @record.projects.all? { |project| @user.can_modify?(project) }
+    return false if user.blank?
+    record.projects && record.projects.all? { |project| user.can_modify?(project) }
   end
 
   def update?

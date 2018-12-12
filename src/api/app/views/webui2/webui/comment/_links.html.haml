@@ -1,7 +1,7 @@
 %ul.list-inline
   - unless User.current.is_nobody?
     %li.list-inline-item.togglable_comment{ "data-toggle": "reply_form_of_#{comment.id}" }
-      %span.btn.btn-sm.btn-outline-secondary{ id: "reply_link_id_#{comment.id}" }
+      %button.btn.btn-sm.btn-outline-secondary{ id: "reply_link_id_#{comment.id}" }
         Reply
   - if policy(comment).destroy?
     %li.list-inline-item

@@ -27,9 +27,8 @@ class ProjectLogEntry < ApplicationRecord
     entry
   end
 
-  # Delete old entries
-  def self.clean_older_than(date)
-    where('datetime < ?', date).delete_all
+  def self.cleanup
+    where(event_type: [:build_fail, :build_success]).where('datetime < ?', Time.zone.yesterday).delete_all
   end
 
   # Human readable message, based in the event class

@@ -1,0 +1,16 @@
+:ruby
+  content_for(:content_for_head, javascript_include_tag('webui2/cm2/show-prjconf'))
+  @pagetitle = "Project Configuration of #{@project}"
+  @metarobots = 'noindex'
+
+.card
+  = render(partial: 'webui/project/tabs', locals: { project: @project })
+
+  .card-body
+    %h3= @pagetitle
+    - if User.current.can_modify?(@project)
+      = render partial: 'shared/editor', locals: { text: @content, mode: 'prjconf',
+        save: { url: save_project_config_path, method: :post,
+        data: { project: @project.name, submit: 'config' } } }
+    - else
+      = render partial: 'shared/editor', locals: { text: @content, mode: 'prjconf', style: { read_only: true } }

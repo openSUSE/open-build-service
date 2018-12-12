@@ -1,0 +1,38 @@
+:ruby
+  @pagetitle = "Show #{@project}"
+  @layouttype = 'custom'
+
+.card.mb-3
+  = render partial: 'tabs', locals: { project: @project }
+  .card-body#project-monitor
+    = render partial: 'monitor_control',
+      locals: { project: @project, activate_client_search: @activate_client_search,
+      status: @avail_status_values, repositories: @avail_repo_values, architectures: @avail_arch_values,
+      repository_filter: @repo_filter, architecture_filter: @arch_filter, status_filter: @status_filter }
+    .row.mt-4
+      .col-md-12.obs-dataTable
+        %table.table.table-sm.table-striped.table-bordered.text-nowrap.w-100#project-monitor-table
+          %thead.header
+            %tr
+              %th
+              - @repohash.sort.each do |repo, archlist|
+                - next if archlist.empty?
+                %th.text-center{ colspan: archlist.length }
+                  = repo
+            %tr
+              %th
+              - @repohash.sort.each do |_repo, archlist|
+                - archlist.sort.each do |arch|
+                  %th
+                    = arch
+          %tbody
+            - @packagenames.each do |packname|
+              %tr
+                %td
+                  = link_to word_break(packname, 40), controller: :package, action: :show, package: packname, project: @project.to_s
+                - @repohash.sort.each do |repo, archlist|
+                  - archlist.sort.each do |arch|
+                    %td
+                      = webui2_arch_repo_table_cell(repo, arch, packname, nil, false)
+:javascript
+  setupProjectMonitor();

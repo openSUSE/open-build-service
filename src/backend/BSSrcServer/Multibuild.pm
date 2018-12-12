@@ -99,17 +99,6 @@ sub updatemultibuild {
   return undef if $packid eq '_product';	# no multibuilds for those
   return undef if $packid =~ /:/;		# master packages only
   my $mc = getcache($projid);
-  if (!$isprojpack) {
-    # we do not update for disabled/locked packages to be consistent
-    # with getprojpack
-    my $proj = BSRevision::readproj_local($projid, 1);
-    return $mc->{$packid} unless $proj;	# 	local projects only!
-    my $pack = BSRevision::readpack_local($projid, $packid, 1);
-    $pack ||= {} if $proj->{'link'};
-    return $mc->{$packid} unless $pack;
-    return $mc->{$packid} if globalenabled($proj->{'lock'}, 0) && !$pack->{'lock'};
-    return $mc->{$packid} unless globalenabled($pack->{'build'}, globalenabled($proj->{'build'}, 1));
-  }
 
   # check if something changed
   my $mbname = find_mbname($files);
@@ -117,6 +106,17 @@ sub updatemultibuild {
     return undef if !$mc->{$packid};
   } else {
     return $mc->{$packid} if $mc->{$packid} && $mc->{$packid}->{'_md5'} eq $files->{$mbname};
+  }
+
+  if (!$isprojpack) {
+    # we do not update for disabled/locked packages to be consistent with getprojpack
+    my $proj = BSRevision::readproj_local($projid, 1);
+    return $mc->{$packid} unless $proj;	# 	local projects only!
+    my $pack = BSRevision::readpack_local($projid, $packid, 1);
+    $pack ||= {} if $proj->{'link'};
+    return $mc->{$packid} unless $pack;
+    return $mc->{$packid} if globalenabled($proj->{'lock'}, 0) && !$pack->{'lock'};
+    return $mc->{$packid} unless globalenabled($pack->{'build'}, globalenabled($proj->{'build'}, 1));
   }
 
   # need to update, lock

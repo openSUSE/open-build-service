@@ -1,3 +1,5 @@
+require_relative 'instrumentation'
+
 module Backend
   # Class that implements a logger to write output in the backend logs
   class Logger
@@ -18,6 +20,7 @@ module Backend
       @backend_logger.info "#{now} #{method} #{host}:#{port}#{path} #{response.code} #{time_delta}"
       @backend_time += time_delta
       Rails.logger.debug "request took #{time_delta} #{@backend_time}"
+      Backend::Instrumentation.new(method, host, response.code, time_delta).instrument
 
       return unless CONFIG['extended_backend_log']
 

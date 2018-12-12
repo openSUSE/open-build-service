@@ -1403,25 +1403,33 @@ sub orderpackids {
   my @back;
   my $kind = $proj->{'kind'} || '';
   for (@packids) {
+    my $mbflavor = '';
     if ($_ eq '_volatile') {
       push @back, $_;
-    } elsif (/^(.*)\.(\d+)$/) {
+      next;
+    }
+    if (/(?<!^_product)(?<!^_patchinfo):./) {
+      /^(.*):(.*?)$/;	# split into base name and flavor
+      $_ = $1;
+      $mbflavor = ":$2";
+    }
+    if (/^(.*)\.(\d+)$/) {
       # we ignore the name for maintenance release projects and sort only
       # by the incident number
       if ($kind eq 'maintenance_release') {
-        push @s, [ $_, '', $2];
+        push @s, [ "$_$mbflavor", '', $2];
       } else {
-        push @s, [ $_, $1, $2];
+        push @s, [ "$_$mbflavor", "$1$mbflavor", $2];
       }
     } elsif (/^(.*)\.imported_.*?(\d+)$/) {
       # code11 import hack...
       if ($kind eq 'maintenance_release') {
-        push @s, [ $_, '', $2 - 1000000];
+        push @s, [ "$_$mbflavor", '', $2 - 1000000];
       } else {
-        push @s, [ $_, $1, $2 - 1000000];
+        push @s, [ "$_$mbflavor", "$1$mbflavor", $2 - 1000000];
       }
     } else {
-      push @s, [ $_, $_, 99999999 ];
+      push @s, [ "$_$mbflavor", "$_$mbflavor", 99999999 ];
     }
   }
   @packids = map {$_->[0]} sort { $a->[1] cmp $b->[1] || $b->[2] <=> $a->[2] || $a->[0] cmp $b->[0] } @s;
