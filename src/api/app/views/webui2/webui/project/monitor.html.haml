@@ -23,7 +23,7 @@
               %th
               - @repohash.sort.each do |_repo, archlist|
                 - archlist.sort.each do |arch|
-                  %th
+                  %th.text-center
                     = arch
           %tbody
             - @packagenames.each do |packname|
@@ -32,7 +32,7 @@
                   = link_to word_break(packname, 40), controller: :package, action: :show, package: packname, project: @project.to_s
                 - @repohash.sort.each do |repo, archlist|
                   - archlist.sort.each do |arch|
-                    %td
+                    %td.text-center
                       = webui2_arch_repo_table_cell(repo, arch, packname, nil, false)
 :javascript
   setupProjectMonitor();
