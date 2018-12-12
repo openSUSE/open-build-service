@@ -639,12 +639,12 @@ class User < ApplicationRecord
   end
 
   def involved_projects
-    Project.for_user(id).or(Project.for_group(groups))
+    Project.for_user(id).or(Project.for_group(group_ids))
   end
 
   # lists packages maintained by this user and are not in maintained projects
   def involved_packages
-    Package.for_user(id).or(Package.for_group(groups)).where.not(project: involved_projects)
+    Package.for_user(id).or(Package.for_group(group_ids)).where.not(project: involved_projects)
   end
 
   # list packages owned by this user.
