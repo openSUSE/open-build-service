@@ -1,16 +1,14 @@
 class Staging::StagingProjectPolicy < ApplicationPolicy
   def initialize(user, record)
-    raise Pundit::NotAuthorizedError, 'staging workflow does not exist' unless record
-    @user = user
-    @record = record
+    super(user, record, user_optional: true)
   end
 
   def create?
-    ProjectPolicy.new(@user, @record).create?
+    ProjectPolicy.new(user, record).create?
   end
 
   def update?
-    ProjectPolicy.new(@user, @record).update?
+    ProjectPolicy.new(user, record).update?
   end
 
   def edit?
@@ -18,6 +16,6 @@ class Staging::StagingProjectPolicy < ApplicationPolicy
   end
 
   def destroy?
-    ProjectPolicy.new(@user, @record).destroy?
+    ProjectPolicy.new(user, record).destroy?
   end
 end
