@@ -31,7 +31,7 @@ class Project < ApplicationRecord
   has_many :relationships, dependent: :destroy, inverse_of: :project
   has_many :packages, inverse_of: :project do
     def autocomplete(search)
-      where(['lower(packages.name) like lower(?)', "#{search}%"])
+      where(['lower(packages.name) like lower(?)', "#{search}%"]).limit(50)
     end
   end
 
