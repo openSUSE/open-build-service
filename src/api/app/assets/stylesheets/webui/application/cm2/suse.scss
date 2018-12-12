@@ -1,5 +1,5 @@
 .CodeMirror {
-  font-family: "Liberation Mono", monospace;
+  font-family: monospace;
   font-size: 9pt;
   height: auto;
 }
@@ -20,7 +20,6 @@
      Setting to hidden is ok here, the '.CodeMirror pre' elements
      aren't supposed to be scrollable... */
     overflow: hidden;
-    line-height: 1.1;
 }
 
 .toolbar {
