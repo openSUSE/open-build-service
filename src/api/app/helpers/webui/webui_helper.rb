@@ -153,7 +153,8 @@ module Webui::WebuiHelper
     opts[:package] = @package.to_s if @package
     opts[:project] = @project.to_s if @project
     link_opts = { id: "tab-#{id}" }
-    if (action_name == opts[:action].to_s && opts[:controller].to_s.include?(controller_name)) || opts[:selected]
+
+    if (action_name == opts[:action].to_s && opts[:controller].to_s.ends_with?(controller_name)) || opts[:selected]
       link_opts[:class] = 'selected'
     end
     content_tag('li', link_to(h(text), opts), link_opts)
