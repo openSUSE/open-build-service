@@ -49,12 +49,14 @@
               = link_to('(show merged sources derived from linked package)', package_show_path(project: @project.name, package: @package.name,
                                                                                                rev: @revision_parameter, expand: '1'))
       - if @forced_unexpand.present?
-        %p.card-body
-          %i
-            Sources could not be expanded:
-            = @forced_unexpand
-          = link_to('Show unmerged sources', package_show_path(project: @project.name, package: @package.name,
-                                                               rev: @revision_parameter, expand: '0'))
+        .card-body
+          %p
+            %i
+              Sources could not be expanded:
+              = @forced_unexpand
+          %p
+            = link_to('Show unmerged sources', package_show_path(project: @project.name, package: @package.name,
+                                                                rev: @revision_parameter, expand: '0'))
       - else
         = render partial: 'files_view', locals: { project: @project,
                                                   package: @package,
