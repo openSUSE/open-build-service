@@ -10,7 +10,7 @@
     %strong Branch package name
   = text_field_tag 'target_package', package.try(:name), size: 80, maxlength: 200, class: 'form-control'
 .custom-control.custom-checkbox
-  = check_box_tag(:current_revision, false, true, class: 'custom-control-input')
+  = check_box_tag(:current_revision, false, false, class: 'custom-control-input')
   = label_tag(:current_revision, class: 'custom-control-label') do
     Stay on this revision
     - if revision

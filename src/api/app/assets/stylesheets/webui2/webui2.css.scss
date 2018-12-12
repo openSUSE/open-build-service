@@ -18,6 +18,7 @@
 @import 'font-awesome';
 @import 'spacers';
 @import 'bootstrap';
+@import 'breakpoints';
 @import 'sticky-footer';
 @import 'datatables';
 @import 'card-component';
@@ -43,6 +44,8 @@
 @import 'collapse-component';
 @import 'project-package-show-grid';
 @import 'user';
+@import 'watchlist';
+@import 'pulse';
 
 html {
     overflow-y: scroll !important;

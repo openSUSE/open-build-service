@@ -11,6 +11,8 @@
       - unless project.defines_remote_instance? || project.is_maintenance?
         %li.nav-item
           = tab_link('Repositories', repositories_path(project))
+        %li.nav-item
+          = tab_link('Monitor', project_monitor_path(project))
       %li.nav-item
         = tab_link('Requests', project_requests_path(project))
       - unless project.defines_remote_instance?

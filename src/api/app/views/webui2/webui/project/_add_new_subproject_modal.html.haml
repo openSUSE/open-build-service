@@ -1,0 +1,8 @@
+.modal.fade#add-new-subproject-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'add-new-subproject-modal-label', hidden: true } }
+  .modal-dialog.modal-lg{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title#add-new-subproject-modal-label
+          Create Subproject
+      .modal-body
+        = render partial: 'form', locals: { project: Project.new, namespace: project.name, configuration: configuration }

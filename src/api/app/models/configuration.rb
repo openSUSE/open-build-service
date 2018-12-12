@@ -67,6 +67,11 @@ class Configuration < ApplicationRecord
       end
     end
 
+    # overwrite update function as the one in active record expects an id
+    def update(opts)
+      Configuration.first.update(opts)
+    end
+
     # Check if ldap group support is enabled?
     def ldapgroup_enabled?
       CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on

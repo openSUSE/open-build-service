@@ -1,0 +1,14 @@
+.modal.fade{ id: "delete-dod-source-modal-#{download_on_demand.id}", tabindex: -1, role: 'dialog',
+                  aria: { labelledby: 'delete-repository-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title
+          Delete Download on Demand?
+      .modal-body
+        %p Please confirm deletion of '#{download_on_demand.arch}' Download on Demand
+        = form_tag(download_repository_path(download_on_demand, project: project), method: :delete) do
+          .modal-footer
+            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+              Cancel
+            = submit_tag('Delete', class: 'btn btn-sm btn-danger px-4')

@@ -73,9 +73,13 @@ sub get_bins {
       my $binlnk = BSUtil::retrieve("$d/$bin", 1);
       next unless $binlnk;
       push @d, $bin;
-      my $p = $binlnk->{'path'};
-      $p =~ s/.*\///;
-      push @d, grep {$_ ne $bin && /^\Q$p\E/}  @dd;
+      # grab everything related to the binlnk file
+      my $p = $bin;
+      $p =~ s/\.obsbinlnk$//;
+      $p =~ s/\.[^\.]*$//;	# strip kiwi build type
+      push @d, grep {$_ ne $bin && /^\Q$p\E/} @dd;
+      # also grab all blobs
+      push @d, grep {/^_blob\./} @dd;
       $havebinlink = 1;
     }
     push @d, $bin if $bin =~ /\.rpm$/;
@@ -474,28 +478,34 @@ sub build {
         # be extra careful with em, recalculate meta
         $m .= "$bin\0$s[9]/$s[7]/$s[1]\0" if @s;
       }
-      if ($bin !~ /\.rpm$/ &&
-          $bin !~ /^_blob\..*/ &&
-          $bin !~ /\.(containerinfo|obsbinlink|tar\.sha256|packages|report|verified)$/) {
+      my $d;
+      if ($bin =~ /\.rpm$/) {
+	eval {
+	  $d = Build::query("$jobdatadir/$bin", 'evra' => 1, 'unstrippedsource' => 1);
+	  BSVerify::verify_nevraquery($d);
+	  my $leadsigmd5 = '';
+	  die("$jobdatadir/$bin: no hdrmd5\n") unless Build::queryhdrmd5("$jobdatadir/$bin", \$leadsigmd5);
+	  $d->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
+	};
+	return ('broken', "$bin: bad rpm") if $@ || !$d;
+      } elsif ($bin =~ /\.obsbinlnk$/) {
+        if (%binaryfilter) {	# not supported for containers yet
+          unlink("$jobdatadir/$bin");
+          next;
+	}
+	$d = BSUtil::retrieve("$jobdatadir/$bin", 1);
+	return ('broken', "$bin: bad obsbinlnk") unless $d;
+	# fixup path and write back
+	$d->{'path'} =~ s/.*\///;
+	$d->{'path'} = "../$packid/$d->{'path'}";
+	BSUtil::store("$jobdatadir/.$bin", "$jobdatadir/$bin", $d);
+      } else {
         if (%binaryfilter) {
           unlink("$jobdatadir/$bin");
           next;
 	}
 	$donebins{$bin} = $tocopy; 
 	next;
-      }
-      my $d;
-      if ($bin =~ /\.rpm$/) {
-        eval {
-          $d = Build::query("$jobdatadir/$bin", 'evra' => 1, 'unstrippedsource' => 1);
-          BSVerify::verify_nevraquery($d);
-          my $leadsigmd5 = '';
-          die("$jobdatadir/$bin: no hdrmd5\n") unless Build::queryhdrmd5("$jobdatadir/$bin", \$leadsigmd5);
-          $d->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
-        };
-        if ($@ || !$d) {
-          return ('broken', "$bin: bad rpm");
-        }
       }
       if (%binaryfilter && !$binaryfilter{$d->{'name'}}) {
         $filtered{$tocopy} ||= {};

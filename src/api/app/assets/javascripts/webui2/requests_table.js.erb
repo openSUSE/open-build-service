@@ -5,6 +5,7 @@ $(document).ready(function() {
     var typeDropdown = $('select[name=request_type_select][data-table=' + dataTableId + ']');
     var stateDropdown = $('select[name=request_state_select][data-table=' + dataTableId + ']');
     var url = $(this).data('source');
+    var pageLength = $(this).data('page-length') || 25;
 
     $(this).dataTable({
       order: [[0,'desc']],
@@ -14,8 +15,8 @@ $(document).ready(function() {
         // First column has index 0.
         { orderable: false, targets: [6] }
       ],
-      paging: 25,
-      pageLength: 25,
+      paging: true,
+      pageLength: pageLength,
       pagingType: "full_numbers",
       processing: true,
       language: {
@@ -29,6 +30,7 @@ $(document).ready(function() {
           d.dataTableId = dataTableId;
           d.type = typeDropdown.val();
           d.state = stateDropdown.val();
+          d.switch_to_webui2 = true;
         }
       }
     });
@@ -49,14 +51,11 @@ $(document).on('change', 'select[data-table]', function() {
 // The reload button on the user request page
 $(document).on('click', '.result_reload[data-table]', function() {
   var tableSelector = '#' + $(this).data('table'),
-      loadingSpinner = $(this).siblings('.result_spinner'),
-      reloadButton = $(this);
+      loadingSpinner = $(this).children('i');
 
-  $(this).hide();
-  loadingSpinner.removeClass('invisible');
+  loadingSpinner.addClass('fa-spin');
 
   $(tableSelector).DataTable().ajax.reload(function(){
-    reloadButton.show();
-    loadingSpinner.addClass('invisible');
+    loadingSpinner.removeClass('fa-spin');
   });
 });

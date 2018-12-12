@@ -1,63 +1,66 @@
-= webui2_user_image_tag(user, 'home-avatar')
+.card.mb-3
+  .card-body
+    = webui2_user_image_tag(user, 'home-avatar')
 
-%h4.home-usertitle
-  .home-username
-    = user.realname
-  .home-login
-    = user.login
-
-- unless user.is_nobody?
-  %p
-    = mail_to user.email, title: "Send mail to #{user.name}" do
-      %i.fas.fa-envelope
-      = user.email
-
-- if groups.any?
-  Member of the #{'group'.pluralize(groups.size)}
-  %ul
-    - groups.each do |group|
-      %li= link_to("#{group.title} (#{group.tasks})", group_show_path(group))
-
-- if role_titles.any?
-  Has the #{'role'.pluralize(role_titles.size)}
-  %ul
+    %h4.home-usertitle.mt-4
+      #home-realname
+        = user.realname
+    %h4.d-inline-block#home-login
+      = user.login
     - role_titles.each do |title|
-      %li= title
+      %span.badge.badge-secondary.align-top
+        = title.upcase
 
-- if is_user
-  - if user.in_beta?
-    %p
-      .badge.badge-info
-        In public beta program
-    = link_to(user_save_path(user: { login: user.login, in_beta: 0 }), method: :post) do
-      %i.fas.fa-sign-out-alt
-      Leave public beta program
-  - else
-    = link_to(user_save_path(user: { login: user.login, in_beta: 1 }), method: :post) do
-      %i.fas.fa-sign-in-alt
-      Join public beta program
-  %br
-  - if configuration.accounts_editable?(user)
-    - if account_edit_link.present?
-      = link_to account_edit_link do
-        %i.fas.fa-user-edit
-        Edit your account
-    - else
-      = link_to('#', data: { toggle: 'modal', target: '#edit-modal' }) do
-        %i.fas.fa-user-edit
-        Edit your account
-    %br
-  - if configuration.passwords_changable?(user)
-    = link_to('#', data: { toggle: 'modal', target: '#password-modal' }) do
-      %i.fas.fa-key
-      Change your password
-    %br
-  = link_to user_notifications_path do
-    %i.fas.fa-bell
-    Change your notifications
-  %br
-  - if user.rss_token
-    = link_to(user_rss_notifications_path(token: user.rss_token.string, format: 'rss'), title: 'RSS Feed for Notifications') do
-      %i.fas.fa-rss-square
-      RSS for notifications
+    - unless user.is_nobody?
+      %p
+        = mail_to user.email, title: "Send mail to #{user.name}" do
+          %i.fas.fa-envelope
+          = user.email
+
+    - if groups.any?
+      Member of the #{'group'.pluralize(groups.size)}
+      %ul
+        - groups.each do |group|
+          %li
+            = link_to(group_show_path(group)) do
+              #{group.title}
+              %span.badge.badge-primary.align-top
+                #{group.tasks} #{'task'.pluralize(group.tasks)}
+
+    - if is_user
+      - if user.in_beta?
+        %p
+          .badge.badge-info
+            In public beta program
+        = link_to(user_save_path(user: { login: user.login, in_beta: 0 }), method: :post) do
+          %i.fas.fa-sign-out-alt
+          Leave public beta program
+      - else
+        = link_to(user_save_path(user: { login: user.login, in_beta: 1 }), method: :post) do
+          %i.fas.fa-sign-in-alt
+          Join public beta program
+      %br
+      - if configuration.accounts_editable?(user)
+        - if account_edit_link.present?
+          = link_to account_edit_link do
+            %i.fas.fa-user-edit
+            Edit your account
+        - else
+          = link_to('#', data: { toggle: 'modal', target: '#edit-modal' }) do
+            %i.fas.fa-user-edit
+            Edit your account
+        %br
+      - if configuration.passwords_changable?(user)
+        = link_to('#', data: { toggle: 'modal', target: '#password-modal' }) do
+          %i.fas.fa-key
+          Change your password
+        %br
+      = link_to user_notifications_path do
+        %i.fas.fa-bell
+        Change your notifications
+      %br
+      - if user.rss_token
+        = link_to(user_rss_notifications_path(token: user.rss_token.string, format: 'rss'), title: 'RSS Feed for Notifications') do
+          %i.fas.fa-rss-square
+          RSS for notifications
 

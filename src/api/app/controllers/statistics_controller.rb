@@ -141,20 +141,11 @@ class StatisticsController < ApplicationController
   end
 
   def latest_updated
-    if params[:prjfilter].nil?
-      prj_filter = '.*'
-    else
-      prj_filter = params[:prjfilter]
-    end
-
-    if params[:pkgfilter].nil?
-      pkg_filter = '.*'
-    else
-      pkg_filter = params[:pkgfilter]
-    end
+    prj_filter = params[:prjfilter]
+    pkg_filter = params[:pkgfilter]
 
     if params[:timelimit].nil?
-      @timelimit = Time.at(0)
+      @timelimit = nil
     else
       @timelimit = params[:timelimit].to_i.day.ago
       # Override the default, since we want to limit by the time here.
@@ -189,13 +180,13 @@ class StatisticsController < ApplicationController
 
     # get devel projects
     ids = Package.joins('left outer join packages d on d.develpackage_id = packages.id').
-          where('d.project_id = ?', @project.id).pluck('packages.project_id').sort.uniq
+          where('d.project_id = ?', @project.id).distinct.order('packages.project_id').pluck('packages.project_id')
     ids << @project.id
-    projects = Project.where('id in (?)', ids).select(:name).map(&:name)
+    projects = Project.where('id in (?)', ids).pluck(:name)
 
     # get all requests to it
-    reqs = BsRequestAction.where(target_project: projects).select(:bs_request_id).map(&:bs_request_id).uniq.sort
-    reqs = BsRequest.where('id in (?)', reqs).select([:id, :created_at, :creator])
+    actions = BsRequestAction.where(target_project: projects).select(:bs_request_id)
+    reqs = BsRequest.where(id: actions).select([:id, :created_at, :creator])
     if params[:raw] == '1'
       render json: reqs
       return

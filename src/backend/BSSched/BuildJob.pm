@@ -808,7 +808,7 @@ sub create_jobdata {
 =cut
 
 sub add_expanddebug {
-  my ($ctx, $type, $xp) = @_;
+  my ($ctx, $type, $xp, $pool) = @_;
   my $expanddebug = $ctx->{'expanddebug'};
   return unless ref($expanddebug);
   $xp ||= $ctx->{'expander'};
@@ -820,6 +820,7 @@ sub add_expanddebug {
   return unless $dbg;
   $$expanddebug .= "\n" if $$expanddebug;
   $$expanddebug .= "=== $type\n";
+  $$expanddebug .= "path: ".join(' ', map {$_->name()} $pool->repos())."\n" if $pool;
   $$expanddebug .= $dbg;
   $dbg = $xp->debugstr();
   $ctx->{"xp_cut_hack$xp"} = length($dbg) if $dbg;	# sigh
@@ -887,7 +888,7 @@ sub create {
   if ($kiwimode) {
     # switch searchpath to kiwi info path
     $syspath = $searchpath if @$searchpath;
-    $searchpath = path2buildinfopath($gctx, [ expandkiwipath($info, $ctx->{'prpsearchpath'}) ]);
+    $searchpath = path2buildinfopath($gctx, [ expandkiwipath($ctx, $info) ]);
   }
 
   my $expanddebug = $ctx->{'expanddebug'};
@@ -932,7 +933,7 @@ sub create {
     @bdeps = (1, @$edeps);      # reuse edeps packages, no need to expand again
   } else {
     @bdeps = Build::get_build($bconf, $subpacks, @bdeps);
-    add_expanddebug($ctx, 'build expansion') if $expanddebug;
+    add_expanddebug($ctx, 'build expansion', undef, $ctx->{'pool'}) if $expanddebug;
   }
   if (!shift(@bdeps)) {
     if ($ctx->{'verbose'}) {
@@ -1231,28 +1232,28 @@ sub diffsortedmd5 {
   return @ret;
 }
 
-=head2 expandkiwipath - TODO: add summary
+=head2 expandkiwipath - turn the path from the info into a kiwi searchpath
 
  TODO: add description
 
 =cut
 
 sub expandkiwipath {
-  my ($info, $prpsearchpath, $prios) = @_;
+  my ($ctx, $info, $prios) = @_;
   my @path;
   for (@{$info->{'path'} || []}) {
     if ($_->{'project'} eq '_obsrepositories') {
-      push @path, @{$prpsearchpath || []}; 
-    } else {
-      my $prp = "$_->{'project'}/$_->{'repository'}";
-      push @path, $prp;
-      if ($prios) {
-        my $prio = $_->{'priority'} || 0;
-        $prios->{$prp} = $prio if !defined($prios->{$prp}) || $prio > $prios->{$prp};
-      }
+      push @path, @{$ctx->{'prpsearchpath'} || []}; 
+      next;
+    }
+    my $prp = "$_->{'project'}/$_->{'repository'}";
+    push @path, $prp;
+    if ($prios) {
+      my $prio = $_->{'priority'} || 0;
+      $prios->{$prp} = $prio if !defined($prios->{$prp}) || $prio > $prios->{$prp};
     }
   }
-  return @path;
+  return BSUtil::unify(@path);
 }
 
 =head2 getcontainerannotation - get the annotation from a container package

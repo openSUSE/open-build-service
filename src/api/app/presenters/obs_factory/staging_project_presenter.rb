@@ -17,7 +17,7 @@ module ObsFactory
       if requests.blank?
         ''
       else
-        requests.map { |i| i["package"] }.sort.join(', ')
+        requests.map! { |i| i["package"] }.sort!.join(', ')
       end
     end
 

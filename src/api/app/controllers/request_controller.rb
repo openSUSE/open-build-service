@@ -92,9 +92,6 @@ class RequestController < ApplicationController
       nil
     when 'changereviewstate', 'assignreview'
       @req.permission_check_change_review!(params)
-    when 'addrequest', 'removerequest'
-      # FIXME3.0: to be dropped
-      @req.permission_check_change_groups!
     else
       raise UnknownCommandError, "Unknown command '#{params[:cmd]}' for path #{request.path}"
     end
@@ -204,20 +201,6 @@ class RequestController < ApplicationController
 
   class PostRequestMissingParamater < APIError
     setup 403
-  end
-
-  class GroupRequestSpecial < APIError
-    setup 'command_only_valid_for_group'
-  end
-
-  def request_command_addrequest
-    @req.bs_request_actions.first.addrequest(params)
-    render_ok
-  end
-
-  def request_command_removerequest
-    @req.bs_request_actions.first.removerequest(params)
-    render_ok
   end
 
   def request_command_setincident

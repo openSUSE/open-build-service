@@ -16,10 +16,6 @@ class Webui::UserController < Webui::WebuiController
     @role_titles = @displayed_user.roles.global.pluck(:title)
     @account_edit_link = CONFIG['proxy_auth_account_page']
 
-    # # TODO: Remove the `return unless` and the flash once this should be available to all beta users on production
-    return unless User.current.try(:in_beta?) && Rails.env.development?
-
-    flash[:notice] = 'We are currently migrating the project pages to Bootstrap. This page is only seen on the development and test environments'
     switch_to_webui2
   end
 

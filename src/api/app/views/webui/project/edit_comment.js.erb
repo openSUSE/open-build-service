@@ -1,2 +1,2 @@
-$('#<%= valid_xml_id("comment_#{@package}") %>').html('<%= escape_javascript(render(:partial => 'edit_comment')) %>');
+$('#<%= valid_xml_id("comment_#{@package}") %>').html('<%= escape_javascript(render(:partial => 'edit_comment', comment: @comment, project: @project)) %>');
 

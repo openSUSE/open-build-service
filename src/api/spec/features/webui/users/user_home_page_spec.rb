@@ -41,7 +41,7 @@ RSpec.feature "User's home project creation", type: :feature, js: true do
 
     fill_in('user_realname', with: 'John Doe')
     fill_in('user_email', with: 'john.doe@opensuse.org')
-    click_button('Ok')
+    find('input[type="submit"]').click
 
     expect(page).to have_text("User data for user 'Jim' successfully updated.")
     expect(page).to have_css('#home-realname', text: 'John Doe')
@@ -49,14 +49,15 @@ RSpec.feature "User's home project creation", type: :feature, js: true do
   end
 
   scenario 'public beta program' do
-    expect(page).not_to have_text('Participates in public beta program')
+    # TODO: Change by have_text('In public beta program') when dropping old UI
+    expect(page).not_to have_content(/(Participates in|In) public beta program/)
 
     click_link('Join public beta program')
     expect(page).to have_text("User data for user 'Jim' successfully updated.")
-    expect(page).to have_text('Participates in public beta program')
+    expect(page).to have_content(/(Participates in|In) public beta program/)
 
     click_link('Leave public beta program')
     expect(page).to have_text("User data for user 'Jim' successfully updated.")
-    expect(page).not_to have_text('Participates in public beta program')
+    expect(page).not_to have_content(/(Participates in|In) public beta program/)
   end
 end

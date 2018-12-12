@@ -1,6 +1,6 @@
 class AnnouncementPolicy < ApplicationPolicy
   def index?
-    @user.is_admin?
+    user.is_admin?
   end
 
   def show?

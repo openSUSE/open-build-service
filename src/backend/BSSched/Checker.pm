@@ -1243,6 +1243,7 @@ sub append_info_path {
   my @missing;
   for my $pe (@$path) {
     my $pr = $pe->{'project'};
+    next if $pr eq '_obsrepositories';
     next if $projpacks->{$pr} || ($remoteprojs->{$pr} && defined($remoteprojs->{$pr}->{'config'})) || $remotemissing->{$pr};
     $ret = 0;					# entry unknown, delay
     next if defined $remotemissing->{$pr};	# 0: fetch is already in progress

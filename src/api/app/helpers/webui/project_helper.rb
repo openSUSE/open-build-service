@@ -3,6 +3,18 @@ module Webui::ProjectHelper
 
   protected
 
+  def pulse_period(range)
+    end_time = Time.zone.today
+
+    start_time = if range == 'month'
+                   end_time.prev_month
+                 else
+                   end_time.prev_week
+                 end
+
+    "#{start_time.strftime("%B, #{start_time.day.ordinalize} %Y")} – #{end_time.strftime("%B, #{end_time.day.ordinalize} %Y")}"
+  end
+
   def show_status_comment(comment, package, firstfail, comments_to_clear)
     status_comment_html = ''.html_safe
     if comment
@@ -121,5 +133,13 @@ module Webui::ProjectHelper
         escape_javascript(p) +
         "']".html_safe
     end.join(',').html_safe
+  end
+
+  def show_package_actions?
+    return false if @is_maintenance_project
+    return false if @project.defines_remote_instance?
+    return true unless @is_incident_project && @packages.present? &&
+                       @has_patchinfo && @open_release_requests.empty?
+    false
   end
 end

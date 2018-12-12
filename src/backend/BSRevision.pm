@@ -30,6 +30,7 @@ use BSUtil;
 use BSFileDB;
 use BSSrcrep;
 use BSDB;
+use Storable;
 
 my $projectsdir = "$BSConfig::bsdir/projects";
 my $srcrep = "$BSConfig::bsdir/sources";
@@ -38,6 +39,8 @@ my $uploaddir = "$srcrep/:upload";
 my $sourcedb = "$BSConfig::bsdir/db/source";
 
 my $srcrevlay = [qw{rev vrev srcmd5 version time user comment requestid}];
+
+my $readproj_local_cache;
 
 sub getrev_deleted_srcmd5 {
   my ($projid, $packid, $srcmd5) = @_;
@@ -566,6 +569,14 @@ sub readproj_local {
     my $rev = getrev_meta($projid, undef, $revid);
     my $files = $rev ? lsrev($rev) : {};
     $proj = revreadxml($rev, '_meta', $files->{'_meta'}, $BSXML::proj, 1) if $files->{'_meta'};
+  } elsif ($readproj_local_cache) {
+    if (exists($readproj_local_cache->{$projid})) {
+      $proj = $readproj_local_cache->{$projid};
+    } else {
+      $proj = readxml("$projectsdir/$projid.xml", $BSXML::proj, 1);
+      $readproj_local_cache->{$projid} = $proj;
+    }
+    $proj = Storable::dclone($proj) if $proj;
   } else {
     $proj = readxml("$projectsdir/$projid.xml", $BSXML::proj, 1);
   }
@@ -593,6 +604,11 @@ sub readpack_local {
 sub readconfig_local {
   my ($projid) = @_;
   return readstr("$projectsdir/$projid.conf", 1);
+}
+
+sub readproj_local_use_cache {
+  my ($ok) = @_;
+  $readproj_local_cache = $ok ? {} : undef;
 }
 
 1;

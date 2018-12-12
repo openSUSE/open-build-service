@@ -1,0 +1,157 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 10 Dec 2018 10:05:12 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MyProject/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="MyProject" kind="maintenance">
+          <title>Time To Murder And Create</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '130'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="MyProject" kind="maintenance">
+          <title>Time To Murder And Create</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 10 Dec 2018 10:05:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MyProject/_project/_attribute?meta=1&user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="MaintenanceProject" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '165'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3">
+          <srcmd5>00fa46cd20a549f7aa845a7aad1fb573</srcmd5>
+          <time>1544436314</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 10 Dec 2018 10:05:14 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/MyProject/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Mon, 10 Dec 2018 10:05:14 GMT
+recorded_with: VCR 4.0.0

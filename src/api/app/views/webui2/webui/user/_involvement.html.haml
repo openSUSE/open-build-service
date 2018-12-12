@@ -1,1 +1,85 @@
-Placeholder for things the user is involved in
+.card.mb-3
+  .bg-light
+    %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
+      %li.nav-item
+        = link_to('#involved-packages', id: 'involved-packages-tab', class: 'nav-link active text-nowrap',
+                  data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'involved-packages', selected: true }) do
+          Involved Packages
+          %span.badge.badge-primary
+            = involved_packages.size
+      %li.nav-item
+        = link_to('#involved-projects', id: 'involved-projects-tab', class: 'nav-link text-nowrap',
+                  data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'involved-projects', selected: false }) do
+          Involved Projects
+          %span.badge.badge-primary
+            = involved_projects.size
+      %li.nav-item
+        = link_to('#owned', id: 'owned-tab', class: 'nav-link text-nowrap',
+                  data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'owned', selected: false }) do
+          Owned Project/Packages
+          %span.badge.badge-primary
+            = owned.size
+      %li.nav-item.dropdown
+        %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', 'role': 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
+        .dropdown-menu.dropdown-menu-right
+
+  .card-body
+    .tab-content.obs-dataTable
+      .tab-pane.fade.show.active#involved-packages{ role: 'tabpanel', aria: { labelledby: 'involved-packages-tab' } }
+        - if involved_packages.blank?
+          %p.md-3
+            #{user.name} is not involved in any packages
+        - else
+          %table.table.table-sm.table-fixed.table-striped.table-bordered#involved-packages-table
+            %thead
+              %tr
+                %th Package
+                %th Project
+            %tbody
+              - involved_packages.each do |package_name, project_name|
+                %tr
+                  %td
+                    = link_to(package_name, package_show_path(package: package_name, project: project_name))
+                  %td
+                    = link_to(project_name, project_show_path(project: project_name))
+
+      .tab-pane.fade#involved-projects{ role: 'tabpanel', aria: { labelledby: 'involved-projects-tab' } }
+        - if involved_projects.blank?
+          %p.mt-3
+            #{user.name} is not involved in any project
+        - else
+          %table.table.table-sm.table-fixed.table-striped.table-bordered#involved-projects-table
+            %thead
+              %tr
+                %th Name
+                %th Title
+            %tbody
+              - involved_projects.each do |project_name, project_title|
+                %tr
+                  %td
+                    = link_to(project_name, project_show_path(project: project_name))
+                  %td
+                    = project_title
+
+      .tab-pane.fade#owned{ role: 'tabpanel', aria: { labelledby: 'owned-tab' } }
+        - if owned.blank?
+          %p.mt-3
+            #{user.name} doesn't own any project or package
+        - else
+          %table.table.table-sm.table-fixed.table-striped.table-bordered#owned-table
+            %thead
+              %tr
+                %th Package
+                %th Project
+            %tbody
+              - owned.each do |package_name, project_name|
+                %tr
+                  %td
+                    - if package_name
+                      = link_to(package_name, package_show_path(package: package_name, project: project_name))
+                  %td
+                    = link_to(project_name, project_show_path(project: project_name))
+
+= content_for :ready_function do
+  initializeDataTable('#involved-packages-table, #involved-projects-table, #owned-table');
+

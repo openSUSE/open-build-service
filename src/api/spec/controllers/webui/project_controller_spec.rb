@@ -756,69 +756,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
   end
 
-  describe 'POST #save_meta' do
-    before do
-      login user
-    end
-
-    context 'with an nonexistent project' do
-      let(:post_save_meta) { post :save_meta, params: { project: 'nonexistent_project' }, xhr: true }
-
-      it { expect { post_save_meta }.to raise_error(Pundit::NotDefinedError) }
-    end
-
-    context 'with a valid project' do
-      context 'without a valid meta' do
-        before do
-          post :save_meta, params: { project: user.home_project, meta: '<project name="home:tom"><title/></project>' }, xhr: true
-        end
-
-        it { expect(flash.now[:error]).not_to be_nil }
-        it { expect(response).to have_http_status(:bad_request) }
-      end
-
-      context 'with an invalid devel project' do
-        before do
-          post :save_meta, params: { project: user.home_project,
-                                     meta: '<project name="home:tom"><title/><description/><devel project="non-existant"/></project>' }, xhr: true
-        end
-
-        it { expect(flash.now[:error]).to eq("Project with name 'non-existant' not found") }
-        it { expect(response).to have_http_status(:bad_request) }
-      end
-
-      context 'with a valid meta' do
-        before do
-          post :save_meta, params: { project: user.home_project, meta: '<project name="home:tom"><title/><description/></project>' }, xhr: true
-        end
-
-        it { expect(flash.now[:success]).not_to be_nil }
-        it { expect(response).to have_http_status(:ok) }
-      end
-
-      context 'with a non existing repository path' do
-        let(:meta) do
-          <<-HEREDOC
-          <project name="home:tom">
-            <title/>
-            <description/>
-            <repository name="not-existent">
-              <path project="not-existent" repository="standard" />
-            </repository>
-          </project>
-          HEREDOC
-        end
-
-        before do
-          post :save_meta, params: { project: user.home_project, meta: meta }, xhr: true
-        end
-
-        it { expect(flash.now[:error]).to eq('A project with the name not-existent does not exist. Please update the repository path elements.') }
-        it { expect(response).to have_http_status(:bad_request) }
-      end
-    end
-  end
-
   describe 'POST #unlock' do
     before do
       login user
@@ -1013,74 +950,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       it { expect(assigns(:comment)).to eq('Last comment') }
       it { expect(assigns(:error)).to eq("Can't create attributes in home_package") }
-    end
-  end
-
-  describe 'GET #prjconf' do
-    before do
-      login user
-    end
-
-    context 'Can load project config' do
-      before do
-        get :prjconf, params: { project: apache_project }
-      end
-
-      it { expect(flash[:error]).to eq(nil) }
-      it { expect(response).not_to redirect_to(controller: :project, nextstatus: 404) }
-    end
-
-    context 'Can not load project config' do
-      before do
-        allow_any_instance_of(ProjectConfigFile).to receive(:content).and_return(nil)
-        get :prjconf, params: { project: apache_project }
-      end
-
-      it { expect(flash[:error]).not_to eq(nil) }
-      it { expect(response).to redirect_to(controller: 'project', nextstatus: 404) }
-    end
-  end
-
-  describe 'POST #save_prjconf' do
-    before do
-      login user
-    end
-
-    context 'can save a project config' do
-      before do
-        post :save_prjconf, params: { project: user.home_project.name, config: 'save config' }
-      end
-
-      it { expect(flash[:success]).to eq('Config successfully saved!') }
-      it { expect(response.status).to eq(200) }
-    end
-
-    context 'cannot save a project config' do
-      before do
-        allow_any_instance_of(ProjectConfigFile).to receive(:save).and_return(nil)
-        post :save_prjconf, params: { project: user.home_project.name, config: '' }
-      end
-
-      it { expect(flash[:error]).not_to be_nil }
-      it { expect(response.status).to eq(400) }
-    end
-
-    context 'cannot save with an unauthorized user' do
-      before do
-        post :save_prjconf, params: { project: another_project.name, config: 'save config' }
-      end
-
-      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this Project.') }
-      it { expect(response.status).to eq(302) }
-      it { expect(response).to redirect_to(root_path) }
-    end
-
-    context 'with a non existing project' do
-      let(:post_save_prjconf) { post :save_prjconf, params: { project: 'non:existing:project', config: 'save config' } }
-
-      it 'raise a RecordNotFound Exception' do
-        expect { post_save_prjconf }.to raise_error ActiveRecord::RecordNotFound
-      end
     end
   end
 
@@ -1558,15 +1427,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
   describe 'GET #unlock_dialog' do
     before do
       get :unlock_dialog, params: { project: user.home_project }, xhr: true
-    end
-
-    it { expect(response).to have_http_status(:success) }
-  end
-
-  describe 'GET #meta' do
-    before do
-      login user
-      get :meta, params: { project: user.home_project }
     end
 
     it { expect(response).to have_http_status(:success) }

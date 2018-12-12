@@ -1,7 +1,7 @@
 - @pagetitle = 'Add Attribute'
 
 .card
-  = render(partial: 'webui/package/tabs', locals: { project: @project, package: @package })
+  = render(partial: "webui/#{@container.model_name.singular}/tabs", locals: { project: @project, package: @package })
 
   .card-body
     %h3= @pagetitle

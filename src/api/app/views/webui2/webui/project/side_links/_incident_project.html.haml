@@ -1,0 +1,16 @@
+- unless has_patchinfo
+  %li
+    %i.fa.fa-exclamation-circle.text-danger
+    = link_to_if(User.current.can_modify?(project), 'Patchinfo missing',
+                  patchinfo_new_patchinfo_path(project: project, package: 'patchinfo'), method: :post)
+- if open_release_requests.present?
+  %li
+    :ruby
+      if open_release_requests.length == 1
+        path = request_show_path(open_release_requests.first)
+      else
+        path = project_requests_path(project, type: 'maintenance_release')
+      end
+    %i.fas.fa-flag.text-success
+    = link_to(path) do
+      = pluralize(open_release_requests.length, 'release request')

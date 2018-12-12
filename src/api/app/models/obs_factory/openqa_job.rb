@@ -64,7 +64,7 @@ module ObsFactory
               Rails.cache.write("openqa_jobs_for_iso_#{iso}", iso_jobs, expires_in: 2.minutes)
             end
             # And then, cache the list of ISOs
-            isos = jobs.map { |j| (j['assets']['iso'].first rescue nil) }.sort.compact.uniq
+            isos = jobs.map { |j| (j['assets']['iso'].first rescue nil) }.sort!.compact.uniq
             Rails.cache.write('openqa_isos', isos, expires_in: 2.minutes)
           end
         end
@@ -96,7 +96,7 @@ module ObsFactory
     #
     # @return [Array] array of module names
     def failing_modules
-      modules.reject { |m| %w(passed softfailed running none).include?(m['result']) }.map { |m| m['name'] }
+      modules.reject { |m| %w(passed softfailed running none).include?(m['result']) }.map! { |m| m['name'] }
     end
 
     # Result of the job, or its state if no result is available yet
