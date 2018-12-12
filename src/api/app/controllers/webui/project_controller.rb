@@ -56,11 +56,11 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def autocomplete_projects
-    render json: Project.autocomplete(params[:term]).not_maintenance_incident.order(:name).pluck(:name)
+    render json: Project.autocomplete(params[:term]).not_maintenance_incident.pluck(:name)
   end
 
   def autocomplete_incidents
-    render json: Project.autocomplete(params[:term]).maintenance_incident.order(:name).pluck(:name)
+    render json: Project.autocomplete(params[:term]).maintenance_incident.pluck(:name)
   end
 
   def autocomplete_packages
@@ -73,7 +73,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def autocomplete_repositories
-    render json: @project.repositories.pluck(:name)
+    render json: @project.repositories.order(:name).pluck(:name)
   end
 
   def users
