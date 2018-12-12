@@ -81,5 +81,5 @@
                     = link_to(project_name, project_show_path(project: project_name))
 
 = content_for :ready_function do
-  initializeDataTable('#involved-packages-table, #involved-projects-table, #owned-table');
+  initializeDataTable('#involved-packages-table, #involved-projects-table, #owned-table', { info: false });
 
