@@ -13,7 +13,7 @@ RSpec.describe "Project" do
     within("div#subheader") do
       click_link('Create Home')
     end
-    first('input[type=submit]').click # 'Create Project' for 2.8 and 2.9. 'Accept' for master
+    page.has_button?('Create Project') ? click_button('Create Project') : click_button('Accept')
     expect(page).to have_content("Project 'home:Admin' was created successfully")
   end
 
