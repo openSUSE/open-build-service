@@ -15,7 +15,7 @@ module InfluxDB
           InfluxDB::Rails.client.write_point(series_name,
                                              tags: tags(data),
                                              values: values(data[:runtime]),
-                                             timestamp: InfluxDB.convert_timestamp(finished.utc))
+                                             timestamp: timestamp(finished))
         rescue StandardError => e
           logger.info "[InfluxDB Backend Subscriber]: #{e.message}"
         end
@@ -24,21 +24,25 @@ module InfluxDB
 
         attr_reader :series_name, :logger
 
+        def timestamp(time)
+          InfluxDB.convert_timestamp(time, InfluxDB::Rails.configuration.time_precision)
+        end
+
         def enabled?
-          series_name.present?
+          CONFIG['influxdb_hosts'].present?
         end
 
         def values(runtime)
-          { value: (runtime || 0) * 1000 }
+          { value: ((runtime || 0) * 1000).ceil }
         end
 
         def tags(data)
           {
             http_method: data[:http_method],
-            http_status: data[:http_status],
+            http_status_code: data[:http_status_code],
             host: data[:host],
-            controller: data[:controller],
-            backend: data[:backend]
+            controller_location: data[:controller_location],
+            backend_location: data[:backend_location]
           }.reject { |_, value| value.blank? }
         end
       end

@@ -10,11 +10,11 @@ RSpec.describe InfluxDB::OBS::Middleware::BackendSubscriber do
     let(:finish_time)  { Time.at(1_517_567_370) }
     let(:data) do
       {
-        http_status: 200,
+        http_status_code: 200,
         http_method: 'GET',
         host: 'backend',
-        controller: 'UsersController#index',
-        backend: 'Cloud#upload',
+        controller_location: 'UsersController#index',
+        backend_location: 'Cloud#upload',
         runtime: 2
       }
     end
@@ -25,14 +25,19 @@ RSpec.describe InfluxDB::OBS::Middleware::BackendSubscriber do
           value: 2000
         },
         tags: {
-          http_status: 200,
+          http_status_code: 200,
           http_method: 'GET',
           host: 'backend',
-          controller: 'UsersController#index',
-          backend: 'Cloud#upload'
+          controller_location: 'UsersController#index',
+          backend_location: 'Cloud#upload'
         },
-        timestamp: 1_517_567_370
+        timestamp: 1_517_567_370_000
       }
+    end
+
+    before do
+      stub_const('CONFIG', CONFIG.merge('influxdb_hosts' => ['localhost']))
+      allow_any_instance_of(InfluxDB::Rails::Configuration).to receive(:time_precision).and_return('ms')
     end
 
     it 'writes to InfluxDB' do
