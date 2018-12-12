@@ -1,5 +1,3 @@
-require_relative '../influxdb_obs/obs/normalizer/location_normalizer'
-
 module Backend
   # Class that implements a logger to write output in the backend logs
   class Logger
@@ -20,7 +18,7 @@ module Backend
       @backend_logger.info "#{now} #{method} #{host}:#{port}#{path} #{response.code} #{time_delta}"
       @backend_time += time_delta
       Rails.logger.debug "request took #{time_delta} #{@backend_time}"
-      instrument_notification(method, host, response.code, time_delta)
+      Backend::Instrumentation.new(method, host, response.code, time_delta).instrument
 
       return unless CONFIG['extended_backend_log']
 
@@ -32,21 +30,6 @@ module Backend
       else
         @backend_logger.info "(non-XML data) #{data.class}"
       end
-    end
-
-    def self.instrument_notification(method, host, code, runtime)
-      return if CONFIG['influxdb_hosts'].blank?
-
-      location = InfluxDB::OBS::Normalizer::LocationNormalizer.new(caller_locations(4, 8))
-      data = {
-        http_method: method,
-        http_status: code,
-        host: host,
-        runtime: runtime,
-        controller: location.controller_name,
-        backend: location.backend_name
-      }
-      ActiveSupport::Notifications.instrument('obs.backend.process_response', data)
     end
   end
 end

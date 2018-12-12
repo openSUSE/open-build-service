@@ -16,14 +16,11 @@ class Webui::ProjectController < Webui::WebuiController
                                      :show, :linking_projects, :add_person, :add_group, :buildresult, :delete_dialog,
                                      :destroy, :remove_path_from_target, :rebuild_time, :packages_simple,
                                      :requests, :save, :monitor, :toggle_watch,
-                                     :prjconf, :edit, :edit_comment,
+                                     :edit, :edit_comment,
                                      :status, :maintained_projects,
                                      :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
                                      :maintenance_incidents, :unlock_dialog, :unlock, :save_person, :save_group, :remove_role,
-                                     :move_path, :save_prjconf, :clear_failed_comment, :pulse, :update_pulse]
-
-  # TODO: check if get_by_name or set_by_name is used for save_prjconf
-  before_action :set_project_by_name, only: [:save_prjconf]
+                                     :move_path, :clear_failed_comment, :pulse, :update_pulse]
 
   before_action :set_project_by_id, only: [:update]
 
@@ -498,38 +495,6 @@ class Webui::ProjectController < Webui::WebuiController
     else
       redirect_to action: :show, project: @project
     end
-  end
-
-  def prjconf
-    sliced_params = params.slice(:rev)
-    sliced_params.permit!
-
-    @content = @project.config.content(sliced_params.to_h)
-    switch_to_webui2
-    return if @content
-    flash[:error] = @project.config.errors.full_messages.to_sentence
-    redirect_to controller: 'project', nextstatus: 404
-  end
-
-  def save_prjconf
-    authorize @project, :update?
-
-    params[:user] = User.current.login
-    sliced_params = params.slice(:user, :comment)
-    sliced_params.permit!
-
-    content = @project.config.save(sliced_params.to_h, params[:config])
-
-    if content
-      flash.now[:success] = 'Config successfully saved!'
-      status = 200
-    else
-      flash.now[:error] = @project.config.errors.full_messages.to_sentence
-      status = 400
-    end
-    switch_to_webui2
-    namespace = switch_to_webui2? ? 'webui2' : 'webui'
-    render layout: false, status: status, partial: "layouts/#{namespace}/flash", object: flash
   end
 
   def clear_failed_comment

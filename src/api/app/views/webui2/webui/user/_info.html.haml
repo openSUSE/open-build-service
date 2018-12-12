@@ -2,11 +2,14 @@
   .card-body
     = webui2_user_image_tag(user, 'home-avatar')
 
-    %h4.home-usertitle.mt-4.mb-3
+    %h4.home-usertitle.mt-4
       #home-realname
         = user.realname
-      .mt-2#home-login
-        = user.login
+    %h4.d-inline-block#home-login
+      = user.login
+    - role_titles.each do |title|
+      %span.badge.badge-secondary.align-top
+        = title.upcase
 
     - unless user.is_nobody?
       %p
@@ -21,14 +24,8 @@
           %li
             = link_to(group_show_path(group)) do
               #{group.title}
-              %span.badge.badge-primary
+              %span.badge.badge-primary.align-top
                 #{group.tasks} #{'task'.pluralize(group.tasks)}
-
-    - if role_titles.any?
-      Has the #{'role'.pluralize(role_titles.size)}
-      %ul
-        - role_titles.each do |title|
-          %li= title
 
     - if is_user
       - if user.in_beta?

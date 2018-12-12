@@ -40,6 +40,8 @@ module Backend
   #
 
   module ConnectionHelper
+    include Backend::RememberLocation
+
     private
 
     # Performs a http get request to the configured OBS Backend server.
