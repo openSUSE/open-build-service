@@ -11,7 +11,8 @@ FactoryBot.define do
       target_package { nil }
       target_repository { nil }
       reviewer { nil }
-      request_state { 'review' }
+      request_state { nil }
+      review_by_project { nil }
     end
 
     before(:create) do |request, evaluator|
@@ -41,6 +42,10 @@ FactoryBot.define do
           source_project: evaluator.source_project,
           source_package: evaluator.source_package
         )
+        if evaluator.request_state
+          request.state = evaluator.request_state
+          request.save!
+        end
       end
     end
 
@@ -75,6 +80,21 @@ FactoryBot.define do
       end
     end
 
+    factory :review_bs_request_by_project do
+      after(:create) do |request, evaluator|
+        request.bs_request_actions.delete_all
+        request.bs_request_actions << create(
+          :bs_request_action_submit,
+          target_project: evaluator.target_project,
+          target_package: evaluator.target_package,
+          source_project: evaluator.source_project,
+          source_package: evaluator.source_package
+        )
+        request.reviews << Review.new(by_project: evaluator.review_by_project)
+        request.state = 'review'
+        request.save!
+      end
+    end
     factory :review_bs_request_by_group do
       after(:create) do |request, evaluator|
         request.bs_request_actions.delete_all
@@ -86,7 +106,7 @@ FactoryBot.define do
           source_package: evaluator.source_package
         )
         request.reviews << Review.new(by_group: evaluator.reviewer)
-        request.state = evaluator.request_state
+        request.state = evaluator.request_state || 'review'
         request.save!
       end
     end

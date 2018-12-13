@@ -2269,7 +2269,7 @@ sub putjob {
     # write jobstatus and free lock
     if (@{$kiwitree_tosign || []}) {
       my $c = '';
-      $c .= BSRPC::urlencode($_)."\n" for @$kiwitree_tosign;
+      $c .= BSHTTP::urlencode($_)."\n" for @$kiwitree_tosign;
       writestr("$dir/.kiwitree_tosign", undef, $c);
     } else {
       unlink("$dir/.kiwitree_tosign");

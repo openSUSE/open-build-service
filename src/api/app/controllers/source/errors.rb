@@ -68,6 +68,10 @@ module Source::Errors
 
   class WrongRouteForAttribute < APIError; end
 
+  class WrongRouteForStagingWorkflow < APIError
+    setup 403, 'Staging workflows can not be changed through the API'
+  end
+
   class AttributeNotFound < APIError
     setup 'not_found', 404
   end

@@ -12,10 +12,10 @@
     builds in the last 24 hours
   of which
   %b.text-danger
-    = builds['build_fail']
+    = builds.fetch('build_fail', 0)
     failed
   and
   %b.text-success
-    = builds['build_success']
+    = builds.fetch('build_success', 0)
     succeeded
   \.

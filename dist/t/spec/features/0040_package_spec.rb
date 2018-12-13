@@ -13,11 +13,11 @@ RSpec.describe "Package" do
     within("div#subheader") do
       click_link('Home Project')
     end
-    click_link('Create package')
+    page.has_link?('Create package') ? click_link('Create package') : click_link('Create Package')
     fill_in 'name', with: 'ctris'
     fill_in 'title', with: 'ctris'
     fill_in 'description', with: 'ctris'
-    click_button('Save changes')
+    page.has_button?('Save changes') ? click_button('Save changes') : click_button('Accept')
     expect(page).to have_content("Package 'ctris' was created successfully")
   end
 
@@ -42,19 +42,19 @@ RSpec.describe "Package" do
     within("div#subheader") do
       click_link('Home Project')
     end
-    click_link('Branch existing package')
+    page.has_link?('Branch existing package') ? click_link('Branch existing package') : click_link('Branch Existing Package')
     fill_in 'linked_project', with: 'openSUSE.org:openSUSE:Tools'
     fill_in 'linked_package', with: 'build'
     # Do not wait for autocomplete
     page.execute_script("$('input[type=\"submit\"]').prop('disabled', false)")
-    click_button('Create Branch')
+    page.has_button?('Create Branch') ? click_button('Create Branch') : click_button('Accept')
     expect(page).to have_content('build.spec')
   end
 
   it 'should be able to delete' do
     click_link('Delete package')
     expect(page).to have_content('Do you really want to delete this package?')
-    click_button('Ok')
+    page.has_button?('Ok') ? click_button('Ok') : click_button('Accept')
     expect(page).to have_content('Package was successfully removed.')
   end
 

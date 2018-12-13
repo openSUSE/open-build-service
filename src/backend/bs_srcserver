@@ -42,6 +42,7 @@ use JSON::XS ();
 
 use BSConfiguration;
 use BSRPC ':https';
+use BSHTTP;
 use BSServer;
 use BSUtil;
 use BSFileDB;
@@ -5088,7 +5089,7 @@ sub published_path {
     }
     if (defined($p) && !$medium) {
       $path .= "/$p" if defined $path;
-      $url .= BSRPC::urlencode($p) if defined $url;
+      $url .= BSHTTP::urlencode($p) if defined $url;
     }
   }
 
@@ -5126,7 +5127,7 @@ sub published_path {
   }
   if ($medium) {
     $path .= "/$medium" if defined $path;
-    $url .= BSRPC::urlencode($medium) if defined $url;
+    $url .= BSHTTP::urlencode($medium) if defined $url;
   }
   $url =~ s/([^\/])\/$/$1/ if defined $url;		# compat
   $ret->{'path'} = $path if defined $path;

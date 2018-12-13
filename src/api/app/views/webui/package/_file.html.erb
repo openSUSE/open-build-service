@@ -1,0 +1,26 @@
+<tr id="file-<%= valid_xml_id(file[:name]) %>">
+  <td>
+    <% link_opts = { action: :view_file, project: project, package: package, filename: file[:name], expand: expand }
+        unless @is_current_rev
+          link_opts[:rev] = file[:srcmd5]
+        end %>
+    <%= link_to_if(file[:viewable], nbsp(file[:name]), link_opts) %>
+  </td>
+  <td><span class="hidden"><%= file[:size].rjust(10, '0') %></span><%= human_readable_fsize(file[:size]) %>
+  </td>
+  <td><span class="hidden"><%= file[:mtime] %></span><%= timeago_tag Time.at(file[:mtime].to_i) %>
+  </td>
+  <!-- limit download for anonymous user to avoid getting killed by crawlers -->
+  <td><%= if !nobody || file[:size].to_i < (4 * 1024 * 1024)
+            link_to sprite_tag('page_white_put', title: 'Download File'),
+                    file_url(project.name, package.name, file[:name], file[:srcmd5])
+          end %>
+    <% if removable_file?(file_name: file[:name], package: package) %>
+        <% if can_modify %>
+            <%= link_to sprite_tag('page_white_delete', title: 'Remove File'), {:action => :remove_file, :project => project.to_param,
+                                                                                :package => package.to_param, :filename => file[:name]},
+                        {data: {confirm: "Really remove file '#{file[:name]}'?"}, :method => :post} %>
+        <% end %>
+    <% end %>
+  </td>
+</tr>
