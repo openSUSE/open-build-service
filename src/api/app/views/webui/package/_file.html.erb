@@ -8,10 +8,10 @@
   </td>
   <td><span class="hidden"><%= file[:size].rjust(10, '0') %></span><%= human_readable_fsize(file[:size]) %>
   </td>
-  <td><span class="hidden"><%= file[:mtime] %></span><%= timeago_tag Time.at(file[:mtime].to_i) %>
+  <td><span class="hidden"><%= file[:mtime] %></span><%= timeago_tag Time.at(file[:mtime].to_i), limit: 1.year.ago %>
   </td>
   <!-- limit download for anonymous user to avoid getting killed by crawlers -->
-  <td><%= if !nobody || file[:size].to_i < (4 * 1024 * 1024)
+  <td><%= if !nobody || file[:size].to_i < 4.megabytes
             link_to sprite_tag('page_white_put', title: 'Download File'),
                     file_url(project.name, package.name, file[:name], file[:srcmd5])
           end %>
