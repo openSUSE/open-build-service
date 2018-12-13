@@ -13,7 +13,7 @@
           project: @project, package: @package, expand: @expand, is_current_rev: @is_current_rev,
           can_modify: User.current.can_modify?(@package), nobody: User.current.is_nobody?
         } %>
-        <%= render partial: 'file', collection: @files, cached: proc { |file| [file, file_locals].hash }, locals: file_locals
+        <%= render partial: 'file', collection: @files, cached: proc { |file| [file[:mtime], file[:md5], file_locals].hash }, locals: file_locals
         %>
       </tbody>
     </table>
