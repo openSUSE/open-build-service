@@ -1,3 +1,5 @@
+- user_can_modify_package = User.current.can_modify?(package)
+
 .card-body
   - if files.present?
     %table.table.table-striped.table-bordered.table-sm.dt-responsive.w-100#files-table
@@ -9,12 +11,12 @@
           %th Actions
       %tbody
         - file_locals = { package: package, project: project, expand: expand, is_current_rev: is_current_rev,
-        can_modify: User.current.can_modify?(package), nobody: User.current.is_nobody? }
+        can_modify: user_can_modify_package, nobody: User.current.is_nobody? }
         = render partial: 'file', collection: files,
         cached: proc { |file| [file[:mtime], file[:md5], file_locals, User.current.in_beta].hash }, locals: file_locals
   - else
     %i This package has no files yet
-  - if User.current.can_modify?(package)
+  - if user_can_modify_package
     .pt-4
       = link_to(package_add_file_path(project, package)) do
         %i.fas.fa-plus-circle.text-primary
