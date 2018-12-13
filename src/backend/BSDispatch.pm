@@ -25,6 +25,8 @@
 
 package BSDispatch;
 
+use strict;
+
 sub parse_cgi {
   # $req:
   #      the request data
@@ -43,20 +45,11 @@ sub parse_cgi {
   $singles ||= {'*' => undef};
   my %cgi;
   my %unknown;
-  my @query_string = split('&', $req->{'query'});
-  while (@query_string) {
-    my ($name, $value) = split('=', shift(@query_string), 2);
+  my @query = BSHTTP::querydecodekv($req->{'query'});
+  while (@query) {
+    my ($name, $value) = splice(@query, 0, 2);
     next unless defined $name && $name ne '';
-    # convert from URI format
-    $name  =~ tr/+/ /;
-    $name  =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
-    if (defined($value)) {
-      # convert from URI format
-      $value =~ tr/+/ /;
-      $value =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
-    } else {
-      $value = 1;	# assume boolean
-    }
+    $value = 1 unless defined $value;	# assume boolean
     if (exists($multis->{$name})) {
       if (defined($multis->{$name})) {
         $cgi{$name} = exists($cgi{$name}) ? "$cgi{$name}$multis->{$name}$value" : $value;
@@ -87,18 +80,10 @@ sub parse_cgi {
 sub parse_cgi_singles {
   my ($req) = @_;
   my %cgi;
-  for my $qu (split('&', $req->{'query'})) {
-    my ($name, $value) = split('=', $qu, 2);
-    $name  =~ tr/+/ /;
-    $name  =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
-    if (exists $cgi{$name}) {
-      $cgi{$name} = undef;
-      next;
-    }
-    $value = 1 unless defined $value;
-    $value =~ tr/+/ /;
-    $value =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
-    $cgi{$name} = $value;
+  my @query = BSHTTP::querydecodekv($req->{'query'});
+  while (@query) {
+    my ($name, $value) = splice(@query, 0, 2);
+    $cgi{$name} = exists($cgi{$name}) ? undef : defined($value) ? $value : 1;
   }
   delete $cgi{$_} for grep {!defined($cgi{$_})} keys %cgi;
   return \%cgi;

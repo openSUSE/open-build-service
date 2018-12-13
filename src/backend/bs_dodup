@@ -258,10 +258,9 @@ sub dod_deb {
     my ($base, $query) = split(/\?/, $url, 2);
     if ("&$query" =~ /\&dist=/) {
       my $dist;
-      for my $querypart (split('&', $query)) {
-	my ($k, $v) = split('=', $querypart, 2);
-	$k = BSHTTP::urldecode($k, 1);
-	$v = BSHTTP::urldecode($v, 1);
+      my @query = BSHTTP::querydecodekv($query);
+      while (@query) {
+	my ($k, $v) = splice(@query, 0, 2);
 	$dist = $v if $k eq 'dist';
 	push @components, split(/[,+]/, $v) if $k eq 'component';
       }

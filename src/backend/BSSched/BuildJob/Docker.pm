@@ -141,8 +141,10 @@ sub check {
     }
 
     # append container repositories to path
+    my @infopath = @{$info->{'path'} || []};
+    splice(@infopath, -$info->{'extrapathlevel'}) if $info->{'extrapathlevel'};
+    my $haveobsrepositories = grep {$_->{'project'} eq '_obsrepositories'} @infopath;
     my @newpath;
-    my $haveobsrepositories = grep {$_->{'project'} eq '_obsrepositories'} @{$info->{'path'} || []};
     my $annotation = BSSched::BuildJob::getcontainerannotation($cpool, $p, $cbdep);
     if ($annotation && !$haveobsrepositories) {
       # map all repos and add to path

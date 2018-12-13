@@ -80,6 +80,19 @@ sub queryencode {
   return join('&', @args);
 }
 
+sub querydecodekv {
+  my ($query) = @_;
+  my @res;
+  for my $querypart (split('&', $query)) {
+    my ($name, $value) = split('=', $querypart, 2);
+    push @res, $name, $value;
+  }
+  for (@res) {
+    $_ = urldecode($_, 1) if defined($_) && /[\+%]/s;
+  }
+  return @res;
+}
+
 sub gethead {
   my ($h, $t) = @_;
 
