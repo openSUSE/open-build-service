@@ -735,9 +735,8 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     switch_to_webui2
-    namespace = switch_to_webui2? ? 'webui2' : 'webui'
     status ||= 200
-    render layout: false, status: status, partial: "layouts/#{namespace}/flash", object: flash
+    render layout: false, status: status, partial: "layouts/#{ui_namespace}/flash", object: flash
   end
 
   def remove_file
@@ -1042,8 +1041,7 @@ class Webui::PackageController < Webui::WebuiController
       status = 400
     end
     switch_to_webui2
-    namespace = switch_to_webui2? ? 'webui2' : 'webui'
-    render layout: false, status: status, partial: "layouts/#{namespace}/flash", object: flash
+    render layout: false, status: status, partial: "layouts/#{ui_namespace}/flash", object: flash
   end
 
   def edit; end
@@ -1068,8 +1066,7 @@ class Webui::PackageController < Webui::WebuiController
     @meta_xml = Xmlhash.parse(params[:meta])
   rescue Suse::ValidationError => error
     flash.now[:error] = "Error while saving the Meta file: #{error}."
-    namespace = params[:use_webui2] ? 'webui2' : 'webui'
-    render layout: false, status: 400, partial: "layouts/#{namespace}/flash", object: flash
+    render layout: false, status: 400, partial: "layouts/#{ui_namespace}/flash", object: flash
   end
 
   def package_files(rev = nil, expand = nil)
