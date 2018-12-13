@@ -215,8 +215,8 @@ RSpec.describe Webui::WebuiHelper do
   end
 
   describe '#is_advanced_tab?' do
-    advanced_tabs = ['prjconf', 'index', 'meta', 'status']
-    advanced_tabs.each do |action|
+    advanced_tab_actions = ['index', 'status']
+    advanced_tab_actions.each do |action|
       context "current action is '#{action}'" do
         before do
           allow(controller).to receive(:action_name).and_return(action)
@@ -226,9 +226,28 @@ RSpec.describe Webui::WebuiHelper do
       end
     end
 
-    context "current action is not within #{advanced_tabs}" do
+    context "current action is not within #{advanced_tab_actions}" do
       before do
         allow(controller).to receive(:action_name).and_return('some_action')
+      end
+
+      it { expect(is_advanced_tab?).to be(false) }
+    end
+
+    advanced_tab_controllers = ['project_configuration', 'meta', 'pulse']
+    advanced_tab_controllers.each do |controller_name|
+      context "current controller is '#{controller_name}'" do
+        before do
+          allow(controller).to receive(:controller_name).and_return(controller_name)
+        end
+
+        it { expect(is_advanced_tab?).to be(true) }
+      end
+    end
+
+    context "current controller is not within #{advanced_tab_controllers}" do
+      before do
+        allow(controller).to receive(:controller_name).and_return('some_controller')
       end
 
       it { expect(is_advanced_tab?).to be(false) }

@@ -1,0 +1,25 @@
+.modal.fade{ id: 'delete-staging-workflow', tabindex: -1, role: 'dialog' }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title
+          Do you want to delete the staging for #{project.name}?
+      .modal-body
+        %p Please confirm deletion of the staging for #{project.name}
+        = form_tag staging_workflow_path, method: :delete, remote: true, id: 'staging-workflow-delete' do
+          - if @staging_workflow.staging_projects.any?
+            %p Check the staging projects you want to be deleted:
+            - @staging_workflow.staging_projects.each do |staging_project|
+              .form-check
+                = check_box_tag 'staging_project_ids[]', staging_project.id, false, class: 'form-check-input'
+                %label.form-check-label
+                  = staging_project.name
+          %br
+          .modal-footer
+            %i.fas.fa-spinner.fa-spin.delete-spinner.d-none
+            %button.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+              Cancel
+            = submit_tag 'Delete', class: 'btn btn-sm btn-danger px-4'
+
+= content_for :ready_function do
+  setSpinnersForDeletion();

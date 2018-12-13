@@ -3218,7 +3218,7 @@ sub buildkiwitree {
     my $sdir = shift @dirs;
     $sdir = '' unless defined $sdir;
     next unless -d $dir;
-    $tree{$1} = "d ". BSRPC::urlencode($1) if $sdir =~ /^(.+)\/$/;
+    $tree{$1} = "d ". BSHTTP::urlencode($1) if $sdir =~ /^(.+)\/$/;
     push @todo, $dir, $sdir;
   }
   while (@todo) {
@@ -3231,17 +3231,17 @@ sub buildkiwitree {
       if (-l $f) {
 	my $sl = readlink($f);
 	die("readlink $f: $!\n") unless defined $sl;
-	$tree{$sf} = "l ". BSRPC::urlencode($sf) . " " . BSRPC::urlencode($sl);
+	$tree{$sf} = "l ". BSHTTP::urlencode($sf) . " " . BSHTTP::urlencode($sl);
       } elsif (-d $f) {
-	$tree{$sf} = "d ". BSRPC::urlencode($sf);
+	$tree{$sf} = "d ". BSHTTP::urlencode($sf);
 	push @todo, $f, "$sf/";
       } elsif (-f $f) {
         my $leadsigmd5 = '';
 	Build::queryhdrmd5($f, \$leadsigmd5) if $f =~ /\.rpm$/;
 	if ($leadsigmd5) {
-	  $tree{$sf} = "f ". BSRPC::urlencode($sf) . " " . $leadsigmd5;
+	  $tree{$sf} = "f ". BSHTTP::urlencode($sf) . " " . $leadsigmd5;
 	} else {
-	  $tree{$sf} = "f ". BSRPC::urlencode($sf);
+	  $tree{$sf} = "f ". BSHTTP::urlencode($sf);
 	}
       }
     }

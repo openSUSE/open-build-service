@@ -1,0 +1,44 @@
+.card.mb-3
+  %h5.card-header Legend
+  .card-body.legend
+    .row
+      .col-xs-12.col-sm-4.col-xl-12
+        %p.mb-1 Requests
+        %ul.list-unstyled.small
+          %li
+            %span.bg-success
+            Ready
+          %li
+            %span.bg-warning
+            In review
+          %li
+            %span.bg-info
+            Obsolete
+          %li
+            %span.bg-dark
+            Untracked
+          %li
+            %span
+            %del Delete
+
+      .col-xs-12.col-sm-4.col-xl-12
+        %p.mb-1 Projects
+        %ul.list-unstyled.small
+          %li
+            %span.bg-warning
+            Building
+          %li
+            %span.bg-info
+            Testing
+          %li
+            %span.bg-secondary
+            Review
+          %li
+            %span.bg-success
+            Acceptable
+          %li
+            %span.bg-dark
+            Unacceptable
+          %li
+            %span.bg-danger
+            Failed

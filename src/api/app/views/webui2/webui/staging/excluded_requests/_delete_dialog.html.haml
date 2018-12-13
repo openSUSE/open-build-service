@@ -1,0 +1,14 @@
+.modal.fade{ id: "delete-excluded-request-modal-#{request_exclusion.bs_request_id}",
+             tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title
+          Stop excluding this request?
+      .modal-body
+        %p Please confirm that you want to stop excluding this request
+        = form_tag staging_workflow_excluded_request_path(staging_workflow, request_exclusion), method: :delete do
+          .modal-footer
+            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+              Cancel
+            = submit_tag('Accept', class: 'btn btn-sm btn-danger px-4')

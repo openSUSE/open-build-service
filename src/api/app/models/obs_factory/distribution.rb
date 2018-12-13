@@ -90,14 +90,14 @@ module ObsFactory
     #
     # @return [Array] array of StagingProject objects
     def staging_projects
-      @staging_projects ||= StagingProject.for(self)
+      @staging_projects ||= ObsFactory::StagingProject.for(self)
     end
 
     # Staging projects associated to the distribution, including non-letter
     #
     # @return [Array] array of StagingProject objects
     def staging_projects_all
-      @staging_projects ||= StagingProject.for(self, false)
+      @staging_projects ||= ObsFactory::StagingProject.for(self, false)
     end
 
     # Version of the distribution used as source
@@ -129,7 +129,7 @@ module ObsFactory
     # @param [String] group name of the group
     # @return [Array] list of Request objects
     def requests_with_reviews_for_group(group)
-      BsRequest.with_open_reviews_for(by_group: group, target_project: root_project_name)
+      BsRequest.with_open_reviews_for(by_group: group).with_target_project(root_project_name)
     end
 
     # Requests with some open review targeting the distribution, filtered by
@@ -138,7 +138,7 @@ module ObsFactory
     # @param [String] user name of the user
     # @return [Array] list of Request objects
     def requests_with_reviews_for_user(user)
-      BsRequest.with_open_reviews_for(by_user: user, target_project: root_project_name)
+      BsRequest.with_open_reviews_for(by_user: user).with_target_project(root_project_name)
     end
 
     # Standard project

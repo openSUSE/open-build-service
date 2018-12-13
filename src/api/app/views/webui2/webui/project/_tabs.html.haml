@@ -18,6 +18,11 @@
       - unless project.defines_remote_instance?
         %li.nav-item
           = tab_link('Users', project_users_path(project))
+      // This link is intentionally hidden, only users that access to the staging workflow show will see it
+      // TODO: show it if the project have a staging_workflow attached when this feature will be released
+      - if controller_path.starts_with?('webui/staging/')
+        %li.nav-item
+          = tab_link('Staging', request.url, true)
       - unless project.defines_remote_instance? || project.is_maintenance?
         %li.nav-item
           = tab_link('Subprojects', project_subprojects_path(project))

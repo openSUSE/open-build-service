@@ -273,11 +273,13 @@ CREATE TABLE `bs_requests` (
   `number` int(11) DEFAULT NULL,
   `updated_when` datetime DEFAULT NULL,
   `approver` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `staging_project_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_bs_requests_on_number` (`number`),
   KEY `index_bs_requests_on_creator` (`creator`) USING BTREE,
   KEY `index_bs_requests_on_state` (`state`) USING BTREE,
-  KEY `index_bs_requests_on_superseded_by` (`superseded_by`)
+  KEY `index_bs_requests_on_superseded_by` (`superseded_by`),
+  KEY `index_bs_requests_on_staging_project_id` (`staging_project_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `channel_binaries` (
@@ -959,10 +961,12 @@ CREATE TABLE `projects` (
   `kind` enum('standard','maintenance','maintenance_incident','maintenance_release') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'standard',
   `url` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `required_checks` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `staging_workflow_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`name`) USING BTREE,
   KEY `updated_at_index` (`updated_at`) USING BTREE,
-  KEY `devel_project_id_index` (`develproject_id`) USING BTREE
+  KEY `devel_project_id_index` (`develproject_id`) USING BTREE,
+  KEY `index_projects_on_staging_workflow_id` (`staging_workflow_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `ratings` (
@@ -1128,6 +1132,29 @@ CREATE TABLE `sessions` (
   KEY `index_sessions_on_session_id` (`session_id`) USING BTREE,
   KEY `index_sessions_on_updated_at` (`updated_at`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE `staging_request_exclusions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `staging_workflow_id` int(11) NOT NULL,
+  `bs_request_id` int(11) NOT NULL,
+  `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_staging_request_exclusions_on_staging_workflow_id` (`staging_workflow_id`),
+  KEY `index_staging_request_exclusions_on_bs_request_id` (`bs_request_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE `staging_workflows` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `project_id` int(11) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `managers_group_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_staging_workflows_on_project_id` (`project_id`),
+  KEY `index_staging_workflows_on_managers_group_id` (`managers_group_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `static_permissions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1399,7 +1426,11 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20180906142802'),
 ('20180911123709'),
 ('20180924135535'),
+('20181008150453'),
+('20181016103905'),
 ('20181025152009'),
+('20181030114152'),
+('20181113095753'),
 ('20181201065026');
 
 

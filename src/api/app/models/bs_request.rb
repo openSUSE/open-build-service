@@ -77,6 +77,13 @@ class BsRequest < ApplicationRecord
   scope :for_project, ->(params) { BsRequest::FindFor::Project.new(params).all }
   scope :find_for, ->(params) { BsRequest::FindFor::Query.new(params).all }
   scope :obsolete, -> { where(state: OBSOLETE_STATES) }
+  scope :with_target_project, lambda { |target_project|
+    includes(:bs_request_actions).where('bs_request_actions.target_project': target_project)
+  }
+  scope :with_open_reviews_for, lambda { |review_attributes|
+    where(state: 'review', id: Review.where(review_attributes).where(state: 'new').pluck(:bs_request_id))
+      .includes(:reviews)
+  }
 
   before_save :assign_number
   has_many :bs_request_actions, -> { includes([:bs_request_action_accept_info]) }, dependent: :destroy
@@ -86,6 +93,9 @@ class BsRequest < ApplicationRecord
   has_many :review_history_elements, through: :reviews, source: :history_elements
   has_many :status_reports, as: :checkable, class_name: 'Status::Report', dependent: :destroy
   has_many :target_project_objects, through: :bs_request_actions
+
+  belongs_to :staging_project, class_name: 'Project', foreign_key: 'staging_project_id'
+  has_one :request_exclusion, class_name: 'Staging::RequestExclusion', foreign_key: 'bs_request_id', dependent: :destroy
 
   validates :state, inclusion: { in: VALID_REQUEST_STATES }
   validates :creator, presence: true
@@ -265,27 +275,6 @@ class BsRequest < ApplicationRecord
     end
   end
   private_class_method :sourcediff_has_shown_attribute?
-
-  # Requests in 'review' state that have new reviews for the given project
-  #
-  # @param [Hash] props can contain :by_project, :by_group, :by_user, :by_package
-  #               or :target_project
-  # @return [Array]  Array of Request objects
-  def self.with_open_reviews_for(attributes)
-    with_reviews(attributes).where(state: 'new').rewhere('bs_requests.state': 'review').map(&:bs_request)
-  end
-
-  def self.in_state_new(attributes)
-    with_reviews(attributes).where('bs_requests.state': 'new').map(&:bs_request)
-  end
-
-  def self.with_reviews(attributes)
-    review_attributes = attributes.slice(:by_project, :by_group, :by_user, :by_package, :state)
-
-    reviews = Review.where(review_attributes).includes(bs_request: [:reviews, :bs_request_actions])
-    return reviews unless attributes[:target_project]
-    reviews.where('bs_request_actions.target_project': attributes[:target_project])
-  end
 
   # Currently only used by staging projects for the obs factories and
   # customized for that.

@@ -21,7 +21,7 @@ module ObsFactory
     def self.for(distribution, only_letter = true)
       wildcard = only_letter ? "_" : "%"
       ::Project.where(["name like ?", "#{distribution.root_project_name}#{NAME_PREFIX}#{wildcard}"]).
-        map { |project| StagingProject.new(project: project, distribution: distribution) }
+        map { |project| ObsFactory::StagingProject.new(project: project, distribution: distribution) }
     end
 
     # Find a staging project by distribution and id
@@ -30,7 +30,7 @@ module ObsFactory
     def self.find(distribution, id)
       project = ::Project.find_by_name("#{distribution.root_project_name}#{NAME_PREFIX}#{id}")
       if project
-        StagingProject.new(project: project, distribution: distribution)
+        ObsFactory::StagingProject.new(project: project, distribution: distribution)
       end
     end
 
@@ -43,6 +43,9 @@ module ObsFactory
     #
     # @return [String] description of the Project object
     delegate :description, to: :project
+
+    delegate :checks, to: :project
+    delegate :missing_checks, to: :project
 
     # Checks if the project is adi staging project
     #
@@ -192,9 +195,9 @@ module ObsFactory
     end
 
     def check_state
-      if missing_checks.present? || checks.any?(&:pending?)
+      if missing_checks.present? || checks.pending.exists?
         :testing
-      elsif checks.any?(&:failed?)
+      elsif checks.failed.exists?
         :failed
       else
         :acceptable
@@ -228,34 +231,7 @@ module ObsFactory
       @state
     end
 
-    def checks
-      fetch_status if @checks.nil?
-      @checks
-    end
-
-    def missing_checks
-      fetch_status if @missing_checks.nil?
-      @missing_checks
-    end
-
     protected
-
-    def fetch_status
-      @checks = []
-      @missing_checks = []
-      repositories.each do |repo|
-        add_status(repo)
-        repo.repository_architectures.each do |repo_arch|
-          add_status(repo_arch)
-        end
-      end
-    end
-
-    def add_status(checkable)
-      status = checkable.current_status_report
-      @missing_checks += status.missing_checks
-      @checks += status.checks
-    end
 
     # Used internally to calculate #broken_packages and #building_repositories
     def set_buildinfo

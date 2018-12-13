@@ -24,3 +24,7 @@ en:
     formats:
       only_date: '%Y-%m-%d'
       default: '%Y-%m-%d %H:%M UTC'
+  activerecord:
+    attributes:
+      staging/request_exclusion:
+        bs_request_id: 'Request'
