@@ -9,7 +9,12 @@
       </tr>
       </thead>
       <tbody>
-        <%= render partial: 'file', collection: @files, cached: true, locals: { project: @project, package: @package, expand: @expand } %>
+        <%- file_locals = {
+          project: @project, package: @package, expand: @expand, is_current_rev: @is_current_rev,
+          can_modify: User.current.can_modify?(@package), nobody: User.current.is_nobody?
+        } %>
+        <%= render partial: 'file', collection: @files, cached: proc { |file| [file, file_locals].hash }, locals: file_locals
+        %>
       </tbody>
     </table>
     <% content_for :ready_function do %>
