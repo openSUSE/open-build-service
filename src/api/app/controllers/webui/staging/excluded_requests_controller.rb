@@ -4,7 +4,8 @@ module Webui
       layout 'webui2/webui'
 
       before_action :require_login, except: [:index]
-      before_action :switch_to_webui2
+      # NOTE: remove when bootstrap migration is done (related to switch_to_webui2)
+      before_action :set_webui2_views
       before_action :set_staging_workflow
       before_action :set_project
       before_action :set_request_exclusion, only: [:destroy]
@@ -46,10 +47,6 @@ module Webui
       end
 
       private
-
-      def switch_to_webui2
-        prepend_view_path('app/views/webui2')
-      end
 
       def set_staging_workflow
         @staging_workflow = ::Staging::Workflow.find_by(id: params[:staging_workflow_id])
