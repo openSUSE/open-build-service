@@ -30,11 +30,9 @@
                   - if attribute.values_editable?
                     = link_to(edit_attribs_path(project: @project.name, package: @package, attribute: attribute.fullname), title: 'Edit values') do
                       %i.fas.fa-edit.text-secondary
-                  = link_to('#', data: { toggle: 'modal', target: "#delete-attribute-modal-#{attribute.id}" },
-                            title: 'Delete attribute') do
+                  = link_to('#', title: 'Delete attribute',
+                    data: { toggle: 'modal', target: '#delete-attribute-modal', action: attrib_path(attribute), fullname: attribute.fullname }) do
                     %i.fas.fa-times-circle.text-danger
-            - if policy(@container).update?
-              = render(partial: 'delete_dialog', locals: { attribute: attribute })
     - else
       %p
         %em No attributes set
@@ -44,3 +42,4 @@
         = link_to(new_attribs_path(project: @project.name, package: @package), title: 'Add a new attribute') do
           %i.fas.fa-plus-circle.text-primary
           Add a new attribute
+      = render(partial: 'delete_dialog')
