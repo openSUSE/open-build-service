@@ -3783,13 +3783,6 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     original = @response.body
 
-    assert_equal([['enable', { repository: '10.2' }],
-                  ['disable', { repository: '10.2', arch: 'i586', explicit: '1' }],
-                  ['disable', { repository: '10.2', arch: 'x86_64', explicit: '1' }],
-                  ['enable', { arch: 'i586' }],
-                  ['enable', { arch: 'x86_64' }],
-                  ['enable', {}]], projects(:home_Iggy).expand_flags['build'])
-
     post '/source/home:unknown?cmd=set_flag&repository=10.2&arch=i586&flag=build'
     assert_response 404
 
@@ -3820,14 +3813,6 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:Iggy/_meta'
     assert_not_equal original, @response.body
 
-    # while the actual _meta changed, the expanded flags only show existing repos
-    assert_equal([['enable', { repository: '10.2' }],
-                  ['disable', { repository: '10.2', arch: 'i586', explicit: '1' }],
-                  ['disable', { repository: '10.2', arch: 'x86_64', explicit: '1' }],
-                  ['enable', { arch: 'i586' }],
-                  ['enable', { arch: 'x86_64' }],
-                  ['enable', {}]], projects(:home_Iggy).expand_flags['build'])
-
     assert_equal({ 'disable' => [{ 'arch' => 'i586', 'repository' => '10.2' },
                                  { 'arch' => 'x86_64', 'repository' => '10.2' }],
                    'enable' => { 'arch' => 'i586', 'repository' => '10.7' } },
@@ -3841,14 +3826,6 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                                  { 'arch' => 'x86_64', 'repository' => '10.2' }],
                    'enable' => [{ 'arch' => 'i586', 'repository' => '10.7' }, {}] },
                  Xmlhash.parse(@response.body)['build'])
-
-    assert_equal([['enable', { repository: '10.2' }],
-                  ['disable', { repository: '10.2', arch: 'i586', explicit: '1' }],
-                  ['disable', { repository: '10.2', arch: 'x86_64', explicit: '1' }],
-                  ['enable', { arch: 'i586' }],
-                  ['enable', { arch: 'x86_64' }],
-                  ['enable', { explicit: '1' }]],
-                 projects(:home_Iggy).reload.expand_flags['build'])
   end
 
   def test_package_remove_flag
