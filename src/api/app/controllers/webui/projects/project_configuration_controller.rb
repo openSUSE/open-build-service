@@ -5,11 +5,12 @@ module Webui
       after_action :verify_authorized, only: :update
 
       def show
-        sliced_params = params.slice(:rev).permit!
-        @content = @project.config.content(sliced_params.to_h)
+        result = ::ProjectConfigurationService::ProjectConfigurationPresenter.new(@project, params).call
+        @content = result.config if result.valid?
+
         switch_to_webui2
         return if @content
-        flash[:error] = @project.config.errors.full_messages.to_sentence
+        flash[:error] = result.errors
         redirect_to projects_path(nextstatus: 404)
       end
 

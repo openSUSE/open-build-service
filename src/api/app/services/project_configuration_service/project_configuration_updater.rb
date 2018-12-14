@@ -22,10 +22,7 @@ module ProjectConfigurationService
     private
 
     def sliced_params
-      @params[:user] = @user.login
-      sliced_params = @params.slice(:user, :comment)
-      sliced_params.permit!
-      sliced_params
+      @params.merge(user: @user.login).slice(:user, :comment).permit!
     end
   end
 end
