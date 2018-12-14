@@ -24,19 +24,12 @@ class Flag < ApplicationRecord
     errors.add(:status, 'Status needs to be enable or disable') unless status && (status.to_sym == :enable || status.to_sym == :disable)
   end
 
-  validate :validate_duplicates, on: :create
+  validate :validate_duplicates
   def validate_duplicates
-    flag_exists = Flag.where(
-      'status = ? AND repo = ? AND project_id = ? AND package_id = ? AND architecture_id = ? AND flag = ?',
-      status,
-      repo,
-      project_id,
-      package_id,
-      architecture_id,
-      flag
-    ).exists?
-
-    errors.add(:flag, 'Flag already exists') if flag_exists
+    flags = Flag.where(repo: repo, project_id: project_id, flag: flag,
+                       package_id: package_id, architecture_id: architecture_id)
+    flags = flags.where.not(id: id) unless new_record?
+    errors.add(:flag, 'Flag already exists') if flags.exists?
   end
 
   def self.default_status(flag_name)
