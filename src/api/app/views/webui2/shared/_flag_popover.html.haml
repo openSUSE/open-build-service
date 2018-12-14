@@ -2,7 +2,7 @@
   remote = architecture && repository
   flag_id = html_id_for_flag(flag.flag, repository, architecture)
 
-- if !flag_set_by_user?(flags, repository, architecture)
+- if !flags.set_by_user?(repository, architecture)
   %div
     = link_to(create_repository_flag_path(project: project, package: package, flag: flag.flag,
               status: 'disable', repository: repository, architecture: architecture), method: :post, remote: remote,
@@ -26,7 +26,7 @@
         %i.fas.fa-check.text-success
         Enable
   .pt-2
-    - default_status = default_flag(flags, repository, architecture).status
+    - default_status = flags.default_flag(repository, architecture).status
     = link_to(remove_repository_flag_path(project: project, package: package, flag: flag),
               method: :delete, remote: remote, class: 'popover_flag_action', data: { flag_id: flag_id }) do
       %i.fas{ class: default_status == 'disable' ? 'fa-ban text-danger' : 'fa-check text-success' }

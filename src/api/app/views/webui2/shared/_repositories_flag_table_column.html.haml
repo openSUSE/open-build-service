@@ -1,6 +1,6 @@
 :ruby
-  flag = effective_flag(flags, repository, architecture)
-  is_flag_set_by_user = flag_set_by_user?(flags, repository, architecture)
+  flag = flags.effective_flag(repository, architecture)
+  is_flag_set_by_user = flags.set_by_user?(repository, architecture)
   title = flag.status.capitalize
   title += is_flag_set_by_user ? ' (set by user)' : ' (calculated)'
   if user_can_set_flags
