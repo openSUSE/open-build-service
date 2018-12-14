@@ -11,7 +11,8 @@ module Webui::ObsFactory
           @staging_projects = ::ObsFactory::StagingProjectPresenter.sort(@distribution.staging_projects_all)
           @backlog_requests = BsRequest.with_open_reviews_for(by_group: @distribution.staging_manager)
                                        .with_target_project(@distribution.name)
-          @requests_state_new = @backlog_requests.rewhere(state: :new)
+          @requests_state_new = BsRequest.new_with_reviews_for(by_group: @distribution.staging_manager)
+                                         .with_target_project(@distribution.name)
 
           staging_project = Project.find_by_name("#{@distribution.project}:Staging")
           @ignored_requests = staging_project.dashboard.try(:ignored_requests)

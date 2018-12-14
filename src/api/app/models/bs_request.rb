@@ -80,6 +80,9 @@ class BsRequest < ApplicationRecord
   scope :with_target_project, lambda { |target_project|
     includes(:bs_request_actions).where('bs_request_actions.target_project': target_project)
   }
+  scope :new_with_reviews_for, lambda { |review_attributes|
+    where(state: 'new').where(id: Review.where(review_attributes).select(:bs_request_id)).includes(:reviews)
+  }
   scope :with_open_reviews_for, lambda { |review_attributes|
     where(state: 'review', id: Review.where(review_attributes).where(state: 'new').pluck(:bs_request_id))
       .includes(:reviews)
