@@ -9,16 +9,13 @@
     %span.d-none= file[:size].rjust(10, '0')
     = human_readable_fsize(file[:size])
   %td.text-nowrap
-    = timeago_tag Time.at(file[:mtime].to_i)
+    = timeago_tag Time.at(file[:mtime].to_i), limit: 1.year.ago
   / limit download for anonymous user to avoid getting killed by crawlers
   %td.text-center
     - if !nobody || file[:size].to_i < 4.megabytes
       = link_to(file_url(project.name, package.name, file[:name], file[:srcmd5]), title: 'Download file') do
         %i.fas.fa-download.text-secondary
     - if can_be_removed
-      = link_to('#', data: { toggle: 'modal', target: "#delete-file-modal-#{file_counter}" },
-                title: 'Delete file') do
+      = link_to('#', data: { toggle: 'modal', target: '#delete-file-modal', title: 'Delete file',
+        filename: file[:name], action: url_for(action: :remove_file, project: project, package: package, filename: file[:name]) }) do
         %i.fas.fa-times-circle.text-danger
-- if can_be_removed
-  = render(partial: 'delete_file_dialog',
-            locals: { project: project.to_param, package: package.to_param, filename: file[:name], file_id: file_counter })
