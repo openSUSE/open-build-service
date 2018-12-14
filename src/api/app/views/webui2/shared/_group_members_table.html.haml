@@ -11,9 +11,9 @@
             %td= link_to(user, user_show_path(user))
             %td.text-nowrap
               - if policy(group).update?
-                = link_to('#', data: { toggle: 'modal', target: "#delete-group-user-#{user.id}-modal" }) do
+                = link_to('#', data: { toggle: 'modal', target: '#delete-group-user-modal', user: user.to_s,
+                  action: group_user_delete_path(group, user) }) do
                   %i.fas.fa-times-circle.text-danger{ title: "Remove user '#{user}' from '#{group}' group." }
-                = render(partial: 'remove_user_modal', locals: { group: group, user: user })
       - else
         %tr
           %td{ colspan: 2 } This group does not contain users.
@@ -22,3 +22,4 @@
       %i.fas.fa-plus-circle.text-primary
       Add User
     = render(partial: 'add_user_modal', locals: { group: group })
+    = render(partial: 'delete_group_user_modal', locals: { group: group })
