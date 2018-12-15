@@ -114,26 +114,6 @@ class Flag < ApplicationRecord
     builder.send(status.to_s, options)
   end
 
-  # returns true when flag is relevant for the given repo/arch combination
-  def is_relevant_for?(in_repo, in_arch)
-    arch = architecture ? architecture.name : nil
-
-    return true if arch.nil? && repo.nil?
-    return true if arch.nil? && !repo.nil? && in_repo == repo
-    return true if arch && repo.nil? && in_arch == arch
-    return true if in_arch == arch && in_repo == repo
-
-    false
-  end
-
-  def specifics
-    count = 0
-    count += 1 if status == 'disable'
-    count += 2 if architecture
-    count += 4 if repo
-    count
-  end
-
   # TODO: used by bento. Remove when dropping old UI.
   def fullname
     ret = flag
