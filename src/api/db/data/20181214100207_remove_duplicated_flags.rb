@@ -5,7 +5,9 @@ class RemoveDuplicatedFlags < ActiveRecord::Migration[5.2]
     last_flags = Flag.group([:status] + attributes).select('MAX(id) as id')
     # we need to pluck the ids (even though it's a lot) as you can't delete
     # from within group queries
-    Flag.where.not(id: last_flags).in_batches(&:delete_all)
+    Flag.where.not(id: last_flags).in_batches do |batch|
+      Flag.where(id: batch.pluck(:id)).delete_all
+    end
 
     # now comes the ugly part - we need to delete conflicting flags. If both
     # 'enable' and 'disable' are set, the backend prefers disable - so we can
