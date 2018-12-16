@@ -17,13 +17,17 @@ ADD Gemfile /obs/src/api/Gemfile
 ADD Gemfile.lock /obs/src/api/Gemfile.lock
 RUN chown -R frontend /obs/src/api
 
+# we only care for updates in this one repo
+RUN zypper -n refresh 'OBS_Server_Unstable'
+RUN zypper --no-refresh -n in obs-bundled-gems ruby2.5-rubygem-rack ruby2.5-rubygem-rake
+
 # Now do the rest as the user with the same ID as the user who
 # builds this container
 USER frontend
 WORKDIR /obs/src/api
 
 # Refresh our bundle
-RUN export NOKOGIRI_USE_SYSTEM_LIBRARIES=1; bundle install --jobs=3 --retry=3 || bundle install --jobs=3 --retry=3
+RUN export NOKOGIRI_USE_SYSTEM_LIBRARIES=1; bundle install --path /usr/lib64/obs-api --jobs=3 --retry=3
 
 # Run our command
 CMD ["foreman", "start", "-f", "Procfile"]
