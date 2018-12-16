@@ -1,4 +1,5 @@
 - @pagetitle = "Attributes of #{@package ? "#{@package} (Project #{@project})" : "Project #{@project}"}"
+- can_update_container = policy(@container).update?
 
 .card
   = render(partial: "webui/#{@container.model_name.singular}/tabs", locals: { project: @project, package: @package })
@@ -11,7 +12,7 @@
           %tr
             %th.w-50 Attributes
             %th.w-25 Values
-            - if policy(@container).update?
+            - if can_update_container
               %th Actions
         %tbody
           - @attributes.each do |attribute|
@@ -25,22 +26,21 @@
                         %pre.d-inline= v.value
                   - unless attribute.issues.empty?
                     %li= attribute.issues.map(&:name).to_sentence
-              - if policy(@container).update?
+              - if can_update_container
                 %td
                   - if attribute.values_editable?
                     = link_to(edit_attribs_path(project: @project.name, package: @package, attribute: attribute.fullname), title: 'Edit values') do
                       %i.fas.fa-edit.text-secondary
-                  = link_to('#', data: { toggle: 'modal', target: "#delete-attribute-modal-#{attribute.id}" },
-                            title: 'Delete attribute') do
+                  = link_to('#', title: 'Delete attribute',
+                    data: { toggle: 'modal', target: '#delete-attribute-modal', action: attrib_path(attribute), fullname: attribute.fullname }) do
                     %i.fas.fa-times-circle.text-danger
-            - if policy(@container).update?
-              = render(partial: 'delete_dialog', locals: { attribute: attribute })
     - else
       %p
         %em No attributes set
 
-    - if policy(@container).update?
+    - if can_update_container
       %p
         = link_to(new_attribs_path(project: @project.name, package: @package), title: 'Add a new attribute') do
           %i.fas.fa-plus-circle.text-primary
           Add a new attribute
+      = render(partial: 'delete_dialog')

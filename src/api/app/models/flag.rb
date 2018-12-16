@@ -40,10 +40,10 @@ class Flag < ApplicationRecord
   end
 
   def self.default_status(flag_name)
-    case flag_name
-    when 'lock', 'debuginfo'
+    case flag_name.to_sym
+    when :lock, :debuginfo
       'disable'
-    when 'build', 'publish', 'useforbuild', 'binarydownload', 'access'
+    when :build, :publish, :useforbuild, :binarydownload, :access
       'enable'
     else
       'disable'
@@ -103,10 +103,12 @@ class Flag < ApplicationRecord
     compute_status('default')
   end
 
+  # TODO: used by bento. Remove when dropping old UI.
   def effective_status
     compute_status('effective')
   end
 
+  # TODO: used by bento. Remove when dropping old UI.
   def has_children
     repo.blank? || architecture.blank?
   end
@@ -160,6 +162,7 @@ class Flag < ApplicationRecord
     ret
   end
 
+  # TODO: used by bento. Remove when dropping old UI.
   def fullname
     ret = flag
     ret += "_#{repo}" if repo.present?
