@@ -33,6 +33,7 @@
     = link_to('#', data: { toggle: 'modal', target: '#add-user-role-modal' }, id: 'add-user', class: 'nav-link') do
       %i.fas.fa-plus-circle.text-primary
       Add User
+    = render(partial: 'webui2/shared/user_or_groups_roles/delete_dialog')
 
   %hr
 
