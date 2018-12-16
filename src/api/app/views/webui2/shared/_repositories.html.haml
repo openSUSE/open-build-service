@@ -1,3 +1,5 @@
+= render(partial: 'shared/flag_popover', locals: { project: project, package: package })
+
 .row.mt-5
   .col
     %h5
@@ -36,3 +38,4 @@
 = content_for :ready_function do
   :plain
     setSpinnersForFlags();
+    setupFlagPopup();

@@ -1,33 +1,17 @@
-:ruby
-  remote = architecture && repository
-  flag_id = html_id_for_flag(flag.flag, repository, architecture)
-
-- if !flags.set_by_user?(repository, architecture)
-  %div
-    = link_to(create_repository_flag_path(project: project, package: package, flag: flag.flag,
-              status: 'disable', repository: repository, architecture: architecture), method: :post, remote: remote,
-              class: 'popover_flag_action', data: { flag_id: flag_id }) do
+.d-none{data: { url: manipulate_repository_flag_path(project: project, package: package) }, id: 'flag-popover-container' }
+  .flag-set-enable
+    = link_to('javascript:;', class: 'popover_flag_action', data: { cmd: 'set-disable' }) do
       %i.fas.fa-ban.text-danger
       Disable
-  .pt-2
-    = link_to(create_repository_flag_path(project: project, package: package, flag: flag.flag,
-              status: 'enable', repository: repository, architecture: architecture), method: :post, remote: remote,
-              class: 'popover_flag_action', data: { flag_id: flag_id }) do
+  .flag-set-disable
+    = link_to('javascript:;', class: 'popover_flag_action', data: { cmd: 'set-enable' }) do
       %i.fas.fa-check.text-success
       Enable
-- else
-  %div
-    = link_to(toggle_repository_flag_path(project: project, package: package, flag: flag),
-              method: :put, remote: remote, class: 'popover_flag_action', data: { flag_id: flag_id }) do
-      - if flag.status == 'enable'
-        %i.fas.fa-ban.text-danger
-        Disable
-      - else
-        %i.fas.fa-check.text-success
-        Enable
-  .pt-2
-    - default_status = flags.default_flag(repository, architecture).status
-    = link_to(remove_repository_flag_path(project: project, package: package, flag: flag),
-              method: :delete, remote: remote, class: 'popover_flag_action', data: { flag_id: flag_id }) do
-      %i.fas{ class: default_status == 'disable' ? 'fa-ban text-danger' : 'fa-check text-success' }
-      Take default (#{default_status})
+  .flag-remove-enable
+    = link_to('javascript:;', class: 'popover_flag_action', data: { cmd: 'remove' }) do
+      %i.fas{ class: 'fa-check text-success' }
+      Take default (enable)
+  .flag-remove-disable
+    = link_to('javascript:;', class: 'popover_flag_action', data: { cmd: 'remove' }) do
+      %i.fas{ class: 'fa-ban text-danger' }
+      Take default (disable)

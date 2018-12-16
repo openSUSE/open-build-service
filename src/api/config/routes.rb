@@ -191,6 +191,7 @@ OBSApi::Application.routes.draw do
       put 'flag/:project(/:package)' => :toggle_flag, constraints: cons, as: 'toggle_repository_flag'
       post 'flag/:project(/:package)' => :create_flag, constraints: cons, as: 'create_repository_flag'
       delete 'flag/:project(/:package)/:flag' => :remove_flag, constraints: cons, as: 'remove_repository_flag'
+      post 'flag/:project(/:package)' => :manipulate_flag, constraints: cons, as: 'manipulate_repository_flag'
     end
 
     controller 'webui/kiwi/images' do
