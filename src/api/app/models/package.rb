@@ -865,10 +865,6 @@ class Package < ApplicationRecord
     activity_index * 2.3276**((updated_at_was.to_f - Time.now.to_f) / 10_000_000)
   end
 
-  def expand_flags
-    project.expand_flags(self)
-  end
-
   define_method :get_flags, GetFlags.instance_method(:get_flags)
   define_method :specified_flags, GetFlags.instance_method(:specified_flags)
 
