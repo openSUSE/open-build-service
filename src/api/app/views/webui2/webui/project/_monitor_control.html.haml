@@ -36,8 +36,8 @@
               = check_box_tag valid_xml_id('repo_' + repository), 1, repository_filter.include?(repository), class: 'custom-control-input'
               %label.custom-control-label{ for: valid_xml_id('repo_' + repository) }
                 = repository
-      %button.btn.btn-outline-primary{ type: :submit }
-        Filter
+      %button.btn.btn-primary{ type: :submit }
+        Apply Filter
       %button.btn.btn-outline-secondary.float-right{ type: :button,
       data: { toggle: 'modal', target: '#build-monitor-legend' }, title: 'Build status legend' }
         Legend
