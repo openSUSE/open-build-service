@@ -1,7 +1,7 @@
 .card
   = render partial: 'tabs', locals: { package: @package, project: @project }
   .card-body
-    %h3 State of Repository #{@repository} for #{@project} / #{@package_name}
+    %h3 State of #{@repository} for #{@project} / #{@package_name}
     %ul.list-inline
       - if @configuration['download_url']
         = render partial: 'shared/download_repository_link', locals: { project: @project, repository: @repository,
@@ -15,8 +15,8 @@
 
     - @buildresults.each do |result|
       %h5.bg-light.p-2.mb-0
-        %i{ class: webui2_repo_status_icon(result[:repocode]) }
-        Architecture: #{result[:arch]}
+        %i{ class: "#{webui2_repo_status_icon(result[:repocode])} fa-xs" }
+        = result[:arch]
       - if result[:binaries].empty?
         %p.pl-2
           %i No built binaries
