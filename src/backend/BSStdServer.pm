@@ -93,6 +93,7 @@ sub dispatch {
     "$req->{'action'} ($peer)", $req->{'path'},
     defined($req->{'query'}) ? "?$req->{'query'}" : '',
   );
+  $req->{'slowrequestlog'} = $req->{'group'} ? $conf->{'slowrequestlog2'} : $conf->{'slowrequestlog'};
   BSServer::setstatus(2, $msg) if $conf->{'serverstatus'};
   BSUtil::printlog($msg);
   BSServerEvents::cloneconnect("OK\n", "Content-Type: text/plain") if $isajax;
@@ -242,6 +243,7 @@ sub server {
     $conf->{'setkeepalive'} = 1 unless defined $conf->{'setkeepalive'};
     $conf->{'run'} ||= \&BSServer::server;
     $conf->{'slowrequestlog'} ||= "$bsdir/log/$name.slow.log" if $conf->{'slowrequestthr'};
+    $conf->{'slowrequestlog2'} ||= "$bsdir/log/${name}2.slow.log" if $conf->{'slowrequestthr'} && $conf->{'port2'};
     $conf->{'name'} = $name;
     $conf->{'logfile'} = $logfile if $logfile;
     BSDispatch::compile($conf);
