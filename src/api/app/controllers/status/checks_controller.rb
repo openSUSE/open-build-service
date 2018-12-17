@@ -20,6 +20,7 @@ class Status::ChecksController < ApplicationController
 
     if @check.save
       @event_class.create(check_notify_params)
+      @checkable = @status_report.checkable
       render :show
     else
       render_error(status: 422, errorcode: 'invalid_check', message: "Could not save check: #{@check.errors.full_messages.to_sentence}")
