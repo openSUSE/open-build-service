@@ -1,1 +1,1 @@
-render(partial: 'check', locals: { builder: xml, object: @check })
+render(partial: 'check', locals: { builder: xml, object: @check, checkable: @checkable })
