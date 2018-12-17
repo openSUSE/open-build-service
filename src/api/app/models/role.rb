@@ -40,13 +40,20 @@ class Role < ApplicationRecord
 
   scope :global, -> { where(global: true) }
 
+  after_save :delete_hashed_cache
+  after_destroy :delete_hashed_cache
+
   # Fetches all roles and stores them as a hash. Uses title attribute as hash key.
   #
   # {"Admin" => #<Role id:1>, "downloader" => #<Role id:2>, ... }
   def self.hashed
-    Rails.cache.fetch(Role.all.cache_key) do
+    Rails.cache.fetch('hashed_roles') do
       Hash[Role.all.map { |role| [role.title, role] }]
     end
+  end
+
+  def delete_hashed_cache
+    Rails.cache.delete('hashed_roles')
   end
 
   def self.find_by_title!(title)
