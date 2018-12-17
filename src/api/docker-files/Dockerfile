@@ -27,7 +27,7 @@ USER frontend
 WORKDIR /obs/src/api
 
 # Refresh our bundle
-RUN export NOKOGIRI_USE_SYSTEM_LIBRARIES=1; bundle install --path /usr/lib64/obs-api --jobs=3 --retry=3
+RUN export NOKOGIRI_USE_SYSTEM_LIBRARIES=1; sudo bundle install --path /usr/lib64/obs-api --jobs=3 --retry=3
 
 # Run our command
 CMD ["foreman", "start", "-f", "Procfile"]
