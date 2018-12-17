@@ -1,7 +1,5 @@
 module GetFlags
-  # FIXME: All of this would not be needed if creating an Package/Project would create all
-  #        the build, publish, debuginfo and useforbuild Flags. The only reason
-  #        this happens here is because rendering the XML does ignore the defaults.
+  # TODO: used by bento. Remove when dropping old UI.
   # Returns a hash of arrays, sorted by repository.
   # The arrays contain Flag objects of type, sorted by architecture.
   # Like:
@@ -27,5 +25,16 @@ module GetFlags
     the_flags['all'] = the_flags.delete(nil)
 
     the_flags
+  end
+
+  def specified_flags(flag_type)
+    all_flags = flags.where(flag: flag_type).group_by(&:repo)
+
+    all_flags.each do |repo, flag_array|
+      all_flags[repo] = {}
+      flag_array.each do |flag|
+        all_flags[repo][flag.architecture.try(&:name)] = flag
+      end
+    end
   end
 end

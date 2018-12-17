@@ -1,4 +1,6 @@
 class Webui::RepositoriesController < Webui::WebuiController
+  include Webui2::RepositoriesController
+
   before_action :set_project
   before_action :set_repository, only: [:state]
   before_action :find_repository_parent, only: [:index, :create_flag, :remove_flag, :toggle_flag]
@@ -9,6 +11,7 @@ class Webui::RepositoriesController < Webui::WebuiController
   # GET package/repositories/:project/:package
   # GET project/repositories/:project
   def index
+    return if switch_to_webui2
     @build = @main_object.get_flags('build')
     @debuginfo = @main_object.get_flags('debuginfo')
     @publish = @main_object.get_flags('publish')
@@ -17,11 +20,7 @@ class Webui::RepositoriesController < Webui::WebuiController
 
     @user_can_set_flags = policy(@project).update?
 
-    switch_to_webui2 if @package
-
     @repositories = @project.repositories.includes(:path_elements, :download_repositories)
-
-    switch_to_webui2
   end
 
   # GET project/add_repository/:project

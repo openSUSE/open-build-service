@@ -31,8 +31,8 @@ RSpec.feature 'Bootstrap_Attributes', type: :feature, js: true do
 
           visit index_attribs_path(project: user.home_project_name)
           click_link 'Delete attribute'
-          expect(find("#delete-attribute-modal-#{attribute.id}")).to have_text('Delete attribute?')
-          within("#delete-attribute-modal-#{attribute.id} .modal-footer") do
+          expect(find('#delete-attribute-modal')).to have_text('Delete attribute?')
+          within('#delete-attribute-modal .modal-footer') do
             expect(page).to have_button('Delete')
             click_button('Delete')
           end
