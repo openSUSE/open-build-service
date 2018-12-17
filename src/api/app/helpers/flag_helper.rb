@@ -164,4 +164,16 @@ module FlagHelper
     end
     disabled
   end
+
+  def self.render(my_model, xml)
+    flags_sorted = my_model.flags.includes(:architecture).group_by(&:flag)
+
+    # the defined order is by type
+    FlagHelper.flag_types.each do |flag_name|
+      next unless flags_sorted.key?(flag_name)
+      xml.send(flag_name) do
+        flags_sorted[flag_name].each { |flag| flag.to_xml(xml) }
+      end
+    end
+  end
 end
