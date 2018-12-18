@@ -4,9 +4,8 @@
       %span{ class: "badge progress-state-#{request.state} text-light" }
         = request.state.to_s
     %dd.col-11
-      = link_to(request_show_path(request.number)) do
+      = link_to(request_show_path(request.number), title: request.description) do
         = request.number
-      (#{truncate(request.description)})
       - if request.request_history_elements.any?
         = request.request_history_elements.last.description.gsub('Request', '')
       - else
