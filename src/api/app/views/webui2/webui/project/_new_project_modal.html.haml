@@ -3,6 +3,8 @@
     .modal-content
       .modal-header
         %h5.modal-title#new-project-modal-label
-          Create New Project
+          = local_assigns.key?(:project) ? 'Create Subproject' : 'Create Project'
       .modal-body
-        = render partial: 'form', locals: { project: Project.new, configuration: configuration }
+        - options = { project: Project.new, configuration: configuration }
+        - options[:namespace] = project.name if local_assigns.key?(:project)
+        = render partial: 'form', locals: options
