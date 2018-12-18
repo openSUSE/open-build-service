@@ -142,7 +142,7 @@ class User < ApplicationRecord
   end
 
   def self.autocomplete_login(prefix = '')
-    with_login_prefix(prefix).pluck(:login)
+    with_login_prefix(prefix).limit(50).order(:login).pluck(:login)
   end
 
   # the default state of a user based on the api configuration

@@ -150,7 +150,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           @json_response = JSON.parse(response.body)
         end
 
-        it { expect(@json_response).not_to include(apache_subproject.name) }
+        it { expect(@json_response).to include(apache_subproject.name) }
       end
 
       context 'and searching for parent project' do
