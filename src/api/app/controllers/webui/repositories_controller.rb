@@ -1,7 +1,7 @@
 class Webui::RepositoriesController < Webui::WebuiController
   before_action :set_project
   before_action :set_repository, only: [:state]
-  before_action :find_repository_parent, only: [:index, :create_flag, :remove_flag, :toggle_flag]
+  before_action :find_repository_parent, only: [:index, :create_flag, :remove_flag, :toggle_flag, :change_flag]
   after_action :verify_authorized, except: [:index, :distributions, :state]
 
   # GET /repositories/:project(/:package)
@@ -181,7 +181,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     end
   end
 
-  # TODO bento_only
+  # TODO: bento_only
   # POST flag/:project(/:package)
   def create_flag
     authorize @main_object, :update?
@@ -205,7 +205,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     end
   end
 
-  # TODO bento_only
+  # TODO: bento_only
   # POST flag/:project(/:package)/:flag
   def toggle_flag
     authorize @main_object, :update?
@@ -228,7 +228,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     end
   end
 
-  # TODO bento_only
+  # TODO: bento_only
   # DELETE flag/:project(/:package)/:flag
   def remove_flag
     authorize @main_object, :update?
@@ -249,20 +249,35 @@ class Webui::RepositoriesController < Webui::WebuiController
     end
   end
 
-  # POST flag/manipulate/:project(/:package)
-  # TODO when removing bento, remove the extra manipulate from the route, for
+  # POST flag/change/:project(/:package)
+  # TODO: when removing bento, remove the extra 'change' from the route, for
   # now we need to avoid the clash with create_flag
-  def manipulate_flag
-    authorize @main_object, :update?
-    respond_to do |format|
-      # FIXME: This should happen in Flag or even better in Project
-      @main_object.store
-      format.html { redirect_to(action: :index, project: params[:project], package: params[:package]) }
-      format.js do
-        render 'manipulate_flag'
-      end
+  def change_flag
+    unless request.xhr?
+      redirect_to(action: :index, project: params[:project], package: params[:package])
+      return
     end
+    required_parameters :flag, :command
+    set_webui2_views
+    authorize @main_object, :update?
+    architecture = Architecture.from_cache!(params[:architecture]) unless params[:architecture].nil?
+    flag_type = params[:flag]
+    if params[:command] == 'remove'
+      @main_object.flags.of_type(flag_type).where(repo: params[:repository], architecture: architecture).delete_all
+    elsif params[:command] == 'set-disable'
+      @main_object.flags.create(flag: flag_type, repo: params[:repository], architecture: architecture, status: 'disable')
+    elsif params[:command] == 'set-enable'
+      @main_object.flags.create(flag: flag_type, repo: params[:repository], architecture: architecture, status: 'enable')
+    end
+    # FIXME: This should happen in Flag or even better in Project
+    @main_object.store
 
+    locals = { user_can_set_flags: true, project: @project, package: params[:package] }
+    locals[:architectures] = @main_object.architectures.reorder('name').distinct
+    locals[:flags] = Flag::SpecifiedFlags.new(@main_object, flag_type)
+    locals[:table_id] = 'flag_table_' + flag_type
+
+    render partial: 'shared/repositories_flag_table', locals: locals
   end
 
   private

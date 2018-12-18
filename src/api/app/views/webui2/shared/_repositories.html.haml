@@ -7,16 +7,14 @@
       %span.flagerror
     = render partial: 'shared/repositories_flag_table',
       locals: { flags: flags[:build], project: project, package: package,
-                architectures: architectures, user_can_set_flags: user_can_set_flags,
-                table_id: 'flag_table_build' }
+                architectures: architectures, table_id: 'flag_table_build' }
   .col
     %h5
       Publish Flag
       %span.flagerror
     = render partial: 'shared/repositories_flag_table',
       locals: { flags: flags[:publish], project: project, package: package,
-                architectures: architectures, user_can_set_flags: user_can_set_flags,
-                table_id: 'flag_table_publish' }
+                architectures: architectures, table_id: 'flag_table_publish' }
 .row
   .col
     %h5
@@ -24,18 +22,17 @@
       %span.flagerror
     = render partial: 'shared/repositories_flag_table',
       locals: { flags: flags[:debuginfo], project: project, package: package,
-                architectures: architectures, user_can_set_flags: user_can_set_flags,
-                table_id: 'flag_table_debuginfo' }
+                architectures: architectures, table_id: 'flag_table_debuginfo' }
   .col
     %h5
       Use for Build Flag
       %span.flagerror
     = render partial: 'shared/repositories_flag_table',
       locals: { flags: flags[:useforbuild], project: project, package: package,
-                architectures: architectures, user_can_set_flags: user_can_set_flags,
-                table_id: 'flag_table_useforbuild' }
+                architectures: architectures, table_id: 'flag_table_useforbuild' }
 
-= content_for :ready_function do
-  :plain
-    setSpinnersForFlags();
-    setupFlagPopup();
+- if user_can_set_flags
+  = content_for :ready_function do
+    :plain
+      setSpinnersForFlags();
+      setupFlagPopup();

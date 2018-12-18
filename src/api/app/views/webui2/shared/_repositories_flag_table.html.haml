@@ -21,6 +21,5 @@
           - ([nil] + architectures).each do |architecture|
             %td.text-center{ class: architecture && repository ? nil : 'all_flag' }
               = render partial: 'shared/repositories_flag_table_column',
-                        locals: { flags: flags, project: project,
-                        repository: repository_name, architecture: architecture.try(&:name),
-                        package: package, user_can_set_flags: user_can_set_flags }
+                        locals: { flags: flags, project: project, package: package,
+                                  repository: repository_name, architecture: architecture.try(&:name) }

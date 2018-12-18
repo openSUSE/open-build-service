@@ -1,4 +1,4 @@
-.d-none{data: { url: manipulate_repository_flag_path(project: project, package: package) }, id: 'flag-popover-container' }
+.d-none{ data: { url: change_repository_flag_path(project: project, package: package) }, id: 'flag-popover-container' }
   .flag-set-enable
     = link_to('javascript:;', class: 'popover_flag_action', data: { cmd: 'set-disable' }) do
       %i.fas.fa-ban.text-danger
