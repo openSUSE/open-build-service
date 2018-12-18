@@ -1,0 +1,8 @@
+.modal.fade#new-project-modal{ tabindex: '-1', role: 'dialog', aria: { labelledby: 'new-project-modal-label', hidden: true } }
+  .modal-dialog.modal-lg{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title#new-project-modal-label
+          Create New Project
+      .modal-body
+        = render partial: 'form', locals: { project: Project.new, configuration: configuration }
