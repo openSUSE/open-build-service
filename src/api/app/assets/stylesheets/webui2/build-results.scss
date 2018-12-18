@@ -45,3 +45,11 @@
 .build-state-scheduled-warning, .build-state-unknown {
   color: $yellow;
 }
+
+.repository-state-default {
+  @extend .text-black-50;
+}
+
+.repository-state-outdated {
+  @extend .text-gray-400;
+}

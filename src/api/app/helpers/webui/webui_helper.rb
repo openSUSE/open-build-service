@@ -133,29 +133,19 @@ module Webui::WebuiHelper
   end
 
   def webui2_repository_status_icon(status:, details: nil, html_class: '')
-    icon = webui2_repo_status_icon(status)
-    description = webui2_repo_status_description(status, details)
-    content_tag(:i, '', class: "#{html_class} #{webui2_repo_status_icon(status)}",
-                data: { content: description, placement: 'top', toggle: 'popover' })
-  end
+    outdated = status.sub!(/^outdated_/, '')
+    description = outdated ? 'State needs recalculations, former state was: ' : ''
+    description << REPO_STATUS_DESCRIPTIONS[status] || 'Unknown state of repository'
+    description << " (#{details})" if details
 
-  def webui2_repo_status_description(status, details)
-    description_preface = ''
-    if /^outdated_/.match?(status)
-      status.gsub!(%r{^outdated_}, '')
-      description_preface = 'State needs recalculations, former state was: '
-    end
-
-    description = REPO_STATUS_DESCRIPTIONS[status] || 'Unknown state of repository'
-    description = description_preface + description
-    description += " (#{details})" if details
-    description
+    repo_state_class = outdated ? 'outdated' : 'default'
+    content_tag(:i, '', class: "repository-state-#{repo_state_class} #{html_class} #{webui2_repo_status_icon(status)}",
+                        data: { content: description, placement: 'top', toggle: 'popover' })
   end
 
   def webui2_repo_status_icon(status)
     icon = WEBUI2_REPO_STATUS_ICONS[status] || 'eye'
-    color = /^outdated_/.match?(status) ? 'text-gray-400' : 'text-black-50'
-    "fas fa-#{icon} #{color}"
+    "fas fa-#{icon}"
   end
 
   # TODO: bento_only
