@@ -232,11 +232,6 @@ OBSApi::Application.routes.draw do
       end
     end
 
-    controller 'webui/projects/meta' do
-      get 'project/meta/:project' => :show, constraints: cons, as: 'project_meta'
-      post 'project/save_meta/:project' => :update, constraints: cons, as: :project_save_meta
-    end
-
     controller 'webui/projects/project_configuration' do
       get 'project/prjconf/:project' => :show, constraints: cons, as: :project_config
       post 'project/save_prjconf/:project' => :update, constraints: cons, as: :save_project_config
@@ -310,15 +305,19 @@ OBSApi::Application.routes.draw do
     get 'project/staging_projects/:project' => 'webui/obs_factory/staging_projects#index', as: 'staging_projects', constraints: cons
     get 'project/staging_projects/:project/:project_name' => 'webui/obs_factory/staging_projects#show', as: 'staging_project', constraints: cons
 
-    controller 'webui/projects/rebuild_times' do
-      get 'project/rebuild_time/:project/:repository/:arch' => :show, constraints: cons, as: :project_rebuild_time
-      get 'project/rebuild_time_png/:project/:key' => :rebuild_time_png, constraints: cons, as: :project_rebuild_time_png
+    # For backward compatibility
+    controller 'webui/projects/meta' do
+      get 'project/meta/:project', to: redirect('/projects/%{project}/meta')
     end
-
     controller 'webui/projects/pulse' do
-      get 'project/pulse/:project' => :show, constraints: cons, as: 'project_pulse'
-      get 'project/pulse/:project/update_pulse' => :update_pulse, constraints: cons, as: 'update_pulse'
+      get 'project/pulse/:project', to: redirect('/projects/%{project}/pulse')
+      get 'project/pulse/:project/update_pulse', to: redirect('/projects/%{project}/pulse')
     end
+    controller 'webui/projects/rebuild_times' do
+      get 'project/rebuild_time/:project/:repository/:arch', to: redirect('/projects/rebuild_time/%{project}/%{repository}/%{arch}')
+      get 'project/rebuild_time_png/:project/:key', to: redirect('/projects/rebuild_time_png/%{project}/%{key}')
+    end
+    # \For backward compatibility
 
     resources :projects, only: [], param: :name do
       resource :public_key, controller: 'webui/projects/public_key', only: [:show], constraints: cons do
@@ -327,6 +326,13 @@ OBSApi::Application.routes.draw do
         end
       end
       resource :ssl_certificate, controller: 'webui/projects/ssl_certificate', only: [:show], constraints: cons
+      resource :pulse, controller: 'webui/projects/pulse', only: [:show], constraints: cons do
+        get 'update_pulse'
+      end
+      resource :meta, controller: 'webui/projects/meta', only: [:show, :update], constraints: cons
+      resource :rebuild_time, controller: 'webui/projects/rebuild_times', only: [:show], constraints: cons do
+        get 'rebuild_time_png'
+      end
     end
 
     controller 'webui/request' do

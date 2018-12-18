@@ -149,9 +149,16 @@ module Webui::WebuiHelper
     "fas fa-#{icon} #{color}"
   end
 
+  # NOTE: drop after ui switch
   def tab(id, text, opts)
     opts[:package] = @package.to_s if @package
-    opts[:project] = @project.to_s if @project
+    if @project
+      if opts[:controller].to_s.ends_with?('pulse', 'meta')
+        opts[:project_name] = @project.name
+      else
+        opts[:project] = @project.to_s
+      end
+    end
     link_opts = { id: "tab-#{id}" }
 
     if (action_name == opts[:action].to_s && opts[:controller].to_s.ends_with?(controller_name)) || opts[:selected]
