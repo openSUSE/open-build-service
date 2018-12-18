@@ -27,7 +27,8 @@ function refreshTabs(tabList) {
 
 $.fn.hasOverflow = function() {
   var element = $(this)[0];
-  return (element.offsetHeight < element.scrollHeight) || (element.offsetWidth < element.scrollWidth);
+  // We must check that the scroll is bigger than the offset to shrink the tabs until needed (the 1 pixel difference is caused by a Firefox issue)
+  return (element.offsetHeight < element.scrollHeight - 1) || (element.offsetWidth < element.scrollWidth - 1);
 };
 
 $.fn.collapse = function(){
