@@ -8,10 +8,9 @@
     - subscriptions.each do |subscription|
       = fields_for "subscriptions[#{i}]", subscription do |f|
         .custom-control.custom-checkbox.custom-control-inline
-          = f.check_box :channel, { id: "#{i}", class: 'custom-control-input', data: { eventtype: subscription.eventtype,
+          = f.check_box :channel, { class: 'custom-control-input', data: { eventtype: subscription.eventtype,
           receiver_role: subscription.receiver_role } }, EventSubscription.channels.keys[1], EventSubscription.channels.keys[0]
-          = f.label :receive, EventSubscription::RECEIVER_ROLE_TEXTS[subscription.receiver_role], class: 'custom-control-label',
-          for: "#{i}"
+          = f.label :channel, EventSubscription::RECEIVER_ROLE_TEXTS[subscription.receiver_role], class: 'custom-control-label'
           = f.hidden_field :eventtype
           = f.hidden_field :receiver_role
           - i += 1
