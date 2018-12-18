@@ -9,15 +9,7 @@ xml.package(name: my_model.name, project: my_model.project.name) do
 
   my_model.render_relationships(xml)
 
-  FlagHelper.flag_types.each do |flag_name|
-    flaglist = my_model.flags.of_type(flag_name)
-    next if flaglist.empty?
-    xml.send(flag_name) do
-      flaglist.each do |flag|
-        flag.to_xml(xml)
-      end
-    end
-  end
+  FlagHelper.render(my_model, xml)
 
   xml.url(my_model.url) if my_model.url.present?
   xml.bcntsynctag(my_model.bcntsynctag) if my_model.bcntsynctag.present?

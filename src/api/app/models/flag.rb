@@ -40,14 +40,7 @@ class Flag < ApplicationRecord
   end
 
   def self.default_status(flag_name)
-    case flag_name.to_sym
-    when :lock, :debuginfo
-      'disable'
-    when :build, :publish, :useforbuild, :binarydownload, :access
-      'enable'
-    else
-      'disable'
-    end
+    FlagHelper.default_for(flag_name)
   end
 
   def discard_forbidden_project_cache
@@ -119,47 +112,6 @@ class Flag < ApplicationRecord
     options['arch'] = architecture.name unless architecture.nil?
     options['repository'] = repo unless repo.nil?
     builder.send(status.to_s, options)
-  end
-
-  def is_explicit_for?(in_repo, in_arch)
-    return false unless is_relevant_for?(in_repo, in_arch)
-
-    arch = architecture ? architecture.name : nil
-
-    return false if arch.nil? && in_arch
-    return false if arch && in_arch.nil?
-
-    return false if repo.nil? && in_repo
-    return false if repo && in_repo.nil?
-
-    true
-  end
-
-  # returns true when flag is relevant for the given repo/arch combination
-  def is_relevant_for?(in_repo, in_arch)
-    arch = architecture ? architecture.name : nil
-
-    return true if arch.nil? && repo.nil?
-    return true if arch.nil? && !repo.nil? && in_repo == repo
-    return true if arch && repo.nil? && in_arch == arch
-    return true if in_arch == arch && in_repo == repo
-
-    false
-  end
-
-  def specifics
-    count = 0
-    count += 1 if status == 'disable'
-    count += 2 if architecture
-    count += 4 if repo
-    count
-  end
-
-  def to_s
-    ret = status
-    ret += " arch=#{architecture.name}" unless architecture.nil?
-    ret += " repo=#{repo}" unless repo.nil?
-    ret
   end
 
   # TODO: used by bento. Remove when dropping old UI.

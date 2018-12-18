@@ -198,7 +198,6 @@ class SearchController < ApplicationController
       items = filter_items(items)
     end
 
-    includes = nil
     opts = {}
 
     output = "<collection matches=\"#{matches}\">\n"
@@ -211,6 +210,8 @@ class SearchController < ApplicationController
     end
     search_items = filter_items_from_cache(items, xml, key_template)
 
+    includes = []
+    preloads = []
     case what
     when :package
       relation = Package.where(id: search_items)
@@ -220,7 +221,6 @@ class SearchController < ApplicationController
       if render_all
         includes = [:repositories]
       else
-        includes = []
         relation = relation.select('projects.id,projects.name')
       end
     when :repository
@@ -228,28 +228,25 @@ class SearchController < ApplicationController
       includes = [:project]
     when :request
       relation = BsRequest.where(id: search_items)
-      includes = [:bs_request_actions, :reviews]
+      preloads = [:reviews, { review_history_elements: :user },
+                  { bs_request_actions: :bs_request_action_accept_info }]
       opts[:withhistory] = 1 if params[:withhistory]
       opts[:withfullhistory] = 1 if params[:withfullhistory]
     when :person
       relation = User.where(id: search_items)
-      includes = []
     when :channel
       relation = ChannelBinary.where(id: search_items)
-      includes = []
     when :channel_binary
       relation = ChannelBinary.where(id: search_items)
-      includes = []
     when :released_binary
       relation = BinaryRelease.where(id: search_items)
-      includes = []
     when :issue
       relation = Issue.where(id: search_items)
       includes = [:issue_tracker]
     else
       logger.fatal "strange model: #{what}"
     end
-    relation = relation.includes(includes).references(includes)
+    relation = relation.includes(includes).references(includes).preload(preloads)
 
     # TODO: support sort_by and order parameters?
 

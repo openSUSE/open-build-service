@@ -31,6 +31,13 @@ module Event
       h.merge(headers_for_actions)
     end
 
+    def review_headers
+      return { 'X-OBS-Review-By_User' => payload['by_user'] } if payload['by_user']
+      return { 'X-OBS-Review-By_Group' => payload['by_group'] } if payload['by_group']
+      return { 'X-OBS-Review-By_Package' => "#{payload['by_project']}/#{payload['by_package']}" } if payload['by_package']
+      { 'X-OBS-Review-By_Project' => payload['by_project'] }
+    end
+
     def headers_for_actions
       ret = {}
       payload['actions'].each_with_index do |a, index|

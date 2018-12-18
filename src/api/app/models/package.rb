@@ -866,7 +866,6 @@ class Package < ApplicationRecord
   end
 
   define_method :get_flags, GetFlags.instance_method(:get_flags)
-  define_method :specified_flags, GetFlags.instance_method(:specified_flags)
 
   def open_requests_with_package_as_source_or_target
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)

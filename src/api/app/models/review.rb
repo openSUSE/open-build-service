@@ -45,6 +45,8 @@ class Review < ApplicationRecord
   scope :bs_request_ids_of_involved_groups, ->(group_ids) { where(group_id: group_ids, state: :new).select(:bs_request_id) }
   scope :bs_request_ids_of_involved_users, ->(user_ids) { where(user_id: user_ids).select(:bs_request_id) }
 
+  scope :declined, -> { where(state: :declined) }
+
   before_validation(on: :create) do
     self.state = :new if self[:state].nil?
   end
@@ -68,6 +70,14 @@ class Review < ApplicationRecord
 
   def state
     self[:state].to_sym
+  end
+
+  def declined?
+    state == :declined
+  end
+
+  def accepted?
+    state == :accepted
   end
 
   def accepted_at
@@ -219,6 +229,26 @@ class Review < ApplicationRecord
       by_group && by_group == opts[:by_group] ||
       by_project && by_project == opts[:by_project] ||
       by_package && by_package == opts[:by_package]
+  end
+
+  def change_state(new_state, comment)
+    return false if state == new_state && reviewer == User.current.login && reason == comment
+
+    self.reason = comment
+    self.state = new_state
+    self.reviewer = User.current.login
+    save!
+    Event::ReviewChanged.create(bs_request.notify_parameters)
+
+    arguments = { review: self, comment: comment, user: User.current }
+    if new_state == :accepted
+      HistoryElement::ReviewAccepted.create(arguments)
+    elsif new_state == :declsined
+      HistoryElement::ReviewDeclined.create(arguments)
+    elsif new_state == :new
+      HistoryElement::ReviewReopened.create(arguments)
+    end
+    true
   end
 
   private

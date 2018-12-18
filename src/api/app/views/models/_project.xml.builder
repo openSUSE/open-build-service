@@ -20,15 +20,7 @@ xml.project(project_attributes) do
   my_model.render_relationships(xml)
 
   repos = my_model.repositories.not_remote.sort { |a, b| b.name <=> a.name }
-  FlagHelper.flag_types.each do |flag_name|
-    flaglist = my_model.flags.of_type(flag_name)
-    next if flaglist.empty?
-    xml.send(flag_name) do
-      flaglist.each do |flag|
-        flag.to_xml(xml)
-      end
-    end
-  end
+  FlagHelper.render(my_model, xml)
 
   repos.each do |repo|
     params = {}

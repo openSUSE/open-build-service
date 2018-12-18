@@ -1,5 +1,5 @@
 - home_title = @configuration ? @configuration['title'] : 'Open Build Service'
 - unless current_page?(root_path)
-  %li.breadcrumb-anchor
+  %li
     = link_to(root_path, title: home_title) do
       %i.fas.fa-home.mr-2
