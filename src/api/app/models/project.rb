@@ -681,7 +681,6 @@ class Project < ApplicationRecord
   end
 
   define_method :get_flags, GetFlags.instance_method(:get_flags)
-  define_method :specified_flags, GetFlags.instance_method(:specified_flags)
 
   def can_be_released_to_project?(target_project)
     # is this package source going to a project which is specified as release target ?
