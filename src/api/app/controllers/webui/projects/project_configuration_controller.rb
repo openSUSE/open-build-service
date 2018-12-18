@@ -25,13 +25,7 @@ module Webui
                    400
                  end
         switch_to_webui2
-        render layout: false, status: status, partial: "layouts/#{view_namespace}/flash", object: flash
-      end
-
-      private
-
-      def view_namespace
-        switch_to_webui2? ? 'webui2' : 'webui'
+        render layout: false, status: status, partial: "layouts/#{ui_namespace}/flash", object: flash
       end
     end
   end

@@ -301,6 +301,10 @@ class Webui::WebuiController < ActionController::Base
     @switch_to_webui2 ? 'webui2/webui' : 'webui/webui'
   end
 
+  def ui_namespace
+    switch_to_webui2? ? 'webui2' : 'webui'
+  end
+
   def switch_to_webui2
     if switch_to_webui2?
       @switch_to_webui2 = true

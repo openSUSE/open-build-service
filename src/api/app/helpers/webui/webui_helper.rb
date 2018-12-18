@@ -61,6 +61,7 @@ module Webui::WebuiHelper
     prjname
   end
 
+  # TODO: bento_only
   REPO_STATUS_ICONS = {
     'published' => 'lorry',
     'publishing' => 'cog_go',
@@ -114,6 +115,7 @@ module Webui::WebuiHelper
     first.nil? ? true : nil
   end
 
+  # TODO: bento_only
   def repo_status_icon(status, details = nil)
     icon = REPO_STATUS_ICONS[status] || 'eye'
 
@@ -149,7 +151,7 @@ module Webui::WebuiHelper
     "fas fa-#{icon} #{color}"
   end
 
-  # NOTE: drop after ui switch
+  # TODO: bento_only
   def tab(id, text, opts)
     opts[:package] = @package.to_s if @package
     if @project
@@ -217,6 +219,7 @@ module Webui::WebuiHelper
     end
   end
 
+  # TODO: bento_only
   def description_wrapper(description)
     if description.blank?
       content_tag(:p, id: 'description-text') do
@@ -227,6 +230,7 @@ module Webui::WebuiHelper
     end
   end
 
+  # TODO: bento_only
   def is_advanced_tab?
     action_name.in?(['index', 'status']) || controller_name.in?(['project_configuration', 'meta', 'pulse'])
   end
