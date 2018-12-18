@@ -67,7 +67,7 @@ RSpec.describe Webui::Projects::RebuildTimesController do
     context 'without build dependency info or jobs history' do
       before do
         allow(Backend::Api::BuildResults::Binaries).to receive(:builddepinfo)
-        allow(Backend::Api::BuildResults::JobHistory).to receive(:not_failed)
+        allow(Backend::Api::BuildResults::JobHistory).to receive(:for_repository_and_arch)
         get :show, params: { project_name: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
       end
 
@@ -78,7 +78,7 @@ RSpec.describe Webui::Projects::RebuildTimesController do
     context 'normal flow' do
       before do
         allow(Backend::Api::BuildResults::Binaries).to receive(:builddepinfo).and_return([])
-        allow(Backend::Api::BuildResults::JobHistory).to receive(:not_failed).and_return('<jobhistlist/>')
+        allow(Backend::Api::BuildResults::JobHistory).to receive(:for_repository_and_arch).and_return('<jobhistlist/>')
       end
 
       context 'with diststats generated' do

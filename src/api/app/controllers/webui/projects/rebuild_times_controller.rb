@@ -18,7 +18,12 @@ module Webui
           return
         end
         bdep = Backend::Api::BuildResults::Binaries.builddepinfo(@project.name, @repository, @arch)
-        jobs = Backend::Api::BuildResults::JobHistory.not_failed(@project.name, @repository, @arch, (@packages.size + @ipackages.size) * 3)
+        jobs = Backend::Api::BuildResults::JobHistory.for_repository_and_arch(project_name: @project.name,
+                                                                              repository_name: @repository,
+                                                                              arch_name: @arch,
+                                                                              filter: { limit: (@packages.size + @ipackages.size) * 3,
+                                                                                        code: ['succeeded', 'unchanged'] },
+                                                                              raw: true)
         unless bdep && jobs
           flash[:error] = "Could not collect infos about repository #{@repository}/#{@arch}"
           redirect_to controller: '/webui/project', action: :show, project: @project
