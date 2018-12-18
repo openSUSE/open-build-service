@@ -85,8 +85,6 @@ class Project < ApplicationRecord
   scope :not_maintenance_incident, -> { where("kind <> 'maintenance_incident'") }
   scope :maintenance_incident, -> { where("kind = 'maintenance_incident'") }
   scope :maintenance_release, -> { where("kind = 'maintenance_release'") }
-  scope :home, -> { where("name like 'home:%'") }
-  scope :not_home, -> { where.not("name like 'home:%'") }
   scope :filtered_for_list, lambda {
     where.not('name rlike ?', ::Configuration.unlisted_projects_filter) if ::Configuration.unlisted_projects_filter.present?
   }
