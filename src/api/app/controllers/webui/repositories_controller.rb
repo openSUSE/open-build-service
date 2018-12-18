@@ -179,6 +179,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     end
   end
 
+  # TODO bento_only
   # POST flag/:project(/:package)
   def create_flag
     authorize @main_object, :update?
@@ -194,7 +195,6 @@ class Webui::RepositoriesController < Webui::WebuiController
         @main_object.store
         format.html { redirect_to(action: :index, controller: :repositories, project: params[:project], package: params[:package]) }
         format.js do
-          switch_to_webui2
           render 'change_flag'
         end
       else
@@ -203,6 +203,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     end
   end
 
+  # TODO bento_only
   # POST flag/:project(/:package)/:flag
   def toggle_flag
     authorize @main_object, :update?
@@ -217,7 +218,6 @@ class Webui::RepositoriesController < Webui::WebuiController
         @main_object.store
         format.html { redirect_to(action: :index, project: params[:project], package: params[:package]) }
         format.js do
-          switch_to_webui2
           render 'change_flag'
         end
       else
@@ -226,6 +226,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     end
   end
 
+  # TODO bento_only
   # DELETE flag/:project(/:package)/:flag
   def remove_flag
     authorize @main_object, :update?
@@ -241,10 +242,25 @@ class Webui::RepositoriesController < Webui::WebuiController
       @main_object.store
       format.html { redirect_to(action: :index, project: params[:project], package: params[:package]) }
       format.js do
-        switch_to_webui2
         render 'change_flag'
       end
     end
+  end
+
+  # POST flag/manipulate/:project(/:package)
+  # TODO when removing bento, remove the extra manipulate from the route, for
+  # now we need to avoid the clash with create_flag
+  def manipulate_flag
+    authorize @main_object, :update?
+    respond_to do |format|
+      # FIXME: This should happen in Flag or even better in Project
+      @main_object.store
+      format.html { redirect_to(action: :index, project: params[:project], package: params[:package]) }
+      format.js do
+        render 'manipulate_flag'
+      end
+    end
+
   end
 
   private
