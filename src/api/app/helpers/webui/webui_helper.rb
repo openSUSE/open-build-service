@@ -132,6 +132,13 @@ module Webui::WebuiHelper
     sprite_tag icon, title: description
   end
 
+  def webui2_repository_status_icon(status:, details: nil, html_class: '')
+    icon = webui2_repo_status_icon(status)
+    description = webui2_repo_status_description(status, details)
+    content_tag(:i, '', class: "#{html_class} #{webui2_repo_status_icon(status)}",
+                data: { content: description, placement: 'top', toggle: 'popover' })
+  end
+
   def webui2_repo_status_description(status, details)
     description_preface = ''
     if /^outdated_/.match?(status)

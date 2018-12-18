@@ -15,7 +15,7 @@
 
     - @buildresults.each do |result|
       %h5.bg-light.p-2.mb-0
-        %i{ class: "#{webui2_repo_status_icon(result[:repocode])} fa-xs" }
+        = webui2_repository_status_icon(status: result[:repocode].to_s, html_class: 'fa-xs')
         = result[:arch]
       - if result[:binaries].empty?
         %p.pl-2

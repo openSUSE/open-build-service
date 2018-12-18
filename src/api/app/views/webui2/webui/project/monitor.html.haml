@@ -24,7 +24,7 @@
               - @repohash.sort.each do |repo, archlist|
                 - archlist.sort.each do |arch|
                   %th.text-center
-                    %i.fa-xs.mr-1{ class: webui2_repo_status_icon(@repostatushash[repo][arch]) }
+                    = webui2_repository_status_icon(status: @repostatushash[repo][arch], html_class: 'fa-xs mr-1')
                     = arch
           %tbody
             - @packagenames.each do |packname|
