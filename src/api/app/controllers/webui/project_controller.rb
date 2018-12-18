@@ -20,7 +20,7 @@ class Webui::ProjectController < Webui::WebuiController
                                      :status, :maintained_projects,
                                      :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
                                      :maintenance_incidents, :unlock_dialog, :unlock, :save_person, :save_group, :remove_role,
-                                     :move_path, :clear_failed_comment, :pulse, :update_pulse]
+                                     :move_path, :clear_failed_comment, :pulse]
 
   before_action :set_project_by_id, only: [:update]
 
