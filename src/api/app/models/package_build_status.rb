@@ -21,6 +21,7 @@ class PackageBuildStatus
     raise NoRepositoriesFound if tocheck_repos.empty?
 
     @result = {}
+    @pkg_flags = Flag::SpecifiedFlags.new(@pkg, 'build')
     tocheck_repos.each do |srep|
       check_repo_status(srep)
     end
@@ -69,8 +70,8 @@ class PackageBuildStatus
 
     # if the package does not appear in build history, check flags
     unless @everbuilt
-      buildflag = @pkg.find_flag_state('build', srep['name'], arch)
-      @buildcode = 'disabled' if buildflag == 'disable'
+      buildflag = @pkg_flags.effective_flag(srep['name'], arch)
+      @buildcode = 'disabled' if buildflag.status == 'disable'
     end
 
     gather_current_buildcode(srep, arch) unless @buildcode

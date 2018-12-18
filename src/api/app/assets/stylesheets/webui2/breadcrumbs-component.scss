@@ -1,16 +1,9 @@
 ol.breadcrumb {
   padding-top: 0.5rem;
 
-  & li.breadcrumb-item {
+  & li {
     font-size: 0.9rem;
 
-    & a {
-      color: $gray-600;
-    }
-  }
-
-  & li.breadcrumb-anchor {
-    font-size: 0.9rem;
     & a {
       color: $gray-600;
     }

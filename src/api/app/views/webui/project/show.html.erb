@@ -71,7 +71,7 @@
             <% if @releasetargets.length > 0 %>
                 <li>
                   <%= sprite_tag 'information' %>
-                  <%= link_to pluralize(@releasetargets.length, "Release Target"), project_meta_path(project: @project) %>
+                  <%= link_to pluralize(@releasetargets.length, "Release Target"), project_meta_path(project_name: @project) %>
                 </li>
             <% end %>
         <% end %>

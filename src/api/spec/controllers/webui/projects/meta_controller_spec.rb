@@ -6,7 +6,7 @@ RSpec.describe Webui::Projects::MetaController, vcr: true do
   describe 'GET #meta' do
     before do
       login user
-      get :show, params: { project: user.home_project }
+      get :show, params: { project_name: user.home_project }
     end
 
     it { expect(response).to have_http_status(:success) }
@@ -18,7 +18,7 @@ RSpec.describe Webui::Projects::MetaController, vcr: true do
     end
 
     context 'with a nonexistent project' do
-      let(:post_save_meta) { post :update, params: { project: 'nonexistent_project' }, xhr: true }
+      let(:post_save_meta) { post :update, params: { project_name: 'nonexistent_project' }, xhr: true }
 
       it { expect { post_save_meta }.to raise_error(ActiveRecord::RecordNotFound) }
     end
@@ -26,7 +26,7 @@ RSpec.describe Webui::Projects::MetaController, vcr: true do
     context 'with a valid project' do
       context 'without a valid meta' do
         before do
-          post :update, params: { project: user.home_project, meta: '<project name="home:tom"><title/></project>' }, xhr: true
+          post :update, params: { project_name: user.home_project, meta: '<project name="home:tom"><title/></project>' }, xhr: true
         end
 
         it { expect(flash.now[:error]).not_to be_nil }
@@ -35,7 +35,7 @@ RSpec.describe Webui::Projects::MetaController, vcr: true do
 
       context 'with an invalid devel project' do
         before do
-          post :update, params: { project: user.home_project,
+          post :update, params: { project_name: user.home_project,
                                   meta: '<project name="home:tom"><title/><description/><devel project="non-existant"/></project>' }, xhr: true
         end
 
@@ -45,7 +45,7 @@ RSpec.describe Webui::Projects::MetaController, vcr: true do
 
       context 'with a valid meta' do
         before do
-          post :update, params: { project: user.home_project, meta: '<project name="home:tom"><title/><description/></project>' }, xhr: true
+          post :update, params: { project_name: user.home_project, meta: '<project name="home:tom"><title/><description/></project>' }, xhr: true
         end
 
         it { expect(flash.now[:success]).not_to be_nil }
@@ -65,7 +65,7 @@ RSpec.describe Webui::Projects::MetaController, vcr: true do
           HEREDOC
         end
         before do
-          post :update, params: { project: user.home_project, meta: meta }, xhr: true
+          post :update, params: { project_name: user.home_project, meta: meta }, xhr: true
         end
 
         it { expect(flash.now[:error]).to eq('A project with the name not-existent does not exist. Please update the repository path elements.') }

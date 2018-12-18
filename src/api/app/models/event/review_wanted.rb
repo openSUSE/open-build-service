@@ -14,17 +14,7 @@ module Event
     end
 
     def custom_headers
-      h = super
-      if payload['by_user']
-        h['X-OBS-Review-By_User'] = payload['by_user']
-      elsif payload['by_group']
-        h['X-OBS-Review-By_Group'] = payload['by_group']
-      elsif payload['by_package']
-        h['X-OBS-Review-By_Package'] = "#{payload['by_project']}/#{payload['by_package']}"
-      else
-        h['X-OBS-Review-By_Project'] = payload['by_project']
-      end
-      h
+      super.merge(review_headers)
     end
 
     # for review_wanted we ignore all the other reviews

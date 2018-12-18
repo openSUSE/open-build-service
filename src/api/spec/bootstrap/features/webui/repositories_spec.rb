@@ -191,7 +191,7 @@ RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
       fixture_file = File.read(Rails.root + 'test/fixtures/backend/download_on_demand/project_with_dod.xml').
                      gsub('user5', admin_user.login)
 
-      visit(project_meta_path(project: admin_user.home_project_name))
+      visit(project_meta_path(project_name: admin_user.home_project_name))
       page.evaluate_script("editors[0].setValue(\"#{fixture_file.gsub("\n", '\n')}\");")
       click_button('Save')
       expect(page).to have_css('#flash', text: 'Config successfully saved!')

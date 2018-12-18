@@ -9,8 +9,14 @@ module RabbitMQHelpers
     expect(test_queue.message_count).to eq(0)
   end
 
-  def expect_message(routing_key, message)
-    expect(test_queue.all.shift).to include(message: message, options: { routing_key: routing_key, exchange: 'pubsub' })
+  def expect_message(routing_key, message_expected = nil)
+    message = test_queue.all.shift
+    if message_expected
+      expect(message).to include(message: message_expected, options: { routing_key: routing_key, exchange: 'pubsub' })
+    else
+      expect(message).to include(options: { routing_key: routing_key, exchange: 'pubsub' })
+      JSON.parse(message[:message])
+    end
   end
 end
 
