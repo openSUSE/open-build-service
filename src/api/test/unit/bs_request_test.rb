@@ -80,19 +80,6 @@ class BsRequestTest < ActiveSupport::TestCase
     req.destroy
   end
 
-  test 'change_review' do
-    req = BsRequest.new_from_xml(load_backend_file('request/add_role'))
-    req.save!
-    req.addreview(by_user: 'tom', comment: 'does it look ok?')
-    assert_raises BsRequest::InvalidReview do
-      req.change_review_state('accepted')
-    end
-    assert_raise Review::NotFoundError do
-      req.change_review_state('accepted', by_user: 'Iggy') # cheater!
-    end
-    req.change_review_state('accepted', by_user: 'tom') # he's allowed to - for some reason
-  end
-
   def test_parse_bigger
     xml = <<-XML.strip_heredoc
       <request id="1027" creator="Iggy">

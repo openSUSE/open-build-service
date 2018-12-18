@@ -1,12 +1,12 @@
 module Event
-  class ReviewWanted < Request
-    self.message_bus_routing_key = 'request.review_wanted'
-    self.description = 'Review was created'
+  class ReviewChanged < Request
+    self.message_bus_routing_key = 'request.review_changed'
+    self.description = 'Request was reviewed'
     payload_keys :reviewers, :by_user, :by_group, :by_project, :by_package
-    receiver_roles :reviewer
+    receiver_roles :source_maintainer, :target_maintainer, :creator, :source_watcher, :target_watcher
 
     def subject
-      "Request #{payload['number']} requires review (#{actions_summary})"
+      "Request #{payload['number']} was reviewed (#{actions_summary})"
     end
 
     def expanded_payload
@@ -15,12 +15,6 @@ module Event
 
     def custom_headers
       super.merge(review_headers)
-    end
-
-    # for review_wanted we ignore all the other reviews
-    def reviewers
-      User.where(id: payload['reviewers'].map { |r| r['user_id'] }) +
-        Group.where(id: payload['reviewers'].map { |r| r['group_id'] })
     end
   end
 end

@@ -697,6 +697,27 @@ class BsRequest < ApplicationRecord
     approval_handling(nil, opts)
   end
 
+  def calculate_state_from_reviews
+    return :declined if reviews.declined.exists?
+    if reviews.all?(&:accepted?)
+      :new
+    else
+      :review
+    end
+  end
+
+  def find_review_for_opts(opts)
+    reviews.reverse.find { |review| review.reviewable_by?(opts) }
+  end
+
+  def supersede_request(history_arguments, superseded_opt)
+    self.state = :superseded
+    self.superseded_by = superseded_opt
+    history_arguments[:description_extension] = superseded_by.to_s
+    save!
+    HistoryElement::RequestSuperseded.create(history_arguments)
+  end
+
   def change_review_state(new_review_state, opts = {})
     with_lock do
       new_review_state = new_review_state.to_sym
@@ -708,87 +729,40 @@ class BsRequest < ApplicationRecord
       unless new_review_state.in?([:new, :accepted, :declined, :superseded])
         raise InvalidStateError, "review state must be new, accepted, declined or superseded, was #{new_review_state}"
       end
-      # to track if the request state needs to be changed as well
-      go_new_state = :review
-      go_new_state = new_review_state if new_review_state.in?([:declined, :superseded])
-      found = false
 
-      reviews_seen = {}
-      reviews.reverse_each do |review|
-        matching = true
-        matching = false if review.by_user && review.by_user != opts[:by_user]
-        matching = false if review.by_group && review.by_group != opts[:by_group]
-        matching = false if review.by_project && review.by_project != opts[:by_project]
-        matching = false if review.by_package && review.by_package != opts[:by_package]
+      old_request_state = state
+      review = find_review_for_opts(opts)
+      raise Review::NotFoundError unless review
 
-        rkey = "#{review.by_user}@#{review.by_group}@#{review.by_project}@#{review.by_package}"
+      return unless review.change_state(new_review_state, opts[:comment] || '')
 
-        # This is needed for MeeGo BOSS, which adds multiple reviews b
-        # FIXME3.0: think about review ordering and make reviews addressable
-        if matching && !(reviews_seen.key?(rkey) && review.state == :accepted)
-          reviews_seen[rkey] = 1
-          found = true
-          comment = opts[:comment] || ''
-          if review.state != new_review_state || review.reviewer != User.current.login || review.reason != comment
-            review.reason = comment
-            review.state = new_review_state
-            review.reviewer = User.current.login
-            review.save!
+      history_parameters = { request: self, comment: opts[:comment], user_id: User.current.id }
+      return supersede_request(history_parameters, opts[:superseded_by]) if new_review_state == :superseded
 
-            history = nil
-            history = HistoryElement::ReviewAccepted if new_review_state == :accepted
-            history = HistoryElement::ReviewDeclined if new_review_state == :declined
-            history = HistoryElement::ReviewReopened if new_review_state == :new
-            history.create(review: review, comment: opts[:comment], user_id: User.current.id) if history
+      new_request_state = calculate_state_from_reviews
+      return if new_request_state == old_request_state
 
-            # last review finished:
-            go_new_state = :new if go_new_state == :review && review.state == :accepted
-            # take decline in any situation:
-            go_new_state = review.state if go_new_state == :review && review.state != :new
-          else
-            # no new history entry
-            go_new_state = nil
-          end
-        elsif review.state == :new && go_new_state != :declined && go_new_state != :superseded
-          # don't touch the request state if a review is still open, except the review
-          # got declined or superseded or reopened.
-          go_new_state = nil
-        end
-      end
-      raise Review::NotFoundError unless found
-      history = nil
-      p = { request: self, comment: opts[:comment], user_id: User.current.id }
-      if new_review_state == :superseded
-        self.state = :superseded
-        self.superseded_by = opts[:superseded_by]
-        history = HistoryElement::RequestSuperseded
-        p[:description_extension] = superseded_by.to_s
+      self.comment = review.reason
+      self.state = new_request_state
+      self.commenter = User.current.login
+      if new_request_state == :new
+        self.comment = 'All reviewers accepted request'
         save!
-        history.create(p)
-      elsif go_new_state # either no open reviews anymore or going back to review
-        if go_new_state == :new
-          history = HistoryElement::RequestAllReviewsApproved
-        elsif go_new_state == :declined
-          history = HistoryElement::RequestDeclined
-        elsif go_new_state != :review
-          raise "Unhandled state #{go_new_state} for history"
-        end
-        self.state = go_new_state if go_new_state
-
-        self.commenter = User.current.login
-        self.comment = opts[:comment]
-        self.comment = 'All reviewers accepted request' if go_new_state == :accepted
+        Event::RequestReviewsDone.create(notify_parameters)
+        HistoryElement::RequestAllReviewsApproved.create(history_parameters)
+        # pre-approved requests can be processed
+        BsRequestAutoAcceptJob.perform_later(id) if approver
+      elsif new_request_state == :review
+        save!
+      elsif new_request_state == :declined
+        HistoryElement::RequestDeclined.create(history_parameters)
+        save!
       end
-      save!
-      history.create(p) if history
-
-      # pre-approved requests can be processed
-      BsRequestAutoAcceptJob.perform_later(id) if go_new_state == :new && approver
     end
   end
 
   def check_if_valid_review!(opts)
-    return unless !opts[:by_user] && !opts[:by_group] && !opts[:by_project]
+    return if opts[:by_user] || opts[:by_group] || opts[:by_project]
     raise InvalidReview
   end
 
