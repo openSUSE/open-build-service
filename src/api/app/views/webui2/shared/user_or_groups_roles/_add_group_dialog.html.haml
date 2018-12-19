@@ -5,14 +5,8 @@
         .modal-header
           %h5.modal-title#edit-modal-label Add Group
         .modal-body
-          .form-group.ui-front
-            = label_tag(:groupid, 'Group:')
-            .input-group
-              .input-group-prepend
-                %span.input-group-text
-                  %i.fas.fa-search
-              = text_field_tag 'groupid', '', required: true, placeholder: 'Type to autocomplete...', class: 'obs-autocomplete form-control',
-                                              data: { source: url_for(controller: 'groups', action: 'autocomplete') }
+          = render partial: 'webui/autocomplete', locals: { html_id: 'groupid', label: 'Group:',
+                                                            source: url_for(controller: 'groups', action: 'autocomplete') }
           .form-group
             = label_tag(:role, 'Role:')
             = select_tag 'role', options_for_select(Role.local_roles, nil), required: true, class: 'form-control'
