@@ -10,5 +10,5 @@
     - if repository.is_dod_repository?
       = render partial: 'dod_repository_card_content', locals: { project: project, repository: repository }
     - else
-      = render partial: 'repository_card_content', locals: { project: project, repository: repository, download_url: download_url }
-
+      = render partial: 'repository_card_content', locals: { project: project, repository: repository,
+                 download_url: download_url, user_can_modify_project: user_can_modify_project }

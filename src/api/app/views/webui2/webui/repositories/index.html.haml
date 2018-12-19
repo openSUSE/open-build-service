@@ -49,8 +49,11 @@
 
     .card-body
       .row.pt-2
+        - user_can_modify_project = User.current.can_modify?(@project)
         - @repositories.each do |repository|
-          = render partial: 'repository_entry', locals: { repository: repository, project: @project, download_url: @configuration['download_url'] }
+          = render partial: 'repository_entry', locals: { repository: repository,
+                      project: @project, download_url: @configuration['download_url'],
+                      user_can_modify_project: user_can_modify_project }
 
   .card.mb-3
     .card-header.d-flex.justify-content-between

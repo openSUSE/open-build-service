@@ -18,7 +18,7 @@
 
 .card-footer.text-center
   .row
-    - if User.current.can_modify?(project)
+    - if user_can_modify_project
       .col
         = link_to('#', title: 'Edit Repository',
                        data: { toggle: 'modal', target: "#edit-repository-#{repository.id}" }) do
@@ -32,7 +32,7 @@
       = link_to(url, title: 'Download Repository') do
         %i.fas.fa-download.text-secondary
 
-    - if User.current.can_modify?(project)
+    - if user_can_modify_project
       .col
         = link_to('#', title: 'Delete Repository',
                        data: { toggle: 'modal', target: "#delete-repository-#{repository.id}" }) do
