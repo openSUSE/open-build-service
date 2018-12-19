@@ -253,24 +253,13 @@ class Webui::RepositoriesController < Webui::WebuiController
   # TODO: when removing bento, remove the extra 'change' from the route, for
   # now we need to avoid the clash with create_flag
   def change_flag
-    unless request.xhr?
-      redirect_to(action: :index, project: params[:project], package: params[:package])
-      return
-    end
+    check_ajax
     required_parameters :flag, :command
     set_webui2_views
     authorize @main_object, :update?
-    architecture = Architecture.from_cache!(params[:architecture]) unless params[:architecture].nil?
+
     flag_type = params[:flag]
-    if params[:command] == 'remove'
-      @main_object.flags.of_type(flag_type).where(repo: params[:repository], architecture: architecture).delete_all
-    elsif params[:command] == 'set-disable'
-      @main_object.flags.create(flag: flag_type, repo: params[:repository], architecture: architecture, status: 'disable')
-    elsif params[:command] == 'set-enable'
-      @main_object.flags.create(flag: flag_type, repo: params[:repository], architecture: architecture, status: 'enable')
-    end
-    # FIXME: This should happen in Flag or even better in Project
-    @main_object.store
+    follow_change_flag_command(flag_type)
 
     locals = { user_can_set_flags: true, project: @project, package: params[:package] }
     locals[:architectures] = @main_object.architectures.reorder('name').distinct
@@ -281,6 +270,17 @@ class Webui::RepositoriesController < Webui::WebuiController
   end
 
   private
+
+  def follow_change_flag_command(flag_type)
+    architecture = Architecture.from_cache!(params[:architecture]) if params[:architecture]
+
+    if params[:command] == 'remove'
+      @main_object.flags.of_type(flag_type).where(repo: params[:repository], architecture: architecture).delete_all
+    elsif %r{^set-(?<status>disable|enable)$} =~ params[:command]
+      @main_object.flags.create(flag: flag_type, repo: params[:repository], architecture: architecture, status: status)
+    end
+    @main_object.store
+  end
 
   def set_repository
     @repository = @project.repositories.find_by!(name: params[:repository])
