@@ -17,6 +17,7 @@
       %style{ type: 'text/css' }
         = yield :head_style
     = javascript_tag do
+      = yield :head_javascript
       var _paq = _paq || [];
       $(function() { #{yield :ready_function} });
 

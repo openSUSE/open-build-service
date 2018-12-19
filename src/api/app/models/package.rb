@@ -910,33 +910,13 @@ class Package < ApplicationRecord
     LocalBuildResult::ForPackage.new(package: self, project: prj, show_all: show_all)
   end
 
-  def self.jobhistory_list(project_name, repository_name, arch_name, package_name)
-    begin
-      results = Xmlhash.parse(Backend::Api::BuildResults::JobHistory.all_for_package(project_name, package_name, repository_name, arch_name))
-    rescue Backend::Error
-      return []
-    end
-
-    local_jobs_history = []
-    results.elements('jobhist').each_with_index do |result, index|
-      prev_srcmd5 = results.elements('jobhist')[index - 1].try(:fetch, 'srcmd5', nil)
-
-      local_jobs_history << LocalJobHistory.new(revision: result['rev'],
-                                                srcmd5: result['srcmd5'],
-                                                verifymd5: result['verifymd5'],
-                                                prev_srcmd5: prev_srcmd5,
-                                                build_counter: result['bcnt'],
-                                                worker_id: result['workerid'],
-                                                host_arch: result['hostarch'],
-                                                reason: result['reason'],
-                                                ready_time: result['readytime'].to_i,
-                                                start_time: result['starttime'].to_i,
-                                                end_time: result['endtime'].to_i,
-                                                total_time: result['endtime'].to_i - result['starttime'].to_i,
-                                                code: result['code'])
-    end
-
-    local_jobs_history.reverse
+  # FIXME: That you can overwrite package_name is rather confusing, but needed because of multibuild :-/
+  def jobhistory(repository_name:, arch_name:, package_name: nil, filter: { limit: 100, start_epoch: nil, end_epoch: nil, code: [] })
+    Backend::Api::BuildResults::JobHistory.for_package(project_name: project,
+                                                       package_name: package_name.presence ? package_name : name,
+                                                       repository_name: repository_name,
+                                                       arch_name: arch_name,
+                                                       filter: filter)
   end
 
   def service_error(revision = nil)

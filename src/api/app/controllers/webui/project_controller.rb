@@ -20,7 +20,7 @@ class Webui::ProjectController < Webui::WebuiController
                                      :status, :maintained_projects,
                                      :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
                                      :maintenance_incidents, :unlock_dialog, :unlock, :save_person, :save_group, :remove_role,
-                                     :move_path, :clear_failed_comment, :pulse, :update_pulse]
+                                     :move_path, :clear_failed_comment, :pulse]
 
   before_action :set_project_by_id, only: [:update]
 
@@ -51,16 +51,17 @@ class Webui::ProjectController < Webui::WebuiController
     if @spider_bot
       render :list_simple, status: params[:nextstatus]
     else
+      switch_to_webui2
       render :list, status: params[:nextstatus]
     end
   end
 
   def autocomplete_projects
-    render json: Project.autocomplete(params[:term]).not_maintenance_incident.order(:name).pluck(:name)
+    render json: Project.autocomplete(params[:term]).not_maintenance_incident.pluck(:name)
   end
 
   def autocomplete_incidents
-    render json: Project.autocomplete(params[:term]).maintenance_incident.order(:name).pluck(:name)
+    render json: Project.autocomplete(params[:term]).maintenance_incident.pluck(:name)
   end
 
   def autocomplete_packages
@@ -73,7 +74,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def autocomplete_repositories
-    render json: @project.repositories.pluck(:name)
+    render json: @project.repositories.order(:name).pluck(:name)
   end
 
   def users

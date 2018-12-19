@@ -141,23 +141,22 @@ class PackageBuildStatus
 
     # first we check the lastfailures. This route is fast but only has up to
     # two results per package. If the md5sum does not match, we have to dig deeper
-    hist = Xmlhash.parse(Backend::Api::BuildResults::JobHistory.last_failures(@pkg.project.name, @pkg.name, srep['name'], arch))
-    return unless hist
-    hist.elements('jobhist') do |jh|
-      if jh['verifymd5'] == @verifymd5 || jh['srcmd5'] == @srcmd5
+    jobhistory = @pkg.jobhistory(repository_name: srep['name'], arch_name: arch, filter: { code: 'lastfailures', limit: 2 })
+    jobhistory.each do |entry|
+      if entry.verifymd5 == @verifymd5 || entry.srcmd5 == @srcmd5
         @everbuilt = true
       end
     end
 
     unless @everbuilt
-      hist = Xmlhash.parse(Backend::Api::BuildResults::JobHistory.all_for_package(@pkg.project.name, @pkg.name, srep['name'], arch, 20))
+      jobhistory = @pkg.jobhistory(repository_name: srep['name'], arch_name: arch, filter: { limit: 20 })
     end
 
     # going through the job history to check if it built and if yes, succeeded
-    hist.elements('jobhist') do |jh|
-      next unless jh['verifymd5'] == @verifymd5 || jh['srcmd5'] == @srcmd5
+    jobhistory.each do |entry|
+      next unless entry.verifymd5 == @verifymd5 || entry.srcmd5 == @srcmd5
       @everbuilt = true
-      if jh['code'] == 'succeeded' || jh['code'] == 'unchanged'
+      if entry.code == 'succeeded' || entry.code == 'unchanged'
         @buildcode = 'succeeded'
         @eversucceeded = true
       end
