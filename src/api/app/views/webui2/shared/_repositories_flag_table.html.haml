@@ -20,6 +20,4 @@
                 = link_to(repository_name, action: :state, project: project, repository: repository_name)
           - ([nil] + architectures).each do |architecture|
             %td.text-center{ class: architecture && repository ? nil : 'all_flag' }
-              = render partial: 'shared/repositories_flag_table_column',
-                        locals: { flags: flags, project: project, package: package,
-                                  repository: repository_name, architecture: architecture.try(&:name) }
+              = flag_column(flags, repository_name, architecture.try(&:name))
