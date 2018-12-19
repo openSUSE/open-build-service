@@ -2,7 +2,7 @@ class CommentsController < ApplicationController
   before_action :find_obj, only: [:index, :create]
 
   def index
-    @comments = @obj.comments.order(:id)
+    @comments = @obj.comments.includes(:user).order(:id)
   end
 
   def create
