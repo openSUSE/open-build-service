@@ -1,3 +1,21 @@
+$(document).ready(function() {
+  $('.obs-autocomplete').each(function() {
+    $(this).autocomplete({
+      // Note: 'append' is optional and only needed when there is no element with class ui-front
+      appendTo:  $(this).data('append'),
+      source:    $(this).data('source'),
+      minLength: 2,
+      search: function() {
+        $(this).prev().find('i').toggleClass('fa-search fa-spinner fa-spin');
+      },
+      response: function() {
+        $(this).prev().find('i').toggleClass('fa-search fa-spinner fa-spin');
+      }
+    });
+  });
+});
+
+
 function autocompleteDevelProject(sourcePath) { // jshint ignore:line
   $("#devel_project").autocomplete({
     appendTo: '.modal-body',
