@@ -16,7 +16,7 @@
           %p
             %i This project has no subprojects
         - if User.current.can_modify?(@project)
-          = link_to('#', data: { toggle: 'modal', target: '#add-new-subproject-modal' }, title: 'Add New Subproject', class: 'nav-link') do
+          = link_to('#', data: { toggle: 'modal', target: '#new-project-modal' }, class: 'nav-link') do
             %i.fas.fa-plus-circle.text-primary
             Add New Subproject
     .row.mt-3
@@ -24,7 +24,7 @@
         - if @siblings.present?
           = render partial: 'projects_table', locals: { table_title: 'Sibling Project', project: @project, projects: @siblings }
 
-= render partial: 'add_new_subproject_modal', locals: { project: @project, configuration: @configuration }
+= render partial: 'new_project_modal', locals: { project: @project, configuration: @configuration }
 
 :javascript
   initializeDataTable('.projects-table');
