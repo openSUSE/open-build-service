@@ -51,40 +51,16 @@ $(document).ready(function() {
       }
     });
   });
-});
 
-function autocomleteBranchPackageName(linkedPackageSource) { // jshint ignore:line
-  $('#linked_package').autocomplete({
-    appendTo: '#original-package-name',
-    source: function(request, response) {
-      $.ajax({
-        url: linkedPackageSource,
-        data: {
-          project: $('#linked_project').val(),
-          term: request.term,
-        },
-        success: function(data) {
-          response($.map(data, function(item) { return { label: item, value: item }; }));
-        },
-      });
-    },
-    search: function(event, ui) { // jshint ignore:line
-      autocompleteSpinner('search-icon-package', true);
-    },
-    response: function(event, ui) { // jshint ignore:line
-      autocompleteSpinner('search-icon-package', false);
-    },
-    minLength: 2
+  $('#linked_project').on('autocompletechange', function() {
+    var projectName = $(this).val(),
+        source = $('#linked_package').autocomplete('option', 'source');
+
+    if (!projectName) return;
+
+    // Ensure old parameters got removed
+    source = source.replace(/\?.+/, '') + '?project=' + projectName;
+    // Update the source target of the package autocomplete
+    $('#linked_package').autocomplete('option', { source: source });
   });
-}
-
-function autocompleteSpinner(spinnerId, searching) {
-  var icon = $('#' + spinnerId + ' i:first-child');
-  if (searching) {
-    icon.addClass('d-none');
-    icon.next().removeClass('d-none');
-  } else {
-    icon.removeClass('d-none');
-    icon.next().addClass('d-none');
-  }
-}
+});
