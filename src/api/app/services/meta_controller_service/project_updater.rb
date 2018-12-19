@@ -10,13 +10,14 @@ module MetaControllerService
       @validator.call
       unless @validator.valid?
         @errors = @validator.errors
-        return
+        return self
       end
 
       Project.transaction do
         @errors = @project.update_from_xml(@request_data)[:error]
         @project.store if valid?
       end
+      self
     end
 
     def errors

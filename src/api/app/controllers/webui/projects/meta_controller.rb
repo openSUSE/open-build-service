@@ -12,8 +12,7 @@ module Webui
 
       def update
         authorize @project, :update?
-        updater = ::MetaControllerService::ProjectUpdater.new(project: @project, request_data: @request_data)
-        updater.call
+        updater = ::MetaControllerService::ProjectUpdater.new(project: @project, request_data: @request_data).call
 
         status = if updater.valid?
                    flash.now[:success] = 'Config successfully saved!'
