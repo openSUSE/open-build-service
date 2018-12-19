@@ -15,34 +15,6 @@ $(document).ready(function() {
   });
 });
 
-
-function autocompleteDevelProject(sourcePath) { // jshint ignore:line
-  $("#devel_project").autocomplete({
-    appendTo: '.modal-body',
-    source: sourcePath,
-    search: function(event, ui) { // jshint ignore:line
-      $(this).addClass('loading-spinner');
-    },
-    response: function(event, ui) { // jshint ignore:line
-      $(this).removeClass('loading-spinner');
-    },
-    minLength: 2});
-}
-
-function autocompleteBranchProjectName(linkedProjectSource) { // jshint ignore:line
-  $('#linked_project').autocomplete({
-    appendTo: '#original-project-name',
-    source: linkedProjectSource,
-    search: function(event, ui) { // jshint ignore:line
-      autocompleteSpinner('search-icon-project', true);
-    },
-    response: function(event, ui) { // jshint ignore:line
-      autocompleteSpinner('search-icon-project', false);
-    },
-    minLength: 2
-  });
-}
-
 function autocomleteBranchPackageName(linkedPackageSource) { // jshint ignore:line
   $('#linked_package').autocomplete({
     appendTo: '#original-package-name',
