@@ -7,7 +7,7 @@ module Webui2::RepositoriesController
 
     @user_can_set_flags = policy(@project).update?
 
-    @architectures = @project.architectures.reorder('name')
+    @architectures = Architecture.where(id: @project.repository_architectures.select(:architecture_id)).reorder('name').distinct
     @repositories = @project.repositories.includes(:path_elements, :download_repositories)
   end
 

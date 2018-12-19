@@ -12,11 +12,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
       get :index, params: { project: apache_project }
     end
 
-    it { expect(assigns(:build).to_s).to eq(apache_project.get_flags('build').to_s) }
-    it { expect(assigns(:debuginfo).to_s).to eq(apache_project.get_flags('debuginfo').to_s) }
-    it { expect(assigns(:publish).to_s).to eq(apache_project.get_flags('publish').to_s) }
-    it { expect(assigns(:useforbuild).to_s).to eq(apache_project.get_flags('useforbuild').to_s) }
-    it { expect(assigns(:architectures)).to eq(apache_project.architectures.uniq) }
+    it { expect(assigns(:architectures)).to be_empty }
   end
 
   describe 'GET #state' do
