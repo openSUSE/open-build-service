@@ -51,6 +51,7 @@ class Webui::ProjectController < Webui::WebuiController
     if @spider_bot
       render :list_simple, status: params[:nextstatus]
     else
+      switch_to_webui2
       render :list, status: params[:nextstatus]
     end
   end
