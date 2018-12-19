@@ -111,6 +111,14 @@ module Webui::WebuiHelper
     'scheduling' => 'The repository state is being calculated right now'
   }.freeze
 
+  def repo_status_description(status)
+    REPO_STATUS_DESCRIPTIONS[status] || 'Unknown state of repository'
+  end
+
+  def webui2_repo_status_icon(status)
+    WEBUI2_REPO_STATUS_ICONS[status] || 'eye'
+  end
+
   def check_first(first)
     first.nil? ? true : nil
   end
@@ -118,7 +126,6 @@ module Webui::WebuiHelper
   # TODO: bento_only
   def repo_status_icon(status, details = nil)
     icon = REPO_STATUS_ICONS[status] || 'eye'
-
     outdated = nil
     if /^outdated_/.match?(status)
       status.gsub!(%r{^outdated_}, '')
@@ -132,23 +139,15 @@ module Webui::WebuiHelper
     sprite_tag icon, title: description
   end
 
-  def webui2_repo_status_description(status, details)
-    description_preface = ''
-    if /^outdated_/.match?(status)
-      status.gsub!(%r{^outdated_}, '')
-      description_preface = 'State needs recalculations, former state was: '
-    end
+  def webui2_repository_status_icon(status:, details: nil, html_class: '')
+    outdated = status.sub!(/^outdated_/, '')
+    description = outdated ? 'State needs recalculations, former state was: ' : ''
+    description << repo_status_description(status)
+    description << " (#{details})" if details
 
-    description = REPO_STATUS_DESCRIPTIONS[status] || 'Unknown state of repository'
-    description = description_preface + description
-    description += " (#{details})" if details
-    description
-  end
-
-  def webui2_repo_status_icon(status)
-    icon = WEBUI2_REPO_STATUS_ICONS[status] || 'eye'
-    color = /^outdated_/.match?(status) ? 'text-gray-400' : 'text-black-50'
-    "fas fa-#{icon} #{color}"
+    repo_state_class = outdated ? 'outdated' : 'default'
+    content_tag(:i, '', class: "repository-state-#{repo_state_class} #{html_class} fas fa-#{webui2_repo_status_icon(status)}",
+                        data: { content: description, placement: 'top', toggle: 'popover' })
   end
 
   # TODO: bento_only
