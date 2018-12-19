@@ -13,7 +13,6 @@
       - if results.present?
         - previous_repo = nil
         - results.each do |result|
-          - repository = project.repositories.find_by_name(result.repository)
           - if result.repository != previous_repo
             .row.py-1.bg-light
               .col{ title: result.repository.to_s }
@@ -22,7 +21,7 @@
                   data: { content: "Binaries for #{result.repository}", placement: 'top', toggle: 'popover' })
           .row.py-1
             .col-4.col-sm-3.offset-2.offset-sm-4.text-nowrap
-              - if !(repository && repository.architectures.pluck(:name).include?(result.architecture))
+              - if !result.is_repository_in_db
                 %i.fas.fa-clock.text-warning{ title: 'This result is outdated' }
               - else
                 :ruby

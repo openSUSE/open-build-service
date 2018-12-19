@@ -7,14 +7,14 @@ RSpec.feature 'Notifications', type: :feature, js: true do
       visit path
 
       expect(page).to have_content(title)
-
       [
         ['Event::CommentForPackage', 'commenter'],
         ['Event::CommentForProject', 'maintainer'],
         ['Event::CommentForRequest', 'reviewer'],
         ['Event::BuildFail', 'maintainer']
       ].each do |eventtype, receiver_role|
-        find("input[data-eventtype='#{eventtype}'][data-receiver-role='#{receiver_role}']").set(true)
+        # `visible: :all` and `allow_label_click: true` are needed for Bootstrap (as the checkboxes aren't found otherwise)
+        find("input[data-eventtype='#{eventtype}'][data-receiver-role='#{receiver_role}']", visible: :all).check(allow_label_click: true)
       end
 
       click_button 'Update'

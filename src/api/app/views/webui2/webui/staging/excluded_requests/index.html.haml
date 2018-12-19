@@ -15,16 +15,14 @@
                 %td= request_exclusion.bs_request.number
                 %td= request_exclusion.description
                 %td
-                  = link_to('#', data: { toggle: 'modal', target: "#delete-excluded-request-modal-#{request_exclusion.bs_request_id}" },
-                            title: 'Stop excluding request') do
+                  = link_to('#', title: 'Stop excluding request', data: { toggle: 'modal', target: '#delete-excluded-request-modal',
+                    action: staging_workflow_excluded_request_path(@staging_workflow, request_exclusion) }) do
                     %i.fas.fa-times-circle.text-danger
-                  = render(partial: 'delete_dialog',
-                          locals: { staging_workflow: @staging_workflow, request_exclusion: request_exclusion })
         = link_to('#', data: { toggle: 'modal', target: '#exclude-request-modal' }) do
           %i.fas.fa-plus-circle.text-primary
           Exclude request
-
 = render partial: 'create_dialog'
+= render partial: 'delete_dialog'
 
 = content_for :ready_function do
   :plain

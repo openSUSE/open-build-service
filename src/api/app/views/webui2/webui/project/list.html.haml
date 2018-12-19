@@ -1,0 +1,52 @@
+:ruby
+  @pagetitle = 'Public Projects'
+.card
+  - if @important_projects.present?
+    .card-body
+      %h3 Main Projects
+      .table-responsive
+        %table.table.table-sm.table-striped.table-bordered
+          %thead
+            %tr
+              %th Name
+              %th Title
+          %tbody
+            - @important_projects.each do |project|
+              %tr
+                %td
+                  = link_to(project.first, action: :show, project: project.first)
+                %td
+                  #{project.second}
+  .card-body
+    %h3= @pagetitle
+    %ul.list-inline
+      - if @show_all
+        %li.list-inline-item.mr-3
+          = link_to(projects_path) do
+            %i.fas.fa-toggle-on.text-primary
+            Exclude #{::Configuration.unlisted_projects_filter_description}
+      - else
+        %li.list-inline-item.mr-3
+          = link_to(projects_path(show_all: true)) do
+            %i.fas.fa-toggle-off.text-primary
+            Include #{::Configuration.unlisted_projects_filter_description}
+      - unless User.current.is_nobody?
+        %li.list-inline-item
+          = link_to(new_project_path) do
+            %i.fas.fa-plus-circle.text-primary
+            Add New Project
+    - cachekey = Digest::MD5.hexdigest(@projects.join)
+    - projecturl = project_show_path('REPLACEIT')
+    #project-list
+      - if @projects.blank?
+        %p
+          %i No projects found
+      - else
+        #projects-table-wrapper{ 'data-url' => projecturl }
+          %table.responsive.table.table-sm.table-striped.table-bordered.w-100#projects-table
+          - content_for :head_javascript do
+            - cache ['list_public_arrays', cachekey] do
+              var mainProjects = [ #{escape_nested_list(@projects)} ];
+              var exclProjects = [];
+          - content_for :ready_function do
+            renderProjectsTable();

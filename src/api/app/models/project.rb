@@ -31,7 +31,7 @@ class Project < ApplicationRecord
   has_many :relationships, dependent: :destroy, inverse_of: :project
   has_many :packages, inverse_of: :project do
     def autocomplete(search)
-      where(['lower(packages.name) like lower(?)', "#{search}%"])
+      where(['lower(packages.name) like lower(?)', "#{search}%"]).order(:name).limit(50)
     end
   end
 
@@ -91,9 +91,7 @@ class Project < ApplicationRecord
     where.not('name rlike ?', ::Configuration.unlisted_projects_filter) if ::Configuration.unlisted_projects_filter.present?
   }
   scope :remote, -> { where('NOT ISNULL(projects.remoteurl)') }
-  scope :autocomplete, lambda { |search|
-    where('lower(name) like lower(?)', "#{search}%").where.not('lower(name) like lower(?)', "#{search}%:%")
-  }
+  scope :autocomplete, ->(search) { where('lower(name) like lower(?)', "#{search}%").order(:name) }
 
   # will return all projects with attribute 'OBS:ImageTemplates'
   scope :local_image_templates, lambda {
@@ -223,6 +221,10 @@ class Project < ApplicationRecord
 
   def buildresults
     Buildresult.summary(name)
+  end
+
+  def jobhistory(filter: { limit: 100, start_epoch: nil, end_epoch: nil, code: [], package: nil })
+    Backend::Api::BuildResults::JobHistory.for_project(project_name: name, filter: filter)
   end
 
   def subprojects

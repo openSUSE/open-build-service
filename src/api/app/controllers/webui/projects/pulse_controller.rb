@@ -2,13 +2,16 @@ module Webui
   module Projects
     class PulseController < WebuiController
       before_action :set_project
+      before_action :set_pulse, if: -> { request.xhr? }
 
       def show
         switch_to_webui2
         @pulse = @project.project_log_entries.page(params[:page])
       end
 
-      def update_pulse
+      private
+
+      def set_pulse
         @range = params[:range] == 'month' ? 'month' : 'week'
         case @range
         when 'month'
@@ -32,7 +35,6 @@ module Webui
         @requests_by_state = @requests.group(:state).count.sort_by { |_, v| -v }.to_h
         # transpose to percentages
         @requests_by_percentage = @requests_by_state.each_with_object({}) { |(k, v), hash| hash[k] = (v * 100.0 / @requests_by_state.values.sum).round.to_s } if @requests_by_state.any?
-        switch_to_webui2
       end
     end
   end

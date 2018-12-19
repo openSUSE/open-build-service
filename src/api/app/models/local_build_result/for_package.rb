@@ -16,6 +16,7 @@ class LocalBuildResult
     def buildresults
       self.results = {}
       self.excluded_counter = 0
+
       backend_build_result.each do |result|
         result.elements('status').each do |status|
           results[status['package']] ||= []
@@ -29,8 +30,23 @@ class LocalBuildResult
     end
 
     def local_build_result(result, status)
-      LocalBuildResult.new(repository: result['repository'], architecture: result['arch'],
-                           code: status['code'], state: result['state'], details: status['details'])
+      LocalBuildResult.new(repository: result['repository'], is_repository_in_db: repository_in_db?(result['repository'], result['arch']),
+                           architecture: result['arch'], code: status['code'], state: result['state'], details: status['details'])
+    end
+
+    def repository_in_db?(repository, architecture)
+      set_architectures_for unless @architectures_for
+      architectures = @architectures_for[repository] || []
+      architectures.include?(architecture)
+    end
+
+    def set_architectures_for
+      repos_archs = project.repositories.joins(:architectures).pluck(:name, Arel.sql('architectures.name'))
+      @architectures_for = {}
+      repos_archs.each do |element|
+        @architectures_for[element.first] ||= []
+        @architectures_for[element.first] << element.second
+      end
     end
 
     def excluded?(status)

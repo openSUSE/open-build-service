@@ -222,20 +222,28 @@ sub serverstatus_str {
 }
 
 sub maxchildreached {
-  my ($what, $group, $full, $data) = @_;
+  my ($conf, $what, $group, $full, $data) = @_;
+  my $now = time();
+  my $msg = BSUtil::isotime($now).": ";
   if ($full) {
+    $msg .= "$what limit reached\n";
     BSUtil::printlog("$what limit reached");
-    $data->{'start'} = time();
+    $data->{'start'} = $now;
     $data->{'startstatus'} = serverstatus_str($group);
   } else {
-    my $d = time() - $data->{'start'};
-    BSUtil::printlog("$what limit ok, duration $d seconds");
+    my $d = $now - $data->{'start'};
+    $msg .= "$what limit ok, duration $d seconds\n";
     if ($d >= 3) {
-      print "--- serverstatus at start:\n$data->{'startstatus'}";
-      print "--- serverstatus at end:\n".serverstatus_str($group);
+      $msg .= "--- serverstatus at start:\n$data->{'startstatus'}";
+      $msg .= "--- serverstatus at end:\n".serverstatus_str($group);
     }
     delete $data->{'start'};
     delete $data->{'startstatus'};
+  }
+  print $msg;
+  if ($conf->{'slowrequestlog'} && $conf->{'slowrequestthr'}) {
+    my $log = $group ? $conf->{'slowrequestlog2'} : undef;
+    eval { BSUtil::appendstr($log || $conf->{'slowrequestlog'}, $msg) };
   }
 }
 
@@ -319,13 +327,13 @@ sub server {
     if ($sock && defined($maxchild) && $chld_full != (keys(%chld) >= $maxchild ? 1 : 0)) {
       if (!$chld_full || !vec($rin, fileno($sock), 1)) {
         $chld_full = $chld_full ? 0 : 1;
-        maxchildreached('maxchild', 0, $chld_full, $chld_full_data);
+        maxchildreached($conf, 'maxchild', 0, $chld_full, $chld_full_data);
       }
     }
     if ($sock2 && defined($maxchild2) && $chld2_full != (keys(%chld2) >= $maxchild2 ? 1 : 0)) {
       if (!$chld2_full || !vec($rin, fileno($sock2), 1)) {
         $chld2_full = $chld2_full ? 0 : 1;
-        maxchildreached('maxchild2', 1, $chld2_full, $chld2_full_data);
+        maxchildreached($conf, 'maxchild2', 1, $chld2_full, $chld2_full_data);
       }
     }
 
