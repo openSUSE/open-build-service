@@ -4,34 +4,19 @@
       = form_tag(action: :create, project: project) do
         .modal-header
           %h5.modal-title Add additional path to #{repository}
-        .modal-body
-          .form-group
-            = label_tag :project do
-              %strong Project:
-            .input-group
-              .input-group-prepend
-                %span.input-group-text.project-search-icon
-                  %i.fa.fa-search
-                  %i.fas.fa-spinner.fa-spin.d-none
-              = text_field_tag 'target_project', '', id: 'target_project',
-                                                     class: 'form-control',
-                                                     required: true,
-                                                     placeholder: 'Type to autocomplete...',
-                                                     data: { 'ajaxurl': url_for(controller: 'project', action: 'autocomplete_projects') }
+        .modal-body.repository-autocomplete
+          = render partial: 'webui/autocomplete', locals: { html_id: 'target_project', label: '<strong>Project:</strong>'.html_safe,
+                                                            source: url_for(controller: 'project', action: 'autocomplete_projects') }
           .form-group
             = label_tag :repositories do
               %strong Repositories:
-            = select_tag 'target_repo', options_for_select(['']), id: 'target_repo',
-                                                                  required: true,
+            = select_tag 'target_repo', options_for_select(['']), required: true,
                                                                   disabled: true,
-                                                                  class: 'custom-select',
-                                                                  data: { 'ajaxurl': url_for(controller: :project,
+                                                                  class: 'repository-dropdown custom-select',
+                                                                  data: { source: url_for(controller: :project,
                                                                                               action: :autocomplete_repositories) }
           = hidden_field_tag :repository, repository
 
         .modal-footer
           = render partial: 'webui2/shared/dialog_action_buttons'
-
-= content_for :ready_function do
-  repositoriesSetupAutocomplete("#add-repository-path-#{repository.id}");
 
