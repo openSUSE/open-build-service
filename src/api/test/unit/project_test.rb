@@ -18,6 +18,20 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal ['A', 'B', 'C'], project.maintained_project_names
   end
 
+  # TODO: bento_only
+  def _project_flags(project, flag)
+    architectures = Architecture.where(id: project.repository_architectures.select(:architecture_id)).reorder('name').distinct
+    repository_names = project.repositories.pluck(:name)
+    project.get_flags(flag, repository_names, architectures)
+  end
+
+  # TODO: bento_only
+  def _package_flags(package, flag)
+    architectures = Architecture.where(id: package.project.repository_architectures.select(:architecture_id)).reorder('name').distinct
+    repository_names = package.project.repositories.pluck(:name)
+    package.get_flags(flag, repository_names, architectures)
+  end
+
   def test_flags_inheritance
     User.current = users(:Iggy)
 
@@ -55,10 +69,8 @@ class ProjectTest < ActiveSupport::TestCase
     project.store
 
     # test if all project build flags are 'enable'
-    project.get_flags('build').each do |repo|
-      repo[1].each do |flag|
-        assert_equal 'enable', flag.status
-      end
+    project.flags.of_type('build').each do |flag|
+      assert_equal 'enable', flag.status
     end
 
     package1 = project.packages.create(name: 'test1')
@@ -82,7 +94,7 @@ class ProjectTest < ActiveSupport::TestCase
     # check for the row and column which are 'enabled'
     assert_equal 4, project.flags.of_type('build').size
     assert_equal 'i586', project.flags.of_type('build')[1].architecture.name
-    package1.get_flags('build').each do |repo|
+    package1.get_flags('build', ['SLE_11_SP4'], Architecture.all).each do |repo|
       repo[1].each do |flag|
         if flag.repo == 'SLE_11_SP4'
           assert_equal 'enable', flag.status
@@ -110,7 +122,7 @@ class ProjectTest < ActiveSupport::TestCase
     package2.store
 
     # the all 'disable' build flag shall overwrite the project setting
-    package2.get_flags('build').each do |repo|
+    package2.get_flags('build', ['SLE_11_SP4'], Architecture.all).each do |repo|
       repo[1].each do |flag|
         assert_equal 'disable', flag.status
       end
@@ -148,23 +160,23 @@ class ProjectTest < ActiveSupport::TestCase
     project.store
     project.reload
 
-    assert_equal 5, project.get_flags('build').size
-    assert_equal 3, project.get_flags('build')['all'].size
+    assert_equal 5, _project_flags(project, 'build').size
+    assert_equal 3, _project_flags(project, 'build')['all'].size
 
-    flag_test = project.get_flags('build')['SLE_11_SP4'][0]
+    flag_test = _project_flags(project, 'build')['SLE_11_SP4'][0]
     assert_equal 'enable', flag_test.status
     assert_equal 'enable', flag_test.effective_status
     assert_equal 'disable', flag_test.default_status
 
-    flag_all = project.get_flags('build')['all'][0]
+    flag_all = _project_flags(project, 'build')['all'][0]
     assert_equal 'disable', flag_all.status
     assert_equal 'disable', flag_all.effective_status
     assert_equal 'enable', flag_all.default_status
 
-    assert_equal 5, project.get_flags('useforbuild').size
-    assert_equal 3, project.get_flags('useforbuild')['all'].size
+    assert_equal 5, _project_flags(project, 'useforbuild').size
+    assert_equal 3, _project_flags(project, 'useforbuild')['all'].size
 
-    flag_useforbuild_all = project.get_flags('useforbuild')['all'][0]
+    flag_useforbuild_all = _project_flags(project, 'useforbuild')['all'][0]
     assert_equal 'disable', flag_useforbuild_all.status
     assert_equal 'disable', flag_useforbuild_all.effective_status
     assert_equal 'enable', flag_useforbuild_all.default_status
@@ -188,23 +200,23 @@ class ProjectTest < ActiveSupport::TestCase
     package2.store
     package2.reload
 
-    assert_equal 5, package2.get_flags('build').size
-    assert_equal 3, package2.get_flags('build')['all'].size
+    assert_equal 5, _package_flags(package2, 'build').size
+    assert_equal 3, _package_flags(package2, 'build')['all'].size
 
-    flag_test = package2.get_flags('build')['SLE_12_SP1'][0]
+    flag_test = _package_flags(package2, 'build')['SLE_12_SP1'][0]
     assert_equal 'disable', flag_test.status
     assert_equal 'disable', flag_test.effective_status
     assert_equal 'enable', flag_test.default_status
 
-    flag_build_all = package2.get_flags('build')['all'][0]
+    flag_build_all = _package_flags(package2, 'build')['all'][0]
     assert_equal 'enable',  flag_build_all.status
     assert_equal 'enable',  flag_build_all.effective_status
     assert_equal 'disable', flag_build_all.default_status
 
-    assert_equal 5, package2.get_flags('useforbuild').size
-    assert_equal 3, package2.get_flags('useforbuild')['all'].size
+    assert_equal 5, _package_flags(package2, 'useforbuild').size
+    assert_equal 3, _package_flags(package2, 'useforbuild')['all'].size
 
-    flag_useforbuild_all = package2.get_flags('useforbuild')['all'][0]
+    flag_useforbuild_all = _package_flags(package2, 'useforbuild')['all'][0]
     assert_equal 'enable', flag_useforbuild_all.status
     assert_equal 'enable', flag_useforbuild_all.effective_status
     assert_equal 'disable', flag_useforbuild_all.default_status
@@ -231,21 +243,21 @@ class ProjectTest < ActiveSupport::TestCase
     package3.store
     package3.reload
 
-    assert_equal 5, package3.get_flags('build').size
-    assert_equal 3, package3.get_flags('build')['all'].size
+    assert_equal 5, _package_flags(package3, 'build').size
+    assert_equal 3, _package_flags(package3, 'build')['all'].size
 
-    flag_test = package3.get_flags('build')['SLE_12_SP1'][1]
+    flag_test = _package_flags(package3, 'build')['SLE_12_SP1'][1]
     assert_equal 'i586',    flag_test.architecture.name
     assert_equal 'disable', flag_test.status
     assert_equal 'disable', flag_test.effective_status
     assert_equal 'enable',  flag_test.default_status
 
-    flag_test = package3.get_flags('build')['SLE_11_SP4'][0]
+    flag_test = _package_flags(package3, 'build')['SLE_11_SP4'][0]
     assert_equal 'enable', flag_test.status
     assert_equal 'enable', flag_test.effective_status
     assert_equal 'disable', flag_test.default_status
 
-    flag_test = package3.get_flags('build')['all'][0]
+    flag_test = _package_flags(package3, 'build')['all'][0]
     assert_equal 'disable', flag_test.status
     assert_equal 'disable', flag_test.effective_status
     assert_equal 'disable', flag_test.default_status
@@ -288,7 +300,7 @@ class ProjectTest < ActiveSupport::TestCase
     # test if all project flags are default for a new project
     allflags = ['build', 'publish', 'useforbuild', 'binarydownload', 'access', 'lock', 'debuginfo']
     allflags.each do |flagtype|
-      project2.get_flags(flagtype).each do |repo|
+      _project_flags(project2, flagtype).each do |repo|
         repo[1].each do |flag|
           assert_equal Flag.default_status(flagtype), flag.effective_status
           assert_equal Flag.default_status(flagtype), flag.default_status
@@ -319,8 +331,8 @@ class ProjectTest < ActiveSupport::TestCase
 
     # test if all package flags are default for a new package
     allflags.each do |flagtype|
-      assert_equal 5, package4.get_flags(flagtype).size
-      package4.get_flags(flagtype).each do |repo|
+      assert_equal 5, _package_flags(package4, flagtype).size
+      _package_flags(package4, flagtype).each do |repo|
         repo[1].each do |flag|
           assert_equal Flag.default_status(flagtype), flag.status
           assert_equal Flag.default_status(flagtype), flag.effective_status
