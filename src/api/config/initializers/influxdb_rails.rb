@@ -1,5 +1,9 @@
-return if CONFIG['influxdb_hosts'].blank? # defaults to localhost otherwise
-
+if CONFIG['influxdb_hosts'].blank? # defaults to localhost otherwise
+  InfluxDB::Rails.configure do |config|
+    config.instrumentation_enabled = false
+  end
+  return
+end
 InfluxDB::Rails.configure do |config|
   config.influxdb_database   = CONFIG['influxdb_database']
   config.influxdb_username   = CONFIG['influxdb_username']

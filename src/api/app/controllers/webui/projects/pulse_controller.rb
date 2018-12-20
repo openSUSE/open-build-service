@@ -2,6 +2,7 @@ module Webui
   module Projects
     class PulseController < WebuiController
       before_action :set_project
+      before_action :set_range
       before_action :set_pulse, if: -> { request.xhr? }
 
       def show
@@ -11,8 +12,11 @@ module Webui
 
       private
 
-      def set_pulse
+      def set_range
         @range = params[:range] == 'month' ? 'month' : 'week'
+      end
+
+      def set_pulse
         case @range
         when 'month'
           range = 1.month.ago..Date.tomorrow
