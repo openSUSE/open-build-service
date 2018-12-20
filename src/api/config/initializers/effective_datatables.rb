@@ -19,7 +19,10 @@ EffectiveDatatables.setup do |config|
   # def my_authorization_method(resource, action)
   #   true
   # end
-  config.authorization_method = Proc.new { |controller, action, resource| authorize!(action, resource) }
+  #
+  # FIXME: check if it's needed in OBS and how/what to check
+  # config.authorization_method = Proc.new { |controller, action, resource| authorize!(action, resource) }
+  config.authorization_method = true
 
   # Default number of entries shown per page
   # Valid options are: 5, 10, 25, 50, 100, 250, 500, :all
@@ -37,5 +40,4 @@ EffectiveDatatables.setup do |config|
 
   # String size. Final byte size is about 1.5 times bigger, after rails signs it
   config.max_cookie_size = 2000
-
 end
