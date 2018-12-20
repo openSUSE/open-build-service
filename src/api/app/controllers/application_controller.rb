@@ -24,7 +24,8 @@ class ApplicationController < ActionController::Base
   # skip the filter for the user stuff
   before_action :extract_user
   before_action :shutup_rails
-  before_action :validate_params
+  # FIXME: efective_databases functionality breaks when this controller tries to validate params. There is a better way to do it?
+  before_action :validate_params, unless: -> { request[:controller] == 'effective/datatables' }
   before_action :require_login
 
   delegate :extract_user,
