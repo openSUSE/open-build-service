@@ -19,8 +19,7 @@ OBSApi::Application.configure do
   config.eager_load = ENV.fetch('EAGER_LOAD', '0') == '1'
 
   # Show full error reports and disable caching
-  # local requests don't trigger the global exception handler -> set to false
-  config.consider_all_requests_local = false
+  config.consider_all_requests_local = true
   config.action_controller.perform_caching = false
 
   # Configure public file server for tests with Cache-Control for performance.

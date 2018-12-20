@@ -1,3 +1,6 @@
+obj_is_user = @obj.is_a?(User)
 xml.comments(@header) do
-  render(partial: 'comments', locals: { builder: xml, comments: @comments })
+  @comments.each do |comment|
+    comment.to_xml(xml, obj_is_user)
+  end
 end

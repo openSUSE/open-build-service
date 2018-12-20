@@ -1,7 +1,8 @@
 - if comments.any?
   And
   - people = comments.group(:user_name).count
-  = pluralize(people.count, 'person')
+  %b
+    = pluralize(people.count, 'person')
   added
   = link_to('#pulse-collaboration') do
     = pluralize(comments.count, 'comment')

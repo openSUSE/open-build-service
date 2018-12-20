@@ -24,10 +24,7 @@
               - if !result.is_repository_in_db
                 %i.fas.fa-clock.text-warning{ title: 'This result is outdated' }
               - else
-                :ruby
-                  icon = webui2_repo_status_icon(result.state)
-                  description = webui2_repo_status_description(result.state, result.details)
-                %i{ class: icon, data: { content: description, placement: 'top', toggle: 'popover' } }
+                = webui2_repository_status_icon(status: result.state, details: result.details)
               %span.ml-1
                 = result.architecture
             .col-6.col-sm-5.buildstatus.text-nowrap
