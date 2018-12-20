@@ -80,6 +80,8 @@ gem 'builder'
 gem 'influxdb-rails', '>=1.0.0.beta2'
 # for client side time ago
 gem 'rails-timeago', '~> 2.0'
+# for server side datatables
+gem 'effective_datatables'
 
 group :development, :production do
   # to have the delayed job daemon
