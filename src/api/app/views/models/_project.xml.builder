@@ -19,7 +19,7 @@ xml.project(project_attributes) do
 
   my_model.render_relationships(xml)
 
-  repos = my_model.repositories.preload(:download_repositories, :release_targets, :hostsystem, path_elements: :link).not_remote.sort { |a, b| b.name <=> a.name }
+  repos = my_model.repositories.preload(:download_repositories, :release_targets, :hostsystem, path_elements: :link).not_remote.order(name: :desc)
   FlagHelper.render(my_model, xml)
 
   repos.each do |repo|
