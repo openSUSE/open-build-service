@@ -259,8 +259,8 @@ our $publish_containers = [
 ];
 
 
-# special options to use for starting containers in call-service-in-docker.sh
-# our $docker_custom_opt = '';
+# special options to use for starting containers in run-service-containerized
+# our $docker_custom_opt = [];
 
 ## Server where mirrored gems could be found - used in services like obs-service-bundle_gems
 # our $gems_mirror = '';
