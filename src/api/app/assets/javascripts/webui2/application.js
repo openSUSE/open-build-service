@@ -45,3 +45,4 @@
 //= require webui2/project.js
 //= require webui2/project_monitor.js
 //= require rails-timeago
+//= require effective_datatables
