@@ -3,12 +3,14 @@
     .card-header
       = link_to(repository, project_repository_state_path(project: project, repository: repository.name), class: 'font-weight-bold')
       .small
-        - if repository.architectures.size.zero?
+        - if repository.architectures.empty?
           No architecture selected
         - else
           #{repository.architectures.pluck(:name).join(', ')}
     - if repository.is_dod_repository?
-      = render partial: 'dod_repository_card_content', locals: { project: project, repository: repository }
+      = render partial: 'dod_repository_card_content', locals: { project: project, repository: repository,
+                 available_architectures: available_architectures }
     - else
       = render partial: 'repository_card_content', locals: { project: project, repository: repository,
-                 download_url: download_url, user_can_modify_project: user_can_modify_project }
+                 download_url: download_url, user_can_modify_project: user_can_modify_project,
+                 available_architectures: available_architectures }

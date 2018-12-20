@@ -10,14 +10,17 @@ class Webui::RepositoriesController < Webui::WebuiController
   # GET project/repositories/:project
   def index
     @architectures = Architecture.where(id: @project.repository_architectures.select(:architecture_id)).order(:name)
+    @available_architectures = Architecture.available
     @user_can_set_flags = policy(@project).update?
-    @repositories = @project.repositories.includes(:path_elements, :download_repositories)
+    @repositories = @project.repositories.preload({ path_elements: { link: :project } }, :architectures)
+    @repositories = @repositories.includes(:download_repositories)
     if switch_to_webui2
       @flags = {}
       [:build, :debuginfo, :publish, :useforbuild].each do |flag_type|
         @flags[flag_type] = Flag::SpecifiedFlags.new(@main_object, flag_type)
       end
     else
+      repository_names = @repositories.pluck(:name)
       @build = @main_object.get_flags('build', repository_names, @architectures)
       @debuginfo = @main_object.get_flags('debuginfo', repository_names, @architectures)
       @publish = @main_object.get_flags('publish', repository_names, @architectures)

@@ -15,7 +15,7 @@
           .form-group.row
             = label_tag :arch, 'Architecture', class: 'col-sm-4 col-form-label'
             .col-sm-8
-              = select_tag :arch, options_for_select(Architecture.available, ''), required: true,
+              = select_tag :arch, options_for_select(available_architectures, ''), required: true,
                                   class: 'custom-select'
           .form-group.row
             = label_tag :repotype, 'Type', class: 'col-sm-4 col-form-label'
@@ -44,4 +44,3 @@
               = text_area_tag :pubkey, nil, row: 2, class: 'form-control'
         .modal-footer
           = render partial: 'webui2/shared/dialog_action_buttons'
-

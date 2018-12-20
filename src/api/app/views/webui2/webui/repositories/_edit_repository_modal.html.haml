@@ -8,7 +8,7 @@
           .form-group
             = label_tag :architectures, class: 'w-100' do
               %strong Architectures:
-            - Architecture.available.each do |architecture|
+            - available_architectures.each do |architecture|
               .custom-control.custom-checkbox.custom-control-inline
                 = check_box_tag "arch[#{architecture}]", '', repository.architectures.include?(architecture),
                                                              class: 'custom-control-input',
