@@ -1586,7 +1586,7 @@ class Project < ApplicationRecord
   end
 
   def has_remote_repositories?
-    repositories.any? { |r| r.download_repositories.any? }
+    DownloadRepository.where(repository_id: repositories.select(:id)).exists?
   end
 
   def api_obj
