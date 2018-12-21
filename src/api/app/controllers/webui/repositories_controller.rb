@@ -280,7 +280,8 @@ class Webui::RepositoriesController < Webui::WebuiController
     if params[:command] == 'remove'
       @main_object.flags.of_type(flag_type).where(repo: params[:repository], architecture: architecture).delete_all
     elsif %r{^set-(?<status>disable|enable)$} =~ params[:command]
-      @main_object.flags.create(flag: flag_type, repo: params[:repository], architecture: architecture, status: status)
+      flag = @main_object.flags.find_or_create_by(flag: flag_type, repo: params[:repository], architecture: architecture)
+      flag.update_attributes(status: status)
     end
     @main_object.store
   end
