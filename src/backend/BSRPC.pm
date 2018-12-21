@@ -408,20 +408,17 @@ sub rpc {
   }
   ${$param->{'replyheaders'}} = \%headers if $param->{'replyheaders'};
 
-  my $act = $param->{'request'} || 'GET';
   # read and process rest of answer
-  if ($act eq 'HEAD' && !$param->{'receiver'}) {
-    close $sock;
-    return \%headers;
-  }
   my $ansreq = {
     'headers' => \%headers,
     'rawheaders' => $headers,
     '__socket' => $sock,
     '__data' => $ans,
   };
-  if ($act eq 'HEAD') {
+  if (($param->{'request'} || 'GET') eq 'HEAD') {
     close $sock;
+    undef $sock;
+    return \%headers unless $param->{'receiver'};
     delete $ansreq->{'__socket'};
     delete $ansreq->{'__data'};
     $ansreq->{'__cl'} = -1;	# eof
@@ -434,7 +431,7 @@ sub rpc {
   } else {
     $ans = BSHTTP::read_data($ansreq, undef, 1);
   }
-  close $sock unless $act eq 'HEAD';
+  close $sock if $sock;
 
   #if ($param->{'verbose'}) {
   #  print "< $ans\n";
