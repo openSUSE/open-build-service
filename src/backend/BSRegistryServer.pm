@@ -22,6 +22,9 @@
 
 package BSRegistryServer;
 
+use JSON::XS ();
+
+use BSServer;
 use BSStdServer;
 
 our $registry_api_hdr = 'Docker-Distribution-Api-Version: registry/2.0';
