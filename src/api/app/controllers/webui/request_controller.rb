@@ -96,7 +96,7 @@ class Webui::RequestController < Webui::WebuiController
     @can_add_reviews = @state.in?(['new', 'review']) && (@is_author || @is_target_maintainer || @my_open_reviews.present?) && !User.current.is_nobody?
     @can_handle_request = @state.in?(['new', 'review', 'declined']) && (@is_target_maintainer || @is_author) && !User.current.is_nobody?
 
-    @history = @bs_request.history_elements
+    @history = @bs_request.history_elements.includes(:user)
     @actions = @req['actions']
 
     # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
