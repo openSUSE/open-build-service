@@ -57,7 +57,7 @@ sub urlencode {
   my ($str, $iscgi) = @_;
   if ($iscgi) {
     $str =~ s/([\000-\037<>;\"#\?&\+=%[\177-\377])/sprintf("%%%02X",ord($1))/sge;
-    $str =~ s/ /+/sg;
+    $str =~ tr/ /+/;
   } else {
     $str =~ s/([\000-\040<>;\"#\?&\+=%[\177-\377])/sprintf("%%%02X",ord($1))/sge;
   }
