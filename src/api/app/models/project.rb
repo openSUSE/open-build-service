@@ -42,7 +42,6 @@ class Project < ApplicationRecord
   has_many :path_elements, through: :repositories
   has_many :linked_repositories, through: :path_elements, source: :link, foreign_key: :repository_id
   has_many :repository_architectures, -> { order('position') }, through: :repositories
-  has_many :architectures, -> { order('position').distinct }, through: :repository_architectures
 
   has_many :messages, as: :db_object, dependent: :delete_all
   has_many :watched_projects, dependent: :destroy, inverse_of: :project

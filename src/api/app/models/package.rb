@@ -26,8 +26,6 @@ class Package < ApplicationRecord
 
   belongs_to :project, inverse_of: :packages
   delegate :name, to: :project, prefix: true
-  delegate :repositories, to: :project
-  delegate :architectures, to: :project
 
   attr_reader :commit_opts
   attr_writer :commit_opts
