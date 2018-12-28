@@ -4,14 +4,14 @@ module GetFlags
   # The arrays contain Flag objects of type, sorted by architecture.
   # Like:
   # {all: [Flag, Flag-i586, Flag-x86_64], 13.2: [Flag, Flag-i585, Flag-x86_64]}
-  def get_flags(flag_type)
+  def get_flags(flag_type, repository_names, architectures)
     the_flags = {}
 
     # [nil] is a placeholder for "all" repositories
-    [nil].concat(repositories.pluck(:name)).each do |repository|
+    [nil].concat(repository_names).each do |repository|
       the_flags[repository] = []
       # [nil] is a placeholder for "all" architectures
-      [nil].concat(architectures.reorder('name').distinct).each do |architecture|
+      [nil].concat(architectures).each do |architecture|
         architecture_id = architecture ? architecture.id : nil
         flag = flags.where(flag: flag_type).where(repo: repository).where(architecture_id: architecture_id).first
         # If there is no flag create a temporary one.

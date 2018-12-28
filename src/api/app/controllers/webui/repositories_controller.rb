@@ -12,15 +12,15 @@ class Webui::RepositoriesController < Webui::WebuiController
   # GET project/repositories/:project
   def index
     return if switch_to_webui2
-    @build = @main_object.get_flags('build')
-    @debuginfo = @main_object.get_flags('debuginfo')
-    @publish = @main_object.get_flags('publish')
-    @useforbuild = @main_object.get_flags('useforbuild')
-    @architectures = @main_object.architectures.reorder('name').distinct
+    @architectures = Architecture.where(id: @project.repository_architectures.select(:architecture_id)).order(:name)
+    @repositories = @project.repositories.includes(:path_elements, :download_repositories)
+    repository_names = @repositories.pluck(:name)
+    @build = @main_object.get_flags('build', repository_names, @architectures)
+    @debuginfo = @main_object.get_flags('debuginfo', repository_names, @architectures)
+    @publish = @main_object.get_flags('publish', repository_names, @architectures)
+    @useforbuild = @main_object.get_flags('useforbuild', repository_names, @architectures)
 
     @user_can_set_flags = policy(@project).update?
-
-    @repositories = @project.repositories.includes(:path_elements, :download_repositories)
   end
 
   # GET project/add_repository/:project

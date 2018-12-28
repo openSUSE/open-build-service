@@ -87,4 +87,4 @@
     = render partial: 'webui2/webui/request/delete_request_dialog', locals: { project: @project }
 
 = content_for :ready_function do
-  initializeDataTable('#packages-table, #inherited-packages-table', { info: false });
+  initializeDataTable('#packages-table, #inherited-packages-table');
