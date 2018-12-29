@@ -5,7 +5,7 @@
       Target repository has been removed
     - else
       = path_name = "#{path.link.project}/#{path.link.name}"
-      - if user_can_modify_project
+      - if user_can_modify
         - if repository.path_elements.size > 1
           - unless path == repository.path_elements.first
             = link_to(move_repository_path_path(project: project, repository: repository, path: path, direction: 'up'), method: :post,

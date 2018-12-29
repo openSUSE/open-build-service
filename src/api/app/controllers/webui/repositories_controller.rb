@@ -1,6 +1,7 @@
 class Webui::RepositoriesController < Webui::WebuiController
   before_action :set_project
   before_action :set_repository, only: [:state]
+  before_action :set_architectures, only: [:index, :change_flag]
   before_action :find_repository_parent, only: [:index, :create_flag, :remove_flag, :toggle_flag, :change_flag]
   after_action :verify_authorized, except: [:index, :distributions, :state]
 
@@ -9,11 +10,10 @@ class Webui::RepositoriesController < Webui::WebuiController
   # GET package/repositories/:project/:package
   # GET project/repositories/:project
   def index
-    @architectures = Architecture.where(id: @project.repository_architectures.select(:architecture_id)).order(:name)
     @available_architectures = Architecture.available
-    @user_can_set_flags = policy(@project).update?
     @repositories = @project.repositories.preload({ path_elements: { link: :project } }, :architectures)
     @repositories = @repositories.includes(:download_repositories)
+    @user_can_modify = policy(@project).update?
     if switch_to_webui2
       @flags = {}
       [:build, :debuginfo, :publish, :useforbuild].each do |flag_type|
@@ -192,7 +192,6 @@ class Webui::RepositoriesController < Webui::WebuiController
     @flag = @main_object.flags.new(status: params[:status], flag: params[:flag])
     @flag.architecture = Architecture.find_by_name(params[:architecture])
     @flag.repo = params[:repository] if params[:repository].present?
-    @user_can_set_flags = policy(@project).update?
 
     respond_to do |format|
       if @flag.save
@@ -215,7 +214,6 @@ class Webui::RepositoriesController < Webui::WebuiController
 
     @flag = Flag.find(params[:flag])
     @flag.status = @flag.status == 'enable' ? 'disable' : 'enable'
-    @user_can_set_flags = policy(@project).update?
 
     respond_to do |format|
       if @flag.save
@@ -240,7 +238,6 @@ class Webui::RepositoriesController < Webui::WebuiController
     @main_object.flags.destroy(@flag)
     @flag = @flag.dup
     @flag.status = @flag.default_status
-    @user_can_set_flags = policy(@project).update?
 
     respond_to do |format|
       # FIXME: This should happen in Flag or even better in Project
@@ -264,8 +261,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     flag_type = params[:flag]
     follow_change_flag_command(flag_type)
 
-    locals = { user_can_set_flags: true, project: @project, package: params[:package] }
-    locals[:architectures] = @main_object.architectures.reorder('name').distinct
+    locals = { user_can_modify: true, project: @project, package: params[:package], architectures: @architectures }
     locals[:flags] = Flag::SpecifiedFlags.new(@main_object, flag_type)
     locals[:table_id] = 'flag_table_' + flag_type
 
@@ -284,6 +280,10 @@ class Webui::RepositoriesController < Webui::WebuiController
       flag.update_attributes(status: status)
     end
     @main_object.store
+  end
+
+  def set_architectures
+    @architectures = Architecture.where(id: @project.repository_architectures.select(:architecture_id)).order(:name)
   end
 
   def set_repository

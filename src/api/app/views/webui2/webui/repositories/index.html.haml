@@ -1,7 +1,6 @@
 = render partial: 'delete_repository_modal'
 = render partial: 'request_delete_repository_modal'
 = render partial: 'delete_repository_path_modal'
-- user_can_modify_project = User.current.can_modify?(@project)
 - if @package
   .card.mb-3
     - @pagetitle = "Repositories for #{@package}"
@@ -14,7 +13,7 @@
           = link_to @project, controller: :repositories, action: :index, project: @project
         = render partial: 'shared/repositories',
                  locals: { project: @project, package: @package, flags: @flags,
-                           architectures: @architectures, user_can_set_flags: @user_can_set_flags }
+                           architectures: @architectures, user_can_modify: @user_can_modify }
       - else
         %p
           This package is inherited from the project
@@ -28,7 +27,7 @@
       %h3.pb-2= @pagetitle
 
       %ul.list-inline.mb-0
-        - if user_can_modify_project
+        - if @user_can_modify
           %li.list-inline-item
             = link_to(repositories_distributions_path(project: @project), class: 'nav-link') do
               %i.fas.fa-plus-circle.text-primary
@@ -55,7 +54,7 @@
       .row.pt-2
         - @repositories.each do |repository|
           = render partial: 'repository_entry', locals: { repository: repository, project: @project, download_url: @configuration['download_url'],
-                      user_can_modify_project: user_can_modify_project, available_architectures: @available_architectures }
+                      user_can_modify: @user_can_modify, available_architectures: @available_architectures }
 
   .card.mb-3
     .card-header.d-flex.justify-content-between
@@ -65,4 +64,4 @@
         You can configure individual flags for this project here.
       = render partial: 'shared/repositories',
                locals: { project: @project, package: @package, flags: @flags,
-                         architectures: @architectures, user_can_set_flags: @user_can_set_flags }
+                         architectures: @architectures, user_can_modify: @user_can_modify }

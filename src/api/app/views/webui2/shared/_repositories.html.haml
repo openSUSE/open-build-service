@@ -31,8 +31,9 @@
       locals: { flags: flags[:useforbuild], project: project, package: package,
                 architectures: architectures, table_id: 'flag_table_useforbuild' }
 
-- if user_can_set_flags
-  = content_for :ready_function do
+Hallo #{user_can_modify}
+- if user_can_modify
+  - content_for :ready_function do
     :plain
       setSpinnersForFlags();
       setupFlagPopup();
