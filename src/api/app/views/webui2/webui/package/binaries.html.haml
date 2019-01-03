@@ -12,6 +12,7 @@
             %i.fas.fa-times-circle.text-danger
             Delete all built binaries
           = render(partial: 'delete_all_binaries_dialog', locals: { project: @project, package: @package_name, repository: @repository })
+          = render partial: 'delete_binaries_dialog'
 
     - @buildresults.each do |result|
       %h5.bg-light.p-2.mb-0
