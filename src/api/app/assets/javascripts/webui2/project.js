@@ -9,8 +9,7 @@ function renderProjectsTable(length) { // jshint ignore:line
     "columns": [
       {
         "title": "Name",
-        "width": "60%",
-        "className": "text-word-break-all",
+        "className": "text-word-break-all w-75",
         "render": function (obj, type, dataRow) {
           var url = projecturl.replace(/REPLACEIT/, dataRow[0]);
           return '<a href="' + url + '">' + dataRow[0] + '</a>';
@@ -18,8 +17,7 @@ function renderProjectsTable(length) { // jshint ignore:line
       },
       {
         "title": "Title",
-        "width": "40%",
-        "className": "text-nowrap"
+        "className": "text-nowrap w-25"
       }
     ],
     "pageLength": length,
