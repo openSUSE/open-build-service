@@ -129,7 +129,9 @@ sub gpgverify {
   system('gpg2', '-q', '--homedir', $tempdir, '--import', "$tempdir/pubkey") && die("gpg2 key import failed: $?\n");
   writestr("$tempdir/data", undef, $data);
   writestr("$tempdir/data.asc", undef, $sig);
-  system('gpgv', '-q', '--homedir', $tempdir, '--keyring', "$tempdir/pubring.gpg", "$tempdir/data.asc", "$tempdir/data") && die("signature verification failed: $?\n");
+  my $pubring = "$tempdir/pubring.gpg";
+  $pubring = "$tempdir/pubring.kbx" if -e "$tempdir/pubring.kbx";
+  system('gpgv', '-q', '--homedir', $tempdir, '--keyring', $pubring, "$tempdir/data.asc", "$tempdir/data") && die("signature verification failed: $?\n");
 }
 
 # uncompress file in-place
