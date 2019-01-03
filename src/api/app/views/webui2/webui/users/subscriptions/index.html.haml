@@ -34,7 +34,7 @@
       - if @user.rss_token
         To access your RSS feeds, use the following url:
         = link_to(user_rss_notifications_url(token: @user.rss_token.string, format: 'rss'),
-        user_rss_notifications_url(token: @user.rss_token.string, format: 'rss'), target: '_blank')
+        user_rss_notifications_url(token: @user.rss_token.string, format: 'rss'), target: '_blank', rel: 'noopener')
       - else
         No feed url exists for your notifications.
       .card-body
