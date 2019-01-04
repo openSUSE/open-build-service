@@ -13,8 +13,8 @@ RSpec.describe LocalBuildResult::ForPackage, vcr: true do
           <status package="test_package:test_package-source" code="excluded" />
         </result>
         <result project="home:tom" repository="openSUSE_Tumbleweed" arch="x86_64" code="building" state="building">
-          <status package="test_package" code="excluded" />
-          <status package="test_package:test_package-source" code="excluded" />
+          <status package="test_package" code="disabled" />
+          <status package="test_package:test_package-source" code="disabled" />
         </result>
         <result project="home:tom" repository="openSUSE_Leap_42.2" arch="x86_64" code="finished" state="finished">
           <status package="test_package" code="excluded" />
