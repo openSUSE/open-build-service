@@ -5,7 +5,7 @@
       %li
         %small.font-weight-bold
           = dod_element.arch
-          = link_to("#{dod_element.url}", target: '_blank', title: 'Go to the repository') do
+          = link_to("#{dod_element.url}", target: '_blank', rel: 'noopener', title: 'Go to the repository') do
             = dod_element.url
           (#{dod_element.repotype})
         - if User.current.can_modify?(project)
