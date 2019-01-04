@@ -7,14 +7,14 @@ RSpec.describe BsRequestAction::Differ::QueryBuilder, vcr: true do
   let!(:another_source_package) { create(:package, name: 'another_source_package', project: source_project) }
   let!(:target_project) { create(:project, name: 'target_project') }
   let!(:target_package) { create(:package, name: 'the_package', project: target_project) }
-  let!(:bs_request_action) do
-    create(:bs_request_action,
+  let(:bs_request) do
+    create(:bs_request_with_submit_action,
            source_project: source_project,
            source_package: source_package,
            target_project: target_project,
            source_rev: 'revision')
   end
-  let!(:bs_request) { create(:bs_request, bs_request_actions: [bs_request_action]) }
+  let!(:bs_request_action) { bs_request.bs_request_actions.first }
 
   describe '#build' do
     context 'with target package and project' do
@@ -51,15 +51,14 @@ RSpec.describe BsRequestAction::Differ::QueryBuilder, vcr: true do
       let!(:release_project) { create(:project, maintainer: user, name: 'release_project_name') }
       let!(:release_package) { create(:package, name: 'the_package', project: release_project) }
       let!(:bs_request_action) do
-        create(:bs_request_action,
+        create(:bs_request_with_submit_action,
                source_project: source_project,
                source_package: source_package,
                target_project: target_project,
                target_package: target_package,
                target_releaseproject: release_project.name,
-               source_rev: 'revision')
+               source_rev: 'revision').bs_request_actions.first
       end
-      let!(:bs_request) { create(:bs_request, bs_request_actions: [bs_request_action]) }
 
       let(:differ) do
         BsRequestAction::Differ::QueryBuilder.new(

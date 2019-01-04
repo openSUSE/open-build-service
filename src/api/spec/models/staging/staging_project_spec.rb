@@ -21,7 +21,7 @@ RSpec.describe Staging::StagingProject, vcr: true do
   let!(:build_uuid) { build_report.uuid }
 
   let(:target_project) { create(:project, name: 'target_project') }
-  let(:source_project) { create(:project, name: 'source_project') }
+  let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
   let(:target_package) { create(:package, name: 'target_package', project: target_project) }
   let(:source_package) { create(:package, name: 'source_package', project: source_project) }
 
@@ -74,7 +74,7 @@ RSpec.describe Staging::StagingProject, vcr: true do
 
   describe '#untracked_requests' do
     let!(:request_with_review) do
-      create(:review_bs_request_by_project, request_attributes.merge(reviewer: user, review_by_project: staging_project))
+      create(:bs_request_with_submit_action, request_attributes.merge(review_by_project: staging_project))
     end
 
     it { expect(staging_project.untracked_requests).to contain_exactly(request_with_review) }
@@ -159,6 +159,7 @@ RSpec.describe Staging::StagingProject, vcr: true do
   describe '#assign_managers_group' do
     context 'when the group wasn\'t assigned before' do
       before do
+        User.current = user
         staging_project.assign_managers_group(other_managers_group)
         staging_project.store
       end

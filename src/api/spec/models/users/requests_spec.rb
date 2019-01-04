@@ -9,7 +9,7 @@ RSpec.describe User do
 
   describe '#requests' do
     shared_examples 'all_my_requests' do
-      let(:source_package) { create(:package) }
+      let(:source_package) { create(:package, :as_submission_source) }
 
       let!(:maintained_request) do
         create(:bs_request_with_submit_action,
@@ -86,17 +86,11 @@ RSpec.describe User do
 
     context 'with by_user reviews' do
       it_behaves_like 'all_my_requests' do
-        let(:subject_request) { create(:bs_request, creator: admin_user.login) }
-        let!(:subject_review) { create(:review, by_user: confirmed_user.login, bs_request: subject_request) }
-
-        let(:request_with_same_creator_and_reviewer) { create(:bs_request, creator: confirmed_user.login) }
-        let!(:review_with_same_creator_and_reviewer) do
-          create(:review, by_user: confirmed_user.login, bs_request: request_with_same_creator_and_reviewer)
-        end
+        let!(:subject_request) { create(:set_bugowner_request, creator: admin_user.login, review_by_user: confirmed_user) }
+        let!(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user.login, review_by_user: confirmed_user) }
 
         let(:other_project) { create(:project) }
-        let(:request_of_another_subject) { create(:bs_request, creator: confirmed_user.login) }
-        let!(:review_of_another_subject) { create(:review, by_user: admin_user.login, bs_request: request_of_another_subject) }
+        let!(:request_of_another_subject) { create(:set_bugowner_request, creator: confirmed_user.login, review_by_user: admin_user) }
 
         it 'Include reviews where the user is the creator of the request' do
           expect(subject).to include(request_of_another_subject)
@@ -109,15 +103,11 @@ RSpec.describe User do
         let(:group) { create(:group) }
         let!(:groups_user) { create(:groups_user, user: confirmed_user, group: group) }
 
-        let(:subject_request) { create(:bs_request, creator: admin_user.login) }
-        let!(:subject_review) { create(:review, by_group: group.title, bs_request: subject_request) }
-
-        let(:request_with_same_creator_and_reviewer) { create(:bs_request, creator: confirmed_user.login) }
-        let!(:review_with_same_creator_and_reviewer) { create(:review, by_group: group.title, bs_request: request_with_same_creator_and_reviewer) }
+        let!(:subject_request) { create(:set_bugowner_request, creator: admin_user.login, review_by_group: group) }
+        let!(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user.login, review_by_group: group) }
 
         let(:other_group) { create(:group) }
-        let(:request_of_another_subject) { create(:bs_request, creator: admin_user.login) }
-        let!(:review_of_another_subject) { create(:review, by_group: other_group.title, bs_request: request_of_another_subject) }
+        let!(:request_of_another_subject) { create(:set_bugowner_request, creator: admin_user.login, review_by_group: other_group) }
 
         it 'not include reviews where the user is the creator of the request' do
           expect(subject).not_to include(request_of_another_subject)
@@ -130,15 +120,12 @@ RSpec.describe User do
         let(:project) { create(:project) }
         let!(:relationship_project_user) { create(:relationship_project_user, user: confirmed_user, project: project) }
 
-        let(:subject_request) { create(:bs_request, creator: admin_user.login) }
-        let!(:subject_review) { create(:review, by_project: project.name, bs_request: subject_request) }
+        let!(:subject_request) { create(:set_bugowner_request, creator: admin_user.login, review_by_project: project) }
 
-        let(:request_with_same_creator_and_reviewer) { create(:bs_request, creator: confirmed_user.login) }
-        let!(:review_with_same_creator_and_reviewer) { create(:review, by_project: project.name, bs_request: request_with_same_creator_and_reviewer) }
+        let!(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user.login, review_by_project: project) }
 
         let(:other_project) { create(:project) }
-        let(:request_of_another_subject) { create(:bs_request, creator: admin_user.login) }
-        let!(:review_of_another_subject) { create(:review, by_project: other_project.name, bs_request: request_of_another_subject) }
+        let!(:request_of_another_subject) { create(:set_bugowner_request, creator: admin_user.login, review_by_project: other_project) }
 
         it 'not include reviews where the user is the creator of the request' do
           expect(subject).not_to include(request_of_another_subject)
@@ -151,19 +138,12 @@ RSpec.describe User do
         let(:package) { create(:package) }
         let!(:relationship_package_user) { create(:relationship_package_user, user: confirmed_user, package: package) }
 
-        let(:subject_request) { create(:bs_request, creator: admin_user.login) }
-        let!(:subject_review) { create(:review, by_project: package.project.name, by_package: package.name, bs_request: subject_request) }
+        let!(:subject_request) { create(:set_bugowner_request, creator: admin_user.login, review_by_package: package) }
 
-        let(:request_with_same_creator_and_reviewer) { create(:bs_request, creator: confirmed_user.login) }
-        let!(:review_with_same_creator_and_reviewer) do
-          create(:review, by_project: package.project.name, by_package: package.name, bs_request: request_with_same_creator_and_reviewer)
-        end
+        let!(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user.login, review_by_package: package) }
 
         let(:other_package) { create(:package) }
-        let(:request_of_another_subject) { create(:bs_request, creator: admin_user.login) }
-        let!(:review_of_another_subject) do
-          create(:review, by_project: other_package.project.name, by_package: other_package.name, bs_request: request_of_another_subject)
-        end
+        let!(:request_of_another_subject) { create(:set_bugowner_request, creator: admin_user.login, review_by_package: other_package) }
 
         it 'not include reviews where the user is the creator of the request' do
           expect(subject).not_to include(request_of_another_subject)
@@ -174,9 +154,8 @@ RSpec.describe User do
 
   describe '#declined_requests' do
     let(:target_package) { create(:package) }
-    let(:source_package) { create(:package) }
-    let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
-    let!(:new_bs_request) { create(:bs_request, creator: confirmed_user) }
+    let(:source_package) { create(:package, :as_submission_source) }
+    let!(:new_bs_request) { create(:set_bugowner_request, creator: confirmed_user) }
     let!(:declined_bs_request) do
       create(:declined_bs_request,
              target_project: target_package.project,
@@ -220,16 +199,15 @@ RSpec.describe User do
   describe '#outgoing_requests' do
     let(:target_package) { create(:package) }
     let(:source_package) { create(:package) }
-    let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
-    let!(:new_bs_request) { create(:bs_request, creator: confirmed_user) }
+    let!(:new_bs_request) { create(:set_bugowner_request, creator: confirmed_user) }
     let!(:review_bs_request) do
-      create(:review_bs_request,
+      create(:bs_request_with_submit_action,
              target_project: target_package.project,
              target_package: target_package,
              source_project: source_package.project,
              source_package: source_package,
              creator: confirmed_user,
-             reviewer: admin_user)
+             review_by_user: admin_user)
     end
     let!(:declined_bs_request) do
       create(:declined_bs_request,
@@ -240,7 +218,7 @@ RSpec.describe User do
              creator: confirmed_user)
     end
     let!(:admin_bs_request) do
-      create(:bs_request,
+      create(:bs_request_with_submit_action,
              target_project: target_package.project,
              target_package: target_package,
              source_project: source_package.project,
@@ -276,10 +254,8 @@ RSpec.describe User do
   end
 
   describe '#incoming_requests' do
-    let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
-
     shared_examples 'incoming_requests' do
-      let(:source_package) { create(:package) }
+      let(:source_package) { create(:package, :as_submission_source) }
 
       let!(:maintained_request) do
         create(:bs_request_with_submit_action,
@@ -347,7 +323,7 @@ RSpec.describe User do
 
   describe '#requests' do
     shared_examples 'all_my_requests' do
-      let(:source_package) { create(:package) }
+      let(:source_package) { create(:package, :as_submission_source) }
 
       let!(:maintained_request) do
         create(:bs_request_with_submit_action,
@@ -424,16 +400,16 @@ RSpec.describe User do
 
     context 'with by_user reviews' do
       it_behaves_like 'all_my_requests' do
-        let(:subject_request) { create(:bs_request, creator: admin_user.login) }
+        let(:subject_request) { create(:set_bugowner_request, creator: admin_user.login) }
         let!(:subject_review) { create(:review, by_user: confirmed_user.login, bs_request: subject_request) }
 
-        let(:request_with_same_creator_and_reviewer) { create(:bs_request, creator: confirmed_user.login) }
+        let(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user.login) }
         let!(:review_with_same_creator_and_reviewer) do
           create(:review, by_user: confirmed_user.login, bs_request: request_with_same_creator_and_reviewer)
         end
 
         let(:other_project) { create(:project) }
-        let(:request_of_another_subject) { create(:bs_request, creator: confirmed_user.login) }
+        let(:request_of_another_subject) { create(:set_bugowner_request, creator: confirmed_user.login) }
         let!(:review_of_another_subject) { create(:review, by_user: admin_user.login, bs_request: request_of_another_subject) }
 
         it 'Include reviews where the user is the creator of the request' do
@@ -447,14 +423,14 @@ RSpec.describe User do
         let(:group) { create(:group) }
         let!(:groups_user) { create(:groups_user, user: confirmed_user, group: group) }
 
-        let(:subject_request) { create(:bs_request, creator: admin_user.login) }
+        let(:subject_request) { create(:set_bugowner_request, creator: admin_user.login) }
         let!(:subject_review) { create(:review, by_group: group.title, bs_request: subject_request) }
 
-        let(:request_with_same_creator_and_reviewer) { create(:bs_request, creator: confirmed_user.login) }
+        let(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user.login) }
         let!(:review_with_same_creator_and_reviewer) { create(:review, by_group: group.title, bs_request: request_with_same_creator_and_reviewer) }
 
         let(:other_group) { create(:group) }
-        let(:request_of_another_subject) { create(:bs_request, creator: admin_user.login) }
+        let(:request_of_another_subject) { create(:set_bugowner_request, creator: admin_user.login) }
         let!(:review_of_another_subject) { create(:review, by_group: other_group.title, bs_request: request_of_another_subject) }
 
         it 'not include reviews where the user is the creator of the request' do
@@ -468,14 +444,14 @@ RSpec.describe User do
         let(:project) { create(:project) }
         let!(:relationship_project_user) { create(:relationship_project_user, user: confirmed_user, project: project) }
 
-        let(:subject_request) { create(:bs_request, creator: admin_user.login) }
+        let(:subject_request) { create(:set_bugowner_request, creator: admin_user.login) }
         let!(:subject_review) { create(:review, by_project: project.name, bs_request: subject_request) }
 
-        let(:request_with_same_creator_and_reviewer) { create(:bs_request, creator: confirmed_user.login) }
+        let(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user.login) }
         let!(:review_with_same_creator_and_reviewer) { create(:review, by_project: project.name, bs_request: request_with_same_creator_and_reviewer) }
 
         let(:other_project) { create(:project) }
-        let(:request_of_another_subject) { create(:bs_request, creator: admin_user.login) }
+        let(:request_of_another_subject) { create(:set_bugowner_request, creator: admin_user.login) }
         let!(:review_of_another_subject) { create(:review, by_project: other_project.name, bs_request: request_of_another_subject) }
 
         it 'not include reviews where the user is the creator of the request' do
@@ -489,16 +465,16 @@ RSpec.describe User do
         let(:package) { create(:package) }
         let!(:relationship_package_user) { create(:relationship_package_user, user: confirmed_user, package: package) }
 
-        let(:subject_request) { create(:bs_request, creator: admin_user.login) }
+        let(:subject_request) { create(:set_bugowner_request, creator: admin_user.login) }
         let!(:subject_review) { create(:review, by_project: package.project.name, by_package: package.name, bs_request: subject_request) }
 
-        let(:request_with_same_creator_and_reviewer) { create(:bs_request, creator: confirmed_user.login) }
+        let(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user.login) }
         let!(:review_with_same_creator_and_reviewer) do
           create(:review, by_project: package.project.name, by_package: package.name, bs_request: request_with_same_creator_and_reviewer)
         end
 
         let(:other_package) { create(:package) }
-        let(:request_of_another_subject) { create(:bs_request, creator: admin_user.login) }
+        let(:request_of_another_subject) { create(:set_bugowner_request, creator: admin_user.login) }
         let!(:review_of_another_subject) do
           create(:review, by_project: other_package.project.name, by_package: other_package.name, bs_request: request_of_another_subject)
         end

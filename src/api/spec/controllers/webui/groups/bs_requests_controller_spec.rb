@@ -26,10 +26,10 @@ RSpec.describe Webui::Groups::BsRequestsController do
     end
 
     # for the reviews and all requests table
-    let(:bs_request) { create(:bs_request, created_at: 1.day.ago) }
+    let(:bs_request) { create(:set_bugowner_request, created_at: 1.day.ago) }
     let!(:review) { create(:review, by_group: group.title, bs_request: bs_request) }
     let(:another_group) { create(:group) }
-    let(:another_bs_request) { create(:bs_request) }
+    let(:another_bs_request) { create(:set_bugowner_request) }
     let!(:another_review) { create(:review, by_group: another_group.title, bs_request: another_bs_request) }
 
     before do

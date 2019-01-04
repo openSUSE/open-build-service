@@ -94,8 +94,8 @@ RSpec.describe EventSubscription::FindForEvent do
       let!(:watcher2) { create(:confirmed_user) }
       let!(:source_project) { create(:project, name: 'TheSource') }
       let!(:target_project) { create(:project, name: 'TheTarget') }
-      let!(:source_package) { create(:package) }
-      let!(:target_package) { create(:package) }
+      let!(:source_package) { create(:package, project: source_project) }
+      let!(:target_package) { create(:package, project: target_project) }
       let(:request) do
         create(
           :bs_request_with_submit_action,

@@ -16,7 +16,7 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
   let(:factory_distribution) { ::ObsFactory::Distribution.find(factory.name) }
   let(:staging_projects) { ::ObsFactory::StagingProject.for(factory_distribution) }
 
-  let(:source_package) { create(:package) }
+  let(:source_package) { create(:package, :as_submission_source) }
   let(:target_package) { create(:package, name: 'target_package', project: factory) }
   let(:declined_bs_request) do
     create(:declined_bs_request,
@@ -61,9 +61,9 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
           let(:group) { create(:group, title: 'factory-staging') }
           let!(:create_review_requests) do
             [613_048, 99_999].map do |number|
-              create(:review_bs_request_by_group,
+              create(:bs_request_with_submit_action,
                      number: number,
-                     reviewer: group.title,
+                     review_by_group: group.title,
                      target_project: factory.name,
                      target_package: target_package.name,
                      source_project: source_package.project.name,
@@ -72,10 +72,10 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
           end
           let!(:create_review_requests_in_state_new) do
             [617_649, 111_111].map do |number|
-              create(:review_bs_request_by_group,
+              create(:bs_request_with_submit_action,
                      number: number,
-                     reviewer: group.title,
-                     request_state: 'new',
+                     review_by_group: group.title,
+                     state: :new,
                      target_project: factory.name,
                      target_package: target_package.name,
                      source_project: source_package.project.name,

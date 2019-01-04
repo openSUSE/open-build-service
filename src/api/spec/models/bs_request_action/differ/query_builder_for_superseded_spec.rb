@@ -100,12 +100,12 @@ RSpec.describe BsRequestAction::Differ::QueryBuilderForSuperseded do
 
         it { expect(subject[:orev]).to eq('0') }
         it { expect(subject[:rev]).to eq('0') }
-        it { expect(subject.keys.length).to eq(2) }
+        it { expect(subject.keys).to contain_exactly(:orev, :rev) }
       end
 
       context 'from different sources' do
         let!(:another_source_project) { create(:project, name: 'another_source_project', maintainer: user) }
-        let!(:another_source_package) { create(:package, name: 'another_source_package', project: source_project) }
+        let!(:another_source_package) { create(:package, name: 'another_source_package', project: another_source_project) }
         let!(:superseded_bs_request) do
           create(:bs_request_with_submit_action,
                  source_project: another_source_project,
@@ -119,7 +119,7 @@ RSpec.describe BsRequestAction::Differ::QueryBuilderForSuperseded do
         it { expect(subject[:oproject]).to eq(superseded_bs_request_action.source_project) }
         it { expect(subject[:opackage]).to eq(superseded_bs_request_action.source_package) }
         it { expect(subject[:rev]).to eq('0') }
-        it { expect(subject.keys.length).to eq(4) }
+        it { expect(subject.keys).to contain_exactly(:rev, :orev, :oproject, :opackage) }
       end
     end
   end
