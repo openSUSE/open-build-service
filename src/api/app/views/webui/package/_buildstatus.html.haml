@@ -2,7 +2,7 @@
   .show_all_box
     = check_box_tag "show_all_#{@index}", true, @buildresults.show_all
     - label_message = @buildresults.excluded_counter.zero? ? 'Hide' :  "Show #{@buildresults.excluded_counter}"
-    = label_tag "show_all_#{@index}", "#{label_message} excluded results"
+    = label_tag "show_all_#{@index}", "#{label_message} excluded/disabled results"
 
 - @buildresults.results.each_pair do |package, results|
   %h3= package
@@ -28,7 +28,7 @@
         %tr
           %td
             All the results have state
-            %strong excluded
+            %strong excluded/disabled
 
 
 :javascript
