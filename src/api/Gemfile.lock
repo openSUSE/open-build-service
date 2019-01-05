@@ -181,7 +181,7 @@ GEM
       influxdb (~> 0.6, >= 0.6.4)
       railties (>= 4.2)
     innertube (1.1.0)
-    jaro_winkler (1.5.1)
+    jaro_winkler (1.5.2)
     joiner (0.4.2)
       activerecord (>= 5.2.beta1)
     jquery-datatables (1.10.19.1)
