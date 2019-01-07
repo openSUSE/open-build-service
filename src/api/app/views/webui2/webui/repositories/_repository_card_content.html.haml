@@ -34,8 +34,8 @@
 
     - if user_can_modify_project
       .col
-        = link_to('#', title: 'Delete Repository',
-                       data: { toggle: 'modal', target: "#delete-repository-#{repository.id}" }) do
+        = link_to('#', title: 'Delete Repository', data: { toggle: 'modal', target: '#delete-repository',
+          action: destroy_repository_path(project: project, target: repository.name), repository: repository.name }) do
           %i.fas.fa-times-circle.text-danger
     - elsif !User.current.is_nobody?
       .col
@@ -45,5 +45,4 @@
 
 = render partial: 'edit_repository_modal', locals: { repository: repository, project: project }
 = render partial: 'add_repository_path_modal', locals: { repository: repository, project: project }
-= render partial: 'delete_repository_modal', locals: { repository: repository, project: project }
 = render partial: 'request_delete_repository_modal', locals: { repository: repository, project: project }

@@ -23,7 +23,8 @@
         = link_to('#', title: 'Add Download on Demand Source', data: { toggle: 'modal', target: "#add-dod-source-modal-#{repository.id}" }) do
           %i.fas.fa-plus-circle.text-primary
       .col
-        = link_to('#', title: 'Delete Repository', data: { toggle: 'modal', target: "#delete-repository-#{repository.id}" }) do
+        = link_to('#', title: 'Delete Repository', data: { toggle: 'modal', target: '#delete-repository',
+          action: destroy_repository_path(project: project, target: repository.name), repository: repository.name }) do
           %i.fas.fa-times-circle.text-danger
     - elsif !User.current.is_nobody?
       .col
@@ -34,5 +35,4 @@
 = render partial: 'add_dod_source_modal', locals: { repository: repository,
                                                     project: project,
                                                     download_on_demand: DownloadRepository.new(repository_id: repository.id) }
-= render partial: 'delete_repository_modal', locals: { repository: repository, project: project }
 = render partial: 'request_delete_repository_modal', locals: { repository: repository, project: project }
