@@ -27,10 +27,8 @@ RSpec.describe Staging::StagingProject, vcr: true do
 
   let(:request_attributes) do
     {
-      target_project: target_project.name,
-      target_package: target_package.name,
-      source_project: source_project.name,
-      source_package: source_package.name
+      target_package: target_package,
+      source_package: source_package
     }
   end
 

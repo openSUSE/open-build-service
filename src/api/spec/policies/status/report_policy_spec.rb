@@ -40,13 +40,11 @@ RSpec.describe Status::ReportPolicy do
 
     context 'status report for request' do
       let(:source_project) { create(:project_with_package) }
-      let(:target_project) { create(:project_with_package) }
+      let(:target_project) { create(:project) }
       let(:bs_request) do
         create(:bs_request_with_submit_action,
-               source_project: source_project,
                source_package: source_project.packages.first,
-               target_project: target_project,
-               target_package: target_project.packages.first)
+               target_project: target_project)
       end
       let(:status_report) { create(:status_report, checkable: bs_request) }
 

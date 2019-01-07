@@ -20,10 +20,8 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
   let(:target_package) { create(:package, name: 'target_package', project: factory) }
   let(:declined_bs_request) do
     create(:declined_bs_request,
-           target_project: factory.name,
-           target_package: target_package.name,
-           source_project: source_package.project.name,
-           source_package: source_package.name)
+           target_package: target_package,
+           source_package: source_package)
   end
 
   before do
@@ -64,10 +62,8 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
               create(:bs_request_with_submit_action,
                      number: number,
                      review_by_group: group.title,
-                     target_project: factory.name,
-                     target_package: target_package.name,
-                     source_project: source_package.project.name,
-                     source_package: source_package.name)
+                     target_package: target_package,
+                     source_package: source_package)
             end
           end
           let!(:create_review_requests_in_state_new) do
@@ -76,10 +72,8 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
                      number: number,
                      review_by_group: group.title,
                      state: :new,
-                     target_project: factory.name,
-                     target_package: target_package.name,
-                     source_project: source_package.project.name,
-                     source_package: source_package.name)
+                     target_package: target_package,
+                     source_package: source_package)
             end
           end
           let(:backend_response) do
@@ -171,9 +165,8 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
       context 'with checks' do
         let(:one_request) do
           create(:bs_request_with_submit_action,
-                 target_project: factory.name,
-                 source_project: source_package.project.name,
-                 source_package: source_package.name)
+                 target_project: factory,
+                 source_package: source_package)
         end
         let(:meta) do
           <<-DESCRIPTION

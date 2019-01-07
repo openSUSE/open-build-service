@@ -18,19 +18,16 @@ RSpec.describe Webui::RequestController, vcr: true do
   let(:devel_package) { create(:package_with_file, name: 'goal', project: devel_project) }
   let(:bs_request) do
     create(:bs_request_with_submit_action,
-           description: 'Please take this', creator: submitter.login,
-           target_project: target_project.name,
-           target_package: target_package.name,
-           source_project: source_project.name,
-           source_package: source_package.name)
+           description: 'Please take this',
+           creator: submitter,
+           target_package: target_package,
+           source_package: source_package)
   end
   let(:request_with_review) do
     create(:bs_request_with_submit_action,
            review_by_user: reviewer,
-           target_project: target_project.name,
-           target_package: target_package.name,
-           source_project: source_project.name,
-           source_package: source_package.name)
+           target_package: target_package,
+           source_package: source_package)
   end
 
   it { is_expected.to use_before_action(:require_login) }

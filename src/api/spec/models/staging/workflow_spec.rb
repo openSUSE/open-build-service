@@ -12,10 +12,8 @@ RSpec.describe Staging::Workflow, type: :model do
   let(:bs_request) do
     create(:bs_request_with_submit_action,
            state: :review,
-           target_project: project.name,
-           target_package: target_package.name,
-           source_project: source_project.name,
-           source_package: source_package.name)
+           target_package: target_package,
+           source_package: source_package)
   end
 
   before do
@@ -54,10 +52,8 @@ RSpec.describe Staging::Workflow, type: :model do
     context 'with requests and some are in staging projects and some not' do
       let!(:bs_request_2) do
         create(:bs_request_with_submit_action,
-               target_project: project.name,
-               target_package: target_package.name,
-               source_project: source_project.name,
-               source_package: source_package.name,
+               target_package: target_package,
+               source_package: source_package,
                review_by_group: group)
       end
 
@@ -86,10 +82,8 @@ RSpec.describe Staging::Workflow, type: :model do
     context 'with requests and some are in staging projects and some not' do
       let!(:bs_request_2) do
         create(:bs_request_with_submit_action,
-               target_project: project.name,
-               target_package: target_package.name,
-               source_project: source_project.name,
-               source_package: source_package.name)
+               target_package: target_package,
+               source_package: source_package)
       end
 
       before do

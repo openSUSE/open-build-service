@@ -6,7 +6,7 @@ RSpec.feature 'Bootstrap_MaintenanceWorkflow', type: :feature, js: true, vcr: tr
   let(:maintenance_coord_user) { create(:confirmed_user, login: 'maintenance_coord') }
   let(:project) { create(:project_with_repository, name: 'ProjectWithRepo') }
   let(:package) { create(:package_with_file, project: project, name: 'ProjectWithRepo_package') }
-  let(:update_project) { create(:update_project, target_project: project, name: "#{project.name}:Update") }
+  let(:update_project) { create(:update_project, target_project: project, name: "#{project}:Update") }
   let(:maintenance_project) do
     create(:maintenance_project,
            name: 'MaintenanceProject',
@@ -61,7 +61,7 @@ RSpec.feature 'Bootstrap_MaintenanceWorkflow', type: :feature, js: true, vcr: tr
       type: 'maintenance_incident',
       target_project: maintenance_project.name,
       target_releaseproject: update_project.name,
-      source_project: "#{user.home_project}:branches:#{update_project.name}",
+      source_project: "#{user.home_project}:branches:#{update_project}",
       source_package: package.name
     )
     expect(new_bs_request_action.pluck(:source_rev).first).not_to be(nil)

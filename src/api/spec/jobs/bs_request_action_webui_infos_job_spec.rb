@@ -12,10 +12,8 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
   let(:target_package) { create(:package_with_file, name: 'target_package', project: target_project, file_content: 'a') }
   let(:request) do
     create(:bs_request_with_submit_action,
-           source_project: source_project.name,
-           source_package: source_package.name,
-           target_project: target_project.name,
-           target_package: target_package.name)
+           source_package: source_package,
+           target_package: target_package)
   end
   let(:request_action) { request.bs_request_actions.first }
 
@@ -46,8 +44,7 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
     context 'with non existing target project' do
       let(:request) do
         request = build(:bs_request_with_submit_action,
-                        source_project: source_project.name,
-                        source_package: source_package.name,
+                        source_package: source_package,
                         target_project: 'does-not-exist',
                         target_package: target_package.name)
         # avoid save!
@@ -64,10 +61,9 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
     context 'with non existing source package' do
       let(:request) do
         request = build(:bs_request_with_submit_action,
-                        source_project: source_project.name,
-                        source_package: 'does-not-exist',
-                        target_project: target_project.name,
-                        target_package: target_package.name)
+                        source_project: 'does-not-exist',
+                        source_package: source_package.name,
+                        target_package: target_package)
         # avoid save!
         request.save
         request
@@ -84,10 +80,8 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
       let(:another_source_package) { create(:package_with_file, name: 'another_source_package', project: another_source_project, file_content: 'c') }
       let(:superseding_request) do
         create(:bs_request_with_submit_action,
-               source_project: another_source_project.name,
-               source_package: another_source_package.name,
-               target_project: target_project.name,
-               target_package: target_package.name)
+               source_package: another_source_package,
+               target_package: target_package)
       end
       let(:superseding_request_action) { superseding_request.bs_request_actions.first }
 
