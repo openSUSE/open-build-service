@@ -21,28 +21,12 @@
               %li.list-inline-item
                 = link_to("#{name}: #{title}", project_show_path(project: name))
         = form_tag(package_branch_path) do
-          .form-group#orginal-project-name
-            %label{ for: 'linked_project' } Orginal project name
-            .input-group
-              .input-group-prepend
-                %span.input-group-text#search-icon-project
-                  %i.fa.fa-search
-                  %i.fas.fa-spinner.fa-spin.d-none
-              = text_field_tag 'linked_project', nil, size: 80, class: 'form-control', placeholder: 'Type to autocomplete', required: true
-          .form-group#original-package-name
-            %label{ for: 'linked_package' } Orginal package name
-            .input-group
-              .input-group-prepend
-                %span.input-group-text#search-icon-package
-                  %i.fa.fa-search
-                  %i.fas.fa-spinner.fa-spin.d-none
-              = text_field_tag 'linked_package', nil, size: 80, class: 'form-control', placeholder: 'Type to autocomplete', required: true
+          = render partial: 'webui/autocomplete', locals: { html_id: 'linked_project', label: 'Original project name',
+                                                            source: autocomplete_projects_path }
+          = render partial: 'webui/autocomplete', locals: { html_id: 'linked_package', label: 'Original package name',
+                                                            source: autocomplete_packages_path }
           = hidden_field_tag 'target_project', project
           = render partial: 'shared/package_branch_form', locals: { show_project_field: false, target_project: project,
                                                                     package: nil, revision: nil }
           .modal-footer
             = render partial: 'webui2/shared/dialog_action_buttons'
-
-:javascript
-  autocomleteBranchPackageName('#{autocomplete_packages_path}');
-  autocompleteBranchProjectName('#{autocomplete_projects_path}');

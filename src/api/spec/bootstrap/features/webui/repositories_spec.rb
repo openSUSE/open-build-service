@@ -53,8 +53,11 @@ RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
 
       click_link('Add from a Project')
       fill_in('target_project', with: repository.project)
-      # We need to remove focus from project so that the autocomplete happens
-      find('#repo_name').click
+      # Select the first autocomplete result
+      find('.ui-menu-item-wrapper', match: :first).click
+      # Remove focus from autocomplete. Needed to trigger update of the other input fields.
+      find('#target_repo').click
+
       click_button('Accept')
 
       expect(page).to have_css('.repository-card')
