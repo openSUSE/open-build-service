@@ -2,7 +2,7 @@ require 'statistics_calculations'
 
 class Webui::FeedsController < Webui::WebuiController
   layout false
-  before_action :set_project, only: ['commits']
+  before_action :set_project, only: [:commits]
 
   def news
     @news = StatusMessage.alive.includes(:user).limit(5)
@@ -13,11 +13,7 @@ class Webui::FeedsController < Webui::WebuiController
   end
 
   def commits
-    # The sourceaccess flag is checked for the project, but not for every package
-    if !User.current.is_admin? && @project.disabled_for?('sourceaccess', nil, nil)
-      redirect_to '/403.html', status: :forbidden
-      return
-    end
+    authorize @project, :source_access?
 
     @start = params[:starting_at].present? ? starting_at(params[:starting_at]) : 7.days.ago
     @finish = params[:ending_at].present? ? ending_at(params[:ending_at]) : nil
