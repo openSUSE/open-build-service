@@ -9,14 +9,12 @@
             -# FIXME: get rid of this helper
             Do you want to request to change the devel project for #{package_link(package)} from
             \#{project_or_package_link(project: package.develpackage.project.name)}?
-          .form-group
-            = label_tag(:devel_project, 'New Devel project (leave free to delete the current one):')
-            = text_field_tag(:devel_project, '', required: true, class: 'form-control')
+          = render partial: 'webui/autocomplete', locals: { html_id: 'devel_project',
+                                                            label: 'New Devel project (leave free to delete the current one):',
+                                                            source: autocomplete_projects_path }
           .form-group
             = label_tag(:description, 'Description:')
             = text_area_tag(:description, '', row: 3, class: 'form-control')
         .modal-footer
           = render partial: 'webui2/shared/dialog_action_buttons'
 
-:javascript
-  autocompleteDevelProject('#{autocomplete_projects_path}');
