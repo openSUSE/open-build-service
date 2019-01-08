@@ -521,7 +521,7 @@ RSpec.describe Project, vcr: true do
     end
 
     before do
-      User.current = user
+      login(user)
     end
 
     subject! { project.remove_all_persons }
@@ -540,7 +540,7 @@ RSpec.describe Project, vcr: true do
     end
 
     before do
-      User.current = groups_user.user
+      login(groups_user.user)
     end
 
     subject! { project.remove_all_groups }
@@ -574,7 +574,7 @@ RSpec.describe Project, vcr: true do
     let!(:release_target) { create(:release_target, target_repository: repository_release, repository: repository) }
 
     before do
-      User.current = user
+      login user
       allow_any_instance_of(Package).to receive(:target_name).and_return('my_release_target')
     end
 

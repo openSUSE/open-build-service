@@ -17,7 +17,7 @@ RSpec.describe Staging::Workflow, type: :model do
   end
 
   before do
-    User.current = admin_user
+    login(admin_user)
     staging_workflow
   end
 

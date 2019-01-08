@@ -80,7 +80,7 @@ RSpec.describe Staging::StagingProject, vcr: true do
 
   describe '#overall_state' do
     before do
-      User.current = user
+      login(user)
     end
 
     context 'when there are no staged requests' do
@@ -157,7 +157,7 @@ RSpec.describe Staging::StagingProject, vcr: true do
   describe '#assign_managers_group' do
     context 'when the group wasn\'t assigned before' do
       before do
-        User.current = user
+        login(user)
         staging_project.assign_managers_group(other_managers_group)
         staging_project.store
       end

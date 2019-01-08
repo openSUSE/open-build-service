@@ -142,7 +142,7 @@ RSpec.describe BsRequest, vcr: true do
 
     context 'with by_user review' do
       before do
-        User.current = user
+        login user
         request.addreview(by_user: reviewer, comment: 'does it look ok?')
       end
 
@@ -187,7 +187,7 @@ RSpec.describe BsRequest, vcr: true do
 
     context 'to delete state' do
       before do
-        User.current = admin
+        login admin
         request.change_state(newstate: 'deleted')
       end
 
@@ -208,7 +208,7 @@ RSpec.describe BsRequest, vcr: true do
       end
 
       before do
-        User.current = user
+        login user
       end
 
       it { expect { request.change_state(newstate: 'review') }.to raise_error(PostRequestNoPermission) }
@@ -223,7 +223,7 @@ RSpec.describe BsRequest, vcr: true do
       let!(:relationship_project_user) { create(:relationship_project_user, project: target_project) }
       let(:user) { relationship_project_user.user }
       before do
-        User.current = user
+        login user
         request.state = 'accepted'
         request.save
       end
