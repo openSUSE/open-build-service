@@ -6,22 +6,11 @@
         .modal-header
           %h5.modal-title#staging-managers-group-modal-label Assign other group
         .modal-body
-          .form-group#assign-managers-group-modal-input
-            .mb-4
-              Assigned group is:
-              %strong= actual_group
+          .mb-4
+            Assigned group is:
+            %strong= actual_group
 
-            = label_tag(:managers_title, 'Replace the group with:')
-            .input-group
-              .input-group-prepend
-                %span.input-group-text#assign-managers-group-search-icon
-                  %i.fa.fa-search
-                  %i.fas.fa-spinner.fa-spin.d-none
-              = text_field_tag 'managers_title', '', required: true, placeholder: 'Type to autocomplete...', class: 'form-control',
-                               data: { autocomplete_groups_url: url_for(controller: '/webui/groups', action: 'autocomplete') }
-
+          = render partial: 'webui/autocomplete', locals: { html_id: 'managers_title', label: 'Replace the group with:',
+                                                            source: url_for(controller: '/webui/groups', action: 'autocomplete') }
         .modal-footer
           = render partial: 'webui2/shared/dialog_action_buttons'
-
-- content_for :ready_function do
-  autocompleteStagingManagersGroup();
