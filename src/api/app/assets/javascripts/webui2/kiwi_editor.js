@@ -23,12 +23,6 @@ function enableSave(){
   $('#kiwi-image-update-form-save, #kiwi-image-update-form-revert').removeClass('disabled');
 }
 
-function editPackageDialog(){
-  var fields = $(this).parents('.nested-fields');
-  var dialog = fields.find('.modal');
-  dialog.modal('show');
-}
-
 function editRepositoryDialog(){
   var fields = $(this).parents('.nested-fields');
   var dialog = fields.find('.modal');
@@ -215,10 +209,6 @@ function addDefault(dialog) {
   });
 }
 
-function hoverListItem() {
-  $(this).find('.kiwi_actions').toggleClass('d-none');
-}
-
 function autocompleteKiwiRepositories(project, repoField) {
   if (project === "")
       return;
@@ -348,10 +338,8 @@ $(document).ready(function(){
 
   // Edit dialog for Repositories and Packages
   $('.repository_edit').click(editRepositoryDialog);
-  $('.package_edit').click(editPackageDialog);
   $('#kiwi-repositories-list .close-dialog, #kiwi-packages-list .close-dialog').click(closeDialog);
   $('.revert-dialog').click(revertDialog);
-  $('#kiwi-repositories-list .kiwi_list_item, #kiwi-packages-list .kiwi_list_item').hover(hoverListItem, hoverListItem);
   $('[name=target_project]').each(function() {
     kiwiRepositoriesSetupAutocomplete($(this).parents('.nested-fields'));
   });
@@ -371,29 +359,26 @@ $(document).ready(function(){
     $(addedFields).find('.repository_edit').click(editRepositoryDialog);
     $(addedFields).find('.close-dialog').click(closeDialog);
     $(addedFields).find('.revert-dialog').click(revertDialog);
-    $(addedFields).find('.kiwi_list_item').hover(hoverListItem, hoverListItem);
     kiwiRepositoriesSetupAutocomplete($(addedFields));
     $('#no-repositories').addClass('d-none');
   });
 
   $('#kiwi-repositories-list').on('cocoon:after-remove', function() {
-    if ($(this).find('.nested-fields:visible').size() === 0) {
+    if ($(this).find('.nested-fields:visible').length === 0) {
       $('#no-repositories').removeClass('d-none');
     }
   });
 
   // After inserting new packages add the Callbacks
   $('#kiwi-packages-list').on('cocoon:after-insert', function(e, addedFields) {
-    $(addedFields).find('.package_edit').click(editPackageDialog);
     $(addedFields).find('.close-dialog').click(closeDialog);
     $(addedFields).find('.revert-dialog').click(revertDialog);
-    $(addedFields).find('.kiwi_list_item').hover(hoverListItem, hoverListItem);
     kiwiPackagesSetupAutocomplete($(addedFields));
     $('#no-packages').addClass('d-none');
   });
 
   $('#kiwi-packages-list').on('cocoon:after-remove', function() {
-    if ($(this).find('.nested-fields:visible').size() === 0) {
+    if ($(this).find('.nested-fields:visible').length === 0) {
       $('#no-packages').removeClass('d-none');
     }
   });

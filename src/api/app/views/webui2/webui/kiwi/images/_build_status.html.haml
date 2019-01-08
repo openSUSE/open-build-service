@@ -2,17 +2,18 @@
 - @build_results.each_pair do |package, results|
   %ul.list-group.list-group-flush#package-buildstatus
     - results.each do |result|
-      %li.list-group-item
-        - repository = @project.repositories.find_by_name(result.repository)
-        - if !(repository && repository.architectures.pluck(:name).include?(result.architecture))
-          %i.fas.fa-clock.text-warning{ title: 'This result is outdated' }
-        - else
-          :ruby
-            icon = webui2_repo_status_icon(result.state)
-            description = webui2_repo_status_description(result.state, result.details)
-          %i{ class: icon, data: { content: description, placement: 'top', toggle: 'popover' } }
-        = result.architecture
-        = webui2_arch_repo_table_cell(result.repository, result.architecture, package, 'code' => result.code, 'details' => result.details)
+      %li.list-group-item.d-flex.justify-content-between
+        %div
+          - repository = @project.repositories.find_by_name(result.repository)
+          - if (repository && repository.architectures.pluck(:name).include?(result.architecture))
+            - icon = webui2_repo_status_icon(result.state)
+            - description = webui2_repo_status_description(result.state, result.details)
+            %i{ class: icon, data: { content: description, placement: 'top', toggle: 'popover' } }
+          - else
+            %i.fas.fa-clock.text-warning{ title: 'This result is outdated' }
+          = result.architecture
+        %div
+          = webui2_arch_repo_table_cell(result.repository, result.architecture, package, 'code' => result.code, 'details' => result.details)
 
 .card-body
   = link_to(package_binaries_path(project: @project, package: @image.package, repository: 'images'), title: 'Download images') do

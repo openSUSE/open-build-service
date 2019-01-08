@@ -1,29 +1,5 @@
-= content_for :ready_function do
-  $("#kiwi_details_trigger").click(function() {
-  $("#kiwi-image-details-section").removeClass('d-none');
-  $("#kiwi-preferences").removeClass('d-none');
-  $(".detailed-info").removeClass('d-none');
-  $("#kiwi-image-profiles-section").addClass('d-none');
-  $("#kiwi-image-repositories-section").addClass('d-none');
-  $("#kiwi-image-packages-section").addClass('d-none');
-  $("#kiwi_software_trigger").removeClass("active");
-  $("#kiwi_details_trigger").addClass("active");
-  });
-
-  $("#kiwi_software_trigger").click(function() {
-  $("#kiwi-image-profiles-section").removeClass('d-none');
-  $("#kiwi-image-repositories-section").removeClass('d-none');
-  $("#kiwi-image-packages-section").removeClass('d-none');
-  $("#kiwi-preferences").addClass('d-none');
-  $(".detailed-info").addClass('d-none');
-  $("#kiwi-image-details-section").addClass('d-none');
-  $("#kiwi_software_trigger").addClass("active");
-  $("#kiwi_details_trigger").removeClass("active");
-  });
-
-:ruby
-  @project = @image.package.try(:project)
-  @package = @image.package
+- @project = @image.package.try(:project)
+- @package = @image.package
 
 .bg-light
   %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
@@ -31,7 +7,31 @@
       = link_to('Overview', { controller: 'kiwi/images', action: 'show' }, class: "nav-link #{'active' if action_name == 'show'}")
     %li.nav-item
       = link_to 'Details', action_name == 'edit' ? '#' : { controller: 'kiwi/images', action: 'edit', section: 'details' },
-        id: 'kiwi_details_trigger', class: "nav-link #{'active' if params[:section] == 'details'}"
+        id: 'kiwi-details-trigger', class: "nav-link #{'active' if params[:section] == 'details'}"
     %li.nav-item
       = link_to 'Software', action_name == 'edit' ? '#' : { controller: 'kiwi/images', action: 'edit', section: 'software' },
-        id: 'kiwi_software_trigger', class: "nav-link #{'active' if params[:section] == 'software'}"
+        id: 'kiwi-software-trigger', class: "nav-link #{'active' if params[:section] == 'software'}"
+
+= content_for :ready_function do
+  :plain
+    $("#kiwi-details-trigger").click(function() {
+      $("#kiwi-image-details-section").removeClass('d-none');
+      $("#kiwi-preferences").removeClass('d-none');
+      $(".detailed-info").removeClass('d-none');
+      $("#kiwi-image-profiles-section").addClass('d-none');
+      $("#kiwi-image-repositories-section").addClass('d-none');
+      $("#kiwi-image-packages-section").addClass('d-none');
+      $("#kiwi-software-trigger").removeClass("active");
+      $("#kiwi-details-trigger").addClass("active");
+    });
+
+    $("#kiwi-software-trigger").click(function() {
+      $("#kiwi-image-profiles-section").removeClass('d-none');
+      $("#kiwi-image-repositories-section").removeClass('d-none');
+      $("#kiwi-image-packages-section").removeClass('d-none');
+      $("#kiwi-preferences").addClass('d-none');
+      $(".detailed-info").addClass('d-none');
+      $("#kiwi-image-details-section").addClass('d-none');
+      $("#kiwi-software-trigger").addClass("active");
+      $("#kiwi-details-trigger").removeClass("active");
+    });

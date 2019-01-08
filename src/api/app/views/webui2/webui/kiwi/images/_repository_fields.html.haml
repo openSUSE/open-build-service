@@ -2,7 +2,7 @@
   %div{ class: "kiwi_list_item #{'has-error' if f.object.errors.present?}" }
     %span
       = link_to f.object.name, '',
-      data: {'target': "##{f.object.source_path.present? ? 'edit-' + f.object.name.gsub(/[^0-9a-z]/i, '') : 'add-repository'}", 'toggle': 'modal' }
+      data: { 'target': "##{f.object.source_path.present? ? 'edit-' + f.object.name.gsub(/[^0-9a-z]/i, '') : 'add-repository'}", 'toggle': 'modal' }
     %span.kiwi_actions.d-none
       = link_to_remove_association(f) do
         %i.fas.fa-times.text-danger

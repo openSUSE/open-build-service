@@ -15,4 +15,5 @@
       repositories selected
   %p
     = @packages_count
-    package/s selected
+    = pluralize(@packages_count, 'package', plural: 'packages')
+    selected

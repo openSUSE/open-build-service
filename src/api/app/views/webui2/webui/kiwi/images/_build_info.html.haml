@@ -4,7 +4,7 @@
 
 .result-display
 .card-body
-  .btn.btn-sm.btn-outline-primary.build-refresh{ onclick: 'update_build_result()', title: 'Refresh Build Results' }
+  .btn.btn-sm.btn-outline-primary.build-refresh{ title: 'Refresh Build Results' }
     Refresh
     %i.fas.fa-sm.fa-sync-alt{ id: 'result_spinner' }
 %hr.m-0
@@ -19,7 +19,7 @@
 
 = javascript_tag do
   :plain
-    function update_build_result() {
+    function updateKiwiImagesResult() {
       $('#result_spinner').addClass('fa-spin');
       $.ajax({
         url: '#{url_for(controller: '/webui/kiwi/images', action: 'build_result')}',
@@ -36,4 +36,8 @@
       });
     }
 
-    update_build_result();
+    $(".build-refresh").click(function() {
+      updateKiwiImagesResult();
+    });
+
+    updateKiwiImagesResult();

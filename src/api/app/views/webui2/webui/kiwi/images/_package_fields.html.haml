@@ -1,11 +1,11 @@
-.nested-fields.kiwi_fields
+.nested-fields.kiwi_fields.col-lg-2.col-md-3.col-sm-4
   %div{ class: "d-flex justify-content-between kiwi_list_item #{'has-error' if f.object.errors.present?}" }
-    %span.text-truncate{ title: f.object.name }
+    %span.btn.btn-link.text-truncate{ title: f.object.name }
       = link_to '', class: 'package_edit kiwi_element_name', data: { 'target': "#package-#{f.object.name}", 'toggle': 'modal' } do
         = f.object.name
         - if f.object.arch.present?
           %small (#{f.object.arch})
-    %span.kiwi_actions.d-none
+    %span.btn.btn-link.kiwi_actions
       = link_to_remove_association f do
         %i.fas.fa-times.text-danger
 
