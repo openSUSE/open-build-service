@@ -18,6 +18,7 @@ class Webui::WebuiController < ActionController::Base
   before_action :check_anonymous
   before_action :require_configuration
   before_action :set_pending_announcement
+  before_action :set_influxdb_tags
   after_action :clean_cache
 
   # :notice and :alert are default, we add :success and :error
@@ -321,6 +322,17 @@ class Webui::WebuiController < ActionController::Base
   def set_pending_announcement
     return if Announcement.last.in?(User.current.announcements)
     @pending_announcement = Announcement.last
+  end
+
+  def set_influxdb_tags
+    anonymous = User.current_login == User::NOBODY_LOGIN
+
+    InfluxDB::Rails.current.tags = {
+      beta: !anonymous && User.current.in_beta?,
+      anonymous: anonymous,
+      interface: :webui,
+      volley: false # only relevant for API,
+    }
   end
 
   # NOTE: remove when bootstrap migration is done (related to switch_to_webui2)

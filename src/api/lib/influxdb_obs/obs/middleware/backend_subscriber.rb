@@ -37,13 +37,15 @@ module InfluxDB
         end
 
         def tags(data)
-          {
+          result = {
             http_method: data[:http_method],
             http_status_code: data[:http_status_code],
             host: data[:host],
             controller_location: data[:controller_location],
             backend_location: data[:backend_location]
-          }.reject { |_, value| value.blank? }
+          }
+          merged_tags = result.merge(InfluxDB::Rails.current.tags).reject { |_, value| value.nil? }
+          InfluxDB::Rails.configuration.tags_middleware.call(merged_tags)
         end
       end
     end
