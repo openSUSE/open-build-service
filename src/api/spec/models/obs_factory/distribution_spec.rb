@@ -155,16 +155,16 @@ RSpec.describe ObsFactory::Distribution do
       let(:user) { create(:user, login: 'Jim') }
       let(:other_user) { create(:user, login: 'Other') }
       let!(:review_request) do
-        create(:review_bs_request,
-               reviewer: user.login,
+        create(:bs_request_with_submit_action,
+               review_by_user: user.login,
                target_project: project.name,
                target_package: target_package.name,
                source_project: source_package.project.name,
                source_package: source_package.name)
       end
       let!(:other_review_request) do
-        create(:review_bs_request,
-               reviewer: other_user.login,
+        create(:bs_request_with_submit_action,
+               review_by_user: other_user.login,
                target_project: project.name,
                target_package: target_package.name,
                source_project: source_package.project.name,
@@ -181,16 +181,16 @@ RSpec.describe ObsFactory::Distribution do
       let(:group) { create(:group, title: 'Staff') }
       let(:other_group) { create(:group, title: 'Other') }
       let!(:review_request) do
-        create(:review_bs_request_by_group,
-               reviewer: group.title,
+        create(:bs_request_with_submit_action,
+               review_by_group: group.title,
                target_project: project.name,
                target_package: target_package.name,
                source_project: source_package.project.name,
                source_package: source_package.name)
       end
       let!(:other_review_request) do
-        create(:review_bs_request_by_group,
-               reviewer: other_group.title,
+        create(:bs_request_with_submit_action,
+               review_by_group: other_group.title,
                target_project: project.name,
                target_package: target_package.name,
                source_project: source_package.project.name,

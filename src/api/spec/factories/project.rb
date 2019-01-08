@@ -27,6 +27,12 @@ FactoryBot.define do
       project.write_to_backend
     end
 
+    trait :as_submission_source do
+      after(:create) do |project, _evaluator|
+        create(:approved_request_source_attrib, project: project)
+      end
+    end
+
     # remote projects validate additional the description and remoteurl
     factory :remote_project do
       description { Faker::Lorem.sentence }

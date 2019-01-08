@@ -162,14 +162,14 @@ RSpec.describe PublicController, vcr: true do
   end
 
   describe 'GET #show_request' do
-    let(:request) { create(:bs_request) }
+    let(:request) { create(:set_bugowner_request) }
 
     before do
       get :show_request, params: { number: request.number }
     end
 
     it { is_expected.to respond_with(:success) }
-    it { expect(response.body).to eq(request.render_xml) }
+    it { expect(response.body).to eq(request.reload.render_xml) }
   end
 
   describe 'GET #binary_packages' do

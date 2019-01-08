@@ -8,7 +8,7 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
   let(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: project) }
   let(:staging_project) { staging_workflow.staging_projects.first }
   let(:project_without_staging) { create(:project, name: 'foo_project') }
-  let(:source_project) { create(:project, name: 'source_project') }
+  let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
   let(:target_package) { create(:package, name: 'target_package', project: project) }
   let(:source_package) { create(:package, name: 'source_package', project: source_project) }
 
@@ -67,19 +67,16 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
         create(:bs_request_with_submit_action, request_attributes.merge(creator: user, staging_project: staging_project))
       end
 
-      let(:untracked_review) { create(:review, by_project: staging_project) }
       let!(:untracked_request) do
-        create(:bs_request_with_submit_action, request_attributes.merge(creator: user, reviews: [untracked_review]))
+        create(:bs_request_with_submit_action, request_attributes.merge(creator: user, review_by_project: staging_project))
       end
 
-      let(:review) { create(:review, by_project: staging_project) }
       let!(:bs_request_to_review) do
-        create(:bs_request_with_submit_action, request_attributes.merge(creator: user, reviews: [review], staging_project: staging_project))
+        create(:bs_request_with_submit_action, request_attributes.merge(creator: user, review_by_project: staging_project, staging_project: staging_project))
       end
 
-      let(:missing_review) { create(:review, by_user: user) }
       let!(:bs_request_missing_review) do
-        create(:bs_request_with_submit_action, request_attributes.merge(creator: user, reviews: [missing_review], staging_project: staging_project))
+        create(:bs_request_with_submit_action, request_attributes.merge(creator: user, review_by_user: user, staging_project: staging_project))
       end
 
       before do

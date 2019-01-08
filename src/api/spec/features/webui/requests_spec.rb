@@ -7,15 +7,7 @@ RSpec.feature 'Requests', type: :feature, js: true do
   let(:target_package) { create(:package, name: 'goal', project_id: target_project.id) }
   let(:source_project) { submitter.home_project }
   let(:source_package) { create(:package, name: 'ball', project_id: source_project.id) }
-  let(:bs_request) { create(:bs_request, description: 'a long text - ' * 200, creator: submitter.login) }
-  let(:create_submit_request) do
-    bs_request.bs_request_actions.delete_all
-    create(:bs_request_action_submit, target_project: target_project.name,
-                                      target_package: target_package.name,
-                                      source_project: source_project.name,
-                                      source_package: source_package.name,
-                                      bs_request_id: bs_request.id)
-  end
+  let(:bs_request) { create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter.login) }
 
   RSpec.shared_examples 'expandable element' do
     scenario 'expanding a text field' do
@@ -82,6 +74,13 @@ RSpec.feature 'Requests', type: :feature, js: true do
     end
 
     describe 'for packages' do
+      let(:bs_request) do
+        create(:add_maintainer_request, target_project: target_project,
+                                        target_package: target_package.name,
+                                        description: 'a long text - ' * 200,
+                                        creator: submitter.login,
+                                        person_name: submitter)
+      end
       it 'can be submitted' do
         skip_if_bootstrap
 
@@ -101,11 +100,6 @@ RSpec.feature 'Requests', type: :feature, js: true do
       end
 
       it 'can be accepted' do
-        bs_request.bs_request_actions.delete_all
-        create(:bs_request_action_add_maintainer_role, target_project: target_project.name,
-                                                       target_package: target_package.name,
-                                                       person_name: submitter,
-                                                       bs_request_id: bs_request.id)
         login receiver
         visit request_show_path(bs_request)
         click_button 'Accept'

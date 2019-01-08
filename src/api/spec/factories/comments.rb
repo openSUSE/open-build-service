@@ -12,7 +12,7 @@ FactoryBot.define do
     end
 
     factory :comment_request do
-      commentable { create(:bs_request) }
+      commentable { create(:set_bugowner_request) }
     end
   end
 end
