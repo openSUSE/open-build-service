@@ -2,7 +2,7 @@ require 'statistics_calculations'
 
 class Webui::FeedsController < Webui::WebuiController
   layout false
-  before_action :set_project, only: ['commits']
+  before_action :set_project, only: [:commits]
 
   def news
     @news = StatusMessage.alive.includes(:user).limit(5)
@@ -13,27 +13,11 @@ class Webui::FeedsController < Webui::WebuiController
   end
 
   def commits
-    # The sourceaccess flag is checked for the project, but not for every package
-    if !User.current.is_admin? && @project.disabled_for?('sourceaccess', nil, nil)
-      redirect_to '/403.html', status: :forbidden
-      return
-    end
-    if params[:starting_at].present?
-      @start = (begin
-                  Time.zone.parse(params[:starting_at])
-                rescue
-                  nil
-                end)
-    end
-    @start ||= 7.days.ago
-    @finish = nil
-    if params[:ending_at].present?
-      @finish = (begin
-                   Time.zone.parse(params[:ending_at])
-                 rescue
-                   nil
-                 end)
-    end
+    authorize @project, :source_access?
+
+    @start = params[:starting_at].present? ? starting_at(params[:starting_at]) : 7.days.ago
+    @finish = params[:ending_at].present? ? ending_at(params[:ending_at]) : nil
+
     @commits = @project.project_log_entries.where(event_type: 'commit').where(['datetime >= ?', @start])
     @commits = @commits.where(['datetime <= ?', @finish]) unless @finish.nil?
     @commits = @commits.order('datetime desc')
@@ -50,5 +34,19 @@ class Webui::FeedsController < Webui::WebuiController
       flash[:error] = 'Unknown Token for RSS feed'
       redirect_back(fallback_location: root_path)
     end
+  end
+
+  private
+
+  def starting_at(date)
+    Time.zone.parse(date)
+  rescue
+    7.days.ago
+  end
+
+  def ending_at(date)
+    Time.zone.parse(date)
+  rescue
+    nil
   end
 end
