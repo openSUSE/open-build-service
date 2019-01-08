@@ -36,7 +36,7 @@ class RequestController < ApplicationController
     params[:review_states] = params[:reviewstates].split(',') if params[:reviewstates]
     params[:ids] = params[:ids].split(',').map(&:to_i) if params[:ids]
 
-    rel = BsRequest.find_for(params).includes(bs_request_actions: :bs_request_action_accept_info)
+    rel = BsRequest.find_for(params).preload([{ bs_request_actions: :bs_request_action_accept_info, reviews: { history_elements: :user } }])
     rel = rel.limit(params[:limit].to_i) if params[:limit].to_i > 0
 
     xml = Nokogiri::XML('<collection/>', &:strict).root
