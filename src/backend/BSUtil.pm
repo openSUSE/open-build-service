@@ -583,14 +583,14 @@ sub retrieve {
 }
 
 sub tostorable {
-  my ($d) = @_;
-  return 'pst0'.Storable::nfreeze($d);
+  return 'pst0'.Storable::nfreeze($_[0]);
 }
 
 sub fromstorable {
-  my ($d, $nonfatal) = @_;
-  return Storable::thaw(substr($d, 4)) unless $nonfatal;
-  eval { $d = Storable::thaw(substr($d, 4)); };
+  my $nonfatal = $_[1];
+  return Storable::thaw(substr($_[0], 4)) unless $nonfatal;
+  my $d;
+  eval { $d = Storable::thaw(substr($_[0], 4)); };
   if ($@) {
     warn($@) if $nonfatal == 2;
     return undef;
@@ -755,6 +755,10 @@ sub xsystem {
 sub unify {
   my %h = map {$_ => 1} @_; 
   return grep(delete($h{$_}), @_); 
+}
+
+sub clone {
+  return Storable::dclone($_[0]);
 }
 
 sub identical {
