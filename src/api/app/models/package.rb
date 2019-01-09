@@ -312,8 +312,8 @@ class Package < ApplicationRecord
   end
 
   def is_locked?
-    return true if flags.find_by_flag_and_status('lock', 'enable')
-    project.is_locked?
+    is_locked = Flag.where(package: self).or(Flag.where(project: project))
+    is_locked.where(flag: 'lock', status: 'enable').exists?
   end
 
   def kiwi_image?
