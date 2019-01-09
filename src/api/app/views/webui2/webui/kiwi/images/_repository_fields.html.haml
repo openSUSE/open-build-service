@@ -61,7 +61,8 @@ class: "modal fade #{'new_element' if f.object.new_record?}" }
             = f.label :replaceable, class: 'custom-control-label'
 
       .modal-footer
-        = link_to('Expert Mode', '#collapse-expert', title: 'Mode Toggle', class: 'kiwi-repository-mode-toggle btn btn-warning', role: 'button', data: { 'toggle': 'collapse' } )
+        = link_to('Expert Mode', '#collapse-expert', title: 'Mode Toggle', class: 'kiwi-repository-mode-toggle btn btn-warning',
+                   role: 'button', data: { 'toggle': 'collapse' })
         = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog btn btn-secondary')
         = link_to('Continue', '#', title: 'Continue', class: 'close-dialog btn btn-primary')
 
