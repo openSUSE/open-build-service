@@ -31,8 +31,6 @@ BEGIN {
 use strict;
 
 use XML::Structured ':bytes';
-use POSIX;
-use Fcntl qw(:DEFAULT :flock);
 use Digest::MD5 ();
 
 use BSConfiguration;
@@ -41,37 +39,42 @@ use BSStdRunner;
 use BSSolv;
 
 my $eventdir = "$BSConfig::bsdir/events";
+my $srcrep = "$BSConfig::bsdir/sources";
+my $uploaddir = "$BSConfig::bsdir/upload";
+
 my $myeventdir = "$eventdir/deltastore";
+
+my $verify_expansion = 1;
 
 sub deltastore {
   my ($req, $projid, $packid, $file) = @_;
-  my $srcrep = "$BSConfig::bsdir/sources";
-  my $uploaddir = "$BSConfig::bsdir/upload";
+
   BSUtil::printlog("generating src delta for $projid/$packid/$file");
+  my $store = "$srcrep/$packid/deltastore";
   mkdir_p($uploaddir);
   my $tmp = "$uploaddir/deltastore.$$";
   unlink($tmp);
   unlink("$tmp.in");
-  die("cannot get rid of $tmp") if -e $tmp;
+  die("cannot get rid of $tmp\n") if -e $tmp;
   link("$srcrep/$packid/$file", "$tmp.in") || die("link $srcrep/$packid/$file $tmp.in: $!\n");
   if (BSSolv::isobscpio("$tmp.in")) {
     BSUtil::printlog("  - already delta cpio");
     unlink("$tmp.in");
     return 1;
   }
-  if (!BSSolv::makeobscpio("$tmp.in", "$srcrep/$packid/deltastore", $tmp)) {
+  if (!BSSolv::makeobscpio("$tmp.in", $store, $tmp)) {
     BSUtil::printlog("  - delta creation error");
     unlink("$tmp.in");
     unlink($tmp);
     return 1;
   }
   unlink("$tmp.in");
-  if (1) {
+  if ($verify_expansion) {
     if ($file =~ /^([0-9a-f]{32})-/) {
       my $md5 = $1;
       BSUtil::printlog("  - verifying re-expansion...");
       local *F;
-      BSSolv::obscpioopen($tmp, "$srcrep/$packid/deltastore", \*F, $uploaddir) || die("BSSolv::obscpioopen failed\n");
+      BSSolv::obscpioopen($tmp, $store, \*F, $uploaddir) || die("BSSolv::obscpioopen failed\n");
       my $ctx = Digest::MD5->new;
       $ctx->addfile(*F);
       close F;
