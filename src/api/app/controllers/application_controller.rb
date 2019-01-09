@@ -27,6 +27,7 @@ class ApplicationController < ActionController::Base
   before_action :shutup_rails
   before_action :validate_params
   before_action :require_login
+  after_action :set_nobody
 
   delegate :extract_user,
            :extract_user_public,
@@ -456,6 +457,10 @@ class ApplicationController < ActionController::Base
 
   def shutup_rails
     Rails.cache.silence! unless Rails.env.development?
+  end
+
+  def set_nobody
+    User.current = User.find_nobody!
   end
 
   def set_influxdb_tags
