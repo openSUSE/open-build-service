@@ -10,7 +10,6 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
   let(:source_project) { create(:project, name: 'source_project') }
   let(:target_package) { create(:package, name: 'target_package', project: project) }
   let(:source_package) { create(:package, name: 'source_package', project: source_project) }
-  let(:review) { create(:review, by_group: group.title) }
   let(:bs_request) do
     create(:bs_request_with_submit_action,
            creator: other_user,
@@ -18,7 +17,7 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
            target_package: target_package.name,
            source_project: source_project.name,
            source_package: source_package.name,
-           reviews: [review])
+           review_by_group: group)
   end
 
   before { login(manager) }

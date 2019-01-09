@@ -12,7 +12,6 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
   let(:source_project) { create(:project, name: 'source_project') }
   let(:target_package) { create(:package, name: 'target_package', project: project) }
   let(:source_package) { create(:package, name: 'source_package', project: source_project) }
-  let(:review) { create(:review, by_group: group.title) }
   let(:bs_request) do
     create(:bs_request_with_submit_action,
            state: :review,
@@ -22,7 +21,7 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
            source_project: source_project.name,
            source_package: source_package.name,
            description: 'BsRequest 1',
-           reviews: [review])
+           review_by_group: group)
   end
 
   describe 'GET #index' do

@@ -4,7 +4,9 @@ RSpec.describe BsRequestAction::Differ::QueryBuilderForAccepted do
   describe '#build' do
     context 'with xsrcmd5 and oxsrcmd5' do
       let(:accept_info) do
+        bs_request = create(:bs_request, type: :submit)
         create(:bs_request_action_accept_info_with_action,
+               bs_request_action: bs_request.bs_request_actions.first,
                opackage: 'opackage',
                oproject: 'oproject',
                xsrcmd5: 'xsrcmd5',

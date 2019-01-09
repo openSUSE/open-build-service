@@ -40,21 +40,26 @@ RSpec.describe BsRequestAction, vcr: true do
   end
 
   context 'uniqueness validation of type' do
-    let(:bs_request) { create(:bs_request) }
+    let(:source_prj) { create(:project) }
+    let(:source_pkg) { create(:package, project: source_prj) }
+    let(:target_prj) { create(:project) }
+    let(:target_pkg) { create(:package, project: target_prj) }
     let(:action_attributes) do
       {
-        bs_request: bs_request,
         type: 'submit',
-        target_project: 'target_prj',
-        target_package: 'target_pkg'
+        source_project: source_prj,
+        source_package: source_pkg,
+        target_project: target_prj,
+        target_package: target_pkg
       }
     end
-    let!(:bs_request_action) { create(:bs_request_action, action_attributes) }
+    let(:bs_request) { create(:bs_request, action_attributes) }
+    let!(:bs_request_action) { bs_request.bs_request_actions.first }
 
     it { expect(bs_request_action).to be_valid }
 
     it 'validates uniqueness of type among bs requests, target_project and target_package' do
-      duplicated_bs_request_action = build(:bs_request_action, action_attributes)
+      duplicated_bs_request_action = bs_request.bs_request_actions.build(action_attributes)
       expect(duplicated_bs_request_action).not_to be_valid
       expect(duplicated_bs_request_action.errors.full_messages.to_sentence).to eq('Type has already been taken')
     end
@@ -107,7 +112,7 @@ RSpec.describe BsRequestAction, vcr: true do
     end
 
     context 'with no matching action' do
-      let!(:another_bs_request) { create(:bs_request) }
+      let(:another_bs_request) { build(:bs_request) }
 
       it { expect(bs_request_action.find_action_with_same_target(another_bs_request)).to be_nil }
     end
@@ -136,6 +141,7 @@ RSpec.describe BsRequestAction, vcr: true do
         end
         let(:another_bs_request_action) do
           create(:bs_request_action_submit,
+                 bs_request: another_bs_request,
                  source_package: source_package.name,
                  source_project: source_project.name,
                  target_project: target_project.name,

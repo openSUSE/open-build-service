@@ -31,7 +31,7 @@ class Project < ApplicationRecord
   has_many :relationships, dependent: :destroy, inverse_of: :project
   has_many :packages, inverse_of: :project do
     def autocomplete(search)
-      where(['lower(packages.name) like lower(?)', "#{search}%"]).order(:name).limit(50)
+      where(['lower(packages.name) like lower(?)', "%#{search}%"]).order(:name).limit(50)
     end
   end
 
@@ -84,13 +84,11 @@ class Project < ApplicationRecord
   scope :not_maintenance_incident, -> { where("kind <> 'maintenance_incident'") }
   scope :maintenance_incident, -> { where("kind = 'maintenance_incident'") }
   scope :maintenance_release, -> { where("kind = 'maintenance_release'") }
-  scope :home, -> { where("name like 'home:%'") }
-  scope :not_home, -> { where.not("name like 'home:%'") }
   scope :filtered_for_list, lambda {
     where.not('name rlike ?', ::Configuration.unlisted_projects_filter) if ::Configuration.unlisted_projects_filter.present?
   }
   scope :remote, -> { where('NOT ISNULL(projects.remoteurl)') }
-  scope :autocomplete, ->(search) { where('lower(name) like lower(?)', "#{search}%").order(:name).limit(50) }
+  scope :autocomplete, ->(search) { where('lower(name) like lower(?)', "%#{search}%").order(:name).limit(50) }
 
   # will return all projects with attribute 'OBS:ImageTemplates'
   scope :local_image_templates, lambda {

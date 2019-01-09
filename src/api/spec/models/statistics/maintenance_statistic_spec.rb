@@ -120,10 +120,14 @@ RSpec.describe Statistics::MaintenanceStatistic do
           created_at: 10.days.ago
         )
       end
+      let(:package) { create(:package, :as_submission_source, project: project) }
+      let(:target_project) { create(:project) }
       let!(:bs_request) do
         create(
           :bs_request,
           source_project: project,
+          source_package: package,
+          target_project: target_project,
           type: 'maintenance_release',
           creator: user.login,
           created_at: 9.days.ago

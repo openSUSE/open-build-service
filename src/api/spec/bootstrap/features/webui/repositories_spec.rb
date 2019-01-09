@@ -121,10 +121,10 @@ RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
         click_link(title: 'Delete Repository')
       end
 
-      expect(find("#delete-repository-#{dod_repository.id}")).
+      expect(find('#delete-repository')).
         to have_text("Please confirm deletion of '#{dod_repository}' repository")
 
-      within("#delete-repository-#{dod_repository.id} .modal-footer") do
+      within('#delete-repository .modal-footer') do
         click_button('Delete')
       end
 
