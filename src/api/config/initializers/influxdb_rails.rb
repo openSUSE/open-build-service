@@ -14,4 +14,8 @@ InfluxDB::Rails.configure do |config|
   config.use_ssl             = CONFIG['influxdb_ssl']
   config.time_precision      = CONFIG['influxdb_time_precision']
   config.series_name_for_sql = 'rails.sql'
+  config.tags_middleware = lambda do |tags|
+    # set a default location when e.g. using ActiveRecord outside of a request
+    { location: :raw }.merge(tags)
+  end
 end
