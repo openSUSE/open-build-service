@@ -135,7 +135,7 @@ RSpec.describe ObsFactory::StagingProject do
 
   describe '#obsolete_requests' do
     include_context 'a staging project with description'
-    let!(:bs_request_1) { create(:bs_request, number: 614_459) }
+    let!(:bs_request_1) { create(:set_bugowner_request, number: 614_459) }
 
     subject { ObsFactory::StagingProject.new(project: staging_h, distribution: factory_distribution) }
 
@@ -157,7 +157,7 @@ RSpec.describe ObsFactory::StagingProject do
     end
 
     context 'without obsolete requests' do
-      let!(:bs_request_2) { create(:bs_request, number: 614_471) }
+      let!(:bs_request_2) { create(:set_bugowner_request, number: 614_471) }
 
       it { expect(subject.obsolete_requests).to eq([]) }
     end
@@ -283,8 +283,8 @@ RSpec.describe ObsFactory::StagingProject do
 
   describe '#selected_requests' do
     include_context 'a staging project with description'
-    let!(:bs_request_1) { create(:bs_request, number: 614_459) }
-    let!(:bs_request_2) { create(:bs_request, number: 614_471) }
+    let!(:bs_request_1) { create(:set_bugowner_request, number: 614_459) }
+    let!(:bs_request_2) { create(:set_bugowner_request, number: 614_471) }
 
     subject { ObsFactory::StagingProject.new(project: staging_h, distribution: factory_distribution) }
 
@@ -295,9 +295,9 @@ RSpec.describe ObsFactory::StagingProject do
     include_context 'a staging project with description'
 
     let(:user) { create(:user, login: 'king') }
-    let(:bs_request_1) { create(:bs_request, number: 614_459) }
-    let(:bs_request_2) { create(:bs_request, number: 614_471) }
+    let(:bs_request_1) { create(:set_bugowner_request, number: 614_459, state: :review) }
     let!(:review_1) { create(:review, state: :accepted, bs_request: bs_request_1, by_user: user.login) }
+    let(:bs_request_2) { create(:set_bugowner_request, number: 614_471, state: :review) }
 
     subject { ObsFactory::StagingProject.new(project: staging_h, distribution: factory_distribution) }
 

@@ -7,15 +7,15 @@ RSpec.describe BsRequestAction::Differ::ForSource, vcr: true do
   let(:source_package) { create(:package, name: 'source_package', project: source_project) }
   let(:target_project) { create(:project, name: 'target_project') }
   let(:target_package) { create(:package, name: 'target_package', project: target_project) }
-  let(:bs_request_action) do
-    create(:bs_request_action,
+  let(:bs_request) do
+    create(:bs_request_with_submit_action,
            source_project: source_project,
            source_package: source_package,
            target_project: target_project,
            target_package: target_package,
            source_rev: 2)
   end
-  let(:bs_request) { create(:bs_request, bs_request_actions: [bs_request_action]) }
+  let(:bs_request_action) { bs_request.bs_request_actions.first }
   let(:xml_response) do
     <<-RESPONSE
     <sourcediff key="caaa0df4ce0789d73c0f5abcf1947efd">
@@ -81,15 +81,15 @@ RSpec.describe BsRequestAction::Differ::ForSource, vcr: true do
     end
 
     context 'with superseded request' do
-      let!(:superseded_bs_request_action) do
-        create(:bs_request_action,
+      let(:superseded_bs_request) do
+        create(:bs_request_with_submit_action,
                source_project: source_project,
                source_package: source_package,
                target_project: target_project,
                target_package: target_package,
                source_rev: 8)
       end
-      let!(:superseded_bs_request) { create(:bs_request, bs_request_actions: [bs_request_action]) }
+      let!(:superseded_bs_request_action) { superseded_bs_request.bs_request_actions.first }
       let(:params) do
         {
           cmd: 'diff',

@@ -7,9 +7,9 @@ RSpec.describe CommentPolicy do
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:other_user) { create(:confirmed_user, login: 'other_user') }
   let(:project) { create(:project, name: 'CommentableProject') }
-  let(:package) { create(:package, name: 'CommentablePackage', project: project) }
+  let(:package) { create(:package, :as_submission_source, name: 'CommentablePackage', project: project) }
   let(:comment) { create(:comment_project, commentable: project, user: comment_author) }
-  let(:request) { create(:bs_request, target_project: project, target_package: package) }
+  let(:request) { create(:bs_request_with_submit_action, target_project: project, target_package: package) }
   let(:comment_on_package) { create(:comment_package, commentable: package, user: comment_author) }
   let(:comment_on_request) { create(:comment_request, commentable: request, user: comment_author) }
   let(:comment_deleted_user) { create(:comment_project, commentable: project, user: anonymous_user) }

@@ -28,8 +28,8 @@ RSpec.describe BsRequest, vcr: true do
   end
 
   context 'validations' do
-    let(:bs_request) { create(:bs_request) }
-    let(:bs_request_action) { create(:bs_request_action, bs_request: bs_request) }
+    let(:bs_request) { create(:set_bugowner_request) }
+    let(:bs_request_action) { bs_request.bs_request_actions.first }
 
     it 'includes validation errors of associated bs_request_actions' do
       # rubocop:disable Rails/SkipsModelValidations
@@ -44,8 +44,8 @@ RSpec.describe BsRequest, vcr: true do
   context '.new_from_xml' do
     let(:user) { create(:user) }
     let(:review_request) do
-      create(:review_bs_request,
-             reviewer: user.login,
+      create(:bs_request_with_submit_action,
+             review_by_user: user.login,
              target_project: target_package.project.name,
              target_package: target_package.name,
              source_project: source_package.project.name,
@@ -80,8 +80,8 @@ RSpec.describe BsRequest, vcr: true do
     context 'from group to user' do
       let(:reviewer) { create(:confirmed_user) }
       let(:group) { create(:group) }
-      let(:review) { create(:review, by_group: group.title) }
-      let!(:request) { create(:bs_request, creator: reviewer.login, reviews: [review]) }
+      let!(:request) { create(:set_bugowner_request, creator: reviewer.login, review_by_group: group) }
+      let(:review) { request.reviews.first }
 
       before do
         login(reviewer)
@@ -99,7 +99,7 @@ RSpec.describe BsRequest, vcr: true do
       end
 
       it 'updates the old review state to accepted and assigns it' do
-        expect(review.state).to eq(:accepted)
+        expect(review.reload.state).to eq(:accepted)
         expect(review.review_assigned_to).to eq(request.reviews.last)
         expect(review.reviewer).to eq(reviewer.login)
         expect(review.history_elements.last.type).to eq('HistoryElement::ReviewAccepted')
@@ -110,7 +110,7 @@ RSpec.describe BsRequest, vcr: true do
   describe '#addreview' do
     let(:reviewer) { create(:confirmed_user) }
     let(:group) { create(:group) }
-    let!(:request) { create(:bs_request, creator: reviewer.login) }
+    let!(:request) { create(:set_bugowner_request, creator: reviewer.login) }
 
     before do
       login(reviewer)
@@ -141,7 +141,7 @@ RSpec.describe BsRequest, vcr: true do
 
   describe '#change_review_state' do
     let(:user) { create(:confirmed_user) }
-    let!(:request) { create(:bs_request, creator: user.login) }
+    let!(:request) { create(:set_bugowner_request, creator: user.login) }
     let(:reviewer) { create(:confirmed_user) }
     let(:someone) { create(:confirmed_user) }
 
@@ -187,7 +187,7 @@ RSpec.describe BsRequest, vcr: true do
   end
 
   describe '#changestate' do
-    let!(:request) { create(:bs_request) }
+    let!(:request) { create(:set_bugowner_request) }
     let(:admin) { create(:admin_user) }
 
     context 'to delete state' do
@@ -257,7 +257,7 @@ RSpec.describe BsRequest, vcr: true do
     end
 
     context 'creator of bs_request' do
-      let!(:request) { create(:bs_request, creator: user.login) }
+      let!(:request) { create(:set_bugowner_request, creator: user.login) }
       let(:user) { create(:admin_user) }
 
       it_should_behave_like "the subject's cache is reset when it's request changes"
@@ -460,10 +460,10 @@ RSpec.describe BsRequest, vcr: true do
   describe '#sanitize!' do
     let(:target_package) { create(:package) }
     let(:patchinfo) { create(:patchinfo) }
-    let(:bs_request) { create(:bs_request) }
-    let!(:bs_request_action_2) { create(:bs_request_action_add_maintainer_role, bs_request: bs_request, target_project: create(:project)) }
+    let(:bs_request) { create(:add_maintainer_request, target_project: create(:project)) }
 
     before do
+      create(:bs_request_action_add_maintainer_role, bs_request: bs_request, target_project: create(:project))
       login(create(:admin_user))
     end
 
@@ -480,6 +480,7 @@ RSpec.describe BsRequest, vcr: true do
 
     context 'when one of the bs request actions has a higher priority' do
       before do
+        bs_request.bs_request_actions.reload
         allow(bs_request.bs_request_actions.first).to receive(:minimum_priority).and_return('important')
         allow(bs_request.bs_request_actions.last).to receive(:minimum_priority).and_return('critical')
 
@@ -621,7 +622,7 @@ RSpec.describe BsRequest, vcr: true do
 
     context "when request state is 'review' but review state is not 'new'" do
       before do
-        bs_request.reviews.first.update(state: 'accepted')
+        bs_request.reviews.find_by(by_user: reviewer.login).update(state: 'accepted')
       end
 
       it { expect(BsRequest.with_open_reviews_for(by_user: reviewer.login)).to be_empty }

@@ -7,6 +7,12 @@ FactoryBot.define do
 
     after(:create, &:write_to_backend)
 
+    trait :as_submission_source do
+      after(:create) do |package, _evaluator|
+        create(:approved_request_source_attrib, project: package.project)
+      end
+    end
+
     factory :package_with_revisions do
       transient do
         revision_count { 2 }

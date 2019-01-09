@@ -9,8 +9,8 @@ RSpec.describe Webui::CommentsController, type: :controller do
 
   describe 'POST #create' do
     let(:project) { create(:project) }
-    let(:package) { create(:package) }
-    let(:bs_request) { create(:bs_request) }
+    let(:package) { create(:package, project: project) }
+    let(:bs_request) { create(:set_bugowner_request) }
 
     context 'with a valid comment' do
       RSpec.shared_examples 'saving a comment' do

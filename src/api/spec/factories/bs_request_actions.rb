@@ -22,5 +22,9 @@ FactoryBot.define do
     factory :bs_request_action_maintenance_release, class: BsRequestActionMaintenanceRelease do
       type { 'maintenance_release' }
     end
+    factory :bs_request_action_set_bugowner, class: BsRequestActionSetBugowner do
+      type { :set_bugowner }
+      person_name { create(:user).login }
+    end
   end
 end

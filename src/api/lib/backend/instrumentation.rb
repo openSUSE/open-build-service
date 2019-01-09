@@ -11,6 +11,7 @@ module Backend
       return unless enabled?
 
       ActiveSupport::Notifications.instrument('obs.backend.process_response', data)
+      reset_backend_location
     end
 
     private
@@ -40,10 +41,16 @@ module Backend
     end
 
     def backend_location
-      [
+      result = [
         Thread.current[:_influxdb_obs_backend_api_module],
         Thread.current[:_influxdb_obs_backend_api_method]
-      ].reject(&:blank?).join('#')
+      ]
+      result.empty? ? 'RAW' : result.join('#')
+    end
+
+    def reset_backend_location
+      Thread.current[:_influxdb_obs_backend_api_module] = nil
+      Thread.current[:_influxdb_obs_backend_api_method] = nil
     end
   end
 end

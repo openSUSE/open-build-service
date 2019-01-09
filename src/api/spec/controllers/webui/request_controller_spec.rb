@@ -13,20 +13,20 @@ RSpec.describe Webui::RequestController, vcr: true do
   let(:target_package) { create(:package_with_file, name: 'goal', project_id: target_project.id) }
   let(:source_project) { submitter.home_project }
   let(:source_project_fluffy) { submitter_with_group.home_project }
-  let(:source_package) { create(:package, name: 'ball', project_id: source_project.id) }
+  let(:source_package) { create(:package, :as_submission_source, name: 'ball', project: source_project) }
   let(:devel_project) { create(:project, name: 'devel:project') }
   let(:devel_package) { create(:package_with_file, name: 'goal', project: devel_project) }
-  let(:bs_request) { create(:bs_request, description: 'Please take this', creator: submitter.login) }
-  let(:bs_request_submit_action) do
-    create(:bs_request_action_submit, target_project: target_project.name,
-                                      target_package: target_package.name,
-                                      source_project: source_project.name,
-                                      source_package: source_package.name,
-                                      bs_request_id: bs_request.id)
+  let(:bs_request) do
+    create(:bs_request_with_submit_action,
+           description: 'Please take this', creator: submitter.login,
+           target_project: target_project.name,
+           target_package: target_package.name,
+           source_project: source_project.name,
+           source_package: source_package.name)
   end
   let(:request_with_review) do
-    create(:review_bs_request,
-           reviewer: reviewer,
+    create(:bs_request_with_submit_action,
+           review_by_user: reviewer,
            target_project: target_project.name,
            target_package: target_package.name,
            source_project: source_project.name,
@@ -67,8 +67,6 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       before do
         login receiver
-        bs_request.bs_request_actions.delete_all
-        bs_request_submit_action
         get :show, params: { number: bs_request.number }
       end
 
@@ -80,7 +78,6 @@ RSpec.describe Webui::RequestController, vcr: true do
     context 'when there are no package maintainers' do
       before do
         login receiver
-        bs_request_submit_action
         get :show, params: { number: bs_request.number }
       end
 
@@ -101,7 +98,6 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       shared_examples 'a full diff not requested for' do |file_name|
         before do
-          bs_request_submit_action
           get :show, params: { number: bs_request.number }
         end
 
@@ -142,7 +138,6 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       shared_examples 'a full diff requested for' do |file_name|
         before do
-          bs_request_submit_action
           get :show, params: { number: bs_request.number, full_diff: true }
         end
 
@@ -181,7 +176,7 @@ RSpec.describe Webui::RequestController, vcr: true do
       end
 
       context 'with :diff_to_superseded set' do
-        let(:superseded_bs_request) { create(:bs_request) }
+        let(:superseded_bs_request) { create(:set_bugowner_request) }
         context 'and the superseded request is superseded' do
           before do
             superseded_bs_request.update(state: :superseded, superseded_by: bs_request.number)
@@ -254,9 +249,10 @@ RSpec.describe Webui::RequestController, vcr: true do
 
         params_hash[new_state.to_sym] = 'non-important string'
         post :modify_review, params: params_hash
+        request_with_review.reload
       end
 
-      subject { request_with_review.reload.reviews.last }
+      subject { request_with_review.reviews.last }
 
       it { expect(response).to redirect_to(request_show_path(number: request_with_review.number)) }
       it { expect(subject.state).to eq(new_state) }
@@ -316,11 +312,6 @@ RSpec.describe Webui::RequestController, vcr: true do
   end
 
   describe 'POST #changerequest' do
-    before do
-      bs_request.bs_request_actions.delete_all
-      bs_request_submit_action
-    end
-
     context 'with valid parameters' do
       it 'accepts' do
         login(receiver)
@@ -357,6 +348,7 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       it 'forwards' do
         login(receiver)
+        bs_request
         expect do
           post :changerequest, params: { number: bs_request.number, accepted: 'accepted',
                                          forward_devel_0: "#{devel_package.project}_#_#{devel_package}",
@@ -380,6 +372,7 @@ RSpec.describe Webui::RequestController, vcr: true do
     context 'when forwarding the request fails' do
       before do
         allow(BsRequestActionSubmit).to receive(:new).and_raise(APIError, 'some error')
+        bs_request
         login(receiver)
       end
 

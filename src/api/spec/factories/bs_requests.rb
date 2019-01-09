@@ -1,152 +1,116 @@
 FactoryBot.define do
   factory :bs_request do
     description { Faker::Lorem.paragraph }
-    state { 'new' }
+    state do |evaluator|
+      evaluator.reviews.present? ? :review : :new
+    end
+    commenter do
+      creator
+    end
+    creator do
+      create(:confirmed_user)
+    end
+
+    reviews do |evaluator|
+      ret = []
+      ret << build(:review, by_project: evaluator.review_by_project) if evaluator.review_by_project
+      ret << build(:review, by_group: evaluator.review_by_group) if evaluator.review_by_group
+      ret << build(:review, by_user: evaluator.review_by_user) if evaluator.review_by_user
+      if evaluator.review_by_package
+        ret << build(:review, by_package: evaluator.review_by_package.name,
+                              by_project: evaluator.review_by_package.project.name)
+      end
+      ret
+    end
+
+    bs_request_actions do |evaluator|
+      [build(:bs_request_action,
+             type: evaluator.type,
+             source_project: evaluator.source_project,
+             source_package: evaluator.source_package,
+             source_rev: evaluator.source_rev,
+             target_project: evaluator.target_project,
+             target_package: evaluator.target_package,
+             target_repository: evaluator.target_repository,
+             target_releaseproject: evaluator.target_releaseproject,
+             role: evaluator.role,
+             person_name: evaluator.person_name)]
+    end
 
     transient do
       type { nil }
       source_project { nil }
       source_package { nil }
+      source_rev { nil }
       target_project { nil }
       target_package { nil }
       target_repository { nil }
+      target_releaseproject { nil }
+      person_name { nil }
+      role { nil }
       reviewer { nil }
-      request_state { nil }
+      review_by_user { nil }
+      review_by_group { nil }
       review_by_project { nil }
+      review_by_package { nil }
+      creating_user do |evaluator|
+        evaluator.creator.is_a?(User) ? evaluator.creator : User.find_by_login(evaluator.creator)
+      end
+      before_current_user { User.current }
     end
 
-    before(:create) do |request, evaluator|
-      unless request.creator
-        user = create(:confirmed_user)
-
-        request.creator   = user.login
-        request.commenter = user.login
-      end
-      if request.bs_request_actions.none?
-        request.bs_request_actions << create(:bs_request_action, type: evaluator.type, source_project: evaluator.source_project)
-      end
+    after(:build) do |_request, evaluator|
       # Monkeypatch to avoid errors caused by permission checks made
       # in user and bs_request model
-      User.current = User.find_by(login: request.creator) || user
+      User.current = evaluator.creating_user
     end
 
-    after(:create) { User.current = nil }
+    after(:create) do |request, evaluator|
+      request.update_attributes(state: evaluator.state)
+      request.reload
+      User.current = evaluator.before_current_user
+    end
 
     factory :bs_request_with_submit_action do
-      after(:create) do |request, evaluator|
-        request.bs_request_actions.delete_all
-        request.bs_request_actions << create(
-          :bs_request_action_submit,
-          target_project: evaluator.target_project,
-          target_package: evaluator.target_package,
-          source_project: evaluator.source_project,
-          source_package: evaluator.source_package
-        )
-        if evaluator.request_state
-          request.state = evaluator.request_state
-          request.save!
-        end
-      end
-    end
+      type { :submit }
 
-    factory :declined_bs_request do
-      after(:create) do |request, evaluator|
-        request.bs_request_actions.delete_all
-        request.bs_request_actions << create(
-          :bs_request_action_submit,
-          target_project: evaluator.target_project,
-          target_package: evaluator.target_package,
-          source_project: evaluator.source_project,
-          source_package: evaluator.source_package
-        )
-        request.state = 'declined'
-        request.save!
-      end
-    end
-
-    factory :review_bs_request do
-      after(:create) do |request, evaluator|
-        request.bs_request_actions.delete_all
-        request.bs_request_actions << create(
-          :bs_request_action_submit,
-          target_project: evaluator.target_project,
-          target_package: evaluator.target_package,
-          source_project: evaluator.source_project,
-          source_package: evaluator.source_package
-        )
-        request.reviews << Review.new(by_user: evaluator.reviewer)
-        request.state = 'review'
-        request.save!
-      end
-    end
-
-    factory :review_bs_request_by_project do
-      after(:create) do |request, evaluator|
-        request.bs_request_actions.delete_all
-        request.bs_request_actions << create(
-          :bs_request_action_submit,
-          target_project: evaluator.target_project,
-          target_package: evaluator.target_package,
-          source_project: evaluator.source_project,
-          source_package: evaluator.source_package
-        )
-        request.reviews << Review.new(by_project: evaluator.review_by_project)
-        request.state = 'review'
-        request.save!
-      end
-    end
-    factory :review_bs_request_by_group do
-      after(:create) do |request, evaluator|
-        request.bs_request_actions.delete_all
-        request.bs_request_actions << create(
-          :bs_request_action_submit,
-          target_project: evaluator.target_project,
-          target_package: evaluator.target_package,
-          source_project: evaluator.source_project,
-          source_package: evaluator.source_package
-        )
-        request.reviews << Review.new(by_group: evaluator.reviewer)
-        request.state = evaluator.request_state || 'review'
-        request.save!
+      factory :declined_bs_request do
+        state { 'declined' }
       end
     end
 
     factory :delete_bs_request do
-      after(:create) do |request, evaluator|
-        request.bs_request_actions.delete_all
-        request.bs_request_actions << create(
-          :bs_request_action_delete,
-          target_project: evaluator.target_project,
-          target_package: evaluator.target_package,
-          target_repository: evaluator.target_repository
-        )
+      type { :delete }
+    end
+
+    factory :add_role_request do
+      type { :add_role }
+
+      factory :add_maintainer_request do
+        transient do
+          role { Role.find_by_title('maintainer') }
+        end
+      end
+    end
+
+    factory :set_bugowner_request do
+      type { :set_bugowner }
+      transient do
+        person_name do
+          creating_user.login
+        end
+        target_project do
+          creating_user.home_project
+        end
       end
     end
 
     factory :bs_request_with_maintenance_release_action do
-      after(:create) do |request, evaluator|
-        request.bs_request_actions.delete_all
-        request.bs_request_actions << create(
-          :bs_request_action_maintenance_release,
-          target_project: evaluator.target_project,
-          target_package: evaluator.target_package,
-          source_project: evaluator.source_project,
-          source_package: evaluator.source_package
-        )
-      end
+      type { :maintenance_release }
     end
 
     factory :bs_request_with_maintenance_incident_action do
-      after(:create) do |request, evaluator|
-        request.bs_request_actions.delete_all
-        request.bs_request_actions << create(
-          :bs_request_action_maintenance_incident,
-          target_project: evaluator.target_project,
-          target_package: evaluator.target_package,
-          source_project: evaluator.source_project,
-          source_package: evaluator.source_package
-        )
-      end
+      type { :maintenance_incident }
     end
   end
 end

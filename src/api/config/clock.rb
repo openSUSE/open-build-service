@@ -4,6 +4,14 @@ require File.dirname(__FILE__) + '/environment'
 require 'clockwork'
 
 module Clockwork
+  on(:before_run) do |event|
+    InfluxDB::Rails.current.tags = {
+      beta: false,
+      anonymous: true,
+      interface: "clock_#{event}"
+    }
+  end
+
   every(17.seconds, 'fetch notifications', thread: true) do
     ActiveRecord::Base.connection_pool.with_connection do |_|
       # this will return if there is already a thread running

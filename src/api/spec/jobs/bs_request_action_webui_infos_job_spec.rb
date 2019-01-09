@@ -45,11 +45,14 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
 
     context 'with non existing target project' do
       let(:request) do
-        create(:bs_request_with_submit_action,
-               source_project: source_project.name,
-               source_package: source_package.name,
-               target_project: 'does-not-exist',
-               target_package: target_package.name)
+        request = build(:bs_request_with_submit_action,
+                        source_project: source_project.name,
+                        source_package: source_package.name,
+                        target_project: 'does-not-exist',
+                        target_package: target_package.name)
+        # avoid save!
+        request.save
+        request
       end
       let(:request_action) { request.bs_request_actions.first }
       subject { BsRequestActionWebuiInfosJob.new.perform(request_action) }
@@ -60,11 +63,14 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
 
     context 'with non existing source package' do
       let(:request) do
-        create(:bs_request_with_submit_action,
-               source_project: source_project.name,
-               source_package: 'does-not-exist',
-               target_project: target_project.name,
-               target_package: target_package.name)
+        request = build(:bs_request_with_submit_action,
+                        source_project: source_project.name,
+                        source_package: 'does-not-exist',
+                        target_project: target_project.name,
+                        target_package: target_package.name)
+        # avoid save!
+        request.save
+        request
       end
       let(:request_action) { request.bs_request_actions.first }
       subject { BsRequestActionWebuiInfosJob.new.perform(request_action) }

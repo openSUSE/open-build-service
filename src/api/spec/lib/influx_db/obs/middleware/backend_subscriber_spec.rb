@@ -29,7 +29,8 @@ RSpec.describe InfluxDB::OBS::Middleware::BackendSubscriber do
           http_method: 'GET',
           host: 'backend',
           controller_location: 'UsersController#index',
-          backend_location: 'Cloud#upload'
+          backend_location: 'Cloud#upload',
+          additional_tag: true
         },
         timestamp: 1_517_567_370_000
       }
@@ -37,6 +38,9 @@ RSpec.describe InfluxDB::OBS::Middleware::BackendSubscriber do
 
     before do
       stub_const('CONFIG', CONFIG.merge('influxdb_hosts' => ['localhost']))
+      InfluxDB::Rails.current.tags = {
+        additional_tag: true
+      }
       allow_any_instance_of(InfluxDB::Rails::Configuration).to receive(:time_precision).and_return('ms')
     end
 

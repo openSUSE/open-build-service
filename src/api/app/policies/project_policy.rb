@@ -35,6 +35,10 @@ class ProjectPolicy < ApplicationPolicy
     user.can_modify?(record, true)
   end
 
+  def source_access?
+    User.current.is_admin? || !record.disabled_for?('sourceaccess', nil, nil)
+  end
+
   private
 
   def no_remote_instance_defined_and_has_not_remote_repositories?
