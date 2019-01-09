@@ -330,8 +330,7 @@ class Webui::WebuiController < ActionController::Base
     InfluxDB::Rails.current.tags = {
       beta: !anonymous && User.current.in_beta?,
       anonymous: anonymous,
-      interface: :webui,
-      volley: false # only relevant for API,
+      interface: :webui
     }
   end
 
