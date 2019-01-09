@@ -1,8 +1,8 @@
 %h3.card-header Packages
 .card-body#kiwi-packages-list
-  %p#no-packages{ class: "#{'d-none' if @package_groups.packages.present?}" }= 'There are no packages.'
+  %p#no-packages{ class: "#{'d-none' if package_groups.packages.present?}" }= 'There are no packages.'
 
-  = f.fields_for :package_groups, @package_groups do |package_group_fields|
+  = f.fields_for :package_groups, package_groups do |package_group_fields|
     .row
       = package_group_fields.fields_for :packages do |kiwi_package_fields|
         = render 'package_fields', f: kiwi_package_fields

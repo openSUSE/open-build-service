@@ -19,19 +19,20 @@ class: "modal fade #{'new_element' if f.object.new_record?}" }
 
       .modal-body
         .normal-mode
-          = label_tag 'Project:'
-          = text_field_tag 'target_project', f.object.project_for_type_obs,
-            data: { ajaxurl: url_for(controller: '/webui/project', action: 'autocomplete_projects'), default: f.object.project_for_type_obs },
-            class: 'form-control'
-          = label_tag 'Repository:'
-          = select_tag 'target_repo', options_for_select([f.object.repository_for_type_obs]), disabled: !f.object.obs_source_path?,
-            data: { ajaxurl: url_for(controller: '/webui/project', action: :autocomplete_repositories), default: f.object.repository_for_type_obs },
-            class: 'custom-select'
-          %span.ui-autocomplete-loading.d-none
-            %i.fas.fa-spinner.fa-spin
+          .repository-autocomplete
+            = render partial: 'webui/autocomplete', locals: { html_id: 'target_project', label: '<strong>Project:</strong>'.html_safe,
+                                                              source: url_for(controller: '/webui/project', action: 'autocomplete_projects') }
+            .form-group
+              = label_tag :repositories do
+                %strong Repositories:
+              = select_tag 'target_repo', options_for_select(['']), required: true,
+                                                                    disabled: true,
+                                                                    class: 'repository-dropdown custom-select',
+                                                                    data: { source: url_for(controller: '/webui/project',
+                                                                    action: :autocomplete_repositories) }
           = label_tag 'Alias:'
           = text_field_tag 'alias_for_repo', f.object.alias, data: { default: f.object.alias }, class: 'form-control'
-        .expert-mode.d-none
+        .collapse#collapse-expert
           = f.hidden_field :order, data: { default: f.object.order }, class: 'form-control'
           = f.label :repo_type, 'Type:'
           = f.select :repo_type, Kiwi::Repository::REPO_TYPES, {}, data: { default: f.object.repo_type }, class: 'custom-select'
@@ -60,7 +61,7 @@ class: "modal fade #{'new_element' if f.object.new_record?}" }
             = f.label :replaceable, class: 'custom-control-label'
 
       .modal-footer
-        = link_to('Expert Mode', '#', title: 'Mode Toggle', class: 'kiwi-repository-mode-toggle btn btn-warning')
+        = link_to('Expert Mode', '#collapse-expert', title: 'Mode Toggle', class: 'kiwi-repository-mode-toggle btn btn-warning', role: 'button', data: { 'toggle': 'collapse' } )
         = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog btn btn-secondary')
         = link_to('Continue', '#', title: 'Continue', class: 'close-dialog btn btn-primary')
 
