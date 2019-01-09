@@ -5,10 +5,8 @@ class ApplicationJob < ActiveJob::Base
 
   def set_influxdb_tags
     InfluxDB::Rails.current.tags = {
-      beta: false,
-      anonymous: true,
       interface: :job,
-      location: class_name
+      location: self.class.name
     }
   end
 end
