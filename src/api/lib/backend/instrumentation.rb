@@ -44,8 +44,8 @@ module Backend
       result = [
         Thread.current[:_influxdb_obs_backend_api_module],
         Thread.current[:_influxdb_obs_backend_api_method]
-      ]
-      result.empty? ? 'RAW' : result.join('#')
+      ].reject(&:blank?)
+      result.empty? ? :raw : result.join('#')
     end
 
     def reset_backend_location

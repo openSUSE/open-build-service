@@ -13,12 +13,13 @@ class Webui::WebuiController < ActionController::Base
   include Pundit
   protect_from_forgery
 
+  before_action :set_influxdb_interface_tag
   before_action :setup_view_path
   before_action :check_user
   before_action :check_anonymous
+  before_action :set_influxdb_tags
   before_action :require_configuration
   before_action :set_pending_announcement
-  before_action :set_influxdb_tags
   after_action :clean_cache
 
   # :notice and :alert are default, we add :success and :error
@@ -324,14 +325,20 @@ class Webui::WebuiController < ActionController::Base
     @pending_announcement = Announcement.last
   end
 
-  def set_influxdb_tags
-    anonymous = User.current_login == User::NOBODY_LOGIN
-
+  def set_influxdb_interface_tag
     InfluxDB::Rails.current.tags = {
-      beta: !anonymous && User.current.in_beta?,
-      anonymous: anonymous,
       interface: :webui
     }
+  end
+
+  def set_influxdb_tags
+    anonymous = User.current_login == User::NOBODY_LOGIN
+    tags = {
+      beta: !anonymous && User.current.in_beta?,
+      anonymous: anonymous
+    }
+
+    InfluxDB::Rails.current.tags = InfluxDB::Rails.current.tags.merge(tags)
   end
 
   # NOTE: remove when bootstrap migration is done (related to switch_to_webui2)

@@ -23,10 +23,10 @@ class ApplicationController < ActionController::Base
 
   # skip the filter for the user stuff
   before_action :extract_user
+  before_action :set_influxdb_tags
   before_action :shutup_rails
   before_action :validate_params
   before_action :require_login
-  before_action :set_influxdb_tags
 
   delegate :extract_user,
            :extract_user_public,
