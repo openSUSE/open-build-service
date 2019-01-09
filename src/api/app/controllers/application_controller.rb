@@ -464,8 +464,7 @@ class ApplicationController < ActionController::Base
     InfluxDB::Rails.current.tags = {
       beta: !anonymous && User.current.in_beta?,
       anonymous: anonymous,
-      interface: :api,
-      volley: @skip_validation
+      interface: :api
     }
   end
 end

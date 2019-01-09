@@ -8,8 +8,7 @@ module Clockwork
     InfluxDB::Rails.current.tags = {
       beta: false,
       anonymous: true,
-      interface: "clock_#{event}",
-      volley: false
+      interface: "clock_#{event}"
     }
   end
 

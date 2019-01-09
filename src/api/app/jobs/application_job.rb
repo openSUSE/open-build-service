@@ -7,8 +7,7 @@ class ApplicationJob < ActiveJob::Base
     InfluxDB::Rails.current.tags = {
       beta: false,
       anonymous: true,
-      interface: :job,
-      volley: false
+      interface: :job
     }
   end
 end
