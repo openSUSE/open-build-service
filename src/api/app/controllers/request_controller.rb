@@ -43,7 +43,7 @@ class RequestController < ApplicationController
     matches = 0
     rel.each do |r|
       matches += 1
-      xml.add_child(r.render_xml(params))
+      xml.add_child(r.to_axml(params))
     end
     xml['matches'] = matches.to_s
     render xml: xml.to_xml
