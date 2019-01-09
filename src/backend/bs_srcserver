@@ -1061,7 +1061,7 @@ sub getprojpack {
 	$jinfo->{'repository'} = [ grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []} ];
       }
       if ($cgi->{'expandedrepos'}) {
-	$jinfo->{'repository'} = Storable::dclone($jinfo->{'repository'});
+	$jinfo->{'repository'} = BSUtil::clone($jinfo->{'repository'});
 	for my $repo (@{$jinfo->{'repository'}}) {
 	  my $base = {};
 	  my @prps = expandsearchpath($projid, $repo->{'name'}, $remotemap, $base);

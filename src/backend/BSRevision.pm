@@ -30,7 +30,6 @@ use BSUtil;
 use BSFileDB;
 use BSSrcrep;
 use BSDB;
-use Storable;
 
 my $projectsdir = "$BSConfig::bsdir/projects";
 my $srcrep = "$BSConfig::bsdir/sources";
@@ -576,7 +575,7 @@ sub readproj_local {
       $proj = readxml("$projectsdir/$projid.xml", $BSXML::proj, 1);
       $readproj_local_cache->{$projid} = $proj;
     }
-    $proj = Storable::dclone($proj) if $proj;
+    $proj = BSUtil::clone($proj) if $proj;
   } else {
     $proj = readxml("$projectsdir/$projid.xml", $BSXML::proj, 1);
   }

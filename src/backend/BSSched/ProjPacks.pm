@@ -74,7 +74,6 @@ use Time::HiRes;
 
 use BSUtil;
 use BSSolv;	# for depsort
-use Storable;
 use BSConfiguration;
 use BSSched::Remote;
 use BSSched::DoD;	# for update_doddata
@@ -589,17 +588,17 @@ sub clone_projpacks_part {
   # just clone the specified packages + multibuild packages
   my $oldprojdata = { %{$projpacks->{$projid} || {}} };
   delete $oldprojdata->{'package'};
-  $oldprojdata = Storable::dclone($oldprojdata);
+  $oldprojdata = BSUtil::clone($oldprojdata);
   my $oldpackdata = {};
   my $packs = ($projpacks->{$projid} || {})->{'package'} || {};
   my %packids = map {$_ => 1} @$packids;
   for my $packid (@$packids) {
-    $oldpackdata->{$packid} = $packs->{$packid} ? Storable::dclone($packs->{$packid}) : undef;
+    $oldpackdata->{$packid} = $packs->{$packid} ? BSUtil::clone($packs->{$packid}) : undef;
   }
   # clone multibuild packages as well
   for my $packid (grep {/(?<!^_product)(?<!^_patchinfo):./} keys %$packs) {
     next unless $packid =~ /^(.*):[^:]+$/;
-    $oldpackdata->{$packid} = $packs->{$packid} ? Storable::dclone($packs->{$packid}) : undef if $packids{$1};
+    $oldpackdata->{$packid} = $packs->{$packid} ? BSUtil::clone($packs->{$packid}) : undef if $packids{$1};
   }
   $oldprojdata->{'package'} = $oldpackdata;
   return $oldprojdata;

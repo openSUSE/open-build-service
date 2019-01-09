@@ -27,6 +27,7 @@ BSDispatcher::Constraints - function to check and calculate constraints
 use Data::Dumper;
 use Build::Rpm;
 use BSConfiguration;
+use BSUtil;
 
 use strict;
 
@@ -128,7 +129,7 @@ sub oracle {
 
 sub mergeconstraints {
   my ($con, @xmlcons) = @_;
-  $con = Storable::dclone($con);
+  $con = BSUtil::clone($con);
   # merge constraints
   for my $con2 (@xmlcons) {
     if ($con2->{'hostlabel'}) {
@@ -146,7 +147,7 @@ sub mergeconstraints {
     if ($con2->{'hardware'}) {
       for my $el (qw{processors jobs disk memory physicalmemory}) {
         next unless defined $con2->{'hardware'}->{$el};
-        $con->{'hardware'}->{$el} = ref($con2->{'hardware'}->{$el}) ? Storable::dclone($con2->{'hardware'}->{$el}) : $con2->{'hardware'}->{$el};
+        $con->{'hardware'}->{$el} = ref($con2->{'hardware'}->{$el}) ? BSUtil::clone($con2->{'hardware'}->{$el}) : $con2->{'hardware'}->{$el};
       }
       if ($con2->{'hardware'}->{'cpu'} && $con2->{'hardware'}->{'cpu'}->{'flag'}) {
         my %oldflags = map {$_ => 1} @{$con->{'hardware'}->{'cpu'}->{'flag'} || []};
