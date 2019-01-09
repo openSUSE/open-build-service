@@ -19,7 +19,7 @@ class BuildFlagTest < ActiveSupport::TestCase
 
     # create two new flags and save it.
     for i in 1..2 do
-      f = Flag.new(repo: "10.#{i}", status: 'enable', flag: 'build')
+      f = Flag.new(repo: "9.#{i}", status: 'enable', flag: 'build')
       f.architecture = @arch
       @project.flags << f
     end
@@ -31,7 +31,7 @@ class BuildFlagTest < ActiveSupport::TestCase
 
     f = @project.flags.of_type('build')[2]
 
-    assert_equal '10.1', f.repo
+    assert_equal '9.1', f.repo
     assert_equal @arch.id, f.architecture_id
     assert_equal 'enable', f.status
     assert_equal @project.id, f.project_id
@@ -40,7 +40,7 @@ class BuildFlagTest < ActiveSupport::TestCase
 
     f = @project.flags.of_type('build')[3]
 
-    assert_equal '10.2', f.repo
+    assert_equal '9.2', f.repo
     assert_equal @arch.id, f.architecture_id
     assert_equal 'enable', f.status
     assert_equal @project.id, f.project_id

@@ -19,7 +19,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
 
     # create two new flags and save it.
     for i in 1..2 do
-      f = Flag.new(repo: "10.#{i}", status: 'enable', position: i + 2, flag: 'debuginfo')
+      f = Flag.new(repo: "9.#{i}", status: 'enable', position: i + 2, flag: 'debuginfo')
       f.architecture = @arch
       @project.flags << f
     end
@@ -32,7 +32,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     f = @project.flags.of_type('debuginfo')[2]
     assert_kind_of Flag, f
 
-    assert_equal '10.1', f.repo
+    assert_equal '9.1', f.repo
     assert_equal @arch.id, f.architecture_id
     assert_equal 'enable', f.status
     assert_equal @project.id, f.project_id
@@ -42,7 +42,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     f = @project.flags.of_type('debuginfo')[3]
     assert_kind_of Flag, f
 
-    assert_equal '10.2', f.repo
+    assert_equal '9.2', f.repo
     assert_equal @arch.id, f.architecture_id
     assert_equal 'enable', f.status
     assert_equal @project.id, f.project_id
@@ -157,7 +157,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
 
     # create new flag and save it, but set the references in different order as above.
     # The result should be the same.
-    f = Flag.new(repo: '10.2', status: 'enable', position: 4, flag: 'debuginfo')
+    f = Flag.new(repo: '9.2', status: 'enable', position: 4, flag: 'debuginfo')
     f.architecture = @arch
     @project.flags << f
 
