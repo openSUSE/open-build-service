@@ -44,7 +44,7 @@ module Backend
       result = [
         Thread.current[:_influxdb_obs_backend_api_module],
         Thread.current[:_influxdb_obs_backend_api_method]
-      ]
+      ].reject(&:blank?)
       result.empty? ? :raw : result.join('#')
     end
 
