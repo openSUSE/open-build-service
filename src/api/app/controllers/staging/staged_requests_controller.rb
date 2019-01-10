@@ -13,7 +13,8 @@ class Staging::StagedRequestsController < ApplicationController
     result = ::Staging::StageRequests.new(
       request_numbers: request_numbers,
       staging_workflow: @staging_workflow,
-      staging_project: @staging_project
+      staging_project: @staging_project,
+      user_login: User.current.login
     ).create
 
     if result.valid?
@@ -34,6 +35,7 @@ class Staging::StagedRequestsController < ApplicationController
       request_numbers: request_numbers,
       staging_workflow: @staging_workflow,
       staging_project: @staging_project,
+      user_login: User.current.login
     ).destroy
 
     if result.valid?
