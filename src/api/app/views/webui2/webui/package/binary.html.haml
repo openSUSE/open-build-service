@@ -8,7 +8,7 @@
     %h3
       = @pagetitle
       - if @durl
-        = link_to(link_to(@filename, @durl), title: 'Download file') do
+        = link_to(@durl, title: 'Download') do
           %i.fas.fa-download.text-secondary
 
     %div
