@@ -216,17 +216,20 @@ sub lastnotifications {
   if ($cgi->{'block'} && !@l) {
     # pass on to AJAX
     if (!$BSStdServer::isajax) {
-      BSHandoff::handoff('/lastnotifications', undef, "start=$cgi->{'start'}", 'block=1');
+      my @args;
+      push @args, "view=$view" if $view;
+      BSHandoff::handoff('/lastnotifications', undef, "start=$cgi->{'start'}", 'block=1', @args);
     }
     # wait untill we have a winner
     BSWatcher::addfilewatcher("$eventdir/lastnotifications");
     my $lastev = BSFileDB::fdb_getlast("$eventdir/lastnotifications", $notificationlay);
-    return undef if !$lastev || $lastev->{'number'} < $cgi->{'start'};
+    return undef unless $lastev;
+    return undef if $cgi->{'start'} == $lastev->{'number'} + 1;	# not there yet
     if ($cgi->{'start'} == $lastev->{'number'}) {
       @l = ($lastev);
-    } else {
+    } elsif ($cgi->{'start'} < $lastev->{'number'}) {
       @l = BSFileDB::fdb_getall_reverse("$eventdir/lastnotifications", $notificationlay, undef, $filter);
-      return undef unless @l;
+      return undef unless @l;		# just in case
     }
   }
   my $res = {};
