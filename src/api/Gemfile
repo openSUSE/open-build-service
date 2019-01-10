@@ -132,7 +132,7 @@ group :test do
   # assigns has been extracted to a gem
   gem 'rails-controller-testing'
   # To generate random data
-  gem 'rantly', '>= 1.1.0'
+  gem 'rantly'
   # for test analysis in CircleCI
   gem 'coveralls'
   gem 'minitest-ci'

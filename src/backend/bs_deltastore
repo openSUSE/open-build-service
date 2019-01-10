@@ -1,0 +1,105 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2016 SUSE LLC.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# The source delta generator.
+#
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
+use strict;
+
+use XML::Structured ':bytes';
+use Digest::MD5 ();
+
+use BSConfiguration;
+use BSUtil;
+use BSStdRunner;
+use BSSolv;
+
+my $eventdir = "$BSConfig::bsdir/events";
+my $srcrep = "$BSConfig::bsdir/sources";
+my $uploaddir = "$BSConfig::bsdir/upload";
+
+my $myeventdir = "$eventdir/deltastore";
+
+my $verify_expansion = 1;
+
+sub deltastore {
+  my ($req, $projid, $packid, $file) = @_;
+
+  BSUtil::printlog("generating src delta for $projid/$packid/$file");
+  my $store = "$srcrep/$packid/deltastore";
+  mkdir_p($uploaddir);
+  my $tmp = "$uploaddir/deltastore.$$";
+  unlink($tmp);
+  unlink("$tmp.in");
+  die("cannot get rid of $tmp\n") if -e $tmp;
+  link("$srcrep/$packid/$file", "$tmp.in") || die("link $srcrep/$packid/$file $tmp.in: $!\n");
+  if (BSSolv::isobscpio("$tmp.in")) {
+    BSUtil::printlog("  - already delta cpio");
+    unlink("$tmp.in");
+    return 1;
+  }
+  if (!BSSolv::makeobscpio("$tmp.in", $store, $tmp)) {
+    BSUtil::printlog("  - delta creation error");
+    unlink("$tmp.in");
+    unlink($tmp);
+    return 1;
+  }
+  unlink("$tmp.in");
+  if ($verify_expansion) {
+    if ($file =~ /^([0-9a-f]{32})-/) {
+      my $md5 = $1;
+      BSUtil::printlog("  - verifying re-expansion...");
+      local *F;
+      BSSolv::obscpioopen($tmp, $store, \*F, $uploaddir) || die("BSSolv::obscpioopen failed\n");
+      my $ctx = Digest::MD5->new;
+      $ctx->addfile(*F);
+      close F;
+      my $rmd5 = $ctx->hexdigest();
+      die("  - md5sum mismatch: $md5 $rmd5\n") if $md5 ne $rmd5;
+    }
+  }
+  if (!rename($tmp, "$srcrep/$packid/$file")) {
+    BSUtil::printlog("  - rename $tmp $srcrep/$packid/$file: $!");
+    unlink("$tmp.in");
+    unlink($tmp);
+    return 1;
+  }
+  return 1;
+}
+
+my $dispatches = [
+  'deltastore $project $package $job' => \&deltastore,
+];
+
+my $conf = {
+  'runname' => 'bs_deltastore',
+  'eventdir' => $myeventdir,
+  'dispatches' => $dispatches,
+};
+
+BSStdRunner::run('deltastore', \@ARGV, $conf);
+

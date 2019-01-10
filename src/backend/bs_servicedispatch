@@ -96,7 +96,7 @@ sub getrev {
 sub runservice {
   my ($projid, $packid, $servicemark, $srcmd5, $revid, $lxservicemd5, $projectservicesmd5, $oldsrcmd5) = @_;
 
-  print "dispatching service $projid/$packid $servicemark $srcmd5\n";
+  BSUtil::printlog("dispatching service $projid/$packid $servicemark $srcmd5");
   # get revision and file list
   my $rev;
   if ($revid) {

@@ -6,9 +6,8 @@ require 'clockwork'
 module Clockwork
   on(:before_run) do |event|
     InfluxDB::Rails.current.tags = {
-      beta: false,
-      anonymous: true,
-      interface: "clock_#{event}"
+      interface: :clock,
+      location: event.to_s
     }
   end
 

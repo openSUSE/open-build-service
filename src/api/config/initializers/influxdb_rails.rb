@@ -14,4 +14,13 @@ InfluxDB::Rails.configure do |config|
   config.use_ssl             = CONFIG['influxdb_ssl']
   config.time_precision      = CONFIG['influxdb_time_precision']
   config.series_name_for_sql = 'rails.sql'
+  config.tags_middleware = lambda do |tags|
+    result = { beta: false, anonymous: true, interface: :none }.merge!(tags)
+    # TODO: workaround for https://github.com/influxdata/influxdb-rails/pull/64
+    result.reject! { |_, value| value.nil? || value == '' }
+    return result if result.key?(:method)
+
+    # set the default location for e.g. SQL calls outside a request
+    { location: :raw }.merge!(result)
+  end
 end
