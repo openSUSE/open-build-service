@@ -75,7 +75,7 @@ class User < ApplicationRecord
             uniqueness: { message: 'is the name of an already existing user' }
 
   validates :login,
-            format: { with: %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
+            format: { with: Regexp.new("\\A(#{NOBODY_LOGIN}|[-+a-zA-Z0-9][-+\\w\\.]*)\\z"),
                       message: 'must not contain invalid characters' }
   validates :login,
             length: { in: 2..100, allow_nil: true,
