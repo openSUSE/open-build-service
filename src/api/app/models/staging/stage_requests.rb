@@ -2,7 +2,7 @@ class Staging::StageRequests
   include ActiveModel::Model
   attr_accessor :request_numbers, :staging_project, :staging_workflow
 
-  def perform
+  def create
     add_request_not_found_errors
     requests.each do |request|
       bs_request_action = request.bs_request_actions.first
@@ -12,6 +12,23 @@ class Staging::StageRequests
         # TODO: implement delete requests
       end
     end
+    self
+  end
+
+  def destroy
+    requests = staging_project.staged_requests.where(number: request_numbers)
+    package_names = requests.joins(:bs_request_actions).pluck('bs_request_actions.target_package')
+
+    staging_project.staged_requests.delete(requests)
+    not_unassigned_requests = request_numbers - requests.pluck(:number).map(&:to_s)
+
+    result = staging_project.packages.where(name: package_names).destroy_all
+    not_deleted_packages = package_names - result.pluck(:name)
+
+    return self if not_unassigned_requests.empty? && not_deleted_packages.empty?
+
+    errors << "Requests with number #{not_unassigned_requests.to_sentence} not found. " unless not_unassigned_requests.empty?
+    errors << "Could not delete packages #{not_deleted_packages.to_sentence}." unless not_deleted_packages.empty?
     self
   end
 
