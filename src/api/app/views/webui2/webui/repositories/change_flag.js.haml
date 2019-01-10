@@ -1,7 +1,0 @@
-- partial = escape_javascript(render(partial: 'webui2/shared/repositories_flag_table_column',
-                                     locals: { flags: @flags, repository: @flag.repo,
-                                              architecture: @flag.architecture.try(&:name),
-                                              project: @project, package: @package, user_can_set_flags: @user_can_set_flags }))
-:plain
-    $( "##{html_id_for_flag(@flag.flag, @flag.repo, @flag.architecture)}" ).replaceWith("#{partial}");
-    $('[data-toggle="popover"]').popover();

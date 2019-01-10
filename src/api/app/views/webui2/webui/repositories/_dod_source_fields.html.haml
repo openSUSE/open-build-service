@@ -7,7 +7,7 @@
         .form-group.row
           = f.label :arch, 'Architecture', class: 'col-sm-4 col-form-label'
           .col-sm-8
-            = f.select :arch, options_for_select(Architecture.available, download_on_demand.try(:arch)), {}, required: true,
+            = f.select :arch, options_for_select(available_architectures, download_on_demand.try(:arch)), {}, required: true,
                               class: 'custom-select'
         .form-group.row
           = f.label :repotype, 'Type', class: 'col-sm-4 col-form-label'

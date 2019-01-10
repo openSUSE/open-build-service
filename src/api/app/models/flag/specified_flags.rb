@@ -43,7 +43,7 @@ class Flag::SpecifiedFlags
   end
 
   def specified_flags(prj_or_pkg, flag_type)
-    all_flags = prj_or_pkg.flags.where(flag: flag_type).group_by(&:repo)
+    all_flags = prj_or_pkg.flags.where(flag: flag_type).includes(:architecture).group_by(&:repo)
 
     all_flags.each do |repo, flag_array|
       all_flags[repo] = {}
