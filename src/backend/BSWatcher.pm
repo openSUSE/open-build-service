@@ -1053,7 +1053,7 @@ sub rpc {
       die("answer is not xml\n") if $ans !~ /<.*?>/s;
       return XMLin($xmlargs, $ans);
     }
-    if ($param->{'receiver'} == \&BSHTTP::cpio_receiver && defined($param->{'tmpcpiofile'})) {
+    if ($param->{'receiver'} && $param->{'receiver'} == \&BSHTTP::cpio_receiver && defined($param->{'tmpcpiofile'})) {
       local *CPIOFILE;
       open(CPIOFILE, '<', $param->{'tmpcpiofile'}) || die("open tmpcpiofile: $!\n");
       unlink($param->{'tmpcpiofile'});
@@ -1078,8 +1078,18 @@ sub rpc {
     return undef;
   }
 
+  my $data;
+  if (@args && $param->{'formurlencode'} && ($param->{'request'} || '') eq 'POST') {
+    $data = BSHTTP::queryencode(@args);
+    @args = ();
+    $uri = BSRPC::createuri($param, @args);
+    push @xhdrs, 'Content-Type: application/x-www-form-urlencoded';
+    push @xhdrs, "Content-Length: ".length($data);
+  }
+
   my $proxy = $param->{'proxy'};
   my ($proto, $host, $port, $req, $proxytunnel) = BSRPC::createreq($param, $uri, $proxy, \%cookiestore, @xhdrs);
+  $req .= $data if defined $data;
   if ($proto eq 'https' || $proxytunnel) {
     die("https not supported\n") unless $tossl || $param->{'https'};
   }

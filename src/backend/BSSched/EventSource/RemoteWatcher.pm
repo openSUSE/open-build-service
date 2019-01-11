@@ -25,6 +25,8 @@ use Data::Dumper;
 use BSRPC;
 use BSXML;
 
+our $uselasteventsproxy = 1;
+
 =head1
 
   Remote watchers
@@ -62,16 +64,23 @@ sub new {
       push @filter, @{$filterpackage{$_}};
     }
   }
+  push @filter, 'none' unless @filter;	# just in case, will never match
   my $param = {
     'uri' => "$remoteurl/lastevents",
     'async' => 1,
     'request' => 'POST',
     'formurlencode' => 1,
-    'proxy' => $conf{'remoteproxy'},
   };
   my @args;
-  my $obsname = $conf{'obsname'};
-  push @args, "obsname=$obsname/$myarch" if $obsname;
+  if ($uselasteventsproxy) {
+    $param->{'uri'} = "$BSConfig::srcserver/lasteventsproxy";
+    push @args, $BSConfig::partition ? "client=$BSConfig::partition/$myarch" : "client=$myarch";
+    push @args, "remoteurl=$remoteurl";
+  } else {
+    $param->{'proxy'} = $conf{'remoteproxy'};
+    my $obsname = $conf{'obsname'};
+    push @args, "obsname=$obsname/$myarch" if $obsname;
+  }
   push @args, map {"filter=$_"} @filter;
   push @args, "start=$start" if $start;
   my $ret;
