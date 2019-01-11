@@ -1,54 +1,86 @@
 class Staging::ExcludedRequestsController < ApplicationController
   before_action :require_login
-  before_action :set_staging_workflow, only: :create
-  before_action :set_request_exclusion, only: :destroy
+  before_action :set_project
+  before_action :set_staging_workflow, :set_requests_xml_hash
 
   def create
-    request = @staging_workflow.target_of_bs_requests.find_by!(number: params[:number])
-    request_exclusion = @staging_workflow.request_exclusions.build(bs_request: request, description: params[:description])
+    authorize @staging_workflow, policy_class: Staging::RequestExclusionPolicy
 
-    authorize request_exclusion
+    @result = ::Staging::RequestExclusion.create(requests_to_be_excluded)
 
-    if request_exclusion.save
-      render_ok
-    else
+    if errors?
       render_error(
         status: 400,
         errorcode: 'invalid_request',
-        message: request_exclusion.errors.full_messages.to_sentence
+        message: "Excluding requests for #{@staging_workflow} failed: #{errors_list.join('. ')}."
       )
+    else
+      render_ok
     end
   end
 
   def destroy
-    authorize @request_exclusion
+    authorize @staging_workflow, policy_class: Staging::RequestExclusionPolicy
 
-    if @request_exclusion.destroy
+    request_exclusions = @staging_workflow.request_exclusions.where(number: request_numbers).destroy_all
+    not_found_requests = request_numbers - request_exclusions.pluck(:number).map(&:to_s)
+
+    if not_found_requests.empty?
       render_ok
     else
+      message = 'Error while unexcluding requests: '
+      message << "Requests with number #{not_found_requests.to_sentence} couldn't be unexcluded. " unless not_found_requests.empty?
       render_error(
         status: 400,
         errorcode: 'invalid_request',
-        message: "Request #{@request_exclusion.number} couldn't be unexcluded"
+        message: message
       )
     end
   end
 
   private
 
+  def set_requests_xml_hash
+    @requests_xml_hash = (Xmlhash.parse(request.body.read) || {}).with_indifferent_access
+  end
+
+  def xml_hash_requests
+    [@requests_xml_hash[:request]].flatten
+  end
+
+  def request_numbers
+    [@requests_xml_hash[:number]].flatten
+  end
+
+  def requests_to_be_excluded
+    xml_hash_requests.map do |request|
+      bs_request = @staging_workflow.unassigned_requests.find_by_number(request[:number])
+      { bs_request: bs_request, number: bs_request.try(:number), description: request[:description], staging_workflow: @staging_workflow }
+    end
+  end
+
+  def errors?
+    errors_list.present?
+  end
+
+  def errors_list
+    return @errors if @errors
+    @errors = []
+    @result.each do |request|
+      @errors << "Request #{request.bs_request_id}: #{request.errors.full_messages.to_sentence}" if request.errors.any?
+    end
+
+    @errors
+  end
+
+  def set_project
+    @project = Project.get_by_name(params[:staging_main_project_name])
+  end
+
   def set_staging_workflow
-    project = Project.get_by_name(params[:staging_main_project_name])
-    @staging_workflow = project.staging
+    @staging_workflow = @project.staging
     return if @staging_workflow
 
     raise InvalidParameterError, "Project #{params[:staging_main_project_name]} doesn't have an asociated Staging Workflow"
-  end
-
-  def set_request_exclusion
-    request = BsRequest.find_by!(number: params[:number])
-    @request_exclusion = request.request_exclusion
-    return if @request_exclusion
-
-    raise InvalidParameterError, "Request #{params[:number]} is not excluded"
   end
 end
