@@ -76,7 +76,7 @@ class User < ApplicationRecord
 
   validates :login,
             format: { with: Regexp.new("\\A(#{NOBODY_LOGIN}|[-+a-zA-Z0-9][-+\\w\\.]*)\\z"),
-                      message: 'must not contain invalid characters' }
+                      message: 'only allows letters, numbers and the following characters: _ - + . (. and _ not at the beginning)' }
   validates :login,
             length: { in: 2..100, allow_nil: true,
                       too_long: 'must have less than 100 characters',
