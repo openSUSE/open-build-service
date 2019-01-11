@@ -5,10 +5,12 @@
     %ul.list-unstyled.ml-3
       - repository.path_elements.each_with_index do |path, index|
         - if index < number_paths
-          = render partial: 'repository_path_item', locals: { project: project, repository: repository, path: path }
+          = render partial: 'repository_path_item', locals: { project: project, repository: repository, path: path,
+                                                              user_can_modify: user_can_modify }
         - else
           - content_for :repository_path_item do
-            = render partial: 'repository_path_item', locals: { project: project, repository: repository, path: path }
+            = render partial: 'repository_path_item', locals: { project: project, repository: repository, path: path,
+                                                                user_can_modify: user_can_modify }
       - if repository.path_elements.size > number_paths
         %details.repository-path
           %summary.small
@@ -18,7 +20,7 @@
 
 .card-footer.text-center
   .row
-    - if user_can_modify_project
+    - if user_can_modify
       .col
         = link_to('#', title: 'Edit Repository',
                        data: { toggle: 'modal', target: "#edit-repository-#{repository.id}" }) do
@@ -32,7 +34,7 @@
       = link_to(url, title: 'Download Repository') do
         %i.fas.fa-download.text-secondary
 
-    - if user_can_modify_project
+    - if user_can_modify
       .col
         = link_to('#', title: 'Delete Repository', data: { toggle: 'modal', target: '#delete-repository',
           action: destroy_repository_path(project: project, target: repository.name), repository: repository.name }) do
@@ -43,5 +45,5 @@
           action: project_remove_target_request_path(project: project, target: repository), repository: repository.name }) do
           %i.fas.fa-user-times.text-danger
 
-= render partial: 'edit_repository_modal', locals: { repository: repository, project: project }
-= render partial: 'add_repository_path_modal', locals: { repository: repository, project: project }
+= render partial: 'edit_repository_modal', locals: { repository: repository, project: project, available_architectures: available_architectures }
+= render partial: 'add_repository_path_modal', locals: { repository: repository, project: project, user_can_modify: user_can_modify }

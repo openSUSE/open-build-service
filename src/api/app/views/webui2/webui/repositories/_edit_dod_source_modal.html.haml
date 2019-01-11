@@ -1,5 +1,5 @@
 .modal.fade{ id: "edit-dod-source-modal-#{download_on_demand.id}", tabindex: -1, role: 'dialog',
              aria: { labelledby: 'edit-dod-source-label', hidden: 'true' } }
   = render partial: 'dod_source_fields', locals: { download_on_demand: download_on_demand,
-                                                   project: project,
+                                                   project: project, available_architectures: available_architectures,
                                                    title: "Edit #{download_on_demand.try(:arch)} Download on demand" }

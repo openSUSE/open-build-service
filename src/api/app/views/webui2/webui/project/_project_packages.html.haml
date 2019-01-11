@@ -11,7 +11,7 @@
             %tr
               %td
                 = link_to(package.first, package_show_path(package: package.first, project: project))
-              %td
+              %td{ data: { order: "-#{package.second}" } }
                 = time_ago_in_words(Time.at(package.second.to_i))
   - else
     %p This project does not contain any packages

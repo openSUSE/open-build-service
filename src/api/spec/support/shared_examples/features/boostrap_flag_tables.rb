@@ -17,6 +17,16 @@ RSpec.shared_examples 'bootstrap a flag table' do
     subject.find(locator).find(icon)
   end
 
+  def remove_flag_field_for(flag_attributes)
+    locator = css_locator_for(flag_attributes[:repository], flag_attributes[:architecture])
+
+    subject.find(locator).find('.current_flag_state').click
+    within '.popover' do
+      click_link('Take default (enable)')
+    end
+    subject.find(locator).find('.fa-check')
+  end
+
   def css_locator_for(repository, architecture)
     row = repo_cols.index(repository)
     col = arch_rows.index(architecture) + 1
@@ -45,40 +55,43 @@ RSpec.shared_examples 'bootstrap a flag table' do
     query_attributes[:repo] = repository.name
 
     disable_flag_field_for(repository: repository.name, architecture: 'All')
-    expect(project.flags.reload.where(query_attributes.merge(status: :disable))).to exist
+    expect(project.flags.where(query_attributes.merge(status: :disable))).to exist
 
     enable_flag_field_for(repository: repository.name, architecture: 'All')
-    expect(project.flags.reload.where(query_attributes.merge(status: :enable))).to exist
+    expect(project.flags.where(query_attributes.merge(status: :enable))).to exist
   end
 
   scenario 'toggle flags per arch' do
     query_attributes[:architecture_id] = Architecture.find_by_name('i586')
 
     disable_flag_field_for(repository: 'All', architecture: 'i586')
-    expect(project.flags.reload.where(query_attributes.merge(status: :disable))).to exist
+    expect(project.flags.where(query_attributes.merge(status: :disable))).to exist
 
     enable_flag_field_for(repository: 'All', architecture: 'i586')
-    expect(project.flags.reload.where(query_attributes.merge(status: :enable))).to exist
+    expect(project.flags.where(query_attributes.merge(status: :enable))).to exist
   end
 
   scenario 'toggle all flags at once' do
     query_attributes[:flag] = flag_type
 
     disable_flag_field_for(repository: 'All', architecture: 'All')
-    expect(project.flags.reload.where(query_attributes.merge(status: :disable))).to exist
+    expect(project.flags.where(query_attributes).pluck(:status)).to contain_exactly('disable')
 
     enable_flag_field_for(repository: 'All', architecture: 'All')
-    expect(project.flags.reload.where(query_attributes.merge(status: :enable))).to exist
+    expect(project.flags.where(query_attributes).pluck(:status)).to contain_exactly('enable')
   end
 
   scenario 'toggle a single flag' do
     query_attributes.merge!(repo: repository.name, architecture_id: Architecture.find_by_name('x86_64'))
 
     disable_flag_field_for(repository: repository.name, architecture: 'x86_64')
-    expect(project.flags.reload.where(status: 'disable')).to exist
+    expect(project.flags.where(query_attributes).pluck(:status)).to contain_exactly('disable')
 
     enable_flag_field_for(repository: repository.name, architecture: 'x86_64')
-    expect(project.flags.reload.where(status: 'enable')).to exist
+    expect(project.flags.where(query_attributes).pluck(:status)).to contain_exactly('enable')
+
+    remove_flag_field_for(repository: repository.name, architecture: 'x86_64')
+    expect(project.flags.where(query_attributes).pluck(:status)).to be_empty
   end
 end
 

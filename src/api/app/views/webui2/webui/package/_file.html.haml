@@ -8,7 +8,7 @@
   %td.text-nowrap
     %span.d-none= file[:size].rjust(10, '0')
     = human_readable_fsize(file[:size])
-  %td.text-nowrap
+  %td.text-nowrap{ data: { order: "-#{file[:mtime]}" } }
     = timeago_tag Time.at(file[:mtime].to_i), limit: 1.year.ago
   / limit download for anonymous user to avoid getting killed by crawlers
   %td.text-center

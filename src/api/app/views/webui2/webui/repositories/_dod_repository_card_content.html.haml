@@ -14,7 +14,8 @@
           = link_to('#', title: 'Delete Download on Demand Source',
                          data: { toggle: 'modal', target: "#delete-dod-source-modal-#{dod_element.id}" }) do
             %i.fas.fa-times-circle.text-danger
-          = render partial: 'edit_dod_source_modal', locals: { repository: repository, project: project, download_on_demand: dod_element }
+          = render partial: 'edit_dod_source_modal', locals: { repository: repository, project: project,
+                   download_on_demand: dod_element, available_architectures: available_architectures }
           = render partial: 'delete_dod_source_modal', locals: { repository: repository, project: project, download_on_demand: dod_element }
 .card-footer.text-center
   .row
@@ -34,4 +35,5 @@
 
 = render partial: 'add_dod_source_modal', locals: { repository: repository,
                                                     project: project,
+                                                    available_architectures: available_architectures,
                                                     download_on_demand: DownloadRepository.new(repository_id: repository.id) }
