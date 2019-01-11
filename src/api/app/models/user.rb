@@ -74,9 +74,14 @@ class User < ApplicationRecord
   validates :login,
             uniqueness: { message: 'is the name of an already existing user' }
 
+  # returns the login validation patern and the errors message
+  def self.login_pattern
+    ['[-+a-zA-Z0-9][-+\w\.]*', 'only allows letters, numbers and the following characters: _ - + . (. and _ not at the beginning)']
+  end
+
   validates :login,
-            format: { with: Regexp.new("\\A(#{NOBODY_LOGIN}|[-+a-zA-Z0-9][-+\\w\\.]*)\\z"),
-                      message: 'only allows letters, numbers and the following characters: _ - + . (. and _ not at the beginning)' }
+            format: { with: Regexp.new("\\A(#{NOBODY_LOGIN}|#{User.login_pattern.first})\\z"),
+                      message: User.login_pattern.second }
   validates :login,
             length: { in: 2..100, allow_nil: true,
                       too_long: 'must have less than 100 characters',
