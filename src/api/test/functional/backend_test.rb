@@ -19,7 +19,8 @@ class BackendTests < ActionDispatch::IntegrationTest
           'packageresult', 'projectresult', 'projects', 'rating', 'redirect_stats', 'status_message',
           'status_messages', 'tagcloud', 'taglist', 'tags', 'updated_timestamp', 'distributions',
           'productlist', 'binary_released', 'check', 'required_checks', 'status_report',
-          'staged_requests', 'remove_staged_requests', 'status_ok'].include?(schema)
+          'staged_requests', 'remove_staged_requests', 'status_ok', 'staging_project',
+          'staging_projects'].include?(schema)
         # no backend schema exists
         next
       elsif schema == 'aggregate'
