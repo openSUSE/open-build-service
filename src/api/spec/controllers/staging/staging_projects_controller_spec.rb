@@ -104,4 +104,32 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
       end
     end
   end
+
+  describe 'POST #copy' do
+    let(:staging_main_project_name) { staging_workflow.project.name }
+    let(:original_staging_project_name) { staging_workflow.staging_projects.first.name }
+    let(:staging_project_copy_name) { "#{original_staging_project_name}-copy" }
+    let(:params) do
+      {
+        staging_main_project_name: staging_main_project_name,
+        staging_project_name: original_staging_project_name,
+        staging_project_copy_name: staging_project_copy_name
+      }
+    end
+
+    before do
+      login(user)
+      ActiveJob::Base.queue_adapter = :test
+    end
+
+    after do
+      ActiveJob::Base.queue_adapter = :inline
+    end
+
+    it 'queues a StagingProjectCopyJob job' do
+      expect { post :copy, format: :xml, params: params }.to have_enqueued_job(StagingProjectCopyJob).with(staging_main_project_name,
+                                                                                                           original_staging_project_name,
+                                                                                                           staging_project_copy_name)
+    end
+  end
 end

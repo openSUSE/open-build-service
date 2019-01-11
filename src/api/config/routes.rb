@@ -480,7 +480,10 @@ OBSApi::Application.routes.draw do
   get 'published/' => 'source#index', via: :get
 
   resources :staging_workflows, except: :index, controller: 'webui/staging/workflows', constraints: cons do
-    resources :staging_projects, only: [:create, :destroy, :show], controller: 'webui/staging/projects', param: :project_name, constraints: cons
+    resources :staging_projects, only: [:create, :destroy, :show], controller: 'webui/staging/projects', param: :project_name, constraints: cons do
+      get :preview_copy
+      post :copy
+    end
     resources :excluded_requests, controller: 'webui/staging/excluded_requests'
   end
 
@@ -752,6 +755,8 @@ OBSApi::Application.routes.draw do
   # StagingWorkflow API
   resources :staging, only: [], param: 'main_project_name' do
     resources :staging_projects, only: [:index, :show], controller: 'staging/staging_projects', param: :name do
+      post 'copy/:staging_project_copy_name' => :copy
+
       get 'staged_requests' => 'staging/staged_requests#index', constraints: cons
       resource :staged_requests, controller: 'staging/staged_requests', only: [:create, :destroy], constraints: cons
     end

@@ -17,6 +17,8 @@
           = render partial: 'problems', locals: { staging_project: staging_project }
         - if display_actions_column
           %td.text-center
+            = link_to(staging_workflow_staging_project_preview_copy_path(staging_workflow, staging_project), title: 'Copy Staging Project') do
+              %i.fas.fa-clone.text-secondary
             = link_to('#', data: { toggle: 'modal', target: "#confirm-modal-#{staging_project.id}" }, title: "Delete #{staging_project}") do
               %i.fas.fa-times-circle.text-danger
 
