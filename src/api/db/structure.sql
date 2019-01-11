@@ -944,6 +944,7 @@ CREATE TABLE `project_log_entries` (
   KEY `index_project_log_entries_on_bs_request_id` (`bs_request_id`) USING BTREE,
   KEY `index_project_log_entries_on_event_type` (`event_type`) USING BTREE,
   KEY `index_project_log_entries_on_datetime` (`datetime`) USING BTREE,
+  KEY `index_project_log_entries_on_project_id_and_event_type` (`project_id`,`event_type`),
   CONSTRAINT `project_log_entries_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
@@ -1431,6 +1432,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20181025152009'),
 ('20181030114152'),
 ('20181113095753'),
-('20181201065026');
+('20181201065026'),
+('20190111130416');
 
 
