@@ -25,8 +25,9 @@ Summary:        The Open Build Service -- Bundled Gems
 License:        GPL-2.0-only
 Group:          Productivity/Networking/Web/Utilities
 Url:            http://www.openbuildservice.org
-Source0:        Gemfile
-Source1:        Gemfile.lock
+Source0:        open-build-service-%version.tar.xz
+Source1:        Gemfile
+Source2:        Gemfile.lock
 BuildRequires:  autoconf
 BuildRequires:  automake
 BuildRequires:  cyrus-sasl-devel
@@ -88,6 +89,7 @@ this package is just a meta package used to build obs-api testsuite
 %doc README
 
 %prep
+%setup -q -n open-build-service-%version
 echo > README <<EOF
 This package is just a meta package containing requires
 EOF
@@ -115,6 +117,11 @@ test -f %{buildroot}%_libdir/obs-api/ruby/2.5.0/gems/rack-%{rack_version}/rack.g
 sassc_dir=$(ls -1d %{buildroot}%_libdir/obs-api/ruby/2.5.0/gems/sassc-2*)
 install -D -m 755 $sassc_dir/ext/libsass/lib/libsass.so $sassc_dir/lib
 sed -i -e 's,/ext/libsass,,' $sassc_dir/lib/sassc/native.rb
+
+# patch in git feature
+pushd %{buildroot}%_libdir/obs-api/ruby/2.5.0/gems/influxdb-rails-*
+patch -p1 < %{builddir}/open-build-service-%version/dist/influxdb-rails.65.patch
+popd
 
 # Remove sources of extensions, we don't need them
 rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/*/ext/

@@ -1,0 +1,118 @@
+From 70f37b11d5e87311847651dfb1a9c70388bc5e52 Mon Sep 17 00:00:00 2001
+From: Christian Bruckmayer <cbruckmayer@suse.com>
+Date: Thu, 10 Jan 2019 16:29:01 +0100
+Subject: [PATCH] Implement dynamic values
+
+(COOLO) Removed spec
+
+As we allow to dynamically add tags we should also
+allow to dynamically add values.
+---
+ README.md                                     |  9 +--
+ lib/influxdb/rails/context.rb                 |  9 +++
+ .../rails/middleware/request_subscriber.rb    |  8 ++-
+ .../rails/middleware/simple_subscriber.rb     |  5 +-
+ spec/shared_examples/data.rb                  | 64 +++++++++++++++++++
+ spec/shared_examples/tags.rb                  | 42 ------------
+ .../unit/middleware/render_subscriber_spec.rb |  4 +-
+ .../middleware/request_subscriber_spec.rb     |  4 +-
+ spec/unit/middleware/sql_subscriber_spec.rb   |  4 +-
+ 9 files changed, 95 insertions(+), 54 deletions(-)
+ create mode 100644 spec/shared_examples/data.rb
+ delete mode 100644 spec/shared_examples/tags.rb
+
+diff --git a/README.md b/README.md
+index 57299e5..ea6d408 100644
+--- a/README.md
++++ b/README.md
+@@ -116,16 +116,17 @@ InfluxDB::Rails.configure do |config|
+ end
+ ```
+ 
+-If you want to add dynamically tags per request, you can access the ``InfluxDB::Rails.current.tags`` to
+-do so. For instance, you could add the current user as tag to every data point.
++If you want to add dynamically tags or fields per request, you can access ``InfluxDB::Rails.current`` to
++do so. For instance, you could add the current user as tag and the request id to every data point.
+ 
+ ```ruby
+ class ApplicationController
+ 
+-  before_action :set_influx_tags
++  before_action :set_influx_data
+ 
+-  def set_influx_tags
++  def set_influx_data
+     InfluxDB::Rails.current.tags = { user: current_user.id }
++    InfluxDB::Rails.current.values = { id: request.request_id }
+   end
+ end
+ 
+diff --git a/lib/influxdb/rails/context.rb b/lib/influxdb/rails/context.rb
+index a256ad1..04f847c 100644
+--- a/lib/influxdb/rails/context.rb
++++ b/lib/influxdb/rails/context.rb
+@@ -28,6 +28,7 @@ def reset
+         Thread.current[:_influxdb_rails_controller] = nil
+         Thread.current[:_influxdb_rails_action] = nil
+         Thread.current[:_influxdb_rails_tags] = nil
++        Thread.current[:_influxdb_rails_values] = nil
+       end
+ 
+       def tags
+@@ -37,6 +38,14 @@ def tags
+       def tags=(tags)
+         Thread.current[:_influxdb_rails_tags] = tags
+       end
++
++      def values
++        Thread.current[:_influxdb_rails_values] || {}
++      end
++
++      def values=(values)
++        Thread.current[:_influxdb_rails_values] = values
++      end
+     end
+   end
+ end
+diff --git a/lib/influxdb/rails/middleware/request_subscriber.rb b/lib/influxdb/rails/middleware/request_subscriber.rb
+index 2ac4f8d..cd28c6a 100644
+--- a/lib/influxdb/rails/middleware/request_subscriber.rb
++++ b/lib/influxdb/rails/middleware/request_subscriber.rb
+@@ -13,7 +13,7 @@ def call(_name, start, finish, _id, payload) # rubocop:disable Metrics/MethodLen
+             series(payload, start, finish).each do |series_name, value|
+               InfluxDB::Rails.client.write_point \
+                 series_name,
+-                values:    { value: value },
++                values:    values(value),
+                 tags:      tags,
+                 timestamp: ts
+             end
+@@ -26,6 +26,12 @@ def call(_name, start, finish, _id, payload) # rubocop:disable Metrics/MethodLen
+ 
+         private
+ 
++        def values(time)
++          { value: time }.merge(InfluxDB::Rails.current.values).reject do |_, value|
++            value.nil? || value == ""
++          end
++        end
++
+         def series(payload, start, finish)
+           {
+             configuration.series_name_for_controller_runtimes => ((finish - start) * 1000).ceil,
+diff --git a/lib/influxdb/rails/middleware/simple_subscriber.rb b/lib/influxdb/rails/middleware/simple_subscriber.rb
+index 2326171..9ad4d3e 100644
+--- a/lib/influxdb/rails/middleware/simple_subscriber.rb
++++ b/lib/influxdb/rails/middleware/simple_subscriber.rb
+@@ -30,7 +30,10 @@ def call(_name, started, finished, _unique_id, payload)
+         private
+ 
+         def values(started, finished, _payload)
+-          { value: ((finished - started) * 1000).ceil }
++          result = { value: ((finished - started) * 1000).ceil }
++          result.merge(InfluxDB::Rails.current.values).reject do |_, value|
++            value.nil? || value == ""
++          end
+         end
+ 
+         def timestamp(finished)
