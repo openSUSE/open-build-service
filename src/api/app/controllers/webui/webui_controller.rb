@@ -13,11 +13,11 @@ class Webui::WebuiController < ActionController::Base
   include Pundit
   protect_from_forgery
 
-  before_action :set_influxdb_interface_tag
+  before_action :set_influxdb_data
   before_action :setup_view_path
   before_action :check_user
   before_action :check_anonymous
-  before_action :set_influxdb_tags
+  before_action :set_influxdb_additional_tags
   before_action :require_configuration
   before_action :set_pending_announcement
   after_action :clean_cache
@@ -325,13 +325,15 @@ class Webui::WebuiController < ActionController::Base
     @pending_announcement = Announcement.last
   end
 
-  def set_influxdb_interface_tag
+  def set_influxdb_data
     InfluxDB::Rails.current.tags = {
       interface: :webui
     }
+
+    InfluxDB::Rails.current.values = { request: request.request_id }
   end
 
-  def set_influxdb_tags
+  def set_influxdb_additional_tags
     anonymous = User.current_login == User::NOBODY_LOGIN
     tags = {
       beta: !anonymous && User.current.in_beta?,
