@@ -1,9 +1,8 @@
 class Webui::RepositoriesController < Webui::WebuiController
-  include Webui2::RepositoriesController
-
   before_action :set_project
   before_action :set_repository, only: [:state]
-  before_action :find_repository_parent, only: [:index, :create_flag, :remove_flag, :toggle_flag]
+  before_action :set_architectures, only: [:index, :change_flag]
+  before_action :find_repository_parent, only: [:index, :create_flag, :remove_flag, :toggle_flag, :change_flag]
   after_action :verify_authorized, except: [:index, :distributions, :state]
 
   # GET /repositories/:project(/:package)
@@ -11,16 +10,22 @@ class Webui::RepositoriesController < Webui::WebuiController
   # GET package/repositories/:project/:package
   # GET project/repositories/:project
   def index
-    return if switch_to_webui2
-    @architectures = Architecture.where(id: @project.repository_architectures.select(:architecture_id)).order(:name)
-    @repositories = @project.repositories.includes(:path_elements, :download_repositories)
-    repository_names = @repositories.pluck(:name)
-    @build = @main_object.get_flags('build', repository_names, @architectures)
-    @debuginfo = @main_object.get_flags('debuginfo', repository_names, @architectures)
-    @publish = @main_object.get_flags('publish', repository_names, @architectures)
-    @useforbuild = @main_object.get_flags('useforbuild', repository_names, @architectures)
-
-    @user_can_set_flags = policy(@project).update?
+    @available_architectures = Architecture.available
+    @repositories = @project.repositories.preload({ path_elements: { link: :project } }, :architectures)
+    @repositories = @repositories.includes(:download_repositories)
+    @user_can_modify = policy(@project).update?
+    if switch_to_webui2
+      @flags = {}
+      [:build, :debuginfo, :publish, :useforbuild].each do |flag_type|
+        @flags[flag_type] = Flag::SpecifiedFlags.new(@main_object, flag_type)
+      end
+    else
+      repository_names = @repositories.pluck(:name)
+      @build = @main_object.get_flags('build', repository_names, @architectures)
+      @debuginfo = @main_object.get_flags('debuginfo', repository_names, @architectures)
+      @publish = @main_object.get_flags('publish', repository_names, @architectures)
+      @useforbuild = @main_object.get_flags('useforbuild', repository_names, @architectures)
+    end
   end
 
   # GET project/add_repository/:project
@@ -179,6 +184,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     end
   end
 
+  # TODO: bento_only
   # POST flag/:project(/:package)
   def create_flag
     authorize @main_object, :update?
@@ -186,7 +192,6 @@ class Webui::RepositoriesController < Webui::WebuiController
     @flag = @main_object.flags.new(status: params[:status], flag: params[:flag])
     @flag.architecture = Architecture.find_by_name(params[:architecture])
     @flag.repo = params[:repository] if params[:repository].present?
-    @user_can_set_flags = policy(@project).update?
 
     respond_to do |format|
       if @flag.save
@@ -194,7 +199,6 @@ class Webui::RepositoriesController < Webui::WebuiController
         @main_object.store
         format.html { redirect_to(action: :index, controller: :repositories, project: params[:project], package: params[:package]) }
         format.js do
-          switch_to_webui2
           render 'change_flag'
         end
       else
@@ -203,13 +207,13 @@ class Webui::RepositoriesController < Webui::WebuiController
     end
   end
 
+  # TODO: bento_only
   # POST flag/:project(/:package)/:flag
   def toggle_flag
     authorize @main_object, :update?
 
     @flag = Flag.find(params[:flag])
     @flag.status = @flag.status == 'enable' ? 'disable' : 'enable'
-    @user_can_set_flags = policy(@project).update?
 
     respond_to do |format|
       if @flag.save
@@ -217,7 +221,6 @@ class Webui::RepositoriesController < Webui::WebuiController
         @main_object.store
         format.html { redirect_to(action: :index, project: params[:project], package: params[:package]) }
         format.js do
-          switch_to_webui2
           render 'change_flag'
         end
       else
@@ -226,6 +229,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     end
   end
 
+  # TODO: bento_only
   # DELETE flag/:project(/:package)/:flag
   def remove_flag
     authorize @main_object, :update?
@@ -234,20 +238,53 @@ class Webui::RepositoriesController < Webui::WebuiController
     @main_object.flags.destroy(@flag)
     @flag = @flag.dup
     @flag.status = @flag.default_status
-    @user_can_set_flags = policy(@project).update?
 
     respond_to do |format|
       # FIXME: This should happen in Flag or even better in Project
       @main_object.store
       format.html { redirect_to(action: :index, project: params[:project], package: params[:package]) }
       format.js do
-        switch_to_webui2
         render 'change_flag'
       end
     end
   end
 
+  # POST flag/change/:project(/:package)
+  # TODO: when removing bento, remove the extra 'change' from the route, for
+  # now we need to avoid the clash with create_flag
+  def change_flag
+    check_ajax
+    required_parameters :flag, :command
+    set_webui2_views
+    authorize @main_object, :update?
+
+    flag_type = params[:flag]
+    follow_change_flag_command(flag_type)
+
+    locals = { user_can_modify: true, project: @project, package: params[:package], architectures: @architectures }
+    locals[:flags] = Flag::SpecifiedFlags.new(@main_object, flag_type)
+    locals[:table_id] = 'flag_table_' + flag_type
+
+    render partial: 'shared/repositories_flag_table', locals: locals
+  end
+
   private
+
+  def follow_change_flag_command(flag_type)
+    architecture = Architecture.from_cache!(params[:architecture]) if params[:architecture]
+
+    if params[:command] == 'remove'
+      @main_object.flags.of_type(flag_type).where(repo: params[:repository], architecture: architecture).delete_all
+    elsif %r{^set-(?<status>disable|enable)$} =~ params[:command]
+      flag = @main_object.flags.find_or_create_by(flag: flag_type, repo: params[:repository], architecture: architecture)
+      flag.update_attributes(status: status)
+    end
+    @main_object.store
+  end
+
+  def set_architectures
+    @architectures = Architecture.where(id: @project.repository_architectures.select(:architecture_id)).order(:name)
+  end
 
   def set_repository
     @repository = @project.repositories.find_by!(name: params[:repository])
