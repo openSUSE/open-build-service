@@ -39,6 +39,10 @@ class ProjectPolicy < ApplicationPolicy
     User.current.is_admin? || !record.disabled_for?('sourceaccess', nil, nil)
   end
 
+  def can_create_package_in?
+    user.can_create_package_in?(record)
+  end
+
   private
 
   def no_remote_instance_defined_and_has_not_remote_repositories?
@@ -47,10 +51,6 @@ class ProjectPolicy < ApplicationPolicy
 
   def local?
     record.is_a?(Project)
-  end
-
-  def can_create_package_in?
-    user.can_create_package_in?(record)
   end
 
   def local_project_and_allowed_to_create_package_in?

@@ -40,7 +40,7 @@ RSpec.describe PackagePolicy do
         allow_any_instance_of(Package).to receive(:disabled_for?).with('sourceaccess', nil, nil).and_return(true)
       end
 
-      it { expect(subject).to permit(user, package) }
+      it { expect(subject).not_to permit(user, package) }
     end
   end
 
@@ -50,7 +50,7 @@ RSpec.describe PackagePolicy do
         allow_any_instance_of(Package).to receive(:disabled_for?).with('sourceaccess', nil, nil).and_return(false)
       end
 
-      it { expect(subject).not_to permit(user, package) }
+      it { expect(subject).to permit(user, package) }
     end
   end
 end

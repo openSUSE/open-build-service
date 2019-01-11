@@ -113,4 +113,12 @@ module Webui::PackageHelper
     result -= 1 if state == 'deleted'
     [result, 0].max
   end
+
+  def download_url_for_file_in_repo(user, project, package_name, repository, architecture, filename)
+    download_url = repository.download_url_for_file(package_name, architecture, filename)
+    # return mirror if available
+    return download_url if download_url && ::PackageControllerService::BinaryDownloadUrlFetcher.file_available?(download_url)
+    # only use API for logged in users if the mirror is not available - return nil otherwise
+    rpm_url(project, package_name, repository.name, architecture, filename) unless user.is_nobody?
+  end
 end

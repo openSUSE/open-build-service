@@ -8,6 +8,9 @@ class Webui::PackageController < Webui::WebuiController
   include Webui::ManageRelationships
   include BuildLogSupport
   include Webui2::PackageController
+  include Webui::PackageController::Errors
+
+  rescue_from CheckPackageNameForNewNotAuthorizedError, with: :display_authorization_error_and_redirect
 
   before_action :set_project, only: [:show, :users, :linking_packages, :dependency, :binary, :binaries,
                                      :requests, :statistics, :commit, :revisions, :submit_request_dialog,
@@ -34,6 +37,7 @@ class Webui::PackageController < Webui::WebuiController
   before_action :require_repository, only: [:binary, :binary_download]
   before_action :require_architecture, only: [:binary, :binary_download]
 
+  before_action :check_ajax, only: [:update_build_log, :devel_project, :buildresult, :rpmlint_result]
   # make sure it's after the require_, it requires both
   before_action :require_login, except: [:show, :linking_packages, :linking_packages, :dependency,
                                          :binary, :binaries, :users, :requests, :statistics, :commit,
@@ -50,24 +54,10 @@ class Webui::PackageController < Webui::WebuiController
   after_action :verify_authorized, only: [:remove_file, :remove, :save_file, :abort_build, :trigger_rebuild, :wipe_binaries, :save_meta, :save, :abort_build]
 
   def show
-    if request.bot?
-      params.delete(:rev)
-      params.delete(:srcmd5)
-      @expand = 0
-    elsif params[:expand]
-      @expand = params[:expand].to_i
-    else
-      @expand = 1
-    end
-
-    @srcmd5 = params[:srcmd5]
-    @revision_parameter = params[:rev]
+    set_instance_variables_for_show
 
     @bugowners_mail = (@package.bugowner_emails + @project.api_obj.bugowner_emails).uniq
-    @revision = params[:rev]
-    @failures = 0
 
-    @is_current_rev = false
     if set_file_details
       if @forced_unexpand.blank? && @service_running.blank?
         @is_current_rev = (@revision == @current_rev)
@@ -178,7 +168,7 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
 
-    @durl = download_url_for_file_in_repo(@project, @package_name, @repository, @arch.name, @filename)
+    @durl = download_url_for_file_in_repo(User.current, @project, @package_name, @repository, @arch.name, @filename)
 
     logger.debug "accepting #{request.accepts.join(',')} format:#{request.format}"
     # little trick to give users eager to download binaries a single click
@@ -524,6 +514,13 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def check_package_name_for_new
+    begin
+      authorize @project, :can_create_package_in?
+    rescue Pundit::NotAuthorizedError => e
+      raise CheckPackageNameForNewNotAuthorizedError.new(e.record,
+                                                         'Sorry, you are not authorized to create package in this Project.')
+    end
+
     @package_name = params[:name]
     @package_title = params[:title]
     @package_description = params[:description]
@@ -535,12 +532,6 @@ class Webui::PackageController < Webui::WebuiController
     end
     if Package.exists_by_project_and_name(@project.name, @package_name)
       flash[:error] = "Package '#{@package_name}' already exists in project '#{@project}'"
-      redirect_to controller: :project, action: :new_package, project: @project
-      return false
-    end
-    @project = @project.api_obj
-    unless User.current.can_create_package_in?(@project)
-      flash[:error] = "You can't create packages in #{@project.name}"
       redirect_to controller: :project, action: :new_package, project: @project
       return false
     end
@@ -844,8 +835,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def update_build_log
-    check_ajax
-
     # Make sure objects don't contain invalid chars (eg. '../')
     @repo = @project.repositories.find_by(name: params[:repository]).try(:name)
     unless @repo
@@ -942,15 +931,12 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def devel_project
-    check_ajax
     tgt_pkg = Package.find_by_project_and_name(params[:project], params[:package])
 
     render plain: tgt_pkg.try(:develpackage).try(:project).to_s
   end
 
   def buildresult
-    check_ajax
-
     if @project.repositories.any?
       show_all = params[:show_all] == 'true'
       @index = params[:index]
@@ -964,7 +950,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def rpmlint_result
-    check_ajax
     @repo_list = []
     @repo_arch_hash = {}
     @buildresult = Buildresult.find_hashed(project: @project.to_param, package: @package.to_param, view: 'status')
@@ -1047,19 +1032,33 @@ class Webui::PackageController < Webui::WebuiController
   def edit; end
 
   def binary_download
-    architecture = Architecture.find_by_name(params[:arch]).name
-    filename = File.basename(params[:filename]) # Ensure it really is just a file name, no '/..', etc.
-    repository = Repository.find_by_project_and_name(@project.to_s, params[:repository].to_s)
+    result = ::PackageControllerService::BinaryDownloadUrlFetcher.new(User.current, @project, params).call
 
-    download_url = download_url_for_file_in_repo(@project, params[:package], repository, architecture, filename)
-    if download_url
-      redirect_to download_url
+    if result.download_url
+      redirect_to result.download_url
     else
       redirect_back(fallback_location: root_path)
     end
   end
 
   private
+
+  def set_instance_variables_for_show
+    @expand = if request.bot?
+                params.delete(:rev)
+                params.delete(:srcmd5)
+                0
+              elsif params[:expand]
+                params[:expand].to_i
+              else
+                1
+              end
+    @srcmd5 = params[:srcmd5]
+    @revision_parameter = params[:rev]
+    @revision = params[:rev]
+    @failures = 0
+    @is_current_rev = false
+  end
 
   def validate_xml
     Suse::Validator.validate('package', params[:meta])
@@ -1088,22 +1087,6 @@ class Webui::PackageController < Webui::WebuiController
       files << file
     end
     files
-  end
-
-  def file_available?(url, max_redirects = 5)
-    logger.debug "Checking url: #{url}"
-    uri = URI.parse(url)
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.open_timeout = 15
-    http.read_timeout = 15
-    response = http.head uri.path
-    if response.code.to_i == 302 && response['location'] && max_redirects > 0
-      return file_available?(response['location'], (max_redirects - 1))
-    end
-    return response.code.to_i == 200
-  rescue Object => e
-    logger.error "Error in checking for file #{url}: #{e.message}"
-    return false
   end
 
   def users_path
@@ -1165,14 +1148,6 @@ class Webui::PackageController < Webui::WebuiController
     { details?: filename != 'rpmlint.log', download_url: download_url, cloud_upload?: cloud_upload }
   end
 
-  def download_url_for_file_in_repo(project, package_name, repository, architecture, filename)
-    download_url = repository.download_url_for_file(package_name, architecture, filename)
-    # return mirror if available
-    return download_url if download_url && file_available?(download_url)
-    # only use API for logged in users if the mirror is not available - return nil otherwise
-    rpm_url(project, package_name, repository.name, architecture, filename) unless User.current.is_nobody?
-  end
-
   def require_architecture
     @arch = Architecture.archcache[params[:arch]]
     return if @arch
@@ -1185,5 +1160,10 @@ class Webui::PackageController < Webui::WebuiController
     return if @repository
     flash[:error] = "Couldn't find repository '#{params[:repository]}'"
     redirect_to package_show_path(project: @project, package: @package)
+  end
+
+  def display_authorization_error_and_redirect(exception)
+    flash[:error] = exception.message
+    redirect_to(controller: :project, action: :new_package, project: exception.record)
   end
 end

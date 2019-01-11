@@ -1708,7 +1708,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         let(:my_user) { create(:confirmed_user, login: 'another_user') }
 
         it { expect(response).to redirect_to(project_new_package_path(source_project)) }
-        it { expect(flash[:error]).to eq("You can't create packages in #{source_project.name}") }
+        it { expect(flash[:error]).to eq("Sorry, you are not authorized to create package in this #{source_project.class}.") }
       end
     end
   end

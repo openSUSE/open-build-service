@@ -95,7 +95,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       fill_in 'name', with: 'coolstuff'
       click_button('Accept')
 
-      expect(page).to have_text("You can't create packages in #{global_project}")
+      expect(page).to have_text("you are not authorized to create package in this #{global_project.class}")
       expect(page.current_path).to eq("/project/new_package/#{global_project}")
     end
 
