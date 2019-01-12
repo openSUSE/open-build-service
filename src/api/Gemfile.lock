@@ -176,7 +176,7 @@ GEM
       ruby_parser (~> 3.5)
     i18n (1.5.1)
       concurrent-ruby (~> 1.0)
-    influxdb (0.6.4)
+    influxdb (0.7.0)
     influxdb-rails (1.0.0.beta3)
       influxdb (~> 0.6, >= 0.6.4)
       railties (>= 4.2)
