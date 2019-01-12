@@ -1933,6 +1933,19 @@ XmlResult: required_checks
 == Staging
   WARNING: This API is currently in beta and unstable
 
+=== Staging Projects
+
+<staging_workflow_project>: The name of the staging workflow project, e.g. openSUSE:Factory
+<staging_project>: The name of the staging project, e.g. openSUSE:Factory:Staging:A
+
+GET /staging/<staging_workflow_project>/staging_projects
+  Get the overall state of all staging projects belonging to a staging workflow project
+XmlResult: staging_projects
+
+GET /staging/<staging_workflow_project>/staging_projects/<staging_project>
+  Get the overall state of a staging project
+XmlResult: staging_project
+
 === Excluded Requests
 
 <project>: The name of the main project of a Staging, e.g. openSUSE_Tumbleweed

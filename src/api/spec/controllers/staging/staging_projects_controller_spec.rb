@@ -99,7 +99,7 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
           assert_select 'missing_reviews', 1 do
             assert_select 'entry', 1
           end
-          assert_select 'broken_package', 1 do
+          assert_select 'broken_packages', 1 do
             assert_select 'entry', 2
           end
         end
