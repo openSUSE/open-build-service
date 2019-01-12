@@ -32,7 +32,8 @@
                                                     cleanup_source: @cleanup_source,
                                                     services: @services,
                                                     project: @project,
-                                                    package: @package }
+                                                    package: @package,
+                                                    is_working: @forced_unexpand.blank? }
 .overview
   .build-results
     = render partial: 'webui2/shared/buildresult_box', locals: { project: @project.name, package: @package.name }

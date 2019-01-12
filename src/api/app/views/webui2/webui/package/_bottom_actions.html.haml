@@ -4,7 +4,7 @@
     = render partial: 'webui2/webui/package/bottom_actions/bugzilla_owner', locals: { bugowners_mail: bugowners_mail,
                                                                 package_name: package.name, project_name: project.name }
   - unless User.current.is_nobody?
-    - if current_rev
+    - if current_rev && is_working
       = render partial: 'webui2/webui/package/bottom_actions/branch_package'
       = render partial: 'webui2/webui/package/bottom_actions/submit_package', locals: { package: package, project: project,
                                                                    revision: revision }
