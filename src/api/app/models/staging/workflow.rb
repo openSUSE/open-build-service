@@ -22,7 +22,7 @@ class Staging::Workflow < ApplicationRecord
     end
 
     def ready_to_stage
-      in_states('new')
+      in_states(:new)
     end
   end
 

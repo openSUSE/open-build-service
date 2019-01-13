@@ -8,10 +8,10 @@ RSpec.describe Staging::Workflow, type: :model do
   let(:staging_project) { staging_workflow.staging_projects.first }
   let(:source_project) { create(:project, name: 'source_project') }
   let(:target_package) { create(:package, name: 'target_package', project: project) }
-  let(:source_package) { create(:package, name: 'source_package', project: source_project) }
+  let(:source_package) { create(:package, :as_submission_source, name: 'source_package', project: source_project) }
   let(:bs_request) do
     create(:bs_request_with_submit_action,
-           state: :review,
+           review_by_group: group, # FIXME: force to create a review for the group, because skip_sanitize is avoiding it
            target_package: target_package,
            source_package: source_package)
   end
@@ -84,16 +84,18 @@ RSpec.describe Staging::Workflow, type: :model do
       it { expect(subject).to be_empty }
     end
 
-    context 'with requests and some are in staging projects and some not' do
-      let!(:bs_request_2) do
+    context 'with request in state review whether they are in staging projects or not' do
+      let(:bs_request_2) do
         create(:bs_request_with_submit_action,
+               review_by_group: group, # FIXME: force to create a review for the group, because skip_sanitize is avoiding it
                target_package: target_package,
                source_package: source_package)
       end
 
       before do
-        bs_request.staging_project = staging_project
-        bs_request.save
+        bs_request
+        bs_request_2.change_review_state(:accepted, by_group: group.title)
+        bs_request_2.update!(staging_project: staging_project)
       end
 
       it { expect(subject).to contain_exactly(bs_request_2) }
