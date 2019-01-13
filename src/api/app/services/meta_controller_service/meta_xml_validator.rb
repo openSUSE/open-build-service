@@ -8,8 +8,8 @@ module MetaControllerService
       @meta = params[:meta]
     end
 
-    def call
-      Suse::Validator.validate('project', @meta)
+    def call(xml_type = :project)
+      Suse::Validator.validate(xml_type.to_s, @meta)
       @request_data = Xmlhash.parse(@meta)
     rescue Suse::ValidationError => exception
       @errors = exception.message

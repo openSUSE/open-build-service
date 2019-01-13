@@ -19,20 +19,17 @@ class Webui::PackageController < Webui::WebuiController
                                      :remove, :add_file, :save_file, :remove_file, :save_person,
                                      :save_group, :remove_role, :view_file,
                                      :abort_build, :trigger_rebuild, :trigger_services,
-                                     :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
-                                     :save_meta, :attributes, :edit, :files, :binary_download]
+                                     :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :attributes, :edit, :files, :binary_download]
 
   before_action :require_package, only: [:show, :linking_packages, :dependency, :binary, :binaries,
                                          :requests, :statistics, :commit, :revisions, :submit_request_dialog,
                                          :add_person, :add_group, :rdiff,
-                                         :save, :save_meta, :delete_dialog,
+                                         :save, :delete_dialog,
                                          :remove, :add_file, :save_file, :remove_file, :save_person,
                                          :save_group, :remove_role, :view_file,
                                          :abort_build, :trigger_rebuild, :trigger_services,
-                                         :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
+                                         :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log,
                                          :attributes, :edit, :files, :users, :binary_download]
-
-  before_action :validate_xml, only: [:save_meta]
 
   before_action :require_repository, only: [:binary, :binary_download]
   before_action :require_architecture, only: [:binary, :binary_download]
@@ -43,7 +40,7 @@ class Webui::PackageController < Webui::WebuiController
                                          :binary, :binaries, :users, :requests, :statistics, :commit,
                                          :revisions, :rdiff, :view_file, :live_build_log,
                                          :update_build_log, :devel_project, :buildresult, :rpmlint_result,
-                                         :rpmlint_log, :meta, :attributes, :files]
+                                         :rpmlint_log, :attributes, :files]
 
   before_action :check_build_log_access, only: [:live_build_log, :update_build_log]
 
@@ -51,7 +48,7 @@ class Webui::PackageController < Webui::WebuiController
 
   prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binary, :binaries, :requests, :binary_download]
 
-  after_action :verify_authorized, only: [:remove_file, :remove, :save_file, :abort_build, :trigger_rebuild, :wipe_binaries, :save_meta, :save, :abort_build]
+  after_action :verify_authorized, only: [:remove_file, :remove, :save_file, :abort_build, :trigger_rebuild, :wipe_binaries, :save, :abort_build]
 
   def show
     set_instance_variables_for_show
@@ -990,45 +987,6 @@ class Webui::PackageController < Webui::WebuiController
     end
   end
 
-  def meta
-    @meta = @package.render_xml
-    switch_to_webui2
-  end
-
-  def save_meta
-    errors = []
-
-    authorize @package, :save_meta_update?
-
-    if FlagHelper.xml_disabled_for?(@meta_xml, 'sourceaccess')
-      errors << 'admin rights are required to raise the protection level of a package'
-    end
-
-    if @meta_xml['project'] && @meta_xml['project'] != @project.name
-      errors << 'project name in xml data does not match resource path component'
-    end
-
-    if @meta_xml['name'] && @meta_xml['name'] != @package.name
-      errors << 'package name in xml data does not match resource path component'
-    end
-
-    if errors.empty?
-      begin
-        @package.update_from_xml(@meta_xml)
-        flash.now[:success] = 'The Meta file has been successfully saved.'
-        status = 200
-      rescue Backend::Error, NotFoundError => e
-        flash.now[:error] = "Error while saving the Meta file: #{e}."
-        status = 400
-      end
-    else
-      flash.now[:error] = "Error while saving the Meta file: #{errors.compact.join("\n")}."
-      status = 400
-    end
-    switch_to_webui2
-    render layout: false, status: status, partial: "layouts/#{ui_namespace}/flash", object: flash
-  end
-
   def edit; end
 
   def binary_download
@@ -1058,14 +1016,6 @@ class Webui::PackageController < Webui::WebuiController
     @revision = params[:rev]
     @failures = 0
     @is_current_rev = false
-  end
-
-  def validate_xml
-    Suse::Validator.validate('package', params[:meta])
-    @meta_xml = Xmlhash.parse(params[:meta])
-  rescue Suse::ValidationError => error
-    flash.now[:error] = "Error while saving the Meta file: #{error}."
-    render layout: false, status: 400, partial: "layouts/#{ui_namespace}/flash", object: flash
   end
 
   def package_files(rev = nil, expand = nil)

@@ -100,6 +100,12 @@ OBSApi::Application.routes.draw do
     end
 
     defaults format: 'html' do
+      # backwar compatibility
+      controller 'webui/packages/meta' do
+        get 'package/meta/:project/:package' => :show, constraints: cons, as: :package_meta
+        put 'package/save_meta/:project/:package' => :update, constraints: cons, as: :package_save_meta
+      end
+
       controller 'webui/package' do
         get 'package/show/:project/:package' => :show, as: 'package_show', constraints: cons
         get 'package/dependency/:project/:package' => :dependency, constraints: cons
@@ -141,8 +147,8 @@ OBSApi::Application.routes.draw do
         get 'package/buildresult' => :buildresult, constraints: cons, as: 'package_buildresult'
         get 'package/rpmlint_result' => :rpmlint_result, constraints: cons, as: 'rpmlint_result'
         get 'package/rpmlint_log' => :rpmlint_log, constraints: cons
-        get 'package/meta/:project/:package' => :meta, constraints: cons, as: 'package_meta'
-        post 'package/save_meta/:project/:package' => :save_meta, constraints: cons, as: 'package_save_meta'
+        # get 'package/meta/:project/:package' => :meta, constraints: cons, as: 'package_meta'
+        # post 'package/save_meta/:project/:package' => :save_meta, constraints: cons, as: 'package_save_meta'
         # compat route
         get 'package/attributes/:project/:package', to: redirect('/attribs/%{project}/%{package}'), constraints: cons
         get 'package/edit/:project/:package' => :edit, constraints: cons, as: :package_edit
