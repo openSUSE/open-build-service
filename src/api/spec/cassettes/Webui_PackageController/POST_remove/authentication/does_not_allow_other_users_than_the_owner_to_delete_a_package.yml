@@ -40,15 +40,15 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 05 Oct 2016 09:32:56 GMT
+  recorded_at: Mon, 14 Jan 2019 09:46:02 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_16/_meta
+    uri: http://backend:5352/source/project_33/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="project_16">
-          <title>Bury My Heart at Wounded Knee</title>
+        <project name="project_33">
+          <title>The Cricket on the Hearth</title>
           <description/>
         </project>
     headers:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '116'
+      - '112'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_16">
-          <title>Bury My Heart at Wounded Knee</title>
+        <project name="project_33">
+          <title>The Cricket on the Hearth</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Wed, 05 Oct 2016 09:32:57 GMT
+  recorded_at: Mon, 14 Jan 2019 09:46:03 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_16/forbidden_package/_meta?user=tom
+    uri: http://backend:5352/source/project_33/forbidden_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="forbidden_package" project="project_16">
-          <title/>
-          <description/>
+        <package name="forbidden_package" project="project_33">
+          <title>The Man Within</title>
+          <description>Architecto enim aperiam quo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,25 +109,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '115'
+      - '157'
     body:
       encoding: UTF-8
       string: |
-        <package name="forbidden_package" project="project_16">
-          <title></title>
-          <description></description>
+        <package name="forbidden_package" project="project_33">
+          <title>The Man Within</title>
+          <description>Architecto enim aperiam quo.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 05 Oct 2016 09:32:57 GMT
+  recorded_at: Mon, 14 Jan 2019 09:46:04 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_16/forbidden_package/_meta
+    uri: http://backend:5352/source/project_33/forbidden_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="forbidden_package" project="project_16">
-          <title/>
-          <description/>
+        <package name="forbidden_package" project="project_33">
+          <title>The Man Within</title>
+          <description>Architecto enim aperiam quo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -148,14 +148,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '115'
+      - '157'
     body:
       encoding: UTF-8
       string: |
-        <package name="forbidden_package" project="project_16">
-          <title></title>
-          <description></description>
+        <package name="forbidden_package" project="project_33">
+          <title>The Man Within</title>
+          <description>Architecto enim aperiam quo.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 05 Oct 2016 09:32:57 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Mon, 14 Jan 2019 09:46:04 GMT
+recorded_with: VCR 4.0.0

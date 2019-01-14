@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:53 GMT
+  recorded_at: Mon, 14 Jan 2019 09:45:17 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Surprised by Joy</title>
-          <description>Cum nostrum quasi et minus quia excepturi.</description>
+          <title>The Heart Is Deceitful Above All Things</title>
+          <description>Iusto earum voluptatum ipsa.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '180'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Surprised by Joy</title>
-          <description>Cum nostrum quasi et minus quia excepturi.</description>
+          <title>The Heart Is Deceitful Above All Things</title>
+          <description>Iusto earum voluptatum ipsa.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:53 GMT
+  recorded_at: Mon, 14 Jan 2019 09:45:17 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/package_with_file/_meta
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Surprised by Joy</title>
-          <description>Cum nostrum quasi et minus quia excepturi.</description>
+          <title>The Heart Is Deceitful Above All Things</title>
+          <description>Iusto earum voluptatum ipsa.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,24 +109,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '180'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Surprised by Joy</title>
-          <description>Cum nostrum quasi et minus quia excepturi.</description>
+          <title>The Heart Is Deceitful Above All Things</title>
+          <description>Iusto earum voluptatum ipsa.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:53 GMT
+  recorded_at: Mon, 14 Jan 2019 09:45:17 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Sint eum labore quam velit similique laudantium. Et temporibus asperiores
-        rerum harum aut. Est laudantium molestiae. Porro at temporibus enim ab dolores.
-        Dolores dignissimos quos voluptatibus.
+      string: Voluptas expedita ea. Ut et iste. Non eum veniam.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -150,23 +148,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="25" vrev="25">
-          <srcmd5>cb3ca90100aeb0f46c8b3b68efa81163</srcmd5>
+        <revision rev="83" vrev="83">
+          <srcmd5>7d092850696510c15273385f724575ec</srcmd5>
           <version>unknown</version>
-          <time>1493736953</time>
+          <time>1547459118</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:54 GMT
+  recorded_at: Mon, 14 Jan 2019 09:45:19 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Ex culpa aut repellendus. Repellat repudiandae sunt culpa in. Quia deleniti
-        occaecati nulla. Beatae vitae dicta magni. Cupiditate rerum consequatur.
+      string: Velit sit laborum. Soluta dolor voluptas. Non aut aspernatur.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -190,24 +187,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="26" vrev="26">
-          <srcmd5>7ab8574c906f1e9118553dd79bafc3f0</srcmd5>
+        <revision rev="84" vrev="84">
+          <srcmd5>d487e7cd8dfbb9332f7e4925da4abd41</srcmd5>
           <version>unknown</version>
-          <time>1493736954</time>
+          <time>1547459119</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:54 GMT
+  recorded_at: Mon, 14 Jan 2019 09:45:19 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_13/_meta
+    uri: http://backend:5352/source/project_27/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="project_13">
-          <title>An Instant In The Wind</title>
+        <project name="project_27">
+          <title>The Painted Veil</title>
           <description/>
         </project>
     headers:
@@ -229,50 +226,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '103'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_13">
-          <title>An Instant In The Wind</title>
+        <project name="project_27">
+          <title>The Painted Veil</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:54 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/project_13/_config
-    body:
-      encoding: UTF-8
-      string: Odit ipsa fuga eum ex. Facilis eveniet architecto perspiciatis. Omnis
-        excepturi ullam temporibus sequi qui numquam. Tempore officia unde.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:54 GMT
+  recorded_at: Mon, 14 Jan 2019 09:45:20 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file?expand=1
@@ -298,14 +261,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '308'
+      - '306'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="26" vrev="26" srcmd5="7ab8574c906f1e9118553dd79bafc3f0">
-          <entry name="_config" md5="c0fb2ca0afc89b39a4c98a2a7f385a9e" size="192" mtime="1493736953" />
-          <entry name="somefile.txt" md5="74610a4ce0caa6a52f611dc4076ee148" size="148" mtime="1493736954" />
+        <directory name="package_with_file" rev="84" vrev="84" srcmd5="d487e7cd8dfbb9332f7e4925da4abd41">
+          <entry name="_config" md5="771c2bc5ea4953c4ad671bc4b8c915c5" size="49" mtime="1547459117" />
+          <entry name="somefile.txt" md5="5ae1d99a7651a3150cc42f2cb38d01b7" size="61" mtime="1547459119" />
         </directory>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:54 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Mon, 14 Jan 2019 09:45:20 GMT
+recorded_with: VCR 4.0.0

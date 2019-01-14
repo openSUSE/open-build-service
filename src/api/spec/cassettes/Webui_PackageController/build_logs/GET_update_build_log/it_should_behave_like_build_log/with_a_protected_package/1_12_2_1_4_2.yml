@@ -1,0 +1,238 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 14 Jan 2019 09:43:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+          <repository name="leap_42.2">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+          <repository name="leap_42.2">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    http_version: 
+  recorded_at: Mon, 14 Jan 2019 09:43:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Beyond the Mexique Bay</title>
+          <description>Corporis perferendis libero tempora.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '164'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Beyond the Mexique Bay</title>
+          <description>Corporis perferendis libero tempora.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 14 Jan 2019 09:43:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Beyond the Mexique Bay</title>
+          <description>Corporis perferendis libero tempora.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '164'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Beyond the Mexique Bay</title>
+          <description>Corporis perferendis libero tempora.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 14 Jan 2019 09:43:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom/_result?arch=i586&package=my_package&repository=leap_42.2&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="c103cb1f8352b73fd45971ebe41e2446">
+          <result project="home:tom" repository="leap_42.2" arch="i586" code="broken" state="broken" details="no build type (home:tom)" />
+        </resultlist>
+    http_version: 
+  recorded_at: Mon, 14 Jan 2019 09:43:40 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom/leap_42.2/i586/my_package/_log?view=entry
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: package 'my_package' has no logfile
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '148'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>package 'my_package' has no logfile</summary>
+          <details>404 package 'my_package' has no logfile</details>
+        </status>
+    http_version: 
+  recorded_at: Mon, 14 Jan 2019 09:43:40 GMT
+recorded_with: VCR 4.0.0

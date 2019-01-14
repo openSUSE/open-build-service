@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:56:00 GMT
+  recorded_at: Mon, 14 Jan 2019 09:44:03 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>I Sing the Body Electric</title>
-          <description>Veritatis saepe dignissimos repellat sint natus ut tempora praesentium.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Est rerum dolorem eum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '208'
+      - '153'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>I Sing the Body Electric</title>
-          <description>Veritatis saepe dignissimos repellat sint natus ut tempora praesentium.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Est rerum dolorem eum.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:56:00 GMT
+  recorded_at: Mon, 14 Jan 2019 09:44:03 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/package_with_file/_meta
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>I Sing the Body Electric</title>
-          <description>Veritatis saepe dignissimos repellat sint natus ut tempora praesentium.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Est rerum dolorem eum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,23 +109,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '208'
+      - '153'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>I Sing the Body Electric</title>
-          <description>Veritatis saepe dignissimos repellat sint natus ut tempora praesentium.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Est rerum dolorem eum.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:56:00 GMT
+  recorded_at: Mon, 14 Jan 2019 09:44:03 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Sint consequatur fugit nam expedita voluptas. Iste et nam. Qui ducimus
-        corrupti est sint nihil veniam illo.
+      string: Omnis asperiores consequuntur. Amet aperiam illo. Reiciendis natus voluptatum.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -149,24 +148,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="54" vrev="54">
-          <srcmd5>4163fa13b60df07f3473cb062516a690</srcmd5>
+        <revision rev="30" vrev="30">
+          <srcmd5>ad34c79e29e70f50b0b373904e9a05f2</srcmd5>
           <version>unknown</version>
-          <time>1493736960</time>
+          <time>1547459043</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:56:00 GMT
+  recorded_at: Mon, 14 Jan 2019 09:44:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Corporis repellat nihil nam eos porro nesciunt aut. Commodi non deleniti
-        laudantium fugiat consequuntur impedit. Aspernatur at dicta deserunt eos eaque
-        sapiente quae.
+      string: Qui ut quia. Velit optio eos. Maxime eaque eius.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -190,16 +187,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="55" vrev="55">
-          <srcmd5>82e01fa9c4e7c108fd0cd40d34cb34fa</srcmd5>
+        <revision rev="31" vrev="31">
+          <srcmd5>b37154ae13c8557c6f336db9612f7eb0</srcmd5>
           <version>unknown</version>
-          <time>1493736960</time>
+          <time>1547459044</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:56:00 GMT
+  recorded_at: Mon, 14 Jan 2019 09:44:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
@@ -229,16 +226,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="56" vrev="56">
-          <srcmd5>043e3194e7bd0c7baa105887faf56bbe</srcmd5>
+        <revision rev="32" vrev="32">
+          <srcmd5>40a5ca534c65062ecae7ce33784d84f2</srcmd5>
           <version>unknown</version>
-          <time>1493736960</time>
+          <time>1547459044</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:56:00 GMT
+  recorded_at: Mon, 14 Jan 2019 09:44:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
@@ -268,16 +265,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="57" vrev="57">
-          <srcmd5>cfd3b626820f67e85a04482a9843ce0d</srcmd5>
+        <revision rev="33" vrev="33">
+          <srcmd5>1a115bbe39c9b902d45aa720ce175578</srcmd5>
           <version>unknown</version>
-          <time>1493736960</time>
+          <time>1547459044</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:56:00 GMT
+  recorded_at: Mon, 14 Jan 2019 09:44:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
@@ -307,24 +304,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="58" vrev="58">
-          <srcmd5>4163fa13b60df07f3473cb062516a690</srcmd5>
+        <revision rev="34" vrev="34">
+          <srcmd5>ad34c79e29e70f50b0b373904e9a05f2</srcmd5>
           <version>unknown</version>
-          <time>1493736960</time>
+          <time>1547459045</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:56:00 GMT
+  recorded_at: Mon, 14 Jan 2019 09:44:06 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_23/_meta
+    uri: http://backend:5352/source/project_5/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="project_23">
-          <title>Some Buried Caesar</title>
+        <project name="project_5">
+          <title>Everything is Illuminated</title>
           <description/>
         </project>
     headers:
@@ -346,51 +343,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '105'
+      - '111'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_23">
-          <title>Some Buried Caesar</title>
+        <project name="project_5">
+          <title>Everything is Illuminated</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:56:00 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/project_23/_config
-    body:
-      encoding: UTF-8
-      string: Molestias illum animi officiis quibusdam. Nesciunt ex aspernatur quia
-        rerum similique facere. Dolorum officia quo quos accusantium delectus. Enim
-        assumenda perferendis natus deserunt.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Tue, 02 May 2017 14:56:00 GMT
+  recorded_at: Mon, 14 Jan 2019 09:44:09 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file?expand=1&rev=2
@@ -416,14 +378,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '306'
+      - '304'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="2" vrev="2" srcmd5="42e71d08a4a9c55b352719593064ac33">
-          <entry name="_config" md5="2702d3ea42d76432faf603ded851a13f" size="199" mtime="1493736947" />
-          <entry name="somefile.txt" md5="a01262138d67b69a079cc3b42eea8e96" size="149" mtime="1493736947" />
+        <directory name="package_with_file" rev="2" vrev="2" srcmd5="1192b55022fb1469a23a82e84919d3d0">
+          <entry name="_config" md5="f94d1991e5714e171a5fef454e2de8f9" size="50" mtime="1547458942" />
+          <entry name="somefile.txt" md5="d010a22b23e6893ecd360633263dfa66" size="54" mtime="1547458943" />
         </directory>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:56:00 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Mon, 14 Jan 2019 09:44:10 GMT
+recorded_with: VCR 4.0.0

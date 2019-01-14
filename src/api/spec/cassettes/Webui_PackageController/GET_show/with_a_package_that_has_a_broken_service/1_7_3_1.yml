@@ -1,0 +1,302 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 14 Jan 2019 09:45:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_broken_service/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_broken_service" project="home:tom">
+          <title>O Jerusalem!</title>
+          <description>Et dignissimos culpa hic.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_broken_service" project="home:tom">
+          <title>O Jerusalem!</title>
+          <description>Et dignissimos culpa hic.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 14 Jan 2019 09:45:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_broken_service/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_broken_service" project="home:tom">
+          <title>O Jerusalem!</title>
+          <description>Et dignissimos culpa hic.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_broken_service" project="home:tom">
+          <title>O Jerusalem!</title>
+          <description>Et dignissimos culpa hic.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 14 Jan 2019 09:45:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_broken_service/_service
+    body:
+      encoding: UTF-8
+      string: "<service>broken</service>"
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>f9c961bd6f083d553f0b2d2e7cd6b4d0</srcmd5>
+          <version>unknown</version>
+          <time>1547459153</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 14 Jan 2019 09:45:53 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_broken_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '248'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_broken_service" rev="2" vrev="2" srcmd5="f9c961bd6f083d553f0b2d2e7cd6b4d0">
+          <serviceinfo code="running" />
+          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1547459151" />
+        </directory>
+    http_version: 
+  recorded_at: Mon, 14 Jan 2019 09:45:53 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_broken_service?expand=1&rev=2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: service in progress
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '71'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="400">
+          <summary>service in progress</summary>
+        </status>
+    http_version: 
+  recorded_at: Mon, 14 Jan 2019 09:45:53 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_broken_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '248'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_broken_service" rev="2" vrev="2" srcmd5="f9c961bd6f083d553f0b2d2e7cd6b4d0">
+          <serviceinfo code="running" />
+          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1547459151" />
+        </directory>
+    http_version: 
+  recorded_at: Mon, 14 Jan 2019 09:45:53 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_broken_service?expand=0&rev=2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '409'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_broken_service" rev="2" vrev="2" srcmd5="f9c961bd6f083d553f0b2d2e7cd6b4d0">
+          <serviceinfo code="failed" xsrcmd5="c1d95c387de88596dedc5cb87f0230bf">
+            <error>service error:  400 remote error: document element must be 'services', was 'service'</error>
+          </serviceinfo>
+          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1547459151" />
+        </directory>
+    http_version: 
+  recorded_at: Mon, 14 Jan 2019 09:45:53 GMT
+recorded_with: VCR 4.0.0

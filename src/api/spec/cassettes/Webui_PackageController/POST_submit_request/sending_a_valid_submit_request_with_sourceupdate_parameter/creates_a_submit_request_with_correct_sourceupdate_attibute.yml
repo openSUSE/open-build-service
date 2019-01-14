@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:52 GMT
+  recorded_at: Mon, 14 Jan 2019 09:45:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>By Grand Central Station I Sat Down and Wept</title>
-          <description>Et itaque esse eos.</description>
+          <title>Such, Such Were the Joys</title>
+          <description>Ab consequuntur praesentium cupiditate.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -75,20 +75,20 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>By Grand Central Station I Sat Down and Wept</title>
-          <description>Et itaque esse eos.</description>
+          <title>Such, Such Were the Joys</title>
+          <description>Ab consequuntur praesentium cupiditate.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:52 GMT
+  recorded_at: Mon, 14 Jan 2019 09:45:08 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/package_with_file/_meta
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>By Grand Central Station I Sat Down and Wept</title>
-          <description>Et itaque esse eos.</description>
+          <title>Such, Such Were the Joys</title>
+          <description>Ab consequuntur praesentium cupiditate.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -114,18 +114,17 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>By Grand Central Station I Sat Down and Wept</title>
-          <description>Et itaque esse eos.</description>
+          <title>Such, Such Were the Joys</title>
+          <description>Ab consequuntur praesentium cupiditate.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:52 GMT
+  recorded_at: Mon, 14 Jan 2019 09:45:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Eligendi non tenetur fugiat. Sit eum consectetur neque ducimus aut.
-        Iste aut corrupti. Voluptas temporibus quas consequatur vero adipisci.
+      string: Libero atque quasi. Dolore est quam. Omnis numquam sit.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -149,24 +148,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="19" vrev="19">
-          <srcmd5>829fa317e688da664cd3bfb1a57f4c34</srcmd5>
+        <revision rev="77" vrev="77">
+          <srcmd5>23e76c4433d32ad74d4469003556f969</srcmd5>
           <version>unknown</version>
-          <time>1493736952</time>
+          <time>1547459108</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:52 GMT
+  recorded_at: Mon, 14 Jan 2019 09:45:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Corporis dolore distinctio. Vero quae animi sint eligendi. Molestiae
-        architecto eaque dicta atque sed voluptatem eius. Excepturi possimus ipsum
-        aut suscipit id ducimus. Quae sed vel porro recusandae pariatur ut.
+      string: Quia temporibus et. Velit dolor ullam. Dolore deserunt neque.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -190,24 +187,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="20" vrev="20">
-          <srcmd5>3be6fce6c540010b3f628c8997250d7d</srcmd5>
+        <revision rev="78" vrev="78">
+          <srcmd5>ccdc0bfd2da0dedc77827094d53eee1d</srcmd5>
           <version>unknown</version>
-          <time>1493736952</time>
+          <time>1547459109</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:52 GMT
+  recorded_at: Mon, 14 Jan 2019 09:45:09 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_10/_meta
+    uri: http://backend:5352/source/project_24/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="project_10">
-          <title>The Violent Bear It Away</title>
+        <project name="project_24">
+          <title>The Doors of Perception</title>
           <description/>
         </project>
     headers:
@@ -229,51 +226,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '111'
+      - '110'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_10">
-          <title>The Violent Bear It Away</title>
+        <project name="project_24">
+          <title>The Doors of Perception</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:52 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/project_10/_config
-    body:
-      encoding: UTF-8
-      string: Nihil qui recusandae. Distinctio pariatur perspiciatis libero corporis
-        aperiam nemo. Aut rerum consequatur. Culpa rem inventore. Laudantium sequi
-        molestias dolores.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:52 GMT
+  recorded_at: Mon, 14 Jan 2019 09:45:10 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file?expand=1
@@ -299,14 +261,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '308'
+      - '306'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="20" vrev="20" srcmd5="3be6fce6c540010b3f628c8997250d7d">
-          <entry name="_config" md5="d87abe18af68bd1afbb96f434303c70c" size="138" mtime="1493736952" />
-          <entry name="somefile.txt" md5="3da710f68ed38be76135b08d4952862d" size="211" mtime="1493736952" />
+        <directory name="package_with_file" rev="78" vrev="78" srcmd5="ccdc0bfd2da0dedc77827094d53eee1d">
+          <entry name="_config" md5="72598f695904e1b6dc7ea20c5e9db1ad" size="55" mtime="1547459108" />
+          <entry name="somefile.txt" md5="105fd7d9e987fb300d928250fb7e16d5" size="61" mtime="1547459108" />
         </directory>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:52 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Mon, 14 Jan 2019 09:45:10 GMT
+recorded_with: VCR 4.0.0

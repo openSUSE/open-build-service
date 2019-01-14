@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:50 GMT
+  recorded_at: Mon, 14 Jan 2019 09:44:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Oh! To be in England</title>
-          <description>Corporis maiores illum laudantium possimus autem in enim ut.</description>
+          <title>The Last Temptation</title>
+          <description>Laboriosam praesentium beatae non.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '193'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Oh! To be in England</title>
-          <description>Corporis maiores illum laudantium possimus autem in enim ut.</description>
+          <title>The Last Temptation</title>
+          <description>Laboriosam praesentium beatae non.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:50 GMT
+  recorded_at: Mon, 14 Jan 2019 09:44:45 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/package_with_file/_meta
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Oh! To be in England</title>
-          <description>Corporis maiores illum laudantium possimus autem in enim ut.</description>
+          <title>The Last Temptation</title>
+          <description>Laboriosam praesentium beatae non.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,25 +109,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '193'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Oh! To be in England</title>
-          <description>Corporis maiores illum laudantium possimus autem in enim ut.</description>
+          <title>The Last Temptation</title>
+          <description>Laboriosam praesentium beatae non.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:50 GMT
+  recorded_at: Mon, 14 Jan 2019 09:44:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Facilis consectetur voluptates explicabo hic molestias fuga mollitia.
-        Corporis perferendis aperiam cum similique cupiditate. Voluptatum earum nam
-        ut et minima repellat quibusdam. In numquam aperiam deleniti non. Est dolorum
-        incidunt quia et maiores minima unde.
+      string: Facilis soluta sed. Sed sit animi. Commodi distinctio suscipit.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -151,25 +148,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="11" vrev="11">
-          <srcmd5>b887b7765414500ebf3718a8bb75cab2</srcmd5>
+        <revision rev="57" vrev="57">
+          <srcmd5>21878ab17bdda71512b8b27c420f69ed</srcmd5>
           <version>unknown</version>
-          <time>1493736950</time>
+          <time>1547459085</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:50 GMT
+  recorded_at: Mon, 14 Jan 2019 09:44:46 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Architecto occaecati porro. Eos aliquid corporis iure vel praesentium
-        molestiae dolorum. Neque dolor placeat vel voluptates tempora dolores. Eum
-        veniam et ut doloribus officia sed. Quia unde autem voluptas iste dolores
-        aut aut.
+      string: Omnis quis vel. Dicta ab porro. Esse qui laudantium.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -193,24 +187,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="12" vrev="12">
-          <srcmd5>aca924de020b8147bf5d95f1aa511ef1</srcmd5>
+        <revision rev="58" vrev="58">
+          <srcmd5>7d4755518d91a665a17b741913fc5c3d</srcmd5>
           <version>unknown</version>
-          <time>1493736950</time>
+          <time>1547459086</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:50 GMT
+  recorded_at: Mon, 14 Jan 2019 09:44:46 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_6/_meta
+    uri: http://backend:5352/source/project_14/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="project_6">
-          <title>Brandy of the Damned</title>
+        <project name="project_14">
+          <title>Postern of Fate</title>
           <description/>
         </project>
     headers:
@@ -232,50 +226,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '106'
+      - '102'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_6">
-          <title>Brandy of the Damned</title>
+        <project name="project_14">
+          <title>Postern of Fate</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:50 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/project_6/_config
-    body:
-      encoding: UTF-8
-      string: Facilis dolorum architecto sit. Cumque aliquid qui ut. Officiis fuga
-        nihil. Qui est ullam.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:50 GMT
+  recorded_at: Mon, 14 Jan 2019 09:44:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file?expand=1
@@ -301,14 +261,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '308'
+      - '306'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="12" vrev="12" srcmd5="aca924de020b8147bf5d95f1aa511ef1">
-          <entry name="_config" md5="7bb959e8cf55a851ad283ce676131f25" size="261" mtime="1493736950" />
-          <entry name="somefile.txt" md5="95fb22048d00e4dfda3dc4dc18d2af0f" size="227" mtime="1493736950" />
+        <directory name="package_with_file" rev="58" vrev="58" srcmd5="7d4755518d91a665a17b741913fc5c3d">
+          <entry name="_config" md5="af8d247efe608490f170493ec01eeaa4" size="63" mtime="1547459085" />
+          <entry name="somefile.txt" md5="c65cada39957b466ac4cddb966477a2a" size="52" mtime="1547459086" />
         </directory>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:50 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Mon, 14 Jan 2019 09:44:47 GMT
+recorded_with: VCR 4.0.0

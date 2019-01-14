@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:58 GMT
+  recorded_at: Mon, 14 Jan 2019 09:43:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>I Sing the Body Electric</title>
-          <description>Cumque quia omnis vel fuga vitae rerum.</description>
+          <title>The World, the Flesh and the Devil</title>
+          <description>Labore vel ratione tempore.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '176'
+      - '174'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>I Sing the Body Electric</title>
-          <description>Cumque quia omnis vel fuga vitae rerum.</description>
+          <title>The World, the Flesh and the Devil</title>
+          <description>Labore vel ratione tempore.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:58 GMT
+  recorded_at: Mon, 14 Jan 2019 09:43:58 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/package_with_file/_meta
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>I Sing the Body Electric</title>
-          <description>Cumque quia omnis vel fuga vitae rerum.</description>
+          <title>The World, the Flesh and the Devil</title>
+          <description>Labore vel ratione tempore.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,23 +109,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '176'
+      - '174'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>I Sing the Body Electric</title>
-          <description>Cumque quia omnis vel fuga vitae rerum.</description>
+          <title>The World, the Flesh and the Devil</title>
+          <description>Labore vel ratione tempore.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:58 GMT
+  recorded_at: Mon, 14 Jan 2019 09:43:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Ex accusantium ullam eveniet enim velit. Velit inventore vero officiis.
-        Quidem iure sed et ut iste vero vel.
+      string: Ducimus repudiandae voluptate. Aperiam explicabo quia. Sunt dolore perspiciatis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -149,24 +148,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="39" vrev="39">
-          <srcmd5>5c7cf21d2245fa4d99185b80d89fc7d1</srcmd5>
+        <revision rev="25" vrev="25">
+          <srcmd5>9127c7fa64df4fa32d1617b5cd4db679</srcmd5>
           <version>unknown</version>
-          <time>1493736958</time>
+          <time>1547459038</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:58 GMT
+  recorded_at: Mon, 14 Jan 2019 09:43:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Ut quae voluptatem ut enim impedit distinctio ad. Error laboriosam aut.
-        Sapiente ducimus a consequuntur sit. Neque qui autem qui tenetur ad repellat
-        facilis.
+      string: Nulla voluptates molestiae. Qui et quia. Ut nam sed.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -190,16 +187,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="40" vrev="40">
-          <srcmd5>19f1b22ac183c4f5d52ffbb4fd3cd732</srcmd5>
+        <revision rev="26" vrev="26">
+          <srcmd5>2bb0e331aba8e73fa6eea8beb946823e</srcmd5>
           <version>unknown</version>
-          <time>1493736958</time>
+          <time>1547459038</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:58 GMT
+  recorded_at: Mon, 14 Jan 2019 09:43:59 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
@@ -229,16 +226,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="41" vrev="41">
-          <srcmd5>4c4a28f48137e73f528e30d6e6544706</srcmd5>
+        <revision rev="27" vrev="27">
+          <srcmd5>58f819383ee27a1e89bdde07e1cdc57a</srcmd5>
           <version>unknown</version>
-          <time>1493736958</time>
+          <time>1547459039</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:58 GMT
+  recorded_at: Mon, 14 Jan 2019 09:43:59 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
@@ -268,16 +265,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="42" vrev="42">
-          <srcmd5>cb7688353dd56edf2cf35ba51220c599</srcmd5>
+        <revision rev="28" vrev="28">
+          <srcmd5>295d2e195f9ea787addb3bfb85cd874c</srcmd5>
           <version>unknown</version>
-          <time>1493736958</time>
+          <time>1547459039</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:58 GMT
+  recorded_at: Mon, 14 Jan 2019 09:44:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
@@ -307,24 +304,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="43" vrev="43">
-          <srcmd5>3d4b358d31f0450a1055a684c75ff5d3</srcmd5>
+        <revision rev="29" vrev="29">
+          <srcmd5>693d4b6f18803ea1501a34551c10c07a</srcmd5>
           <version>unknown</version>
-          <time>1493736958</time>
+          <time>1547459040</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:58 GMT
+  recorded_at: Mon, 14 Jan 2019 09:44:01 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_20/_meta
+    uri: http://backend:5352/source/project_4/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="project_20">
-          <title>The Last Temptation</title>
+        <project name="project_4">
+          <title>Fame Is the Spur</title>
           <description/>
         </project>
     headers:
@@ -346,50 +343,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '106'
+      - '102'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_20">
-          <title>The Last Temptation</title>
+        <project name="project_4">
+          <title>Fame Is the Spur</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:58 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/project_20/_config
-    body:
-      encoding: UTF-8
-      string: Animi quo quod eos. Aut ab minus molestiae architecto. Voluptatem suscipit
-        aspernatur ut ut laboriosam.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:58 GMT
+  recorded_at: Mon, 14 Jan 2019 09:44:01 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file?expand=1&rev=2
@@ -415,14 +378,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '306'
+      - '304'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="2" vrev="2" srcmd5="42e71d08a4a9c55b352719593064ac33">
-          <entry name="_config" md5="2702d3ea42d76432faf603ded851a13f" size="199" mtime="1493736947" />
-          <entry name="somefile.txt" md5="a01262138d67b69a079cc3b42eea8e96" size="149" mtime="1493736947" />
+        <directory name="package_with_file" rev="2" vrev="2" srcmd5="1192b55022fb1469a23a82e84919d3d0">
+          <entry name="_config" md5="f94d1991e5714e171a5fef454e2de8f9" size="50" mtime="1547458942" />
+          <entry name="somefile.txt" md5="d010a22b23e6893ecd360633263dfa66" size="54" mtime="1547458943" />
         </directory>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:58 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Mon, 14 Jan 2019 09:44:01 GMT
+recorded_with: VCR 4.0.0

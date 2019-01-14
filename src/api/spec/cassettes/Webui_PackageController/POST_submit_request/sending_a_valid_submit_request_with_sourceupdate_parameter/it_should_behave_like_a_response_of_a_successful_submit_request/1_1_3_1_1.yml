@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:53 GMT
+  recorded_at: Mon, 14 Jan 2019 09:45:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>In Death Ground</title>
-          <description>Architecto excepturi sit libero praesentium.</description>
+          <title>The Moving Finger</title>
+          <description>Nemo fuga asperiores facere.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>In Death Ground</title>
-          <description>Architecto excepturi sit libero praesentium.</description>
+          <title>The Moving Finger</title>
+          <description>Nemo fuga asperiores facere.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:53 GMT
+  recorded_at: Mon, 14 Jan 2019 09:45:12 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/package_with_file/_meta
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>In Death Ground</title>
-          <description>Architecto excepturi sit libero praesentium.</description>
+          <title>The Moving Finger</title>
+          <description>Nemo fuga asperiores facere.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,23 +109,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>In Death Ground</title>
-          <description>Architecto excepturi sit libero praesentium.</description>
+          <title>The Moving Finger</title>
+          <description>Nemo fuga asperiores facere.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:53 GMT
+  recorded_at: Mon, 14 Jan 2019 09:45:12 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Totam esse omnis doloremque nisi qui. Porro minus similique atque accusantium
-        quisquam. Qui deleniti voluptatem ut possimus.
+      string: Tempora ex quibusdam. Molestiae accusamus consectetur. Delectus quisquam
+        aut.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -149,23 +149,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="23" vrev="23">
-          <srcmd5>69f547857908d01c2e085e791255e90e</srcmd5>
+        <revision rev="79" vrev="79">
+          <srcmd5>0e327cfe2cd3c9ae487b4b4598aba12a</srcmd5>
           <version>unknown</version>
-          <time>1493736953</time>
+          <time>1547459112</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:53 GMT
+  recorded_at: Mon, 14 Jan 2019 09:45:12 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Vel ratione perferendis soluta ipsam nam odio. Consequuntur consequatur
-        laborum similique qui. Corrupti magnam modi facilis.
+      string: Voluptatem temporibus voluptates. Illo iste a. Voluptatibus autem accusantium.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -189,24 +188,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="24" vrev="24">
-          <srcmd5>60fc5bb653ac4c264e004c670632a4c7</srcmd5>
+        <revision rev="80" vrev="80">
+          <srcmd5>677d251d2fb91a49d85cb9c19ae7f9de</srcmd5>
           <version>unknown</version>
-          <time>1493736953</time>
+          <time>1547459112</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:53 GMT
+  recorded_at: Mon, 14 Jan 2019 09:45:13 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_12/_meta
+    uri: http://backend:5352/source/project_25/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="project_12">
-          <title>The Moon by Night</title>
+        <project name="project_25">
+          <title>The Man Within</title>
           <description/>
         </project>
     headers:
@@ -228,51 +227,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '101'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_12">
-          <title>The Moon by Night</title>
+        <project name="project_25">
+          <title>The Man Within</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:53 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/project_12/_config
-    body:
-      encoding: UTF-8
-      string: Quaerat hic qui quos quis vero quibusdam. Occaecati dolores praesentium
-        amet impedit beatae. Et nostrum quasi distinctio reprehenderit quia a. Placeat
-        qui nihil aut voluptatem vel temporibus dolores.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:53 GMT
+  recorded_at: Mon, 14 Jan 2019 09:45:14 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file?expand=1
@@ -298,14 +262,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '308'
+      - '306'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="24" vrev="24" srcmd5="60fc5bb653ac4c264e004c670632a4c7">
-          <entry name="_config" md5="1195ae4b4aa1cd411a064331b62472af" size="124" mtime="1493736953" />
-          <entry name="somefile.txt" md5="4898f0d1a04014b3f7e716b8b2fe04fd" size="124" mtime="1493736953" />
+        <directory name="package_with_file" rev="80" vrev="80" srcmd5="677d251d2fb91a49d85cb9c19ae7f9de">
+          <entry name="_config" md5="8d3632ef89b92b302c16e32a0ad191f5" size="77" mtime="1547459112" />
+          <entry name="somefile.txt" md5="0d687fc840576c13e2a2d9840831559b" size="78" mtime="1547459112" />
         </directory>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:53 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Mon, 14 Jan 2019 09:45:14 GMT
+recorded_with: VCR 4.0.0
