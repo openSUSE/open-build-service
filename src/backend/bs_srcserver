@@ -5514,6 +5514,7 @@ sub newevent {
 ####################################################################
 
 my %lasteventsproxy_filters;
+my %lasteventsproxy_start;
 
 sub lasteventsproxy {
   my ($cgi, $filter) = @_;
@@ -5561,6 +5562,8 @@ sub lasteventsproxy {
   # get rid of old job if it no longer matches
   my $jev = $BSServerEvents::gev;
   BSWatcher::rpc_deljob($jev) if $jev->{'lasteventsproxy_running'} && $jev->{'lasteventsproxy_running'} ne $running;
+
+  $lasteventsproxy_start{$remoteurl} = $start if !$lasteventsproxy_start{$remoteurl} || $start > $lasteventsproxy_start{$remoteurl};
   $jev->{'lasteventsproxy_running'} = $running;
   my $param = {
     'uri' => "$remoteurl/lastevents",
@@ -5578,16 +5581,18 @@ sub lasteventsproxy {
   @events = filterlastevents(\@events, $filter) if $filter && @events;
 
   my $nextno = $eventlist->{'next'};
+  $lasteventsproxy_start{$remoteurl} = $nextno if $nextno && $nextno < $lasteventsproxy_start{$remoteurl};
+
   if (!@events && !$eventlist->{'sync'} && $nextno && $cgi->{'start'} < $nextno) {
     # magic sync code
-    my $syncnextno = $nextno - ($nextno % 100);
+    my $syncnextno = $lasteventsproxy_start{$remoteurl};
+    $eventlist->{'next'} = $nextno = $syncnextno if $syncnextno > $cgi->{'start'} && $syncnextno < $nextno;
+
     # return a sync reply every 100 events / 5 minutes like in getlastevents
     if ($nextno < $cgi->{'start_orig'} + 100 && $now < $cgi->{'req_time'} + 300) {
-      $nextno = $syncnextno if $syncnextno > $cgi->{'start'};
       $cgi->{'start'} = $nextno;	# update start value
       return lasteventsproxy($cgi, $cgi->{'filter'});
     }
-    $eventlist->{'next'} = $syncnextno if $syncnextno > $cgi->{'start'};
   }
 
   $eventlist->{'event'} = \@events if @events;
