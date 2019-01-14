@@ -3,6 +3,7 @@ FactoryBot.define do
     transient do
       link_to { nil }
       maintainer { nil }
+      project_config { nil }
     end
 
     sequence(:name) { |n| "project_#{n}" }
@@ -11,6 +12,10 @@ FactoryBot.define do
     after(:create) do |project, evaluator|
       if evaluator.link_to
         LinkedProject.create(project: project, linked_db_project: evaluator.link_to)
+      end
+
+      if evaluator.project_config
+        project.config.save({ user: 'factory bot' }, evaluator.project_config)
       end
 
       if evaluator.maintainer
