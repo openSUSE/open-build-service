@@ -58,10 +58,10 @@ RSpec.describe Staging::StagingProject, vcr: true do
     it 'contains all open reviews of staged requests' do
       # rubocop:disable Style/BracesAroundHashParameters
       expect(subject).to contain_exactly(
-        { id: review_1.id, request: submit_request.number, state: 'new', package: target_package.name, by: other_user.login },
-        { id: review_2.id, request: submit_request.number, state: 'new', package: target_package.name, by: group.title },
-        { id: review_3.id, request: submit_request.number, state: 'new', package: target_package.name, by: other_package.project.name },
-        { id: review_4.id, request: submit_request.number, state: 'new', package: target_package.name, by: other_package.name }
+        { id: review_1.id, request: submit_request.number, state: 'new', package: target_package.name, by: other_user.login, review_type: 'by_user' },
+        { id: review_2.id, request: submit_request.number, state: 'new', package: target_package.name, by: group.title, review_type: 'by_group' },
+        { id: review_3.id, request: submit_request.number, state: 'new', package: target_package.name, by: other_package.project.name, review_type: 'by_project' },
+        { id: review_4.id, request: submit_request.number, state: 'new', package: target_package.name, by: other_package.name, review_type: 'by_package' }
       )
       # rubocop:enable Style/BracesAroundHashParameters
     end

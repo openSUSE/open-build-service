@@ -102,13 +102,12 @@ module Staging
             who = review.send(att)
             next unless who
 
-            @missing_reviews << { id: review.id, request: request.number, state: review.state.to_s, package: request.first_target_package, by: who }
+            @missing_reviews << { id: review.id, request: request.number, state: review.state.to_s, package: request.first_target_package, by: who, review_type: att.to_s }
             # No need to duplicate reviews
             break
           end
         end
       end
-
       @missing_reviews
     end
 
