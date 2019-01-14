@@ -23,7 +23,7 @@ class ApplicationController < ActionController::Base
 
   # skip the filter for the user stuff
   before_action :extract_user
-  before_action :set_influxdb_tags
+  before_action :set_influxdb_data
   before_action :shutup_rails
   before_action :validate_params
   before_action :require_login
@@ -463,7 +463,7 @@ class ApplicationController < ActionController::Base
     User.current = User.find_nobody!
   end
 
-  def set_influxdb_tags
+  def set_influxdb_data
     anonymous = User.current_login == User::NOBODY_LOGIN
 
     InfluxDB::Rails.current.tags = {
@@ -471,5 +471,6 @@ class ApplicationController < ActionController::Base
       anonymous: anonymous,
       interface: :api
     }
+    InfluxDB::Rails.current.values = { request: request.request_id }
   end
 end

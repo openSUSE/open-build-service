@@ -13,8 +13,9 @@ class Staging::StagedRequestsController < ApplicationController
     result = ::Staging::StageRequests.new(
       request_numbers: request_numbers,
       staging_workflow: @staging_workflow,
-      staging_project: @staging_project
-    ).perform
+      staging_project: @staging_project,
+      user_login: User.current.login
+    ).create
 
     if result.valid?
       render_ok
@@ -29,25 +30,21 @@ class Staging::StagedRequestsController < ApplicationController
 
   def destroy
     authorize @staging_project, :update?
-    requests = @staging_project.staged_requests.where(number: request_numbers)
-    package_names = requests.joins(:bs_request_actions).pluck('bs_request_actions.target_package')
 
-    @staging_project.staged_requests.delete(requests)
-    not_unassigned_requests = request_numbers - requests.pluck(:number).map(&:to_s)
+    result = ::Staging::StageRequests.new(
+      request_numbers: request_numbers,
+      staging_workflow: @staging_workflow,
+      staging_project: @staging_project,
+      user_login: User.current.login
+    ).destroy
 
-    result = @staging_project.packages.where(name: package_names).destroy_all
-    not_deleted_packages = package_names - result.pluck(:name)
-
-    if not_unassigned_requests.empty? && not_deleted_packages.empty?
+    if result.valid?
       render_ok
     else
-      message = 'Error while unassigning requests: '
-      message << "Requests with number #{not_unassigned_requests.to_sentence} not found. " unless not_unassigned_requests.empty?
-      message << "Could not delete packages #{not_deleted_packages.to_sentence}." unless not_deleted_packages.empty?
       render_error(
         status: 400,
         errorcode: 'invalid_request',
-        message: message
+        message: "Error while unassigning requests: #{result.errors.to_sentence}"
       )
     end
   end

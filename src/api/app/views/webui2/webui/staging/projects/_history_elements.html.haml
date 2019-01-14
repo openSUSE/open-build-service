@@ -1,0 +1,9 @@
+%ul
+  - elements.each do |element|
+    %li
+      = element.event_type.humanize
+      = link_to("##{element.bs_request.number}", request_path(element.bs_request.number))
+      for package
+      %b= element.package_name
+      submitted by
+      %b= element.user_name
