@@ -21,6 +21,11 @@ RSpec.describe Staging::Workflow, type: :model do
     staging_workflow
   end
 
+  context 'when created' do
+    let(:role) { Role.find_by_title('reviewer') }
+    it { expect(project.relationships.where(group: group, role: role)).to exist }
+  end
+
   describe '#unassigned_requests' do
     subject { staging_workflow.unassigned_requests }
 
