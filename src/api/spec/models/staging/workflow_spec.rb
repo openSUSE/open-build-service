@@ -33,15 +33,7 @@ RSpec.describe Staging::Workflow, type: :model do
       it { expect(subject).to be_empty }
     end
 
-    context 'with requests without reviews by the staging managers group' do
-      before { bs_request }
-
-      it { expect(subject).to be_empty }
-    end
-
     context 'with requests with reviews by the staging managers group' do
-      let!(:review) { create(:review, by_group: group.title, bs_request: bs_request) }
-
       it { expect(subject).to contain_exactly(bs_request) }
     end
 
