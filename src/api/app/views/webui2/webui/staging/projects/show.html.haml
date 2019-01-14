@@ -32,5 +32,11 @@
             %tr
               = render partial: 'checks',
                        locals: { checks: @staging_project.checks, missing_checks: @staging_project.missing_checks }
+    .card.mb-3
+      %h5.card-header History
+      .card-body
+        = render partial: 'history_elements',
+                       locals: { elements: |
+                       @staging_project.project_log_entries.where(event_type: [:staged_request, :unstaged_request]).includes(:bs_request) } |
   .col-xl-2
     = render partial: 'webui/staging/shared/legend'
