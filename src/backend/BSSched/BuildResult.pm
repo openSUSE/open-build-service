@@ -46,7 +46,6 @@ use strict;
 use warnings;
 
 use Build;
-use Storable;
 
 use BSUtil;
 use BSXML;
@@ -682,7 +681,7 @@ sub read_gbininfo {
 
   my $gbininfo;
   if ($bininfocache && $bininfocache->{'base'}) {
-    $gbininfo = Storable::dclone($bininfocache->{'base'});
+    $gbininfo = BSUtil::clone($bininfocache->{'base'});
   } else {
     return {} unless -d $gdst;
     $gbininfo = BSUtil::retrieve("$gdst/:bininfo", 1);
@@ -691,8 +690,8 @@ sub read_gbininfo {
   my $gbininfo_m;
   if ($gbininfo) {
     if ($bininfocache && $bininfocache->{'merge'}) {
-      $gbininfo_m = Storable::dclone($bininfocache->{'merge'});
-      $bininfocache->{'base'} ||= Storable::dclone($gbininfo);
+      $gbininfo_m = BSUtil::clone($bininfocache->{'merge'});
+      $bininfocache->{'base'} ||= BSUtil::clone($gbininfo);
     } else {
       return $gbininfo unless -e "$gdst/:bininfo.merge";
       $gbininfo_m = BSUtil::retrieve("$gdst/:bininfo.merge", 1);

@@ -18,7 +18,6 @@ package BSSched::BuildJob::Aggregate;
 use strict;
 use warnings;
 
-use Storable;		# for dclone
 use Digest::MD5 ();
 use JSON::XS ();	# for containerinfo reading/writing
 
@@ -89,7 +88,7 @@ sub check {
   my $repoid = $ctx->{'repository'};
   my $reporoot = $gctx->{'reporoot'};
   # clone it as we may patch the 'packages' array below
-  my $aggregates = Storable::dclone($pdata->{'aggregatelist'}->{'aggregate'} || []);
+  my $aggregates = BSUtil::clone($pdata->{'aggregatelist'}->{'aggregate'} || []);
   my @broken;
   my @blocked;
   my $prpfinished = $gctx->{'prpfinished'};

@@ -41,7 +41,6 @@ use Digest::MD5 ();
 use List::Util;
 use Fcntl qw(:DEFAULT :flock);
 use XML::Structured ':bytes';
-use Storable;
 use Getopt::Long ();
 
 use BSConfiguration;
@@ -426,7 +425,7 @@ sub overwriteconstraints {
       next unless grep {$_ eq $packagename or $_ eq $shortpackagename} @{$o->{'conditions'}->{'package'}};
     }
     # conditions are matching, overwrite...
-    $constraints = Storable::dclone($constraints);
+    $constraints = BSUtil::clone($constraints);
     overwrite($constraints, $o);
   }
   return $constraints;

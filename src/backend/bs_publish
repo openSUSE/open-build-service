@@ -383,7 +383,7 @@ sub addsizechecksum {
 sub create_appdata_files {
   my ($dir, $appdatas) = @_;
 
-  $appdatas = Storable::dclone($appdatas);
+  $appdatas = BSUtil::clone($appdatas);
   print "    creating appdata files\n";
   my %ids;
   my %written;
@@ -557,7 +557,7 @@ sub createrepo_rpmmd {
   if (@{$data->{'updateinfos'} || []}) {
     print "    adding updateinfo.xml to repodata\n";
     # strip supportstatus and patchinforef from updateinfos
-    my $updateinfos = Storable::dclone($data->{'updateinfos'});
+    my $updateinfos = BSUtil::clone($data->{'updateinfos'});
     for my $up (@$updateinfos) {
       delete $up->{'patchinforef'};
       for my $cl (@{($up->{'pkglist'} || {})->{'collection'} || []}) {

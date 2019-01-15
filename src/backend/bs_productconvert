@@ -33,7 +33,6 @@ use strict;
 use Getopt::Std;
 use Data::Dumper;
 use File::Basename;
-use Storable;
 
 use XML::Structured ':bytes';
 use BSUtil;
@@ -820,7 +819,7 @@ sub createFlavorReadme( $$ ){
 sub writeMigrationSPECfile( $$$$$ )
 {
     my( $file, $prodRef, $product, $newpatchlevel, $migtarget ) = @_;
-    my $mproduct = Storable::dclone($product);
+    my $mproduct = BSUtil::clone($product);
     undef $mproduct->{summary};
     undef $mproduct->{shortsummary};
 
@@ -1303,7 +1302,7 @@ sub createOsReleaseFile ($) {
 sub createProductFile ( $$ ) {
     my ($prodRef, $product) = @_;
     my $zypp_product_file = "";
-    my $zypp_product = Storable::dclone($product);
+    my $zypp_product = BSUtil::clone($product);
     # not wanted there
     delete $zypp_product->{'releasepkgname'};
     my $d;
@@ -1578,7 +1577,7 @@ foreach my $medium ( @$media ){
           my @archs;
           my $supportstates;
       
-          my $kiwi = Storable::dclone(\%generalImage);
+          my $kiwi = BSUtil::clone(\%generalImage);
 	  if (defined($medium->{'mediastyle'}) && $medium->{'mediastyle'} ne "suse-11.1" && $medium->{'mediastyle'} ne "suse-11.2") {
 	      $kiwi->{schemaversion} = "4.1"; # new kiwi requires exact this version
 	      my $attrs = {image => "product"};
