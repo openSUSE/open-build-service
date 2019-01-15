@@ -33,7 +33,7 @@ module InfluxDB
         end
 
         def values(runtime)
-          values = { runtime: ((runtime || 0) * 1000).ceil }
+          values = { value: ((runtime || 0) * 1000).ceil }
           values.merge(InfluxDB::Rails.current.values).reject do |_, value|
             value.nil? || value == ''
           end
