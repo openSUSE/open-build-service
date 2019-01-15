@@ -37,6 +37,10 @@ module Staging
         repository.path_elements.where(repository_id: old_project.repositories).find_each do |path|
           new_linked_repo = repositories.find_by(name: path.link.name)
           path.update!(repository_id: new_linked_repo.id)
+
+          # Update repository name by replacing project related part with new project name.
+          new_link_name = path.link.name.sub(/#{old_project.name.tr(':', '.*')}/, name)
+          new_linked_repo.update!(name: new_link_name.tr(':', '_'))
         end
       end
     end
