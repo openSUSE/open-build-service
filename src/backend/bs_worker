@@ -3549,13 +3549,15 @@ sub periodic {
 
   if ($state->{'state'} eq 'building') {
     my $locked = -1;
+    my $maxsize = $state->{'logmaxsize'} || $buildlog_maxsize;
+    my $maxidle = $state->{'logmaxidle'} || $buildlog_maxidle;
     while ($locked++ < 1) {
       $state = lockstate() if $locked == 1;
       last if $state->{'state'} ne 'building';
       my $ct = time();
       my @s = stat("$buildroot/.build.log");
       next unless @s;
-      if ($s[7] > $buildlog_maxsize) {
+      if ($maxsize && $s[7] > $maxsize) {
 	next unless $locked;
 	if (!kill_job()) {
 	  warn("could not kill job\n");
@@ -3565,7 +3567,7 @@ sub periodic {
 	$state->{'state'} = 'killed';
 	commitstate($state);
 	$locked = 0;
-      } elsif ($ct - $s[9] > $buildlog_maxidle) {
+      } elsif ($maxidle && $ct - $s[9] > $maxidle) {
 	next unless $locked;
 	if (!kill_job()) {
 	  warn("could not kill job\n");
@@ -3573,7 +3575,7 @@ sub periodic {
 	}
 	local *F;
 	if (open(F, '>>', "$buildroot/.build.log")) {
-	  print F "\n\nJob seems to be stuck here, killed. (after $buildlog_maxidle seconds of inactivity)\n";
+	  print F "\n\nJob seems to be stuck here, killed. (after $maxidle seconds of inactivity)\n";
 	  close F;
 	}
 	$state->{'state'} = 'killed';
@@ -3677,6 +3679,8 @@ writestr("$buildroot/.build.log", undef, '');
 $state->{'state'} = 'building';
 $state->{'jobid'} = $buildinfo->{'jobid'};
 $state->{'pid'} = $$;
+$state->{'logmaxidle'} = $buildinfo->{'logmaxidle'} if $buildinfo->{'logmaxidle'};
+$state->{'logmaxsize'} = $buildinfo->{'logmaxsize'} if $buildinfo->{'logmaxsize'};
 commitstate($state);
 
 hardstatus("$buildinfo->{'arch'} $buildinfo->{'package'}");
