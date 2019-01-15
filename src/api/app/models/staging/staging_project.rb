@@ -17,6 +17,7 @@ module Staging
         new_project.save!
 
         repositories.each { |repository| repository.copy_to(new_project) }
+        new_project.update_self_referencing_repositories!(self)
 
         # We can't use deep_clone here because of an exception raised in Relationship#add_group
         relationships.each do |relationship|
@@ -26,6 +27,17 @@ module Staging
         new_project.store
 
         new_project
+      end
+    end
+
+    # Some staging projects contain repositories that refer to themself. In such
+    # cases we create a new self-referencing repository path.
+    def update_self_referencing_repositories!(old_project)
+      repositories.includes(:path_elements).find_each do |repository|
+        repository.path_elements.where(repository_id: old_project.repositories).find_each do |path|
+          new_linked_repo = repositories.find_by(name: path.link.name)
+          path.update!(repository_id: new_linked_repo.id)
+        end
       end
     end
 
