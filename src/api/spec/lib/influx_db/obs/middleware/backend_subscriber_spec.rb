@@ -22,7 +22,7 @@ RSpec.describe InfluxDB::OBS::Middleware::BackendSubscriber do
     let(:result) do
       {
         values: {
-          runtime: 2000
+          value: 2000
         },
         tags: {
           http_status_code: 200,
