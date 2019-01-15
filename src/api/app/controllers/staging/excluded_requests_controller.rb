@@ -6,34 +6,31 @@ class Staging::ExcludedRequestsController < ApplicationController
   def create
     authorize @staging_workflow, policy_class: Staging::RequestExclusionPolicy
 
-    @result = ::Staging::RequestExclusion.create(requests_to_be_excluded)
+    result = ::Staging::RequestExcluder.new(requests_xml_hash: @requests_xml_hash, staging_workflow: @staging_workflow).create
 
-    if errors?
+    if result.valid?
+      render_ok
+    else
       render_error(
         status: 400,
         errorcode: 'invalid_request',
-        message: "Excluding requests for #{@staging_workflow} failed: #{errors_list.join('. ')}."
+        message: "Excluding requests for #{@staging_workflow} failed: #{result.errors.join(' ')}"
       )
-    else
-      render_ok
     end
   end
 
   def destroy
     authorize @staging_workflow, policy_class: Staging::RequestExclusionPolicy
 
-    request_exclusions = @staging_workflow.request_exclusions.where(number: request_numbers).destroy_all
-    not_found_requests = request_numbers - request_exclusions.pluck(:number).map(&:to_s)
+    result = ::Staging::RequestExcluder.new(requests_xml_hash: @requests_xml_hash, staging_workflow: @staging_workflow).destroy
 
-    if not_found_requests.empty?
+    if result.valid?
       render_ok
     else
-      message = 'Error while unexcluding requests: '
-      message << "Requests with number #{not_found_requests.to_sentence} couldn't be unexcluded. " unless not_found_requests.empty?
       render_error(
         status: 400,
         errorcode: 'invalid_request',
-        message: message
+        message: "Error while unexcluding requests: #{result.errors.join(' ')}"
       )
     end
   end
@@ -42,35 +39,6 @@ class Staging::ExcludedRequestsController < ApplicationController
 
   def set_requests_xml_hash
     @requests_xml_hash = (Xmlhash.parse(request.body.read) || {}).with_indifferent_access
-  end
-
-  def xml_hash_requests
-    [@requests_xml_hash[:request]].flatten
-  end
-
-  def request_numbers
-    [@requests_xml_hash[:number]].flatten
-  end
-
-  def requests_to_be_excluded
-    xml_hash_requests.map do |request|
-      bs_request = @staging_workflow.unassigned_requests.find_by_number(request[:number])
-      { bs_request: bs_request, number: bs_request.try(:number), description: request[:description], staging_workflow: @staging_workflow }
-    end
-  end
-
-  def errors?
-    errors_list.present?
-  end
-
-  def errors_list
-    return @errors if @errors
-    @errors = []
-    @result.each do |request|
-      @errors << "Request #{request.bs_request_id}: #{request.errors.full_messages.to_sentence}" if request.errors.any?
-    end
-
-    @errors
   end
 
   def set_project
