@@ -29,6 +29,7 @@ Source0:        Gemfile
 Source1:        Gemfile.lock
 BuildRequires:  autoconf
 BuildRequires:  automake
+BuildRequires:  git-core
 BuildRequires:  cyrus-sasl-devel
 BuildRequires:  gcc
 BuildRequires:  gcc-c++
@@ -96,13 +97,17 @@ cp %{S:0} %{S:1} .
 
 %build
 # copy gem files into cache
-mkdir -p vendor/cache
-cp %{_sourcedir}/vendor/cache/*.gem vendor/cache
+mkdir -p %{buildroot}%_libdir/obs-api/vendor/cache
+cp %{_sourcedir}/vendor/cache/. %{buildroot}%_libdir/obs-api/vendor/cache -r
+cp %{_sourcedir}/Gemfile* %{buildroot}%_libdir/obs-api/
 export GEM_HOME=~/.gems
 bundle config build.nokogiri --use-system-libraries
 
 %install
-bundle --local --path %{buildroot}%_libdir/obs-api/
+pushd %{buildroot}%_libdir/obs-api
+bundle --local --path .
+rm -rf Gemfile*
+popd
 
 # test that the rake and rack macros is still matching our Gemfile
 test -f %{buildroot}%_libdir/obs-api/ruby/2.5.0/gems/rake-%{rake_version}/rake.gemspec
