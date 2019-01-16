@@ -95,8 +95,8 @@ RSpec.describe Webui::Staging::ExcludedRequestsController, type: :controller do
       context 'response' do
         before { subject }
 
-        it { expect(flash[:error]).not_to be_nil }
         it { expect(response).to redirect_to(staging_workflow_excluded_requests_path(staging_workflow)) }
+        it { expect(flash[:error]).not_to be_nil }
       end
     end
 
