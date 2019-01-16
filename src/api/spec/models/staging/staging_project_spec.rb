@@ -231,5 +231,24 @@ RSpec.describe Staging::StagingProject, vcr: true do
       expect(subject.relationships.where(group_relationship.slice(:role_id, :user_id, :group_id))).to exist
       expect(subject.relationships.where(user_relationship.slice(:role_id, :user_id, :group_id))).to exist
     end
+
+    context 'when the repository contains path elements that link to repositories of the same project' do
+      let(:other_repository) do
+        create(:repository, architectures: ['x86_64'], project: staging_project, name: "#{staging_project.name.tr(':', '_')}_sles_12")
+      end
+      let!(:path_element) { create(:path_element, repository: repository, link: other_repository) }
+
+      it 'ensures that the new created path is also self referencing' do
+        path_elements_of_project = PathElement.where(parent_id: subject.repositories)
+
+        expect(path_elements_of_project.count).to eq(4)
+        expect(path_elements_of_project.where(link: staging_project.repositories)).not_to exist
+        expect(path_elements_of_project.where(link: subject.repositories)).to exist
+      end
+
+      it 'renames the repository link if it contains a reference to the project' do
+        expect(PathElement.find_by(parent_id: subject.repositories, link: subject.repositories).link.name).to eq('home_tom_new_project_sles_12')
+      end
+    end
   end
 end
