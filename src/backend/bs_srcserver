@@ -1061,7 +1061,7 @@ sub getprojpack {
 	$jinfo->{'repository'} = [ grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []} ];
       }
       if ($cgi->{'expandedrepos'}) {
-	$jinfo->{'repository'} = Storable::dclone($jinfo->{'repository'});
+	$jinfo->{'repository'} = BSUtil::clone($jinfo->{'repository'});
 	for my $repo (@{$jinfo->{'repository'}}) {
 	  my $base = {};
 	  my @prps = expandsearchpath($projid, $repo->{'name'}, $remotemap, $base);
@@ -5349,6 +5349,26 @@ sub worker_getbinaryversions {
 my @lastev_cache;
 my @lastev_stat;
 
+sub filterlastevents {
+  my ($events, $filter) = @_;
+  my %filter = map {$_ => 1} @$filter;
+  my @ev;
+  for my $ev (@$events) {
+    if ($ev->{'type'} eq 'package') {
+      next unless defined $ev->{'package'};
+      next unless $filter{"package/$ev->{'project'}/$ev->{'package'}"} || $filter{"package/$ev->{'project'}"};
+    } elsif ($ev->{'type'} eq 'project') {
+      next unless $filter{"project/$ev->{'project'}"};
+    } elsif ($ev->{'type'} eq 'repository' || $ev->{'type'} eq 'repoinfo') {
+      next unless $filter{"repository/$ev->{'project'}/$ev->{'repository'}/$ev->{'arch'}"} || $filter{"repository/$ev->{'project'}/$ev->{'repository'}"};
+    } else {
+      next;
+    }
+    push @ev, $ev;
+  }
+  return @ev;
+}
+
 sub lastevents {
   my ($cgi, $filter) = @_;
   if (!$cgi->{'start'}) {
@@ -5419,22 +5439,8 @@ sub lastevents {
 
   # filter
   @events = grep {$_->{'number'} >= $cgi->{'start'}} @events;
-  if ($filter && @events) {
-    my %filter = map {$_ => 1} @$filter;
-    for my $ev (splice @events) {
-      if ($ev->{'type'} eq 'package') {
-        next unless defined $ev->{'package'};
-        next unless $filter{"package/$ev->{'project'}/$ev->{'package'}"} || $filter{"package/$ev->{'project'}"};
-      } elsif ($ev->{'type'} eq 'project') {
-        next unless $filter{"project/$ev->{'project'}"};
-      } elsif ($ev->{'type'} eq 'repository' || $ev->{'type'} eq 'repoinfo') {
-        next unless $filter{"repository/$ev->{'project'}/$ev->{'repository'}/$ev->{'arch'}"} || $filter{"repository/$ev->{'project'}/$ev->{'repository'}"};
-      } else {
-	next;
-      }
-      push @events, $ev;
-    }
-  }
+  @events = filterlastevents(\@events, $filter) if $filter && @events;
+
   # return a sync reply every 100 events / 5 minutes for two reasons
   # - get rid of old peers
   # - survive history truncation
@@ -5503,6 +5509,94 @@ sub newevent {
   }
   addevent($ev);
   return $BSStdServer::return_ok;
+}
+
+####################################################################
+
+my %lasteventsproxy_filters;
+my %lasteventsproxy_start;
+
+sub lasteventsproxy {
+  my ($cgi, $filter) = @_;
+  if (!$BSStdServer::isajax) {
+    my @args = BSRPC::args($cgi, 'client', 'start', 'remoteurl', 'filter');
+    BSHandoff::handoff('/lasteventsproxy', undef, @args);
+  }
+  my $remoteurl = $cgi->{'remoteurl'};
+  my $start = $cgi->{'start'};
+  if (!$start) {
+    # just do the rpc
+    my $param = {
+      'uri' => "$remoteurl/lastevents",
+      'request' => 'POST',
+      'formurlencode' => 1,
+      'proxy' => $proxy,
+    };
+    my @args = BSRPC::args($cgi, 'filter');
+    unshift @args, "obsname=$BSConfig::obsname" if $BSConfig::obsname;
+    return BSWatcher::rpc($param, undef, @args);
+  }
+  my $now = time();
+  $cgi->{'start_orig'} ||= $cgi->{'start'};
+  $cgi->{'req_time'} ||= $now;
+  my $fil = $lasteventsproxy_filters{$remoteurl};
+  $fil = $lasteventsproxy_filters{$remoteurl} = {} unless $fil;
+  if ($filter) {
+    $fil->{$_} = $now for @$filter;
+  } else {
+    $fil->{'*'} = $now;
+  }
+
+  # prune away old entries
+  my $thres = $now - 1000;
+  if (grep {$_ < $thres} values %$fil) {
+    delete $fil->{$_} for grep {$fil->{$_} < $thres} keys %$fil;
+  }
+
+  my @args;
+  push @args, "obsname=$BSConfig::obsname" if $BSConfig::obsname;
+  push @args, "start=$start";
+  push @args, map {"filter=$_"} sort keys %$fil unless $fil->{'*'};
+  my $running = join(',', @args);
+
+  # get rid of old job if it no longer matches
+  my $jev = $BSServerEvents::gev;
+  BSWatcher::rpc_deljob($jev) if $jev->{'lasteventsproxy_running'} && $jev->{'lasteventsproxy_running'} ne $running;
+
+  $lasteventsproxy_start{$remoteurl} = $start if !$lasteventsproxy_start{$remoteurl} || $start > $lasteventsproxy_start{$remoteurl};
+  $jev->{'lasteventsproxy_running'} = $running;
+  my $param = {
+    'uri' => "$remoteurl/lastevents",
+    'request' => 'POST',
+    'formurlencode' => 1,
+    'joinable' => 1,
+    'proxy' => $proxy,
+  };
+  my $eventlist = BSWatcher::rpc($param, $BSXML::events, @args);
+  return undef unless defined $eventlist;
+  delete $jev->{'lasteventsproxy_running'};
+
+  # filter
+  my @events = @{delete($eventlist->{'event'}) || []};
+  @events = filterlastevents(\@events, $filter) if $filter && @events;
+
+  my $nextno = $eventlist->{'next'};
+  $lasteventsproxy_start{$remoteurl} = $nextno if $nextno && $nextno < $lasteventsproxy_start{$remoteurl};
+
+  if (!@events && !$eventlist->{'sync'} && $nextno && $cgi->{'start'} < $nextno) {
+    # magic sync code
+    my $syncnextno = $lasteventsproxy_start{$remoteurl};
+    $eventlist->{'next'} = $nextno = $syncnextno if $syncnextno > $cgi->{'start'} && $syncnextno < $nextno;
+
+    # return a sync reply every 100 events / 5 minutes like in getlastevents
+    if ($nextno < $cgi->{'start_orig'} + 100 && $now < $cgi->{'req_time'} + 300) {
+      $cgi->{'start'} = $nextno;	# update start value
+      return lasteventsproxy($cgi, $cgi->{'filter'});
+    }
+  }
+
+  $eventlist->{'event'} = \@events if @events;
+  return ($eventlist, $BSXML::events);
 }
 
 ####################################################################
@@ -6444,6 +6538,7 @@ my $dispatches = [
 
   # event/notification handling
   '!- /lastevents $filter:* start:num? obsname:?' => \&lastevents,
+  '!- /lasteventsproxy $filter:* start:num? remoteurl: client:?' => \&lasteventsproxy,
   '/lastnotifications start:num? view:? block:bool? noprune:bool?' => \&lastnotifications,
   '/notificationpayload/$payloadkey:filename' => \&getnotificationpayload,
   'DELETE:/notificationpayload/$payloadkey:filename' => \&deletenotificationpayload,
@@ -6552,6 +6647,7 @@ my $dispatches_ajax = [
   '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool?' => \&worker_getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaryversions,
   '/lastevents $filter:* start:num? obsname:?' => \&lastevents,
+  '/lasteventsproxy $filter:* start:num? remoteurl: client:?' => \&lasteventsproxy,
   '/lastnotifications start:num? view:? block:bool?' => \&lastnotifications,
   '/source/$project/$package cmd=waitservice servicemark:' => \&waitservicerun,
   '/source/$project/$package rev view:' => \&getfilelist_ajax,
