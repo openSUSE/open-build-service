@@ -207,14 +207,16 @@ sub setup {
   my $gdst = $ctx->{'gdst'};
   my $myarch = $gctx->{'arch'};
   my $projpacks = $gctx->{'projpacks'};
-  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
-  return (0, 'no prpsearchpath?') unless $prpsearchpath;
-  $ctx->{'prpsearchpath'} = $prpsearchpath if $prpsearchpath;
 
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
-  return (0, 'no repo?') unless $repo;
+  return (0, 'repo does not exist') unless $repo;
+
+  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
+  return (0, 'no prpsearchpath?') unless $prpsearchpath;
+  $ctx->{'prpsearchpath'} = $prpsearchpath if $prpsearchpath;
+
   if ($repo->{'status'} && $repo->{'status'} eq 'disabled') {
     return ('disabled', undef);
   }
