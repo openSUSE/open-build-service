@@ -9,6 +9,26 @@ module Staging
     after_destroy :update_staging_workflow_on_backend
     before_create :add_managers_group
 
+    def copy(new_project_name)
+      transaction do
+        new_project = deep_clone(include: [:flags], skip_missing_associations: true)
+        new_project.name = new_project_name
+        new_project.config.save({ user: User.current, comment: "Copying project #{name}" }, config.content)
+        new_project.save!
+
+        repositories.each { |repository| repository.copy_to(new_project) }
+
+        # We can't use deep_clone here because of an exception raised in Relationship#add_group
+        relationships.each do |relationship|
+          new_project.relationships.find_or_create_by!(relationship.slice(:role_id, :user_id, :group_id))
+        end
+
+        new_project.store
+
+        new_project
+      end
+    end
+
     def classified_requests
       requests = (requests_to_review | staged_requests.includes(:reviews)).map do |request|
         {

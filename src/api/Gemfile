@@ -80,6 +80,8 @@ gem 'builder'
 gem 'experimental-influxdb-rails', '>=1.0.0.beta5'
 # for client side time ago
 gem 'rails-timeago', '~> 2.0'
+# for copying objects with their relations
+gem 'deep_cloneable', '~> 2.4.0'
 
 group :development, :production do
   # to have the delayed job daemon
