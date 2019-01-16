@@ -142,6 +142,8 @@ RSpec.feature 'Bootstrap_MaintenanceWorkflow', type: :feature, js: true, vcr: tr
 
     click_button('accept_request_button')
 
+    expect(page).to have_css('#flash-messages', text: 'Request 2 accepted')
+
     # Step 7: The maintenance coordinator releases the request
     ##########################################################
     visit project_show_path('MaintenanceProject:0')

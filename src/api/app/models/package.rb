@@ -1236,12 +1236,12 @@ class Package < ApplicationRecord
     update_needed = nil
     if project.flags.find_by_flag_and_status('build', 'disable')
       # enable package builds if project default is disabled
-      flags.create(position: 1, flag: 'build', status: 'enable', repo: repo_name)
+      flags.find_or_create_by(flag: 'build', status: 'enable', repo: repo_name)
       update_needed = true
     end
     if project.flags.find_by_flag_and_status('debuginfo', 'disable')
       # take over debuginfo config from origin project
-      flags.create(position: 1, flag: 'debuginfo', status: 'enable', repo: repo_name)
+      flags.find_or_create_by(flag: 'debuginfo', status: 'enable', repo: repo_name)
       update_needed = true
     end
     store if update_needed
