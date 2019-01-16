@@ -3549,8 +3549,8 @@ sub periodic {
 
   if ($state->{'state'} eq 'building') {
     my $locked = -1;
-    my $maxsize = $state->{'logmaxsize'} || $buildlog_maxsize;
-    my $maxidle = $state->{'logmaxidle'} || $buildlog_maxidle;
+    my $maxsize = $state->{'logsizelimit'} || $buildlog_maxsize;
+    my $maxidle = $state->{'logidlelimit'} || $buildlog_maxidle;
     while ($locked++ < 1) {
       $state = lockstate() if $locked == 1;
       last if $state->{'state'} ne 'building';

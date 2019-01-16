@@ -309,9 +309,6 @@ sub writejob {
   $binfo->{'srcserver'} ||= $workersrcserver;
   $binfo->{'reposerver'} ||= $workerreposerver;
   $binfo->{'genmetaalgo'} = $ctx->{'genmetaalgo'} if $ctx->{'genmetaalgo'};
-  if (!$ctx->{'isreposerver'}) {
-    $binfo->{'maxlogidle'} = $binfo->{'buildflags:maxlogidle'} if $binfo->{'buildflags:maxlogidle'};
-  }
 
   my $myjobsdir = $gctx->{'myjobsdir'};
   $ctx->{'otherjobscache'} ||= [ grep {/-[0-9a-f]{32}$/} grep {!/^\./} ls($myjobsdir) ];
@@ -1051,6 +1048,9 @@ sub create {
       my $lpdata = $proj->{'package'}->{$_->{'package'}} || {};
       $binfo->{'revtime'} = $lpdata->{'revtime'} if ($lpdata->{'revtime'} || 0) > $binfo->{'revtime'};
     }
+  }
+  if (!$ctx->{'isreposerver'}) {
+    $binfo->{'logidlelimit'} = $bconf->{'buildflags:logidlelimit'} if $bconf->{'buildflags:logidlelimit'};
   }
   $ctx->writejob($job, $binfo, $reason);
 
