@@ -5,6 +5,9 @@ use strict;
 BEGIN {
   # sigh, must do it in this way so that Socket::MsgHdr's INIT is called
   if (@ARGV && -S $ARGV[-1]) {
+    my ($wd) = $0 =~ m-(.*)/- ;
+    $wd ||= '.';
+    unshift @INC, $wd;
     require BSXML;
     require BSHandoff;
   }
