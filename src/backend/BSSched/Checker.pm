@@ -132,6 +132,11 @@ sub set_repo_state {
     # we send the event if the buildid changed or we were in progress
     if (defined($oldstate->{'oldbuildid'}) || ($oldstate->{'buildid'} || '') ne $id) {
       my $myarch = $ctx->{'gctx'}->{'arch'};
+      if (!defined($oldstate->{'oldbuildid'})) {
+	# buildid changed without a state change
+	print "sending synthetic REPO_BUILD_STARTED event\n";
+	BSNotify::notify('REPO_BUILD_STARTED', { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => "$id-inprogress"} );
+      }
       BSNotify::notify('REPO_BUILD_FINISHED', { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => $id} );
     }
     $newstate->{'buildid'} = $id;
