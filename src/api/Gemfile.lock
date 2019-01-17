@@ -472,7 +472,7 @@ DEPENDENCIES
   cssmin (>= 1.0.2)
   daemons
   dalli
-  data_migrate (= 5.3.1)
+  data_migrate
   database_cleaner (>= 1.0.1)
   deep_cloneable (~> 2.4.0)
   delayed_job_active_record (>= 4.0.0)
