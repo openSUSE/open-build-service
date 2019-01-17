@@ -32,7 +32,7 @@ RSpec.describe Staging::StagingProject, vcr: true do
     }
   end
 
-  let!(:submit_request) { create(:bs_request_with_submit_action, request_attributes.merge(staging_project: staging_project)) }
+  let(:submit_request) { create(:bs_request_with_submit_action, request_attributes.merge(staging_project: staging_project)) }
 
   before do
     allow(Backend::Api::Published).to receive(:build_id).with(staging_project.name, repository.name).and_return(repository_uuid)
@@ -80,6 +80,7 @@ RSpec.describe Staging::StagingProject, vcr: true do
 
   describe '#overall_state' do
     before do
+      submit_request
       login(user)
     end
 
@@ -185,7 +186,9 @@ RSpec.describe Staging::StagingProject, vcr: true do
   end
 
   describe '#copy' do
-    let(:staging_project) { create(:staging_project, staging_workflow: staging_workflow, project_config: 'Prefer: foo') }
+    let(:staging_project) do
+      create(:staging_project, staging_workflow: staging_workflow, project_config: 'Prefer: foo', name: 'home:tom:Staging:XYZ')
+    end
     let(:new_project_name) { "#{user.home_project}:new_project" }
     let!(:group_relationship) { create(:relationship_project_group, project: staging_project) }
     let!(:user_relationship) { create(:relationship_project_user, project: staging_project) }
@@ -214,7 +217,7 @@ RSpec.describe Staging::StagingProject, vcr: true do
     it { is_expected.to have_attributes(name: new_project_name, staging_workflow_id: staging_workflow.id) }
 
     it 'copies the project config' do
-      expect(subject.config.content).to eq(staging_project.config.content)
+      expect(subject.config.content).to eq('Prefer: foo')
     end
 
     it "copies the repositories and it's relations" do
