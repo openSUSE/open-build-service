@@ -221,6 +221,28 @@ Backend Configuration
 
  --query-config <variable>
 
+ --update-project-signing-key <project> <path/to/gpg_pub_key> <path/to/gpg_priv_key> [<path/to/ssl_cert>]
+   Manually update a project signing key and certificate. Useful in case a pre-existing key has
+   to be used to sign binaries (IE: EFI Secure Boot).
+   The SSL certificate has to be in PEM format and must match the GPG key. It is optional, and
+   if not specified the existing certificate (if any) will be removed as it won't match anymore.
+   The GPG public key has to be in ASCII format.
+   The GPG private key has to be in binary format, encrypted in binary format for the Signer's
+   key, packed as an ASCII hex string, and must not have a passphrase.
+   EG:
+     pem2openpgp 'project OBS Project <project at obshostname>' < existing_x509.key > key.pgp
+     rm -rf /tmp/pgp
+     mkdir /tmp/pgp
+     chmod go-rwx /tmp/pgp
+     GNUPGHOME=/tmp/pgp gpg --import key.pgp
+     GNUPGHOME=/tmp/pgp gpg --export --armour > key.pgp.pub
+     GNUPGHOME=/tmp/pgp gpg --export-secret-keys > key.pgp.sec
+     gpg --encrypt -q --no-verbose --batch --trust-model always -r obsrun at localhost key.pgp.sec
+     cat key.pgp.sec.gpg | od -A n -v -t x1 | tr -d ' \n' > _signkey
+     bs_admin --update-project-signing-key project ./key.pgp.pub ./_signkey ./existing_x509.pem
+     rm -f key.pgp*
+     rm -rf /tmp/pgp
+
 Dispatcher Maintenance
 ======================
 
@@ -1168,6 +1190,31 @@ while (@ARGV) {
     my $fn = Digest::MD5::md5_hex($rc).".recheck";
     writestr("$dodsdir/.$fn", "$dodsdir/$fn", "$rc\n");
     BSUtil::touch("$dodsdir/.changed")
+  } elsif ($arg eq "--update-project-signing-key") {
+    if ( @ARGV < 3 ) {
+      die("ERROR: not enough parameters!\n");
+    }
+    my $projid = shift @ARGV;
+    my $pubkey = shift @ARGV;
+    my $signkey = shift @ARGV;
+    # if ssl cert was there before it needs to be removed as it won't match anymore
+    my $sslcert = undef;
+    if ( @ARGV >= 1 ) {
+      $sslcert = shift @ARGV;
+    }
+    BSRevision::addrev_meta_replace({'comment' => 'manually update key'}, $projid, undef,
+	  [ "$pubkey",  "$projectsdir/$projid.pkg/_pubkey",  '_pubkey' ],
+	  [ "$signkey", "$projectsdir/$projid.pkg/_signkey", '_signkey' ],
+	  [ $sslcert, undef, '_sslcert' ]);
+    # _signkey and _pubkey are normally owed by $obsuser, but bs_admin has to be ran as root
+    # (and cannot call drop_privs_to) otherwise it will fail with:
+    #   /srv/obs/sources/_project/<some_hash>-_signkey: Permission denied
+    chmod 0600, "$projectsdir/$projid.pkg/_signkey"
+      or die("ERROR: chmod 0600 $projectsdir/$projid.pkg/_signkey FAILED");
+    my ($login, $pass, $uid, $gid) = getpwnam($BSConfig::bsuser)
+      or die("ERROR: getpwnam($BSConfig::bsuser) FAILED");
+    chown $uid, $gid, "$projectsdir/$projid.pkg/_signkey", "$projectsdir/$projid.pkg/_pubkey"
+      or die("ERROR: chown $uid, $gid, $projectsdir/$projid.pkg/_signkey, $projectsdir/$projid.pkg/_pubkey FAILED");
   } else {
     echo_help();
     exit(1)
