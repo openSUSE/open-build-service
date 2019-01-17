@@ -35,8 +35,13 @@ RSpec.describe Staging::StagingProject, vcr: true do
   let(:submit_request) { create(:bs_request_with_submit_action, request_attributes.merge(staging_project: staging_project)) }
 
   before do
+    User.current = user
     allow(Backend::Api::Published).to receive(:build_id).with(staging_project.name, repository.name).and_return(repository_uuid)
     allow(Backend::Api::Build::Repository).to receive(:build_id).with(staging_project.name, repository.name, architecture.name).and_return(build_uuid)
+  end
+
+  after do
+    User.current = nil
   end
 
   describe '#missing_reviews' do
@@ -197,14 +202,6 @@ RSpec.describe Staging::StagingProject, vcr: true do
     # other custom code that would conflict with what 'deep_cloneable' does
     let!(:path_elements) { create_list(:path_element, 3, repository: repository) }
     let!(:dod_repository) { create(:download_repository, repository: repository) }
-
-    before do
-      User.current = user
-    end
-
-    after do
-      User.current = nil
-    end
 
     subject { staging_project.reload.copy(new_project_name) }
 
