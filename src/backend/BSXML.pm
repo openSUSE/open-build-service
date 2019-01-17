@@ -542,6 +542,8 @@ our $buildinfo = [
 	'nodbgpkgs',	# kiwi
 	'nosrcpkgs',	# kiwi
 	'genmetaalgo',	# internal
+	'logidlelimit',	# internal
+	'logsizelimit',	# internal
       [ 'dep' ],
      [[ 'bdep' =>
 	'name',
@@ -920,6 +922,8 @@ our $workerstate = [
 	'nextstate',	# for exit/restart
 	'jobid',
 	'pid',		# pid of building worker process
+	'logsizelimit',	# maximum size of build log
+	'logidlelimit',	# maximim idle time of build log
 ];
 
 our $jobhistlay = [

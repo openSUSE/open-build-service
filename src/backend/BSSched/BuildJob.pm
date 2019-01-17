@@ -1049,6 +1049,9 @@ sub create {
       $binfo->{'revtime'} = $lpdata->{'revtime'} if ($lpdata->{'revtime'} || 0) > $binfo->{'revtime'};
     }
   }
+  if (!$ctx->{'isreposerver'}) {
+    $binfo->{'logidlelimit'} = $bconf->{'buildflags:logidlelimit'} if $bconf->{'buildflags:logidlelimit'};
+  }
   $ctx->writejob($job, $binfo, $reason);
 
   # all done. the dispatcher will now pick up the job and send it
