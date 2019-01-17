@@ -675,7 +675,15 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
   echo "$FQHOSTNAME" > $backenddir/.oldfqhostname
 
   OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
-  OS=`head -n 1 /etc/SuSE-release`
+  if [ -e /etc/os-release ];then
+    # execute in subshell to preserve the values of the variables
+    # $NAME and $VERSION as these are very generic
+    OS_NAME=`. /etc/os-release;echo $NAME`
+    OS_VERSION=`. /etc/os-release;echo $VERSION`
+    OS="$OS_NAME $OS_VERSION"
+  else
+    OS="UNKNOWN"
+  fi
   RUN_INITIAL_SETUP=""
 
   prepare_database_setup

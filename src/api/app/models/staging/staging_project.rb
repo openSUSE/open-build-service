@@ -9,6 +9,42 @@ module Staging
     after_destroy :update_staging_workflow_on_backend
     before_create :add_managers_group
 
+    def copy(new_project_name)
+      transaction do
+        new_project = deep_clone(include: [:flags], skip_missing_associations: true)
+        new_project.name = new_project_name
+        new_project.config.save({ user: User.current, comment: "Copying project #{name}" }, config.content)
+        new_project.save!
+
+        repositories.each { |repository| repository.copy_to(new_project) }
+        new_project.update_self_referencing_repositories!(self)
+
+        # We can't use deep_clone here because of an exception raised in Relationship#add_group
+        relationships.each do |relationship|
+          new_project.relationships.find_or_create_by!(relationship.slice(:role_id, :user_id, :group_id))
+        end
+
+        new_project.store
+
+        new_project
+      end
+    end
+
+    # Some staging projects contain repositories that refer to themself. In such
+    # cases we create a new self-referencing repository path.
+    def update_self_referencing_repositories!(old_project)
+      repositories.includes(:path_elements).find_each do |repository|
+        repository.path_elements.where(repository_id: old_project.repositories).find_each do |path|
+          new_linked_repo = repositories.find_by(name: path.link.name)
+          path.update!(repository_id: new_linked_repo.id)
+
+          # Update repository name by replacing project related part with new project name.
+          new_link_name = path.link.name.sub(/#{old_project.name.tr(':', '.*')}/, name)
+          new_linked_repo.update!(name: new_link_name.tr(':', '_'))
+        end
+      end
+    end
+
     def classified_requests
       requests = (requests_to_review | staged_requests.includes(:reviews)).map do |request|
         {

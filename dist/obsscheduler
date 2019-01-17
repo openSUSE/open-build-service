@@ -2,22 +2,6 @@
 # Copyright (c) 2007, Novell Inc.
 #
 # Author: adrian@suse.de
-#
-# /etc/init.d/obsscheduler
-#   and its symbolic  link
-# /usr/sbin/rcobsscheduler
-#
-### BEGIN INIT INFO
-# Provides:          obsscheduler
-# Required-Start:    $time $syslog obsrepserver
-# Should-Start:      obssrcserver $network $remote_fs obsapisetup
-# Should-Stop:       $none
-# Required-Stop:     $null
-# Default-Start:     3 5
-# Default-Stop:      0 1 2 4 6
-# Short-Description: OBS job scheduler
-# Description:       open build service job scheduler
-### END INIT INFO
 
 . /etc/rc.status
 

@@ -260,7 +260,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
       scenario 'removing download repositories' do
         create(:repository_architecture, repository: repository, architecture: Architecture.find_by_name('i586'))
-        download_repository_2 = create(:download_repository, repository: repository, arch: 'i586')
+        download_repository_2 = create(:download_repository, repository: repository.reload, arch: 'i586')
 
         visit(project_repositories_path(project: project_with_dod_repo))
         # Delete link

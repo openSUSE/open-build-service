@@ -101,4 +101,33 @@ RSpec.describe Repository do
       end
     end
   end
+
+  describe '#copy_to' do
+    let(:repository) { create(:repository, architectures: ['i586', 'x86_64']) }
+    let!(:path_elements) { create_list(:path_element, 3, repository: repository) }
+    let(:project) { create(:project) }
+
+    subject { repository.copy_to(project) }
+
+    it 'copies a repository to a project' do
+      expect(subject.name).to eq(repository.name)
+      expect(subject).not_to eq(repository)
+      expect(subject).to be_persisted
+      expect(subject.project).to eq(project)
+    end
+
+    it { expect(subject.architectures.pluck(:name)).to contain_exactly('i586', 'x86_64') }
+
+    it 'copies the path elements of the repository' do
+      repository.path_elements.reload.each do |path|
+        expect(subject.path_elements.where(repository_id: path.repository_id, position: path.position)).to exist
+      end
+    end
+
+    context 'when the repository has DoD repositories' do
+      let!(:dod_repository) { create(:download_repository, repository: repository) }
+
+      it { expect(subject.download_repositories.pluck(:arch, :url)).to contain_exactly([dod_repository.arch, dod_repository.url]) }
+    end
+  end
 end

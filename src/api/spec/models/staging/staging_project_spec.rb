@@ -185,4 +185,70 @@ RSpec.describe Staging::StagingProject, vcr: true do
 
     it { expect(staging_project.reload.groups).to be_empty }
   end
+
+  describe '#copy' do
+    let(:staging_project) { create(:staging_project, staging_workflow: staging_workflow, project_config: 'Prefer: foo') }
+    let(:new_project_name) { "#{user.home_project}:new_project" }
+    let!(:group_relationship) { create(:relationship_project_group, project: staging_project) }
+    let!(:user_relationship) { create(:relationship_project_user, project: staging_project) }
+    let!(:flag) { create(:sourceaccess_flag, project: staging_project) }
+    # path elements and DoD repository are just needed for smoke testing, e.g. do we have validations or
+    # other custom code that would conflict with what 'deep_cloneable' does
+    let!(:path_elements) { create_list(:path_element, 3, repository: repository) }
+    let!(:dod_repository) { create(:download_repository, repository: repository) }
+
+    before do
+      User.current = user
+    end
+
+    after do
+      User.current = nil
+    end
+
+    subject { staging_project.reload.copy(new_project_name) }
+
+    it 'creates a new staging project' do
+      expect(subject).to be_instance_of(Staging::StagingProject)
+      expect(subject).not_to eq(staging_project)
+      expect(subject).to be_persisted
+    end
+
+    it { is_expected.to have_attributes(name: new_project_name, staging_workflow_id: staging_workflow.id) }
+
+    it 'copies the project config' do
+      expect(subject.config.content).to eq(staging_project.config.content)
+    end
+
+    it "copies the repositories and it's relations" do
+      expect(subject.repositories.pluck(:name)).to eq(staging_project.repositories.pluck(:name))
+    end
+
+    it 'copies flags' do
+      expect(subject.flags.pluck(:status, :flag)).to eq(staging_project.flags.pluck(:status, :flag))
+    end
+
+    it 'copies the relationships' do
+      expect(subject.relationships.where(group_relationship.slice(:role_id, :user_id, :group_id))).to exist
+      expect(subject.relationships.where(user_relationship.slice(:role_id, :user_id, :group_id))).to exist
+    end
+
+    context 'when the repository contains path elements that link to repositories of the same project' do
+      let(:other_repository) do
+        create(:repository, architectures: ['x86_64'], project: staging_project, name: "#{staging_project.name.tr(':', '_')}_sles_12")
+      end
+      let!(:path_element) { create(:path_element, repository: repository, link: other_repository) }
+
+      it 'ensures that the new created path is also self referencing' do
+        path_elements_of_project = PathElement.where(parent_id: subject.repositories)
+
+        expect(path_elements_of_project.count).to eq(4)
+        expect(path_elements_of_project.where(link: staging_project.repositories)).not_to exist
+        expect(path_elements_of_project.where(link: subject.repositories)).to exist
+      end
+
+      it 'renames the repository link if it contains a reference to the project' do
+        expect(PathElement.find_by(parent_id: subject.repositories, link: subject.repositories).link.name).to eq('home_tom_new_project_sles_12')
+      end
+    end
+  end
 end
