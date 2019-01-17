@@ -72,7 +72,7 @@ sub new {
     'formurlencode' => 1,
   };
   my @args;
-  if ($uselasteventsproxy) {
+  if ($uselasteventsproxy && $remoteurl ne $BSConfig::srcserver) {
     $param->{'uri'} = "$BSConfig::srcserver/lasteventsproxy";
     push @args, $BSConfig::partition ? "client=$BSConfig::partition/$myarch" : "client=$myarch";
     push @args, "remoteurl=$remoteurl";
