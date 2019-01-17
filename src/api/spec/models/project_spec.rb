@@ -313,41 +313,32 @@ RSpec.describe Project, vcr: true do
     shared_examples 'with_open_requests' do
       let(:admin_user) { create(:admin_user, login: 'king') }
       let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
-      let(:source_project) { confirmed_user.home_project }
-      let(:source_package) { create(:package, project: source_project) }
+      let(:source_package) { create(:package, :as_submission_source) }
 
       let!(:review) do
-        create(:bs_request_with_submit_action, creator: admin_user.login, target_project: project.name, source_project: source_project.name,
-                                               target_package: package.name, source_package: source_package.name, review_by_user: confirmed_user)
+        create(:bs_request_with_submit_action, creator: admin_user, target_project: project, source_package: source_package, review_by_user: confirmed_user)
       end
 
-      let!(:target) { create(:bs_request_with_submit_action, creator: confirmed_user.login, source_project: project.name) }
+      let!(:target) { create(:bs_request_with_submit_action, creator: confirmed_user, source_package: source_package, target_project: project) }
       let!(:other_target) do
-        create(:bs_request_with_submit_action, creator: admin_user.login, target_project: project.name, source_project: source_project.name,
-                                               target_package: package.name, source_package: source_package.name)
+        create(:bs_request_with_submit_action, creator: admin_user, target_project: project, source_package: source_package)
       end
       let!(:declined_target) do
-        create(:declined_bs_request, creator: confirmed_user.login, target_project: project.name, source_project: source_package.project.name,
-                                     target_package: package.name, source_package: source_package.name)
+        create(:declined_bs_request, creator: confirmed_user, target_package: package, source_package: source_package)
       end
 
       let!(:incident) do
-        create(:bs_request_with_maintenance_incident_action, creator: admin_user.login, target_project: project.name,
-                                                             source_project: subproject.name, target_package: source_package, source_package: package.name)
+        create(:bs_request_with_maintenance_incident_action, creator: admin_user, target_project: project, source_package: source_package)
       end
       let(:accepted_incident) do
-        create(:bs_request_with_maintenance_incident_action, creator: admin_user.login, target_project: project.name,
-                                                             source_project: subproject.name, target_package: source_package, source_package: package.name)
+        create(:bs_request_with_maintenance_incident_action, creator: admin_user, target_package: package, source_package: source_package)
       end
 
       let!(:release) do
-        create(:bs_request_with_maintenance_release_action, creator: admin_user.login,
-                                                            target_project: source_project.name,
-                                                            source_project: subproject.name, target_package: source_package, source_package: package.name)
+        create(:bs_request_with_maintenance_release_action, creator: admin_user, target_package: package, source_package: source_package)
       end
       let!(:other_release) do
-        create(:bs_request_with_maintenance_release_action, creator: admin_user.login, target_project: subproject.name,
-                                                            source_project: source_project.name, target_package: package.name, source_package: source_package.name)
+        create(:bs_request_with_maintenance_release_action, creator: admin_user, target_package: package, source_package: source_package)
       end
 
       before do
@@ -530,7 +521,7 @@ RSpec.describe Project, vcr: true do
     end
 
     before do
-      User.current = user
+      login(user)
     end
 
     subject! { project.remove_all_persons }
@@ -549,7 +540,7 @@ RSpec.describe Project, vcr: true do
     end
 
     before do
-      User.current = groups_user.user
+      login(groups_user.user)
     end
 
     subject! { project.remove_all_groups }
@@ -583,7 +574,7 @@ RSpec.describe Project, vcr: true do
     let!(:release_target) { create(:release_target, target_repository: repository_release, repository: repository) }
 
     before do
-      User.current = user
+      login user
       allow_any_instance_of(Package).to receive(:target_name).and_return('my_release_target')
     end
 

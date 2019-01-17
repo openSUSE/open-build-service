@@ -11,18 +11,14 @@ RSpec.shared_context 'a set of bs requests' do
     create(:bs_request_with_submit_action,
            creator: user,
            priority: 'critical',
-           source_project: source_project,
            source_package: source_package,
-           target_project: target_project,
            target_package: target_package)
   end
   let!(:request2) do
     create(:bs_request_with_submit_action,
            created_at: 2.days.ago,
            creator: user,
-           source_project: source_project,
            source_package: source_package,
-           target_project: target_project,
            target_package: target_package)
   end
   let!(:bs_requests) do
@@ -30,9 +26,7 @@ RSpec.shared_context 'a set of bs requests' do
                 8,
                 created_at: 1.day.ago,
                 creator: user,
-                source_project: source_project,
                 source_package: source_package,
-                target_project: target_project,
                 target_package: target_package)
   end
 
@@ -48,9 +42,7 @@ RSpec.shared_context 'a set of bs requests' do
     create(:bs_request_with_submit_action,
            creator: user2,
            priority: 'critical',
-           source_project: source_project2,
            source_package: source_package2,
-           target_project: target_project2,
            target_package: target_package2)
   end
 
@@ -59,9 +51,7 @@ RSpec.shared_context 'a set of bs requests' do
     create(:bs_request_with_submit_action,
            created_at: 1.day.ago,
            creator: user,
-           source_project: source_project,
            source_package: source_package,
-           target_project: target_project2,
            target_package: target_package2)
   end
 end

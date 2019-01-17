@@ -7,7 +7,7 @@ RSpec.feature 'Requests', type: :feature, js: true do
   let(:target_package) { create(:package, name: 'goal', project_id: target_project.id) }
   let(:source_project) { submitter.home_project }
   let(:source_package) { create(:package, name: 'ball', project_id: source_project.id) }
-  let(:bs_request) { create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter.login) }
+  let(:bs_request) { create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter) }
 
   RSpec.shared_examples 'expandable element' do
     scenario 'expanding a text field' do
@@ -61,7 +61,7 @@ RSpec.feature 'Requests', type: :feature, js: true do
 
       it 'can be accepted' do
         bs_request.bs_request_actions.delete_all
-        create(:bs_request_action_add_bugowner_role, target_project: target_project.name,
+        create(:bs_request_action_add_bugowner_role, target_project: target_project,
                                                      person_name: submitter,
                                                      bs_request_id: bs_request.id)
         login receiver
@@ -75,10 +75,9 @@ RSpec.feature 'Requests', type: :feature, js: true do
 
     describe 'for packages' do
       let(:bs_request) do
-        create(:add_maintainer_request, target_project: target_project,
-                                        target_package: target_package.name,
+        create(:add_maintainer_request, target_package: target_package,
                                         description: 'a long text - ' * 200,
-                                        creator: submitter.login,
+                                        creator: submitter,
                                         person_name: submitter)
       end
       it 'can be submitted' do

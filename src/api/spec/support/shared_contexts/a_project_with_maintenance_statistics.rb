@@ -8,12 +8,10 @@ RSpec.shared_context 'a project with maintenance statistics' do
     )
   end
   let!(:bs_request) do
-    create(
-      :bs_request,
-      source_project: project,
-      type: 'maintenance_release',
-      created_at: 9.days.ago
-    )
+    create(:bs_request_with_maintenance_release_action,
+           source_project: project,
+           state: :review,
+           created_at: 9.days.ago)
   end
   let!(:history_element_request_accepted) do
     create(

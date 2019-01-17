@@ -27,10 +27,8 @@ RSpec.describe Staging::StagingProject, vcr: true do
 
   let(:request_attributes) do
     {
-      target_project: target_project.name,
-      target_package: target_package.name,
-      source_project: source_project.name,
-      source_package: source_package.name
+      target_package: target_package,
+      source_package: source_package
     }
   end
 
@@ -82,7 +80,7 @@ RSpec.describe Staging::StagingProject, vcr: true do
 
   describe '#overall_state' do
     before do
-      User.current = user
+      login(user)
     end
 
     context 'when there are no staged requests' do
@@ -159,7 +157,7 @@ RSpec.describe Staging::StagingProject, vcr: true do
   describe '#assign_managers_group' do
     context 'when the group wasn\'t assigned before' do
       before do
-        User.current = user
+        login(user)
         staging_project.assign_managers_group(other_managers_group)
         staging_project.store
       end

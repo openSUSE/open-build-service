@@ -5,9 +5,9 @@ RSpec.feature 'Search', type: :feature, js: true do
   let(:admin_user) { create(:admin_user) }
   let(:user) { create(:confirmed_user, login: 'titan') }
 
-  let(:package) { create(:package, name: 'goal', title: 'First goal', project_id: user.home_project.id) }
-  let(:another_package) { create(:package, name: 'goal2', title: 'Second goal', project_id: user.home_project.id) }
-  let(:bs_request) { create(:bs_request, description: "This request's description", creator: user.login) }
+  let(:package) { create(:package, name: 'goal', title: 'First goal', project: user.home_project) }
+  let(:another_package) { create(:package, name: 'goal2', title: 'Second goal', project: user.home_project) }
+  let(:bs_request) { create(:bs_request, description: "This request's description", creator: user) }
 
   let(:apache) { create(:project, name: 'Apache', title: 'Awesome project', description: 'Very awesome project') }
   let(:apache2) { create(:project, name: "#{apache.name}:Apache2", title: 'New and awesome project', description: 'Very very very awesome project') }

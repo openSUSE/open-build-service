@@ -9,9 +9,7 @@ RSpec.describe BsRequestAction::Differ::ForSource, vcr: true do
   let(:target_package) { create(:package, name: 'target_package', project: target_project) }
   let(:bs_request) do
     create(:bs_request_with_submit_action,
-           source_project: source_project,
            source_package: source_package,
-           target_project: target_project,
            target_package: target_package,
            source_rev: 2)
   end
@@ -83,9 +81,7 @@ RSpec.describe BsRequestAction::Differ::ForSource, vcr: true do
     context 'with superseded request' do
       let(:superseded_bs_request) do
         create(:bs_request_with_submit_action,
-               source_project: source_project,
                source_package: source_package,
-               target_project: target_project,
                target_package: target_package,
                source_rev: 8)
       end

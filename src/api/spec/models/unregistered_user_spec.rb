@@ -90,7 +90,7 @@ RSpec.describe UnregisteredUser do
         let(:user_count_before) { User.count }
 
         before do
-          User.current = user
+          login user
         end
 
         subject { UnregisteredUser.register(user_attributes) }
@@ -103,7 +103,7 @@ RSpec.describe UnregisteredUser do
 
       context 'when admin user is logged in' do
         before do
-          User.current = admin_user
+          login admin_user
         end
 
         subject! { UnregisteredUser.register(user_attributes) }

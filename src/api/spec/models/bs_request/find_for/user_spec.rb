@@ -31,17 +31,15 @@ RSpec.describe BsRequest::FindFor::User do
         let(:role) { :creator }
         let!(:request) do
           create(:bs_request_with_submit_action,
-                 creator: user.login,
-                 target_project: target_project.name,
-                 source_project: source_project.name,
-                 source_package: source_package.name)
+                 creator: user,
+                 target_project: target_project,
+                 source_package: source_package)
         end
         let!(:another_request) do
           create(:bs_request_with_submit_action,
-                 creator: another_user.login,
-                 target_project: another_target_project.name,
-                 source_project: source_project.name,
-                 source_package: source_package.name)
+                 creator: another_user,
+                 target_project: another_target_project,
+                 source_package: source_package)
         end
       end
     end
@@ -52,19 +50,15 @@ RSpec.describe BsRequest::FindFor::User do
       let!(:groups_user) { create(:groups_user, user: user, group: group) }
       let!(:request) do
         create(:bs_request_with_submit_action,
-               creator: another_user.login,
-               target_project: target_project.name,
-               target_package: target_package.name,
-               source_project: source_project.name,
-               source_package: source_package.name)
+               creator: another_user,
+               target_package: target_package,
+               source_package: source_package)
       end
       let!(:another_request) do
         create(:bs_request_with_submit_action,
-               creator: another_user.login,
-               target_project: another_target_project.name,
-               target_package: another_target_package.name,
-               source_project: source_project.name,
-               source_package: source_package.name)
+               creator: another_user,
+               target_package: another_target_package,
+               source_package: source_package)
       end
 
       context 'to a project with a request' do
@@ -84,19 +78,16 @@ RSpec.describe BsRequest::FindFor::User do
       let(:role) { :maintainer }
       let!(:request) do
         create(:bs_request_with_submit_action,
-               creator: another_user.login,
-               target_project: target_project.name,
-               target_package: target_package.name,
-               source_project: source_project.name,
-               source_package: source_package.name)
+               creator: another_user,
+               target_package: target_package,
+               source_package: source_package)
       end
       let!(:another_request) do
         create(:bs_request_with_submit_action,
-               creator: another_user.login,
-               target_project: another_target_project.name,
-               target_package: another_target_package.name,
-               source_project: source_project.name,
-               source_package: source_package.name)
+               creator: another_user,
+
+               target_package: another_target_package,
+               source_package: source_package)
       end
 
       context 'to a project with a request' do
@@ -116,11 +107,10 @@ RSpec.describe BsRequest::FindFor::User do
       let(:role) { :reviewer }
 
       context 'and a state' do
-        let(:request) { create(:set_bugowner_request, creator: another_user.login) }
-        let!(:review) { create(:review, by_user: user.login, bs_request: request, state: :accepted) }
+        let(:request) { create(:set_bugowner_request, creator: another_user) }
+        let!(:review) { create(:review, by_user: user, bs_request: request, state: :accepted) }
 
-        let(:another_request) { create(:set_bugowner_request, creator: another_user.login) }
-        let!(:another_review) { create(:review, by_user: user.login, bs_request: another_request) }
+        let!(:another_request) { create(:set_bugowner_request, creator: another_user, review_by_user: user) }
 
         context 'submitted as array' do
           subject { klass.new(user: user.login, review_states: [:accepted, :new]).all }
@@ -135,7 +125,7 @@ RSpec.describe BsRequest::FindFor::User do
         end
 
         context 'does not include not matching reviews' do
-          let!(:another_review) { create(:review, by_user: another_user.login, bs_request: request, state: :accepted) }
+          let!(:another_review) { create(:review, by_user: another_user, bs_request: request, state: :accepted) }
           subject { klass.new(user: user.login, review_states: :accepted).all }
 
           it { expect(subject.first.reviews).to include(review) }
@@ -145,11 +135,11 @@ RSpec.describe BsRequest::FindFor::User do
 
       context 'by user' do
         it_behaves_like 'has a request' do
-          let(:request) { create(:set_bugowner_request, creator: another_user.login) }
-          let!(:review) { create(:review, by_user: user.login, bs_request: request) }
+          let(:request) { create(:set_bugowner_request, creator: another_user) }
+          let!(:review) { create(:review, by_user: user, bs_request: request) }
 
-          let(:another_request) { create(:set_bugowner_request, creator: another_user.login) }
-          let!(:another_review) { create(:review, by_user: another_user.login, bs_request: another_request) }
+          let(:another_request) { create(:set_bugowner_request, creator: another_user) }
+          let!(:another_review) { create(:review, by_user: another_user, bs_request: another_request) }
         end
       end
 
@@ -157,51 +147,48 @@ RSpec.describe BsRequest::FindFor::User do
         it_behaves_like 'has a request' do
           let(:group) { create(:group) }
           let!(:groups_user) { create(:groups_user, user: user, group: group) }
-          let(:request) { create(:set_bugowner_request, creator: another_user.login) }
+          let(:request) { create(:set_bugowner_request, creator: another_user) }
           let!(:review) { create(:review, by_group: group.title, bs_request: request) }
 
           let(:another_group) { create(:group) }
-          let(:another_request) { create(:set_bugowner_request, creator: another_user.login) }
+          let(:another_request) { create(:set_bugowner_request, creator: another_user) }
           let!(:another_review) { create(:review, by_group: another_group.title, bs_request: another_request) }
         end
       end
 
       context 'by project' do
         it_behaves_like 'has a request' do
-          let(:request) { create(:set_bugowner_request, creator: another_user.login) }
+          let(:request) { create(:set_bugowner_request, creator: another_user) }
           let!(:review) { create(:review, by_project: target_project, bs_request: request) }
           let!(:relationship_project_user) { create(:relationship_project_user, project: target_project, user: user) }
 
-          let(:another_request) { create(:set_bugowner_request, creator: another_user.login) }
-          let!(:another_review) { create(:review, by_project: another_target_project.name, bs_request: another_request) }
+          let(:another_request) { create(:set_bugowner_request, creator: another_user, review_by_project: another_target_project) }
         end
       end
 
       context 'by package' do
         it_behaves_like 'has a request' do
-          let!(:request) { create(:set_bugowner_request, creator: another_user.login, review_by_package: target_package) }
+          let!(:request) { create(:set_bugowner_request, creator: another_user, review_by_package: target_package) }
           let!(:relationship_package_group) { create(:relationship_package_user, package: target_package, user: user) }
 
-          let!(:another_request) { create(:set_bugowner_request, creator: another_user.login, review_by_package: another_target_package) }
+          let!(:another_request) { create(:set_bugowner_request, creator: another_user, review_by_package: another_target_package) }
         end
       end
     end
 
     context 'as maintainer or reviewer or creator' do
-      let(:review_request) { create(:set_bugowner_request, creator: another_user.login) }
-      let!(:review) { create(:review, by_user: user.login, bs_request: review_request) }
+      let(:review_request) { create(:set_bugowner_request, creator: another_user) }
+      let!(:review) { create(:review, by_user: user, bs_request: review_request) }
 
       let!(:relationship_project_user) { create(:relationship_project_user, project: target_project, user: user) }
       let!(:maintainer_request) do
         create(:bs_request_with_submit_action,
-               creator: another_user.login,
-               target_project: target_project.name,
-               target_package: target_package.name,
-               source_project: source_project.name,
-               source_package: source_package.name)
+               creator: another_user,
+               target_package: target_package,
+               source_package: source_package)
       end
 
-      let(:creator_request) { create(:set_bugowner_request, creator: user.login) }
+      let(:creator_request) { create(:set_bugowner_request, creator: user) }
 
       subject { klass.new(user: user.login).all }
 

@@ -18,7 +18,7 @@ RSpec.describe BsRequestActionDelete, vcr: true do
     end
 
     context 'for package' do
-      let(:delete_request) { create(:delete_bs_request, target_project: target_project, target_package: target_package) }
+      let(:delete_request) { create(:delete_bs_request, target_package: target_package) }
       subject { delete_request.bs_request_actions.first }
 
       it { expect(subject.sourcediff).to include('deleted files:') }
