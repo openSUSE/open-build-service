@@ -17,7 +17,8 @@
               Managers
 
         = render(partial: 'staging_projects_table',
-                 locals: { staging_workflow: @staging_workflow, staging_projects: @staging_projects, display_actions_column: true })
+                 locals: { staging_workflow: @staging_workflow, staging_projects: @staging_projects, display_actions_column: true,
+                           users_hash: @users_hash, groups_hash: @groups_hash })
 
         = render partial: 'create_staging_project', locals: { staging_workflow: @staging_workflow }
         = render partial: 'staging_managers_group', locals: { staging_workflow: @staging_workflow }

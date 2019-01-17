@@ -43,27 +43,27 @@ module Webui::Staging::WorkflowHelper
     end
   end
 
-  def reviewers_gravatar(request)
+  def reviewers_gravatar(request, users_hash, groups_hash)
     missing_reviews = request[:missing_reviews]
     image_tags = []
     missing_reviews.each do |review|
       case review[:review_type]
       when 'by_group'
-        object = Group.find_by_title(review[:by])
+        object = groups_hash[review[:by]]
       when 'by_user'
-        object = User.find_by_login(review[:by])
+        object = users_hash[review[:by]]
       end
       image_tags << image_tag_for(object, size: 20)
     end
     image_tags
   end
 
-  def create_request_links(request)
+  def create_request_links(request, users_hash, groups_hash)
     css = 'ready'
     css = 'review' if request[:missing_reviews].present?
     css = 'obsolete' if request[:state].in?(BsRequest::OBSOLETE_STATES)
     link_content = [request[:package]]
-    link_content << reviewers_gravatar(request) if request[:missing_reviews].present?
+    link_content << reviewers_gravatar(request, users_hash, groups_hash) if request[:missing_reviews].present?
     content_tag(:span, class: "badge state-#{css}") do
       link_to(request_show_path(request[:number]), class: 'request') do
         safe_join(link_content)
@@ -71,14 +71,14 @@ module Webui::Staging::WorkflowHelper
     end
   end
 
-  def requests(staging_project)
+  def requests(staging_project, users_hash, groups_hash)
     number_of_requests = staging_project.classified_requests.size
 
     return 'None' if number_of_requests == 0
 
     requests_visible_by_default = 10
     requests_links = staging_project.classified_requests.map do |request|
-      create_request_links(request)
+      create_request_links(request, users_hash, groups_hash)
     end
 
     if number_of_requests <= requests_visible_by_default

@@ -20,7 +20,8 @@
               = render(partial: 'delete', locals: { project: @project })
 
         = render(partial: 'staging_projects_table',
-                 locals: { staging_workflow: @staging_workflow, staging_projects: @staging_projects, display_actions_column: false })
+                 locals: { staging_workflow: @staging_workflow, staging_projects: @staging_projects, display_actions_column: false,
+                           users_hash: @users_hash, groups_hash: @groups_hash })
 
   .col-xl-2
     = render partial: 'webui/staging/shared/legend'
