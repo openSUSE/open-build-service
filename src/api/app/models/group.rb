@@ -32,6 +32,8 @@ class Group < ApplicationRecord
 
   default_scope { order(:title) }
 
+  alias_attribute :name, :title
+
   def self.find_by_title!(title)
     find_by_title(title) || (raise NotFoundError, "Couldn't find Group '#{title}'")
   end
