@@ -429,7 +429,7 @@ module Webui::WebuiHelper
 
   def gravatar_icon(email, size)
     if ::Configuration.gravatar && email
-      "https://www.gravatar.com/avatar/#{Digest::MD5.hexdigest(email.downcase)}?s=#{size}&d=wavatar"
+      "https://www.gravatar.com/avatar/#{Digest::MD5.hexdigest(email.downcase)}?s=#{size}&d=robohash"
     else
       'default_face.png'
     end
