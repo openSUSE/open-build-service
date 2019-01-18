@@ -146,10 +146,8 @@ RSpec.describe ObsFactory::StagingProject do
       let(:source_package) { create(:package, name: 'source_package', project: source_project) }
       let!(:bs_request_2) do
         create(:declined_bs_request,
-               target_project: target_project.name,
-               target_package: target_package.name,
-               source_project: source_project.name,
-               source_package: source_package.name,
+               target_package: target_package,
+               source_package: source_package,
                number: 614_471)
       end
 

@@ -16,10 +16,8 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
     create(:bs_request_with_submit_action,
            state: :review,
            creator: other_user,
-           target_project: project.name,
-           target_package: target_package.name,
-           source_project: source_project.name,
-           source_package: source_package.name,
+           target_package: target_package,
+           source_package: source_package,
            description: 'BsRequest 1',
            review_by_group: group)
   end

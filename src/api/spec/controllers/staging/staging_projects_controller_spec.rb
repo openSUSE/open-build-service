@@ -56,10 +56,8 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
 
       let(:request_attributes) do
         {
-          target_project: project.name,
-          target_package: target_package.name,
-          source_project: source_project.name,
-          source_package: source_package.name
+          target_package: target_package,
+          source_package: source_package
         }
       end
 

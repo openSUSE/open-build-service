@@ -238,12 +238,12 @@ RSpec.describe User do
 
     context 'with by_user reviews' do
       it_behaves_like 'involved_reviews' do
-        let!(:subject_request) { create(:set_bugowner_request, creator: admin_user.login, review_by_user: confirmed_user) }
+        let!(:subject_request) { create(:set_bugowner_request, creator: admin_user, review_by_user: confirmed_user) }
 
-        let!(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user.login, review_by_user: confirmed_user) }
+        let!(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user, review_by_user: confirmed_user) }
 
         let(:other_project) { create(:project) }
-        let!(:request_of_another_subject) { create(:set_bugowner_request, creator: confirmed_user.login, review_by_user: admin_user) }
+        let!(:request_of_another_subject) { create(:set_bugowner_request, creator: confirmed_user, review_by_user: admin_user) }
       end
     end
 
@@ -252,11 +252,11 @@ RSpec.describe User do
         let(:group) { create(:group) }
         let!(:groups_user) { create(:groups_user, user: confirmed_user, group: group) }
 
-        let!(:subject_request) { create(:set_bugowner_request, creator: admin_user.login, review_by_group: group) }
-        let!(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user.login, review_by_group: group) }
+        let!(:subject_request) { create(:set_bugowner_request, creator: admin_user, review_by_group: group) }
+        let!(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user, review_by_group: group) }
 
         let(:other_group) { create(:group) }
-        let!(:request_of_another_subject) { create(:set_bugowner_request, creator: admin_user.login, review_by_group: other_group) }
+        let!(:request_of_another_subject) { create(:set_bugowner_request, creator: admin_user, review_by_group: other_group) }
       end
     end
 
@@ -265,11 +265,11 @@ RSpec.describe User do
         let(:project) { create(:project) }
         let!(:relationship_project_user) { create(:relationship_project_user, user: confirmed_user, project: project) }
 
-        let!(:subject_request) { create(:set_bugowner_request, creator: admin_user.login, review_by_project: project) }
-        let!(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user.login, review_by_project: project) }
+        let!(:subject_request) { create(:set_bugowner_request, creator: admin_user, review_by_project: project) }
+        let!(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user, review_by_project: project) }
 
         let(:other_project) { create(:project) }
-        let!(:request_of_another_subject) { create(:set_bugowner_request, creator: admin_user.login, review_by_project: other_project) }
+        let!(:request_of_another_subject) { create(:set_bugowner_request, creator: admin_user, review_by_project: other_project) }
       end
     end
 
@@ -278,12 +278,12 @@ RSpec.describe User do
         let(:package) { create(:package) }
         let!(:relationship_package_user) { create(:relationship_package_user, user: confirmed_user, package: package) }
 
-        let!(:subject_request) { create(:set_bugowner_request, creator: admin_user.login, review_by_package: package) }
+        let!(:subject_request) { create(:set_bugowner_request, creator: admin_user, review_by_package: package) }
 
-        let!(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user.login, review_by_package: package) }
+        let!(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user, review_by_package: package) }
 
         let(:other_package) { create(:package) }
-        let!(:request_of_another_subject) { create(:set_bugowner_request, creator: admin_user.login, review_by_package: other_package) }
+        let!(:request_of_another_subject) { create(:set_bugowner_request, creator: admin_user, review_by_package: other_package) }
 
         let!(:relationship_project_user) { create(:relationship_project_user, user: admin_user, project: package.project) }
         it 'show the reviews for project maintainer' do
@@ -293,7 +293,7 @@ RSpec.describe User do
     end
 
     context 'with search parameter' do
-      let!(:request) { create(:set_bugowner_request, creator: admin_user.login, review_by_user: confirmed_user) }
+      let!(:request) { create(:set_bugowner_request, creator: admin_user, review_by_user: confirmed_user) }
 
       before do
         # Setting state in create will be overwritten by BsRequest#sanitize!

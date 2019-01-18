@@ -52,17 +52,13 @@ RSpec.describe Webui::ObsFactory::DistributionsController, type: :controller, vc
           create(:group, title: title)
           create(:bs_request_with_submit_action,
                  review_by_group: title,
-                 target_project: factory.name,
-                 target_package: target_package.name,
-                 source_project: source_package.project.name,
-                 source_package: source_package.name)
+                 target_package: target_package,
+                 source_package: source_package)
         end
         create(:bs_request_with_submit_action,
                review_by_user: 'repo-checker',
-               target_project: factory.name,
-               target_package: target_package.name,
-               source_project: source_package.project.name,
-               source_package: source_package.name)
+               target_package: target_package,
+               source_package: source_package)
       end
 
       before do

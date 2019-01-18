@@ -127,13 +127,9 @@ RSpec.feature 'Packages', type: :feature, js: true do
   describe 'existing requests' do
     let(:source_project) { create(:project_with_package, name: 'source_project') }
     let(:source_package) { source_project.packages.first }
-    let(:target_project) { user.home_project }
-    let(:target_package) { create(:package, name: 'my_package', project: target_project) }
     let!(:bs_request) do
       create(:bs_request_with_submit_action,
-             source_project: source_project,
              source_package: source_package,
-             target_project: target_project,
              target_package: package)
     end
 

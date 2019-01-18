@@ -99,10 +99,8 @@ RSpec.describe EventSubscription::FindForEvent do
       let(:request) do
         create(
           :bs_request_with_submit_action,
-          source_project: source_project.name,
-          target_project: target_project.name,
-          source_package: source_package.name,
-          target_package: target_package.name
+          source_package: source_package,
+          target_package: target_package
         )
       end
       let!(:default_subscription) do

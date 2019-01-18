@@ -13,10 +13,8 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
   let(:bs_request) do
     create(:bs_request_with_submit_action,
            creator: other_user,
-           target_project: project.name,
-           target_package: target_package.name,
-           source_project: source_project.name,
-           source_package: source_package.name,
+           target_package: target_package,
+           source_package: source_package,
            review_by_group: group)
   end
 

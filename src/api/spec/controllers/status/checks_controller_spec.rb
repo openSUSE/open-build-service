@@ -128,7 +128,7 @@ RSpec.describe Status::ChecksController, type: :controller do
       context 'for a request' do
         let(:source_package) { create(:package) }
         let(:source_project) { source_package.project }
-        let(:bs_request) { create(:bs_request_with_submit_action, target_project: project, source_project: source_project, source_package: source_package) }
+        let(:bs_request) { create(:bs_request_with_submit_action, target_project: project, source_package: source_package) }
         let!(:status_report) { create(:status_report, checkable: bs_request) }
         let(:params) do
           { bs_request_number: bs_request.number }
@@ -148,7 +148,6 @@ RSpec.describe Status::ChecksController, type: :controller do
         let(:bs_request) do
           create(:bs_request_with_submit_action,
                  creator: user,
-                 source_project: source_project,
                  source_package: source_project.packages.first,
                  target_project: project)
         end
@@ -241,7 +240,7 @@ RSpec.describe Status::ChecksController, type: :controller do
       context 'for a request' do
         let(:source_package) { create(:package) }
         let(:source_project) { source_package.project }
-        let(:bs_request) { create(:bs_request_with_submit_action, target_project: project, source_project: source_project, source_package: source_package) }
+        let(:bs_request) { create(:bs_request_with_submit_action, target_project: project, source_package: source_package) }
         let(:status_report) { create(:status_report, checkable: bs_request) }
         let!(:check) { create(:check, name: 'openQA', state: 'pending', status_report: status_report) }
         let(:params) do

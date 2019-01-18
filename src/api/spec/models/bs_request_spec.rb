@@ -14,17 +14,14 @@ RSpec.describe BsRequest, vcr: true do
   let(:source_package) { create(:package, name: 'source_package', project: source_project) }
   let(:submit_request) do
     create(:bs_request_with_submit_action,
-           target_project: target_project.name,
-           target_package: target_package.name,
-           source_project: source_project.name,
-           source_package: source_package.name)
+           target_package: target_package,
+           source_package: source_package)
   end
   let(:delete_request) do
     create(:delete_bs_request,
-           reviewer: user.login,
-           creator: user.login,
-           target_project: target_project.name,
-           target_package: target_package.name)
+           reviewer: user,
+           creator: user,
+           target_package: target_package)
   end
 
   context 'validations' do
@@ -45,11 +42,9 @@ RSpec.describe BsRequest, vcr: true do
     let(:user) { create(:user) }
     let(:review_request) do
       create(:bs_request_with_submit_action,
-             review_by_user: user.login,
-             target_project: target_package.project.name,
-             target_package: target_package.name,
-             source_project: source_package.project.name,
-             source_package: source_package.name)
+             review_by_user: user,
+             target_package: target_package,
+             source_package: source_package)
     end
     let(:doc) { Nokogiri::XML(review_request.to_axml, &:strict) }
 
@@ -80,7 +75,7 @@ RSpec.describe BsRequest, vcr: true do
     context 'from group to user' do
       let(:reviewer) { create(:confirmed_user) }
       let(:group) { create(:group) }
-      let!(:request) { create(:set_bugowner_request, creator: reviewer.login, review_by_group: group) }
+      let!(:request) { create(:set_bugowner_request, creator: reviewer, review_by_group: group) }
       let(:review) { request.reviews.first }
 
       before do
@@ -110,7 +105,7 @@ RSpec.describe BsRequest, vcr: true do
   describe '#addreview' do
     let(:reviewer) { create(:confirmed_user) }
     let(:group) { create(:group) }
-    let!(:request) { create(:set_bugowner_request, creator: reviewer.login) }
+    let!(:request) { create(:set_bugowner_request, creator: reviewer) }
 
     before do
       login(reviewer)
@@ -141,13 +136,13 @@ RSpec.describe BsRequest, vcr: true do
 
   describe '#change_review_state' do
     let(:user) { create(:confirmed_user) }
-    let!(:request) { create(:set_bugowner_request, creator: user.login) }
+    let!(:request) { create(:set_bugowner_request, creator: user) }
     let(:reviewer) { create(:confirmed_user) }
     let(:someone) { create(:confirmed_user) }
 
     context 'with by_user review' do
       before do
-        User.current = user
+        login user
         request.addreview(by_user: reviewer, comment: 'does it look ok?')
       end
 
@@ -192,7 +187,7 @@ RSpec.describe BsRequest, vcr: true do
 
     context 'to delete state' do
       before do
-        User.current = admin
+        login admin
         request.change_state(newstate: 'deleted')
       end
 
@@ -209,13 +204,11 @@ RSpec.describe BsRequest, vcr: true do
       let(:request) do
         create(:declined_bs_request,
                target_package: target_package,
-               target_project: target_project,
-               source_package: source_package,
-               source_project: source_project)
+               source_package: source_package)
       end
 
       before do
-        User.current = user
+        login user
       end
 
       it { expect { request.change_state(newstate: 'review') }.to raise_error(PostRequestNoPermission) }
@@ -224,14 +217,13 @@ RSpec.describe BsRequest, vcr: true do
     context 'final state accepted cannot be changed' do
       let!(:request) do
         create(:bs_request_with_submit_action,
-               target_project: target_project.name,
-               source_project: source_package.project.name,
-               source_package: source_package.name)
+               target_project: target_project,
+               source_package: source_package)
       end
       let!(:relationship_project_user) { create(:relationship_project_user, project: target_project) }
       let(:user) { relationship_project_user.user }
       before do
-        User.current = user
+        login user
         request.state = 'accepted'
         request.save
       end
@@ -257,7 +249,7 @@ RSpec.describe BsRequest, vcr: true do
     end
 
     context 'creator of bs_request' do
-      let!(:request) { create(:set_bugowner_request, creator: user.login) }
+      let!(:request) { create(:set_bugowner_request, creator: user) }
       let(:user) { create(:admin_user) }
 
       it_should_behave_like "the subject's cache is reset when it's request changes"
@@ -267,9 +259,8 @@ RSpec.describe BsRequest, vcr: true do
       let(:target_project) { create(:project) }
       let!(:request) do
         create(:bs_request_with_submit_action,
-               target_project: target_project.name,
-               source_project: source_package.project.name,
-               source_package: source_package.name)
+               target_project: target_project,
+               source_package: source_package)
       end
       let!(:relationship_project_user) { create(:relationship_project_user, project: target_project) }
       let(:user) { relationship_project_user.user }
@@ -282,9 +273,8 @@ RSpec.describe BsRequest, vcr: true do
 
       let!(:request) do
         create(:bs_request_with_submit_action,
-               target_project: target_project.name,
-               source_project: source_package.project.name,
-               source_package: source_package.name)
+               target_project: target_project,
+               source_package: source_package)
       end
 
       let(:relationship_project_group) { create(:relationship_project_group, project: target_project) }
@@ -407,12 +397,10 @@ RSpec.describe BsRequest, vcr: true do
     let!(:maintainer_role) { create(:relationship, package: target_package, user: user) }
     let!(:request) do
       create(:bs_request_with_submit_action,
-             target_project: target_package.project.name,
-             target_package: target_package.name,
-             source_project: source_package.project.name,
-             source_package: source_package.name,
+             target_package: target_package,
+             source_package: source_package,
              description: 'Update package to newest version',
-             creator: user.login)
+             creator: user)
     end
 
     before do
@@ -544,7 +532,7 @@ RSpec.describe BsRequest, vcr: true do
 
       it 'creates a submit request action with the correct target' do
         expect(subject.bs_request_actions.count).to eq(1)
-        expect(subject.bs_request_actions.where(type: 'submit', target_project: user.home_project.name,
+        expect(subject.bs_request_actions.where(type: 'submit', target_project:  user.home_project.name,
                                                 target_package: 'my_new_package')).to exist
       end
     end

@@ -34,17 +34,15 @@ RSpec.describe BsRequest::FindFor::Group do
           let!(:relationship_project_group) { create(:relationship_project_group, project: target_project, group: group) }
           let!(:request) do
             create(:bs_request_with_submit_action,
-                   creator: user.login,
-                   target_project: target_project.name,
-                   source_project: source_project.name,
-                   source_package: source_package.name)
+                   creator: user,
+                   target_project: target_project,
+                   source_package: source_package)
           end
           let!(:another_request) do
             create(:bs_request_with_submit_action,
-                   creator: user.login,
-                   target_project: another_target_project.name,
-                   source_project: source_project.name,
-                   source_package: source_package.name)
+                   creator: user,
+                   target_project: another_target_project,
+                   source_package: source_package)
           end
         end
       end
@@ -54,19 +52,15 @@ RSpec.describe BsRequest::FindFor::Group do
           let!(:relationship_package_group) { create(:relationship_package_group, package: target_package, group: group) }
           let!(:request) do
             create(:bs_request_with_submit_action,
-                   creator: user.login,
-                   target_project: target_project.name,
-                   target_package: target_package.name,
-                   source_project: source_project.name,
-                   source_package: source_package.name)
+                   creator: user,
+                   target_package: target_package,
+                   source_package: source_package)
           end
           let!(:another_request) do
             create(:bs_request_with_submit_action,
-                   creator: user.login,
-                   target_project: another_target_project.name,
-                   target_package: another_target_package.name,
-                   source_project: source_project.name,
-                   source_package: source_package.name)
+                   creator: user,
+                   target_package: another_target_package,
+                   source_package: source_package)
           end
         end
       end
@@ -77,37 +71,37 @@ RSpec.describe BsRequest::FindFor::Group do
 
       context 'by group' do
         it_behaves_like 'has a request' do
-          let(:request) { create(:set_bugowner_request, creator: user.login) }
-          let!(:review) { create(:review, by_group: group.title, bs_request: request) }
+          let(:request) { create(:set_bugowner_request, creator: user) }
+          let!(:review) { create(:review, by_group: group, bs_request: request) }
 
           let(:another_group) { create(:group) }
-          let(:another_request) { create(:set_bugowner_request, creator: user.login) }
-          let!(:another_review) { create(:review, by_group: another_group.title, bs_request: another_request) }
+          let(:another_request) { create(:set_bugowner_request, creator: user) }
+          let!(:another_review) { create(:review, by_group: another_group, bs_request: another_request) }
         end
       end
 
       context 'by project' do
         it_behaves_like 'has a request' do
-          let(:request) { create(:set_bugowner_request, creator: user.login) }
+          let(:request) { create(:set_bugowner_request, creator: user) }
           let!(:review) { create(:review, by_project: target_project, bs_request: request) }
           let!(:relationship_project_group) { create(:relationship_project_group, project: target_project, group: group) }
 
-          let(:another_request) { create(:set_bugowner_request, creator: user.login) }
+          let(:another_request) { create(:set_bugowner_request, creator: user) }
           let!(:another_review) { create(:review, by_project: another_target_project.name, bs_request: another_request) }
         end
       end
 
       context 'by package' do
         it_behaves_like 'has a request' do
-          let(:request) { create(:set_bugowner_request, creator: user.login) }
-          let!(:review) { create(:review, by_project: target_project.name, by_package: target_package.name, bs_request: request) }
+          let(:request) { create(:set_bugowner_request, creator: user) }
+          let!(:review) { create(:review, by_project: target_project, by_package: target_package, bs_request: request) }
           let!(:relationship_package_group) { create(:relationship_package_group, package: target_package, group: group) }
 
-          let(:another_request) { create(:set_bugowner_request, creator: user.login) }
+          let(:another_request) { create(:set_bugowner_request, creator: user) }
           let!(:another_review) do
             create(:review,
-                   by_project: another_target_project.name,
-                   by_package: another_target_package.name,
+                   by_project: another_target_project,
+                   by_package: another_target_package,
                    bs_request: another_request)
           end
         end
@@ -115,17 +109,15 @@ RSpec.describe BsRequest::FindFor::Group do
     end
 
     context 'as maintainer or reviewer' do
-      let(:review_request) { create(:set_bugowner_request, creator: user.login) }
+      let(:review_request) { create(:set_bugowner_request, creator: user) }
       let!(:review) { create(:review, by_group: group.title, bs_request: review_request) }
 
       let!(:relationship_project_group) { create(:relationship_project_group, project: target_project, group: group) }
       let!(:maintainer_request) do
         create(:bs_request_with_submit_action,
-               creator: user.login,
-               target_project: target_project.name,
-               target_package: target_package.name,
-               source_project: source_project.name,
-               source_package: source_package.name)
+               creator: user,
+               target_package: target_package,
+               source_package: source_package)
       end
 
       subject { klass.new(group: group.title).all }
