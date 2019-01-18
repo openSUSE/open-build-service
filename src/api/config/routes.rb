@@ -761,12 +761,7 @@ OBSApi::Application.routes.draw do
       resource :staged_requests, controller: 'staging/staged_requests', only: [:create, :destroy], constraints: cons
     end
 
-    # resources :excluded_requests, only: [:create, :destroy], controller: 'staging/excluded_requests', param: :number, constrains: cons
-
-    controller 'staging/excluded_requests' do
-      post 'excluded_requests/:number' => :create, constraints: cons
-      delete 'excluded_requests/:number' => :destroy, constraints: cons
-    end
+    resource :excluded_requests, controller: 'staging/excluded_requests', only: [:create, :destroy], constraints: cons
   end
 
   controller :source_attribute do

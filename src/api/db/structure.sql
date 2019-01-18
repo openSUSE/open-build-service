@@ -1141,6 +1141,7 @@ CREATE TABLE `staging_request_exclusions` (
   `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
+  `number` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_staging_request_exclusions_on_staging_workflow_id` (`staging_workflow_id`),
   KEY `index_staging_request_exclusions_on_bs_request_id` (`bs_request_id`)
@@ -1433,6 +1434,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20181030114152'),
 ('20181113095753'),
 ('20181201065026'),
-('20190111130416');
+('20190111130416'),
+('20190115131711');
 
 
