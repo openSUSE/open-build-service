@@ -1017,6 +1017,18 @@ CREATE TABLE `release_targets` (
   CONSTRAINT `release_targets_ibfk_2` FOREIGN KEY (`target_repository_id`) REFERENCES `repositories` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
+CREATE TABLE `reports` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `dismissed` tinyint(1) DEFAULT '0',
+  `failure_message` text COLLATE utf8mb4_unicode_ci,
+  `staging_project_id` int(11) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_reports_on_staging_project_id` (`staging_project_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE `repositories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_project_id` int(11) NOT NULL,
@@ -1435,6 +1447,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20181113095753'),
 ('20181201065026'),
 ('20190111130416'),
-('20190115131711');
+('20190115131711'),
+('20190118134930');
 
 

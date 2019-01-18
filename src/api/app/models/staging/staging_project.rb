@@ -1,6 +1,7 @@
 module Staging
   class StagingProject < Project
     has_many :staged_requests, class_name: 'BsRequest', foreign_key: :staging_project_id, dependent: :nullify
+    has_many :reports
     belongs_to :staging_workflow, class_name: 'Staging::Workflow'
 
     default_scope { where.not(staging_workflow: nil) }

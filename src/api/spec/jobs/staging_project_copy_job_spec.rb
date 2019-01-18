@@ -12,8 +12,15 @@ RSpec.describe StagingProjectCopyJob, type: :job, vcr: true do
 
     it 'copies the staging project' do
       expect(Project.exists?(name: staging_project_copy_name)).to be false
-      StagingProjectCopyJob.new.perform(staging_workflow.project.name, original_staging_project.name, staging_project_copy_name)
+      StagingProjectCopyJob.perform_now(staging_workflow.project.name, original_staging_project.name, staging_project_copy_name)
       expect(Project.exists?(name: staging_project_copy_name)).to be true
+    end
+
+    context 'when there is an error' do
+      it 'creates a report' do
+        StagingProjectCopyJob.perform_now(staging_workflow.project.name, original_staging_project.name, original_staging_project.name)
+        expect(original_staging_project.reports.where(dismissed: false, failure_message: 'Validation failed: Name has already been taken')).to exist
+      end
     end
   end
 end
