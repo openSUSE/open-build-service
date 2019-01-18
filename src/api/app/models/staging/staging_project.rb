@@ -13,7 +13,6 @@ module Staging
       transaction do
         new_project = deep_clone(include: [:flags], skip_missing_associations: true)
         new_project.name = new_project_name
-        new_project.config.save({ user: User.current, comment: "Copying project #{name}" }, config.content)
         new_project.save!
 
         repositories.each { |repository| repository.copy_to(new_project) }
@@ -25,6 +24,7 @@ module Staging
         end
 
         new_project.store
+        new_project.config.save!({ user: User.current, comment: "Copying project #{name}" }, config.content)
 
         new_project
       end
