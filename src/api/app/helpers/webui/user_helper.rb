@@ -1,4 +1,5 @@
 module Webui::UserHelper
+  # This method is migrated to Webui2 (and refactored) with the name: image_tag_for
   # @param [User] user object
   def user_image_tag(user, opt = {})
     alt = opt[:alt] || user.try(:realname)
