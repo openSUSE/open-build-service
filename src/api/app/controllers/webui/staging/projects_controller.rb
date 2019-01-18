@@ -47,6 +47,23 @@ module Webui
         redirect_to edit_staging_workflow_path(@staging_workflow)
       end
 
+      def preview_copy
+        authorize @staging_workflow
+
+        @staging_project = @staging_workflow.staging_projects.find_by(name: params[:staging_project_project_name])
+        @project = @staging_workflow.project
+      end
+
+      def copy
+        authorize @staging_workflow
+
+        StagingProjectCopyJob.perform_later(@staging_workflow.project.name, params[:staging_project_project_name], params[:staging_project_copy_name])
+
+        flash[:success] = "Job to copy the staging project #{params[:staging_project_project_name]} successfully queued."
+
+        redirect_to edit_staging_workflow_path(@staging_workflow)
+      end
+
       private
 
       def set_staging_workflow

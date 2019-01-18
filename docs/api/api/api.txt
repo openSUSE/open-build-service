@@ -1937,6 +1937,7 @@ XmlResult: required_checks
 
 <staging_workflow_project>: The name of the staging workflow project, e.g. openSUSE:Factory
 <staging_project>: The name of the staging project, e.g. openSUSE:Factory:Staging:A
+<staging_project_copy_name>: The name of the staging project's copy, e.g. openSUSE:Factory:Staging:B
 
 GET /staging/<staging_workflow_project>/staging_projects
   Get the overall state of all staging projects belonging to a staging workflow project
@@ -1945,6 +1946,10 @@ XmlResult: staging_projects
 GET /staging/<staging_workflow_project>/staging_projects/<staging_project>
   Get the overall state of a staging project
 XmlResult: staging_project
+
+POST /staging/<staging_workflow_project>/staging_projects/<staging_project>/copy/<staging_project_copy_name>
+  Copy a staging project
+XmlResult: status_ok
 
 === Excluded Requests
 
